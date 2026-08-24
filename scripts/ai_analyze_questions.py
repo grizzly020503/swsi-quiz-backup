@@ -40,45 +40,70 @@ def strip_json_fence(text: str) -> str:
     raise ValueError("AI 回傳找不到 JSON array")
 
 
-def prompt_for(batch):
+def task_payload(batch):
+    return [{
+        "id": q["id"], "subject": q["subject"], "question": q["question"],
+        "A": q["opt_a"], "B": q["opt_b"], "C": q["opt_c"], "D": q["opt_d"],
+        "official_answer": q["answer"],
+    } for q in batch]
+
+
+def initial_prompt(batch):
     subject_rules = {s: MAJORS[s] for s in sorted({q["subject"] for q in batch})}
-    tasks = []
-    for q in batch:
-        tasks.append({
-            "id": q["id"], "subject": q["subject"], "question": q["question"],
-            "A": q["opt_a"], "B": q["opt_b"], "C": q["opt_c"], "D": q["opt_d"],
-            "official_answer": q["answer"],
-        })
     return f"""你是台灣『社會工作師國家考試』選擇題解析器。官方題目與官方答案已由考選部確認。
 
 硬性規則：
-1. 絕對不要質疑、修改或重寫官方題目、選項、答案；你只產生解析欄位。
-2. 每題 major 必須從該科允許清單擇一：{json.dumps(subject_rules, ensure_ascii=False)}
+1. 絕對不要質疑、修改或重寫官方題目、選項、答案；只產生解析欄位。
+2. major 必須從該科允許清單擇一：{json.dumps(subject_rules, ensure_ascii=False)}
 3. mistake 只能從：{json.dumps(sorted(MISTAKES), ensure_ascii=False)}
-4. topic 格式盡量為「主題 > 細目」。keywords 用半形逗號分隔 3~7 個關鍵詞。
-5. exp_why 要直接說明官方正解為何成立；exp_others 說明其餘選項錯在哪；exp_trap 點出考場陷阱。
-6. mnemonic 要短而可記；extension 補一個相鄰考點。
-7. law：只有確定時才寫法規名稱/條文重點；不確定條號就不要猜條號。非法律題可填空字串。
-8. 用繁體中文，語氣與既有題庫一致，簡潔但要足以複習。
-9. 只輸出 JSON array，禁止 Markdown、前言、結語。
-10. 每個物件只能有這些 key：{json.dumps(FIELDS, ensure_ascii=False)}，且 id 必須原樣返回。
+4. topic 盡量用「主題 > 細目」。keywords 用半形逗號分隔 3~7 個。
+5. exp_why 直接說明官方正解為何成立；exp_others 逐一說明其他選項錯在哪；exp_trap 點出考場陷阱。
+6. 只寫『判斷這題所必要』且你有把握的事實。不要為了寫得豐富而補人物、年代、因果或條號。
+7. mnemonic 短而可記；extension 只補一個相鄰考點。
+8. law：確定時才寫法規名稱/條文重點；不確定條號就不要猜。非法律題可空字串。
+9. 繁體中文、簡潔、可直接拿來複習。
+10. 只輸出 JSON array，禁止 Markdown、前言、結語。
+11. 每個物件只能有這些 key：{json.dumps(FIELDS, ensure_ascii=False)}，id 必須原樣返回。
 
 待解析題目：
-{json.dumps(tasks, ensure_ascii=False)}"""
+{json.dumps(task_payload(batch), ensure_ascii=False)}"""
 
 
-def call_ai(batch, attempts=5):
+def audit_prompt(batch, draft):
+    subject_rules = {s: MAJORS[s] for s in sorted({q["subject"] for q in batch})}
+    return f"""你是『社會工作師國考題庫審稿員』。下面有官方題目、四選項、官方答案，以及第一版 AI 解析。
+
+你的工作不是評論，而是直接輸出『校正後的最終 JSON』。
+
+逐題硬性檢查：
+1. 官方答案永遠固定，不可更改。解析必須與官方答案一致。
+2. exp_why 只能支持正確選項；exp_others 中每一個錯誤選項的說明都必須真的指出它錯在哪，絕不可把錯誤選項的內容重新說成正確史實。
+3. 特別檢查人物、年代先後、機構創立順序、理論歸屬、法規名稱與條文。只要不確定，就刪掉不必要的細節，改成『足以判斷本題』的最小正確敘述，禁止猜測。
+4. 檢查有沒有自相矛盾：例如前面說 B 錯，後面卻又重述 B 為事實；有就必須改正。
+5. major 必須從該科清單擇一：{json.dumps(subject_rules, ensure_ascii=False)}
+6. mistake 只能從：{json.dumps(sorted(MISTAKES), ensure_ascii=False)}
+7. 保留繁體中文、簡潔複習風格；law 不確定條號就不要寫條號。
+8. 只輸出 JSON array；每個物件只能有：{json.dumps(FIELDS, ensure_ascii=False)}。
+
+官方題目：
+{json.dumps(task_payload(batch), ensure_ascii=False)}
+
+第一版解析：
+{json.dumps(draft, ensure_ascii=False)}"""
+
+
+def request_model(prompt, max_tokens, temperature=0.1, attempts=5):
     body = {
         "model": MODEL,
         "reasoning_effort": "none",
-        "temperature": 0.2,
-        "max_tokens": max(1800, 1250 * len(batch)),
-        "messages": [{"role": "user", "content": prompt_for(batch)}],
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "messages": [{"role": "user", "content": prompt}],
     }
     last = None
     for i in range(attempts):
         try:
-            r = requests.post(AI_PROXY_URL, json=body, timeout=120)
+            r = requests.post(AI_PROXY_URL, json=body, timeout=150)
             if r.status_code == 429:
                 raise RuntimeError("AI 429 rate limit")
             r.raise_for_status()
@@ -90,7 +115,7 @@ def call_ai(batch, attempts=5):
         except Exception as e:
             last = e
             if i + 1 < attempts:
-                time.sleep(8 * (i + 1))
+                time.sleep(10 * (i + 1))
     raise RuntimeError(f"AI 呼叫失敗：{last}")
 
 
@@ -121,6 +146,12 @@ def validate_rows(batch, rows):
     return out
 
 
+def analyze_and_audit(batch):
+    draft = validate_rows(batch, request_model(initial_prompt(batch), max(1800, 1200 * len(batch)), 0.2))
+    final = validate_rows(batch, request_model(audit_prompt(batch, draft), max(1800, 1200 * len(batch)), 0.0))
+    return final
+
+
 def push_supabase(exam_code, rows):
     if not GH_TOKEN:
         raise RuntimeError("缺 GH_REPO_TOKEN，不能寫回 Supabase")
@@ -138,10 +169,11 @@ def push_supabase(exam_code, rows):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--exam", required=True)
-    ap.add_argument("--batch-size", type=int, default=5)
+    ap.add_argument("--batch-size", type=int, default=4)
     ap.add_argument("--limit", type=int, default=0, help="0=全部剩餘題")
     ap.add_argument("--output", default="")
     ap.add_argument("--write-supabase", action="store_true")
+    ap.add_argument("--force", action="store_true", help="忽略既有 output，重新產生")
     args = ap.parse_args()
 
     src = ROOT / "incoming" / f"{args.exam}.json"
@@ -153,25 +185,26 @@ def main():
 
     outpath = ROOT / (args.output or f"analysis/{args.exam}.json")
     outpath.parent.mkdir(parents=True, exist_ok=True)
-    saved = {"exam_code": args.exam, "model": MODEL, "rows": []}
-    if outpath.exists():
+    saved = {"exam_code": args.exam, "model": MODEL, "review": "two-pass", "rows": []}
+    if outpath.exists() and not args.force:
         try: saved = json.loads(outpath.read_text(encoding="utf-8"))
         except Exception: pass
     rowmap = {r["id"]: r for r in saved.get("rows", []) if isinstance(r, dict) and r.get("id")}
     todo = [q for q in qs if q.get("analysis_status") == "pending" and q["id"] not in rowmap]
     if args.limit > 0: todo = todo[:args.limit]
-    print(f"exam={args.exam} existing={len(rowmap)} todo={len(todo)}")
+    print(f"exam={args.exam} existing={len(rowmap)} todo={len(todo)} two_pass=yes")
 
-    for pos in range(0, len(todo), max(1, args.batch_size)):
-        batch = todo[pos:pos + max(1, args.batch_size)]
-        rows = validate_rows(batch, call_ai(batch))
+    size = max(1, args.batch_size)
+    for pos in range(0, len(todo), size):
+        batch = todo[pos:pos + size]
+        rows = analyze_and_audit(batch)
         if args.write_supabase:
             print(push_supabase(args.exam, rows))
         for r in rows: rowmap[r["id"]] = r
-        saved = {"exam_code": args.exam, "model": MODEL, "rows": [rowmap[k] for k in sorted(rowmap)]}
+        saved = {"exam_code": args.exam, "model": MODEL, "review": "two-pass", "rows": [rowmap[k] for k in sorted(rowmap)]}
         outpath.write_text(json.dumps(saved, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"saved {len(rowmap)} analyses -> {outpath}")
-        time.sleep(2)
+        time.sleep(3)
 
     return 0
 
