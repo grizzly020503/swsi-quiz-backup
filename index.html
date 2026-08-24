@@ -1632,6 +1632,7 @@ async function init(){
     await loadAll();
     await loadAutoEssays();
     tabbar.style.display='flex';
+    applyFocusedTabbar();
     if(ALL.length===0){ go('admin'); } else { go('home'); }
   }catch(e){
     app.innerHTML=`<div class="empty"><div class="ico">⚠</div><h3>暫時無法載入題庫</h3><p>${e.message||'網路連線失敗'}</p><p style="margin-top:8px">已自動重試 3 次。題庫已另有完整備份，不會因此消失。</p><button id="retry-load-btn" type="button" class="btn" style="margin-top:18px;position:relative;z-index:5;pointer-events:auto" onclick="retryLoad()">重新連線</button></div>`;
@@ -1645,6 +1646,21 @@ async function retryLoad(){
 }
 
 /* ---------- 導航 ---------- */
+/* ===== FOCUSED NAV V1 START ===== */
+function applyFocusedTabbar(){
+  const topics=document.getElementById('t-topics');
+  const progress=document.getElementById('t-progress');
+  const review=document.getElementById('t-review');
+  const essay=document.getElementById('t-essay');
+  if(topics) topics.style.display='none';
+  if(progress) progress.style.display='none';
+  /* 三個核心入口固定成：首頁 → 複習 → 申論 */
+  if(tabbar && review && essay){
+    try{ tabbar.insertBefore(review,essay); }catch(_e){}
+  }
+}
+/* ===== FOCUSED NAV V1 END ===== */
+
 function go(v){ view=v;
   ['home','topics','essay','review','progress'].forEach(t=>{
     const on=(v===t)||(v==='quiz'&&t==='home')||(v==='summary'&&t==='home')||(v==='theories'&&t==='topics')||(v==='laws'&&t==='topics');
@@ -1939,6 +1955,7 @@ function renderTopics(){
     <div class="gcard" onclick="go('laws')" style="background:var(--gold);border-color:var(--gold)"><div><div class="name" style="color:#fff">📜 重點法規速查</div><div class="cnt" style="color:#f5e9cf">${LAWS.length} 部常用法規 · 含修法動態</div></div><span class="arrow" style="color:#fff">›</span></div>
     <div class="gcard" onclick="NL.open()" style="background:var(--pine-deep);border-color:var(--pine-deep)"><div><div class="name" style="color:#fff">📰 時事庫</div><div class="cnt" style="color:#cfe3da">近三年社會事件 · 考點/理論/法規/可能怎麼考</div></div><span class="arrow" style="color:#fff">›</span></div>
     <div class="gcard" onclick="SG.open()" style="background:#7E7A66;border-color:#7E7A66"><div><div class="name" style="color:#fff">📖 讀書指南</div><div class="cnt" style="color:#ece9da">學長姊應考心得 · 各科速查 · 申論策略</div></div><span class="arrow" style="color:#fff">›</span></div>
+    <div class="gcard" onclick="go('progress')"><div><div class="name">📊 我的進度</div><div class="cnt">各科正確率、常錯考點與錯因分布</div></div><span class="arrow">›</span></div>
     <div class="gcard" onclick="toggleTopics('essay')" style="margin-top:14px${eOpen?';border-color:var(--pine);border-width:1.5px':''}"><div><div class="name">✍️ 申論題 · 依主題練</div><div class="cnt">${clusters.length} 個主題${eOpen?'　（點我收合）':''}</div></div><span class="arrow">${eOpen?'▾':'›'}</span></div>
     ${eOpen?`<div style="margin-top:8px">${clCards}</div>`:''}
     <div class="gcard" onclick="toggleTopics('mcq')" style="margin-top:10px${mOpen?';border-color:var(--pine);border-width:1.5px':''}"><div><div class="name">📝 選擇題 · 依大類練</div><div class="cnt">${sorted.length} 個大類${mOpen?'　（點我收合）':''}</div></div><span class="arrow">${mOpen?'▾':'›'}</span></div>
