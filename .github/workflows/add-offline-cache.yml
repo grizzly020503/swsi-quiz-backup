@@ -16,8 +16,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Patch index and service worker
-        shell: python
         run: |
+          python <<'PY'
           from pathlib import Path
 
           p = Path('index.html')
@@ -122,6 +122,7 @@ async function loadAll(){
           if "'./essay_guides.js'" not in t:
               t = t.replace("'./index.html',", "'./index.html',\n  './essay_guides.js',")
           sw.write_text(t, encoding='utf-8')
+          PY
 
       - name: Commit offline cache support
         run: |
