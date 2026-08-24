@@ -1,12 +1,11 @@
 /* 社工題庫 Service Worker
    策略：
-   - HTML（index.html / 導覽請求）：網路優先 → 線上一定拿最新版，離線才用快取。
-     （這樣可避免「卡在舊版」的問題：只要有網路，更新就會生效。）
-   - 靜態檔（圖示、manifest）：快取優先，速度快。
-   - 跨網域（Supabase 題庫、AI 評分）：完全不攔截，永遠走網路，功能照常。
-   每次改版只要把下面 VERSION 數字 +1，舊快取就會自動清除。
+   - HTML（index.html / 導覽請求）：網路優先 → 線上拿最新版，離線才用快取。
+   - auto/ 考選部增量題庫：網路優先 → 有新考次立即更新，離線使用最近快取。
+   - 其他靜態檔（圖示、manifest）：快取優先。
+   - 跨網域（Supabase 題庫、AI 評分）：完全不攔截，永遠走網路。
 */
-const VERSION = 'v2';
+const VERSION = 'v3';
 const CACHE = 'swsi-shell-' + VERSION;
 const SHELL = [
   './',
@@ -15,7 +14,10 @@ const SHELL = [
   './manifest.json',
   './apple-touch-icon.png',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './auto/questions_auto.json',
+  './auto/essays_auto.json',
+  './auto/sync_state.json'
 ];
 
 self.addEventListener('install', function (e) {
@@ -38,6 +40,21 @@ self.addEventListener('activate', function (e) {
   );
 });
 
+function networkFirst(req, fallback) {
+  return fetch(req).then(function (res) {
+    if (res && res.ok) {
+      var copy = res.clone();
+      caches.open(CACHE).then(function (c) { c.put(req, copy); });
+    }
+    return res;
+  }).catch(function () {
+    return caches.match(req).then(function (r) {
+      if (r) return r;
+      return fallback ? caches.match(fallback) : undefined;
+    });
+  });
+}
+
 self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET') { return; }
@@ -45,7 +62,7 @@ self.addEventListener('fetch', function (e) {
   var url;
   try { url = new URL(req.url); } catch (err) { return; }
 
-  // 只處理同網域；Supabase / Groq 等外部 API 一律放行走網路
+  // 只處理同網域；Supabase / AI 等外部 API 一律放行走網路。
   if (url.origin !== self.location.origin) { return; }
 
   var isDoc = req.mode === 'navigate'
@@ -54,28 +71,26 @@ self.addEventListener('fetch', function (e) {
     || url.pathname === '/'
     || url.pathname.endsWith('/');
 
+  var isAuto = url.pathname.includes('/auto/');
+
   if (isDoc) {
-    // 網路優先：拿最新；失敗（離線）才用快取
-    e.respondWith(
-      fetch(req).then(function (res) {
-        var copy = res.clone();
-        caches.open(CACHE).then(function (c) { c.put(req, copy); });
-        return res;
-      }).catch(function () {
-        return caches.match(req).then(function (r) {
-          return r || caches.match('./index.html');
-        });
-      })
-    );
+    e.respondWith(networkFirst(req, './index.html'));
     return;
   }
 
-  // 靜態檔：快取優先
+  if (isAuto) {
+    e.respondWith(networkFirst(req));
+    return;
+  }
+
+  // 其他靜態檔：快取優先。
   e.respondWith(
     caches.match(req).then(function (r) {
       return r || fetch(req).then(function (res) {
-        var copy = res.clone();
-        caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        if (res && res.ok) {
+          var copy = res.clone();
+          caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        }
         return res;
       });
     })
