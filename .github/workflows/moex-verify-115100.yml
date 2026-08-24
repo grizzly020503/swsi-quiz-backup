@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m pip install --disable-pip-version-check requests pypdf
+      - run: python -m pip install --disable-pip-version-check requests pypdf pdfplumber
       - name: Run parser and always record result
         shell: bash
         run: |
@@ -36,11 +36,26 @@ jobs:
           import json
           p='incoming/115100.json'
           d=json.load(open(p,encoding='utf-8'))
+          qs=d.get('questions',[])
           print('json_exists=yes')
           print('exam_type='+str(d.get('exam_type')))
-          print('mc_count='+str(len(d.get('questions',[]))))
+          print('mc_count='+str(len(qs)))
           print('essay_count='+str(len(d.get('essays',[]))))
-          print('subjects='+','.join(sorted({q.get('subject','') for q in d.get('questions',[])})))
+          print('subjects='+','.join(sorted({q.get('subject','') for q in qs})))
+          bad=[]
+          for q in qs:
+              if any(not str(q.get(k) or '').strip() for k in ('question','opt_a','opt_b','opt_c','opt_d')):
+                  bad.append(q.get('id'))
+          print('empty_field_questions='+','.join(bad))
+          sw={q['qno']:q for q in qs if q.get('subject')=='社會工作'}
+          for n in ('36','37','38','39','40'):
+              q=sw.get(n,{})
+              print(f"SW{n}_answer={q.get('answer')}")
+              if n=='39':
+                  print('SW39_A='+str(q.get('opt_a')))
+                  print('SW39_B='+str(q.get('opt_b')))
+                  print('SW39_C='+str(q.get('opt_c')))
+                  print('SW39_D='+str(q.get('opt_d')))
           PY
           else
             echo "json_exists=no" >> incoming/verify_115100.txt
@@ -53,7 +68,7 @@ jobs:
           git add incoming/verify_115100.txt
           [ -f incoming/115100.json ] && git add incoming/115100.json || true
           if ! git diff --cached --quiet; then
-            git commit -m '驗證115年第二次社工師官方題庫同步'
+            git commit -m '驗證115年第二次社工師新版解析器'
             git push
           fi
       - name: Fail job if parser failed
