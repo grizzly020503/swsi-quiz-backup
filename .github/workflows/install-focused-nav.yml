@@ -1,0 +1,48 @@
+name: 安裝三核心導覽
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/scripts/install_focused_nav.py'
+      - '.github/workflows/install-focused-nav.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 收斂底部導覽
+        run: python .github/scripts/install_focused_nav.py
+
+      - name: 檢查 JavaScript 語法
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          out=[]
+          for m in re.finditer(r'<script([^>]*)>([\s\S]*?)</script>', s, re.I):
+              if 'src=' not in m.group(1).lower():
+                  out.append(m.group(2))
+          Path('/tmp/swsi-inline.js').write_text('\n'.join(out),encoding='utf-8')
+          PY
+          node --check /tmp/swsi-inline.js
+
+      - name: 提交更新
+        run: |
+          if git diff --quiet; then
+            echo '沒有需要更新的內容'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m '收斂底部導覽為三核心入口'
+          git push
