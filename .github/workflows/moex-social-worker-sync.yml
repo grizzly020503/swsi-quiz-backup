@@ -64,6 +64,29 @@ jobs:
               print(f'OK {p}: {len(qs)} MC + {len(es)} essays')
           PY
 
+      - name: Import verified new exams to Supabase
+        env:
+          GH_REPO_TOKEN: ${{ github.token }}
+          IMPORT_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/import-moex-social-worker
+        run: |
+          set -euo pipefail
+          for file in incoming/[0-9][0-9][0-9][0-9][0-9][0-9].json; do
+            [ -e "$file" ] || continue
+            code="$(basename "$file" .json)"
+            # 115030 已存在原始 4600 題母庫；舊 ID 命名格式不同，禁止重複匯入。
+            if [ "$code" = "115030" ]; then
+              echo "Skip baseline exam $code"
+              continue
+            fi
+            echo "Importing verified Social Worker exam $code"
+            response="$(curl --silent --show-error --fail-with-body \
+              -X POST "$IMPORT_URL" \
+              -H "Authorization: Bearer $GH_REPO_TOKEN" \
+              -H 'Content-Type: application/json' \
+              --data-binary "@$file")"
+            echo "$response"
+          done
+
       - name: Build website incremental question bank
         run: python scripts/build_auto_payload.py
 
