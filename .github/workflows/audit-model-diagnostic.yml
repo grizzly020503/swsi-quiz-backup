@@ -1,0 +1,46 @@
+name: Audit Model Diagnostic
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/audit-model-diagnostic.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test GPT-OSS through existing Cloudflare proxy
+        shell: bash
+        run: |
+          mkdir -p analysis
+          python - <<'PY'
+          import json, requests
+          url='https://wandering-wave-4418.c022050333.workers.dev'
+          payload={
+            'model':'openai/gpt-oss-120b',
+            'reasoning_effort':'medium',
+            'temperature':0,
+            'max_tokens':120,
+            'messages':[{'role':'user','content':'請只回覆一個 JSON 物件：{"ok":true}'}]
+          }
+          try:
+              r=requests.post(url,json=payload,timeout=90)
+              text=r.text
+              out={'status':r.status_code,'body':text[:2000]}
+          except Exception as e:
+              out={'status':'exception','body':repr(e)}
+          open('analysis/audit_model_diagnostic.json','w',encoding='utf-8').write(json.dumps(out,ensure_ascii=False,indent=2))
+          print(out)
+          PY
+      - name: Commit diagnostic
+        run: |
+          git config user.name 'swsi-ai-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add analysis/audit_model_diagnostic.json
+          git commit -m '記錄GPT-OSS審稿模型診斷'
+          git push
