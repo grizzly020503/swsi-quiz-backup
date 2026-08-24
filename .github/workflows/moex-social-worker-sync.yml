@@ -6,9 +6,10 @@ on:
     paths:
       - '.github/workflows/moex-social-worker-sync.yml'
       - 'scripts/moex_sync.py'
+      - 'scripts/build_auto_payload.py'
   schedule:
-    # 台灣時間每天 11:20（UTC 03:20）。考選部通常次日上午 10:00 公布考畢試題。
-    - cron: '20 3 * * *'
+    # 台灣時間每天 10:35（UTC 02:35），官方公布後自動檢查。
+    - cron: '35 2 * * *'
 
 permissions:
   contents: write
@@ -47,7 +48,7 @@ jobs:
               '人類行為與社會環境',
               '社會工作研究方法',
           }
-          for p in sorted(Path('incoming').glob('*.json')):
+          for p in sorted(Path('incoming').glob('[0-9][0-9][0-9][0-9][0-9][0-9].json')):
               data = json.loads(p.read_text(encoding='utf-8'))
               if data.get('exam_type') != '專門職業及技術人員高等考試社會工作師':
                   raise SystemExit(f'{p}: exam_type 不符，拒絕提交')
@@ -63,14 +64,17 @@ jobs:
               print(f'OK {p}: {len(qs)} MC + {len(es)} essays')
           PY
 
-      - name: Commit newly detected official exams
+      - name: Build website incremental question bank
+        run: python scripts/build_auto_payload.py
+
+      - name: Commit official exam payloads and website increment
         run: |
-          if git diff --quiet -- incoming/ 2>/dev/null && [ -z "$(git status --porcelain incoming/)" ]; then
-            echo 'No new Social Worker exam files.'
-            exit 0
-          fi
           git config user.name 'swsi-moex-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add incoming/
-          git commit -m '自動收錄考選部社會工作師最新考題'
+          git add incoming/ auto/
+          if git diff --cached --quiet; then
+            echo 'No changes.'
+            exit 0
+          fi
+          git commit -m '更新考選部社工師增量題庫'
           git push
