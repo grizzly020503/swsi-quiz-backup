@@ -1,0 +1,49 @@
+name: Sync MOEX Social Worker Exams
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '35 2 * * *'
+  push:
+    paths:
+      - '.github/workflows/moex-sync.yml'
+      - 'scripts/moex_sync.py.gz.b64'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: moex-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 pymupdf scikit-learn
+
+      - name: Decode and run MOEX sync
+        run: |
+          base64 -d scripts/moex_sync.py.gz.b64 | gzip -dc > /tmp/moex_sync.py
+          python /tmp/moex_sync.py
+
+      - name: Commit updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add auto index.html
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "自動同步考選部社工師最新考題"
+            git push
+          fi
