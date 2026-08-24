@@ -6,11 +6,12 @@
    - 跨網域（Supabase 題庫、AI 評分）：完全不攔截，永遠走網路，功能照常。
    每次改版只要把下面 VERSION 數字 +1，舊快取就會自動清除。
 */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = 'swsi-shell-' + VERSION;
 const SHELL = [
   './',
   './index.html',
+  './essay_guides.js',
   './manifest.json',
   './apple-touch-icon.png',
   './icons/icon-192.png',
