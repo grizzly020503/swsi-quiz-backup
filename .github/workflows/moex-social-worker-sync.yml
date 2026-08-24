@@ -7,6 +7,7 @@ on:
       - '.github/workflows/moex-social-worker-sync.yml'
       - 'scripts/moex_sync.py'
       - 'scripts/build_auto_payload.py'
+      - 'scripts/health_check.py'
   schedule:
     # 台灣時間每天 10:35（UTC 02:35），官方公布後自動檢查。
     - cron: '35 2 * * *'
@@ -33,46 +34,48 @@ jobs:
       - name: Install parser dependencies
         run: python -m pip install --disable-pip-version-check requests pypdf pdfplumber
 
-      - name: Fetch only Professional Social Worker exams
-        # 每天重新比對當年度官方 PDF，才能自動吃到考選部後續更正答案。
+      - name: Fetch official Social Worker exams
+        # 每天重新抓當年度第一次/第二次官方 PDF，以便自動偵測後續更正答案。
         run: python scripts/moex_sync.py --output-dir incoming
 
-      - name: Validate staged exam files
+      - name: Remove timestamp-only rewrites
+        # fetched_at 改變不算題庫更新；只有題目、選項、答案或申論內容真的變動才留下差異。
         run: |
           python - <<'PY'
           import json
+          import subprocess
           from pathlib import Path
-          allowed = {
-              '社會工作',
-              '社會工作直接服務',
-              '社會政策與社會立法',
-              '人類行為與社會環境',
-              '社會工作研究方法',
-          }
-          valid_answers = {'A','B','C','D','一律給分'}
+
           for p in sorted(Path('incoming').glob('[0-9][0-9][0-9][0-9][0-9][0-9].json')):
-              data = json.loads(p.read_text(encoding='utf-8'))
-              if data.get('exam_type') != '專門職業及技術人員高等考試社會工作師':
-                  raise SystemExit(f'{p}: exam_type 不符，拒絕提交')
-              qs = data.get('questions', [])
-              es = data.get('essays', [])
-              if len(qs) != 200 or len(es) != 10:
-                  raise SystemExit(f'{p}: 題數異常 MC={len(qs)} Essay={len(es)}')
-              subjects = {q.get('subject') for q in qs}
-              if subjects != allowed:
-                  raise SystemExit(f'{p}: 科目集合異常 {subjects}')
-              if any(q.get('source_exam_code') != data.get('exam_code') for q in qs):
-                  raise SystemExit(f'{p}: source_exam_code 不一致')
-              for q in qs:
-                  for k in ('question','opt_a','opt_b','opt_c','opt_d'):
-                      if not str(q.get(k) or '').strip():
-                          raise SystemExit(f"{p}: {q.get('id')} 缺 {k}")
-                  if q.get('answer') not in valid_answers:
-                      raise SystemExit(f"{p}: {q.get('id')} 答案異常 {q.get('answer')}")
-              print(f'OK {p}: {len(qs)} MC + {len(es)} essays')
+              try:
+                  old_raw = subprocess.check_output(
+                      ['git', 'show', f'HEAD:{p.as_posix()}'],
+                      text=True,
+                      stderr=subprocess.DEVNULL,
+                  )
+              except subprocess.CalledProcessError:
+                  print(f'new official payload: {p}')
+                  continue
+              old = json.loads(old_raw)
+              new = json.loads(p.read_text(encoding='utf-8'))
+              old_cmp = dict(old)
+              new_cmp = dict(new)
+              old_cmp.pop('fetched_at', None)
+              new_cmp.pop('fetched_at', None)
+              if old_cmp == new_cmp:
+                  p.write_text(old_raw, encoding='utf-8')
+                  print(f'unchanged official content: {p}')
+              else:
+                  print(f'official content changed: {p}')
           PY
 
-      - name: Import verified new exams to Supabase
+      - name: Build website backup payloads
+        run: python scripts/build_auto_payload.py
+
+      - name: Local question bank health check
+        run: python scripts/health_check.py --local
+
+      - name: Import only changed verified exams to Supabase
         env:
           GH_REPO_TOKEN: ${{ github.token }}
           IMPORT_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/import-moex-social-worker
@@ -81,11 +84,19 @@ jobs:
           for file in incoming/[0-9][0-9][0-9][0-9][0-9][0-9].json; do
             [ -e "$file" ] || continue
             code="$(basename "$file" .json)"
-            # 115030 已存在原始 4600 題母庫；舊 ID 命名格式不同，禁止重複匯入。
+
+            # 115030 已包含在原始 4600 題母庫；舊 ID 格式不同，禁止重複匯入。
             if [ "$code" = "115030" ]; then
               echo "Skip baseline exam $code"
               continue
             fi
+
+            # tracked 修改或新檔案才匯入；官方內容沒變就不重複 upsert。
+            if [ -z "$(git status --porcelain -- "$file")" ]; then
+              echo "No official changes for $code; skip Supabase import"
+              continue
+            fi
+
             echo "Importing verified Social Worker exam $code"
             response="$(curl --silent --show-error --fail-with-body \
               -X POST "$IMPORT_URL" \
@@ -95,17 +106,18 @@ jobs:
             echo "$response"
           done
 
-      - name: Build website incremental question bank
-        run: python scripts/build_auto_payload.py
+      - name: Supabase health check
+        # 驗證母庫總數，以及每個自動考次都必須是 200 題選擇＋10 題申論。
+        run: python scripts/health_check.py --remote
 
-      - name: Commit official exam payloads and website increment
+      - name: Commit verified official payloads and website backup
         run: |
           git config user.name 'swsi-moex-bot'
           git config user.email 'actions@users.noreply.github.com'
           git add incoming/ auto/
           if git diff --cached --quiet; then
-            echo 'No changes.'
+            echo 'No official or backup changes.'
             exit 0
           fi
-          git commit -m '更新考選部社工師增量題庫'
+          git commit -m '更新考選部社工師題庫與健康檢查備援'
           git push
