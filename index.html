@@ -1715,9 +1715,12 @@ function setHomeQuizYear(v){ homeQuizYear=String(v||''); render(); }
 function setHomeQuizRound(v){ homeQuizRound=String(v||'all'); render(); }
 function setHomeQuizCount(v){ homeQuizCount=parseInt(v,10)||0; }
 function toggleHomeQuiz(){ homeQuizOpen=!homeQuizOpen; render(); }
+/* ===== HISTORY ARCHIVE POLICY V1 ===== */
 function focusedQuizFilter(q){
   if(subjFilter!=='全部科目' && q.subject!==subjFilter) return false;
   const y=parseInt(q.year,10)||0, mx=maxExamYear();
+  /* 智慧推薦只使用最近 10 個考試年度；更舊題目保留為歷史題庫。 */
+  if(homeQuizScope==='smart') return !y || y>=mx-9;
   if(homeQuizScope==='recent3') return y>=mx-2;
   if(homeQuizScope==='recent5') return y>=mx-4;
   if(homeQuizScope==='specific'){
@@ -1742,7 +1745,7 @@ function renderHome(){
   const yearOpts=years.map(y=>`<option value="${y}" ${String(y)===String(homeQuizYear)?'selected':''}>${y} 年</option>`).join('');
   const specific=homeQuizScope==='specific';
   const reviewSub=rv.dueCount?`今天 ${rv.dueCount} 題到期`:(rv.nextDueAt?`下一批 ${reviewDueLabel(rv.nextDueAt)}`:'目前沒有待複習題');
-  const scopeHint=homeQuizScope==='smart'?'近年與高頻考點優先；舊題保留但降低出現率。':homeQuizScope==='specific'?'只刷你指定的年度／考次。':homeQuizScope==='all'?'包含所有歷史題目。':'只從較新的歷屆題目抽題。';
+  const scopeHint=homeQuizScope==='smart'?'預設使用最近 10 年；近 3 年與高頻考點優先，更舊題保留在歷史題庫。':homeQuizScope==='specific'?'只刷你指定的年度／考次。':homeQuizScope==='all'?'包含所有歷史題目。':'只從較新的歷屆題目抽題。';
 
   app.innerHTML=`
     ${offlineNote}
@@ -1802,7 +1805,7 @@ function renderHome(){
       <button class="btn ghost" onclick="MK.open()" style="margin:0">計時模擬考</button>
       <button class="btn ghost" onclick="go('topics')" style="margin:0">學習工具</button>
     </div>
-    <div style="font-size:11px;color:var(--ink-soft);line-height:1.6;margin-top:13px;text-align:center">歷史題不刪除；智慧推薦會優先較新的題目，需要時仍可指定任何年份。</div>
+    <div style="font-size:11px;color:var(--ink-soft);line-height:1.6;margin-top:13px;text-align:center">10 年以前保留為歷史題庫；智慧推薦預設不抽，需要時仍可指定年份或選全部題庫。</div>
   `;
 }
 /* ===== FOCUSED HOME V1 END ===== */
@@ -1900,7 +1903,7 @@ function renderQuiz(){
     <button class="quit" onclick="go('home')">← 結束這次練習</button>
     <div class="pstrip"><div class="pbar"><i style="width:${pct}%"></i></div><span class="pcount">${idx+1} / ${queue.length}</span></div>
     <div class="qcard">
-      <div class="qmeta"><span class="tag subj">${item.subject}</span><span class="tag year">${item.year}年 ${item.round}</span>${yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':''}${lawUpdated(item)?'<span class="tag year" style="background:var(--wrong-bg);color:var(--wrong)">⚠ 法規已更新</span>':''}</div>
+      <div class="qmeta"><span class="tag subj">${item.subject}</span><span class="tag year">${item.year}年 ${item.round}</span>${yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':''}${(maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':''}${lawUpdated(item)?'<span class="tag year" style="background:var(--wrong-bg);color:var(--wrong)">⚠ 法規已更新</span>':''}</div>
       <div class="qtext">${item.q}</div>${optHTML}
       ${!answered?`<button class="btn" ${selected?'':'disabled'} onclick="submit()">送出答案</button>`:''}${expHTML}
     </div>`;
