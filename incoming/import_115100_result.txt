@@ -1,5 +1,0 @@
-curl_exit=0
-http_status=400
-run_utc=2026-08-24T16:07:04Z
-response=
-{"error":"選擇題 SW-115-2-039 缺 opt_a"}
