@@ -1,0 +1,102 @@
+name: Patch quiz loading retry
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-retry.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch index.html
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          old = '''/* ---------- 載入 Supabase 題庫（分頁）---------- */
+          async function loadAll(){
+            let from=0; const size=1000; let out=[];
+            while(true){
+              const {data,error}=await sb.from('questions').select('*').range(from,from+size-1);
+              if(error) throw error;
+              out=out.concat(data);
+              if(!data||data.length<size) break;
+              from+=size;
+            }
+            ALL=out.map(normalize);
+            SUBJECTS=[...new Set(ALL.map(q=>q.subject))].filter(Boolean);
+          }
+          '''
+
+          new = '''/* ---------- 載入 Supabase 題庫（分頁＋斷線重試）---------- */
+          function sleep(ms){ return new Promise(resolve=>setTimeout(resolve,ms)); }
+
+          function showLoadProgress(done, attempt=1){
+            const retryText=attempt>1 ? `<p style="margin-top:8px;color:var(--muted)">網路不穩，正在第 ${attempt} 次重試…</p>` : '';
+            app.innerHTML=`<div class="empty"><div class="ico">↻</div><h3>正在載入題庫</h3><p>已載入 ${done} 題</p>${retryText}</div>`;
+          }
+
+          async function fetchQuestionPage(from,to,maxAttempts=3){
+            let lastError=null;
+            for(let attempt=1; attempt<=maxAttempts; attempt++){
+              try{
+                showLoadProgress(from,attempt);
+                const {data,error}=await sb.from('questions').select('*').range(from,to);
+                if(error) throw error;
+                return data||[];
+              }catch(err){
+                lastError=err;
+                if(attempt<maxAttempts){
+                  await sleep(700*attempt);
+                }
+              }
+            }
+            throw lastError || new Error('題庫載入失敗');
+          }
+
+          async function loadAll(){
+            let from=0; const size=1000; let out=[];
+            while(true){
+              const data=await fetchQuestionPage(from,from+size-1,3);
+              out=out.concat(data);
+              showLoadProgress(out.length,1);
+              if(data.length<size) break;
+              from+=size;
+            }
+            ALL=out.map(normalize);
+            SUBJECTS=[...new Set(ALL.map(q=>q.subject))].filter(Boolean);
+          }
+          '''
+
+          if 'fetchQuestionPage' not in s:
+              if old not in s:
+                  raise SystemExit('loadAll target block not found')
+              s = s.replace(old, new, 1)
+
+          old_catch = '''  }catch(e){
+            app.innerHTML=`<div class="empty"><div class="ico">⚠</div><h3>連線失敗</h3><p>${e.message}</p><p style="margin-top:8px">請確認 CONFIG 的 URL / 金鑰正確、且資料表已建立。</p></div>`;
+          }
+          '''
+          new_catch = '''  }catch(e){
+            app.innerHTML=`<div class="empty"><div class="ico">⚠</div><h3>暫時無法載入題庫</h3><p>${e.message||'網路連線失敗'}</p><p style="margin-top:8px">已自動重試 3 次。你的題庫不會因此消失，請稍後再試。</p><button class="btn" style="margin-top:18px" onclick="init()">重新連線</button></div>`;
+          }
+          '''
+          if old_catch in s:
+              s = s.replace(old_catch, new_catch, 1)
+
+          p.write_text(s, encoding='utf-8')
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "修正題庫載入：自動重試與進度顯示"
+          git push
