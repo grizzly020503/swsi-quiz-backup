@@ -1,13 +1,13 @@
 救援盤點
 ========
 網站主程式：已救回
-選擇題母檔：已救回（4600 題）
-申論題：230 題，已內嵌於 index.html
-申論骨架：已重建 essay_guides.js（230 份）
-理論庫：已救回（35 個）
-法規庫：已救回（18 部）
-考點叢集：已救回（49 組）
+選擇題母檔：已救回
+申論題：已內嵌於 index.html
+申論骨架：已重建 essay_guides.js
+理論庫：已救回
+法規庫：已救回
+考點叢集：已救回
 PWA manifest：已救回
 Service Worker：已救回
 Apple Touch Icon：已救回
-192/512 PWA icon：可由現存 Apple Touch Icon 重建
+192/512 PWA icon：由現存 Apple Touch Icon 重建
