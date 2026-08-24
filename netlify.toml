@@ -1,3 +1,6 @@
 [build]
   publish = "_site"
   command = "rm -rf _site && mkdir -p _site/icons && cp index.html essay_guides.js manifest.json sw.js apple-touch-icon.png _site/ && cp icons/icon-192.png icons/icon-512.png _site/icons/ && if [ -d auto ]; then cp -R auto _site/; fi"
+  # Netlify Free 的 production deploy 會消耗 credits。
+  # 只有真正影響學生端網站的檔案變更才部署；後台監測、migration、腳本與報告不觸發 production deploy。
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- index.html essay_guides.js manifest.json sw.js apple-touch-icon.png icons auto/questions_auto.json auto/essays_auto.json"
