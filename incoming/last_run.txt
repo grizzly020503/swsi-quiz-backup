@@ -1,6 +1,6 @@
 exam_code=115100
 exit_code=1
-run_utc=2026-08-24T15:57:12Z
+run_utc=2026-08-24T15:58:03Z
 --- parser output ---
 115100: 拒絕匯入：考選部頁面未確認為專技高考社會工作師考試：115100
 Traceback (most recent call last):
