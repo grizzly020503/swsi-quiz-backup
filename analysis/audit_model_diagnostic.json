@@ -1,0 +1,4 @@
+{
+  "status": 200,
+  "body": "{\"id\":\"chatcmpl-70bfcb26-17b9-4e2c-94c5-be72670cf47c\",\"object\":\"chat.completion\",\"created\":1787589837,\"model\":\"openai/gpt-oss-120b\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"ok\\\":true}\",\"reasoning\":\"The user asks in Chinese: \\\"請只回覆一個 JSON 物件：{\\\"ok\\\":true}\\\". They want only that JSON object. According to policy, we can comply. Provide exactly that JSON object, no extra text.\"},\"logprobs\":null,\"finish_reason\":\"stop\"}],\"usage\":{\"queue_time\":0.122262081,\"prompt_tokens\":87,\"prompt_time\":0.003229148,\"completion_tokens\":63,\"completion_time\":0.131361409,\"total_tokens\":150,\"total_time\":0.134590557,\"completion_tokens_details\":{\"reasoning_tokens\":49}},\"usage_breakdown\":null,\"system_fingerprint\":\"fp_e5b4e54fbb\",\"x_groq\":{\"id\":\"req_01m0tagg2feg9t9rxsa3y1y8fz\",\"seed\":385448270},\"service_tier\":\"on_demand\"}\n"
+}
