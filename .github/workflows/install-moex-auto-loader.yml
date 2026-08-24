@@ -1,0 +1,47 @@
+name: Install MOEX auto loader
+
+on:
+  push:
+    paths:
+      - '.github/workflows/install-moex-auto-loader.yml'
+      - 'scripts/patch_auto_loader.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch index.html
+        run: python scripts/patch_auto_loader.py
+      - name: Syntax check inline JavaScript
+        shell: bash
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          blocks=[]
+          for m in re.finditer(r'<script(?:\s[^>]*)?>(.*?)</script>',s,re.S|re.I):
+              tag=s[m.start():s.find('>',m.start())+1]
+              if ' src=' not in tag.lower():
+                  blocks.append(m.group(1))
+          Path('/tmp/index-inline.js').write_text('\n;\n'.join(blocks),encoding='utf-8')
+          print('inline script blocks:',len(blocks))
+          PY
+          node --check /tmp/index-inline.js
+      - name: Commit loader
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo 'Loader already installed.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m '讓網站自動合併考選部最新題庫'
+          git push
