@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Official MOJ baseline runner; safe to re-run because first successful snapshot only establishes dates.
 import argparse
 import io
 import json
