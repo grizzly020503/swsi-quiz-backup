@@ -1,6 +1,6 @@
 {
-  "attempted_at": "2026-08-24T18:59:14Z",
-  "completed_at": "2026-08-24T19:02:15Z",
+  "attempted_at": "2026-08-24T19:05:03Z",
+  "completed_at": "2026-08-24T19:08:03Z",
   "success": false,
   "error": "MOJ law download/parse failed: HTTPSConnectionPool(host='sendlaw.moj.gov.tw', port=443): Max retries exceeded with url: /PublicData/GetFile.ashx?DType=XML&AuData=CF (Caused by NewConnectionError(\"HTTPSConnection(host='sendlaw.moj.gov.tw', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable\"))"
 }
