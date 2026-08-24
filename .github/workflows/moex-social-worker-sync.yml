@@ -10,7 +10,6 @@ on:
       - 'scripts/health_check.py'
       - 'scripts/moj_law_watch.py'
       - 'scripts/current_affairs_watch.py'
-      - 'scripts/install_current_affairs_ui.py'
       - 'data/legal_watch_names.json'
   schedule:
     # 台灣時間每天 10:35（UTC 02:35）。國考與時事每日檢查；法規成功後 28 天才再抓，失敗至少隔 3 天再試。
@@ -37,26 +36,6 @@ jobs:
 
       - name: Install parser dependencies
         run: python -m pip install --disable-pip-version-check requests pypdf pdfplumber feedparser
-
-      - name: Install current-affairs live radar into existing library
-        run: |
-          python scripts/install_current_affairs_ui.py
-          python - <<'PY'
-          import re
-          import subprocess
-          from pathlib import Path
-          text = Path('index.html').read_text(encoding='utf-8')
-          marker = '<!-- SWSI CURRENT AFFAIRS RADAR V1 -->'
-          if marker not in text:
-              raise SystemExit('current-affairs UI marker missing after install')
-          segment = text.split(marker, 1)[1]
-          m = re.search(r'<script>(.*?)</script>', segment, re.S)
-          if not m:
-              raise SystemExit('current-affairs UI script missing')
-          Path('/tmp/current-affairs-ui.js').write_text(m.group(1), encoding='utf-8')
-          subprocess.run(['node', '--check', '/tmp/current-affairs-ui.js'], check=True)
-          print('Current-affairs UI JavaScript syntax OK.')
-          PY
 
       - name: Scan social-work current affairs
         id: current_affairs
@@ -238,7 +217,7 @@ jobs:
         run: |
           git config user.name 'swsi-moex-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add index.html incoming/ auto/
+          git add incoming/ auto/
           for file in data/legal_watch_state.json data/legal_watch_report.json data/legal_watch_attempt.json; do
             [ -f "$file" ] && git add "$file"
           done
