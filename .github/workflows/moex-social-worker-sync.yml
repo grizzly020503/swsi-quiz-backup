@@ -9,9 +9,10 @@ on:
       - 'scripts/build_auto_payload.py'
       - 'scripts/health_check.py'
       - 'scripts/moj_law_watch.py'
+      - 'scripts/current_affairs_watch.py'
       - 'data/legal_watch_names.json'
   schedule:
-    # 台灣時間每天 10:35（UTC 02:35）。國考每日檢查；法規成功後 28 天才再抓，失敗至少隔 3 天再試。
+    # 台灣時間每天 10:35（UTC 02:35）。國考與時事每日檢查；法規成功後 28 天才再抓，失敗至少隔 3 天再試。
     - cron: '35 2 * * *'
 
 permissions:
@@ -34,7 +35,26 @@ jobs:
           python-version: '3.12'
 
       - name: Install parser dependencies
-        run: python -m pip install --disable-pip-version-check requests pypdf pdfplumber
+        run: python -m pip install --disable-pip-version-check requests pypdf pdfplumber feedparser
+
+      - name: Scan social-work current affairs
+        id: current_affairs
+        continue-on-error: true
+        run: python scripts/current_affairs_watch.py --output /tmp/current_affairs_payload.json --days 21
+
+      - name: Sync current-affairs candidates to Supabase
+        if: steps.current_affairs.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_REPO_TOKEN: ${{ github.token }}
+          CURRENT_AFFAIRS_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-current-affairs
+        run: |
+          curl --silent --show-error --fail-with-body \
+            -X POST "$CURRENT_AFFAIRS_URL" \
+            -H "Authorization: Bearer $GH_REPO_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/current_affairs_payload.json
+          echo
 
       - name: Check official MOJ law changes
         id: law_watch
