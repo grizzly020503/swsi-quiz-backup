@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Triggered after repair workflow is present; installs coordinate-based MOEX answer parsing.
 from pathlib import Path
 
 p = Path(__file__).resolve().parents[1] / 'scripts' / 'moex_sync.py'
