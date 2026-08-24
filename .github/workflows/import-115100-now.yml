@@ -1,0 +1,43 @@
+name: Import 115100 to Supabase Now
+
+on:
+  push:
+    paths:
+      - '.github/workflows/import-115100-now.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Import and record response
+        env:
+          GH_REPO_TOKEN: ${{ github.token }}
+          IMPORT_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/import-moex-social-worker
+        shell: bash
+        run: |
+          set +e
+          http=$(curl --silent --show-error -o /tmp/response.txt -w '%{http_code}' \
+            -X POST "$IMPORT_URL" \
+            -H "Authorization: Bearer $GH_REPO_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary '@incoming/115100.json')
+          code=$?
+          {
+            echo "curl_exit=$code"
+            echo "http_status=$http"
+            echo "run_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "response="
+            cat /tmp/response.txt
+          } > incoming/import_115100_result.txt
+      - name: Commit result
+        run: |
+          git config user.name 'swsi-moex-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add incoming/import_115100_result.txt
+          git commit -m '記錄115100匯入Supabase結果' || exit 0
+          git push
