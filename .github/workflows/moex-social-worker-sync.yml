@@ -11,6 +11,7 @@ on:
       - 'scripts/moj_law_watch.py'
       - 'scripts/current_affairs_watch.py'
       - 'scripts/build_current_affairs_snapshot.py'
+      - 'scripts/install_uiux_v1.py'
       - 'data/legal_watch_names.json'
   schedule:
     # 台灣時間每天 10:35（UTC 02:35）。國考與時事每日檢查；法規成功後 28 天才再抓，失敗至少隔 3 天再試。
@@ -37,6 +38,23 @@ jobs:
 
       - name: Install parser dependencies
         run: python -m pip install --disable-pip-version-check requests pypdf pdfplumber feedparser
+
+      - name: Install UIUX V1 and check JavaScript
+        run: |
+          python scripts/install_uiux_v1.py
+          python - <<'PY'
+          import re, subprocess
+          from pathlib import Path
+          text=Path('index.html').read_text(encoding='utf-8')
+          if '<!-- SWSI UIUX V1 START -->' not in text:
+              raise SystemExit('UIUX marker missing')
+          m=re.search(r'<script id="swsi-uiux-v1-script">(.*?)</script>', text, re.S)
+          if not m:
+              raise SystemExit('UIUX script missing')
+          Path('/tmp/swsi-uiux-v1.js').write_text(m.group(1), encoding='utf-8')
+          subprocess.run(['node','--check','/tmp/swsi-uiux-v1.js'], check=True)
+          print('UIUX V1 JavaScript syntax OK.')
+          PY
 
       - name: Scan social-work current affairs
         id: current_affairs
@@ -190,13 +208,13 @@ jobs:
         run: |
           git config user.name 'swsi-moex-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add incoming/ auto/
+          git add index.html incoming/ auto/
           for file in data/legal_watch_state.json data/legal_watch_report.json data/legal_watch_attempt.json; do
             [ -f "$file" ] && git add "$file"
           done
           if git diff --cached --quiet; then
-            echo 'No official, backup, current-affairs, or legal-watch changes.'
+            echo 'No official, UIUX, backup, current-affairs, or legal-watch changes.'
             exit 0
           fi
-          git commit -m '更新官方考題、申論時事雷達與健康檢查備援'
+          git commit -m '套用 UIUX V1 並更新官方備援'
           git push
