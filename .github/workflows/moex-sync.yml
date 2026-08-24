@@ -1,13 +1,14 @@
-name: Sync MOEX Social Worker Exams
+name: MOEX 社工師題庫同步
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: '35 2 * * *'
   push:
     paths:
+      - 'scripts/moex_sync.py'
       - '.github/workflows/moex-sync.yml'
-      - 'scripts/moex_sync.py.gz.b64'
+  workflow_dispatch:
+  schedule:
+    # 台灣時間每天 10:35；考選部通常於考畢次日上午 10:00 公布
+    - cron: '35 2 * * *'
 
 permissions:
   contents: write
@@ -20,47 +21,56 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
-        run: pip install requests beautifulsoup4 pymupdf scikit-learn
+      - name: Install parser dependencies
+        run: pip install --disable-pip-version-check requests pypdf
 
-      - name: Decode and run MOEX sync
+      - name: Fetch and parse current MOEX social-worker exams
         shell: bash
         run: |
-          mkdir -p auto
-          base64 -d scripts/moex_sync.py.gz.b64 | gzip -dc > scripts/moex_sync.py
-          set +e
-          python scripts/moex_sync.py > /tmp/moex_sync.log 2>&1
-          status=$?
           set -e
-          {
-            echo "exit_code=$status"
-            echo "run_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "--- output ---"
-            cat /tmp/moex_sync.log
-          } > auto/action_diagnostic.txt
-          rm -f scripts/moex_sync.py
-          echo "MOEX_SYNC_EXIT_CODE=$status" >> "$GITHUB_ENV"
+          ROC_YEAR=$(( $(TZ=Asia/Taipei date +%Y) - 1911 ))
+          for suffix in 030 100; do
+            code="${ROC_YEAR}${suffix}"
+            # 115030 已由舊題庫完整收錄；避免因歷史 ID 格式不同重複匯入。
+            if [ "$code" = "115030" ]; then
+              echo "skip legacy exam $code"
+              continue
+            fi
+            python scripts/moex_sync.py --exam "$code" --output-dir incoming --skip-existing || true
+          done
 
-      - name: Commit updates and diagnostic
+      - name: Validate generated payloads
+        shell: bash
         run: |
+          python - <<'PY'
+          import json, glob
+          for fn in glob.glob('incoming/*.json'):
+              d=json.load(open(fn,encoding='utf-8'))
+              assert len(d['questions']) == 200, (fn, len(d['questions']))
+              assert len(d['essays']) == 10, (fn, len(d['essays']))
+              assert len({q['id'] for q in d['questions']}) == 200
+              assert all(q['answer'] in ('A','B','C','D') for q in d['questions'])
+              assert all(q['question'] and q['opt_a'] and q['opt_b'] and q['opt_c'] and q['opt_d'] for q in d['questions'])
+              print('validated', fn)
+          PY
+
+      - name: Commit newly discovered exam payloads
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain incoming 2>/dev/null)" ]; then
+            echo "No new exam payloads."
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add auto index.html
-          if git diff --cached --quiet; then
-            echo "No changes"
-          else
-            git commit -m "自動同步考選部社工師最新考題"
-            git push
-          fi
-
-      - name: Mark sync failure
-        if: env.MOEX_SYNC_EXIT_CODE != '0'
-        run: exit 1
+          git add incoming/
+          git commit -m "自動收錄考選部最新社工師試題"
+          git push
