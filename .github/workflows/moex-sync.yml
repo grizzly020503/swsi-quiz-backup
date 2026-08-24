@@ -5,6 +5,10 @@ on:
     paths:
       - 'scripts/moex_sync.py'
       - '.github/workflows/moex-sync.yml'
+  pull_request:
+    paths:
+      - 'scripts/moex_sync.py'
+      - '.github/workflows/moex-sync.yml'
   workflow_dispatch:
   schedule:
     # 台灣時間每天 10:35；考選部通常於考畢次日上午 10:00 公布
@@ -14,7 +18,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: moex-sync
+  group: moex-sync-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -42,6 +46,7 @@ jobs:
           python scripts/moex_sync.py --exam "$code" --output-dir incoming --skip-existing > /tmp/moex-sync.log 2>&1
           status=$?
           set -e
+          cat /tmp/moex-sync.log
           {
             echo "exam_code=$code"
             echo "exit_code=$status"
@@ -57,7 +62,8 @@ jobs:
         run: |
           python - <<'PY'
           import json, glob
-          files=[x for x in glob.glob('incoming/*.json') if not x.endswith('last_run.json')]
+          files=[x for x in glob.glob('incoming/*.json')]
+          assert files, '沒有產生任何考試 JSON'
           for fn in files:
               d=json.load(open(fn,encoding='utf-8'))
               assert len(d['questions']) == 200, (fn, len(d['questions']))
@@ -69,6 +75,7 @@ jobs:
           PY
 
       - name: Commit payload and diagnostic
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
