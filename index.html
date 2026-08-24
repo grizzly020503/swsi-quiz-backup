@@ -1332,19 +1332,28 @@ async function fetchQuestionPage(from,to,maxAttempts=3){
   for(let attempt=1; attempt<=maxAttempts; attempt++){
     try{
       showLoadProgress(from,attempt);
-      const {data,error}=await sb.from('questions').select('*').range(from,to);
-      if(error) throw error;
-      return data||[];
+      if(sb && typeof sb.from==='function'){
+        const {data,error}=await sb.from('questions').select('*').range(from,to);
+        if(error) throw error;
+        return data||[];
+      }
+      const limit=to-from+1;
+      const url=CONFIG.url.replace(/\/$/,'')+`/rest/v1/questions?select=*&offset=${from}&limit=${limit}`;
+      const res=await fetch(url,{method:'GET',headers:{apikey:CONFIG.key,Authorization:`Bearer ${CONFIG.key}`,Accept:'application/json'},cache:'no-store'});
+      if(!res.ok){
+        let detail='';
+        try{ detail=await res.text(); }catch(_e){}
+        throw new Error(`題庫 API ${res.status}${detail?': '+detail.slice(0,120):''}`);
+      }
+      const data=await res.json();
+      return Array.isArray(data)?data:[];
     }catch(err){
       lastError=err;
-      if(attempt<maxAttempts){
-        await sleep(700*attempt);
-      }
+      if(attempt<maxAttempts){ await sleep(700*attempt); }
     }
   }
   throw lastError || new Error('題庫載入失敗');
 }
-
 async function loadAll(){
   let from=0; const size=1000; let out=[];
   while(true){
@@ -1365,15 +1374,28 @@ async function init(){
     return;
   }
   try{
-    sb=window.supabase.createClient(CONFIG.url,CONFIG.key);
-    const {data:{session}}=await sb.auth.getSession();
-    adminUser=session?session.user:null;
+    if(window.supabase && typeof window.supabase.createClient==='function'){
+      sb=window.supabase.createClient(CONFIG.url,CONFIG.key);
+      try{
+        const {data:{session}}=await sb.auth.getSession();
+        adminUser=session?session.user:null;
+      }catch(_authErr){ adminUser=null; }
+    }else{
+      sb=null;
+      adminUser=null;
+    }
     await loadAll();
     tabbar.style.display='flex';
     if(ALL.length===0){ go('admin'); } else { go('home'); }
   }catch(e){
-    app.innerHTML=`<div class="empty"><div class="ico">⚠</div><h3>連線失敗</h3><p>${e.message}</p><p style="margin-top:8px">請確認 CONFIG 的 URL / 金鑰正確、且資料表已建立。</p></div>`;
+    app.innerHTML=`<div class="empty"><div class="ico">⚠</div><h3>暫時無法載入題庫</h3><p>${e.message||'網路連線失敗'}</p><p style="margin-top:8px">已自動重試 3 次。題庫已另有完整備份，不會因此消失。</p><button id="retry-load-btn" type="button" class="btn" style="margin-top:18px;position:relative;z-index:5;pointer-events:auto" onclick="retryLoad()">重新連線</button></div>`;
   }
+}
+async function retryLoad(){
+  const btn=document.getElementById('retry-load-btn');
+  if(btn){ btn.disabled=true; btn.textContent='重新連線中…'; }
+  ALL=[]; SUBJECTS=[];
+  await init();
 }
 
 /* ---------- 導航 ---------- */
