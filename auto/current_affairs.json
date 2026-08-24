@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "items": [
+    {
+      "id": "1b09c26987c420a21966161c33b6a67e",
+      "title": "《臺灣兒少成長及未來帳戶條例》違反憲法權力分立原則、比例原則及租稅法律原則 行政院不予副署",
+      "summary": "行政院表示，立法院三讀的《臺灣兒少成長及未來帳戶條例》涉及權力分立、比例原則與租稅法律原則等爭議，並連結政府兒少成長津貼、弱勢兒少發展帳戶及家庭支持政策。",
+      "source_name": "衛生福利部焦點新聞",
+      "source_url": "https://www.mohw.gov.tw/cp-16-87470-1.html",
+      "published_at": "2026-08-17T11:24:00Z",
+      "region": "taiwan",
+      "category": "兒少保護",
+      "relevance_score": 6,
+      "exam_tags": ["兒少", "補助", "津貼", "行政院"],
+      "subjects": ["社會工作直接服務", "社會政策與社會立法", "社會工作"]
+    },
+    {
+      "id": "77805b8063ca3351dbc78f9c184fca44",
+      "title": "殺子收容人接連寄信恐嚇前妻 家屬質疑保護令無效",
+      "summary": "中央社報導，一名收容人接連寄信恐嚇前妻，家屬因已聲請保護令仍收到恐嚇信，質疑保護制度的實際效果。",
+      "source_name": "中央社社會",
+      "source_url": "https://www.cna.com.tw/news/asoc/202608240126.aspx",
+      "published_at": "2026-08-24T05:07:55Z",
+      "region": "taiwan",
+      "category": "家暴與性暴力",
+      "relevance_score": 5,
+      "exam_tags": ["保護令", "保護"],
+      "subjects": ["社會工作直接服務", "社會政策與社會立法"]
+    },
+    {
+      "id": "b3854d1be2ee5a20ad2fb9801d2b6f5f",
+      "title": "減少失能為長照3.0重點 卓院長視察臺中醫院復健病房",
+      "summary": "衛福部說明復健病房試辦計畫，以功能恢復、自立生活與返家準備為核心，並強調長照3.0從照顧失能進一步走向預防、延緩及減少失能。",
+      "source_name": "衛生福利部焦點新聞",
+      "source_url": "https://www.mohw.gov.tw/cp-16-87540-1.html",
+      "published_at": "2026-08-23T09:50:00Z",
+      "region": "taiwan",
+      "category": "長照與高齡",
+      "relevance_score": 5,
+      "exam_tags": ["長照", "高齡", "政策", "福利", "行政院"],
+      "subjects": ["社會政策與社會立法", "社會工作直接服務"]
+    },
+    {
+      "id": "d7aa309dfe28f68d5c1c7ffbad2bd643",
+      "title": "長照3.0新亮點:賴總統出席健保署復健病房啟航記者會",
+      "summary": "衛福部說明全民健保復健病房試辦計畫，串聯急性治療、功能恢復及返家生活，透過跨專業照護與居家情境訓練，強化長照3.0的醫療與照顧整合。",
+      "source_name": "衛生福利部焦點新聞",
+      "source_url": "https://www.mohw.gov.tw/cp-16-87457-1.html",
+      "published_at": "2026-08-14T05:26:00Z",
+      "region": "taiwan",
+      "category": "長照與高齡",
+      "relevance_score": 5,
+      "exam_tags": ["長照", "高齡", "政策", "制度", "福利"],
+      "subjects": ["社會政策與社會立法", "社會工作直接服務"]
+    },
+    {
+      "id": "106054a9c641e1141dc1f2d15aaca39e",
+      "title": "發布修正「精神衛生法施行細則」",
+      "summary": "衛生福利部公告修正《精神衛生法施行細則》，屬精神衛生法制與心理健康服務體系的重要近期法規動態。",
+      "source_name": "衛生福利部公告訊息",
+      "source_url": "https://dep.mohw.gov.tw/DOMHAOH/cp-509-87362-107.html",
+      "published_at": "2026-08-05T07:06:00Z",
+      "region": "taiwan",
+      "category": "心理健康與成癮",
+      "relevance_score": 5,
+      "exam_tags": ["精神衛生", "修正", "施行細則"],
+      "subjects": ["人類行為與社會環境", "社會工作直接服務"]
+    }
+  ]
+}
