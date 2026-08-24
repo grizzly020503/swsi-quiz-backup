@@ -195,15 +195,11 @@ def parse_answers(text):
 
 
 def exam_exists(exam_code):
+    # 考選部頁面偶爾未正確宣告中文字元編碼，requests 的 r.text 可能誤判。
+    # 此處只確認考試頁可存取；真正的類科/科目驗證由每份官方 PDF 完成。
     url = exam_url(exam_code)
     r = requests.get(url, timeout=30, headers={"User-Agent": UA})
-    if r.status_code != 200:
-        return False
-    html = r.text
-    # 只承認「專技高考／高等考試_社會工作師」區塊；同一考試頁上的護理師、營養師等不算。
-    has_target_category = any(label in html for label in TARGET_CATEGORY_LABELS)
-    has_target_exam = TARGET_EXAM_PHRASE in html and TARGET_CLASS_NAME in html
-    return has_target_category and has_target_exam
+    return r.status_code == 200 and len(r.content) > 1000
 
 
 def build_exam(exam_code):
