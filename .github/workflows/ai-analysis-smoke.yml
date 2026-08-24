@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: ai-analysis-smoke
+  cancel-in-progress: true
+
 jobs:
   smoke:
     runs-on: ubuntu-latest
@@ -20,15 +24,19 @@ jobs:
           python-version: '3.12'
       - name: Install dependency
         run: python -m pip install --disable-pip-version-check requests
-      - name: Analyze one official question only
+      - name: Analyze and audit one official question
         env:
           AI_PROXY_URL: https://wandering-wave-4418.c022050333.workers.dev
           AI_MODEL: qwen/qwen3.6-27b
-        run: python scripts/ai_analyze_questions.py --exam 115100 --batch-size 1 --limit 1 --output analysis/smoke_115100.json
+        run: python scripts/ai_analyze_questions.py --exam 115100 --batch-size 1 --limit 1 --output analysis/smoke_115100.json --force
       - name: Commit smoke result
         run: |
           git config user.name 'swsi-ai-bot'
           git config user.email 'actions@users.noreply.github.com'
           git add analysis/smoke_115100.json
-          git commit -m 'AI解析單題測試通過'
+          if git diff --cached --quiet; then
+            echo 'Smoke output unchanged.'
+            exit 0
+          fi
+          git commit -m '雙階段AI解析單題測試通過'
           git push
