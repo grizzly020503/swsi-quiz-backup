@@ -7,26 +7,26 @@ import sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
+import pdfplumber
 import requests
 from pypdf import PdfReader
 
 BASE = "https://wwwq.moex.gov.tw/exam"
-TARGET_CATEGORY_LABELS = ("專技高考_社會工作師", "高等考試_社會工作師")
 TARGET_CLASS_NAME = "社會工作師"
 TARGET_EXAM_PHRASE = "專門職業及技術人員高等考試"
 SUBJECTS = [
-    {"s":"0301","name":"社會工作","prefix":"SW"},
-    {"s":"0302","name":"社會工作直接服務","prefix":"DS"},
-    {"s":"0303","name":"社會政策與社會立法","prefix":"SP"},
-    {"s":"0304","name":"人類行為與社會環境","prefix":"HBSE"},
-    {"s":"0305","name":"社會工作研究方法","prefix":"R"},
+    {"s": "0301", "name": "社會工作", "prefix": "SW"},
+    {"s": "0302", "name": "社會工作直接服務", "prefix": "DS"},
+    {"s": "0303", "name": "社會政策與社會立法", "prefix": "SP"},
+    {"s": "0304", "name": "人類行為與社會環境", "prefix": "HBSE"},
+    {"s": "0305", "name": "社會工作研究方法", "prefix": "R"},
 ]
+# 考選部試題真正的選項符號。注意：①②③④⑤可能出現在題幹內，絕不能當成 A/B/C/D。
 OPTION_MARKERS = {
-    "\ue18c":"A", "\ue18d":"B", "\ue18e":"C", "\ue18f":"D",
-    "":"A", "":"B", "":"C", "":"D",
-    "①":"A", "②":"B", "③":"C", "④":"D",
+    "\ue18c": "A", "\ue18d": "B", "\ue18e": "C", "\ue18f": "D",
+    "": "A", "": "B", "": "C", "": "D",
 }
-UA = "Mozilla/5.0 (compatible; swsi-quiz-moex-sync/1.1; +https://github.com/grizzly020503/swsi-quiz-backup)"
+UA = "Mozilla/5.0 (compatible; swsi-quiz-moex-sync/1.2; +https://github.com/grizzly020503/swsi-quiz-backup)"
 
 
 def pdf_url(exam_code, subject_code, kind):
@@ -52,7 +52,7 @@ def pdf_text(data):
 
 
 def clean(s):
-    s = s.replace("\u3000", " ").replace("\xa0", " ")
+    s = str(s or "").replace("\u3000", " ").replace("\xa0", " ").replace("\n", " ")
     s = re.sub(r"\s+", " ", s)
     return s.strip()
 
@@ -64,7 +64,12 @@ def compact_text(s):
 def normalize_option_markers(text):
     for ch, letter in OPTION_MARKERS.items():
         text = text.replace(ch, f"\n@@{letter}@@ ")
-    text = re.sub(r"(?m)^\s*([ＡＢＣＤABCD])[\.、．]\s*", lambda m: f"\n@@{m.group(1).translate(str.maketrans('ＡＢＣＤ','ABCD'))}@@ ", text)
+    # 少數年度若直接以 A. / B. / C. / D. 作為行首選項，也允許解析。
+    text = re.sub(
+        r"(?m)^\s*([ＡＢＣＤABCD])[\.、．]\s*",
+        lambda m: f"\n@@{m.group(1).translate(str.maketrans('ＡＢＣＤ', 'ABCD'))}@@ ",
+        text,
+    )
     return text
 
 
@@ -78,14 +83,14 @@ def strip_headers(text):
             continue
         if TARGET_EXAM_PHRASE in t and "試題" in t:
             continue
-        if t.startswith("等 別：") or t.startswith("類 科：") or t.startswith("科 目：") or t.startswith("考試時間："):
+        compact = re.sub(r"\s+", "", t)
+        if compact.startswith("等別：") or compact.startswith("類科：") or compact.startswith("科目：") or compact.startswith("考試時間："):
             continue
         lines.append(line)
     return "\n".join(lines)
 
 
 def validate_question_pdf(text, subject):
-    """硬性防呆：PDF 必須是專技高考社會工作師，而且科目名稱必須完全對得上。"""
     compact = compact_text(text)
     if TARGET_EXAM_PHRASE not in compact:
         raise RuntimeError(f"拒絕匯入：{subject['name']} PDF 不是專門職業及技術人員高等考試試題")
@@ -93,6 +98,16 @@ def validate_question_pdf(text, subject):
         raise RuntimeError(f"拒絕匯入：PDF 類科不是「{TARGET_CLASS_NAME}」")
     if f"科目：{subject['name']}" not in compact and f"科目:{subject['name']}" not in compact:
         raise RuntimeError(f"拒絕匯入：預期科目「{subject['name']}」，但 PDF 標頭不符")
+
+
+def validate_answer_pdf(text, subject):
+    compact = compact_text(text)
+    if TARGET_CLASS_NAME not in compact:
+        raise RuntimeError(f"拒絕匯入：{subject['name']} 答案 PDF 類科不是社會工作師")
+    if subject["name"] not in compact:
+        raise RuntimeError(f"拒絕匯入：答案 PDF 科目不是「{subject['name']}」")
+    if "測驗式試題標準答案" not in compact:
+        raise RuntimeError(f"拒絕匯入：{subject['name']} 找不到官方標準答案標示")
 
 
 def parse_essays(text, subject, exam_code, roc_year, round_name):
@@ -104,21 +119,25 @@ def parse_essays(text, subject, exam_code, roc_year, round_name):
     essays = []
     for i, m in enumerate(matches[:2]):
         start = m.end()
-        end = matches[i+1].start() if i+1 < len(matches) else len(part)
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(part)
         body = clean(part[start:end])
-        body = re.sub(r"^[（(]40\s*分[）)]\s*", "", body)
-        points_m = re.search(r"[（(](\d+)\s*分[）)]\s*$", body)
-        points = points_m.group(1) if points_m else "20"
-        qno = str(i+1)
+        score_values = [int(x) for x in re.findall(r"[（(](\d+)\s*分[）)]", body)]
+        if len(score_values) > 1 and sum(score_values) <= 40:
+            points = str(sum(score_values))
+        elif score_values:
+            points = str(score_values[-1])
+        else:
+            points = "20"
+        qno = str(i + 1)
         essays.append({
-            "id": f"E-{roc_year}-{2 if round_name=='第二次' else 1}-{subject['prefix']}-{qno}",
+            "id": f"E-{roc_year}-{2 if round_name == '第二次' else 1}-{subject['prefix']}-{qno}",
             "subject": subject["name"], "year": roc_year, "round": round_name,
             "qno": qno, "q": body, "points": points,
             "topic": None, "major": None, "keywords": [], "theories": [], "laws": [],
             "difficulty": None, "frequency": None, "qtype": None, "related": [],
             "cluster": None, "cluster_name": None,
-            "source_exam_code": exam_code, "source_url": pdf_url(exam_code, subject['s'], 'Q'),
-            "analysis_status": "pending"
+            "source_exam_code": exam_code, "source_url": pdf_url(exam_code, subject["s"], "Q"),
+            "analysis_status": "pending",
         })
     return essays
 
@@ -148,7 +167,7 @@ def split_question_blocks(text):
     blocks = []
     for i, m in enumerate(chosen):
         start = m.end()
-        end = chosen[i+1].start() if i+1 < len(chosen) else len(text)
+        end = chosen[i + 1].start() if i + 1 < len(chosen) else len(text)
         blocks.append((int(m.group(1)), text[start:end]))
     return blocks
 
@@ -160,45 +179,68 @@ def parse_mc(text, subject, exam_code, roc_year, round_name, answers):
         parts = re.split(r"@@([ABCD])@@", marked)
         stem = clean(parts[0])
         opts = {}
-        for i in range(1, len(parts)-1, 2):
+        for i in range(1, len(parts) - 1, 2):
             letter = parts[i]
-            val = clean(parts[i+1])
+            val = clean(parts[i + 1])
             opts[letter] = val
-        if set(opts) != {"A","B","C","D"}:
+        if set(opts) != {"A", "B", "C", "D"}:
             raise RuntimeError(f"{subject['name']} 第 {qno} 題選項解析失敗：{sorted(opts)}")
         for k in opts:
             opts[k] = re.sub(r"\s*代號[:：]\s*\d+\s*$", "", opts[k]).strip()
+            if not opts[k]:
+                raise RuntimeError(f"{subject['name']} 第 {qno} 題 {k} 選項為空白")
+        if not stem:
+            raise RuntimeError(f"{subject['name']} 第 {qno} 題題幹為空白")
         rows.append({
-            "id": f"{subject['prefix']}-{roc_year}-{2 if round_name=='第二次' else 1}-{qno:03d}",
+            "id": f"{subject['prefix']}-{roc_year}-{2 if round_name == '第二次' else 1}-{qno:03d}",
             "subject": subject["name"], "year": roc_year, "round": round_name, "qno": str(qno),
             "major": None, "topic": None, "keywords": None,
             "question": stem, "opt_a": opts["A"], "opt_b": opts["B"], "opt_c": opts["C"], "opt_d": opts["D"],
-            "answer": answers[qno-1],
+            "answer": answers[qno - 1],
             "exp_why": None, "exp_others": None, "exp_trap": None, "exp_raw": None,
             "mnemonic": None, "extension": None, "law": None, "mistake": None,
-            "source_exam_code": exam_code, "source_url": pdf_url(exam_code, subject['s'], 'Q'),
-            "analysis_status": "pending"
+            "source_exam_code": exam_code, "source_url": pdf_url(exam_code, subject["s"], "Q"),
+            "analysis_status": "pending",
         })
     return rows
 
 
-def parse_answers(text):
-    compact = re.sub(r"[^A-D]", "", text.upper())
-    pos = text.find("答案")
-    if pos >= 0:
-        tail = re.sub(r"[^A-D]", "", text[pos:].upper())
-        if len(tail) >= 40:
-            return list(tail[:40])
-    if len(compact) >= 40:
-        return list(compact[-40:])
-    raise RuntimeError(f"標準答案解析失敗：只找到 {len(compact)} 個 A-D 字元")
+def parse_answers_pdf(data):
+    """依官方答案 PDF 的表格格線讀取題號與答案，避免純文字抽取造成欄位錯位。"""
+    found = {}
+    with pdfplumber.open(io.BytesIO(data)) as pdf:
+        for page in pdf.pages:
+            for table in page.extract_tables() or []:
+                for i in range(len(table) - 1):
+                    qrow = table[i] or []
+                    arow = table[i + 1] or []
+                    if not qrow or not arow:
+                        continue
+                    if "題號" not in clean(qrow[0]) or "答案" not in clean(arow[0]):
+                        continue
+                    width = min(len(qrow), len(arow))
+                    for j in range(1, width):
+                        qcell = clean(qrow[j])
+                        acell = clean(arow[j]).upper().replace(" ", "")
+                        qm = re.search(r"第\s*(\d+)\s*題", qcell)
+                        if not qm:
+                            continue
+                        qno = int(qm.group(1))
+                        if not (1 <= qno <= 40):
+                            continue
+                        if acell in {"A", "B", "C", "D"}:
+                            found[qno] = acell
+                        elif "一律給分" in acell:
+                            found[qno] = "一律給分"
+    missing = [n for n in range(1, 41) if n not in found]
+    if missing:
+        raise RuntimeError(f"官方答案表格解析失敗，缺少題號：{missing}")
+    return [found[n] for n in range(1, 41)]
 
 
 def exam_exists(exam_code):
-    # 考選部頁面偶爾未正確宣告中文字元編碼，requests 的 r.text 可能誤判。
-    # 此處只確認考試頁可存取；真正的類科/科目驗證由每份官方 PDF 完成。
-    url = exam_url(exam_code)
-    r = requests.get(url, timeout=30, headers={"User-Agent": UA})
+    # 考試頁只做存取檢查；真正類科與科目由每份官方 PDF 再做硬性驗證。
+    r = requests.get(exam_url(exam_code), timeout=30, headers={"User-Agent": UA})
     return r.status_code == 200 and len(r.content) > 1000
 
 
@@ -209,16 +251,20 @@ def build_exam(exam_code):
     if round_name == "未知":
         raise RuntimeError(f"拒絕匯入：{exam_code} 不是本站允許的社會工作師第一次/第二次考試代碼")
     if not exam_exists(exam_code):
-        raise RuntimeError(f"拒絕匯入：考選部頁面未確認為專技高考社會工作師考試：{exam_code}")
+        raise RuntimeError(f"考選部尚無可讀取的考試頁：{exam_code}")
+
     all_mc, all_essays = [], []
     stats = {}
     for subject in SUBJECTS:
         q_url = pdf_url(exam_code, subject["s"], "Q")
         a_url = pdf_url(exam_code, subject["s"], "S")
-        q_text = pdf_text(get_bytes(q_url))
+        q_data = get_bytes(q_url)
+        a_data = get_bytes(a_url)
+        q_text = pdf_text(q_data)
+        a_text = pdf_text(a_data)
         validate_question_pdf(q_text, subject)
-        a_text = pdf_text(get_bytes(a_url))
-        answers = parse_answers(a_text)
+        validate_answer_pdf(a_text, subject)
+        answers = parse_answers_pdf(a_data)
         mc = parse_mc(q_text, subject, exam_code, roc_year, round_name, answers)
         essays = parse_essays(q_text, subject, exam_code, roc_year, round_name)
         if len(mc) != 40:
@@ -228,25 +274,30 @@ def build_exam(exam_code):
         all_mc.extend(mc)
         all_essays.extend(essays)
         stats[subject["name"]] = {"mc": len(mc), "essay": len(essays)}
+
     if len(all_mc) != 200 or len(all_essays) != 10:
         raise RuntimeError(f"總題數異常：選擇 {len(all_mc)}、申論 {len(all_essays)}")
     actual_subjects = {q["subject"] for q in all_mc}
     expected_subjects = {s["name"] for s in SUBJECTS}
     if actual_subjects != expected_subjects:
         raise RuntimeError(f"拒絕匯入：科目集合不符，實際={sorted(actual_subjects)}")
+
     return {
         "exam_type": "專門職業及技術人員高等考試社會工作師",
-        "exam_code": exam_code, "roc_year": roc_year, "round": round_name,
+        "exam_code": exam_code,
+        "roc_year": roc_year,
+        "round": round_name,
         "source_page": exam_url(exam_code),
         "fetched_at": datetime.now(timezone.utc).isoformat(),
-        "stats": stats, "questions": all_mc, "essays": all_essays
+        "stats": stats,
+        "questions": all_mc,
+        "essays": all_essays,
     }
 
 
 def default_candidates():
     tz = timezone(timedelta(hours=8))
     roc = datetime.now(tz).year - 1911
-    # 本站只掃當年度社會工作師的兩個固定場次，不掃其他專技高考類科或考試。
     return [f"{roc}030", f"{roc}100"]
 
 
@@ -259,7 +310,6 @@ def main():
     outdir = Path(args.output_dir)
     outdir.mkdir(parents=True, exist_ok=True)
     candidates = args.exam or default_candidates()
-    wrote = 0
     for code in candidates:
         if not re.fullmatch(r"\d{3}(030|100)", code):
             raise RuntimeError(f"拒絕匯入：不允許的考試代碼 {code}")
@@ -276,7 +326,6 @@ def main():
             continue
         out.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"wrote {out}: {len(data['questions'])} MC + {len(data['essays'])} essays")
-        wrote += 1
     return 0
 
 
