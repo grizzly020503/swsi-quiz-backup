@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-# Official MOJ baseline runner; safe to re-run because first successful snapshot only establishes dates.
+# Official MOJ legal-change watcher for the private SWSI question bank.
 import argparse
 import io
 import json
-import os
 import re
 import sys
 import unicodedata
@@ -15,14 +14,8 @@ from xml.etree import ElementTree as ET
 import requests
 
 SOURCES = [
-    {
-        "type": "law",
-        "url": "https://sendlaw.moj.gov.tw/PublicData/GetFile.ashx?DType=XML&AuData=CF",
-    },
-    {
-        "type": "command",
-        "url": "https://sendlaw.moj.gov.tw/PublicData/GetFile.ashx?DType=XML&AuData=CM",
-    },
+    {"type": "law", "url": "https://sendlaw.moj.gov.tw/PublicData/GetFile.ashx?DType=XML&AuData=CF"},
+    {"type": "command", "url": "https://sendlaw.moj.gov.tw/PublicData/GetFile.ashx?DType=XML&AuData=CM"},
 ]
 NAME_TAGS = {"LawName", "法規名稱"}
 DATE_TAGS = {"LawModifiedDate", "最新異動日期"}
@@ -31,6 +24,7 @@ ABANDON_TAGS = {"LawAbandonNote", "廢止註記"}
 MIN_SOURCE_RECORDS = 100
 MIN_WATCH_MATCHES = 20
 DEFAULT_MIN_DAYS = 28
+DEFAULT_RETRY_DAYS = 3
 
 
 def utc_now():
@@ -59,8 +53,7 @@ def clean_text(value):
 
 
 def key_name(value):
-    s = unicodedata.normalize("NFKC", clean_text(value))
-    return re.sub(r"\s+", "", s)
+    return re.sub(r"\s+", "", unicodedata.normalize("NFKC", clean_text(value)))
 
 
 def direct_child_map(elem):
@@ -73,9 +66,9 @@ def direct_child_map(elem):
 
 
 def pick(mapping, names):
-    for n in names:
-        if mapping.get(n):
-            return mapping[n]
+    for name in names:
+        if mapping.get(name):
+            return mapping[name]
     return ""
 
 
@@ -102,37 +95,36 @@ def parse_records(xml_bytes, source_type):
         modified = pick(cmap, DATE_TAGS)
         if not name or not modified:
             continue
-        rec = {
-            "canonical_name": clean_text(name),
-            "source_type": source_type,
-            "official_modified_date": clean_text(modified),
-            "official_url": clean_text(pick(cmap, URL_TAGS)) or None,
-            "abandon_note": clean_text(pick(cmap, ABANDON_TAGS)) or None,
-        }
-        records.setdefault(key_name(name), rec)
+        records.setdefault(
+            key_name(name),
+            {
+                "canonical_name": clean_text(name),
+                "source_type": source_type,
+                "official_modified_date": clean_text(modified),
+                "official_url": clean_text(pick(cmap, URL_TAGS)) or None,
+                "abandon_note": clean_text(pick(cmap, ABANDON_TAGS)) or None,
+            },
+        )
     return records
 
 
 def download_source(source):
     headers = {
-        "User-Agent": "swsi-law-watch/1.0 (+private educational question bank)",
+        "User-Agent": "swsi-law-watch/1.1 (+private educational question bank)",
         "Accept": "application/xml, application/zip, application/octet-stream, */*",
     }
     last = None
-    for attempt in range(3):
+    for attempt in range(2):
         try:
-            r = requests.get(source["url"], timeout=120, headers=headers)
+            r = requests.get(source["url"], timeout=90, headers=headers)
             r.raise_for_status()
-            xml_bytes = extract_xml_bytes(r.content)
-            records = parse_records(xml_bytes, source["type"])
+            records = parse_records(extract_xml_bytes(r.content), source["type"])
             if len(records) < MIN_SOURCE_RECORDS:
-                raise RuntimeError(
-                    f"parsed too few records from {source['type']}: {len(records)}"
-                )
+                raise RuntimeError(f"parsed too few records from {source['type']}: {len(records)}")
             return records
         except Exception as exc:
             last = exc
-            if attempt == 2:
+            if attempt == 1:
                 break
     raise RuntimeError(f"MOJ {source['type']} download/parse failed: {last}")
 
@@ -148,11 +140,15 @@ def write_json(path, obj):
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     tmp = p.with_suffix(p.suffix + ".tmp")
-    tmp.write_text(
-        json.dumps(obj, ensure_ascii=False, indent=2, sort_keys=False) + "\n",
-        encoding="utf-8",
-    )
+    tmp.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     tmp.replace(p)
+
+
+def age_days(value):
+    dt = parse_iso(value)
+    if not dt:
+        return None
+    return (utc_now() - dt).total_seconds() / 86400
 
 
 def main():
@@ -160,8 +156,10 @@ def main():
     ap.add_argument("--watchlist", default="data/legal_watch_names.json")
     ap.add_argument("--state", default="data/legal_watch_state.json")
     ap.add_argument("--report", default="data/legal_watch_report.json")
+    ap.add_argument("--attempt-state", default="data/legal_watch_attempt.json")
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--min-days", type=int, default=DEFAULT_MIN_DAYS)
+    ap.add_argument("--retry-days", type=int, default=DEFAULT_RETRY_DAYS)
     args = ap.parse_args()
 
     watchlist = load_json(args.watchlist, [])
@@ -169,141 +167,130 @@ def main():
         raise RuntimeError("watchlist is empty or invalid")
 
     state = load_json(args.state, {})
-    last_checked = parse_iso(state.get("checked_at"))
-    if not args.force and last_checked:
-        age_days = (utc_now() - last_checked).total_seconds() / 86400
-        if age_days < max(1, args.min_days):
-            print(
-                f"Legal watch skipped: last check {age_days:.1f} days ago; "
-                f"minimum is {args.min_days} days."
-            )
+    attempt_state = load_json(args.attempt_state, {})
+
+    if not args.force:
+        checked_age = age_days(state.get("checked_at"))
+        if checked_age is not None and checked_age < max(1, args.min_days):
+            print(f"Legal watch skipped: last success {checked_age:.1f} days ago; minimum is {args.min_days} days.")
             return 0
+        if attempt_state.get("success") is False:
+            attempt_age = age_days(attempt_state.get("attempted_at"))
+            if attempt_age is not None and attempt_age < max(1, args.retry_days):
+                print(f"Legal watch backoff: last failed attempt {attempt_age:.1f} days ago; retry after {args.retry_days} days.")
+                return 0
 
-    all_records = {}
-    source_counts = {}
-    for source in SOURCES:
-        recs = download_source(source)
-        source_counts[source["type"]] = len(recs)
-        for k, v in recs.items():
-            all_records.setdefault(k, v)
+    attempted_at = iso_now()
+    write_json(args.attempt_state, {"attempted_at": attempted_at, "success": False, "error": None})
 
-    old_records = state.get("records") if isinstance(state.get("records"), dict) else {}
-    baseline = not bool(old_records)
-    checked_at = iso_now()
-    report_records = []
-    next_state_records = {}
-    matched = 0
-    changed = 0
-    missing = 0
+    try:
+        all_records = {}
+        source_counts = {}
+        for source in SOURCES:
+            recs = download_source(source)
+            source_counts[source["type"]] = len(recs)
+            for k, v in recs.items():
+                all_records.setdefault(k, v)
 
-    for item in watchlist:
-        if isinstance(item, str):
-            name = clean_text(item)
-            qcount = 0
-        else:
-            name = clean_text(item.get("name"))
-            qcount = int(item.get("question_count") or 0)
-        if not name:
-            continue
+        old_records = state.get("records") if isinstance(state.get("records"), dict) else {}
+        baseline = not bool(old_records)
+        checked_at = iso_now()
+        report_records = []
+        next_state_records = {}
+        matched = changed = missing = 0
 
-        found = all_records.get(key_name(name))
-        old = old_records.get(name) if isinstance(old_records.get(name), dict) else {}
-        previous_date = clean_text(old.get("official_modified_date")) or None
-
-        if found:
-            matched += 1
-            current_date = clean_text(found.get("official_modified_date")) or None
-            is_changed = bool(
-                (not baseline)
-                and previous_date
-                and current_date
-                and previous_date != current_date
-            )
-            if is_changed:
-                changed += 1
-            rec = {
-                "canonical_name": name,
-                "question_count": qcount,
-                "found": True,
-                "source_type": found.get("source_type"),
-                "official_url": found.get("official_url"),
-                "official_modified_date": current_date,
-                "previous_modified_date": previous_date,
-                "changed": is_changed,
-                "abandon_note": found.get("abandon_note"),
-            }
-            next_state_records[name] = {
-                "question_count": qcount,
-                "source_type": found.get("source_type"),
-                "official_url": found.get("official_url"),
-                "official_modified_date": current_date,
-                "abandon_note": found.get("abandon_note"),
-            }
-        else:
-            missing += 1
-            rec = {
-                "canonical_name": name,
-                "question_count": qcount,
-                "found": False,
-                "source_type": None,
-                "official_url": None,
-                "official_modified_date": None,
-                "previous_modified_date": previous_date,
-                "changed": False,
-                "abandon_note": None,
-            }
-            if old:
-                next_state_records[name] = dict(old)
+        for item in watchlist:
+            if isinstance(item, str):
+                name, qcount = clean_text(item), 0
             else:
+                name = clean_text(item.get("name"))
+                qcount = int(item.get("question_count") or 0)
+            if not name:
+                continue
+
+            found = all_records.get(key_name(name))
+            old = old_records.get(name) if isinstance(old_records.get(name), dict) else {}
+            previous_date = clean_text(old.get("official_modified_date")) or None
+
+            if found:
+                matched += 1
+                current_date = clean_text(found.get("official_modified_date")) or None
+                is_changed = bool(not baseline and previous_date and current_date and previous_date != current_date)
+                changed += int(is_changed)
+                rec = {
+                    "canonical_name": name,
+                    "question_count": qcount,
+                    "found": True,
+                    "source_type": found.get("source_type"),
+                    "official_url": found.get("official_url"),
+                    "official_modified_date": current_date,
+                    "previous_modified_date": previous_date,
+                    "changed": is_changed,
+                    "abandon_note": found.get("abandon_note"),
+                }
                 next_state_records[name] = {
+                    "question_count": qcount,
+                    "source_type": found.get("source_type"),
+                    "official_url": found.get("official_url"),
+                    "official_modified_date": current_date,
+                    "abandon_note": found.get("abandon_note"),
+                }
+            else:
+                missing += 1
+                rec = {
+                    "canonical_name": name,
+                    "question_count": qcount,
+                    "found": False,
+                    "source_type": None,
+                    "official_url": None,
+                    "official_modified_date": None,
+                    "previous_modified_date": previous_date,
+                    "changed": False,
+                    "abandon_note": None,
+                }
+                next_state_records[name] = dict(old) if old else {
                     "question_count": qcount,
                     "source_type": None,
                     "official_url": None,
                     "official_modified_date": None,
                     "abandon_note": None,
                 }
-        report_records.append(rec)
+            report_records.append(rec)
 
-    if matched < MIN_WATCH_MATCHES:
-        raise RuntimeError(
-            f"only {matched} watch names matched official datasets; parser/source likely broken"
-        )
+        if matched < MIN_WATCH_MATCHES:
+            raise RuntimeError(f"only {matched} watch names matched official datasets; parser/source likely broken")
 
-    report = {
-        "schema_version": 1,
-        "checked_at": checked_at,
-        "baseline": baseline,
-        "official_sources": SOURCES,
-        "source_record_counts": source_counts,
-        "watch_count": len(report_records),
-        "matched_count": matched,
-        "missing_count": missing,
-        "changed_count": changed,
-        "records": report_records,
-    }
-    new_state = {
-        "schema_version": 1,
-        "checked_at": checked_at,
-        "official_sources": SOURCES,
-        "source_record_counts": source_counts,
-        "records": next_state_records,
-    }
+        report = {
+            "schema_version": 1,
+            "checked_at": checked_at,
+            "baseline": baseline,
+            "official_sources": SOURCES,
+            "source_record_counts": source_counts,
+            "watch_count": len(report_records),
+            "matched_count": matched,
+            "missing_count": missing,
+            "changed_count": changed,
+            "records": report_records,
+        }
+        new_state = {
+            "schema_version": 1,
+            "checked_at": checked_at,
+            "official_sources": SOURCES,
+            "source_record_counts": source_counts,
+            "records": next_state_records,
+        }
+        write_json(args.report, report)
+        write_json(args.state, new_state)
+        write_json(args.attempt_state, {"attempted_at": attempted_at, "completed_at": iso_now(), "success": True, "error": None})
 
-    write_json(args.report, report)
-    write_json(args.state, new_state)
-
-    print(
-        f"Legal watch complete: baseline={baseline}, matched={matched}, "
-        f"missing={missing}, changed={changed}, sources={source_counts}"
-    )
-    if changed:
+        print(f"Legal watch complete: baseline={baseline}, matched={matched}, missing={missing}, changed={changed}, sources={source_counts}")
         for r in report_records:
             if r.get("changed"):
-                print(
-                    f"CHANGED: {r['canonical_name']} "
-                    f"{r.get('previous_modified_date')} -> {r.get('official_modified_date')}"
-                )
-    return 0
+                print(f"CHANGED: {r['canonical_name']} {r.get('previous_modified_date')} -> {r.get('official_modified_date')}")
+        return 0
+    except Exception as exc:
+        write_json(args.attempt_state, {"attempted_at": attempted_at, "completed_at": iso_now(), "success": False, "error": str(exc)[:1000]})
+        raise
 
 
 if __name__ == "__main__":
