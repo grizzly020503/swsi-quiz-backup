@@ -58,9 +58,9 @@ def initial_prompt(batch):
 3. mistake 只能從：{json.dumps(sorted(MISTAKES), ensure_ascii=False)}
 4. topic 盡量用「主題 > 細目」。keywords 用半形逗號分隔 3~7 個。
 5. exp_why 直接說明官方正解為何成立；exp_others 逐一說明其他選項錯在哪；exp_trap 點出考場陷阱。
-6. 只寫『判斷這題所必要』且你有把握的事實。不要為了寫得豐富而補人物、年代、因果或條號。
-7. mnemonic 短而可記；extension 只補一個相鄰考點。
-8. law：確定時才寫法規名稱/條文重點；不確定條號就不要猜。非法律題可空字串。
+6. 只寫『判斷這題所必要』且你有把握的事實。禁止自行新增題目/選項沒出現的人名、機構名、英文專名/縮寫、年份或法條號碼；不要為了豐富而補背景故事。
+7. mnemonic 短而可記；extension 只寫相鄰考點名稱或比較方向，不新增人物、年代或具體史實。
+8. law：確定時才寫題目涉及的法規名稱/原則；題目未出現條號時禁止自行補條號。非法律題可空字串。
 9. 繁體中文、簡潔、可直接拿來複習。
 10. 只輸出 JSON array，禁止 Markdown、前言、結語。
 11. 每個物件只能有這些 key：{json.dumps(FIELDS, ensure_ascii=False)}，id 必須原樣返回。
@@ -72,18 +72,18 @@ def initial_prompt(batch):
 def audit_prompt(batch, draft):
     subject_rules = {s: MAJORS[s] for s in sorted({q["subject"] for q in batch})}
     return f"""你是『社會工作師國考題庫審稿員』。下面有官方題目、四選項、官方答案，以及第一版 AI 解析。
-
 你的工作不是評論，而是直接輸出『校正後的最終 JSON』。
 
 逐題硬性檢查：
 1. 官方答案永遠固定，不可更改。解析必須與官方答案一致。
-2. exp_why 只能支持正確選項；exp_others 中每一個錯誤選項的說明都必須真的指出它錯在哪，絕不可把錯誤選項的內容重新說成正確史實。
-3. 特別檢查人物、年代先後、機構創立順序、理論歸屬、法規名稱與條文。只要不確定，就刪掉不必要的細節，改成『足以判斷本題』的最小正確敘述，禁止猜測。
-4. 檢查有沒有自相矛盾：例如前面說 B 錯，後面卻又重述 B 為事實；有就必須改正。
-5. major 必須從該科清單擇一：{json.dumps(subject_rules, ensure_ascii=False)}
-6. mistake 只能從：{json.dumps(sorted(MISTAKES), ensure_ascii=False)}
-7. 保留繁體中文、簡潔複習風格；law 不確定條號就不要寫條號。
-8. 只輸出 JSON array；每個物件只能有：{json.dumps(FIELDS, ensure_ascii=False)}。
+2. exp_why 只能支持正確選項；exp_others 中每一個錯誤選項都必須真的指出它錯在哪，絕不可把錯誤選項內容重新說成正確事實。
+3. 特別檢查人物、年代先後、機構創立順序、理論歸屬、法規。任何不是判斷本題所必需的背景細節都刪掉。
+4. 禁止新增官方題目/選項沒出現的人名、機構名、英文專名/縮寫、年份或法條號碼。若第一版有自行添加，必須移除並改成最小充分的中文敘述。
+5. 檢查自相矛盾：例如先說 B 錯，後面卻重述 B 為事實；有就改正。
+6. major 必須從該科清單擇一：{json.dumps(subject_rules, ensure_ascii=False)}
+7. mistake 只能從：{json.dumps(sorted(MISTAKES), ensure_ascii=False)}
+8. extension 只寫相鄰考點名稱/比較方向；law 不確定就留空，題目沒條號就不要補條號。
+9. 只輸出 JSON array；每個物件只能有：{json.dumps(FIELDS, ensure_ascii=False)}。
 
 官方題目：
 {json.dumps(task_payload(batch), ensure_ascii=False)}
@@ -119,6 +119,24 @@ def request_model(prompt, max_tokens, temperature=0.1, attempts=5):
     raise RuntimeError(f"AI 呼叫失敗：{last}")
 
 
+def fact_surface_guard(q, row):
+    source = "A B C D " + " ".join(str(q.get(k) or "") for k in ("question","opt_a","opt_b","opt_c","opt_d","answer"))
+    output = " ".join(str(row.get(k) or "") for k in FIELDS if k != "id")
+    src_ascii = {x.lower() for x in re.findall(r"[A-Za-z][A-Za-z0-9'’-]*", source)}
+    out_ascii = {x.lower() for x in re.findall(r"[A-Za-z][A-Za-z0-9'’-]*", output)}
+    extra_ascii = sorted(out_ascii - src_ascii)
+    if extra_ascii:
+        raise ValueError(f"{q['id']} 新增官方題面不存在的英文詞：{extra_ascii}")
+    src_years = set(re.findall(r"\b(?:18|19|20)\d{2}\b", source))
+    out_years = set(re.findall(r"\b(?:18|19|20)\d{2}\b", output))
+    if out_years - src_years:
+        raise ValueError(f"{q['id']} 新增官方題面不存在的年份：{sorted(out_years-src_years)}")
+    src_articles = set(re.findall(r"第\s*\d+\s*條", source))
+    out_articles = set(re.findall(r"第\s*\d+\s*條", output))
+    if out_articles - src_articles:
+        raise ValueError(f"{q['id']} 新增官方題面不存在的法條號碼：{sorted(out_articles-src_articles)}")
+
+
 def validate_rows(batch, rows):
     expected = {q["id"]: q for q in batch}
     if not isinstance(rows, list) or len(rows) != len(batch):
@@ -142,14 +160,25 @@ def validate_rows(batch, rows):
                 if not isinstance(row[k], str): raise ValueError(f"{qid}.{k} 非字串")
             elif not isinstance(row[k], str) or not row[k].strip():
                 raise ValueError(f"{qid}.{k} 空白")
-        out.append({k: row[k].strip() if isinstance(row[k], str) else row[k] for k in FIELDS})
+        cleaned = {k: row[k].strip() if isinstance(row[k], str) else row[k] for k in FIELDS}
+        fact_surface_guard(q, cleaned)
+        out.append(cleaned)
     return out
 
 
-def analyze_and_audit(batch):
-    draft = validate_rows(batch, request_model(initial_prompt(batch), max(1800, 1200 * len(batch)), 0.2))
-    final = validate_rows(batch, request_model(audit_prompt(batch, draft), max(1800, 1200 * len(batch)), 0.0))
-    return final
+def analyze_and_audit(batch, attempts=4):
+    last = None
+    for n in range(attempts):
+        try:
+            draft = validate_rows(batch, request_model(initial_prompt(batch), max(1800, 1200 * len(batch)), 0.2))
+            final = validate_rows(batch, request_model(audit_prompt(batch, draft), max(1800, 1200 * len(batch)), 0.0))
+            return final
+        except Exception as e:
+            last = e
+            if n + 1 < attempts:
+                print(f"analysis validation retry {n+1}: {e}")
+                time.sleep(8 * (n + 1))
+    raise RuntimeError(f"雙階段解析仍未通過檢查：{last}")
 
 
 def push_supabase(exam_code, rows):
@@ -185,14 +214,14 @@ def main():
 
     outpath = ROOT / (args.output or f"analysis/{args.exam}.json")
     outpath.parent.mkdir(parents=True, exist_ok=True)
-    saved = {"exam_code": args.exam, "model": MODEL, "review": "two-pass", "rows": []}
+    saved = {"exam_code": args.exam, "model": MODEL, "review": "two-pass+surface-guard", "rows": []}
     if outpath.exists() and not args.force:
         try: saved = json.loads(outpath.read_text(encoding="utf-8"))
         except Exception: pass
     rowmap = {r["id"]: r for r in saved.get("rows", []) if isinstance(r, dict) and r.get("id")}
     todo = [q for q in qs if q.get("analysis_status") == "pending" and q["id"] not in rowmap]
     if args.limit > 0: todo = todo[:args.limit]
-    print(f"exam={args.exam} existing={len(rowmap)} todo={len(todo)} two_pass=yes")
+    print(f"exam={args.exam} existing={len(rowmap)} todo={len(todo)} guarded=yes")
 
     size = max(1, args.batch_size)
     for pos in range(0, len(todo), size):
@@ -201,7 +230,7 @@ def main():
         if args.write_supabase:
             print(push_supabase(args.exam, rows))
         for r in rows: rowmap[r["id"]] = r
-        saved = {"exam_code": args.exam, "model": MODEL, "review": "two-pass", "rows": [rowmap[k] for k in sorted(rowmap)]}
+        saved = {"exam_code": args.exam, "model": MODEL, "review": "two-pass+surface-guard", "rows": [rowmap[k] for k in sorted(rowmap)]}
         outpath.write_text(json.dumps(saved, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"saved {len(rowmap)} analyses -> {outpath}")
         time.sleep(3)
