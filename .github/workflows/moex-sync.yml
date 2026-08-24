@@ -33,8 +33,9 @@ jobs:
 
       - name: Decode and run MOEX sync
         run: |
-          base64 -d scripts/moex_sync.py.gz.b64 | gzip -dc > /tmp/moex_sync.py
-          python /tmp/moex_sync.py
+          base64 -d scripts/moex_sync.py.gz.b64 | gzip -dc > scripts/moex_sync.py
+          python scripts/moex_sync.py
+          rm -f scripts/moex_sync.py
 
       - name: Commit updates
         run: |
