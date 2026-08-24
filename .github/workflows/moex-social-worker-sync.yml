@@ -11,7 +11,7 @@ on:
       - 'scripts/moj_law_watch.py'
       - 'data/legal_watch_names.json'
   schedule:
-    # 台灣時間每天 10:35（UTC 02:35），考選部每日檢查；法規監測內部限制約每 28 天才抓一次。
+    # 台灣時間每天 10:35（UTC 02:35）。國考每日檢查；法規成功後 28 天才再抓，失敗至少隔 3 天再試。
     - cron: '35 2 * * *'
 
 permissions:
@@ -50,6 +50,7 @@ jobs:
             --watchlist data/legal_watch_names.json \
             --state data/legal_watch_state.json \
             --report data/legal_watch_report.json \
+            --attempt-state data/legal_watch_attempt.json \
             $force
           if git status --porcelain -- data/legal_watch_state.json data/legal_watch_report.json | grep -q .; then
             echo 'updated=true' >> "$GITHUB_OUTPUT"
@@ -74,9 +75,14 @@ jobs:
             echo
             echo 'Official legal watch synced to Supabase.'
           else
-            echo '::warning::Legal watch sync failed; discard local watch state so a future run retries it.'
-            git restore --source=HEAD --worktree -- data/legal_watch_state.json data/legal_watch_report.json 2>/dev/null || true
-            rm -f data/legal_watch_state.json data/legal_watch_report.json
+            echo '::warning::Legal watch sync failed; restore monitoring files so a future run retries it.'
+            for file in data/legal_watch_state.json data/legal_watch_report.json data/legal_watch_attempt.json; do
+              if git cat-file -e "HEAD:$file" 2>/dev/null; then
+                git restore --source=HEAD --worktree -- "$file"
+              else
+                rm -f "$file"
+              fi
+            done
           fi
 
       - name: Fetch official Social Worker exams
@@ -160,7 +166,7 @@ jobs:
           git config user.name 'swsi-moex-bot'
           git config user.email 'actions@users.noreply.github.com'
           git add incoming/ auto/
-          for file in data/legal_watch_state.json data/legal_watch_report.json; do
+          for file in data/legal_watch_state.json data/legal_watch_report.json data/legal_watch_attempt.json; do
             [ -f "$file" ] && git add "$file"
           done
           if git diff --cached --quiet; then
