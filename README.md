@@ -2,25 +2,63 @@
 
 重建日期：2026-08-24
 
-## 已救回內容
+## 平台核心範圍
 
-- `index.html`：原部署網站主程式
-- `essay_guides.js`：由原 `index.html` 內嵌資料重建
-  - 49 組考點叢集
-  - 35 個理論
-  - 18 部法規
-  - 230 份申論答題骨架
-- `data/questions_master_backup_20260824_2220.csv`
-  - 選擇題共 4600 題
-  - 唯一 ID 共 4600 筆
-- `manifest.json`
-- `sw.js`
-- `apple-touch-icon.png`
-- `icons/icon-192.png`
-- `icons/icon-512.png`
+這個平台只把三件事當成學生端核心功能：
 
-## 選擇題科目數量
+1. **刷選擇題**：智慧推薦、指定年份／考次／科目、歷屆題庫。
+2. **錯題複習**：錯題本＋間隔複習，協助把不熟題目逐步練熟。
+3. **申論練習**：歷屆申論題與 AI 回饋。
 
+新增功能前先問：**它是否直接幫助「刷題、複習、申論」其中一件事？**
+若不是，優先不放進主介面；必要的維護功能應留在後台。
+
+## 維護原則
+
+- **前台做減法，後台做自動化。**
+- 題庫可以持續增加，但首頁與主要導覽不跟著增加。
+- 最近 10 個考試年度作為日常主題庫；更早題目保留為歷史題庫，不刪除原始國考資料。
+- 法規較舊不等於答案一定失效；只有確認官方法規異動後才進入重新核對流程。
+- AI 不得修改考選部官方題目、選項或答案，只能補解析與分類。
+- 優先使用免費方案；不要新增會自動產生帳單的服務或金鑰。
+
+## 目前正式架構
+
+```text
+考選部官方試題
+  ↓
+GitHub Actions 自動抓題／驗證
+  ↓
+Supabase questions / essays
+  ↓
+Netlify 網站
+  ↓
+IndexedDB 離線備援
+```
+
+另外：
+
+- GitHub 只保留一條正式長期 workflow：`.github/workflows/moex-social-worker-sync.yml`。
+- 新考題必須通過題數、選項、答案與重複 ID 健康檢查後才能匯入。
+- AI 新題解析採免費額度保護：低速背景處理、限流重試、完成後自動停止。
+- 題庫法規名稱會正規化到 `legal_canonical_names`，原始 `law` 文字仍完整保留。
+- 法規官方異動監測使用法務部／全國法規資料庫原始資料；監測只會把受影響題目標為「待核對」，不會自動改官方答案。
+
+## 題庫現況
+
+### 正式 Supabase 題庫
+
+- 選擇題：**4,800 題**
+- 115 年第 2 次：**200 題選擇題＋10 題申論題**
+- 五科皆納入正式題庫。
+
+### 救援母檔
+
+`data/questions_master_backup_20260824_2220.csv` 是重建當下的 **4,600 題原始救援母檔**，必須保留，不代表目前線上題庫總數。
+
+原始五科各 920 題：
+
+```json
 {
   "社會工作研究方法": 920,
   "人類行為與社會環境": 920,
@@ -28,11 +66,27 @@
   "社會工作直接服務": 920,
   "社會政策與社會立法": 920
 }
+```
 
-## 重要提醒
+## 已救回／保留的重要內容
 
-1. `data/questions_master_backup_20260824_2220.csv` 請視為救援母檔，不要直接覆寫。
-2. 原網站的選擇題仍從 Supabase `questions` 資料表載入；CSV 是獨立備份。
-3. 原網站包含 Supabase anon key。Anon key 本來可出現在前端，但資料安全仍依賴 Supabase RLS 設定。
-4. AI 申論批改依賴原 Cloudflare Worker；若 Worker 或後端金鑰失效，AI 批改功能會停止，但題庫本身不受影響。
-5. 建議把整個資料夾放進私人 Git repository，並另外備份到雲端與本機。
+- `index.html`：網站主程式
+- `essay_guides.js`：原內嵌申論資料重建
+  - 49 組考點叢集
+  - 35 個理論
+  - 18 部法規
+  - 230 份原始申論答題骨架
+- `data/questions_master_backup_20260824_2220.csv`：4,600 題救援母檔
+- `incoming/`：考選部官方新考次解析結果（私人 repo 內保存）
+- `auto/`：網站可讀的新題備援資料
+- `supabase/functions/`：正式後端 Edge Functions 原始碼備份
+- `supabase/migrations/`：正式資料庫結構與自動化備份
+- `manifest.json`、`sw.js`、PWA icons
+
+## 安全與部署提醒
+
+1. `data/questions_master_backup_20260824_2220.csv` 是救援母檔，不直接覆寫。
+2. Netlify 只發布 `_site`，不要改成發布 repository root；私人 CSV、migration、incoming 與後端程式不能跟著公開。
+3. Supabase anon key 可存在前端，但 service-role key 絕不能寫進 GitHub 或網站。
+4. AI 申論批改依賴 Cloudflare Worker；AI 暫時不可用時，題庫刷題仍應正常運作。
+5. GitHub commit history 是版本歷史；遇到錯誤優先回復既有版本，不直接刪除資料。
