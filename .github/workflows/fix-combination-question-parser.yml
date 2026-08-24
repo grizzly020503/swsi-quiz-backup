@@ -1,0 +1,105 @@
+name: Fix MOEX combination-question parser
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-combination-question-parser.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Patch parser safely
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('scripts/moex_sync.py')
+          s=p.read_text(encoding='utf-8')
+          # 圈號 ①②③④ 是組合題題幹內容，不是 A/B/C/D 選項標記。
+          s=s.replace('    "①":"A", "②":"B", "③":"C", "④":"D",\n','')
+          old='''        if set(opts) != {"A","B","C","D"}:\n            raise RuntimeError(f"{subject['name']} 第 {qno} 題選項解析失敗：{sorted(opts)}")\n'''
+          new='''        if set(opts) != {"A","B","C","D"}:\n            raise RuntimeError(f"{subject['name']} 第 {qno} 題選項解析失敗：{sorted(opts)}")\n        if any(not clean(opts[k]) for k in ("A","B","C","D")):\n            raise RuntimeError(f"{subject['name']} 第 {qno} 題存在空白選項")\n'''
+          if old in s:
+              s=s.replace(old,new,1)
+          elif '存在空白選項' not in s:
+              raise SystemExit('option-validation anchor not found')
+
+          # 每天都可重新抓近期官方檔案檢查更正，但內容沒變時不要因 fetched_at 產生無意義 commit。
+          old2='''        out.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")\n        print(f"wrote {out}: {len(data['questions'])} MC + {len(data['essays'])} essays")\n        wrote += 1\n'''
+          new2='''        if out.exists():\n            try:\n                old_data=json.loads(out.read_text(encoding="utf-8"))\n                old_cmp=dict(old_data); new_cmp=dict(data)\n                old_cmp.pop("fetched_at",None); new_cmp.pop("fetched_at",None)\n                if old_cmp == new_cmp:\n                    print(f"unchanged {code}: official content/answers unchanged")\n                    continue\n            except Exception:\n                pass\n        out.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")\n        print(f"wrote {out}: {len(data['questions'])} MC + {len(data['essays'])} essays")\n        wrote += 1\n'''
+          if old2 in s:
+              s=s.replace(old2,new2,1)
+          elif 'official content/answers unchanged' not in s:
+              raise SystemExit('write block anchor not found')
+          p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Make daily workflow refresh official files
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/moex-social-worker-sync.yml')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('python scripts/moex_sync.py --skip-existing --output-dir incoming','python scripts/moex_sync.py --output-dir incoming')
+          # 強化正式發佈前檢查：四選項不得為空。
+          needle="""              if any(q.get('source_exam_code') != data.get('exam_code') for q in qs):\n                  raise SystemExit(f'{p}: source_exam_code 不一致')\n"""
+          add="""              if any(q.get('source_exam_code') != data.get('exam_code') for q in qs):\n                  raise SystemExit(f'{p}: source_exam_code 不一致')\n              required=('question','opt_a','opt_b','opt_c','opt_d','answer')\n              bad=[q.get('id') for q in qs if any(not str(q.get(k) or '').strip() for k in required)]\n              if bad:\n                  raise SystemExit(f'{p}: 題目/選項/答案有空值 {bad[:10]}')\n"""
+          if needle in s:
+              s=s.replace(needle,add,1)
+          elif '題目/選項/答案有空值' not in s:
+              raise SystemExit('workflow validation anchor not found')
+          p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Install dependencies
+        run: python -m pip install --disable-pip-version-check requests pypdf
+
+      - name: Regenerate 115100 from official PDFs
+        run: python scripts/moex_sync.py --exam 115100 --output-dir incoming
+
+      - name: Validate all 200 MC and 10 essays
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('incoming/115100.json')
+          d=json.loads(p.read_text(encoding='utf-8'))
+          qs=d['questions']; es=d['essays']
+          assert len(qs)==200, len(qs)
+          assert len(es)==10, len(es)
+          assert len({q['id'] for q in qs})==200
+          required=('question','opt_a','opt_b','opt_c','opt_d','answer')
+          bad=[q['id'] for q in qs if any(not str(q.get(k) or '').strip() for k in required)]
+          assert not bad, bad
+          q39=next(q for q in qs if q['id']=='SW-115-2-039')
+          assert q39['opt_a'] and q39['opt_b'] and q39['opt_c'] and q39['opt_d'], q39
+          assert q39['answer']=='C', q39
+          print('115100 PASS: 200 MC + 10 essays; Q39=',q39['opt_a'],q39['opt_b'],q39['opt_c'],q39['opt_d'])
+          PY
+
+      - name: Rebuild website increment
+        run: python scripts/build_auto_payload.py
+
+      - name: Commit parser, validated payload and auto data
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add scripts/moex_sync.py .github/workflows/moex-social-worker-sync.yml incoming/115100.json auto/
+          if git diff --cached --quiet; then
+            echo 'No changes.'
+            exit 0
+          fi
+          git commit -m '修正組合題解析並重新驗證115100全200題'
+          git push
