@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/ai-analysis-smoke.yml'
       - 'scripts/ai_analyze_questions.py'
+      - 'scripts/ai_analyze_questions_verified.py'
 
 permissions:
   contents: write
@@ -24,11 +25,12 @@ jobs:
           python-version: '3.12'
       - name: Install dependency
         run: python -m pip install --disable-pip-version-check requests
-      - name: Analyze and audit one official question
+      - name: Cross-model analyze and audit one official question
         env:
           AI_PROXY_URL: https://wandering-wave-4418.c022050333.workers.dev
           AI_MODEL: qwen/qwen3.6-27b
-        run: python scripts/ai_analyze_questions.py --exam 115100 --batch-size 1 --limit 1 --output analysis/smoke_115100.json --force
+          AI_AUDIT_MODEL: openai/gpt-oss-120b
+        run: python scripts/ai_analyze_questions_verified.py --exam 115100 --batch-size 1 --limit 1 --output analysis/smoke_115100.json --force
       - name: Commit smoke result
         run: |
           git config user.name 'swsi-ai-bot'
@@ -38,5 +40,5 @@ jobs:
             echo 'Smoke output unchanged.'
             exit 0
           fi
-          git commit -m '雙階段AI解析單題測試通過'
+          git commit -m '跨模型AI解析單題測試通過'
           git push
