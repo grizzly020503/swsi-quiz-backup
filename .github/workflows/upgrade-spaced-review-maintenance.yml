@@ -1,0 +1,49 @@
+name: Upgrade Spaced Review Maintenance
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/upgrade_spaced_review_maintenance.py'
+      - '.github/workflows/upgrade-spaced-review-maintenance.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Upgrade spaced review maintenance
+        run: python scripts/upgrade_spaced_review_maintenance.py
+      - name: Syntax check inline JavaScript
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          html=Path('index.html').read_text(encoding='utf-8')
+          blocks=re.findall(r'<script(?:\s[^>]*)?>([\s\S]*?)</script>',html,re.I)
+          Path('/tmp/index-inline.js').write_text('\n'.join(blocks),encoding='utf-8')
+          assert 'maintenanceDueIds' in html
+          assert '連續答對 3 次畢業' in html
+          assert 'REVIEW_INTERVAL_DAYS=[1,3,7,14,30]' in html
+          PY
+          node --check /tmp/index-inline.js
+      - name: Commit verified upgrade
+        run: |
+          git config user.name 'swsi-feature-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          if git diff --cached --quiet; then
+            echo 'No changes.'
+            exit 0
+          fi
+          git commit -m '完成1-3-7-14-30間隔複習流程'
+          git push
