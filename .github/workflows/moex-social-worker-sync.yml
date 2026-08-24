@@ -10,6 +10,7 @@ on:
       - 'scripts/health_check.py'
       - 'scripts/moj_law_watch.py'
       - 'scripts/current_affairs_watch.py'
+      - 'scripts/build_current_affairs_snapshot.py'
       - 'data/legal_watch_names.json'
   schedule:
     # 台灣時間每天 10:35（UTC 02:35）。國考與時事每日檢查；法規成功後 28 天才再抓，失敗至少隔 3 天再試。
@@ -42,37 +43,9 @@ jobs:
         continue-on-error: true
         run: python scripts/current_affairs_watch.py --output /tmp/current_affairs_payload.json --days 21
 
-      - name: Build public current-affairs snapshot
+      - name: Build clustered public current-affairs snapshot
         if: steps.current_affairs.outcome == 'success'
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          src = json.loads(Path('/tmp/current_affairs_payload.json').read_text(encoding='utf-8'))
-          items = []
-          allowed = {
-              'id','title','summary','source_name','source_url','published_at','region',
-              'category','relevance_score','exam_tags','subjects'
-          }
-          for row in src.get('items', []):
-              clean = {k: row.get(k) for k in allowed if k in row}
-              clean['summary'] = str(clean.get('summary') or '')[:280]
-              items.append(clean)
-          public = {'schema_version': 1, 'items': items[:30]}
-          out = Path('auto/current_affairs.json')
-          out.parent.mkdir(parents=True, exist_ok=True)
-          old = None
-          if out.exists():
-              try:
-                  old = json.loads(out.read_text(encoding='utf-8'))
-              except Exception:
-                  old = None
-          if old == public:
-              print('Public current-affairs snapshot unchanged.')
-          else:
-              out.write_text(json.dumps(public, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-              print(f"Public current-affairs snapshot updated: {len(items[:30])} items")
-          PY
+        run: python scripts/build_current_affairs_snapshot.py --input /tmp/current_affairs_payload.json --output auto/current_affairs.json --limit 30
 
       - name: Sync current-affairs candidates to Supabase
         if: steps.current_affairs.outcome == 'success'
