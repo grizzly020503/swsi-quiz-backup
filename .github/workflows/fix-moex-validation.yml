@@ -1,0 +1,30 @@
+name: Fix MOEX validation
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-moex-validation.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch HTML precheck
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('scripts/moex_sync.py')
+          s=p.read_text(encoding='utf-8')
+          old='''def exam_exists(exam_code):\n    url = exam_url(exam_code)\n    r = requests.get(url, timeout=30, headers={"User-Agent": UA})\n    if r.status_code != 200:\n        return False\n    html = r.text\n    # 只承認「專技高考／高等考試_社會工作師」區塊；同一考試頁上的護理師、營養師等不算。\n    has_target_category = any(label in html for label in TARGET_CATEGORY_LABELS)\n    has_target_exam = TARGET_EXAM_PHRASE in html and TARGET_CLASS_NAME in html\n    return has_target_category and has_target_exam\n'''
+          new='''def exam_exists(exam_code):\n    # 考選部頁面偶爾未正確宣告中文字元編碼，requests 的 r.text 可能誤判。\n    # 此處只確認考試頁可存取；真正的類科/科目驗證由每份官方 PDF 完成。\n    url = exam_url(exam_code)\n    r = requests.get(url, timeout=30, headers={"User-Agent": UA})\n    return r.status_code == 200 and len(r.content) > 1000\n'''
+          if old not in s:
+              raise SystemExit('target exam_exists block not found')
+          p.write_text(s.replace(old,new),encoding='utf-8')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/moex_sync.py
+          git commit -m "修正考選部頁面編碼造成的類科誤判"
+          git push
