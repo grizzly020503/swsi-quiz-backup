@@ -8,8 +8,10 @@ on:
       - 'scripts/moex_sync.py'
       - 'scripts/build_auto_payload.py'
       - 'scripts/health_check.py'
+      - 'scripts/moj_law_watch.py'
+      - 'data/legal_watch_names.json'
   schedule:
-    # 台灣時間每天 10:35（UTC 02:35），官方公布後自動檢查。
+    # 台灣時間每天 10:35（UTC 02:35），考選部每日檢查；法規監測內部限制約每 28 天才抓一次。
     - cron: '35 2 * * *'
 
 permissions:
@@ -33,6 +35,49 @@ jobs:
 
       - name: Install parser dependencies
         run: python -m pip install --disable-pip-version-check requests pypdf pdfplumber
+
+      - name: Check official MOJ law changes
+        id: law_watch
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          force=''
+          if [ '${{ github.event_name }}' != 'schedule' ]; then
+            force='--force'
+          fi
+          python scripts/moj_law_watch.py \
+            --watchlist data/legal_watch_names.json \
+            --state data/legal_watch_state.json \
+            --report data/legal_watch_report.json \
+            $force
+          if git status --porcelain -- data/legal_watch_state.json data/legal_watch_report.json | grep -q .; then
+            echo 'updated=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'updated=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Send legal watch snapshot to Supabase
+        if: steps.law_watch.outputs.updated == 'true'
+        continue-on-error: true
+        env:
+          GH_REPO_TOKEN: ${{ github.token }}
+          LEGAL_WATCH_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-legal-watch
+        shell: bash
+        run: |
+          set -euo pipefail
+          if curl --silent --show-error --fail-with-body \
+            -X POST "$LEGAL_WATCH_URL" \
+            -H "Authorization: Bearer $GH_REPO_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary @data/legal_watch_report.json; then
+            echo
+            echo 'Official legal watch synced to Supabase.'
+          else
+            echo '::warning::Legal watch sync failed; discard local watch state so a future run retries it.'
+            git restore --source=HEAD --worktree -- data/legal_watch_state.json data/legal_watch_report.json 2>/dev/null || true
+            rm -f data/legal_watch_state.json data/legal_watch_report.json
+          fi
 
       - name: Fetch official Social Worker exams
         # 每天重新抓當年度第一次/第二次官方 PDF，以便自動偵測後續更正答案。
@@ -110,14 +155,17 @@ jobs:
         # 驗證母庫總數，以及每個自動考次都必須是 200 題選擇＋10 題申論。
         run: python scripts/health_check.py --remote
 
-      - name: Commit verified official payloads and website backup
+      - name: Commit verified official payloads and private monitoring state
         run: |
           git config user.name 'swsi-moex-bot'
           git config user.email 'actions@users.noreply.github.com'
           git add incoming/ auto/
+          for file in data/legal_watch_state.json data/legal_watch_report.json; do
+            [ -f "$file" ] && git add "$file"
+          done
           if git diff --cached --quiet; then
-            echo 'No official or backup changes.'
+            echo 'No official, backup, or legal-watch changes.'
             exit 0
           fi
-          git commit -m '更新考選部社工師題庫與健康檢查備援'
+          git commit -m '更新官方考題、法規監測與健康檢查備援'
           git push
