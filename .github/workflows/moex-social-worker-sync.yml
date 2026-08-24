@@ -1,0 +1,76 @@
+name: MOEX Social Worker Exam Sync
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/moex-social-worker-sync.yml'
+      - 'scripts/moex_sync.py'
+  schedule:
+    # 台灣時間每天 11:20（UTC 03:20）。考選部通常次日上午 10:00 公布考畢試題。
+    - cron: '20 3 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: moex-social-worker-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install parser dependencies
+        run: python -m pip install --disable-pip-version-check requests pypdf
+
+      - name: Fetch only Professional Social Worker exams
+        run: python scripts/moex_sync.py --skip-existing --output-dir incoming
+
+      - name: Validate staged exam files
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          allowed = {
+              '社會工作',
+              '社會工作直接服務',
+              '社會政策與社會立法',
+              '人類行為與社會環境',
+              '社會工作研究方法',
+          }
+          for p in sorted(Path('incoming').glob('*.json')):
+              data = json.loads(p.read_text(encoding='utf-8'))
+              if data.get('exam_type') != '專門職業及技術人員高等考試社會工作師':
+                  raise SystemExit(f'{p}: exam_type 不符，拒絕提交')
+              qs = data.get('questions', [])
+              es = data.get('essays', [])
+              if len(qs) != 200 or len(es) != 10:
+                  raise SystemExit(f'{p}: 題數異常 MC={len(qs)} Essay={len(es)}')
+              subjects = {q.get('subject') for q in qs}
+              if subjects != allowed:
+                  raise SystemExit(f'{p}: 科目集合異常 {subjects}')
+              if any(q.get('source_exam_code') != data.get('exam_code') for q in qs):
+                  raise SystemExit(f'{p}: source_exam_code 不一致')
+              print(f'OK {p}: {len(qs)} MC + {len(es)} essays')
+          PY
+
+      - name: Commit newly detected official exams
+        run: |
+          if git diff --quiet -- incoming/ 2>/dev/null && [ -z "$(git status --porcelain incoming/)" ]; then
+            echo 'No new Social Worker exam files.'
+            exit 0
+          fi
+          git config user.name 'swsi-moex-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add incoming/
+          git commit -m '自動收錄考選部社會工作師最新考題'
+          git push
