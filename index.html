@@ -1319,14 +1319,39 @@ function normalize(r){
     mnemonic:r.mnemonic||'',extension:r.extension||'',law:r.law||'',mistake:r.mistake||''};
 }
 
-/* ---------- 載入 Supabase 題庫（分頁）---------- */
+/* ---------- 載入 Supabase 題庫（分頁＋斷線重試）---------- */
+function sleep(ms){ return new Promise(resolve=>setTimeout(resolve,ms)); }
+
+function showLoadProgress(done, attempt=1){
+  const retryText=attempt>1 ? `<p style="margin-top:8px;color:var(--muted)">網路不穩，正在第 ${attempt} 次重試…</p>` : '';
+  app.innerHTML=`<div class="empty"><div class="ico">↻</div><h3>正在載入題庫</h3><p>已載入 ${done} 題</p>${retryText}</div>`;
+}
+
+async function fetchQuestionPage(from,to,maxAttempts=3){
+  let lastError=null;
+  for(let attempt=1; attempt<=maxAttempts; attempt++){
+    try{
+      showLoadProgress(from,attempt);
+      const {data,error}=await sb.from('questions').select('*').range(from,to);
+      if(error) throw error;
+      return data||[];
+    }catch(err){
+      lastError=err;
+      if(attempt<maxAttempts){
+        await sleep(700*attempt);
+      }
+    }
+  }
+  throw lastError || new Error('題庫載入失敗');
+}
+
 async function loadAll(){
   let from=0; const size=1000; let out=[];
   while(true){
-    const {data,error}=await sb.from('questions').select('*').range(from,from+size-1);
-    if(error) throw error;
+    const data=await fetchQuestionPage(from,from+size-1,3);
     out=out.concat(data);
-    if(!data||data.length<size) break;
+    showLoadProgress(out.length,1);
+    if(data.length<size) break;
     from+=size;
   }
   ALL=out.map(normalize);
