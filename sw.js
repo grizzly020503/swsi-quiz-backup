@@ -1,11 +1,11 @@
 /* 社工題庫 Service Worker
    策略：
-   - HTML（index.html / 導覽請求）：網路優先 → 線上拿最新版，離線才用快取。
+   - HTML（index.html / 導覽請求）：強制 no-store 網路優先 → 線上拿最新版，離線才用快取。
    - auto/ 考選部增量題庫：網路優先 → 有新考次立即更新，離線使用最近快取。
    - 其他靜態檔（圖示、manifest）：快取優先。
    - 跨網域（Supabase 題庫、AI 評分）：完全不攔截，永遠走網路。
 */
-const VERSION = 'v3';
+const VERSION = 'v4';
 const CACHE = 'swsi-shell-' + VERSION;
 const SHELL = [
   './',
@@ -40,8 +40,9 @@ self.addEventListener('activate', function (e) {
   );
 });
 
-function networkFirst(req, fallback) {
-  return fetch(req).then(function (res) {
+function networkFirst(req, fallback, noStore) {
+  var init = noStore ? { cache: 'no-store' } : undefined;
+  return fetch(req, init).then(function (res) {
     if (res && res.ok) {
       var copy = res.clone();
       caches.open(CACHE).then(function (c) { c.put(req, copy); });
@@ -74,7 +75,7 @@ self.addEventListener('fetch', function (e) {
   var isAuto = url.pathname.includes('/auto/');
 
   if (isDoc) {
-    e.respondWith(networkFirst(req, './index.html'));
+    e.respondWith(networkFirst(req, './index.html', true));
     return;
   }
 
