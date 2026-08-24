@@ -1,0 +1,56 @@
+name: Stabilize MOEX daily sync
+
+on:
+  push:
+    paths:
+      - '.github/workflows/stabilize-moex-sync.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Avoid timestamp-only rewrites and no-op imports
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p=Path('scripts/moex_sync.py')
+          s=p.read_text(encoding='utf-8')
+          old='''        out.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")\n        print(f"wrote {out}: {len(data['questions'])} MC + {len(data['essays'])} essays")\n'''
+          new='''        if out.exists():\n            try:\n                old_data=json.loads(out.read_text(encoding="utf-8"))\n                old_cmp=dict(old_data); new_cmp=dict(data)\n                old_cmp.pop("fetched_at", None); new_cmp.pop("fetched_at", None)\n                if old_cmp == new_cmp:\n                    print(f"unchanged {code}: official questions/answers unchanged")\n                    continue\n            except Exception:\n                pass\n        out.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")\n        print(f"wrote {out}: {len(data['questions'])} MC + {len(data['essays'])} essays")\n'''
+          if old in s:
+              s=s.replace(old,new,1)
+          elif 'official questions/answers unchanged' not in s:
+              raise SystemExit('parser write anchor not found')
+          p.write_text(s,encoding='utf-8')
+
+          w=Path('.github/workflows/moex-social-worker-sync.yml')
+          y=w.read_text(encoding='utf-8')
+          needle='''            if [ "$code" = "115030" ]; then\n              echo "Skip baseline exam $code"\n              continue\n            fi\n            echo "Importing verified Social Worker exam $code"\n'''
+          replacement='''            if [ "$code" = "115030" ]; then\n              echo "Skip baseline exam $code"\n              continue\n            fi\n            # 解析器只在官方題目/答案有實質變動時改寫檔案；沒變就不重複 upsert。\n            if [ -z "$(git status --porcelain -- "$file")" ]; then\n              echo "No official changes for $code; skip Supabase import"\n              continue\n            fi\n            echo "Importing verified Social Worker exam $code"\n'''
+          if needle in y:
+              y=y.replace(needle,replacement,1)
+          elif 'No official changes for $code' not in y:
+              raise SystemExit('workflow import anchor not found')
+          w.write_text(y,encoding='utf-8')
+          PY
+      - name: Python syntax check
+        run: python -m py_compile scripts/moex_sync.py scripts/build_auto_payload.py
+      - name: Commit stabilization
+        shell: bash
+        run: |
+          if git diff --quiet -- scripts/moex_sync.py .github/workflows/moex-social-worker-sync.yml; then
+            echo 'Already stabilized.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add scripts/moex_sync.py .github/workflows/moex-social-worker-sync.yml
+          git commit -m '最佳化每日同步：僅官方內容變更才更新'
+          git push
