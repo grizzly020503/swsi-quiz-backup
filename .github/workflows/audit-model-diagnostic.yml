@@ -14,6 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependency
+        run: python -m pip install --disable-pip-version-check requests
       - name: Test GPT-OSS through existing Cloudflare proxy
         shell: bash
         run: |
@@ -30,17 +35,34 @@ jobs:
           }
           try:
               r=requests.post(url,json=payload,timeout=90)
-              text=r.text
-              out={'status':r.status_code,'body':text[:2000]}
+              out={'status':r.status_code,'body':r.text[:2000]}
           except Exception as e:
               out={'status':'exception','body':repr(e)}
           open('analysis/audit_model_diagnostic.json','w',encoding='utf-8').write(json.dumps(out,ensure_ascii=False,indent=2))
           print(out)
           PY
+      - name: Run guarded cross-model question smoke
+        shell: bash
+        env:
+          AI_PROXY_URL: https://wandering-wave-4418.c022050333.workers.dev
+          AI_MODEL: qwen/qwen3.6-27b
+          AI_AUDIT_MODEL: openai/gpt-oss-120b
+        run: |
+          set +e
+          python scripts/ai_analyze_questions_verified.py --exam 115100 --batch-size 1 --limit 1 --output analysis/smoke_guarded_115100.json --force > analysis/smoke_guarded_run.log 2>&1
+          code=$?
+          echo "exit_code=$code" >> analysis/smoke_guarded_run.log
+          cat analysis/smoke_guarded_run.log
+          exit 0
       - name: Commit diagnostic
         run: |
           git config user.name 'swsi-ai-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add analysis/audit_model_diagnostic.json
-          git commit -m '記錄GPT-OSS審稿模型診斷'
+          git add analysis/audit_model_diagnostic.json analysis/smoke_guarded_run.log
+          if [ -f analysis/smoke_guarded_115100.json ]; then git add analysis/smoke_guarded_115100.json; fi
+          if git diff --cached --quiet; then
+            echo 'No diagnostic changes.'
+            exit 0
+          fi
+          git commit -m '記錄跨模型防幻覺解析診斷'
           git push
