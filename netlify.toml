@@ -1,0 +1,3 @@
+[build]
+  publish = "_site"
+  command = "rm -rf _site && mkdir -p _site/icons && cp index.html essay_guides.js manifest.json sw.js apple-touch-icon.png _site/ && cp icons/icon-192.png icons/icon-512.png _site/icons/ && if [ -d auto ]; then cp -R auto _site/; fi"
