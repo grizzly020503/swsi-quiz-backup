@@ -1,0 +1,61 @@
+name: Verify MOEX 115100 Social Worker
+
+on:
+  push:
+    paths:
+      - '.github/workflows/moex-verify-115100.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check requests pypdf
+      - name: Run parser and always record result
+        shell: bash
+        run: |
+          set +e
+          python scripts/moex_sync.py --exam 115100 --output-dir incoming > /tmp/moex.log 2>&1
+          code=$?
+          {
+            echo "exam_code=115100"
+            echo "exit_code=$code"
+            echo "run_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "--- parser output ---"
+            cat /tmp/moex.log
+          } > incoming/verify_115100.txt
+          if [ -f incoming/115100.json ]; then
+            python - <<'PY' >> incoming/verify_115100.txt 2>&1
+          import json
+          p='incoming/115100.json'
+          d=json.load(open(p,encoding='utf-8'))
+          print('json_exists=yes')
+          print('exam_type='+str(d.get('exam_type')))
+          print('mc_count='+str(len(d.get('questions',[]))))
+          print('essay_count='+str(len(d.get('essays',[]))))
+          print('subjects='+','.join(sorted({q.get('subject','') for q in d.get('questions',[])})))
+          PY
+          else
+            echo "json_exists=no" >> incoming/verify_115100.txt
+          fi
+          echo "PARSER_EXIT=$code" >> "$GITHUB_ENV"
+      - name: Commit verification result
+        run: |
+          git config user.name 'swsi-moex-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add incoming/verify_115100.txt
+          [ -f incoming/115100.json ] && git add incoming/115100.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m '驗證115年第二次社工師官方題庫同步'
+            git push
+          fi
+      - name: Fail job if parser failed
+        run: |
+          if [ "$PARSER_EXIT" != "0" ]; then exit "$PARSER_EXIT"; fi
