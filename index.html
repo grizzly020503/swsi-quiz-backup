@@ -15,7 +15,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <style>
   :root{--paper:#EFF3F0;--paper2:#F8FAF9;--ink:#2A2C2A;--ink-soft:#757A75;--ink-3:#A9AFA9;--line:#DCE4DF;
     --pine:#4F7E76;--pine-deep:#3F6961;--gold:#95988A;--correct:#4F7E76;--correct-bg:#E3EDE9;--wrong:#9E6155;--wrong-bg:#F3EBE7;}
@@ -165,7 +164,6 @@
   .field{margin-bottom:14px;}
   .field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:5px;font-weight:500;}
   .field input{width:100%;font-family:inherit;font-size:15px;padding:12px 14px;border:1.5px solid var(--line);border-radius:11px;background:#fff;}
-  .adminbox{background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:22px;}
   .log{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12px;color:var(--ink-soft);margin-top:14px;max-height:160px;overflow:auto;font-family:monospace;white-space:pre-wrap;}
   .spinner{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--pine);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto;}
   @keyframes spin{to{transform:rotate(360deg);}}
@@ -179,9 +177,9 @@
 }
 
 /* —— 卡片：統一圓角 + 紙感層次 —— */
-.time-card,.qcard,.ecard,.gcard,.sumcard,.adminbox{ background:var(--card); box-shadow:var(--e1),var(--hi); }
+.time-card,.qcard,.ecard,.gcard,.sumcard{ background:var(--card); box-shadow:var(--e1),var(--hi); }
 .time-card,.ecard,.gcard{ border-radius:16px; }
-.qcard,.sumcard,.adminbox{ border-radius:20px; }
+.qcard,.sumcard{ border-radius:20px; }
 .time-card:hover,.gcard:hover,.ecard:hover,.ecard.open{ box-shadow:var(--e2),var(--hi); }
 
 /* —— 主按鈕：收斂字距、柔和漸層、按下微沉 —— */
@@ -1279,7 +1277,6 @@ const THEORIES = window.THEORIES || [];
 const LAWS = window.LAWS || [];
 let view='home', subjFilter='全部科目', essaySubj='全部科目', essayCluster=null, openEssay=null, guideOpen=null, dissectOpen=null, theoryOpen=null, theoryQ='', lawOpen=null, lawQ='', searchQ='', topicsOpen=null;
 let queue=[], idx=0, selected=null, answered=false, sessionStats={done:0,correct:0,wrongTopics:[]};
-let adminUser=null;
 const LS_KEY='swsi_v2_history';
 const REVIEW_KEY='swsi_review_v2';
 const REVIEW_DAY=24*60*60*1000;
@@ -1620,19 +1617,14 @@ async function init(){
   try{
     if(window.supabase && typeof window.supabase.createClient==='function'){
       sb=window.supabase.createClient(CONFIG.url,CONFIG.key);
-      try{
-        const {data:{session}}=await sb.auth.getSession();
-        adminUser=session?session.user:null;
-      }catch(_authErr){ adminUser=null; }
     }else{
       sb=null;
-      adminUser=null;
     }
     await loadAll();
     await loadAutoEssays();
     tabbar.style.display='flex';
     applyFocusedTabbar();
-    if(ALL.length===0){ go('admin'); } else { go('home'); }
+    go('home');
   }catch(e){
     app.innerHTML=`<div class="empty"><div class="ico">⚠</div><h3>暫時無法載入題庫</h3><p>${e.message||'網路連線失敗'}</p><p style="margin-top:8px">已自動重試 3 次。題庫已另有完整備份，不會因此消失。</p><button id="retry-load-btn" type="button" class="btn" style="margin-top:18px;position:relative;z-index:5;pointer-events:auto" onclick="retryLoad()">重新連線</button></div>`;
   }
@@ -2466,40 +2458,7 @@ function exportDrafts(){
   }catch(err){ alert('下載時發生問題，建議改用電腦版瀏覽器再試一次。'); }
 }
 
-/* ---------- 管理頁 ---------- */
-function renderAdmin(){
-  if(!adminUser){
-    app.innerHTML=`<div class="section-h">管理登入</div><div class="section-s">只有管理員能更新題庫。同學不需要登入即可刷題。</div>
-      <div class="adminbox">
-        <div class="field"><label>Email</label><input id="ad-email" type="email" placeholder="你的 Supabase 管理員信箱"></div>
-        <div class="field"><label>密碼</label><input id="ad-pw" type="password" placeholder="密碼"></div>
-        <button class="btn" onclick="adminLogin()">登入</button>
-        <button class="btn ghost" style="margin-top:10px" onclick="go('home')">回首頁</button>
-      </div>`;
-    return;
-  }
-  app.innerHTML=`<div class="section-h">題庫管理</div><div class="section-s">目前題庫共 ${ALL.length} 題。匯入 CSV 可新增或更新題目（以 id 為準）。</div>
-    <div class="adminbox">
-      <div class="field"><label>選擇 CSV 檔匯入（Excel 另存的「CSV UTF-8」即可）</label><input id="ad-file" type="file" accept=".csv"></div>
-      <button class="btn" onclick="doImport()">開始匯入</button>
-      <div class="log" id="ad-log" style="display:none"></div>
-      <button class="btn ghost" style="margin-top:14px" onclick="adminLogout()">登出</button>
-    </div>
-    <div class="section-s" style="margin-top:18px">更新題庫：在 Excel 改好 → 另存為「CSV UTF-8（逗號分隔）」→ 從這裡匯入。所有同學立刻看到更新，不必重新部署、不必跑任何程式。</div>`;
-}
-async function adminLogin(){
-  const email=document.getElementById('ad-email').value.trim();
-  const pw=document.getElementById('ad-pw').value;
-  if(!email||!pw){ alert('請輸入 Email 與密碼'); return; }
-  const {data,error}=await sb.auth.signInWithPassword({email,password:pw});
-  if(error){ alert('登入失敗：'+error.message); return; }
-  adminUser=data.user; renderAdmin();
-}
-async function adminLogout(){ await sb.auth.signOut(); adminUser=null; go('home'); }
-function logMsg(m){ const el=document.getElementById('ad-log'); if(el){ el.style.display='block'; el.textContent+=m+"\n"; el.scrollTop=el.scrollHeight; } }
-/* 從一列資料取值，支援多個可能的欄名（中文 Excel 或英文 convert.py 皆可）*/
-function pickv(row){ for(let i=1;i<arguments.length;i++){ const v=row[arguments[i]]; if(v!==undefined&&v!==null&&String(v).trim()!=='') return String(v).trim(); } return ''; }
-function firstSeg(s){ return s?String(s).split('>')[0].trim():''; }
+/* ---------- 舊版題解標籤解析 ---------- */
 function parseExp(raw){
   const p={why:'',others:'',trap:'',raw:''};
   if(!raw||!String(raw).trim()) return p;
@@ -2529,44 +2488,6 @@ function parseExp(raw){
   if(!matched && !(p.why||p.others||p.trap)) p.raw=raw;
   return p;
 }
-function mapRow(row){
-  const topic=pickv(row,'考點','topic');
-  const major=pickv(row,'大類考點','major')||firstSeg(topic)||'（未分類）';
-  let ew=pickv(row,'exp_why'),eo=pickv(row,'exp_others'),et=pickv(row,'exp_trap'),er=pickv(row,'exp_raw');
-  if(!ew&&!eo&&!et&&!er){ const p=parseExp(pickv(row,'AI解析')); ew=p.why;eo=p.others;et=p.trap;er=p.raw; }
-  return {
-    id:pickv(row,'id','ID'), subject:pickv(row,'科目','subject'),
-    year:pickv(row,'年份','year'), round:pickv(row,'考次','round'), qno:pickv(row,'題號','qno'),
-    major:major, topic:topic, keywords:pickv(row,'關鍵字','keywords'),
-    question:pickv(row,'題目','question'),
-    opt_a:pickv(row,'A','opt_a'), opt_b:pickv(row,'B','opt_b'), opt_c:pickv(row,'C','opt_c'), opt_d:pickv(row,'D','opt_d'),
-    answer:pickv(row,'正解','answer'),
-    exp_why:ew, exp_others:eo, exp_trap:et, exp_raw:er,
-    mnemonic:pickv(row,'記憶法','mnemonic'), extension:pickv(row,'延伸考點','extension'),
-    law:pickv(row,'法源','law'), mistake:pickv(row,'predicted_mistake_reason','mistake')
-  };
-}
-async function doImport(){
-  const f=document.getElementById('ad-file').files[0];
-  if(!f){ alert('請先選擇 CSV 檔'); return; }
-  document.getElementById('ad-log').textContent='';
-  logMsg('解析 CSV…');
-  Papa.parse(f,{header:true,skipEmptyLines:true,complete:async(res)=>{
-    let rows=res.data.map(mapRow).filter(r=>r.id&&r.question&&r.answer);
-    if(!rows.length){ logMsg('❌ 沒讀到有效題目。請確認是用 Excel「另存 → CSV UTF-8」的檔，且含 id/題目/正解 欄。'); return; }
-    logMsg('讀到 '+rows.length+' 題，開始上傳…');
-    const size=500; let done=0;
-    for(let i=0;i<rows.length;i+=size){
-      const batch=rows.slice(i,i+size);
-      const {error}=await sb.from('questions').upsert(batch,{onConflict:'id'});
-      if(error){ logMsg('❌ 錯誤：'+error.message); return; }
-      done+=batch.length; logMsg('已上傳 '+done+' / '+rows.length);
-    }
-    logMsg('✅ 完成！重新載入題庫…');
-    await loadAll(); logMsg('題庫現在共 '+ALL.length+' 題。');
-  },error:(err)=>{ logMsg('❌ CSV 解析失敗：'+err.message); }});
-}
-
 /* ---------- 文字大小 ---------- */
 function setFs(l){
   l=+l||0;
