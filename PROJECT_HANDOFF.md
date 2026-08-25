@@ -1,25 +1,27 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
-最後更新：2026-08-25（D1 binding 完成後）
+最後更新：2026-08-25（Cloudflare AI 防濫用 + D1 每日配額 + Supabase 後台相容性已驗收）
 
-> 用途：這份檔案是給「下一個 ChatGPT 對話」接手用的。若換新對話，先叫 ChatGPT：
+> 下一個 ChatGPT 對話先讀本檔，再接著做：
 >
-> **「請先讀 GitHub 私人 repo `grizzly020503/swsi-quiz-backup` 的 `PROJECT_HANDOFF.md`，再接著目前進度做，不要重新猜架構。」**
+> **「請先讀 GitHub 私人 repo `grizzly020503/swsi-quiz-backup` 的 `PROJECT_HANDOFF.md`，再接著目前進度做，不要重新猜架構，也不要重做已完成項目。」**
 
 ---
 
-## 0. 平台核心初衷（最重要，不可搞錯）
+## 0. 平台核心初衷（最重要）
 
-這個平台的成立原因是：
+SWSI 的成立原因是：社工師國考準備已經很困難，網路上很多題庫、解析、練習平台又被訂閱制／付費牆鎖住。
 
-- 社工師國考準備已經很困難。
-- 網路上很多刷題／解析／題庫平台被訂閱制、付費牆鎖住。
-- 此平台要做成 **免費、公開、低門檻、真的能幫考生準備社工師國考** 的替代方案。
-- 核心學習功能不應被 paywall 鎖住。
-- 理想上學生不需註冊即可開始刷題。
-- AI 是輔助資源，不是讓平台被 API 成本拖垮的無限制功能。
+平台要做成：
 
-產品決策的北極星：
+- **免費**
+- **公開**
+- **低門檻**
+- **真的能幫考生準備社工師國考**
+
+核心功能不應被 paywall 鎖住。理想上學生不用註冊即可開始刷題。AI 是輔助功能，不應讓 API 成本拖垮整個免費平台。
+
+產品決策北極星：
 
 > **「這個改動，有沒有讓考生更容易免費準備社工師國考？」**
 
@@ -29,45 +31,42 @@
 
 ### GitHub
 - 私人 repo：`grizzly020503/swsi-quiz-backup`
-- **目前 GitHub `main` 是最新真實版本（source of truth）**。
-
-### Supabase
-- project id：`yumjtrdctaxyczpspuyo`
-- project name：`Swsi`
-- region：`ap-southeast-1`
+- `main` 為目前最新 source of truth
 
 ### Netlify
 - 正式站：`https://swsi-quiznetlify.netlify.app`
-- **重要：使用者決定 Netlify 每月再集中更新一次。**
-- 因此 GitHub 最新版可能暫時領先正式 Netlify。
-- 不要因為 Netlify 還是舊 UI 就以為 GitHub 修正失敗。
+- 使用者明確決定：**Netlify 每月集中更新，不要現在一直部署前端**
 
-### Cloudflare Worker（申論 AI Proxy）
+### Supabase
+- project：`Swsi`
+- project id：`yumjtrdctaxyczpspuyo`
+- region：`ap-southeast-1`
+
+### Cloudflare Worker
 - Worker：`wandering-wave-4418`
 - URL：`https://wandering-wave-4418.c022050333.workers.dev`
-- GitHub 安全版備份：`cloudflare/wandering-wave-4418/worker.js`
+- GitHub 程式：`cloudflare/wandering-wave-4418/worker.js`
+- Wrangler 設定：`wrangler.jsonc`
 
-### Cloudflare D1（AI 每日額度）
+### Cloudflare D1
 - database：`swsi-ai-quota`
-- Worker binding：`AI_QUOTA_DB`
-- 狀態：**已建立並成功綁定到 `wandering-wave-4418`**
-- 目前尚未建每日 usage table。
+- binding：`AI_QUOTA_DB`
 
 ---
 
 ## 2. 目前學生端核心功能
 
-產品核心只有三件事：
+產品核心：
 
-1. **刷選擇題**
-2. **錯題複習**
-3. **申論練習**
+1. 刷選擇題
+2. 錯題複習
+3. 申論練習
 
-主要學習循環：
+學習循環：
 
 > 做題 → 發現不會 → 看考點／解析 → 錯題 → 1/3/7/14/30 間隔複習 → 弱點 → 申論 → AI 回饋
 
-重要既有功能：
+重要功能：
 
 - 智慧刷題
 - 指定歷屆刷題
@@ -76,30 +75,23 @@
 - 1→3→7→14→30 天間隔複習
 - 模擬考
 - 弱點分析／進度
-- 申論拆題五步
-- 申論骨架
+- 申論拆題五步／骨架
 - 申論草稿本機儲存／TXT 匯出
 - 申論 AI 文字批改
 - 手寫照片 AI 辨識＋批改
 - 申論時事雷達
 - 法規異動監測
-- PWA／Service Worker／IndexedDB 題庫離線備援
+- PWA／Service Worker／IndexedDB 離線備援
 
 ---
 
-## 3. 題庫目前狀態
+## 3. 題庫狀態
 
-### 正式 Supabase 選擇題
+### Supabase 選擇題
 - 總數：**4,800 題**
 - 5 科 × 960 題
-- 年度約 ROC 104–115
-- 每年 2 次考試 × 每科 40 題
-
-已驗證過：
-- 0 空白題幹
-- 0 缺 A/B/C/D
-- 0 非法答案
-- 0 同科＋年度＋考次＋題號重複
+- ROC 104–115、每年 2 次、每科 40 題
+- 已驗證無空白題幹、缺選項、非法答案、同科同考次重複題號
 
 ### 最新考試
 - 115 年第 2 次：200 選擇題＋10 申論題
@@ -110,309 +102,222 @@
 - 35 個理論
 - 18 部法規
 
-### 申論資料清洗
-已依考選部官方原卷修正一批歷史資料：
-- 第一批：17 題、19 個欄位（截斷、OCR、解析污染、特殊分數等）
-- 後續再補 6 題漏掉官方分數尾碼
-- 106-2 人行官方特殊配分 26／24 保留，不自行平均成 25／25
-- 官方核對紀錄：`data/essay_official_corrections_20260825.json`
-- 永久 `scripts/health_check.py` 已加入申論污染／完整性檢查，避免日後復發
+---
+
+## 4. 自動監測／同步
+
+### 考選部新題同步
+狀態：**正常**
+
+流程：考選部 → GitHub Actions → parser / health check → Supabase → AI 解析 → 前端。
+
+### 申論時事雷達
+狀態：**正常**。同主題會聚合，所以 DB 筆數可能多於公開卡片數。
+
+### 法規異動監測
+狀態：**正常**。
+- 已改成逐條查 `law.moj.gov.tw`
+- 最近驗證：52/52 法規找到、0 missing
+
+### AI 新題解析排程
+狀態：**正常**。
+- 約每 30 分鐘跑
+- 24 小時最多完成 25 題
+- 2026-08-25 最終測試時已達 25/25
+- 快照：ready 4625、pending 175、review 0（數字會變，下一個對話應重新查）
+
+Supabase Edge Function：
+- `analyze-pending-questions`
+- 2026-08-25 已升級到 **version 6 / ACTIVE**
+- 會用既有 `job_key` 作內部驗證呼叫 Cloudflare Worker
+
+pg_net：
+- 原本預設 timeout 5000ms，AI 雙階段解析會超時
+- 已改成 **30000ms**
+- 並同步修改重新啟用排程的函式，避免未來退回 5 秒
+
+實測：
+- request 44 → HTTP 200、無 timeout
+- `HBSE-115-2-025` 成功 pending → ready
 
 ---
 
-## 4. 自動監測／同步功能目前狀態
+## 5. Supabase 公開安全狀態
 
-### A. 考選部新考題同步
-狀態：**正常**
-
-流程：
-
-> 考選部 → GitHub Actions → parser／health check → Supabase → AI 解析 → 前端
-
-會檢查：
-- 五科
-- 題數
-- 選項
-- 正解
-- 重複 ID
-- 最新考次 200 選擇＋10 申論
-
-AI 不得改考選部官方題幹／選項／答案。
-
-### B. 申論時事雷達
-狀態：**正常**
-
-- Supabase 原始候選數可能大於公開卡片數。
-- 原因：同主題會聚合。
-- 例如資料庫 6 筆、公開 3 主題，不代表漏資料。
-
-### C. 法規異動監測
-狀態：**正常（2026-08-25 修復）**
-
-原問題：
-- GitHub Actions 無法穩定連 `sendlaw.moj.gov.tw` bulk XML。
-
-已改：
-- 直接逐條查 `law.moj.gov.tw` 官方頁。
-
-最新驗證：
-- **52/52 法規全部找到**
-- 0 missing
-- baseline 全部正常
-- 第一次 baseline 沒有 `legal_watch_hits` 是正常的，因為沒有前後版本可比較。
-
-另已校正法規正式名稱：
-- 舊錯名：`社會工作師執業登記及繼續教育辦法`
-- 正式名稱：`社會工作師接受繼續教育及執業執照更新辦法`
-- parser、題目、watchlist 已一起校正，舊名保留 alias 邏輯（若程式有需要）。
-
-### D. AI 新題解析排程
-狀態：**正常**
-
-最後人工驗證快照：
-- 約 4,621 ready
-- 約 179 pending
-
-pending 不是故障：
-- 排程約每 30 分鐘跑
-- 24 小時有免費額度上限（約 25 題）
-- 目的是避免免費 AI 額度被一次燒完
-
-> 注意：ready/pending 數字會持續變動，新的對話應重新查現況，不要死記 4,621/179。
-
----
-
-## 5. Supabase 公開安全狀態（已修）
-
-### 已完成
-
-`questions`／`essays`：
+`questions` / `essays`：
 - anon：SELECT only
 - authenticated：SELECT only
-- INSERT / UPDATE / DELETE / TRUNCATE：已移除
+- 公開 INSERT / UPDATE / DELETE / TRUNCATE 已移除
 
-公開網站寫入正式題庫：**不允許**。
+RLS：
+- questions：單一公開 SELECT policy
+- essays：單一公開 SELECT policy
+- 原 permissive authenticated ALL 已刪
+- 原假的 `only admin can write = true` 已刪
 
-寫入只應由：
-- service_role
-- Edge Functions
-- GitHub Actions
-- Supabase 後台
-
-### RLS
-- `questions`：單一公開 SELECT policy
-- `essays`：單一公開 SELECT policy
-- 原本 permissive `authenticated ALL` 已刪
-- 原本假的 `only admin can write = true` 已刪
-
-### SECURITY DEFINER / RPC
-已撤銷 public / anon / authenticated EXECUTE：
-- `auto_enable_ai_for_pending_question()`
-- `auto_stop_ai_when_queue_drains()`
-- `reset_ai_analysis_on_official_change()`
-- 以及內部 trigger/helper 的不必要公開執行權限
-
-`service_role` 保留內部需要的 EXECUTE。
-
-### Supabase security advisor
-已消失的重大警告：
-- public-callable SECURITY DEFINER
-- mutable search_path（已處理的函式）
-- permissive authenticated write policies
-
-目前仍看到的主要提示：
-- 一些內部表 RLS enabled but no policy：**刻意 server-only，不需為消警告而加 public policy**
-- Auth leaked-password protection disabled：學生端登入已移除，目前不是公開阻塞項
+PUBLIC 可呼叫的敏感 SECURITY DEFINER helper 已撤銷 public / anon / authenticated EXECUTE，只保留必要內部權限。
 
 ---
 
-## 6. 公開前端安全整理（GitHub 最新版已完成）
+## 6. Cloudflare AI Proxy 防濫用 — 已完成並驗收
 
-GitHub 最新 `index.html` 已移除：
-- ⚙ 管理入口
-- Supabase Auth 管理登入
-- Email／密碼登入 UI
-- CSV 題庫匯入
-- browser-side `upsert`
-- PapaParse 管理用途
-- `renderAdmin()` 等管理死碼
-
-保留：
-- `parseExp()`，因為正常題解載入仍使用。
-
-公開頁已加入：
-- 免費公開平台文案
-- AI 批改個資提醒：不要輸入／上傳可識別個案資料
-- 時事雷達文字改成「此類事件常見的申論思考方向」以避免誤導成逐篇 AI 分析
-- 舊 `essays_2.js` 錯誤提示已移除
-
-**注意：Netlify 正式站尚未更新到這批 GitHub 最新版，因使用者決定每月集中部署。**
-
----
-
-## 7. Cloudflare AI Proxy 防濫用 — 已完成部分
-
-### Worker 原本問題
-原本：
-- `Access-Control-Allow-Origin: *`
-- 任意網站、無 Origin 都能打 Worker
-- 幾乎原封不動把 body 轉給 Groq
-
-2026-08-25 已實測：
-- 無 Origin 原本可打
-- `https://evil.example` 也可打
-
-### 現在已部署的安全版
-正式 Worker 已改成：
-- allowlist Origin：`https://swsi-quiznetlify.netlify.app`
+### Origin / request guard
+正式 Worker 已做到：
+- 只允許 `https://swsi-quiznetlify.netlify.app`
 - 無 Origin → 403
-- 外站 Origin → 403
-- 正式 SWSI Origin → 通過
+- 假 Origin → 403
+- 正式 SWSI Origin → 允許
 - CORS 不再 `*`
-- 只允許 POST / OPTIONS
-- 指定模型：`qwen/qwen3.6-27b`
-- 最大 request 約 4 MB
+- POST / OPTIONS only
+- request 最大約 4 MB
 - 最多 4 張圖片
 - messages 格式驗證
-- max_tokens 上限 1200
-- temperature 上限 0.7
-- Groq 內部錯誤不把細節直接洩漏前端
+- 學生端模型固定 `qwen/qwen3.6-27b`
+- max_tokens / temperature 有上限
+- Groq 錯誤不直接洩漏內部細節
 
-GitHub 備份：
-- `cloudflare/wandering-wave-4418/worker.js`
+2026-08-25 最終 smoke test：
+- no Origin → **403**
+- `https://evil.example` → **403**
+- 正式 SWSI Origin → **200**，Groq 實際回覆 `OK`
 
-### Cloudflare Rate Limiter bindings
-已建立並部署：
+### Secrets
+Cloudflare Runtime Secrets 已有：
+- `GROQ_KEY`
+- `SWSI_INTERNAL_KEY`
 
+**只記名稱，不得把值寫進 GitHub。**
+
+### Rate Limiter
 1. `AI_RATE_LIMIT`
-   - Namespace ID：`1001`
-   - Limit：3
-   - Period：60 秒
-   - Worker 使用 IP + User-Agent hash 當軟 client key
+   - namespace 1001
+   - 3 / 60 秒
+   - client key = IP + User-Agent hash
 
 2. `AI_IP_LIMIT`
-   - Namespace ID：`1002`
-   - Limit：30
-   - Period：60 秒
-   - 用 IP 作第二層防暴衝
+   - namespace 1002
+   - 30 / 60 秒
 
-### 實測結果
-Origin guard：
-- no Origin → **403**
-- evil Origin → **403**
-- SWSI Origin → 通過來源檢查
-
-Rate limiter：
-- Cloudflare 內建 Rate Limiter 是 permissive / eventually consistent，不是精準第 4 次必擋。
-- 實測連打 12 個無效請求（都在 Groq 前被拒，不產生 AI 內容）：第 8、11 次出現 **429**。
-- 結論：**限速確實有工作，但不能拿來當每日精準配額帳本。**
+Cloudflare Rate Limiter 是防暴衝，不是精準每日帳本。
 
 ---
 
-## 8. 【現在正在做的下一步】Cloudflare D1 每日精準額度
+## 7. D1 每日精準配額 — 已完成並驗收
 
-這是**下一個對話一定要從這裡接**。
+D1 database：`swsi-ai-quota`
 
-目的：
+Tables：
 
-Rate Limiter 只負責防暴衝；D1 負責精準每日配額。
+### `ai_daily_client_usage`
+欄位用途：
+- `usage_date`
+- `client_key`（不可逆 hash；不存姓名、Email、原始 IP）
+- `text_count`
+- `photo_count`
+- `updated_at`
 
-目前預定政策（可在真正接 Worker 前再調）：
+### `ai_daily_global_usage`
+欄位用途：
+- `usage_date`
+- `text_count`
+- `photo_count`
+- `updated_at`
 
-- 文字 AI 批改：每個 client 約 **10 次／日**
-- 照片 AI 批改：每個 client 約 **3 次／日**
-- 再加「全平台每日 AI 總上限」保護 Groq / Worker 免費額度
-- 不要求學生登入
-- 超過 AI 額度後，刷題／申論骨架／錯題等免費核心功能仍全部可用
+目前政策：
+- 每 client 文字 AI：約 **10 次／日**
+- 每 client 照片 AI：約 **3 次／日**
+- 全站另有每日總閥門
+- invalid request 不應消耗 quota
+- Groq 失敗會退回已扣 quota
+- 後台自動題解走 internal branch，**不吃學生 D1 配額**
 
-目前已完成：
+### 2026-08-25 最終驗收
+正式 SWSI Origin 做 1 次文字 AI 後：
 
-- [x] Cloudflare 建立 D1 database：`swsi-ai-quota`
-- [x] 將 D1 binding 綁到 `wandering-wave-4418`：`AI_QUOTA_DB`
+`ai_daily_global_usage`
+- usage_date：2026-08-25
+- text_count：**1**
+- photo_count：**0**
 
-**目前精確卡點／下一步：**
+`ai_daily_client_usage`
+- 同日出現一筆 hashed client_key
+- text_count：**1**
+- photo_count：**0**
 
-> 進入 Cloudflare D1 `swsi-ai-quota` → Console，建立每日 client usage 與全站 usage table。現在資料庫尚未建 table。
+結論：**D1 每日記帳、client 記帳、正式 SWSI AI 路徑均已實際生效。**
 
-接下來 checklist：
+此階段狀態：
 
-- [ ] 建每日 client usage table
-- [ ] 建全站每日 usage table
-- [ ] 將 schema 備份到 GitHub
-- [ ] Worker 區分 text / photo usage
-- [ ] client key 做不可逆 hash，不存原始 IP
-- [ ] 精準檢查每 client 當日文字／照片次數
-- [ ] 精準檢查全站每日總次數
-- [ ] 只有「真正準備送 Groq 的有效請求」才扣額度，不要讓 invalid request 消耗 quota
-- [ ] 回傳友善 429／quota exhausted 訊息
-- [ ] 做正常／超額／換日測試
-- [ ] 將 Worker 最新版備份回 GitHub
-
-未來若正式公開到十幾萬使用者，再評估：
-- [ ] Turnstile / challenge
-- [ ] 更精細裝置識別與 anti-bot
-- [ ] 動態每日總閥門
-- [ ] AI 使用量 dashboard
-
----
-
-## 9. Netlify 發布策略（使用者明確決定）
-
-**不要現在強迫即時部署 Netlify。**
-
-使用者明確說：
-- Netlify 每月更新再改。
-
-所以目前正確做法：
-- GitHub 持續當最新版
-- Supabase / Cloudflare 後端安全可即時修
-- Netlify 學生 UI 集中月更
-
-正式月更時應檢查：
-- [ ] `_site` build
-- [ ] index.html 新版
-- [ ] sw.js cache version
-- [ ] manifest/icons
-- [ ] auto/questions_auto.json
-- [ ] auto/essays_auto.json
-- [ ] auto/current_affairs.json
-- [ ] 正式站 smoke test
-- [ ] iPhone PWA cache 更新
+> ✅ Cloudflare Origin 防護
+> ✅ 每分鐘防暴衝
+> ✅ IP 第二層限速
+> ✅ D1 每 client 每日額度
+> ✅ D1 全站每日額度
+> ✅ Groq Key 只在 Cloudflare Secret
+> ✅ Supabase 後台 internal key 相容
+> ✅ 後台不吃學生 quota
+> ✅ pg_net timeout 修正
+> ✅ 實際 smoke test 通過
 
 ---
 
-## 10. 不要重做／不要誤判的事情
+## 8. 現在真正的下一步
 
-- 不要再把專案當「資料救援階段」；現在已進入公開前 QA / 安全 / 成本控制。
-- 不要再開公開 authenticated 題庫寫入。
-- 不要把 Supabase anon key 當秘密；真正秘密是 service-role / Groq key / backend secrets。
-- 不要為了消 Supabase `RLS enabled no policy` INFO 而給 server-only table 加 public policy。
-- 不要因 Netlify 還是舊版就把 GitHub 最新修正回退。
-- 不要把 Cloudflare Rate Limiter 當精準每日 quota。
-- 不要讓 AI 自動修改考選部官方題目／答案。
-- 不要一直加新主入口；前台做減法，後台自動化。
+**AI 防濫用／D1 配額這一階段已結案，不要再從建 D1、建 table、加 binding 開始。**
+
+下一步建議優先順序：
+
+1. **回到產品本身做公開前 UX / QA**
+   - 首頁 10 秒內能否知道該做什麼
+   - 做題 → 解析 → 錯題 → 複習 → 進度是否順
+   - 申論 AI 超額／429 顯示是否友善
+   - 行動版實測
+2. **做一輪完整公開前 smoke test**
+   - 選擇題
+   - 錯題本
+   - 申論文字
+   - 申論照片
+   - 時事雷達
+   - 法規監測狀態
+3. Netlify 仍依使用者決定：**每月集中部署，不要擅自立即更新**
+4. 若未來公開到大流量，再評估：
+   - Turnstile / challenge
+   - 動態全站 AI 總閥門
+   - AI usage dashboard
+   - 更強 anti-bot / device identification
 
 ---
 
-## 11. 每次重大修改後必做
+## 9. 不要重做／不要誤判
 
-新對話／未來 ChatGPT 完成重大修改後，請**同步更新本檔**：
+- 不要再把專案當資料救援階段。
+- 不要重建 D1；已完成。
+- 不要重建兩張 usage table；已完成。
+- 不要再新增 `AI_RATE_LIMIT` / `AI_IP_LIMIT`；已完成。
+- 不要把 Rate Limiter 當精準每日 quota。
+- 不要再開 authenticated 題庫寫入。
+- 不要把 Supabase anon key 當秘密。
+- 不要把 Groq key / internal key 寫進 GitHub。
+- 不要因 Netlify 還是舊版就回退 GitHub 最新修正。
+- 不要讓 AI 改考選部官方題幹／選項／答案。
+- 前台做減法，後台自動化。
 
-`PROJECT_HANDOFF.md`
+---
 
-至少更新：
-- 最後更新時間
+## 10. 每次重大修改後必做
+
+同步更新本檔：`PROJECT_HANDOFF.md`
+
+至少記：
 - 已完成事項
 - 現在卡點
-- 下一步 checklist
-- 新增的 binding / table / function 名稱
+- 下一步
+- 新增 binding / table / function 名稱
 - 重要測試結果
-- 不要遺失的設定值（只記非秘密設定；API key / secret 絕對不要寫進 GitHub）
+- **只記非秘密設定；secret 值永遠不要寫入 repo**
 
 ---
 
-## 12. 下一個 ChatGPT 對話的最短啟動指令
+## 11. 下一個對話最短啟動指令
 
-直接貼這句即可：
-
-> **請讀 GitHub `grizzly020503/swsi-quiz-backup` 的 `PROJECT_HANDOFF.md`，依「現在正在做的下一步」繼續。不要重做已完成項目，也不要改 Netlify，除非我明確要求。**
+> **請讀 GitHub `grizzly020503/swsi-quiz-backup` 的 `PROJECT_HANDOFF.md`，依「現在真正的下一步」繼續。不要重做已完成項目，也不要改 Netlify，除非我明確要求。**
