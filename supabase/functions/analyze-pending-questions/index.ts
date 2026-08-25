@@ -42,7 +42,7 @@ async function callModel(model: string, prompt: string, reasoning: string, maxTo
   if (reasoning) body.reasoning_effort = reasoning;
   let last = "";
   for (let attempt = 0; attempt < 4; attempt++) {
-    const r = await fetch(AI_PROXY_URL, { method: "POST", headers: { "content-type": "application/json", "x-internal-key": internalKey }, body: JSON.stringify(body) });
+    const r = await fetch(AI_PROXY_URL, { method: "POST", headers: { "content-type": "application/json", "X-SWSI-Internal-Key": internalKey }, body: JSON.stringify(body) });
     const text = await r.text();
     if (r.status === 429) {
       last = `AI ${model} HTTP 429: ${text.slice(0, 300)}`;
