@@ -1,8 +1,9 @@
 # SWSI 公開前月更 Patch 設計
 
 建立：2026-08-25
+最後更新：2026-08-25 17:46
 
-> 這是施工圖，不是已套用變更。建立本檔不觸發 Netlify production deploy。
+> 這是施工圖，不是已套用前端變更。更新本檔不代表 Netlify production 已部署。
 
 ## 原則
 
@@ -10,6 +11,7 @@
 - 學生端修改集中同一次月更，避免重複消耗 Netlify deploy credits。
 - 每個 patch 都要能單獨驗收；任何核心流程失敗就回滾該段，不硬上。
 - 官方題目與官方答案不因 AI 判斷而改動。
+- 2026-08-25 已完成的 Supabase / Cloudflare 後端修正，不要月底再重做。
 
 ---
 
@@ -17,7 +19,9 @@
 
 ### A1. `renderQuiz()` 全部動態資料 escape
 
-修改範圍：`renderQuiz()`。
+**狀態：待月底 Netlify。**
+
+修改範圍：`renderQuiz()` 及其他直接把資料庫／AI 文字塞進 `innerHTML` 的區域。
 
 需 escape：
 
@@ -39,6 +43,8 @@
 ## Patch B — AI 使用者識別與錯誤訊息
 
 ### B1. 新增匿名 client ID helper
+
+**狀態：待月底 Netlify；Worker 已支援。**
 
 建議：
 
@@ -66,6 +72,8 @@ function getAIClientId(){
 
 ### B2. 顯示 Worker 真實錯誤訊息
 
+**狀態：待月底 Netlify。**
+
 新增共用 helper，非 2xx 時先嘗試 JSON：
 
 - 有 `error.message` → 顯示該訊息
@@ -81,23 +89,32 @@ function getAIClientId(){
 
 ### C1. 前端
 
+**狀態：待月底 Netlify。**
+
 `gradePhoto()`：
 
-- `files.length > 3` 時只取前三張，最好直接提示「一次最多 3 張」而不是默默切掉。
+- `files.length > 3` 時直接提示「一次最多 3 張」，不要默默吞第 4 張。
 - input 可保留 `multiple`。
 - 文案從「建議 1–3 張」改成「一次最多 3 張」。
 
 ### C2. Worker
 
-- `imageCount > 3` → 400，訊息「最多一次上傳 3 張照片。」
-- 公開模式 image_url 建議只允許前端實際會產生的 `data:image/jpeg;base64,`。
-- 文字模式另設合理 request size／字數上限，避免所有請求都吃 4MB 上限。
+**狀態：後端已完成，production build success。不要月底重做。**
 
-原因：Qwen 3.6 官方模型頁標示 MAX INPUT IMAGES = 3；以較保守官方限制為準。
+正式 Worker 已：
+- `imageCount > 3` → 400
+- 公開 image URL 只接受前端 JPEG data URL
+- 全站 quota 已滿時先讀 global 狀態再拒絕，減少 D1 無效寫入／退款
+
+最新已知 production Worker version：`a84f3bab-72b2-4798-908d-0abdf4ec73f5`。
+
+仍需在可直接連 `workers.dev` 的環境做最後 runtime smoke test。
 
 ---
 
 ## Patch D — 模擬考未作答一致化
+
+**狀態：待月底 Netlify。**
 
 修改：`MK.grade()`。
 
@@ -108,13 +125,13 @@ function getAIClientId(){
 - 未作答要進錯題／間隔複習排程
 - UI 仍顯示「未作答」而不是偽裝成選錯某選項
 
-注意：現行 `record(item,picked,correct)` 不會保存 picked，本身可接受 `null`；若未來要分析「漏答」，再另外新增欄位，不在本次擴充。
-
 驗收：10 題只答 5 題交卷，總分／各科分母／錯題本三處應一致。
 
 ---
 
 ## Patch E — 搜尋 deep-link
+
+**狀態：待月底 Netlify。**
 
 修改：
 
@@ -123,95 +140,68 @@ function getAIClientId(){
 
 不要把 name 字串直接塞進目前以 index 判定的 `theoryOpen / lawOpen`。
 
-建議：
-
-```js
-function openTheory(name){
-  theoryQ=name;
-  theoryOpen=THEORIES.findIndex(t=>t.n===name);
-  go('theories');
-}
-function openLawCard(name){
-  lawQ=name;
-  lawOpen=LAWS.findIndex(l=>l.n===name);
-  go('laws');
-}
-```
-
 驗收：搜尋「增強權能」／「家庭暴力防治法」→ 點結果後直接看到展開內容。
 
 ---
 
 ## Patch F — 本機儲存可信度
 
+**狀態：待月底 Netlify。**
+
 ### F1. 草稿顯示儲存狀態
 
 `saveDraft()` 不再無聲 catch。
 
-建議在 textarea 下方放：
-
+顯示：
 - `已儲存在這台裝置`
 - 或 `⚠ 無法儲存，請立即備份`
 
-`saveHist()` / `saveReviewState()` 至少 console + 共用 storage warning flag，避免所有紀錄悄悄停止寫入。
+`saveHist()` / `saveReviewState()` 至少設共用 storage warning flag。
 
 ### F2. 備份名稱說清楚
 
-現有 TXT 按鈕可改：
+現有 TXT 按鈕改為：
 
 > `匯出申論草稿（TXT）`
 
-避免讓人誤會可一鍵還原。
-
 ### F3. 後續（非本次必做）
 
-設計 JSON 匯出／匯入：
-
-- drafts
-- history
-- review state
-- font setting
-
-原始 history 未來可做上限或彙總，避免無限成長。
+JSON 匯出／匯入：drafts、history、review state、font setting。
 
 ---
 
 ## Patch G — 申論 AI 可信度與隱私
 
+**狀態：待月底 Netlify。**
+
 ### G1. 移除過度承諾
 
-Prompt：
-
-> 「校過骨架（已人工核對的正確考點……）」
-
-改成：
+將「校過骨架（已人工核對的正確考點……）」改成：
 
 > 「平台提供的參考骨架與關鍵字」
 
-AI 不得宣稱平台骨架皆經人工逐題核對。
-
 ### G2. 隱私文案
 
-補一句：
+補：
 
 > 「照片／文字會送至外部 AI 服務處理；請勿輸入或上傳可識別真實個案或個人的資料。」
 
-保留既有「AI 回饋非官方評分」。
+保留「AI 回饋非官方評分」。
 
 ---
 
 ## Patch H — 首頁定位與 SEO
 
+**狀態：待月底 Netlify。**
+
 ### H1. 首頁第一屏
 
-保留「今天要練什麼？」行動導向，新增短句：
+保留「今天要練什麼？」行動導向，新增：
 
-> **免費社工師國考學習平台**
+> **免費社工師國考學習平台**  
 > 歷屆試題、解析、錯題複習與申論練習，不鎖題、不賣解答。
 
 ### H2. Head
-
-建議：
 
 - title：`社工師國考免費題庫｜SWSI`
 - meta description
@@ -219,11 +209,13 @@ AI 不得宣稱平台骨架皆經人工逐題核對。
 - og:title
 - og:description
 - og:type
-- og:image（若已有可用分享圖才加，不臨時亂做）
+- og:image（有正式分享圖才加）
 
 ---
 
 ## Patch I — 無障礙與色彩
+
+**狀態：待月底 Netlify。**
 
 優先順序：
 
@@ -234,50 +226,36 @@ AI 不得宣稱平台骨架皆經人工逐題核對。
 5. 搜尋卡片與其他 `div onclick`
 
 作答選項至少需：
-
 - 可 Tab 到
 - Enter / Space 可選
 - 有 radio / selected 語意
-- 答題後能讓讀屏知道正解／你選的
-
-顏色：
-
-- 小字 muted 加深
-- pine 小字必要時用 `--pine-deep`
-- `--ink-3` 不承擔重要文字
-- 白字 + gold 實心背景重新調深
+- 答題後讓讀屏知道正解／你選的
 
 ---
 
 ## Patch J — PWA cache version
 
-只要本次改動包含 `essay_guides.js` 或其他 cache-first 靜態檔：
+**狀態：月底前端施工時一起做。**
+
+只要本次改動包含 `essay_guides.js`、題庫讀取方式或其他 cache-first 靜態檔：
 
 - bump `sw.js` VERSION
 - 安裝新版 Service Worker 後刪舊 cache
 
 驗收：
-
 1. 舊 PWA 開啟
 2. 上線新版
 3. 重開／重新整理
-4. 確認新 essay guide 能出現
-5. 飛航模式重開，確認已下載題庫仍可進
+4. 確認新內容
+5. 飛航模式重開，確認已下載內容可進
 
 ---
 
-## Patch K — Supabase AI queue 公平排序（獨立 migration 候選）
+## Patch K — Supabase AI queue 公平排序
 
-目前：
+**狀態：✅ production 已完成，不是月底工作。**
 
-```sql
-order by q.source_exam_code nulls last,
-         q.subject,
-         numeric_qno,
-         q.id
-```
-
-候選：
+目前 production：
 
 ```sql
 order by q.source_exam_code nulls last,
@@ -286,50 +264,131 @@ order by q.source_exam_code nulls last,
          q.id
 ```
 
-效果：同樣每日最多 25 題，但最新考次會大致五科平均消化，而不是一科做完才換下一科。
-
-套用前：保留現行 function definition；用 migration 做，不直接臨時改 production。
-
-驗收：下一個新考次前 25 題的 subject 分布應接近 5/5/5/5/5。
+每日最多 25 題不變，但最新考次跨科目較平均消化。
 
 ---
 
 ## Patch L — AI 解析品質閥門
 
-### L1. 先修兩筆已確認資料
+**狀態：✅ 後端已完成；月底只需前端顯示相容。**
 
-- `SP113-1-30`：移除錯誤「官方答案有瑕疵／D 其實為真」內容；D 把通常保護令有效期限誤寫成 5 年，因此官方 D 為錯誤選項並無問題。
-- `SP105-1-31`：移除模型自我修正殘渣，直接解釋 B 把「以提供到宅托育為限」寫反成「不得提供到宅托育」。
+已完成：
 
-### L2. 自動 quality report
+- 舊錯誤解析已清理／重排
+- 24 官方多答案題隔離 `review`
+- 16 一律給分題隔離 `review`
+- DB trigger `trg_reject_ai_answer_meta_commentary`
+- 禁止 ready 解析含「題庫答案／官方答案／答案待查／建議查答案」等 meta 話術
+- ready meta 污染驗收為 0
+- analyzer production v7 支援 `accepted_answers`
 
-不讓 AI 自動改官方答案，只報告：
+不要再批次重跑 4,800 題。
 
-- `exp_why` 開頭選項字母 ≠ official answer
-- 解析出現「答案有瑕疵／官方答案／題庫正解／建議複查」
-- ready 但 explanation/topic/mistake 空白
+---
 
-人工確認後才修改解析。
+## Patch M — 官方多答案前端支援
+
+**狀態：P0，待月底 Netlify。**
+
+資料庫已完成：
+- 24 題 `accepted_answers`
+- official audit 4,800 / 4,800 = 0 mismatch
+
+前端所有判題入口統一使用 helper，例如：
+
+```js
+function acceptedAnswers(item){
+  if(Array.isArray(item.accepted_answers) && item.accepted_answers.length){
+    return new Set(item.accepted_answers);
+  }
+  if(item.answer==='一律給分') return new Set(['A','B','C','D']);
+  return new Set([item.answer]);
+}
+```
+
+需檢查：
+- 一般刷題
+- 指定歷屆
+- 錯題本
+- 間隔複習
+- 模擬考
+- 結果頁正解顯示
+- 弱點／正確率統計
+
+多答案題 UI 顯示：`官方可接受答案：B、C`，不要只顯示主 answer。
+
+驗收：24 題全部逐題測，選任何 accepted answer 都算正確；其他選項算錯。
+
+---
+
+## Patch N — Cloudflare 題庫 CDN / 24 shard
+
+**狀態：公開大流量前最大 P0，待設計與施工。**
+
+目前問題：舊前端會直接從 Supabase 下載整套約 7.56 MiB 題庫；大量公開使用時，每位學生都拉整包會放大 egress 與首載成本。
+
+目標架構：
+
+> Supabase = 後台 source of truth  
+> GitHub Actions / build = 產生靜態題庫 shard  
+> Cloudflare = CDN cache  
+> Netlify 前端 = 依考次／科目載入需要的 shard
+
+先沿用之前規劃的 **24 shard**，但施工前要重新確認切分鍵、manifest、cache version、離線 PWA 相容。
+
+驗收：
+- 首頁不下載 4,800 題整包
+- 進某考次只載必要 shard
+- Cloudflare cache hit 正常
+- Supabase public egress 明顯下降
+- PWA 已下載的題目仍可離線使用
+
+---
+
+## Patch O — 最新申論 PDF 私用字元
+
+**狀態：待月底同包。**
+
+`E-115-2-R-1` 仍有 `  ` 私用字元；不同手機／字型可能變方框。
+
+改成穩定的 `(一) (二) (三)` 或一般 Unicode 編號，並同步：
+- source parser 清理規則
+- `auto/essays_auto.json`
+- PWA cache version
+
+不要為這一題單獨觸發 Netlify deploy。
 
 ---
 
 ## 建議施工順序
 
-1. 先備份目前 `index.html / worker.js / sw.js` SHA
-2. Supabase queue migration 與解析資料修正獨立處理、獨立驗收
-3. 在 GitHub 一次完成 `index.html` Patch A–I
-4. Worker Patch C
-5. `sw.js` bump version
+1. **先做 Cloudflare 題庫 CDN / shard 設計與產生器**，但不切正式前端
+2. 備份目前 `index.html / sw.js / manifest.json` SHA
+3. 在 GitHub 一次完成 Patch A、B、C1、D、E、F、G、H、I、M、O
+4. 將前端題庫讀取切到 Patch N CDN manifest/shard
+5. bump `sw.js` VERSION
 6. diff review
-7. Netlify production deploy 一次
+7. Netlify production deploy **一次**
 8. 手機 Safari / Android Chrome / 桌面 Chrome smoke test
-9. AI 文字 1 次、照片 1–3 張、quota 錯誤、模擬考未作答、搜尋 deep-link、離線 PWA逐項驗收
+9. 驗收：
+   - 一般刷題
+   - 24 多答案
+   - 一律給分
+   - 錯題／間隔複習
+   - 模擬考未作答
+   - 搜尋 deep-link
+   - 申論文字 AI
+   - 申論照片 1–3 張／第 4 張拒絕
+   - quota 錯誤訊息
+   - 題庫 CDN cache
+   - 離線 PWA
 
 ## 明確不做
 
 - 不新增付費牆
 - 不要求登入才能刷題
 - 不增加每日打卡／連勝壓力
-- 不為了『看起來厲害』新增更多首頁入口
+- 不為了「看起來厲害」新增更多首頁入口
 - 不讓 AI 修改官方題目／官方答案
 - 不因一筆解析爭議就批次重跑全部 4,800 題
+- 不在月底重做已完成的 Supabase queue／多答案 DB／法規 mapping／AI meta trigger
