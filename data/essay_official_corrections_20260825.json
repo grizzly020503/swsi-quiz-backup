@@ -1,0 +1,19 @@
+{
+  "checked_at": "2026-08-25",
+  "policy": "Historical essay question text and point values are corrected only against official Examination Yuan / MOEX exam papers. Topic labels, theories, keywords and answer guides are not changed by this correction batch.",
+  "records": [
+    {"ids":["社會工作-111-1-申論2"],"issue":"truncated question","source":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111030&q=1&s=0401&t=Q"},
+    {"ids":["社會工作-107-1-申論2"],"issue":"truncated question","source":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0601&t=Q"},
+    {"ids":["社會工作直接服務-104-2-申論1","社會工作直接服務-104-2-申論2"],"issue":"OCR typo and truncated question","source":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0602&t=Q"},
+    {"ids":["社會工作研究方法-115-1-申論2"],"issue":"truncated question","source":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q"},
+    {"ids":["社會工作-105-1-申論1","社會工作-105-1-申論2"],"issue":"answer-analysis text contaminated question; official wording restored","source":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105030&q=1&s=0601&t=Q"},
+    {"ids":["社會工作-105-2-申論1","社會工作-105-2-申論2"],"issue":"answer-analysis text contaminated question; OCR wording restored","source":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0601&t=Q"},
+    {"ids":["社會工作直接服務-106-1-申論2"],"issue":"duplicated OCR phrase","source":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0602&t=Q"},
+    {"ids":["社會工作直接服務-108-1-申論1","社會工作直接服務-108-1-申論2"],"issue":"OCR typo","source":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108020&q=1&s=0602&t=Q"},
+    {"ids":["人類行為與社會環境-108-2-申論1"],"issue":"duplicated name OCR typo","source":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0605&t=Q"},
+    {"ids":["人類行為與社會環境-106-2-申論1","人類行為與社會環境-106-2-申論2"],"issue":"official point values are 26 and 24 rather than 25/25; wording normalized to official paper","source":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0605&t=Q"},
+    {"ids":["社會工作-109-2-申論1"],"issue":"OCR typo in malpractice","source":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109110&q=1&s=0601&t=Q"},
+    {"ids":["社會工作-106-1-申論2"],"issue":"OCR omission in 評鑑","source":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0601&t=Q"},
+    {"ids":["社會工作-104-1-申論1"],"issue":"OCR typo in 倫理","source":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0601&t=Q"}
+  ]
+}
