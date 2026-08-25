@@ -26,10 +26,10 @@ jobs:
       - name: Install dependency
         run: python -m pip install --disable-pip-version-check requests
 
-      - name: Build 24 read-only question shards
+      - name: Build read-only question shards
         run: python scripts/build_question_shards.py --output-dir /tmp/question-shards
 
-      - name: Verify artifact layout
+      - name: Verify current artifact layout
         run: |
           python - <<'PY'
           import json
@@ -37,27 +37,86 @@ jobs:
 
           root=Path('/tmp/question-shards')
           manifest=json.loads((root/'manifest.json').read_text(encoding='utf-8'))
-          assert manifest['total_questions']==4800, manifest
-          assert manifest['shard_count']==24, manifest
           shards=manifest['shards']
-          assert len(shards)==24
+
+          assert manifest['baseline_shard_count']==24, manifest
+          assert manifest['shard_count']>=24, manifest
+          assert manifest['total_questions']==manifest['shard_count']*200, manifest
+          assert len(shards)==manifest['shard_count'], manifest
+
+          expected_baseline={f'{year}-{round_no}.json' for year in range(104,116) for round_no in (1,2)}
+          actual_files={meta['file'] for meta in shards}
+          assert expected_baseline.issubset(actual_files), sorted(expected_baseline-actual_files)
+
+          all_rows=[]
           for meta in shards:
               p=root/meta['file']
               assert p.exists(), p
               data=json.loads(p.read_text(encoding='utf-8'))
               assert data['question_count']==200, meta
               assert len(data['questions'])==200, meta
-          all_rows=[q for meta in shards for q in json.loads((root/meta['file']).read_text(encoding='utf-8'))['questions']]
-          assert sum(1 for q in all_rows if q.get('accepted_answers'))==24
-          assert sum(1 for q in all_rows if q.get('answer')=='一律給分')==16
+              all_rows.extend(data['questions'])
+
+          multi=sum(1 for q in all_rows if q.get('accepted_answers'))
+          all_give=sum(1 for q in all_rows if q.get('answer')=='一律給分')
+          # Historical official-answer QA baseline. Future exams may add more.
+          assert multi>=24, multi
+          assert all_give>=16, all_give
+
           print(json.dumps({
               'ok': True,
               'questions': len(all_rows),
               'shards': len(shards),
-              'multi_answer_rows': 24,
-              'all_give_rows': 16,
+              'multi_answer_rows': multi,
+              'all_give_rows': all_give,
               'total_uncompressed_bytes': manifest['total_uncompressed_bytes'],
               'dataset_revision': manifest['dataset_revision'],
+          }, ensure_ascii=False))
+          PY
+
+      - name: Simulate future 116-1 exam auto expansion
+        run: |
+          python - <<'PY'
+          import copy
+          import importlib.util
+          import json
+          from pathlib import Path
+
+          spec=importlib.util.spec_from_file_location('builder','scripts/build_question_shards.py')
+          builder=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(builder)
+
+          root=Path('/tmp/question-shards')
+          manifest=json.loads((root/'manifest.json').read_text(encoding='utf-8'))
+          rows=[]
+          for meta in manifest['shards']:
+              rows.extend(json.loads((root/meta['file']).read_text(encoding='utf-8'))['questions'])
+
+          source=json.loads((root/'115-2.json').read_text(encoding='utf-8'))['questions']
+          future=[]
+          for row in source:
+              q=copy.deepcopy(row)
+              q['year']='116'
+              q['round']='第一次'
+              q['id']='FUTURE-116-1-'+str(q['id'])
+              q['source_exam_code']='116030'
+              future.append(q)
+
+          future_rows=rows+future
+          grouped=builder.validate(future_rows)
+          out=Path('/tmp/question-shards-future')
+          future_manifest=builder.build(future_rows, grouped, out)
+
+          assert future_manifest['shard_count']==manifest['shard_count']+1, future_manifest
+          assert future_manifest['total_questions']==manifest['total_questions']+200, future_manifest
+          assert (out/'116-1.json').exists()
+          payload=json.loads((out/'116-1.json').read_text(encoding='utf-8'))
+          assert payload['question_count']==200 and len(payload['questions'])==200
+          print(json.dumps({
+              'future_auto_expand_ok': True,
+              'shards': future_manifest['shard_count'],
+              'questions': future_manifest['total_questions'],
+              'new_file': '116-1.json',
           }, ensure_ascii=False))
           PY
 
