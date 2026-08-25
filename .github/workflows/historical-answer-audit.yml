@@ -8,7 +8,7 @@ on:
       - 'scripts/historical_answer_audit.py'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: swsi-historical-answer-audit
@@ -32,6 +32,21 @@ jobs:
 
       - name: Compare 4,800 answers with MOEX final sheets
         run: python scripts/historical_answer_audit.py --output-dir audit_output
+
+      - name: Save audit report in repository
+        run: |
+          mkdir -p audit
+          cp audit_output/historical_answer_audit.json audit/
+          cp audit_output/historical_answer_audit.md audit/
+          git config user.name 'swsi-audit-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add audit/historical_answer_audit.json audit/historical_answer_audit.md
+          if git diff --cached --quiet; then
+            echo 'Audit report unchanged.'
+          else
+            git commit -m '更新考選部歷屆答案稽核報告'
+            git push
+          fi
 
       - name: Upload read-only audit report
         if: always()
