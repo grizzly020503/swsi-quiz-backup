@@ -1,0 +1,49 @@
+name: Apply Public Frontend Hardening
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-public-hardening.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  harden:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Apply public frontend hardening
+        run: python scripts/harden_public_frontend.py
+
+      - name: Validate patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          ! grep -F "onclick=\"go('admin')\" title=\"管理\"" index.html
+          grep -F '🔒 隱私提醒' index.html
+          grep -F '免費公開學習工具' index.html
+          grep -F '此類事件常見的申論思考方向' index.html
+          ! grep -F 'essays_2.js' index.html
+
+      - name: Commit hardened public frontend
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'swsi-maintenance-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html README.md scripts/install_current_affairs_ui.py
+          if git diff --cached --quiet; then
+            echo 'No frontend hardening changes needed.'
+            exit 0
+          fi
+          git commit -m '公開版移除管理入口並補強隱私提示'
+          git push
