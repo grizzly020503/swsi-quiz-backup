@@ -1,30 +1,36 @@
 #!/usr/bin/env python3
 # Official MOJ legal-change watcher for the private SWSI question bank.
+#
+# Why direct-page mode?
+# GitHub-hosted runners can reach law.moj.gov.tw but currently cannot route to
+# sendlaw.moj.gov.tw/PublicData.  We therefore resolve each watched law through
+# the official search page, then read its official LawAll page and modification
+# date.  This keeps the source authoritative without depending on the blocked
+# bulk-download host.
+
 import argparse
-import io
 import json
 import re
 import sys
+import time
 import unicodedata
-import zipfile
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from pathlib import Path
-from xml.etree import ElementTree as ET
+from urllib.parse import quote, urljoin
 
 import requests
 
-SOURCES = [
-    {"type": "law", "url": "https://sendlaw.moj.gov.tw/PublicData/GetFile.ashx?DType=XML&AuData=CF"},
-    {"type": "command", "url": "https://sendlaw.moj.gov.tw/PublicData/GetFile.ashx?DType=XML&AuData=CM"},
-]
-NAME_TAGS = {"LawName", "法規名稱"}
-DATE_TAGS = {"LawModifiedDate", "最新異動日期"}
-URL_TAGS = {"LawURL", "法規網址"}
-ABANDON_TAGS = {"LawAbandonNote", "廢止註記"}
-MIN_SOURCE_RECORDS = 100
+SEARCH_BASE = "https://law.moj.gov.tw/Law/LawSearchResult.aspx?ty=ONEBAR&kw="
+LAW_BASE = "https://law.moj.gov.tw/"
+OFFICIAL_SOURCE = {
+    "type": "law_moj_direct",
+    "url": "https://law.moj.gov.tw/Law/LawSearchResult.aspx?ty=ONEBAR&kw=<法規名稱>",
+}
 MIN_WATCH_MATCHES = 20
 DEFAULT_MIN_DAYS = 28
 DEFAULT_RETRY_DAYS = 3
+REQUEST_TIMEOUT = 30
 
 
 def utc_now():
@@ -44,89 +50,12 @@ def parse_iso(value):
         return None
 
 
-def local_name(tag):
-    return str(tag).split("}")[-1]
-
-
 def clean_text(value):
     return re.sub(r"\s+", " ", str(value or "")).strip()
 
 
 def key_name(value):
     return re.sub(r"\s+", "", unicodedata.normalize("NFKC", clean_text(value)))
-
-
-def direct_child_map(elem):
-    out = {}
-    for child in list(elem):
-        text = clean_text("".join(child.itertext()))
-        if text:
-            out.setdefault(local_name(child.tag), text)
-    return out
-
-
-def pick(mapping, names):
-    for name in names:
-        if mapping.get(name):
-            return mapping[name]
-    return ""
-
-
-def extract_xml_bytes(content):
-    bio = io.BytesIO(content)
-    if zipfile.is_zipfile(bio):
-        with zipfile.ZipFile(bio) as zf:
-            candidates = [n for n in zf.namelist() if n.lower().endswith(".xml")]
-            if not candidates:
-                candidates = [n for n in zf.namelist() if not n.endswith("/")]
-            if not candidates:
-                raise RuntimeError("MOJ ZIP contains no readable files")
-            candidates.sort(key=lambda n: zf.getinfo(n).file_size, reverse=True)
-            return zf.read(candidates[0])
-    return content
-
-
-def parse_records(xml_bytes, source_type):
-    root = ET.fromstring(xml_bytes)
-    records = {}
-    for elem in root.iter():
-        cmap = direct_child_map(elem)
-        name = pick(cmap, NAME_TAGS)
-        modified = pick(cmap, DATE_TAGS)
-        if not name or not modified:
-            continue
-        records.setdefault(
-            key_name(name),
-            {
-                "canonical_name": clean_text(name),
-                "source_type": source_type,
-                "official_modified_date": clean_text(modified),
-                "official_url": clean_text(pick(cmap, URL_TAGS)) or None,
-                "abandon_note": clean_text(pick(cmap, ABANDON_TAGS)) or None,
-            },
-        )
-    return records
-
-
-def download_source(source):
-    headers = {
-        "User-Agent": "swsi-law-watch/1.1 (+private educational question bank)",
-        "Accept": "application/xml, application/zip, application/octet-stream, */*",
-    }
-    last = None
-    for attempt in range(2):
-        try:
-            r = requests.get(source["url"], timeout=90, headers=headers)
-            r.raise_for_status()
-            records = parse_records(extract_xml_bytes(r.content), source["type"])
-            if len(records) < MIN_SOURCE_RECORDS:
-                raise RuntimeError(f"parsed too few records from {source['type']}: {len(records)}")
-            return records
-        except Exception as exc:
-            last = exc
-            if attempt == 1:
-                break
-    raise RuntimeError(f"MOJ {source['type']} download/parse failed: {last}")
 
 
 def load_json(path, default):
@@ -149,6 +78,139 @@ def age_days(value):
     if not dt:
         return None
     return (utc_now() - dt).total_seconds() / 86400
+
+
+class LinkTextParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.links = []
+        self._href = None
+        self._parts = []
+        self.text_parts = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag.lower() == "a":
+            self._href = dict(attrs).get("href")
+            self._parts = []
+
+    def handle_data(self, data):
+        if data:
+            self.text_parts.append(data)
+            if self._href is not None:
+                self._parts.append(data)
+
+    def handle_endtag(self, tag):
+        if tag.lower() == "a" and self._href is not None:
+            self.links.append((self._href, clean_text(" ".join(self._parts))))
+            self._href = None
+            self._parts = []
+
+    @property
+    def text(self):
+        return clean_text(" ".join(self.text_parts))
+
+
+def fetch_html(session, url):
+    last = None
+    for attempt in range(2):
+        try:
+            r = session.get(url, timeout=REQUEST_TIMEOUT)
+            r.raise_for_status()
+            if len(r.content) < 1000:
+                raise RuntimeError(f"official page too small: {len(r.content)} bytes")
+            return r.text
+        except Exception as exc:
+            last = exc
+            if attempt == 0:
+                time.sleep(0.4)
+    raise RuntimeError(f"official page fetch failed: {last}")
+
+
+def pcode_from_href(href):
+    m = re.search(r"(?:[?&])pcode=([A-Za-z0-9]+)", str(href or ""), flags=re.I)
+    return m.group(1).upper() if m else None
+
+
+def candidate_pcodes(search_html, wanted_name):
+    parser = LinkTextParser()
+    parser.feed(search_html)
+    wanted = key_name(wanted_name)
+
+    exact = []
+    others = []
+    for href, label in parser.links:
+        pcode = pcode_from_href(href)
+        if not pcode:
+            continue
+        bucket = exact if key_name(label) == wanted else others
+        if pcode not in bucket:
+            bucket.append(pcode)
+
+    # Some versions of the page expose pcode outside ordinary anchors.
+    for pcode in re.findall(r"[?&]pcode=([A-Za-z0-9]+)", search_html, flags=re.I):
+        pcode = pcode.upper()
+        if pcode not in exact and pcode not in others:
+            others.append(pcode)
+    return exact + others
+
+
+def roc_date_to_iso(roc_year, month, day):
+    year = int(roc_year) + 1911
+    return f"{year:04d}-{int(month):02d}-{int(day):02d}"
+
+
+def extract_modified_date(page_text):
+    # LawAll pages normally expose 修正日期.  For never-amended material,
+    # 發布日期/公發布日 is still a stable official baseline date.
+    patterns = [
+        r"修正日期\s*[:：]?\s*民國\s*(\d{1,3})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日",
+        r"發布日期\s*[:：]?\s*民國\s*(\d{1,3})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日",
+        r"公發布日\s*[:：]?\s*民國\s*(\d{1,3})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日",
+    ]
+    for pattern in patterns:
+        m = re.search(pattern, page_text)
+        if m:
+            return roc_date_to_iso(*m.groups())
+    return None
+
+
+def page_matches_name(page_text, wanted_name):
+    # The law name appears near the top of the official page.  Restricting the
+    # search to the first section avoids accidentally matching related-law text.
+    head = key_name(page_text[:15000])
+    return key_name(wanted_name) in head
+
+
+def resolve_official_record(session, name):
+    search_url = SEARCH_BASE + quote(name)
+    search_html = fetch_html(session, search_url)
+    pcodes = candidate_pcodes(search_html, name)
+    if not pcodes:
+        return None
+
+    # Exact-title candidates are ordered first; cap ambiguous fallbacks so one
+    # odd query cannot fan out into dozens of page requests.
+    for pcode in pcodes[:8]:
+        page_url = urljoin(LAW_BASE, f"LawClass/LawAll.aspx?pcode={pcode}")
+        try:
+            html = fetch_html(session, page_url)
+        except Exception:
+            continue
+        parser = LinkTextParser()
+        parser.feed(html)
+        text = parser.text
+        if not page_matches_name(text, name):
+            continue
+        modified = extract_modified_date(text)
+        abandoned = "廢止日期" in text[:15000] or "已廢止" in text[:15000]
+        return {
+            "canonical_name": name,
+            "source_type": "law_moj_direct",
+            "official_modified_date": modified,
+            "official_url": page_url,
+            "abandon_note": "廢止" if abandoned else None,
+        }
+    return None
 
 
 def main():
@@ -184,13 +246,11 @@ def main():
     write_json(args.attempt_state, {"attempted_at": attempted_at, "success": False, "error": None})
 
     try:
-        all_records = {}
-        source_counts = {}
-        for source in SOURCES:
-            recs = download_source(source)
-            source_counts[source["type"]] = len(recs)
-            for k, v in recs.items():
-                all_records.setdefault(k, v)
+        session = requests.Session()
+        session.headers.update({
+            "User-Agent": "swsi-law-watch/2.0 (+private educational question bank)",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        })
 
         old_records = state.get("records") if isinstance(state.get("records"), dict) else {}
         baseline = not bool(old_records)
@@ -198,8 +258,9 @@ def main():
         report_records = []
         next_state_records = {}
         matched = changed = missing = 0
+        lookup_errors = []
 
-        for item in watchlist:
+        for index, item in enumerate(watchlist, start=1):
             if isinstance(item, str):
                 name, qcount = clean_text(item), 0
             else:
@@ -208,7 +269,12 @@ def main():
             if not name:
                 continue
 
-            found = all_records.get(key_name(name))
+            found = None
+            try:
+                found = resolve_official_record(session, name)
+            except Exception as exc:
+                lookup_errors.append(f"{name}: {str(exc)[:240]}")
+
             old = old_records.get(name) if isinstance(old_records.get(name), dict) else {}
             previous_date = clean_text(old.get("official_modified_date")) or None
 
@@ -235,6 +301,7 @@ def main():
                     "official_modified_date": current_date,
                     "abandon_note": found.get("abandon_note"),
                 }
+                print(f"[{index}/{len(watchlist)}] FOUND {name} | {current_date or 'date unavailable'}")
             else:
                 missing += 1
                 rec = {
@@ -248,6 +315,7 @@ def main():
                     "changed": False,
                     "abandon_note": None,
                 }
+                # Preserve a previous verified baseline on a transient miss.
                 next_state_records[name] = dict(old) if old else {
                     "question_count": qcount,
                     "source_type": None,
@@ -255,41 +323,61 @@ def main():
                     "official_modified_date": None,
                     "abandon_note": None,
                 }
+                print(f"[{index}/{len(watchlist)}] MISSING {name}")
             report_records.append(rec)
+            time.sleep(0.05)
 
         if matched < MIN_WATCH_MATCHES:
-            raise RuntimeError(f"only {matched} watch names matched official datasets; parser/source likely broken")
+            detail = "; ".join(lookup_errors[:5])
+            raise RuntimeError(
+                f"only {matched} watch names matched official law.moj.gov.tw pages; source/parser likely broken"
+                + (f"; sample errors: {detail}" if detail else "")
+            )
 
         report = {
-            "schema_version": 1,
+            "schema_version": 2,
             "checked_at": checked_at,
             "baseline": baseline,
-            "official_sources": SOURCES,
-            "source_record_counts": source_counts,
+            "official_sources": [OFFICIAL_SOURCE],
+            "source_record_counts": {"law_moj_direct": matched},
             "watch_count": len(report_records),
             "matched_count": matched,
             "missing_count": missing,
             "changed_count": changed,
+            "lookup_error_count": len(lookup_errors),
+            "lookup_errors": lookup_errors[:20],
             "records": report_records,
         }
         new_state = {
-            "schema_version": 1,
+            "schema_version": 2,
             "checked_at": checked_at,
-            "official_sources": SOURCES,
-            "source_record_counts": source_counts,
+            "official_sources": [OFFICIAL_SOURCE],
+            "source_record_counts": {"law_moj_direct": matched},
             "records": next_state_records,
         }
         write_json(args.report, report)
         write_json(args.state, new_state)
-        write_json(args.attempt_state, {"attempted_at": attempted_at, "completed_at": iso_now(), "success": True, "error": None})
+        write_json(
+            args.attempt_state,
+            {"attempted_at": attempted_at, "completed_at": iso_now(), "success": True, "error": None},
+        )
 
-        print(f"Legal watch complete: baseline={baseline}, matched={matched}, missing={missing}, changed={changed}, sources={source_counts}")
+        print(
+            f"Legal watch complete: baseline={baseline}, matched={matched}, missing={missing}, "
+            f"changed={changed}, lookup_errors={len(lookup_errors)}"
+        )
         for r in report_records:
             if r.get("changed"):
-                print(f"CHANGED: {r['canonical_name']} {r.get('previous_modified_date')} -> {r.get('official_modified_date')}")
+                print(
+                    f"CHANGED: {r['canonical_name']} "
+                    f"{r.get('previous_modified_date')} -> {r.get('official_modified_date')}"
+                )
         return 0
     except Exception as exc:
-        write_json(args.attempt_state, {"attempted_at": attempted_at, "completed_at": iso_now(), "success": False, "error": str(exc)[:1000]})
+        write_json(
+            args.attempt_state,
+            {"attempted_at": attempted_at, "completed_at": iso_now(), "success": False, "error": str(exc)[:1000]},
+        )
         raise
 
 
