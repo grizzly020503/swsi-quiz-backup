@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Compatibility wrapper for historical_answer_audit.
 
-Only replaces the MOEX correction-note parser so old consolidated answer sheets
-such as 「除未作答者不給分外，其餘均給分」 are interpreted correctly.
+Only replaces compatibility-sensitive MOEX details:
+- old correction-note wording
+- one legacy exam code that points to a regional make-up exam in the base list
+
 All DB access/report generation remains read-only in historical_answer_audit.py.
 """
 
@@ -15,12 +17,18 @@ import historical_answer_audit as base
 
 ALL = {"A", "B", "C", "D"}
 
+# 106111 is the Hualien/Taitung make-up exam; the normal second exam is 106110.
+base.EXAMS = [
+    (year, round_name, "106110" if code == "106111" else code)
+    for year, round_name, code in base.EXAMS
+]
+
 
 def parse_corrections(section: str, row: str) -> dict[int, set[str]]:
     accepted: dict[int, set[str]] = {}
     note = base.compact(section).upper().translate(base.FW)
 
-    # Parse each 「第N題...」 correction clause independently.  Old MOEX PDFs
+    # Parse each 「第N題...」 correction clause independently. Old MOEX PDFs
     # use several wordings and full-width punctuation; compact() already removes
     # whitespace and FW translates full-width A/B/C/D.
     clauses = list(re.finditer(r"第(\d{1,2})題([^第]*)", note))
