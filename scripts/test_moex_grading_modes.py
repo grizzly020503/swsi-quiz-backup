@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Focused tests for MOEX grading-mode semantics."""
+"""Focused tests for MOEX grading-mode and PDF text-normalization semantics."""
 
+import moex_sync_v2 as v2
 from moex_sync_v2 import parse_correction_rules_with_grading
 
 
@@ -32,7 +33,12 @@ def main() -> int:
     direct_rules = parse_correction_rules_with_grading("", direct)
     assert direct_rules[3] == {"answer": "一律給分", "grading_mode": "all_credit"}
 
-    print("MOEX grading-mode parser tests OK")
+    # Regression: MOEX's embedded-font private-use labels must never reach JSON.
+    dirty = "\uE129概念化 \uE12A操作化 \uE12B測量"
+    assert v2.normalize_moex_text(dirty) == "（一）概念化 （二）操作化 （三）測量"
+    assert v2.base.clean(dirty) == "（一）概念化 （二）操作化 （三）測量"
+
+    print("MOEX grading-mode + text-normalization parser tests OK")
     return 0
 
 

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""MOEX sync v2: preserve official unanswered-scoring semantics.
+"""MOEX sync v2: preserve grading semantics and normalize official PDF glyphs.
 
-The proven question/PDF parser remains in ``moex_sync.py``. This thin wrapper only
-replaces correction-rule resolution and adds ``grading_mode`` to normalized MC
-rows, so the two official MOEX rules below are no longer collapsed:
+The proven question/PDF parser remains in ``moex_sync.py``. This thin wrapper
+keeps the official unanswered-scoring semantics and normalizes a few MOEX
+private-use glyphs that otherwise leak into essay text on browsers without the
+official PDF font.
 
+Official grading rules:
 - 一律給分 -> all_credit (blank also receives the point)
 - 除未作答者不給分外，其餘均給分 -> any_answer (A-D score; blank does not)
-
-All ordinary and multiple-answer questions remain ``standard``.
+- ordinary / multiple-answer questions -> standard
 """
 
 from __future__ import annotations
@@ -18,6 +19,35 @@ import re
 import moex_sync as base
 
 ALL = set(base.ALL_ANSWERS)
+
+# MOEX PDFs sometimes encode sub-question labels with private-use glyphs tied to
+# the PDF's embedded font. Persist semantic Unicode instead so JSON, web views,
+# exports, and future re-syncs are stable on every device.
+MOEX_TEXT_REPLACEMENTS = {
+    "\uE129": "（一）",
+    "\uE12A": "（二）",
+    "\uE12B": "（三）",
+}
+
+
+def normalize_moex_text(value: str) -> str:
+    text = str(value or "")
+    for src, dst in MOEX_TEXT_REPLACEMENTS.items():
+        text = text.replace(src, dst)
+    return text
+
+
+_original_clean = base.clean
+
+
+def clean_with_moex_unicode(value) -> str:
+    """Run the proven cleaner, then replace font-dependent MOEX PUA labels."""
+    return normalize_moex_text(_original_clean(value))
+
+
+# parse_essays / parse_mc resolve ``clean`` from moex_sync's module globals at
+# call time, so this narrow hook fixes both without duplicating the parser.
+base.clean = clean_with_moex_unicode
 
 
 def parse_correction_rules_with_grading(text, raw_answers):
@@ -119,7 +149,7 @@ def parse_mc_with_grading(text, subject, exam_code, roc_year, round_name, answer
     return rows
 
 
-# Patch only the two narrow extension points; everything else stays on the proven v1 parser.
+# Patch only narrow extension points; everything else stays on the proven v1 parser.
 base._parse_correction_rules = parse_correction_rules_with_grading
 base.parse_mc = parse_mc_with_grading
 
