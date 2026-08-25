@@ -63,14 +63,24 @@ jobs:
           SITE: https://swsi-quiznetlify.netlify.app
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --connect-timeout 10 --max-time 30 "$SITE/" -o /tmp/prod-index.html
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --connect-timeout 10 --max-time 30 "$SITE/sw.js" -o /tmp/prod-sw.js
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --connect-timeout 10 --max-time 30 "$SITE/monthly_patch.js" -o /tmp/prod-monthly-patch.js
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --connect-timeout 10 --max-time 30 "$SITE/auto/essays_auto.json" -o /tmp/prod-essays.json
-          grep -q 'monthly_patch.js' /tmp/prod-index.html
-          grep -q '社工師國考免費題庫｜SWSI' /tmp/prod-index.html
-          grep -q "const VERSION = 'v5'" /tmp/prod-sw.js
-          grep -q 'SWSI Monthly Frontend Patch 2026-08-25' /tmp/prod-monthly-patch.js
+          fetch_prod() {
+            path="$1"
+            out="$2"
+            code="$(curl --silent --show-error --location --retry 2 --retry-all-errors --connect-timeout 10 --max-time 30 -o "$out" -w '%{http_code}' "$SITE$path" || true)"
+            echo "PROD $path -> HTTP $code"
+            if [ "$code" != "200" ]; then
+              echo "::error::Production endpoint $path returned HTTP $code"
+              return 1
+            fi
+          }
+          fetch_prod / /tmp/prod-index.html
+          fetch_prod /sw.js /tmp/prod-sw.js
+          fetch_prod /monthly_patch.js /tmp/prod-monthly-patch.js
+          fetch_prod /auto/essays_auto.json /tmp/prod-essays.json
+          grep -q 'monthly_patch.js' /tmp/prod-index.html || { echo '::error::Production index is missing monthly_patch.js'; exit 1; }
+          grep -q '社工師國考免費題庫｜SWSI' /tmp/prod-index.html || { echo '::error::Production index is missing the new SEO title'; exit 1; }
+          grep -q "const VERSION = 'v5'" /tmp/prod-sw.js || { echo '::error::Production service worker is not v5'; exit 1; }
+          grep -q 'SWSI Monthly Frontend Patch 2026-08-25' /tmp/prod-monthly-patch.js || { echo '::error::Production monthly patch marker not found'; exit 1; }
           python - <<'PY'
           import json
           from pathlib import Path
