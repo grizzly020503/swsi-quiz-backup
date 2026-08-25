@@ -1,0 +1,84 @@
+name: Build Netlify Manual Deploy Package
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/build-netlify-package.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: swsi-netlify-manual-package
+  cancel-in-progress: true
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build production site
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site/icons
+          cp index.html essay_guides.js manifest.json sw.js apple-touch-icon.png _site/
+          cat monthly_patch_parts/*.part > _site/monthly_patch.js
+          node --check _site/monthly_patch.js
+          node --check sw.js
+          cp icons/icon-192.png icons/icon-512.png _site/icons/
+          if [ -d auto ]; then cp -R auto _site/; fi
+          python scripts/monthly_patch_build.py _site/index.html
+          python scripts/monthly_frontend_smoke.py --site _site
+
+      - name: Package Netlify drag-and-drop ZIP
+        run: |
+          set -euo pipefail
+          package='swsi_quiz_Netlify_正式月更_20260826.zip'
+          rm -f "$package"
+          (cd _site && zip -q -r "../$package" .)
+          unzip -l "$package" | grep -q 'monthly_patch.js'
+          unzip -p "$package" sw.js | grep -q "const VERSION = 'v5'"
+          unzip -p "$package" index.html | grep -q 'monthly_patch.js'
+          echo "PACKAGE=$package" >> "$GITHUB_ENV"
+          echo "Netlify package ready: $package"
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-netlify-production-20260826
+          path: ${{ env.PACKAGE }}
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Save package in repository
+        run: |
+          set -euo pipefail
+          mkdir -p deploy-packages
+          cp "$PACKAGE" deploy-packages/
+          git config user.name 'swsi-release-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add "deploy-packages/$PACKAGE"
+          if git diff --cached --quiet; then
+            echo 'Package already current.'
+            exit 0
+          fi
+          git commit -m '產生 Netlify 手動部署月更包 20260826'
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+          done
+          exit 1
