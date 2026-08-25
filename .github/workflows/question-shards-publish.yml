@@ -95,12 +95,14 @@ jobs:
           git commit -m "更新 Cloudflare 題庫 shard/header ${new_revision}"
           git push
 
-      - name: Smoke test Cloudflare production static assets
+      - name: Smoke test Cloudflare production static assets and public AI guards
         env:
           EXPECTED_REVISION: ${{ steps.publish.outputs.revision }}
         run: |
           set -euo pipefail
           BASE='https://wandering-wave-4418.c022050333.workers.dev/question-shards'
+          AI_URL='https://wandering-wave-4418.c022050333.workers.dev/'
+          PUBLIC_ORIGIN='https://swsi-quiznetlify.netlify.app'
 
           # A changed dataset/header triggers a separate Cloudflare Git deployment.
           # Poll until production serves both the expected revision and the non-duplicated headers.
@@ -178,8 +180,50 @@ jobs:
           # No Origin means the request reaches the existing AI Worker and is rejected
           # before rate-limit / D1 / Groq. Static Assets therefore did not replace the API route.
           api_status="$(curl --silent --show-error -o /tmp/api-body.json -w '%{http_code}' \
-            -X POST 'https://wandering-wave-4418.c022050333.workers.dev/' \
+            -X POST "$AI_URL" \
             -H 'Content-Type: application/json' \
             --data '{"model":"qwen/qwen3.6-27b","messages":[{"role":"user","content":"smoke"}]}')"
           test "$api_status" = '403'
           echo "AI Worker route runtime OK: no-Origin POST -> $api_status"
+
+          # Public browser path: invalid image payloads must be rejected before D1 quota / Groq.
+          # Use unique client IDs per run/test so the smoke itself does not collide with client rate limits.
+          png_client="gh_${GITHUB_RUN_ID}_png_guard"
+          png_status="$(curl --silent --show-error \
+            -D /tmp/png.headers.raw \
+            -o /tmp/png-body.json \
+            -w '%{http_code}' \
+            -X POST "$AI_URL" \
+            -H "Origin: $PUBLIC_ORIGIN" \
+            -H 'Content-Type: application/json' \
+            -H "X-SWSI-Client-ID: $png_client" \
+            --data '{"model":"qwen/qwen3.6-27b","messages":[{"role":"user","content":[{"type":"text","text":"smoke"},{"type":"image_url","image_url":{"url":"data:image/png;base64,AA=="}}]}]}')"
+          test "$png_status" = '400'
+          tr -d '\r' < /tmp/png.headers.raw > /tmp/png.headers
+          grep -qi "^access-control-allow-origin: $PUBLIC_ORIGIN$" /tmp/png.headers
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/png-body.json', encoding='utf-8'))
+          assert d.get('error',{}).get('message') == '公開照片只接受 JPEG 上傳內容。', d
+          print('AI public image guard runtime OK: non-JPEG -> 400')
+          PY
+
+          four_client="gh_${GITHUB_RUN_ID}_four_guard"
+          four_status="$(curl --silent --show-error \
+            -D /tmp/four.headers.raw \
+            -o /tmp/four-body.json \
+            -w '%{http_code}' \
+            -X POST "$AI_URL" \
+            -H "Origin: $PUBLIC_ORIGIN" \
+            -H 'Content-Type: application/json' \
+            -H "X-SWSI-Client-ID: $four_client" \
+            --data '{"model":"qwen/qwen3.6-27b","messages":[{"role":"user","content":[{"type":"text","text":"smoke"},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,AA=="}},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,AA=="}},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,AA=="}},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,AA=="}}]}]}')"
+          test "$four_status" = '400'
+          tr -d '\r' < /tmp/four.headers.raw > /tmp/four.headers
+          grep -qi "^access-control-allow-origin: $PUBLIC_ORIGIN$" /tmp/four.headers
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/four-body.json', encoding='utf-8'))
+          assert d.get('error',{}).get('message') == '最多一次上傳 3 張照片。', d
+          print('AI public image guard runtime OK: fourth image -> 400')
+          PY
