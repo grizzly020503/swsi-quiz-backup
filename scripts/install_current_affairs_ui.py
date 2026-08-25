@@ -83,7 +83,7 @@ BLOCK = r'''
       +(summary?'<div class="nlr-summary">'+E(summary)+'</div>':'')
       +'<div class="nlr-subs">'+subjects+'</div>'
       +(tags?'<div class="nlr-chips">'+tags+'</div>':'')
-      +'<details class="nlr-detail"><summary>怎麼變成申論考點？</summary><ul>'+pts+'</ul><div class="nlr-exam">'+E(t.exam)+'</div></details>'
+      +'<details class="nlr-detail"><summary>此類事件常見的申論思考方向</summary><ul>'+pts+'</ul><div class="nlr-exam">'+E(t.exam)+'</div></details>'
       +'<a class="nlr-link" href="'+E(ev.source_url)+'" target="_blank" rel="noopener noreferrer">查看原始來源 ↗</a>'
       +'</div>';
   }

@@ -259,12 +259,11 @@ button:focus-visible,.opt:focus-visible,a:focus-visible,input:focus-visible{ out
         <button data-l="2" onclick="setFs(2)" style="font-size:18px">A</button>
       </div>
       <button class="gear" onclick="go('search')" title="搜尋" aria-label="搜尋"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="vertical-align:middle"><circle cx="11" cy="11" r="7"></circle><line x1="20.5" y1="20.5" x2="16.4" y2="16.4"></line></svg></button>
-      <button class="gear" onclick="go('admin')" title="管理">⚙</button>
     </div>
   </header>
   <main id="app"><div class="empty"><div class="spinner"></div><p style="margin-top:16px">載入題庫中…</p></div></main>
   <footer style="text-align:center;padding:16px 22px 2px;font-size:10.5px;line-height:1.8;color:var(--ink-soft);border-top:1px solid var(--line);margin-top:8px">
-    © 2026 熊品澄 · 版權所有<br>本平台為私人非營利學習用途，僅供授權同學使用，禁止外傳、複製或商業利用
+    © 2026 熊品澄 · 免費公開學習工具<br>社工師國考題目以考選部官方資料為準；AI 回饋僅供練習參考，不作為官方評分
   </footer>
 </div>
 <nav class="tabbar" id="tabbar" style="display:none">
@@ -1725,7 +1724,7 @@ function render(){
   if(view==='search') return renderSearch();
   if(view==='review') return renderReview();
   if(view==='progress') return renderProgress();
-  if(view==='admin') return renderAdmin();
+  if(view==='admin') { view='home'; return renderHome(); }
 }
 
 /* ===== FOCUSED HOME V1 START ===== */
@@ -2108,7 +2107,7 @@ function renderLaws(){
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function renderEssay(){
   if(!ESSAYS.length){
-    app.innerHTML=`<div class="empty"><div class="ico">✒</div><h3>申論題尚未載入</h3><p>請確認 essays_2.js 與 index.html 放在同一資料夾。</p></div>`;
+    app.innerHTML=`<div class="empty"><div class="ico">✒</div><h3>申論題尚未載入</h3><p>申論題資料暫時無法載入，請重新整理或稍後再試。</p></div>`;
     return;
   }
   // ===== 開啟一題 → 專注練習畫面（只看這一題，不被清單干擾）=====
@@ -2249,6 +2248,7 @@ const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev";
 const GROQ_MODEL = 'qwen/qwen3.6-27b'; /* Qwen 多模態：同時支援「打字批改」與「手寫照片辨識」，中文最強的免費選項。日後想換模型只改這行 */
 function aiFeedbackHTML(id){
   return `<div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">
+    <div class="aihelp" style="color:var(--wrong);margin-bottom:9px;background:var(--wrong-bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px">🔒 隱私提醒：請勿輸入或上傳真實個案的姓名、電話、地址、身分證號、病歷或其他可識別個資；需要舉例時請先匿名化。</div>
     <div class="aihelp" style="color:var(--ink-soft);margin-bottom:9px;background:#FBF8EF;border:1px solid var(--line);border-radius:8px;padding:9px 12px">💡 能打字的同學建議用「打字批改」——又快、又比照片省很多免費額度（照片要先辨識文字，較耗用）。手寫的長輩直接用拍照就好。</div>
     <button class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600" onclick="runAIFeedback('${id}')">🤖 我用打字的 · 請 AI 批改上面的作答</button>
     <input type="file" id="photo_${id}" accept="image/*" multiple style="display:none" onchange="gradePhoto('${id}',this)">
@@ -2665,7 +2665,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       +(summary?'<div class="nlr-summary">'+E(summary)+'</div>':'')
       +'<div class="nlr-subs">'+subjects+'</div>'
       +(tags?'<div class="nlr-chips">'+tags+'</div>':'')
-      +'<details class="nlr-detail"><summary>怎麼變成申論考點？</summary><ul>'+pts+'</ul><div class="nlr-exam">'+E(t.exam)+'</div></details>'
+      +'<details class="nlr-detail"><summary>此類事件常見的申論思考方向</summary><ul>'+pts+'</ul><div class="nlr-exam">'+E(t.exam)+'</div></details>'
       +'<a class="nlr-link" href="'+E(ev.source_url)+'" target="_blank" rel="noopener noreferrer">查看原始來源 ↗</a>'
       +'</div>';
   }
