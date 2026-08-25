@@ -5,9 +5,17 @@ on:
   push:
     paths:
       - '.github/workflows/question-shards-publish.yml'
+      - 'scripts/build_question_shards.py'
+  schedule:
+    # 台灣時間每天 11:10；接在 MOEX 10:35 每日同步之後。
+    - cron: '10 3 * * *'
 
 permissions:
   contents: write
+
+concurrency:
+  group: swsi-question-shards-publish
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -31,6 +39,7 @@ jobs:
         run: python scripts/build_question_shards.py --output-dir /tmp/question-shards
 
       - name: Publish only when dataset changed
+        id: publish
         run: |
           set -euo pipefail
           old_revision=''
@@ -53,8 +62,10 @@ jobs:
           PY
           )"
 
+          echo "revision=$new_revision" >> "$GITHUB_OUTPUT"
           echo "old_revision=$old_revision"
           echo "new_revision=$new_revision"
+
           if [ -n "$old_revision" ] && [ "$old_revision" = "$new_revision" ]; then
             echo 'Question dataset unchanged; no repository commit.'
             exit 0
@@ -85,3 +96,74 @@ jobs:
           fi
           git commit -m "更新 Cloudflare 題庫 shard ${new_revision}"
           git push
+
+      - name: Smoke test Cloudflare production static assets
+        env:
+          EXPECTED_REVISION: ${{ steps.publish.outputs.revision }}
+        run: |
+          set -euo pipefail
+          BASE='https://wandering-wave-4418.c022050333.workers.dev/question-shards'
+
+          # A changed dataset triggers a separate Cloudflare Git deployment. Poll until
+          # production serves the revision this job just built. Unchanged datasets pass immediately.
+          live_revision=''
+          for i in $(seq 1 30); do
+            if curl --silent --show-error --fail \
+              -D /tmp/manifest.headers \
+              -o /tmp/manifest.json \
+              "$BASE/manifest.json"; then
+              live_revision="$(python - <<'PY'
+          import json
+          try:
+              print(json.load(open('/tmp/manifest.json', encoding='utf-8')).get('dataset_revision',''))
+          except Exception:
+              print('')
+          PY
+          )"
+              if [ -n "$EXPECTED_REVISION" ] && [ "$live_revision" = "$EXPECTED_REVISION" ]; then
+                break
+              fi
+            fi
+            echo "Waiting for Cloudflare static assets: attempt $i, live=$live_revision expected=$EXPECTED_REVISION"
+            sleep 5
+          done
+
+          test -n "$EXPECTED_REVISION"
+          test "$live_revision" = "$EXPECTED_REVISION"
+
+          python - <<'PY'
+          import json
+          m=json.load(open('/tmp/manifest.json', encoding='utf-8'))
+          assert int(m['shard_count']) >= 24, m
+          assert int(m['total_questions']) == int(m['shard_count']) * 200, m
+          assert len(m['shards']) == int(m['shard_count']), m
+          print('manifest runtime OK:', m['dataset_revision'], m['total_questions'], m['shard_count'])
+          PY
+
+          grep -qi '^access-control-allow-origin: \*$' /tmp/manifest.headers
+          grep -qi '^cache-control: .*max-age=60' /tmp/manifest.headers
+          grep -qi '^x-content-type-options: nosniff' /tmp/manifest.headers
+
+          curl --silent --show-error --fail \
+            -D /tmp/shard.headers \
+            -o /tmp/shard.json \
+            "$BASE/115-2.json"
+          python - <<'PY'
+          import json
+          s=json.load(open('/tmp/shard.json', encoding='utf-8'))
+          assert s['year']=='115' and s['round']=='第二次'
+          assert s['question_count']==200 and len(s['questions'])==200
+          assert all('accepted_answers' in q for q in s['questions'])
+          print('115-2 runtime shard OK:', len(s['questions']))
+          PY
+          grep -qi '^access-control-allow-origin: \*$' /tmp/shard.headers
+          grep -qi '^cache-control: .*max-age=300' /tmp/shard.headers
+
+          # No Origin means the request must reach the existing AI Worker and be rejected
+          # before rate-limit / D1 / Groq. This proves Static Assets did not replace the API route.
+          api_status="$(curl --silent --show-error -o /tmp/api-body.json -w '%{http_code}' \
+            -X POST 'https://wandering-wave-4418.c022050333.workers.dev/' \
+            -H 'Content-Type: application/json' \
+            --data '{"model":"qwen/qwen3.6-27b","messages":[{"role":"user","content":"smoke"}]}')"
+          test "$api_status" = '403'
+          echo "AI Worker route runtime OK: no-Origin POST -> $api_status"
