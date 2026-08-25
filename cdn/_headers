@@ -1,0 +1,9 @@
+/question-shards/manifest.json
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=60, must-revalidate
+  X-Content-Type-Options: nosniff
+
+/question-shards/*.json
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=300, must-revalidate
+  X-Content-Type-Options: nosniff
