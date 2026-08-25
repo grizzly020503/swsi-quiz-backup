@@ -4,7 +4,7 @@
   "roc_year": "115",
   "round": "第一次",
   "source_page": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115030&y=2026",
-  "fetched_at": "2026-08-24T16:30:47.043906+00:00",
+  "fetched_at": "2026-08-25T11:17:50.033510+00:00",
   "stats": {
     "社會工作": {
       "mc": 40,
@@ -53,7 +53,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-002",
@@ -80,7 +81,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-003",
@@ -107,7 +109,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-004",
@@ -134,7 +137,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-005",
@@ -161,7 +165,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-006",
@@ -188,7 +193,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-007",
@@ -215,7 +221,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-008",
@@ -242,7 +249,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-009",
@@ -269,7 +277,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-010",
@@ -296,7 +305,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-011",
@@ -323,7 +333,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-012",
@@ -350,7 +361,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-013",
@@ -377,7 +389,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-014",
@@ -404,7 +417,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-015",
@@ -431,7 +445,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-016",
@@ -458,7 +473,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-017",
@@ -485,7 +501,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-018",
@@ -512,7 +529,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-019",
@@ -539,7 +557,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-020",
@@ -566,7 +585,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-021",
@@ -593,7 +613,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-022",
@@ -620,7 +641,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-023",
@@ -647,7 +669,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-024",
@@ -674,7 +697,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-025",
@@ -701,7 +725,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-026",
@@ -728,7 +753,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-027",
@@ -755,7 +781,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-028",
@@ -782,7 +809,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-029",
@@ -809,7 +837,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-030",
@@ -836,7 +865,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-031",
@@ -863,7 +893,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-032",
@@ -890,7 +921,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-033",
@@ -917,7 +949,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-034",
@@ -944,7 +977,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-035",
@@ -971,7 +1005,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-036",
@@ -998,7 +1033,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-037",
@@ -1025,7 +1061,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-038",
@@ -1052,7 +1089,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-039",
@@ -1079,7 +1117,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SW-115-1-040",
@@ -1106,7 +1145,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-001",
@@ -1133,7 +1173,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-002",
@@ -1160,7 +1201,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-003",
@@ -1187,7 +1229,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-004",
@@ -1214,7 +1257,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-005",
@@ -1241,7 +1285,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-006",
@@ -1268,7 +1313,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-007",
@@ -1295,7 +1341,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-008",
@@ -1322,7 +1369,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-009",
@@ -1349,7 +1397,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-010",
@@ -1376,7 +1425,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-011",
@@ -1403,7 +1453,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-012",
@@ -1430,7 +1481,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-013",
@@ -1457,7 +1509,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-014",
@@ -1484,7 +1537,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-015",
@@ -1511,7 +1565,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-016",
@@ -1538,7 +1593,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-017",
@@ -1565,7 +1621,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-018",
@@ -1592,7 +1649,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-019",
@@ -1619,7 +1677,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-020",
@@ -1646,7 +1705,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-021",
@@ -1673,7 +1733,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-022",
@@ -1700,7 +1761,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-023",
@@ -1727,7 +1789,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-024",
@@ -1754,7 +1817,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-025",
@@ -1781,7 +1845,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-026",
@@ -1808,7 +1873,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-027",
@@ -1835,7 +1901,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-028",
@@ -1862,7 +1929,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-029",
@@ -1889,7 +1957,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-030",
@@ -1916,7 +1985,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-031",
@@ -1943,7 +2013,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-032",
@@ -1970,7 +2041,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-033",
@@ -1997,7 +2069,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-034",
@@ -2024,7 +2097,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-035",
@@ -2051,7 +2125,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-036",
@@ -2078,7 +2153,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-037",
@@ -2105,7 +2181,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-038",
@@ -2132,7 +2209,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-039",
@@ -2159,7 +2237,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "DS-115-1-040",
@@ -2186,7 +2265,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-001",
@@ -2213,7 +2293,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-002",
@@ -2240,7 +2321,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-003",
@@ -2267,7 +2349,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-004",
@@ -2294,7 +2377,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-005",
@@ -2321,7 +2405,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-006",
@@ -2348,7 +2433,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-007",
@@ -2375,7 +2461,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-008",
@@ -2402,7 +2489,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-009",
@@ -2429,7 +2517,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-010",
@@ -2456,7 +2545,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-011",
@@ -2483,7 +2573,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-012",
@@ -2510,7 +2601,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-013",
@@ -2537,7 +2629,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-014",
@@ -2564,7 +2657,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-015",
@@ -2591,7 +2685,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-016",
@@ -2618,7 +2713,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-017",
@@ -2645,7 +2741,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-018",
@@ -2672,7 +2769,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-019",
@@ -2699,7 +2797,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-020",
@@ -2726,7 +2825,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-021",
@@ -2753,7 +2853,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-022",
@@ -2780,7 +2881,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-023",
@@ -2807,7 +2909,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-024",
@@ -2834,7 +2937,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-025",
@@ -2861,7 +2965,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-026",
@@ -2888,7 +2993,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-027",
@@ -2915,7 +3021,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-028",
@@ -2942,7 +3049,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-029",
@@ -2969,7 +3077,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-030",
@@ -2996,7 +3105,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-031",
@@ -3023,7 +3133,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-032",
@@ -3050,7 +3161,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-033",
@@ -3077,7 +3189,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-034",
@@ -3104,7 +3217,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-035",
@@ -3131,7 +3245,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-036",
@@ -3158,7 +3273,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-037",
@@ -3185,7 +3301,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-038",
@@ -3212,7 +3329,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-039",
@@ -3239,7 +3357,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "SP-115-1-040",
@@ -3266,7 +3385,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-001",
@@ -3293,7 +3413,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-002",
@@ -3320,7 +3441,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-003",
@@ -3347,7 +3469,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-004",
@@ -3374,7 +3497,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-005",
@@ -3401,7 +3525,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-006",
@@ -3428,7 +3553,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-007",
@@ -3455,7 +3581,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-008",
@@ -3482,7 +3609,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-009",
@@ -3509,7 +3637,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-010",
@@ -3536,7 +3665,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-011",
@@ -3563,7 +3693,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-012",
@@ -3590,7 +3721,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-013",
@@ -3617,7 +3749,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-014",
@@ -3644,7 +3777,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-015",
@@ -3671,7 +3805,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-016",
@@ -3698,7 +3833,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-017",
@@ -3725,7 +3861,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-018",
@@ -3752,7 +3889,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-019",
@@ -3779,7 +3917,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-020",
@@ -3806,7 +3945,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-021",
@@ -3833,7 +3973,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-022",
@@ -3860,7 +4001,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-023",
@@ -3887,7 +4029,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-024",
@@ -3914,7 +4057,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-025",
@@ -3941,7 +4085,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-026",
@@ -3968,7 +4113,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-027",
@@ -3995,7 +4141,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-028",
@@ -4022,7 +4169,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-029",
@@ -4049,7 +4197,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-030",
@@ -4076,7 +4225,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-031",
@@ -4103,7 +4253,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-032",
@@ -4130,7 +4281,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-033",
@@ -4157,7 +4309,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-034",
@@ -4184,7 +4337,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-035",
@@ -4211,7 +4365,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-036",
@@ -4238,7 +4393,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-037",
@@ -4265,7 +4421,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-038",
@@ -4292,7 +4449,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-039",
@@ -4319,7 +4477,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "HBSE-115-1-040",
@@ -4346,7 +4505,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-001",
@@ -4373,7 +4533,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-002",
@@ -4400,7 +4561,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-003",
@@ -4427,7 +4589,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-004",
@@ -4454,7 +4617,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-005",
@@ -4481,7 +4645,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-006",
@@ -4508,7 +4673,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-007",
@@ -4535,7 +4701,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-008",
@@ -4562,7 +4729,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-009",
@@ -4589,7 +4757,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-010",
@@ -4616,7 +4785,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-011",
@@ -4643,7 +4813,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-012",
@@ -4670,7 +4841,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-013",
@@ -4697,7 +4869,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-014",
@@ -4724,7 +4897,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-015",
@@ -4751,7 +4925,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-016",
@@ -4778,7 +4953,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-017",
@@ -4805,7 +4981,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-018",
@@ -4832,7 +5009,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-019",
@@ -4859,7 +5037,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-020",
@@ -4886,7 +5065,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-021",
@@ -4913,7 +5093,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-022",
@@ -4940,7 +5121,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-023",
@@ -4967,7 +5149,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-024",
@@ -4994,7 +5177,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-025",
@@ -5021,7 +5205,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-026",
@@ -5048,7 +5233,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-027",
@@ -5075,7 +5261,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-028",
@@ -5102,7 +5289,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-029",
@@ -5129,7 +5317,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-030",
@@ -5156,7 +5345,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-031",
@@ -5183,7 +5373,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-032",
@@ -5210,7 +5401,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-033",
@@ -5237,7 +5429,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-034",
@@ -5264,7 +5457,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-035",
@@ -5291,7 +5485,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-036",
@@ -5318,7 +5513,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-037",
@@ -5345,7 +5541,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-038",
@@ -5372,7 +5569,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-039",
@@ -5399,7 +5597,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     },
     {
       "id": "R-115-1-040",
@@ -5426,7 +5625,8 @@
       "mistake": null,
       "source_exam_code": "115030",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q",
-      "analysis_status": "pending"
+      "analysis_status": "pending",
+      "grading_mode": "standard"
     }
   ],
   "essays": [
