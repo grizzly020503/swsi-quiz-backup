@@ -37,12 +37,12 @@ function initialPrompt(q: any) {
 function auditPrompt(q: any, draft: any) {
   return `你是社會工作師國考題庫最終審稿員。官方答案固定不可改。直接輸出校正後 JSON array。\n1. exp_why 必須支持官方正解；優先使用題面已有的判斷特徵，不新增發展年齡、形成時點或額外背景。\n2. exp_others 每個錯誤選項都要真的指出錯誤，不可先說錯、後面又把同一敘述當真。\n3. 刪除不必要的人物、機構、年代、英文名稱、背景故事、條號與數值。\n4. 禁止新增題面沒有的人名、機構名、英文專名/縮寫、任何阿拉伯數字、年齡、年份、金額、天數、比例或法條號碼。若草稿有，一律刪除。\n5. 輸出前逐欄掃描 A-Z/a-z；任何沒有逐字出現在官方題面或選項中的英文字，一律改成已有的中文概念或直接刪除，不得附英文翻譯。\n6. 數值型錯誤若題面沒有正確數值，只說與正確規定/概念不符，不補數字。\n7. major 只能從 ${JSON.stringify(MAJORS[q.subject] || [])}；mistake 只能從 ${JSON.stringify([...MISTAKES])}。\n8. extension 只寫考點名稱/比較方向；law 不確定就空白。\n9. 只輸出 JSON array；物件只能有 ${JSON.stringify(FIELDS)}。\n官方題目：${JSON.stringify(task(q))}\n草稿：${JSON.stringify(draft)}`;
 }
-async function callModel(model: string, prompt: string, reasoning: string, maxTokens: number) {
+async function callModel(model: string, prompt: string, reasoning: string, maxTokens: number, internalKey: string) {
   const body: any = { model, temperature: 0, max_tokens: maxTokens, messages: [{ role: "user", content: prompt }] };
   if (reasoning) body.reasoning_effort = reasoning;
   let last = "";
   for (let attempt = 0; attempt < 4; attempt++) {
-    const r = await fetch(AI_PROXY_URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+    const r = await fetch(AI_PROXY_URL, { method: "POST", headers: { "content-type": "application/json", "x-internal-key": internalKey }, body: JSON.stringify(body) });
     const text = await r.text();
     if (r.status === 429) {
       last = `AI ${model} HTTP 429: ${text.slice(0, 300)}`;
@@ -102,10 +102,10 @@ function validateFinal(q: any, rows: any) {
     mnemonic: clean(row.mnemonic), extension: clean(row.extension), law: clean(row.law), mistake: clean(row.mistake), analysis_status: "ready", analysis_attempts: 0, analysis_error: null, analysis_started_at: null
   };
 }
-async function analyzeOne(q: any) {
-  const draftRows = await callModel(DRAFT_MODEL, initialPrompt(q), "none", 1400);
+async function analyzeOne(q: any, internalKey: string) {
+  const draftRows = await callModel(DRAFT_MODEL, initialPrompt(q), "none", 1400, internalKey);
   if (!Array.isArray(draftRows) || draftRows.length !== 1) throw new Error("草稿格式異常");
-  const finalRows = await callModel(AUDIT_MODEL, auditPrompt(q, draftRows[0]), "medium", 1500);
+  const finalRows = await callModel(AUDIT_MODEL, auditPrompt(q, draftRows[0]), "medium", 1500, internalKey);
   return validateFinal(q, finalRows);
 }
 function isTransient(msg: string) { return /HTTP 429|rate limit|fetch failed|network|timed?\s*out|temporar/i.test(msg); }
@@ -118,6 +118,7 @@ Deno.serve(async (req: Request) => {
   const supplied = req.headers.get("x-job-key") || "";
   const { data: cfg, error: cfgErr } = await sb.from("ai_analysis_job_config").select("job_key,enabled").eq("id", true).maybeSingle();
   if (cfgErr || !cfg?.enabled || !supplied || supplied !== cfg.job_key) return json({ error: "unauthorized job" }, 403);
+  const internalKey = String(cfg.job_key);
   let body: any = {};
   try { body = await req.json(); } catch {}
   const limit = Math.max(1, Math.min(Number(body?.limit || 1), 3));
@@ -126,7 +127,7 @@ Deno.serve(async (req: Request) => {
   const rows: any[] = claimed || [], results: any[] = [];
   for (const q of rows) {
     try {
-      const patch = await analyzeOne(q);
+      const patch = await analyzeOne(q, internalKey);
       const { error } = await sb.from("questions").update(patch).eq("id", q.id).eq("source_exam_code", q.source_exam_code);
       if (error) throw new Error(`update: ${error.message}`);
       results.push({ id: q.id, status: "ready" });
