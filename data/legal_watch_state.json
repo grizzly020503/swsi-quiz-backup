@@ -1,0 +1,379 @@
+{
+  "schema_version": 2,
+  "checked_at": "2026-08-25T04:41:38Z",
+  "official_sources": [
+    {
+      "type": "law_moj_direct",
+      "url": "https://law.moj.gov.tw/Law/LawSearchResult.aspx?ty=ONEBAR&kw=<法規名稱>"
+    }
+  ],
+  "source_record_counts": {
+    "law_moj_direct": 51
+  },
+  "records": {
+    "兒童及少年福利與權益保障法": {
+      "question_count": 64,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050001",
+      "official_modified_date": "2021-01-20",
+      "abandon_note": null
+    },
+    "老人福利法": {
+      "question_count": 61,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050037",
+      "official_modified_date": "2025-08-01",
+      "abandon_note": null
+    },
+    "身心障礙者權益保障法": {
+      "question_count": 60,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050046",
+      "official_modified_date": "2025-08-01",
+      "abandon_note": null
+    },
+    "家庭暴力防治法": {
+      "question_count": 57,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050071",
+      "official_modified_date": "2023-12-06",
+      "abandon_note": null
+    },
+    "社會救助法": {
+      "question_count": 48,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050078",
+      "official_modified_date": "2015-12-30",
+      "abandon_note": null
+    },
+    "社會工作師法": {
+      "question_count": 47,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050125",
+      "official_modified_date": "2023-06-09",
+      "abandon_note": null
+    },
+    "長期照顧服務法": {
+      "question_count": 37,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0070040",
+      "official_modified_date": "2021-06-09",
+      "abandon_note": null
+    },
+    "兒童及少年性剝削防制條例": {
+      "question_count": 25,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050023",
+      "official_modified_date": "2024-08-07",
+      "abandon_note": null
+    },
+    "性別平等工作法": {
+      "question_count": 23,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0030014",
+      "official_modified_date": "2023-08-16",
+      "abandon_note": null
+    },
+    "性侵害犯罪防治法": {
+      "question_count": 21,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0080079",
+      "official_modified_date": "2023-02-15",
+      "abandon_note": null
+    },
+    "特殊境遇家庭扶助條例": {
+      "question_count": 20,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075",
+      "official_modified_date": "2021-01-20",
+      "abandon_note": null
+    },
+    "國民年金法": {
+      "question_count": 19,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050152",
+      "official_modified_date": "2020-06-03",
+      "abandon_note": null
+    },
+    "身心障礙者權利公約": {
+      "question_count": 19,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194",
+      "official_modified_date": null,
+      "abandon_note": null
+    },
+    "志願服務法": {
+      "question_count": 14,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050131",
+      "official_modified_date": "2020-01-15",
+      "abandon_note": null
+    },
+    "兒童及少年未來教育與發展帳戶條例": {
+      "question_count": 12,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050205",
+      "official_modified_date": null,
+      "abandon_note": null
+    },
+    "精神衛生法": {
+      "question_count": 12,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0020030",
+      "official_modified_date": "2022-12-14",
+      "abandon_note": null
+    },
+    "兒童權利公約": {
+      "question_count": 10,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050193",
+      "official_modified_date": "2019-06-19",
+      "abandon_note": null
+    },
+    "公益勸募條例": {
+      "question_count": 10,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050138",
+      "official_modified_date": "2020-01-15",
+      "abandon_note": null
+    },
+    "身心障礙者權利公約施行法": {
+      "question_count": 7,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194",
+      "official_modified_date": null,
+      "abandon_note": null
+    },
+    "病人自主權利法": {
+      "question_count": 6,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0020189",
+      "official_modified_date": "2021-01-20",
+      "abandon_note": null
+    },
+    "公民與政治權利國際公約及經濟社會文化權利國際公約施行法": {
+      "question_count": 5,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0020028",
+      "official_modified_date": null,
+      "abandon_note": null
+    },
+    "就業保險法": {
+      "question_count": 5,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050021",
+      "official_modified_date": "2022-01-12",
+      "abandon_note": null
+    },
+    "兒童權利公約施行法": {
+      "question_count": 4,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050193",
+      "official_modified_date": "2019-06-19",
+      "abandon_note": null
+    },
+    "全民健康保險法": {
+      "question_count": 4,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0060001",
+      "official_modified_date": "2023-06-28",
+      "abandon_note": null
+    },
+    "學生輔導法": {
+      "question_count": 4,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070058",
+      "official_modified_date": "2024-12-18",
+      "abandon_note": null
+    },
+    "民法": {
+      "question_count": 4,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0000001",
+      "official_modified_date": "2021-01-20",
+      "abandon_note": null
+    },
+    "消除對婦女一切形式歧視公約施行法": {
+      "question_count": 4,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050175",
+      "official_modified_date": null,
+      "abandon_note": null
+    },
+    "原住民族工作權保障法": {
+      "question_count": 3,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0130006",
+      "official_modified_date": "2015-02-04",
+      "abandon_note": null
+    },
+    "專科社會工作師分科甄審及接受繼續教育辦法": {
+      "question_count": 3,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050170",
+      "official_modified_date": "2020-01-03",
+      "abandon_note": null
+    },
+    "少年事件處理法": {
+      "question_count": 3,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0010011",
+      "official_modified_date": "2023-06-21",
+      "abandon_note": null
+    },
+    "社區發展工作綱要": {
+      "question_count": 3,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050077",
+      "official_modified_date": null,
+      "abandon_note": "廢止"
+    },
+    "中華民國刑法": {
+      "question_count": 2,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0000001",
+      "official_modified_date": "2026-07-22",
+      "abandon_note": null
+    },
+    "公益彩券發行條例": {
+      "question_count": 2,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=G0380187",
+      "official_modified_date": "2016-11-09",
+      "abandon_note": null
+    },
+    "性騷擾防治法": {
+      "question_count": 2,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050074",
+      "official_modified_date": "2023-08-16",
+      "abandon_note": null
+    },
+    "毒品危害防制條例": {
+      "question_count": 2,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0000008",
+      "official_modified_date": "2022-05-04",
+      "abandon_note": null
+    },
+    "長期照顧服務機構法人條例": {
+      "question_count": 2,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0070051",
+      "official_modified_date": null,
+      "abandon_note": null
+    },
+    "中華民國憲法增修條文": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0000002",
+      "official_modified_date": "2005-06-10",
+      "abandon_note": null
+    },
+    "人口販運防制法": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0080177",
+      "official_modified_date": "2023-06-14",
+      "abandon_note": null
+    },
+    "住宅法": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0070195",
+      "official_modified_date": "2026-03-04",
+      "abandon_note": null
+    },
+    "全民健康保險醫療服務給付項目及支付標準": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0060032",
+      "official_modified_date": "2025-03-24",
+      "abandon_note": null
+    },
+    "勞工保險條例": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050001",
+      "official_modified_date": "2026-01-21",
+      "abandon_note": null
+    },
+    "協助積極自立脫離貧窮實施辦法": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050199",
+      "official_modified_date": "2016-06-06",
+      "abandon_note": null
+    },
+    "國民小學與國民中學未入學或中途輟學學生通報及復學輔導辦法": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070015",
+      "official_modified_date": "2020-06-08",
+      "abandon_note": null
+    },
+    "國民教育法": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070001",
+      "official_modified_date": "2023-06-21",
+      "abandon_note": null
+    },
+    "家事事件法": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0010048",
+      "official_modified_date": "2023-06-21",
+      "abandon_note": null
+    },
+    "性別平等教育法": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0080067",
+      "official_modified_date": "2023-08-16",
+      "abandon_note": null
+    },
+    "校園霸凌防制準則": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0020081",
+      "official_modified_date": "2024-04-17",
+      "abandon_note": null
+    },
+    "社會工作師執業登記及繼續教育辦法": {
+      "question_count": 1,
+      "source_type": null,
+      "official_url": null,
+      "official_modified_date": null,
+      "abandon_note": null
+    },
+    "社會福利基本法": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050213",
+      "official_modified_date": null,
+      "abandon_note": null
+    },
+    "經濟社會文化權利國際公約": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0020028",
+      "official_modified_date": null,
+      "abandon_note": null
+    },
+    "老年農民福利津貼暫行條例": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=M0090015",
+      "official_modified_date": "2018-06-13",
+      "abandon_note": null
+    },
+    "跟蹤騷擾防制法": {
+      "question_count": 1,
+      "source_type": "law_moj_direct",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0080211",
+      "official_modified_date": null,
+      "abandon_note": null
+    }
+  }
+}
