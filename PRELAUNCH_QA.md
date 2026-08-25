@@ -1,6 +1,6 @@
 # SWSI 社工師國考平台 — 公開前 QA
 
-最後更新：2026-08-25（Cloudflare 題庫 CDN production/runtime 驗收完成；學生端仍留月底一次修改）
+最後更新：2026-08-25（Cloudflare 題庫 CDN、AI guard、官方 grading mode 全鏈路已驗收；學生端仍留月底一次修改）
 
 > 原則：目前 **不修改會觸發 Netlify production deploy 的學生端檔案**。`index.html / manifest.json / sw.js` 等學生端修改留到月底一次套用。Supabase／Cloudflare 後端已完成的項目不要重做。
 
@@ -34,10 +34,11 @@
 - 4,800 題
 - 24 個 baseline shard（104-1 ～ 115-2）
 - 每 shard 200 題
-- dataset revision：`8dafaf049f5200b54cd8`
+- dataset revision：`e721d6293d4c6acdddee`
 - 未壓縮總量約 6.84 MB
 - 單 shard 約 193–301 KB
-- 24 題 `accepted_answers`、16 題一律給分皆保留
+- 24 題 `accepted_answers` 完整保留
+- `grading_mode` 完整保留：4,784 `standard` / 12 `all_credit` / 4 `any_answer`
 
 Cloudflare runtime 已驗：
 - manifest HTTP 200
@@ -62,31 +63,44 @@ Cloudflare runtime 已驗：
 
 ---
 
-## 2. 24 題官方多答案的前端判題
+## 2. 24 題官方多答案 + 16 題官方特殊給分的前端判題
 
-**狀態：DB 已正確，前端 P0 待月底。**
+**狀態：DB / parser / audit / CDN 已正確，前端 P0 待月底。**
 
-Historical MOEX Answer Audit 已逐題核對 24 考次／4,800 題：
+Historical MOEX Answer Audit v4 已逐題核對 24 考次／4,800 題：
 
 - 官方題數：4,800
 - Supabase 題數：4,800
-- 非完全一致：**0**
+- answer findings：**0**
+- grading-mode mismatches：**0**
 
-其中 **24 題**有 `accepted_answers`。
+其中：
+- **24 題**有 `accepted_answers`
+- **12 題**為 `all_credit`：真正一律給分，**未作答也得分**
+- **4 題**為 `any_answer`：A-D 任一作答得分，**未作答不得分**
+
+4 題 `any_answer`：
+- `SW-105-1-17`
+- `SW-106-1-36`
+- `HBSE-108-2-039`
+- `HBSE-110-2-034`
 
 目前 DB：
 - `accepted_answers` 已存在
-- importer 已驗證多答案
-- 主 `answer` 必須包含於 accepted set
-- 24 題故意 `analysis_status='review'`
+- `grading_mode` 已存在
+- importer v4 fail-closed 驗證兩者
+- 主 `answer` 必須符合 accepted set／特殊給分語意
+- 24 多答案 + 16 特殊給分故意 `analysis_status='review'`
 
-前端所有判題入口都要改成：
+前端所有判題入口都必須統一讀：
 
-- 有 `accepted_answers` → 任一 accepted answer 都算對
-- 無 → 沿用 `answer`
-- `answer='一律給分'` → 全部給分
+> `accepted_answers + grading_mode`
 
-需驗：一般刷題、指定歷屆、錯題本、間隔複習、模擬考、正確率／弱點統計、結果頁正解顯示。
+不得再用 `answer='一律給分'` 猜特殊模式。
+
+需驗：一般刷題、指定歷屆、錯題本、間隔複習、模擬考、正確率／弱點統計、結果頁答案顯示。
+
+特殊給分題 UI 不要把 A-D 四個全部塗綠；「依官方規則得分」不等於四個選項學理都正確。
 
 ---
 
@@ -98,7 +112,7 @@ Historical MOEX Answer Audit 已逐題核對 24 考次／4,800 題：
 
 正式 DB 目前未發現 `<script>`、`<img>`、`javascript:`、`onerror=` 等已知惡意 payload，但這不能取代輸出 escape。
 
-月更：所有動態文字先 `esc()`；需要換行時 escape 後再轉 `<br>`。
+月更：所有動態文字先做 context-aware escape；需要換行時 escape 後再轉 `<br>`；URL 僅允許安全 scheme。
 
 驗收：`<img src=x onerror=alert(1)>` 只能顯示文字，不執行。
 
@@ -120,18 +134,27 @@ Historical MOEX Answer Audit 已逐題核對 24 考次／4,800 題：
 
 # P1 — 月更強烈建議一起修
 
-## 5. 模擬考未作答沒有進錯題本／各科分母
+## 5. 模擬考未作答紀錄／各科分母與 grading mode 不一致
 
 **狀態：真 bug，待月底。**
 
-目前總分會把未作答算錯，但只有 `picked != null` 才 `record()`，各科統計也只算已作答。
+目前只有 `picked != null` 才 `record()`，各科統計也只算已作答；而舊判題又把所有「一律給分」混成同一種。
 
-後果：
-- 未作答降低總分卻不進錯題／間隔複習
-- 各科正確率可能比總分漂亮
-- 結果頁「錯題都已記錄」不完全成立
+月底統一由 `isCorrectAnswer(q,picked)` 判定：
 
-月更：未作答視為 incorrect，同樣進 record 與各科分母；UI 保留「未作答」。
+| mode | 未作答 |
+|---|---|
+| `standard` | incorrect |
+| `all_credit` | **correct** |
+| `any_answer` | incorrect |
+
+共同規格：
+- 每題都進各科分母
+- incorrect 才進錯題／間隔複習
+- `all_credit` 空白不得污染錯題
+- UI 仍保留「未作答」，並顯示官方特殊給分結果
+
+驗收：同一場模擬考至少放普通題、多答案、`all_credit` 空白、`any_answer` 空白；總分、各科分母、history、錯題、review schedule 必須一致。
 
 ---
 
@@ -197,14 +220,14 @@ Worker 已分辨：
 
 ## 10. 照片 AI 公開版統一最多 3 張
 
-**狀態：Worker 已完成；前端待月底。**
+**狀態：Worker production guard 與 runtime smoke 已完成；前端待月底。**
 
-正式 Worker production 已：
-- 最多 3 張
-- 第 4 張拒絕
+正式 Worker 已實測：
+- no-Origin → 403
+- 正式 SWSI Origin + 非 JPEG → 400
+- 正式 SWSI Origin + 第 4 張 JPEG → 400
 - 公開 image URL 只接受 JPEG data URL
-
-Cloudflare production build 已 success；但「第 4 張 400／遠端 URL 400」仍應在合法 SWSI Origin 下做專項 runtime smoke，才可宣稱每條規則都實測。
+- invalid request 在 D1 quota / Groq 前拒絕
 
 月底前端：files > 3 直接提示「一次最多 3 張」，不要默默截斷。
 
@@ -320,21 +343,30 @@ Supabase SDK 失敗有 REST fallback；網路也失敗有 IndexedDB 題庫 fallb
 - [x] GitHub analyzer source 已對齊 production v7
 - [x] AI ready answer-meta DB 品質 trigger 已上線；ready meta 污染=0
 - [x] 24 官方多答案已存 `accepted_answers`
-- [x] 16 一律給分題刻意 review 隔離
-- [x] Historical MOEX audit：**4,800 / 4,800，非完全一致 0**
-- [x] MOEX sync 支援 M 更正答案／多答案／一律給分；解析不了 fail closed
+- [x] 16 官方特殊給分題刻意 review 隔離：12 all_credit + 4 any_answer
+- [x] Historical MOEX audit：**4,800 / 4,800 answer findings 0**
+- [x] Historical grading-mode audit：**4,800 / 4,800 mismatches 0**
+- [x] DB `grading_mode` migration/constraint/backfill 已完成
+- [x] MOEX sync v2 可區分 all_credit / any_answer；解析不了 fail closed
+- [x] grading-mode parser unit test 已在 GitHub runner 通過
+- [x] `health_check_v2.py` local / remote 已在 GitHub runner 通過
+- [x] Production remote grading counts：4,784 / 12 / 4
 - [x] 115030／115100 最新 workflow 全綠，目前皆 S、multi=0
-- [x] importer production v3，GitHub source 已對齊
-- [x] 法規監測 52/52 found、0 missing
+- [x] importer production v4，GitHub source已對齊
+- [x] schema-only grading_mode backfill 已不再被誤判成官方內容變更
+- [x] MOEX / historical audit bot push 已支援 fetch→rebase→push，避免併發假紅燈
+- [x] 法規監測 52/52 found、0 missing、0 changed
 - [x] legal mapping 改讀題幹＋四選項＋AI law
 - [x] 題面直接出現 monitored law 卻漏 mapping：0
-- [x] 目前 646 題已有 canonical mapping
-- [x] `sync-legal-watch` production v2，GitHub source 已對齊
+- [x] 目前約 646 題已有 canonical mapping
+- [x] `sync-legal-watch` production v2，GitHub source已對齊
 - [x] production QA migration delta 已備份到 `20260825094110_production_qa_consolidation.sql`
 - [x] Cloudflare Static Assets 已掛 `cdn/`
 - [x] 4,800 題已產生 24 個 exam-session shards
+- [x] CDN revision `e721d6293d4c6acdddee` 已帶 accepted_answers + grading_mode
 - [x] CDN manifest/shard production HTTP 200、CF cache、CORS/cache headers runtime 驗收完成
 - [x] CDN 上線後 AI root no-Origin POST 仍 403
+- [x] 正式 Origin 非 JPEG 400／第 4 張 JPEG 400 已 runtime smoke
 - [x] shard 每日自動同步、資料不變零 commit、資料不完整 fail closed
 - [x] 未來考次自動擴充測試：116-1 → 5,000 題／25 shards success
 
@@ -342,16 +374,20 @@ Supabase SDK 失敗有 REST fallback；網路也失敗有 IndexedDB 題庫 fallb
 
 # 下一步
 
-不要再擴功能，也不要重做 Supabase／答案 audit／Cloudflare CDN。
+不要再擴功能，也不要重做 Supabase／答案 audit／grading-mode audit／Cloudflare CDN。
 
 下一階段依 `MONTHLY_PATCH_PLAN.md`，**等約定月底再一次動學生端**：
 
-1. 前端題庫 loader 切到已上線的 Cloudflare shard，並讓 `normalize(r)` 帶 `accepted_answers`
-2. 同包修：XSS、多答案、Client-ID、mock 未作答、quota 訊息、deep-link、storage、AI 文案、3 張、首頁免費定位、SEO、無障礙、申論私用字元
-3. bump `sw.js` VERSION
-4. diff review
-5. Netlify production deploy **一次**
-6. iPhone Safari / Android Chrome / 桌面 Chrome + PWA smoke test
-7. 公開前做一輪真實學生 7 天 pilot，再決定是否新增功能
+1. 先修指定歷屆 round canonical regression
+2. `normalize(r)` 同時帶 `accepted_answers + grading_mode`
+3. 建立統一 `gradingMode / acceptedAnswers / isCorrectAnswer / answerLabel`
+4. 同輪修一般刷題與模擬考特殊給分／未作答語意
+5. 前端題庫 loader 切到已上線的 Cloudflare shard
+6. 同包修：XSS、Client-ID、quota 訊息、deep-link、storage、AI 文案、3 張、首頁免費定位、SEO、無障礙、申論私用字元
+7. bump `sw.js` VERSION
+8. diff review
+9. Netlify production deploy **一次**
+10. iPhone Safari / Android Chrome / 桌面 Chrome + PWA smoke test
+11. 公開前做一輪真實學生 7 天 pilot，再決定是否新增功能
 
-**目前仍未修改正式學生端。**
+**目前未開始約定的正式學生端月更施工。**
