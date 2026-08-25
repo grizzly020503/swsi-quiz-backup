@@ -1,0 +1,38 @@
+name: Diagnose AI Proxy Guard
+
+on:
+  push:
+    paths:
+      - '.github/workflows/diagnose-ai-proxy.yml'
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe proxy with invalid non-generating requests
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://wandering-wave-4418.c022050333.workers.dev'
+          probe(){
+            label="$1"; origin="$2"
+            echo "--- $label ---"
+            if [ -n "$origin" ]; then
+              curl --silent --show-error --max-time 20 -D /tmp/h -o /tmp/b \
+                -X POST "$url" -H 'content-type: application/json' -H "Origin: $origin" --data '{}'
+            else
+              curl --silent --show-error --max-time 20 -D /tmp/h -o /tmp/b \
+                -X POST "$url" -H 'content-type: application/json' --data '{}'
+            fi
+            head -n 1 /tmp/h
+            grep -iE '^(access-control-allow-origin|retry-after|content-type|cf-ray):' /tmp/h || true
+            python - <<'PY'
+          from pathlib import Path
+          body=Path('/tmp/b').read_text(errors='replace')
+          # Print only a short response classification, never secrets/headers.
+          print('body_prefix=',body[:240].replace('\n',' '))
+          PY
+          }
+          probe 'NO ORIGIN' ''
+          probe 'FOREIGN ORIGIN' 'https://evil.example'
+          probe 'SWSI ORIGIN' 'https://swsi-quiznetlify.netlify.app'
