@@ -1,0 +1,30 @@
+{
+  "status": "ok",
+  "baseline_question_count": 4600,
+  "baseline_exams": [
+    "115030"
+  ],
+  "historical_essay_count": 230,
+  "included_exams": [
+    "115100"
+  ],
+  "auto_mc_count": 200,
+  "auto_essay_count": 10,
+  "expected_total_questions": 4800,
+  "checks": [
+    "每考次 5 科、各 40 題選擇＋2 題申論",
+    "題號完整且 ID 不重複",
+    "題幹與 A/B/C/D 選項皆非空白",
+    "官方答案僅允許 A/B/C/D/一律給分",
+    "auto 備援檔與 incoming 官方資料完全一致",
+    "index.html 歷屆申論固定 230 題、五科各 46 題",
+    "歷屆申論不得再次出現已知解析污染、截斷或 OCR 異常",
+    "106 年第 2 次人行官方特殊配分固定為 26/24",
+    "grading_mode 僅允許 standard/all_credit/any_answer",
+    "特殊給分題必須明確標示 all_credit 或 any_answer，不允許缺值猜測",
+    "standard 不得搭配 answer=一律給分；特殊模式必須搭配 answer=一律給分"
+  ],
+  "grading_mode_local_counts": {
+    "standard": 400
+  }
+}
