@@ -1,6 +1,6 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
-最後更新：2026-08-25 13:40（Asia/Taipei）
+最後更新：2026-08-25（D1 binding 完成後）
 
 > 用途：這份檔案是給「下一個 ChatGPT 對話」接手用的。若換新對話，先叫 ChatGPT：
 >
@@ -46,6 +46,12 @@
 - Worker：`wandering-wave-4418`
 - URL：`https://wandering-wave-4418.c022050333.workers.dev`
 - GitHub 安全版備份：`cloudflare/wandering-wave-4418/worker.js`
+
+### Cloudflare D1（AI 每日額度）
+- database：`swsi-ai-quota`
+- Worker binding：`AI_QUOTA_DB`
+- 狀態：**已建立並成功綁定到 `wandering-wave-4418`**
+- 目前尚未建每日 usage table。
 
 ---
 
@@ -311,7 +317,7 @@ Rate limiter：
 
 Rate Limiter 只負責防暴衝；D1 負責精準每日配額。
 
-目前預定政策（可在真正建表前再調）：
+目前預定政策（可在真正接 Worker 前再調）：
 
 - 文字 AI 批改：每個 client 約 **10 次／日**
 - 照片 AI 批改：每個 client 約 **3 次／日**
@@ -319,11 +325,20 @@ Rate Limiter 只負責防暴衝；D1 負責精準每日配額。
 - 不要求學生登入
 - 超過 AI 額度後，刷題／申論骨架／錯題等免費核心功能仍全部可用
 
-接下來要做：
+目前已完成：
 
-- [ ] Cloudflare 建立 D1 database（建議名稱：`swsi-ai-quota`）
-- [ ] 將 D1 binding 綁到 `wandering-wave-4418`（建議 variable：`AI_QUOTA_DB`）
-- [ ] 建每日 usage table
+- [x] Cloudflare 建立 D1 database：`swsi-ai-quota`
+- [x] 將 D1 binding 綁到 `wandering-wave-4418`：`AI_QUOTA_DB`
+
+**目前精確卡點／下一步：**
+
+> 進入 Cloudflare D1 `swsi-ai-quota` → Console，建立每日 client usage 與全站 usage table。現在資料庫尚未建 table。
+
+接下來 checklist：
+
+- [ ] 建每日 client usage table
+- [ ] 建全站每日 usage table
+- [ ] 將 schema 備份到 GitHub
 - [ ] Worker 區分 text / photo usage
 - [ ] client key 做不可逆 hash，不存原始 IP
 - [ ] 精準檢查每 client 當日文字／照片次數
@@ -331,7 +346,7 @@ Rate Limiter 只負責防暴衝；D1 負責精準每日配額。
 - [ ] 只有「真正準備送 Groq 的有效請求」才扣額度，不要讓 invalid request 消耗 quota
 - [ ] 回傳友善 429／quota exhausted 訊息
 - [ ] 做正常／超額／換日測試
-- [ ] 將 D1 schema 與 Worker 最新版備份回 GitHub
+- [ ] 將 Worker 最新版備份回 GitHub
 
 未來若正式公開到十幾萬使用者，再評估：
 - [ ] Turnstile / challenge
