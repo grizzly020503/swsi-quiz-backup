@@ -1,0 +1,58 @@
+name: Monthly Frontend QA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'monthly_patch_parts/**'
+      - 'scripts/monthly_patch_build.py'
+      - 'scripts/monthly_frontend_smoke.py'
+      - 'scripts/netlify_ignore.py'
+      - 'netlify.toml'
+      - 'sw.js'
+      - 'index.html'
+      - 'auto/essays_auto.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-monthly-frontend-qa
+  cancel-in-progress: true
+
+jobs:
+  static-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: JavaScript syntax
+        run: cat monthly_patch_parts/*.part > /tmp/monthly_patch.js && node --check /tmp/monthly_patch.js && node --check sw.js
+
+      - name: Python syntax
+        run: python -m py_compile scripts/monthly_patch_build.py scripts/monthly_frontend_smoke.py scripts/netlify_ignore.py
+
+      - name: Build production-shaped site
+        run: |
+          rm -rf _site
+          mkdir -p _site/icons
+          cp index.html essay_guides.js manifest.json sw.js apple-touch-icon.png _site/
+          cat monthly_patch_parts/*.part > _site/monthly_patch.js
+          cp icons/icon-192.png icons/icon-512.png _site/icons/
+          if [ -d auto ]; then cp -R auto _site/; fi
+          python scripts/monthly_patch_build.py _site/index.html
+
+      - name: Static smoke
+        run: python scripts/monthly_frontend_smoke.py --site _site
+
+      - name: Guard deploy-sensitive files
+        run: |
+          grep -q "window.__SWSI_BOOT_DEFERRED__=true" _site/index.html
+          grep -q "monthly_patch.js" _site/index.html
+          grep -q "const VERSION = 'v5'" _site/sw.js

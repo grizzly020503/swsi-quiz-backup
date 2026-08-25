@@ -2,14 +2,15 @@
    策略：
    - HTML（index.html / 導覽請求）：強制 no-store 網路優先 → 線上拿最新版，離線才用快取。
    - auto/ 考選部增量題庫：網路優先 → 有新考次立即更新，離線使用最近快取。
-   - 其他靜態檔（圖示、manifest）：快取優先。
-   - 跨網域（Supabase 題庫、AI 評分）：完全不攔截，永遠走網路。
+   - 其他靜態檔（圖示、manifest、monthly patch）：快取優先。
+   - 跨網域（Cloudflare 題庫 shard、Supabase、AI）：完全不攔截，永遠走網路；題庫離線由 IndexedDB 處理。
 */
-const VERSION = 'v4';
+const VERSION = 'v5';
 const CACHE = 'swsi-shell-' + VERSION;
 const SHELL = [
   './',
   './index.html',
+  './monthly_patch.js',
   './essay_guides.js',
   './manifest.json',
   './apple-touch-icon.png',
@@ -63,7 +64,7 @@ self.addEventListener('fetch', function (e) {
   var url;
   try { url = new URL(req.url); } catch (err) { return; }
 
-  // 只處理同網域；Supabase / AI 等外部 API 一律放行走網路。
+  // 只處理同網域；Cloudflare shard / Supabase / AI 等外部 API 一律放行走網路。
   if (url.origin !== self.location.origin) { return; }
 
   var isDoc = req.mode === 'navigate'
