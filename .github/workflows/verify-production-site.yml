@@ -1,0 +1,25 @@
+name: Verify Production Site
+
+on:
+  push:
+    paths:
+      - '.github/workflows/verify-production-site.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify deployed Netlify content
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://swsi-quiznetlify.netlify.app/'
+          curl --silent --show-error --fail --retry 4 --retry-delay 5 "$url" -o /tmp/site.html
+          echo "bytes=$(wc -c </tmp/site.html)"
+          grep -F '免費公開學習工具' /tmp/site.html
+          grep -F '🔒 隱私提醒' /tmp/site.html
+          grep -F '此類事件常見的申論思考方向' /tmp/site.html
+          grep -F '兒童少年保護工作中，有關安全評估的重點為何？要考慮那些安全計畫？（25 分）' /tmp/site.html
+          ! grep -F 'essays_2.js' /tmp/site.html
+          ! grep -F "onclick=\"go('admin')\" title=\"管理\"" /tmp/site.html
+          echo 'PRODUCTION SITE VERIFIED'
