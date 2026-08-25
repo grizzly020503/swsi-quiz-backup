@@ -1,6 +1,6 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
-最後更新：2026-08-25 17:46（公開前 QA：官方答案 4,800/4,800、法規 mapping、MOEX 更正答案、防濫用與 production source 對齊）
+最後更新：2026-08-25（公開前 QA＋Cloudflare 題庫 CDN production 驗收完成）
 
 > 下一個 ChatGPT 對話先讀本檔，再接著做：
 >
@@ -52,6 +52,8 @@ SWSI 的成立原因是：社工師國考準備已經很困難，網路上很多
 - URL：`https://wandering-wave-4418.c022050333.workers.dev`
 - GitHub 程式：`cloudflare/wandering-wave-4418/worker.js`
 - Wrangler：`wrangler.jsonc`
+- Static Assets root：`cdn/`
+- 題庫 CDN：`/question-shards/*.json`
 
 ### Cloudflare D1
 - database：`swsi-ai-quota`
@@ -183,8 +185,9 @@ Supabase importer：
 
 結果：
 - 4,800 題已全部 backfill
-- 約 **647 題**掛有正式法規 mapping
+- 目前 **646 題**掛有正式法規 mapping
 - 題面直接出現 52 部監測法規名稱但未掛 mapping：**0**
+- mapping 題數會因 legacy AI `law` 清理略微變動；真正健康指標是「官方題面漏掛 = 0」
 
 Trigger：`questions_sync_legal_canonical_names`
 
@@ -280,14 +283,14 @@ RLS：
 
 ---
 
-## 8. Cloudflare AI Proxy / D1
+## 8. Cloudflare AI Proxy / D1 / 題庫 CDN
 
-### Origin / request guard
+### AI Origin / request guard
 正式 Worker：
 - 只允許 `https://swsi-quiznetlify.netlify.app`
 - 無 Origin → 403
 - 假 Origin → 403
-- CORS 不再 `*`
+- AI CORS 不再 `*`
 - POST / OPTIONS only
 - request 約 4 MB 上限
 - 公開照片最多 **3 張**
@@ -297,11 +300,13 @@ RLS：
 - internal backend 可用 Qwen + GPT-OSS
 - Groq 錯誤不直接洩漏內部細節
 
-最新 Worker commit：`0a952a3`
-Cloudflare Git integration：**production build success**
-Version ID：`a84f3bab-72b2-4798-908d-0abdf4ec73f5`
+注意：題庫 Static Assets 的公開 CORS `*` 與 AI API 的 Origin guard 是兩條不同路徑，不要混為一談。
 
-注意：目前環境無法直接 POST `workers.dev`，所以這一版「3 張／JPEG 拒絕」有 production build success，但仍缺最後 runtime 行為 smoke test；不要把 build success 說成每條 runtime 規則都已實測。
+目前已 runtime 證明：
+- Static Assets 上線後，AI root no-Origin POST 仍為 **403**
+- 表示題庫 asset-first routing 沒有吃掉既有 AI API
+
+「公開照片最多 3 張／只收 JPEG data URL」這組細部規則有 production build success；若之後要宣稱每一條都 runtime 實測，仍應另外做合法 SWSI Origin 的專項 smoke。
 
 ### Secrets
 Cloudflare Runtime Secrets：
@@ -329,30 +334,72 @@ Cloudflare Runtime Secrets：
 
 前面已實測正式 SWSI Origin 的文字 AI 會正確增加 D1 client/global usage。
 
-### 尚可優化
-Cloudflare 支援 **Build Watch Paths**。目前 repo 的任何 push 都可能讓 Worker 白白 build。
+### Cloudflare 題庫 Static Assets / CDN — **已完成**
 
-建議 Dashboard include paths：
+`wrangler.jsonc`：
+- `assets.directory = "./cdn"`
+- 保留預設 asset-first routing
+
+正式路徑：
+- manifest：`/question-shards/manifest.json`
+- shard：`/question-shards/104-1.json` … `/question-shards/115-2.json`
+
+目前 production dataset：
+- questions：**4,800**
+- shards：**24**（每考次 200 題）
+- dataset revision：`8dafaf049f5200b54cd8`
+- 未壓縮總量：約 **6.84 MB**
+- 單 shard：約 **193–301 KB**
+- 24 題 `accepted_answers` 全部保留
+- 16 題「一律給分」全部保留
+
+Production runtime smoke（GitHub runner 外部實測）：
+- manifest：HTTP 200
+- 115-2 shard：HTTP 200、200 題
+- `CF-Cache-Status: HIT`
+- `Access-Control-Allow-Origin: *`（單一值，不再重複）
+- `Cache-Control: public, max-age=300, must-revalidate`
+- `X-Content-Type-Options: nosniff`
+- AI root no-Origin POST：403
+
+自動更新：
+- builder：`scripts/build_question_shards.py`
+- build QA：`.github/workflows/question-shards-build.yml`
+- publish/runtime smoke：`.github/workflows/question-shards-publish.yml`
+- publish schedule：台灣時間每天約 **11:10**，接在 MOEX 10:35 同步後
+- dataset/header 沒變 → 不 commit
+- dataset 變 → 更新 `cdn/question-shards/` → Cloudflare Git deploy → runtime smoke
+- 新考次若只有部分資料 → **fail closed，不發布半套題庫**
+
+未來考次已做模擬驗證：
+- 104–115 的 24 shard 是不可缺的 baseline
+- 116、117…完整新考次可自動增加，不需每年改程式
+- 模擬 116-1：**5,000 題 / 25 shards / 自動產生 `116-1.json`** → success
+
+### Build Watch Paths 建議
+Cloudflare 若啟用 Build Watch Paths，include 應至少保留：
 - `cloudflare/**`
 - `wrangler.jsonc`
-- 未來若題庫 CDN 靜態資料放 repo，再加對應 `data/**`
+- `cdn/**`
 
-不要為 README／audit／Supabase migration 改動重建 Worker。
+不需要因 README／audit／Supabase migration 改動重建 Worker；shard builder/workflow 的程式變更本身也不需 Cloudflare deploy，真正 `cdn/**` 輸出變更時再 deploy 即可。
 
 ---
 
 ## 9. 公開前真正 P0／月底 Netlify patch
 
-### P0-1：Cloudflare 題庫 CDN / shard
-目前學生端仍會直接從 Supabase 拉整套題庫，公開大流量會讓 egress 與冷啟動成本不必要地放大。
+### P0-1：前端題庫 loader 切到 Cloudflare CDN
+**CDN 後端已完成；現在只差學生端切換。**
 
-已規劃：
-- 將題庫做成靜態 shard（之前規劃 24 shard）
-- Cloudflare CDN 快取
-- Supabase 留作後台 source of truth
-- 前端讀 CDN，而不是每位學生都打 Supabase 下載整包
+目前正式 Netlify 舊版仍會直接從 Supabase 拉整套題庫。月底 patch 要改成：
+- 先讀 Cloudflare `/question-shards/manifest.json`
+- 依使用情境按需讀考次 shard
+- 至少「指定歷屆」只抓該考次 200 題，不再先吞 4,800 題
+- Supabase 保留為後台 source of truth／必要 fallback，不再讓每位學生冷啟動都下載整包
+- 現有 `normalize(r)` 繼續沿用，避免重寫整個題庫模型
+- `normalize(r)` 要補帶 `accepted_answers`
 
-這是目前**公開大量使用前最大的基礎設施 P0**。
+**不要重做 CDN／不要另開 R2／不要另建第三個 Worker。** 這一層已經完成並 runtime 驗證。
 
 ### P0-2：多答案前端
 前端判題／錯題／模擬考／解析 UI 都需理解 `accepted_answers`。
@@ -393,6 +440,8 @@ Cloudflare 支援 **Build Watch Paths**。目前 repo 的任何 push 都可能�
 - 不要重新查「4,800 題是不是大量答案錯」；official audit 已是 0 mismatch。
 - 不要把 24 多答案 review 當錯題；DB 已正確，等前端。
 - 不要把 16 一律給分 review 當 AI 故障；是刻意隔離。
+- 不要重建 Cloudflare 題庫 CDN；Static Assets、24 baseline shards、自動 publish/runtime smoke 都已完成。
+- 不要另開 R2／第三個 Worker 來做同一份題庫 CDN。
 - 不要重建 D1／usage tables／rate limit bindings。
 - 不要把 Rate Limiter 當精準每日 quota。
 - 不要再開 authenticated 題庫寫入。
