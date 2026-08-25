@@ -24,6 +24,23 @@ SUBJECTS = {
 VALID_ANSWERS = {'A', 'B', 'C', 'D', '一律給分'}
 BASELINE_EXAMS = {'115030'}
 BASELINE_QUESTION_COUNT = 4600
+HISTORICAL_ESSAY_COUNT = 230
+HISTORICAL_ESSAYS_PER_SUBJECT = 46
+KNOWN_ESSAY_CORRUPTION = (
+    '【分析】',
+    'ErikErikson',
+    'malpracticc',
+    '兒少保護牆至親職教育',
+    '該個按的問題性質',
+    '請問鑑對於委託',
+    '準備結東',
+    '與男友有性關 的男友同居',
+    '與男友有性關 係',
+)
+SPECIAL_OFFICIAL_ESSAY_POINTS = {
+    '人類行為與社會環境-106-2-申論1': 26,
+    '人類行為與社會環境-106-2-申論2': 24,
+}
 
 
 def die(message):
@@ -118,6 +135,90 @@ def validate_exam(path):
     return data
 
 
+def extract_historical_essays():
+    try:
+        text = INDEX.read_text(encoding='utf-8')
+    except Exception as exc:
+        die(f'index.html 無法讀取：{exc}')
+    start_marker = 'window.ESSAYS = '
+    end_marker = ';\n\nwindow.CLUSTER_ANCHORS = '
+    start = text.find(start_marker)
+    end = text.find(end_marker, start + len(start_marker))
+    if start < 0 or end < 0:
+        die('index.html 找不到 window.ESSAYS 歷屆申論資料區塊')
+    raw = text[start + len(start_marker):end]
+    try:
+        rows = json.loads(raw)
+    except Exception as exc:
+        die(f'index.html 歷屆申論 JSON 無法解析：{exc}')
+    if not isinstance(rows, list):
+        die('index.html 歷屆申論不是 JSON 陣列')
+    return rows
+
+
+def validate_historical_essays():
+    rows = extract_historical_essays()
+    if len(rows) != HISTORICAL_ESSAY_COUNT:
+        die(f'歷屆申論應為 {HISTORICAL_ESSAY_COUNT} 題，實際 {len(rows)}')
+
+    ids = [str(r.get('id') or '').strip() for r in rows]
+    if any(not x for x in ids) or len(set(ids)) != len(ids):
+        die('歷屆申論 ID 有空白或重複')
+
+    counts = Counter(str(r.get('subject') or '') for r in rows)
+    if set(counts) != SUBJECTS:
+        die(f'歷屆申論科目集合異常：{sorted(counts)}')
+    for subject in sorted(SUBJECTS):
+        if counts[subject] != HISTORICAL_ESSAYS_PER_SUBJECT:
+            die(f'歷屆申論 {subject} 應有 {HISTORICAL_ESSAYS_PER_SUBJECT} 題，實際 {counts[subject]}')
+
+    all_text = '\n'.join(str(r.get('q') or '') for r in rows)
+    for bad in KNOWN_ESSAY_CORRUPTION:
+        if bad in all_text:
+            die(f'歷屆申論再次出現已知污染/OCR 異常：{bad}')
+
+    groups = Counter()
+    for row in rows:
+        eid = str(row.get('id') or '')
+        q = str(row.get('q') or '').strip()
+        subject = str(row.get('subject') or '')
+        year = str(row.get('year') or '').strip()
+        round_name = str(row.get('round') or '').strip()
+        qno = qno_int(row)
+        try:
+            points = int(str(row.get('points') or '').strip())
+        except Exception:
+            die(f'{eid}: points 不是整數：{row.get("points")}')
+
+        if subject not in SUBJECTS:
+            die(f'{eid}: 科目異常：{subject}')
+        if not re.fullmatch(r'10[4-9]|11[0-5]', year):
+            die(f'{eid}: 年度異常：{year}')
+        if round_name not in ('第1次', '第2次'):
+            die(f'{eid}: 場次異常：{round_name}')
+        if qno not in (1, 2):
+            die(f'{eid}: 題號異常：{row.get("qno")}')
+        if len(q) < 18:
+            die(f'{eid}: 題幹過短，疑似截斷')
+        if '分' not in q:
+            die(f'{eid}: 題幹沒有分數文字，疑似被截斷')
+        if not 1 <= points <= 50:
+            die(f'{eid}: points 異常：{points}')
+        if eid in SPECIAL_OFFICIAL_ESSAY_POINTS and points != SPECIAL_OFFICIAL_ESSAY_POINTS[eid]:
+            die(f'{eid}: 官方特殊分數應為 {SPECIAL_OFFICIAL_ESSAY_POINTS[eid]}，實際 {points}')
+        groups[(year, round_name, subject)] += 1
+
+    expected_groups = 11 * 2 * len(SUBJECTS) + len(SUBJECTS)
+    if len(groups) != expected_groups:
+        die(f'歷屆申論年度/場次/科目組合應為 {expected_groups} 組，實際 {len(groups)}')
+    bad_groups = [g for g, n in groups.items() if n != 2]
+    if bad_groups:
+        die(f'歷屆申論有科目場次不是 2 題：{bad_groups[:5]}')
+
+    print(f'HISTORICAL ESSAY HEALTH OK: {len(rows)} essays, 5 subjects, ROC 104–115-1')
+    return rows
+
+
 def incoming_payloads():
     files = sorted(INCOMING.glob('[0-9][0-9][0-9][0-9][0-9][0-9].json'))
     if not files:
@@ -136,6 +237,7 @@ def incoming_payloads():
 
 def local_check(write_report=True):
     payloads = incoming_payloads()
+    historical_essays = validate_historical_essays()
     expected_q = {}
     expected_e = {}
     included_codes = []
@@ -198,6 +300,7 @@ def local_check(write_report=True):
         'status': 'ok',
         'baseline_question_count': BASELINE_QUESTION_COUNT,
         'baseline_exams': sorted(BASELINE_EXAMS),
+        'historical_essay_count': len(historical_essays),
         'included_exams': sorted(included_codes),
         'auto_mc_count': expected_mc,
         'auto_essay_count': expected_essay,
@@ -208,6 +311,9 @@ def local_check(write_report=True):
             '題幹與 A/B/C/D 選項皆非空白',
             '官方答案僅允許 A/B/C/D/一律給分',
             'auto 備援檔與 incoming 官方資料完全一致',
+            'index.html 歷屆申論固定 230 題、五科各 46 題',
+            '歷屆申論不得再次出現已知解析污染、截斷或 OCR 異常',
+            '106 年第 2 次人行官方特殊配分固定為 26/24',
         ],
     }
     if write_report:
@@ -279,7 +385,7 @@ def remote_check():
 def main():
     ap = argparse.ArgumentParser(description='社工師題庫健康檢查')
     group = ap.add_mutually_exclusive_group()
-    group.add_argument('--local', action='store_true', help='只檢查 incoming 與 auto 備援檔')
+    group.add_argument('--local', action='store_true', help='只檢查 incoming、auto 與內嵌歷屆申論')
     group.add_argument('--remote', action='store_true', help='檢查 Supabase 與本機備援資料的一致性')
     args = ap.parse_args()
 
@@ -296,6 +402,8 @@ def main():
 if __name__ == '__main__':
     try:
         raise SystemExit(main())
-    except requests.RequestException as exc:
-        print(f'HEALTH CHECK FAILED: network error: {exc}', file=sys.stderr)
+    except SystemExit:
+        raise
+    except Exception as exc:
+        print(f'HEALTH CHECK FAILED: {exc}', file=sys.stderr)
         raise SystemExit(1)
