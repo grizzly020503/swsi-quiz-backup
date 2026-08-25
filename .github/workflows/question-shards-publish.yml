@@ -109,9 +109,10 @@ jobs:
           live_revision=''
           for i in $(seq 1 30); do
             if curl --silent --show-error --fail \
-              -D /tmp/manifest.headers \
+              -D /tmp/manifest.headers.raw \
               -o /tmp/manifest.json \
               "$BASE/manifest.json"; then
+              tr -d '\r' < /tmp/manifest.headers.raw > /tmp/manifest.headers
               live_revision="$(python - <<'PY'
           import json
           try:
@@ -140,14 +141,17 @@ jobs:
           print('manifest runtime OK:', m['dataset_revision'], m['total_questions'], m['shard_count'])
           PY
 
-          grep -qi '^access-control-allow-origin: \*$' /tmp/manifest.headers
+          echo '--- manifest response headers ---'
+          cat /tmp/manifest.headers
+          grep -qi '^access-control-allow-origin: \*' /tmp/manifest.headers
           grep -qi '^cache-control: .*max-age=60' /tmp/manifest.headers
           grep -qi '^x-content-type-options: nosniff' /tmp/manifest.headers
 
           curl --silent --show-error --fail \
-            -D /tmp/shard.headers \
+            -D /tmp/shard.headers.raw \
             -o /tmp/shard.json \
             "$BASE/115-2.json"
+          tr -d '\r' < /tmp/shard.headers.raw > /tmp/shard.headers
           python - <<'PY'
           import json
           s=json.load(open('/tmp/shard.json', encoding='utf-8'))
@@ -156,8 +160,11 @@ jobs:
           assert all('accepted_answers' in q for q in s['questions'])
           print('115-2 runtime shard OK:', len(s['questions']))
           PY
-          grep -qi '^access-control-allow-origin: \*$' /tmp/shard.headers
+          echo '--- shard response headers ---'
+          cat /tmp/shard.headers
+          grep -qi '^access-control-allow-origin: \*' /tmp/shard.headers
           grep -qi '^cache-control: .*max-age=300' /tmp/shard.headers
+          grep -qi '^x-content-type-options: nosniff' /tmp/shard.headers
 
           # No Origin means the request must reach the existing AI Worker and be rejected
           # before rate-limit / D1 / Groq. This proves Static Assets did not replace the API route.
