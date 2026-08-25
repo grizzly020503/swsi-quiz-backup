@@ -27,7 +27,7 @@ async function verifyGitHubRepoToken(token: string) {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
       "X-GitHub-Api-Version": "2022-11-28",
-      "User-Agent": "swsi-supabase-legal-watch/1.0",
+      "User-Agent": "swsi-supabase-legal-watch/1.1",
     },
   });
   if (!r.ok) return false;
@@ -158,11 +158,13 @@ Deno.serve(async (req: Request) => {
       const { error: updateErr } = await sb
         .from("questions")
         .update({
-          legal_status: "unreviewed",
+          legal_status: "changed",
           legal_checked_at: null,
+          legal_note: `監測到《${canonicalName}》官方修正日期變動；本題需依最新法規重新核對。`,
+          legal_source_url: officialUrl,
         })
         .contains("legal_canonical_names", [canonicalName]);
-      if (updateErr) errors.push(`${canonicalName}: reset ${updateErr.message}`);
+      if (updateErr) errors.push(`${canonicalName}: mark changed ${updateErr.message}`);
     }
   }
 
