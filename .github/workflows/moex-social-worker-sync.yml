@@ -10,6 +10,7 @@ on:
       - 'scripts/test_moex_grading_modes.py'
       - 'scripts/build_auto_payload.py'
       - 'scripts/health_check.py'
+      - 'scripts/health_check_v2.py'
       - 'scripts/moj_law_watch.py'
       - 'scripts/current_affairs_watch.py'
       - 'scripts/build_current_affairs_snapshot.py'
@@ -120,12 +121,25 @@ jobs:
         run: python scripts/moex_sync_v2.py --output-dir incoming
 
       - name: Remove timestamp-only rewrites
-        # fetched_at 改變不算題庫更新；只有題目、選項、答案、給分模式或申論內容真的變動才留下差異。
+        # fetched_at 或既有普通題補 grading_mode=standard 不算官方內容更新。
+        # 特殊給分題若缺 grading_mode 則不能猜，仍保留差異讓後續驗證/匯入處理。
         run: |
           python - <<'PY'
           import json
           import subprocess
           from pathlib import Path
+
+          def comparable(payload):
+              out = dict(payload)
+              out.pop('fetched_at', None)
+              questions = []
+              for row in out.get('questions') or []:
+                  q = dict(row)
+                  if not str(q.get('grading_mode') or '').strip() and q.get('answer') != '一律給分':
+                      q['grading_mode'] = 'standard'
+                  questions.append(q)
+              out['questions'] = questions
+              return out
 
           for p in sorted(Path('incoming').glob('[0-9][0-9][0-9][0-9][0-9][0-9].json')):
               try:
@@ -139,11 +153,7 @@ jobs:
                   continue
               old = json.loads(old_raw)
               new = json.loads(p.read_text(encoding='utf-8'))
-              old_cmp = dict(old)
-              new_cmp = dict(new)
-              old_cmp.pop('fetched_at', None)
-              new_cmp.pop('fetched_at', None)
-              if old_cmp == new_cmp:
+              if comparable(old) == comparable(new):
                   p.write_text(old_raw, encoding='utf-8')
                   print(f'unchanged official content: {p}')
               else:
@@ -154,7 +164,7 @@ jobs:
         run: python scripts/build_auto_payload.py
 
       - name: Local question bank health check
-        run: python scripts/health_check.py --local
+        run: python scripts/health_check_v2.py --local
 
       - name: Import only changed verified exams to Supabase
         env:
@@ -188,11 +198,12 @@ jobs:
           done
 
       - name: Supabase health check
-        # 驗證母庫總數，以及每個自動考次都必須是 200 題選擇＋10 題申論。
-        run: python scripts/health_check.py --remote
+        # 驗證母庫總數、每個自動考次完整性，以及 grading_mode 三態與一律給分語意一致。
+        run: python scripts/health_check_v2.py --remote
 
       - name: Commit verified official payloads and monitoring snapshots
         run: |
+          set -euo pipefail
           git config user.name 'swsi-moex-bot'
           git config user.email 'actions@users.noreply.github.com'
           git add incoming/ auto/
@@ -204,4 +215,14 @@ jobs:
             exit 0
           fi
           git commit -m '更新官方考題、申論時事雷達與健康檢查備援'
-          git push
+          # 其他後端 workflow 可能同時更新 main；rebase 後再 push，避免 non-fast-forward 假失敗。
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "push race on attempt $attempt; retrying..."
+          done
+          echo 'Unable to save MOEX monitoring updates after 3 push attempts.' >&2
+          exit 1
