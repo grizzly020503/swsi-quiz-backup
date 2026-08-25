@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "wandering-wave-4418",
+  "main": "cloudflare/wandering-wave-4418/worker.js",
+  "compatibility_date": "2026-08-25",
+  "d1_databases": [
+    {
+      "binding": "AI_QUOTA_DB",
+      "database_name": "swsi-ai-quota",
+      "database_id": "163a1766-885f-449a-b5da-7b72aa3c5ab2"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "AI_RATE_LIMIT",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 3,
+        "period": 60
+      }
+    },
+    {
+      "name": "AI_IP_LIMIT",
+      "namespace_id": "1002",
+      "simple": {
+        "limit": 30,
+        "period": 60
+      }
+    }
+  ]
+}
