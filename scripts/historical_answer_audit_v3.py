@@ -24,7 +24,7 @@ import historical_answer_audit as base
 
 ALL = {"A", "B", "C", "D"}
 BASE_SITE = "https://wwwq.moex.gov.tw/exam/"
-UA = "Mozilla/5.0 (compatible; swsi-historical-answer-audit/3.0)"
+UA = "Mozilla/5.0 (compatible; swsi-historical-answer-audit/3.1)"
 
 # Correct one legacy code in the original audit list: 106111 is a regional
 # make-up exam; the normal second exam is 106110.
@@ -206,11 +206,103 @@ def parse_official_exam(_data: bytes, year: str, _round_name: str, code: str):
     return out
 
 
-# The base audit loop calls get_pdf() for the consolidated sheet before invoking
-# parse_official_exam(). v3 intentionally does not use that sheet, so avoid the
-# redundant download.
+def fetch_db_questions_with_multi() -> list[dict]:
+    """Read official-answer metadata only; still strictly read-only."""
+    supabase_url, key = base.read_frontend_config()
+    headers = {"apikey": key, "Authorization": f"Bearer {key}", "Accept": "application/json"}
+    rows: list[dict] = []
+    offset = 0
+    while True:
+        url = f"{supabase_url}/rest/v1/questions"
+        params = {
+            "select": "id,subject,year,round,qno,answer,accepted_answers",
+            "offset": str(offset),
+            "limit": "1000",
+            "order": "year.asc,round.asc,subject.asc,qno.asc",
+        }
+        r = requests.get(url, headers=headers, params=params, timeout=45)
+        r.raise_for_status()
+        batch = r.json()
+        if not isinstance(batch, list):
+            raise RuntimeError("Supabase response is not a list")
+        rows.extend(batch)
+        if len(batch) < 1000:
+            break
+        offset += len(batch)
+    return rows
+
+
+def db_accepted_with_multi(answer: str, accepted_answers=None) -> set[str]:
+    if isinstance(accepted_answers, list) and accepted_answers:
+        vals = {str(x).strip().upper().translate(base.FW) for x in accepted_answers}
+        if vals and vals.issubset(ALL):
+            return vals
+        return set()
+    a = str(answer or "").strip().upper().translate(base.FW)
+    if a == "一律給分":
+        return set(ALL)
+    if a in ALL:
+        return {a}
+    return set()
+
+
+def audit_with_multi(output_dir):
+    """Same base audit, but make db_accepted see accepted_answers for each row."""
+    original_fetch = base.fetch_db_questions
+    original_db_accepted = base.db_accepted
+
+    def row_aware_db_accepted(answer):
+        # The base loop only passes answer, so attach a temporary lookup keyed by
+        # raw answer is ambiguous. Instead audit_with_multi replaces rows' answer
+        # with a compact tuple-like marker and decodes it here.
+        if isinstance(answer, dict):
+            return db_accepted_with_multi(answer.get("answer"), answer.get("accepted_answers"))
+        return original_db_accepted(answer)
+
+    def fetch_rows():
+        rows = fetch_db_questions_with_multi()
+        for row in rows:
+            row["answer"] = {
+                "answer": row.get("answer"),
+                "accepted_answers": row.get("accepted_answers"),
+            }
+        return rows
+
+    base.fetch_db_questions = fetch_rows
+    base.db_accepted = row_aware_db_accepted
+    try:
+        return base.audit(output_dir)
+    finally:
+        base.fetch_db_questions = original_fetch
+        base.db_accepted = original_db_accepted
+
+
+# v3 intentionally ignores consolidated t=A and uses the per-subject final sheet.
 base.get_pdf = lambda _code: b""
 base.parse_official_exam = parse_official_exam
 
+
+def main() -> int:
+    import argparse
+    import json
+    import sys
+    from pathlib import Path
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--output-dir", default="audit_output")
+    args = ap.parse_args()
+    try:
+        report = audit_with_multi(Path(args.output_dir))
+    except Exception as exc:
+        print(f"AUDIT FAILED: {exc}", file=sys.stderr)
+        return 2
+    print(json.dumps({
+        "official_questions": report["official_question_count"],
+        "findings": report["finding_count"],
+        "types": report["finding_types"],
+    }, ensure_ascii=False))
+    return 0
+
+
 if __name__ == "__main__":
-    raise SystemExit(base.main())
+    raise SystemExit(main())
