@@ -1,7 +1,7 @@
 # SWSI 公開前月更 Patch 設計
 
 建立：2026-08-25
-最後更新：2026-08-25 17:46
+最後更新：2026-08-25（Cloudflare 題庫 CDN 後端完成；月底只切學生端）
 
 > 這是施工圖，不是已套用前端變更。更新本檔不代表 Netlify production 已部署。
 
@@ -12,6 +12,7 @@
 - 每個 patch 都要能單獨驗收；任何核心流程失敗就回滾該段，不硬上。
 - 官方題目與官方答案不因 AI 判斷而改動。
 - 2026-08-25 已完成的 Supabase / Cloudflare 後端修正，不要月底再重做。
+- **Cloudflare 題庫 Static Assets / shard 後端已完成，不要另開 R2／第三個 Worker。**
 
 ---
 
@@ -106,9 +107,7 @@ function getAIClientId(){
 - 公開 image URL 只接受前端 JPEG data URL
 - 全站 quota 已滿時先讀 global 狀態再拒絕，減少 D1 無效寫入／退款
 
-最新已知 production Worker version：`a84f3bab-72b2-4798-908d-0abdf4ec73f5`。
-
-仍需在可直接連 `workers.dev` 的環境做最後 runtime smoke test。
+目前已驗 Static Assets 上線後 AI root no-Origin POST 仍為 403；「第 4 張／非 JPEG URL」仍需合法 SWSI Origin 專項 runtime smoke 才能宣稱每條規則都實測。
 
 ---
 
@@ -321,27 +320,60 @@ function acceptedAnswers(item){
 
 ---
 
-## Patch N — Cloudflare 題庫 CDN / 24 shard
+## Patch N — Cloudflare 題庫 CDN / exam-session shard
 
-**狀態：公開大流量前最大 P0，待設計與施工。**
+**狀態：✅ 後端 production 已完成；月底只做前端 loader 切換。**
 
-目前問題：舊前端會直接從 Supabase 下載整套約 7.56 MiB 題庫；大量公開使用時，每位學生都拉整包會放大 egress 與首載成本。
-
-目標架構：
+已完成架構：
 
 > Supabase = 後台 source of truth  
-> GitHub Actions / build = 產生靜態題庫 shard  
-> Cloudflare = CDN cache  
-> Netlify 前端 = 依考次／科目載入需要的 shard
+> GitHub Actions = 產生／驗證靜態 exam-session shard  
+> Cloudflare Static Assets = CDN cache  
+> Netlify 前端 = 月底改成依需求載入 shard
 
-先沿用之前規劃的 **24 shard**，但施工前要重新確認切分鍵、manifest、cache version、離線 PWA 相容。
+目前 production：
+- 4,800 題
+- 24 baseline shards（104-1 ～ 115-2）
+- 每 shard 200 題
+- revision：`8dafaf049f5200b54cd8`
+- 約 6.84 MB 未壓縮總量
+- 單 shard 約 193–301 KB
+- 24 多答案與 16 一律給分 metadata 完整保留
+
+Runtime 已驗：
+- manifest HTTP 200
+- 115-2 shard HTTP 200／200 題
+- `CF-Cache-Status: HIT`
+- 單一 `Access-Control-Allow-Origin: *`
+- `Cache-Control: public, max-age=300, must-revalidate`
+- `X-Content-Type-Options: nosniff`
+- AI root no-Origin POST 仍 403
+
+自動化：
+- `scripts/build_question_shards.py`
+- `.github/workflows/question-shards-build.yml`
+- `.github/workflows/question-shards-publish.yml`
+- 台灣時間每日約 11:10
+- dataset/header 不變 → 零 commit
+- 新考次不完整 → fail closed，不發布半套
+- 完整 116、117…考次自動新增 shard，不需每年改程式
+- 模擬 116-1 → 5,000 題／25 shards／`116-1.json` success
+
+月底前端修改：
+- 先讀 `/question-shards/manifest.json`
+- 指定歷屆只載該考次 200 題
+- 其他需要跨考次的功能按實際需求載入／快取 shard
+- 沿用現有 `normalize(r)`，但補 `accepted_answers`
+- 保留 Supabase / IndexedDB 作必要 fallback，不再讓每位學生冷啟動都先下載整套 4,800 題
 
 驗收：
-- 首頁不下載 4,800 題整包
+- 首頁不先下載 4,800 題整包
 - 進某考次只載必要 shard
 - Cloudflare cache hit 正常
 - Supabase public egress 明顯下降
 - PWA 已下載的題目仍可離線使用
+
+**不要重建 CDN、不要另開 R2、不要另建第三個 Worker。**
 
 ---
 
@@ -362,18 +394,19 @@ function acceptedAnswers(item){
 
 ## 建議施工順序
 
-1. **先做 Cloudflare 題庫 CDN / shard 設計與產生器**，但不切正式前端
-2. 備份目前 `index.html / sw.js / manifest.json` SHA
-3. 在 GitHub 一次完成 Patch A、B、C1、D、E、F、G、H、I、M、O
-4. 將前端題庫讀取切到 Patch N CDN manifest/shard
+1. **Cloudflare 題庫 CDN / shard 後端已完成，不要重做**
+2. 到約定月更時，先備份目前 `index.html / sw.js / manifest.json` SHA
+3. 在 GitHub 同一批完成 Patch A、B、C1、D、E、F、G、H、I、M、O
+4. 同批把前端題庫 loader 切到 Patch N 已上線的 CDN manifest/shard
 5. bump `sw.js` VERSION
 6. diff review
 7. Netlify production deploy **一次**
 8. 手機 Safari / Android Chrome / 桌面 Chrome smoke test
 9. 驗收：
-   - 一般刷題
+   - 首頁／一般刷題
    - 24 多答案
    - 一律給分
+   - 指定歷屆只抓對應 shard
    - 錯題／間隔複習
    - 模擬考未作答
    - 搜尋 deep-link
@@ -392,3 +425,4 @@ function acceptedAnswers(item){
 - 不讓 AI 修改官方題目／官方答案
 - 不因一筆解析爭議就批次重跑全部 4,800 題
 - 不在月底重做已完成的 Supabase queue／多答案 DB／法規 mapping／AI meta trigger
+- 不在月底重做 Cloudflare Static Assets / shard builder / publish workflow
