@@ -1,0 +1,70 @@
+name: Question Shards Build Check
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/build_question_shards.py'
+      - '.github/workflows/question-shards-build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-shards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependency
+        run: python -m pip install --disable-pip-version-check requests
+
+      - name: Build 24 read-only question shards
+        run: python scripts/build_question_shards.py --output-dir /tmp/question-shards
+
+      - name: Verify artifact layout
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root=Path('/tmp/question-shards')
+          manifest=json.loads((root/'manifest.json').read_text(encoding='utf-8'))
+          assert manifest['total_questions']==4800, manifest
+          assert manifest['shard_count']==24, manifest
+          shards=manifest['shards']
+          assert len(shards)==24
+          for meta in shards:
+              p=root/meta['file']
+              assert p.exists(), p
+              data=json.loads(p.read_text(encoding='utf-8'))
+              assert data['question_count']==200, meta
+              assert len(data['questions'])==200, meta
+          all_rows=[q for meta in shards for q in json.loads((root/meta['file']).read_text(encoding='utf-8'))['questions']]
+          assert sum(1 for q in all_rows if q.get('accepted_answers'))==24
+          assert sum(1 for q in all_rows if q.get('answer')=='一律給分')==16
+          print(json.dumps({
+              'ok': True,
+              'questions': len(all_rows),
+              'shards': len(shards),
+              'multi_answer_rows': 24,
+              'all_give_rows': 16,
+              'total_uncompressed_bytes': manifest['total_uncompressed_bytes'],
+              'dataset_revision': manifest['dataset_revision'],
+          }, ensure_ascii=False))
+          PY
+
+      - name: Upload shard artifact only
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-question-shards-preview
+          path: /tmp/question-shards/
+          if-no-files-found: error
+          retention-days: 3
