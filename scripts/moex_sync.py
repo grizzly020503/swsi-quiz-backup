@@ -26,7 +26,9 @@ OPTION_MARKERS = {
     "\ue18c": "A", "\ue18d": "B", "\ue18e": "C", "\ue18f": "D",
     "": "A", "": "B", "": "C", "": "D",
 }
-UA = "Mozilla/5.0 (compatible; swsi-quiz-moex-sync/1.2; +https://github.com/grizzly020503/swsi-quiz-backup)"
+ALL_ANSWERS = {"A", "B", "C", "D"}
+FW = str.maketrans("ＡＢＣＤ＃", "ABCD#")
+UA = "Mozilla/5.0 (compatible; swsi-quiz-moex-sync/1.3; +https://github.com/grizzly020503/swsi-quiz-backup)"
 
 
 def pdf_url(exam_code, subject_code, kind):
@@ -43,6 +45,22 @@ def get_bytes(url):
     r.raise_for_status()
     if not r.content.startswith(b"%PDF"):
         raise RuntimeError(f"不是 PDF：{url} (content-type={r.headers.get('content-type')})")
+    return r.content
+
+
+def try_get_bytes(url):
+    """Optional official PDF: return None when the endpoint has no PDF.
+
+    MOEX uses t=M for corrected-answer sheets. When no correction exists the
+    endpoint may return HTML or a non-success response, which is not an error;
+    callers should fall back to t=S. If a PDF is returned, it is validated later.
+    """
+    try:
+        r = requests.get(url, timeout=45, headers={"User-Agent": UA})
+    except requests.RequestException:
+        return None
+    if r.status_code != 200 or not r.content.startswith(b"%PDF"):
+        return None
     return r.content
 
 
@@ -106,8 +124,8 @@ def validate_answer_pdf(text, subject):
         raise RuntimeError(f"拒絕匯入：{subject['name']} 答案 PDF 類科不是社會工作師")
     if subject["name"] not in compact:
         raise RuntimeError(f"拒絕匯入：答案 PDF 科目不是「{subject['name']}」")
-    if "測驗式試題標準答案" not in compact:
-        raise RuntimeError(f"拒絕匯入：{subject['name']} 找不到官方標準答案標示")
+    if not any(marker in compact for marker in ("測驗式試題標準答案", "更正答案", "答案更正")):
+        raise RuntimeError(f"拒絕匯入：{subject['name']} 找不到官方答案標示")
 
 
 def parse_essays(text, subject, exam_code, roc_year, round_name):
@@ -172,7 +190,7 @@ def split_question_blocks(text):
     return blocks
 
 
-def parse_mc(text, subject, exam_code, roc_year, round_name, answers):
+def parse_mc(text, subject, exam_code, roc_year, round_name, answer_rules):
     rows = []
     for qno, raw in split_question_blocks(text):
         marked = normalize_option_markers(raw)
@@ -191,35 +209,86 @@ def parse_mc(text, subject, exam_code, roc_year, round_name, answers):
                 raise RuntimeError(f"{subject['name']} 第 {qno} 題 {k} 選項為空白")
         if not stem:
             raise RuntimeError(f"{subject['name']} 第 {qno} 題題幹為空白")
-        rows.append({
+        rule = answer_rules[qno - 1]
+        row = {
             "id": f"{subject['prefix']}-{roc_year}-{2 if round_name == '第二次' else 1}-{qno:03d}",
             "subject": subject["name"], "year": roc_year, "round": round_name, "qno": str(qno),
             "major": None, "topic": None, "keywords": None,
             "question": stem, "opt_a": opts["A"], "opt_b": opts["B"], "opt_c": opts["C"], "opt_d": opts["D"],
-            "answer": answers[qno - 1],
+            "answer": rule["answer"],
             "exp_why": None, "exp_others": None, "exp_trap": None, "exp_raw": None,
             "mnemonic": None, "extension": None, "law": None, "mistake": None,
             "source_exam_code": exam_code, "source_url": pdf_url(exam_code, subject["s"], "Q"),
             "analysis_status": "pending",
-        })
+        }
+        # 單一答案維持舊 payload 完全不變；只有官方真的接受多答案時才新增欄位。
+        if rule.get("accepted_answers"):
+            row["accepted_answers"] = rule["accepted_answers"]
+        rows.append(row)
     return rows
 
 
 def _answer_value(value):
-    t = clean(value).upper().replace(" ", "")
-    if t in {"A", "B", "C", "D"}:
+    t = clean(value).upper().replace(" ", "").translate(FW)
+    if t in ALL_ANSWERS or t == "#":
         return t
     if "一律給分" in t:
         return "一律給分"
     return None
 
 
-def parse_answers_pdf(data):
-    """依答案 PDF 的實際座標，把「第 N 題」與正下方答案配對。
+def _parse_correction_rules(text, raw_answers):
+    """Resolve MOEX # / correction-note rules into platform-safe answer metadata."""
+    note = compact_text(text).upper().translate(FW)
+    accepted = {}
 
-    不再依賴 extract_tables() 的欄位索引，因為考選部 PDF 在部分列會被
-    pdfplumber 拆成不同欄數，可能造成答案錯位但又剛好湊滿 40 題。
-    """
+    for m in re.finditer(r"第(\d{1,2})題([^第]*)", note):
+        qno = int(m.group(1))
+        body = m.group(2)
+        if not 1 <= qno <= 40:
+            continue
+        if "一律給分" in body or ("未作答者不給分" in body and "其餘均給分" in body):
+            accepted[qno] = set(ALL_ANSWERS)
+            continue
+        if "給分" in body and "答" in body:
+            between = body.split("答", 1)[1].split("給分", 1)[0]
+            letters = set(re.findall(r"[ABCD]", between))
+            if letters:
+                accepted[qno] = letters
+
+    for qno, token in enumerate(raw_answers, start=1):
+        if token == "一律給分":
+            accepted.setdefault(qno, set(ALL_ANSWERS))
+        elif token in ALL_ANSWERS:
+            accepted.setdefault(qno, {token})
+        elif token == "#":
+            if qno not in accepted:
+                marker = f"第{qno}題"
+                p = note.find(marker)
+                excerpt = note[p:p + 160] if p >= 0 else note[:240]
+                raise RuntimeError(
+                    f"官方更正答案第 {qno} 題為 #，但無法解析最終給分規則：{excerpt!r}"
+                )
+        else:
+            raise RuntimeError(f"官方答案第 {qno} 題出現未知標記：{token!r}")
+
+    if len(accepted) != 40:
+        raise RuntimeError(f"官方更正答案只解析出 {len(accepted)} / 40 題")
+
+    rules = []
+    for qno in range(1, 41):
+        answers = sorted(accepted[qno])
+        if set(answers) == ALL_ANSWERS:
+            rules.append({"answer": "一律給分"})
+        elif len(answers) == 1:
+            rules.append({"answer": answers[0]})
+        else:
+            rules.append({"answer": answers[0], "accepted_answers": answers})
+    return rules
+
+
+def parse_answers_pdf(data):
+    """依答案 PDF 實際座標配對題號與答案，再解析官方更正規則。"""
     found = {}
     with pdfplumber.open(io.BytesIO(data)) as pdf:
         for page in pdf.pages:
@@ -276,7 +345,9 @@ def parse_answers_pdf(data):
         raise RuntimeError(f"官方答案座標解析失敗，缺少題號：{missing}")
     if len(found) != 40:
         raise RuntimeError(f"官方答案座標解析題數異常：{len(found)}")
-    return [found[n] for n in range(1, 41)]
+
+    raw_answers = [found[n] for n in range(1, 41)]
+    return _parse_correction_rules(pdf_text(data), raw_answers)
 
 
 def exam_exists(exam_code):
@@ -298,15 +369,20 @@ def build_exam(exam_code):
     stats = {}
     for subject in SUBJECTS:
         q_url = pdf_url(exam_code, subject["s"], "Q")
-        a_url = pdf_url(exam_code, subject["s"], "S")
+        s_url = pdf_url(exam_code, subject["s"], "S")
+        m_url = pdf_url(exam_code, subject["s"], "M")
         q_data = get_bytes(q_url)
-        a_data = get_bytes(a_url)
+        # 更正答案 M 優先；沒有 M 才退回標準答案 S。
+        a_data = try_get_bytes(m_url)
+        answer_kind = "M" if a_data is not None else "S"
+        if a_data is None:
+            a_data = get_bytes(s_url)
         q_text = pdf_text(q_data)
         a_text = pdf_text(a_data)
         validate_question_pdf(q_text, subject)
         validate_answer_pdf(a_text, subject)
-        answers = parse_answers_pdf(a_data)
-        mc = parse_mc(q_text, subject, exam_code, roc_year, round_name, answers)
+        answer_rules = parse_answers_pdf(a_data)
+        mc = parse_mc(q_text, subject, exam_code, roc_year, round_name, answer_rules)
         essays = parse_essays(q_text, subject, exam_code, roc_year, round_name)
         if len(mc) != 40:
             raise RuntimeError(f"{subject['name']} 選擇題不是 40 題")
@@ -315,6 +391,8 @@ def build_exam(exam_code):
         all_mc.extend(mc)
         all_essays.extend(essays)
         stats[subject["name"]] = {"mc": len(mc), "essay": len(essays)}
+        multi = sum(1 for r in answer_rules if r.get("accepted_answers"))
+        print(f"{exam_code} {subject['name']}: official answers {answer_kind}, multi={multi}")
 
     if len(all_mc) != 200 or len(all_essays) != 10:
         raise RuntimeError(f"總題數異常：選擇 {len(all_mc)}、申論 {len(all_essays)}")
