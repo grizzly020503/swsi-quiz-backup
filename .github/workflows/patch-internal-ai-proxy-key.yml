@@ -1,0 +1,37 @@
+name: Patch Internal AI Proxy Key
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-internal-ai-proxy-key.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Patch Supabase AI analyzer
+        run: python scripts/patch_internal_ai_proxy_key.py
+      - name: Validate patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          grep -F '"x-internal-key": internalKey' supabase/functions/analyze-pending-questions/index.ts
+          grep -F 'const internalKey = String(cfg.job_key);' supabase/functions/analyze-pending-questions/index.ts
+          grep -F 'await analyzeOne(q, internalKey)' supabase/functions/analyze-pending-questions/index.ts
+      - name: Commit patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'swsi-maintenance-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add supabase/functions/analyze-pending-questions/index.ts
+          git commit -m '讓後台 AI 題解帶內部 Proxy 通行證'
+          git push
