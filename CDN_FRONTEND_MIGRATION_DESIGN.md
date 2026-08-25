@@ -1,6 +1,7 @@
 # SWSI 題庫 CDN — 前端月更切換設計
 
 建立：2026-08-25
+最後更新：2026-08-25（CDN revision 與 grading mode 規格已同步）
 狀態：**設計完成，尚未修改 `index.html` / `sw.js` / Netlify production**
 
 > 目的：月底一次施工時，讓學生端真正吃已上線的 Cloudflare exam-session shards，同時盡量不重寫既有 `ALL` / 刷題 / 錯題 / 模擬考架構。
@@ -14,15 +15,17 @@ Cloudflare Static Assets 已 production/runtime 驗收：
 - `/question-shards/manifest.json`
 - `/question-shards/104-1.json` … `/question-shards/115-2.json`
 - 4,800 題 / 24 shards / 每 shard 200 題
-- dataset revision：`8dafaf049f5200b54cd8`
+- dataset revision：`e721d6293d4c6acdddee`
 - 24 題 `accepted_answers` 保留
-- 16 題「一律給分」保留
+- `grading_mode` 保留：4,784 `standard` / 12 `all_credit` / 4 `any_answer`
+- 官方 answer findings：0
+- 官方 grading-mode mismatches：0
 - CORS / cache headers 正常
 - AI Worker root 仍正常受 Origin guard 保護
 - builder 會在完整 116、117…考次出現時自動增加 shard
 - incomplete 新考次 fail closed
 
-因此月底**只切 frontend loader**，不要另開 R2、不要另建 Worker、不要重新切資料。
+因此月底**只切 frontend loader 與判題相容層**，不要另開 R2、不要另建 Worker、不要重新切資料。
 
 ---
 
@@ -70,6 +73,7 @@ init()
 5. 需要全庫的功能（搜尋、考點統計、模擬考、錯題複習）進入時才 `ensureAllQuestionsLoaded()`。
 6. 每 shard 同步存 IndexedDB；離線時可讀已快取 shard。
 7. Supabase 保留為 CDN 故障時的 fallback，不再是每位學生的正常冷啟動來源。
+8. `normalize()` 必須完整保留 `accepted_answers + grading_mode`；CDN 與 Supabase fallback 都走同一判題模型。
 
 ### 資料流
 
@@ -189,6 +193,7 @@ function questionTotal(){
 - `questions.length === 200`
 - 每題 id 不空白
 - 不允許同 ID 重複
+- 每題 `grading_mode` 必須是 `standard / all_credit / any_answer`；若特殊給分 metadata 缺失，前端 fail closed，不自行猜
 
 之後：
 
@@ -232,6 +237,16 @@ function shardMetasForHomeScope(){ ... }
 - year + round=1/2 → 1 shard
 - year + round=all → 該年 2 shards
 
+**注意：現行底部 UIUX override 有 round regression。**
+
+內部值必須統一：
+
+```text
+"1" / "2" / "all"
+```
+
+UI 才顯示「第一次／第二次」。`setHomeQuizRound()` 與 shard matcher 都要 canonicalize；不要讓 `<option value="第一次">` 再進核心 filter。
+
 ### recent3
 
 - manifest 最新年度往前 3 年 → 6 shards
@@ -272,7 +287,7 @@ startFocusedQuiz()
 
 這是最重要的一個切點。
 
-**指定歷屆 115-2 因此只需下載 1 個約 193 KB shard，而不是 4,800 題。**
+**指定歷屆 115-2 因此只需下載 1 個 shard，而不是 4,800 題。**
 
 ---
 
@@ -350,41 +365,74 @@ MK.open()
   → setup()
 ```
 
-這樣 `MK` 內部絕大多數程式不用重寫。
+這樣 `MK` 的題庫來源大部分不用重寫；但 `MK.grade()` 的判題必須同輪改成共用 grading helper，不能保留自己的第二套 `picked===q.answer`。
 
 指定歷屆模擬考未來可以再優化為只載單一 shard，但不是公開前必要 P0。
 
 ---
 
-## 12. `normalize(r)` 必修：帶入 `accepted_answers`
-
-現行 `normalize()` 把 DB row 轉成前端 object 時漏掉 `accepted_answers`。
+## 12. `normalize(r)` 必修：帶入 `accepted_answers + grading_mode`
 
 月底至少改：
 
 ```js
-accepted_answers: Array.isArray(r.accepted_answers) ? r.accepted_answers : null,
+accepted_answers: Array.isArray(r.accepted_answers)
+  ? r.accepted_answers.filter(x=>['A','B','C','D'].includes(x))
+  : null,
+grading_mode: ['standard','all_credit','any_answer'].includes(r.grading_mode)
+  ? r.grading_mode
+  : (r.answer==='一律給分' ? 'unknown' : 'standard'),
 ```
 
-然後所有判題都統一呼叫一個 helper，不要每個畫面自己判：
+原則：
+- 普通 legacy row 缺 mode 可安全視同 `standard`
+- `answer='一律給分'` 卻缺 mode 時不能自行猜 `all_credit` 或 `any_answer`
+- production CDN / Supabase 正常資料已全部有合法 mode
+
+共用 helper：
 
 ```js
+const GRADING_MODES=new Set(['standard','all_credit','any_answer']);
+
+function gradingMode(item){
+  const m=item&&String(item.grading_mode||'');
+  if(GRADING_MODES.has(m)) return m;
+  if(item && item.answer!=='一律給分') return 'standard';
+  return 'unknown';
+}
+
 function acceptedAnswers(item){
-  if(item.answer==='一律給分' || /送分/.test(String(item.answer||''))){
+  const mode=gradingMode(item);
+  if(mode==='all_credit' || mode==='any_answer'){
     return new Set(['A','B','C','D']);
   }
   if(Array.isArray(item.accepted_answers) && item.accepted_answers.length){
-    return new Set(item.accepted_answers);
+    return new Set(item.accepted_answers.filter(x=>['A','B','C','D'].includes(x)));
   }
-  return new Set([item.answer]);
+  return ['A','B','C','D'].includes(item.answer)
+    ? new Set([item.answer])
+    : new Set();
 }
 
 function isCorrectAnswer(item,picked){
-  return !!picked && acceptedAnswers(item).has(picked);
+  const mode=gradingMode(item);
+  if(mode==='unknown') return false;
+  if(mode==='all_credit') return picked==null || acceptedAnswers(item).has(picked);
+  return picked!=null && acceptedAnswers(item).has(picked);
 }
 ```
 
 一般刷題與 `MK.grade()` 都必須使用同一 helper。
+
+### 特殊給分未作答語意
+
+| mode | A-D 作答 | 未作答 |
+|---|---|---|
+| `standard` | 依 accepted set | incorrect |
+| `all_credit` | correct | **correct** |
+| `any_answer` | correct | **incorrect** |
+
+特殊給分題不要把四個選項全畫成「學理正確」；另顯示官方給分規則即可。
 
 ---
 
@@ -446,7 +494,7 @@ Cloudflare CDN 是跨 Netlify origin，現行 `sw.js` 不會攔截它；這是�
 
 > 「目前使用這台裝置已快取的題庫資料；恢復網路後可同步其他考次與最新內容。」
 
-若公開後真的需要「一鍵下載完整離線題庫」，再另做明確按鈕，不要偷偷在行動網路背景下載 6.84 MB。
+若公開後真的需要「一鍵下載完整離線題庫」，再另做明確按鈕，不要偷偷在行動網路背景下載約 6.84 MB。
 
 ---
 
@@ -484,6 +532,9 @@ CDN builder 已直接讀 production Supabase，且每天約 11:10 接在 MOEX 10
 
 第一版最安全做法：正常 CDN 路徑不 merge auto MCQ；Supabase / auto 僅作 fallback。`auto/essays_auto.json` 與選擇題 loader 無關，可繼續目前邏輯。
 
+### schema-only 變更防重演
+2026-08-25 首次 grading-mode parser 上線曾因普通題新增 `grading_mode='standard'` 而改寫 `auto/questions_auto.json`。MOEX workflow 現已把普通 legacy 缺 mode 在比較時視同 `standard`，實測 115030／115100 都為 `unchanged official content`，避免純 schema metadata 再觸發題庫備援檔改寫。
+
 ---
 
 ## 17. 首頁需要改的幾個依賴
@@ -499,6 +550,12 @@ CDN builder 已直接讀 production Supabase，且每天約 11:10 接在 MOEX 10
 現在：`examYears()` 掃 `ALL`
 
 改：優先由 manifest shards 取年份。
+
+### Round dropdown
+
+先修現行 UIUX V1 regression：
+- internal value：`1 / 2 / all`
+- visible label：第一次 / 第二次 / 全部
 
 ### `maxExamYear()`
 
@@ -554,7 +611,7 @@ QB.loading.set(file,promise)
 
 ## 20. 月底施工順序（精確）
 
-### Phase 0 — 備份
+### Phase 0 — 備份與現行 regression
 
 記錄修改前：
 
@@ -562,7 +619,23 @@ QB.loading.set(file,promise)
 - `sw.js` SHA
 - `manifest.json` SHA
 
-### Phase 1 — 只改 loader infrastructure
+然後**先修 round canonical regression**，讓既有指定歷屆篩選回到正確 internal value。
+
+### Phase 1 — metadata / 判題相容層
+
+先讓 `normalize()` 保留：
+- `accepted_answers`
+- `grading_mode`
+
+建立唯一：
+- `gradingMode()`
+- `acceptedAnswers()`
+- `isCorrectAnswer()`
+- `answerLabel()`
+
+同輪修一般刷題 + `MK.grade()`，確保切 CDN 前後判題語意一致。
+
+### Phase 2 — loader infrastructure
 
 新增：
 
@@ -575,23 +648,14 @@ QB.loading.set(file,promise)
 - Supabase scoped fallback
 - `questionTotal()` / manifest-based years
 
-先不碰判題。
-
-### Phase 2 — 接入既有入口
+### Phase 3 — 接入既有入口
 
 - `init()`：manifest-first，不再 await 4,800 Supabase
 - `startFocusedQuiz()`：scope-on-demand
 - `go(search/topics/review/progress)`：必要時 ensureAll
 - `startDueReview()`：ensureAll
 - `MK.open()`：ensureAll
-
-### Phase 3 — 多答案
-
-- `normalize()` 補 `accepted_answers`
-- 共用 `acceptedAnswers()` / `isCorrectAnswer()`
-- 一般刷題
-- 模擬考
-- 錯題／統計／結果 UI
+- 修底部 `renderHome / renderReview` 最後 override
 
 ### Phase 4 — 同包其他公開前 patch
 
@@ -600,7 +664,6 @@ QB.loading.set(file,promise)
 - XSS escape
 - Client-ID
 - quota message
-- 模擬考未作答
 - deep-link
 - storage warning
 - AI 文案／隱私／3 張
@@ -616,6 +679,7 @@ QB.loading.set(file,promise)
 
 ### Phase 6 — 一次 deploy
 
+- 全文 grep 第二套判題／XSS／override
 - diff review
 - Netlify production deploy **一次**
 
@@ -632,7 +696,9 @@ QB.loading.set(file,promise)
 
 - 115 第二次 → 只要求 `115-2.json`
 - 115 全部 → `115-1.json` + `115-2.json`
+- 104 年再抽一輪
 - 題數／科目／順序正確
+- round internal value 必須是 `1 / 2 / all`
 
 ### 智慧推薦
 
@@ -654,9 +720,21 @@ QB.loading.set(file,promise)
 - 非 accepted → wrong
 - UI 顯示完整官方可接受答案
 
-### 一律給分
+### `all_credit`
 
-16 題：A/B/C/D 任一選項都算 correct；不要把「四個選項都學理正確」寫進解析。
+12 題：
+- A/B/C/D 任一作答 → correct
+- **未作答 → correct**
+- 不進錯題／review schedule
+- 不暗示四選項都學理正確
+
+### `any_answer`
+
+4 題：
+- A/B/C/D 任一作答 → correct
+- **未作答 → incorrect**
+- 未作答正常進錯題／review schedule
+- UI 顯示「除未作答者不給分外，其餘均給分」
 
 ### fallback
 
@@ -688,18 +766,20 @@ QB.loading.set(file,promise)
 - 不刪 legacy offline cache
 - 不在第一版為每個 due review ID 做複雜 shard index
 - 不為了「完全 lazy」重寫所有 `ALL`-based 功能
+- 不從 `answer='一律給分'` 猜 grading mode
 - 不在月底拆成多次 Netlify deploy
 
 ---
 
 ## 23. 最終判斷
 
-對目前這個單檔前端而言，**最安全的公開前改法不是全面改成 reactive / virtual data store，而是讓 CDN loader 逐步把需要的資料注入既有 `ALL`。**
+對目前這個單檔前端而言，**最安全的公開前改法不是全面改成 reactive / virtual data store，而是先收斂官方判題語意，再讓 CDN loader 逐步把需要的資料注入既有 `ALL`。**
 
 這能同時做到：
 
 - 首頁不再被 4,800 題阻塞
 - 指定歷屆真的只載 1–2 shards
+- 24 多答案與 16 特殊給分不因資料來源切換而失真
 - Supabase 不再承受每位學生的正常題庫 egress
 - 既有刷題／權重／模擬考／錯題邏輯大部分保留
 - 離線 fallback 不必整套推翻
