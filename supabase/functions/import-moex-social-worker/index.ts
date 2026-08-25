@@ -5,6 +5,7 @@ const REPO = "grizzly020503/swsi-quiz-backup";
 const EXAM_TYPE = "專門職業及技術人員高等考試社會工作師";
 const ALLOWED_SUBJECTS = ["社會工作","社會工作直接服務","社會政策與社會立法","人類行為與社會環境","社會工作研究方法"];
 const ALLOWED_ANSWERS = new Set(["A","B","C","D"]);
+const ALLOWED_GRADING_MODES = new Set(["standard","all_credit","any_answer"]);
 const QUESTION_ANALYSIS_FIELDS = ["major","topic","keywords","exp_why","exp_others","exp_trap","exp_raw","mnemonic","extension","law","mistake","analysis_status"];
 const ESSAY_ANALYSIS_FIELDS = ["topic","major","keywords","theories","laws","difficulty","frequency","qtype","related","cluster","cluster_name","analysis_status"];
 
@@ -13,24 +14,31 @@ function assert(cond: unknown, message: string): asserts cond { if (!cond) throw
 function isMoexUrl(value: unknown) { if (typeof value !== "string") return false; try { const u = new URL(value); return u.protocol === "https:" && u.hostname === "wwwq.moex.gov.tw" && u.pathname.startsWith("/exam/"); } catch { return false; } }
 
 async function verifyGitHubRepoToken(token: string) {
-  const r = await fetch(`https://api.github.com/repos/${REPO}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "swsi-supabase-moex-importer/1.2" } });
+  const r = await fetch(`https://api.github.com/repos/${REPO}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "swsi-supabase-moex-importer/1.3" } });
   if (!r.ok) return false;
   const repo = await r.json();
   return repo?.full_name === REPO && repo?.private === true;
 }
 
-function validateAcceptedAnswers(q: any) {
+function validateAnswerMetadata(q: any) {
+  const mode = String(q?.grading_mode || "").trim();
+  assert(ALLOWED_GRADING_MODES.has(mode), `選擇題 ${q.id} grading_mode 異常：${mode || "(空白)"}`);
+
   const accepted = q?.accepted_answers;
-  if (accepted === undefined || accepted === null) {
-    assert(["A","B","C","D","一律給分"].includes(String(q.answer)), `選擇題答案異常：${q.id}`);
+  if (mode === "all_credit" || mode === "any_answer") {
+    assert(String(q.answer) === "一律給分", `選擇題 ${q.id} 特殊給分模式必須使用 answer=一律給分`);
+    assert(accepted === undefined || accepted === null, `選擇題 ${q.id} 特殊給分模式不可另設 accepted_answers`);
     return;
   }
+
+  assert(ALLOWED_ANSWERS.has(String(q.answer)), `選擇題答案異常：${q.id}`);
+  if (accepted === undefined || accepted === null) return;
+
   assert(Array.isArray(accepted), `選擇題 ${q.id} accepted_answers 必須是陣列`);
   const vals = accepted.map((x: unknown) => String(x).trim().toUpperCase());
   assert(vals.length >= 2 && vals.length <= 4, `選擇題 ${q.id} accepted_answers 必須有 2~4 個答案`);
   assert(new Set(vals).size === vals.length, `選擇題 ${q.id} accepted_answers 不可重複`);
   assert(vals.every((x: string) => ALLOWED_ANSWERS.has(x)), `選擇題 ${q.id} accepted_answers 只能是 A/B/C/D`);
-  assert(ALLOWED_ANSWERS.has(String(q.answer)), `選擇題 ${q.id} 多答案時主 answer 必須是 A/B/C/D`);
   assert(vals.includes(String(q.answer)), `選擇題 ${q.id} 主 answer 不在 accepted_answers`);
 }
 
@@ -57,12 +65,12 @@ function validatePayload(data: any) {
     assert(isMoexUrl(q.source_url), `選擇題來源網址不符：${q.id}`);
     assert(typeof q.id === "string" && q.id.length > 0 && !ids.has(q.id), `選擇題 ID 重複或空白：${q.id}`); ids.add(q.id);
     for (const k of ["question","opt_a","opt_b","opt_c","opt_d"]) assert(typeof q[k] === "string" && q[k].trim().length > 0, `選擇題 ${q.id} 缺 ${k}`);
-    validateAcceptedAnswers(q);
+    validateAnswerMetadata(q);
     qCounts.set(q.subject, (qCounts.get(q.subject) || 0) + 1);
   }
   for (const e of data.essays) {
     assert(ALLOWED_SUBJECTS.includes(e.subject), `不允許的申論題科目：${e.subject}`);
-    assert(String(e.year) === year && e.round === expectedRound, `申論題年度/場次不符：${e.id}`);
+    assert(String(e.year) === year && e.round === expectedRound, `申論年度/場次不符：${e.id}`);
     assert(e.source_exam_code === data.exam_code, `申論 source_exam_code 不符：${e.id}`);
     assert(isMoexUrl(e.source_url), `申論來源網址不符：${e.id}`);
     assert(typeof e.id === "string" && e.id.length > 0 && !essayIds.has(e.id), `申論題 ID 重複或空白：${e.id}`); essayIds.add(e.id);
@@ -114,7 +122,7 @@ Deno.serve(async (req: Request) => {
     const { error: essayError } = await sb.from("essays").upsert(mergedEssays, { onConflict: "id" });
     if (essayError) throw new Error(`essays upsert: ${essayError.message}`);
 
-    const { error: runError } = await sb.from("moex_sync_runs").upsert({ exam_code: data.exam_code, roc_year: data.roc_year, round: data.round, status: "imported", mc_count: data.questions.length, essay_count: data.essays.length, imported_at: new Date().toISOString(), source_page: data.source_page, note: "Official MOEX PDF; GitHub Actions verified; multi-answer rules validated; analysis fields preserved" }, { onConflict: "exam_code" });
+    const { error: runError } = await sb.from("moex_sync_runs").upsert({ exam_code: data.exam_code, roc_year: data.roc_year, round: data.round, status: "imported", mc_count: data.questions.length, essay_count: 10, imported_at: new Date().toISOString(), source_page: data.source_page, note: "Official MOEX PDF; GitHub Actions verified; multi-answer and grading-mode rules validated; analysis fields preserved" }, { onConflict: "exam_code" });
     if (runError) throw new Error(`moex_sync_runs upsert: ${runError.message}`);
     return json({ ok: true, exam_code: data.exam_code, mc_count: 200, essay_count: 10 });
   } catch (e) { return json({ error: e instanceof Error ? e.message : String(e) }, 500); }
