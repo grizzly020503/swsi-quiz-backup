@@ -3,21 +3,15 @@
   "official_exam_count": 24,
   "official_question_count": 4800,
   "db_question_count": 4800,
-  "finding_count": 89,
-  "finding_types": {
-    "INCOMPLETE_MULTI": 35,
-    "WRONG": 53,
-    "DB_TOO_BROAD": 1
-  },
+  "finding_count": 0,
+  "finding_types": {},
   "exam_summary": [
     {
       "year": "104",
       "round": "第一次",
       "exam_code": "104030",
       "counts": {
-        "OK": 195,
-        "INCOMPLETE_MULTI": 1,
-        "WRONG": 4
+        "OK": 200
       }
     },
     {
@@ -25,10 +19,7 @@
       "round": "第二次",
       "exam_code": "104100",
       "counts": {
-        "OK": 187,
-        "WRONG": 8,
-        "INCOMPLETE_MULTI": 4,
-        "DB_TOO_BROAD": 1
+        "OK": 200
       }
     },
     {
@@ -36,9 +27,7 @@
       "round": "第一次",
       "exam_code": "105030",
       "counts": {
-        "OK": 195,
-        "WRONG": 2,
-        "INCOMPLETE_MULTI": 3
+        "OK": 200
       }
     },
     {
@@ -46,9 +35,7 @@
       "round": "第二次",
       "exam_code": "105090",
       "counts": {
-        "OK": 195,
-        "WRONG": 4,
-        "INCOMPLETE_MULTI": 1
+        "OK": 200
       }
     },
     {
@@ -56,9 +43,7 @@
       "round": "第一次",
       "exam_code": "106030",
       "counts": {
-        "OK": 198,
-        "WRONG": 1,
-        "INCOMPLETE_MULTI": 1
+        "OK": 200
       }
     },
     {
@@ -66,9 +51,7 @@
       "round": "第二次",
       "exam_code": "106110",
       "counts": {
-        "OK": 196,
-        "WRONG": 2,
-        "INCOMPLETE_MULTI": 2
+        "OK": 200
       }
     },
     {
@@ -76,9 +59,7 @@
       "round": "第一次",
       "exam_code": "107030",
       "counts": {
-        "OK": 195,
-        "WRONG": 3,
-        "INCOMPLETE_MULTI": 2
+        "OK": 200
       }
     },
     {
@@ -86,9 +67,7 @@
       "round": "第二次",
       "exam_code": "107110",
       "counts": {
-        "OK": 192,
-        "INCOMPLETE_MULTI": 3,
-        "WRONG": 5
+        "OK": 200
       }
     },
     {
@@ -96,8 +75,7 @@
       "round": "第一次",
       "exam_code": "108020",
       "counts": {
-        "OK": 198,
-        "INCOMPLETE_MULTI": 2
+        "OK": 200
       }
     },
     {
@@ -105,9 +83,7 @@
       "round": "第二次",
       "exam_code": "108110",
       "counts": {
-        "OK": 196,
-        "WRONG": 1,
-        "INCOMPLETE_MULTI": 3
+        "OK": 200
       }
     },
     {
@@ -115,8 +91,7 @@
       "round": "第一次",
       "exam_code": "109030",
       "counts": {
-        "OK": 199,
-        "WRONG": 1
+        "OK": 200
       }
     },
     {
@@ -124,9 +99,7 @@
       "round": "第二次",
       "exam_code": "109110",
       "counts": {
-        "OK": 196,
-        "WRONG": 3,
-        "INCOMPLETE_MULTI": 1
+        "OK": 200
       }
     },
     {
@@ -142,8 +115,7 @@
       "round": "第二次",
       "exam_code": "110111",
       "counts": {
-        "OK": 198,
-        "INCOMPLETE_MULTI": 2
+        "OK": 200
       }
     },
     {
@@ -151,9 +123,7 @@
       "round": "第一次",
       "exam_code": "111030",
       "counts": {
-        "OK": 197,
-        "WRONG": 2,
-        "INCOMPLETE_MULTI": 1
+        "OK": 200
       }
     },
     {
@@ -161,8 +131,7 @@
       "round": "第二次",
       "exam_code": "111110",
       "counts": {
-        "OK": 198,
-        "INCOMPLETE_MULTI": 2
+        "OK": 200
       }
     },
     {
@@ -170,8 +139,7 @@
       "round": "第一次",
       "exam_code": "112030",
       "counts": {
-        "OK": 199,
-        "WRONG": 1
+        "OK": 200
       }
     },
     {
@@ -179,9 +147,7 @@
       "round": "第二次",
       "exam_code": "112110",
       "counts": {
-        "OK": 195,
-        "WRONG": 3,
-        "INCOMPLETE_MULTI": 2
+        "OK": 200
       }
     },
     {
@@ -189,8 +155,7 @@
       "round": "第一次",
       "exam_code": "113030",
       "counts": {
-        "OK": 190,
-        "WRONG": 10
+        "OK": 200
       }
     },
     {
@@ -198,9 +163,7 @@
       "round": "第二次",
       "exam_code": "113100",
       "counts": {
-        "OK": 198,
-        "WRONG": 1,
-        "INCOMPLETE_MULTI": 1
+        "OK": 200
       }
     },
     {
@@ -208,9 +171,7 @@
       "round": "第一次",
       "exam_code": "114030",
       "counts": {
-        "OK": 198,
-        "INCOMPLETE_MULTI": 1,
-        "WRONG": 1
+        "OK": 200
       }
     },
     {
@@ -218,8 +179,7 @@
       "round": "第二次",
       "exam_code": "114100",
       "counts": {
-        "OK": 197,
-        "INCOMPLETE_MULTI": 3
+        "OK": 200
       }
     },
     {
@@ -227,8 +187,7 @@
       "round": "第一次",
       "exam_code": "115030",
       "counts": {
-        "OK": 199,
-        "WRONG": 1
+        "OK": 200
       }
     },
     {
@@ -240,1494 +199,5 @@
       }
     }
   ],
-  "findings": [
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "104",
-      "round": "第一次",
-      "exam_code": "104030",
-      "subject": "社會工作",
-      "qno": 14,
-      "official": [
-        "B",
-        "C"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SW-104-1-14"
-    },
-    {
-      "type": "WRONG",
-      "year": "104",
-      "round": "第一次",
-      "exam_code": "104030",
-      "subject": "社會工作直接服務",
-      "qno": 16,
-      "official": [
-        "B"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "DS-104-1-16"
-    },
-    {
-      "type": "WRONG",
-      "year": "104",
-      "round": "第一次",
-      "exam_code": "104030",
-      "subject": "社會工作直接服務",
-      "qno": 29,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "DS-104-1-29"
-    },
-    {
-      "type": "WRONG",
-      "year": "104",
-      "round": "第一次",
-      "exam_code": "104030",
-      "subject": "社會工作直接服務",
-      "qno": 31,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "DS-104-1-31"
-    },
-    {
-      "type": "WRONG",
-      "year": "104",
-      "round": "第一次",
-      "exam_code": "104030",
-      "subject": "社會工作直接服務",
-      "qno": 33,
-      "official": [
-        "A"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "DS-104-1-33"
-    },
-    {
-      "type": "WRONG",
-      "year": "104",
-      "round": "第二次",
-      "exam_code": "104100",
-      "subject": "社會工作直接服務",
-      "qno": 4,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "DS-104-2-04"
-    },
-    {
-      "type": "WRONG",
-      "year": "104",
-      "round": "第二次",
-      "exam_code": "104100",
-      "subject": "社會工作直接服務",
-      "qno": 9,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "DS-104-2-09"
-    },
-    {
-      "type": "WRONG",
-      "year": "104",
-      "round": "第二次",
-      "exam_code": "104100",
-      "subject": "社會工作直接服務",
-      "qno": 10,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "DS-104-2-10"
-    },
-    {
-      "type": "WRONG",
-      "year": "104",
-      "round": "第二次",
-      "exam_code": "104100",
-      "subject": "社會工作直接服務",
-      "qno": 21,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "DS-104-2-21"
-    },
-    {
-      "type": "WRONG",
-      "year": "104",
-      "round": "第二次",
-      "exam_code": "104100",
-      "subject": "社會工作直接服務",
-      "qno": 35,
-      "official": [
-        "A"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "DS-104-2-35"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "104",
-      "round": "第二次",
-      "exam_code": "104100",
-      "subject": "社會工作直接服務",
-      "qno": 36,
-      "official": [
-        "B",
-        "D"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "DS-104-2-36"
-    },
-    {
-      "type": "WRONG",
-      "year": "104",
-      "round": "第二次",
-      "exam_code": "104100",
-      "subject": "社會工作直接服務",
-      "qno": 37,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "DS-104-2-37"
-    },
-    {
-      "type": "WRONG",
-      "year": "104",
-      "round": "第二次",
-      "exam_code": "104100",
-      "subject": "社會政策與社會立法",
-      "qno": 12,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "SP104-2-12"
-    },
-    {
-      "type": "DB_TOO_BROAD",
-      "year": "104",
-      "round": "第二次",
-      "exam_code": "104100",
-      "subject": "社會政策與社會立法",
-      "qno": 24,
-      "official": [
-        "A"
-      ],
-      "db": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "db_raw": "一律給分",
-      "id": "SP104-2-24"
-    },
-    {
-      "type": "WRONG",
-      "year": "104",
-      "round": "第二次",
-      "exam_code": "104100",
-      "subject": "社會政策與社會立法",
-      "qno": 37,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "SP104-2-37"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "104",
-      "round": "第二次",
-      "exam_code": "104100",
-      "subject": "社會工作研究方法",
-      "qno": 7,
-      "official": [
-        "B",
-        "C"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "R-104-2-07"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "104",
-      "round": "第二次",
-      "exam_code": "104100",
-      "subject": "社會工作研究方法",
-      "qno": 21,
-      "official": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "R-104-2-21"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "104",
-      "round": "第二次",
-      "exam_code": "104100",
-      "subject": "社會工作研究方法",
-      "qno": 23,
-      "official": [
-        "B",
-        "D"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "R-104-2-23"
-    },
-    {
-      "type": "WRONG",
-      "year": "105",
-      "round": "第一次",
-      "exam_code": "105030",
-      "subject": "社會工作",
-      "qno": 15,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SW-105-1-15"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "105",
-      "round": "第一次",
-      "exam_code": "105030",
-      "subject": "社會工作",
-      "qno": 16,
-      "official": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SW-105-1-16"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "105",
-      "round": "第一次",
-      "exam_code": "105030",
-      "subject": "社會工作",
-      "qno": 17,
-      "official": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SW-105-1-17"
-    },
-    {
-      "type": "WRONG",
-      "year": "105",
-      "round": "第一次",
-      "exam_code": "105030",
-      "subject": "社會政策與社會立法",
-      "qno": 8,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SP105-1-08"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "105",
-      "round": "第一次",
-      "exam_code": "105030",
-      "subject": "人類行為與社會環境",
-      "qno": 36,
-      "official": [
-        "A",
-        "C"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "HBSE-105-1-036"
-    },
-    {
-      "type": "WRONG",
-      "year": "105",
-      "round": "第二次",
-      "exam_code": "105090",
-      "subject": "社會工作",
-      "qno": 3,
-      "official": [
-        "B"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SW-105-2-03"
-    },
-    {
-      "type": "WRONG",
-      "year": "105",
-      "round": "第二次",
-      "exam_code": "105090",
-      "subject": "社會工作",
-      "qno": 6,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "SW-105-2-06"
-    },
-    {
-      "type": "WRONG",
-      "year": "105",
-      "round": "第二次",
-      "exam_code": "105090",
-      "subject": "社會工作",
-      "qno": 20,
-      "official": [
-        "A",
-        "B"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SW-105-2-20"
-    },
-    {
-      "type": "WRONG",
-      "year": "105",
-      "round": "第二次",
-      "exam_code": "105090",
-      "subject": "社會工作",
-      "qno": 32,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "SW-105-2-32"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "105",
-      "round": "第二次",
-      "exam_code": "105090",
-      "subject": "社會政策與社會立法",
-      "qno": 18,
-      "official": [
-        "B",
-        "C"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SP105-2-18"
-    },
-    {
-      "type": "WRONG",
-      "year": "106",
-      "round": "第一次",
-      "exam_code": "106030",
-      "subject": "社會工作",
-      "qno": 29,
-      "official": [
-        "B"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SW-106-1-29"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "106",
-      "round": "第一次",
-      "exam_code": "106030",
-      "subject": "社會工作",
-      "qno": 36,
-      "official": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "SW-106-1-36"
-    },
-    {
-      "type": "WRONG",
-      "year": "106",
-      "round": "第二次",
-      "exam_code": "106110",
-      "subject": "社會政策與社會立法",
-      "qno": 25,
-      "official": [
-        "A"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SP106-2-25"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "106",
-      "round": "第二次",
-      "exam_code": "106110",
-      "subject": "人類行為與社會環境",
-      "qno": 4,
-      "official": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "HBSE-106-2-004"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "106",
-      "round": "第二次",
-      "exam_code": "106110",
-      "subject": "人類行為與社會環境",
-      "qno": 23,
-      "official": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "HBSE-106-2-023"
-    },
-    {
-      "type": "WRONG",
-      "year": "106",
-      "round": "第二次",
-      "exam_code": "106110",
-      "subject": "人類行為與社會環境",
-      "qno": 37,
-      "official": [
-        "A"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "HBSE-106-2-037"
-    },
-    {
-      "type": "WRONG",
-      "year": "107",
-      "round": "第一次",
-      "exam_code": "107030",
-      "subject": "社會政策與社會立法",
-      "qno": 4,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "SP107-1-04"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "107",
-      "round": "第一次",
-      "exam_code": "107030",
-      "subject": "社會政策與社會立法",
-      "qno": 16,
-      "official": [
-        "B",
-        "C"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "SP107-1-16"
-    },
-    {
-      "type": "WRONG",
-      "year": "107",
-      "round": "第一次",
-      "exam_code": "107030",
-      "subject": "社會政策與社會立法",
-      "qno": 28,
-      "official": [
-        "B"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SP107-1-28"
-    },
-    {
-      "type": "WRONG",
-      "year": "107",
-      "round": "第一次",
-      "exam_code": "107030",
-      "subject": "社會政策與社會立法",
-      "qno": 33,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SP107-1-33"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "107",
-      "round": "第一次",
-      "exam_code": "107030",
-      "subject": "人類行為與社會環境",
-      "qno": 13,
-      "official": [
-        "A",
-        "C"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "HBSE-107-1-013"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "107",
-      "round": "第二次",
-      "exam_code": "107110",
-      "subject": "社會工作",
-      "qno": 9,
-      "official": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SW-107-2-09"
-    },
-    {
-      "type": "WRONG",
-      "year": "107",
-      "round": "第二次",
-      "exam_code": "107110",
-      "subject": "社會政策與社會立法",
-      "qno": 15,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SP107-2-15"
-    },
-    {
-      "type": "WRONG",
-      "year": "107",
-      "round": "第二次",
-      "exam_code": "107110",
-      "subject": "社會政策與社會立法",
-      "qno": 19,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SP107-2-19"
-    },
-    {
-      "type": "WRONG",
-      "year": "107",
-      "round": "第二次",
-      "exam_code": "107110",
-      "subject": "社會政策與社會立法",
-      "qno": 20,
-      "official": [
-        "B"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "SP107-2-20"
-    },
-    {
-      "type": "WRONG",
-      "year": "107",
-      "round": "第二次",
-      "exam_code": "107110",
-      "subject": "社會政策與社會立法",
-      "qno": 24,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "SP107-2-24"
-    },
-    {
-      "type": "WRONG",
-      "year": "107",
-      "round": "第二次",
-      "exam_code": "107110",
-      "subject": "社會政策與社會立法",
-      "qno": 38,
-      "official": [
-        "A"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SP107-2-38"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "107",
-      "round": "第二次",
-      "exam_code": "107110",
-      "subject": "人類行為與社會環境",
-      "qno": 12,
-      "official": [
-        "A",
-        "D"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "HBSE-107-2-012"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "107",
-      "round": "第二次",
-      "exam_code": "107110",
-      "subject": "社會工作研究方法",
-      "qno": 12,
-      "official": [
-        "B",
-        "C"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "R-107-2-12"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "108",
-      "round": "第一次",
-      "exam_code": "108020",
-      "subject": "人類行為與社會環境",
-      "qno": 11,
-      "official": [
-        "A",
-        "B"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "HBSE-108-1-011"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "108",
-      "round": "第一次",
-      "exam_code": "108020",
-      "subject": "人類行為與社會環境",
-      "qno": 21,
-      "official": [
-        "A",
-        "B"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "HBSE-108-1-021"
-    },
-    {
-      "type": "WRONG",
-      "year": "108",
-      "round": "第二次",
-      "exam_code": "108110",
-      "subject": "社會工作直接服務",
-      "qno": 38,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "DS-108-2-38"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "108",
-      "round": "第二次",
-      "exam_code": "108110",
-      "subject": "人類行為與社會環境",
-      "qno": 21,
-      "official": [
-        "A",
-        "B"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "HBSE-108-2-021"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "108",
-      "round": "第二次",
-      "exam_code": "108110",
-      "subject": "人類行為與社會環境",
-      "qno": 39,
-      "official": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "HBSE-108-2-039"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "108",
-      "round": "第二次",
-      "exam_code": "108110",
-      "subject": "社會工作研究方法",
-      "qno": 21,
-      "official": [
-        "A",
-        "B"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "R-108-2-21"
-    },
-    {
-      "type": "WRONG",
-      "year": "109",
-      "round": "第一次",
-      "exam_code": "109030",
-      "subject": "社會工作",
-      "qno": 5,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "SW-109-1-05"
-    },
-    {
-      "type": "WRONG",
-      "year": "109",
-      "round": "第二次",
-      "exam_code": "109110",
-      "subject": "社會工作",
-      "qno": 19,
-      "official": [
-        "B"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SW-109-2-19"
-    },
-    {
-      "type": "WRONG",
-      "year": "109",
-      "round": "第二次",
-      "exam_code": "109110",
-      "subject": "社會工作",
-      "qno": 22,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "SW-109-2-22"
-    },
-    {
-      "type": "WRONG",
-      "year": "109",
-      "round": "第二次",
-      "exam_code": "109110",
-      "subject": "社會工作",
-      "qno": 28,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "SW-109-2-28"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "109",
-      "round": "第二次",
-      "exam_code": "109110",
-      "subject": "社會工作直接服務",
-      "qno": 26,
-      "official": [
-        "A",
-        "D"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "DS-109-2-26"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "110",
-      "round": "第二次",
-      "exam_code": "110111",
-      "subject": "人類行為與社會環境",
-      "qno": 34,
-      "official": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "HBSE-110-2-034"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "110",
-      "round": "第二次",
-      "exam_code": "110111",
-      "subject": "人類行為與社會環境",
-      "qno": 37,
-      "official": [
-        "C",
-        "D"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "HBSE-110-2-037"
-    },
-    {
-      "type": "WRONG",
-      "year": "111",
-      "round": "第一次",
-      "exam_code": "111030",
-      "subject": "社會工作直接服務",
-      "qno": 24,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "DS-111-1-24"
-    },
-    {
-      "type": "WRONG",
-      "year": "111",
-      "round": "第一次",
-      "exam_code": "111030",
-      "subject": "社會工作直接服務",
-      "qno": 25,
-      "official": [
-        "A"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "DS-111-1-25"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "111",
-      "round": "第一次",
-      "exam_code": "111030",
-      "subject": "人類行為與社會環境",
-      "qno": 18,
-      "official": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "HBSE-111-1-018"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "111",
-      "round": "第二次",
-      "exam_code": "111110",
-      "subject": "社會工作",
-      "qno": 40,
-      "official": [
-        "C",
-        "D"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SW-111-2-40"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "111",
-      "round": "第二次",
-      "exam_code": "111110",
-      "subject": "社會工作研究方法",
-      "qno": 22,
-      "official": [
-        "C",
-        "D"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "R-111-2-22"
-    },
-    {
-      "type": "WRONG",
-      "year": "112",
-      "round": "第一次",
-      "exam_code": "112030",
-      "subject": "社會工作研究方法",
-      "qno": 27,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "R-112-1-27"
-    },
-    {
-      "type": "WRONG",
-      "year": "112",
-      "round": "第二次",
-      "exam_code": "112110",
-      "subject": "社會政策與社會立法",
-      "qno": 3,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SP112-2-03"
-    },
-    {
-      "type": "WRONG",
-      "year": "112",
-      "round": "第二次",
-      "exam_code": "112110",
-      "subject": "社會政策與社會立法",
-      "qno": 35,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SP112-2-35"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "112",
-      "round": "第二次",
-      "exam_code": "112110",
-      "subject": "人類行為與社會環境",
-      "qno": 7,
-      "official": [
-        "A",
-        "C"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "HBSE-112-2-007"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "112",
-      "round": "第二次",
-      "exam_code": "112110",
-      "subject": "人類行為與社會環境",
-      "qno": 27,
-      "official": [
-        "B",
-        "D"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "HBSE-112-2-027"
-    },
-    {
-      "type": "WRONG",
-      "year": "112",
-      "round": "第二次",
-      "exam_code": "112110",
-      "subject": "社會工作研究方法",
-      "qno": 40,
-      "official": [
-        "B"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "R-112-2-40"
-    },
-    {
-      "type": "WRONG",
-      "year": "113",
-      "round": "第一次",
-      "exam_code": "113030",
-      "subject": "社會政策與社會立法",
-      "qno": 11,
-      "official": [
-        "B"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SP113-1-11"
-    },
-    {
-      "type": "WRONG",
-      "year": "113",
-      "round": "第一次",
-      "exam_code": "113030",
-      "subject": "社會政策與社會立法",
-      "qno": 24,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "SP113-1-24"
-    },
-    {
-      "type": "WRONG",
-      "year": "113",
-      "round": "第一次",
-      "exam_code": "113030",
-      "subject": "社會政策與社會立法",
-      "qno": 31,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SP113-1-31"
-    },
-    {
-      "type": "WRONG",
-      "year": "113",
-      "round": "第一次",
-      "exam_code": "113030",
-      "subject": "社會政策與社會立法",
-      "qno": 32,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SP113-1-32"
-    },
-    {
-      "type": "WRONG",
-      "year": "113",
-      "round": "第一次",
-      "exam_code": "113030",
-      "subject": "社會政策與社會立法",
-      "qno": 34,
-      "official": [
-        "B"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SP113-1-34"
-    },
-    {
-      "type": "WRONG",
-      "year": "113",
-      "round": "第一次",
-      "exam_code": "113030",
-      "subject": "社會政策與社會立法",
-      "qno": 35,
-      "official": [
-        "A"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SP113-1-35"
-    },
-    {
-      "type": "WRONG",
-      "year": "113",
-      "round": "第一次",
-      "exam_code": "113030",
-      "subject": "社會政策與社會立法",
-      "qno": 37,
-      "official": [
-        "B"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SP113-1-37"
-    },
-    {
-      "type": "WRONG",
-      "year": "113",
-      "round": "第一次",
-      "exam_code": "113030",
-      "subject": "社會政策與社會立法",
-      "qno": 38,
-      "official": [
-        "A"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SP113-1-38"
-    },
-    {
-      "type": "WRONG",
-      "year": "113",
-      "round": "第一次",
-      "exam_code": "113030",
-      "subject": "社會政策與社會立法",
-      "qno": 39,
-      "official": [
-        "C"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SP113-1-39"
-    },
-    {
-      "type": "WRONG",
-      "year": "113",
-      "round": "第一次",
-      "exam_code": "113030",
-      "subject": "社會政策與社會立法",
-      "qno": 40,
-      "official": [
-        "B"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SP113-1-40"
-    },
-    {
-      "type": "WRONG",
-      "year": "113",
-      "round": "第二次",
-      "exam_code": "113100",
-      "subject": "社會政策與社會立法",
-      "qno": 11,
-      "official": [
-        "D"
-      ],
-      "db": [
-        "C"
-      ],
-      "db_raw": "C",
-      "id": "SP113-2-11"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "113",
-      "round": "第二次",
-      "exam_code": "113100",
-      "subject": "人類行為與社會環境",
-      "qno": 22,
-      "official": [
-        "A",
-        "B",
-        "D"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "HBSE-113-2-022"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "114",
-      "round": "第一次",
-      "exam_code": "114030",
-      "subject": "社會工作",
-      "qno": 12,
-      "official": [
-        "B",
-        "C"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "SW-114-1-12"
-    },
-    {
-      "type": "WRONG",
-      "year": "114",
-      "round": "第一次",
-      "exam_code": "114030",
-      "subject": "社會工作研究方法",
-      "qno": 24,
-      "official": [
-        "A"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "R-114-1-24"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "114",
-      "round": "第二次",
-      "exam_code": "114100",
-      "subject": "社會工作",
-      "qno": 36,
-      "official": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "SW-114-2-36"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "114",
-      "round": "第二次",
-      "exam_code": "114100",
-      "subject": "人類行為與社會環境",
-      "qno": 7,
-      "official": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "db": [
-        "B"
-      ],
-      "db_raw": "B",
-      "id": "HBSE-114-2-007"
-    },
-    {
-      "type": "INCOMPLETE_MULTI",
-      "year": "114",
-      "round": "第二次",
-      "exam_code": "114100",
-      "subject": "人類行為與社會環境",
-      "qno": 16,
-      "official": [
-        "C",
-        "D"
-      ],
-      "db": [
-        "D"
-      ],
-      "db_raw": "D",
-      "id": "HBSE-114-2-016"
-    },
-    {
-      "type": "WRONG",
-      "year": "115",
-      "round": "第一次",
-      "exam_code": "115030",
-      "subject": "社會工作直接服務",
-      "qno": 12,
-      "official": [
-        "B"
-      ],
-      "db": [
-        "A"
-      ],
-      "db_raw": "A",
-      "id": "DS-115-1-12"
-    }
-  ]
+  "findings": []
 }
