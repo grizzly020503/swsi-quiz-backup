@@ -1,7 +1,7 @@
 # SWSI 公開前月更 Patch 設計
 
 建立：2026-08-25
-最後更新：2026-08-25（Cloudflare 題庫 CDN 後端完成；月底只切學生端）
+最後更新：2026-08-25（Cloudflare 題庫 CDN 與官方 grading mode 後端完成；月底只切學生端）
 
 > 這是施工圖，不是已套用前端變更。更新本檔不代表 Netlify production 已部署。
 
@@ -13,6 +13,7 @@
 - 官方題目與官方答案不因 AI 判斷而改動。
 - 2026-08-25 已完成的 Supabase / Cloudflare 後端修正，不要月底再重做。
 - **Cloudflare 題庫 Static Assets / shard 後端已完成，不要另開 R2／第三個 Worker。**
+- **特殊給分不得再從 `answer='一律給分'` 猜規則；一律使用 `grading_mode`。**
 
 ---
 
@@ -100,31 +101,43 @@ function getAIClientId(){
 
 ### C2. Worker
 
-**狀態：後端已完成，production build success。不要月底重做。**
+**狀態：✅ production 已完成且 runtime smoke 已驗；不要月底重做。**
 
-正式 Worker 已：
-- `imageCount > 3` → 400
-- 公開 image URL 只接受前端 JPEG data URL
-- 全站 quota 已滿時先讀 global 狀態再拒絕，減少 D1 無效寫入／退款
+正式 Worker 已實測：
+- AI no-Origin POST → 403
+- 正式 SWSI Origin + 非 JPEG `data:image/png` → 400
+- 正式 SWSI Origin + 第 4 張 JPEG → 400
+- 公開 image URL 只接受 JPEG data URL
+- invalid image request 在 D1 quota / Groq 前拒絕
+- 錯誤回應 CORS 只允許正式 SWSI Origin
 
-目前已驗 Static Assets 上線後 AI root no-Origin POST 仍為 403；「第 4 張／非 JPEG URL」仍需合法 SWSI Origin 專項 runtime smoke 才能宣稱每條規則都實測。
+因此月底只補學生端 3 張限制與錯誤顯示，不再改 Worker guard。
 
 ---
 
-## Patch D — 模擬考未作答一致化
+## Patch D — 模擬考未作答依 `grading_mode` 一致化
 
-**狀態：待月底 Netlify。**
+**狀態：P0，待月底 Netlify。**
 
-修改：`MK.grade()`。
+修改：`MK.grade()` 及共用判題 helper。
+
+Production 官方給分模式已驗：
+
+| `grading_mode` | 題數 | A-D 作答 | 未作答 |
+|---|---:|---|---|
+| `standard` | 4,784 | 依單／多答案集合判定 | incorrect |
+| `all_credit` | 12 | correct | **correct** |
+| `any_answer` | 4 | correct | **incorrect** |
 
 目標：
 
-- 未作答仍算 incorrect
-- 未作答要進各科分母
-- 未作答要進錯題／間隔複習排程
-- UI 仍顯示「未作答」而不是偽裝成選錯某選項
+- 每一題都進各科分母，不因未作答而消失。
+- 統一使用 `isCorrectAnswer(item,picked)`，不要在 `MK.grade()` 再寫第二套判題。
+- `standard` / `any_answer` 未作答才進錯題／間隔複習。
+- `all_credit` 未作答仍得分，**不得污染錯題本**。
+- UI 一律保留「未作答」狀態，再另外說明官方特殊給分結果。
 
-驗收：10 題只答 5 題交卷，總分／各科分母／錯題本三處應一致。
+驗收至少要同場包含：普通題、多答案、`all_credit` 空白、`any_answer` 空白；總分／各科分母／history／錯題／review schedule 必須一致。
 
 ---
 
@@ -267,7 +280,7 @@ order by q.source_exam_code nulls last,
 
 ---
 
-## Patch L — AI 解析品質閥門
+## Patch L — AI 解析品質閥門與特殊給分隔離
 
 **狀態：✅ 後端已完成；月底只需前端顯示相容。**
 
@@ -275,33 +288,56 @@ order by q.source_exam_code nulls last,
 
 - 舊錯誤解析已清理／重排
 - 24 官方多答案題隔離 `review`
-- 16 一律給分題隔離 `review`
+- 16 官方特殊給分題隔離 `review`：**12 `all_credit` + 4 `any_answer`**
 - DB trigger `trg_reject_ai_answer_meta_commentary`
+- 官方內容異動 trigger 已把 `grading_mode` 納入 AI reset
 - 禁止 ready 解析含「題庫答案／官方答案／答案待查／建議查答案」等 meta 話術
 - ready meta 污染驗收為 0
 - analyzer production v7 支援 `accepted_answers`
+- importer production v4 fail-closed 驗證 `grading_mode`
 
 不要再批次重跑 4,800 題。
 
 ---
 
-## Patch M — 官方多答案前端支援
+## Patch M — 官方多答案 + 特殊給分前端統一支援
 
 **狀態：P0，待月底 Netlify。**
 
-資料庫已完成：
+資料庫／官方 audit 已完成：
 - 24 題 `accepted_answers`
-- official audit 4,800 / 4,800 = 0 mismatch
+- grading mode：4,784 `standard` / 12 `all_credit` / 4 `any_answer`
+- official answer findings：0
+- official grading-mode mismatches：0
 
-前端所有判題入口統一使用 helper，例如：
+`normalize()` 必須同時保留：
+
+```js
+accepted_answers: Array.isArray(r.accepted_answers)
+  ? r.accepted_answers.filter(x=>['A','B','C','D'].includes(x))
+  : null,
+grading_mode: ['standard','all_credit','any_answer'].includes(r.grading_mode)
+  ? r.grading_mode
+  : (r.answer==='一律給分' ? 'unknown' : 'standard'),
+```
+
+判題不得再用 `item.answer==='一律給分'` 猜特殊模式。建議共用：
 
 ```js
 function acceptedAnswers(item){
+  const mode=gradingMode(item);
+  if(mode==='all_credit' || mode==='any_answer') return new Set(['A','B','C','D']);
   if(Array.isArray(item.accepted_answers) && item.accepted_answers.length){
-    return new Set(item.accepted_answers);
+    return new Set(item.accepted_answers.filter(x=>['A','B','C','D'].includes(x)));
   }
-  if(item.answer==='一律給分') return new Set(['A','B','C','D']);
-  return new Set([item.answer]);
+  return ['A','B','C','D'].includes(item.answer) ? new Set([item.answer]) : new Set();
+}
+
+function isCorrectAnswer(item,picked){
+  const mode=gradingMode(item);
+  if(mode==='unknown') return false;
+  if(mode==='all_credit') return picked==null || acceptedAnswers(item).has(picked);
+  return picked!=null && acceptedAnswers(item).has(picked);
 }
 ```
 
@@ -314,9 +350,22 @@ function acceptedAnswers(item){
 - 結果頁正解顯示
 - 弱點／正確率統計
 
-多答案題 UI 顯示：`官方可接受答案：B、C`，不要只顯示主 answer。
+UI：
+- 多答案：`官方可接受答案：B、C`
+- `all_credit`：`官方一律給分（未作答也得分）`
+- `any_answer`：`官方規則：除未作答者不給分外，其餘均給分`
+- 特殊給分題不要把 A-D 四個都塗綠，避免暗示「四個學理都正確」。
 
-驗收：24 題全部逐題測，選任何 accepted answer 都算正確；其他選項算錯。
+驗收：
+- 24 多答案逐題 accepted option 都正確
+- 12 `all_credit`：A-D 與未作答都正確
+- 4 `any_answer`：A-D 都正確、未作答錯誤
+
+4 題 `any_answer`：
+- `SW-105-1-17`
+- `SW-106-1-36`
+- `HBSE-108-2-039`
+- `HBSE-110-2-034`
 
 ---
 
@@ -335,10 +384,11 @@ function acceptedAnswers(item){
 - 4,800 題
 - 24 baseline shards（104-1 ～ 115-2）
 - 每 shard 200 題
-- revision：`8dafaf049f5200b54cd8`
+- revision：`e721d6293d4c6acdddee`
 - 約 6.84 MB 未壓縮總量
 - 單 shard 約 193–301 KB
-- 24 多答案與 16 一律給分 metadata 完整保留
+- 24 多答案完整保留
+- `grading_mode` 完整保留：4,784 `standard` / 12 `all_credit` / 4 `any_answer`
 
 Runtime 已驗：
 - manifest HTTP 200
@@ -348,6 +398,7 @@ Runtime 已驗：
 - `Cache-Control: public, max-age=300, must-revalidate`
 - `X-Content-Type-Options: nosniff`
 - AI root no-Origin POST 仍 403
+- AI 非 JPEG / 第 4 張照片 guard 皆 production smoke 通過
 
 自動化：
 - `scripts/build_question_shards.py`
@@ -363,7 +414,7 @@ Runtime 已驗：
 - 先讀 `/question-shards/manifest.json`
 - 指定歷屆只載該考次 200 題
 - 其他需要跨考次的功能按實際需求載入／快取 shard
-- 沿用現有 `normalize(r)`，但補 `accepted_answers`
+- 沿用現有 `normalize(r)`，但補 `accepted_answers` + `grading_mode`
 - 保留 Supabase / IndexedDB 作必要 fallback，不再讓每位學生冷啟動都先下載整套 4,800 題
 
 驗收：
@@ -394,21 +445,27 @@ Runtime 已驗：
 
 ## 建議施工順序
 
-1. **Cloudflare 題庫 CDN / shard 後端已完成，不要重做**
+1. **Cloudflare 題庫 CDN / shard 與 grading-mode 後端已完成，不要重做**
 2. 到約定月更時，先備份目前 `index.html / sw.js / manifest.json` SHA
-3. 在 GitHub 同一批完成 Patch A、B、C1、D、E、F、G、H、I、M、O
-4. 同批把前端題庫 loader 切到 Patch N 已上線的 CDN manifest/shard
-5. bump `sw.js` VERSION
-6. diff review
-7. Netlify production deploy **一次**
-8. 手機 Safari / Android Chrome / 桌面 Chrome smoke test
-9. 驗收：
+3. **先修指定歷屆 round canonical regression**
+4. 補 `normalize().accepted_answers + grading_mode`
+5. 建立統一 `gradingMode / acceptedAnswers / isCorrectAnswer / answerLabel`
+6. 同輪改一般刷題 + `MK.grade()` + grading-mode 未作答規則
+7. 切換 Patch N 的 CDN manifest/shard loader + scope/full-bank gate
+8. 修底部 `renderHome / renderReview` override
+9. 再完成 Patch A、B、C1、E、F、G、H、I、O
+10. bump `sw.js` VERSION
+11. 全文 grep 第二套判題／XSS／後置 override
+12. diff review
+13. Netlify production deploy **一次**
+14. 手機 Safari / Android Chrome / 桌面 Chrome smoke test
+15. 驗收：
    - 首頁／一般刷題
    - 24 多答案
-   - 一律給分
+   - 12 `all_credit`（含空白仍得分）
+   - 4 `any_answer`（含空白不得分）
    - 指定歷屆只抓對應 shard
    - 錯題／間隔複習
-   - 模擬考未作答
    - 搜尋 deep-link
    - 申論文字 AI
    - 申論照片 1–3 張／第 4 張拒絕
@@ -424,5 +481,5 @@ Runtime 已驗：
 - 不為了「看起來厲害」新增更多首頁入口
 - 不讓 AI 修改官方題目／官方答案
 - 不因一筆解析爭議就批次重跑全部 4,800 題
-- 不在月底重做已完成的 Supabase queue／多答案 DB／法規 mapping／AI meta trigger
+- 不在月底重做已完成的 Supabase queue／多答案 DB／grading mode／法規 mapping／AI meta trigger
 - 不在月底重做 Cloudflare Static Assets / shard builder / publish workflow
