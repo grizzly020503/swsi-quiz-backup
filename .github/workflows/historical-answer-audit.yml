@@ -38,6 +38,7 @@ jobs:
 
       - name: Save audit report in repository
         run: |
+          set -euo pipefail
           mkdir -p audit
           cp audit_output/historical_answer_audit.json audit/
           cp audit_output/historical_answer_audit.md audit/
@@ -48,7 +49,18 @@ jobs:
             echo 'Audit report unchanged.'
           else
             git commit -m '更新考選部歷屆答案與給分模式稽核報告'
-            git push
+            # 其他後端 workflow 可能在 audit 執行期間推進 main；先 rebase
+            # 再 push，避免資料比對成功卻因 non-fast-forward 被標成紅燈。
+            for attempt in 1 2 3; do
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then
+                exit 0
+              fi
+              echo "push race on attempt $attempt; retrying..."
+            done
+            echo 'Unable to save audit report after 3 push attempts.' >&2
+            exit 1
           fi
 
       - name: Upload read-only audit report
