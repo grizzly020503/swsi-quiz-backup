@@ -1,0 +1,42 @@
+name: Historical MOEX Answer Audit
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/historical-answer-audit.yml'
+      - 'scripts/historical_answer_audit.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-historical-answer-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install audit dependencies
+        run: python -m pip install --disable-pip-version-check requests pypdf
+
+      - name: Compare 4,800 answers with MOEX final sheets
+        run: python scripts/historical_answer_audit.py --output-dir audit_output
+
+      - name: Upload read-only audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: historical-answer-audit
+          path: audit_output/
+          if-no-files-found: warn
