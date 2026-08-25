@@ -3,6 +3,9 @@
   "name": "wandering-wave-4418",
   "main": "cloudflare/wandering-wave-4418/worker.js",
   "compatibility_date": "2026-08-25",
+  "assets": {
+    "directory": "./cdn"
+  },
   "d1_databases": [
     {
       "binding": "AI_QUOTA_DB",
