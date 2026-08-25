@@ -21,8 +21,16 @@ function json(body: unknown, status = 200) {
 }
 function clean(v: unknown) { return String(v ?? "").trim(); }
 function delay(ms: number) { return new Promise((r) => setTimeout(r, ms)); }
+function officialAnswers(q: any) {
+  const multi = Array.isArray(q?.accepted_answers)
+    ? q.accepted_answers.map((x: unknown) => clean(x).toUpperCase()).filter((x: string) => ["A", "B", "C", "D"].includes(x))
+    : [];
+  if (multi.length) return [...new Set(multi)];
+  const single = clean(q?.answer);
+  return single ? [single] : [];
+}
 function task(q: any) {
-  return { id: q.id, subject: q.subject, question: q.question, A: q.opt_a, B: q.opt_b, C: q.opt_c, D: q.opt_d, official_answer: q.answer };
+  return { id: q.id, subject: q.subject, question: q.question, A: q.opt_a, B: q.opt_b, C: q.opt_c, D: q.opt_d, official_answers: officialAnswers(q) };
 }
 function stripJsonFence(text: string) {
   let s = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
@@ -32,10 +40,10 @@ function stripJsonFence(text: string) {
   throw new Error("AI 回傳找不到 JSON array");
 }
 function initialPrompt(q: any) {
-  return `你是台灣社會工作師國家考試選擇題解析器。官方答案已確定。\n硬性規則：\n1. 不可修改或質疑官方題目、選項、答案，只寫解析。\n2. major 只能從：${JSON.stringify(MAJORS[q.subject] || [])}\n3. mistake 只能從：${JSON.stringify([...MISTAKES])}\n4. topic 用「主題 > 細目」；keywords 用半形逗號分隔。\n5. exp_why 說明正解；exp_others 逐一說明其他選項錯在哪；exp_trap 點考場陷阱。\n6. 正解理由優先只用題幹/選項已提供的核心特徵。禁止新增題面未出現的人名、機構名、英文專名/縮寫、任何阿拉伯數字、年齡、年份、金額、天數、比例或法條號碼。\n7. 若錯誤選項是數值/期限/比例錯誤，而題面沒有提供正確數值，只說「與正確規定不符」，不要自行補正確數字。\n8. mnemonic 短而可記；extension 只寫相鄰考點名稱/比較方向，不補背景故事。\n9. law 只寫確定的法規名稱/原則；非法律題可空白。\n10. 繁體中文、簡潔。只輸出 JSON array；物件只能有 ${JSON.stringify(FIELDS)}。\n題目：${JSON.stringify(task(q))}`;
+  return `你是台灣社會工作師國家考試選擇題解析器。官方可接受答案已確定，可能有一個或多個。\n硬性規則：\n1. 不可修改或質疑官方題目、選項、答案，只寫解析。\n2. major 只能從：${JSON.stringify(MAJORS[q.subject] || [])}\n3. mistake 只能從：${JSON.stringify([...MISTAKES])}\n4. topic 用「主題 > 細目」；keywords 用半形逗號分隔。\n5. exp_why 必須說明所有 official_answers 為什麼都可接受；exp_others 只說明不在 official_answers 裡的選項錯在哪；不得把 official_answers 中任何一個寫成錯誤。\n6. 正解理由優先只用題幹/選項已提供的核心特徵。禁止新增題面未出現的人名、機構名、英文專名/縮寫、任何阿拉伯數字、年齡、年份、金額、天數、比例或法條號碼。\n7. 若錯誤選項是數值/期限/比例錯誤，而題面沒有提供正確數值，只說「與正確規定不符」，不要自行補正確數字。\n8. mnemonic 短而可記；extension 只寫相鄰考點名稱/比較方向，不補背景故事。\n9. law 只寫確定的法規名稱/原則；非法律題可空白。\n10. 繁體中文、簡潔。只輸出 JSON array；物件只能有 ${JSON.stringify(FIELDS)}。\n題目：${JSON.stringify(task(q))}`;
 }
 function auditPrompt(q: any, draft: any) {
-  return `你是社會工作師國考題庫最終審稿員。官方答案固定不可改。直接輸出校正後 JSON array。\n1. exp_why 必須支持官方正解；優先使用題面已有的判斷特徵，不新增發展年齡、形成時點或額外背景。\n2. exp_others 每個錯誤選項都要真的指出錯誤，不可先說錯、後面又把同一敘述當真。\n3. 刪除不必要的人物、機構、年代、英文名稱、背景故事、條號與數值。\n4. 禁止新增題面沒有的人名、機構名、英文專名/縮寫、任何阿拉伯數字、年齡、年份、金額、天數、比例或法條號碼。若草稿有，一律刪除。\n5. 輸出前逐欄掃描 A-Z/a-z；任何沒有逐字出現在官方題面或選項中的英文字，一律改成已有的中文概念或直接刪除，不得附英文翻譯。\n6. 數值型錯誤若題面沒有正確數值，只說與正確規定/概念不符，不補數字。\n7. major 只能從 ${JSON.stringify(MAJORS[q.subject] || [])}；mistake 只能從 ${JSON.stringify([...MISTAKES])}。\n8. extension 只寫考點名稱/比較方向；law 不確定就空白。\n9. 只輸出 JSON array；物件只能有 ${JSON.stringify(FIELDS)}。\n官方題目：${JSON.stringify(task(q))}\n草稿：${JSON.stringify(draft)}`;
+  return `你是社會工作師國考題庫最終審稿員。官方可接受答案固定不可改，可能有一個或多個。直接輸出校正後 JSON array。\n1. exp_why 必須支持全部 official_answers；優先使用題面已有的判斷特徵，不新增發展年齡、形成時點或額外背景。\n2. exp_others 只能指出不在 official_answers 裡的選項錯誤；不得把 official_answers 中任何一個判成錯誤，也不可先說錯、後面又把同一敘述當真。\n3. 刪除不必要的人物、機構、年代、英文名稱、背景故事、條號與數值。\n4. 禁止新增題面沒有的人名、機構名、英文專名/縮寫、任何阿拉伯數字、年齡、年份、金額、天數、比例或法條號碼。若草稿有，一律刪除。\n5. 輸出前逐欄掃描 A-Z/a-z；任何沒有逐字出現在官方題面或選項中的英文字，一律改成已有的中文概念或直接刪除，不得附英文翻譯。\n6. 數值型錯誤若題面沒有正確數值，只說與正確規定/概念不符，不補數字。\n7. major 只能從 ${JSON.stringify(MAJORS[q.subject] || [])}；mistake 只能從 ${JSON.stringify([...MISTAKES])}。\n8. extension 只寫考點名稱/比較方向；law 不確定就空白。\n9. 只輸出 JSON array；物件只能有 ${JSON.stringify(FIELDS)}。\n官方題目：${JSON.stringify(task(q))}\n草稿：${JSON.stringify(draft)}`;
 }
 async function callModel(model: string, prompt: string, reasoning: string, maxTokens: number, internalKey: string) {
   const body: any = { model, temperature: 0, max_tokens: maxTokens, messages: [{ role: "user", content: prompt }] };
@@ -62,7 +70,7 @@ function asciiTokens(s: string) { return new Set((s.match(/[A-Za-z][A-Za-z0-9'�
 function numberTokens(s: string) { return new Set(s.match(/\d+(?:[.,]\d+)?/g) || []); }
 function setDiff(a: Set<string>, b: Set<string>) { return [...a].filter((x) => !b.has(x)); }
 function sourceText(q: any) {
-  return `A B C D ${clean(q.question)} ${clean(q.opt_a)} ${clean(q.opt_b)} ${clean(q.opt_c)} ${clean(q.opt_d)} ${clean(q.answer)}`;
+  return `A B C D ${clean(q.question)} ${clean(q.opt_a)} ${clean(q.opt_b)} ${clean(q.opt_c)} ${clean(q.opt_d)} ${officialAnswers(q).join(" ")}`;
 }
 function removeUnapprovedAscii(value: unknown, allowed: Set<string>) {
   let s = clean(value);
@@ -128,8 +136,13 @@ Deno.serve(async (req: Request) => {
   for (const q of rows) {
     try {
       const patch = await analyzeOne(q, internalKey);
-      const { error } = await sb.from("questions").update(patch).eq("id", q.id).eq("source_exam_code", q.source_exam_code);
+      let updateQuery: any = sb.from("questions").update(patch).eq("id", q.id);
+      updateQuery = q.source_exam_code == null
+        ? updateQuery.is("source_exam_code", null)
+        : updateQuery.eq("source_exam_code", q.source_exam_code);
+      const { data: updated, error } = await updateQuery.select("id").maybeSingle();
       if (error) throw new Error(`update: ${error.message}`);
+      if (!updated?.id) throw new Error("update: target row not found");
       results.push({ id: q.id, status: "ready" });
     } catch (e) {
       const msg = (e instanceof Error ? e.message : String(e)).slice(0, 1000), transient = isTransient(msg);
