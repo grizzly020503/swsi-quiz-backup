@@ -38,7 +38,7 @@ jobs:
       - name: Build verified shards
         run: python scripts/build_question_shards.py --output-dir /tmp/question-shards
 
-      - name: Publish only when dataset changed
+      - name: Publish dataset or headers when changed
         id: publish
         run: |
           set -euo pipefail
@@ -66,21 +66,19 @@ jobs:
           echo "old_revision=$old_revision"
           echo "new_revision=$new_revision"
 
-          if [ -n "$old_revision" ] && [ "$old_revision" = "$new_revision" ]; then
-            echo 'Question dataset unchanged; no repository commit.'
-            exit 0
+          if [ -z "$old_revision" ] || [ "$old_revision" != "$new_revision" ]; then
+            rm -rf cdn/question-shards
+            mkdir -p cdn/question-shards
+            cp -a /tmp/question-shards/. cdn/question-shards/
+          else
+            echo 'Question dataset unchanged; keep existing shard files.'
           fi
 
-          rm -rf cdn/question-shards
-          mkdir -p cdn/question-shards
-          cp -a /tmp/question-shards/. cdn/question-shards/
-
+          # One rule only. The previous exact-manifest + wildcard rules both matched
+          # manifest.json and Cloudflare correctly joined duplicate CORS/cache headers.
+          # A single public JSON rule keeps CORS valid and a 5-minute browser cache is
+          # short enough for exam-bank updates while Cloudflare edge caching remains active.
           cat > cdn/_headers <<'EOF'
-          /question-shards/manifest.json
-            Access-Control-Allow-Origin: *
-            Cache-Control: public, max-age=60, must-revalidate
-            X-Content-Type-Options: nosniff
-
           /question-shards/*.json
             Access-Control-Allow-Origin: *
             Cache-Control: public, max-age=300, must-revalidate
@@ -91,10 +89,10 @@ jobs:
           git config user.email 'actions@users.noreply.github.com'
           git add cdn/question-shards cdn/_headers
           if git diff --cached --quiet; then
-            echo 'No shard file changes.'
+            echo 'No shard or header changes; no repository commit.'
             exit 0
           fi
-          git commit -m "更新 Cloudflare 題庫 shard ${new_revision}"
+          git commit -m "更新 Cloudflare 題庫 shard/header ${new_revision}"
           git push
 
       - name: Smoke test Cloudflare production static assets
@@ -104,9 +102,11 @@ jobs:
           set -euo pipefail
           BASE='https://wandering-wave-4418.c022050333.workers.dev/question-shards'
 
-          # A changed dataset triggers a separate Cloudflare Git deployment. Poll until
-          # production serves the revision this job just built. Unchanged datasets pass immediately.
+          # A changed dataset/header triggers a separate Cloudflare Git deployment.
+          # Poll until production serves both the expected revision and the non-duplicated headers.
           live_revision=''
+          live_cors=''
+          live_cache=''
           for i in $(seq 1 30); do
             if curl --silent --show-error --fail \
               -D /tmp/manifest.headers.raw \
@@ -121,16 +121,23 @@ jobs:
               print('')
           PY
           )"
-              if [ -n "$EXPECTED_REVISION" ] && [ "$live_revision" = "$EXPECTED_REVISION" ]; then
+              live_cors="$(awk 'BEGIN{IGNORECASE=1} /^access-control-allow-origin:/ {sub(/^[^:]+:[[:space:]]*/, ""); print; exit}' /tmp/manifest.headers)"
+              live_cache="$(awk 'BEGIN{IGNORECASE=1} /^cache-control:/ {sub(/^[^:]+:[[:space:]]*/, ""); print; exit}' /tmp/manifest.headers)"
+              if [ -n "$EXPECTED_REVISION" ] \
+                 && [ "$live_revision" = "$EXPECTED_REVISION" ] \
+                 && [ "$live_cors" = '*' ] \
+                 && [ "$live_cache" = 'public, max-age=300, must-revalidate' ]; then
                 break
               fi
             fi
-            echo "Waiting for Cloudflare static assets: attempt $i, live=$live_revision expected=$EXPECTED_REVISION"
+            echo "Waiting for Cloudflare assets: attempt $i rev=$live_revision cors=$live_cors cache=$live_cache"
             sleep 5
           done
 
           test -n "$EXPECTED_REVISION"
           test "$live_revision" = "$EXPECTED_REVISION"
+          test "$live_cors" = '*'
+          test "$live_cache" = 'public, max-age=300, must-revalidate'
 
           python - <<'PY'
           import json
@@ -143,9 +150,8 @@ jobs:
 
           echo '--- manifest response headers ---'
           cat /tmp/manifest.headers
-          grep -qi '^access-control-allow-origin: \*' /tmp/manifest.headers
-          grep -qi '^cache-control: .*max-age=60' /tmp/manifest.headers
           grep -qi '^x-content-type-options: nosniff' /tmp/manifest.headers
+          grep -qi '^cf-cache-status:' /tmp/manifest.headers
 
           curl --silent --show-error --fail \
             -D /tmp/shard.headers.raw \
@@ -162,12 +168,15 @@ jobs:
           PY
           echo '--- shard response headers ---'
           cat /tmp/shard.headers
-          grep -qi '^access-control-allow-origin: \*' /tmp/shard.headers
-          grep -qi '^cache-control: .*max-age=300' /tmp/shard.headers
+          shard_cors="$(awk 'BEGIN{IGNORECASE=1} /^access-control-allow-origin:/ {sub(/^[^:]+:[[:space:]]*/, ""); print; exit}' /tmp/shard.headers)"
+          shard_cache="$(awk 'BEGIN{IGNORECASE=1} /^cache-control:/ {sub(/^[^:]+:[[:space:]]*/, ""); print; exit}' /tmp/shard.headers)"
+          test "$shard_cors" = '*'
+          test "$shard_cache" = 'public, max-age=300, must-revalidate'
           grep -qi '^x-content-type-options: nosniff' /tmp/shard.headers
+          grep -qi '^cf-cache-status:' /tmp/shard.headers
 
-          # No Origin means the request must reach the existing AI Worker and be rejected
-          # before rate-limit / D1 / Groq. This proves Static Assets did not replace the API route.
+          # No Origin means the request reaches the existing AI Worker and is rejected
+          # before rate-limit / D1 / Groq. Static Assets therefore did not replace the API route.
           api_status="$(curl --silent --show-error -o /tmp/api-body.json -w '%{http_code}' \
             -X POST 'https://wandering-wave-4418.c022050333.workers.dev/' \
             -H 'Content-Type: application/json' \
