@@ -104,3 +104,4 @@ IndexedDB 離線備援
 4. 學生端對 `questions`／`essays` 僅有 SELECT 權限；公開網站不提供管理登入或 CSV 寫入入口，更新由後台自動化／Supabase 管理端處理。
 5. AI 申論批改依賴 Cloudflare Worker；AI 暫時不可用時，題庫刷題仍應正常運作。
 6. GitHub commit history 是版本歷史；遇到錯誤優先回復既有版本，不直接刪除資料。
+請先讀 GitHub 私人 repo grizzly020503/swsi-quiz-backup 的 PROJECT_HANDOFF.md，再接著目前進度做，不要重新猜架構。
