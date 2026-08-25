@@ -8,6 +8,7 @@ on:
       - 'scripts/historical_answer_audit.py'
       - 'scripts/historical_answer_audit_v2.py'
       - 'scripts/historical_answer_audit_v3.py'
+      - 'scripts/historical_answer_audit_v4.py'
 
 permissions:
   contents: write
@@ -32,8 +33,8 @@ jobs:
       - name: Install audit dependencies
         run: python -m pip install --disable-pip-version-check requests pypdf pdfplumber beautifulsoup4
 
-      - name: Compare 4,800 answers with MOEX final subject PDFs
-        run: python scripts/historical_answer_audit_v3.py --output-dir audit_output
+      - name: Compare 4,800 answers and grading modes with MOEX final subject PDFs
+        run: python scripts/historical_answer_audit_v4.py --output-dir audit_output
 
       - name: Save audit report in repository
         run: |
@@ -46,7 +47,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Audit report unchanged.'
           else
-            git commit -m '更新考選部歷屆答案稽核報告'
+            git commit -m '更新考選部歷屆答案與給分模式稽核報告'
             git push
           fi
 
