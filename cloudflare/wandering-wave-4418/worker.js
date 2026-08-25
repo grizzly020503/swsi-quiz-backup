@@ -150,13 +150,24 @@ export default {
       }
       if (Array.isArray(message.content)) {
         for (const item of message.content) {
-          if (item?.type === "image_url") imageCount++;
+          if (item?.type === "image_url") {
+            imageCount++;
+            // 公開瀏覽器只接受前端 canvas 產生的 JPEG data URL；
+            // 後台內部請求仍保留較彈性的模型輸入能力。
+            if (!isInternal) {
+              const imageUrl = String(item?.image_url?.url || "");
+              if (!imageUrl.startsWith("data:image/jpeg;base64,")) {
+                return json({ error: { message: "公開照片只接受 JPEG 上傳內容。" } }, 400);
+              }
+            }
+          }
         }
       }
     }
 
-    if (imageCount > 4) {
-      return json({ error: { message: "最多一次上傳 4 張照片。" } }, 400);
+    // Qwen 3.6 官方模型限制採保守值：最多 3 張輸入圖片。
+    if (imageCount > 3) {
+      return json({ error: { message: "最多一次上傳 3 張照片。" } }, 400);
     }
 
     const quotaKind = imageCount > 0 ? "photo" : "text";
@@ -165,17 +176,28 @@ export default {
     // 只有完整、有效、真的要送 Groq 的公開請求才占每日額度。
     if (isPublic && !isInternal) {
       try {
+        const date = taipeiDate();
+        const limits = {
+          clientText: CLIENT_TEXT_DAILY,
+          clientPhoto: CLIENT_PHOTO_DAILY,
+          globalText: GLOBAL_TEXT_DAILY,
+          globalPhoto: GLOBAL_PHOTO_DAILY
+        };
+
+        // 全站額度已滿時先讀一行就直接拒絕，避免每次重試都先寫 client 再退款。
+        if (await isGlobalQuotaFull(env.AI_QUOTA_DB, date, quotaKind, limits)) {
+          return json(
+            { error: { message: "今天全平台的免費 AI 額度已用完，題庫、錯題與申論骨架仍可正常使用。", code: "GLOBAL_DAILY_QUOTA" } },
+            429
+          );
+        }
+
         const q = await reservePublicQuota(
           env.AI_QUOTA_DB,
-          taipeiDate(),
+          date,
           clientKey,
           quotaKind,
-          {
-            clientText: CLIENT_TEXT_DAILY,
-            clientPhoto: CLIENT_PHOTO_DAILY,
-            globalText: GLOBAL_TEXT_DAILY,
-            globalPhoto: GLOBAL_PHOTO_DAILY
-          }
+          limits
         );
 
         if (!q.ok) {
@@ -319,6 +341,21 @@ function taipeiDate() {
 
 function changed(result) {
   return Number(result?.meta?.changes || result?.meta?.rows_written || 0) > 0;
+}
+
+async function isGlobalQuotaFull(db, date, kind, limits) {
+  const row = await db.prepare(`
+    SELECT text_count, photo_count
+    FROM ai_daily_global_usage
+    WHERE usage_date = ?
+    LIMIT 1
+  `).bind(date).first();
+
+  if (!row) return false;
+  if (kind === "photo") {
+    return Number(row.photo_count || 0) >= Number(limits.globalPhoto || 0);
+  }
+  return Number(row.text_count || 0) >= Number(limits.globalText || 0);
 }
 
 async function reservePublicQuota(db, date, clientKey, kind, limits) {
