@@ -17,8 +17,9 @@ Default layout:
   cdn/question-shards/116-1.json   # appears automatically in the future
 
 The shard rows intentionally stay close to the current DB shape so the existing
-frontend `normalize(r)` can keep doing legacy explanation normalization. The only
-new answer metadata required by the future frontend is `accepted_answers`.
+frontend `normalize(r)` can keep doing legacy explanation normalization. Official
+answer metadata required by the future frontend is `accepted_answers` plus
+`grading_mode`.
 """
 
 from __future__ import annotations
@@ -46,6 +47,7 @@ EXPECTED_SUBJECTS = {
     "人類行為與社會環境",
     "社會工作研究方法",
 }
+VALID_GRADING_MODES = {"standard", "all_credit", "any_answer"}
 BASELINE_GROUPS = {(y, r) for y in BASELINE_YEARS for r in VALID_ROUNDS}
 BASELINE_QUESTIONS = len(BASELINE_GROUPS) * 200
 
@@ -54,7 +56,7 @@ SELECT_FIELDS = [
     "id", "subject", "year", "round", "qno",
     "major", "topic", "keywords",
     "question", "opt_a", "opt_b", "opt_c", "opt_d",
-    "answer", "accepted_answers",
+    "answer", "accepted_answers", "grading_mode",
     "exp_why", "exp_others", "exp_trap", "exp_raw",
     "mnemonic", "extension", "law", "mistake",
     "source_exam_code",
@@ -83,7 +85,7 @@ def fetch_questions() -> list[dict]:
         "apikey": key,
         "Authorization": f"Bearer {key}",
         "Accept": "application/json",
-        "User-Agent": "swsi-question-shard-builder/1.1",
+        "User-Agent": "swsi-question-shard-builder/1.2",
     }
     rows: list[dict] = []
     offset = 0
@@ -136,6 +138,8 @@ def validate(rows: list[dict]) -> dict[tuple[str, str], list[dict]]:
         year = str(r.get("year") or "").strip()
         round_name = str(r.get("round") or "").strip()
         subject = str(r.get("subject") or "").strip()
+        answer = str(r.get("answer") or "")
+        mode = str(r.get("grading_mode") or "")
 
         if not year.isdigit() or int(year) < 104:
             raise RuntimeError(f"Unexpected year {year!r}: {r.get('id')}")
@@ -143,19 +147,27 @@ def validate(rows: list[dict]) -> dict[tuple[str, str], list[dict]]:
             raise RuntimeError(f"Unexpected round {round_name}: {r.get('id')}")
         if subject not in EXPECTED_SUBJECTS:
             raise RuntimeError(f"Unexpected subject {subject}: {r.get('id')}")
-        if str(r.get("answer") or "") not in {"A", "B", "C", "D", "一律給分"}:
-            raise RuntimeError(f"Invalid answer: {r.get('id')} -> {r.get('answer')}")
+        if mode not in VALID_GRADING_MODES:
+            raise RuntimeError(f"Invalid grading_mode: {r.get('id')} -> {mode!r}")
 
         accepted = r.get("accepted_answers")
-        if accepted is not None:
-            if not isinstance(accepted, list) or not accepted:
-                raise RuntimeError(f"Invalid accepted_answers shape: {r.get('id')}")
-            if len(set(accepted)) != len(accepted):
-                raise RuntimeError(f"Duplicate accepted_answers: {r.get('id')}")
-            if any(x not in {"A", "B", "C", "D"} for x in accepted):
-                raise RuntimeError(f"Invalid accepted answer letter: {r.get('id')}")
-            if r.get("answer") not in accepted:
-                raise RuntimeError(f"Primary answer not in accepted_answers: {r.get('id')}")
+        if mode == "standard":
+            if answer not in {"A", "B", "C", "D"}:
+                raise RuntimeError(f"Standard question has invalid answer: {r.get('id')} -> {answer}")
+            if accepted is not None:
+                if not isinstance(accepted, list) or not accepted:
+                    raise RuntimeError(f"Invalid accepted_answers shape: {r.get('id')}")
+                if len(set(accepted)) != len(accepted):
+                    raise RuntimeError(f"Duplicate accepted_answers: {r.get('id')}")
+                if any(x not in {"A", "B", "C", "D"} for x in accepted):
+                    raise RuntimeError(f"Invalid accepted answer letter: {r.get('id')}")
+                if answer not in accepted:
+                    raise RuntimeError(f"Primary answer not in accepted_answers: {r.get('id')}")
+        else:
+            if answer != "一律給分":
+                raise RuntimeError(f"Special grading mode must use answer=一律給分: {r.get('id')}")
+            if accepted is not None:
+                raise RuntimeError(f"Special grading mode must not use accepted_answers: {r.get('id')}")
 
         grouped[(year, round_name)].append(r)
 
@@ -265,7 +277,8 @@ def main() -> int:
     manifest = build(rows, grouped, Path(args.output_dir))
 
     multi = sum(1 for r in rows if r.get("accepted_answers"))
-    all_give = sum(1 for r in rows if r.get("answer") == "一律給分")
+    all_credit = sum(1 for r in rows if r.get("grading_mode") == "all_credit")
+    any_answer = sum(1 for r in rows if r.get("grading_mode") == "any_answer")
     sizes = [int(x["bytes"]) for x in manifest["shards"]]
     print(
         json.dumps(
@@ -274,7 +287,8 @@ def main() -> int:
                 "shards": manifest["shard_count"],
                 "baseline_shards": manifest["baseline_shard_count"],
                 "multi_answer_rows": multi,
-                "all_give_rows": all_give,
+                "all_credit_rows": all_credit,
+                "any_answer_rows": any_answer,
                 "revision": manifest["dataset_revision"],
                 "total_bytes": manifest["total_uncompressed_bytes"],
                 "min_shard_bytes": min(sizes),
