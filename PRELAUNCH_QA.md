@@ -1,6 +1,6 @@
 # SWSI 社工師國考平台 — 公開前 QA
 
-最後更新：2026-08-25 17:46（官方答案 4,800/4,800、MOEX 更正答案、多答案 metadata、法規 mapping、AI 品質閥門已驗收）
+最後更新：2026-08-25（Cloudflare 題庫 CDN production/runtime 驗收完成；學生端仍留月底一次修改）
 
 > 原則：目前 **不修改會觸發 Netlify production deploy 的學生端檔案**。`index.html / manifest.json / sw.js` 等學生端修改留到月底一次套用。Supabase／Cloudflare 後端已完成的項目不要重做。
 
@@ -17,27 +17,48 @@
 
 # P0 — 公開大量使用前必修
 
-## 1. Cloudflare 題庫 CDN / shard
+## 1. 前端題庫 loader 切到 Cloudflare CDN shard
 
-**狀態：最大 P0，尚未施工正式前端。**
+**狀態：CDN 後端已完成；學生端切換待月底。**
 
-目前舊前端仍會直接從 Supabase 下載整套約 7.56 MiB 題庫。公開到大量使用者後，每位學生都重拉整包會放大：
+目前正式 Netlify 舊版仍會直接從 Supabase 下載整套題庫；公開大量使用前，最後需要把學生端 loader 切到已上線的 Cloudflare Static Assets。
 
-- Supabase egress
-- 首載時間
-- 行動網路流量
-- 冷啟動成本
-
-目標：
+已完成的後端架構：
 
 > Supabase = 後台 source of truth  
-> build / GitHub Actions = 產生靜態 shard  
-> Cloudflare = CDN cache  
-> Netlify 前端 = 依需要載入 shard
+> GitHub Actions = 產生／驗證 exam-session shard  
+> Cloudflare Static Assets = CDN cache  
+> Netlify 前端 = 月底改成依需要載入 shard
 
-目前規劃先用 **24 shard**，施工前需重新確認 manifest、切分鍵、cache version、PWA 離線相容。
+目前 production：
+- 4,800 題
+- 24 個 baseline shard（104-1 ～ 115-2）
+- 每 shard 200 題
+- dataset revision：`8dafaf049f5200b54cd8`
+- 未壓縮總量約 6.84 MB
+- 單 shard 約 193–301 KB
+- 24 題 `accepted_answers`、16 題一律給分皆保留
 
-驗收：首頁不再先下載 4,800 題整包；進特定考次／科目只下載需要資料；Supabase public egress 明顯下降。
+Cloudflare runtime 已驗：
+- manifest HTTP 200
+- 115-2 shard HTTP 200／200 題
+- `CF-Cache-Status: HIT`
+- `Access-Control-Allow-Origin: *` 單一值
+- `Cache-Control: public, max-age=300, must-revalidate`
+- `X-Content-Type-Options: nosniff`
+- AI root no-Origin POST 仍為 403，證明 Static Assets 沒吃掉原 AI API
+
+自動化：
+- `scripts/build_question_shards.py`
+- `.github/workflows/question-shards-build.yml`
+- `.github/workflows/question-shards-publish.yml`
+- 台灣時間每日約 11:10 比對
+- dataset/header 不變不 commit
+- 新考次資料不完整時 fail closed，不發布半套
+- 未來 116、117…完整考次自動新增 shard
+- 116-1 模擬已驗：5,000 題／25 shard／`116-1.json`
+
+月底前端驗收：首頁不再先下載 4,800 題整包；指定歷屆只下載需要的考次；Supabase public egress 明顯下降；斷線時既有 IndexedDB/PWA fallback 不被破壞。
 
 ---
 
@@ -183,7 +204,7 @@ Worker 已分辨：
 - 第 4 張拒絕
 - 公開 image URL 只接受 JPEG data URL
 
-Cloudflare production build 已 success；但目前執行環境無法直接 POST workers.dev，因此「第 4 張 400／遠端 URL 400」仍缺最後 runtime smoke test。
+Cloudflare production build 已 success；但「第 4 張 400／遠端 URL 400」仍應在合法 SWSI Origin 下做專項 runtime smoke，才可宣稱每條規則都實測。
 
 月底前端：files > 3 直接提示「一次最多 3 張」，不要默默截斷。
 
@@ -284,7 +305,7 @@ Supabase SDK 失敗有 REST fallback；網路也失敗有 IndexedDB 題庫 fallb
 - [x] 正式 DB 未發現已知惡意 HTML payload
 - [x] Supabase `questions` / `essays` 公開唯讀
 - [x] 危險 SECURITY DEFINER RPC 公開 execute 已撤銷
-- [x] Cloudflare Origin allowlist；無 Origin／外站 → 403（前一版 runtime smoke test）
+- [x] Cloudflare Origin allowlist；無 Origin／外站 → 403
 - [x] `AI_RATE_LIMIT` 3/60s
 - [x] `AI_IP_LIMIT` 30/60s
 - [x] D1 `swsi-ai-quota`
@@ -307,24 +328,30 @@ Supabase SDK 失敗有 REST fallback；網路也失敗有 IndexedDB 題庫 fallb
 - [x] 法規監測 52/52 found、0 missing
 - [x] legal mapping 改讀題幹＋四選項＋AI law
 - [x] 題面直接出現 monitored law 卻漏 mapping：0
-- [x] 約 647 題已有 canonical mapping
+- [x] 目前 646 題已有 canonical mapping
 - [x] `sync-legal-watch` production v2，GitHub source 已對齊
 - [x] production QA migration delta 已備份到 `20260825094110_production_qa_consolidation.sql`
+- [x] Cloudflare Static Assets 已掛 `cdn/`
+- [x] 4,800 題已產生 24 個 exam-session shards
+- [x] CDN manifest/shard production HTTP 200、CF cache、CORS/cache headers runtime 驗收完成
+- [x] CDN 上線後 AI root no-Origin POST 仍 403
+- [x] shard 每日自動同步、資料不變零 commit、資料不完整 fail closed
+- [x] 未來考次自動擴充測試：116-1 → 5,000 題／25 shards success
 
 ---
 
 # 下一步
 
-不要再擴功能，也不要重做 Supabase／答案 audit。
+不要再擴功能，也不要重做 Supabase／答案 audit／Cloudflare CDN。
 
-下一階段依 `MONTHLY_PATCH_PLAN.md`：
+下一階段依 `MONTHLY_PATCH_PLAN.md`，**等約定月底再一次動學生端**：
 
-1. 先完成 **Cloudflare 題庫 CDN / 24 shard 設計與產生器**，尚不切正式 Netlify
-2. 月底一次修改學生端：XSS、多答案、Client-ID、mock 未作答、quota 訊息、deep-link、storage、AI 文案、3 張、首頁免費定位、SEO、無障礙、申論私用字元
-3. 切前端讀 CDN shard
-4. bump `sw.js` VERSION
-5. diff review
-6. Netlify production deploy **一次**
-7. iPhone Safari / Android Chrome / 桌面 Chrome + PWA smoke test
+1. 前端題庫 loader 切到已上線的 Cloudflare shard，並讓 `normalize(r)` 帶 `accepted_answers`
+2. 同包修：XSS、多答案、Client-ID、mock 未作答、quota 訊息、deep-link、storage、AI 文案、3 張、首頁免費定位、SEO、無障礙、申論私用字元
+3. bump `sw.js` VERSION
+4. diff review
+5. Netlify production deploy **一次**
+6. iPhone Safari / Android Chrome / 桌面 Chrome + PWA smoke test
+7. 公開前做一輪真實學生 7 天 pilot，再決定是否新增功能
 
 **目前仍未修改正式學生端。**
