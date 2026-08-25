@@ -1,0 +1,87 @@
+name: Publish Question Shards to Repo
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/question-shards-publish.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependency
+        run: python -m pip install --disable-pip-version-check requests
+
+      - name: Build verified shards
+        run: python scripts/build_question_shards.py --output-dir /tmp/question-shards
+
+      - name: Publish only when dataset changed
+        run: |
+          set -euo pipefail
+          old_revision=''
+          if [ -f cdn/question-shards/manifest.json ]; then
+            old_revision="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('cdn/question-shards/manifest.json')
+          try:
+              print(json.loads(p.read_text(encoding='utf-8')).get('dataset_revision',''))
+          except Exception:
+              print('')
+          PY
+          )"
+          fi
+          new_revision="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          print(json.loads(Path('/tmp/question-shards/manifest.json').read_text(encoding='utf-8'))['dataset_revision'])
+          PY
+          )"
+
+          echo "old_revision=$old_revision"
+          echo "new_revision=$new_revision"
+          if [ -n "$old_revision" ] && [ "$old_revision" = "$new_revision" ]; then
+            echo 'Question dataset unchanged; no repository commit.'
+            exit 0
+          fi
+
+          rm -rf cdn/question-shards
+          mkdir -p cdn/question-shards
+          cp -a /tmp/question-shards/. cdn/question-shards/
+
+          cat > cdn/_headers <<'EOF'
+          /question-shards/manifest.json
+            Access-Control-Allow-Origin: *
+            Cache-Control: public, max-age=60, must-revalidate
+            X-Content-Type-Options: nosniff
+
+          /question-shards/*.json
+            Access-Control-Allow-Origin: *
+            Cache-Control: public, max-age=300, must-revalidate
+            X-Content-Type-Options: nosniff
+          EOF
+
+          git config user.name 'swsi-shard-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add cdn/question-shards cdn/_headers
+          if git diff --cached --quiet; then
+            echo 'No shard file changes.'
+            exit 0
+          fi
+          git commit -m "更新 Cloudflare 題庫 shard ${new_revision}"
+          git push
