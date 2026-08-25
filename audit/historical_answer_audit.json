@@ -199,5 +199,19 @@
       }
     }
   ],
-  "findings": []
+  "findings": [],
+  "grading_mode_audit": {
+    "official_counts": {
+      "all_credit": 12,
+      "any_answer": 4,
+      "standard": 4784
+    },
+    "db_counts": {
+      "all_credit": 12,
+      "any_answer": 4,
+      "standard": 4784
+    },
+    "mismatch_count": 0,
+    "mismatches": []
+  }
 }
