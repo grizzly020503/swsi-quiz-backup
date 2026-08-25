@@ -1,6 +1,6 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
-最後更新：2026-08-25（Cloudflare 題庫 CDN、AI 公開照片 guard runtime 驗收完成；前端月底施工稽核完成）
+最後更新：2026-08-25（官方 grading mode 已完成 DB → parser → importer → health → audit → CDN 全鏈路驗收；月底前端施工規格已同步）
 
 > 下一個 ChatGPT 對話先讀本檔，再接著做：
 >
@@ -39,13 +39,22 @@ SWSI 的成立原因是：社工師國考準備已經很困難，網路上很多
 - 前端判題／override audit：`FRONTEND_MONTHLY_AUDIT.md`
 - Stored XSS audit：`FRONTEND_XSS_AUDIT.md`
 - 指定歷屆 scope audit：`FRONTEND_SCOPE_AUDIT.md`
-- 歷屆答案 audit：`audit/historical_answer_audit.md`
+- 歷屆答案＋給分模式 audit：`audit/historical_answer_audit.md`
 
 ### Netlify
 - 正式站：`https://swsi-quiznetlify.netlify.app`
 - **學生端採每月集中更新，不要現在一直部署前端。**
-- `index.html / sw.js / manifest.json / essay_guides.js / auto/...` 等學生端檔案留到月底同一包。
-- `netlify.toml` 已設定只有真正學生端檔案變動才觸發 production deploy；純 audit／workflow／migration／後端檔案不會因此部署學生端。
+- `index.html / sw.js / manifest.json / essay_guides.js / auto/questions_auto.json / auto/essays_auto.json` 等真正學生端檔案留到月底同一包。
+- `netlify.toml` 已設定只有真正影響學生端網站的檔案變更才觸發 production deploy；audit／workflow／migration／一般監測資料不應因此部署學生端。
+
+#### 2026-08-25 一次性 schema-backfill 注意
+MOEX v2 第一次執行時，舊 `incoming` 題目缺 `grading_mode`、新 parser 對普通題補 `standard`，比較器一度把純 schema backfill 當成「官方內容變更」，bot commit `16814f00440dca72f44893dc83f81d6fa243fc7e` 因而改到 `auto/questions_auto.json`。
+
+- 這次 commit **可能**符合 Netlify deploy trigger；目前手上的 GitHub 工具無法確認 Netlify 是否真的部署，因此不要聲稱已部署或未部署。
+- 即使有部署，舊前端不讀 `grading_mode`，該欄位本身不改既有作答行為。
+- workflow 已修正：普通 legacy row 缺 mode 在「變更比較」時視同 `standard`；特殊給分缺 mode 不猜、仍視為實質差異。
+- 修正後實測 115030／115100 都顯示 `unchanged official content`，115100 也正確 `skip Supabase import`。
+- 後續 MOEX bot commit 只改 `auto/health.json` 與法規監測檔，**沒有再改 `auto/questions_auto.json`**。
 
 ### Supabase
 - project：`Swsi`
@@ -89,27 +98,36 @@ SWSI 的成立原因是：社工師國考準備已經很困難，網路上很多
 
 ---
 
-## 3. 題庫／官方答案：已完成，不要重查
+## 3. 題庫／官方答案／官方給分模式：已完成，不要重查
 
 ### Supabase 選擇題
 - 總數：**4,800 題**
 - 5 科 × 960 題
-- ROC 104–115、每年 2 次、每科 40 題
+- ROC 104–115、24 個考次、每科每考次 40 題
 - 無空白題幹、缺選項、非法答案、同考次同科重複題號
 
-### Historical MOEX Answer Audit
-已逐題核對 24 個考次／4,800 題，並正確讀取 `accepted_answers`：
+### Historical MOEX Answer + Grading Mode Audit
+`historical_answer_audit_v4.py` 已逐題核對 24 個考次／4,800 題考選部最終 PDF：
 
 - 官方考次：24
 - 官方題數：4,800
 - Supabase 題數：4,800
-- 非完全一致：**0**
+- answer findings：**0**
+- grading-mode mismatches：**0**
+
+Production grading mode 精確分布：
+
+| `grading_mode` | 題數 | 未作答是否得分 |
+|---|---:|---|
+| `standard` | **4,784** | 否 |
+| `all_credit` | **12** | **是** |
+| `any_answer` | **4** | 否 |
 
 結論：
 
-> **Supabase 官方答案集合 4,800 / 4,800 與考選部最終答案一致。**
+> **Supabase 4,800 / 4,800 官方答案集合與考選部最終答案一致；官方「空白是否得分」語意也 4,800 / 4,800 一致。**
 
-不要再把「答案資料庫可能大量錯誤」當目前問題。
+不要再把「答案資料庫可能大量錯誤」或「16 題都是同一種一律給分」當目前問題。
 
 ### 官方多答案
 - `questions.accepted_answers` 已完成
@@ -119,11 +137,37 @@ SWSI 的成立原因是：社工師國考準備已經很困難，網路上很多
 - 原因：**學生端尚未支援 accepted_answers 判題**
 - 這是月底前端 P0，不是 DB 錯誤
 
-### 一律給分
-- 共 **16 題**
-- 故意隔離 `analysis_status='review'`
-- 原因：不能把「A-D 都計分」誤解成「四個選項學理上都正確」
-- 現行學生端送分判定可運作；月底 UI 要保留正確語意
+### 官方特殊給分：16 題，但分成兩種
+16 題仍故意 `analysis_status='review'`，避免 AI 把官方計分規則誤寫成「四個選項學理上都正確」。
+
+#### `all_credit`：12 題
+- 官方「一律給分」
+- A/B/C/D 任一作答都得分
+- **空白未作答也得分**
+
+#### `any_answer`：4 題
+官方文字是「除未作答者不給分外，其餘均給分」：
+
+- `SW-105-1-17`
+- `SW-106-1-36`
+- `HBSE-108-2-039`
+- `HBSE-110-2-034`
+
+這 4 題：
+- A/B/C/D 任一作答都得分
+- **未作答不得分**
+
+### DB grading-mode migration
+Production 已套：
+
+`20260825110853_preserve_official_grading_mode`
+
+已完成：
+- `questions.grading_mode`
+- 僅允許 `standard / all_credit / any_answer`
+- 4,784 / 12 / 4 backfill
+- official-change AI reset trigger 已納入 `grading_mode`
+- migration 後 16 特殊給分題仍維持 `review`，沒有誤送 AI queue
 
 ### 最新考試
 - 115 年第 2 次：200 選擇題＋10 申論題
@@ -138,27 +182,72 @@ SWSI 的成立原因是：社工師國考準備已經很困難，網路上很多
 
 ---
 
-## 4. 考選部同步：正常
+## 4. 考選部同步：grading mode 全鏈路已驗收
 
 流程：
 
-> 考選部 → GitHub Actions → parser / health check → Supabase → AI 解析 → 前端
+> 考選部 → GitHub Actions → parser / health check → Supabase → AI 解析 → CDN → 前端
 
-`moex_sync.py` 已：
-- 先嘗試 `t=M` 更正答案
-- 沒有 M 才退回 `t=S`
-- 支援單一更正
-- 支援一律給分
-- 支援多答案 → `accepted_answers`
-- M 格式不能安全解析 → **fail closed，不碰 Supabase**
+### Parser
+保留成熟 `moex_sync.py` 底層 PDF／題號／選項解析；grading metadata 由薄 wrapper：
 
-115030／115100 workflow 已實測正常。
+- `scripts/moex_sync_v2.py`
+- `scripts/test_moex_grading_modes.py`
 
-Supabase importer：
+可區分：
+- `standard`
+- `all_credit`
+- `any_answer`
+
+M 格式不能安全解析仍 **fail closed，不碰 Supabase**。
+
+### Importer
+Supabase Edge Function：
 - `import-moex-social-worker`
-- production **version 3 / ACTIVE**
-- 會驗證 `accepted_answers`
-- GitHub source 已對齊 production v3
+- production **version 4 / ACTIVE**
+- 驗證 `accepted_answers`
+- fail-closed 驗證 `grading_mode`
+- GitHub source 已對齊 production v4
+
+### Health check
+新增：
+
+`scripts/health_check_v2.py`
+
+它沿用既有 `health_check.py` 的題數／結構／申論驗證，只加 grading-mode fail-closed：
+
+- 普通 legacy row 缺 mode可視 `standard`
+- `answer='一律給分'` 卻缺 mode → fail closed，不猜
+- `standard + answer='一律給分'` → fail
+- `all_credit/any_answer` 但 answer 不是 `一律給分` → fail
+- remote 三態總和必須 = 4,800
+- 特殊給分數與 answer 語意必須一致
+
+2026-08-25 GitHub runner 實測：
+
+```text
+LOCAL GRADING HEALTH OK: all_credit=0, any_answer=0, standard=400
+REMOTE HEALTH OK: Supabase questions=4800, essays=10,
+grading_modes={'all_credit': 12, 'any_answer': 4, 'standard': 4784}
+```
+
+### MOEX workflow 防 schema-only 假變更
+`.github/workflows/moex-social-worker-sync.yml` 已：
+
+- 先跑 grading-mode unit test
+- 用 `moex_sync_v2.py`
+- local / remote 改跑 `health_check_v2.py`
+- 普通 legacy 缺 mode 在比較時視同 `standard`
+- 特殊給分缺 mode 不猜
+- push 遇 main 併發更新時 `fetch → rebase → push`，最多重試 3 次
+
+最新完整 run：**success**。
+
+實測：
+- 115030 → `unchanged official content`
+- 115100 → `unchanged official content`
+- 115100 → `No official changes ... skip Supabase import`
+- concurrent main advance → rebase + push 成功
 
 ---
 
@@ -169,7 +258,7 @@ Supabase importer：
 - 最近 workflow：**52/52 found、0 missing、0 changed**
 
 ### Mapping
-canonical mapping 已改為：
+canonical mapping：
 
 > **官方題幹 + A/B/C/D 四選項 + AI law**
 
@@ -209,16 +298,17 @@ Trigger：`questions_sync_legal_canonical_names`
 ### 品質閥門
 已完成：
 - 清掉非送分 legacy 答案 meta 評論並重排 queue
-- 16 一律給分隔離 review
-- 24 多答案隔離 review
+- 24 多答案隔離 `review`
+- 16 特殊給分隔離 `review`（12 `all_credit` + 4 `any_answer`）
 - DB trigger：`trg_reject_ai_answer_meta_commentary`
+- official-change trigger 已納入 `grading_mode`
 - `ready` 含「題庫答案標錯／官方答案有瑕疵／答案待查／建議查答案」等 meta 話術會被 DB 拒絕
 - `ready` meta 污染驗收：**0**
 
 最近 QA 快照（會隨排程變動）：
 - ready：約 4512
 - pending：約 248
-- review：40（24 多答案 + 16 一律給分）
+- review：40（24 多答案 + 16 特殊給分）
 - analyzing：0
 
 ### pg_net
@@ -316,11 +406,11 @@ GitHub Actions `Publish Question Shards to Repo` 已在正式 production 實際�
 production dataset：
 - 4,800 題
 - 24 shards（每考次 200 題）
-- revision：`8dafaf049f5200b54cd8`
+- revision：**`e721d6293d4c6acdddee`**
 - 約 6.84 MB 未壓縮總量
 - 單 shard 約 193–301 KB
 - 24 多答案完整保留
-- 16 一律給分完整保留
+- `grading_mode` 完整保留：4,784 standard / 12 all_credit / 4 any_answer
 
 Runtime：
 - manifest：HTTP 200
@@ -345,11 +435,40 @@ Runtime：
 
 ---
 
-## 9. 最新前端 code audit：非常重要
+## 9. Historical audit 自動化：已全綠
 
-**目前所有以下內容都只是 audit／施工設計；尚未改 `index.html`、尚未部署 Netlify。**
+`.github/workflows/historical-answer-audit.yml` 現在跑：
 
-### 9.1 `index.html` 是「原始函式 + 後置 override」
+`scripts/historical_answer_audit_v4.py`
+
+同一輪驗：
+- 4,800 題官方 accepted-answer set
+- 4,800 題 official grading mode
+
+最新 runner 結果：
+
+```text
+official_questions = 4800
+answer_findings = 0
+grading_mode_mismatches = 0
+standard = 4784
+all_credit = 12
+any_answer = 4
+```
+
+報告已成功寫回：
+- `audit/historical_answer_audit.json`
+- `audit/historical_answer_audit.md`
+
+workflow 的 report push 也已改為 `fetch → rebase → push` 重試，避免長時間 audit 過程中 main 被其他 bot 推進而出現「資料比對成功但 workflow 假紅燈」。最新 run 整體 **success**。
+
+---
+
+## 10. 最新前端 code audit：非常重要
+
+**以下仍只是 audit／施工設計；尚未故意修改 `index.html`、尚未進行約定的月底學生端 patch。**
+
+### 10.1 `index.html` 是「原始函式 + 後置 override」
 檔案底部 `swsi-uiux-v1-script` 會再次覆寫：
 - `renderHome=function(){...}`
 - `renderReview=function(){...}`
@@ -364,7 +483,7 @@ Runtime：
 目前底部 `renderHome()` 仍：
 - 用 `ALL.length` 顯示題數
 - 直接 `onclick="MK.open()"`
-- 自訂指定歷屆有 round value regression（見下一節）
+- 自訂指定歷屆有 round value regression
 
 目前底部 `renderReview()` 仍：
 
@@ -374,7 +493,7 @@ ids.map(id => ALL.find(q => q.id===id)).filter(Boolean)
 
 CDN partial-bank 後若不加 full-bank gate，舊錯題可能暫時消失。
 
-### 9.2 已確認現行 bug：指定歷屆 round value regression
+### 10.2 已確認現行 bug：指定歷屆 round value regression
 核心 `focusedQuizFilter()` 預期：
 
 ```text
@@ -410,31 +529,28 @@ homeQuizRound === "第一次"
 - `setHomeQuizRound()` 再 canonicalize 做防呆
 - CDN shard matcher 也用同一 canonicalRound
 
-### 9.3 `normalize()` 尚未帶 `accepted_answers`
-現行 normalized question object 只有單一 `answer`。
-
+### 10.3 `normalize()` 必須同時帶兩種 metadata
 月底必補：
 
 ```js
 accepted_answers: Array.isArray(r.accepted_answers)
   ? r.accepted_answers.filter(x=>['A','B','C','D'].includes(x))
-  : null
+  : null,
+grading_mode: ['standard','all_credit','any_answer'].includes(r.grading_mode)
+  ? r.grading_mode
+  : (r.answer==='一律給分' ? 'unknown' : 'standard'),
 ```
 
-不要在前端自己猜多答案。
+原則：
+- 普通 legacy row 缺 mode可視 `standard`
+- 特殊給分缺 mode **不能猜**
+- 正常 CDN / Supabase production 已提供正式 mode，不應走 `unknown`
 
-### 9.4 判題邏輯要收斂成 item-based helper
-現行：
-
-```js
-ansCorrect(p,a)
-```
-
-只懂單答案。
-
+### 10.4 判題邏輯要收斂成 item-based helper
 月底統一：
 
 ```js
+gradingMode(item)
 acceptedAnswers(item)
 isCorrectAnswer(item,picked)
 answerLabel(item)
@@ -452,18 +568,33 @@ answerLabel(item)
 
 不要只修 `ansCorrect()`，因為 `MK.grade()` 現在有自己的第二套判定。
 
-### 9.5 模擬考未作答 bug
-現行 `MK.grade()`：
-- 未作答會進 `wrong[]`
-- 但 `record()` / `bySubj` 只在 `picked != null` 執行
+### 10.5 模擬考未作答規則：依 grading mode，不是一律算錯
 
-月底同一輪處理：
-- 未作答 = incorrect
-- 進各科分母
-- 進 history / review schedule
-- UI 仍顯示「未作答」
+| mode | 未作答 |
+|---|---|
+| `standard` | incorrect |
+| `all_credit` | **correct** |
+| `any_answer` | incorrect |
 
-### 9.6 Stored XSS
+共同規格：
+- 每題都進各科分母
+- 每題先用 `isCorrectAnswer(q,picked)` 算結果
+- incorrect 才進錯題／間隔複習
+- `all_credit` 空白不得污染錯題
+- UI 可同時顯示「未作答」＋「官方一律給分，本題仍得分」
+
+已確認現有 `record(item,picked,correct)` 不把 `picked` 寫入 history，只存 id/subject/major/mistake/correct/ts，因此 `picked=null` 技術上安全；真正重點是 `correct` 必須依 grading mode 算對。
+
+### 10.6 特殊給分 UI 不要把四個選項都塗綠
+`all_credit / any_answer` 的 A-D 都可能「依官方規則得分」，不代表四個選項都學理正確。
+
+建議：
+- 顯示「本題依官方特殊給分規則計分」
+- `all_credit`：`官方一律給分（未作答也得分）`
+- `any_answer`：`除未作答者不給分外，其餘均給分`
+- 不把 A-D 全標成「正確答案」
+
+### 10.7 Stored XSS
 不能只做「全域 esc() 多補兩個 replace」就算完成。
 
 P0 需處理：
@@ -485,7 +616,7 @@ P0 需處理：
 - URL → 預設只允許 `https:`
 - 動態 onclick 優先改 index/stable id 或 DOM listener
 
-### 9.7 Search deep-link
+### 10.8 Search deep-link
 現行：
 
 ```js
@@ -497,7 +628,7 @@ openLawCard(name){ lawQ=name; lawOpen=name; ... }
 
 月底要 name → index，不能直接把 name 塞進 index state。
 
-### 9.8 照片 AI 前端仍允許 4 張
+### 10.9 照片 AI 前端仍允許 4 張
 現行 `gradePhoto()`：
 
 ```js
@@ -510,7 +641,7 @@ if(files.length>4){ files=files.slice(0,4); }
 - `files.length > 3` → 直接提示「一次最多 3 張」
 - 不要默默截掉第 4 張
 
-### 9.9 AI client ID / 真實錯誤訊息
+### 10.10 AI client ID / 真實錯誤訊息
 Worker 已支援 `X-SWSI-Client-ID`，舊學生端尚未送。
 
 月底：
@@ -520,9 +651,11 @@ Worker 已支援 `X-SWSI-Client-ID`，舊學生端尚未送。
 - daily quota 不顯示「立即重試」
 - 413／502／503 分別友善處理
 
+完整細節以最新 `FRONTEND_MONTHLY_AUDIT.md` 為準。
+
 ---
 
-## 10. CDN 前端切換設計：已完成，月底只實作
+## 11. CDN 前端切換設計：已完成，月底只實作
 
 推薦架構：
 
@@ -594,7 +727,7 @@ Cloudflare shard 是跨 Netlify origin，現行 SW 不攔它是正確的；離�
 
 ---
 
-## 11. 月底 Netlify patch — 真正施工順序
+## 12. 月底 Netlify patch — 真正施工順序
 
 **目前不要執行，除非使用者明確說要開始學生端月更。**
 
@@ -602,9 +735,9 @@ Cloudflare shard 是跨 Netlify origin，現行 SW 不攔它是正確的；離�
 
 1. 備份當下 `index.html / sw.js / manifest.json` SHA
 2. **先修 round canonical regression**
-3. 補 `normalize().accepted_answers`
-4. 建立統一 `acceptedAnswers / isCorrectAnswer / answerLabel`
-5. 同輪改一般刷題 + `MK.grade()` + 模擬考未作答
+3. 補 `normalize().accepted_answers + grading_mode`
+4. 建立統一 `gradingMode / acceptedAnswers / isCorrectAnswer / answerLabel`
+5. 同輪改一般刷題 + `MK.grade()` + grading-mode 未作答規則
 6. 加 CDN manifest/shard loader + scope gate + full-bank gate
 7. 修 `renderHome` / `renderReview` 最後 override，不只前段原始函式
 8. Stored XSS context-aware encoding
@@ -632,10 +765,11 @@ Cloudflare shard 是跨 Netlify origin，現行 SW 不攔它是正確的；離�
 - 指定 115-2 Network 只需 `115-2.json`
 - 再抽 104 年做同樣測試
 - 24 多答案逐題 accepted option 全正確
-- 16 一律給分不污染錯題
+- 12 `all_credit`：A-D 與未作答都得分
+- 4 `any_answer`：A-D 得分、未作答不得分
 - 普通單答案抽測至少 20 題
 - 錯題／間隔複習
-- 模擬考含：普通、多答案、送分、未作答
+- 模擬考同場含：普通、多答案、all_credit 空白、any_answer 空白
 - search deep-link
 - 申論文字 AI
 - 照片 1–3 張可走；第 4 張前端直接拒絕
@@ -645,13 +779,15 @@ Cloudflare shard 是跨 Netlify origin，現行 SW 不攔它是正確的；離�
 
 ---
 
-## 12. 不要重做／不要誤判
+## 13. 不要重做／不要誤判
 
 - **不要改 Netlify，除非使用者明確要求或到約定月更施工。**
 - 不要把專案當資料救援階段。
-- 不要再重查 4,800 題官方答案；audit 已 0 mismatch。
+- 不要再重查 4,800 題官方答案；audit 已 0 finding。
+- 不要再把 16 特殊給分題當成同一種「一律給分」；必須依 12 all_credit / 4 any_answer。
+- 不要從 `answer='一律給分'` 猜空白是否得分；讀 `grading_mode`。
 - 不要把 24 多答案 review 當 DB 錯題。
-- 不要把 16 一律給分 review 當 queue 故障。
+- 不要把 16 特殊給分 review 當 queue 故障。
 - 不要重建 Cloudflare 題庫 CDN。
 - 不要另開 R2／第三個 Worker。
 - 不要重建 D1 usage tables／rate limit bindings。
@@ -667,21 +803,27 @@ Cloudflare shard 是跨 Netlify origin，現行 SW 不攔它是正確的；離�
 
 ---
 
-## 13. 目前真正的下一步
+## 14. 目前真正的下一步
 
-現在後端 P0 已大致收斂；AI 公開照片 guard 也已 production runtime 驗收。
+目前後端 P0 已收斂到：
+- 4,800 官方答案 0 finding
+- grading mode 0 mismatch
+- parser v2 / importer v4 / health v2 / audit v4 全綠
+- CDN 已帶 grading mode
+- AI public photo guards 已 production runtime smoke
 
 **若還沒到學生端月更：**
-- 可以繼續做 read-only frontend audit／測試設計
+- 可繼續做 read-only frontend audit／測試設計
+- 可清理仍引用舊「16 一律給分／空白一律錯」的文件
 - 不要再堆重複架構文件
 - 不要改 `index.html / sw.js / manifest.json`
 
 **若使用者明確說開始月底學生端 patch：**
 
-> 從 `FRONTEND_SCOPE_AUDIT.md` 的 round canonical regression 開始，接著 `accepted_answers`，再切 CDN loader；不要先從外觀／SEO 開始。
+> 從 `FRONTEND_SCOPE_AUDIT.md` 的 round canonical regression 開始；第二步立刻補 `accepted_answers + grading_mode` 與統一判題 helper；之後才切 CDN loader。不要先從外觀／SEO 開始。
 
 ---
 
-## 14. 下一個對話最短啟動指令
+## 15. 下一個對話最短啟動指令
 
 > **請讀 GitHub `grizzly020503/swsi-quiz-backup` 的 `PROJECT_HANDOFF.md`，依「目前真正的下一步」繼續。不要重做已完成項目，也不要改 Netlify，除非我明確要求。**
