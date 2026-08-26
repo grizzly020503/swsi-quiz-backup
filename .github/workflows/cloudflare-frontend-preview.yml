@@ -54,7 +54,9 @@ jobs:
           grep -q 'SWSI Product V1 Lock 2026-08-26' /tmp/swsi-preview/monthly_patch.js
           grep -q '不知道怎麼下筆？先照這 5 步' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI Essay Trust Layer 2026-08-26' /tmp/swsi-preview/monthly_patch.js
+          grep -q 'SWSI Essay Metadata Labels 2026-08-26' /tmp/swsi-preview/monthly_patch.js
           grep -q '正式考題本身.*最高依據' /tmp/swsi-preview/monthly_patch.js
+          grep -q '平台整理・可能相關理論' /tmp/swsi-preview/monthly_patch.js
           if grep -A80 'SWSI Essay Trust Layer 2026-08-26' /tmp/swsi-preview/monthly_patch.js | grep -q '校過骨架'; then
             echo 'Essay Trust Layer still contains forbidden overclaim: 校過骨架' >&2
             exit 1
@@ -70,7 +72,7 @@ jobs:
           if marker not in s:
               s=s.replace('<head>', '<head>\n'+marker+'\n<meta name="robots" content="noindex,nofollow,noarchive">', 1)
           s=s.replace('<title>社工師國考免費題庫｜SWSI</title>', '<title>【新版預覽】社工師國考免費題庫｜SWSI</title>', 1)
-          s=s.replace('src="monthly_patch.js"', 'src="monthly_patch.js?v=preview-essay-trust-20260826-1"', 1)
+          s=s.replace('src="monthly_patch.js"', 'src="monthly_patch.js?v=preview-essay-meta-20260826-1"', 1)
           banner='''<div id="swsi-preview-banner" style="position:fixed;left:0;right:0;top:0;z-index:2147483647;background:#111;color:#fff;text-align:center;padding:7px 10px;font:600 13px/1.4 system-ui,-apple-system,sans-serif;box-shadow:0 1px 5px rgba(0,0,0,.3)">新版預覽｜正式 Netlify 網址完全沒有變動</div><style>body{padding-top:34px!important}</style>'''
           if 'id="swsi-preview-banner"' not in s:
               import re
@@ -78,7 +80,7 @@ jobs:
           p.write_text(s, encoding='utf-8')
           PY
           grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW 20260826' /tmp/swsi-preview/index.html
-          grep -q 'monthly_patch.js?v=preview-essay-trust-20260826-1' /tmp/swsi-preview/index.html
+          grep -q 'monthly_patch.js?v=preview-essay-meta-20260826-1' /tmp/swsi-preview/index.html
           grep -q "const VERSION = 'v5'" /tmp/swsi-preview/sw.js
 
       - name: Publish preview files into existing Cloudflare static assets
@@ -115,8 +117,9 @@ jobs:
             patch_code="$(curl --silent --show-error --location -o /tmp/live-preview-patch.js -w '%{http_code}' "$PATCH_URL?check=$GITHUB_RUN_ID-$i" || true)"
             if [ "$code" = '200' ] && [ "$patch_code" = '200' ] \
                && grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW 20260826' /tmp/live-preview.html \
-               && grep -q 'monthly_patch.js?v=preview-essay-trust-20260826-1' /tmp/live-preview.html \
+               && grep -q 'monthly_patch.js?v=preview-essay-meta-20260826-1' /tmp/live-preview.html \
                && grep -q 'SWSI Essay Trust Layer 2026-08-26' /tmp/live-preview-patch.js \
+               && grep -q 'SWSI Essay Metadata Labels 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q '正式考題本身.*最高依據' /tmp/live-preview-patch.js; then
               echo "CLOUDFLARE FRONTEND PREVIEW OK: $URL"
               exit 0
