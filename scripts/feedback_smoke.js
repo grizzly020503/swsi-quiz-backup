@@ -9,6 +9,10 @@ const QUESTION_CDN_PREFIX = '/question-shards/';
 const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
 const FEEDBACK_URL = 'https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-feedback';
 
+async function optionTexts(page) {
+  return page.locator('#swsi-report-category option').allTextContents();
+}
+
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
@@ -45,17 +49,21 @@ const FEEDBACK_URL = 'https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi
   await page.goto(base, { waitUntil: 'commit', timeout: 15000 });
   await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
   await page.waitForFunction(() => window.SWSI_FEEDBACK && /Feedback V1/.test(window.SWSI_FEEDBACK.version || ''));
+  await page.waitForFunction(() => window.SWSI_FEEDBACK_COMPACT && window.SWSI_FEEDBACK_COMPACT.version === 'V2');
 
   assert((await page.locator('footer .swsi-report-footer-btn').count()) === 1, 'general feedback footer entry missing');
 
-  // Official MCQ: context is auto-attached and must show read-only / MOEX trust wording.
+  // Official MCQ: compact form, official trust note, and only question-related categories.
   await page.getByRole('button', { name: /直接開始 20 題/ }).click();
   await page.waitForSelector('.qcard .swsi-report-mini', { timeout: 45000 });
   await page.locator('.qcard .swsi-report-mini').click();
-  await page.waitForSelector('#swsi-report-backdrop');
+  await page.waitForSelector('.swsi-report-dialog[data-swsi-compact="2"]');
   let modalText = await page.locator('.swsi-report-dialog').innerText();
-  assert(/正式歷屆試題以考選部官方資料為準/.test(modalText), 'official exam trust warning missing');
-  assert(/不會直接修改正式試題/.test(modalText), 'official exam read-only wording missing');
+  assert(/回報這個問題/.test(modalText), 'compact report title missing');
+  assert(/歷屆題目會先核對考選部資料後再處理/.test(modalText), 'compact official trust wording missing');
+  assert(!/目前位置/.test(modalText), 'technical context should be hidden from student-facing compact form');
+  assert.deepStrictEqual(await optionTexts(page), ['答案好像不對', '解析有疑問', '題目顯示異常', '其他'], 'MCQ compact categories incorrect');
+  assert(!/功能建議/.test(modalText), 'question report must not contain general feature suggestion category');
   await page.locator('#swsi-report-message').fill('測試：這題解析內容可能需要再確認。');
   await page.locator('#swsi-report-form').evaluate(form => form.requestSubmit());
   await page.waitForSelector('.swsi-report-receipt');
@@ -71,36 +79,47 @@ const FEEDBACK_URL = 'https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi
   assert(sent.body.subject, 'MCQ feedback missing subject');
   assert(sent.body.message.includes('解析內容'), 'feedback message not sent');
 
-  // Theory entry: SWSI-authored content gets the non-official trust wording.
+  // Theory entry: only theory question + other, with a short SWSI trust line.
   await page.evaluate(() => openTheory('生態系統理論'));
   await page.waitForSelector('.ecard.open .swsi-report-inline .swsi-report-mini', { timeout: 30000 });
   await page.locator('.ecard.open .swsi-report-mini').click();
+  await page.waitForSelector('.swsi-report-dialog[data-swsi-compact="2"]');
   modalText = await page.locator('.swsi-report-dialog').innerText();
-  assert(/SWSI 整理內容可能有疏漏/.test(modalText), 'SWSI theory trust wording missing');
-  assert(/生態系統理論/.test(modalText), 'theory context title missing');
+  assert(/SWSI 整理內容收到回報後會先核對再修正/.test(modalText), 'compact SWSI theory trust wording missing');
+  assert.deepStrictEqual(await optionTexts(page), ['理論內容疑問', '其他'], 'theory compact categories incorrect');
+  assert.strictEqual(await page.locator('#swsi-report-category').inputValue(), 'theory_question', 'theory report should default to theory category');
   await page.getByRole('button', { name: /關閉回報視窗/ }).click();
 
-  // Law entry.
+  // Law entry: only law outdated + other.
   await page.evaluate(() => openLawCard('社會救助法'));
   await page.waitForSelector('.ecard.open .swsi-report-inline .swsi-report-mini', { timeout: 30000 });
   await page.locator('.ecard.open .swsi-report-mini').click();
-  modalText = await page.locator('.swsi-report-dialog').innerText();
-  assert(/社會救助法/.test(modalText), 'law context title missing');
+  await page.waitForSelector('.swsi-report-dialog[data-swsi-compact="2"]');
+  assert.deepStrictEqual(await optionTexts(page), ['法規可能過期', '其他'], 'law compact categories incorrect');
   assert.strictEqual(await page.locator('#swsi-report-category').inputValue(), 'law_outdated', 'law report should default to law-outdated category');
   await page.getByRole('button', { name: /關閉回報視窗/ }).click();
 
-  // Essay entry.
+  // Essay entry uses the same short question-report choices, not feature suggestions.
   await page.evaluate(() => swsiStartEssayNow());
   await page.waitForSelector('.wta', { timeout: 30000 });
   await page.waitForSelector('.swsi-report-inline[data-swsi-essay-report="1"] .swsi-report-mini');
   await page.locator('.swsi-report-inline[data-swsi-essay-report="1"] .swsi-report-mini').click();
+  await page.waitForSelector('.swsi-report-dialog[data-swsi-compact="2"]');
   modalText = await page.locator('.swsi-report-dialog').innerText();
-  assert(/申論題/.test(modalText), 'essay context type missing');
-  assert(/正式歷屆試題以考選部官方資料為準|SWSI 整理內容可能有疏漏/.test(modalText), 'essay trust wording missing');
+  assert(/回報這個問題/.test(modalText), 'essay compact report title missing');
+  assert.deepStrictEqual(await optionTexts(page), ['答案好像不對', '解析有疑問', '題目顯示異常', '其他'], 'essay compact categories incorrect');
+  await page.getByRole('button', { name: /關閉回報視窗/ }).click();
+
+  // General footer is the only place that carries feature suggestions.
+  await page.locator('footer .swsi-report-footer-btn').click();
+  await page.waitForSelector('.swsi-report-dialog[data-swsi-compact="2"]');
+  modalText = await page.locator('.swsi-report-dialog').innerText();
+  assert(/回報／提供建議/.test(modalText), 'general feedback compact title missing');
+  assert.deepStrictEqual(await optionTexts(page), ['網站功能異常', 'AI 回饋問題', '功能建議', '其他'], 'general feedback categories incorrect');
   await page.getByRole('button', { name: /關閉回報視窗/ }).click();
 
   assert.deepStrictEqual(errors, [], 'browser page errors: ' + errors.join(' | '));
-  console.log('FEEDBACK REPORT SMOKE OK');
+  console.log('FEEDBACK COMPACT V2 SMOKE OK');
   await browser.close();
 })().catch(err => {
   console.error(err && err.stack || err);
