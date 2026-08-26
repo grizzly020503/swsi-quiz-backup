@@ -1257,3 +1257,171 @@ body:has(#app .qcard) header{box-shadow:none;border-bottom:1px solid rgba(220,22
 `;
   document.head.appendChild(style);
 })();
+
+/* SWSI Mobile Reading Polish 2026-08-26
+   Feedback pass from real iPhone screenshots:
+   - normal size was too large/loose for long explanations and essays
+   - fixed bottom navigation could cover content
+   - essay formatting controls need clearer hierarchy
+   - AI privacy disclosure should be available without dominating the writing flow
+*/
+(function(){
+  if(document.getElementById('swsi-mobile-reading-polish')) return;
+
+  var style=document.createElement('style');
+  style.id='swsi-mobile-reading-polish';
+  style.textContent=`
+/* Mobile-first reading scale. Keep three genuinely different levels. */
+html{
+  --fs-q:13pt;
+  --fs-h:12pt;
+  --fs-b:11pt;
+  --fs-s:10pt;
+}
+html[data-fs="1"]{
+  --fs-q:14.5pt;
+  --fs-h:13pt;
+  --fs-b:12pt;
+  --fs-s:11pt;
+}
+html[data-fs="2"]{
+  --fs-q:16.5pt;
+  --fs-h:14.5pt;
+  --fs-b:13.5pt;
+  --fs-s:12.5pt;
+}
+
+/* Long explanations should read like notes, not a poster. */
+#app .qtext{line-height:1.72;}
+#app .exp{margin-top:18px;padding-top:17px;}
+#app .exp-sec{margin-bottom:14px;}
+#app .exp-sec h4{margin-bottom:5px;}
+#app .exp-sec p{line-height:1.72;}
+#app .extra{line-height:1.68;}
+#app .mistake{margin-top:4px;}
+
+/* A fixed/floating tab bar must never sit on top of the last paragraph or controls. */
+main{padding-bottom:calc(145px + env(safe-area-inset-bottom))!important;}
+.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))!important;}
+body:has(#app .qcard) main{padding-bottom:30px!important;}
+body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
+
+/* Essay writing: keep the format helpers secondary to the actual answer box. */
+#app .wbox{margin-bottom:6px;}
+#app .wlabel{margin-bottom:7px;}
+#app .swsi-fmt-help{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:var(--fs-s);
+  color:var(--ink-soft);
+  line-height:1.5;
+  margin:0 0 7px;
+}
+#app .fmtbar{align-items:center;margin-bottom:9px;}
+#app .fmtbar .fbtn{min-height:38px;padding:6px 10px;}
+#app .fmtbar .fbtn.clear,
+#app .fmtbar .swsi-clear-btn{
+  margin-left:auto;
+  color:var(--wrong)!important;
+  background:transparent!important;
+  border-color:transparent!important;
+  font-weight:600!important;
+  white-space:nowrap;
+}
+#app .fmtbar .fbtn.clear:hover,
+#app .fmtbar .swsi-clear-btn:hover{
+  background:var(--wrong-bg)!important;
+  border-color:rgba(158,97,85,.25)!important;
+}
+#app .wta{line-height:1.78;min-height:190px;}
+
+/* Privacy stays explicit, but does not occupy half the writing screen before it is needed. */
+#app .swsi-ai-privacy{
+  margin:0 0 10px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#FBFCFB;
+  overflow:hidden;
+}
+#app .swsi-ai-privacy summary{
+  min-height:44px;
+  padding:10px 12px;
+  cursor:pointer;
+  list-style:none;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:var(--fs-s);
+  font-weight:700;
+  color:var(--ink-soft);
+}
+#app .swsi-ai-privacy summary::-webkit-details-marker{display:none;}
+#app .swsi-ai-privacy summary:after{content:'展開';margin-left:auto;font-weight:500;color:var(--pine);}
+#app .swsi-ai-privacy[open] summary:after{content:'收起';}
+#app .swsi-ai-privacy .swsi-ai-privacy-body{
+  border-top:1px solid var(--line);
+  padding:10px 12px 11px;
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:var(--fs-s);
+  line-height:1.7;
+  color:var(--ink-soft);
+}
+#app .swsi-ai-privacy .swsi-ai-privacy-body b{color:var(--wrong);}
+
+@media (max-width:370px){
+  main{padding-bottom:calc(138px + env(safe-area-inset-bottom))!important;}
+  #app .fmtbar{gap:5px;}
+  #app .fmtbar .fbtn{padding-left:8px;padding-right:8px;}
+}
+`;
+  document.head.appendChild(style);
+
+  function polishEssayUI(root){
+    root=root||document;
+
+    root.querySelectorAll('.wbox').forEach(function(box){
+      var bar=box.querySelector('.fmtbar');
+      if(bar && !box.querySelector('.swsi-fmt-help')){
+        var help=document.createElement('div');
+        help.className='swsi-fmt-help';
+        help.textContent='點一下插入答題層級';
+        bar.parentNode.insertBefore(help,bar);
+      }
+      var clear=box.querySelector('.fmtbar .fbtn.clear');
+      if(clear){
+        clear.classList.add('swsi-clear-btn');
+        clear.textContent='清除作答';
+        clear.setAttribute('aria-label','清除這題作答');
+        clear.setAttribute('title','清除這題作答（會再次確認）');
+      }
+    });
+
+    root.querySelectorAll('.aihelp').forEach(function(node){
+      if(node.dataset.swsiPrivacyHandled==='1') return;
+      var text=(node.textContent||'').trim();
+      if(text.indexOf('照片／文字會送至外部 AI 服務處理')===-1) return;
+
+      var next=node.nextElementSibling;
+      var official='平台提供的是申論練習回饋，並非考選部官方評分。';
+      if(next && (next.textContent||'').indexOf('申論練習回饋')!==-1){
+        official=(next.textContent||'').replace(/^💡\s*/,'').trim();
+        next.remove();
+      }
+
+      var details=document.createElement('details');
+      details.className='swsi-ai-privacy';
+      details.innerHTML='<summary>🔒 使用 AI 回饋前請先閱讀隱私說明</summary>'+
+        '<div class="swsi-ai-privacy-body"><b>照片與文字會送至外部 AI 服務處理。</b> 請勿輸入或上傳可識別真實個案或個人的資料；需要舉例時請先匿名化。<br>'+swsiEsc(official)+'</div>';
+      node.dataset.swsiPrivacyHandled='1';
+      node.replaceWith(details);
+    });
+  }
+
+  /* Renderers replace #app.innerHTML often, so re-apply tiny presentation fixes after each render. */
+  var appNode=document.getElementById('app');
+  if(appNode){
+    polishEssayUI(appNode);
+    var observer=new MutationObserver(function(){ polishEssayUI(appNode); });
+    observer.observe(appNode,{childList:true,subtree:true});
+  }
+})();
