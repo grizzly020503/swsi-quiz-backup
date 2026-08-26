@@ -94,7 +94,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   for (const word of ['國家','市場','家庭','可近性','連續性']) assert(t.includes(word), `welfare mix card missing ${word}`);
   assert(/整合|協調/.test(t), 'service delivery missing integration/coordination');
   assert(/POSC.*工具|工具.*POSC|只是可能的政策工具/.test(t), 'POSC should be a tool, not definition');
-  assert(/不等於.*退出|不直接.*等同.*退出/.test(t), 'outsourcing should not equal state withdrawal');
+  assert(/不等於.*退出|不直接.*等同.*退出|不要把.*等同.*退出/.test(t), 'outsourcing should not equal state withdrawal');
 
   t = await read('資產累積與基本收入');
   assert(/Sherraden/.test(t) && /UBI/.test(t), 'comparison card missing both approaches');
