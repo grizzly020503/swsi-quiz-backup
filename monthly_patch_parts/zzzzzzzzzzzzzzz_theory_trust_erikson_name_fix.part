@@ -1,0 +1,20 @@
+
+/* SWSI Theory Trust Erikson Name Fix 2026-08-26
+   Corrects only the SWSI-authored theory-card lookup. Official exam questions remain untouched.
+*/
+(function(){
+  'use strict';
+  var rows=window.THEORIES||[];
+  var t=rows.find(function(x){return x&&x.n==='Erikson 心理社會發展';});
+  if(!t)return;
+  Object.assign(t,{
+    s:'Erik Erikson',
+    c:'Erikson 以生命全程八個心理社會階段描述發展，每一階段都有一組需要整合的心理社會張力，例如青少年的「認同 vs. 角色混淆」。這裡的「危機」是發展上的張力與課題，不等於精神疾病或必然失敗；各階段常見年齡是大致範圍，不是硬切的診斷界線。',
+    a:'先看題目明示的年齡、生活情境與主要發展任務，再用相對應的心理社會張力分析。不要只因為「15歲」就下結論說他一定處於某種失敗狀態；同一階段也可能同時存在兩端經驗，前一階段的議題也可能持續影響後續。',
+    k:['生命全程八階段','心理社會張力','認同vs角色混淆','發展任務','年齡為大致範圍'],
+    theory_verify_status:'checked',
+    theory_checked_at:'2026-08-26',
+    theory_trust_note:'Erikson 的階段很適合整理發展任務，但不應把年齡表當成臨床診斷表，也不是某階段「解決一次就永遠結束」。'
+  });
+  window.SWSI_THEORY_ERIKSON_NAME_FIX='SWSI Theory Trust Erikson Name Fix 2026-08-26';
+})();
