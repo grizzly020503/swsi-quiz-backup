@@ -33,6 +33,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
   await page.waitForFunction(() => typeof window.swsiKnowledgeSearch === 'function' && Array.isArray(window.THEORIES) && Array.isArray(window.LAWS));
   await page.waitForFunction(() => window.SWSI_LAW_TRUST && /Law Trust Layer V1/.test(window.SWSI_LAW_TRUST.version || ''));
+  await page.waitForFunction(() => window.SWSI_LAW_TRUST && /Law Trust Batch 2/.test(window.SWSI_LAW_TRUST.batch2 || ''));
   await page.waitForFunction(() => window.SWSI_NEW_RESIDENT_STATUS && /New Resident Basic Act Status Fix/.test(window.SWSI_NEW_RESIDENT_STATUS.version || ''));
 
   // Search should present one coherent path: understand -> MCQ -> essay.
@@ -115,12 +116,30 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/已制定公布・施行日另定/.test(residentTrust), 'new resident act status badge missing');
   assert(!/現行法律/.test(residentTrust), 'new resident act must not be generically labeled current law while effective date is separately determined');
 
+  // Batch 2: high-frequency legal details must be precise and verified.
+  const batch2Cases = [
+    ['家庭暴力防治法', /4小時/, /2年以下/, /三種/],
+    ['身心障礙者權益保障法', /34人以上/, /3%/, /67人以上/],
+    ['老人福利法', /年滿65歲以上/, /第41至44條|第41.*44條/, /應通報/],
+    ['病人自主權利法', /預立醫療照護諮商/, /預立醫療決定/, /五類臨床條件|五種臨床條件/],
+    ['少年事件處理法', /12歲以上18歲未滿/, /行政輔導先行/, /112年7月1日/]
+  ];
+  for (const [name, a, b, c] of batch2Cases) {
+    await page.evaluate(n => openLawCard(n), name);
+    await page.waitForSelector('.ecard.open .swsi-law-trust', { timeout: 30000 });
+    const text = await page.locator('.ecard.open').first().innerText();
+    assert(/✓ 官方來源已逐卡核對/.test(text), `${name} should be verified`);
+    assert(a.test(text), `${name} missing first verified detail`);
+    assert(b.test(text), `${name} missing second verified detail`);
+    assert(c.test(text), `${name} missing third verified detail`);
+  }
+
   // Missing high-priority laws should now exist in the reference layer.
   const additions = await page.evaluate(() => ['社會福利基本法','性騷擾防治法','性侵害犯罪防治法','精神衛生法','人口販運防制法','新住民基本法'].filter(n => (window.LAWS || []).some(x => x && x.n === n)));
   assert.strictEqual(additions.length, 6, 'one or more high-priority law cards are missing');
 
   assert.deepStrictEqual(browserErrors, [], 'browser page errors: ' + browserErrors.join(' | '));
-  console.log('KNOWLEDGE PATH + LAW TRUST SMOKE OK');
+  console.log('KNOWLEDGE PATH + LAW TRUST BATCH 2 SMOKE OK');
   await browser.close();
 })().catch(err => {
   console.error(err && err.stack || err);
