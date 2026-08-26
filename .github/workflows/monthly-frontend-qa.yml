@@ -8,6 +8,7 @@ on:
       - 'monthly_patch_parts/**'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/monthly_frontend_smoke.py'
+      - 'scripts/browser_interaction_smoke.js'
       - 'scripts/netlify_ignore.py'
       - 'netlify.toml'
       - 'sw.js'
@@ -34,7 +35,7 @@ jobs:
           python-version: '3.12'
 
       - name: JavaScript syntax
-        run: cat monthly_patch_parts/*.part > /tmp/monthly_patch.js && node --check /tmp/monthly_patch.js && node --check sw.js
+        run: cat monthly_patch_parts/*.part > /tmp/monthly_patch.js && node --check /tmp/monthly_patch.js && node --check sw.js && node --check scripts/browser_interaction_smoke.js
 
       - name: Python syntax
         run: python -m py_compile scripts/monthly_patch_build.py scripts/monthly_frontend_smoke.py scripts/netlify_ignore.py
@@ -91,3 +92,41 @@ jobs:
           assert '（一）' in raw and '（二）' in raw, 'normalized sub-question labels not found'
           print('PRODUCTION HTTP SMOKE OK')
           PY
+
+  interaction-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build browser-test site
+        run: |
+          rm -rf _site
+          mkdir -p _site/icons
+          cp index.html essay_guides.js manifest.json sw.js apple-touch-icon.png _site/
+          cat monthly_patch_parts/*.part > _site/monthly_patch.js
+          cp icons/icon-192.png icons/icon-512.png _site/icons/
+          if [ -d auto ]; then cp -R auto _site/; fi
+          python scripts/monthly_patch_build.py _site/index.html
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Browser interaction smoke
+        run: |
+          python -m http.server 4173 --directory _site >/tmp/swsi-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/browser_interaction_smoke.js http://127.0.0.1:4173/
