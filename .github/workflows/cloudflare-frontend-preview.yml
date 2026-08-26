@@ -5,6 +5,15 @@ on:
   push:
     paths:
       - '.github/workflows/cloudflare-frontend-preview.yml'
+      - 'monthly_patch_parts/**'
+      - 'index.html'
+      - 'sw.js'
+      - 'manifest.json'
+      - 'essay_guides.js'
+      - 'auto/essays_auto.json'
+      - 'auto/questions_auto.json'
+      - 'scripts/monthly_patch_build.py'
+      - 'scripts/monthly_frontend_smoke.py'
 
 permissions:
   contents: write
@@ -41,6 +50,7 @@ jobs:
           node --check /tmp/swsi-preview/monthly_patch.js
           node --check /tmp/swsi-preview/sw.js
           python scripts/monthly_frontend_smoke.py --site /tmp/swsi-preview
+          grep -q 'SWSI Font Size Control Fix 2026-08-26' /tmp/swsi-preview/monthly_patch.js
 
       - name: Mark as isolated preview
         run: |
@@ -89,14 +99,19 @@ jobs:
         run: |
           set -euo pipefail
           URL='https://wandering-wave-4418.c022050333.workers.dev/preview/index.html'
+          PATCH_URL='https://wandering-wave-4418.c022050333.workers.dev/preview/monthly_patch.js'
           code=''
           for i in $(seq 1 36); do
             code="$(curl --silent --show-error --location -o /tmp/live-preview.html -w '%{http_code}' "$URL?check=$GITHUB_RUN_ID-$i" || true)"
-            if [ "$code" = '200' ] && grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW 20260826' /tmp/live-preview.html && grep -q 'monthly_patch.js' /tmp/live-preview.html; then
+            patch_code="$(curl --silent --show-error --location -o /tmp/live-preview-patch.js -w '%{http_code}' "$PATCH_URL?check=$GITHUB_RUN_ID-$i" || true)"
+            if [ "$code" = '200' ] && [ "$patch_code" = '200' ] \
+               && grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW 20260826' /tmp/live-preview.html \
+               && grep -q 'monthly_patch.js' /tmp/live-preview.html \
+               && grep -q 'SWSI Font Size Control Fix 2026-08-26' /tmp/live-preview-patch.js; then
               echo "CLOUDFLARE FRONTEND PREVIEW OK: $URL"
               exit 0
             fi
-            echo "Waiting for preview deploy: attempt=$i http=$code"
+            echo "Waiting for preview deploy: attempt=$i html=$code patch=$patch_code"
             sleep 5
           done
           echo 'Cloudflare preview did not become ready within polling window.' >&2
