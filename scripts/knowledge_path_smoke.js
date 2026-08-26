@@ -33,6 +33,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
   await page.waitForFunction(() => typeof window.swsiKnowledgeSearch === 'function' && Array.isArray(window.THEORIES) && Array.isArray(window.LAWS));
   await page.waitForFunction(() => window.SWSI_LAW_TRUST && /Law Trust Layer V1/.test(window.SWSI_LAW_TRUST.version || ''));
+  await page.waitForFunction(() => window.SWSI_NEW_RESIDENT_STATUS && /New Resident Basic Act Status Fix/.test(window.SWSI_NEW_RESIDENT_STATUS.version || ''));
 
   // Search should present one coherent path: understand -> MCQ -> essay.
   await page.evaluate(() => { searchQ=''; go('search'); });
@@ -104,6 +105,15 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   const policyTrust = await page.locator('.ecard.open .swsi-law-trust').innerText();
   assert(/政策／行政方案/.test(policyTrust), 'policy card not distinguished from law');
   assert(!/現行法律/.test(policyTrust), 'policy card incorrectly labeled as current law');
+
+  // Promulgation and effectiveness must not be conflated for the New Resident Basic Act.
+  await page.evaluate(() => openLawCard('新住民基本法'));
+  await page.waitForSelector('.ecard.open .swsi-law-trust', { timeout: 30000 });
+  const residentText = await page.locator('.ecard.open').first().innerText();
+  const residentTrust = await page.locator('.ecard.open .swsi-law-trust').innerText();
+  assert(/第19條.*施行日期.*行政院定之/.test(residentText), 'new resident act missing Article 19 effective-date caveat');
+  assert(/已制定公布・施行日另定/.test(residentTrust), 'new resident act status badge missing');
+  assert(!/現行法律/.test(residentTrust), 'new resident act must not be generically labeled current law while effective date is separately determined');
 
   // Missing high-priority laws should now exist in the reference layer.
   const additions = await page.evaluate(() => ['社會福利基本法','性騷擾防治法','性侵害犯罪防治法','精神衛生法','人口販運防制法','新住民基本法'].filter(n => (window.LAWS || []).some(x => x && x.n === n)));
