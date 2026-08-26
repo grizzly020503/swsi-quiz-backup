@@ -1,0 +1,79 @@
+name: Essay Guide Per-Question Audit
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/essay-guide-audit.yml'
+      - 'monthly_patch_parts/**essay_audit**'
+      - 'scripts/essay_guide_audit*_smoke.js'
+      - 'data/essay_guide_audit*.json'
+      - 'index.html'
+      - 'essay_guides.js'
+      - 'scripts/monthly_patch_build.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-essay-guide-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build production-shaped browser site
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site/icons
+          cp index.html essay_guides.js manifest.json sw.js apple-touch-icon.png _site/
+          cat monthly_patch_parts/*.part > _site/monthly_patch.js
+          cp icons/icon-192.png icons/icon-512.png _site/icons/
+          if [ -d auto ]; then cp -R auto _site/; fi
+          python scripts/monthly_patch_build.py _site/index.html
+          node --check _site/monthly_patch.js
+          node --check scripts/essay_guide_audit_batch1_smoke.js
+          grep -q 'SWSI Essay Guide Audit Batch 1 2026-08-26' _site/monthly_patch.js
+          grep -q 'essay-guide-audit-b1-20260826' _site/monthly_patch.js
+
+      - name: Validate audit registry
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('data/essay_guide_audit_batch1_20260826.json')
+          d=json.loads(p.read_text(encoding='utf-8'))
+          assert d['verified_count']==5
+          assert len(d['items'])==5
+          assert all(x['status']=='verified' for x in d['items'])
+          assert all(x.get('sources') for x in d['items'])
+          print('ESSAY AUDIT REGISTRY OK: verified=5')
+          PY
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Run per-question browser audit
+        run: |
+          set -euo pipefail
+          python -m http.server 4173 --directory _site >/tmp/swsi-essay-audit-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/essay_guide_audit_batch1_smoke.js http://127.0.0.1:4173/
