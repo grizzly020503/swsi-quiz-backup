@@ -1425,3 +1425,205 @@ body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
     observer.observe(appNode,{childList:true,subtree:true});
   }
 })();
+/* ===== SWSI P0 mobile + AI guardrails (2026-08-26) ===== */
+(function(){
+  'use strict';
+
+  var style=document.createElement('style');
+  style.textContent=`
+    :root{--tabbar-safe-space:124px;}
+    .tabbar{bottom:calc(env(safe-area-inset-bottom,0px) + 10px)!important;}
+    .tabbar button{padding:8px 4px 10px!important;min-height:58px;}
+    .tabbar .ico{font-size:17px!important;}
+    html{scroll-padding-bottom:calc(var(--tabbar-safe-space) + env(safe-area-inset-bottom,0px));}
+    body{padding-bottom:env(safe-area-inset-bottom,0px)!important;}
+    .wrap{padding-bottom:calc(var(--tabbar-safe-space) + env(safe-area-inset-bottom,0px))!important;}
+    button:disabled{pointer-events:none;}
+    @media (max-width:420px){:root{--tabbar-safe-space:136px;}}
+    html[data-fs="2"]{--tabbar-safe-space:148px;}
+    @media (display-mode:standalone),(display-mode:fullscreen){
+      .tabbar{bottom:calc(env(safe-area-inset-bottom,0px) + 14px)!important;}
+      :root{--tabbar-safe-space:132px;}
+      html[data-fs="2"]{--tabbar-safe-space:154px;}
+    }
+  `;
+  document.head.appendChild(style);
+
+  window.effectiveEssayText=function(s){
+    return String(s||'')
+      .replace(/(^|\n)\s*(?:[一二三四五六七八九十百]+、|（[一二三四五六七八九十百]+）|\d+、|[a-zA-Z]\.|\([ivxlcdmIVXLCDM]+\))\s*/g,'$1')
+      .replace(/[^\u3400-\u9FFF\uF900-\uFAFFa-zA-Z0-9]/g,'');
+  };
+  window.effectiveEssayLength=function(s){return window.effectiveEssayText(s).length;};
+
+  window.writeBoxHTML=function(id){
+    var saved=getDraft(id);
+    return `<div class="wbox">
+      <div class="wlabel">✍ 我的作答（自動儲存在這台裝置）</div>
+      <div class="fmtbar">
+        ${[['cn','一、'],['cnp','（一）'],['num','1、'],['lat','a.'],['rom','(i)']].map(function(p){return `<button class="fbtn" onclick="insertFmt('${id}','${p[0]}')">${p[1]}</button>`;}).join('')}
+        <button class="fbtn clear" onclick="clearDraft('${id}')">清空</button>
+      </div>
+      <textarea id="ta_${id}" class="wta" placeholder="先別看骨架，自己試著寫。寫不出來就點上面的「拆題五步」。" oninput="saveDraft('${id}')">${esc(saved)}</textarea>
+      <div class="wmeta"><span id="save_${id}">已儲存在這台裝置</span> · <span id="wc_${id}">${saved.length}</span> 字</div>
+      ${aiFeedbackHTML(id)}
+    </div>`;
+  };
+
+  window.saveDraft=function(id){
+    var ta=document.getElementById('ta_'+id); if(!ta)return;
+    var savedOK=true;
+    try{localStorage.setItem(essayDraftKey(id),ta.value);}catch(e){savedOK=false;}
+    var wc=document.getElementById('wc_'+id); if(wc)wc.textContent=ta.value.length;
+    var st=document.getElementById('save_'+id);
+    if(st){st.textContent=savedOK?'已儲存在這台裝置':'⚠ 尚未儲存';st.style.color=savedOK?'':'var(--wrong)';}
+    var gb=document.getElementById('gbtn_'+id);
+    if(gb)gb.style.display=window.effectiveEssayLength(ta.value)>0?'':'none';
+  };
+
+  window.aiFeedbackHTML=function(id){
+    return `<div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">
+      <div class="aihelp" style="color:var(--ink-soft);margin-bottom:9px;background:#FBF8EF;border:1px solid var(--line);border-radius:8px;padding:9px 12px">🔒 作答文字／照片會送至外部 AI 服務處理；請勿輸入或上傳可識別真實個案、姓名、身分證字號、機構內部文件等資料。照片會先在本機縮小並轉成 JPEG，再送出。</div>
+      <div class="aihelp" style="color:var(--ink-soft);margin-bottom:9px;background:#FBF8EF;border:1px solid var(--line);border-radius:8px;padding:9px 12px">💡 能打字的同學建議用「打字批改」——較快，也比照片省 AI 額度。平台提供的是申論練習回饋，並非考選部官方評分。</div>
+      <button id="aitype_${id}" class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600" onclick="runAIFeedback('${id}')">🤖 我用打字的 · 請 AI 批改上面的作答</button>
+      <input type="file" id="photo_${id}" accept="image/*" multiple style="display:none" onchange="gradePhoto('${id}',this)">
+      <button id="aiphoto_${id}" class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600;margin-top:8px" onclick="document.getElementById('photo_${id}').click()">📷 我用手寫的 · 拍照上傳給 AI 批改</button>
+      <div class="aihelp" style="color:var(--ink-soft);margin-top:7px">手寫可一次選 1–3 張。光線充足、字跡清楚、整頁入鏡會讀得更準；AI 會先顯示「我讀到的作答」，讀錯時請重拍，不要把錯誤辨識當成你的原文。</div>
+      <div id="airesult_${id}"></div>
+    </div>`;
+  };
+
+  window.swsiSetAIBusy=function(id,busy,mode){
+    var t=document.getElementById('aitype_'+id),p=document.getElementById('aiphoto_'+id),f=document.getElementById('photo_'+id);
+    if(t){t.disabled=!!busy;t.style.opacity=busy?'.55':'';t.style.cursor=busy?'not-allowed':'';t.textContent=(busy&&mode==='text')?'⏳ AI 批改中…':'🤖 我用打字的 · 請 AI 批改上面的作答';}
+    if(p){p.disabled=!!busy;p.style.opacity=busy?'.55':'';p.style.cursor=busy?'not-allowed':'';p.textContent=(busy&&mode==='photo')?'⏳ 照片處理／批改中…':'📷 我用手寫的 · 拍照上傳給 AI 批改';}
+    if(f)f.disabled=!!busy;
+  };
+
+  window.swsiAICacheKey=function(id){return 'essay_ai_cache_'+id;};
+  window.swsiGetAICache=function(id,answer){
+    try{var x=JSON.parse(localStorage.getItem(window.swsiAICacheKey(id))||'null');return x&&x.answer===answer&&x.feedback?x:null;}catch(e){return null;}
+  };
+  window.swsiSetAICache=function(id,answer,feedback){
+    try{localStorage.setItem(window.swsiAICacheKey(id),JSON.stringify({answer:answer,feedback:feedback,at:Date.now()}));}catch(e){}
+  };
+  window.swsiFetchWithTimeout=async function(url,options,ms){
+    var ctrl=new AbortController(),timer=setTimeout(function(){ctrl.abort();},ms);
+    try{return await fetch(url,Object.assign({},options,{signal:ctrl.signal}));}
+    finally{clearTimeout(timer);}
+  };
+
+  window.runAIFeedback=async function(id){
+    var out=document.getElementById('airesult_'+id); if(!out)return;
+    if(!AI_PROXY_URL||AI_PROXY_URL.indexOf('http')!==0){out.innerHTML='<div style="margin-top:10px;font-size:13px;color:var(--ink-soft);line-height:1.7">AI 批改尚未啟用（管理員還沒設定中間人網址）。</div>';return;}
+    var ta=document.getElementById('ta_'+id),ans=(ta?ta.value:'').trim(),effective=window.effectiveEssayLength(ans);
+    if(effective<30){out.innerHTML=`<div style="margin-top:10px;font-size:13px;color:var(--wrong);line-height:1.7">目前有效作答只有 ${effective} 字（格式編號、空白與標點不計）。請先寫至少 30 字的實際內容，再交給 AI 回饋；只有「一、（一）1、a. (i)」這類架構不會送出。</div>`;return;}
+
+    var cached=window.swsiGetAICache(id,ans);
+    if(cached){out.innerHTML=`<div style="margin-top:12px;font-size:11px;color:var(--ink-soft);margin-bottom:5px">✓ 這份作答內容沒有變動，顯示已儲存的上次 AI 回饋。</div><div style="background:#fff;border:1px solid var(--line);border-left:3px solid var(--pine);border-radius:10px;padding:14px;font-size:14px;line-height:1.8;color:var(--ink);white-space:pre-wrap">${esc(cached.feedback)}</div><div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 練習回饋僅供參考、非官方評分；正式標準以老師與考選部為準。</div>`;return;}
+
+    var e=(window.ESSAYS||[]).find(function(x){return x.id===id;})||{},g=(window.ESSAY_GUIDES||{})[id]||{};
+    var skel='考點：'+(g.kao||'（無）')+'\n破題心法：'+(g.dati||'（無）')+'\n必踩大標：'+(g.biaoti||[]).join('；')+'\n搶分關鍵字：'+(g.kw||[]).join('、');
+    var sys=`【最重要規則：整份回饋務必用「繁體中文」書寫，禁止使用英文句子或英文段落。】
+你是台灣「社工師」國家考試的申論練習教練。會提供題目、這題的「校過骨架」（已人工核對的正確考點／破題／必踩大標／關鍵字），以及學生作答。請依骨架與你的社工專業知識，給「練習回饋」。
+
+嚴格規則：
+- 這是練習回饋、不是官方評分：不要給分數、不要自稱評分標準或官方細則。
+- 不要自行編造法條條號、數字或學者；骨架沒有提到的就不要硬掰。
+- 若學生作答是空白、亂打、與題目無關或明顯敷衍，直接只回這一句：「這份作答還無法給有意義的回饋，先用拆題五步把架構寫出來再來。」其他都不要寫。
+- 繁體中文，鼓勵但誠實，分點寫，總長約 300 字內。
+
+回饋結構：
+一、方向與架構：有沒有抓到這題真正的核心考點？大標對不對？
+二、可以補強：漏了哪些『必踩大標』或關鍵概念、可補哪個理論／法源（只從骨架與正確社工知識出發）。
+三、一句鼓勵。`;
+    var user='【題目】'+(e.q||'')+'（'+(e.points||20)+'分）\n【校過骨架】\n'+skel+'\n【學生作答】\n'+ans;
+
+    window.swsiSetAIBusy(id,true,'text');
+    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 批改中…你的作答已保存在這台裝置，可以安心等待。</div>';
+    try{
+      var r=await window.swsiFetchWithTimeout(AI_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0.5,max_tokens:1200,messages:[{role:'user',content:sys+'\n\n'+user}]})},45000);
+      if(!r.ok){
+        var msg='AI 批改暫時無法使用，答案仍已保存在這台裝置，稍後再試即可。';
+        if(r.status===400)msg='這次送出的作答格式無法處理，請稍微修改內容後再試。';
+        else if(r.status===413)msg='這份作答資料太大，請縮短後再試。';
+        else if(r.status===429)msg='目前 AI 使用量較高，請等一分鐘左右再試；你的答案不會消失。';
+        else if(r.status===401||r.status===403)msg='AI 服務目前設定異常，請稍後再試或回報管理員。';
+        else if(r.status>=500)msg='AI 服務目前忙碌或暫時異常，請稍後再試；你的答案已保存。';
+        out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">'+msg+'</div>';return;
+      }
+      var data;try{data=await r.json();}catch(e2){throw new Error('bad_json');}
+      var txt=((data&&data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+      if(!txt){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong)">AI 沒有回傳可讀內容。你的答案已保存，稍後再試即可。</div>';return;}
+      window.swsiSetAICache(id,ans,txt);
+      out.innerHTML=`<div style="margin-top:12px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--pine);border-radius:10px;padding:14px;font-size:14px;line-height:1.8;color:var(--ink);white-space:pre-wrap">${esc(txt)}</div><div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 練習回饋僅供參考、非官方評分；正式標準以老師與考選部為準。修改作答後可再次送出取得新回饋。</div>`;
+    }catch(err){
+      var timeout=err&&err.name==='AbortError';
+      out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">'+(timeout?'AI 回應時間過久，這次已自動停止。':'連線失敗，可能是網路暫時不穩。')+' 你的答案仍保存在這台裝置，稍後再試即可。</div>';
+    }finally{window.swsiSetAIBusy(id,false,'text');}
+  };
+
+  window.gradePhoto=async function(id,inputEl){
+    var out=document.getElementById('airesult_'+id); if(!out)return;
+    if(!AI_PROXY_URL||AI_PROXY_URL.indexOf('http')!==0){out.innerHTML='<div style="margin-top:10px;font-size:13px;color:var(--ink-soft);line-height:1.7">AI 批改尚未啟用（管理員還沒設定中間人網址）。</div>';return;}
+    var files=(inputEl&&inputEl.files)?Array.from(inputEl.files):[];
+    if(!files.length)return;
+    if(files.length>3){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">一次最多 3 張照片，請重新選擇 1–3 張。</div>';if(inputEl)inputEl.value='';return;}
+    if(files.some(function(f){return !String(f.type||'').startsWith('image/');})){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">請只選擇照片檔案。</div>';if(inputEl)inputEl.value='';return;}
+
+    window.swsiSetAIBusy(id,true,'photo');
+    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">📷 照片處理中…（'+files.length+' 張）</div>';
+    try{
+      var imgs=[];for(var i=0;i<files.length;i++)imgs.push(await shrinkImage(files[i],1200,0.78));
+      if(inputEl)inputEl.value='';
+      var approxBytes=imgs.reduce(function(n,u){return n+Math.ceil((u.length-(u.indexOf(',')+1))*3/4);},0);
+      if(approxBytes>3200000){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">照片壓縮後仍太大。請裁掉桌面／背景，只保留作答紙，再重新拍攝上傳。</div>';return;}
+
+      var e=(window.ESSAYS||[]).find(function(x){return x.id===id;})||{},g=(window.ESSAY_GUIDES||{})[id]||{};
+      var skel='考點：'+(g.kao||'（無）')+'\n破題心法：'+(g.dati||'（無）')+'\n必踩大標：'+(g.biaoti||[]).join('；')+'\n搶分關鍵字：'+(g.kw||[]).join('、');
+      var sys=`【最重要規則：整份回覆務必用「繁體中文」書寫，禁止使用英文句子或英文段落。】
+你是台灣「社工師」國家考試的申論練習教練。學生上傳了一張或多張「手寫作答」的照片（可能是同一份作答的正反面或多頁，請依順序合起來一起讀）。請依下列步驟回覆：
+
+第一步：辨識所有照片中的手寫文字，依頁面順序盡量逐字呈現在【我讀到的作答】底下；看不清楚的字用「◌」代替，不要自己補字或改寫成別的意思。
+第二步：若照片模糊、空白、不是申論作答、或幾乎讀不出字，就「只」回這一句：「這張照片我讀不太出來，請在光線充足的地方、把整頁字跡清楚地重拍一張。」其他都不要寫。
+第三步：依提供的「校過骨架」（已人工核對的正確考點／破題／必踩大標／關鍵字）與你的社工專業，給練習回饋。
+
+嚴格規則：
+- 這是練習回饋、不是官方評分：不要給分數、不要自稱評分標準或官方細則。
+- 不要自行編造法條條號、數字或學者；骨架沒有提到的就不要硬掰。
+- 繁體中文，鼓勵但誠實，分點寫。
+
+輸出格式（務必照這個格式）：
+【我讀到的作答】
+（把辨識到的字逐字寫出來）
+
+【練習回饋】
+一、方向與架構：有沒有抓到核心考點？大標對不對？
+二、可以補強：漏了哪些必踩大標或關鍵概念、可補哪個理論／法源（只從骨架與正確社工知識出發）。
+三、鼓勵：一句話。`;
+      var userText='【題目】'+(e.q||'')+'（'+(e.points||20)+'分）\n【校過骨架】\n'+skel+'\n\n下面是學生手寫作答的照片（可能多張，是同一份作答的正反面或多頁），請依上面步驟辨識並批改。';
+      var content=[{type:'text',text:sys+'\n\n'+userText}];imgs.forEach(function(u){content.push({type:'image_url',image_url:{url:u}});});
+      out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 正在讀 '+imgs.length+' 張照片並批改…照片會先在本機縮小後才送出。</div>';
+
+      var r=await window.swsiFetchWithTimeout(AI_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0.4,max_tokens:1100,messages:[{role:'user',content:content}]})},60000);
+      if(!r.ok){
+        var msg='AI 批改暫時無法使用，請稍後再試。';
+        if(r.status===400)msg='這次照片資料無法處理，請重新拍攝後再試。';
+        else if(r.status===413)msg='照片仍然太大，請裁切只留下作答內容後再試。';
+        else if(r.status===429)msg='目前 AI 使用量較高，請等一分鐘左右再試。';
+        else if(r.status===401||r.status===403)msg='AI 服務目前設定異常，請稍後再試或回報管理員。';
+        else if(r.status>=500)msg='AI 服務目前忙碌或暫時異常，請稍後再試。';
+        out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">'+msg+'</div>';return;
+      }
+      var data;try{data=await r.json();}catch(e2){throw new Error('bad_json');}
+      var txt=((data&&data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+      if(!txt){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong)">AI 沒有回傳可讀內容，請稍後重拍再試。</div>';return;}
+      out.innerHTML=`<div style="margin-top:12px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--pine);border-radius:10px;padding:14px;font-size:14px;line-height:1.8;color:var(--ink);white-space:pre-wrap">${esc(txt)}</div><div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 練習回饋僅供參考、非官方評分；手寫辨識可能有誤，請先核對「我讀到的作答」。正式標準以老師與考選部為準。</div>`;
+    }catch(err){
+      if(inputEl)inputEl.value='';
+      var timeout=err&&err.name==='AbortError',em=String(err&&err.message||''),loadFail=em.indexOf('load fail')>=0||em.indexOf('no size')>=0;
+      out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">'+(loadFail?'有照片讀取失敗（這種格式可能不支援），請改用相機重拍。':timeout?'AI 讀取照片時間過久，這次已自動停止，請稍後再試。':'連線失敗或照片處理失敗，請檢查網路並重新拍攝後再試。')+'</div>';
+    }finally{window.swsiSetAIBusy(id,false,'photo');}
+  };
+})();
+/* ===== SWSI P0 mobile + AI guardrails END ===== */
