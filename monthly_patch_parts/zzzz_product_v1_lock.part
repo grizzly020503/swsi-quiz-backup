@@ -1,0 +1,239 @@
+
+/* SWSI Product V1 Lock 2026-08-26
+   Product principle: open -> study -> review -> leave.
+   - one-tap essay practice + separate choose-your-own entry
+   - concise explanations with optional full notes
+   - unified monochrome core navigation
+   - quiet, transparent question-bank version information
+*/
+(function(){
+  'use strict';
+
+  var STYLE_ID='swsi-product-v1-lock-style';
+  if(!document.getElementById(STYLE_ID)){
+    var style=document.createElement('style');
+    style.id=STYLE_ID;
+    style.textContent=`
+      /* Slightly stronger muted text for real phone/outdoor readability. */
+      .swsi-study-card .sub,.swsi-principle-note,.swsi-data-version,
+      .swsi-essay-action-card .sub,footer{color:#636B67!important;}
+
+      /* Home essay action mirrors the one-tap MCQ flow without becoming another dashboard. */
+      .swsi-essay-action-card{background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:15px 16px;margin:0 0 9px;}
+      .swsi-essay-action-card .title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:var(--swsi-ui-title,15px);line-height:1.4;color:var(--ink);}
+      .swsi-essay-action-card .sub{font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-small,11.5px);line-height:1.6;margin-top:3px;}
+      .swsi-essay-action-card .actions{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:8px;margin-top:11px;}
+      .swsi-essay-action-card button{min-height:44px;border-radius:11px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,14px);font-weight:800;cursor:pointer;}
+      .swsi-essay-action-card .go{border:none;background:var(--pine-deep);color:#fff;}
+      .swsi-essay-action-card .choose{border:1px solid var(--line);background:#fff;color:var(--pine-deep);}
+
+      /* Answer first, then the shortest useful explanation. Full notes are opt-in. */
+      .swsi-answer-line{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);line-height:1.55;color:var(--pine-deep);font-weight:800;background:#F1F6F4;border:1px solid #D8E5DF;border-radius:10px;padding:8px 10px;margin:0 0 13px;}
+      .swsi-explanation-more{margin:12px 0 3px;border:1px solid var(--line);border-radius:11px;background:#FBFCFB;overflow:hidden;}
+      .swsi-explanation-more summary{list-style:none;cursor:pointer;min-height:43px;padding:9px 11px;display:flex;align-items:center;font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:800;color:var(--pine-deep);}
+      .swsi-explanation-more summary::-webkit-details-marker{display:none;}
+      .swsi-explanation-more summary:after{content:'＋';margin-left:auto;color:var(--ink-3);font-size:16px;}
+      .swsi-explanation-more[open] summary:after{content:'－';}
+      .swsi-explanation-more .body{border-top:1px solid var(--line);padding:13px 11px 2px;}
+      .swsi-explanation-more .body .exp-sec:last-child,.swsi-explanation-more .body .extra:last-child{margin-bottom:10px;}
+
+      /* One visual language for the three core destinations. */
+      .tabbar .ico.swsi-nav-ico{width:21px;height:21px;display:grid;place-items:center;font-size:0;line-height:1;}
+      .tabbar .ico.swsi-nav-ico svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+      .tabbar .swsi-nav-label{font-family:'Noto Sans TC',sans-serif;line-height:1.1;}
+
+      /* Version info should build trust without becoming another card users must process. */
+      .swsi-data-version{margin:10px 4px 0;border-top:1px solid rgba(220,228,223,.85);padding-top:7px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-small,11.5px);line-height:1.6;}
+      .swsi-data-version summary{cursor:pointer;list-style:none;min-height:36px;display:flex;align-items:center;justify-content:center;text-align:center;color:#636B67;font-weight:700;}
+      .swsi-data-version summary::-webkit-details-marker{display:none;}
+      .swsi-data-version summary:after{content:'＋';margin-left:6px;color:var(--ink-3);}
+      .swsi-data-version[open] summary:after{content:'－';}
+      .swsi-data-version .body{text-align:center;padding:2px 8px 5px;color:#69716D;}
+
+      footer.swsi-footer-clean{padding-top:10px!important;line-height:1.65!important;}
+      footer.swsi-footer-clean .sub{font-family:'Noto Sans TC',sans-serif;font-size:11px;color:#737A76;margin-top:2px;}
+
+      @media(max-width:370px){.swsi-essay-action-card .actions{grid-template-columns:1fr;}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function icon(kind){
+    if(kind==='home') return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20H7v-7h10v7"/><path d="M9 20v-7h6"/></svg></span>';
+    if(kind==='review') return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5"/><path d="M19 12a7.5 7.5 0 1 1-2.2-5.3L20 9"/></svg></span>';
+    return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 19 3.8-.8L19 8a2.1 2.1 0 0 0-3-3L5.8 15.2 5 19Z"/><path d="m14.8 6.2 3 3"/><path d="M4 21h16"/></svg></span>';
+  }
+
+  function setNavButton(id,kind,label){
+    var el=document.getElementById(id); if(!el) return;
+    var desired=icon(kind)+'<span class="swsi-nav-label">'+label+'</span>';
+    if(el.innerHTML!==desired) el.innerHTML=desired;
+    el.setAttribute('aria-label',label);
+  }
+
+  function polishNav(){
+    setNavButton('t-home','home','首頁');
+    setNavButton('t-review','review','複習');
+    setNavButton('t-essay','essay','申論');
+  }
+
+  function resetEssayState(){
+    try{ if(typeof essaySubj!=='undefined') essaySubj='全部科目'; }catch(_e){}
+    try{ if(typeof essayCluster!=='undefined') essayCluster=null; }catch(_e){}
+    try{ if(typeof openEssay!=='undefined') openEssay=null; }catch(_e){}
+    try{ if(typeof guideOpen!=='undefined') guideOpen=null; }catch(_e){}
+    try{ if(typeof dissectOpen!=='undefined') dissectOpen=null; }catch(_e){}
+  }
+
+  /* Bottom nav and “choose your own” always mean: open the essay library. */
+  window.swsiOpenEssay=function(){
+    resetEssayState();
+    try{ view='essay'; }catch(_e){ window.view='essay'; }
+    try{ window.scrollTo(0,0); }catch(_e){}
+    try{
+      if(typeof renderEssay==='function') renderEssay();
+      else if(typeof render==='function') render();
+    }catch(err){
+      console.error('[SWSI] essay library failed',err);
+      if(typeof app!=='undefined'&&app) app.innerHTML='<div class="empty"><div class="ico">✒</div><h3>申論題暫時無法開啟</h3><p>你的草稿仍保存在這台裝置。請重新整理後再試。</p></div>';
+    }
+  };
+
+  window.swsiChooseEssay=function(){ window.swsiOpenEssay(); };
+
+  function usableEssayPool(){
+    var xs=Array.isArray(window.ESSAYS)?window.ESSAYS:[];
+    var official=xs.filter(function(e){
+      return e && e.id && e.q && !/(時事|預測)/.test(String(e.qtype||''));
+    });
+    return official.length?official:xs.filter(function(e){return e&&e.id&&e.q;});
+  }
+
+  window.swsiStartEssayNow=async function(){
+    try{
+      if((!Array.isArray(window.ESSAYS)||!window.ESSAYS.length) && typeof loadAutoEssays==='function') await loadAutoEssays();
+    }catch(err){ console.warn('[SWSI] essay preload failed',err); }
+    var pool=usableEssayPool();
+    if(!pool.length){ window.swsiOpenEssay(); return; }
+
+    var years=pool.map(function(e){return parseInt(e.year,10);}).filter(Number.isFinite);
+    var latest=years.length?Math.max.apply(null,years):0;
+    var recent=latest?pool.filter(function(e){var y=parseInt(e.year,10);return Number.isFinite(y)&&y>=latest-4;}):pool.slice();
+    if(recent.length) pool=recent;
+
+    var last=''; try{last=localStorage.getItem('swsi_last_quick_essay')||'';}catch(_e){}
+    var choices=pool.filter(function(e){return String(e.id)!==last;});
+    if(!choices.length) choices=pool;
+    var e=choices[Math.floor(Math.random()*choices.length)];
+    try{localStorage.setItem('swsi_last_quick_essay',String(e.id));}catch(_e){}
+
+    try{ essaySubj=e.subject||'全部科目'; essayCluster=null; openEssay=e.id; guideOpen=null; dissectOpen=null; }catch(_e){}
+    try{ view='essay'; }catch(_e){ window.view='essay'; }
+    try{ window.scrollTo(0,0); }catch(_e){}
+    try{ if(typeof renderEssay==='function') renderEssay(); else render(); }
+    catch(err){ console.error('[SWSI] quick essay failed',err); window.swsiOpenEssay(); }
+  };
+
+  function latestVersionText(){
+    var total='';
+    try{ total=typeof questionTotal==='function'?questionTotal():''; }catch(_e){}
+    var year='';
+    try{ var ys=typeof examYears==='function'?examYears():[]; year=ys&&ys.length?String(ys[0]):''; }catch(_e){}
+    var round='';
+    try{
+      var m=window.SWSI_QB&&window.SWSI_QB.manifest;
+      if(m&&Array.isArray(m.shards)&&year){
+        var rs=m.shards.filter(function(s){return String(s.year)===year;}).map(function(s){return String(s.round||'');});
+        if(rs.some(function(r){return r==='2'||/二|第二/.test(r);})) round='第二次';
+        else if(rs.length) round='第一次';
+      }
+    }catch(_e){}
+    return {total:total,latest:year?(year+' 年'+round):''};
+  }
+
+  function enhanceHome(){
+    if(typeof view!=='undefined'&&view!=='home') return;
+    var card=null;
+    document.querySelectorAll('#app .swsi-study-card').forEach(function(c){
+      var t=c.querySelector('.title');
+      if(!card&&t&&/申論/.test(t.textContent||'')) card=c;
+    });
+    if(card){
+      var box=document.createElement('section');
+      box.className='swsi-essay-action-card';
+      box.innerHTML='<div class="title">練一題申論</div><div class="sub">直接抽一題近期歷屆題開始寫；想指定科目或題目時再自己選。</div>'+
+        '<div class="actions"><button type="button" class="go" onclick="swsiStartEssayNow()">直接練一題</button><button type="button" class="choose" onclick="swsiChooseEssay()">自己選題</button></div>';
+      card.replaceWith(box);
+    }
+
+    if(!document.querySelector('#app .swsi-data-version')){
+      var anchor=document.querySelector('#app .swsi-principle-note');
+      if(anchor){
+        var v=latestVersionText();
+        var d=document.createElement('details');
+        d.className='swsi-data-version';
+        d.innerHTML='<summary>題庫資料版本'+(v.total?' · '+v.total+' 題':'')+(v.latest?' · 最新 '+v.latest:'')+'</summary>'+
+          '<div class="body">題目以考選部官方資料為準；官方多重答案、一律給分與任一作答給分規則已納入判題。</div>';
+        anchor.insertAdjacentElement('afterend',d);
+      }
+    }
+  }
+
+  function cleanFooter(){
+    var f=document.querySelector('footer'); if(!f) return;
+    if(f.classList.contains('swsi-footer-clean')) return;
+    f.classList.add('swsi-footer-clean');
+    f.innerHTML='<div>© 2026 熊品澄 · 免費公開學習工具</div><div class="sub">社工師國考題目以考選部官方資料為準</div>';
+  }
+
+  function collapseExplanation(){
+    var exp=document.querySelector('#app .qcard .exp');
+    if(!exp||exp.dataset.swsiCompact==='1') return;
+    exp.dataset.swsiCompact='1';
+
+    var item=null;
+    try{ item=queue&&queue[idx]; }catch(_e){}
+    var topic=exp.querySelector('.topic');
+    if(item&&!exp.querySelector('.swsi-answer-line')){
+      var line=document.createElement('div');
+      line.className='swsi-answer-line';
+      line.textContent=typeof answerLabel==='function'?answerLabel(item):('答案：'+(item.answer||'—'));
+      if(topic&&topic.nextSibling) exp.insertBefore(line,topic.nextSibling); else if(topic) topic.insertAdjacentElement('afterend',line); else exp.insertBefore(line,exp.firstChild);
+    }
+
+    var hidden=[];
+    exp.querySelectorAll(':scope > .exp-sec').forEach(function(sec){
+      var h=sec.querySelector('h4');
+      var label=(h&&h.textContent||'').trim();
+      if(/其他選項|考場陷阱/.test(label)) hidden.push(sec);
+    });
+    exp.querySelectorAll(':scope > .extra').forEach(function(x){hidden.push(x);});
+    if(!hidden.length) return;
+
+    var details=document.createElement('details');
+    details.className='swsi-explanation-more';
+    details.innerHTML='<summary>看完整解析</summary><div class="body"></div>';
+    var body=details.querySelector('.body');
+    hidden.forEach(function(x){body.appendChild(x);});
+    var next=exp.querySelector(':scope > .btn');
+    if(next) exp.insertBefore(details,next); else exp.appendChild(details);
+  }
+
+  function enhance(){
+    polishNav();
+    cleanFooter();
+    enhanceHome();
+    collapseExplanation();
+  }
+
+  enhance();
+  try{
+    var scheduled=false;
+    var observer=new MutationObserver(function(){
+      if(scheduled) return;
+      scheduled=true;
+      Promise.resolve().then(function(){scheduled=false;enhance();});
+    });
+    observer.observe(document.body,{childList:true,subtree:true});
+  }catch(_e){}
+})();
