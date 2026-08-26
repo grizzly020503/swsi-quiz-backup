@@ -1,0 +1,199 @@
+/* ===== SWSI Code Health P0 Runtime Guard 2026-08-26 ===== */
+(function(){
+  'use strict';
+
+  var STRICT_VALID_MODES=new Set(['standard','all_credit','any_answer']);
+  var SPECIAL_ANSWER_MARKERS=new Set(['一律給分','送分','全體給分']);
+
+  function txt(v){return String(v==null?'':v).trim();}
+  function strictMode(item){
+    if(!item)return 'invalid';
+    var raw=txt(item.grading_mode).toLowerCase();
+    if(raw){return STRICT_VALID_MODES.has(raw)?raw:'invalid';}
+
+    /* Ordinary legacy rows may safely default to standard.
+       Special-credit semantics must NEVER be inferred from answer text. */
+    var answer=txt(item.answer).toUpperCase();
+    if(SPECIAL_ANSWER_MARKERS.has(txt(item.answer)))return 'invalid';
+    if(/^[ABCD]$/.test(answer))return 'standard';
+    if(Array.isArray(item.accepted_answers)&&item.accepted_answers.some(function(x){return /^[ABCD]$/.test(txt(x).toUpperCase());}))return 'standard';
+    return 'invalid';
+  }
+
+  function strictAccepted(item){
+    var mode=strictMode(item);
+    if(mode==='invalid')return new Set();
+    if(mode==='all_credit'||mode==='any_answer')return new Set(['A','B','C','D']);
+    var xs=Array.isArray(item&&item.accepted_answers)
+      ?item.accepted_answers.map(function(x){return txt(x).toUpperCase();}).filter(function(x){return /^[ABCD]$/.test(x);})
+      :[];
+    if(xs.length)return new Set(xs);
+    var a=txt(item&&item.answer).toUpperCase();
+    return /^[ABCD]$/.test(a)?new Set([a]):new Set();
+  }
+
+  function strictCorrect(item,picked){
+    var mode=strictMode(item);
+    var p=picked==null?null:txt(picked).toUpperCase();
+    if(mode==='invalid')return false;
+    if(mode==='all_credit')return true;
+    if(mode==='any_answer')return !!p&&/^[ABCD]$/.test(p);
+    return !!p&&strictAccepted(item).has(p);
+  }
+
+  function strictLabel(item){
+    var mode=strictMode(item);
+    if(mode==='invalid')return '官方給分資料不完整，這題暫停判分';
+    if(mode==='all_credit')return '官方一律給分（未作答也得分）';
+    if(mode==='any_answer')return 'A、B、C、D 任一作答皆給分；未作答不給分';
+    var xs=Array.from(strictAccepted(item));
+    if(xs.length>1)return '官方可接受答案：'+xs.join('、');
+    return '正確答案：'+(xs[0]||'—');
+  }
+
+  /* The base patch still contains compatibility guesses. This final layer is the
+     effective runtime contract and intentionally replaces them. */
+  try{gradingMode=strictMode;}catch(_e){}
+  try{acceptedAnswers=strictAccepted;}catch(_e){}
+  try{isCorrectAnswer=strictCorrect;}catch(_e){}
+  try{answerLabel=strictLabel;}catch(_e){}
+  window.gradingMode=strictMode;
+  window.acceptedAnswers=strictAccepted;
+  window.isCorrectAnswer=strictCorrect;
+  window.answerLabel=strictLabel;
+  window.swsiGradingContractVersion='2026-08-26.fail-closed.v1';
+
+  /* Re-wrap normalize so a prior compatibility fallback cannot survive. */
+  if(typeof normalize==='function'){
+    var previousNormalize=normalize;
+    normalize=function(r){
+      var q=previousNormalize(r);
+      var raw=txt(r&&r.grading_mode).toLowerCase();
+      if(STRICT_VALID_MODES.has(raw))q.grading_mode=raw;
+      else q.grading_mode=strictMode({
+        grading_mode:'',
+        answer:r&&r.answer,
+        accepted_answers:r&&r.accepted_answers
+      });
+      return q;
+    };
+  }
+
+  /* Fail closed before a bad special-credit row can reach scoring UI. */
+  var oldRenderQuiz=typeof renderQuiz==='function'?renderQuiz:null;
+  if(oldRenderQuiz){
+    renderQuiz=function(){
+      try{
+        var item=(typeof queue!=='undefined'&&queue&&queue.length)?queue[idx]:null;
+        if(item&&strictMode(item)==='invalid'){
+          app.innerHTML='<div class="empty"><div class="ico">⚠</div><h3>這題暫停判分</h3><p>官方給分資料不完整或格式異常。平台不會自行猜測答案，請回首頁改練其他題目。</p><button class="btn" style="max-width:220px;margin:20px auto 0" onclick="go(\'home\')">回首頁</button></div>';
+          return;
+        }
+      }catch(_e){}
+      return oldRenderQuiz();
+    };
+  }
+
+  /* ---------- CDN shard integrity: verify actual response bytes ---------- */
+  var nativeFetch=window.fetch.bind(window);
+  async function sha256Hex(buffer){
+    if(!(window.crypto&&crypto.subtle&&crypto.subtle.digest))throw new Error('此瀏覽器無法驗證題庫完整性');
+    var digest=await crypto.subtle.digest('SHA-256',buffer);
+    return Array.from(new Uint8Array(digest)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  }
+  function shardMetaForUrl(url){
+    try{
+      var qb=window.SWSI_QB;
+      if(!qb||!qb.manifest||!Array.isArray(qb.manifest.shards))return null;
+      var u=new URL(url,location.href);
+      if(u.origin!==new URL(SWSI_QUESTION_CDN_BASE,location.href).origin)return null;
+      if(u.pathname.endsWith('/manifest.json'))return null;
+      var file=decodeURIComponent(u.pathname.split('/').pop()||'');
+      return qb.manifest.shards.find(function(x){return x&&x.file===file;})||null;
+    }catch(_e){return null;}
+  }
+
+  window.fetch=async function(input,init){
+    var res=await nativeFetch(input,init);
+    var url='';
+    try{url=typeof input==='string'?input:(input&&input.url)||'';}catch(_e){}
+    var meta=shardMetaForUrl(url);
+    if(!meta||!res||!res.ok)return res;
+    var expected=txt(meta.sha256).toLowerCase();
+    if(!/^[a-f0-9]{64}$/.test(expected))throw new Error('題庫目錄缺少有效 SHA-256');
+    var actual=await sha256Hex(await res.clone().arrayBuffer());
+    if(actual!==expected){
+      console.error('[SWSI] shard SHA-256 mismatch',{file:meta.file,expected:expected,actual:actual});
+      throw new Error('題庫版本完整性驗證失敗，已停止載入這份資料');
+    }
+    return res;
+  };
+  window.swsiShardIntegrityVersion='2026-08-26.sha256.v1';
+
+  /* Existing IndexedDB shards were created before byte-level verification.
+     Once a fresh network manifest is available, remove them once and rebuild
+     the cache through the verified fetch path. Offline-only users keep their
+     existing cache until they reconnect. */
+  var MIGRATION_KEY='swsi_verified_shard_cache_v1';
+  async function purgeOldShardCache(){
+    if(typeof openOfflineDB!=='function'||typeof OFFLINE_STORE==='undefined')return false;
+    var db=await openOfflineDB();
+    try{
+      await new Promise(function(resolve,reject){
+        var tx=db.transaction(OFFLINE_STORE,'readwrite');
+        var store=tx.objectStore(OFFLINE_STORE);
+        var req=store.openCursor();
+        req.onsuccess=function(){
+          var cur=req.result;
+          if(!cur)return;
+          if(String(cur.key||'').indexOf('question-shard:')===0)cur.delete();
+          cur.continue();
+        };
+        req.onerror=function(){reject(req.error||new Error('題庫快取掃描失敗'));};
+        tx.oncomplete=function(){resolve();};
+        tx.onerror=function(){reject(tx.error||new Error('題庫快取清理失敗'));};
+        tx.onabort=function(){reject(tx.error||new Error('題庫快取清理中止'));};
+      });
+      return true;
+    }finally{try{db.close();}catch(_e){}}
+  }
+
+  setTimeout(function(){
+    try{
+      if(localStorage.getItem(MIGRATION_KEY)==='done')return;
+    }catch(_e){}
+    if(!navigator.onLine||typeof window.loadQuestionManifest!=='function')return;
+    window.loadQuestionManifest().then(async function(){
+      if(!(window.SWSI_QB&&window.SWSI_QB.manifestSource==='cloudflare'))return;
+      var ok=await purgeOldShardCache();
+      if(ok){try{localStorage.setItem(MIGRATION_KEY,'done');}catch(_e){}}
+    }).catch(function(err){console.warn('[SWSI] verified shard cache migration skipped',err);});
+  },0);
+
+  /* ---------- visible storage failure warning ---------- */
+  function storageToast(message){
+    var id='swsi-storage-global-warning';
+    var el=document.getElementById(id);
+    if(!el){
+      el=document.createElement('div');
+      el.id=id;
+      el.setAttribute('role','alert');
+      el.style.cssText='position:fixed;left:12px;right:12px;bottom:16px;z-index:99999;max-width:560px;margin:auto;padding:11px 14px;border-radius:12px;background:#fff3f0;border:1px solid #d9a59c;color:#7a342b;font-size:13px;line-height:1.6;box-shadow:0 8px 30px rgba(0,0,0,.14)';
+      document.body.appendChild(el);
+    }
+    el.textContent=message;
+  }
+  if(typeof saveHist==='function'){
+    saveHist=function(h){
+      try{localStorage.setItem(LS_KEY,JSON.stringify(h));window.__swsiStorageWarning=false;}
+      catch(e){window.__swsiStorageWarning=true;console.warn('學習紀錄無法儲存',e);storageToast('⚠ 學習紀錄無法儲存。這台裝置的瀏覽器儲存空間可能已滿或被限制，請先不要清除目前頁面。');}
+    };
+  }
+  if(typeof saveReviewState==='function'){
+    saveReviewState=function(st){
+      try{localStorage.setItem(REVIEW_KEY,JSON.stringify(st));window.__swsiStorageWarning=false;}
+      catch(e){window.__swsiStorageWarning=true;console.warn('複習排程無法儲存',e);storageToast('⚠ 複習排程無法儲存。這台裝置的瀏覽器儲存空間可能已滿或被限制。');}
+    };
+  }
+})();
+/* ===== SWSI Code Health P0 Runtime Guard END ===== */
