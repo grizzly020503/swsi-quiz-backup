@@ -10,6 +10,7 @@ on:
       - 'scripts/monthly_frontend_smoke.py'
       - 'scripts/browser_interaction_smoke.js'
       - 'scripts/knowledge_path_smoke.js'
+      - 'scripts/knowledge_catalog_audit.js'
       - 'scripts/netlify_ignore.py'
       - 'netlify.toml'
       - 'sw.js'
@@ -36,7 +37,10 @@ jobs:
           python-version: '3.12'
 
       - name: JavaScript syntax
-        run: cat monthly_patch_parts/*.part > /tmp/monthly_patch.js && node --check /tmp/monthly_patch.js && node --check sw.js && node --check scripts/browser_interaction_smoke.js && node --check scripts/knowledge_path_smoke.js
+        run: cat monthly_patch_parts/*.part > /tmp/monthly_patch.js && node --check /tmp/monthly_patch.js && node --check sw.js && node --check scripts/browser_interaction_smoke.js && node --check scripts/knowledge_path_smoke.js && node --check scripts/knowledge_catalog_audit.js
+
+      - name: Knowledge catalog audit
+        run: node scripts/knowledge_catalog_audit.js index.html
 
       - name: Python syntax
         run: python -m py_compile scripts/monthly_patch_build.py scripts/monthly_frontend_smoke.py scripts/netlify_ignore.py
