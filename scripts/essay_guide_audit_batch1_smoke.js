@@ -92,6 +92,7 @@ const CASES = [
   for (let i = 0; i < CASES.length; i++) {
     const spec = CASES[i];
     const got = data[i];
+    console.log(`ESSAY AUDIT FORMAL Q ${got.id}: ${got.q}`);
     assert(got.q, `official essay missing at runtime: ${spec.id}`);
     assert(got.guide, `guide missing: ${spec.id}`);
     assert.strictEqual(got.verified, true, `guide not verified: ${spec.id}`);
