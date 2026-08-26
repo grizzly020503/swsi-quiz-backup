@@ -1,4 +1,4 @@
-name: Build Netlify Manual Deploy Package
+name: Build Netlify Production Release Package
 
 on:
   workflow_dispatch:
@@ -27,53 +27,134 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Build production site
+      - name: Build exact production site
         run: |
           set -euo pipefail
-          rm -rf _site
-          mkdir -p _site/icons
+          rm -rf _site release-output
+          mkdir -p _site/icons release-output
           cp index.html essay_guides.js manifest.json sw.js apple-touch-icon.png _site/
           cat monthly_patch_parts/*.part > _site/monthly_patch.js
-          node --check _site/monthly_patch.js
-          node --check sw.js
           cp icons/icon-192.png icons/icon-512.png _site/icons/
           if [ -d auto ]; then cp -R auto _site/; fi
+
+          node --check _site/monthly_patch.js
+          node --check _site/sw.js
           python scripts/monthly_patch_build.py _site/index.html
           python scripts/monthly_frontend_smoke.py --site _site
 
-      - name: Package Netlify drag-and-drop ZIP
+      - name: Release gate before packaging
         run: |
           set -euo pipefail
-          package='swsi_quiz_Netlify_正式月更_20260826.zip'
-          rm -f "$package"
-          (cd _site && zip -q -r "../$package" .)
-          unzip -l "$package" | grep -q 'monthly_patch.js'
-          unzip -p "$package" sw.js | grep -q "const VERSION = 'v5'"
-          unzip -p "$package" index.html | grep -q 'monthly_patch.js'
-          echo "PACKAGE=$package" >> "$GITHUB_ENV"
-          echo "Netlify package ready: $package"
+          grep -q "window.__SWSI_BOOT_DEFERRED__=true" _site/index.html
+          grep -q 'monthly_patch.js' _site/index.html
+          grep -q '社工師國考免費題庫｜SWSI' _site/index.html
+          grep -q "const VERSION = 'v5'" _site/sw.js
 
-      - name: Upload package artifact
+          grep -q 'SWSI Product V1 Lock 2026-08-26' _site/monthly_patch.js
+          grep -q 'SWSI Law Trust Final Batch 2026-08-26' _site/monthly_patch.js
+          grep -q 'SWSI Theory Trust Final Batch 2026-08-26' _site/monthly_patch.js
+          grep -q '資產建構／資產累積理論' _site/monthly_patch.js
+          grep -q '無條件基本收入 UBI' _site/monthly_patch.js
+          grep -q 'SWSI Essay Trust Layer 2026-08-26' _site/monthly_patch.js
+          grep -q 'SWSI Learning Loop V1 2026-08-26' _site/monthly_patch.js
+
+          if grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW' _site/index.html; then
+            echo 'ERROR: Cloudflare preview marker leaked into Netlify release' >&2
+            exit 1
+          fi
+          if grep -q 'swsi-preview-banner' _site/index.html; then
+            echo 'ERROR: Cloudflare preview banner leaked into Netlify release' >&2
+            exit 1
+          fi
+          if grep -q 'noindex,nofollow,noarchive' _site/index.html; then
+            echo 'ERROR: preview noindex leaked into Netlify release' >&2
+            exit 1
+          fi
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('_site/auto/essays_auto.json')
+          payload=json.loads(p.read_text(encoding='utf-8'))
+          raw=json.dumps(payload,ensure_ascii=False)
+          for bad in ('\ue129','\ue12a','\ue12b'):
+              assert bad not in raw, f'essay payload contains private-use glyph {bad!r}'
+          assert '（一）' in raw and '（二）' in raw
+          print('RELEASE CONTENT GATE OK')
+          PY
+
+      - name: Package deterministic Netlify root ZIP
+        run: |
+          set -euo pipefail
+          package='swsi_Netlify_正式上線包_20260826.zip'
+
+          # Git does not preserve mtimes. Fix them so the same release content creates a stable ZIP.
+          find _site -exec touch -t 202608260000 {} +
+          (cd _site && zip -X -q -r "../release-output/$package" .)
+
+          unzip -Z1 "release-output/$package" | grep -qx 'index.html'
+          unzip -Z1 "release-output/$package" | grep -qx 'monthly_patch.js'
+          unzip -Z1 "release-output/$package" | grep -qx 'sw.js'
+          unzip -Z1 "release-output/$package" | grep -q '^auto/essays_auto.json$'
+          unzip -Z1 "release-output/$package" | grep -q '^icons/icon-192.png$'
+
+          if unzip -Z1 "release-output/$package" | grep -q '^_site/'; then
+            echo 'ERROR: ZIP has an extra _site/ wrapper directory' >&2
+            exit 1
+          fi
+          if unzip -Z1 "release-output/$package" | grep -q '^preview/\|^cdn/preview/'; then
+            echo 'ERROR: ZIP contains preview-only files' >&2
+            exit 1
+          fi
+
+          unzip -p "release-output/$package" index.html | grep -q 'monthly_patch.js'
+          unzip -p "release-output/$package" monthly_patch.js | grep -q 'SWSI Theory Trust Final Batch 2026-08-26'
+          unzip -p "release-output/$package" monthly_patch.js | grep -q 'SWSI Law Trust Final Batch 2026-08-26'
+          unzip -p "release-output/$package" sw.js | grep -q "const VERSION = 'v5'"
+
+          sha256sum "release-output/$package" > "release-output/$package.sha256"
+          source_sha="$(git rev-parse HEAD)"
+          package_sha="$(cut -d' ' -f1 "release-output/$package.sha256")"
+          cat > release-output/RELEASE_INFO.txt <<EOF
+          SWSI Netlify production release candidate
+          Official URL: https://swsi-quiznetlify.netlify.app
+          Source commit: $source_sha
+          Package: $package
+          SHA-256: $package_sha
+          Built: 2026-08-26
+          Required post-deploy check: Verify Netlify Production Release workflow
+          EOF
+
+          echo "PACKAGE=$package" >> "$GITHUB_ENV"
+          echo "Netlify production package ready: $package"
+          echo "SHA-256: $package_sha"
+          echo 'ZIP root preview:'
+          unzip -Z1 "release-output/$package" | head -30
+
+      - name: Upload verified release artifact
         uses: actions/upload-artifact@v4
         with:
-          name: swsi-netlify-production-20260826
-          path: ${{ env.PACKAGE }}
-          retention-days: 30
+          name: swsi-netlify-production-release-20260826
+          path: release-output/
+          retention-days: 90
           if-no-files-found: error
 
-      - name: Save package in repository
+      - name: Save verified release package in repository
         run: |
           set -euo pipefail
-          mkdir -p deploy-packages
-          cp "$PACKAGE" deploy-packages/
+          target='deploy-packages/netlify-production-20260826'
+          rm -rf "$target"
+          mkdir -p "$target"
+          cp -a release-output/. "$target/"
+
           git config user.name 'swsi-release-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add "deploy-packages/$PACKAGE"
+          git add "$target"
           if git diff --cached --quiet; then
-            echo 'Package already current.'
+            echo 'Verified production package already current.'
             exit 0
           fi
-          git commit -m '產生 Netlify 手動部署月更包 20260826'
+          git commit -m '產生 SWSI Netlify 正式上線封版包 20260826'
           for attempt in 1 2 3; do
             git fetch origin main
             git rebase origin/main
