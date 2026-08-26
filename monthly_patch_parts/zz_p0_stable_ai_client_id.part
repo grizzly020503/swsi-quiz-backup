@@ -1,0 +1,40 @@
+/* ===== SWSI stable anonymous AI client id (2026-08-26) ===== */
+(function(){
+  'use strict';
+  var CLIENT_ID_KEY='swsi_ai_client_id_v1';
+
+  window.swsiGetClientId=function(){
+    var id='';
+    try{id=(localStorage.getItem(CLIENT_ID_KEY)||'').trim();}catch(e){}
+    if(/^[A-Za-z0-9_-]{16,128}$/.test(id))return id;
+
+    try{
+      if(crypto&&typeof crypto.randomUUID==='function'){
+        id='swsi_'+crypto.randomUUID().replace(/-/g,'_');
+      }else if(crypto&&typeof crypto.getRandomValues==='function'){
+        var bytes=new Uint8Array(18);crypto.getRandomValues(bytes);
+        id='swsi_'+Array.from(bytes).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+      }
+    }catch(e){}
+
+    if(!id)id='swsi_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
+    id=id.replace(/[^A-Za-z0-9_-]/g,'').slice(0,128);
+    if(id.length<16)id=(id+'_anonymous_client_0000000000').slice(0,24);
+    try{localStorage.setItem(CLIENT_ID_KEY,id);}catch(e){}
+    return id;
+  };
+
+  // 99_p0_mobile_ai_guardrails.part 會先建立這個 helper；這裡最後覆寫，
+  // 所有公開 AI request 都自動帶匿名 client id，後端可穩定套每日配額。
+  window.swsiFetchWithTimeout=async function(url,options,ms){
+    var ctrl=new AbortController(),timer=setTimeout(function(){ctrl.abort();},ms);
+    var opts=Object.assign({},options||{});
+    var headers=new Headers(opts.headers||{});
+    headers.set('X-SWSI-Client-ID',window.swsiGetClientId());
+    opts.headers=headers;
+    opts.signal=ctrl.signal;
+    try{return await fetch(url,opts);}
+    finally{clearTimeout(timer);}
+  };
+})();
+/* ===== SWSI stable anonymous AI client id END ===== */
