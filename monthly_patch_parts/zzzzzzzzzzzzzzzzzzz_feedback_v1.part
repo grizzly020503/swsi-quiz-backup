@@ -1,0 +1,220 @@
+
+/* SWSI Feedback / Quality Report V1 2026-08-26
+   Quiet in-context reporting for MCQ, essay, theory, law and general site feedback.
+   Reports go through a protected Supabase Edge Function; official exam content stays read-only.
+*/
+(function(){
+  'use strict';
+
+  var ENDPOINT='https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-feedback';
+  var VERSION='SWSI Feedback V1 2026-08-26';
+  var STYLE_ID='swsi-feedback-v1-style';
+  var activeOpener=null;
+  var lastContextKey='';
+
+  if(!document.getElementById(STYLE_ID)){
+    var st=document.createElement('style');
+    st.id=STYLE_ID;
+    st.textContent=`
+      .swsi-report-mini{border:0;background:transparent;color:#68736E;font-family:'Noto Sans TC',sans-serif;font-size:11.5px;font-weight:700;line-height:1.3;padding:6px 2px;cursor:pointer;text-decoration:none;white-space:nowrap}
+      .swsi-report-mini:hover,.swsi-report-mini:focus-visible{color:var(--pine-deep);text-decoration:underline;text-underline-offset:3px}
+      .qmeta>.swsi-report-mini{margin-left:auto}
+      .swsi-report-inline{display:flex;justify-content:flex-end;align-items:center;margin:4px 0 9px}
+      .ecard.open>.swsi-report-inline{margin:10px 0 2px;padding-top:7px;border-top:1px solid rgba(220,228,223,.7)}
+      .swsi-report-footer-btn{border:0;background:transparent;color:#68736E;font-family:'Noto Sans TC',sans-serif;font-size:11px;font-weight:700;cursor:pointer;padding:5px 8px;margin-top:3px;text-decoration:underline;text-decoration-color:#B9C2BD;text-underline-offset:3px}
+
+      .swsi-report-backdrop{position:fixed;inset:0;z-index:1000;background:rgba(25,31,28,.38);display:flex;align-items:flex-end;justify-content:center;padding:18px 12px calc(18px + env(safe-area-inset-bottom));backdrop-filter:blur(2px)}
+      .swsi-report-dialog{width:min(100%,520px);max-height:min(86vh,720px);overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:20px;box-shadow:0 22px 60px rgba(25,31,28,.22);padding:18px 17px 17px;color:var(--ink);font-family:'Noto Sans TC',sans-serif}
+      .swsi-report-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:11px}
+      .swsi-report-head h2{font-family:'Noto Serif TC',serif;font-size:20px;line-height:1.35;margin:0;color:var(--ink)}
+      .swsi-report-head p{font-size:11.5px;color:var(--ink-soft);line-height:1.55;margin:3px 0 0}
+      .swsi-report-close{margin-left:auto;flex:0 0 auto;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--ink-soft);font-size:19px;line-height:1;cursor:pointer}
+      .swsi-report-context{background:#F3F7F5;border:1px solid #DDE8E2;border-radius:12px;padding:10px 11px;margin-bottom:11px;font-size:11.5px;line-height:1.6;color:#5F6964;word-break:break-word}
+      .swsi-report-context b{color:var(--pine-deep)}
+      .swsi-report-trust{border-left:3px solid #91A9A0;background:#F8FAF9;border-radius:0 10px 10px 0;padding:9px 10px;margin-bottom:13px;font-size:11.5px;line-height:1.65;color:#626D68}
+      .swsi-report-trust.official{border-left-color:#8E8061;background:#FBF8F1}
+      .swsi-report-field{display:block;margin:0 0 12px}
+      .swsi-report-field>span{display:block;font-size:12px;font-weight:800;color:var(--ink);margin-bottom:6px}
+      .swsi-report-field select,.swsi-report-field textarea,.swsi-report-field input{width:100%;box-sizing:border-box;border:1px solid #CCD7D1;border-radius:11px;background:#fff;color:var(--ink);font:inherit;font-size:14px;outline:none}
+      .swsi-report-field select,.swsi-report-field input{min-height:45px;padding:10px 11px}
+      .swsi-report-field textarea{min-height:126px;resize:vertical;padding:11px 12px;line-height:1.65}
+      .swsi-report-field select:focus,.swsi-report-field textarea:focus,.swsi-report-field input:focus{border-color:var(--pine);box-shadow:0 0 0 3px rgba(79,126,118,.08)}
+      .swsi-report-help{display:flex;justify-content:space-between;gap:8px;margin-top:4px;color:var(--ink-soft);font-size:10.5px;line-height:1.45}
+      .swsi-report-actions{display:grid;grid-template-columns:1fr 1.45fr;gap:8px;margin-top:2px}
+      .swsi-report-actions button{min-height:45px;border-radius:11px;font-family:'Noto Sans TC',sans-serif;font-size:13.5px;font-weight:800;cursor:pointer}
+      .swsi-report-cancel{background:#fff;color:var(--ink-soft);border:1px solid var(--line)}
+      .swsi-report-submit{background:var(--pine-deep);color:#fff;border:0}
+      .swsi-report-submit:disabled{opacity:.55;cursor:wait}
+      .swsi-report-status{min-height:20px;margin-top:9px;font-size:11.5px;line-height:1.55;color:var(--ink-soft)}
+      .swsi-report-status.err{color:#92584E}.swsi-report-status.ok{color:var(--pine-deep);font-weight:700}
+      .swsi-report-receipt{padding:18px 5px 4px;text-align:center}
+      .swsi-report-receipt .check{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#E4EFEA;color:var(--pine-deep);font-size:23px;font-weight:900;margin:0 auto 10px}
+      .swsi-report-receipt h3{font-family:'Noto Serif TC',serif;font-size:19px;margin-bottom:6px}
+      .swsi-report-receipt p{font-size:12.5px;line-height:1.7;color:var(--ink-soft);margin:0}
+      .swsi-report-receipt .no{font-size:11px;margin-top:7px;color:#78817D}
+      .swsi-report-done{width:100%;min-height:44px;border:0;border-radius:11px;background:var(--pine-deep);color:#fff;font-family:'Noto Sans TC',sans-serif;font-size:13.5px;font-weight:800;margin-top:15px;cursor:pointer}
+      @media(min-width:620px){.swsi-report-backdrop{align-items:center}.swsi-report-dialog{border-radius:18px}}
+      @media(max-width:370px){.swsi-report-actions{grid-template-columns:1fr}.swsi-report-dialog{padding:16px 14px}}
+    `;
+    document.head.appendChild(st);
+  }
+
+  function H(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function S(v,n){var s=String(v==null?'':v).replace(/\s+/g,' ').trim();return s.length>n?s.slice(0,n)+'…':s;}
+  function num(v){var n=parseInt(v,10);return Number.isFinite(n)?n:null;}
+
+  function currentContext(){
+    var c={context_type:'general',context_id:null,context_title:'網站整體',source_kind:'swsi',subject:null,exam_year:null,exam_round:null,question_no:null};
+    try{
+      var item=(typeof queue!=='undefined'&&Array.isArray(queue)&&typeof idx!=='undefined')?queue[idx]:null;
+      if(item&&document.querySelector('#app .qcard')){
+        var official=!/時事|預測|自製/.test(String(item.qtype||'')+' '+String(item.id||''));
+        return {
+          context_type:'mcq',context_id:item.id||null,context_title:S(item.question||item.q||item.topic||'選擇題',480),source_kind:official?'official_exam':'swsi',
+          subject:item.subject||null,exam_year:num(item.year),exam_round:num(item.round),question_no:num(item.qno||item.question_no)
+        };
+      }
+    }catch(_e){}
+    try{
+      if(typeof openEssay!=='undefined'&&openEssay){
+        var rows=(typeof ESSAYS!=='undefined'&&Array.isArray(ESSAYS))?ESSAYS:(Array.isArray(window.ESSAYS)?window.ESSAYS:[]);
+        var e=rows.find(function(x){return x&&String(x.id)===String(openEssay);});
+        if(e){
+          var off=!/時事|預測|自製/.test(String(e.qtype||'')+' '+String(e.id||'')+' '+String(e.subject||''));
+          return {context_type:'essay',context_id:e.id||null,context_title:S(e.q||e.topic||'申論題',480),source_kind:off?'official_exam':'swsi',subject:e.subject||null,exam_year:num(e.year),exam_round:num(e.round),question_no:num(e.qno||e.question_no)};
+        }
+      }
+    }catch(_e){}
+    try{
+      if(typeof theoryOpen!=='undefined'&&theoryOpen!==null&&theoryOpen!==undefined&&Array.isArray(THEORIES)&&THEORIES[theoryOpen]){
+        var t=THEORIES[theoryOpen];
+        return {context_type:'theory',context_id:t.n||null,context_title:t.n||'理論整理',source_kind:'swsi',subject:null,exam_year:null,exam_round:null,question_no:null};
+      }
+    }catch(_e){}
+    try{
+      if(typeof lawOpen!=='undefined'&&lawOpen!==null&&lawOpen!==undefined&&Array.isArray(LAWS)&&LAWS[lawOpen]){
+        var l=LAWS[lawOpen];
+        return {context_type:'law',context_id:l.n||null,context_title:l.n||'法規整理',source_kind:'swsi',subject:null,exam_year:null,exam_round:null,question_no:null};
+      }
+    }catch(_e){}
+    return c;
+  }
+
+  function contextKey(c){return [c.context_type,c.context_id||'',c.exam_year||'',c.exam_round||'',c.question_no||''].join('|');}
+  function contextLine(c){
+    var bits=[];
+    if(c.subject)bits.push(c.subject);
+    if(c.exam_year)bits.push(c.exam_year+' 年');
+    if(c.exam_round)bits.push('第 '+c.exam_round+' 次');
+    if(c.question_no)bits.push('第 '+c.question_no+' 題');
+    var type={mcq:'選擇題',essay:'申論題',theory:'理論',law:'法規',general:'網站'}[c.context_type]||'網站';
+    return type+(bits.length?' · '+bits.join(' · '):'')+(c.context_id?' · '+S(c.context_id,80):'');
+  }
+
+  function defaultCategory(c){
+    if(c.context_type==='law')return 'law_outdated';
+    if(c.context_type==='theory')return 'theory_question';
+    if(c.context_type==='mcq'||c.context_type==='essay')return 'explanation_error';
+    return 'site_bug';
+  }
+
+  var CATS=[
+    ['question_display','題目顯示問題'],['answer_question','答案疑問'],['explanation_error','解析／參考內容可能有誤'],['law_outdated','法規可能過期'],['theory_question','理論內容疑問'],['site_bug','網站功能異常'],['ai_feedback','AI 回饋問題'],['suggestion','功能建議'],['other','其他']
+  ];
+
+  function closeReport(){
+    var ov=document.getElementById('swsi-report-backdrop');
+    if(ov)ov.remove();
+    document.body.style.overflow='';
+    try{if(activeOpener&&activeOpener.focus)activeOpener.focus();}catch(_e){}
+    activeOpener=null;
+  }
+  window.swsiCloseReport=closeReport;
+
+  function modalHTML(c){
+    var official=c.source_kind==='official_exam';
+    var options=CATS.map(function(x){return '<option value="'+x[0]+'"'+(x[0]===defaultCategory(c)?' selected':'')+'>'+H(x[1])+'</option>';}).join('');
+    return '<div class="swsi-report-dialog" role="dialog" aria-modal="true" aria-labelledby="swsi-report-title" onclick="event.stopPropagation()">'+
+      '<div class="swsi-report-head"><div><h2 id="swsi-report-title">回報問題</h2><p>不用找題號，我們會自動附上目前位置。</p></div><button class="swsi-report-close" type="button" aria-label="關閉回報視窗" onclick="swsiCloseReport()">×</button></div>'+
+      '<div class="swsi-report-context"><b>目前位置</b><br>'+H(contextLine(c))+(c.context_title?'<br>'+H(S(c.context_title,150)):'')+'</div>'+
+      '<div class="swsi-report-trust'+(official?' official':'')+'">'+(official?'正式歷屆試題以考選部官方資料為準。若題目、答案或顯示疑似有問題，我們會先核對官方來源，不會直接修改正式試題。':'SWSI 整理內容可能有疏漏，歡迎協助回報；收到後會先核對再修正。')+'</div>'+
+      '<form id="swsi-report-form">'+
+        '<label class="swsi-report-field"><span>你想回報什麼？</span><select id="swsi-report-category" required>'+options+'</select></label>'+
+        '<label class="swsi-report-field"><span>請告訴我發生什麼事</span><textarea id="swsi-report-message" minlength="3" maxlength="2000" required placeholder="例如：這題解析提到的法規好像已經修正，可以再確認嗎？"></textarea><div class="swsi-report-help"><i style="font-style:normal">請不要填密碼、身分證或其他敏感資料。</i><i id="swsi-report-count" style="font-style:normal">0 / 2000</i></div></label>'+
+        '<label class="swsi-report-field"><span>聯絡方式（選填）</span><input id="swsi-report-contact" maxlength="200" autocomplete="off" placeholder="Email 或其他方便聯絡的方式"><div class="swsi-report-help"><i style="font-style:normal">只在需要釐清問題時使用，不會顯示在網站上。</i></div></label>'+
+        '<input id="swsi-report-website" value="" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">'+
+        '<div class="swsi-report-actions"><button type="button" class="swsi-report-cancel" onclick="swsiCloseReport()">取消</button><button id="swsi-report-submit" type="submit" class="swsi-report-submit">送出回報</button></div><div id="swsi-report-status" class="swsi-report-status" aria-live="polite"></div>'+
+      '</form></div>';
+  }
+
+  window.swsiOpenReport=function(trigger){
+    var c=currentContext();
+    activeOpener=trigger&&trigger.nodeType===1?trigger:document.activeElement;
+    closeReport();
+    activeOpener=trigger&&trigger.nodeType===1?trigger:activeOpener;
+    var ov=document.createElement('div');ov.id='swsi-report-backdrop';ov.className='swsi-report-backdrop';ov.onclick=closeReport;ov.innerHTML=modalHTML(c);document.body.appendChild(ov);document.body.style.overflow='hidden';
+    ov._swsiContext=c;
+    var msg=document.getElementById('swsi-report-message');
+    var count=document.getElementById('swsi-report-count');
+    if(msg){msg.addEventListener('input',function(){if(count)count.textContent=msg.value.length+' / 2000';});setTimeout(function(){try{msg.focus();}catch(_e){}},30);}
+    var form=document.getElementById('swsi-report-form');if(form)form.addEventListener('submit',submitReport);
+  };
+
+  async function submitReport(ev){
+    ev.preventDefault();
+    var ov=document.getElementById('swsi-report-backdrop');if(!ov)return;
+    var c=ov._swsiContext||currentContext();
+    var message=(document.getElementById('swsi-report-message').value||'').trim();
+    var contact=(document.getElementById('swsi-report-contact').value||'').trim();
+    var category=document.getElementById('swsi-report-category').value;
+    var honeypot=(document.getElementById('swsi-report-website').value||'').trim();
+    var status=document.getElementById('swsi-report-status');
+    var btn=document.getElementById('swsi-report-submit');
+    if(message.length<3){status.className='swsi-report-status err';status.textContent='請至少寫 3 個字。';return;}
+    if(honeypot){closeReport();return;}
+    btn.disabled=true;btn.textContent='送出中…';status.className='swsi-report-status';status.textContent='';
+    var payload={
+      category:category,context_type:c.context_type,context_id:c.context_id,context_title:c.context_title,source_kind:c.source_kind,
+      subject:c.subject,exam_year:c.exam_year,exam_round:c.exam_round,question_no:c.question_no,message:message,contact:contact||null,
+      page_path:location.pathname+location.search+location.hash,app_version:VERSION,
+      metadata:{screen_width:window.screen&&window.screen.width||null,screen_height:window.screen&&window.screen.height||null,locale:navigator.language||null,referrer_host:(function(){try{return document.referrer?new URL(document.referrer).host:null;}catch(_e){return null;}})()}
+    };
+    try{
+      var client=(typeof window.swsiGetClientId==='function')?window.swsiGetClientId():('swsi_feedback_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2));
+      var res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','X-SWSI-Client-ID':client},body:JSON.stringify(payload)});
+      var data={};try{data=await res.json();}catch(_e){}
+      if(!res.ok)throw new Error(data&&data.error&&data.error.message?data.error.message:'回報暫時無法送出，請稍後再試。');
+      var dialog=ov.querySelector('.swsi-report-dialog');
+      dialog.innerHTML='<div class="swsi-report-receipt"><div class="check">✓</div><h3>收到</h3><p>'+H(data.message||'我們會核對這個問題。你可以繼續作答。')+'</p>'+(data.report_no?'<div class="no">回報編號 #'+H(data.report_no)+'</div>':'')+'<button class="swsi-report-done" type="button" onclick="swsiCloseReport()">繼續使用 SWSI</button></div>';
+    }catch(err){
+      status.className='swsi-report-status err';status.textContent=err&&err.message?err.message:'回報暫時無法送出，請稍後再試。';btn.disabled=false;btn.textContent='送出回報';
+    }
+  }
+
+  function makeMini(cls){var b=document.createElement('button');b.type='button';b.className=cls||'swsi-report-mini';b.textContent='⚑ 回報問題';b.setAttribute('aria-label','回報目前內容的問題');b.onclick=function(){window.swsiOpenReport(b);};return b;}
+
+  function ensureFooter(){
+    var f=document.querySelector('footer');if(!f||f.querySelector('.swsi-report-footer-btn'))return;
+    var b=makeMini('swsi-report-footer-btn');b.textContent='回報問題／提供建議';b.setAttribute('aria-label','回報網站問題或提供建議');f.appendChild(b);
+  }
+
+  function ensureContextButton(){
+    var c=currentContext(),key=contextKey(c);lastContextKey=key;
+    if(c.context_type==='mcq'){
+      var meta=document.querySelector('#app .qcard .qmeta');if(meta&&!meta.querySelector('.swsi-report-mini'))meta.appendChild(makeMini());
+      return;
+    }
+    if(c.context_type==='theory'||c.context_type==='law'){
+      var card=document.querySelector('#app .ecard.open');if(card&&!card.querySelector(':scope > .swsi-report-inline')){var row=document.createElement('div');row.className='swsi-report-inline';row.appendChild(makeMini());card.appendChild(row);}return;
+    }
+    if(c.context_type==='essay'){
+      var ta=document.querySelector('#app .wta');if(ta&&!document.querySelector('#app .swsi-report-inline[data-swsi-essay-report="1"]')){var r=document.createElement('div');r.className='swsi-report-inline';r.dataset.swsiEssayReport='1';r.appendChild(makeMini());ta.parentNode.insertBefore(r,ta);}return;
+    }
+  }
+
+  function enhance(){ensureFooter();ensureContextButton();}
+  window.SWSI_FEEDBACK={version:VERSION,endpoint:ENDPOINT,currentContext:currentContext,open:function(){window.swsiOpenReport();}};
+  enhance();
+  document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&document.getElementById('swsi-report-backdrop'))closeReport();});
+  try{var pending=false;new MutationObserver(function(){if(pending)return;pending=true;Promise.resolve().then(function(){pending=false;enhance();});}).observe(document.body,{childList:true,subtree:true});}catch(_e){}
+})();
