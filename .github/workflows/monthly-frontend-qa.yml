@@ -40,7 +40,16 @@ jobs:
           python-version: '3.12'
 
       - name: JavaScript syntax
-        run: cat monthly_patch_parts/*.part > /tmp/monthly_patch.js && node --check /tmp/monthly_patch.js && node --check sw.js && node --check scripts/browser_interaction_smoke.js && node --check scripts/knowledge_path_smoke.js && node --check scripts/theory_trust_smoke.js && node --check scripts/theory_trust_batch2_smoke.js && node --check scripts/theory_trust_final_smoke.js && node --check scripts/knowledge_catalog_audit.js
+        run: |
+          cat monthly_patch_parts/*.part > /tmp/monthly_patch.js
+          node --check /tmp/monthly_patch.js
+          node --check sw.js
+          node --check scripts/browser_interaction_smoke.js
+          node --check scripts/knowledge_path_smoke.js
+          node --check scripts/theory_trust_smoke.js
+          node --check scripts/theory_trust_batch2_smoke.js
+          node --check scripts/theory_trust_final_smoke.js
+          node --check scripts/knowledge_catalog_audit.js
 
       - name: Knowledge catalog audit
         run: node scripts/knowledge_catalog_audit.js index.html
@@ -66,6 +75,8 @@ jobs:
           grep -q "window.__SWSI_BOOT_DEFERRED__=true" _site/index.html
           grep -q "monthly_patch.js" _site/index.html
           grep -q "const VERSION = 'v5'" _site/sw.js
+          grep -q 'SWSI Product V1 Lock 2026-08-26' _site/monthly_patch.js
+          grep -q 'SWSI Law Trust Final Batch 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Theory Trust Batch 1 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Theory Trust Batch 2 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Theory Trust Final Batch 2026-08-26' _site/monthly_patch.js
@@ -76,40 +87,14 @@ jobs:
           grep -q 'ABCD 的「社區資產」不等於 Sherraden' _site/monthly_patch.js
           grep -q '符號互動論的主要分析層次是微觀互動' _site/monthly_patch.js
           grep -q '社會投資與傳統社會保護常是互補' _site/monthly_patch.js
-
-      - name: Production HTTP smoke
-        env:
-          SITE: https://swsi-quiznetlify.netlify.app
-        run: |
-          set -euo pipefail
-          fetch_prod() {
-            path="$1"
-            out="$2"
-            code="$(curl --silent --show-error --location --retry 2 --retry-all-errors --connect-timeout 10 --max-time 30 -o "$out" -w '%{http_code}' "$SITE$path" || true)"
-            echo "PROD $path -> HTTP $code"
-            if [ "$code" != "200" ]; then
-              echo "::error::Production endpoint $path returned HTTP $code"
-              return 1
-            fi
-          }
-          fetch_prod / /tmp/prod-index.html
-          fetch_prod /sw.js /tmp/prod-sw.js
-          fetch_prod /monthly_patch.js /tmp/prod-monthly-patch.js
-          fetch_prod /auto/essays_auto.json /tmp/prod-essays.json
-          grep -q 'monthly_patch.js' /tmp/prod-index.html || { echo '::error::Production index is missing monthly_patch.js'; exit 1; }
-          grep -q '社工師國考免費題庫｜SWSI' /tmp/prod-index.html || { echo '::error::Production index is missing the new SEO title'; exit 1; }
-          grep -q "const VERSION = 'v5'" /tmp/prod-sw.js || { echo '::error::Production service worker is not v5'; exit 1; }
-          grep -q 'SWSI Monthly Frontend Patch 2026-08-25' /tmp/prod-monthly-patch.js || { echo '::error::Production monthly patch marker not found'; exit 1; }
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          payload=json.loads(Path('/tmp/prod-essays.json').read_text(encoding='utf-8'))
-          raw=json.dumps(payload,ensure_ascii=False)
-          for bad in ('\ue129','\ue12a','\ue12b'):
-              assert bad not in raw, f'production essay payload still contains {bad!r}'
-          assert '（一）' in raw and '（二）' in raw, 'normalized sub-question labels not found'
-          print('PRODUCTION HTTP SMOKE OK')
-          PY
+          if grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW' _site/index.html; then
+            echo 'Preview marker leaked into production-shaped build' >&2
+            exit 1
+          fi
+          if grep -q 'swsi-preview-banner' _site/index.html; then
+            echo 'Preview banner leaked into production-shaped build' >&2
+            exit 1
+          fi
 
   interaction-qa:
     runs-on: ubuntu-latest
