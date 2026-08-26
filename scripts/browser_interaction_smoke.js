@@ -1,7 +1,12 @@
 const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
 const { chromium } = require('playwright');
 
 const base = process.argv[2] || 'http://127.0.0.1:4173';
+const QUESTION_CDN_HOST = 'wandering-wave-4418.c022050333.workers.dev';
+const QUESTION_CDN_PREFIX = '/question-shards/';
+const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
 
 (async () => {
   const browser = await chromium.launch({ headless: true });
@@ -11,15 +16,31 @@ const base = process.argv[2] || 'http://127.0.0.1:4173';
 
   const localOrigin = new URL(base).origin;
   await page.route('**/*', route => {
-    const u = new URL(route.request().url());
-    // CI only needs our local static files plus the real Cloudflare question CDN / Supabase REST fallback.
-    // Abort optional third-party presentation/client SDK requests so they can never hold page parsing hostage.
-    if (u.origin !== localOrigin &&
-        !u.hostname.endsWith('workers.dev') &&
-        !u.hostname.endsWith('supabase.co')) {
-      return route.abort();
+    const req = route.request();
+    const u = new URL(req.url());
+
+    // Use the exact production-shaped manifest/shards committed in this repo, but serve
+    // them locally inside Playwright. CI therefore tests SWSI interactions deterministically
+    // instead of testing whether a GitHub runner happens to reach Cloudflare/Supabase.
+    if (u.hostname === QUESTION_CDN_HOST && u.pathname.startsWith(QUESTION_CDN_PREFIX)) {
+      const rel = decodeURIComponent(u.pathname.slice(QUESTION_CDN_PREFIX.length));
+      if (!rel || rel !== path.basename(rel)) {
+        return route.fulfill({ status: 404, body: 'not found' });
+      }
+      const file = path.join(LOCAL_SHARD_DIR, rel);
+      if (!fs.existsSync(file)) {
+        return route.fulfill({ status: 404, body: 'not found' });
+      }
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json; charset=utf-8',
+        body: fs.readFileSync(file)
+      });
     }
-    if (u.hostname === 'cdn.jsdelivr.net') return route.abort();
+
+    // Everything required for the interaction smoke is now local. External fonts,
+    // SDKs, AI and fallback APIs are intentionally irrelevant to these core journeys.
+    if (u.origin !== localOrigin) return route.abort();
     return route.continue();
   });
 
