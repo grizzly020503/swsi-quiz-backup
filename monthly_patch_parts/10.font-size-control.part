@@ -3,6 +3,11 @@
    Restore visible 小／中／大 scaling across the UIUX layer and inline home controls.
    The legacy question/explanation typography already uses --fs-q/--fs-h/--fs-b/--fs-s.
 */
+(function(){
+  if(document.getElementById('swsi-font-size-control-fix')) return;
+  var style=document.createElement('style');
+  style.id='swsi-font-size-control-fix';
+  style.textContent=`
 :root{
   --swsi-ui-hero:25px;
   --swsi-ui-heading:18px;
@@ -30,8 +35,6 @@ html[data-fs="2"]{
   --swsi-ui-control:18px;
   --swsi-ui-tab:16px;
 }
-
-/* Home / utility headings that UIUX V1 had pinned to px values. */
 main .hero h1,
 main .ux-home-intro h1{
   font-size:var(--swsi-ui-hero)!important;
@@ -47,8 +50,6 @@ main .ux-card-title,
 main .ux-link-card .title{
   font-size:var(--swsi-ui-title)!important;
 }
-
-/* Controls must visibly scale too, otherwise the header A buttons look ineffective on Home. */
 main .btn,
 main .fbtn,
 main .dbtn,
@@ -62,8 +63,6 @@ main input:not([type="checkbox"]):not([type="radio"]),
 main textarea{
   font-size:var(--fs-b)!important;
 }
-
-/* Supporting text / metadata. */
 main .hero .tagline,
 main .chip,
 main .gcard .cnt,
@@ -88,8 +87,6 @@ main .ux-review-rule p,
 main .ux-subhead{
   font-size:var(--swsi-ui-small)!important;
 }
-
-/* A few focused-home notes are inline-styled; bind those to the same size switch. */
 main [style*="font-size:11px"],
 main [style*="font-size:11.5px"],
 main [style*="font-size:12px"],
@@ -101,12 +98,12 @@ main [style*="font-size:14px"],
 main [style*="font-size:15px"]{
   font-size:var(--swsi-ui-body)!important;
 }
-
 .tabbar button{
   font-size:var(--swsi-ui-tab)!important;
 }
-
-/* Keep the A buttons themselves distinct and easy to tap; the selected state is still controlled by setFs(). */
 .fontctl button[data-l="0"]{font-size:12px!important;}
 .fontctl button[data-l="1"]{font-size:15px!important;}
 .fontctl button[data-l="2"]{font-size:18px!important;}
+`;
+  document.head.appendChild(style);
+})();
