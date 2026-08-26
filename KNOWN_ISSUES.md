@@ -5,50 +5,71 @@
 ## Active P0
 
 ### P0-1 Grading contract 必須持續統一
-狀態：`in progress on fix/code-health-p0-20260826`
+狀態：`branch 實作完成；release 前仍以最新 Monthly Frontend QA 綠燈為必要條件`
 
-風險：一般刷題、模擬考、錯題／複習若使用不同判分邏輯，會在多答案、all_credit、any_answer、未作答時出現不一致。
+目前 branch 已有共同 grading contract，並由 `scripts/grading_contract_smoke.js` 覆蓋：
+- standard 單答案
+- standard 多答案 `accepted_answers`
+- `all_credit` 未作答也得分
+- `any_answer` 未作答不得分、A-D 任一作答得分
+- 特殊給分缺 metadata → `invalid / fail closed`
+- 普通 legacy 題缺 mode → 安全 default `standard`
 
-完成條件：
-- 共用 grading helper。
-- 五種核心情境 browser smoke 全綠。
-- 特殊給分缺 metadata fail closed。
+計時模擬考已改走同一 contract，不再直接猜 `q.answer`。
 
 ### P0-2 特殊給分不得 legacy inference
-狀態：`in progress`
+狀態：`branch 實作完成；持續由 preflight + browser smoke 防回歸`
 
-禁止從 ID／「一律給分」「送分」等文字猜 `grading_mode`。
-
-完成條件：P0 preflight + browser smoke + loader validation 全部依 metadata 判定。
+最終 runtime guard 會覆蓋早期 compatibility inference；特殊給分題若缺 `grading_mode`，不得從 ID／「一律給分」「送分」等文字猜模式，直接暫停判分。
 
 ### P0-3 Essay duplicate key / deploy artifact
-狀態：`in progress`
+狀態：`branch migration path 已封住；release artifact 必須經 builder`
 
-已知歷史問題：`essay_guides.js` 曾有同題號重複定義並被 JavaScript 靜默覆蓋。
+已知歷史 source `essay_guides.js` 仍保留一個已知 107-1 duplicate 作為 migration source，但：
+- `scripts/p0_frontend_preflight.js` 會拒絕任何額外 duplicate 或已知 duplicate shape 漂移。
+- `scripts/build_essay_guides_runtime.js` 會輸出唯一 key 的 deploy artifact。
+- verified 107-1 三理論修正版會在 build 時固定套用。
 
-完成條件：
-- source lint 能偵測 duplicate。
-- deploy artifact 唯一 key。
-- verified override 不被後續覆蓋。
+正式 release 不得直接 copy raw `essay_guides.js` 當 runtime artifact。
 
 ### P0-4 Release gate 必須真正攔 P0
-狀態：`in progress`
+狀態：`branch 已接線；等待最新整包 QA 驗收`
 
-歷史上 P0 preflight、essay source、某些 mutable asset 沒有被所有 relevant workflow 觸發／執行。
-
-完成條件：學生端／guide／grading 改動無法在 P0 gate 紅燈時進正式 release。
+目前：
+- Monthly Frontend QA 先跑 `p0_frontend_preflight.js` 再建 production-shaped site。
+- Netlify release package workflow 先跑 P0 preflight，再產正式 ZIP。
+- `essay_guides.js` / grading / SW / browser interaction 都已納入 relevant QA path。
+- 最新新增 Service Worker v5→v6 真實升級 smoke 也已接進 Monthly Frontend QA。
 
 ## Active P1
 
 ### P1-1 Service Worker / mutable asset cache
-狀態：`v6 修復中`
+狀態：`v6 source 已修；真實升級 smoke 已加入，待最新 Monthly Frontend QA 結論`
 
-目標：避免 GitHub 已更新，但舊學生裝置仍長期執行舊 `monthly_patch.js` / `essay_guides.js`。
+目前 `sw.js`：
+- cache version = `v6`
+- HTML / auto / `monthly_patch.js` / `essay_guides.js` / `manifest.json` 採 no-store network-first
+- 舊 cache 在 activate 時清理
 
-### P1-2 CDN shard 真實 SHA-256 驗證
-狀態：`修復中`
+`scripts/service_worker_upgrade_smoke.js` 會模擬：
+1. v5 cache-first 先黏住舊資產
+2. 原 origin 升級成 repo 真實 v6 worker
+3. 驗證 v5 cache 被刪除、v6 cache 建立
+4. `monthly_patch.js` / `essay_guides.js` / `manifest.json` 三個 runtime fetch 都必須真正重新打網路並拿到新版本
 
-下載 bytes 要實算 SHA；不得只把 manifest hash 寫入 cache。
+測試特別把 request counter 放在 v6 activation 後，避免被 install pre-cache 造成假陽性。
+
+### P1-2 CDN shard / 全題庫完整性
+狀態：`主要 runtime guard 已完成；legacy IndexedDB verified-marker 邊界仍需收尾`
+
+已完成：
+- CDN shard response bytes 以 WebCrypto 實算 SHA-256，與 manifest 比對後才使用。
+- manifest hash 格式異常直接 fail closed。
+- 線上取得新 manifest 後會清除舊 shard cache，讓新 cache 經 verified fetch path 重建。
+- 新增 `2026-08-27.full-bank.v1` 全庫 invariant：manifest 題數總和、loaded shard files、每考次題數、全庫 unique IDs、`ALL.length == manifest.total_questions` 必須全部一致。
+- `scripts/grading_contract_smoke.js` 已加入 synthetic full-bank / collision / manifest-total regression 測試。
+
+仍需收尾：舊 `00.part` IndexedDB row 只有 `sha256` 欄位，歷史版本曾把 manifest 預期 hash 直接寫入，尚未有獨立 `verified_sha256` marker。線上重建路徑已會清舊 cache，但純離線 legacy cache 的可信度仍低於新 verified path；不要把這條誤標成完全結案。
 
 ### P1-3 AI 429 分類
 狀態：`branch 已修，需持續 browser/CI 驗證`
@@ -75,15 +96,15 @@ Production trigger 已包含 `grading_mode`。GitHub 新增 `20260827031000_alig
 - trigger columns 有 `grading_mode`
 
 ### P1-6 localStorage/history 長期容量與可見錯誤
-狀態：`branch 已修，待 browser CI`
+狀態：`branch 已修；Storage Durability QA 已成功`
 
 目前 branch：
 - history 保留最近 8,000 筆，避免無上限成長。
 - review state 本身以題目 ID 為 key，總量受題庫規模天然限制。
 - history / review 寫入失敗會顯示可見警告，不再只留 console / hidden flag。
 - 修正 history 寫入失敗後，後續 review 成功誤把警告清掉的鏈式問題。
-- `scripts/storage_durability_smoke.js` 驗證 retention cap、quota failure visible warning 與完整 record() 鏈。
-- `.github/workflows/storage-durability-qa.yml` 將上述契約納入瀏覽器 QA。
+- `scripts/storage_durability_smoke.js` 驗證 retention cap、QuotaExceededError visible warning 與完整 `record()` 鏈。
+- `.github/workflows/storage-durability-qa.yml` 已有成功 run：`33004012894`。
 
 ### P1-7 Patch 疊 patch 的載入順序風險
 狀態：`architectural debt`
@@ -108,6 +129,8 @@ Production trigger 已包含 `grading_mode`。GitHub 新增 `20260827031000_alig
 - all_credit = 12
 - any_answer = 4
 - source_exam_code / year / round identity mismatch = 0
+
+目前 connector 對 branch push Actions run 的列舉不穩定，因此 importer CI 未取得可重述的最新 run 結論；不要因 production v5 正常就虛構 CI 綠燈。
 
 ## P2 / 長期重構
 
