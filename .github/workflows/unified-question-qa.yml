@@ -8,6 +8,7 @@ on:
       - 'data/legal_watch_report.json'
       - 'scripts/unified_question_qa.py'
       - 'scripts/unified_question_qa_selftest.py'
+      - 'scripts/build_question_qa_dashboard.py'
       - '.github/workflows/unified-question-qa.yml'
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - 'data/legal_watch_report.json'
       - 'scripts/unified_question_qa.py'
       - 'scripts/unified_question_qa_selftest.py'
+      - 'scripts/build_question_qa_dashboard.py'
       - '.github/workflows/unified-question-qa.yml'
   workflow_dispatch:
 
@@ -40,6 +42,7 @@ jobs:
         run: |
           python -m py_compile scripts/unified_question_qa.py
           python -m py_compile scripts/unified_question_qa_selftest.py
+          python -m py_compile scripts/build_question_qa_dashboard.py
 
       - name: Run synthetic QA invariants
         run: python scripts/unified_question_qa_selftest.py
@@ -56,20 +59,22 @@ jobs:
             --out /tmp/question-qa-115-2.json \
             --fail-on never > /dev/null
 
-      - name: Print compact 115-2 QA summary
+      - name: Build compact admin dashboard payload
+        run: |
+          python scripts/build_question_qa_dashboard.py \
+            /tmp/question-qa-115-2.json \
+            --out /tmp/question-qa-dashboard-115-2.json > /dev/null
+
+      - name: Assert compact dashboard invariants
         run: |
           python - <<'PY'
           import json
-          report = json.load(open('/tmp/question-qa-115-2.json', encoding='utf-8'))
-          out = {
-              'year': report['year'],
-              'round': report['round'],
-              'legal_watch': report.get('legal_watch'),
-              'official_core': report['overall']['official_core'],
-              'enrichment': report['overall']['enrichment'],
-              'manual_review_queue_count': report['overall']['manual_review_queue_count'],
-              'mcq': report['sections'].get('mcq', {}),
-              'essay': report['sections'].get('essay', {}),
-          }
-          print(json.dumps(out, ensure_ascii=False, indent=2))
+          d = json.load(open('/tmp/question-qa-dashboard-115-2.json', encoding='utf-8'))
+          assert d['official_core']['total'] == 210
+          assert d['official_core']['blocked'] == 0
+          assert d['official_core']['release_ready'] is True
+          assert d['human_queue']['total'] == 0
+          assert d['generation_backlog']['total'] == 185
+          assert len(d['human_queue']['items']) == 0
+          print(json.dumps(d, ensure_ascii=False, indent=2))
           PY
