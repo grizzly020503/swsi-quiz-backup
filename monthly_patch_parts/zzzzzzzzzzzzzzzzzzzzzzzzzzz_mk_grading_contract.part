@@ -1,0 +1,133 @@
+/* ===== SWSI MK Unified Grading Contract 2026-08-26 ===== */
+(function(){
+  'use strict';
+  if(!window.MK)return;
+
+  var legacyMK=window.MK;
+  var ov=null,Q=[],idx=0,ans={},timer=null,left=0,limited=true,t0=0,scope='全部科目',running=false;
+  var mode='random',exYear='',exRound='',legacyStyleReady=false;
+
+  function E(v){return typeof window.swsiEsc==='function'?window.swsiEsc(v):String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function W(q){try{return typeof drawWeight==='function'?(drawWeight(q)||1):1;}catch(_e){return 1;}}
+  function fmt(s){if(s<0)s=0;var m=Math.floor(s/60),x=s%60;return m+':'+(x<10?'0':'')+x;}
+  function bank(){return typeof ALL!=='undefined'&&Array.isArray(ALL)?ALL:[];}
+  function subs(){return typeof SUBJECTS!=='undefined'&&Array.isArray(SUBJECTS)?SUBJECTS:[];}
+  function gradeMode(q){return typeof window.gradingMode==='function'?window.gradingMode(q):'invalid';}
+  function correct(q,picked){return typeof window.isCorrectAnswer==='function'?window.isCorrectAnswer(q,picked):false;}
+  function label(q){return typeof window.answerLabel==='function'?window.answerLabel(q):('正確答案：'+E(q&&q.answer||''));}
+
+  async function prepareLegacyStyle(){
+    if(legacyStyleReady)return;
+    legacyStyleReady=true;
+    try{
+      var out=legacyMK.open&&legacyMK.open();
+      if(out&&typeof out.then==='function')await out;
+      if(legacyMK.close)legacyMK.close();
+    }catch(_e){}
+    if(!document.getElementById('mk-style')){
+      var st=document.createElement('style');st.id='mk-style';
+      st.textContent='.mk-ov{position:fixed;inset:0;z-index:9999;background:var(--paper,#EFF3F0);overflow-y:auto;font-family:inherit;color:var(--ink,#2A2C2A)}.mk-wrap{max-width:680px;margin:0 auto;padding:16px 16px 80px}.mk-top{position:sticky;top:0;background:var(--paper,#EFF3F0);padding:10px 0 12px;border-bottom:1px solid var(--line,#DCE4DF);display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:5}.mk-timer{font-size:21px;font-weight:800;color:var(--pine,#4F7E76)}.mk-timer.warn{color:var(--wrong,#9E6155)}.mk-prog,.mk-sub{font-size:var(--fs-b);color:var(--ink-soft,#757A75)}.mk-x{background:none;border:none;font-size:22px;cursor:pointer}.mk-btn{font-family:inherit;border:none;border-radius:12px;padding:13px 18px;font-size:var(--fs-h);font-weight:700;cursor:pointer}.mk-btn.go{background:var(--pine,#4F7E76);color:#fff}.mk-btn.ghost{background:var(--paper2,#F8FAF9);border:1px solid var(--line,#DCE4DF)}.mk-btn:disabled{opacity:.4}.mk-h1{font-size:23px;font-weight:800;margin:18px 0 6px}.mk-lab{font-size:var(--fs-b);font-weight:700;color:var(--ink-soft,#757A75);margin:18px 0 8px}.mk-sel{width:100%;font-family:inherit;font-size:var(--fs-h);padding:13px 14px;border:1px solid var(--line,#DCE4DF);border-radius:12px;background:var(--paper2,#F8FAF9)}.mk-row{display:flex;gap:10px;flex-wrap:wrap}.mk-pill{flex:1;min-width:90px;text-align:center;background:var(--paper2,#F8FAF9);border:1px solid var(--line,#DCE4DF);border-radius:13px;padding:16px 10px;cursor:pointer}.mk-pill .b{font-size:var(--fs-q);font-weight:800;color:var(--pine,#4F7E76);display:block}.mk-pill .s{font-size:var(--fs-s);color:var(--ink-soft,#757A75)}.mk-toggle{display:inline-flex;border:1px solid var(--line,#DCE4DF);border-radius:999px;padding:9px 15px;cursor:pointer}.mk-qcard{background:var(--paper2,#F8FAF9);border:1px solid var(--line,#DCE4DF);border-radius:18px;padding:20px 18px;margin-top:14px}.mk-qmeta{font-size:var(--fs-s);color:var(--ink-soft,#757A75);margin-bottom:10px}.mk-q{font-size:var(--fs-q);line-height:1.7;font-weight:600;margin-bottom:16px}.mk-opt{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line,#DCE4DF);border-radius:13px;padding:14px 15px;margin-bottom:10px;cursor:pointer}.mk-opt.sel{border-color:var(--pine,#4F7E76);background:var(--correct-bg,#E3EDE9)}.mk-nav{display:flex;gap:10px;margin-top:14px}.mk-nav .mk-btn{flex:1}.mk-pal{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin-top:18px}.mk-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid var(--line,#DCE4DF);border-radius:9px;cursor:pointer}.mk-cell.done{background:var(--pine,#4F7E76);color:#fff}.mk-cell.cur{outline:2px solid var(--pine,#4F7E76)}.mk-score{text-align:center;background:var(--paper2,#F8FAF9);border:1px solid var(--line,#DCE4DF);border-radius:18px;padding:26px 18px;margin-top:8px}.mk-score .big{font-size:46px;font-weight:800;color:var(--pine,#4F7E76)}.mk-score .pct{font-size:var(--fs-h);color:var(--ink-soft,#757A75)}.mk-bar{height:9px;border-radius:5px;background:var(--line,#DCE4DF);overflow:hidden}.mk-bar i{display:block;height:100%;background:var(--pine,#4F7E76)}.mk-rev{background:var(--paper2,#F8FAF9);border:1px solid var(--line,#DCE4DF);border-radius:14px;padding:15px 16px;margin-bottom:10px}.mk-rev .rq{font-size:var(--fs-b);font-weight:600}.mk-rev .ln{font-size:var(--fs-b);line-height:1.6;margin:3px 0}.mk-tag{display:inline-block;font-size:var(--fs-s);padding:2px 8px;border-radius:6px;margin-right:6px}.mk-tag.w{background:var(--wrong-bg,#F3EBE7);color:var(--wrong,#9E6155)}.mk-tag.n{background:var(--line,#DCE4DF);color:var(--ink-soft,#757A75)}';
+      document.head.appendChild(st);
+    }
+  }
+  function mount(){if(!ov){ov=document.createElement('div');ov.className='mk-ov';document.body.appendChild(ov);}}
+  function shut(){if(timer){clearInterval(timer);timer=null;}if(ov&&ov.parentNode)ov.parentNode.removeChild(ov);ov=null;running=false;}
+
+  function usableRandomBank(){return bank().filter(function(q){return gradeMode(q)!=='invalid'&&(scope==='全部科目'||q.subject===scope);});}
+  function papers(){
+    var seen={},out=[];
+    bank().forEach(function(q){var y=String(q.year||'').trim(),r=String(q.round||'').trim();if(!y)return;var k=y+'|'+r;if(!seen[k]){seen[k]=1;out.push({year:y,round:r});}});
+    out.sort(function(a,b){var yd=(parseInt(b.year,10)||0)-(parseInt(a.year,10)||0);return yd!==0?yd:(b.round||'').localeCompare(a.round||'');});
+    out.forEach(function(p){p.label=p.year+' 年'+(p.round?(' '+p.round):'');});return out;
+  }
+  function rawExam(){
+    var order=subs();
+    var arr=bank().filter(function(q){if(scope!=='全部科目'&&q.subject!==scope)return false;return String(q.year||'').trim()===exYear&&String(q.round||'').trim()===exRound;});
+    arr.sort(function(a,b){if(scope==='全部科目'){var sa=order.indexOf(a.subject),sb=order.indexOf(b.subject);if(sa!==sb)return sa-sb;}return (parseInt(a.qno,10)||0)-(parseInt(b.qno,10)||0);});
+    return arr;
+  }
+  function build(n){
+    var arr=usableRandomBank();
+    arr=arr.map(function(q){return {q:q,k:Math.pow(Math.random(),1/W(q))};}).sort(function(a,b){return b.k-a.k;}).map(function(x){return x.q;});
+    return n&&arr.length>n?arr.slice(0,n):arr;
+  }
+
+  function setup(){
+    if(timer){clearInterval(timer);timer=null;}running=false;
+    var opts=['全部科目'].concat(subs()).map(function(s){return '<option '+(s===scope?'selected':'')+'>'+E(s)+'</option>';}).join('');
+    var modeRow='<div class="mk-row"><div class="mk-pill" style="'+(mode==='random'?'border-color:var(--pine);background:var(--correct-bg)':'')+'" onclick="MK.setMode(\'random\')"><span class="b" style="font-size:var(--fs-h)">🎲 隨機抽題</span><span class="s">從可判分題庫隨機出</span></div><div class="mk-pill" style="'+(mode==='exam'?'border-color:var(--pine);background:var(--correct-bg)':'')+'" onclick="MK.setMode(\'exam\')"><span class="b" style="font-size:var(--fs-h)">📅 指定歷屆</span><span class="s">寫某年整卷</span></div></div>';
+    var bottom='';
+    if(mode==='exam'){
+      var ps=papers();if((!exYear||!ps.some(function(p){return p.year===exYear&&p.round===exRound;}))&&ps.length){exYear=ps[0].year;exRound=ps[0].round;}
+      var popt=ps.map(function(p){return '<option value="'+E(p.year+'|'+p.round)+'"'+(p.year===exYear&&p.round===exRound?' selected':'')+'>'+E(p.label)+'</option>';}).join('');
+      var raw=rawExam(),bad=raw.filter(function(q){return gradeMode(q)==='invalid';}).length;
+      bottom='<div class="mk-lab">選擇年份／考次</div><select class="mk-sel" onchange="MK.setPaper(this.value)">'+popt+'</select><div class="mk-sub" style="margin-top:10px">共 <b>'+raw.length+'</b> 題'+(bad?'；其中 <b style="color:var(--wrong)">'+bad+' 題給分資料異常，修正前不允許開考</b>':'')+'。</div><button class="mk-btn go" style="width:100%" onclick="MK.beginExam()">開始寫這份歷屆</button>';
+    }else{
+      bottom='<div class="mk-lab">選擇題數</div><div class="mk-row"><div class="mk-pill" onclick="MK.begin(20)"><span class="b">20</span><span class="s">題</span></div><div class="mk-pill" onclick="MK.begin(40)"><span class="b">40</span><span class="s">題</span></div><div class="mk-pill" onclick="MK.begin(80)"><span class="b">80</span><span class="s">題</span></div></div>';
+    }
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">📝 計時模擬考</div><button class="mk-x" onclick="MK.close()">✕</button></div><div class="mk-h1">設定這場模擬考</div><div class="mk-sub">所有模式都使用與一般刷題相同的官方 grading contract；特殊給分資料不完整時不猜答案。</div><div class="mk-lab">考試範圍</div><select class="mk-sel" onchange="MK.setScope(this.value)">'+opts+'</select><div class="mk-lab">出題方式</div>'+modeRow+'<div class="mk-lab">時間模式</div><div class="mk-toggle" onclick="MK.toggleTimed()"><span id="mk-tg">'+(limited?'⏱ 倒數計時':'∞ 不限時')+'</span></div>'+bottom+'</div>';
+  }
+
+  function run(){
+    var q=Q[idx],letters=['A','B','C','D'];
+    var options=letters.map(function(L){var t=q.options&&q.options[L];if(t==null||t==='')return '';return '<div class="mk-opt'+(ans[idx]===L?' sel':'')+'" id="mk-opt-'+L+'" onclick="MK.pick(\''+L+'\')"><span class="lab">('+L+')</span><span>'+E(t)+'</span></div>';}).join('');
+    var pal=Q.map(function(_,i){return '<div class="mk-cell'+(ans[i]!=null?' done':'')+(i===idx?' cur':'')+'" onclick="MK.jump('+i+')">'+(i+1)+'</div>';}).join('');
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer'+(limited&&left<=60?' warn':'')+'" id="mk-timer">'+(limited?fmt(left):'∞')+'</div><div class="mk-prog">第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length+'</div><button class="mk-btn go" onclick="MK.submit()">交卷</button></div><div class="mk-qcard"><div class="mk-qmeta">'+E(q.subject||'')+'　'+E(q.year||'')+' '+E(q.round||'')+'</div><div class="mk-q">'+E(q.q||'').replace(/\n/g,'<br>')+'</div>'+options+'</div><div class="mk-nav"><button class="mk-btn ghost" onclick="MK.go(-1)" '+(idx===0?'disabled':'')+'>‹ 上一題</button><button class="mk-btn ghost" onclick="MK.go(1)" '+(idx===Q.length-1?'disabled':'')+'>下一題 ›</button></div><div class="mk-pal">'+pal+'</div><button class="mk-btn go" style="width:100%;margin-top:18px" onclick="MK.submit()">交卷看結果</button></div>';
+    window.scrollTo(0,0);
+  }
+  function tick(){left--;var el=document.getElementById('mk-timer');if(el){el.textContent=fmt(left);if(left<=60)el.classList.add('warn');}if(left<=0){if(timer)clearInterval(timer);timer=null;grade(true);}}
+
+  function grade(auto){
+    if(timer){clearInterval(timer);timer=null;}running=false;
+    var correctN=0,answeredN=0,bySubj={},wrong=[];
+    Q.forEach(function(q,i){
+      var picked=ans[i]!=null?ans[i]:null;
+      var gm=gradeMode(q);
+      if(gm==='invalid'){wrong.push({q:q,picked:picked,dataError:true});return;}
+      var ok=correct(q,picked);
+      if(picked!=null)answeredN++;
+      if(ok)correctN++;
+      if(!bySubj[q.subject])bySubj[q.subject]={t:0,c:0};
+      bySubj[q.subject].t++;if(ok)bySubj[q.subject].c++;
+      try{
+        if(typeof record==='function'){
+          if(!(gm==='all_credit'&&picked==null))record(q,picked,ok);
+        }
+      }catch(_e){}
+      if(!ok)wrong.push({q:q,picked:picked,dataError:false});
+    });
+    var used=Math.max(0,Math.floor((Date.now()-t0)/1000)),pct=Q.length?Math.round(correctN/Q.length*100):0;
+    var subjHtml=Object.keys(bySubj).map(function(s){var o=bySubj[s],r=o.t?Math.round(o.c/o.t*100):0;return '<div style="margin-top:10px"><div style="display:flex;justify-content:space-between"><span>'+E(s)+'</span><span>'+o.c+'/'+o.t+'（'+r+'%）</span></div><div class="mk-bar"><i style="width:'+r+'%"></i></div></div>';}).join('');
+    var revHtml=wrong.map(function(w){
+      var q=w.q,p=w.picked,exp=q.exp||{},ex='';
+      if(exp.why)ex+='<div class="ln"><b>為什麼答案對：</b>'+E(exp.why)+'</div>';
+      if(exp.others)ex+='<div class="ln"><b>其他選項：</b>'+E(exp.others)+'</div>';
+      if(exp.trap)ex+='<div class="ln"><b>考場陷阱：</b>'+E(exp.trap)+'</div>';
+      var tag=p!=null?'<span class="mk-tag w">你選 '+E(p)+'</span>':'<span class="mk-tag n">未作答</span>';
+      return '<div class="mk-rev"><div class="rq">'+E(q.q||'').slice(0,140)+'</div><div class="ln">'+tag+'<span class="mk-tag n">'+E(w.dataError?'給分資料異常':label(q))+'</span></div>'+ex+'</div>';
+    }).join('');
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">模擬考結果</div><button class="mk-x" onclick="MK.close()">✕</button></div>'+(auto?'<div class="mk-sub" style="color:var(--wrong);margin-top:14px">⏰ 時間到，已自動交卷。</div>':'')+'<div class="mk-score"><div class="big">'+correctN+' / '+Q.length+'</div><div class="pct">答對率 '+pct+'%　·　實際作答 '+answeredN+' 題　·　用時 '+fmt(used)+'</div></div><div class="mk-lab">各科表現（未作答也列入分母）</div>'+subjHtml+(revHtml?'<div class="mk-lab">錯題與未作答（'+wrong.length+' 題）</div>'+revHtml:'<div class="mk-sub" style="margin-top:16px">🎉 全部計分正確！</div>')+'<div class="mk-nav"><button class="mk-btn ghost" onclick="MK.retry()">再考一次</button><button class="mk-btn go" onclick="MK.close()">完成</button></div></div>';
+    window.scrollTo(0,0);
+  }
+
+  window.MK={
+    contractVersion:'2026-08-26.unified-grading.v1',
+    open:async function(){
+      try{if(window.SWSI_QB&&!window.SWSI_QB.allComplete&&typeof window.ensureAllQuestionsLoaded==='function')await window.ensureAllQuestionsLoaded();}catch(err){if(typeof showLoadError==='function')showLoadError(err);return;}
+      await prepareLegacyStyle();mount();setup();
+    },
+    close:function(){if(running&&!confirm('模擬考進行中，確定要離開？這次未交卷的作答不會記錄。'))return;shut();},
+    setScope:function(v){scope=v;if(mode==='exam')setup();},
+    setMode:function(v){mode=v;setup();},
+    setPaper:function(v){var p=String(v).split('|');exYear=p[0];exRound=p.slice(1).join('|');setup();},
+    toggleTimed:function(){limited=!limited;var el=document.getElementById('mk-tg');if(el)el.textContent=limited?'⏱ 倒數計時':'∞ 不限時';},
+    begin:function(n){var pool=build(n);if(!pool.length){alert('這個範圍目前沒有可安全判分的題目。');return;}Q=pool;idx=0;ans={};running=true;t0=Date.now();left=Math.round(Q.length*1.2)*60;if(timer)clearInterval(timer);timer=limited?setInterval(tick,1000):null;run();},
+    beginExam:function(){var raw=rawExam(),bad=raw.filter(function(q){return gradeMode(q)==='invalid';});if(!raw.length){alert('這份考卷目前沒有題目。');return;}if(bad.length){alert('這份考卷有 '+bad.length+' 題官方給分資料不完整。為避免算錯分，修正前暫不開放整卷模擬。');return;}Q=raw;idx=0;ans={};running=true;t0=Date.now();left=Math.round(Q.length*1.2)*60;if(timer)clearInterval(timer);timer=limited?setInterval(tick,1000):null;run();},
+    pick:function(L){ans[idx]=L;['A','B','C','D'].forEach(function(x){var el=document.getElementById('mk-opt-'+x);if(el)el.classList.toggle('sel',x===L);});var cells=ov.querySelectorAll('.mk-cell');if(cells[idx])cells[idx].classList.add('done');var pr=ov.querySelector('.mk-prog');if(pr)pr.textContent='第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length;},
+    go:function(d){var n=idx+d;if(n<0||n>=Q.length)return;idx=n;run();},
+    jump:function(i){if(i<0||i>=Q.length)return;idx=i;run();},
+    submit:function(){var un=Q.length-Object.keys(ans).length;if(un>0&&!confirm('還有 '+un+' 題未作答，確定交卷？未作答普通題會計為錯誤。'))return;grade(false);},
+    retry:function(){setup();}
+  };
+})();
+/* ===== SWSI MK Unified Grading Contract END ===== */
