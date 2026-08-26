@@ -9,6 +9,7 @@ on:
       - 'essay_guides.js'
       - 'scripts/build_essay_guides_runtime.js'
       - 'scripts/p0_frontend_preflight.js'
+      - 'scripts/grading_contract_smoke.js'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/monthly_frontend_smoke.py'
       - 'scripts/browser_interaction_smoke.js'
@@ -30,6 +31,7 @@ on:
       - 'essay_guides.js'
       - 'scripts/build_essay_guides_runtime.js'
       - 'scripts/p0_frontend_preflight.js'
+      - 'scripts/grading_contract_smoke.js'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/monthly_frontend_smoke.py'
       - 'scripts/browser_interaction_smoke.js'
@@ -71,6 +73,7 @@ jobs:
           node --check sw.js
           node --check scripts/build_essay_guides_runtime.js
           node --check scripts/p0_frontend_preflight.js
+          node --check scripts/grading_contract_smoke.js
           node --check scripts/browser_interaction_smoke.js
           node --check scripts/knowledge_path_smoke.js
           node --check scripts/theory_trust_smoke.js
@@ -215,6 +218,7 @@ jobs:
             if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
             sleep 1
           done
+          node scripts/grading_contract_smoke.js http://127.0.0.1:4173/
           node scripts/browser_interaction_smoke.js http://127.0.0.1:4173/
           node scripts/knowledge_path_smoke.js http://127.0.0.1:4173/
           node scripts/theory_trust_smoke.js http://127.0.0.1:4173/
