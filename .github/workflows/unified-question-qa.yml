@@ -5,6 +5,7 @@ on:
     paths:
       - 'UNIFIED_QUESTION_QA_PIPELINE.md'
       - 'data/question_qa_policy_v1.json'
+      - 'data/legal_watch_report.json'
       - 'scripts/unified_question_qa.py'
       - 'scripts/unified_question_qa_selftest.py'
       - '.github/workflows/unified-question-qa.yml'
@@ -12,6 +13,7 @@ on:
     paths:
       - 'UNIFIED_QUESTION_QA_PIPELINE.md'
       - 'data/question_qa_policy_v1.json'
+      - 'data/legal_watch_report.json'
       - 'scripts/unified_question_qa.py'
       - 'scripts/unified_question_qa_selftest.py'
       - '.github/workflows/unified-question-qa.yml'
@@ -49,6 +51,8 @@ jobs:
             --essays auto/essays_auto.json \
             --year 115 \
             --round 第二次 \
+            --legal-watch data/legal_watch_report.json \
+            --trust-current-legal-watch \
             --out /tmp/question-qa-115-2.json \
             --fail-on never > /dev/null
 
@@ -60,6 +64,7 @@ jobs:
           out = {
               'year': report['year'],
               'round': report['round'],
+              'legal_watch': report.get('legal_watch'),
               'official_core': report['overall']['official_core'],
               'enrichment': report['overall']['enrichment'],
               'manual_review_queue_count': report['overall']['manual_review_queue_count'],
