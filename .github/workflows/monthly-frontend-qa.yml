@@ -13,6 +13,7 @@ on:
       - 'scripts/theory_trust_smoke.js'
       - 'scripts/theory_trust_batch2_smoke.js'
       - 'scripts/theory_trust_final_smoke.js'
+      - 'scripts/feedback_smoke.js'
       - 'scripts/knowledge_catalog_audit.js'
       - 'scripts/netlify_ignore.py'
       - 'netlify.toml'
@@ -49,6 +50,7 @@ jobs:
           node --check scripts/theory_trust_smoke.js
           node --check scripts/theory_trust_batch2_smoke.js
           node --check scripts/theory_trust_final_smoke.js
+          node --check scripts/feedback_smoke.js
           node --check scripts/knowledge_catalog_audit.js
 
       - name: Knowledge catalog audit
@@ -80,6 +82,8 @@ jobs:
           grep -q 'SWSI Theory Trust Batch 1 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Theory Trust Batch 2 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Theory Trust Final Batch 2026-08-26' _site/monthly_patch.js
+          grep -q 'SWSI Feedback / Quality Report V1 2026-08-26' _site/monthly_patch.js
+          grep -q 'swsi-feedback' _site/monthly_patch.js
           grep -q 'Bowen 家庭系統理論' _site/monthly_patch.js
           grep -q 'Minuchin 結構家庭治療' _site/monthly_patch.js
           grep -q '資產建構／資產累積理論' _site/monthly_patch.js
@@ -137,3 +141,4 @@ jobs:
           node scripts/theory_trust_smoke.js http://127.0.0.1:4173/
           node scripts/theory_trust_batch2_smoke.js http://127.0.0.1:4173/
           node scripts/theory_trust_final_smoke.js http://127.0.0.1:4173/
+          node scripts/feedback_smoke.js http://127.0.0.1:4173/
