@@ -2,10 +2,11 @@
    策略：
    - HTML（index.html / 導覽請求）：強制 no-store 網路優先 → 線上拿最新版，離線才用快取。
    - auto/ 考選部增量題庫：網路優先 → 有新考次立即更新，離線使用最近快取。
-   - 其他靜態檔（圖示、manifest、monthly patch）：快取優先。
+   - 會影響判題／內容的可變靜態檔（monthly patch、essay guides、manifest）：no-store 網路優先。
+   - 圖示等真正靜態資產：快取優先。
    - 跨網域（Cloudflare 題庫 shard、Supabase、AI）：完全不攔截，永遠走網路；題庫離線由 IndexedDB 處理。
 */
-const VERSION = 'v5';
+const VERSION = 'v6';
 const CACHE = 'swsi-shell-' + VERSION;
 const SHELL = [
   './',
@@ -74,6 +75,9 @@ self.addEventListener('fetch', function (e) {
     || url.pathname.endsWith('/');
 
   var isAuto = url.pathname.includes('/auto/');
+  var isMutableStatic = url.pathname.endsWith('/monthly_patch.js')
+    || url.pathname.endsWith('/essay_guides.js')
+    || url.pathname.endsWith('/manifest.json');
 
   if (isDoc) {
     e.respondWith(networkFirst(req, './index.html', true));
@@ -81,11 +85,16 @@ self.addEventListener('fetch', function (e) {
   }
 
   if (isAuto) {
-    e.respondWith(networkFirst(req));
+    e.respondWith(networkFirst(req, null, true));
     return;
   }
 
-  // 其他靜態檔：快取優先。
+  if (isMutableStatic) {
+    e.respondWith(networkFirst(req, null, true));
+    return;
+  }
+
+  // 只有真正不影響內容／判題的靜態資產採快取優先。
   e.respondWith(
     caches.match(req).then(function (r) {
       return r || fetch(req).then(function (res) {
