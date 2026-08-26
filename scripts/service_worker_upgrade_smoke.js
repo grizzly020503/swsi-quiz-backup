@@ -76,7 +76,6 @@ function closeServer(){return new Promise(resolve=>server.close(()=>resolve()));
     if(!oldCaches.includes('swsi-shell-v5')) throw new Error('v5 baseline cache missing: '+JSON.stringify(oldCaches));
 
     phase = 'new';
-    const requestsBeforeUpgradeFetch = mutableRequests;
 
     await page.evaluate(async()=>{
       const reg = await navigator.serviceWorker.getRegistration('/');
@@ -96,13 +95,16 @@ function closeServer(){return new Promise(resolve=>server.close(()=>resolve()));
       return keys.includes('swsi-shell-v6') && !keys.includes('swsi-shell-v5');
     }, null, {timeout:15000});
 
+    // v6 install itself pre-caches monthly_patch.js. Record the counter only
+    // after activation so this assertion proves the runtime fetch is network-first.
+    const requestsBeforeFinalFetch = mutableRequests;
     const body = await page.evaluate(()=>fetch('/monthly_patch.js').then(r=>r.text()));
     const cacheKeys = await page.evaluate(()=>caches.keys());
     if(!body.includes('new-v2')) throw new Error('v6 still served stale mutable asset: '+body);
-    if(mutableRequests <= requestsBeforeUpgradeFetch) throw new Error('v6 mutable asset fetch did not reach network; cache-first regression suspected');
+    if(mutableRequests <= requestsBeforeFinalFetch) throw new Error('v6 mutable asset runtime fetch did not reach network; cache-first regression suspected');
     if(cacheKeys.includes('swsi-shell-v5') || !cacheKeys.includes('swsi-shell-v6')) throw new Error('cache upgrade invariant failed: '+JSON.stringify(cacheKeys));
 
-    console.log('SERVICE WORKER UPGRADE SMOKE OK', JSON.stringify({oldBody,newBody:body,cacheKeys,mutableRequests}));
+    console.log('SERVICE WORKER UPGRADE SMOKE OK', JSON.stringify({oldBody,newBody:body,cacheKeys,requestsBeforeFinalFetch,mutableRequests}));
   } finally {
     await context.close();
     await browser.close();
