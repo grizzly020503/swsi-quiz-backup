@@ -3985,3 +3985,30 @@ body:has(#app .section-h) main{
   document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&document.getElementById('swsi-report-backdrop'))closeReport();});
   try{var pending=false;new MutationObserver(function(){if(pending)return;pending=true;Promise.resolve().then(function(){pending=false;enhance();});}).observe(document.body,{childList:true,subtree:true});}catch(_e){}
 })();
+
+/* SWSI Feedback Context State Fix 2026-08-26 */
+(function(){
+  'use strict';
+  function sync(){
+    var v='';
+    try{v=String(view||'');}catch(_e){}
+    try{
+      if(v==='laws' && typeof theoryOpen!=='undefined' && theoryOpen!==null) theoryOpen=null;
+      if(v==='theories' && typeof lawOpen!=='undefined' && lawOpen!==null) lawOpen=null;
+      if(v==='essay'){
+        if(typeof theoryOpen!=='undefined' && theoryOpen!==null) theoryOpen=null;
+        if(typeof lawOpen!=='undefined' && lawOpen!==null) lawOpen=null;
+      }
+    }catch(_e){}
+  }
+  sync();
+  document.addEventListener('click',function(){Promise.resolve().then(sync);},true);
+  try{
+    var scheduled=false;
+    new MutationObserver(function(){
+      if(scheduled)return;
+      scheduled=true;
+      Promise.resolve().then(function(){scheduled=false;sync();});
+    }).observe(document.body,{childList:true,subtree:true});
+  }catch(_e){}
+})();
