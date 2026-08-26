@@ -11,16 +11,19 @@ const notes = [];
 function fail(code, detail){ failures.push({ code, detail }); }
 function note(code, detail){ notes.push({ code, detail }); }
 function pass(code, detail){ note(code, 'PASS: ' + detail); }
+function guideKeyRegex(){
+  return /"((?:社會工作|社會工作直接服務|社會政策與社會立法|人類行為與社會環境|社會工作研究方法)-\d{3}-[12]-申論\d+)"\s*:/g;
+}
 
 // -----------------------------------------------------------------------------
 // P0-1: ESSAY_GUIDES source must not gain new silent duplicate keys, and the
 // deploy artifact must be normalized to unique IDs with the verified 107-1 fix.
 // -----------------------------------------------------------------------------
 const essaySource = read('essay_guides.js');
-const keyRe = /"((?:社會工作|社會工作直接服務|社會政策與社會立法|人類行為與社會環境|社會工作研究方法)-\d{3}-[12]-申論\d+)"\s*:/g;
 const counts = new Map();
 let m;
-while((m = keyRe.exec(essaySource))){
+const sourceKeyRe = guideKeyRegex();
+while((m = sourceKeyRe.exec(essaySource))){
   counts.set(m[1], (counts.get(m[1]) || 0) + 1);
 }
 const duplicates = [...counts.entries()].filter(([, n]) => n > 1);
@@ -48,8 +51,9 @@ try{
   const runtime = fs.readFileSync(tmp, 'utf8');
   fs.unlinkSync(tmp);
   const runtimeCounts = new Map();
+  const runtimeKeyRe = guideKeyRegex();
   let rm;
-  while((rm = keyRe.exec(runtime))) runtimeCounts.set(rm[1], (runtimeCounts.get(rm[1]) || 0) + 1);
+  while((rm = runtimeKeyRe.exec(runtime))) runtimeCounts.set(rm[1], (runtimeCounts.get(rm[1]) || 0) + 1);
   const runtimeDup = [...runtimeCounts.entries()].filter(([,n]) => n > 1);
   if(runtimeDup.length) fail('ESSAY_GUIDE_RUNTIME_DUPLICATE', runtimeDup.map(([id,n])=>`${id} x${n}`).join(', '));
   else pass('ESSAY_GUIDE_RUNTIME_DUPLICATE', 'generated essay guide artifact contains unique historical IDs');
@@ -61,15 +65,18 @@ try{
 }
 
 // -----------------------------------------------------------------------------
-// P0-2: effective grading runtime must end fail-closed. Legacy compatibility may
-// still exist earlier during migration, but a later guard must replace it.
+// Effective monthly-patch runtime. The repository is still in migration from
+// legacy in-file code, so source presence alone is not enough: override order is
+// part of the contract until legacy code is fully removed.
 // -----------------------------------------------------------------------------
 const partsDir = path.resolve(ROOT, 'monthly_patch_parts');
 const partFiles = fs.readdirSync(partsDir).filter(x => x.endsWith('.part')).sort();
 const patchSource = partFiles.map(f => `\n/* FILE:${f} */\n` + fs.readFileSync(path.join(partsDir,f),'utf8')).join('\n');
+
+// P0-2: special grading must end fail-closed.
 const legacyInferencePos = Math.max(
   patchSource.lastIndexOf('SWSI_ANY_ANSWER_LEGACY_IDS'),
-  patchSource.lastIndexOf("/一律給分|送分/")
+  patchSource.lastIndexOf('/一律給分|送分/')
 );
 const strictGuardPos = patchSource.lastIndexOf('SWSI Code Health P0 Runtime Guard 2026-08-26');
 if(strictGuardPos < 0){
@@ -120,18 +127,29 @@ for(const needle of [
 if(!failures.some(x => x.code === 'SHARD_SHA256_RUNTIME')) pass('SHARD_SHA256_RUNTIME', 'actual shard bytes are SHA-256 checked before use');
 
 // -----------------------------------------------------------------------------
-// P0-3: home round canonical contract.
+// P0-3: home round canonical contract. Legacy index.html still contains older UI
+// implementations, so verify the *last effective monthly patch* instead of
+// treating every historical string occurrence as live behavior.
 // -----------------------------------------------------------------------------
-const indexSource = read('index.html');
-const badRoundOption = /<option value=\\?"第一次\\?"[^>]*>第一次<\/option>|<option value=\\?"第二次\\?"[^>]*>第二次<\/option>/;
-const badRoundState = /homeQuizRound===['"]第一次['"]|homeQuizRound===['"]第二次['"]/;
-if(badRoundOption.test(indexSource) || badRoundState.test(indexSource)){
-  fail('HOME_ROUND_NONCANONICAL_VALUE', 'index.html still contains a home round selector/state using 第一次／第二次 instead of canonical 1／2');
+const setRoundPos = patchSource.lastIndexOf('setHomeQuizRound = function(v)');
+const setRoundTail = setRoundPos >= 0 ? patchSource.slice(setRoundPos, setRoundPos + 420) : '';
+if(setRoundPos < 0 || !setRoundTail.includes('canonicalRound(x)')){
+  fail('HOME_ROUND_SETTER_RUNTIME', 'final setHomeQuizRound override does not canonicalize to 1/2');
 }else{
-  pass('HOME_ROUND_NONCANONICAL_VALUE', 'home round UI uses canonical values');
+  pass('HOME_ROUND_SETTER_RUNTIME', 'final round setter canonicalizes legacy labels and new values');
 }
+const finalRenderHomePos = Math.max(patchSource.lastIndexOf('renderHome = function(){'), patchSource.lastIndexOf('renderHome=function(){'));
+const finalRenderHome = finalRenderHomePos >= 0 ? patchSource.slice(finalRenderHomePos) : '';
+if(finalRenderHomePos < 0 || !finalRenderHome.includes('<option value=\"1\"') || !finalRenderHome.includes('<option value=\"2\"')){
+  fail('HOME_ROUND_UI_RUNTIME', 'final renderHome does not expose canonical option values 1/2');
+}else if(finalRenderHome.includes('<option value=\"第一次\"') || finalRenderHome.includes('<option value=\"第二次\"')){
+  fail('HOME_ROUND_UI_RUNTIME', 'final renderHome reintroduced noncanonical 第一次/第二次 option values');
+}else{
+  pass('HOME_ROUND_UI_RUNTIME', 'final home selector stores 1/2 and only displays 第一次/第二次 as labels');
+}
+const indexSource = read('index.html');
 if(!/canonicalRound\(q\.round\)!==homeQuizRound/.test(indexSource)){
-  fail('HOME_ROUND_FILTER_CONTRACT', 'focusedQuizFilter no longer visibly compares canonicalRound(q.round) to homeQuizRound; review contract');
+  fail('HOME_ROUND_FILTER_CONTRACT', 'focusedQuizFilter no longer compares canonicalRound(q.round) to homeQuizRound');
 }else{
   pass('HOME_ROUND_FILTER_CONTRACT', 'focusedQuizFilter compares canonicalRound(q.round) to homeQuizRound');
 }
