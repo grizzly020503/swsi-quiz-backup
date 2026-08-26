@@ -1,0 +1,115 @@
+/* ===== SWSI Full Question Bank Integrity Guard 2026-08-27 ===== */
+(function(){
+  'use strict';
+
+  function txt(v){return String(v==null?'':v).trim();}
+  function roundKey(v){
+    try{return typeof canonicalRound==='function'?String(canonicalRound(v)):txt(v);}
+    catch(_e){return txt(v);}
+  }
+  function fail(message){throw new Error('題庫完整性驗證失敗：'+message);}
+
+  function assertCompleteBank(rows,manifest,loadedFiles){
+    if(!manifest||!Array.isArray(manifest.shards))fail('缺少 manifest shards');
+    var total=Number(manifest.total_questions);
+    if(!Number.isInteger(total)||total<1)fail('manifest total_questions 不合法');
+
+    var expectedTotal=0;
+    var expectedSessions=new Map();
+    var expectedFiles=new Set();
+    manifest.shards.forEach(function(meta){
+      var file=txt(meta&&meta.file);
+      var count=Number(meta&&meta.question_count);
+      var key=txt(meta&&meta.year)+'|'+roundKey(meta&&meta.round);
+      if(!file)fail('manifest shard file 空白');
+      if(expectedFiles.has(file))fail('manifest shard file 重複：'+file);
+      expectedFiles.add(file);
+      if(!Number.isInteger(count)||count<1)fail('manifest shard 題數不合法：'+file);
+      if(expectedSessions.has(key))fail('manifest 考次重複：'+key);
+      expectedSessions.set(key,count);
+      expectedTotal+=count;
+    });
+    if(expectedTotal!==total)fail('manifest shard 題數總和 '+expectedTotal+' != total_questions '+total);
+
+    var loaded=loadedFiles instanceof Set?loadedFiles:new Set(Array.isArray(loadedFiles)?loadedFiles:[]);
+    if(loaded.size!==expectedFiles.size||Array.from(expectedFiles).some(function(file){return !loaded.has(file);})){
+      fail('尚未載完 manifest 全部 shard');
+    }
+
+    if(!Array.isArray(rows))fail('ALL 不是陣列');
+    if(rows.length!==total)fail('實際題數 '+rows.length+' != manifest '+total);
+
+    var ids=new Set();
+    var actualSessions=new Map();
+    rows.forEach(function(row){
+      var id=txt(row&&row.id);
+      if(!id)fail('題目 ID 空白');
+      if(ids.has(id))fail('跨 shard 題目 ID 重複：'+id);
+      ids.add(id);
+      var key=txt(row&&row.year)+'|'+roundKey(row&&row.round);
+      actualSessions.set(key,(actualSessions.get(key)||0)+1);
+    });
+    if(ids.size!==total)fail('unique ID 數 '+ids.size+' != manifest '+total);
+
+    expectedSessions.forEach(function(expected,key){
+      var actual=actualSessions.get(key)||0;
+      if(actual!==expected)fail('考次 '+key+' 實際 '+actual+' 題 != manifest '+expected+' 題');
+    });
+    actualSessions.forEach(function(_count,key){
+      if(!expectedSessions.has(key))fail('ALL 含 manifest 未列出的考次：'+key);
+    });
+
+    return {ok:true,total:total,uniqueIds:ids.size,sessions:expectedSessions.size};
+  }
+
+  window.swsiAssertCompleteQuestionBank=assertCompleteBank;
+  window.swsiQuestionBankIntegrityVersion='2026-08-27.full-bank.v1';
+
+  function guardAfterLoad(previous,args){
+    return Promise.resolve(previous.apply(window,args)).then(function(result){
+      var qb=window.SWSI_QB;
+      if(qb&&qb.manifest&&qb.loadedFiles&&qb.loadedFiles.size>=qb.manifest.shards.length){
+        try{
+          var rows=(typeof ALL!=='undefined'&&Array.isArray(ALL))?ALL:[];
+          var report=assertCompleteBank(rows,qb.manifest,qb.loadedFiles);
+          qb.allComplete=true;
+          qb.error=null;
+          window.__swsiQuestionBankIntegrity=report;
+        }catch(err){
+          qb.allComplete=false;
+          qb.error=err;
+          throw err;
+        }
+      }
+      return result;
+    });
+  }
+
+  if(typeof window.ensureShardMetasLoaded==='function'){
+    var previousEnsureShardMetasLoaded=window.ensureShardMetasLoaded;
+    window.ensureShardMetasLoaded=function(){return guardAfterLoad(previousEnsureShardMetasLoaded,arguments);};
+    try{ensureShardMetasLoaded=window.ensureShardMetasLoaded;}catch(_e){}
+  }
+
+  if(typeof window.ensureAllQuestionsLoaded==='function'){
+    var previousEnsureAllQuestionsLoaded=window.ensureAllQuestionsLoaded;
+    window.ensureAllQuestionsLoaded=function(){
+      return Promise.resolve(previousEnsureAllQuestionsLoaded.apply(window,arguments)).then(function(result){
+        var qb=window.SWSI_QB;
+        try{
+          var rows=(typeof ALL!=='undefined'&&Array.isArray(ALL))?ALL:[];
+          var report=assertCompleteBank(rows,qb&&qb.manifest,qb&&qb.loadedFiles);
+          qb.allComplete=true;
+          qb.error=null;
+          window.__swsiQuestionBankIntegrity=report;
+          return result;
+        }catch(err){
+          if(qb){qb.allComplete=false;qb.error=err;}
+          throw err;
+        }
+      });
+    };
+    try{ensureAllQuestionsLoaded=window.ensureAllQuestionsLoaded;}catch(_e){}
+  }
+})();
+/* ===== SWSI Full Question Bank Integrity Guard END ===== */
