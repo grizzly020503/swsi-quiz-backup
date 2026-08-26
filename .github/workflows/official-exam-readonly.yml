@@ -1,5 +1,6 @@
 name: Official Exam Read-Only Guard
 
+# Protect official exam wording while leaving all SWSI-authored learning layers editable.
 on:
   workflow_dispatch:
   push:
