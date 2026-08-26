@@ -1,0 +1,41 @@
+name: Patch Worker Temperature Zero
+
+on:
+  push:
+    branches:
+      - fix/code-health-p0-20260826
+    paths:
+      - scripts/patch_worker_temperature_zero.py
+      - .github/workflows/patch-worker-temperature-zero.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply exact worker patch
+        run: python3 scripts/patch_worker_temperature_zero.py
+
+      - name: Verify worker syntax and zero handling
+        run: |
+          node --check cloudflare/wandering-wave-4418/worker.js
+          grep -q "Number.isFinite(Number(body.temperature)) ? Number(body.temperature) : 0.4" cloudflare/wandering-wave-4418/worker.js
+          ! grep -q "Number(body.temperature) || 0.4" cloudflare/wandering-wave-4418/worker.js
+
+      - name: Commit patched worker
+        run: |
+          if git diff --quiet -- cloudflare/wandering-wave-4418/worker.js; then
+            echo "Worker already patched."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cloudflare/wandering-wave-4418/worker.js
+          git commit -m "修正 Worker temperature 0 被改成 0.4"
+          git push origin HEAD:fix/code-health-p0-20260826
