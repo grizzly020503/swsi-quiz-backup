@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+const cp = require('child_process');
 
 const ROOT = process.cwd();
 const read = p => fs.readFileSync(path.resolve(ROOT, p), 'utf8');
@@ -8,8 +10,12 @@ const notes = [];
 
 function fail(code, detail){ failures.push({ code, detail }); }
 function note(code, detail){ notes.push({ code, detail }); }
+function pass(code, detail){ note(code, 'PASS: ' + detail); }
 
-// P0-1: duplicate ESSAY_GUIDES keys must not be allowed to silently overwrite.
+// -----------------------------------------------------------------------------
+// P0-1: ESSAY_GUIDES source must not gain new silent duplicate keys, and the
+// deploy artifact must be normalized to unique IDs with the verified 107-1 fix.
+// -----------------------------------------------------------------------------
 const essaySource = read('essay_guides.js');
 const keyRe = /"((?:社會工作|社會工作直接服務|社會政策與社會立法|人類行為與社會環境|社會工作研究方法)-\d{3}-[12]-申論\d+)"\s*:/g;
 const counts = new Map();
@@ -18,44 +24,130 @@ while((m = keyRe.exec(essaySource))){
   counts.set(m[1], (counts.get(m[1]) || 0) + 1);
 }
 const duplicates = [...counts.entries()].filter(([, n]) => n > 1);
-if(duplicates.length){
-  fail('ESSAY_GUIDE_DUPLICATE_KEY', duplicates.map(([id,n]) => `${id} x${n}`).join(', '));
+const legacyDuplicate = '社會工作-107-1-申論2';
+const unexpectedDuplicates = duplicates.filter(([id]) => id !== legacyDuplicate);
+if(unexpectedDuplicates.length){
+  fail('ESSAY_GUIDE_DUPLICATE_KEY', unexpectedDuplicates.map(([id,n]) => `${id} x${n}`).join(', '));
+}else if(duplicates.length && !(duplicates.length === 1 && duplicates[0][0] === legacyDuplicate && duplicates[0][1] === 2)){
+  fail('ESSAY_GUIDE_LEGACY_DUPLICATE_SHAPE', 'known legacy duplicate no longer has the expected x2 shape');
 }else{
-  note('ESSAY_GUIDE_DUPLICATE_KEY', 'PASS: no duplicate historical essay IDs found in essay_guides.js');
+  pass('ESSAY_GUIDE_DUPLICATE_SOURCE', duplicates.length ? 'only the known 107-1 legacy duplicate remains in migration source' : 'no duplicate source IDs remain');
 }
 
-// P0-2: special grading must be explicit. Never infer give-credit semantics from legacy IDs or answer text.
-const gradingSource = read('monthly_patch_parts/00.part');
-if(/SWSI_ANY_ANSWER_LEGACY_IDS/.test(gradingSource)){
-  fail('GRADING_LEGACY_ID_INFERENCE', 'monthly_patch_parts/00.part still contains SWSI_ANY_ANSWER_LEGACY_IDS');
-}else{
-  note('GRADING_LEGACY_ID_INFERENCE', 'PASS: no legacy-ID grading inference');
+const guideBuilder = read('scripts/build_essay_guides_runtime.js');
+for(const needle of ['社會工作-107-1-申論2','認知行為學派','社會支持理論','優勢觀點','Unexpected ESSAY_GUIDES duplicate key']){
+  if(!guideBuilder.includes(needle)) fail('ESSAY_GUIDE_RUNTIME_NORMALIZER', `builder missing required marker: ${needle}`);
 }
-if(/一律給分\|送分/.test(gradingSource) || /\/一律給分\|送分\//.test(gradingSource)){
-  fail('GRADING_ANSWER_TEXT_INFERENCE', 'grading_mode is still inferred from answer text such as 一律給分／送分');
-}else{
-  note('GRADING_ANSWER_TEXT_INFERENCE', 'PASS: no grading inference from answer text');
-}
-if(/grading_mode\s*=.*gradingMode\(/s.test(gradingSource) || /q\.grading_mode[\s\S]{0,260}gradingMode\(/.test(gradingSource)){
-  fail('NORMALIZE_GRADING_INFERENCE', 'normalize() still falls back to gradingMode(...) instead of preserving explicit mode / failing closed for special cases');
-}else{
-  note('NORMALIZE_GRADING_INFERENCE', 'PASS: normalize() does not synthesize grading_mode by inference');
+if(!failures.some(x => x.code === 'ESSAY_GUIDE_RUNTIME_NORMALIZER')){
+  pass('ESSAY_GUIDE_RUNTIME_NORMALIZER', 'builder contains verified 107-1 correction and rejects unexpected duplicate IDs');
 }
 
-// P0-3: home round selector must use the same canonical values as focusedQuizFilter/canonicalRound.
+try{
+  const tmp = path.join(os.tmpdir(), `swsi-essay-guides-${process.pid}.js`);
+  cp.execFileSync(process.execPath, ['scripts/build_essay_guides_runtime.js', 'essay_guides.js', tmp], { cwd: ROOT, stdio: 'pipe' });
+  const runtime = fs.readFileSync(tmp, 'utf8');
+  fs.unlinkSync(tmp);
+  const runtimeCounts = new Map();
+  let rm;
+  while((rm = keyRe.exec(runtime))) runtimeCounts.set(rm[1], (runtimeCounts.get(rm[1]) || 0) + 1);
+  const runtimeDup = [...runtimeCounts.entries()].filter(([,n]) => n > 1);
+  if(runtimeDup.length) fail('ESSAY_GUIDE_RUNTIME_DUPLICATE', runtimeDup.map(([id,n])=>`${id} x${n}`).join(', '));
+  else pass('ESSAY_GUIDE_RUNTIME_DUPLICATE', 'generated essay guide artifact contains unique historical IDs');
+  if(!runtime.includes('認知行為學派') || !runtime.includes('社會支持理論') || !runtime.includes('三理論整合')){
+    fail('ESSAY_GUIDE_1071_RUNTIME', 'generated artifact does not contain the verified three-theory 107-1 guide');
+  }else pass('ESSAY_GUIDE_1071_RUNTIME', '107-1 guide is normalized to CBT + social support + strengths integration');
+}catch(err){
+  fail('ESSAY_GUIDE_RUNTIME_BUILD', String(err && err.message || err));
+}
+
+// -----------------------------------------------------------------------------
+// P0-2: effective grading runtime must end fail-closed. Legacy compatibility may
+// still exist earlier during migration, but a later guard must replace it.
+// -----------------------------------------------------------------------------
+const partsDir = path.resolve(ROOT, 'monthly_patch_parts');
+const partFiles = fs.readdirSync(partsDir).filter(x => x.endsWith('.part')).sort();
+const patchSource = partFiles.map(f => `\n/* FILE:${f} */\n` + fs.readFileSync(path.join(partsDir,f),'utf8')).join('\n');
+const legacyInferencePos = Math.max(
+  patchSource.lastIndexOf('SWSI_ANY_ANSWER_LEGACY_IDS'),
+  patchSource.lastIndexOf("/一律給分|送分/")
+);
+const strictGuardPos = patchSource.lastIndexOf('SWSI Code Health P0 Runtime Guard 2026-08-26');
+if(strictGuardPos < 0){
+  fail('GRADING_FAIL_CLOSED_RUNTIME', 'final fail-closed runtime guard is missing');
+}else if(legacyInferencePos >= strictGuardPos){
+  fail('GRADING_OVERRIDE_ORDER', 'legacy grading inference appears after the fail-closed runtime guard');
+}else{
+  pass('GRADING_OVERRIDE_ORDER', 'fail-closed grading layer loads after all legacy inference');
+}
+for(const needle of [
+  "window.swsiGradingContractVersion='2026-08-26.fail-closed.v1'",
+  "return 'invalid'",
+  'SPECIAL_ANSWER_MARKERS',
+  '官方給分資料不完整或格式異常'
+]){
+  if(!patchSource.includes(needle)) fail('GRADING_FAIL_CLOSED_RUNTIME', `missing strict runtime marker: ${needle}`);
+}
+if(!failures.some(x => x.code === 'GRADING_FAIL_CLOSED_RUNTIME')){
+  pass('GRADING_FAIL_CLOSED_RUNTIME', 'special-credit metadata errors stop scoring instead of being guessed');
+}
+
+// Mock exam must use the same public grading helpers, not a private q.answer test.
+const mkPos = patchSource.lastIndexOf('SWSI MK Unified Grading Contract 2026-08-26');
+if(mkPos < strictGuardPos){
+  fail('MK_GRADING_CONTRACT', 'unified MK grading layer is missing or loads before strict grading contract');
+}else{
+  const mkTail = patchSource.slice(mkPos);
+  const required = [
+    "contractVersion:'2026-08-26.unified-grading.v1'",
+    'window.isCorrectAnswer',
+    'window.answerLabel',
+    "if(gm==='all_credit'&&picked==null)",
+    '未作答也列入分母'
+  ];
+  const missing = required.filter(x => !mkTail.includes(x));
+  if(missing.length) fail('MK_GRADING_CONTRACT', 'missing: ' + missing.join(', '));
+  else pass('MK_GRADING_CONTRACT', 'mock exam uses the shared grading contract and counts unanswered ordinary questions');
+}
+
+// CDN question shards must verify actual response bytes against the manifest SHA.
+for(const needle of [
+  "window.swsiShardIntegrityVersion='2026-08-26.sha256.v1'",
+  "crypto.subtle.digest('SHA-256'",
+  '題庫版本完整性驗證失敗'
+]){
+  if(!patchSource.includes(needle)) fail('SHARD_SHA256_RUNTIME', `missing shard integrity marker: ${needle}`);
+}
+if(!failures.some(x => x.code === 'SHARD_SHA256_RUNTIME')) pass('SHARD_SHA256_RUNTIME', 'actual shard bytes are SHA-256 checked before use');
+
+// -----------------------------------------------------------------------------
+// P0-3: home round canonical contract.
+// -----------------------------------------------------------------------------
 const indexSource = read('index.html');
 const badRoundOption = /<option value=\\?"第一次\\?"[^>]*>第一次<\/option>|<option value=\\?"第二次\\?"[^>]*>第二次<\/option>/;
 const badRoundState = /homeQuizRound===['"]第一次['"]|homeQuizRound===['"]第二次['"]/;
 if(badRoundOption.test(indexSource) || badRoundState.test(indexSource)){
   fail('HOME_ROUND_NONCANONICAL_VALUE', 'index.html still contains a home round selector/state using 第一次／第二次 instead of canonical 1／2');
 }else{
-  note('HOME_ROUND_NONCANONICAL_VALUE', 'PASS: home round UI uses canonical values');
+  pass('HOME_ROUND_NONCANONICAL_VALUE', 'home round UI uses canonical values');
 }
 if(!/canonicalRound\(q\.round\)!==homeQuizRound/.test(indexSource)){
   fail('HOME_ROUND_FILTER_CONTRACT', 'focusedQuizFilter no longer visibly compares canonicalRound(q.round) to homeQuizRound; review contract');
 }else{
-  note('HOME_ROUND_FILTER_CONTRACT', 'PASS: focusedQuizFilter compares canonicalRound(q.round) to homeQuizRound');
+  pass('HOME_ROUND_FILTER_CONTRACT', 'focusedQuizFilter compares canonicalRound(q.round) to homeQuizRound');
 }
+
+// -----------------------------------------------------------------------------
+// Service worker: mutable scoring/content assets must not be stuck cache-first.
+// -----------------------------------------------------------------------------
+const sw = read('sw.js');
+if(!/const VERSION = 'v6'/.test(sw)) fail('SERVICE_WORKER_VERSION', 'service worker cache version is not v6');
+else pass('SERVICE_WORKER_VERSION', 'service worker cache is bumped to v6');
+for(const asset of ['/monthly_patch.js','/essay_guides.js','/manifest.json']){
+  if(!sw.includes(asset)) fail('SERVICE_WORKER_MUTABLE_ASSETS', `missing mutable asset handling for ${asset}`);
+}
+if(!/if \(isMutableStatic\) \{[\s\S]{0,180}networkFirst\(req, null, true\)/.test(sw)){
+  fail('SERVICE_WORKER_MUTABLE_ASSETS', 'mutable scoring/content assets are not no-store network-first');
+}else pass('SERVICE_WORKER_MUTABLE_ASSETS', 'monthly patch, essay guides and manifest are no-store network-first');
 
 const result = {
   ok: failures.length === 0,
