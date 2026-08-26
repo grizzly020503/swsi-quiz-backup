@@ -2086,7 +2086,7 @@ body:has(#app .section-h) main{
 })();
 
 /* SWSI Essay Exam Dissection Method 2026-08-26
-   Replace the old mnemonic-like five steps with a practical exam-writing flow.
+   Beginner-first version: simple enough to use when a student is stuck.
    This is a study aid synthesized from common social-worker exam preparation principles,
    not an official MOEX answer formula.
 */
@@ -2096,14 +2096,14 @@ body:has(#app .section-h) main{
   dissectHTML=function(id){
     const open = dissectOpen===id;
     const steps = [
-      ['① 圈出問法','先找題目的動詞與子題，例如「說明、比較、分析、評估、舉例、提出建議」。問法不同，答案的寫法也不同。'],
-      ['② 拆成得分點','把題目切成幾個必答部分；特別注意「並、以及、另請說明」後面是否還有第二問。題目有幾問，就準備幾塊答案。'],
-      ['③ 先列小綱','先在腦中或題目紙列出每一塊會用到的概念、理論、學者、法規或實務例子，再決定先後順序。'],
-      ['④ 分點作答','照題目順序，用「一、（一）、1.」等層級寫。每一點盡量做到：小標題 → 說明 → 理論／依據 → 必要時舉例。'],
-      ['⑤ 回頭檢核','最後快速確認：每一問都有答嗎？有回應題目的動詞嗎？若還有時間，再用一兩句補結論或整合。']
+      ['① 看題目要你答什麼','先不要急著寫，把題目完整看完，確認它到底要你回答哪些事情。'],
+      ['② 分成幾個問題','題目問三件事，就準備答三段；不要把全部答案擠在同一大段裡。'],
+      ['③ 想幾個關鍵字','把你記得的理論、人物、法規或重要概念先寫在旁邊，不用一開始就排得很漂亮。'],
+      ['④ 一點一點寫','用「一、（一）、1.」分開來寫。每一點先講重點，再補一兩句說明。'],
+      ['⑤ 寫完再看一次','最後回頭看題目，確認有沒有漏掉其中一問；有時間再補一小段結尾。']
     ];
-    const note='依社工師考試教師與上榜者常見作答原則整理，非考選部官方作答公式。';
-    return `<button class="dbtn" onclick="toggleDissect('${id}')">${open?'▾':'▸'} 考場拆題 5 步｜不知道怎麼下筆時看</button>`
+    const note='這是給卡住時用的簡單提醒，不是考選部官方作答公式。';
+    return `<button class="dbtn" onclick="toggleDissect('${id}')">${open?'▾':'▸'} 不知道怎麼下筆？先照這 5 步</button>`
       + (open?`<div class="dsteps">${steps.map(s=>`<div class="dstep"><b>${s[0]}</b><span>${s[1]}</span></div>`).join('')}<div style="margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);line-height:1.6;color:var(--ink-soft)">${note}</div></div>`:'');
   };
 })();
