@@ -126,6 +126,18 @@ for(const needle of [
 }
 if(!failures.some(x => x.code === 'SHARD_SHA256_RUNTIME')) pass('SHARD_SHA256_RUNTIME', 'actual shard bytes are SHA-256 checked before use');
 
+// Full-bank completion must be based on content invariants, not loaded file count alone.
+for(const needle of [
+  "window.swsiQuestionBankIntegrityVersion='2026-08-27.full-bank.v1'",
+  'manifest shard 題數總和',
+  '跨 shard 題目 ID 重複',
+  '實際題數 ',
+  'qb.allComplete=false'
+]){
+  if(!patchSource.includes(needle)) fail('FULL_BANK_INTEGRITY_RUNTIME', `missing full-bank invariant marker: ${needle}`);
+}
+if(!failures.some(x => x.code === 'FULL_BANK_INTEGRITY_RUNTIME')) pass('FULL_BANK_INTEGRITY_RUNTIME', 'full bank validates manifest totals, session counts and unique IDs before staying complete');
+
 // -----------------------------------------------------------------------------
 // P0-3: home round canonical contract. Legacy index.html still contains older UI
 // implementations, so verify the *last effective monthly patch* instead of
@@ -166,6 +178,12 @@ for(const asset of ['/monthly_patch.js','/essay_guides.js','/manifest.json']){
 if(!/if \(isMutableStatic\) \{[\s\S]{0,180}networkFirst\(req, null, true\)/.test(sw)){
   fail('SERVICE_WORKER_MUTABLE_ASSETS', 'mutable scoring/content assets are not no-store network-first');
 }else pass('SERVICE_WORKER_MUTABLE_ASSETS', 'monthly patch, essay guides and manifest are no-store network-first');
+
+const swUpgradeSmoke = read('scripts/service_worker_upgrade_smoke.js');
+for(const marker of ['swsi-shell-v5','swsi-shell-v6','requestsBeforeFinalFetch','/monthly_patch.js','/essay_guides.js','/manifest.json']){
+  if(!swUpgradeSmoke.includes(marker)) fail('SERVICE_WORKER_UPGRADE_SMOKE', `upgrade smoke missing marker: ${marker}`);
+}
+if(!failures.some(x => x.code === 'SERVICE_WORKER_UPGRADE_SMOKE')) pass('SERVICE_WORKER_UPGRADE_SMOKE', 'real-browser upgrade smoke covers v5 cache eviction and all mutable assets');
 
 const result = {
   ok: failures.length === 0,
