@@ -1185,3 +1185,75 @@ main [style*="font-size:15px"]{
   installStyle();
   try{if(typeof view!=='undefined'&&view==='home') render();}catch(_e){}
 })();
+
+/* SWSI Focused Quiz UI 2026-08-26
+   Presentation-only pass: make practice feel calm, direct, and study-first.
+*/
+(function(){
+  if(document.getElementById('swsi-focused-quiz-style')) return;
+  var style=document.createElement('style');
+  style.id='swsi-focused-quiz-style';
+  style.textContent=`
+/* When a quiz is open, remove unrelated navigation noise. */
+body:has(#app .qcard) .tabbar{display:none!important;}
+body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
+body:has(#app .qcard) header{box-shadow:none;border-bottom:1px solid rgba(220,228,223,.75);}
+
+/* Progress = orientation, not competition. */
+#app .pstrip{gap:10px;margin:2px 0 13px;}
+#app .pbar{height:3px;background:#E3E9E5;}
+#app .pbar i{background:var(--pine);box-shadow:none;}
+#app .pcount{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:500;color:var(--ink-soft);}
+#app .quit{font-family:'Noto Sans TC',sans-serif;text-decoration:none;color:var(--ink-soft);opacity:.8;margin-bottom:10px;}
+#app .quit:hover{color:var(--ink);}
+
+/* The question itself should own the page. */
+#app .qcard{background:#fff;border:1px solid #E4E9E6;border-radius:18px;padding:22px 18px 20px;box-shadow:0 3px 16px rgba(42,44,42,.035);}
+#app .qmeta{gap:6px;margin-bottom:14px;}
+#app .tag{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:600;line-height:1.25;padding:4px 8px;border-radius:999px;}
+#app .tag.subj{background:#EAF1EE;color:var(--pine-deep);}
+#app .tag.year{background:#F3F4F1;color:var(--ink-soft);}
+#app .qtext{font-family:'Noto Serif TC',serif;font-weight:600;line-height:1.8;margin:0 0 21px;color:#202421;letter-spacing:.01em;}
+
+/* Answers should read like four clean choices, not game buttons. */
+#app .opt{position:relative;background:#FBFCFB;border:1px solid #DFE5E1;border-radius:14px;padding:14px 14px 14px 13px;margin-bottom:10px;gap:11px;min-height:54px;align-items:flex-start;line-height:1.65;box-shadow:none;}
+#app .opt:hover{border-color:#BFCFC8;background:#F8FAF9;}
+#app .opt .lab{display:grid;place-items:center;flex:0 0 auto;width:28px;height:28px;margin-top:0;border:1px solid #D6DEDA;border-radius:50%;font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:700;color:#66706B;background:#fff;}
+#app .opt.sel{border-color:var(--pine);background:#F0F6F3;}
+#app .opt.sel .lab{border-color:var(--pine);background:var(--pine);color:#fff;}
+#app .opt.correct{border-color:#AFCAC0;background:#EFF6F3;}
+#app .opt.correct .lab{border-color:var(--correct);background:var(--correct);color:#fff;}
+#app .opt.wrong{border-color:#D8BDB6;background:#FAF2EF;}
+#app .opt.wrong .lab{border-color:var(--wrong);background:var(--wrong);color:#fff;}
+#app .opt .mk{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:600;}
+#app .ck{width:18px;height:18px;font-size:10px;}
+
+/* Primary action: plain language, no arcade-style letter spacing. */
+#app .qcard > .btn,#app .qcard .btn{font-family:'Noto Sans TC',sans-serif;letter-spacing:.2px;font-size:var(--fs-b);font-weight:700;border-radius:12px;min-height:48px;margin-top:12px;box-shadow:none;}
+#app .qcard .btn:not(.ghost){background:var(--pine-deep);}
+#app .qcard .btn.ghost{background:#fff;border:1px solid #C9D7D1;color:var(--pine-deep);}
+
+/* Explanation should feel like study notes, not a result screen. */
+#app .exp{margin-top:22px;padding-top:20px;border-top:1px solid #E5EAE7;animation:none;}
+#app .exp .topic{font-family:'Noto Sans TC',sans-serif;color:var(--ink-soft);margin-bottom:15px;}
+#app .exp-sec{margin:0 0 17px;}
+#app .exp-sec h4{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-h);font-weight:800;color:#34443E;letter-spacing:.1px;margin-bottom:7px;gap:0;}
+#app .exp-sec h4 .dot{display:none;}
+#app .exp-sec p{font-family:'Noto Sans TC',sans-serif;color:#363C38;line-height:1.8;}
+#app .pending{background:#F7F8F6;border:1px solid #E2E6E3;color:var(--ink-soft);border-radius:12px;}
+#app .extra{background:#FAFBFA;border:1px solid #E4E8E5;border-radius:11px;}
+#app .mistake{font-family:'Noto Sans TC',sans-serif;border-radius:8px;padding:5px 8px;background:#F7EEEB;font-weight:600;}
+
+/* Result page should inform, not rank or celebrate excessively. */
+#app .sumcard{background:#fff;border:1px solid #E3E8E5;box-shadow:none;}
+#app .sumcard .big{font-size:38px;color:var(--ink);}
+#app .stat{background:#FAFBFA;border-color:#E4E8E5;}
+#app .weak{background:#FAF4F2;}
+
+@media (max-width:370px){
+  #app .qcard{padding:19px 14px 18px;}
+  #app .opt{padding:13px 12px;gap:9px;}
+}
+`;
+  document.head.appendChild(style);
+})();
