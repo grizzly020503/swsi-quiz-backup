@@ -23,7 +23,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.route('**/*', route => {
     const req = route.request();
     const u = new URL(req.url());
-
     if (u.hostname === QUESTION_CDN_HOST && u.pathname.startsWith(QUESTION_CDN_PREFIX)) {
       const rel = decodeURIComponent(u.pathname.slice(QUESTION_CDN_PREFIX.length));
       if (!rel || rel !== path.basename(rel)) return route.fulfill({ status: 404, body: 'not found' });
@@ -32,7 +31,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       servedQuestionFiles.push(rel);
       return route.fulfill({ status: 200, contentType: 'application/json; charset=utf-8', body: fs.readFileSync(file) });
     }
-
     if (u.origin !== localOrigin) return route.abort();
     return route.continue();
   });
@@ -119,7 +117,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await waitHome();
 
   // Review must preserve the user's self-reported reason and distinguish it from platform weak-topic grouping.
-  await page.getByRole('button', { name: '複習' }).click();
+  await page.getByRole('button', { name: '複習', exact: true }).click();
   await page.waitForSelector('.swsi-learning-section', { timeout: 30000 });
   const reviewText = await page.locator('#app').innerText();
   assert(/你自己標記的錯因/.test(reviewText), 'self-reported cause section missing from review');
@@ -135,7 +133,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/不同題目/.test(progressText), 'unique-question progress missing');
   assert(/題庫覆蓋/.test(progressText), 'coverage progress missing');
 
-  await page.getByRole('button', { name: '首頁' }).click();
+  await page.getByRole('button', { name: '首頁', exact: true }).click();
   await waitHome();
 
   // Essay flow remains intact after learning-loop changes.
@@ -158,16 +156,16 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   });
   assert(sawConfirm, 'clear draft did not ask for confirmation');
 
-  await page.getByRole('button', { name: '首頁' }).click();
+  await page.getByRole('button', { name: '首頁', exact: true }).click();
   await waitHome();
-  await page.getByRole('button', { name: '申論' }).click();
+  await page.getByRole('button', { name: '申論', exact: true }).click();
   await page.waitForFunction(() => {
     const h = document.querySelector('#app .section-h');
     return h && /申論題/.test(h.textContent || '');
   }, null, { timeout: 30000 });
   assert((await page.locator('.wta').count()) === 0, 'bottom Essay nav should open the library, not force a random question');
 
-  await page.getByRole('button', { name: '複習' }).click();
+  await page.getByRole('button', { name: '複習', exact: true }).click();
   await page.waitForFunction(() => {
     const app = document.querySelector('#app');
     return app && (/錯題複習|今天到期|還沒熟/.test(app.textContent || ''));
