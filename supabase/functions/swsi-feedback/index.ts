@@ -114,18 +114,6 @@ Deno.serve(async (req: Request) => {
   if (!supabaseUrl || !serviceRole) return json(origin, { error: { message: "Service unavailable" } }, 503);
   const db = createClient(supabaseUrl, serviceRole, { auth: { persistSession: false, autoRefreshToken: false } });
 
-  const now = Date.now();
-  const oneMinuteAgo = new Date(now - 60_000).toISOString();
-  const oneDayAgo = new Date(now - 86_400_000).toISOString();
-
-  const [{ count: minuteCount, error: minuteError }, { count: dayCount, error: dayError }] = await Promise.all([
-    db.from("swsi_feedback_reports").select("id", { count: "exact", head: true }).eq("client_hash", clientHash).gte("created_at", oneMinuteAgo),
-    db.from("swsi_feedback_reports").select("id", { count: "exact", head: true }).eq("client_hash", clientHash).gte("created_at", oneDayAgo),
-  ]);
-  if (minuteError || dayError) return json(origin, { error: { message: "Service unavailable" } }, 503);
-  if ((minuteCount || 0) >= 3) return json(origin, { error: { message: "回報太快了，請一分鐘後再試。" } }, 429, { "Retry-After": "60" });
-  if ((dayCount || 0) >= 30) return json(origin, { error: { message: "今天的回報次數已達上限，請明天再試。" } }, 429);
-
   const metadataInput = body.metadata && typeof body.metadata === "object" && !Array.isArray(body.metadata) ? body.metadata as Record<string, unknown> : {};
   const metadata = {
     screen_width: intOrNull(metadataInput.screen_width, 1, 10000),
@@ -134,32 +122,39 @@ Deno.serve(async (req: Request) => {
     referrer_host: cleanText(metadataInput.referrer_host, 200),
   };
 
-  const row = {
-    category,
-    context_type: contextType,
-    context_id: cleanText(body.context_id, 240),
-    context_title: cleanText(body.context_title, 500),
-    source_kind: sourceKind,
-    subject: cleanText(body.subject, 120),
-    exam_year: intOrNull(body.exam_year, 1, 9999),
-    exam_round: intOrNull(body.exam_round, 1, 20),
-    question_no: intOrNull(body.question_no, 1, 999),
-    message,
-    contact,
-    page_path: cleanText(body.page_path, 500),
-    site_origin: origin,
-    app_version: cleanText(body.app_version, 120),
-    user_agent: cleanText(req.headers.get("User-Agent"), 500),
-    client_hash: clientHash,
-    metadata,
-  };
+  const { data, error } = await db.rpc("submit_swsi_feedback", {
+    p_category: category,
+    p_context_type: contextType,
+    p_context_id: cleanText(body.context_id, 240),
+    p_context_title: cleanText(body.context_title, 500),
+    p_source_kind: sourceKind,
+    p_subject: cleanText(body.subject, 120),
+    p_exam_year: intOrNull(body.exam_year, 1, 9999),
+    p_exam_round: intOrNull(body.exam_round, 1, 20),
+    p_question_no: intOrNull(body.question_no, 1, 999),
+    p_message: message,
+    p_contact: contact,
+    p_page_path: cleanText(body.page_path, 500),
+    p_site_origin: origin,
+    p_app_version: cleanText(body.app_version, 120),
+    p_user_agent: cleanText(req.headers.get("User-Agent"), 500),
+    p_client_hash: clientHash,
+    p_metadata: metadata,
+  });
 
-  const { data, error } = await db.from("swsi_feedback_reports").insert(row).select("report_no").single();
-  if (error) return json(origin, { error: { message: "回報暫時無法送出，請稍後再試。" } }, 503);
+  if (error) {
+    const code = String(error.code || "");
+    const msg = String(error.message || "");
+    console.error("[swsi-feedback] rpc failed", { code, message: msg.slice(0, 160) });
+    if (msg.includes("RATE_MINUTE")) return json(origin, { error: { message: "回報太快了，請一分鐘後再試。" } }, 429, { "Retry-After": "60" });
+    if (msg.includes("RATE_DAY")) return json(origin, { error: { message: "今天的回報次數已達上限，請明天再試。" } }, 429);
+    if (msg.includes("INVALID_CLIENT")) return json(origin, { error: { message: "Invalid client identifier" } }, 400);
+    return json(origin, { error: { message: "回報暫時無法送出，請稍後再試。" } }, 503);
+  }
 
   return json(origin, {
     ok: true,
-    report_no: data.report_no,
+    report_no: data,
     message: "收到，我們會核對這個問題。你可以繼續作答。",
   }, 201);
 });
