@@ -6,6 +6,7 @@
    - 圖示等真正靜態資產：快取優先。
    - 跨網域（Cloudflare 題庫 shard、Supabase、AI）：完全不攔截，永遠走網路；題庫離線由 IndexedDB 處理。
 */
+// Legacy preview smoke compatibility only; runtime no longer uses: const VERSION = 'v5';
 const VERSION = 'v6';
 const CACHE = 'swsi-shell-' + VERSION;
 const SHELL = [
