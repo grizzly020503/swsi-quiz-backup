@@ -79,7 +79,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/後續研究|後續.*提出|後由/.test(text), 'attachment card should mark disorganized pattern as later development');
   assert(/不是.*終身|不能.*終身|不宜直接.*診斷/.test(text), 'attachment card needs non-deterministic / non-diagnostic caution');
 
-  text = await openTheoryAndRead('Erikson心理社會發展理論');
+  text = await openTheoryAndRead('Erikson 心理社會發展');
   assert(/大致範圍|不是硬切/.test(text), 'Erikson card should not treat ages as hard diagnostic boundaries');
   assert(/危機.*不是|危機.*不等於/.test(text), 'Erikson card should explain psychosocial crisis is not pathology');
 
