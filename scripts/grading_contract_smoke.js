@@ -21,6 +21,25 @@ const { chromium } = require('playwright');
     const missingSpecial = { id:'T-MISSING', answer:'一律給分', accepted_answers:null };
     const ordinaryLegacy = { id:'T-LEGACY', answer:'D', accepted_answers:null };
 
+    const manifest={
+      total_questions:4,
+      shards:[
+        {file:'101-1.json',year:'101',round:'第一次',question_count:2},
+        {file:'101-2.json',year:'101',round:'第二次',question_count:2}
+      ]
+    };
+    const bankRows=[
+      {id:'A',year:'101',round:'第一次'},
+      {id:'B',year:'101',round:'第一次'},
+      {id:'C',year:'101',round:'第二次'},
+      {id:'D',year:'101',round:'第二次'}
+    ];
+    const loaded=new Set(['101-1.json','101-2.json']);
+    let bankGood=false, bankCollisionBlocked=false, bankManifestMismatchBlocked=false;
+    try{bankGood=window.swsiAssertCompleteQuestionBank(bankRows,manifest,loaded).ok===true;}catch(_e){}
+    try{window.swsiAssertCompleteQuestionBank(bankRows.slice(0,3),manifest,loaded);}catch(_e){bankCollisionBlocked=true;}
+    try{window.swsiAssertCompleteQuestionBank(bankRows,{...manifest,total_questions:5},loaded);}catch(_e){bankManifestMismatchBlocked=true;}
+
     return {
       contract: window.swsiGradingContractVersion,
       mkContract: window.MK && window.MK.contractVersion,
@@ -37,7 +56,11 @@ const { chromium } = require('playwright');
       missingSpecialA: window.isCorrectAnswer(missingSpecial,'A'),
       ordinaryLegacyMode: window.gradingMode(ordinaryLegacy),
       ordinaryLegacyD: window.isCorrectAnswer(ordinaryLegacy,'D'),
-      integrityContract: window.swsiShardIntegrityVersion
+      integrityContract: window.swsiShardIntegrityVersion,
+      bankIntegrityContract: window.swsiQuestionBankIntegrityVersion,
+      bankGood,
+      bankCollisionBlocked,
+      bankManifestMismatchBlocked
     };
   });
 
@@ -57,7 +80,11 @@ const { chromium } = require('playwright');
     missingSpecialA:false,
     ordinaryLegacyMode:'standard',
     ordinaryLegacyD:true,
-    integrityContract:'2026-08-26.sha256.v1'
+    integrityContract:'2026-08-26.sha256.v1',
+    bankIntegrityContract:'2026-08-27.full-bank.v1',
+    bankGood:true,
+    bankCollisionBlocked:true,
+    bankManifestMismatchBlocked:true
   };
 
   for (const [key, value] of Object.entries(expected)) {
