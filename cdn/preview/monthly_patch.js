@@ -3027,3 +3027,15 @@ body:has(#app .section-h) main{
 
   window.SWSI_LAW_TRUST={version:'SWSI Law Trust Layer V1 2026-08-26',checkedAt:CHECKED_AT,verifiedCount:function(){return LAWS.filter(function(x){return x.verify_status===VERIFY_CHECKED;}).length;}};
 })();
+
+/* SWSI Law Trust Escape Fix 2026-08-26 */
+(function(){
+  'use strict';
+  if(typeof window.H!=='function'){
+    window.H=function(v){
+      return String(v==null?'':v).replace(/[&<>"']/g,function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    };
+  }
+})();
