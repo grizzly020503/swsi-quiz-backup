@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from pathlib import Path
 
+# Idempotent repair helper. The companion workflow also upgrades the Cloudflare
+# frontend-preview assertion from the legacy v5 marker to the real v6 contract.
 PATH = Path('cloudflare/wandering-wave-4418/worker.js')
 OLD = 'Math.max(Number(body.temperature) || 0.4, 0)'
 NEW = 'Math.max(Number.isFinite(Number(body.temperature)) ? Number(body.temperature) : 0.4, 0)'
