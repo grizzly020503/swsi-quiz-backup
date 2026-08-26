@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "policy_name": "SWSI Unified Question Intake QA",
+  "status_order": ["passed", "needs_review", "blocked"],
+  "risk_order": ["low", "medium", "high", "critical"],
+  "subjects": [
+    "社會工作",
+    "社會工作直接服務",
+    "社會政策與社會立法",
+    "人類行為與社會環境",
+    "社會工作研究方法"
+  ],
+  "round_aliases": {
+    "1": "第一次",
+    "第一次": "第一次",
+    "第一試": "第一次",
+    "2": "第二次",
+    "第二次": "第二次",
+    "第二試": "第二次"
+  },
+  "mcq": {
+    "expected_total": 200,
+    "expected_per_subject": 40,
+    "qno_min": 1,
+    "qno_max": 40,
+    "valid_grading_modes": ["standard", "all_credit", "any_answer"],
+    "valid_answer_letters": ["A", "B", "C", "D"],
+    "special_answer_marker": "一律給分"
+  },
+  "essay": {
+    "expected_total": 10,
+    "expected_per_subject": 2,
+    "qno_min": 1,
+    "qno_max": 2
+  },
+  "risk_signals": {
+    "legal_or_policy_high": [
+      "家庭暴力防治法",
+      "老人福利法",
+      "社會救助法",
+      "社會工作師法",
+      "性別平等工作法",
+      "兒童及少年福利與權益保障法",
+      "兒童及少年性剝削防制條例",
+      "長期照顧服務法",
+      "性侵害犯罪防治法",
+      "第\\s*[0-9一二三四五六七八九十百]+\\s*條",
+      "修正",
+      "公布",
+      "施行",
+      "政策綱領",
+      "計畫第?[一二三四五六七八九十0-9]+期"
+    ],
+    "multi_requirement_medium": [
+      "（一）",
+      "（二）",
+      "並說明",
+      "並比較",
+      "並舉例",
+      "並提出",
+      "分別說明"
+    ]
+  },
+  "release_gate": {
+    "official_core_requires_blocked_zero": true,
+    "enrichment_does_not_block_official_core": true,
+    "special_grading_fail_closed": true
+  }
+}
