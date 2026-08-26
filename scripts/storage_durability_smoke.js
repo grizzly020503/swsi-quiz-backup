@@ -7,7 +7,7 @@ const url = process.argv[2] || 'http://127.0.0.1:4173/';
   const page = await browser.newPage();
   try{
     await page.goto(url, {waitUntil:'domcontentloaded', timeout:30000});
-    await page.waitForFunction(() => window.swsiStorageDurabilityVersion === '2026-08-27.history-cap.v1', null, {timeout:15000});
+    await page.waitForFunction(() => window.swsiStorageDurabilityVersion === '2026-08-27.history-cap.v2', null, {timeout:15000});
 
     const result = await page.evaluate(() => {
       localStorage.removeItem('swsi_v2_history');
@@ -23,7 +23,9 @@ const url = process.argv[2] || 'http://127.0.0.1:4173/';
       const originalSetItem = proto.setItem;
       let historyWarn = false;
       let reviewWarn = false;
+      let recordChainWarn = false;
       try{
+        window.swsiStorageDurability.clearWarning();
         proto.setItem = function(key, value){
           if(key === 'swsi_v2_history') throw new DOMException('quota test','QuotaExceededError');
           return originalSetItem.call(this,key,value);
@@ -36,6 +38,7 @@ const url = process.argv[2] || 'http://127.0.0.1:4173/';
       }
 
       try{
+        window.swsiStorageDurability.clearWarning();
         proto.setItem = function(key, value){
           if(key === 'swsi_review_v2') throw new DOMException('quota test','QuotaExceededError');
           return originalSetItem.call(this,key,value);
@@ -47,10 +50,26 @@ const url = process.argv[2] || 'http://127.0.0.1:4173/';
         proto.setItem = originalSetItem;
       }
 
+      try{
+        window.swsiStorageDurability.clearWarning();
+        localStorage.removeItem('swsi_review_v2');
+        proto.setItem = function(key, value){
+          if(key === 'swsi_v2_history') throw new DOMException('quota test','QuotaExceededError');
+          return originalSetItem.call(this,key,value);
+        };
+        window.record({id:'REC-X',subject:'測試',major:'測試',mistake:''},'A',false);
+        const el=document.getElementById('swsi-storage-warning');
+        const reviewStillSaved=!!localStorage.getItem('swsi_review_v2');
+        recordChainWarn=!!(reviewStillSaved && el && /學習歷程儲存失敗/.test(el.textContent||'') && el.style.display !== 'none');
+      }finally{
+        proto.setItem = originalSetItem;
+      }
+
       return {
         capOk,
         historyWarn,
         reviewWarn,
+        recordChainWarn,
         version:window.swsiStorageDurabilityVersion,
         historyMaxRecords:window.swsiStorageDurability && window.swsiStorageDurability.historyMaxRecords
       };
@@ -59,6 +78,7 @@ const url = process.argv[2] || 'http://127.0.0.1:4173/';
     if(!result.capOk) throw new Error('history retention cap contract failed: '+JSON.stringify(result));
     if(!result.historyWarn) throw new Error('history storage failure is not visibly reported: '+JSON.stringify(result));
     if(!result.reviewWarn) throw new Error('review storage failure is not visibly reported: '+JSON.stringify(result));
+    if(!result.recordChainWarn) throw new Error('record() hides a history-write failure after review succeeds: '+JSON.stringify(result));
     if(result.historyMaxRecords !== 8000) throw new Error('unexpected history retention cap: '+JSON.stringify(result));
 
     console.log('STORAGE DURABILITY SMOKE OK', JSON.stringify(result));
