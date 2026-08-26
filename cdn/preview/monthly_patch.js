@@ -2828,3 +2828,202 @@ body:has(#app .section-h) main{
   polishEssayMetadataUI();
 })();
 /* ===== SWSI Essay Metadata Labels END ===== */
+
+/* SWSI Law Trust Layer V1 2026-08-26
+   Official exam questions are immutable. This layer only corrects and labels SWSI-authored
+   law/policy reference cards, links official sources, and distinguishes laws from policies/conventions.
+*/
+(function(){
+  'use strict';
+
+  var CHECKED_AT='2026-08-26';
+  var MOJ='https://law.moj.gov.tw/LawClass/LawAll.aspx?PCode=';
+  var VERIFY_CHECKED='checked';
+  var VERIFY_SOURCE='source_only';
+
+  function byName(name){
+    try{return LAWS.find(function(x){return x&&x.n===name;})||null;}catch(_e){return null;}
+  }
+  function patch(name,data){
+    var x=byName(name);if(!x)return null;
+    Object.keys(data||{}).forEach(function(k){x[k]=data[k];});
+    return x;
+  }
+  function add(row){
+    if(!row||!row.n||byName(row.n))return;
+    LAWS.push(row);
+  }
+
+  var SOURCES={
+    '社會工作師法':{url:MOJ+'D0050125',kind:'law'},
+    '社會工作人員執業安全方案':{url:'https://dep.mohw.gov.tw/DOSAASW/',kind:'policy'},
+    '兒童及少年福利與權益保障法':{url:MOJ+'D0050001',kind:'law'},
+    '兒童及少年性剝削防制條例':{url:MOJ+'D0050023',kind:'law'},
+    '少年事件處理法':{url:MOJ+'C0010011',kind:'law'},
+    '兒童權利公約 CRC':{url:'https://crc.sfaa.gov.tw/',kind:'convention'},
+    '家庭暴力防治法':{url:MOJ+'D0050071',kind:'law'},
+    '社會救助法':{url:MOJ+'D0050078',kind:'law'},
+    '老人福利法':{url:MOJ+'D0050037',kind:'law'},
+    '身心障礙者權益保障法':{url:MOJ+'D0050046',kind:'law'},
+    '身心障礙者權利公約 CRPD':{url:'https://crpd.sfaa.gov.tw/',kind:'convention'},
+    '長期照顧服務法':{url:MOJ+'L0070040',kind:'law'},
+    '病人自主權利法':{url:MOJ+'L0020189',kind:'law'},
+    '性別平等工作法':{url:MOJ+'N0030014',kind:'law'},
+    '性別平等政策綱領':{url:'https://gec.ey.gov.tw/Page/FD420B6572C922EA',kind:'policy'},
+    '入出國及移民法':{url:MOJ+'D0080132',kind:'law'},
+    '公益勸募條例':{url:MOJ+'D0050138',kind:'law'},
+    '公務人員退休資遣撫卹法':{url:MOJ+'S0080034',kind:'law'}
+  };
+
+  // Every existing card gets an official-government source link first. Content is not called verified
+  // until it has been reviewed card-by-card.
+  Object.keys(SOURCES).forEach(function(name){
+    var x=byName(name),s=SOURCES[name];if(!x)return;
+    x.source_url=s.url;x.source_kind=s.kind;x.source_label=s.kind==='law'?'全國法規資料庫':(s.kind==='policy'?'政府政策官方頁':'公約官方專區');
+    x.checked_at=x.checked_at||'';
+    x.verify_status=x.verify_status||VERIFY_SOURCE;
+  });
+
+  // ----- P0 corrections verified against official/current government sources -----
+  patch('社會工作師法',{
+    source_url:MOJ+'D0050125',source_kind:'law',source_label:'全國法規資料庫',checked_at:CHECKED_AT,verify_status:VERIFY_CHECKED,
+    u:'112年6月9日修法的重點是：擴充不得充任／執業資格限制、建立社工師懲戒制度、強化執業安全與機關安全防護及法律協助，並增訂妨礙社工執業的處罰。專科社會工作師制度與「每六年完成繼續教育」並非112年才新設，勿混在同一批修法重點背誦。',
+    trust_note:'112年修正的是第7、10、19條，並增訂第17-1至17-3、19-1、39-1條。'
+  });
+
+  patch('社會救助法',{
+    source_url:MOJ+'D0050078',source_kind:'law',source_label:'全國法規資料庫',checked_at:CHECKED_AT,verify_status:VERIFY_CHECKED,
+    c:'①低收入戶：家庭總收入平均分配全家人口，每人每月在「當地區公告最低生活費」以下，且家庭財產未超過公告限額 ②中低收入戶：收入門檻原則上不超過當地區最低生活費1.5倍，並另受家庭財產限額等條件限制 ③最低生活費由中央或直轄市主管機關依法定公式訂定，各地區不同、每年可能調整 ④制度並包括生活扶助、醫療、教育、住宅、急難與災害救助及協助自立等措施。',
+    a:'貧窮、經濟安全題的法源。最重要的是寫清楚「家戶所得＋財產調查＋各地區公告標準」，不要背成全國只有一個固定金額；再連到資產調查、福利資格與協助自立。',
+    u:'115年度最低生活費並非全國統一：例如臺灣省／臺南市15,515元、高雄市16,970元、臺北市20,744元等。考試若涉及當年度金額，應以中央與各直轄市最新公告為準。',
+    trust_note:'已移除原本把「15,515元」與「23,273元」寫成全國統一門檻的表述。',
+    secondary_url:'https://www.mohw.gov.tw/cp-190-231-1.html',secondary_label:'衛福部社會救助資訊'
+  });
+
+  patch('兒童及少年福利與權益保障法',{
+    source_url:MOJ+'D0050001',source_kind:'law',source_label:'全國法規資料庫',checked_at:CHECKED_AT,verify_status:VERIFY_CHECKED,
+    u:'現行法與修法草案要分開看。115年衛福部曾預告兒少權法修正草案，但「草案」不是現行條文；國考作答若談修法動態，必須清楚標成草案／政策方向，不可當成已生效規定。',
+    trust_note:'平台只把已公布施行的條文列為現行法；115年修正草案另作動態提示。'
+  });
+
+  patch('兒童及少年性剝削防制條例',{
+    source_url:MOJ+'D0050023',source_kind:'law',source_label:'全國法規資料庫',checked_at:CHECKED_AT,verify_status:VERIFY_CHECKED,
+    u:'113年8月7日有修正；其中部分修正條文的施行日期由行政院另定。準備考試時要區分「已公布」與「已施行」，不能把尚待施行的內容直接當成現行規定。',
+    trust_note:'數位性影像與網路平台責任是近年重要方向，但條文施行狀態須以全國法規資料庫的生效註記為準。'
+  });
+
+  patch('長期照顧服務法',{
+    source_url:MOJ+'L0070040',source_kind:'law',source_label:'全國法規資料庫',checked_at:CHECKED_AT,verify_status:VERIFY_CHECKED,
+    p:'規範長期照顧服務、長照人員與機構、服務使用者權益及照顧服務體系的法律框架；「長照2.0／3.0」則是政策計畫，兩者要分開。',
+    c:'①長期照顧係對身心失能持續已達或預期達6個月以上者提供生活支持、協助、社會參與、照顧及相關醫護服務 ②法定長照服務包含居家式、社區式、機構住宿式、家庭照顧者支持及其他依法提供之服務 ③並規範長照人員、長照機構、服務契約、品質與權益保障。ABC社區整合服務網、給付支付細節屬政策／子法層次，不宜直接當成本法條文背。',
+    a:'長照題先分兩層：引用《長期照顧服務法》說法律框架，再另列「長照3.0」政策談現行制度發展，避免把政策措施寫成法條。',
+    u:'行政院於114年12月31日核定「長期照顧十年計畫3.0（115－124年）」，並自115年（2026）起正式實施。這是政策計畫，不等同於《長期照顧服務法》本身的條文。',
+    trust_note:'已把原卡中「長照2.0 ABC據點」從法律核心重點移到政策層次。',
+    secondary_url:'https://1966.gov.tw/LTC/cp-6572-85008-207.html',secondary_label:'衛福部長照3.0官方頁'
+  });
+
+  patch('性別平等工作法',{
+    source_url:MOJ+'N0030014',source_kind:'law',source_label:'全國法規資料庫',checked_at:CHECKED_AT,verify_status:VERIFY_CHECKED,
+    u:'因應#MeToo，法律於112年8月16日修正公布並更名為《性別平等工作法》；部分新制於113年3月8日施行。應區分「112年修正公布」與「113年部分規定施行」，不要簡化成「113年才修法」。',
+    trust_note:'已修正原卡把修法年份直接寫成113年的表述。'
+  });
+
+  patch('入出國及移民法',{
+    source_url:MOJ+'D0080132',source_kind:'law',source_label:'全國法規資料庫',checked_at:CHECKED_AT,verify_status:VERIFY_CHECKED,
+    p:'規範國民入出國、無戶籍國民及外國人停留／居留／永久居留、移民輔導與相關權益事項。新住民權益另有《新住民基本法》，人口販運則有獨立的《人口販運防制法》，不宜全部塞進移民法。',
+    c:'①國民入出國及無戶籍國民相關管理 ②外國人停留、居留與永久居留 ③移民輔導與相關權益保障 ④對移民歧視等事項的規範。人口販運被害人鑑別、保護與刑事規範，應另連結《人口販運防制法》。',
+    a:'新住民／移民題可用它談身分與居留制度，但若題目核心是新住民基本權益，優先連《新住民基本法》；若是人口販運，改以《人口販運防制法》為主。',
+    trust_note:'已把原本容易把移民法與人口販運防制混為一談的敘述拆開。'
+  });
+
+  // ----- High-priority laws missing from the old quick-reference list -----
+  add({
+    n:'社會福利基本法',d:'社會政策',p:'112年5月24日制定公布，是我國社會福利基本權利、基本方針與體制的總綱性法律。',
+    c:'①社會福利範圍包含社會保險、社會救助、社會津貼、福利服務、醫療保健、國民就業與社會住宅 ②基本方針強調適足生活、尊嚴、潛能、社會參與與公平正義 ③福利服務應以人為本、家庭為中心、社區為基礎 ④中央應訂定社會福利政策綱領並至少每五年檢討一次。',
+    a:'社會政策總論、福利國家、福利輸送與社會權題很適合用它當「法律總綱」開場，再接各領域專法。',u:'112年5月24日制定公布，自公布日施行。',
+    k:['社會福利基本權利','社會包容','七大福利事項','家庭為中心','社區為基礎','公平正義'],
+    source_url:MOJ+'D0050213',source_label:'全國法規資料庫',source_kind:'law',checked_at:CHECKED_AT,verify_status:VERIFY_CHECKED,
+    secondary_url:'https://www.mohw.gov.tw/dl-95281-2c3b2cd8-8fe0-4dfe-9cd0-82a8715c0983.html',secondary_label:'衛福部法規全文'
+  });
+
+  add({
+    n:'性騷擾防治法',d:'性別與保護',p:'處理不屬《性別平等教育法》或《性別平等工作法》優先適用範圍的性騷擾防治與被害人權益保護，是性騷擾防治三法體系的重要一環。',
+    c:'①依事件場域與身分關係，校園與職場若各有專法規定，優先適用各該法律 ②現行法明定性騷擾與權勢性騷擾 ③建立申訴、調查、保護扶助與行為人責任等機制 ④作答時應先判斷事件落在哪一部性平法律。',
+    a:'遇到性騷擾案例，第一步不是背罰則，而是先判斷「校園／職場／一般場域」的法律適用，再寫被害人保護、申訴調查與避免二次傷害。',
+    u:'112年8月16日修正公布全文34條；部分條文自113年3月8日施行，其餘自公布日施行。',
+    k:['權勢性騷擾','三法適用','被害人保護','申訴調查','二次傷害'],
+    source_url:MOJ+'D0050074',source_label:'全國法規資料庫',source_kind:'law',checked_at:CHECKED_AT,verify_status:VERIFY_CHECKED
+  });
+
+  add({
+    n:'性侵害犯罪防治法',d:'性別與保護',p:'防治性侵害犯罪並保障被害人權益，涵蓋預防通報、被害人保護與加害人處遇。',
+    c:'①明定性侵害犯罪、被害人與加害人等用詞 ②由社政、衛生、教育、警政司法等跨網絡分工 ③被害人保護包含必要之醫療、心理、法律與社會支持 ④另規範加害人身心治療、輔導教育及相關管理。',
+    a:'性侵害個案題可用「被害人安全與創傷知情＋跨網絡合作＋司法程序支持」作主架構；不要只寫刑事責任。',
+    u:'112年2月15日修正公布全文56條；除第13條自公布後六個月施行外，其餘自公布日施行。',
+    k:['性侵害防治','被害人保護','責任通報','跨網絡','加害人處遇'],
+    source_url:MOJ+'D0080079',source_label:'全國法規資料庫',source_kind:'law',checked_at:CHECKED_AT,verify_status:VERIFY_CHECKED
+  });
+
+  add({
+    n:'精神衛生法',d:'心理衛生與社區',p:'以心理健康促進、精神疾病預防與照護、社區支持及精神病人權益保障為核心的法律。',
+    c:'①強化全民心理健康促進與社區心理衛生中心 ②布建多元社區支持、跨網絡照護與危機處理 ③保障精神病人權益並防止污名與歧視 ④嚴重病人強制住院新制採法官保留並導入專家參審。',
+    a:'精神障礙、社區照顧、社安網與強制處遇倫理題，可同時寫「醫療需要、最小限制、人權保障、社區支持、跨網絡合作」。',
+    u:'111年12月14日修正公布全文91條，多數規定自113年12月14日施行；第五章等涉及強制住院的新制自115年8月1日施行。',
+    k:['心理健康促進','社區心理衛生中心','復元','人權保障','法官保留','專家參審'],
+    source_url:MOJ+'L0020030',source_label:'全國法規資料庫',source_kind:'law',checked_at:CHECKED_AT,verify_status:VERIFY_CHECKED,
+    secondary_url:'https://www.mohw.gov.tw/cp-7401-87291-1.html',secondary_label:'衛福部115年強制住院新制'
+  });
+
+  add({
+    n:'人口販運防制法',d:'移民與多元',p:'防制人口販運、追訴犯罪並保護及協助被害人的專法；本國人與外國人都可能是被害人。',
+    c:'①以預防、追訴、保護及夥伴合作等面向建構防制體系 ②建立疑似被害人鑑別、安置保護、醫療、通譯、法律與生活協助 ③對符合條件之外籍被害人提供居留及工作等保障 ④對新型態人口販運犯罪加強規範。',
+    a:'移工、跨境犯罪、性剝削與勞動剝削題，先做被害人鑑別與安全保護，再談跨機關合作、居留工作權益與創傷知情服務。',
+    u:'112年6月14日修正公布全文47條，行政院定自113年1月1日施行。',
+    k:['人口販運','被害人鑑別','安置保護','4P','跨境','勞動剝削'],
+    source_url:MOJ+'D0080177',source_label:'全國法規資料庫',source_kind:'law',checked_at:CHECKED_AT,verify_status:VERIFY_CHECKED
+  });
+
+  add({
+    n:'新住民基本法',d:'移民與多元',p:'保障新住民基本權益、促進多元文化與社會融合的基本法，與《入出國及移民法》的身分／居留管理功能不同。',
+    c:'以尊重多元文化、平等權益與社會參與為核心，要求政府就新住民之家庭、教育學習、就業、醫療、社會福利、語言文化與公共參與等需求建立整體政策與支持。',
+    a:'新住民社會工作題不要只寫「文化適應」；可從基本權、人權、多元文化、反歧視、語言可近性、家庭支持與社會參與一起分析。',
+    u:'113年8月12日制定公布。',
+    k:['新住民權益','多元文化','反歧視','社會融合','公共參與','家庭支持'],
+    source_url:MOJ+'D0080227',source_label:'全國法規資料庫',source_kind:'law',checked_at:CHECKED_AT,verify_status:VERIFY_CHECKED,
+    secondary_url:'https://www.moi.gov.tw/News_Photo_Content.aspx?n=18&s=318835',secondary_label:'內政部新住民基本法重點'
+  });
+
+  function kindLabel(kind){return kind==='policy'?'政策／行政方案':kind==='convention'?'公約／人權框架':'現行法律';}
+  function statusText(x){
+    if(x.verify_status===VERIFY_CHECKED)return '✓ 官方來源已逐卡核對';
+    return '○ 已連結官方來源・摘要待逐卡複核';
+  }
+  function trustHTML(x){
+    if(!x)return '';
+    var checked=x.checked_at?(' · '+x.checked_at):'';
+    var good=x.verify_status===VERIFY_CHECKED;
+    var bg=good?'#EEF5F1':'#F7F4EA',bd=good?'#CFE0D8':'#E5DCC1',fg=good?'#3F6961':'#756E57';
+    var h='<div class="swsi-law-trust" style="margin:14px 0 3px;padding:12px 13px;border:1px solid '+bd+';border-radius:12px;background:'+bg+';font-family:\'Noto Sans TC\',sans-serif">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><b style="font-size:12.5px;color:'+fg+'">'+statusText(x)+checked+'</b><span style="font-size:10.5px;border:1px solid '+bd+';background:#fff;border-radius:999px;padding:3px 8px;color:'+fg+'">'+kindLabel(x.source_kind)+'</span></div>';
+    if(x.trust_note)h+='<div style="font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin-top:7px">'+H(x.trust_note)+'</div>';
+    if(x.source_url)h+='<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><a href="'+H(x.source_url)+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">開啟'+H(x.source_label||'官方來源')+' ↗</a>'+
+      (x.secondary_url?'<a href="'+H(x.secondary_url)+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">'+H(x.secondary_label||'官方補充')+' ↗</a>':'')+'</div>';
+    return h+'</div>';
+  }
+
+  var oldRenderLaws=renderLaws;
+  renderLaws=function(){
+    oldRenderLaws();
+    try{
+      var title=document.querySelector('#app .section-h');if(title&&title.textContent.indexOf('法規')>=0)title.textContent='法規與政策速查';
+      var sub=document.querySelector('#app .section-s');
+      if(sub)sub.innerHTML='先抓官方法規與政策的核心，再接回歷屆考題。<br><span style="color:var(--ink-soft);font-size:12px">✓「已逐卡核對」代表摘要已和官方來源重新比對；「待逐卡複核」只代表已找到官方來源，內容仍不冒充已核對。法律、政策與公約會分開標示。</span>';
+      if(typeof lawOpen==='number'&&lawOpen>=0&&LAWS[lawOpen]){
+        var open=document.querySelector('#app .ecard.open .ebodywrap');
+        if(open&&!open.querySelector('.swsi-law-trust'))open.insertAdjacentHTML('beforeend',trustHTML(LAWS[lawOpen]));
+      }
+    }catch(e){console.warn('law trust render skipped',e);}
+  };
+
+  window.SWSI_LAW_TRUST={version:'SWSI Law Trust Layer V1 2026-08-26',checkedAt:CHECKED_AT,verifiedCount:function(){return LAWS.filter(function(x){return x.verify_status===VERIFY_CHECKED;}).length;}};
+})();
