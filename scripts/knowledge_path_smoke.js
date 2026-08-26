@@ -34,9 +34,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.waitForFunction(() => typeof window.swsiKnowledgeSearch === 'function' && Array.isArray(window.THEORIES) && Array.isArray(window.LAWS));
   await page.waitForFunction(() => window.SWSI_LAW_TRUST && /Law Trust Layer V1/.test(window.SWSI_LAW_TRUST.version || ''));
   await page.waitForFunction(() => window.SWSI_LAW_TRUST && /Law Trust Batch 2/.test(window.SWSI_LAW_TRUST.batch2 || ''));
+  await page.waitForFunction(() => window.SWSI_LAW_TRUST_FINAL && /Law Trust Final Batch/.test(window.SWSI_LAW_TRUST_FINAL.version || ''));
   await page.waitForFunction(() => window.SWSI_NEW_RESIDENT_STATUS && /New Resident Basic Act Status Fix/.test(window.SWSI_NEW_RESIDENT_STATUS.version || ''));
 
-  // Search should present one coherent path: understand -> MCQ -> essay.
   await page.evaluate(() => { searchQ=''; go('search'); });
   await page.waitForSelector('#searchbox');
   const theoryName = await page.evaluate(() => {
@@ -52,7 +52,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/2\s*看選擇題怎麼考/.test(searchText), 'knowledge search missing MCQ step');
   assert(/3\s*看申論怎麼出/.test(searchText), 'knowledge search missing essay step');
 
-  // Opening a theory from search must actually expand that theory card.
   const theoryCard = page.locator('.swsi-k-card').filter({ hasText: theoryName }).first();
   assert(await theoryCard.count(), 'theory result card missing');
   await theoryCard.click();
@@ -63,7 +62,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/從理論接到考題/.test(theoryOpenText), 'theory missing exam linkage');
   assert(/搜尋.*全部考法/.test(theoryOpenText), 'theory missing full-search action');
 
-  // Pick a law that really occurs in question/essay data, then verify its exam linkage and trust panel.
   const lawName = await page.evaluate(() => {
     const laws = window.LAWS || [];
     const all = window.ALL || [];
@@ -92,7 +90,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/官方來源/.test(lawOpenText), 'law trust panel missing official-source status');
   assert((await page.locator('.ecard.open .swsi-law-trust a').count()) >= 1, 'law trust panel missing source link');
 
-  // P0 content correction: Social Assistance Act must not teach one national fixed amount.
   await page.evaluate(() => openLawCard('社會救助法'));
   await page.waitForSelector('.ecard.open .swsi-law-trust', { timeout: 30000 });
   const aidText = await page.locator('.ecard.open').first().innerText();
@@ -100,14 +97,12 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/並非全國統一/.test(aidText), 'social assistance card should explicitly reject one national threshold');
   assert(/✓ 官方來源已逐卡核對/.test(aidText), 'social assistance card should be verified');
 
-  // A policy card must be labeled as policy rather than law.
   await page.evaluate(() => openLawCard('性別平等政策綱領'));
   await page.waitForSelector('.ecard.open .swsi-law-trust', { timeout: 30000 });
   const policyTrust = await page.locator('.ecard.open .swsi-law-trust').innerText();
   assert(/政策／行政方案/.test(policyTrust), 'policy card not distinguished from law');
   assert(!/現行法律/.test(policyTrust), 'policy card incorrectly labeled as current law');
 
-  // Promulgation and effectiveness must not be conflated for the New Resident Basic Act.
   await page.evaluate(() => openLawCard('新住民基本法'));
   await page.waitForSelector('.ecard.open .swsi-law-trust', { timeout: 30000 });
   const residentText = await page.locator('.ecard.open').first().innerText();
@@ -116,7 +111,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/已制定公布・施行日另定/.test(residentTrust), 'new resident act status badge missing');
   assert(!/現行法律/.test(residentTrust), 'new resident act must not be generically labeled current law while effective date is separately determined');
 
-  // Batch 2: high-frequency legal details must be precise and verified.
   const batch2Cases = [
     ['家庭暴力防治法', /4小時/, /2年以下/, /三種/],
     ['身心障礙者權益保障法', /34人以上/, /3%/, /67人以上/],
@@ -134,12 +128,30 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     assert(c.test(text), `${name} missing third verified detail`);
   }
 
-  // Missing high-priority laws should now exist in the reference layer.
+  // Final batch: remaining policy/convention/law cards are explicitly verified and correctly typed.
+  const finalCases = [
+    ['社會工作人員執業安全方案', /行政方案.*非法律|不是法律/, /風險評估/, /危害通報|通報/],
+    ['兒童權利公約 CRC', /兒童權利公約施行法/, /禁止歧視/, /表意/],
+    ['身心障礙者權利公約 CRPD', /CRPD施行法|身心障礙者權利公約施行法/, /合理調整/, /自立生活/],
+    ['性別平等政策綱領', /110年5月/, /政策綱領.*不是法律|政策綱領（非法律）/, /33項推動策略/],
+    ['公益勸募條例', /勸募活動最長一年/, /公開徵信/, /用途/],
+    ['公務人員退休資遣撫卹法', /延伸制度|職域退撫/, /114年12月26日/, /世代公平|財務永續/]
+  ];
+  for (const [name, a, b, c] of finalCases) {
+    await page.evaluate(n => openLawCard(n), name);
+    await page.waitForSelector('.ecard.open .swsi-law-trust', { timeout: 30000 });
+    const text = await page.locator('.ecard.open').first().innerText();
+    assert(/✓ 官方來源已逐卡核對/.test(text), `${name} should be verified in final batch`);
+    assert(a.test(text), `${name} missing first final-batch detail`);
+    assert(b.test(text), `${name} missing second final-batch detail`);
+    assert(c.test(text), `${name} missing third final-batch detail`);
+  }
+
   const additions = await page.evaluate(() => ['社會福利基本法','性騷擾防治法','性侵害犯罪防治法','精神衛生法','人口販運防制法','新住民基本法'].filter(n => (window.LAWS || []).some(x => x && x.n === n)));
   assert.strictEqual(additions.length, 6, 'one or more high-priority law cards are missing');
 
   assert.deepStrictEqual(browserErrors, [], 'browser page errors: ' + browserErrors.join(' | '));
-  console.log('KNOWLEDGE PATH + LAW TRUST BATCH 2 SMOKE OK');
+  console.log('KNOWLEDGE PATH + LAW TRUST FINAL SMOKE OK');
   await browser.close();
 })().catch(err => {
   console.error(err && err.stack || err);
