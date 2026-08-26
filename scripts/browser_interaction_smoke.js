@@ -12,7 +12,12 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   const browserErrors = [];
+  const consoleLines = [];
+  const failedRequests = [];
+  const servedQuestionFiles = [];
   page.on('pageerror', err => browserErrors.push(String(err && err.message || err)));
+  page.on('console', msg => consoleLines.push(msg.type()+': '+msg.text()));
+  page.on('requestfailed', req => failedRequests.push(req.url()+' :: '+String(req.failure() && req.failure().errorText || 'failed')));
 
   const localOrigin = new URL(base).origin;
   await page.route('**/*', route => {
@@ -31,6 +36,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       if (!fs.existsSync(file)) {
         return route.fulfill({ status: 404, body: 'not found' });
       }
+      servedQuestionFiles.push(rel);
       return route.fulfill({
         status: 200,
         contentType: 'application/json; charset=utf-8',
@@ -44,9 +50,35 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     return route.continue();
   });
 
+  async function dumpDiagnostics(label) {
+    const snap = await page.evaluate(() => ({
+      readyState: document.readyState,
+      title: document.title,
+      appText: ((document.querySelector('#app') || {}).textContent || '').trim().slice(0,1600),
+      appHTML: ((document.querySelector('#app') || {}).innerHTML || '').slice(0,1600),
+      patch: typeof window.SWSI_QB === 'object',
+      manifest: !!(window.SWSI_QB && window.SWSI_QB.manifest),
+      manifestSource: window.SWSI_QB && window.SWSI_QB.manifestSource,
+      loadedFiles: window.SWSI_QB && window.SWSI_QB.loadedFiles ? Array.from(window.SWSI_QB.loadedFiles) : [],
+      hasRenderHome: typeof window.renderHome,
+      hasEssayNow: typeof window.swsiStartEssayNow
+    })).catch(err => ({ evaluateError: String(err) }));
+    console.log('=== SWSI QA DIAGNOSTICS: '+label+' ===');
+    console.log(JSON.stringify(snap,null,2));
+    console.log('served question files:', JSON.stringify(servedQuestionFiles));
+    console.log('page errors:', JSON.stringify(browserErrors));
+    console.log('console:', JSON.stringify(consoleLines.slice(-30)));
+    console.log('failed requests:', JSON.stringify(failedRequests.slice(-30)));
+  }
+
   async function waitHome() {
-    await page.waitForSelector('.swsi-focus-primary', { timeout: 45000 });
-    await page.waitForFunction(() => typeof window.swsiStartEssayNow === 'function');
+    try {
+      await page.waitForSelector('.swsi-focus-primary', { timeout: 20000 });
+      await page.waitForFunction(() => typeof window.swsiStartEssayNow === 'function');
+    } catch (err) {
+      await dumpDiagnostics('home-not-ready');
+      throw err;
+    }
   }
 
   // For this SPA the real readiness signal is the rendered SWSI home, not a browser load event.
