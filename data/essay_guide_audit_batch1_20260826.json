@@ -1,0 +1,57 @@
+{
+  "audit_version": "essay-guide-audit-b1-20260826",
+  "reviewed_at": "2026-08-26",
+  "scope": "SWSI-authored essay guidance only; official exam question text remains read-only",
+  "verified_count": 5,
+  "items": [
+    {
+      "id": "社會政策與社會立法-108-1-申論2",
+      "status": "verified",
+      "issue_found": "The former cluster guide was a generic ethics-decision template and did not answer the three required service stages.",
+      "checks": ["all explicit subquestions covered", "three service stages separated", "ethical principles tied to practice rather than generic model-only answer"],
+      "sources": [
+        {"label": "衛生福利部－社會工作師倫理守則", "url": "https://www.mohw.gov.tw/dl-85943-e9f2ffb0-f35e-4965-bf41-e8759f98ed2c.html"},
+        {"label": "衛生福利部臺南教養院－社工科業務", "url": "https://tneni.mohw.gov.tw/index.php?path=405&route=product%2Fcategory"}
+      ]
+    },
+    {
+      "id": "人類行為與社會環境-110-2-申論1",
+      "status": "verified",
+      "issue_found": "The former guide discussed welfare-mix/service-delivery concepts instead of the 2018 Social Safety Net plan.",
+      "checks": ["2018 historical context preserved", "three goals matched official 107 plan", "strengths-limitations-recommendations all covered", "later Social Safety Net 2.0 not substituted for the historical question"],
+      "sources": [
+        {"label": "衛生福利部－強化社會安全網計畫（107年核定本）", "url": "https://www.mohw.gov.tw/dl-44382-01fcbb1f-f393-4b89-9b83-b8d615adf2c7.html"}
+      ]
+    },
+    {
+      "id": "社會工作研究方法-106-2-申論2",
+      "status": "verified",
+      "issue_found": "The former guide listed reactive qualitative methods such as interviews and focus groups for a non-reactive research question.",
+      "checks": ["definition centered on reactivity", "content analysis included", "existing statistics/secondary analysis included", "unobtrusive/physical traces included", "interviews/focus groups not presented as typical non-reactive methods"],
+      "sources": [
+        {"label": "Foundations of Social Work Research－Unobtrusive data", "url": "https://uta.pressbooks.pub/foundationsofsocialworkresearch/chapter/10-3-unobtrusive-data-collected-by-the-researcher/"},
+        {"label": "Neuman－Social Research Methods, Nonreactive Research and Secondary Analysis", "url": "https://www.joeteacher.org/uploads/7/6/3/0/7630382/social_research_methods_2.pdf"}
+      ]
+    },
+    {
+      "id": "社會工作研究方法-105-2-申論1",
+      "status": "verified",
+      "issue_found": "The former guide compared quantitative and qualitative paradigms instead of explaining the five scientific-method characteristics named in the question.",
+      "checks": ["tentative defined with rationale", "replication defined with rationale", "observation defined with rationale", "unbiased framed as bias reduction rather than impossible absolute neutrality", "transparency tied to scrutiny and reproducibility"],
+      "sources": [
+        {"label": "考選部－105年第二次社會工作師考試原題", "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0606&t=Q"},
+        {"label": "Promoting Transparency in Social Science Research", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4103621/"}
+      ]
+    },
+    {
+      "id": "社會政策與社會立法-108-2-申論1",
+      "status": "verified",
+      "issue_found": "The former guide was a welfare-mix/service-delivery template and did not answer Le Grand's five equality dimensions.",
+      "checks": ["equality-of-what framing", "five dimensions kept distinct", "long-term-care examples aligned to each dimension", "no later LTC 3.0 policy inserted into the historical answer skeleton"],
+      "sources": [
+        {"label": "Le Grand－The Strategy of Equality (1982), bibliographic record", "url": "https://www.routledge.com/The-Strategy-of-Equality-Redistribution-and-the-Social-Services/Le-Grand/p/book/9781138597440"},
+        {"label": "Peer-reviewed summary of Le Grand's five dimensions", "url": "https://www.tandfonline.com/doi/full/10.1080/10967494.2021.1969486"}
+      ]
+    }
+  ]
+}
