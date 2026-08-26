@@ -12,7 +12,6 @@
   var style=document.createElement('style');
   style.id='swsi-mobile-reading-polish';
   style.textContent=`
-/* Mobile-first reading scale. Keep three genuinely different levels. */
 html{
   --fs-q:13pt;
   --fs-h:12pt;
@@ -32,7 +31,6 @@ html[data-fs="2"]{
   --fs-s:12.5pt;
 }
 
-/* Long explanations should read like notes, not a poster. */
 #app .qtext{line-height:1.72;}
 #app .exp{margin-top:18px;padding-top:17px;}
 #app .exp-sec{margin-bottom:14px;}
@@ -41,13 +39,11 @@ html[data-fs="2"]{
 #app .extra{line-height:1.68;}
 #app .mistake{margin-top:4px;}
 
-/* A fixed/floating tab bar must never sit on top of the last paragraph or controls. */
 main{padding-bottom:calc(145px + env(safe-area-inset-bottom))!important;}
 .wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))!important;}
 body:has(#app .qcard) main{padding-bottom:30px!important;}
 body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
 
-/* Essay writing: keep the format helpers secondary to the actual answer box. */
 #app .wbox{margin-bottom:6px;}
 #app .wlabel{margin-bottom:7px;}
 #app .swsi-fmt-help{
@@ -75,7 +71,6 @@ body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
 }
 #app .wta{line-height:1.78;min-height:190px;}
 
-/* Privacy stays explicit, but does not occupy half the writing screen before it is needed. */
 #app .swsi-ai-privacy{
   margin:0 0 10px;
   border:1px solid var(--line);
@@ -130,10 +125,12 @@ body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
       }
       var clear=box.querySelector('.fmtbar .fbtn.clear');
       if(clear){
-        clear.classList.add('swsi-clear-btn');
-        clear.textContent='清除作答';
-        clear.setAttribute('aria-label','清除這題作答');
-        clear.setAttribute('title','清除這題作答（會再次確認）');
+        if(!clear.classList.contains('swsi-clear-btn')) clear.classList.add('swsi-clear-btn');
+        /* textContent mutates child nodes even when the text is identical. Guard it so
+           the childList observer cannot recursively wake itself forever. */
+        if(clear.textContent!=='清除作答') clear.textContent='清除作答';
+        if(clear.getAttribute('aria-label')!=='清除這題作答') clear.setAttribute('aria-label','清除這題作答');
+        if(clear.getAttribute('title')!=='清除這題作答（會再次確認）') clear.setAttribute('title','清除這題作答（會再次確認）');
       }
     });
 
@@ -158,7 +155,6 @@ body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
     });
   }
 
-  /* Renderers replace #app.innerHTML often, so re-apply tiny presentation fixes after each render. */
   var appNode=document.getElementById('app');
   if(appNode){
     polishEssayUI(appNode);
