@@ -78,12 +78,35 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await fontButtons.nth(0).click();
   await page.waitForFunction(() => document.documentElement.getAttribute('data-fs') === '0');
 
+  // Force one genuinely wrong answer so the new learning-loop UI is always exercised.
   await page.getByRole('button', { name: /直接開始 20 題/ }).click();
   await page.waitForSelector('.qcard .opt', { timeout: 45000 });
-  await page.locator('.qcard .opt').first().click();
+  const wrongIndex = await page.evaluate(() => {
+    const item = queue && queue[idx];
+    if (!item) return -1;
+    const keys = ['A','B','C','D'].filter(k => item.options && item.options[k]);
+    for (let i=0;i<keys.length;i++) {
+      const k=keys[i];
+      let ok=false;
+      try { ok = typeof isCorrectAnswer==='function' ? !!isCorrectAnswer(item,k) : !!ansCorrect(k,item.answer); }
+      catch (_e) { ok = String(k)===String(item.answer||''); }
+      if (!ok) return i;
+    }
+    return -1;
+  });
+  assert(wrongIndex >= 0, 'could not find an intentionally wrong option');
+  await page.locator('.qcard .opt').nth(wrongIndex).click();
   await page.getByRole('button', { name: '送出答案' }).click();
   await page.waitForSelector('.qcard .exp');
   await page.waitForSelector('.swsi-answer-line');
+  await page.waitForSelector('.swsi-self-cause');
+  assert(/這題你為什麼會錯/.test(await page.locator('.swsi-self-cause').innerText()), 'wrong-cause prompt missing');
+  await page.getByRole('button', { name: '概念不熟' }).click();
+  await page.waitForFunction(() => {
+    const b=[...document.querySelectorAll('.swsi-cause-chip')].find(x => /概念不熟/.test(x.textContent||''));
+    return b && b.classList.contains('on');
+  });
+
   const more = page.locator('.swsi-explanation-more');
   if (await more.count()) {
     assert(!(await more.first().evaluate(el => el.open)), 'full explanation should start collapsed');
@@ -92,10 +115,30 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   }
   await page.getByRole('button', { name: /下一題|看結果/ }).click();
   await page.waitForSelector('.qcard');
-
   await page.getByRole('button', { name: /結束這次練習/ }).click();
   await waitHome();
 
+  // Review must preserve the user's self-reported reason and distinguish it from platform weak-topic grouping.
+  await page.getByRole('button', { name: '複習' }).click();
+  await page.waitForSelector('.swsi-learning-section', { timeout: 30000 });
+  const reviewText = await page.locator('#app').innerText();
+  assert(/你自己標記的錯因/.test(reviewText), 'self-reported cause section missing from review');
+  assert(/概念不熟/.test(reviewText), 'saved self-reported cause missing from review');
+  assert(/平台看到的弱點考點/.test(reviewText), 'platform weak-topic section missing from review');
+
+  // Progress must expose actionable learning data and a next step.
+  await page.getByRole('button', { name: /查看完整學習進度/ }).click();
+  await page.waitForSelector('.swsi-progress-hero', { timeout: 30000 });
+  const progressText = await page.locator('#app').innerText();
+  assert(/我的學習進度/.test(progressText), 'progress heading missing');
+  assert(/今天下一步/.test(progressText), 'recommended next step missing');
+  assert(/不同題目/.test(progressText), 'unique-question progress missing');
+  assert(/題庫覆蓋/.test(progressText), 'coverage progress missing');
+
+  await page.getByRole('button', { name: '首頁' }).click();
+  await waitHome();
+
+  // Essay flow remains intact after learning-loop changes.
   await page.getByRole('button', { name: '直接練一題' }).click();
   await page.waitForSelector('.wta', { timeout: 30000 });
   const textarea = page.locator('.wta').first();
@@ -127,7 +170,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.getByRole('button', { name: '複習' }).click();
   await page.waitForFunction(() => {
     const app = document.querySelector('#app');
-    return app && (/今日複習|未熟練|今天到期/.test(app.textContent || ''));
+    return app && (/錯題複習|今天到期|還沒熟/.test(app.textContent || ''));
   }, null, { timeout: 60000 });
 
   assert.deepStrictEqual(browserErrors, [], 'browser page errors: ' + browserErrors.join(' | '));
