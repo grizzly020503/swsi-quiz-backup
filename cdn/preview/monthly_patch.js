@@ -3234,3 +3234,22 @@ body:has(#app .section-h) main{
 
   window.SWSI_LAW_TRUST_FINAL={version:'SWSI Law Trust Final Batch 2026-08-26',checkedAt:CHECKED_AT};
 })();
+
+/* SWSI AI Copy Polish 2026-08-26
+   Clarify that OCR-like recognition applies to photo uploads, not typed answers.
+*/
+(function(){
+  'use strict';
+  var old=window.aiFeedbackHTML;
+  if(typeof old==='function'){
+    window.aiFeedbackHTML=function(id){
+      var h=old(id);
+      return String(h).replace(
+        '一次 1–3 張。AI 會先辨識你寫的內容，再提供練習回饋；若辨識錯誤，請以原稿為準。',
+        '手寫照片可一次 1–3 張。照片模式會先辨識字跡，再提供練習回饋；若辨識有誤，請以原稿為準。打字作答不需要辨識。'
+      );
+    };
+    try{aiFeedbackHTML=window.aiFeedbackHTML;}catch(_e){}
+  }
+  window.SWSI_AI_COPY_POLISH='SWSI AI Copy Polish 2026-08-26';
+})();
