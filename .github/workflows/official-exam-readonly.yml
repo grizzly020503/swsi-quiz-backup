@@ -1,0 +1,55 @@
+name: Official Exam Read-Only Guard
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/official-exam-readonly.yml'
+      - 'scripts/official_exam_readonly_guard.py'
+      - 'data/official_exam_readonly.lock.json'
+      - 'index.html'
+      - 'auto/essays_auto.json'
+      - 'cdn/question-shards/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: swsi-official-exam-readonly
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Bootstrap lock once or verify it
+        run: |
+          set -euo pipefail
+          if [ ! -f data/official_exam_readonly.lock.json ]; then
+            echo 'No baseline lock yet. Creating the initial lock from the current official corpus.'
+            python scripts/official_exam_readonly_guard.py --snapshot
+            git config user.name 'swsi-readonly-guard-bot'
+            git config user.email 'actions@users.noreply.github.com'
+            git add data/official_exam_readonly.lock.json
+            git commit -m '建立歷屆正式考題唯讀基準'
+            for attempt in 1 2 3; do
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then
+                exit 0
+              fi
+            done
+            exit 1
+          fi
+          python scripts/official_exam_readonly_guard.py
