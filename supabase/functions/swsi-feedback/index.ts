@@ -55,6 +55,13 @@ function intOrNull(value: unknown, min: number, max: number): number | null {
   return n;
 }
 
+function parseOfficialExamId(id: string | null) {
+  if (!id) return null;
+  const m = id.match(/^[A-Za-z]+-(\d{2,4})-(\d+)-(\d+)$/);
+  if (!m) return null;
+  return { year: Number(m[1]), round: Number(m[2]), qno: Number(m[3]) };
+}
+
 async function sha256Hex(input: string) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -122,16 +129,27 @@ Deno.serve(async (req: Request) => {
     referrer_host: cleanText(metadataInput.referrer_host, 200),
   };
 
+  const contextId = cleanText(body.context_id, 240);
+  let examYear = intOrNull(body.exam_year, 1, 9999);
+  let examRound = intOrNull(body.exam_round, 1, 20);
+  let questionNo = intOrNull(body.question_no, 1, 999);
+  const parsed = (contextType === "mcq" || contextType === "essay") ? parseOfficialExamId(contextId) : null;
+  if (parsed) {
+    if (examYear === null) examYear = parsed.year;
+    if (examRound === null) examRound = parsed.round;
+    if (questionNo === null) questionNo = parsed.qno;
+  }
+
   const { data, error } = await db.rpc("submit_swsi_feedback", {
     p_category: category,
     p_context_type: contextType,
-    p_context_id: cleanText(body.context_id, 240),
+    p_context_id: contextId,
     p_context_title: cleanText(body.context_title, 500),
     p_source_kind: sourceKind,
     p_subject: cleanText(body.subject, 120),
-    p_exam_year: intOrNull(body.exam_year, 1, 9999),
-    p_exam_round: intOrNull(body.exam_round, 1, 20),
-    p_question_no: intOrNull(body.question_no, 1, 999),
+    p_exam_year: examYear,
+    p_exam_round: examRound,
+    p_question_no: questionNo,
     p_message: message,
     p_contact: contact,
     p_page_path: cleanText(body.page_path, 500),
