@@ -1,0 +1,216 @@
+/* ===== SWSI Essay Trust Layer 2026-08-26 =====
+   IMPORTANT: This layer never edits official past-exam question text.
+   It only changes SWSI-authored guidance labels, trust status, and AI feedback prompts.
+*/
+(function(){
+  'use strict';
+
+  var GUIDE_VERSION='essay-trust-v1-20260826';
+  window.SWSI_ESSAY_TRUST_VERSION=GUIDE_VERSION;
+
+  function E(v){
+    if(typeof window.swsiEsc==='function')return window.swsiEsc(v);
+    if(typeof window.esc==='function')return window.esc(v);
+    return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function T(v){return String(v==null?'':v);}
+
+  /* Existing guide rows were historically grouped by topic templates.
+     Until a row is explicitly reviewed question-by-question, treat it as unverified.
+     This metadata is SWSI guidance metadata only; official question records are untouched. */
+  var guideMap=window.ESSAY_GUIDES||{};
+  Object.keys(guideMap).forEach(function(id){
+    var g=guideMap[id];
+    if(g&&typeof g==='object'&&!g.review_status)g.review_status='needs_review';
+  });
+
+  window.swsiEssayGuideStatus=function(id){
+    var g=(window.ESSAY_GUIDES||{})[id]||{};
+    return g.review_status==='verified'?'verified':'needs_review';
+  };
+  window.swsiEssayGuideIsVerified=function(id){return window.swsiEssayGuideStatus(id)==='verified';};
+
+  /* Beginner-friendly, non-score-claiming labels. */
+  window.guideHTML=function(g){
+    g=g||{};
+    var verified=g.review_status==='verified';
+    var badge=verified
+      ? '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;background:var(--correct-bg);color:var(--pine);font-size:11px;font-weight:700">✓ 已逐題核對</span>'
+      : '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;background:#FBF8EF;color:#7C704F;font-size:11px;font-weight:700">△ 參考架構待確認</span>';
+    var note=verified
+      ? '這是 SWSI 整理的學習參考，不是考選部官方答案。'
+      : '這份內容尚未完成逐題核對，請把它當成思考提示，不要當成標準答案。';
+    return '<div class="guide">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><b style="font-size:var(--fs-b)">參考架構</b>'+badge+'</div>'
+      +'<div style="font-size:var(--fs-s);color:var(--ink-soft);line-height:1.7;margin:-4px 0 14px">'+E(note)+'</div>'
+      +'<div class="gsec"><div class="glabel">這題主要在問</div><div class="gtext">'+E(g.kao||'尚未整理')+'</div></div>'
+      +'<div class="gsec"><div class="glabel">可以先怎麼想</div><div class="gtext">'+E(g.dati||'尚未整理')+'</div></div>'
+      +'<div class="gsec"><div class="glabel">可以分成這幾段</div><ul class="glist">'+(g.biaoti||[]).map(function(b){return '<li>'+E(b)+'</li>';}).join('')+'</ul></div>'
+      +'<div class="gsec"><div class="glabel">可能用到的關鍵字</div><div class="kws">'+(g.kw||[]).map(function(k){return '<span class="kw">'+E(k)+'</span>';}).join('')+'</div></div>'
+      +'</div>';
+  };
+  try{guideHTML=window.guideHTML;}catch(_e){}
+
+  /* Version the cache so older feedback generated from over-trusted guide templates
+     cannot silently reappear after this trust-layer change. */
+  window.swsiAICacheKey=function(id){return 'essay_ai_cache_v2_'+GUIDE_VERSION+'_'+id;};
+
+  function essayContext(id){
+    var e=(window.ESSAYS||[]).find(function(x){return x&&x.id===id;})||{};
+    var g=(window.ESSAY_GUIDES||{})[id]||{};
+    var verified=window.swsiEssayGuideIsVerified(id);
+    var reference='';
+    if(verified){
+      reference='【SWSI 已逐題核對的參考架構】\n'
+        +'這題主要在問：'+T(g.kao||'')+'\n'
+        +'可以先怎麼想：'+T(g.dati||'')+'\n'
+        +'可以分成這幾段：'+(g.biaoti||[]).join('；')+'\n'
+        +'可能用到的關鍵字：'+(g.kw||[]).join('、');
+    }
+    return {e:e,g:g,verified:verified,reference:reference};
+  }
+
+  function trustPrompt(extra){
+    return '【最重要規則：整份回饋務必使用繁體中文。】\n'
+      +'你是台灣社會工作師國家考試的「申論練習教練」，不是閱卷委員。\n'
+      +'請把「正式考題本身」視為最高依據，先判斷題目究竟要求回答哪些事情，再閱讀學生作答。\n'
+      +'若有附 SWSI 參考架構，它只能是輔助；如果參考架構與題意衝突、範圍過大或有疑義，必須以題目為準，不得強迫學生照參考架構回答。\n\n'
+      +'規則：\n'
+      +'- 這是練習回饋，不是官方評分，不給分數、不猜閱卷配分、不使用「必得分」「標準答案」等說法。\n'
+      +'- 不要自行編造法條條號、年份、統計數字、學者或政策內容；不確定時直接說需要再核對。\n'
+      +'- 題目若有多個子題，先確認學生是否每一問都有回答。\n'
+      +'- 優先用新手看得懂的中文，避免只丟術語。\n'
+      +'- 回饋總長約 250～400 字，具體但不要替學生寫完整標準答案。\n'
+      +'- 回饋格式：一、題目要你答什麼；二、你已經做到什麼；三、下一步可以補什麼；最後一句簡短鼓勵。\n'
+      +(extra||'');
+  }
+
+  function renderAIResult(id,out,txt,mode){
+    if(typeof window.swsiSetAICache==='function'&&mode==='text'){
+      var ta=document.getElementById('ta_'+id);
+      try{window.swsiSetAICache(id,(ta?ta.value:'').trim(),txt);}catch(_e){}
+    }
+    out.innerHTML='<div style="margin-top:12px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--pine);border-radius:10px;padding:14px;font-size:14px;line-height:1.8;color:var(--ink);white-space:pre-wrap">'+E(txt)+'</div>'
+      +'<div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 只提供申論練習回饋，不是考選部官方評分；法規、政策或年代內容若有疑義，請再查課本、老師或官方資料。</div>';
+  }
+
+  async function postAI(payload,timeoutMs){
+    if(typeof window.swsiFetchWithTimeout==='function'){
+      return window.swsiFetchWithTimeout(AI_PROXY_URL,payload,timeoutMs);
+    }
+    return fetch(AI_PROXY_URL,payload);
+  }
+
+  window.aiFeedbackHTML=function(id){
+    var verified=window.swsiEssayGuideIsVerified(id);
+    var guideLine=verified
+      ? '✓ 這題的 SWSI 參考架構已逐題核對；AI 仍會以正式題目為最高依據。'
+      : '△ 這題的參考架構尚待逐題確認；AI 不會把它當標準答案，會直接以正式題目與你的作答為主。';
+    return '<div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">'
+      +'<details style="margin-bottom:9px;background:#FBF8EF;border:1px solid var(--line);border-radius:8px;padding:9px 12px"><summary style="cursor:pointer;color:var(--ink-soft);font-size:13px;font-weight:600">🔒 使用 AI 前請先閱讀</summary><div style="font-size:12px;color:var(--ink-soft);line-height:1.75;margin-top:8px">作答文字／照片會送至外部 AI 服務處理。請勿輸入或上傳真實個案姓名、身分證字號、電話、地址、病歷、機構內部文件或其他可識別資料。照片會先在本機縮小再送出。</div></details>'
+      +'<div class="aihelp" style="color:var(--ink-soft);margin-bottom:9px;font-size:12px;line-height:1.7">'+E(guideLine)+'</div>'
+      +'<button id="aitype_'+E(id)+'" class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600" onclick="runAIFeedback(\''+E(id)+'\')">🤖 請 AI 看我的作答</button>'
+      +'<input type="file" id="photo_'+E(id)+'" accept="image/*" multiple style="display:none" onchange="gradePhoto(\''+E(id)+'\',this)">'
+      +'<button id="aiphoto_'+E(id)+'" class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600;margin-top:8px" onclick="document.getElementById(\'photo_'+E(id)+'\').click()">📷 手寫作答 · 拍照請 AI 看</button>'
+      +'<div class="aihelp" style="color:var(--ink-soft);margin-top:7px;font-size:12px;line-height:1.7">一次 1–3 張。AI 會先辨識你寫的內容，再提供練習回饋；若辨識錯誤，請以原稿為準。</div>'
+      +'<div id="airesult_'+E(id)+'"></div></div>';
+  };
+  try{aiFeedbackHTML=window.aiFeedbackHTML;}catch(_e){}
+
+  window.runAIFeedback=async function(id){
+    var out=document.getElementById('airesult_'+id);if(!out)return;
+    if(!AI_PROXY_URL||AI_PROXY_URL.indexOf('http')!==0){out.innerHTML='<div style="margin-top:10px;font-size:13px;color:var(--ink-soft)">AI 回饋目前未啟用。</div>';return;}
+    var ta=document.getElementById('ta_'+id),ans=(ta?ta.value:'').trim();
+    var effective=typeof window.effectiveEssayLength==='function'?window.effectiveEssayLength(ans):ans.replace(/\s/g,'').length;
+    if(effective<30){out.innerHTML='<div style="margin-top:10px;font-size:13px;color:var(--wrong);line-height:1.7">先寫至少 30 字的實際內容，再請 AI 看。只有標題或「一、（一）、1.」這些格式還不夠。</div>';return;}
+
+    var cached=typeof window.swsiGetAICache==='function'?window.swsiGetAICache(id,ans):null;
+    if(cached){renderAIResult(id,out,cached.feedback,'cache');return;}
+
+    var c=essayContext(id);
+    var sys=trustPrompt('');
+    var user='【正式考題】\n'+T(c.e.q||'')+'\n\n【學生作答】\n'+ans+(c.reference?'\n\n'+c.reference:'');
+    if(typeof window.swsiSetAIBusy==='function')window.swsiSetAIBusy(id,true,'text');
+    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 正在閱讀題目與你的作答…</div>';
+    try{
+      var r=await postAI({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0.35,max_tokens:1200,messages:[{role:'user',content:sys+'\n\n'+user}]})},45000);
+      if(!r.ok){
+        var msg='AI 回饋暫時無法使用，你的作答仍保存在這台裝置。';
+        if(r.status===429)msg='目前 AI 使用量較高，請稍後再試；你的作答不會消失。';
+        else if(r.status===413)msg='這份作答資料太大，請縮短後再試。';
+        else if(r.status===401||r.status===403)msg='AI 服務目前設定異常，請稍後再試。';
+        out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">'+E(msg)+'</div>';return;
+      }
+      var data=await r.json();
+      var txt=T(data&&data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+      if(!txt){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong)">AI 沒有回傳內容，請稍後再試。</div>';return;}
+      if(typeof window.swsiSetAICache==='function')window.swsiSetAICache(id,ans,txt);
+      renderAIResult(id,out,txt,'text');
+    }catch(err){
+      var timeout=err&&err.name==='AbortError';
+      out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">'+(timeout?'AI 回應時間過久，這次已自動停止。':'連線失敗，可能是網路暫時不穩。')+' 你的作答仍保存在這台裝置。</div>';
+    }finally{if(typeof window.swsiSetAIBusy==='function')window.swsiSetAIBusy(id,false,'text');}
+  };
+  try{runAIFeedback=window.runAIFeedback;}catch(_e){}
+
+  window.gradePhoto=async function(id,inputEl){
+    var out=document.getElementById('airesult_'+id);if(!out)return;
+    var files=(inputEl&&inputEl.files)?Array.from(inputEl.files):[];
+    if(!files.length)return;
+    if(files.length>3){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong)">一次最多 3 張照片，請重新選擇。</div>';if(inputEl)inputEl.value='';return;}
+    if(files.some(function(f){return !String(f.type||'').startsWith('image/');})){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong)">請只選擇照片檔案。</div>';if(inputEl)inputEl.value='';return;}
+
+    if(typeof window.swsiSetAIBusy==='function')window.swsiSetAIBusy(id,true,'photo');
+    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">📷 正在整理照片…</div>';
+    try{
+      var imgs=[];
+      for(var i=0;i<files.length;i++)imgs.push(await shrinkImage(files[i],1200,0.78));
+      if(inputEl)inputEl.value='';
+      var approxBytes=imgs.reduce(function(n,u){var comma=u.indexOf(',');return n+Math.ceil((u.length-(comma+1))*3/4);},0);
+      if(approxBytes>3200000){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">照片仍太大。請裁掉桌面或背景，只保留作答紙後再上傳。</div>';return;}
+
+      var c=essayContext(id);
+      var sys=trustPrompt('\n照片處理規則：\n- 先逐頁辨識作答文字，標題寫【我讀到的作答】；看不清楚的字用「◌」，不要自行補字。\n- 如果照片模糊、不是申論作答或幾乎無法辨識，只請學生重拍，不要猜內容。\n- 辨識完成後再寫【練習回饋】。\n');
+      var user='【正式考題】\n'+T(c.e.q||'')+(c.reference?'\n\n'+c.reference:'')+'\n\n下面照片是學生同一份手寫作答，請依頁面順序閱讀。';
+      var content=[{type:'text',text:sys+'\n\n'+user}];
+      imgs.forEach(function(u){content.push({type:'image_url',image_url:{url:u}});});
+      out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 正在讀 '+imgs.length+' 張作答照片…</div>';
+
+      var r=await postAI({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0.25,max_tokens:1300,messages:[{role:'user',content:content}]})},60000);
+      if(!r.ok){
+        var msg='AI 照片回饋暫時無法使用，請稍後再試。';
+        if(r.status===429)msg='目前 AI 使用量較高，請稍後再試。';
+        else if(r.status===413)msg='照片資料太大，請裁切後重新上傳。';
+        else if(r.status===401||r.status===403)msg='AI 服務目前設定異常，請稍後再試。';
+        out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">'+E(msg)+'</div>';return;
+      }
+      var data=await r.json();
+      var txt=T(data&&data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+      if(!txt){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong)">AI 沒有回傳內容，請稍後再試。</div>';return;}
+      renderAIResult(id,out,txt,'photo');
+    }catch(err){
+      var timeout=err&&err.name==='AbortError';
+      out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">'+(timeout?'AI 讀取照片時間過久，這次已自動停止。':'照片處理或連線失敗，請重新拍攝後再試。')+'</div>';
+    }finally{if(typeof window.swsiSetAIBusy==='function')window.swsiSetAIBusy(id,false,'photo');if(inputEl)inputEl.value='';}
+  };
+  try{gradePhoto=window.gradePhoto;}catch(_e){}
+
+  function polishEssayTrustUI(){
+    document.querySelectorAll('.gbtn').forEach(function(btn){
+      var t=T(btn.textContent).trim();
+      if(t.indexOf('對照核心骨架')>=0||t.indexOf('對照核心架構')>=0)btn.textContent='寫完了？看看參考架構 ›';
+    });
+    document.querySelectorAll('.pending b').forEach(function(el){if(T(el.textContent).indexOf('參考骨架')>=0)el.textContent='參考架構整理中';});
+    document.querySelectorAll('textarea.wta').forEach(function(ta){
+      if(T(ta.placeholder).indexOf('骨架')>=0)ta.placeholder='先自己試著寫。卡住時可以看上面的 5 步；寫完再看參考架構。';
+    });
+  }
+
+  if(typeof render==='function'){
+    var prevRenderTrust=render;
+    render=function(){var v=prevRenderTrust.apply(this,arguments);polishEssayTrustUI();return v;};
+    try{window.render=render;}catch(_e){}
+  }
+  polishEssayTrustUI();
+})();
+/* ===== SWSI Essay Trust Layer END ===== */
