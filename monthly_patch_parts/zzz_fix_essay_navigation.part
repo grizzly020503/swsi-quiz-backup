@@ -1,0 +1,78 @@
+
+/* ===== SWSI essay navigation hardening 2026-08-26 ===== */
+(function(){
+  'use strict';
+
+  function markEssayTab(){
+    try{
+      ['home','topics','essay','review','progress'].forEach(function(t){
+        var el=document.getElementById('t-'+t);
+        if(el) el.classList.toggle('on',t==='essay');
+      });
+    }catch(_e){}
+  }
+
+  function renderEssaySafely(){
+    try{
+      if(typeof renderEssay!=='function') throw new Error('renderEssay is unavailable');
+      renderEssay();
+      return true;
+    }catch(err){
+      console.error('[SWSI] essay render failed; resetting essay state',err);
+      try{
+        if(typeof openEssay!=='undefined') openEssay=null;
+        if(typeof essayCluster!=='undefined') essayCluster=null;
+        if(typeof essaySubj!=='undefined') essaySubj='全部科目';
+        if(typeof guideOpen!=='undefined') guideOpen=null;
+        if(typeof dissectOpen!=='undefined') dissectOpen=null;
+        renderEssay();
+        return true;
+      }catch(err2){
+        console.error('[SWSI] essay render retry failed',err2);
+        try{
+          if(typeof app!=='undefined'&&app){
+            app.innerHTML='<div class="empty"><div class="ico">✒</div><h3>申論頁暫時無法開啟</h3><p>頁面載入發生錯誤，你的作答草稿仍保存在這台裝置。</p><button class="btn" style="max-width:220px;margin:18px auto 0" onclick="location.reload()">重新整理</button></div>';
+          }
+        }catch(_e){}
+        return false;
+      }
+    }
+  }
+
+  window.swsiOpenEssay=function(){
+    try{ if(typeof view!=='undefined') view='essay'; }catch(_e){ window.view='essay'; }
+    markEssayTab();
+    try{ window.scrollTo(0,0); }catch(_e){}
+    renderEssaySafely();
+  };
+
+  /*
+    iOS Safari / in-app webviews occasionally fail to execute a dynamically
+    generated inline onclick reliably after several DOM replacement passes.
+    Capture the two primary essay entry points before their inline handlers.
+  */
+  document.addEventListener('click',function(ev){
+    var target=ev.target;
+    if(!target||!target.closest) return;
+    var tab=target.closest('#t-essay');
+    var card=target.closest('.swsi-study-card');
+    var isHomeEssay=!!(card&&/練一題申論/.test(card.textContent||''));
+    if(!tab&&!isHomeEssay) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    window.swsiOpenEssay();
+  },true);
+
+  /* Give the fixed bottom tab an explicit non-inline fallback as well. */
+  function wireTab(){
+    var tab=document.getElementById('t-essay');
+    if(!tab||tab.dataset.swsiEssayWired==='1') return;
+    tab.dataset.swsiEssayWired='1';
+    tab.setAttribute('aria-label','開啟申論練習');
+  }
+  wireTab();
+  try{
+    var mo=new MutationObserver(wireTab);
+    mo.observe(document.body,{childList:true,subtree:true});
+  }catch(_e){}
+})();
