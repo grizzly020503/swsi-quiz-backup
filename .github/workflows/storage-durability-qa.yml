@@ -44,7 +44,7 @@ jobs:
           node --check /tmp/monthly_patch.js
           node --check scripts/storage_durability_smoke.js
           grep -q 'SWSI Storage Durability Guard 2026-08-27' /tmp/monthly_patch.js
-          grep -q '2026-08-27.history-cap.v1' /tmp/monthly_patch.js
+          grep -q '2026-08-27.history-cap.v2' /tmp/monthly_patch.js
           grep -q 'HISTORY_MAX_RECORDS=8000' /tmp/monthly_patch.js
 
       - name: Build browser-test site
