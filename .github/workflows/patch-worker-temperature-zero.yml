@@ -22,20 +22,37 @@ jobs:
       - name: Apply exact worker patch
         run: python3 scripts/patch_worker_temperature_zero.py
 
-      - name: Verify worker syntax and zero handling
+      - name: Upgrade preview service-worker assertion to v6
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/cloudflare-frontend-preview.yml')
+          s=p.read_text(encoding='utf-8')
+          old="grep -q \"const VERSION = 'v5'\" /tmp/swsi-preview/sw.js"
+          new="grep -q \"const VERSION = 'v6'\" /tmp/swsi-preview/sw.js"
+          if old in s:
+              s=s.replace(old,new,1)
+              p.write_text(s,encoding='utf-8')
+          elif new not in s:
+              raise SystemExit('Preview workflow version assertion not found; refusing to guess.')
+          PY
+
+      - name: Verify worker syntax and branch guards
         run: |
           node --check cloudflare/wandering-wave-4418/worker.js
           grep -q "Number.isFinite(Number(body.temperature)) ? Number(body.temperature) : 0.4" cloudflare/wandering-wave-4418/worker.js
           ! grep -q "Number(body.temperature) || 0.4" cloudflare/wandering-wave-4418/worker.js
+          grep -q "const VERSION = 'v6'" sw.js
+          grep -q "const VERSION = 'v6'" .github/workflows/cloudflare-frontend-preview.yml
 
-      - name: Commit patched worker
+      - name: Commit exact repairs
         run: |
-          if git diff --quiet -- cloudflare/wandering-wave-4418/worker.js; then
-            echo "Worker already patched."
+          if git diff --quiet -- cloudflare/wandering-wave-4418/worker.js .github/workflows/cloudflare-frontend-preview.yml; then
+            echo "Repairs already applied."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add cloudflare/wandering-wave-4418/worker.js
-          git commit -m "修正 Worker temperature 0 被改成 0.4"
+          git add cloudflare/wandering-wave-4418/worker.js .github/workflows/cloudflare-frontend-preview.yml
+          git commit -m "修正 Worker temperature 與 preview v6 檢查"
           git push origin HEAD:fix/code-health-p0-20260826
