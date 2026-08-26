@@ -51,14 +51,14 @@
 下載 bytes 要實算 SHA；不得只把 manifest hash 寫入 cache。
 
 ### P1-3 AI 429 分類
-狀態：`修復中`
+狀態：`branch 已修，需持續 browser/CI 驗證`
 
 前端需區分：
 - 每分鐘太快
 - 個人每日額度用完
 - 全站每日額度用完
 
-優先顯示 Worker 實際 error message / code。
+目前最後 runtime layer 會優先讀 Worker 實際 error message / code，避免每日額度用完仍顯示「稍後再試」。
 
 ### P1-4 Cloudflare Worker temperature zero
 狀態：`branch 已修，需持續 CI 驗證`
@@ -66,17 +66,19 @@
 `temperature: 0` 不得因 `Number(x) || 0.4` 變成 0.4。
 
 ### P1-5 Supabase recovery SQL drift
-狀態：`open`
+狀態：`branch 已修，待 CI / review`
 
-Production trigger 已比 repo recovery SQL 新；目前正式 DB grading_mode 異動能清解析，但 recovery/source SQL 需同步，避免災難復原時 regression。
+Production trigger 已包含 `grading_mode`。GitHub 新增 `20260827031000_align_recovery_reset_with_grading_mode.sql`，將 recovery/source-of-truth 的 `reset_ai_analysis_on_official_change()` 與 trigger columns 對齊 production，避免災難復原時 grading-mode change 不清舊解析。
 
 ### P1-6 localStorage/history 長期容量與可見錯誤
-狀態：`open`
+狀態：`branch 已修，待 browser CI`
 
-歷史／複習資料持續增長，需：
-- 明確容量／壓縮／上限策略。
-- 寫入失敗對使用者可見。
-- 不可默默停止記錄學習進度。
+目前 branch：
+- history 保留最近 8,000 筆，避免無上限成長。
+- review state 本身以題目 ID 為 key，總量受題庫規模天然限制。
+- history / review 寫入失敗會顯示可見警告，不再只留 console / hidden flag。
+- `scripts/storage_durability_smoke.js` 驗證 retention cap 與 quota failure visible warning。
+- `.github/workflows/storage-durability-qa.yml` 將上述契約納入瀏覽器 QA。
 
 ### P1-7 Patch 疊 patch 的載入順序風險
 狀態：`architectural debt`
