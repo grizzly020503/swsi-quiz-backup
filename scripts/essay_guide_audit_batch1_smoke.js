@@ -7,7 +7,7 @@ const base = process.argv[2] || 'http://127.0.0.1:4173';
 const QUESTION_CDN_HOST = 'wandering-wave-4418.c022050333.workers.dev';
 const QUESTION_CDN_PREFIX = '/question-shards/';
 const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
-const norm = s => String(s || '').normalize('NFKC');
+const norm = s => String(s || '').normalize('NFKC').replace(/\s+/g, '');
 
 const CASES = [
   {
