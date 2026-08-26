@@ -9,12 +9,22 @@ const base = process.argv[2] || 'http://127.0.0.1:4173';
   const browserErrors = [];
   page.on('pageerror', err => browserErrors.push(String(err && err.message || err)));
 
+  // These are optional presentation/client helpers. Abort them in CI so a slow third-party
+  // CDN cannot block DOMContentLoaded; the app already has a native REST fallback.
+  await page.route('**/*', route => {
+    const u = route.request().url();
+    if (u.includes('fonts.googleapis.com') || u.includes('fonts.gstatic.com') || u.includes('cdn.jsdelivr.net/npm/@supabase/')) {
+      return route.abort();
+    }
+    return route.continue();
+  });
+
   async function waitHome() {
     await page.waitForSelector('.swsi-focus-primary', { timeout: 45000 });
     await page.waitForFunction(() => typeof window.swsiStartEssayNow === 'function');
   }
 
-  await page.goto(base, { waitUntil: 'domcontentloaded', timeout: 45000 });
+  await page.goto(base, { waitUntil: 'domcontentloaded', timeout: 20000 });
   await waitHome();
 
   // Font controls must actually change the root scale state.
