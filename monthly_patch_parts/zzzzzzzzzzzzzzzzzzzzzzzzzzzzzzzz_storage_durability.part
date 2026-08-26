@@ -1,0 +1,77 @@
+/* ===== SWSI Storage Durability Guard 2026-08-27 ===== */
+(function(){
+  'use strict';
+
+  var HISTORY_KEY='swsi_v2_history';
+  var REVIEW_KEY_LOCAL='swsi_review_v2';
+  var HISTORY_MAX_RECORDS=8000;
+
+  function storageWarning(message){
+    window.__swsiStorageWarning=String(message||'學習進度無法儲存，請先不要清除瀏覽器資料。');
+    try{
+      var id='swsi-storage-warning';
+      var el=document.getElementById(id);
+      if(!el){
+        el=document.createElement('div');
+        el.id=id;
+        el.setAttribute('role','alert');
+        el.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:2147483000;max-width:720px;margin:0 auto;padding:11px 14px;border-radius:12px;background:#fff4e5;color:#7a3f00;border:1px solid #e4b56c;box-shadow:0 8px 28px rgba(0,0,0,.18);font-size:14px;line-height:1.55;font-weight:700';
+        document.body.appendChild(el);
+      }
+      el.textContent='⚠ '+window.__swsiStorageWarning;
+      el.style.display='block';
+    }catch(_e){}
+  }
+
+  function clearStorageWarning(){
+    try{
+      var el=document.getElementById('swsi-storage-warning');
+      if(el)el.style.display='none';
+    }catch(_e){}
+  }
+
+  function compactHistory(input){
+    var h=Array.isArray(input)?input:[];
+    if(h.length<=HISTORY_MAX_RECORDS)return h;
+    return h.slice(h.length-HISTORY_MAX_RECORDS);
+  }
+
+  function durableSaveHist(input){
+    var compacted=compactHistory(input);
+    try{
+      localStorage.setItem(HISTORY_KEY,JSON.stringify(compacted));
+      clearStorageWarning();
+      return true;
+    }catch(err){
+      storageWarning('學習歷程儲存失敗，這次作答可能不會被記錄。請先備份重要內容，並釋放瀏覽器儲存空間後再繼續。');
+      try{console.warn('SWSI history storage failed',err);}catch(_e){}
+      return false;
+    }
+  }
+
+  function durableSaveReviewState(st){
+    try{
+      localStorage.setItem(REVIEW_KEY_LOCAL,JSON.stringify(st));
+      clearStorageWarning();
+      return true;
+    }catch(err){
+      storageWarning('複習進度儲存失敗，間隔複習排程可能無法更新。請先備份重要內容，並釋放瀏覽器儲存空間後再繼續。');
+      try{console.warn('SWSI review storage failed',err);}catch(_e){}
+      return false;
+    }
+  }
+
+  try{saveHist=durableSaveHist;}catch(_e){}
+  window.saveHist=durableSaveHist;
+  try{saveReviewState=durableSaveReviewState;}catch(_e){}
+  window.saveReviewState=durableSaveReviewState;
+
+  window.swsiStorageDurability={
+    version:'2026-08-27.history-cap.v1',
+    historyMaxRecords:HISTORY_MAX_RECORDS,
+    compactHistory:compactHistory,
+    showWarning:storageWarning
+  };
+  window.swsiStorageDurabilityVersion='2026-08-27.history-cap.v1';
+})();
+/* ===== SWSI Storage Durability Guard END ===== */
