@@ -1,0 +1,121 @@
+
+/* SWSI Product Philosophy Home 2026-08-26
+   Keep the exam-prep flow calm and direct: study first, platform second.
+   Core promise: free, no answer locks, no points, no anxiety-selling UI.
+*/
+(function(){
+  'use strict';
+
+  function installStyle(){
+    if(document.getElementById('swsi-product-philosophy-style')) return;
+    var style=document.createElement('style');
+    style.id='swsi-product-philosophy-style';
+    style.textContent=`
+      .swsi-focus-hero{background:linear-gradient(155deg,#426D64,#355A52);color:#fff;border-radius:22px;padding:24px 21px 21px;margin-bottom:14px;box-shadow:0 7px 24px rgba(43,62,57,.14)}
+      .swsi-focus-hero .kicker{font-size:var(--swsi-ui-small,11.5px);font-weight:800;letter-spacing:1.8px;opacity:.78;margin-bottom:5px}
+      .swsi-focus-hero h1{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-hero,25px);font-weight:900;line-height:1.35;letter-spacing:.2px;margin:0}
+      .swsi-focus-hero p{font-size:var(--swsi-ui-body,14px);line-height:1.72;opacity:.92;margin:8px 0 0}
+      .swsi-promise-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:15px}
+      .swsi-promise-row span{font-size:var(--swsi-ui-small,11.5px);line-height:1.3;padding:5px 9px;border:1px solid rgba(255,255,255,.20);background:rgba(255,255,255,.11);border-radius:999px}
+
+      .swsi-focus-primary{background:#fff;border:1px solid rgba(79,126,118,.48);border-radius:19px;padding:18px;margin-bottom:10px;box-shadow:0 3px 14px rgba(43,42,38,.035)}
+      .swsi-focus-primary .label{font-size:var(--swsi-ui-small,11.5px);font-weight:800;color:var(--pine);letter-spacing:1px;margin-bottom:3px}
+      .swsi-focus-primary h2{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-title,15px);line-height:1.4;margin:0;font-weight:900}
+      .swsi-focus-primary p{font-size:var(--swsi-ui-small,11.5px);line-height:1.65;color:var(--ink-soft);margin:4px 0 0}
+      .swsi-focus-actions{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px;margin-top:14px}
+      .swsi-focus-actions button{min-height:48px;border-radius:12px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,14px);font-weight:800;cursor:pointer}
+      .swsi-focus-actions .go{border:none;background:var(--pine-deep);color:#fff}
+      .swsi-focus-actions .choose{border:1px solid var(--line);background:var(--paper2);color:var(--pine)}
+
+      .swsi-focus-custom{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:-2px 0 11px}
+      .swsi-focus-custom .field-label{font-size:var(--swsi-ui-small,11.5px);font-weight:800;color:var(--ink-soft);margin:0 0 5px}
+      .swsi-focus-custom .hint{font-size:var(--swsi-ui-small,11.5px);line-height:1.6;color:var(--ink-soft);margin:1px 0 9px}
+
+      .swsi-study-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:16px 17px;margin:0 0 9px;cursor:pointer;color:var(--ink);font-family:inherit}
+      .swsi-study-card.due{border-color:rgba(158,97,85,.45);background:var(--wrong-bg)}
+      .swsi-study-card .copy{min-width:0}
+      .swsi-study-card .title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:var(--swsi-ui-title,15px);line-height:1.4}
+      .swsi-study-card .sub{font-size:var(--swsi-ui-small,11.5px);color:var(--ink-soft);line-height:1.6;margin-top:3px}
+      .swsi-study-card .aside{flex:0 0 auto;color:var(--ink-3);font-size:22px}
+      .swsi-study-card .count{font-size:var(--swsi-ui-small,11.5px);font-weight:800;color:var(--wrong);background:#fff;border-radius:999px;padding:5px 9px;white-space:nowrap}
+
+      .swsi-other-tools{margin:14px 0 0;border-top:1px solid var(--line);padding-top:4px}
+      .swsi-other-tools summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:var(--swsi-ui-small,11.5px);font-weight:800;color:var(--ink-soft)}
+      .swsi-other-tools summary::-webkit-details-marker{display:none}
+      .swsi-other-tools summary::after{content:'＋';margin-left:7px;color:var(--ink-3)}
+      .swsi-other-tools[open] summary::after{content:'－'}
+      .swsi-other-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-bottom:4px}
+      .swsi-other-grid button{min-height:45px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--pine);font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,14px);font-weight:800}
+
+      .swsi-principle-note{margin:15px 4px 2px;text-align:center;font-size:var(--swsi-ui-small,11.5px);line-height:1.65;color:var(--ink-soft)}
+      .swsi-principle-note b{color:var(--ink);font-weight:800}
+      @media(max-width:370px){.swsi-focus-actions,.swsi-other-grid{grid-template-columns:1fr}.swsi-focus-hero{padding:21px 18px}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  window.swsiStartNow=function(){
+    try{
+      homeQuizScope='smart';
+      homeQuizCount=20;
+      subjFilter='全部科目';
+      homeQuizOpen=false;
+    }catch(_e){}
+    if(typeof startFocusedQuiz==='function') startFocusedQuiz();
+  };
+
+  function safeReviewSummary(){
+    try{return reviewSummary();}catch(_e){return {dueCount:0,nextDueAt:null};}
+  }
+
+  renderHome=function(){
+    installStyle();
+    var rv=safeReviewSummary();
+    var years=examYears();
+    if(!homeQuizYear&&years.length) homeQuizYear=String(years[0]);
+    homeQuizRound=homeQuizRound==='all'?'all':canonicalRound(homeQuizRound);
+    var newest=years[0]||'';
+    var specific=homeQuizScope==='specific';
+    var subjOpts=['全部科目'].concat(SUBJECTS).map(function(x){return '<option value="'+swsiEsc(x)+'" '+(x===subjFilter?'selected':'')+'>'+swsiEsc(x)+'</option>';}).join('');
+    var yearOpts=years.map(function(y){return '<option value="'+y+'" '+(String(y)===String(homeQuizYear)?'selected':'')+'>'+y+' 年</option>';}).join('');
+    var reviewSub=rv.dueCount?('今天有 '+rv.dueCount+' 題該再看一次'):(rv.nextDueAt?('今天沒有到期題；下一批 '+reviewDueLabel(rv.nextDueAt)):'目前沒有待複習題');
+    var scopeHint=homeQuizScope==='smart'?'最近 10 年為主，近 3 年與高頻考點優先。':homeQuizScope==='specific'?'只刷你指定的年度與考次。':homeQuizScope==='all'?'從完整歷史題庫抽題。':'只從較新的歷屆題目抽題。';
+    var offlineNote='';
+    try{
+      if(window.SWSI_QB&&window.SWSI_QB.usingOffline) offlineNote='<div style="margin-bottom:10px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:var(--swsi-ui-small);color:var(--ink-soft)">目前使用這台裝置已儲存的離線題庫。</div>';
+    }catch(_e){}
+
+    app.innerHTML=offlineNote+
+      '<section class="swsi-focus-hero" aria-label="SWSI 平台理念">'+
+        '<div class="kicker">SWSI · 免費社工師國考工具</div>'+
+        '<h1>把時間留給讀書。</h1>'+
+        '<p>不鎖題、不賣解答、不用點數。做題、訂正、複習，然後離開。</p>'+
+        '<div class="swsi-promise-row"><span>核心功能免費</span><span>'+questionTotal()+' 題</span>'+(newest?'<span>'+newest+' 最新考次</span>':'')+'</div>'+
+      '</section>'+
+
+      '<section class="swsi-focus-primary">'+
+        '<div class="label">現在開始</div><h2>刷 20 題選擇題</h2>'+
+        '<p>直接用智慧推薦開始；想指定年度、考次或科目時再打開設定。</p>'+
+        '<div class="swsi-focus-actions"><button class="go" onclick="swsiStartNow()">直接開始 20 題</button><button class="choose" onclick="toggleHomeQuiz()">'+(homeQuizOpen?'收起設定':'自己選範圍')+'</button></div>'+
+      '</section>'+
+
+      (homeQuizOpen?('<section class="swsi-focus-custom">'+
+        '<div class="field-label">範圍</div><select class="subj" aria-label="刷題範圍" onchange="setHomeQuizScope(this.value)" style="margin-bottom:9px">'+
+          '<option value="smart" '+(homeQuizScope==='smart'?'selected':'')+'>智慧推薦</option><option value="recent3" '+(homeQuizScope==='recent3'?'selected':'')+'>近 3 年</option><option value="recent5" '+(homeQuizScope==='recent5'?'selected':'')+'>近 5 年</option><option value="specific" '+(homeQuizScope==='specific'?'selected':'')+'>指定歷屆</option><option value="all" '+(homeQuizScope==='all'?'selected':'')+'>全部題庫</option></select>'+
+        (specific?('<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="subj" aria-label="考試年度" onchange="setHomeQuizYear(this.value)" style="margin-bottom:9px">'+yearOpts+'</select><select class="subj" aria-label="考試考次" onchange="setHomeQuizRound(this.value)" style="margin-bottom:9px"><option value="all" '+(homeQuizRound==='all'?'selected':'')+'>全部考次</option><option value="1" '+(homeQuizRound==='1'?'selected':'')+'>第一次</option><option value="2" '+(homeQuizRound==='2'?'selected':'')+'>第二次</option></select></div>'):'')+
+        '<div class="field-label">科目</div><select class="subj" aria-label="科目" onchange="subjFilter=this.value;render()" style="margin-bottom:9px">'+subjOpts+'</select>'+
+        '<div class="field-label">題數</div><select class="subj" aria-label="題數" onchange="setHomeQuizCount(this.value)" style="margin-bottom:7px"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="40" '+(homeQuizCount===40?'selected':'')+'>40 題</option></select>'+
+        '<div class="hint">'+swsiEsc(scopeHint)+'</div><button class="btn" onclick="startFocusedQuiz()" style="margin-top:2px">開始這組題目</button></section>'):'')+
+
+      '<button class="swsi-study-card '+(rv.dueCount?'due':'')+'" onclick="'+(rv.dueCount?'startDueReview()':"go('review')")+'"><span class="copy"><span class="title">今天該複習的</span><span class="sub">'+swsiEsc(reviewSub)+'</span></span>'+(rv.dueCount?'<span class="count">'+rv.dueCount+' 題</span>':'<span class="aside">›</span>')+'</button>'+
+      '<button class="swsi-study-card" onclick="go(\'essay\')"><span class="copy"><span class="title">練一題申論</span><span class="sub">先自己寫，再看作答骨架與 AI 練習回饋；AI 不冒充官方閱卷。</span></span><span class="aside">›</span></button>'+
+
+      '<details class="swsi-other-tools"><summary>其他工具，需要時再開</summary><div class="swsi-other-grid"><button onclick="MK.open()">計時模擬考</button><button onclick="go(\'topics\')">學習工具</button></div></details>'+
+      '<div class="swsi-principle-note"><b>SWSI 不賣焦慮。</b> 核心備考功能保持免費，沒有答案鎖與點數門檻。</div>';
+
+    if(typeof relabelTabs==='function') try{relabelTabs();}catch(_e){}
+  };
+
+  installStyle();
+  try{if(typeof view!=='undefined'&&view==='home') render();}catch(_e){}
+})();
