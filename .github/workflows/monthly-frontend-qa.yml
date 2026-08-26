@@ -83,6 +83,7 @@ jobs:
           grep -q 'SWSI Theory Trust Batch 2 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Theory Trust Final Batch 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Feedback / Quality Report V1 2026-08-26' _site/monthly_patch.js
+          grep -q 'SWSI Feedback Context State Fix 2026-08-26' _site/monthly_patch.js
           grep -q 'swsi-feedback' _site/monthly_patch.js
           grep -q 'Bowen 家庭系統理論' _site/monthly_patch.js
           grep -q 'Minuchin 結構家庭治療' _site/monthly_patch.js
@@ -99,6 +100,39 @@ jobs:
             echo 'Preview banner leaked into production-shaped build' >&2
             exit 1
           fi
+
+      - name: Live feedback API safety smoke
+        env:
+          ENDPOINT: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-feedback
+        run: |
+          set -euo pipefail
+          check_origin() {
+            origin="$1"
+            headers="$(mktemp)"
+            code="$(curl --silent --show-error --location --connect-timeout 10 --max-time 30 \
+              -X OPTIONS -D "$headers" -o /dev/null -w '%{http_code}' \
+              -H "Origin: $origin" \
+              -H 'Access-Control-Request-Method: POST' \
+              -H 'Access-Control-Request-Headers: content-type,x-swsi-client-id' \
+              "$ENDPOINT")"
+            test "$code" = '204'
+            tr -d '\r' < "$headers" | grep -qi "^access-control-allow-origin: $origin$"
+            tr -d '\r' < "$headers" | grep -qi '^access-control-allow-methods: .*POST'
+          }
+          check_origin 'https://swsi-quiznetlify.netlify.app'
+          check_origin 'https://wandering-wave-4418.c022050333.workers.dev'
+
+          body='{"category":"site_bug","context_type":"general","source_kind":"swsi","message":"x"}'
+          code="$(curl --silent --show-error --location --connect-timeout 10 --max-time 30 \
+            -o /tmp/feedback-invalid.json -w '%{http_code}' \
+            -X POST "$ENDPOINT" \
+            -H 'Origin: https://wandering-wave-4418.c022050333.workers.dev' \
+            -H 'Content-Type: application/json' \
+            -H 'X-SWSI-Client-ID: swsi_ci_invalid_feedback_probe_20260826' \
+            --data "$body")"
+          test "$code" = '400'
+          grep -q '請至少寫 3 個字' /tmp/feedback-invalid.json
+          echo 'LIVE FEEDBACK API SAFETY SMOKE OK'
 
   interaction-qa:
     runs-on: ubuntu-latest
