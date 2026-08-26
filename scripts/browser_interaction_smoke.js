@@ -9,13 +9,17 @@ const base = process.argv[2] || 'http://127.0.0.1:4173';
   const browserErrors = [];
   page.on('pageerror', err => browserErrors.push(String(err && err.message || err)));
 
-  // These are optional presentation/client helpers. Abort them in CI so a slow third-party
-  // CDN cannot block DOMContentLoaded; the app already has a native REST fallback.
+  const localOrigin = new URL(base).origin;
   await page.route('**/*', route => {
-    const u = route.request().url();
-    if (u.includes('fonts.googleapis.com') || u.includes('fonts.gstatic.com') || u.includes('cdn.jsdelivr.net/npm/@supabase/')) {
+    const u = new URL(route.request().url());
+    // CI only needs our local static files plus the real Cloudflare question CDN / Supabase REST fallback.
+    // Abort optional third-party presentation/client SDK requests so they can never hold page parsing hostage.
+    if (u.origin !== localOrigin &&
+        !u.hostname.endsWith('workers.dev') &&
+        !u.hostname.endsWith('supabase.co')) {
       return route.abort();
     }
+    if (u.hostname === 'cdn.jsdelivr.net') return route.abort();
     return route.continue();
   });
 
@@ -24,7 +28,8 @@ const base = process.argv[2] || 'http://127.0.0.1:4173';
     await page.waitForFunction(() => typeof window.swsiStartEssayNow === 'function');
   }
 
-  await page.goto(base, { waitUntil: 'domcontentloaded', timeout: 20000 });
+  // For this SPA the real readiness signal is the rendered SWSI home, not a browser load event.
+  await page.goto(base, { waitUntil: 'commit', timeout: 15000 });
   await waitHome();
 
   // Font controls must actually change the root scale state.
@@ -99,7 +104,7 @@ const base = process.argv[2] || 'http://127.0.0.1:4173';
 
   console.log('BROWSER INTERACTION SMOKE OK');
   await browser.close();
-})().catch(async err => {
+})().catch(err => {
   console.error(err && err.stack || err);
   process.exit(1);
 });
