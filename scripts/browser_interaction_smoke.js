@@ -24,28 +24,15 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     const req = route.request();
     const u = new URL(req.url());
 
-    // Use the exact production-shaped manifest/shards committed in this repo, but serve
-    // them locally inside Playwright. CI therefore tests SWSI interactions deterministically
-    // instead of testing whether a GitHub runner happens to reach Cloudflare/Supabase.
     if (u.hostname === QUESTION_CDN_HOST && u.pathname.startsWith(QUESTION_CDN_PREFIX)) {
       const rel = decodeURIComponent(u.pathname.slice(QUESTION_CDN_PREFIX.length));
-      if (!rel || rel !== path.basename(rel)) {
-        return route.fulfill({ status: 404, body: 'not found' });
-      }
+      if (!rel || rel !== path.basename(rel)) return route.fulfill({ status: 404, body: 'not found' });
       const file = path.join(LOCAL_SHARD_DIR, rel);
-      if (!fs.existsSync(file)) {
-        return route.fulfill({ status: 404, body: 'not found' });
-      }
+      if (!fs.existsSync(file)) return route.fulfill({ status: 404, body: 'not found' });
       servedQuestionFiles.push(rel);
-      return route.fulfill({
-        status: 200,
-        contentType: 'application/json; charset=utf-8',
-        body: fs.readFileSync(file)
-      });
+      return route.fulfill({ status: 200, contentType: 'application/json; charset=utf-8', body: fs.readFileSync(file) });
     }
 
-    // Everything required for the interaction smoke is now local. External fonts,
-    // SDKs, AI and fallback APIs are intentionally irrelevant to these core journeys.
     if (u.origin !== localOrigin) return route.abort();
     return route.continue();
   });
@@ -81,11 +68,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     }
   }
 
-  // For this SPA the real readiness signal is the rendered SWSI home, not a browser load event.
   await page.goto(base, { waitUntil: 'commit', timeout: 15000 });
   await waitHome();
 
-  // Font controls must actually change the root scale state.
   const fontButtons = page.locator('.fontctl button');
   assert((await fontButtons.count()) >= 3, 'font controls missing');
   await fontButtons.nth(1).click();
@@ -93,7 +78,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await fontButtons.nth(0).click();
   await page.waitForFunction(() => document.documentElement.getAttribute('data-fs') === '0');
 
-  // Home -> one-tap MCQ -> choose -> submit -> compact explanation -> expand -> next.
   await page.getByRole('button', { name: /直接開始 20 題/ }).click();
   await page.waitForSelector('.qcard .opt', { timeout: 45000 });
   await page.locator('.qcard .opt').first().click();
@@ -109,52 +93,44 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.getByRole('button', { name: /下一題|看結果/ }).click();
   await page.waitForSelector('.qcard');
 
-  // Return home using the actual UI.
   await page.getByRole('button', { name: /結束這次練習/ }).click();
   await waitHome();
 
-  // Home -> one-tap essay should open an actual writing box, not just a subject list.
   await page.getByRole('button', { name: '直接練一題' }).click();
   await page.waitForSelector('.wta', { timeout: 30000 });
   const textarea = page.locator('.wta').first();
   await textarea.fill('一、測試作答\n（一）測試內容');
   assert((await textarea.inputValue()).includes('測試作答'), 'essay textarea did not accept input');
 
-  // Clear is destructive and must still require confirmation.
   let sawConfirm = false;
   page.once('dialog', async dialog => {
     sawConfirm = true;
     assert(/清空|清除/.test(dialog.message()), 'unexpected clear confirmation text');
     await dialog.accept();
   });
-  await page.getByRole('button', { name: /清除作答/ }).click();
+  await page.getByRole('button', { name: /清除.*作答/ }).click();
   await page.waitForFunction(() => {
     const ta = document.querySelector('.wta');
     return ta && ta.value === '';
   });
   assert(sawConfirm, 'clear draft did not ask for confirmation');
 
-  // Bottom Home then Bottom Essay must open the essay library (navigation semantics),
-  // while the home card remains the one-tap practice entry.
   await page.getByRole('button', { name: '首頁' }).click();
   await waitHome();
   await page.getByRole('button', { name: '申論' }).click();
   await page.waitForFunction(() => {
     const h = document.querySelector('#app .section-h');
     return h && /申論題/.test(h.textContent || '');
-  }, { timeout: 30000 });
+  }, null, { timeout: 30000 });
   assert((await page.locator('.wta').count()) === 0, 'bottom Essay nav should open the library, not force a random question');
 
-  // Bottom Review must navigate and render rather than silently failing.
   await page.getByRole('button', { name: '複習' }).click();
   await page.waitForFunction(() => {
     const app = document.querySelector('#app');
     return app && (/今日複習|未熟練|今天到期/.test(app.textContent || ''));
-  }, { timeout: 60000 });
+  }, null, { timeout: 60000 });
 
-  // Fail on real JS exceptions. Network/font console noise is intentionally ignored.
   assert.deepStrictEqual(browserErrors, [], 'browser page errors: ' + browserErrors.join(' | '));
-
   console.log('BROWSER INTERACTION SMOKE OK');
   await browser.close();
 })().catch(err => {
