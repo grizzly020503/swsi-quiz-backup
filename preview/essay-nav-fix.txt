@@ -1,0 +1,2 @@
+Preview trigger for 2026-08-26 essay navigation fix.
+This file exists only to generate a fresh Netlify Deploy Preview from current main.
