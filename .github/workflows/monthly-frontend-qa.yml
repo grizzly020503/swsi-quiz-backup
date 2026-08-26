@@ -10,6 +10,7 @@ on:
       - 'scripts/monthly_frontend_smoke.py'
       - 'scripts/browser_interaction_smoke.js'
       - 'scripts/knowledge_path_smoke.js'
+      - 'scripts/theory_trust_smoke.js'
       - 'scripts/knowledge_catalog_audit.js'
       - 'scripts/netlify_ignore.py'
       - 'netlify.toml'
@@ -37,7 +38,7 @@ jobs:
           python-version: '3.12'
 
       - name: JavaScript syntax
-        run: cat monthly_patch_parts/*.part > /tmp/monthly_patch.js && node --check /tmp/monthly_patch.js && node --check sw.js && node --check scripts/browser_interaction_smoke.js && node --check scripts/knowledge_path_smoke.js && node --check scripts/knowledge_catalog_audit.js
+        run: cat monthly_patch_parts/*.part > /tmp/monthly_patch.js && node --check /tmp/monthly_patch.js && node --check sw.js && node --check scripts/browser_interaction_smoke.js && node --check scripts/knowledge_path_smoke.js && node --check scripts/theory_trust_smoke.js && node --check scripts/knowledge_catalog_audit.js
 
       - name: Knowledge catalog audit
         run: node scripts/knowledge_catalog_audit.js index.html
@@ -63,6 +64,9 @@ jobs:
           grep -q "window.__SWSI_BOOT_DEFERRED__=true" _site/index.html
           grep -q "monthly_patch.js" _site/index.html
           grep -q "const VERSION = 'v5'" _site/sw.js
+          grep -q 'SWSI Theory Trust Batch 1 2026-08-26' _site/monthly_patch.js
+          grep -q 'Bowen 家庭系統理論' _site/monthly_patch.js
+          grep -q 'Minuchin 結構家庭治療' _site/monthly_patch.js
 
       - name: Production HTTP smoke
         env:
@@ -136,3 +140,4 @@ jobs:
           done
           node scripts/browser_interaction_smoke.js http://127.0.0.1:4173/
           node scripts/knowledge_path_smoke.js http://127.0.0.1:4173/
+          node scripts/theory_trust_smoke.js http://127.0.0.1:4173/
