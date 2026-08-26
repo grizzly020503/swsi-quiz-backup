@@ -3465,3 +3465,43 @@ body:has(#app .section-h) main{
   });
   window.SWSI_THEORY_ERIKSON_NAME_FIX='SWSI Theory Trust Erikson Name Fix 2026-08-26';
 })();
+
+/* SWSI Theory Trust Stage Name Fix 2026-08-26
+   Exact-name corrections for SWSI-authored theory cards only. Official exam questions remain untouched.
+*/
+(function(){
+  'use strict';
+  var rows=window.THEORIES||[];
+  function patch(name,data){
+    var t=rows.find(function(x){return x&&x.n===name;});
+    if(!t)return false;
+    Object.assign(t,data,{theory_verify_status:'checked',theory_checked_at:'2026-08-26'});
+    return true;
+  }
+
+  patch('Erikson 心理社會發展理論',{
+    s:'Erik Erikson',
+    c:'Erikson 以生命全程八個心理社會階段描述發展，每一階段都有一組需要整合的心理社會張力，例如青少年的「認同 vs. 角色混淆」。這裡的「危機」是發展上的張力與課題，不等於精神疾病或必然失敗；各階段常見年齡是大致範圍，不是硬切的診斷界線。',
+    a:'先看題目明示的年齡、生活情境與主要發展任務，再用相對應的心理社會張力分析。不要只因為「15歲」就下結論說他一定處於某種失敗狀態；同一階段也可能同時存在兩端經驗，前一階段的議題也可能持續影響後續。',
+    k:['生命全程八階段','心理社會張力','認同vs角色混淆','發展任務','年齡為大致範圍'],
+    theory_trust_note:'Erikson 的階段很適合整理發展任務，但不應把年齡表當成臨床診斷表，也不是某階段「解決一次就永遠結束」。'
+  });
+
+  patch('Piaget 認知發展理論',{
+    s:'Jean Piaget',
+    c:'Piaget 將認知發展概括為感覺動作、前運思、具體運思與形式運思四個階段；認知改變涉及基模、同化、調適與平衡化。常見年齡範圍是理解發展順序的參考，不是硬性的診斷門檻；即使進入青春期，也不表示在所有任務與情境都會穩定使用形式運思。',
+    a:'先分辨題目是在問「階段名稱」還是「認知能力」。除了年齡，最好用題目中的實際表現佐證，例如物體恆存、守恆、具體邏輯、抽象思考或假設演繹。',
+    k:['四階段','基模','同化/調適','平衡化','年齡非硬切點'],
+    theory_trust_note:'年齡可以幫助定位典型階段，但不能只靠生日判定一個人的整體認知能力。'
+  });
+
+  patch('Kohlberg 道德發展理論',{
+    s:'Lawrence Kohlberg',
+    c:'Kohlberg 以三層次六階段描述「人如何說明一件事為什麼是對或錯」的道德推理：前習俗、習俗與後習俗。重點是判斷背後的理由，而不是只看一個人的行為好不好。階段與發展有關，但年齡不保證一個人一定到達哪一階段，後習俗層次也不是人人必然達到。',
+    a:'如果正式題目已指定某個階段，先依題目要求回答；一般案例則不要看到「青少年」就直接判定一定在習俗後期或正走向後習俗。可以從他如何解釋規則、關係、法律、權利與原則，判斷道德推理的特徵。',
+    k:['三層次六階段','道德推理理由','前習俗/習俗/後習俗','Heinz困境','年齡不等於階段'],
+    theory_trust_note:'Kohlberg 測的是道德判斷的推理結構，不是把年齡直接換算成固定階段；理論也受到性別與文化普遍性方面的批評。'
+  });
+
+  window.SWSI_THEORY_STAGE_NAME_FIX='SWSI Theory Trust Stage Name Fix 2026-08-26';
+})();
