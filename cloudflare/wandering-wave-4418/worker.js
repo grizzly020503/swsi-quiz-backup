@@ -235,7 +235,7 @@ export default {
         ? body.reasoning_effort
         : "none",
       temperature: Math.min(
-        Math.max(Number(body.temperature) || 0.4, 0),
+        Math.max(Number.isFinite(Number(body.temperature)) ? Number(body.temperature) : 0.4, 0),
         isInternal ? 1 : 0.7
       ),
       max_tokens: maxTokens
