@@ -1,0 +1,75 @@
+name: Enable AI on Cloudflare Preview
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-preview-ai-origin.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-preview-origin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add preview origin to Worker allowlist
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('cloudflare/wandering-wave-4418/worker.js')
+          s=p.read_text(encoding='utf-8')
+          old='''    const PUBLIC_ORIGINS = new Set([\n      "https://swsi-quiznetlify.netlify.app"\n    ]);'''
+          new='''    const PUBLIC_ORIGINS = new Set([\n      "https://swsi-quiznetlify.netlify.app",\n      "https://wandering-wave-4418.c022050333.workers.dev"\n    ]);'''
+          if new in s:
+              print('Preview origin already present.')
+          elif old in s:
+              s=s.replace(old,new,1)
+              p.write_text(s,encoding='utf-8')
+          else:
+              raise SystemExit('PUBLIC_ORIGINS block not found; refusing broad edit')
+          PY
+          node --check cloudflare/wandering-wave-4418/worker.js
+          grep -q 'https://swsi-quiznetlify.netlify.app' cloudflare/wandering-wave-4418/worker.js
+          grep -q 'https://wandering-wave-4418.c022050333.workers.dev' cloudflare/wandering-wave-4418/worker.js
+
+      - name: Commit Worker allowlist
+        run: |
+          set -euo pipefail
+          git config user.name 'swsi-preview-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add cloudflare/wandering-wave-4418/worker.js
+          if git diff --cached --quiet; then
+            echo 'Worker already allows preview origin.'
+          else
+            git commit -m '允許 Cloudflare 預覽站測試 AI 批改'
+            for attempt in 1 2 3; do
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then break; fi
+              if [ "$attempt" = 3 ]; then exit 1; fi
+            done
+          fi
+
+      - name: Verify live preview CORS
+        run: |
+          set -euo pipefail
+          URL='https://wandering-wave-4418.c022050333.workers.dev/'
+          ORIGIN='https://wandering-wave-4418.c022050333.workers.dev'
+          for i in $(seq 1 36); do
+            code="$(curl --silent --show-error --location -X OPTIONS -H "Origin: $ORIGIN" -H 'Access-Control-Request-Method: POST' -D /tmp/h -o /tmp/b -w '%{http_code}' "$URL?cors-check=$GITHUB_RUN_ID-$i" || true)"
+            if [ "$code" = '204' ] && grep -qi '^access-control-allow-origin: https://wandering-wave-4418.c022050333.workers.dev' /tmp/h; then
+              echo 'PREVIEW AI CORS OK'
+              exit 0
+            fi
+            echo "Waiting for Worker deploy: attempt=$i status=$code"
+            sleep 5
+          done
+          echo 'Preview origin is not live in Worker CORS allowlist yet.' >&2
+          cat /tmp/h || true
+          exit 1
