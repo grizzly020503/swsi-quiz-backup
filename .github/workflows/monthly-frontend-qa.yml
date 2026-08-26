@@ -6,6 +6,30 @@ on:
     paths:
       - '.github/workflows/monthly-frontend-qa.yml'
       - 'monthly_patch_parts/**'
+      - 'essay_guides.js'
+      - 'scripts/build_essay_guides_runtime.js'
+      - 'scripts/p0_frontend_preflight.js'
+      - 'scripts/monthly_patch_build.py'
+      - 'scripts/monthly_frontend_smoke.py'
+      - 'scripts/browser_interaction_smoke.js'
+      - 'scripts/knowledge_path_smoke.js'
+      - 'scripts/theory_trust_smoke.js'
+      - 'scripts/theory_trust_batch2_smoke.js'
+      - 'scripts/theory_trust_final_smoke.js'
+      - 'scripts/feedback_smoke.js'
+      - 'scripts/knowledge_catalog_audit.js'
+      - 'scripts/netlify_ignore.py'
+      - 'netlify.toml'
+      - 'sw.js'
+      - 'index.html'
+      - 'auto/essays_auto.json'
+  pull_request:
+    paths:
+      - '.github/workflows/monthly-frontend-qa.yml'
+      - 'monthly_patch_parts/**'
+      - 'essay_guides.js'
+      - 'scripts/build_essay_guides_runtime.js'
+      - 'scripts/p0_frontend_preflight.js'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/monthly_frontend_smoke.py'
       - 'scripts/browser_interaction_smoke.js'
@@ -25,7 +49,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: swsi-monthly-frontend-qa
+  group: swsi-monthly-frontend-qa-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -45,6 +69,8 @@ jobs:
           cat monthly_patch_parts/*.part > /tmp/monthly_patch.js
           node --check /tmp/monthly_patch.js
           node --check sw.js
+          node --check scripts/build_essay_guides_runtime.js
+          node --check scripts/p0_frontend_preflight.js
           node --check scripts/browser_interaction_smoke.js
           node --check scripts/knowledge_path_smoke.js
           node --check scripts/theory_trust_smoke.js
@@ -52,6 +78,9 @@ jobs:
           node --check scripts/theory_trust_final_smoke.js
           node --check scripts/feedback_smoke.js
           node --check scripts/knowledge_catalog_audit.js
+
+      - name: P0 frontend preflight
+        run: node scripts/p0_frontend_preflight.js
 
       - name: Knowledge catalog audit
         run: node scripts/knowledge_catalog_audit.js index.html
@@ -63,8 +92,11 @@ jobs:
         run: |
           rm -rf _site
           mkdir -p _site/icons
-          cp index.html essay_guides.js manifest.json sw.js apple-touch-icon.png _site/
+          cp index.html manifest.json sw.js apple-touch-icon.png _site/
+          node scripts/build_essay_guides_runtime.js essay_guides.js _site/essay_guides.js
           cat monthly_patch_parts/*.part > _site/monthly_patch.js
+          node --check _site/essay_guides.js
+          node --check _site/monthly_patch.js
           cp icons/icon-192.png icons/icon-512.png _site/icons/
           if [ -d auto ]; then cp -R auto _site/; fi
           python scripts/monthly_patch_build.py _site/index.html
@@ -76,7 +108,14 @@ jobs:
         run: |
           grep -q "window.__SWSI_BOOT_DEFERRED__=true" _site/index.html
           grep -q "monthly_patch.js" _site/index.html
-          grep -q "const VERSION = 'v5'" _site/sw.js
+          grep -q "const VERSION = 'v6'" _site/sw.js
+          grep -q 'Generated from essay_guides.js by scripts/build_essay_guides_runtime.js' _site/essay_guides.js
+          grep -q '三理論整合' _site/essay_guides.js
+          grep -q 'SWSI Code Health P0 Runtime Guard 2026-08-26' _site/monthly_patch.js
+          grep -q '2026-08-26.fail-closed.v1' _site/monthly_patch.js
+          grep -q '2026-08-26.sha256.v1' _site/monthly_patch.js
+          grep -q 'SWSI MK Unified Grading Contract 2026-08-26' _site/monthly_patch.js
+          grep -q '2026-08-26.unified-grading.v1' _site/monthly_patch.js
           grep -q 'SWSI Product V1 Lock 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Law Trust Final Batch 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Theory Trust Batch 1 2026-08-26' _site/monthly_patch.js
@@ -146,12 +185,18 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: P0 frontend preflight
+        run: node scripts/p0_frontend_preflight.js
+
       - name: Build browser-test site
         run: |
           rm -rf _site
           mkdir -p _site/icons
-          cp index.html essay_guides.js manifest.json sw.js apple-touch-icon.png _site/
+          cp index.html manifest.json sw.js apple-touch-icon.png _site/
+          node scripts/build_essay_guides_runtime.js essay_guides.js _site/essay_guides.js
           cat monthly_patch_parts/*.part > _site/monthly_patch.js
+          node --check _site/essay_guides.js
+          node --check _site/monthly_patch.js
           cp icons/icon-192.png icons/icon-512.png _site/icons/
           if [ -d auto ]; then cp -R auto _site/; fi
           python scripts/monthly_patch_build.py _site/index.html
