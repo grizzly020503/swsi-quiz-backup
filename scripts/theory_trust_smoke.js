@@ -37,10 +37,14 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     total: window.SWSI_THEORY_TRUST.totalCount(),
     verified: window.SWSI_THEORY_TRUST.verifiedCount(),
     bowen: (window.THEORIES || []).some(t => t && t.n === 'Bowen 家庭系統理論'),
-    minuchin: (window.THEORIES || []).some(t => t && t.n === 'Minuchin 結構家庭治療')
+    minuchin: (window.THEORIES || []).some(t => t && t.n === 'Minuchin 結構家庭治療'),
+    checked: (window.THEORIES || []).filter(t => t && t.theory_verify_status === 'checked').map(t => t.n),
+    all: (window.THEORIES || []).filter(Boolean).map(t => t.n)
   }));
+  console.log('THEORY TRUST DIAG checked=' + JSON.stringify(stats.checked));
+  console.log('THEORY TRUST DIAG all=' + JSON.stringify(stats.all));
   assert(stats.total >= 37, 'theory split cards were not added');
-  assert(stats.verified >= 14, 'Theory Trust Batch 1 verified too few cards');
+  assert(stats.verified >= 14, `Theory Trust Batch 1 verified too few cards: verified=${stats.verified}; checked=${stats.checked.join('|')}`);
   assert(stats.bowen, 'Bowen family systems card missing');
   assert(stats.minuchin, 'Minuchin structural family therapy card missing');
 
