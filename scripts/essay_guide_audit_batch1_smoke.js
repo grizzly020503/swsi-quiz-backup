@@ -7,6 +7,7 @@ const base = process.argv[2] || 'http://127.0.0.1:4173';
 const QUESTION_CDN_HOST = 'wandering-wave-4418.c022050333.workers.dev';
 const QUESTION_CDN_PREFIX = '/question-shards/';
 const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
+const norm = s => String(s || '').normalize('NFKC');
 
 const CASES = [
   {
@@ -102,7 +103,8 @@ const CASES = [
     assert(/✓ 已逐題核對/.test(got.html), `verified badge not rendered: ${spec.id}`);
     assert(/不是考選部官方答案/.test(got.html), `SWSI-not-official note missing: ${spec.id}`);
 
-    for (const s of spec.qMust) assert(got.q.includes(s), `formal question check failed for ${spec.id}: ${s}`);
+    const qText = norm(got.q);
+    for (const s of spec.qMust) assert(qText.includes(norm(s)), `formal question check failed for ${spec.id}: ${s}`);
 
     const guideText = [got.guide.kao, got.guide.dati, ...(got.guide.biaoti || []), ...(got.guide.kw || [])].join('\n');
     for (const s of spec.guideMust) assert(guideText.includes(s), `question-specific guide content missing for ${spec.id}: ${s}`);
