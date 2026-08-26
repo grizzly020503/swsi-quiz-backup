@@ -1,0 +1,43 @@
+name: Unified Question QA
+
+on:
+  push:
+    paths:
+      - 'UNIFIED_QUESTION_QA_PIPELINE.md'
+      - 'data/question_qa_policy_v1.json'
+      - 'scripts/unified_question_qa.py'
+      - 'scripts/unified_question_qa_selftest.py'
+      - '.github/workflows/unified-question-qa.yml'
+  pull_request:
+    paths:
+      - 'UNIFIED_QUESTION_QA_PIPELINE.md'
+      - 'data/question_qa_policy_v1.json'
+      - 'scripts/unified_question_qa.py'
+      - 'scripts/unified_question_qa_selftest.py'
+      - '.github/workflows/unified-question-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  selftest:
+    name: Synthetic intake QA self-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile QA scripts
+        run: |
+          python -m py_compile scripts/unified_question_qa.py
+          python -m py_compile scripts/unified_question_qa_selftest.py
+
+      - name: Run synthetic QA invariants
+        run: python scripts/unified_question_qa_selftest.py
