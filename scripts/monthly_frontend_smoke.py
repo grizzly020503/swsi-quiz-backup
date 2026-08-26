@@ -38,11 +38,16 @@ def main() -> int:
         'isCorrectAnswer(item,picked)', 'ensureAllQuestionsLoaded',
         'X-SWSI-Client-ID', 'files.length>3', 'renderTopics=function',
         '官方一律給分（未作答也得分）', 'any_answer',
+        'SWSI Code Health P0 Runtime Guard 2026-08-26',
+        'SWSI MK Unified Grading Contract 2026-08-26',
+        'SWSI Final Runtime Contract 2026-08-26',
     ]:
         require(token in patch, f'monthly patch critical token missing: {token}')
 
-    require("const VERSION = 'v5';" in sw, 'service worker version was not bumped to v5')
-    require("'./monthly_patch.js'" in sw, 'monthly patch missing from PWA shell cache')
+    require("const VERSION = 'v6';" in sw, 'service worker version was not bumped to v6')
+    for asset in ['/monthly_patch.js', '/essay_guides.js', '/manifest.json']:
+        require(asset in sw, f'mutable asset missing from service-worker handling: {asset}')
+    require('networkFirst(req, null, true)' in sw, 'mutable assets are not no-store network-first')
     print('MONTHLY FRONTEND STATIC SMOKE OK')
     return 0
 
