@@ -1425,6 +1425,101 @@ body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
     observer.observe(appNode,{childList:true,subtree:true});
   }
 })();
+
+/* SWSI Home Spacing + Essay Entry Fix 2026-08-26
+   - Home must not stretch a short study dashboard into a page of empty space.
+   - Essay entry should be resilient even if auto essays need one last async load.
+*/
+(function(){
+  'use strict';
+
+  var style=document.createElement('style');
+  style.id='swsi-home-spacing-essay-entry-style';
+  style.textContent=`
+/* Home is intentionally short. Do not let main flex-grow create a huge blank slab
+   between the study actions and the footer. */
+body:has(#app .swsi-focus-hero) main{
+  flex:0 0 auto!important;
+  padding-bottom:calc(92px + env(safe-area-inset-bottom))!important;
+}
+body:has(#app .swsi-focus-hero) .wrap{
+  padding-bottom:0!important;
+}
+body:has(#app .swsi-focus-hero) footer{
+  margin-top:18px!important;
+  padding-bottom:calc(18px + env(safe-area-inset-bottom))!important;
+}
+
+/* Review can use the normal compact safe area; long essay pages keep the larger
+   mobile-reading safe area from the previous patch. */
+body:has(#app .ux-page-head) main,
+body:has(#app .section-h) main{
+  padding-bottom:calc(100px + env(safe-area-inset-bottom));
+}
+`;
+  document.head.appendChild(style);
+
+  var opening=false;
+  window.swsiOpenEssay=async function(){
+    if(opening) return;
+    opening=true;
+    try{
+      /* Normally essays are already loaded during init. This covers slow/cache edge
+         cases instead of letting a tap appear to do nothing. */
+      try{
+        if(typeof ESSAYS!=='undefined' && (!Array.isArray(ESSAYS) || ESSAYS.length===0) && typeof loadAutoEssays==='function'){
+          await loadAutoEssays();
+        }
+      }catch(loadErr){
+        console.warn('SWSI essay reload failed',loadErr);
+      }
+
+      try{
+        if(typeof essaySubj!=='undefined') essaySubj='全部科目';
+        if(typeof essayCluster!=='undefined') essayCluster=null;
+        if(typeof openEssay!=='undefined') openEssay=null;
+        if(typeof guideOpen!=='undefined') guideOpen=null;
+        if(typeof dissectOpen!=='undefined') dissectOpen=null;
+      }catch(_stateErr){}
+
+      if(typeof go==='function'){
+        go('essay');
+      }else{
+        view='essay';
+        window.scrollTo(0,0);
+        render();
+      }
+    }catch(err){
+      console.error('SWSI essay entry failed',err);
+      if(typeof app!=='undefined' && app){
+        app.innerHTML='<div class="empty"><div class="ico">✒</div><h3>申論題暫時沒有開啟</h3><p>頁面載入時遇到問題，請點下面按鈕再試一次。</p><button type="button" class="btn" onclick="swsiOpenEssay()" style="max-width:220px;margin:18px auto 0">重新開啟申論題</button></div>';
+      }
+    }finally{
+      opening=false;
+    }
+  };
+
+  function bindEssayEntries(root){
+    var tab=document.getElementById('t-essay');
+    if(tab && tab.dataset.swsiEssayBound!=='1'){
+      tab.dataset.swsiEssayBound='1';
+      tab.onclick=function(ev){ if(ev) ev.preventDefault(); window.swsiOpenEssay(); };
+    }
+
+    (root||document).querySelectorAll('.swsi-study-card').forEach(function(btn){
+      var title=btn.querySelector('.title');
+      if(!title || (title.textContent||'').indexOf('申論')===-1) return;
+      btn.dataset.swsiEssayBound='1';
+      btn.onclick=function(ev){ if(ev) ev.preventDefault(); window.swsiOpenEssay(); };
+    });
+  }
+
+  bindEssayEntries(document);
+  var appNode=document.getElementById('app');
+  if(appNode){
+    new MutationObserver(function(){ bindEssayEntries(appNode); }).observe(appNode,{childList:true,subtree:true});
+  }
+})();
 /* ===== SWSI P0 mobile + AI guardrails (2026-08-26) ===== */
 (function(){
   'use strict';
