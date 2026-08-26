@@ -2323,3 +2323,98 @@ body:has(#app .section-h) main{
   polishEssayTrustUI();
 })();
 /* ===== SWSI Essay Trust Layer END ===== */
+/* ===== SWSI Essay Metadata Labels 2026-08-26 =====
+   UI-only trust polish. Never mutates official past-exam question text or exam facts.
+*/
+(function(){
+  'use strict';
+
+  window.SWSI_ESSAY_METADATA_LABELS_VERSION='essay-meta-v1-20260826';
+
+  function txt(v){return String(v==null?'':v).trim();}
+  function frequencyLabel(v){
+    var s=txt(v);
+    var map={
+      '高頻':'主題頻率：高',
+      '中頻':'主題頻率：中',
+      '低頻':'主題頻率：低',
+      '高頻預測':'平台預測：較值得留意',
+      '中頻預測':'平台預測：可留意',
+      '低頻預測':'平台預測：一般留意'
+    };
+    return map[s]||s;
+  }
+  function difficultyLabel(v){
+    var s=txt(v);
+    var map={
+      '基礎':'平台難度：基礎',
+      '中等':'平台難度：中等',
+      '困難':'平台難度：較難',
+      '偏難':'平台難度：較難'
+    };
+    return map[s]||s;
+  }
+  window.swsiEssayFrequencyLabel=frequencyLabel;
+  window.swsiEssayDifficultyLabel=difficultyLabel;
+
+  function replaceMetadataTail(s){
+    var out=String(s==null?'':s);
+    out=out.replace(/ · 高頻預測\s*$/,' · 平台預測：較值得留意');
+    out=out.replace(/ · 中頻預測\s*$/,' · 平台預測：可留意');
+    out=out.replace(/ · 低頻預測\s*$/,' · 平台預測：一般留意');
+    out=out.replace(/ · 高頻\s*$/,' · 主題頻率：高');
+    out=out.replace(/ · 中頻\s*$/,' · 主題頻率：中');
+    out=out.replace(/ · 低頻\s*$/,' · 主題頻率：低');
+    return out;
+  }
+
+  function polishEssayMetadataUI(){
+    var root=document.getElementById('app');
+    if(!root)return;
+
+    /* Detail-page chips: make clear these are SWSI metadata, not examiner labels. */
+    root.querySelectorAll('.emeta .tag').forEach(function(tag){
+      var s=txt(tag.textContent);
+      var next=frequencyLabel(s);
+      if(next===s)next=difficultyLabel(s);
+      if(next!==s)tag.textContent=next;
+    });
+
+    /* Theory/law associations are platform inferences unless explicitly stated in the official question. */
+    root.querySelectorAll('.ehint').forEach(function(el){
+      var s=txt(el.textContent);
+      if(s.indexOf('理論：')===0)el.textContent='平台整理・可能相關理論：'+s.slice(3);
+      else if(s.indexOf('法規：')===0)el.textContent='平台整理・可能相關法規：'+s.slice(3);
+    });
+
+    /* Topic cards use one representative frequency value; label it as a theme statistic. */
+    root.querySelectorAll('.cnt').forEach(function(el){
+      var s=txt(el.textContent),next=replaceMetadataTail(s);
+      if(next!==s)el.textContent=next;
+    });
+
+    /* Essay-list metadata lines are plain divs, so only touch leaf nodes that look exactly like list metadata.
+       Never operate inside official question bodies or guide/answer content. */
+    root.querySelectorAll('div').forEach(function(el){
+      if(el.children.length)return;
+      if(el.closest('.ebody,.qtext,.guide,.dsteps,.wbox,.aihelp,#airesult'))return;
+      var s=txt(el.textContent);
+      if(!/^\S.*\d{3}年\s/.test(s)&&!/^\d{3}年\s/.test(s))return;
+      var next=replaceMetadataTail(s);
+      if(next!==s)el.textContent=next;
+    });
+  }
+  window.swsiPolishEssayMetadataUI=polishEssayMetadataUI;
+
+  if(typeof render==='function'){
+    var previousRenderEssayMeta=render;
+    render=function(){
+      var result=previousRenderEssayMeta.apply(this,arguments);
+      polishEssayMetadataUI();
+      return result;
+    };
+    try{window.render=render;}catch(_e){}
+  }
+  polishEssayMetadataUI();
+})();
+/* ===== SWSI Essay Metadata Labels END ===== */
