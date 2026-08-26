@@ -10,6 +10,7 @@ on:
       - 'scripts/build_essay_guides_runtime.js'
       - 'scripts/p0_frontend_preflight.js'
       - 'scripts/grading_contract_smoke.js'
+      - 'scripts/service_worker_upgrade_smoke.js'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/monthly_frontend_smoke.py'
       - 'scripts/browser_interaction_smoke.js'
@@ -32,6 +33,7 @@ on:
       - 'scripts/build_essay_guides_runtime.js'
       - 'scripts/p0_frontend_preflight.js'
       - 'scripts/grading_contract_smoke.js'
+      - 'scripts/service_worker_upgrade_smoke.js'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/monthly_frontend_smoke.py'
       - 'scripts/browser_interaction_smoke.js'
@@ -74,6 +76,7 @@ jobs:
           node --check scripts/build_essay_guides_runtime.js
           node --check scripts/p0_frontend_preflight.js
           node --check scripts/grading_contract_smoke.js
+          node --check scripts/service_worker_upgrade_smoke.js
           node --check scripts/browser_interaction_smoke.js
           node --check scripts/knowledge_path_smoke.js
           node --check scripts/theory_trust_smoke.js
@@ -225,3 +228,4 @@ jobs:
           node scripts/theory_trust_batch2_smoke.js http://127.0.0.1:4173/
           node scripts/theory_trust_final_smoke.js http://127.0.0.1:4173/
           node scripts/feedback_smoke.js http://127.0.0.1:4173/
+          node scripts/service_worker_upgrade_smoke.js
