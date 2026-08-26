@@ -83,15 +83,15 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/後續研究|後續.*提出|後由/.test(text), 'attachment card should mark disorganized pattern as later development');
   assert(/不是.*終身|不能.*終身|不宜直接.*診斷/.test(text), 'attachment card needs non-deterministic / non-diagnostic caution');
 
-  text = await openTheoryAndRead('Erikson 心理社會發展');
+  text = await openTheoryAndRead('Erikson 心理社會發展理論');
   assert(/大致範圍|不是硬切/.test(text), 'Erikson card should not treat ages as hard diagnostic boundaries');
   assert(/危機.*不是|危機.*不等於/.test(text), 'Erikson card should explain psychosocial crisis is not pathology');
 
-  text = await openTheoryAndRead('Piaget認知發展理論');
+  text = await openTheoryAndRead('Piaget 認知發展理論');
   assert(/平衡化/.test(text), 'Piaget card missing equilibration');
   assert(/不是硬性|不是硬切|不是.*診斷/.test(text), 'Piaget card should caution against hard age cutoffs');
 
-  text = await openTheoryAndRead('Kohlberg道德發展理論');
+  text = await openTheoryAndRead('Kohlberg 道德發展理論');
   assert(/理由|推理/.test(text), 'Kohlberg card should focus on moral reasoning');
   assert(/年齡不保證|年齡.*不.*階段|年齡不等於階段/.test(text), 'Kohlberg card should not map age mechanically to stage');
   assert(/不是人人|不.*必然達到/.test(text), 'Kohlberg card should state postconventional reasoning is not inevitable');
