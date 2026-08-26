@@ -27,6 +27,7 @@
     try{
       var el=document.getElementById('swsi-storage-warning');
       if(el)el.style.display='none';
+      window.__swsiStorageWarning='';
     }catch(_e){}
   }
 
@@ -40,7 +41,6 @@
     var compacted=compactHistory(input);
     try{
       localStorage.setItem(HISTORY_KEY,JSON.stringify(compacted));
-      clearStorageWarning();
       return true;
     }catch(err){
       storageWarning('學習歷程儲存失敗，這次作答可能不會被記錄。請先備份重要內容，並釋放瀏覽器儲存空間後再繼續。');
@@ -52,7 +52,6 @@
   function durableSaveReviewState(st){
     try{
       localStorage.setItem(REVIEW_KEY_LOCAL,JSON.stringify(st));
-      clearStorageWarning();
       return true;
     }catch(err){
       storageWarning('複習進度儲存失敗，間隔複習排程可能無法更新。請先備份重要內容，並釋放瀏覽器儲存空間後再繼續。');
@@ -67,11 +66,12 @@
   window.saveReviewState=durableSaveReviewState;
 
   window.swsiStorageDurability={
-    version:'2026-08-27.history-cap.v1',
+    version:'2026-08-27.history-cap.v2',
     historyMaxRecords:HISTORY_MAX_RECORDS,
     compactHistory:compactHistory,
-    showWarning:storageWarning
+    showWarning:storageWarning,
+    clearWarning:clearStorageWarning
   };
-  window.swsiStorageDurabilityVersion='2026-08-27.history-cap.v1';
+  window.swsiStorageDurabilityVersion='2026-08-27.history-cap.v2';
 })();
 /* ===== SWSI Storage Durability Guard END ===== */
