@@ -1,0 +1,130 @@
+
+/* SWSI Feedback Compact UI V2 2026-08-26
+   Keep report metadata in the payload, but make the student-facing form short and contextual.
+*/
+(function(){
+  'use strict';
+
+  var STYLE_ID='swsi-feedback-compact-v2-style';
+  if(!document.getElementById(STYLE_ID)){
+    var st=document.createElement('style');
+    st.id=STYLE_ID;
+    st.textContent=`
+      .swsi-report-dialog[data-swsi-compact="2"]{max-height:min(78vh,620px);padding:16px 16px 15px}
+      .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-head{margin-bottom:8px}
+      .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-head h2{font-size:19px}
+      .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-head p{margin-top:2px}
+      .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-context{display:none!important}
+      .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-trust{padding:7px 9px;margin-bottom:10px;font-size:10.8px;line-height:1.55}
+      .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-field{margin-bottom:10px}
+      .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-field>span{margin-bottom:5px}
+      .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-field textarea{min-height:92px}
+      .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-help{font-size:10px}
+      .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-contact-help{display:none}
+      @media(max-height:700px){
+        .swsi-report-dialog[data-swsi-compact="2"]{max-height:82vh}
+        .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-field textarea{min-height:78px}
+      }
+    `;
+    document.head.appendChild(st);
+  }
+
+  var LABELS={
+    question_display:'題目顯示異常',
+    answer_question:'答案好像不對',
+    explanation_error:'解析有疑問',
+    law_outdated:'法規可能過期',
+    theory_question:'理論內容疑問',
+    site_bug:'網站功能異常',
+    ai_feedback:'AI 回饋問題',
+    suggestion:'功能建議',
+    other:'其他'
+  };
+
+  function modeOf(dialog){
+    var sel=dialog.querySelector('#swsi-report-category');
+    var v=sel?sel.value:'';
+    if(v==='law_outdated')return 'law';
+    if(v==='theory_question')return 'theory';
+    if(dialog.querySelector('.swsi-report-trust.official'))return 'exam';
+    return 'general';
+  }
+
+  function allowedFor(mode){
+    if(mode==='exam')return ['answer_question','explanation_error','question_display','other'];
+    if(mode==='law')return ['law_outdated','other'];
+    if(mode==='theory')return ['theory_question','other'];
+    return ['site_bug','ai_feedback','suggestion','other'];
+  }
+
+  function compact(dialog){
+    if(!dialog || dialog.dataset.swsiCompact==='2')return;
+    var sel=dialog.querySelector('#swsi-report-category');
+    if(!sel)return;
+
+    var mode=modeOf(dialog);
+    var oldValue=sel.value;
+    var allowed=allowedFor(mode);
+    sel.innerHTML=allowed.map(function(v){
+      return '<option value="'+v+'">'+LABELS[v]+'</option>';
+    }).join('');
+    sel.value=allowed.indexOf(oldValue)>=0?oldValue:allowed[0];
+
+    var title=dialog.querySelector('#swsi-report-title');
+    if(title)title.textContent=mode==='general'?'回報／提供建議':'回報這個問題';
+
+    var headP=dialog.querySelector('.swsi-report-head p');
+    if(headP)headP.textContent=mode==='general'?'簡單告訴我們你的問題或建議。':'簡單告訴我們哪裡怪怪的。';
+
+    var trust=dialog.querySelector('.swsi-report-trust');
+    if(trust){
+      if(mode==='exam')trust.textContent='歷屆題目會先核對考選部資料後再處理。';
+      else if(mode==='law'||mode==='theory')trust.textContent='SWSI 整理內容收到回報後會先核對再修正。';
+      else trust.style.display='none';
+    }
+
+    var catField=sel.closest('.swsi-report-field');
+    var catLabel=catField&&catField.querySelector(':scope > span');
+    if(catLabel)catLabel.textContent=mode==='general'?'你想告訴我們什麼？':'你發現什麼問題？';
+
+    var msg=dialog.querySelector('#swsi-report-message');
+    if(msg){
+      var msgField=msg.closest('.swsi-report-field');
+      var msgLabel=msgField&&msgField.querySelector(':scope > span');
+      if(msgLabel)msgLabel.textContent='簡單說明一下';
+      if(mode==='exam')msg.placeholder='例如：我上課學到的內容好像不太一樣，可以再確認嗎？';
+      else if(mode==='law')msg.placeholder='例如：這個法規內容好像已經修正，可以再確認嗎？';
+      else if(mode==='theory')msg.placeholder='例如：這個理論的說法和課本不太一樣，可以再確認嗎？';
+      else msg.placeholder='例如：哪裡不好用，或你希望增加什麼？';
+    }
+
+    var contact=dialog.querySelector('#swsi-report-contact');
+    if(contact){
+      var contactField=contact.closest('.swsi-report-field');
+      var help=contactField&&contactField.querySelector('.swsi-report-help');
+      if(help)help.classList.add('swsi-report-contact-help');
+      contact.placeholder='Email（不填也可以）';
+    }
+
+    dialog.dataset.swsiCompact='2';
+  }
+
+  function scan(root){
+    if(root&&root.matches&&root.matches('.swsi-report-dialog'))compact(root);
+    var list=(root&&root.querySelectorAll)?root.querySelectorAll('.swsi-report-dialog'):[];
+    for(var i=0;i<list.length;i++)compact(list[i]);
+  }
+
+  scan(document);
+  var obs=new MutationObserver(function(records){
+    for(var i=0;i<records.length;i++){
+      for(var j=0;j<records[i].addedNodes.length;j++){
+        var n=records[i].addedNodes[j];
+        if(n&&n.nodeType===1)scan(n);
+      }
+    }
+  });
+  obs.observe(document.body,{childList:true,subtree:true});
+
+  window.SWSI_FEEDBACK_COMPACT={version:'V2',marker:'SWSI Feedback Compact UI V2 2026-08-26'};
+})();
