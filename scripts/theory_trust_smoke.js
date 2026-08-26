@@ -31,7 +31,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
 
   await page.goto(base, { waitUntil: 'commit', timeout: 15000 });
   await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
-  await page.waitForFunction(() => Array.isArray(window.THEORIES) && window.SWSI_THEORY_TRUST && /Theory Trust Batch 1/.test(window.SWSI_THEORY_TRUST.version || ''));
+  await page.waitForFunction(() => Array.isArray(window.THEORIES) && window.SWSI_THEORY_TRUST && typeof window.SWSI_THEORY_TRUST.verifiedCount === 'function');
 
   const stats = await page.evaluate(() => ({
     total: window.SWSI_THEORY_TRUST.totalCount(),
