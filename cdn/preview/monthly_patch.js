@@ -3253,3 +3253,195 @@ body:has(#app .section-h) main{
   }
   window.SWSI_AI_COPY_POLISH='SWSI AI Copy Polish 2026-08-26';
 })();
+
+/* SWSI Theory Trust Batch 1 2026-08-26
+   Official exam questions are immutable. This layer only corrects SWSI-authored theory cards.
+*/
+(function(){
+  'use strict';
+
+  var CHECKED_AT='2026-08-26';
+  var VERIFY_CHECKED='checked';
+  var VERIFY_PENDING='needs_review';
+  var rows=window.THEORIES||[];
+
+  function E(v){
+    if(typeof window.swsiEsc==='function')return window.swsiEsc(v);
+    if(typeof window.esc==='function')return window.esc(v);
+    return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function byName(name){return rows.find(function(x){return x&&x.n===name;})||null;}
+  function patch(name,data){
+    var x=byName(name);if(!x)return null;
+    Object.keys(data||{}).forEach(function(k){x[k]=data[k];});
+    return x;
+  }
+  function add(row){
+    if(!row||!row.n||byName(row.n))return byName(row.n);
+    rows.push(row);return row;
+  }
+  function verified(data){
+    return Object.assign({theory_verify_status:VERIFY_CHECKED,theory_checked_at:CHECKED_AT},data||{});
+  }
+
+  // Existing cards are SWSI study notes. Unless this layer explicitly reviews one,
+  // do not present it as already checked.
+  rows.forEach(function(t){
+    if(t&& !t.theory_verify_status)t.theory_verify_status=VERIFY_PENDING;
+  });
+
+  patch('生態系統理論',verified({
+    s:'Urie Bronfenbrenner',
+    c:'Bronfenbrenner 的生態系統理論把發展放在多層環境脈絡中理解：微視系統是個人直接參與的場域；中介系統是不同微視場域之間的關係；外部系統是個人未必直接參與、卻會影響其生活的場域；鉅視系統包括文化、價值、制度與社會結構；時間系統則提醒生命歷程與歷史變遷也會改變發展。',
+    a:'題目明確要你分析「不同環境層次」時，可以依微視→中介→外部→鉅視→時間逐層整理。但不要把 Bronfenbrenner、生態觀點、人在環境（PIE）和 Germain／Gitterman 的生活模型全部當成同一套理論；若題目指定「生活模型」，要改談人與環境的適配、生活壓力與轉銜、環境資源等社工實務概念。',
+    k:['微視/中介/外部/鉅視','時間系統','環境脈絡','系統互動','不等同生活模型'],
+    theory_trust_note:'Bronfenbrenner 的發展生態系統、社工的生態觀點與 Germain／Gitterman 生活模型彼此相關，但來源、目的與常用概念並不完全相同。'
+  }));
+
+  patch('增強權能觀點',verified({
+    s:'Barbara Solomon、Lorraine Gutiérrez 等',
+    c:'增強權能（empowerment）關注權力與無力感如何由個人經驗、人際關係，以及制度與結構共同形成。它既可理解為一個參與、取得資源與增加控制感的過程，也可關注服務使用者是否更能影響與自己有關的決策。社工不是「把權力送給案主」，而是和案主建立合作關係，減少資訊與制度障礙，增加選擇、資源取得、參與及倡議的空間。',
+    a:'先問：目前哪些決定由誰掌握？案主缺的是資訊、選擇、資源、發聲管道，還是受到制度性障礙？再從個人、人際、組織／社區或政治結構層次提出合作、共同決策、資源連結與倡議。不是所有困難都要硬解釋成「受壓迫」，要回到題目證據。',
+    k:['權力/無力感','參與與選擇','共同決策','資源取得','個人到結構層次'],
+    theory_trust_note:'增權與優勢觀點常一起使用，但增權更直接處理權力、參與、資源與制度障礙；兩者不是同義詞。'
+  }));
+
+  patch('優勢觀點',verified({
+    s:'Dennis Saleebey；Charles Rapp 等',
+    c:'優勢觀點要求評估不只看問題與缺陷，也要看個人、家庭與環境中的能力、興趣、過往成功、希望、關係與可動用資源。它不是否認創傷、暴力、自殺風險或實際困難，而是避免把「問題」當成案主的全部。',
+    a:'實務上可以同時做安全／風險評估，再和案主盤點「已經做得到什麼、曾經怎麼撐過、誰願意支持、有哪些資源、希望往哪裡走」。不要為了寫優勢觀點而把真正的危險淡化。',
+    k:['能力與資源','希望與目標','過往成功','去病理化','風險與優勢並看'],
+    theory_trust_note:'優勢、復原力、增強權能彼此可以連結，但不是三個可以互換名稱的概念。Saleebey 是優勢觀點的重要代表；Rapp 的工作則和優勢模式／個案管理密切相關。'
+  }));
+
+  patch('復原力觀點',verified({
+    s:'resilience research；Norman Garmezy、Emmy Werner 等',
+    c:'復原力不是一種「天生很能撐」的固定人格，而是在顯著逆境下仍能維持、恢復或重新形成適應的動態歷程。結果會受到危險因子與保護因子，以及個人、家庭、同儕、學校與社區環境持續互動的影響。',
+    a:'作答時先指出「逆境是什麼」與「要觀察的適應結果是什麼」，再分析危險／保護因子。處遇不只是叫案主更堅強，也可以降低環境風險、增加可信任關係、資源、能力與社會連結。',
+    k:['逆境中的適應','動態歷程','危險因子','保護因子','個人與環境互動'],
+    theory_trust_note:'復原力可以是優勢評估的一部分，但不等於「列出案主優點」；它的核心是逆境、適應與保護／危險機制之間的動態關係。'
+  }));
+
+  // Keep the umbrella card for backwards compatibility/search, but stop mixing schools.
+  patch('家庭系統理論',verified({
+    s:'家庭系統取向（不同學派各有重點）',
+    c:'家庭系統取向把家庭視為相互依賴的互動系統：一位成員的行為改變，會透過循環互動、回饋、家庭規則與維持平衡的過程影響其他成員。不同家庭治療學派使用的概念並不相同：Bowen 重視自我分化、三角關係與多世代情緒歷程；Minuchin 的結構取向則重視次系統、界限、階層、聯盟與家庭結構。',
+    a:'題目只寫「家庭系統」時，可先談整體性、相互依賴、循環因果、回饋與家庭規則。若題目出現「自我分化、三角關係、多世代傳遞」，轉用 Bowen；若出現「次系統、界限、階層、跨代聯盟」，轉用 Minuchin。不要把兩派名詞全部塞在同一段。',
+    k:['整體性','相互依賴','循環因果','回饋/恆定','Bowen ≠ Minuchin'],
+    theory_trust_note:'舊版把 Bowen 與 Minuchin 的核心名詞混在同一張卡。現在保留「家庭系統」總覽，並另外拆成兩張學派卡。'
+  }));
+
+  add(verified({
+    n:'Bowen 家庭系統理論',d:'家庭',s:'Murray Bowen',
+    c:'Bowen 把家庭視為情緒系統。常考概念包括自我分化、三角關係、核心家庭情緒歷程、家庭投射、多世代傳遞與情緒截斷；核心問題之一是人在親密連結中如何維持相對清楚的自我。',
+    a:'遇到跨世代模式、三角關係、家庭焦慮或成員難以在親密與自主間取得平衡時可使用。家系圖有助於觀察多世代關係，但不要看到衝突就直接替家庭貼上「低分化」標籤。',
+    k:['自我分化','三角關係','多世代傳遞','家庭投射','情緒截斷'],
+    theory_trust_note:'三角關係、自我分化與多世代情緒歷程是 Bowen 取向的代表概念，不應和 Minuchin 的界限／次系統混成同一理論。'
+  }));
+
+  add(verified({
+    n:'Minuchin 結構家庭治療',d:'家庭',s:'Salvador Minuchin',
+    c:'結構家庭治療關注家庭互動如何組織成相對穩定的結構，常用次系統、界限、階層、聯盟／結盟等概念理解關係。界限可呈現較清楚、過度擴散或過度僵化等狀態，介入重點是改變互動與家庭結構，而不是只修理某一個「有問題的人」。',
+    a:'題目出現夫妻／親子次系統、界限不清、跨代聯盟、權力階層或家庭結構重整時可用。分析時要描述「誰和誰如何互動」，不要只把界限寫成抽象標籤。',
+    k:['次系統','界限','階層','聯盟/結盟','家庭結構重整'],
+    theory_trust_note:'次系統、界限、階層與結構重整屬 Minuchin 結構取向的核心語彙，和 Bowen 的自我分化／三角概念要分開。'
+  }));
+
+  patch('依附理論',verified({
+    s:'John Bowlby、Mary Ainsworth；Main & Solomon（紊亂／失序型）',
+    c:'Bowlby 建構依附理論，Ainsworth 以陌生情境研究描述安全型、逃避型與抗拒／矛盾型等依附組織；紊亂／失序型則是在後續研究中由 Main 與 Solomon 加以提出與系統化。早期依附經驗會影響孩子對自己、他人與關係的「內在運作模式」，但不是一旦形成就終身不能改變。',
+    a:'兒少保護、安置、收出養與早期創傷題可用。題目只有一小段行為描述時，不宜直接「診斷」孩子是哪一型；應看照顧是否穩定可預測、孩子尋求安慰與探索的方式、分離重聚反應，以及更完整的關係史。',
+    k:['安全/不安全依附','陌生情境','內在運作模式','照顧可預測性','紊亂型為後續分類'],
+    theory_trust_note:'Ainsworth 的經典陌生情境先形成三類分類；紊亂／失序型是後續由 Main 與 Solomon 等研究者發展出的第四類。'
+  }));
+
+  patch('Erikson心理社會發展理論',verified({
+    s:'Erik Erikson',
+    c:'Erikson 以生命全程八個心理社會階段描述發展，每一階段都有一組需要整合的心理社會張力，例如青少年的「認同 vs. 角色混淆」。這裡的「危機」是發展上的張力與課題，不等於精神疾病或必然失敗；各階段常見年齡是大致範圍，不是硬切的診斷界線。',
+    a:'先看題目明示的年齡、生活情境與主要發展任務，再用相對應的心理社會張力分析。不要只因為「15歲」就下結論說他一定處於某種失敗狀態；同一階段也可能同時存在兩端經驗，前一階段的議題也可能持續影響後續。',
+    k:['生命全程八階段','心理社會張力','認同vs角色混淆','發展任務','年齡為大致範圍'],
+    theory_trust_note:'Erikson 的階段很適合整理發展任務，但不應把年齡表當成臨床診斷表，也不是某階段「解決一次就永遠結束」。'
+  }));
+
+  patch('精神分析理論',verified({
+    s:'Sigmund Freud',
+    c:'Freud 的精神分析同時涉及無意識、心理衝突、防衛機轉與本我／自我／超我等人格動力；另一條常考線是心理性慾發展，通常分為口腔期、肛門期、性器期、潛伏期與生殖期。這兩組概念相關，但題目問「人格結構」和問「發展階段」時，答題重點不同。',
+    a:'題目指定 Freud 的發展階段時，先回答心理性慾階段及該階段關注；題目問人格或心理動力時，再談本我／自我／超我、無意識衝突與防衛機轉。不要把「某個行為」單憑一段描述就硬解釋成某階段固著。',
+    k:['本我/自我/超我','無意識','防衛機轉','心理性慾五階段','發展≠人格結構'],
+    theory_trust_note:'舊卡把人格結構與心理性慾發展放得太近，現在明確區分「題目問哪一條線，就答哪一條線」。'
+  }));
+
+  patch('Piaget認知發展理論',verified({
+    s:'Jean Piaget',
+    c:'Piaget 將認知發展概括為感覺動作、前運思、具體運思與形式運思四個階段；認知改變涉及基模、同化、調適與平衡化。常見年齡範圍是理解發展順序的參考，不是硬性的診斷門檻；即使進入青春期，也不表示在所有任務與情境都會穩定使用形式運思。',
+    a:'先分辨題目是在問「階段名稱」還是「認知能力」。除了年齡，最好用題目中的實際表現佐證，例如物體恆存、守恆、具體邏輯、抽象思考或假設演繹。',
+    k:['四階段','基模','同化/調適','平衡化','年齡非硬切點'],
+    theory_trust_note:'年齡可以幫助定位典型階段，但不能只靠生日判定一個人的整體認知能力。'
+  }));
+
+  patch('Kohlberg道德發展理論',verified({
+    s:'Lawrence Kohlberg',
+    c:'Kohlberg 以三層次六階段描述「人如何說明一件事為什麼是對或錯」的道德推理：前習俗、習俗與後習俗。重點是判斷背後的理由，而不是只看一個人的行為好不好。階段與發展有關，但年齡不保證一個人一定到達哪一階段，後習俗層次也不是人人必然達到。',
+    a:'如果正式題目已指定某個階段，先依題目要求回答；一般案例則不要看到「青少年」就直接判定一定在習俗後期或正走向後習俗。可以從他如何解釋規則、關係、法律、權利與原則，判斷道德推理的特徵。',
+    k:['三層次六階段','道德推理理由','前習俗/習俗/後習俗','Heinz困境','年齡不等於階段'],
+    theory_trust_note:'Kohlberg 測的是道德判斷的推理結構，不是把年齡直接換算成固定階段；理論也受到性別與文化普遍性方面的批評。'
+  }));
+
+  patch('任務中心模式',verified({
+    s:'William J. Reid、Laura Epstein',
+    c:'任務中心模式是一種短期、結構化、聚焦於特定目標問題的社會工作方法。社工與案主共同選定要處理的問題、訂出可觀察的目標，再把目標轉成雙方同意且可執行的任務；過程中持續檢查進度、阻礙與結果。',
+    a:'不是社工替案主列一張待辦清單。答題可寫：共同界定目標問題→共同設定目標→規劃與協議任務→執行並檢討障礙→評估與結案。它通常是時限性的短期工作，但不要把「6–12次」背成所有情境都不能改的固定規則。',
+    k:['共同界定問題','共同目標','具體任務','時限與結構','持續檢討評估'],
+    theory_trust_note:'核心不是「任務越多越好」，而是問題與目標要由案主和社工共同確認，任務要直接服務於目標問題。'
+  }));
+
+  patch('危機介入模式',verified({
+    s:'Gerald Caplan；Albert R. Roberts 等',
+    c:'危機是壓力事件超出當事人當下可用的因應方式與支持資源，而出現急性失衡的狀態。介入首先要評估安全、致命風險與急迫危險，再建立工作關係、釐清觸發事件、協助穩定情緒與功能、探索可行替代方案，形成具體行動及後續追蹤。',
+    a:'自殺、家暴、重大事故等題目先寫「安全與風險評估優先」。不要只背一個模糊的「黃金期」就跳到處遇；目標是先穩定、增加可用因應與支持並形成下一步，不必假設每個人都一定要恢復成危機前完全一樣的狀態。',
+    k:['安全/致命風險評估','急性失衡','穩定與支持','替代方案/行動計畫','追蹤'],
+    theory_trust_note:'危機介入強調迅速、主動與聚焦，但沒有一個適用所有危機的固定「黃金時數」可取代風險評估與臨床判斷。'
+  }));
+
+  function statusText(t){
+    return t&&t.theory_verify_status===VERIFY_CHECKED?'✓ 理論內容已逐卡核對':'△ 平台整理・待逐卡複核';
+  }
+  function trustHTML(t){
+    if(!t)return '';
+    var good=t.theory_verify_status===VERIFY_CHECKED;
+    var bg=good?'#EEF5F1':'#F7F4EA',bd=good?'#CFE0D8':'#E5DCC1',fg=good?'#3F6961':'#756E57';
+    var date=t.theory_checked_at?(' · '+t.theory_checked_at):'';
+    var note=t.theory_trust_note||'這是 SWSI 整理的學習卡；尚未完成本階段逐卡校正，請搭配課本與老師教材理解。';
+    return '<div class="swsi-theory-trust" style="margin:14px 0 10px;padding:12px 13px;border:1px solid '+bd+';border-radius:12px;background:'+bg+';font-family:\'Noto Sans TC\',sans-serif">'
+      +'<div style="font-size:12.5px;font-weight:700;color:'+fg+'">'+E(statusText(t)+date)+'</div>'
+      +'<div style="font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin-top:7px">'+E(note)+'</div>'
+      +'<div style="font-size:10.8px;line-height:1.6;color:var(--ink-soft);margin-top:6px">理論卡是 SWSI 學習整理，不是考選部官方答案；正式題目若指定特定理論、學者或階段，以題目要求為準。</div>'
+      +'</div>';
+  }
+
+  var previousRenderTheories=window.renderTheories||renderTheories;
+  window.renderTheories=function(){
+    previousRenderTheories();
+    try{
+      var sub=document.querySelector('#app .section-s');
+      if(sub)sub.innerHTML='先理解理論，再直接看它和哪些歷屆選擇題、申論與法規連在一起。<br><span style="color:var(--ink-soft);font-size:12px">✓「已逐卡核對」代表這張 SWSI 理論摘要已重新拆解概念與學派；△「待逐卡複核」則還不能當成完成版。理論卡不是考選部官方答案。</span>';
+      var t=null;
+      try{if(typeof theoryOpen==='number'&&theoryOpen>=0)t=rows[theoryOpen]||null;}catch(_e){}
+      var open=document.querySelector('#app .ecard.open .ebodywrap');
+      if(open&&t&&!open.querySelector('.swsi-theory-trust')){
+        var net=open.querySelector('.swsi-k-net'),collapse=open.querySelector('.ecollapse');
+        var holder=document.createElement('div');holder.innerHTML=trustHTML(t);
+        var panel=holder.firstElementChild;
+        if(panel)open.insertBefore(panel,net||collapse||null);
+      }
+    }catch(e){console.warn('theory trust render skipped',e);}
+  };
+  try{renderTheories=window.renderTheories;}catch(_e){}
+
+  window.SWSI_THEORY_TRUST={
+    version:'SWSI Theory Trust Batch 1 2026-08-26',
+    checkedAt:CHECKED_AT,
+    verifiedCount:function(){return rows.filter(function(t){return t&&t.theory_verify_status===VERIFY_CHECKED;}).length;},
+    totalCount:function(){return rows.length;}
+  };
+})();
