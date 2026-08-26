@@ -1854,11 +1854,9 @@ body:has(#app .section-h) main{
     var style=document.createElement('style');
     style.id=STYLE_ID;
     style.textContent=`
-      /* Slightly stronger muted text for real phone/outdoor readability. */
       .swsi-study-card .sub,.swsi-principle-note,.swsi-data-version,
       .swsi-essay-action-card .sub,footer{color:#636B67!important;}
 
-      /* Home essay action mirrors the one-tap MCQ flow without becoming another dashboard. */
       .swsi-essay-action-card{background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:15px 16px;margin:0 0 9px;}
       .swsi-essay-action-card .title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:var(--swsi-ui-title,15px);line-height:1.4;color:var(--ink);}
       .swsi-essay-action-card .sub{font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-small,11.5px);line-height:1.6;margin-top:3px;}
@@ -1867,7 +1865,6 @@ body:has(#app .section-h) main{
       .swsi-essay-action-card .go{border:none;background:var(--pine-deep);color:#fff;}
       .swsi-essay-action-card .choose{border:1px solid var(--line);background:#fff;color:var(--pine-deep);}
 
-      /* Answer first, then the shortest useful explanation. Full notes are opt-in. */
       .swsi-answer-line{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);line-height:1.55;color:var(--pine-deep);font-weight:800;background:#F1F6F4;border:1px solid #D8E5DF;border-radius:10px;padding:8px 10px;margin:0 0 13px;}
       .swsi-explanation-more{margin:12px 0 3px;border:1px solid var(--line);border-radius:11px;background:#FBFCFB;overflow:hidden;}
       .swsi-explanation-more summary{list-style:none;cursor:pointer;min-height:43px;padding:9px 11px;display:flex;align-items:center;font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:800;color:var(--pine-deep);}
@@ -1877,12 +1874,10 @@ body:has(#app .section-h) main{
       .swsi-explanation-more .body{border-top:1px solid var(--line);padding:13px 11px 2px;}
       .swsi-explanation-more .body .exp-sec:last-child,.swsi-explanation-more .body .extra:last-child{margin-bottom:10px;}
 
-      /* One visual language for the three core destinations. */
       .tabbar .ico.swsi-nav-ico{width:21px;height:21px;display:grid;place-items:center;font-size:0;line-height:1;}
       .tabbar .ico.swsi-nav-ico svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
       .tabbar .swsi-nav-label{font-family:'Noto Sans TC',sans-serif;line-height:1.1;}
 
-      /* Version info should build trust without becoming another card users must process. */
       .swsi-data-version{margin:10px 4px 0;border-top:1px solid rgba(220,228,223,.85);padding-top:7px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-small,11.5px);line-height:1.6;}
       .swsi-data-version summary{cursor:pointer;list-style:none;min-height:36px;display:flex;align-items:center;justify-content:center;text-align:center;color:#636B67;font-weight:700;}
       .swsi-data-version summary::-webkit-details-marker{display:none;}
@@ -1892,23 +1887,27 @@ body:has(#app .section-h) main{
 
       footer.swsi-footer-clean{padding-top:10px!important;line-height:1.65!important;}
       footer.swsi-footer-clean .sub{font-family:'Noto Sans TC',sans-serif;font-size:11px;color:#737A76;margin-top:2px;}
-
       @media(max-width:370px){.swsi-essay-action-card .actions{grid-template-columns:1fr;}}
     `;
     document.head.appendChild(style);
   }
 
   function icon(kind){
-    if(kind==='home') return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20H7v-7h10v7"/><path d="M9 20v-7h6"/></svg></span>';
-    if(kind==='review') return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5"/><path d="M19 12a7.5 7.5 0 1 1-2.2-5.3L20 9"/></svg></span>';
-    return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 19 3.8-.8L19 8a2.1 2.1 0 0 0-3-3L5.8 15.2 5 19Z"/><path d="m14.8 6.2 3 3"/><path d="M4 21h16"/></svg></span>';
+    if(kind==='home') return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20H7v-7h10v7"></path><path d="M9 20v-7h6"></path></svg></span>';
+    if(kind==='review') return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5"></path><path d="M19 12a7.5 7.5 0 1 1-2.2-5.3L20 9"></path></svg></span>';
+    return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 19 3.8-.8L19 8a2.1 2.1 0 0 0-3-3L5.8 15.2 5 19Z"></path><path d="m14.8 6.2 3 3"></path><path d="M4 21h16"></path></svg></span>';
   }
 
   function setNavButton(id,kind,label){
     var el=document.getElementById(id); if(!el) return;
-    var desired=icon(kind)+'<span class="swsi-nav-label">'+label+'</span>';
-    if(el.innerHTML!==desired) el.innerHTML=desired;
-    el.setAttribute('aria-label',label);
+    /* Do not compare serialized innerHTML. Browsers normalize SVG markup, so that
+       comparison can stay unequal forever and make MutationObserver trigger itself. */
+    var currentLabel=el.querySelector('.swsi-nav-label');
+    var currentIcon=el.querySelector('.swsi-nav-ico');
+    if(!currentLabel || !currentIcon || currentLabel.textContent!==label){
+      el.innerHTML=icon(kind)+'<span class="swsi-nav-label">'+label+'</span>';
+    }
+    if(el.getAttribute('aria-label')!==label) el.setAttribute('aria-label',label);
   }
 
   function polishNav(){
@@ -1925,7 +1924,6 @@ body:has(#app .section-h) main{
     try{ if(typeof dissectOpen!=='undefined') dissectOpen=null; }catch(_e){}
   }
 
-  /* Bottom nav and “choose your own” always mean: open the essay library. */
   window.swsiOpenEssay=function(){
     resetEssayState();
     try{ view='essay'; }catch(_e){ window.view='essay'; }
@@ -1935,44 +1933,10 @@ body:has(#app .section-h) main{
       else if(typeof render==='function') render();
     }catch(err){
       console.error('[SWSI] essay library failed',err);
-      if(typeof app!=='undefined'&&app) app.innerHTML='<div class="empty"><div class="ico">✒</div><h3>申論題暫時無法開啟</h3><p>你的草稿仍保存在這台裝置。請重新整理後再試。</p></div>';
+      if(typeof app!=='undefined'&&app) app.innerHTML='<div class="empty"><div class="ico">✒</div><h3>申論題暫時無法開啟</h3><p>你的作答草稿仍保存在這台裝置。請重新整理後再試。</p></div>';
     }
   };
-
   window.swsiChooseEssay=function(){ window.swsiOpenEssay(); };
-
-  function usableEssayPool(){
-    var xs=Array.isArray(window.ESSAYS)?window.ESSAYS:[];
-    var official=xs.filter(function(e){
-      return e && e.id && e.q && !/(時事|預測)/.test(String(e.qtype||''));
-    });
-    return official.length?official:xs.filter(function(e){return e&&e.id&&e.q;});
-  }
-
-  window.swsiStartEssayNow=async function(){
-    try{
-      if((!Array.isArray(window.ESSAYS)||!window.ESSAYS.length) && typeof loadAutoEssays==='function') await loadAutoEssays();
-    }catch(err){ console.warn('[SWSI] essay preload failed',err); }
-    var pool=usableEssayPool();
-    if(!pool.length){ window.swsiOpenEssay(); return; }
-
-    var years=pool.map(function(e){return parseInt(e.year,10);}).filter(Number.isFinite);
-    var latest=years.length?Math.max.apply(null,years):0;
-    var recent=latest?pool.filter(function(e){var y=parseInt(e.year,10);return Number.isFinite(y)&&y>=latest-4;}):pool.slice();
-    if(recent.length) pool=recent;
-
-    var last=''; try{last=localStorage.getItem('swsi_last_quick_essay')||'';}catch(_e){}
-    var choices=pool.filter(function(e){return String(e.id)!==last;});
-    if(!choices.length) choices=pool;
-    var e=choices[Math.floor(Math.random()*choices.length)];
-    try{localStorage.setItem('swsi_last_quick_essay',String(e.id));}catch(_e){}
-
-    try{ essaySubj=e.subject||'全部科目'; essayCluster=null; openEssay=e.id; guideOpen=null; dissectOpen=null; }catch(_e){}
-    try{ view='essay'; }catch(_e){ window.view='essay'; }
-    try{ window.scrollTo(0,0); }catch(_e){}
-    try{ if(typeof renderEssay==='function') renderEssay(); else render(); }
-    catch(err){ console.error('[SWSI] quick essay failed',err); window.swsiOpenEssay(); }
-  };
 
   function latestVersionText(){
     var total='';
@@ -2038,7 +2002,7 @@ body:has(#app .section-h) main{
       var line=document.createElement('div');
       line.className='swsi-answer-line';
       line.textContent=typeof answerLabel==='function'?answerLabel(item):('答案：'+(item.answer||'—'));
-      if(topic&&topic.nextSibling) exp.insertBefore(line,topic.nextSibling); else if(topic) topic.insertAdjacentElement('afterend',line); else exp.insertBefore(line,exp.firstChild);
+      if(topic) topic.insertAdjacentElement('afterend',line); else exp.insertBefore(line,exp.firstChild);
     }
 
     var hidden=[];
@@ -2072,7 +2036,10 @@ body:has(#app .section-h) main{
     var observer=new MutationObserver(function(){
       if(scheduled) return;
       scheduled=true;
-      Promise.resolve().then(function(){scheduled=false;enhance();});
+      Promise.resolve().then(function(){
+        scheduled=false;
+        enhance();
+      });
     });
     observer.observe(document.body,{childList:true,subtree:true});
   }catch(_e){}
