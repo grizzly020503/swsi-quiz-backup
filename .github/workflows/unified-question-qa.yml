@@ -41,3 +41,30 @@ jobs:
 
       - name: Run synthetic QA invariants
         run: python scripts/unified_question_qa_selftest.py
+
+      - name: Run current 115-2 snapshot through unified QA
+        run: |
+          python scripts/unified_question_qa.py \
+            --mcq cdn/question-shards/115-2.json \
+            --essays auto/essays_auto.json \
+            --year 115 \
+            --round 第二次 \
+            --out /tmp/question-qa-115-2.json \
+            --fail-on never > /dev/null
+
+      - name: Print compact 115-2 QA summary
+        run: |
+          python - <<'PY'
+          import json
+          report = json.load(open('/tmp/question-qa-115-2.json', encoding='utf-8'))
+          out = {
+              'year': report['year'],
+              'round': report['round'],
+              'official_core': report['overall']['official_core'],
+              'enrichment': report['overall']['enrichment'],
+              'manual_review_queue_count': report['overall']['manual_review_queue_count'],
+              'mcq': report['sections'].get('mcq', {}),
+              'essay': report['sections'].get('essay', {}),
+          }
+          print(json.dumps(out, ensure_ascii=False, indent=2))
+          PY
