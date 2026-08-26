@@ -1,0 +1,12 @@
+
+/* SWSI Law Trust Escape Fix 2026-08-26 */
+(function(){
+  'use strict';
+  if(typeof window.H!=='function'){
+    window.H=function(v){
+      return String(v==null?'':v).replace(/[&<>"']/g,function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    };
+  }
+})();
