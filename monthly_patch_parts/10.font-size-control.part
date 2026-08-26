@@ -1,0 +1,112 @@
+
+/* SWSI Font Size Control Fix 2026-08-26
+   Restore visible 小／中／大 scaling across the UIUX layer and inline home controls.
+   The legacy question/explanation typography already uses --fs-q/--fs-h/--fs-b/--fs-s.
+*/
+:root{
+  --swsi-ui-hero:25px;
+  --swsi-ui-heading:18px;
+  --swsi-ui-title:15px;
+  --swsi-ui-body:14px;
+  --swsi-ui-small:11.5px;
+  --swsi-ui-control:14px;
+  --swsi-ui-tab:12px;
+}
+html[data-fs="1"]{
+  --swsi-ui-hero:29px;
+  --swsi-ui-heading:20px;
+  --swsi-ui-title:17px;
+  --swsi-ui-body:16px;
+  --swsi-ui-small:13px;
+  --swsi-ui-control:16px;
+  --swsi-ui-tab:14px;
+}
+html[data-fs="2"]{
+  --swsi-ui-hero:33px;
+  --swsi-ui-heading:23px;
+  --swsi-ui-title:20px;
+  --swsi-ui-body:18px;
+  --swsi-ui-small:15px;
+  --swsi-ui-control:18px;
+  --swsi-ui-tab:16px;
+}
+
+/* Home / utility headings that UIUX V1 had pinned to px values. */
+main .hero h1,
+main .ux-home-intro h1{
+  font-size:var(--swsi-ui-hero)!important;
+}
+main .ask,
+main .section-h,
+main .ux-page-head h2{
+  font-size:var(--swsi-ui-heading)!important;
+}
+main .gcard .name,
+main .time-card .t,
+main .ux-card-title,
+main .ux-link-card .title{
+  font-size:var(--swsi-ui-title)!important;
+}
+
+/* Controls must visibly scale too, otherwise the header A buttons look ineffective on Home. */
+main .btn,
+main .fbtn,
+main .dbtn,
+main select.subj,
+main .ux-btn-main,
+main .ux-btn-soft,
+main .ux-tools button{
+  font-size:var(--swsi-ui-control)!important;
+}
+main input:not([type="checkbox"]):not([type="radio"]),
+main textarea{
+  font-size:var(--fs-b)!important;
+}
+
+/* Supporting text / metadata. */
+main .hero .tagline,
+main .chip,
+main .gcard .cnt,
+main .time-card .n,
+main .quote,
+main .pcount,
+main .quit,
+main .tag,
+main .stat .k,
+main .weak h4,
+main .ux-home-intro .eyebrow,
+main .ux-home-intro p,
+main .ux-home-meta span,
+main .ux-card-sub,
+main .ux-badge,
+main .ux-link-card .sub,
+main .ux-custom-label,
+main .ux-note,
+main .ux-page-head p,
+main .ux-review-rule summary,
+main .ux-review-rule p,
+main .ux-subhead{
+  font-size:var(--swsi-ui-small)!important;
+}
+
+/* A few focused-home notes are inline-styled; bind those to the same size switch. */
+main [style*="font-size:11px"],
+main [style*="font-size:11.5px"],
+main [style*="font-size:12px"],
+main [style*="font-size:12.5px"]{
+  font-size:var(--swsi-ui-small)!important;
+}
+main [style*="font-size:13px"],
+main [style*="font-size:14px"],
+main [style*="font-size:15px"]{
+  font-size:var(--swsi-ui-body)!important;
+}
+
+.tabbar button{
+  font-size:var(--swsi-ui-tab)!important;
+}
+
+/* Keep the A buttons themselves distinct and easy to tap; the selected state is still controlled by setFs(). */
+.fontctl button[data-l="0"]{font-size:12px!important;}
+.fontctl button[data-l="1"]{font-size:15px!important;}
+.fontctl button[data-l="2"]{font-size:18px!important;}
