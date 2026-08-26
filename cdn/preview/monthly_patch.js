@@ -2077,3 +2077,47 @@ body:has(#app .section-h) main{
     observer.observe(document.body,{childList:true,subtree:true});
   }catch(_e){}
 })();
+
+/* SWSI quick-essay scope hardening 2026-08-26
+   The legacy ESSAYS collection may live in the page's lexical scope rather than window.
+*/
+(function(){
+  'use strict';
+
+  function essayRowsNow(){
+    try{ if(typeof ESSAYS!=='undefined' && Array.isArray(ESSAYS)) return ESSAYS; }catch(_e){}
+    return Array.isArray(window.ESSAYS)?window.ESSAYS:[];
+  }
+
+  function usablePool(){
+    var xs=essayRowsNow();
+    var official=xs.filter(function(e){return e&&e.id&&e.q&&!/(時事|預測)/.test(String(e.qtype||''));});
+    return official.length?official:xs.filter(function(e){return e&&e.id&&e.q;});
+  }
+
+  window.swsiStartEssayNow=async function(){
+    try{
+      if(!essayRowsNow().length && typeof loadAutoEssays==='function') await loadAutoEssays();
+    }catch(err){ console.warn('[SWSI] essay preload failed',err); }
+
+    var pool=usablePool();
+    if(!pool.length){ if(typeof window.swsiOpenEssay==='function') window.swsiOpenEssay(); return; }
+
+    var years=pool.map(function(e){return parseInt(e.year,10);}).filter(Number.isFinite);
+    var latest=years.length?Math.max.apply(null,years):0;
+    var recent=latest?pool.filter(function(e){var y=parseInt(e.year,10);return Number.isFinite(y)&&y>=latest-4;}):pool.slice();
+    if(recent.length) pool=recent;
+
+    var last=''; try{last=localStorage.getItem('swsi_last_quick_essay')||'';}catch(_e){}
+    var choices=pool.filter(function(e){return String(e.id)!==last;});
+    if(!choices.length) choices=pool;
+    var e=choices[Math.floor(Math.random()*choices.length)];
+    try{localStorage.setItem('swsi_last_quick_essay',String(e.id));}catch(_e){}
+
+    try{ essaySubj=e.subject||'全部科目'; essayCluster=null; openEssay=e.id; guideOpen=null; dissectOpen=null; }catch(_e){}
+    try{ view='essay'; }catch(_e){ window.view='essay'; }
+    try{ window.scrollTo(0,0); }catch(_e){}
+    try{ if(typeof renderEssay==='function') renderEssay(); else if(typeof render==='function') render(); }
+    catch(err){ console.error('[SWSI] quick essay failed',err); if(typeof window.swsiOpenEssay==='function') window.swsiOpenEssay(); }
+  };
+})();
