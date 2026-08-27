@@ -28,11 +28,7 @@ function filesContaining(test) {
 
 const homeOwners = ownersFor(/\brenderHome\s*=\s*function\b/g);
 assert(homeOwners.length >= 1, 'renderHome ownership chain is empty');
-assert.strictEqual(
-  homeOwners[homeOwners.length - 1],
-  '20.product-philosophy.part',
-  `unexpected final renderHome owner: ${homeOwners.join(' -> ')}`
-);
+assert.strictEqual(homeOwners[homeOwners.length - 1], '20.product-philosophy.part', `unexpected final renderHome owner: ${homeOwners.join(' -> ')}`);
 
 const canonicalHome = sourceOf('20.product-philosophy.part');
 assert(canonicalHome.includes("homeQuizRound=homeQuizRound==='all'?'all':canonicalRound(homeQuizRound)"), 'canonical home owner no longer normalizes homeQuizRound');
@@ -55,25 +51,13 @@ const recordPolicyOwners = ownersFor(/(?:window\.)?swsiShouldRecordMockAnswer\s*
 assert.deepStrictEqual(recordPolicyOwners, [mockPolicyPath], `unexpected mock record policy owners: ${recordPolicyOwners.join(' -> ')}`);
 
 const reviewOwners = ownersFor(/\brenderReview\s*=\s*function\b/g);
-assert.deepStrictEqual(
-  reviewOwners.slice(-2),
-  ['00.part', '70.learning-loop.part'],
-  `unexpected final renderReview ownership chain: ${reviewOwners.join(' -> ')}`
-);
+assert.deepStrictEqual(reviewOwners.slice(-2), ['00.part', '70.learning-loop.part'], `unexpected final renderReview ownership chain: ${reviewOwners.join(' -> ')}`);
 
 const normalizeOwners = ownersFor(/\bnormalize\s*=\s*function\b/g);
-assert.strictEqual(
-  normalizeOwners[normalizeOwners.length - 1],
-  '00.part',
-  `normalize final owner changed unexpectedly: ${normalizeOwners.join(' -> ')}`
-);
+assert.strictEqual(normalizeOwners[normalizeOwners.length - 1], '00.part', `normalize final owner changed unexpectedly: ${normalizeOwners.join(' -> ')}`);
 
 const gradingOwners = ownersFor(/function\s+gradingMode\s*\b|(?:^|[^\w])gradingMode\s*=\s*(?:function|strictMode)\b/g);
-assert.strictEqual(
-  gradingOwners[gradingOwners.length - 1],
-  '00.part',
-  `gradingMode final owner changed unexpectedly: ${gradingOwners.join(' -> ')}`
-);
+assert.strictEqual(gradingOwners[gradingOwners.length - 1], '00.part', `gradingMode final owner changed unexpectedly: ${gradingOwners.join(' -> ')}`);
 
 const codeHealth = sourceOf('zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part');
 assert(!codeHealth.includes('var previousNormalize=normalize;'), 'code-health must not wrap normalize again');
@@ -90,12 +74,26 @@ const legacyAnswerGuessOwners = filesContaining(source => /\/一律給分\|送�
 assert.deepStrictEqual(legacyIdOwners, [], `legacy any-answer ID inference remains: ${legacyIdOwners.join(' -> ')}`);
 assert.deepStrictEqual(legacyAnswerGuessOwners, [], `legacy answer-text inference remains: ${legacyAnswerGuessOwners.join(' -> ')}`);
 
+// Deliberate late product/runtime owners. Keep these visible so future cleanup
+// does not mistake intentional ownership for a removable shim.
+const mkOwners = ownersFor(/(?:window\.)?MK\s*=\s*(?![=])/g);
+assert.strictEqual(mkOwners[mkOwners.length - 1], 'zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part', `unexpected final MK owner: ${mkOwners.join(' -> ')}`);
+
+const aiFeedbackOwners = ownersFor(/function\s+runAIFeedback\s*\b|(?:window\.)?runAIFeedback\s*=\s*function\b/g);
+assert.strictEqual(aiFeedbackOwners[aiFeedbackOwners.length - 1], '99z.essay-trust-layer.part', `unexpected final runAIFeedback owner: ${aiFeedbackOwners.join(' -> ')}`);
+
+const photoGradeOwners = ownersFor(/function\s+gradePhoto\s*\b|(?:window\.)?gradePhoto\s*=\s*function\b/g);
+assert.strictEqual(photoGradeOwners[photoGradeOwners.length - 1], '99z.essay-trust-layer.part', `unexpected final gradePhoto owner: ${photoGradeOwners.join(' -> ')}`);
+
 console.log('RUNTIME OWNER SMOKE OK');
 console.log('renderHome: ' + homeOwners.join(' -> '));
 console.log('renderReview: ' + reviewOwners.join(' -> '));
 console.log('normalize: ' + normalizeOwners.join(' -> '));
 console.log('gradingMode: ' + gradingOwners.join(' -> '));
 console.log('mock record policy: ' + recordPolicyOwners.join(' -> '));
+console.log('MK: ' + mkOwners.join(' -> '));
+console.log('runAIFeedback: ' + aiFeedbackOwners.join(' -> '));
+console.log('gradePhoto: ' + photoGradeOwners.join(' -> '));
 console.log('legacy any-answer ID inference: (none)');
 console.log('legacy answer-text inference: (none)');
 console.log('grading edge guard: acceptedAnswers(invalid) remains late fail-closed without taking grading ownership');
