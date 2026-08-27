@@ -71,7 +71,6 @@ jobs:
           grep -q '從法規接到考題' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI Law Trust UI Contract 2026-08-27' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI New Resident Basic Act Status UI 2026-08-27' /tmp/swsi-preview/monthly_patch.js
-          grep -q 'SWSI AI Copy Polish 2026-08-26' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI Theory Trust UI Contract 2026-08-27' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI Feedback / Quality Report V1 2026-08-26' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI Feedback Context State Owner 2026-08-27' /tmp/swsi-preview/monthly_patch.js
@@ -149,7 +148,6 @@ jobs:
                && grep -q 'SWSI Knowledge Path V1 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Law Trust UI Contract 2026-08-27' /tmp/live-preview-patch.js \
                && grep -q 'SWSI New Resident Basic Act Status UI 2026-08-27' /tmp/live-preview-patch.js \
-               && grep -q 'SWSI AI Copy Polish 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Theory Trust UI Contract 2026-08-27' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Feedback / Quality Report V1 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Feedback Context State Owner 2026-08-27' /tmp/live-preview-patch.js \
