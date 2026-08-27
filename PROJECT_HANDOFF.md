@@ -827,3 +827,19 @@ Cloudflare shard 是跨 Netlify origin，現行 SW 不攔它是正確的；離�
 ## 15. 下一個對話最短啟動指令
 
 > **請讀 GitHub `grizzly020503/swsi-quiz-backup` 的 `PROJECT_HANDOFF.md`，依「目前真正的下一步」繼續。不要重做已完成項目，也不要改 Netlify，除非我明確要求。**
+
+## 2026-08-27 Code Health Round 8 最終驗收
+
+此段為本輪最新狀態；若前文仍有「待做／月底再做」的歷史敘述，以本段與 `KNOWN_ISSUES.md` 為準。
+
+- authoritative branch head（驗收時）：`b29fbca24fab783092290229d41bc8a300898e95`
+- 核心 atomic commits：`80a92eed`（grading/shard/Worker/SW/release contracts）、`d46317d0`（history/review-state schema guard）
+- Monthly Frontend QA #91 `33030671962`：static-qa + Playwright Chromium interaction-qa 全綠
+- Storage Durability QA #7 `33030671919`：schema/quarantine browser smoke 全綠
+- Essay Guide Audit #7 `33030369777`、Unified Question QA #8 `32981787083`、MOEX Importer Integrity QA #1 `33003892890` 全綠
+- 24 shard artifact SHA、tampered shard、legacy offline cache rejection、full-bank invariant 全綠
+- Supabase production 僅唯讀核對；沒有 schema/data write。Recovery drift 由 `20260827031000_align_recovery_reset_with_grading_mode.sql` 對齊。
+- 沒有部署 Netlify、沒有改 production secrets。Cloudflare Git integration 自動 build checks 成功；branch preview publish/wait steps 均 skipped。
+- 仍保留的工程債：`index.html + monthly_patch_parts` 多層 runtime override，短期由 owner/preflight/browser regression 鎖住，長期再模組化。
+- merge 建議：走一般 PR merge，保留 main-only preview artifact commit；禁止 force push 或直接覆蓋 main。Netlify production deploy/verify 留待明確 release 授權。
+

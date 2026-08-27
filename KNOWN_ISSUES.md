@@ -2,10 +2,10 @@
 
 本檔只列「目前仍需要處理或持續防回歸」的問題。已確認修好的舊問題不要長期留在 Active 區，避免下一個 AI 重做。
 
-## Active P0
+## P0（已完成，持續防回歸）
 
 ### P0-1 Grading contract 必須持續統一
-狀態：`branch 實作完成；release 前仍以最新 Monthly Frontend QA 綠燈為必要條件`
+狀態：`完成；Monthly Frontend QA #91（33030671962）static / Chromium interaction 全綠`
 
 目前 branch 已有共同 grading contract，並由 `scripts/grading_contract_smoke.js` 覆蓋：
 - standard 單答案
@@ -18,22 +18,17 @@
 計時模擬考已改走同一 contract，不再直接猜 `q.answer`。
 
 ### P0-2 特殊給分不得 legacy inference
-狀態：`branch 實作完成；持續由 preflight + browser smoke 防回歸`
+狀態：`完成；preflight + grading browser smoke 持續防回歸`
 
 最終 runtime guard 會覆蓋早期 compatibility inference；特殊給分題若缺 `grading_mode`，不得從 ID／「一律給分」「送分」等文字猜模式，直接暫停判分。
 
 ### P0-3 Essay duplicate key / deploy artifact
-狀態：`branch migration path 已封住；release artifact 必須經 builder`
+狀態：`完成；source 與 deploy artifact 都禁止 duplicate key`
 
-已知歷史 source `essay_guides.js` 仍保留一個已知 107-1 duplicate 作為 migration source，但：
-- `scripts/p0_frontend_preflight.js` 會拒絕任何額外 duplicate 或已知 duplicate shape 漂移。
-- `scripts/build_essay_guides_runtime.js` 會輸出唯一 key 的 deploy artifact。
-- verified 107-1 三理論修正版會在 build 時固定套用。
-
-正式 release 不得直接 copy raw `essay_guides.js` 當 runtime artifact。
+`essay_guides.js` 已無 107-1 duplicate；`scripts/build_essay_guides_runtime.js` 與 synthetic preflight 會拒絕任何 duplicate key。verified 107-1 三理論修正版由 builder 固定套用，所有 release path 都必須經 builder。
 
 ### P0-4 Release gate 必須真正攔 P0
-狀態：`branch 已接線；等待最新整包 QA 驗收`
+狀態：`完成；Monthly Frontend QA #91、Essay Audit #7 與 production-shaped static/browser gate 全綠`
 
 目前：
 - Monthly Frontend QA 先跑 `p0_frontend_preflight.js` 再建 production-shaped site。
@@ -41,10 +36,10 @@
 - `essay_guides.js` / grading / SW / browser interaction 都已納入 relevant QA path。
 - 最新新增 Service Worker v5→v6 真實升級 smoke 也已接進 Monthly Frontend QA。
 
-## Active P1
+## P1（完成項目與剩餘技術債）
 
 ### P1-1 Service Worker / mutable asset cache
-狀態：`v6 source 已修；真實升級 smoke 已加入，待最新 Monthly Frontend QA 結論`
+狀態：`完成；Monthly Frontend QA #91 的真實 Chromium v5→v6 upgrade smoke 全綠`
 
 目前 `sw.js`：
 - cache version = `v6`
@@ -60,19 +55,17 @@
 測試特別把 request counter 放在 v6 activation 後，避免被 install pre-cache 造成假陽性。
 
 ### P1-2 CDN shard / 全題庫完整性
-狀態：`主要 runtime guard 已完成；legacy IndexedDB verified-marker 邊界仍需收尾`
+狀態：`完成；legacy payload-only cache 已 fail closed`
 
 已完成：
-- CDN shard response bytes 以 WebCrypto 實算 SHA-256，與 manifest 比對後才使用。
-- manifest hash 格式異常直接 fail closed。
-- 線上取得新 manifest 後會清除舊 shard cache，讓新 cache 經 verified fetch path 重建。
-- 新增 `2026-08-27.full-bank.v1` 全庫 invariant：manifest 題數總和、loaded shard files、每考次題數、全庫 unique IDs、`ALL.length == manifest.total_questions` 必須全部一致。
-- `scripts/grading_contract_smoke.js` 已加入 synthetic full-bank / collision / manifest-total regression 測試。
-
-仍需收尾：舊 `00.part` IndexedDB row 只有 `sha256` 欄位，歷史版本曾把 manifest 預期 hash 直接寫入，尚未有獨立 `verified_sha256` marker。線上重建路徑已會清舊 cache，但純離線 legacy cache 的可信度仍低於新 verified path；不要把這條誤標成完全結案。
+- CDN response 原始 bytes 以 WebCrypto 實算 SHA-256，通過後才 decode / 使用 / 寫入 IndexedDB。
+- cache 保存原始 bytes、實算 hash 與 `2026-08-26.sha256.v2` provenance；每次離線讀取都重新雜湊。
+- 舊 payload-only／自稱 `verified_sha256` 但沒有 v2 source bytes 的 row 一律拒絕。
+- `2026-08-27.full-bank.v1` 驗 manifest 題數總和、loaded files、每考次題數、全庫 unique IDs 與 `ALL.length`。
+- Monthly Frontend QA #91：24 shards artifact SHA、tampered-byte browser case、legacy offline cache rejection 與 full-bank smoke 全綠。
 
 ### P1-3 AI 429 分類
-狀態：`branch 已修，需持續 browser/CI 驗證`
+狀態：`完成；Worker/source smoke 與 Chromium grading/AI contract 綠燈`
 
 前端需區分：
 - 每分鐘太快
@@ -82,7 +75,7 @@
 目前最後 runtime layer 會優先讀 Worker 實際 error message / code，避免每日額度用完仍顯示「稍後再試」。
 
 ### P1-4 Cloudflare Worker temperature zero
-狀態：`branch 已修，需持續 CI 驗證`
+狀態：`完成；explicit 0、null fallback 與 Worker contract smoke 綠燈`
 
 `temperature: 0` 不得因 `Number(x) || 0.4` 變成 0.4。
 
@@ -96,15 +89,14 @@ Production trigger 已包含 `grading_mode`。GitHub 新增 `20260827031000_alig
 - trigger columns 有 `grading_mode`
 
 ### P1-6 localStorage/history 長期容量與可見錯誤
-狀態：`branch 已修；Storage Durability QA 已成功`
+狀態：`完成；Storage Durability QA #7（33030671919）Chromium 綠燈`
 
 目前 branch：
-- history 保留最近 8,000 筆，避免無上限成長。
-- review state 本身以題目 ID 為 key，總量受題庫規模天然限制。
-- history / review 寫入失敗會顯示可見警告，不再只留 console / hidden flag。
-- 修正 history 寫入失敗後，後續 review 成功誤把警告清掉的鏈式問題。
-- `scripts/storage_durability_smoke.js` 驗證 retention cap、QuotaExceededError visible warning 與完整 `record()` 鏈。
-- `.github/workflows/storage-durability-qa.yml` 已有成功 run：`33004012894`。
+- history 保留最近 8,000 筆；history / review-state 讀寫前都做 schema 驗證。
+- 損壞 payload 先保留 `*_corrupt_backup_*` 再建立乾淨狀態；若備份失敗，後續 write fail closed，禁止覆寫原始資料。
+- history / review 寫入失敗有可見警告，且 review 成功不會蓋掉先前 history 失敗警告。
+- `scripts/storage_durability_smoke.js` 覆蓋 cap、invalid-write preservation、quarantine、backup failure、QuotaExceededError 與完整 `record()` 鏈。
+- `.github/workflows/storage-durability-qa.yml` 最新成功 run：`33030671919`。
 
 ### P1-7 Patch 疊 patch 的載入順序風險
 狀態：`architectural debt`
@@ -130,7 +122,13 @@ Production trigger 已包含 `grading_mode`。GitHub 新增 `20260827031000_alig
 - any_answer = 4
 - source_exam_code / year / round identity mismatch = 0
 
-目前 connector 對 branch push Actions run 的列舉不穩定，因此 importer CI 未取得可重述的最新 run 結論；不要因 production v5 正常就虛構 CI 綠燈。
+MOEX Importer Integrity QA #1（33003892890）已成功；Monthly Frontend QA #91 亦再次執行 importer source contract、Deno check 與 recovery drift smoke。
+
+
+## 尚未執行的 release operation
+
+- Netlify production deploy 與 `Verify Netlify Production Release` 未執行：本輪沒有部署授權；這是 merge 後的人工 release 步驟，不是未修程式 bug。
+- `main` 比 branch 多一筆只修改 `cdn/preview/monthly_patch.js` 的 preview artifact commit；合併必須走一般 PR/merge 並保留該 commit，不可 force 覆蓋。
 
 ## P2 / 長期重構
 
@@ -160,3 +158,4 @@ Production trigger 已包含 `grading_mode`。GitHub 新增 `20260827031000_alig
 3. 附上 commit / test 結果。
 
 不要讓本檔成為永遠不清理的歷史垃圾桶；歷史細節放 `audit/`。
+

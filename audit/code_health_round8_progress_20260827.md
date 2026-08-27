@@ -156,3 +156,27 @@ Production backend 唯一主動部署：
 - Supabase `import-moex-social-worker` v5
 
 不要把 branch student-facing files 的存在誤寫成 Netlify 已上線。
+
+## Final closure — 2026-08-27
+
+本節為最終狀態，覆蓋上文早期「待驗收／待收尾」清單。
+
+### Commits
+
+- `80a92eed9524efd4e81a00ebd7416457686633b9` — grading/shard provenance/AI/Worker/SW/release gates
+- `d46317d0ea24a3cf90c28d166bf9f23b53b52a11` — history/review-state schema validation, quarantine and fail-closed backup handling
+- `b29fbca24fab783092290229d41bc8a300898e95` — preview publishing remains isolated to a main worktree
+
+### Verified results
+
+- Monthly Frontend QA #91 `33030671962`: PASS (static + Chromium interaction)
+- Storage Durability QA #7 `33030671919`: PASS
+- Essay Guide Audit #7 `33030369777`: PASS
+- Unified Question QA #8 `32981787083`: PASS; latest manifest exam = 115 / 第二次 / 115-2.json; official core 210, blocked 0, release ready
+- MOEX Importer Integrity QA #1 `33003892890`: PASS
+- Cloudflare Preview #73 `33030729112`: PASS; branch publish/wait skipped
+- Active GitHub Actions at closure: 0
+
+### Remaining
+
+No known open P0 code bug. Remaining P1/P2 is architectural consolidation of layered runtime patches. Netlify production deployment and post-deploy verification were intentionally not run without release authorization.
