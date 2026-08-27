@@ -1,0 +1,20 @@
+{
+  "laws": {
+    "count": 24,
+    "sha256": "bb946b67af633ea371550dc1b074dbca530ccb50f47e561c7590ff0e5ea89dfc"
+  },
+  "markers": {
+    "law_checked_at": "2026-08-26",
+    "law_final": "SWSI Law Trust Final Batch 2026-08-26",
+    "theory_checked": 39,
+    "theory_final": "SWSI Theory Trust Final Batch 2026-08-26",
+    "theory_pending": [],
+    "theory_total": 39
+  },
+  "schema_version": 1,
+  "source": "production-shaped browser runtime after monthly_patch_parts lexicographic application",
+  "theories": {
+    "count": 39,
+    "sha256": "1a74d39a9611caf002383527390dd3d7e5cc0b6665b6b7f89494f2a0d58ead4d"
+  }
+}
