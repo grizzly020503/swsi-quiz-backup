@@ -47,8 +47,8 @@ jobs:
           grep -q 'SWSI Product V1 Lock 2026-08-26' /tmp/prod-monthly-patch.js
           grep -q 'SWSI Law Trust Final Batch 2026-08-26' /tmp/prod-monthly-patch.js
           grep -q 'SWSI Theory Trust Final Batch 2026-08-26' /tmp/prod-monthly-patch.js
-          grep -q '資產建構／資產累積理論' /tmp/prod-monthly-patch.js
-          grep -q '無條件基本收入 UBI' /tmp/prod-monthly-patch.js
+          grep -q '資產建構／資產累積理論' /tmp/prod-index.html
+          grep -q '無條件基本收入 UBI' /tmp/prod-index.html
 
           if grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW' /tmp/prod-index.html; then
             echo 'Preview marker found on production' >&2
