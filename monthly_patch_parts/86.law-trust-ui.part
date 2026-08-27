@@ -6,6 +6,7 @@
 
   var CHECKED_AT='2026-08-26';
   var VERIFY_CHECKED='checked';
+  var NEW_RESIDENT_BASIC_ACT='新住民基本法';
 
   function H(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(c){
@@ -35,6 +36,17 @@
     return h+'</div>';
   }
 
+  function applySpecialLawStatus(x){
+    if(!x||x.n!==NEW_RESIDENT_BASIC_ACT)return;
+    var panel=document.querySelector('#app .ecard.open .swsi-law-trust');
+    if(!panel)return;
+    var badge=panel.querySelector('span');
+    if(!badge)return;
+    badge.textContent='已制定公布・施行日另定';
+    badge.style.color='#756E57';
+    badge.style.borderColor='#E5DCC1';
+  }
+
   var oldRenderLaws=renderLaws;
   renderLaws=function(){
     oldRenderLaws();
@@ -44,8 +56,10 @@
       var sub=document.querySelector('#app .section-s');
       if(sub)sub.innerHTML='先抓官方法規與政策的核心，再接回歷屆考題。<br><span style="color:var(--ink-soft);font-size:12px">✓「已逐卡核對」代表摘要已和官方來源重新比對；「待逐卡複核」只代表已找到官方來源，內容仍不冒充已核對。法律、政策與公約會分開標示。</span>';
       if(typeof lawOpen==='number'&&lawOpen>=0&&LAWS[lawOpen]){
+        var item=LAWS[lawOpen];
         var open=document.querySelector('#app .ecard.open .ebodywrap');
-        if(open&&!open.querySelector('.swsi-law-trust'))open.insertAdjacentHTML('beforeend',trustHTML(LAWS[lawOpen]));
+        if(open&&!open.querySelector('.swsi-law-trust'))open.insertAdjacentHTML('beforeend',trustHTML(item));
+        applySpecialLawStatus(item);
       }
     }catch(e){console.warn('law trust render skipped',e);}
   };
@@ -55,6 +69,8 @@
     checkedAt:CHECKED_AT,
     verifiedCount:function(){return LAWS.filter(function(x){return x&&x.verify_status===VERIFY_CHECKED;}).length;}
   };
+
+  window.SWSI_NEW_RESIDENT_STATUS={version:'SWSI New Resident Basic Act Status Fix 2026-08-26'};
 
   window.SWSI_LAW_TRUST_FINAL={
     version:'SWSI Law Trust Final Batch 2026-08-26',
