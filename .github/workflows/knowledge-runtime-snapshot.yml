@@ -1,0 +1,95 @@
+name: Knowledge Runtime Snapshot QA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/knowledge-runtime-snapshot.yml'
+      - 'scripts/knowledge_runtime_snapshot.js'
+      - 'scripts/build_essay_guides_runtime.js'
+      - 'scripts/monthly_patch_build.py'
+      - 'monthly_patch_parts/**'
+      - 'essay_guides.js'
+      - 'index.html'
+      - 'manifest.json'
+      - 'sw.js'
+      - 'auto/**'
+      - 'cdn/question-shards/**'
+  pull_request:
+    paths:
+      - '.github/workflows/knowledge-runtime-snapshot.yml'
+      - 'scripts/knowledge_runtime_snapshot.js'
+      - 'scripts/build_essay_guides_runtime.js'
+      - 'scripts/monthly_patch_build.py'
+      - 'monthly_patch_parts/**'
+      - 'essay_guides.js'
+      - 'index.html'
+      - 'manifest.json'
+      - 'sw.js'
+      - 'auto/**'
+      - 'cdn/question-shards/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-knowledge-runtime-snapshot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime-snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Source syntax
+        run: |
+          node --check scripts/knowledge_runtime_snapshot.js
+          python -m py_compile scripts/monthly_patch_build.py
+          cat monthly_patch_parts/*.part > /tmp/monthly_patch.js
+          node --check /tmp/monthly_patch.js
+
+      - name: Build production-shaped site
+        run: |
+          rm -rf _site _knowledge_snapshot
+          mkdir -p _site/icons
+          cp index.html manifest.json sw.js apple-touch-icon.png _site/
+          node scripts/build_essay_guides_runtime.js essay_guides.js _site/essay_guides.js
+          cat monthly_patch_parts/*.part > _site/monthly_patch.js
+          cp icons/icon-192.png icons/icon-512.png _site/icons/
+          if [ -d auto ]; then cp -R auto _site/; fi
+          python scripts/monthly_patch_build.py _site/index.html
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Capture effective law and theory runtime
+        run: |
+          python -m http.server 4173 --directory _site >/tmp/swsi-knowledge-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/knowledge_runtime_snapshot.js http://127.0.0.1:4173/ _knowledge_snapshot
+          test -s _knowledge_snapshot/laws.runtime.json
+          test -s _knowledge_snapshot/theories.runtime.json
+          test -s _knowledge_snapshot/manifest.json
+
+      - name: Upload runtime snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: knowledge-runtime-snapshot-${{ github.sha }}
+          path: _knowledge_snapshot/
+          if-no-files-found: error
+          retention-days: 14
