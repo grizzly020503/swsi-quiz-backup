@@ -10,6 +10,9 @@ on:
       - 'sw.js'
       - 'manifest.json'
       - 'essay_guides.js'
+      - 'scripts/build_essay_guides_runtime.js'
+      - 'scripts/p0_frontend_preflight.js'
+      - 'scripts/service_worker_update_smoke.js'
       - 'auto/essays_auto.json'
       - 'auto/questions_auto.json'
       - 'scripts/monthly_patch_build.py'
@@ -19,7 +22,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: swsi-cloudflare-frontend-preview
+  group: swsi-cloudflare-frontend-preview-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -42,11 +45,15 @@ jobs:
           set -euo pipefail
           rm -rf /tmp/swsi-preview
           mkdir -p /tmp/swsi-preview/icons
-          cp index.html essay_guides.js manifest.json sw.js apple-touch-icon.png /tmp/swsi-preview/
+          cp index.html manifest.json sw.js apple-touch-icon.png /tmp/swsi-preview/
+          node scripts/build_essay_guides_runtime.js essay_guides.js /tmp/swsi-preview/essay_guides.js
           cat monthly_patch_parts/*.part > /tmp/swsi-preview/monthly_patch.js
           cp icons/icon-192.png icons/icon-512.png /tmp/swsi-preview/icons/
           if [ -d auto ]; then cp -R auto /tmp/swsi-preview/; fi
           python scripts/monthly_patch_build.py /tmp/swsi-preview/index.html
+          node scripts/p0_frontend_preflight.js
+          node scripts/service_worker_update_smoke.js
+          node --check /tmp/swsi-preview/essay_guides.js
           node --check /tmp/swsi-preview/monthly_patch.js
           node --check /tmp/swsi-preview/sw.js
           python scripts/monthly_frontend_smoke.py --site /tmp/swsi-preview
@@ -62,36 +69,13 @@ jobs:
           grep -q 'SWSI Knowledge Path V1 2026-08-26' /tmp/swsi-preview/monthly_patch.js
           grep -q '從理論接到考題' /tmp/swsi-preview/monthly_patch.js
           grep -q '從法規接到考題' /tmp/swsi-preview/monthly_patch.js
-          grep -q 'SWSI Law Trust Layer V1 2026-08-26' /tmp/swsi-preview/monthly_patch.js
-          grep -q 'SWSI Law Trust Batch 2 2026-08-26' /tmp/swsi-preview/monthly_patch.js
-          grep -q 'SWSI Law Trust Final Batch 2026-08-26' /tmp/swsi-preview/monthly_patch.js
+          grep -q 'SWSI Law Trust UI Contract 2026-08-27' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI New Resident Basic Act Status Fix 2026-08-26' /tmp/swsi-preview/monthly_patch.js
-          grep -q 'SWSI AI Copy Polish 2026-08-26' /tmp/swsi-preview/monthly_patch.js
-          grep -q 'SWSI Theory Trust Batch 1 2026-08-26' /tmp/swsi-preview/monthly_patch.js
-          grep -q 'SWSI Theory Trust Batch 2 2026-08-26' /tmp/swsi-preview/monthly_patch.js
-          grep -q 'SWSI Theory Trust Final Batch 2026-08-26' /tmp/swsi-preview/monthly_patch.js
+          grep -q 'SWSI Theory Trust UI Contract 2026-08-27' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI Feedback / Quality Report V1 2026-08-26' /tmp/swsi-preview/monthly_patch.js
-          grep -q 'SWSI Feedback Context State Fix 2026-08-26' /tmp/swsi-preview/monthly_patch.js
+          grep -q 'SWSI Feedback Context State Owner 2026-08-27' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI Feedback Compact UI V2 2026-08-26' /tmp/swsi-preview/monthly_patch.js
-          grep -q 'Bowen 家庭系統理論' /tmp/swsi-preview/monthly_patch.js
-          grep -q 'Minuchin 結構家庭治療' /tmp/swsi-preview/monthly_patch.js
-          grep -q '資產建構／資產累積理論' /tmp/swsi-preview/monthly_patch.js
-          grep -q '無條件基本收入 UBI' /tmp/swsi-preview/monthly_patch.js
-          grep -q '符號互動論的主要分析層次是微觀互動' /tmp/swsi-preview/monthly_patch.js
-          grep -q '社會投資與傳統社會保護常是互補' /tmp/swsi-preview/monthly_patch.js
-          grep -q '不等同生活模型' /tmp/swsi-preview/monthly_patch.js
-          grep -q '文化謙遜' /tmp/swsi-preview/monthly_patch.js
-          grep -q '個案管理是一種服務方法' /tmp/swsi-preview/monthly_patch.js
-          grep -q '手寫照片可一次 1–3 張' /tmp/swsi-preview/monthly_patch.js
-          grep -q '當地區公告最低生活費' /tmp/swsi-preview/monthly_patch.js
-          grep -q '已制定公布・施行日另定' /tmp/swsi-preview/monthly_patch.js
-          grep -q '34人以上' /tmp/swsi-preview/monthly_patch.js
-          grep -q '緊急保護令' /tmp/swsi-preview/monthly_patch.js
-          grep -q '行政輔導先行' /tmp/swsi-preview/monthly_patch.js
-          grep -q '社會福利基本法' /tmp/swsi-preview/monthly_patch.js
-          grep -q '精神衛生法' /tmp/swsi-preview/monthly_patch.js
-          grep -q '兒童權利公約施行法' /tmp/swsi-preview/monthly_patch.js
-          grep -q '公務人員退休資遣撫卹法' /tmp/swsi-preview/monthly_patch.js
+          grep -q '一次最多 3 張' /tmp/swsi-preview/monthly_patch.js
           grep -q '正式考題本身.*最高依據' /tmp/swsi-preview/monthly_patch.js
           grep -q '平台整理・可能相關理論' /tmp/swsi-preview/monthly_patch.js
           if grep -A80 'SWSI Essay Trust Layer 2026-08-26' /tmp/swsi-preview/monthly_patch.js | grep -q '校過骨架'; then
@@ -109,7 +93,7 @@ jobs:
           if marker not in s:
               s=s.replace('<head>', '<head>\n'+marker+'\n<meta name="robots" content="noindex,nofollow,noarchive">', 1)
           s=s.replace('<title>社工師國考免費題庫｜SWSI</title>', '<title>【新版預覽】社工師國考免費題庫｜SWSI</title>', 1)
-          s=s.replace('src="monthly_patch.js"', 'src="monthly_patch.js?v=preview-essay-audit-b1-20260826-1"', 1)
+          s=s.replace('src="monthly_patch.js"', 'src="monthly_patch.js?v=preview-code-health-p0-20260826-2"', 1)
           banner='''<div id="swsi-preview-banner" style="position:fixed;left:0;right:0;top:0;z-index:2147483647;background:#111;color:#fff;text-align:center;padding:7px 10px;font:600 13px/1.4 system-ui,-apple-system,sans-serif;box-shadow:0 1px 5px rgba(0,0,0,.3)">新版預覽｜正式 Netlify 網址完全沒有變動</div><style>body{padding-top:34px!important}</style>'''
           if 'id="swsi-preview-banner"' not in s:
               import re
@@ -117,15 +101,23 @@ jobs:
           p.write_text(s, encoding='utf-8')
           PY
           grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW 20260826' /tmp/swsi-preview/index.html
-          grep -q 'monthly_patch.js?v=preview-essay-audit-b1-20260826-1' /tmp/swsi-preview/index.html
-          grep -q "const VERSION = 'v5'" /tmp/swsi-preview/sw.js
+          grep -q 'monthly_patch.js?v=preview-code-health-p0-20260826-2' /tmp/swsi-preview/index.html
+          grep -q "const VERSION = 'v6'" /tmp/swsi-preview/sw.js
 
       - name: Publish preview files into existing Cloudflare static assets
+        if: github.ref == 'refs/heads/main'
         run: |
           set -euo pipefail
-          rm -rf cdn/preview
-          mkdir -p cdn/preview
-          cp -a /tmp/swsi-preview/. cdn/preview/
+          git fetch origin main
+          rm -rf /tmp/swsi-main-publish
+          git worktree add --detach /tmp/swsi-main-publish origin/main
+          trap 'git worktree remove --force /tmp/swsi-main-publish >/dev/null 2>&1 || true' EXIT
+
+          rm -rf /tmp/swsi-main-publish/cdn/preview
+          mkdir -p /tmp/swsi-main-publish/cdn/preview
+          cp -a /tmp/swsi-preview/. /tmp/swsi-main-publish/cdn/preview/
+
+          cd /tmp/swsi-main-publish
           git config user.name 'swsi-preview-bot'
           git config user.email 'actions@users.noreply.github.com'
           git add cdn/preview
@@ -134,16 +126,10 @@ jobs:
             exit 0
           fi
           git commit -m '發布 Cloudflare 新版前端預覽'
-          for attempt in 1 2 3; do
-            git fetch origin main
-            git rebase origin/main
-            if git push origin HEAD:main; then
-              exit 0
-            fi
-          done
-          exit 1
+          git push origin HEAD:main
 
       - name: Wait for Cloudflare preview deployment
+        if: github.ref == 'refs/heads/main'
         run: |
           set -euo pipefail
           URL='https://wandering-wave-4418.c022050333.workers.dev/preview/index.html'
@@ -154,45 +140,27 @@ jobs:
             patch_code="$(curl --silent --show-error --location -o /tmp/live-preview-patch.js -w '%{http_code}' "$PATCH_URL?check=$GITHUB_RUN_ID-$i" || true)"
             if [ "$code" = '200' ] && [ "$patch_code" = '200' ] \
                && grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW 20260826' /tmp/live-preview.html \
-               && grep -q 'monthly_patch.js?v=preview-essay-audit-b1-20260826-1' /tmp/live-preview.html \
+               && grep -q 'monthly_patch.js?v=preview-code-health-p0-20260826-2' /tmp/live-preview.html \
                && grep -q 'SWSI Essay Trust Layer 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Essay Guide Audit Batch 1 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Essay Metadata Labels 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Learning Loop V1 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Knowledge Path V1 2026-08-26' /tmp/live-preview-patch.js \
-               && grep -q 'SWSI Law Trust Layer V1 2026-08-26' /tmp/live-preview-patch.js \
-               && grep -q 'SWSI Law Trust Batch 2 2026-08-26' /tmp/live-preview-patch.js \
-               && grep -q 'SWSI Law Trust Final Batch 2026-08-26' /tmp/live-preview-patch.js \
+               && grep -q 'SWSI Law Trust UI Contract 2026-08-27' /tmp/live-preview-patch.js \
                && grep -q 'SWSI New Resident Basic Act Status Fix 2026-08-26' /tmp/live-preview-patch.js \
-               && grep -q 'SWSI AI Copy Polish 2026-08-26' /tmp/live-preview-patch.js \
-               && grep -q 'SWSI Theory Trust Batch 1 2026-08-26' /tmp/live-preview-patch.js \
-               && grep -q 'SWSI Theory Trust Batch 2 2026-08-26' /tmp/live-preview-patch.js \
-               && grep -q 'SWSI Theory Trust Final Batch 2026-08-26' /tmp/live-preview-patch.js \
+               && grep -q 'SWSI Theory Trust UI Contract 2026-08-27' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Feedback / Quality Report V1 2026-08-26' /tmp/live-preview-patch.js \
-               && grep -q 'SWSI Feedback Context State Fix 2026-08-26' /tmp/live-preview-patch.js \
+               && grep -q 'SWSI Feedback Context State Owner 2026-08-27' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Feedback Compact UI V2 2026-08-26' /tmp/live-preview-patch.js \
-               && grep -q 'Bowen 家庭系統理論' /tmp/live-preview-patch.js \
-               && grep -q 'Minuchin 結構家庭治療' /tmp/live-preview-patch.js \
-               && grep -q '資產建構／資產累積理論' /tmp/live-preview-patch.js \
-               && grep -q '無條件基本收入 UBI' /tmp/live-preview-patch.js \
-               && grep -q '符號互動論的主要分析層次是微觀互動' /tmp/live-preview-patch.js \
-               && grep -q '社會投資與傳統社會保護常是互補' /tmp/live-preview-patch.js \
-               && grep -q '文化謙遜' /tmp/live-preview-patch.js \
-               && grep -q '個案管理是一種服務方法' /tmp/live-preview-patch.js \
-               && grep -q '不等同生活模型' /tmp/live-preview-patch.js \
-               && grep -q '手寫照片可一次 1–3 張' /tmp/live-preview-patch.js \
-               && grep -q '當地區公告最低生活費' /tmp/live-preview-patch.js \
-               && grep -q '已制定公布・施行日另定' /tmp/live-preview-patch.js \
-               && grep -q '34人以上' /tmp/live-preview-patch.js \
-               && grep -q '行政輔導先行' /tmp/live-preview-patch.js \
+               && grep -q '一次最多 3 張' /tmp/live-preview-patch.js \
                && grep -q '從理論接到考題' /tmp/live-preview-patch.js \
                && grep -q '從法規接到考題' /tmp/live-preview-patch.js \
                && grep -q '正式考題本身.*最高依據' /tmp/live-preview-patch.js; then
               echo "CLOUDFLARE FRONTEND PREVIEW OK: $URL"
               exit 0
             fi
-            echo "Waiting for preview deploy: attempt=$i html=$code patch=$patch_code"
+            echo "Waiting for Cloudflare preview: attempt=$i html=$code patch=$patch_code"
             sleep 5
           done
-          echo 'Cloudflare preview did not become ready within polling window.' >&2
+          echo 'Cloudflare preview did not reach expected content in time' >&2
           exit 1

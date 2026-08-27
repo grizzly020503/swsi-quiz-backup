@@ -6,6 +6,9 @@ on:
       - 'UNIFIED_QUESTION_QA_PIPELINE.md'
       - 'data/question_qa_policy_v1.json'
       - 'data/legal_watch_report.json'
+      - 'cdn/question-shards/**'
+      - 'auto/questions_auto.json'
+      - 'auto/essays_auto.json'
       - 'scripts/unified_question_qa.py'
       - 'scripts/unified_question_qa_selftest.py'
       - 'scripts/build_question_qa_dashboard.py'
@@ -15,6 +18,9 @@ on:
       - 'UNIFIED_QUESTION_QA_PIPELINE.md'
       - 'data/question_qa_policy_v1.json'
       - 'data/legal_watch_report.json'
+      - 'cdn/question-shards/**'
+      - 'auto/questions_auto.json'
+      - 'auto/essays_auto.json'
       - 'scripts/unified_question_qa.py'
       - 'scripts/unified_question_qa_selftest.py'
       - 'scripts/build_question_qa_dashboard.py'
@@ -47,34 +53,65 @@ jobs:
       - name: Run synthetic QA invariants
         run: python scripts/unified_question_qa_selftest.py
 
-      - name: Run current 115-2 snapshot through unified QA
+      - name: Resolve latest published exam from manifest
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          manifest=json.loads(Path('cdn/question-shards/manifest.json').read_text(encoding='utf-8'))
+          shards=manifest.get('shards') or []
+          if not shards:
+              raise SystemExit('question shard manifest is empty')
+          def key(x):
+              y=int(str(x.get('year') or 0))
+              r=str(x.get('round') or '')
+              rv=2 if r in ('2','第二次','第2次') else 1
+              return (y,rv)
+          latest=max(shards,key=key)
+          file=str(latest.get('file') or '')
+          if not file or not Path('cdn/question-shards',file).is_file():
+              raise SystemExit(f'latest shard missing: {file!r}')
+          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as f:
+              f.write(f"LATEST_YEAR={latest['year']}\n")
+              f.write(f"LATEST_ROUND={latest['round']}\n")
+              f.write(f"LATEST_SHARD=cdn/question-shards/{file}\n")
+          print('latest exam:', latest['year'], latest['round'], file)
+          PY
+
+      - name: Run latest published snapshot through unified QA
         run: |
           python scripts/unified_question_qa.py \
-            --mcq cdn/question-shards/115-2.json \
+            --mcq "$LATEST_SHARD" \
             --essays auto/essays_auto.json \
-            --year 115 \
-            --round 第二次 \
+            --year "$LATEST_YEAR" \
+            --round "$LATEST_ROUND" \
             --legal-watch data/legal_watch_report.json \
             --trust-current-legal-watch \
-            --out /tmp/question-qa-115-2.json \
-            --fail-on never > /dev/null
+            --out /tmp/question-qa-latest.json \
+            --fail-on blocked > /dev/null
 
       - name: Build compact admin dashboard payload
         run: |
           python scripts/build_question_qa_dashboard.py \
-            /tmp/question-qa-115-2.json \
-            --out /tmp/question-qa-dashboard-115-2.json > /dev/null
+            /tmp/question-qa-latest.json \
+            --out /tmp/question-qa-dashboard-latest.json > /dev/null
 
-      - name: Assert compact dashboard invariants
+      - name: Assert latest dashboard invariants
         run: |
           python - <<'PY'
           import json
-          d = json.load(open('/tmp/question-qa-dashboard-115-2.json', encoding='utf-8'))
-          assert d['official_core']['total'] == 210
-          assert d['official_core']['blocked'] == 0
-          assert d['official_core']['release_ready'] is True
-          assert d['human_queue']['total'] == 0
-          assert d['generation_backlog']['total'] == 185
-          assert len(d['human_queue']['items']) == 0
-          print(json.dumps(d, ensure_ascii=False, indent=2))
+          d=json.load(open('/tmp/question-qa-dashboard-latest.json',encoding='utf-8'))
+          assert d['official_core']['total'] == 210, d['official_core']
+          assert d['official_core']['blocked'] == 0, d['official_core']
+          assert d['official_core']['release_ready'] is True, d['official_core']
+          assert 0 <= d['generation_backlog']['total'] <= 210, d['generation_backlog']
+          assert d['human_queue']['total'] == len(d['human_queue']['items'])
+          print(json.dumps({
+              'year': d.get('year'),
+              'round': d.get('round'),
+              'health': d.get('health'),
+              'official_core': d['official_core'],
+              'human_queue_total': d['human_queue']['total'],
+              'generation_backlog': d['generation_backlog']['total'],
+          },ensure_ascii=False,indent=2))
           PY

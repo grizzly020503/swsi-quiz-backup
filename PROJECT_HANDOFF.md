@@ -1,5 +1,100 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-08-27 Round 8 code-health 最新接續狀態（本節優先）
+
+> 本節晚於下方歷史內容；若衝突，以本節與 `PROJECT_HANDOFF_ROUND8_DELTA.md` 為準。
+
+- branch：`fix/code-health-p0-20260826`
+- 已驗證的 runtime code HEAD：`08279ab72659c5ba06f09cf77de5402a5d30146a`
+- handoff closeout：包含本節的 commit 即目前 branch HEAD；接手時仍須先重新讀遠端 ref，禁止假設這個 SHA 永遠是最新。
+- compare snapshot（`08279ab7`）：`main@0712b258`，branch ahead 136 / behind 0。
+- 未 merge main、未 force push、未部署 Netlify production、未修改 production secrets、未做不可逆 production 操作。
+
+### 已完成 ownership consolidation
+
+- `renderHome` 收斂至 `20.product-philosophy.part` canonical owner。
+- `normalize` 與 grading helpers 收斂至 `00.part`。
+- mock answer record policy 移回 MK subsystem。
+- AI feedback text/photo owner 收斂至 `99z.essay-trust-layer.part`。
+- AI stable client ID / timeout utility 收斂至 `99_p0_mobile_ai_guardrails.part`。
+- `85.escape-helper.part` 已刪除，escape helper 私有化至 `86.law-trust-ui.part`。
+- `87.new-resident-law-status-ui.part` 已合併至 `86.law-trust-ui.part`。
+- obsolete AI copy / final runtime / stable client shims 已移除。
+- essay metadata labels 已改為 idempotent MutationObserver enhancer，不再接管 global `render()`。
+- essay navigation 已於 `47dfca19` 收斂至 `zzz_fix_essay_navigation.part`：保留 slow/cache reload、tab state、state reset 與 render retry；`50.home-spacing-essay-entry.part` 與 `zzzz_product_v1_lock.part` 不再覆寫 `swsiOpenEssay`。
+- Runtime Owner QA 已鎖住上述 ownership 與保留的 fail-closed edge guards。
+- `08279ab7` 修正 Runtime Owner QA 對 async `swsiStartEssayNow` 的假陰性；現已正確鎖定唯一 deliberate owner `zzzzz_quick_essay_scope_fix.part`，未修改產品 runtime。
+
+### 明確保留的 deliberate owners
+
+- `70.learning-loop.part` 的 `renderReview`。
+- `91.feedback-context.part`。
+- `zzz_fix_essay_navigation.part`。
+- `zzzzz_quick_essay_scope_fix.part`。
+- `zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part` 的 invalid `acceptedAnswers()` 與 invalid-question `renderQuiz()` fail-closed guards。
+- `99_p0_mobile_ai_guardrails.part` 的 mobile / draft / timeout / cache / busy utilities。
+- `99z.essay-trust-layer.part` 的 AI trust/privacy/error boundary。
+- `86.law-trust-ui.part` 與 `88.theory-trust-ui.part` 的 law/theory trust presentation wrappers：它們有獨立產品責任，不為降低 owner 數量而拆除。
+
+### 最新 regression
+
+`34c22f3` essay metadata enhancer：
+- Runtime Owner QA #19：success
+- Cloudflare Frontend Preview #113：success
+- Monthly Frontend QA #134：success；`interaction-qa` 真正安裝並執行 Playwright Chromium
+- Storage Durability QA #44：success
+- Knowledge Runtime Snapshot QA #36：success
+
+`47dfca19` essay navigation consolidation：
+- Runtime Owner QA #22：success
+- Cloudflare Frontend Preview #114：success
+- Monthly Frontend QA #135：success；static + Chromium interaction 全綠
+- Storage Durability QA #45：success
+- Knowledge Runtime Snapshot QA #37：success
+- Cloudflare Workers Builds：success
+- P0 preflight、Service Worker / Worker / Supabase contracts、question shard integrity、knowledge catalog、production-shaped static smoke 均由 Monthly static job驗證成功。
+
+`08279ab7` async quick-essay owner matcher：
+- Runtime Owner QA run `33057724634`：success。
+- log：`RUNTIME OWNER SMOKE OK`；`swsiStartEssayNow: zzzzz_quick_essay_scope_fix.part`。
+- Cloudflare Workers Build：success。
+- 本批僅修改 QA matcher/smoke，未改產品 runtime，因此未重跑與行為無關的完整 Chromium/Storage/Knowledge 套件。
+
+### 安全與收尾
+
+- `main...branch` 78 個 changed files；先前 64 個仍存在的 changed 文字檔已做高信心 secret scan。
+- 未發現 private key、GitHub/OpenAI/AWS token、JWT 或 production service-role literal。
+- 唯一字串命中是 `scripts/cloudflare_worker_smoke.js` 的明確測試 fixture：`internal-secret` / `groq-secret`。
+- `build-netlify-package.yml` 與 `verify-netlify-production.yml` 為手動 workflow；package job 只允許 `refs/heads/main`。
+- Cloudflare preview publish/wait 只允許 `refs/heads/main`；本 branch 僅 build 驗證。
+- 目前仍有 5 個本輪暫存 refs：`tmp-ai-client-owner-20260827-v2`、`tmp-ai-client-owner-20260827`、`tmp-law-status-consolidation-20260827-v2`、`tmp-law-status-consolidation-20260827`、`tmp-swsi-context-owner-20260827`。目前可用 GitHub 連接器未提供 delete-ref；不可用 force/move-ref 代替刪除。取得 delete-ref 權限後可安全移除，這不影響 runtime 或 merge correctness。
+
+### Round 8 Final Audit（2026-08-27）
+
+- audit 起點：`ee77d53c87820a9ece85a6249c57c3749cbce7ec`。
+- P1 漏測：Runtime Owner QA 尚未鎖住 full-bank loaders、knowledge/progress owners、mobile draft、versioned AI cache key、feedback context 與 law/theory trust 的精確 chain。
+- 修正：`2ebb0a7c81a9a59d1cc57e133c2ca869f73ac5aa`，只擴充 `scripts/runtime_owner_smoke.js`，未修改任何 runtime `.part`。
+- Runtime Owner QA run `33059736623`：success，`RUNTIME OWNER SMOKE OK`。
+- 27 個 build parts 的 duplicate owner map 已逐項分類；未捕捉項目只剩 DOM property false positive，沒有未知 runtime owner。
+- workflow/smoke dependency scan：沒有依賴已刪 build source；唯一 missing part reference 是 Storage QA 的刻意 `test ! -e` regression lock。另有 builder 文件中的未來 synthetic `116-1.json`，不是 runtime dependency。
+- preview build 由 root `sw.js v6`、27 parts 與 essay builder 在 `/tmp` 重建；tracked `cdn/preview` 仍是上一個 main 發布的 v5 artifact，branch 上不具權威性，publish/wait 均只允許 main。
+- 24 個 question shard 的實際 bytes 全部符合 manifest SHA-256；每 shard 200 題，總量 4,800。
+- Service Worker source/cache contract：root v6；mutable `monthly_patch.js / essay_guides.js / manifest.json` 為 no-store network-first；v5→v6 upgrade smoke 已綠。
+- compare snapshot（`2ebb0a7c`）：`main@0712b258`，ahead 138 / behind 0，78 changed files。
+- Final Audit 後沒有新的未解 P0/P1。
+
+### Round 8 結論
+
+**第八輪可結束。**
+
+最新 owner evidence：
+- single owner：`normalize`、grading helpers、`swsiOpenEssay`、`swsiStartEssayNow`、`dissectHTML`、global `render`。
+- deliberate chains：`renderHome 00→20`、`renderReview 00→70`、AI feedback/photo `00→99z`。
+- independent product wrappers：law `80→86`、theory `80→88`。
+
+目前沒有尚未處理、且收益高於風險的 P0/P1 runtime override、dead shim 或重複 module。繼續縮 owner 數量只會進入 cosmetic cleanup、跨模組大改或破壞獨立產品責任，應停止。不要 merge main；Netlify production deploy 仍需使用者另行明確授權。
+
+
 最後更新：2026-08-27（官方 grading contract regression + Unified QA 特殊給分 self-test 已補並全綠）
 
 > 下一個 ChatGPT 對話先讀本檔，再接著做：

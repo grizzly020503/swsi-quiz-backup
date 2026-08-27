@@ -1,0 +1,192 @@
+/* ===== SWSI Storage Durability Guard 2026-08-27 ===== */
+(function(){
+  'use strict';
+
+  var HISTORY_KEY='swsi_v2_history';
+  var REVIEW_KEY_LOCAL='swsi_review_v2';
+  var HISTORY_MAX_RECORDS=8000;
+  var historyWriteBlocked=false;
+  var reviewWriteBlocked=false;
+
+  function storageWarning(message){
+    window.__swsiStorageWarning=String(message||'學習進度無法儲存，請先不要清除瀏覽器資料。');
+    try{
+      var id='swsi-storage-warning';
+      var el=document.getElementById(id);
+      if(!el){
+        el=document.createElement('div');
+        el.id=id;
+        el.setAttribute('role','alert');
+        el.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:2147483000;max-width:720px;margin:0 auto;padding:11px 14px;border-radius:12px;background:#fff4e5;color:#7a3f00;border:1px solid #e4b56c;box-shadow:0 8px 28px rgba(0,0,0,.18);font-size:14px;line-height:1.55;font-weight:700';
+        document.body.appendChild(el);
+      }
+      el.textContent='⚠ '+window.__swsiStorageWarning;
+      el.style.display='block';
+    }catch(_e){}
+  }
+
+  function clearStorageWarning(){
+    try{
+      var el=document.getElementById('swsi-storage-warning');
+      if(el)el.style.display='none';
+      window.__swsiStorageWarning='';
+    }catch(_e){}
+  }
+
+  function compactHistory(input){
+    var h=Array.isArray(input)?input:[];
+    if(h.length<=HISTORY_MAX_RECORDS)return h;
+    return h.slice(h.length-HISTORY_MAX_RECORDS);
+  }
+
+  function validHistoryRow(row){
+    return !!row
+      &&typeof row==='object'
+      &&!Array.isArray(row)
+      &&typeof row.id==='string'
+      &&!!row.id.trim()
+      &&typeof row.correct==='boolean'
+      &&Number.isFinite(Number(row.ts))
+      &&Number(row.ts)>=0;
+  }
+
+  function validHistory(input){
+    return Array.isArray(input)&&input.every(validHistoryRow);
+  }
+
+  function optionalNonNegativeNumber(value){
+    return value===undefined
+      ||value===null
+      ||(Number.isFinite(Number(value))&&Number(value)>=0);
+  }
+
+  function validReviewItem(key,item){
+    if(!item||typeof item!=='object'||Array.isArray(item))return false;
+    if(typeof item.id!=='string'||!item.id.trim()||item.id!==key)return false;
+    var numeric=['streak','wrongCount','correctCount','dueAt','lastAt','masteredAt','maintenanceStep'];
+    if(numeric.some(function(name){return !optionalNonNegativeNumber(item[name]);}))return false;
+    if(item.mastered!==undefined&&typeof item.mastered!=='boolean')return false;
+    if(item.maintenanceDone!==undefined&&typeof item.maintenanceDone!=='boolean')return false;
+    return item.lastResult===undefined||item.lastResult==='wrong'||item.lastResult==='correct';
+  }
+
+  function validReviewState(state){
+    return !!state
+      &&typeof state==='object'
+      &&!Array.isArray(state)
+      &&state.version===2
+      &&state.items
+      &&typeof state.items==='object'
+      &&!Array.isArray(state.items)
+      &&(state.migratedFromHistory===undefined||typeof state.migratedFromHistory==='boolean')
+      &&Object.keys(state.items).every(function(key){return validReviewItem(key,state.items[key]);});
+  }
+
+  function quarantineCorruptStorage(key,raw,label){
+    if(!raw)return true;
+    var backupKey=key+'_corrupt_backup_'+Date.now();
+    try{
+      localStorage.setItem(backupKey,raw);
+      localStorage.removeItem(key);
+      storageWarning('偵測到損壞的'+label+'，已保留原始備份並建立乾淨資料。請勿清除瀏覽器資料。');
+      return true;
+    }catch(err){
+      storageWarning(label+'格式損壞且無法建立備份。為避免覆寫原始資料，本次不會再儲存新的紀錄。');
+      try{console.warn('SWSI corrupt storage backup failed',err);}catch(_e){}
+      return false;
+    }
+  }
+
+  function durableLoadHist(){
+    var raw='';
+    try{
+      raw=localStorage.getItem(HISTORY_KEY)||'';
+      if(!raw){historyWriteBlocked=false;return [];}
+      var parsed=JSON.parse(raw);
+      if(!validHistory(parsed))throw new Error('history schema invalid');
+      historyWriteBlocked=false;
+      return parsed;
+    }catch(err){
+      try{console.warn('SWSI history schema invalid',err);}catch(_e){}
+      historyWriteBlocked=!quarantineCorruptStorage(HISTORY_KEY,raw,'學習歷程');
+      return [];
+    }
+  }
+
+  function durableLoadReviewState(){
+    var empty={version:2,migratedFromHistory:false,items:{}};
+    var raw='';
+    try{
+      raw=localStorage.getItem(REVIEW_KEY_LOCAL)||'';
+      if(!raw){reviewWriteBlocked=false;return empty;}
+      var parsed=JSON.parse(raw);
+      if(!validReviewState(parsed))throw new Error('review state schema invalid');
+      reviewWriteBlocked=false;
+      return parsed;
+    }catch(err){
+      try{console.warn('SWSI review-state schema invalid',err);}catch(_e){}
+      reviewWriteBlocked=!quarantineCorruptStorage(REVIEW_KEY_LOCAL,raw,'複習排程');
+      return empty;
+    }
+  }
+
+  function durableSaveHist(input){
+    if(historyWriteBlocked){
+      storageWarning('原始學習歷程尚未安全備份；為避免資料遺失，本次不會覆寫。');
+      return false;
+    }
+    if(!validHistory(input)){
+      storageWarning('新的學習歷程格式異常，已停止寫入以保護原有資料。');
+      return false;
+    }
+    var compacted=compactHistory(input);
+    try{
+      localStorage.setItem(HISTORY_KEY,JSON.stringify(compacted));
+      return true;
+    }catch(err){
+      storageWarning('學習歷程儲存失敗，這次作答可能不會被記錄。請先備份重要內容，並釋放瀏覽器儲存空間後再繼續。');
+      try{console.warn('SWSI history storage failed',err);}catch(_e){}
+      return false;
+    }
+  }
+
+  function durableSaveReviewState(state){
+    if(reviewWriteBlocked){
+      storageWarning('原始複習排程尚未安全備份；為避免資料遺失，本次不會覆寫。');
+      return false;
+    }
+    if(!validReviewState(state)){
+      storageWarning('新的複習排程格式異常，已停止寫入以保護原有資料。');
+      return false;
+    }
+    try{
+      localStorage.setItem(REVIEW_KEY_LOCAL,JSON.stringify(state));
+      return true;
+    }catch(err){
+      storageWarning('複習進度儲存失敗，間隔複習排程可能無法更新。請先備份重要內容，並釋放瀏覽器儲存空間後再繼續。');
+      try{console.warn('SWSI review storage failed',err);}catch(_e){}
+      return false;
+    }
+  }
+
+  try{loadHist=durableLoadHist;}catch(_e){}
+  window.loadHist=durableLoadHist;
+  try{loadReviewState=durableLoadReviewState;}catch(_e){}
+  window.loadReviewState=durableLoadReviewState;
+  try{saveHist=durableSaveHist;}catch(_e){}
+  window.saveHist=durableSaveHist;
+  try{saveReviewState=durableSaveReviewState;}catch(_e){}
+  window.saveReviewState=durableSaveReviewState;
+
+  window.swsiStorageDurability={
+    version:'2026-08-27.schema-guard.v3',
+    historyMaxRecords:HISTORY_MAX_RECORDS,
+    compactHistory:compactHistory,
+    validateHistory:validHistory,
+    validateReviewState:validReviewState,
+    showWarning:storageWarning,
+    clearWarning:clearStorageWarning
+  };
+  window.swsiStorageDurabilityVersion='2026-08-27.schema-guard.v3';
+})();
+/* ===== SWSI Storage Durability Guard END ===== */

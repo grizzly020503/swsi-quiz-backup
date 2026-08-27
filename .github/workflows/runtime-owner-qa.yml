@@ -1,0 +1,62 @@
+name: Runtime Owner QA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/runtime-owner-qa.yml'
+      - 'monthly_patch_parts/**'
+      - 'scripts/runtime_owner_smoke.js'
+
+jobs:
+  owner-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Verify runtime owner chain
+        run: node scripts/runtime_owner_smoke.js
+      - name: Expose remaining late owner chains
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const path=require('path');
+          const dir='monthly_patch_parts';
+          const files=fs.readdirSync(dir).filter(x=>x.endsWith('.part')).sort();
+          function owners(regex){
+            const out=[];
+            for(const file of files){
+              const source=fs.readFileSync(path.join(dir,file),'utf8');
+              regex.lastIndex=0;
+              let count=0;
+              while(regex.exec(source))count++;
+              for(let i=0;i<count;i++)out.push(file);
+            }
+            return out;
+          }
+          const checks={
+            renderLaws:/\brenderLaws\s*=\s*function\b/g,
+            renderTheories:/\b(?:window\.)?renderTheories\s*=\s*function\b/g,
+            swsiOpenEssay:/\b(?:window\.)?swsiOpenEssay\s*=\s*(?:async\s+)?function\b/g,
+            swsiStartEssayNow:/\b(?:window\.)?swsiStartEssayNow\s*=\s*(?:async\s+)?function\b/g,
+            dissectHTML:/\bdissectHTML\s*=\s*function\b/g,
+            globalRender:/\b(?:window\.)?render\s*=\s*function\b/g
+          };
+          for(const [name,regex] of Object.entries(checks)){
+            console.log(name+': '+owners(regex).join(' -> '));
+          }
+          NODE
+      - name: Verify essay metadata stays an enhancer
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE='monthly_patch_parts/zzzzzzzzzz_essay_metadata_labels.part'
+          if grep -Eq '(^|[^[:alnum:]_])render[[:space:]]*=[[:space:]]*function' "$FILE"; then
+            echo 'Essay metadata labels must not own global render()' >&2
+            exit 1
+          fi
+          grep -q 'window.swsiPolishEssayMetadataUI=polishEssayMetadataUI' "$FILE"
+          grep -q 'new MutationObserver' "$FILE"
+          grep -q 'polishEssayMetadataUI();' "$FILE"

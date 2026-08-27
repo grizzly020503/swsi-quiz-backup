@@ -1,0 +1,35 @@
+name: MOEX Importer Integrity QA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/moex-importer-integrity-qa.yml'
+      - 'supabase/functions/import-moex-social-worker/index.ts'
+      - 'scripts/moex_importer_integrity_smoke.js'
+  pull_request:
+    paths:
+      - '.github/workflows/moex-importer-integrity-qa.yml'
+      - 'supabase/functions/import-moex-social-worker/index.ts'
+      - 'scripts/moex_importer_integrity_smoke.js'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-moex-importer-integrity-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: JavaScript smoke syntax
+        run: node --check scripts/moex_importer_integrity_smoke.js
+
+      - name: Verify importer fail-closed identity contract
+        run: node scripts/moex_importer_integrity_smoke.js

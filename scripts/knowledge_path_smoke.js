@@ -33,7 +33,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
   await page.waitForFunction(() => typeof window.swsiKnowledgeSearch === 'function' && Array.isArray(window.THEORIES) && Array.isArray(window.LAWS));
   await page.waitForFunction(() => window.SWSI_LAW_TRUST && /Law Trust Layer V1/.test(window.SWSI_LAW_TRUST.version || ''));
-  await page.waitForFunction(() => window.SWSI_LAW_TRUST && /Law Trust Batch 2/.test(window.SWSI_LAW_TRUST.batch2 || ''));
   await page.waitForFunction(() => window.SWSI_LAW_TRUST_FINAL && /Law Trust Final Batch/.test(window.SWSI_LAW_TRUST_FINAL.version || ''));
   await page.waitForFunction(() => window.SWSI_NEW_RESIDENT_STATUS && /New Resident Basic Act Status Fix/.test(window.SWSI_NEW_RESIDENT_STATUS.version || ''));
 

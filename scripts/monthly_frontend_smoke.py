@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Static smoke checks for the built SWSI front end."""
+# Keep Service Worker assertions aligned with the effective runtime contract.
 from __future__ import annotations
 
 import argparse
@@ -38,11 +39,17 @@ def main() -> int:
         'isCorrectAnswer(item,picked)', 'ensureAllQuestionsLoaded',
         'X-SWSI-Client-ID', 'files.length>3', 'renderTopics=function',
         '官方一律給分（未作答也得分）', 'any_answer',
+        'SWSI Code Health P0 Runtime Guard 2026-08-26',
+        'SWSI MK Unified Grading Contract 2026-08-26',
+        'SWSI MK Record Policy 2026-08-27',
+        'swsiMockRecordPolicyVersion',
     ]:
         require(token in patch, f'monthly patch critical token missing: {token}')
 
-    require("const VERSION = 'v5';" in sw, 'service worker version was not bumped to v5')
-    require("'./monthly_patch.js'" in sw, 'monthly patch missing from PWA shell cache')
+    require("const VERSION = 'v6';" in sw, 'service worker version was not bumped to v6')
+    for asset in ['/monthly_patch.js', '/essay_guides.js', '/manifest.json']:
+        require(asset in sw, f'mutable asset missing from service-worker handling: {asset}')
+    require('networkFirstAfterCleanup(req, null, true)' in sw, 'mutable assets are not cleanup + no-store network-first')
     print('MONTHLY FRONTEND STATIC SMOKE OK')
     return 0
 

@@ -1,0 +1,72 @@
+
+/* SWSI Theory Trust UI Contract 2026-08-27
+   Theory card data is canonicalized at build time. This module owns presentation and runtime markers only.
+*/
+(function(){
+  'use strict';
+
+  var CHECKED_AT='2026-08-26';
+  var VERIFY_CHECKED='checked';
+  var rows=window.THEORIES||[];
+
+  function E(v){
+    if(typeof window.swsiEsc==='function')return window.swsiEsc(v);
+    if(typeof window.esc==='function')return window.esc(v);
+    return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function statusText(t){
+    return t&&t.theory_verify_status===VERIFY_CHECKED?'✓ 理論內容已逐卡核對':'△ 平台整理・待逐卡複核';
+  }
+
+  function trustHTML(t){
+    if(!t)return '';
+    var good=t.theory_verify_status===VERIFY_CHECKED;
+    var bg=good?'#EEF5F1':'#F7F4EA',bd=good?'#CFE0D8':'#E5DCC1',fg=good?'#3F6961':'#756E57';
+    var date=t.theory_checked_at?(' · '+t.theory_checked_at):'';
+    var note=t.theory_trust_note||'這是 SWSI 整理的學習卡；尚未完成本階段逐卡校正，請搭配課本與老師教材理解。';
+    return '<div class="swsi-theory-trust" style="margin:14px 0 10px;padding:12px 13px;border:1px solid '+bd+';border-radius:12px;background:'+bg+';font-family:\'Noto Sans TC\',sans-serif">'
+      +'<div style="font-size:12.5px;font-weight:700;color:'+fg+'">'+E(statusText(t)+date)+'</div>'
+      +'<div style="font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin-top:7px">'+E(note)+'</div>'
+      +'<div style="font-size:10.8px;line-height:1.6;color:var(--ink-soft);margin-top:6px">理論卡是 SWSI 學習整理，不是考選部官方答案；正式題目若指定特定理論、學者或階段，以題目要求為準。</div>'
+      +'</div>';
+  }
+
+  var previousRenderTheories=window.renderTheories||renderTheories;
+  window.renderTheories=function(){
+    previousRenderTheories();
+    try{
+      var sub=document.querySelector('#app .section-s');
+      if(sub)sub.innerHTML='先理解理論，再直接看它和哪些歷屆選擇題、申論與法規連在一起。<br><span style="color:var(--ink-soft);font-size:12px">✓「已逐卡核對」代表這張 SWSI 理論摘要已重新拆解概念與學派；△「待逐卡複核」則還不能當成完成版。理論卡不是考選部官方答案。</span>';
+      var t=null;
+      try{if(typeof theoryOpen==='number'&&theoryOpen>=0)t=rows[theoryOpen]||null;}catch(_e){}
+      var open=document.querySelector('#app .ecard.open .ebodywrap');
+      if(open&&t&&!open.querySelector('.swsi-theory-trust')){
+        var net=open.querySelector('.swsi-k-net'),collapse=open.querySelector('.ecollapse');
+        var holder=document.createElement('div');holder.innerHTML=trustHTML(t);
+        var panel=holder.firstElementChild;
+        if(panel)open.insertBefore(panel,net||collapse||null);
+      }
+    }catch(e){console.warn('theory trust render skipped',e);}
+  };
+  try{renderTheories=window.renderTheories;}catch(_e){}
+
+  window.SWSI_THEORY_TRUST={
+    version:'SWSI Theory Trust Final 2026-08-26',
+    checkedAt:CHECKED_AT,
+    batch1:'SWSI Theory Trust Batch 1 2026-08-26',
+    batch2:'SWSI Theory Trust Batch 2 2026-08-26',
+    final:'SWSI Theory Trust Final Batch 2026-08-26',
+    verifiedCount:function(){return rows.filter(function(t){return t&&t.theory_verify_status===VERIFY_CHECKED;}).length;},
+    totalCount:function(){return rows.length;},
+    pendingCount:function(){return rows.filter(function(t){return t&&t.theory_verify_status!==VERIFY_CHECKED;}).length;},
+    allChecked:function(){return rows.length===39 && this.verifiedCount()===39 && this.pendingCount()===0;}
+  };
+
+  window.SWSI_THEORY_TRUST_FINAL={
+    version:'SWSI Theory Trust Final Batch 2026-08-26',
+    total:function(){return rows.length;},
+    checked:function(){return rows.filter(function(t){return t&&t.theory_verify_status===VERIFY_CHECKED;}).length;},
+    pending:function(){return rows.filter(function(t){return t&&t.theory_verify_status!==VERIFY_CHECKED;}).map(function(t){return t.n;});}
+  };
+})();

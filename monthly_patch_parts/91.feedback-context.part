@@ -1,0 +1,35 @@
+
+/* SWSI Feedback Context State Owner 2026-08-27
+   Keep context cleanup local to the feedback action instead of continuously
+   watching the whole document. The core feedback module still owns context
+   derivation; this compatibility owner only clears stale cross-view state
+   immediately before a report is opened.
+*/
+(function(){
+  'use strict';
+
+  var baseOpen=window.swsiOpenReport;
+  if(typeof baseOpen!=='function') return;
+  if(baseOpen.__swsiContextStateOwner==='2026-08-27') return;
+
+  function syncForCurrentView(){
+    var v='';
+    try{v=String(view||'');}catch(_e){}
+    try{
+      if(v==='laws' && typeof theoryOpen!=='undefined' && theoryOpen!==null) theoryOpen=null;
+      if(v==='theories' && typeof lawOpen!=='undefined' && lawOpen!==null) lawOpen=null;
+      if(v==='essay'){
+        if(typeof theoryOpen!=='undefined' && theoryOpen!==null) theoryOpen=null;
+        if(typeof lawOpen!=='undefined' && lawOpen!==null) lawOpen=null;
+      }
+    }catch(_e){}
+  }
+
+  function openWithCurrentContext(){
+    syncForCurrentView();
+    return baseOpen.apply(this,arguments);
+  }
+  openWithCurrentContext.__swsiContextStateOwner='2026-08-27';
+  openWithCurrentContext.__swsiBaseOpen=baseOpen;
+  window.swsiOpenReport=openWithCurrentContext;
+})();

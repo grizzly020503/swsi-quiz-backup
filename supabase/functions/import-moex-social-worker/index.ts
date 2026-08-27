@@ -14,7 +14,7 @@ function assert(cond: unknown, message: string): asserts cond { if (!cond) throw
 function isMoexUrl(value: unknown) { if (typeof value !== "string") return false; try { const u = new URL(value); return u.protocol === "https:" && u.hostname === "wwwq.moex.gov.tw" && u.pathname.startsWith("/exam/"); } catch { return false; } }
 
 async function verifyGitHubRepoToken(token: string) {
-  const r = await fetch(`https://api.github.com/repos/${REPO}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "swsi-supabase-moex-importer/1.3" } });
+  const r = await fetch(`https://api.github.com/repos/${REPO}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "swsi-supabase-moex-importer/1.4" } });
   if (!r.ok) return false;
   const repo = await r.json();
   return repo?.full_name === REPO && repo?.private === true;
@@ -89,6 +89,20 @@ function mergePreservingAnalysis(incoming: any, existing: any, fields: string[])
   return merged;
 }
 
+function assertSameIdentity(kind: "選擇題" | "申論題", incoming: any, existing: any) {
+  if (!existing) return;
+  const checks: Array<[string, unknown, unknown]> = [
+    ["source_exam_code", incoming.source_exam_code, existing.source_exam_code],
+    ["year", String(incoming.year ?? ""), String(existing.year ?? "")],
+    ["round", incoming.round, existing.round],
+    ["subject", incoming.subject, existing.subject],
+  ];
+  if (kind === "選擇題") checks.push(["qno", String(incoming.qno ?? ""), String(existing.qno ?? "")]);
+
+  const mismatches = checks.filter(([, a, b]) => a !== b).map(([field, a, b]) => `${field}: incoming=${String(a)} existing=${String(b)}`);
+  assert(mismatches.length === 0, `${kind} ${incoming.id} 與既有資料 ID collision：${mismatches.join("; ")}`);
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
   const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
@@ -103,26 +117,33 @@ Deno.serve(async (req: Request) => {
   const sb = createClient(url, serviceRole, { auth: { persistSession: false } });
 
   try {
+    // Fail closed before any destructive write: resolve every incoming ID first,
+    // then prove that an existing row belongs to the exact same exam/session slot.
+    const questionIds = data.questions.map((q: any) => q.id);
+    const { data: existingQuestions, error: questionPreflightError } = await sb.from("questions").select("*").in("id", questionIds);
+    if (questionPreflightError) throw new Error(`questions preflight read: ${questionPreflightError.message}`);
+    const existingQuestionMap = new Map((existingQuestions || []).map((r: any) => [r.id, r]));
+    for (const q of data.questions) assertSameIdentity("選擇題", q, existingQuestionMap.get(q.id));
+
+    const essayIds = data.essays.map((e: any) => e.id);
+    const { data: existingEssays, error: essayPreflightError } = await sb.from("essays").select("*").in("id", essayIds);
+    if (essayPreflightError) throw new Error(`essays preflight read: ${essayPreflightError.message}`);
+    const existingEssayMap = new Map((existingEssays || []).map((r: any) => [r.id, r]));
+    for (const e of data.essays) assertSameIdentity("申論題", e, existingEssayMap.get(e.id));
+
+    // No writes occur above this line. Only identity-safe payloads reach upsert.
     for (let i = 0; i < data.questions.length; i += 100) {
       const batch = data.questions.slice(i, i + 100);
-      const ids = batch.map((q: any) => q.id);
-      const { data: oldRows, error: readError } = await sb.from("questions").select("*").in("id", ids);
-      if (readError) throw new Error(`questions read: ${readError.message}`);
-      const oldMap = new Map((oldRows || []).map((r: any) => [r.id, r]));
-      const merged = batch.map((q: any) => mergePreservingAnalysis(q, oldMap.get(q.id), QUESTION_ANALYSIS_FIELDS));
+      const merged = batch.map((q: any) => mergePreservingAnalysis(q, existingQuestionMap.get(q.id), QUESTION_ANALYSIS_FIELDS));
       const { error } = await sb.from("questions").upsert(merged, { onConflict: "id" });
       if (error) throw new Error(`questions upsert: ${error.message}`);
     }
 
-    const essayIds = data.essays.map((e: any) => e.id);
-    const { data: oldEssays, error: essayReadError } = await sb.from("essays").select("*").in("id", essayIds);
-    if (essayReadError) throw new Error(`essays read: ${essayReadError.message}`);
-    const oldEssayMap = new Map((oldEssays || []).map((r: any) => [r.id, r]));
-    const mergedEssays = data.essays.map((e: any) => mergePreservingAnalysis(e, oldEssayMap.get(e.id), ESSAY_ANALYSIS_FIELDS));
+    const mergedEssays = data.essays.map((e: any) => mergePreservingAnalysis(e, existingEssayMap.get(e.id), ESSAY_ANALYSIS_FIELDS));
     const { error: essayError } = await sb.from("essays").upsert(mergedEssays, { onConflict: "id" });
     if (essayError) throw new Error(`essays upsert: ${essayError.message}`);
 
-    const { error: runError } = await sb.from("moex_sync_runs").upsert({ exam_code: data.exam_code, roc_year: data.roc_year, round: data.round, status: "imported", mc_count: data.questions.length, essay_count: 10, imported_at: new Date().toISOString(), source_page: data.source_page, note: "Official MOEX PDF; GitHub Actions verified; multi-answer and grading-mode rules validated; analysis fields preserved" }, { onConflict: "exam_code" });
+    const { error: runError } = await sb.from("moex_sync_runs").upsert({ exam_code: data.exam_code, roc_year: data.roc_year, round: data.round, status: "imported", mc_count: data.questions.length, essay_count: 10, imported_at: new Date().toISOString(), source_page: data.source_page, note: "Official MOEX PDF; GitHub Actions verified; multi-answer, grading-mode and existing-ID identity rules validated; analysis fields preserved" }, { onConflict: "exam_code" });
     if (runError) throw new Error(`moex_sync_runs upsert: ${runError.message}`);
     return json({ ok: true, exam_code: data.exam_code, mc_count: 200, essay_count: 10 });
   } catch (e) { return json({ error: e instanceof Error ? e.message : String(e) }, 500); }

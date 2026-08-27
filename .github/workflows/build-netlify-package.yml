@@ -2,9 +2,6 @@ name: Build Netlify Production Release Package
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/build-netlify-package.yml'
 
 permissions:
   contents: write
@@ -15,6 +12,7 @@ concurrency:
 
 jobs:
   package:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,16 +25,25 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: P0 frontend preflight
+        run: |
+          node scripts/p0_frontend_preflight.js
+          node scripts/service_worker_update_smoke.js
+          node scripts/cloudflare_worker_smoke.js
+          node scripts/supabase_contract_smoke.js
+
       - name: Build exact production site
         run: |
           set -euo pipefail
           rm -rf _site release-output
           mkdir -p _site/icons release-output
-          cp index.html essay_guides.js manifest.json sw.js apple-touch-icon.png _site/
+          cp index.html manifest.json sw.js apple-touch-icon.png _site/
+          node scripts/build_essay_guides_runtime.js essay_guides.js _site/essay_guides.js
           cat monthly_patch_parts/*.part > _site/monthly_patch.js
           cp icons/icon-192.png icons/icon-512.png _site/icons/
           if [ -d auto ]; then cp -R auto _site/; fi
 
+          node --check _site/essay_guides.js
           node --check _site/monthly_patch.js
           node --check _site/sw.js
           python scripts/monthly_patch_build.py _site/index.html
@@ -48,8 +55,16 @@ jobs:
           grep -q "window.__SWSI_BOOT_DEFERRED__=true" _site/index.html
           grep -q 'monthly_patch.js' _site/index.html
           grep -q '社工師國考免費題庫｜SWSI' _site/index.html
-          grep -q "const VERSION = 'v5'" _site/sw.js
+          grep -q "const VERSION = 'v6'" _site/sw.js
+          grep -q 'Generated from essay_guides.js by scripts/build_essay_guides_runtime.js' _site/essay_guides.js
+          grep -q '三理論整合' _site/essay_guides.js
 
+          grep -q 'SWSI Code Health P0 Runtime Guard 2026-08-26' _site/monthly_patch.js
+          grep -q '2026-08-26.fail-closed.v2' _site/monthly_patch.js
+          grep -q '2026-08-26.sha256.v2' _site/monthly_patch.js
+          grep -q 'SWSI MK Unified Grading Contract 2026-08-26' _site/monthly_patch.js
+          grep -q '2026-08-26.unified-grading.v2' _site/monthly_patch.js
+          grep -q '2026-08-27.schema-guard.v3' _site/monthly_patch.js
           grep -q 'SWSI Product V1 Lock 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Law Trust Final Batch 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Theory Trust Final Batch 2026-08-26' _site/monthly_patch.js
@@ -94,6 +109,7 @@ jobs:
 
           unzip -Z1 "release-output/$package" | grep -qx 'index.html'
           unzip -Z1 "release-output/$package" | grep -qx 'monthly_patch.js'
+          unzip -Z1 "release-output/$package" | grep -qx 'essay_guides.js'
           unzip -Z1 "release-output/$package" | grep -qx 'sw.js'
           unzip -Z1 "release-output/$package" | grep -q '^auto/essays_auto.json$'
           unzip -Z1 "release-output/$package" | grep -q '^icons/icon-192.png$'
@@ -108,9 +124,13 @@ jobs:
           fi
 
           unzip -p "release-output/$package" index.html | grep -q 'monthly_patch.js'
+          unzip -p "release-output/$package" essay_guides.js | grep -q '三理論整合'
           unzip -p "release-output/$package" monthly_patch.js | grep -q 'SWSI Theory Trust Final Batch 2026-08-26'
           unzip -p "release-output/$package" monthly_patch.js | grep -q 'SWSI Law Trust Final Batch 2026-08-26'
-          unzip -p "release-output/$package" sw.js | grep -q "const VERSION = 'v5'"
+          unzip -p "release-output/$package" monthly_patch.js | grep -q '2026-08-26.fail-closed.v2'
+          unzip -p "release-output/$package" monthly_patch.js | grep -q '2026-08-26.unified-grading.v2'
+          unzip -p "release-output/$package" monthly_patch.js | grep -q '2026-08-27.schema-guard.v3'
+          unzip -p "release-output/$package" sw.js | grep -q "const VERSION = 'v6'"
 
           sha256sum "release-output/$package" > "release-output/$package.sha256"
           source_sha="$(git rev-parse HEAD)"
