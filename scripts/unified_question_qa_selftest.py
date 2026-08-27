@@ -123,7 +123,35 @@ def run() -> None:
     if broken_summary["manual_review_queue_count"] < 1:
         raise AssertionError("special grading anomaly must enter human queue")
 
-    # 4. "第三條路" is a welfare-policy theory, NOT legal article 3.
+    # 4. Both official special modes are valid when explicit. Do not collapse
+    # any_answer into all_credit or reject it as an unknown special case.
+    special = make_mcqs("done")
+    special[0]["answer"] = "一律給分"
+    special[0]["grading_mode"] = "all_credit"
+    special[1]["answer"] = "一律給分"
+    special[1]["grading_mode"] = "any_answer"
+    special_items, special_session = validate_mcq(special, YEAR, ROUND, POLICY)
+    special_summary = summarize(special_items, special_session)
+    assert_eq(special_summary["official_core"]["blocked"], 0, "valid special modes blocked")
+    assert_eq(special_summary["manual_review_queue_count"], 0, "valid special modes manual queue")
+    assert_eq(special_items[0]["official_status"], "passed", "all_credit official status")
+    assert_eq(special_items[1]["official_status"], "passed", "any_answer official status")
+
+    # 5. Special modes must still match the official special marker and must not
+    # carry accepted_answers. These are metadata contradictions, so fail closed.
+    mismatched = make_mcqs("done")
+    mismatched[0]["grading_mode"] = "all_credit"
+    mismatched[0]["answer"] = "A"
+    mismatched[1]["grading_mode"] = "any_answer"
+    mismatched[1]["answer"] = "一律給分"
+    mismatched[1]["accepted_answers"] = ["A", "B"]
+    mismatch_items, mismatch_session = validate_mcq(mismatched, YEAR, ROUND, POLICY)
+    mismatch_summary = summarize(mismatch_items, mismatch_session)
+    assert_eq(mismatch_summary["official_core"]["blocked"], 2, "special metadata contradictions blocked")
+    if mismatch_summary["manual_review_queue_count"] < 2:
+        raise AssertionError("special metadata contradictions must enter human queue")
+
+    # 6. "第三條路" is a welfare-policy theory, NOT legal article 3.
     third_way = make_mcqs("done")
     third_way[0]["question"] = "下列何者不是第三條路所重視的特性？"
     third_items, third_session = validate_mcq(third_way, YEAR, ROUND, POLICY)
@@ -131,21 +159,21 @@ def run() -> None:
     assert_eq(third_summary["manual_review_queue_count"], 0, "third-way false legal positive")
     assert_eq(third_items[0]["signals"]["legal_or_policy"], [], "third-way legal signals")
 
-    # 5. Ten normal essays may wait for guide generation with zero human tasks.
+    # 7. Ten normal essays may wait for guide generation with zero human tasks.
     essay_items, essay_session = validate_essays(make_essays("pending"), YEAR, ROUND, POLICY)
     essay_summary = summarize(essay_items, essay_session)
     assert_eq(essay_summary["official_core"]["passed"], 10, "healthy essay official passed")
     assert_eq(essay_summary["enrichment"]["pending_generation"], 10, "essay generation backlog")
     assert_eq(essay_summary["manual_review_queue_count"], 0, "healthy essay manual queue")
 
-    # 6. A law essay defaults to review: this is the safe historical/default mode.
+    # 8. A law essay defaults to review: this is the safe historical/default mode.
     legal = make_essays("pending")
     legal[0]["q"] = "依老人福利法第 32 條規定，說明住宅扶助措施。"
     legal_items, legal_session = validate_essays(legal, YEAR, ROUND, POLICY)
     legal_summary = summarize(legal_items, legal_session)
     assert_eq(legal_summary["manual_review_queue_count"], 1, "default law essay manual queue")
 
-    # 7. For a CURRENT intake only, a healthy unchanged legal watch clears that
+    # 9. For a CURRENT intake only, a healthy unchanged legal watch clears that
     # duplicate manual task. Official Core remains untouched.
     watched_items, watched_session = validate_essays(
         legal,
@@ -159,7 +187,7 @@ def run() -> None:
     assert_eq(watched_summary["manual_review_queue_count"], 0, "fresh current legal watch queue")
     assert_eq(watched_items[0]["signals"]["legal_watch_fresh"], True, "fresh watch signal")
 
-    # 8. If the watched law changed, it must re-enter manual review.
+    # 10. If the watched law changed, it must re-enter manual review.
     changed_items, changed_session = validate_essays(
         legal,
         YEAR,
@@ -174,7 +202,9 @@ def run() -> None:
     print("UNIFIED QUESTION QA SELFTEST OK")
     print("- 200 pending MCQ explanations -> manual queue 0")
     print("- 10 pending essay guides -> manual queue 0")
-    print("- explicit special-grading anomaly -> blocked")
+    print("- missing special grading_mode -> blocked")
+    print("- explicit all_credit / any_answer -> both accepted")
+    print("- contradictory special grading metadata -> blocked")
     print("- '第三條路' -> not misclassified as 第三條")
     print("- current unchanged legal watch -> duplicate law review cleared")
     print("- changed law -> review restored")
