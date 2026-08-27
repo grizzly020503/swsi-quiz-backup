@@ -51,6 +51,28 @@ VALID_GRADING_MODES = {"standard", "all_credit", "any_answer"}
 BASELINE_GROUPS = {(y, r) for y in BASELINE_YEARS for r in VALID_ROUNDS}
 BASELINE_QUESTIONS = len(BASELINE_GROUPS) * 200
 
+# ROC 104–115 have already been independently audited against MOEX final answer
+# PDFs. These are immutable release guards, not assumptions for future exams.
+# If MOEX ever issues a genuine historical correction, the official audit must
+# be rerun first and this baseline updated deliberately in the same reviewed
+# change; never silently publish a drifted historical grading contract.
+BASELINE_GRADING_MODE_COUNTS = Counter(
+    {
+        "standard": 4784,
+        "all_credit": 12,
+        "any_answer": 4,
+    }
+)
+BASELINE_MULTI_ANSWER_COUNT = 24
+BASELINE_ANY_ANSWER_IDS = frozenset(
+    {
+        "SW-105-1-17",
+        "SW-106-1-36",
+        "HBSE-108-2-039",
+        "HBSE-110-2-034",
+    }
+)
+
 # Keep only fields needed by the current frontend normalizer / future CDN loader.
 SELECT_FIELDS = [
     "id", "subject", "year", "round", "qno",
@@ -85,7 +107,7 @@ def fetch_questions() -> list[dict]:
         "apikey": key,
         "Authorization": f"Bearer {key}",
         "Accept": "application/json",
-        "User-Agent": "swsi-question-shard-builder/1.2",
+        "User-Agent": "swsi-question-shard-builder/1.3",
     }
     rows: list[dict] = []
     offset = 0
@@ -121,6 +143,43 @@ def qno_int(row: dict) -> int:
     if not raw.isdigit():
         raise RuntimeError(f"Non-numeric qno: {row.get('id')} -> {raw!r}")
     return int(raw)
+
+
+def validate_historical_grading_baseline(rows: list[dict]) -> None:
+    baseline = [
+        r
+        for r in rows
+        if str(r.get("year") or "").strip() in BASELINE_YEARS
+    ]
+    if len(baseline) != BASELINE_QUESTIONS:
+        raise RuntimeError(
+            f"Historical grading baseline requires {BASELINE_QUESTIONS} rows, got {len(baseline)}"
+        )
+
+    mode_counts = Counter(str(r.get("grading_mode") or "") for r in baseline)
+    if mode_counts != BASELINE_GRADING_MODE_COUNTS:
+        raise RuntimeError(
+            "Historical grading_mode baseline drifted: "
+            f"expected {dict(BASELINE_GRADING_MODE_COUNTS)}, got {dict(mode_counts)}"
+        )
+
+    multi_count = sum(1 for r in baseline if r.get("accepted_answers"))
+    if multi_count != BASELINE_MULTI_ANSWER_COUNT:
+        raise RuntimeError(
+            "Historical multi-answer baseline drifted: "
+            f"expected {BASELINE_MULTI_ANSWER_COUNT}, got {multi_count}"
+        )
+
+    any_answer_ids = {
+        str(r.get("id") or "")
+        for r in baseline
+        if r.get("grading_mode") == "any_answer"
+    }
+    if any_answer_ids != BASELINE_ANY_ANSWER_IDS:
+        raise RuntimeError(
+            "Historical any_answer IDs drifted: "
+            f"expected {sorted(BASELINE_ANY_ANSWER_IDS)}, got {sorted(any_answer_ids)}"
+        )
 
 
 def validate(rows: list[dict]) -> dict[tuple[str, str], list[dict]]:
@@ -200,6 +259,11 @@ def validate(rows: list[dict]) -> dict[tuple[str, str], list[dict]]:
         raise RuntimeError(
             f"Question total {len(rows)} does not match {len(grouped)} complete sessions ({expected_total})"
         )
+
+    # This is intentionally inside the builder validation used by both CI and
+    # the scheduled publisher. A historical grading drift must stop publication,
+    # not merely fail a separate advisory workflow.
+    validate_historical_grading_baseline(rows)
 
     return grouped
 
