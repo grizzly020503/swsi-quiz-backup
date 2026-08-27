@@ -80,10 +80,14 @@ const mkOwners = ownersFor(/(?:window\.)?\bMK\s*=\s*(?![=])/g);
 assert.deepStrictEqual(mkOwners, ['zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part'], `unexpected MK ownership chain: ${mkOwners.join(' -> ')}`);
 
 const aiGuardrails = sourceOf('99_p0_mobile_ai_guardrails.part');
+assert(!/(?:window\.)?aiFeedbackHTML\s*=\s*function\b/.test(aiGuardrails), 'mobile AI guardrails must not own essay feedback UI');
 assert(!/(?:window\.)?runAIFeedback\s*=\s*(?:async\s+)?function\b/.test(aiGuardrails), 'mobile AI guardrails must not own runAIFeedback');
 assert(!/(?:window\.)?gradePhoto\s*=\s*(?:async\s+)?function\b/.test(aiGuardrails), 'mobile AI guardrails must not own gradePhoto');
 assert(aiGuardrails.includes('window.swsiFetchWithTimeout=async function'), 'mobile AI guardrails lost timeout helper');
 assert(aiGuardrails.includes('window.swsiSetAIBusy=function'), 'mobile AI guardrails lost busy-state helper');
+
+const aiUIOwners = ownersFor(/function\s+aiFeedbackHTML\s*\b|(?:window\.)?aiFeedbackHTML\s*=\s*function\b/g);
+assert.strictEqual(aiUIOwners[aiUIOwners.length - 1], '99z.essay-trust-layer.part', `unexpected final aiFeedbackHTML owner: ${aiUIOwners.join(' -> ')}`);
 
 const aiFeedbackOwners = ownersFor(/function\s+runAIFeedback\s*\b|(?:window\.)?runAIFeedback\s*=\s*(?:async\s+)?function\b/g);
 assert.deepStrictEqual(aiFeedbackOwners.slice(-2), ['00.part', '99z.essay-trust-layer.part'], `unexpected runAIFeedback ownership chain: ${aiFeedbackOwners.join(' -> ')}`);
@@ -98,6 +102,7 @@ console.log('normalize: ' + normalizeOwners.join(' -> '));
 console.log('gradingMode: ' + gradingOwners.join(' -> '));
 console.log('mock record policy: ' + recordPolicyOwners.join(' -> '));
 console.log('MK: ' + mkOwners.join(' -> '));
+console.log('aiFeedbackHTML: ' + aiUIOwners.join(' -> '));
 console.log('runAIFeedback: ' + aiFeedbackOwners.join(' -> '));
 console.log('gradePhoto: ' + photoGradeOwners.join(' -> '));
 console.log('legacy any-answer ID inference: (none)');

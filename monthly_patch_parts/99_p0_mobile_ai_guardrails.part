@@ -1,4 +1,4 @@
-/* ===== SWSI P0 mobile + AI guardrails (2026-08-26) ===== */
+/* ===== SWSI P0 mobile + AI utilities (2026-08-26) ===== */
 (function(){
   'use strict';
 
@@ -54,18 +54,6 @@
     if(gb)gb.style.display=window.effectiveEssayLength(ta.value)>0?'':'none';
   };
 
-  window.aiFeedbackHTML=function(id){
-    return `<div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">
-      <div class="aihelp" style="color:var(--ink-soft);margin-bottom:9px;background:#FBF8EF;border:1px solid var(--line);border-radius:8px;padding:9px 12px">🔒 作答文字／照片會送至外部 AI 服務處理；請勿輸入或上傳可識別真實個案、姓名、身分證字號、機構內部文件等資料。照片會先在本機縮小並轉成 JPEG，再送出。</div>
-      <div class="aihelp" style="color:var(--ink-soft);margin-bottom:9px;background:#FBF8EF;border:1px solid var(--line);border-radius:8px;padding:9px 12px">💡 能打字的同學建議用「打字批改」——較快，也比照片省 AI 額度。平台提供的是申論練習回饋，並非考選部官方評分。</div>
-      <button id="aitype_${id}" class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600" onclick="runAIFeedback('${id}')">🤖 我用打字的 · 請 AI 批改上面的作答</button>
-      <input type="file" id="photo_${id}" accept="image/*" multiple style="display:none" onchange="gradePhoto('${id}',this)">
-      <button id="aiphoto_${id}" class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600;margin-top:8px" onclick="document.getElementById('photo_${id}').click()">📷 我用手寫的 · 拍照上傳給 AI 批改</button>
-      <div class="aihelp" style="color:var(--ink-soft);margin-top:7px">手寫可一次選 1–3 張。光線充足、字跡清楚、整頁入鏡會讀得更準；AI 會先顯示「我讀到的作答」，讀錯時請重拍，不要把錯誤辨識當成你的原文。</div>
-      <div id="airesult_${id}"></div>
-    </div>`;
-  };
-
   window.swsiSetAIBusy=function(id,busy,mode){
     var t=document.getElementById('aitype_'+id),p=document.getElementById('aiphoto_'+id),f=document.getElementById('photo_'+id);
     if(t){t.disabled=!!busy;t.style.opacity=busy?'.55':'';t.style.cursor=busy?'not-allowed':'';t.textContent=(busy&&mode==='text')?'⏳ AI 批改中…':'🤖 我用打字的 · 請 AI 批改上面的作答';}
@@ -85,8 +73,5 @@
     try{return await fetch(url,Object.assign({},options,{signal:ctrl.signal}));}
     finally{clearTimeout(timer);}
   };
-
-  /* AI feedback execution is intentionally owned by 99z.essay-trust-layer.part.
-     This layer only supplies shared mobile/privacy/cache/timeout helpers. */
 })();
-/* ===== SWSI P0 mobile + AI guardrails END ===== */
+/* ===== SWSI P0 mobile + AI utilities END ===== */
