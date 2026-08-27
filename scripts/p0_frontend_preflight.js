@@ -194,6 +194,17 @@ for(const needle of [
 }
 if(!failures.some(x => x.code === 'FULL_BANK_INTEGRITY_RUNTIME')) pass('FULL_BANK_INTEGRITY_RUNTIME', 'full bank validates manifest totals, session counts and unique IDs before staying complete');
 
+for(const needle of [
+  "window.swsiStorageDurabilityVersion='2026-08-27.schema-guard.v3'",
+  'HISTORY_MAX_RECORDS=8000',
+  'quarantineCorruptStorage',
+  'validReviewState',
+  'historyWriteBlocked'
+]){
+  if(!patchSource.includes(needle)) fail('LOCAL_STORAGE_INTEGRITY', `missing storage integrity marker: ${needle}`);
+}
+if(!failures.some(x => x.code === 'LOCAL_STORAGE_INTEGRITY')) pass('LOCAL_STORAGE_INTEGRITY', 'history/review state is schema-checked, capped and quarantined before overwrite');
+
 for(const needle of ['window.swsiReadAIError','2026-08-26.typed-errors.v2','CLIENT_DAILY_QUOTA','retryAfter']){
   if(!patchSource.includes(needle)) fail('AI_ERROR_CLASSIFICATION', `missing AI error marker: ${needle}`);
 }

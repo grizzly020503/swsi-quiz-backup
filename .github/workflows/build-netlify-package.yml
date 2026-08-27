@@ -64,6 +64,7 @@ jobs:
           grep -q '2026-08-26.sha256.v2' _site/monthly_patch.js
           grep -q 'SWSI MK Unified Grading Contract 2026-08-26' _site/monthly_patch.js
           grep -q '2026-08-26.unified-grading.v2' _site/monthly_patch.js
+          grep -q '2026-08-27.schema-guard.v3' _site/monthly_patch.js
           grep -q 'SWSI Product V1 Lock 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Law Trust Final Batch 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Theory Trust Final Batch 2026-08-26' _site/monthly_patch.js
@@ -128,6 +129,7 @@ jobs:
           unzip -p "release-output/$package" monthly_patch.js | grep -q 'SWSI Law Trust Final Batch 2026-08-26'
           unzip -p "release-output/$package" monthly_patch.js | grep -q '2026-08-26.fail-closed.v2'
           unzip -p "release-output/$package" monthly_patch.js | grep -q '2026-08-26.unified-grading.v2'
+          unzip -p "release-output/$package" monthly_patch.js | grep -q '2026-08-27.schema-guard.v3'
           unzip -p "release-output/$package" sw.js | grep -q "const VERSION = 'v6'"
 
           sha256sum "release-output/$package" > "release-output/$package.sha256"

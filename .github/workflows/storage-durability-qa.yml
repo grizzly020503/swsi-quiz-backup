@@ -44,8 +44,10 @@ jobs:
           node --check /tmp/monthly_patch.js
           node --check scripts/storage_durability_smoke.js
           grep -q 'SWSI Storage Durability Guard 2026-08-27' /tmp/monthly_patch.js
-          grep -q '2026-08-27.history-cap.v2' /tmp/monthly_patch.js
+          grep -q '2026-08-27.schema-guard.v3' /tmp/monthly_patch.js
           grep -q 'HISTORY_MAX_RECORDS=8000' /tmp/monthly_patch.js
+          grep -q 'quarantineCorruptStorage' /tmp/monthly_patch.js
+          grep -q 'validReviewState' /tmp/monthly_patch.js
 
       - name: Build browser-test site
         run: |
@@ -75,3 +77,4 @@ jobs:
             sleep 1
           done
           node scripts/storage_durability_smoke.js http://127.0.0.1:4173/
+
