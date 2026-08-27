@@ -1,0 +1,42 @@
+name: Patch Verified Shard Cache
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - fix/code-health-p0-20260826
+    paths:
+      - scripts/patch_verified_shard_cache.py
+      - .github/workflows/patch-verified-shard-cache.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply exact cache provenance patch
+        run: python3 scripts/patch_verified_shard_cache.py
+
+      - name: Verify source markers
+        run: |
+          grep -q "verified_sha256:true" monthly_patch_parts/00.part
+          grep -q "rec.verified_sha256 === true && rec.sha256 === meta.sha256" monthly_patch_parts/00.part
+          ! grep -q "(!rec.sha256 || rec.sha256 === meta.sha256)" monthly_patch_parts/00.part
+
+      - name: Commit repair
+        run: |
+          if git diff --quiet -- monthly_patch_parts/00.part; then
+            echo "Verified shard cache repair already applied."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add monthly_patch_parts/00.part
+          git commit -m "要求離線 shard cache 具備實際 SHA 驗證標記"
+          git push origin HEAD:fix/code-health-p0-20260826
