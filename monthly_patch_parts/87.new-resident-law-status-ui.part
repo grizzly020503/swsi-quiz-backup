@@ -1,0 +1,26 @@
+
+/* SWSI New Resident Basic Act Status UI 2026-08-27
+   Data is canonicalized at build time. This module owns the special promulgated/not-yet-effective badge and marker only.
+*/
+(function(){
+  'use strict';
+  var name='新住民基本法';
+
+  var prev=renderLaws;
+  renderLaws=function(){
+    prev();
+    try{
+      if(typeof lawOpen!=='number'||lawOpen<0||!LAWS[lawOpen]||LAWS[lawOpen].n!==name)return;
+      var panel=document.querySelector('#app .ecard.open .swsi-law-trust');
+      if(!panel)return;
+      var badge=panel.querySelector('span');
+      if(badge){
+        badge.textContent='已制定公布・施行日另定';
+        badge.style.color='#756E57';
+        badge.style.borderColor='#E5DCC1';
+      }
+    }catch(e){console.warn('new resident act status render skipped',e);}
+  };
+
+  window.SWSI_NEW_RESIDENT_STATUS={version:'SWSI New Resident Basic Act Status Fix 2026-08-26'};
+})();
