@@ -5,9 +5,9 @@
 > 本節晚於下方歷史內容；若衝突，以本節與 `PROJECT_HANDOFF_ROUND8_DELTA.md` 為準。
 
 - branch：`fix/code-health-p0-20260826`
-- 已驗證的 runtime code HEAD：`47dfca194e720b804453c9430ea92d6f65194f59`
+- 已驗證的 runtime code HEAD：`08279ab72659c5ba06f09cf77de5402a5d30146a`
 - handoff closeout：包含本節的 commit 即目前 branch HEAD；接手時仍須先重新讀遠端 ref，禁止假設這個 SHA 永遠是最新。
-- compare snapshot：`main@0712b258`，branch ahead 134 / behind 0。
+- compare snapshot（`08279ab7`）：`main@0712b258`，branch ahead 136 / behind 0。
 - 未 merge main、未 force push、未部署 Netlify production、未修改 production secrets、未做不可逆 production 操作。
 
 ### 已完成 ownership consolidation
@@ -23,6 +23,7 @@
 - essay metadata labels 已改為 idempotent MutationObserver enhancer，不再接管 global `render()`。
 - essay navigation 已於 `47dfca19` 收斂至 `zzz_fix_essay_navigation.part`：保留 slow/cache reload、tab state、state reset 與 render retry；`50.home-spacing-essay-entry.part` 與 `zzzz_product_v1_lock.part` 不再覆寫 `swsiOpenEssay`。
 - Runtime Owner QA 已鎖住上述 ownership 與保留的 fail-closed edge guards。
+- `08279ab7` 修正 Runtime Owner QA 對 async `swsiStartEssayNow` 的假陰性；現已正確鎖定唯一 deliberate owner `zzzzz_quick_essay_scope_fix.part`，未修改產品 runtime。
 
 ### 明確保留的 deliberate owners
 
@@ -51,7 +52,13 @@
 - Storage Durability QA #45：success
 - Knowledge Runtime Snapshot QA #37：success
 - Cloudflare Workers Builds：success
-- P0 preflight、Service Worker / Worker / Supabase contracts、question shard integrity、knowledge catalog、production-shaped static smoke 均由 Monthly static job 驗證成功。
+- P0 preflight、Service Worker / Worker / Supabase contracts、question shard integrity、knowledge catalog、production-shaped static smoke 均由 Monthly static job驗證成功。
+
+`08279ab7` async quick-essay owner matcher：
+- Runtime Owner QA run `33057724634`：success。
+- log：`RUNTIME OWNER SMOKE OK`；`swsiStartEssayNow: zzzzz_quick_essay_scope_fix.part`。
+- Cloudflare Workers Build：success。
+- 本批僅修改 QA matcher/smoke，未改產品 runtime，因此未重跑與行為無關的完整 Chromium/Storage/Knowledge 套件。
 
 ### 安全與收尾
 
@@ -62,11 +69,16 @@
 - Cloudflare preview publish/wait 只允許 `refs/heads/main`；本 branch 僅 build 驗證。
 - 目前仍有 5 個本輪暫存 refs：`tmp-ai-client-owner-20260827-v2`、`tmp-ai-client-owner-20260827`、`tmp-law-status-consolidation-20260827-v2`、`tmp-law-status-consolidation-20260827`、`tmp-swsi-context-owner-20260827`。目前可用 GitHub 連接器未提供 delete-ref；不可用 force/move-ref 代替刪除。取得 delete-ref 權限後可安全移除，這不影響 runtime 或 merge correctness。
 
-### 下一步
+### Round 8 結論
 
-- 不再為 owner 數量繼續整理 `renderLaws` / `renderTheories` trust layers。
-- 若再做 P1，只接受有行為等價證據的 dead override、redundant wrapper 或 load-order shim；逐組 atomic commit + 全 gates。
-- merge 前使用一般 PR/fast-forward-compatible 流程，不 force；Netlify production deploy 仍需使用者另行明確授權。
+**第八輪可結束。**
+
+最新 owner evidence：
+- single owner：`normalize`、grading helpers、`swsiOpenEssay`、`swsiStartEssayNow`、`dissectHTML`、global `render`。
+- deliberate chains：`renderHome 00→20`、`renderReview 00→70`、AI feedback/photo `00→99z`。
+- independent product wrappers：law `80→86`、theory `80→88`。
+
+目前沒有尚未處理、且收益高於風險的 P0/P1 runtime override、dead shim 或重複 module。繼續縮 owner 數量只會進入 cosmetic cleanup、跨模組大改或破壞獨立產品責任，應停止。不要 merge main；Netlify production deploy 仍需使用者另行明確授權。
 
 
 最後更新：2026-08-27（官方 grading contract regression + Unified QA 特殊給分 self-test 已補並全綠）
