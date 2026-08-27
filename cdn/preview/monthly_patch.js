@@ -1361,7 +1361,7 @@ body:has(#app .qcard) header{box-shadow:none;border-bottom:1px solid rgba(220,22
 /* SWSI Mobile Reading Polish 2026-08-26
    Feedback pass from real iPhone screenshots:
    - normal size was too large/loose for long explanations and essays
-   - fixed bottom navigation could cover content
+   - bottom navigation spacing is owned by 99_p0_mobile_ai_guardrails.part
    - essay formatting controls need clearer hierarchy
    - AI privacy disclosure should be available without dominating the writing flow
 */
@@ -1397,11 +1397,6 @@ html[data-fs="2"]{
 #app .exp-sec p{line-height:1.72;}
 #app .extra{line-height:1.68;}
 #app .mistake{margin-top:4px;}
-
-main{padding-bottom:calc(145px + env(safe-area-inset-bottom))!important;}
-.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))!important;}
-body:has(#app .qcard) main{padding-bottom:30px!important;}
-body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
 
 #app .wbox{margin-bottom:6px;}
 #app .wlabel{margin-bottom:7px;}
@@ -1464,7 +1459,6 @@ body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
 #app .swsi-ai-privacy .swsi-ai-privacy-body b{color:var(--wrong);}
 
 @media (max-width:370px){
-  main{padding-bottom:calc(138px + env(safe-area-inset-bottom))!important;}
   #app .fmtbar{gap:5px;}
   #app .fmtbar .fbtn{padding-left:8px;padding-right:8px;}
 }
@@ -2606,7 +2600,8 @@ body:has(#app .section-h) main{
     var st=document.createElement('style');
     st.id=STYLE_ID;
     st.textContent=`
-      .swsi-report-dialog[data-swsi-compact="2"]{max-height:min(78vh,620px);padding:16px 16px 15px}
+      .swsi-report-backdrop{overscroll-behavior:contain}
+      .swsi-report-dialog[data-swsi-compact="2"]{max-height:min(78vh,620px);max-height:min(78dvh,620px);padding:16px 16px 15px;overscroll-behavior:contain}
       .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-head{margin-bottom:8px}
       .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-head h2{font-size:19px}
       .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-head p{margin-top:2px}
@@ -2618,7 +2613,7 @@ body:has(#app .section-h) main{
       .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-help{font-size:10px}
       .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-contact-help{display:none}
       @media(max-height:700px){
-        .swsi-report-dialog[data-swsi-compact="2"]{max-height:82vh}
+        .swsi-report-dialog[data-swsi-compact="2"]{max-height:82vh;max-height:82dvh}
         .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-field textarea{min-height:78px}
       }
     `;
@@ -2760,20 +2755,33 @@ body:has(#app .section-h) main{
 
   var style=document.createElement('style');
   style.textContent=`
-    :root{--tabbar-safe-space:124px;}
-    .tabbar{bottom:calc(env(safe-area-inset-bottom,0px) + 10px)!important;}
-    .tabbar button{padding:8px 4px 10px!important;min-height:58px;}
+    :root{
+      --swsi-tabbar-button-height:58px;
+      --swsi-tabbar-clearance:calc(84px + env(safe-area-inset-bottom,0px));
+    }
+    header{
+      padding-top:calc(20px + env(safe-area-inset-top,0px))!important;
+    }
+    .tabbar{
+      bottom:0!important;
+      padding-bottom:env(safe-area-inset-bottom,0px)!important;
+    }
+    .tabbar button{padding:8px 4px 10px!important;min-height:var(--swsi-tabbar-button-height);}
     .tabbar .ico{font-size:17px!important;}
-    html{scroll-padding-bottom:calc(var(--tabbar-safe-space) + env(safe-area-inset-bottom,0px));}
-    body{padding-bottom:env(safe-area-inset-bottom,0px)!important;}
-    .wrap{padding-bottom:calc(var(--tabbar-safe-space) + env(safe-area-inset-bottom,0px))!important;}
+    html{scroll-padding-bottom:var(--swsi-tabbar-clearance);}
+    body{padding-bottom:0!important;}
+    .wrap{padding-bottom:var(--swsi-tabbar-clearance)!important;}
+    main{padding-bottom:24px!important;}
     button:disabled{pointer-events:none;}
-    @media (max-width:420px){:root{--tabbar-safe-space:136px;}}
-    html[data-fs="2"]{--tabbar-safe-space:148px;}
+    @media (max-width:420px){
+      :root{--swsi-tabbar-clearance:calc(88px + env(safe-area-inset-bottom,0px));}
+    }
+    html[data-fs="2"]{
+      --swsi-tabbar-clearance:calc(94px + env(safe-area-inset-bottom,0px));
+    }
     @media (display-mode:standalone),(display-mode:fullscreen){
-      .tabbar{bottom:calc(env(safe-area-inset-bottom,0px) + 14px)!important;}
-      :root{--tabbar-safe-space:132px;}
-      html[data-fs="2"]{--tabbar-safe-space:154px;}
+      :root{--swsi-tabbar-clearance:calc(90px + env(safe-area-inset-bottom,0px));}
+      html[data-fs="2"]{--swsi-tabbar-clearance:calc(98px + env(safe-area-inset-bottom,0px));}
     }
   `;
   document.head.appendChild(style);
@@ -2858,8 +2866,7 @@ body:has(#app .section-h) main{
     finally{clearTimeout(timer);}
   };
 })();
-/* ===== SWSI P0 mobile + AI utilities END ===== */
-/* ===== SWSI Essay Trust Layer 2026-08-26 =====
+/* ===== SWSI P0 mobile + AI utilities END ===== *//* ===== SWSI Essay Trust Layer 2026-08-26 =====
    IMPORTANT: This layer never edits official past-exam question text.
    It only changes SWSI-authored guidance labels, trust status, and AI feedback prompts.
 */
