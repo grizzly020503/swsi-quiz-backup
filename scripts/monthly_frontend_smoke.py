@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Static smoke checks for the built SWSI front end."""
+# Keep Service Worker assertions aligned with the effective runtime contract.
 from __future__ import annotations
 
 import argparse
