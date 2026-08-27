@@ -40,7 +40,7 @@ jobs:
             renderLaws:/\brenderLaws\s*=\s*function\b/g,
             renderTheories:/\b(?:window\.)?renderTheories\s*=\s*function\b/g,
             swsiOpenEssay:/\b(?:window\.)?swsiOpenEssay\s*=\s*(?:async\s+)?function\b/g,
-            swsiStartEssayNow:/\b(?:window\.)?swsiStartEssayNow\s*=\s*function\b/g,
+            swsiStartEssayNow:/\b(?:window\.)?swsiStartEssayNow\s*=\s*(?:async\s+)?function\b/g,
             dissectHTML:/\bdissectHTML\s*=\s*function\b/g,
             globalRender:/\b(?:window\.)?render\s*=\s*function\b/g
           };

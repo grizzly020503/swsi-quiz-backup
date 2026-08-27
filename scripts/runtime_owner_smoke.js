@@ -88,6 +88,9 @@ assert.deepStrictEqual(legacyAnswerGuessOwners, [], `legacy answer-text inferenc
 const essayNavigationPath = 'zzz_fix_essay_navigation.part';
 const essayOpenOwners = ownersFor(/(?:window\.)?swsiOpenEssay\s*=\s*(?:async\s+)?function\b/g);
 assert.deepStrictEqual(essayOpenOwners, [essayNavigationPath], `unexpected swsiOpenEssay ownership chain: ${essayOpenOwners.join(' -> ')}`);
+const quickEssayScopePath = 'zzzzz_quick_essay_scope_fix.part';
+const startEssayOwners = ownersFor(/(?:window\.)?swsiStartEssayNow\s*=\s*(?:async\s+)?function\b/g);
+assert.deepStrictEqual(startEssayOwners, [quickEssayScopePath], `unexpected swsiStartEssayNow ownership chain: ${startEssayOwners.join(' -> ')}`);
 const essayNavigation = sourceOf(essayNavigationPath);
 assert(essayNavigation.includes('await loadAutoEssays();'), 'canonical essay navigation lost slow/cache reload recovery');
 assert(essayNavigation.includes('renderEssaySafely();'), 'canonical essay navigation lost render retry boundary');
@@ -134,6 +137,7 @@ console.log('law escape helper: 86.law-trust-ui.part (private)');
 console.log('new resident law status: 86.law-trust-ui.part');
 console.log('mock record policy: ' + recordPolicyOwners.join(' -> '));
 console.log('essay navigation: ' + essayOpenOwners.join(' -> '));
+console.log('quick essay start: ' + startEssayOwners.join(' -> '));
 console.log('MK: ' + mkOwners.join(' -> '));
 console.log('stable client id: ' + clientIdOwners.join(' -> '));
 console.log('AI timeout helper: ' + timeoutOwners.join(' -> '));
