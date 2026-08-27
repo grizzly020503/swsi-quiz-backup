@@ -118,7 +118,7 @@ jobs:
           PY
           grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW 20260826' /tmp/swsi-preview/index.html
           grep -q 'monthly_patch.js?v=preview-essay-audit-b1-20260826-1' /tmp/swsi-preview/index.html
-          grep -q "const VERSION = 'v5'" /tmp/swsi-preview/sw.js
+          grep -q "const VERSION = 'v6'" /tmp/swsi-preview/sw.js
 
       - name: Publish preview files into existing Cloudflare static assets
         run: |
