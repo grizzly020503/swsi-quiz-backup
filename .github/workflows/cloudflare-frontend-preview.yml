@@ -131,9 +131,16 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           set -euo pipefail
-          rm -rf cdn/preview
-          mkdir -p cdn/preview
-          cp -a /tmp/swsi-preview/. cdn/preview/
+          git fetch origin main
+          rm -rf /tmp/swsi-main-publish
+          git worktree add --detach /tmp/swsi-main-publish origin/main
+          trap 'git worktree remove --force /tmp/swsi-main-publish >/dev/null 2>&1 || true' EXIT
+
+          rm -rf /tmp/swsi-main-publish/cdn/preview
+          mkdir -p /tmp/swsi-main-publish/cdn/preview
+          cp -a /tmp/swsi-preview/. /tmp/swsi-main-publish/cdn/preview/
+
+          cd /tmp/swsi-main-publish
           git config user.name 'swsi-preview-bot'
           git config user.email 'actions@users.noreply.github.com'
           git add cdn/preview
@@ -142,14 +149,7 @@ jobs:
             exit 0
           fi
           git commit -m '發布 Cloudflare 新版前端預覽'
-          for attempt in 1 2 3; do
-            git fetch origin main
-            git rebase origin/main
-            if git push origin HEAD:main; then
-              exit 0
-            fi
-          done
-          exit 1
+          git push origin HEAD:main
 
       - name: Wait for Cloudflare preview deployment
         if: github.ref == 'refs/heads/main'
