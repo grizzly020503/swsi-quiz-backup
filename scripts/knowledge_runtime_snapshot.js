@@ -57,6 +57,8 @@ function assertUniqueNames(rows, label) {
   await page.waitForFunction(() =>
     Array.isArray(window.LAWS) &&
     Array.isArray(window.THEORIES) &&
+    window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP &&
+    window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP.version === '2026-08-27.canonical-build.v1' &&
     window.SWSI_LAW_TRUST_FINAL &&
     /Law Trust Final Batch/.test(window.SWSI_LAW_TRUST_FINAL.version || '') &&
     window.SWSI_THEORY_TRUST_FINAL &&
@@ -68,6 +70,7 @@ function assertUniqueNames(rows, label) {
   const effective = await page.evaluate(() => ({
     laws: JSON.parse(JSON.stringify(window.LAWS || [])),
     theories: JSON.parse(JSON.stringify(window.THEORIES || [])),
+    bootstrap: JSON.parse(JSON.stringify(window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP || {})),
     markers: {
       law_final: window.SWSI_LAW_TRUST_FINAL && window.SWSI_LAW_TRUST_FINAL.version || '',
       law_checked_at: window.SWSI_LAW_TRUST_FINAL && window.SWSI_LAW_TRUST_FINAL.checkedAt || '',
@@ -90,14 +93,22 @@ function assertUniqueNames(rows, label) {
   fs.mkdirSync(outDir, { recursive: true });
   const lawsText = stableStringify(effective.laws);
   const theoriesText = stableStringify(effective.theories);
+  const lawsHash = sha256(lawsText);
+  const theoriesHash = sha256(theoriesText);
+  assert.strictEqual(effective.bootstrap.version, '2026-08-27.canonical-build.v1', 'canonical bootstrap version missing');
+  assert.strictEqual(Number(effective.bootstrap.laws && effective.bootstrap.laws.count), effective.laws.length, 'canonical law count differs from final runtime');
+  assert.strictEqual(Number(effective.bootstrap.theories && effective.bootstrap.theories.count), effective.theories.length, 'canonical theory count differs from final runtime');
+  assert.strictEqual(effective.bootstrap.laws && effective.bootstrap.laws.sha256, lawsHash, 'canonical law hash differs from final runtime');
+  assert.strictEqual(effective.bootstrap.theories && effective.bootstrap.theories.sha256, theoriesHash, 'canonical theory hash differs from final runtime');
+
   fs.writeFileSync(path.join(outDir, 'laws.runtime.json'), lawsText, 'utf8');
   fs.writeFileSync(path.join(outDir, 'theories.runtime.json'), theoriesText, 'utf8');
 
   const manifest = {
     schema_version: 1,
     source: 'production-shaped browser runtime after monthly_patch_parts lexicographic application',
-    laws: { count: effective.laws.length, sha256: sha256(lawsText) },
-    theories: { count: effective.theories.length, sha256: sha256(theoriesText) },
+    laws: { count: effective.laws.length, sha256: lawsHash },
+    theories: { count: effective.theories.length, sha256: theoriesHash },
     markers: effective.markers
   };
   fs.writeFileSync(path.join(outDir, 'manifest.json'), stableStringify(manifest), 'utf8');
