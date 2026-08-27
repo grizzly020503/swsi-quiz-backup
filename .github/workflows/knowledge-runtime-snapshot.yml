@@ -8,6 +8,7 @@ on:
       - 'scripts/knowledge_runtime_snapshot.js'
       - 'scripts/build_essay_guides_runtime.js'
       - 'scripts/monthly_patch_build.py'
+      - 'data/knowledge_runtime_baseline.json'
       - 'monthly_patch_parts/**'
       - 'essay_guides.js'
       - 'index.html'
@@ -21,6 +22,7 @@ on:
       - 'scripts/knowledge_runtime_snapshot.js'
       - 'scripts/build_essay_guides_runtime.js'
       - 'scripts/monthly_patch_build.py'
+      - 'data/knowledge_runtime_baseline.json'
       - 'monthly_patch_parts/**'
       - 'essay_guides.js'
       - 'index.html'
@@ -53,6 +55,7 @@ jobs:
         run: |
           node --check scripts/knowledge_runtime_snapshot.js
           python -m py_compile scripts/monthly_patch_build.py
+          python -m json.tool data/knowledge_runtime_baseline.json >/dev/null
           cat monthly_patch_parts/*.part > /tmp/monthly_patch.js
           node --check /tmp/monthly_patch.js
 
@@ -85,6 +88,21 @@ jobs:
           test -s _knowledge_snapshot/laws.runtime.json
           test -s _knowledge_snapshot/theories.runtime.json
           test -s _knowledge_snapshot/manifest.json
+
+      - name: Verify canonical runtime baseline
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          expected = json.loads(Path('data/knowledge_runtime_baseline.json').read_text(encoding='utf-8'))
+          actual = json.loads(Path('_knowledge_snapshot/manifest.json').read_text(encoding='utf-8'))
+          if actual != expected:
+              print('KNOWLEDGE RUNTIME BASELINE DRIFT')
+              print('expected:', json.dumps(expected, ensure_ascii=False, indent=2, sort_keys=True))
+              print('actual:', json.dumps(actual, ensure_ascii=False, indent=2, sort_keys=True))
+              raise SystemExit(1)
+          print('KNOWLEDGE RUNTIME BASELINE OK')
+          PY
 
       - name: Upload runtime snapshot
         uses: actions/upload-artifact@v4
