@@ -92,7 +92,15 @@
     h+='<div class="swsi-progress-foot"><button class="btn ghost" onclick="go(\'review\')">回錯題複習</button><button class="btn ghost" onclick="exportDrafts()">備份申論草稿</button><button class="swsi-danger-link" onclick="if(confirm(\'清除所有刷題、間隔複習與自訂錯因紀錄？無法復原。\')){localStorage.removeItem(LS_KEY);localStorage.removeItem(REVIEW_KEY);localStorage.removeItem(\''+CAUSE_KEY+'\');render();}">清除學習紀錄</button></div>';app.innerHTML=h;
   };
 
-  try{var oldHome=renderHome;renderHome=function(){oldHome();var grid=document.querySelector('#app .swsi-other-grid');if(grid&&!grid.querySelector('.swsi-progress-entry')){var b=document.createElement('button');b.className='swsi-progress-entry';b.textContent='我的學習進度';b.onclick=function(){go('progress');};grid.appendChild(b);}};}catch(_e){}
+  function decorateHomeProgressEntry(){
+    var grid=document.querySelector('#app .swsi-other-grid');
+    if(!grid||grid.querySelector('.swsi-progress-entry'))return;
+    var b=document.createElement('button');
+    b.className='swsi-progress-entry';
+    b.textContent='我的學習進度';
+    b.onclick=function(){go('progress');};
+    grid.appendChild(b);
+  }
 
   if(!document.getElementById('swsi-learning-loop-style')){var st=document.createElement('style');st.id='swsi-learning-loop-style';st.textContent=`
     .swsi-self-cause{margin:15px 0 12px;padding:13px;border:1px solid var(--line);border-radius:13px;background:#F8FAF9}.swsi-cause-title{font-size:var(--fs-b);font-weight:800;color:var(--ink);margin-bottom:3px}.swsi-cause-help{font-size:var(--fs-s);line-height:1.6;color:var(--ink-soft);margin-bottom:9px}.swsi-cause-row{display:flex;flex-wrap:wrap;gap:6px}.swsi-cause-chip{border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:999px;padding:7px 10px;font-family:inherit;font-size:var(--fs-s);font-weight:700;cursor:pointer}.swsi-cause-chip.on{border-color:var(--pine);background:var(--correct-bg);color:var(--pine-deep)}
@@ -102,6 +110,7 @@
   `;document.head.appendChild(st);}
 
   decorateWrongCause();
-  try{var scheduled=false;var mo=new MutationObserver(function(){if(scheduled)return;scheduled=true;Promise.resolve().then(function(){scheduled=false;decorateWrongCause();});});mo.observe(document.body,{childList:true,subtree:true});}catch(_e){}
+  decorateHomeProgressEntry();
+  try{var scheduled=false;var mo=new MutationObserver(function(){if(scheduled)return;scheduled=true;Promise.resolve().then(function(){scheduled=false;decorateWrongCause();decorateHomeProgressEntry();});});mo.observe(document.body,{childList:true,subtree:true});}catch(_e){}
   try{if(typeof view!=='undefined'&&(view==='home'||view==='review'||view==='progress'))render();}catch(_e){}
 })();
