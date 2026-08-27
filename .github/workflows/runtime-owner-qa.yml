@@ -1,0 +1,19 @@
+name: Runtime Owner QA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/runtime-owner-qa.yml'
+      - 'monthly_patch_parts/**'
+      - 'scripts/runtime_owner_smoke.js'
+
+jobs:
+  owner-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Verify runtime owner chain
+        run: node scripts/runtime_owner_smoke.js
