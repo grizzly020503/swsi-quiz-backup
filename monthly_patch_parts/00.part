@@ -292,7 +292,7 @@ window.swsiEsc = swsiEsc;
       let payload = null, networkErr = null;
       try{
         payload = validateShard(await fetchJSON(SWSI_QUESTION_CDN_BASE + '/' + encodeURIComponent(meta.file),{timeout:15000}), meta);
-        idbPut('question-shard:'+meta.file,{payload,sha256:meta.sha256,savedAt:Date.now()}).catch(()=>{});
+        idbPut('question-shard:'+meta.file,{payload,sha256:meta.sha256,verified_sha256:true,savedAt:Date.now()}).catch(()=>{});
         QB.usingOffline = false;
       }catch(err){
         networkErr = err;
@@ -301,7 +301,7 @@ window.swsiEsc = swsiEsc;
       if(!payload){
         try{
           const rec = await idbGet('question-shard:'+meta.file);
-          if(rec && rec.payload && (!rec.sha256 || rec.sha256 === meta.sha256)){
+          if(rec && rec.payload && rec.verified_sha256 === true && rec.sha256 === meta.sha256){
             payload = validateShard(rec.payload,meta);
             QB.usingOffline = true;
           }
