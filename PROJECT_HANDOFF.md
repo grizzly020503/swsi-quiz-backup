@@ -62,12 +62,26 @@
 
 ### 安全與收尾
 
-- `main...branch` 77 個 changed files；64 個仍存在的文字檔已做高信心 secret scan。
+- `main...branch` 78 個 changed files；先前 64 個仍存在的 changed 文字檔已做高信心 secret scan。
 - 未發現 private key、GitHub/OpenAI/AWS token、JWT 或 production service-role literal。
 - 唯一字串命中是 `scripts/cloudflare_worker_smoke.js` 的明確測試 fixture：`internal-secret` / `groq-secret`。
 - `build-netlify-package.yml` 與 `verify-netlify-production.yml` 為手動 workflow；package job 只允許 `refs/heads/main`。
 - Cloudflare preview publish/wait 只允許 `refs/heads/main`；本 branch 僅 build 驗證。
 - 目前仍有 5 個本輪暫存 refs：`tmp-ai-client-owner-20260827-v2`、`tmp-ai-client-owner-20260827`、`tmp-law-status-consolidation-20260827-v2`、`tmp-law-status-consolidation-20260827`、`tmp-swsi-context-owner-20260827`。目前可用 GitHub 連接器未提供 delete-ref；不可用 force/move-ref 代替刪除。取得 delete-ref 權限後可安全移除，這不影響 runtime 或 merge correctness。
+
+### Round 8 Final Audit（2026-08-27）
+
+- audit 起點：`ee77d53c87820a9ece85a6249c57c3749cbce7ec`。
+- P1 漏測：Runtime Owner QA 尚未鎖住 full-bank loaders、knowledge/progress owners、mobile draft、versioned AI cache key、feedback context 與 law/theory trust 的精確 chain。
+- 修正：`2ebb0a7c81a9a59d1cc57e133c2ca869f73ac5aa`，只擴充 `scripts/runtime_owner_smoke.js`，未修改任何 runtime `.part`。
+- Runtime Owner QA run `33059736623`：success，`RUNTIME OWNER SMOKE OK`。
+- 27 個 build parts 的 duplicate owner map 已逐項分類；未捕捉項目只剩 DOM property false positive，沒有未知 runtime owner。
+- workflow/smoke dependency scan：沒有依賴已刪 build source；唯一 missing part reference 是 Storage QA 的刻意 `test ! -e` regression lock。另有 builder 文件中的未來 synthetic `116-1.json`，不是 runtime dependency。
+- preview build 由 root `sw.js v6`、27 parts 與 essay builder 在 `/tmp` 重建；tracked `cdn/preview` 仍是上一個 main 發布的 v5 artifact，branch 上不具權威性，publish/wait 均只允許 main。
+- 24 個 question shard 的實際 bytes 全部符合 manifest SHA-256；每 shard 200 題，總量 4,800。
+- Service Worker source/cache contract：root v6；mutable `monthly_patch.js / essay_guides.js / manifest.json` 為 no-store network-first；v5→v6 upgrade smoke 已綠。
+- compare snapshot（`2ebb0a7c`）：`main@0712b258`，ahead 138 / behind 0，78 changed files。
+- Final Audit 後沒有新的未解 P0/P1。
 
 ### Round 8 結論
 
