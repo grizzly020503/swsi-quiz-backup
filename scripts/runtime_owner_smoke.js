@@ -97,6 +97,47 @@ assert(essayNavigation.includes('renderEssaySafely();'), 'canonical essay naviga
 assert(essayNavigation.includes('markEssayTab();'), 'canonical essay navigation lost tab state handling');
 assert(essayNavigation.includes('resetEssayState();'), 'canonical essay navigation lost product reset policy');
 
+// Final-audit coverage for deliberate late subsystem and safety owners.
+const codeHealthPath = 'zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part';
+const acceptedAnswerOwners = ownersFor(/function\s+acceptedAnswers\s*\b|(?:^|[^\w$])acceptedAnswers\s*=\s*function\b/g);
+assert.deepStrictEqual(acceptedAnswerOwners, ['00.part', codeHealthPath], `unexpected acceptedAnswers guard chain: ${acceptedAnswerOwners.join(' -> ')}`);
+const renderQuizOwners = ownersFor(/(?:^|[^\w$])renderQuiz\s*=\s*function\b/g);
+assert.deepStrictEqual(renderQuizOwners, ['00.part', codeHealthPath], `unexpected renderQuiz guard chain: ${renderQuizOwners.join(' -> ')}`);
+
+const questionInvariantPath = 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_question_bank_invariant.part';
+const shardLoaderOwners = ownersFor(/function\s+ensureShardMetasLoaded\s*\b|(?:window\.)?ensureShardMetasLoaded\s*=\s*function\b/g);
+assert.deepStrictEqual(shardLoaderOwners, ['00.part', questionInvariantPath], `unexpected shard loader guard chain: ${shardLoaderOwners.join(' -> ')}`);
+const fullBankLoaderOwners = ownersFor(/function\s+ensureAllQuestionsLoaded\s*\b|(?:window\.)?ensureAllQuestionsLoaded\s*=\s*function\b/g);
+assert.deepStrictEqual(fullBankLoaderOwners, ['00.part', questionInvariantPath], `unexpected full-bank loader guard chain: ${fullBankLoaderOwners.join(' -> ')}`);
+const bankAssertOwners = filesContaining(source => /window\.swsiAssertCompleteQuestionBank\s*=/.test(source));
+assert.deepStrictEqual(bankAssertOwners, ['00.part', questionInvariantPath], `unexpected full-bank assertion chain: ${bankAssertOwners.join(' -> ')}`);
+
+const progressOwners = ownersFor(/(?:^|[^\w$])renderProgress\s*=\s*function\b/g);
+assert.deepStrictEqual(progressOwners, ['00.part', '70.learning-loop.part'], `unexpected renderProgress chain: ${progressOwners.join(' -> ')}`);
+const knowledgePath = '80.knowledge-path.part';
+const searchOwners = ownersFor(/(?:^|[^\w$])renderSearch\s*=\s*function\b/g);
+const searchActionOwners = ownersFor(/(?:^|[^\w$])doSearch\s*=\s*function\b/g);
+const theoryOpenOwners = ownersFor(/(?:^|[^\w$])openTheory\s*=\s*function\b/g);
+const lawOpenOwners = ownersFor(/(?:^|[^\w$])openLawCard\s*=\s*function\b/g);
+for (const [name, chain] of Object.entries({renderSearch:searchOwners, doSearch:searchActionOwners, openTheory:theoryOpenOwners, openLawCard:lawOpenOwners})) {
+  assert.deepStrictEqual(chain, ['00.part', knowledgePath], `unexpected ${name} chain: ${chain.join(' -> ')}`);
+}
+
+const draftBoxOwners = ownersFor(/(?:^|[^\w$])writeBoxHTML\s*=\s*function\b/g);
+const draftSaveOwners = ownersFor(/(?:^|[^\w$])saveDraft\s*=\s*function\b/g);
+assert.deepStrictEqual(draftBoxOwners, ['00.part', '99_p0_mobile_ai_guardrails.part'], `unexpected writeBoxHTML chain: ${draftBoxOwners.join(' -> ')}`);
+assert.deepStrictEqual(draftSaveOwners, ['00.part', '99_p0_mobile_ai_guardrails.part'], `unexpected saveDraft chain: ${draftSaveOwners.join(' -> ')}`);
+
+const aiCacheKeyOwners = ownersFor(/(?:window\.)?swsiAICacheKey\s*=\s*function\b/g);
+assert.deepStrictEqual(aiCacheKeyOwners, ['99_p0_mobile_ai_guardrails.part', '99z.essay-trust-layer.part'], `unexpected AI cache-key chain: ${aiCacheKeyOwners.join(' -> ')}`);
+assert(sourceOf('99z.essay-trust-layer.part').includes("'essay_ai_cache_v2_'+GUIDE_VERSION+'_'"), 'essay trust layer lost versioned AI cache isolation');
+
+const reportOwners = filesContaining(source => /window\.swsiOpenReport\s*=/.test(source));
+assert.deepStrictEqual(reportOwners, ['90.feedback-core.part', '91.feedback-context.part'], `unexpected feedback report context chain: ${reportOwners.join(' -> ')}`);
+assert.deepStrictEqual(lawRenderOwners, ['80.knowledge-path.part', '86.law-trust-ui.part'], `unexpected law trust render chain: ${lawRenderOwners.join(' -> ')}`);
+const theoryRenderOwners = ownersFor(/\b(?:window\.)?renderTheories\s*=\s*function\b/g);
+assert.deepStrictEqual(theoryRenderOwners, ['80.knowledge-path.part', '88.theory-trust-ui.part'], `unexpected theory trust render chain: ${theoryRenderOwners.join(' -> ')}`);
+
 // Deliberate late product/runtime owners. Keep these visible so future cleanup
 // does not mistake intentional ownership for a removable shim.
 const mkOwners = ownersFor(/(?:window\.)?\bMK\s*=\s*(?![=])/g);
@@ -138,6 +179,16 @@ console.log('new resident law status: 86.law-trust-ui.part');
 console.log('mock record policy: ' + recordPolicyOwners.join(' -> '));
 console.log('essay navigation: ' + essayOpenOwners.join(' -> '));
 console.log('quick essay start: ' + startEssayOwners.join(' -> '));
+console.log('acceptedAnswers guard: ' + acceptedAnswerOwners.join(' -> '));
+console.log('renderQuiz guard: ' + renderQuizOwners.join(' -> '));
+console.log('question loaders: ' + shardLoaderOwners.join(' -> ') + ' / ' + fullBankLoaderOwners.join(' -> '));
+console.log('full-bank assertion: ' + bankAssertOwners.join(' -> '));
+console.log('learning progress: ' + progressOwners.join(' -> '));
+console.log('knowledge search/open: ' + searchOwners.join(' -> '));
+console.log('mobile draft: ' + draftBoxOwners.join(' -> ') + ' / ' + draftSaveOwners.join(' -> '));
+console.log('AI cache key: ' + aiCacheKeyOwners.join(' -> '));
+console.log('feedback report context: ' + reportOwners.join(' -> '));
+console.log('theory render owners: ' + theoryRenderOwners.join(' -> '));
 console.log('MK: ' + mkOwners.join(' -> '));
 console.log('stable client id: ' + clientIdOwners.join(' -> '));
 console.log('AI timeout helper: ' + timeoutOwners.join(' -> '));
