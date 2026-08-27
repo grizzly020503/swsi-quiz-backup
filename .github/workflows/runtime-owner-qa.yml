@@ -17,3 +17,15 @@ jobs:
         uses: actions/checkout@v4
       - name: Verify runtime owner chain
         run: node scripts/runtime_owner_smoke.js
+      - name: Verify essay metadata stays an enhancer
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE='monthly_patch_parts/zzzzzzzzzz_essay_metadata_labels.part'
+          if grep -Eq '(^|[^[:alnum:]_])render[[:space:]]*=[[:space:]]*function' "$FILE"; then
+            echo 'Essay metadata labels must not own global render()' >&2
+            exit 1
+          fi
+          grep -q 'window.swsiPolishEssayMetadataUI=polishEssayMetadataUI' "$FILE"
+          grep -q 'new MutationObserver' "$FILE"
+          grep -q 'polishEssayMetadataUI();' "$FILE"
