@@ -10,7 +10,8 @@
     var st=document.createElement('style');
     st.id=STYLE_ID;
     st.textContent=`
-      .swsi-report-dialog[data-swsi-compact="2"]{max-height:min(78vh,620px);padding:16px 16px 15px}
+      .swsi-report-backdrop{overscroll-behavior:contain}
+      .swsi-report-dialog[data-swsi-compact="2"]{max-height:min(78vh,620px);max-height:min(78dvh,620px);padding:16px 16px 15px;overscroll-behavior:contain}
       .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-head{margin-bottom:8px}
       .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-head h2{font-size:19px}
       .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-head p{margin-top:2px}
@@ -22,7 +23,7 @@
       .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-help{font-size:10px}
       .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-contact-help{display:none}
       @media(max-height:700px){
-        .swsi-report-dialog[data-swsi-compact="2"]{max-height:82vh}
+        .swsi-report-dialog[data-swsi-compact="2"]{max-height:82vh;max-height:82dvh}
         .swsi-report-dialog[data-swsi-compact="2"] .swsi-report-field textarea{min-height:78px}
       }
     `;

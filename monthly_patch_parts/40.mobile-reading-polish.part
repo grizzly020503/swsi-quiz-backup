@@ -2,7 +2,7 @@
 /* SWSI Mobile Reading Polish 2026-08-26
    Feedback pass from real iPhone screenshots:
    - normal size was too large/loose for long explanations and essays
-   - fixed bottom navigation could cover content
+   - bottom navigation spacing is owned by 99_p0_mobile_ai_guardrails.part
    - essay formatting controls need clearer hierarchy
    - AI privacy disclosure should be available without dominating the writing flow
 */
@@ -38,11 +38,6 @@ html[data-fs="2"]{
 #app .exp-sec p{line-height:1.72;}
 #app .extra{line-height:1.68;}
 #app .mistake{margin-top:4px;}
-
-main{padding-bottom:calc(145px + env(safe-area-inset-bottom))!important;}
-.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))!important;}
-body:has(#app .qcard) main{padding-bottom:30px!important;}
-body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
 
 #app .wbox{margin-bottom:6px;}
 #app .wlabel{margin-bottom:7px;}
@@ -105,7 +100,6 @@ body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
 #app .swsi-ai-privacy .swsi-ai-privacy-body b{color:var(--wrong);}
 
 @media (max-width:370px){
-  main{padding-bottom:calc(138px + env(safe-area-inset-bottom))!important;}
   #app .fmtbar{gap:5px;}
   #app .fmtbar .fbtn{padding-left:8px;padding-right:8px;}
 }
