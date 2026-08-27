@@ -104,13 +104,19 @@ function ownerOfLastMatch(pattern){
   return marker >= 0 && end > marker ? prefix.slice(marker+8,end) : null;
 }
 
+const essayTrustCanonical = '99z.essay-trust-layer.part';
+const essayTrustLegacy = 'zzzzzzzzz_essay_trust_layer.part';
+if(!partFiles.includes(essayTrustCanonical)) fail('ESSAY_TRUST_OWNER_PATH', `missing canonical ${essayTrustCanonical}`);
+if(partFiles.includes(essayTrustLegacy)) fail('ESSAY_TRUST_OWNER_PATH', `legacy owner path still exists: ${essayTrustLegacy}`);
+if(!failures.some(x => x.code === 'ESSAY_TRUST_OWNER_PATH')) pass('ESSAY_TRUST_OWNER_PATH', 'essay trust layer has one canonical patch path');
+
 // Until the legacy layers are consolidated, fail the build whenever a new
 // later patch silently takes ownership of a correctness-sensitive function.
 const expectedOwners = [
   [/function\s+gradingMode\s*\(|(?:window\.)?gradingMode\s*=(?!=)/, 'zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part', 'gradingMode'],
   [/function\s+normalize\s*\(|(?:window\.)?normalize\s*=(?!=)/, 'zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part', 'normalize'],
-  [/function\s+runAIFeedback\s*\(|(?:window\.)?runAIFeedback\s*=(?!=)/, 'zzzzzzzzz_essay_trust_layer.part', 'runAIFeedback'],
-  [/function\s+gradePhoto\s*\(|(?:window\.)?gradePhoto\s*=(?!=)/, 'zzzzzzzzz_essay_trust_layer.part', 'gradePhoto'],
+  [/function\s+runAIFeedback\s*\(|(?:window\.)?runAIFeedback\s*=(?!=)/, essayTrustCanonical, 'runAIFeedback'],
+  [/function\s+gradePhoto\s*\(|(?:window\.)?gradePhoto\s*=(?!=)/, essayTrustCanonical, 'gradePhoto'],
   [/(?:window\.)?MK\s*=(?!=)/, 'zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part', 'MK']
 ];
 for(const [pattern,expected,label] of expectedOwners){
