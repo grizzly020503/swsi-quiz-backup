@@ -44,10 +44,15 @@ assert(learningLoop.includes('function decorateHomeProgressEntry()'), 'learning-
 assert(learningLoop.includes('decorateWrongCause();decorateHomeProgressEntry();'), 'learning-loop observer no longer runs both DOM enhancers');
 assert(learningLoop.includes('swsi-progress-entry'), 'learning-loop no longer owns the progress entry');
 
-const finalRuntime = sourceOf('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_final_runtime_contract.part');
-assert(!/\brenderHome\s*=\s*function\b/.test(finalRuntime), 'final runtime contract must not wrap renderHome');
-assert(finalRuntime.includes('window.swsiShouldRecordMockAnswer=function'), 'final runtime contract lost mock record policy');
-assert(finalRuntime.includes("window.swsiFinalRuntimeContractVersion='2026-08-27.v2'"), 'final runtime contract version not updated');
+const finalRuntimePath = 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_final_runtime_contract.part';
+assert(!files.includes(finalRuntimePath), 'obsolete final runtime shim must stay deleted');
+const mockPolicyPath = 'zzzzzzzzzzzzzzzzzzzzzzzzzz_mk_record_policy.part';
+assert(files.includes(mockPolicyPath), 'mock record policy owner is missing');
+const mockPolicy = sourceOf(mockPolicyPath);
+assert(mockPolicy.includes('window.swsiShouldRecordMockAnswer=function'), 'mock record policy function is missing');
+assert(mockPolicy.includes("window.swsiMockRecordPolicyVersion='2026-08-27.v1'"), 'mock record policy version is missing');
+const recordPolicyOwners = ownersFor(/(?:window\.)?swsiShouldRecordMockAnswer\s*=\s*function\b/g);
+assert.deepStrictEqual(recordPolicyOwners, [mockPolicyPath], `unexpected mock record policy owners: ${recordPolicyOwners.join(' -> ')}`);
 
 const reviewOwners = ownersFor(/\brenderReview\s*=\s*function\b/g);
 assert.deepStrictEqual(
@@ -90,6 +95,7 @@ console.log('renderHome: ' + homeOwners.join(' -> '));
 console.log('renderReview: ' + reviewOwners.join(' -> '));
 console.log('normalize: ' + normalizeOwners.join(' -> '));
 console.log('gradingMode: ' + gradingOwners.join(' -> '));
+console.log('mock record policy: ' + recordPolicyOwners.join(' -> '));
 console.log('legacy any-answer ID inference: (none)');
 console.log('legacy answer-text inference: (none)');
 console.log('grading edge guard: acceptedAnswers(invalid) remains late fail-closed without taking grading ownership');
