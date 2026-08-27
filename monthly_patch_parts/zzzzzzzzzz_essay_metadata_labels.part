@@ -81,15 +81,18 @@
   }
   window.swsiPolishEssayMetadataUI=polishEssayMetadataUI;
 
-  if(typeof render==='function'){
-    var previousRenderEssayMeta=render;
-    render=function(){
-      var result=previousRenderEssayMeta.apply(this,arguments);
-      polishEssayMetadataUI();
-      return result;
-    };
-    try{window.render=render;}catch(_e){}
-  }
   polishEssayMetadataUI();
+  try{
+    var scheduled=false;
+    var observer=new MutationObserver(function(){
+      if(scheduled)return;
+      scheduled=true;
+      Promise.resolve().then(function(){
+        scheduled=false;
+        polishEssayMetadataUI();
+      });
+    });
+    observer.observe(document.getElementById('app')||document.body,{childList:true,subtree:true});
+  }catch(_e){}
 })();
 /* ===== SWSI Essay Metadata Labels END ===== */
