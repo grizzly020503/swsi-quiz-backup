@@ -10,30 +10,9 @@
     return true;
   };
 
-  /* The repository still contains older home implementations. This last layer
-     guarantees that the actual DOM contract stores only all/1/2 while keeping
-     第一次／第二次 as presentation labels. */
-  if(typeof renderHome==='function'){
-    var previousRenderHome=renderHome;
-    renderHome = function(){
-      var result=previousRenderHome.apply(this,arguments);
-      try{
-        var select=document.querySelector('#app select[aria-label="考試考次"]');
-        if(select){
-          var current='all';
-          try{current=homeQuizRound==='all'?'all':canonicalRound(homeQuizRound);}catch(_e){}
-          select.innerHTML=
-            '<option value="all">全部考次</option>'+
-            '<option value="1">第一次</option>'+
-            '<option value="2">第二次</option>';
-          select.value=(current==='1'||current==='2')?current:'all';
-          try{homeQuizRound=select.value;}catch(_e){}
-        }
-      }catch(err){console.warn('[SWSI] final round selector normalization skipped',err);}
-      return result;
-    };
-  }
-
-  window.swsiFinalRuntimeContractVersion='2026-08-26.v1';
+  /* Home round canonicalization is now owned by 20.product-philosophy.part.
+     Keep this final layer limited to runtime policies that truly need to load
+     last instead of wrapping renderHome again. */
+  window.swsiFinalRuntimeContractVersion='2026-08-27.v2';
 })();
 /* ===== SWSI Final Runtime Contract END ===== */
