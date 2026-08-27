@@ -114,7 +114,7 @@ if(!failures.some(x => x.code === 'ESSAY_TRUST_OWNER_PATH')) pass('ESSAY_TRUST_O
 // later patch silently takes ownership of a correctness-sensitive function.
 const expectedOwners = [
   [/function\s+gradingMode\s*\(|(?:window\.)?gradingMode\s*=(?!=)/, 'zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part', 'gradingMode'],
-  [/function\s+normalize\s*\(|(?:window\.)?normalize\s*=(?!=)/, 'zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part', 'normalize'],
+  [/function\s+normalize\s*\(|(?:window\.)?normalize\s*=(?!=)/, '00.part', 'normalize'],
   [/function\s+runAIFeedback\s*\(|(?:window\.)?runAIFeedback\s*=(?!=)/, essayTrustCanonical, 'runAIFeedback'],
   [/function\s+gradePhoto\s*\(|(?:window\.)?gradePhoto\s*=(?!=)/, essayTrustCanonical, 'gradePhoto'],
   [/(?:window\.)?MK\s*=(?!=)/, 'zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part', 'MK']

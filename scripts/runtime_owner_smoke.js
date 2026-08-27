@@ -53,13 +53,13 @@ assert.deepStrictEqual(
 );
 
 const normalizeOwners = ownersFor(/\bnormalize\s*=\s*function\b/g);
-assert.deepStrictEqual(
-  normalizeOwners.slice(-2),
-  ['00.part', 'zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part'],
-  `normalize debt changed unexpectedly: ${normalizeOwners.join(' -> ')}`
+assert.strictEqual(
+  normalizeOwners[normalizeOwners.length - 1],
+  '00.part',
+  `normalize final owner changed unexpectedly: ${normalizeOwners.join(' -> ')}`
 );
 
-const gradingOwners = ownersFor(/(?:^|[^\w])gradingMode\s*=\s*(?:function|strictMode)\b/g);
+const gradingOwners = ownersFor(/function\s+gradingMode\s*\b|(?:^|[^\w])gradingMode\s*=\s*(?:function|strictMode)\b/g);
 assert.strictEqual(
   gradingOwners[gradingOwners.length - 1],
   'zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part',
@@ -67,7 +67,8 @@ assert.strictEqual(
 );
 
 const codeHealth = sourceOf('zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part');
-assert(codeHealth.includes('var previousNormalize=normalize;'), 'normalize debt marker disappeared without owner-contract update');
+assert(!codeHealth.includes('var previousNormalize=normalize;'), 'code-health must not wrap normalize again');
+assert(codeHealth.includes('normalize is owned by 00.part'), 'code-health normalize ownership note is missing');
 assert(codeHealth.includes('var oldRenderQuiz='), 'late invalid-question render guard disappeared');
 
 console.log('RUNTIME OWNER SMOKE OK');
@@ -75,4 +76,4 @@ console.log('renderHome: ' + homeOwners.join(' -> '));
 console.log('renderReview: ' + reviewOwners.join(' -> '));
 console.log('normalize: ' + normalizeOwners.join(' -> '));
 console.log('gradingMode: ' + gradingOwners.join(' -> '));
-console.log('debt: normalize/gradingMode remain intentionally late-owned until their P0 preflight contract is consolidated');
+console.log('debt: gradingMode remains intentionally late-owned until the grading contract itself is consolidated');

@@ -77,19 +77,8 @@
   window.answerLabel=strictLabel;
   window.swsiGradingContractVersion='2026-08-26.fail-closed.v2';
 
-  /* Re-wrap normalize so a prior compatibility fallback cannot survive. */
-  if(typeof normalize==='function'){
-    var previousNormalize=normalize;
-    normalize=function(r){
-      var q=previousNormalize(r);
-      q.grading_mode=strictMode({
-        grading_mode:r&&r.grading_mode,
-        answer:r&&r.answer,
-        accepted_answers:r&&r.accepted_answers
-      });
-      return q;
-    };
-  }
+  /* normalize is owned by 00.part. Its body resolves gradingMode at call time,
+     so this late grading contract is applied without wrapping normalize again. */
 
   /* Fail closed before a bad special-credit row can reach scoring UI. */
   var oldRenderQuiz=typeof renderQuiz==='function'?renderQuiz:null;
