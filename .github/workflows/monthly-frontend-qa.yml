@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/monthly-frontend-qa.yml'
       - 'monthly_patch_parts/**'
+      - 'data/laws.canonical.json'
+      - 'data/theories.canonical.json'
       - 'essay_guides.js'
       - 'scripts/build_essay_guides_runtime.js'
       - 'scripts/p0_frontend_preflight.js'
@@ -40,6 +42,8 @@ on:
     paths:
       - '.github/workflows/monthly-frontend-qa.yml'
       - 'monthly_patch_parts/**'
+      - 'data/laws.canonical.json'
+      - 'data/theories.canonical.json'
       - 'essay_guides.js'
       - 'scripts/build_essay_guides_runtime.js'
       - 'scripts/p0_frontend_preflight.js'
@@ -193,13 +197,13 @@ jobs:
           grep -q 'SWSI Feedback / Quality Report V1 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Feedback Context State Fix 2026-08-26' _site/monthly_patch.js
           grep -q 'swsi-feedback' _site/monthly_patch.js
-          grep -q 'Bowen 家庭系統理論' _site/monthly_patch.js
-          grep -q 'Minuchin 結構家庭治療' _site/monthly_patch.js
-          grep -q '資產建構／資產累積理論' _site/monthly_patch.js
-          grep -q '無條件基本收入 UBI' _site/monthly_patch.js
-          grep -q 'ABCD 的「社區資產」不等於 Sherraden' _site/monthly_patch.js
-          grep -q '符號互動論的主要分析層次是微觀互動' _site/monthly_patch.js
-          grep -q '社會投資與傳統社會保護常是互補' _site/monthly_patch.js
+          grep -q 'Bowen 家庭系統理論' data/theories.canonical.json
+          grep -q 'Minuchin 結構家庭治療' data/theories.canonical.json
+          grep -q '資產建構／資產累積理論' data/theories.canonical.json
+          grep -q '無條件基本收入 UBI' data/theories.canonical.json
+          grep -q 'ABCD 的「社區資產」不等於 Sherraden' data/theories.canonical.json
+          grep -q '符號互動論的主要分析層次是微觀互動' data/theories.canonical.json
+          grep -q '社會投資與傳統社會保護常是互補' data/theories.canonical.json
           if grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW' _site/index.html; then
             echo 'Preview marker leaked into production-shaped build' >&2
             exit 1
