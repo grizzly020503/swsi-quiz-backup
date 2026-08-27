@@ -85,6 +85,15 @@ const legacyAnswerGuessOwners = filesContaining(source => /\/一律給分\|送�
 assert.deepStrictEqual(legacyIdOwners, [], `legacy any-answer ID inference remains: ${legacyIdOwners.join(' -> ')}`);
 assert.deepStrictEqual(legacyAnswerGuessOwners, [], `legacy answer-text inference remains: ${legacyAnswerGuessOwners.join(' -> ')}`);
 
+const essayNavigationPath = 'zzz_fix_essay_navigation.part';
+const essayOpenOwners = ownersFor(/(?:window\.)?swsiOpenEssay\s*=\s*(?:async\s+)?function\b/g);
+assert.deepStrictEqual(essayOpenOwners, [essayNavigationPath], `unexpected swsiOpenEssay ownership chain: ${essayOpenOwners.join(' -> ')}`);
+const essayNavigation = sourceOf(essayNavigationPath);
+assert(essayNavigation.includes('await loadAutoEssays();'), 'canonical essay navigation lost slow/cache reload recovery');
+assert(essayNavigation.includes('renderEssaySafely();'), 'canonical essay navigation lost render retry boundary');
+assert(essayNavigation.includes('markEssayTab();'), 'canonical essay navigation lost tab state handling');
+assert(essayNavigation.includes('resetEssayState();'), 'canonical essay navigation lost product reset policy');
+
 // Deliberate late product/runtime owners. Keep these visible so future cleanup
 // does not mistake intentional ownership for a removable shim.
 const mkOwners = ownersFor(/(?:window\.)?\bMK\s*=\s*(?![=])/g);
@@ -124,6 +133,7 @@ console.log('law render owners: ' + lawRenderOwners.join(' -> '));
 console.log('law escape helper: 86.law-trust-ui.part (private)');
 console.log('new resident law status: 86.law-trust-ui.part');
 console.log('mock record policy: ' + recordPolicyOwners.join(' -> '));
+console.log('essay navigation: ' + essayOpenOwners.join(' -> '));
 console.log('MK: ' + mkOwners.join(' -> '));
 console.log('stable client id: ' + clientIdOwners.join(' -> '));
 console.log('AI timeout helper: ' + timeoutOwners.join(' -> '));

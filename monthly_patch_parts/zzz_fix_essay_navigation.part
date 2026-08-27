@@ -39,11 +39,35 @@
     }
   }
 
-  window.swsiOpenEssay=function(){
-    try{ if(typeof view!=='undefined') view='essay'; }catch(_e){ window.view='essay'; }
-    markEssayTab();
-    try{ window.scrollTo(0,0); }catch(_e){}
-    renderEssaySafely();
+  var essayOpening=false;
+  function resetEssayState(){
+    try{ if(typeof essaySubj!=='undefined') essaySubj='全部科目'; }catch(_e){}
+    try{ if(typeof essayCluster!=='undefined') essayCluster=null; }catch(_e){}
+    try{ if(typeof openEssay!=='undefined') openEssay=null; }catch(_e){}
+    try{ if(typeof guideOpen!=='undefined') guideOpen=null; }catch(_e){}
+    try{ if(typeof dissectOpen!=='undefined') dissectOpen=null; }catch(_e){}
+  }
+
+  window.swsiOpenEssay=async function(){
+    if(essayOpening) return;
+    essayOpening=true;
+    try{
+      /* Keep the original slow/cache recovery without leaving a separate late owner. */
+      try{
+        if(typeof ESSAYS!=='undefined' && (!Array.isArray(ESSAYS) || ESSAYS.length===0) && typeof loadAutoEssays==='function'){
+          await loadAutoEssays();
+        }
+      }catch(loadErr){
+        console.warn('SWSI essay reload failed',loadErr);
+      }
+      resetEssayState();
+      try{ if(typeof view!=='undefined') view='essay'; }catch(_e){ window.view='essay'; }
+      markEssayTab();
+      try{ window.scrollTo(0,0); }catch(_e){}
+      renderEssaySafely();
+    }finally{
+      essayOpening=false;
+    }
   };
 
   /*

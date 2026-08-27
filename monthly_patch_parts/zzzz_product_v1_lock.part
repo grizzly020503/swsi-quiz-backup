@@ -76,26 +76,7 @@
     setNavButton('t-essay','essay','申論');
   }
 
-  function resetEssayState(){
-    try{ if(typeof essaySubj!=='undefined') essaySubj='全部科目'; }catch(_e){}
-    try{ if(typeof essayCluster!=='undefined') essayCluster=null; }catch(_e){}
-    try{ if(typeof openEssay!=='undefined') openEssay=null; }catch(_e){}
-    try{ if(typeof guideOpen!=='undefined') guideOpen=null; }catch(_e){}
-    try{ if(typeof dissectOpen!=='undefined') dissectOpen=null; }catch(_e){}
-  }
-
-  window.swsiOpenEssay=function(){
-    resetEssayState();
-    try{ view='essay'; }catch(_e){ window.view='essay'; }
-    try{ window.scrollTo(0,0); }catch(_e){}
-    try{
-      if(typeof renderEssay==='function') renderEssay();
-      else if(typeof render==='function') render();
-    }catch(err){
-      console.error('[SWSI] essay library failed',err);
-      if(typeof app!=='undefined'&&app) app.innerHTML='<div class="empty"><div class="ico">✒</div><h3>申論題暫時無法開啟</h3><p>你的作答草稿仍保存在這台裝置。請重新整理後再試。</p></div>';
-    }
-  };
+  /* Essay navigation is owned by zzz_fix_essay_navigation.part. */
   window.swsiChooseEssay=function(){ window.swsiOpenEssay(); };
 
   function latestVersionText(){
