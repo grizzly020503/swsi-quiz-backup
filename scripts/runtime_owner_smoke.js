@@ -66,23 +66,30 @@ assert.strictEqual(
 const gradingOwners = ownersFor(/function\s+gradingMode\s*\b|(?:^|[^\w])gradingMode\s*=\s*(?:function|strictMode)\b/g);
 assert.strictEqual(
   gradingOwners[gradingOwners.length - 1],
-  'zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part',
+  '00.part',
   `gradingMode final owner changed unexpectedly: ${gradingOwners.join(' -> ')}`
 );
 
 const codeHealth = sourceOf('zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part');
 assert(!codeHealth.includes('var previousNormalize=normalize;'), 'code-health must not wrap normalize again');
 assert(codeHealth.includes('normalize is owned by 00.part'), 'code-health normalize ownership note is missing');
+assert(!codeHealth.includes('function strictMode'), 'code-health must not redefine gradingMode');
+assert(!codeHealth.includes('function strictCorrect'), 'code-health must not redefine isCorrectAnswer');
+assert(!codeHealth.includes('function strictLabel'), 'code-health must not redefine answerLabel');
+assert(codeHealth.includes('var baseAcceptedAnswers='), 'invalid accepted-answer edge guard disappeared');
+assert(codeHealth.includes("gradingMode(item)==='invalid'"), 'accepted-answer edge guard no longer fails closed');
 assert(codeHealth.includes('var oldRenderQuiz='), 'late invalid-question render guard disappeared');
 
 const legacyIdOwners = filesContaining(source => source.includes('SWSI_ANY_ANSWER_LEGACY_IDS'));
 const legacyAnswerGuessOwners = filesContaining(source => /\/一律給分\|送分\//.test(source));
+assert.deepStrictEqual(legacyIdOwners, [], `legacy any-answer ID inference remains: ${legacyIdOwners.join(' -> ')}`);
+assert.deepStrictEqual(legacyAnswerGuessOwners, [], `legacy answer-text inference remains: ${legacyAnswerGuessOwners.join(' -> ')}`);
 
 console.log('RUNTIME OWNER SMOKE OK');
 console.log('renderHome: ' + homeOwners.join(' -> '));
 console.log('renderReview: ' + reviewOwners.join(' -> '));
 console.log('normalize: ' + normalizeOwners.join(' -> '));
 console.log('gradingMode: ' + gradingOwners.join(' -> '));
-console.log('legacy any-answer ID inference: ' + (legacyIdOwners.join(' -> ') || '(none)'));
-console.log('legacy answer-text inference: ' + (legacyAnswerGuessOwners.join(' -> ') || '(none)'));
-console.log('debt: gradingMode remains intentionally late-owned until the grading contract itself is consolidated');
+console.log('legacy any-answer ID inference: (none)');
+console.log('legacy answer-text inference: (none)');
+console.log('grading edge guard: acceptedAnswers(invalid) remains late fail-closed without taking grading ownership');

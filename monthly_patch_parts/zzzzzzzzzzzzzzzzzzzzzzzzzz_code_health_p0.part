@@ -2,83 +2,19 @@
 (function(){
   'use strict';
 
-  var STRICT_VALID_MODES=new Set(['standard','all_credit','any_answer']);
-  var SPECIAL_ANSWER_MARKERS=new Set(['一律給分','送分','全體給分']);
-
-  function txt(v){return String(v==null?'':v).trim();}
-  function validStandardMetadata(item){
-    var answer=txt(item&&item.answer).toUpperCase();
-    if(!/^[ABCD]$/.test(answer))return false;
-    var accepted=item&&item.accepted_answers;
-    if(accepted===undefined||accepted===null)return true;
-    if(!Array.isArray(accepted)||accepted.length<1||accepted.length>4)return false;
-    var xs=accepted.map(function(x){return txt(x).toUpperCase();});
-    if(xs.some(function(x){return !/^[ABCD]$/.test(x);}))return false;
-    if(new Set(xs).size!==xs.length)return false;
-    return xs.indexOf(answer)>=0;
+  /* 00.part is the canonical grading owner. Keep only this public edge guard:
+     invalid grading metadata must never expose accepted choices directly. */
+  var baseAcceptedAnswers=typeof acceptedAnswers==='function'?acceptedAnswers:null;
+  if(baseAcceptedAnswers){
+    acceptedAnswers=function(item){
+      if(typeof gradingMode==='function'&&gradingMode(item)==='invalid')return new Set();
+      return baseAcceptedAnswers(item);
+    };
+    window.acceptedAnswers=acceptedAnswers;
   }
-  function strictMode(item){
-    if(!item)return 'invalid';
-    var raw=txt(item.grading_mode).toLowerCase();
-    if(raw){
-      if(!STRICT_VALID_MODES.has(raw))return 'invalid';
-      if(raw==='standard')return validStandardMetadata(item)?'standard':'invalid';
-      return txt(item.answer)==='一律給分'&&(item.accepted_answers===undefined||item.accepted_answers===null)
-        ?raw
-        :'invalid';
-    }
-
-    /* Ordinary legacy rows may safely default to standard.
-       Special-credit semantics must NEVER be inferred from answer text. */
-    if(SPECIAL_ANSWER_MARKERS.has(txt(item.answer)))return 'invalid';
-    return validStandardMetadata(item)?'standard':'invalid';
-  }
-
-  function strictAccepted(item){
-    var mode=strictMode(item);
-    if(mode==='invalid')return new Set();
-    if(mode==='all_credit'||mode==='any_answer')return new Set(['A','B','C','D']);
-    var xs=Array.isArray(item&&item.accepted_answers)
-      ?item.accepted_answers.map(function(x){return txt(x).toUpperCase();}).filter(function(x){return /^[ABCD]$/.test(x);})
-      :[];
-    if(xs.length)return new Set(xs);
-    var a=txt(item&&item.answer).toUpperCase();
-    return /^[ABCD]$/.test(a)?new Set([a]):new Set();
-  }
-
-  function strictCorrect(item,picked){
-    var mode=strictMode(item);
-    var p=picked==null?null:txt(picked).toUpperCase();
-    if(mode==='invalid')return false;
-    if(mode==='all_credit')return true;
-    if(mode==='any_answer')return !!p&&/^[ABCD]$/.test(p);
-    return !!p&&strictAccepted(item).has(p);
-  }
-
-  function strictLabel(item){
-    var mode=strictMode(item);
-    if(mode==='invalid')return '官方給分資料不完整，這題暫停判分';
-    if(mode==='all_credit')return '官方一律給分（未作答也得分）';
-    if(mode==='any_answer')return 'A、B、C、D 任一作答皆給分；未作答不給分';
-    var xs=Array.from(strictAccepted(item));
-    if(xs.length>1)return '官方可接受答案：'+xs.join('、');
-    return '正確答案：'+(xs[0]||'—');
-  }
-
-  /* The base patch still contains compatibility guesses. This final layer is the
-     effective runtime contract and intentionally replaces them. */
-  try{gradingMode=strictMode;}catch(_e){}
-  try{acceptedAnswers=strictAccepted;}catch(_e){}
-  try{isCorrectAnswer=strictCorrect;}catch(_e){}
-  try{answerLabel=strictLabel;}catch(_e){}
-  window.gradingMode=strictMode;
-  window.acceptedAnswers=strictAccepted;
-  window.isCorrectAnswer=strictCorrect;
-  window.answerLabel=strictLabel;
   window.swsiGradingContractVersion='2026-08-26.fail-closed.v2';
 
-  /* normalize is owned by 00.part. Its body resolves gradingMode at call time,
-     so this late grading contract is applied without wrapping normalize again. */
+  /* normalize is owned by 00.part. Its body resolves gradingMode at call time. */
 
   /* Fail closed before a bad special-credit row can reach scoring UI. */
   var oldRenderQuiz=typeof renderQuiz==='function'?renderQuiz:null;
@@ -86,7 +22,7 @@
     renderQuiz=function(){
       try{
         var item=(typeof queue!=='undefined'&&queue&&queue.length)?queue[idx]:null;
-        if(item&&strictMode(item)==='invalid'){
+        if(item&&typeof gradingMode==='function'&&gradingMode(item)==='invalid'){
           app.innerHTML='<div class="empty"><div class="ico">⚠</div><h3>這題暫停判分</h3><p>官方給分資料不完整或格式異常。平台不會自行猜測答案，請回首頁改練其他題目。</p><button class="btn" style="max-width:220px;margin:20px auto 0" onclick="go(\'home\')">回首頁</button></div>';
           return;
         }

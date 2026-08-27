@@ -81,9 +81,8 @@ try{
 }
 
 // -----------------------------------------------------------------------------
-// Effective monthly-patch runtime. The repository is still in migration from
-// legacy in-file code, so source presence alone is not enough: override order is
-// part of the contract until legacy code is fully removed.
+// Effective monthly-patch runtime. Source presence alone is not enough: override
+// order remains part of the contract while the legacy layers are consolidated.
 // -----------------------------------------------------------------------------
 const partsDir = path.resolve(ROOT, 'monthly_patch_parts');
 const partFiles = fs.readdirSync(partsDir).filter(x => x.endsWith('.part')).sort();
@@ -110,10 +109,8 @@ if(!partFiles.includes(essayTrustCanonical)) fail('ESSAY_TRUST_OWNER_PATH', `mis
 if(partFiles.includes(essayTrustLegacy)) fail('ESSAY_TRUST_OWNER_PATH', `legacy owner path still exists: ${essayTrustLegacy}`);
 if(!failures.some(x => x.code === 'ESSAY_TRUST_OWNER_PATH')) pass('ESSAY_TRUST_OWNER_PATH', 'essay trust layer has one canonical patch path');
 
-// Until the legacy layers are consolidated, fail the build whenever a new
-// later patch silently takes ownership of a correctness-sensitive function.
 const expectedOwners = [
-  [/function\s+gradingMode\s*\(|(?:window\.)?gradingMode\s*=(?!=)/, 'zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part', 'gradingMode'],
+  [/function\s+gradingMode\s*\(|(?:window\.)?gradingMode\s*=(?!=)/, '00.part', 'gradingMode'],
   [/function\s+normalize\s*\(|(?:window\.)?normalize\s*=(?!=)/, '00.part', 'normalize'],
   [/function\s+runAIFeedback\s*\(|(?:window\.)?runAIFeedback\s*=(?!=)/, essayTrustCanonical, 'runAIFeedback'],
   [/function\s+gradePhoto\s*\(|(?:window\.)?gradePhoto\s*=(?!=)/, essayTrustCanonical, 'gradePhoto'],
@@ -127,36 +124,43 @@ if(!failures.some(x => x.code === 'PATCH_OVERRIDE_ORDER')){
   pass('PATCH_OVERRIDE_ORDER', 'correctness-sensitive overrides still end in their reviewed owner layers');
 }
 
-// P0-2: special grading must end fail-closed.
+// P0-2: grading is canonically fail-closed in 00.part. Later layers may protect
+// UI/public edge cases, but must not infer special-credit semantics or retake
+// ownership of gradingMode.
 const legacyInferencePos = Math.max(
   patchSource.lastIndexOf('SWSI_ANY_ANSWER_LEGACY_IDS'),
   patchSource.lastIndexOf('/一律給分|送分/')
 );
-const strictGuardPos = patchSource.lastIndexOf('SWSI Code Health P0 Runtime Guard 2026-08-26');
-if(strictGuardPos < 0){
-  fail('GRADING_FAIL_CLOSED_RUNTIME', 'final fail-closed runtime guard is missing');
-}else if(legacyInferencePos >= strictGuardPos){
-  fail('GRADING_OVERRIDE_ORDER', 'legacy grading inference appears after the fail-closed runtime guard');
+if(legacyInferencePos >= 0){
+  fail('GRADING_OVERRIDE_ORDER', 'legacy special-credit inference remains in monthly patch parts');
 }else{
-  pass('GRADING_OVERRIDE_ORDER', 'fail-closed grading layer loads after all legacy inference');
+  pass('GRADING_OVERRIDE_ORDER', 'no legacy special-credit inference remains in monthly patch parts');
+}
+
+const gradingGuardPos = patchSource.lastIndexOf('SWSI Code Health P0 Runtime Guard 2026-08-26');
+if(gradingGuardPos < 0){
+  fail('GRADING_FAIL_CLOSED_RUNTIME', 'late grading edge/UI guard is missing');
 }
 for(const needle of [
   "window.swsiGradingContractVersion='2026-08-26.fail-closed.v2'",
-  "return 'invalid'",
-  'SPECIAL_ANSWER_MARKERS',
-  'validStandardMetadata',
+  'SWSI_SPECIAL_ANSWER_MARKERS',
+  'swsiValidStandardMetadata',
+  "if(mode === 'invalid') return false",
+  "if(mode === 'invalid') return '官方給分資料不完整，這題暫停判分'",
+  'var baseAcceptedAnswers=',
+  "gradingMode(item)==='invalid'",
   '官方給分資料不完整或格式異常'
 ]){
-  if(!patchSource.includes(needle)) fail('GRADING_FAIL_CLOSED_RUNTIME', `missing strict runtime marker: ${needle}`);
+  if(!patchSource.includes(needle)) fail('GRADING_FAIL_CLOSED_RUNTIME', `missing fail-closed runtime marker: ${needle}`);
 }
 if(!failures.some(x => x.code === 'GRADING_FAIL_CLOSED_RUNTIME')){
-  pass('GRADING_FAIL_CLOSED_RUNTIME', 'special-credit metadata errors stop scoring instead of being guessed');
+  pass('GRADING_FAIL_CLOSED_RUNTIME', 'canonical grading plus late edge/UI guards fail closed without guessing special credit');
 }
 
 // Mock exam must use the same public grading helpers, not a private q.answer test.
 const mkPos = patchSource.lastIndexOf('SWSI MK Unified Grading Contract 2026-08-26');
-if(mkPos < strictGuardPos){
-  fail('MK_GRADING_CONTRACT', 'unified MK grading layer is missing or loads before strict grading contract');
+if(mkPos < gradingGuardPos){
+  fail('MK_GRADING_CONTRACT', 'unified MK grading layer is missing or loads before the grading edge guard');
 }else{
   const mkTail = patchSource.slice(mkPos);
   const required = [
@@ -219,8 +223,7 @@ if(!failures.some(x => x.code === 'AI_ERROR_CLASSIFICATION')) pass('AI_ERROR_CLA
 
 // -----------------------------------------------------------------------------
 // P0-3: home round canonical contract. Legacy index.html still contains older UI
-// implementations, so verify the *last effective monthly patch* instead of
-// treating every historical string occurrence as live behavior.
+// implementations, so verify the last effective monthly patch.
 // -----------------------------------------------------------------------------
 const setRoundPos = patchSource.lastIndexOf('setHomeQuizRound = function(v)');
 const setRoundTail = setRoundPos >= 0 ? patchSource.slice(setRoundPos, setRoundPos + 420) : '';
@@ -231,9 +234,9 @@ if(setRoundPos < 0 || !setRoundTail.includes('canonicalRound(x)')){
 }
 const finalRenderHomePos = Math.max(patchSource.lastIndexOf('renderHome = function(){'), patchSource.lastIndexOf('renderHome=function(){'));
 const finalRenderHome = finalRenderHomePos >= 0 ? patchSource.slice(finalRenderHomePos) : '';
-if(finalRenderHomePos < 0 || !finalRenderHome.includes('<option value=\"1\"') || !finalRenderHome.includes('<option value=\"2\"')){
+if(finalRenderHomePos < 0 || !finalRenderHome.includes('<option value="1"') || !finalRenderHome.includes('<option value="2"')){
   fail('HOME_ROUND_UI_RUNTIME', 'final renderHome does not expose canonical option values 1/2');
-}else if(finalRenderHome.includes('<option value=\"第一次\"') || finalRenderHome.includes('<option value=\"第二次\"')){
+}else if(finalRenderHome.includes('<option value="第一次"') || finalRenderHome.includes('<option value="第二次"')){
   fail('HOME_ROUND_UI_RUNTIME', 'final renderHome reintroduced noncanonical 第一次/第二次 option values');
 }else{
   pass('HOME_ROUND_UI_RUNTIME', 'final home selector stores 1/2 and only displays 第一次/第二次 as labels');
