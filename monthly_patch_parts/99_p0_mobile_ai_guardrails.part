@@ -8,6 +8,9 @@
       --swsi-tabbar-button-height:58px;
       --swsi-tabbar-clearance:calc(84px + env(safe-area-inset-bottom,0px));
     }
+    header{
+      padding-top:calc(20px + env(safe-area-inset-top,0px))!important;
+    }
     .tabbar{
       bottom:0!important;
       padding-bottom:env(safe-area-inset-bottom,0px)!important;
