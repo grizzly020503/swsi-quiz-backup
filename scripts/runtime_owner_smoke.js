@@ -22,6 +22,10 @@ function sourceOf(file) {
   return fs.readFileSync(path.join(partsDir, file), 'utf8');
 }
 
+function filesContaining(test) {
+  return files.filter(file => test(sourceOf(file)));
+}
+
 const homeOwners = ownersFor(/\brenderHome\s*=\s*function\b/g);
 assert(homeOwners.length >= 1, 'renderHome ownership chain is empty');
 assert.strictEqual(
@@ -71,9 +75,14 @@ assert(!codeHealth.includes('var previousNormalize=normalize;'), 'code-health mu
 assert(codeHealth.includes('normalize is owned by 00.part'), 'code-health normalize ownership note is missing');
 assert(codeHealth.includes('var oldRenderQuiz='), 'late invalid-question render guard disappeared');
 
+const legacyIdOwners = filesContaining(source => source.includes('SWSI_ANY_ANSWER_LEGACY_IDS'));
+const legacyAnswerGuessOwners = filesContaining(source => /\/一律給分\|送分\//.test(source));
+
 console.log('RUNTIME OWNER SMOKE OK');
 console.log('renderHome: ' + homeOwners.join(' -> '));
 console.log('renderReview: ' + reviewOwners.join(' -> '));
 console.log('normalize: ' + normalizeOwners.join(' -> '));
 console.log('gradingMode: ' + gradingOwners.join(' -> '));
+console.log('legacy any-answer ID inference: ' + (legacyIdOwners.join(' -> ') || '(none)'));
+console.log('legacy answer-text inference: ' + (legacyAnswerGuessOwners.join(' -> ') || '(none)'));
 console.log('debt: gradingMode remains intentionally late-owned until the grading contract itself is consolidated');
