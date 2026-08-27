@@ -8,8 +8,11 @@ and monthly_patch.js (loaded last) supplies the maintained override layer.
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
 SEO_OLD = '<title>社工師國考題庫</title>'
 SEO_NEW = '''<title>社工師國考免費題庫｜SWSI</title>
 <meta name="description" content="免費社工師國考學習平台：歷屆試題、解析、錯題複習、模擬考與申論練習，不鎖題、不賣解答。">
@@ -59,7 +62,87 @@ def replace_exact(text: str, old: str, new: str, label: str, expected: int = 1) 
     return text.replace(old, new, expected)
 
 
-def transform(text: str) -> str:
+def _array_span(text: str, name: str) -> tuple[int, int]:
+    marker = f'window.{name}'
+    pos = text.find(marker)
+    if pos < 0:
+        raise RuntimeError(f'knowledge canonical bootstrap: missing {marker}')
+    eq = text.find('=', pos + len(marker))
+    if eq < 0:
+        raise RuntimeError(f'knowledge canonical bootstrap: missing assignment for {marker}')
+    start = text.find('[', eq + 1)
+    if start < 0:
+        raise RuntimeError(f'knowledge canonical bootstrap: missing array for {marker}')
+    depth = 0
+    quote: str | None = None
+    escaped = False
+    for i in range(start, len(text)):
+        ch = text[i]
+        if quote is not None:
+            if escaped:
+                escaped = False
+                continue
+            if ch == '\\':
+                escaped = True
+                continue
+            if ch == quote:
+                quote = None
+            continue
+        if ch in ('"', "'", '`'):
+            quote = ch
+            continue
+        if ch == '[':
+            depth += 1
+        elif ch == ']':
+            depth -= 1
+            if depth == 0:
+                return start, i + 1
+    raise RuntimeError(f'knowledge canonical bootstrap: unterminated array for {marker}')
+
+
+def _sha256(text: str) -> str:
+    return hashlib.sha256(text.encode('utf-8')).hexdigest()
+
+
+def load_canonical_knowledge() -> tuple[str, str, dict]:
+    laws_path = ROOT / 'data' / 'laws.canonical.json'
+    theories_path = ROOT / 'data' / 'theories.canonical.json'
+    manifest_path = ROOT / 'data' / 'knowledge_canonical_manifest.json'
+    baseline_path = ROOT / 'data' / 'knowledge_runtime_baseline.json'
+    for p in (laws_path, theories_path, manifest_path, baseline_path):
+        if not p.exists():
+            raise RuntimeError(f'knowledge canonical bootstrap: missing {p.relative_to(ROOT)}')
+
+    laws_raw = laws_path.read_text(encoding='utf-8')
+    theories_raw = theories_path.read_text(encoding='utf-8')
+    manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+    baseline = json.loads(baseline_path.read_text(encoding='utf-8'))
+    if manifest != baseline:
+        raise RuntimeError('knowledge canonical bootstrap: canonical manifest differs from pinned runtime baseline')
+
+    laws = json.loads(laws_raw)
+    theories = json.loads(theories_raw)
+    if not isinstance(laws, list) or not isinstance(theories, list):
+        raise RuntimeError('knowledge canonical bootstrap: canonical payload must contain arrays')
+    if len(laws) != int(manifest['laws']['count']) or len(theories) != int(manifest['theories']['count']):
+        raise RuntimeError('knowledge canonical bootstrap: canonical count mismatch')
+    if _sha256(laws_raw) != manifest['laws']['sha256'] or _sha256(theories_raw) != manifest['theories']['sha256']:
+        raise RuntimeError('knowledge canonical bootstrap: canonical SHA-256 mismatch')
+    for label, rows in (('laws', laws), ('theories', theories)):
+        names = [str(row.get('n', '')).strip() for row in rows if isinstance(row, dict)]
+        if len(names) != len(rows) or not all(names) or len(set(names)) != len(names):
+            raise RuntimeError(f'knowledge canonical bootstrap: invalid or duplicate {label} names')
+    return laws_raw.strip(), theories_raw.strip(), manifest
+
+
+def replace_array_assignment(text: str, name: str, replacement_json: str) -> str:
+    start, end = _array_span(text, name)
+    return text[:start] + replacement_json + text[end:]
+
+
+def transform(text: str, laws_json: str, theories_json: str, knowledge_manifest: dict) -> str:
+    text = replace_array_assignment(text, 'LAWS', laws_json)
+    text = replace_array_assignment(text, 'THEORIES', theories_json)
     text = replace_exact(text, SEO_OLD, SEO_NEW, 'SEO title')
     text = replace_exact(text, '\ninit();\n', '\nwindow.__SWSI_BOOT_DEFERRED__=true;\n', 'legacy init deferral')
     text = replace_exact(text, MK_GRADE_OLD, MK_GRADE_NEW, 'simulation grading')
@@ -70,7 +153,13 @@ def transform(text: str) -> str:
     # MOEX private-use glyphs are font-dependent; normalize them in the built UI.
     text = text.replace('\uE129', '（一）').replace('\uE12A', '（二）').replace('\uE12B', '（三）')
 
-    inject = '<script src="monthly_patch.js"></script>\n</body>'
+    bootstrap = {
+        'version': '2026-08-27.canonical-build.v1',
+        'laws': knowledge_manifest['laws'],
+        'theories': knowledge_manifest['theories'],
+    }
+    marker = '<script>window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP=' + json.dumps(bootstrap, ensure_ascii=False, separators=(',', ':')) + ';</script>\n'
+    inject = marker + '<script src="monthly_patch.js"></script>\n</body>'
     text = replace_exact(text, '</body>', inject, 'monthly patch injection')
     return text
 
@@ -81,7 +170,8 @@ def main() -> int:
     args = ap.parse_args()
     path = Path(args.index)
     text = path.read_text(encoding='utf-8')
-    patched = transform(text)
+    laws_json, theories_json, knowledge_manifest = load_canonical_knowledge()
+    patched = transform(text, laws_json, theories_json, knowledge_manifest)
     path.write_text(patched, encoding='utf-8')
 
     # The current 115-2 auto essay payload contains three MOEX private-use glyphs.
@@ -94,6 +184,7 @@ def main() -> int:
         auto_essay.write_text(clean, encoding='utf-8')
 
     print(f'Applied SWSI monthly front-end build patch: {path}')
+    print('Applied canonical knowledge bootstrap: laws=' + str(knowledge_manifest['laws']['count']) + ' theories=' + str(knowledge_manifest['theories']['count']))
     return 0
 
 
