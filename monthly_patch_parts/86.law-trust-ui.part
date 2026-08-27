@@ -1,4 +1,3 @@
-
 /* SWSI Law Trust UI Contract 2026-08-27
    Law card data is canonicalized at build time. This module owns presentation and runtime markers only.
 */
@@ -7,6 +6,12 @@
 
   var CHECKED_AT='2026-08-26';
   var VERIFY_CHECKED='checked';
+
+  function H(v){
+    return String(v==null?'':v).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
 
   function kindLabel(kind){
     return kind==='policy'?'政策／行政方案':kind==='convention'?'公約／人權框架':'現行法律';
