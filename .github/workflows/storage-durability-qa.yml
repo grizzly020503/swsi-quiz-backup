@@ -40,6 +40,14 @@ jobs:
       - name: Syntax and source contract
         run: |
           set -euo pipefail
+          test -f monthly_patch_parts/60.storage-durability.part
+          test ! -e monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_storage_durability.part
+          grep -q 'SWSI Storage Durability Guard 2026-08-27' monthly_patch_parts/60.storage-durability.part
+          grep -q '2026-08-27.schema-guard.v3' monthly_patch_parts/60.storage-durability.part
+          if grep -q 'storageToast' monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part; then
+            echo 'Code Health must not own storage persistence anymore.' >&2
+            exit 1
+          fi
           cat monthly_patch_parts/*.part > /tmp/monthly_patch.js
           node --check /tmp/monthly_patch.js
           node --check scripts/storage_durability_smoke.js
@@ -77,4 +85,3 @@ jobs:
             sleep 1
           done
           node scripts/storage_durability_smoke.js http://127.0.0.1:4173/
-
