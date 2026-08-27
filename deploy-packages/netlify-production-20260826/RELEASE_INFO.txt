@@ -1,7 +1,7 @@
 SWSI Netlify production release candidate
 Official URL: https://swsi-quiznetlify.netlify.app
-Source commit: d87b98e12e8f1a1a176bea4f6c688583bf79355c
+Source commit: e98de2e2ea5017153be9eb60b63ec5fc8f9dd691
 Package: swsi_Netlify_正式上線包_20260826.zip
-SHA-256: 654bdbdc59d7ecb063fc67b0d29240f2025f05b007bea8a9a782b46598ddda2f
+SHA-256: 3518ff591d670f1677531cf0f62e9defbfdde61840bf58a74c3fe06049454d90
 Built: 2026-08-26
 Required post-deploy check: Verify Netlify Production Release workflow
