@@ -52,10 +52,21 @@
   try{renderTheories=window.renderTheories;}catch(_e){}
 
   window.SWSI_THEORY_TRUST={
-    version:'SWSI Theory Trust Batch 1 2026-08-26',
+    version:'SWSI Theory Trust Final 2026-08-26',
     checkedAt:CHECKED_AT,
+    batch1:'SWSI Theory Trust Batch 1 2026-08-26',
     batch2:'SWSI Theory Trust Batch 2 2026-08-26',
+    final:'SWSI Theory Trust Final Batch 2026-08-26',
     verifiedCount:function(){return rows.filter(function(t){return t&&t.theory_verify_status===VERIFY_CHECKED;}).length;},
-    totalCount:function(){return rows.length;}
+    totalCount:function(){return rows.length;},
+    pendingCount:function(){return rows.filter(function(t){return t&&t.theory_verify_status!==VERIFY_CHECKED;}).length;},
+    allChecked:function(){return rows.length===39 && this.verifiedCount()===39 && this.pendingCount()===0;}
+  };
+
+  window.SWSI_THEORY_TRUST_FINAL={
+    version:'SWSI Theory Trust Final Batch 2026-08-26',
+    total:function(){return rows.length;},
+    checked:function(){return rows.filter(function(t){return t&&t.theory_verify_status===VERIFY_CHECKED;}).length;},
+    pending:function(){return rows.filter(function(t){return t&&t.theory_verify_status!==VERIFY_CHECKED;}).map(function(t){return t.n;});}
   };
 })();
