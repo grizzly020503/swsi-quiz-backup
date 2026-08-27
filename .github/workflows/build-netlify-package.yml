@@ -68,8 +68,8 @@ jobs:
           grep -q 'SWSI Product V1 Lock 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Law Trust Final Batch 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Theory Trust Final Batch 2026-08-26' _site/monthly_patch.js
-          grep -q '資產建構／資產累積理論' _site/monthly_patch.js
-          grep -q '無條件基本收入 UBI' _site/monthly_patch.js
+          grep -q '資產建構／資產累積理論' _site/index.html
+          grep -q '無條件基本收入 UBI' _site/index.html
           grep -q 'SWSI Essay Trust Layer 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Learning Loop V1 2026-08-26' _site/monthly_patch.js
 
