@@ -42,6 +42,11 @@ assert(learningLoop.includes('swsi-progress-entry'), 'learning-loop no longer ow
 
 const finalRuntimePath = 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_final_runtime_contract.part';
 assert(!files.includes(finalRuntimePath), 'obsolete final runtime shim must stay deleted');
+const lawEscapeShimPath = '85.escape-helper.part';
+assert(!files.includes(lawEscapeShimPath), 'obsolete law escape helper shim must stay deleted');
+const lawTrustUI = sourceOf('86.law-trust-ui.part');
+assert(/function\s+H\s*\(v\)/.test(lawTrustUI), 'law trust UI must own its private escape helper');
+assert(!lawTrustUI.includes('window.H='), 'law trust UI must not recreate a global H escape helper');
 const mockPolicyPath = 'zzzzzzzzzzzzzzzzzzzzzzzzzz_mk_record_policy.part';
 assert(files.includes(mockPolicyPath), 'mock record policy owner is missing');
 const mockPolicy = sourceOf(mockPolicyPath);
@@ -100,6 +105,7 @@ console.log('renderHome: ' + homeOwners.join(' -> '));
 console.log('renderReview: ' + reviewOwners.join(' -> '));
 console.log('normalize: ' + normalizeOwners.join(' -> '));
 console.log('gradingMode: ' + gradingOwners.join(' -> '));
+console.log('law escape helper: 86.law-trust-ui.part (private)');
 console.log('mock record policy: ' + recordPolicyOwners.join(' -> '));
 console.log('MK: ' + mkOwners.join(' -> '));
 console.log('aiFeedbackHTML: ' + aiUIOwners.join(' -> '));
