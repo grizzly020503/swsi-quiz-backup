@@ -19,8 +19,8 @@
     .tabbar .ico{font-size:17px!important;}
     html{scroll-padding-bottom:var(--swsi-tabbar-clearance);}
     body{padding-bottom:0!important;}
-    .wrap{padding-bottom:0!important;}
-    main{padding-bottom:var(--swsi-tabbar-clearance)!important;}
+    .wrap{padding-bottom:var(--swsi-tabbar-clearance)!important;}
+    main{padding-bottom:24px!important;}
     button:disabled{pointer-events:none;}
     @media (max-width:420px){
       :root{--swsi-tabbar-clearance:calc(88px + env(safe-area-inset-bottom,0px));}
@@ -93,7 +93,7 @@
         id='swsi_'+crypto.randomUUID().replace(/-/g,'_');
       }else if(crypto&&typeof crypto.getRandomValues==='function'){
         var bytes=new Uint8Array(18);crypto.getRandomValues(bytes);
-        id='swsi_'+Array.from(bytes).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+        id='swsi_'+Array.from(bytes).map(function(b){return b.toString(16).padStart(2,'0')).join('');
       }
     }catch(e){}
 
