@@ -29,10 +29,11 @@ jobs:
       - name: Build read-only question shards
         run: python scripts/build_question_shards.py --output-dir /tmp/question-shards
 
-      - name: Verify current artifact layout
+      - name: Verify artifact and historical grading contract
         run: |
           python - <<'PY'
           import json
+          from collections import Counter
           from pathlib import Path
 
           root=Path('/tmp/question-shards')
@@ -57,18 +58,76 @@ jobs:
               assert len(data['questions'])==200, meta
               all_rows.extend(data['questions'])
 
-          multi=sum(1 for q in all_rows if q.get('accepted_answers'))
-          all_give=sum(1 for q in all_rows if q.get('answer')=='一律給分')
-          # Historical official-answer QA baseline. Future exams may add more.
-          assert multi>=24, multi
-          assert all_give>=16, all_give
+          # Historical official baseline is immutable. Future exams may add more
+          # rows/multi-answer/special-grading cases, but ROC 104–115 must not drift.
+          baseline=[q for q in all_rows if 104 <= int(str(q.get('year') or 0)) <= 115]
+          assert len(baseline)==4800, len(baseline)
+
+          mode_counts=Counter(str(q.get('grading_mode') or '') for q in baseline)
+          assert mode_counts==Counter({
+              'standard': 4784,
+              'all_credit': 12,
+              'any_answer': 4,
+          }), mode_counts
+
+          multi=[q for q in baseline if q.get('accepted_answers')]
+          assert len(multi)==24, len(multi)
+          assert all(q.get('grading_mode')=='standard' for q in multi)
+          assert all(isinstance(q.get('accepted_answers'),list) and len(q['accepted_answers'])>=2 for q in multi)
+
+          special=[q for q in baseline if q.get('grading_mode') in {'all_credit','any_answer'}]
+          assert len(special)==16, len(special)
+          assert all(q.get('answer')=='一律給分' for q in special)
+          assert all(q.get('accepted_answers') is None for q in special)
+
+          expected_any_answer_ids={
+              'SW-105-1-17',
+              'SW-106-1-36',
+              'HBSE-108-2-039',
+              'HBSE-110-2-034',
+          }
+          actual_any_answer_ids={str(q.get('id')) for q in baseline if q.get('grading_mode')=='any_answer'}
+          assert actual_any_answer_ids==expected_any_answer_ids, {
+              'expected': sorted(expected_any_answer_ids),
+              'actual': sorted(actual_any_answer_ids),
+          }
+
+          # Executable frontend grading contract. The actual monthly frontend
+          # helper must implement these same semantics instead of guessing from
+          # answer='一律給分'.
+          def correct(q,picked):
+              mode=q.get('grading_mode')
+              if mode=='all_credit':
+                  return picked is None or picked in {'A','B','C','D'}
+              if mode=='any_answer':
+                  return picked in {'A','B','C','D'}
+              if mode=='standard':
+                  accepted=set(q.get('accepted_answers') or [q.get('answer')])
+                  return picked is not None and picked in accepted
+              return False
+
+          for q in baseline:
+              mode=q['grading_mode']
+              if mode=='all_credit':
+                  assert correct(q,None), q['id']
+                  assert all(correct(q,x) for x in 'ABCD'), q['id']
+              elif mode=='any_answer':
+                  assert not correct(q,None), q['id']
+                  assert all(correct(q,x) for x in 'ABCD'), q['id']
+              else:
+                  accepted=set(q.get('accepted_answers') or [q.get('answer')])
+                  assert not correct(q,None), q['id']
+                  for x in 'ABCD':
+                      assert correct(q,x)==(x in accepted), (q['id'],x,accepted)
 
           print(json.dumps({
               'ok': True,
               'questions': len(all_rows),
               'shards': len(shards),
-              'multi_answer_rows': multi,
-              'all_give_rows': all_give,
+              'baseline_questions': len(baseline),
+              'baseline_multi_answer_rows': len(multi),
+              'baseline_grading_modes': dict(mode_counts),
+              'frontend_grading_contract': 'pass',
               'total_uncompressed_bytes': manifest['total_uncompressed_bytes'],
               'dataset_revision': manifest['dataset_revision'],
           }, ensure_ascii=False))
