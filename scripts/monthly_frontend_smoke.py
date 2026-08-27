@@ -41,7 +41,8 @@ def main() -> int:
         '官方一律給分（未作答也得分）', 'any_answer',
         'SWSI Code Health P0 Runtime Guard 2026-08-26',
         'SWSI MK Unified Grading Contract 2026-08-26',
-        'SWSI Final Runtime Contract 2026-08-26',
+        'SWSI MK Record Policy 2026-08-27',
+        'swsiMockRecordPolicyVersion',
     ]:
         require(token in patch, f'monthly patch critical token missing: {token}')
 
