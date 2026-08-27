@@ -195,7 +195,7 @@ jobs:
           grep -q 'SWSI Theory Trust Batch 2 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Theory Trust Final Batch 2026-08-26' _site/monthly_patch.js
           grep -q 'SWSI Feedback / Quality Report V1 2026-08-26' _site/monthly_patch.js
-          grep -q 'SWSI Feedback Context State Fix 2026-08-26' _site/monthly_patch.js
+          grep -q 'SWSI Feedback Context State Owner 2026-08-27' _site/monthly_patch.js
           grep -q 'swsi-feedback' _site/monthly_patch.js
           grep -q 'Bowen 家庭系統理論' data/theories.canonical.json
           grep -q 'Minuchin 結構家庭治療' data/theories.canonical.json
