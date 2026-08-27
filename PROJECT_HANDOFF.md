@@ -1,5 +1,74 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-08-27 Round 8 code-health 最新接續狀態（本節優先）
+
+> 本節晚於下方歷史內容；若衝突，以本節與 `PROJECT_HANDOFF_ROUND8_DELTA.md` 為準。
+
+- branch：`fix/code-health-p0-20260826`
+- 已驗證的 runtime code HEAD：`47dfca194e720b804453c9430ea92d6f65194f59`
+- handoff closeout：包含本節的 commit 即目前 branch HEAD；接手時仍須先重新讀遠端 ref，禁止假設這個 SHA 永遠是最新。
+- compare snapshot：`main@0712b258`，branch ahead 134 / behind 0。
+- 未 merge main、未 force push、未部署 Netlify production、未修改 production secrets、未做不可逆 production 操作。
+
+### 已完成 ownership consolidation
+
+- `renderHome` 收斂至 `20.product-philosophy.part` canonical owner。
+- `normalize` 與 grading helpers 收斂至 `00.part`。
+- mock answer record policy 移回 MK subsystem。
+- AI feedback text/photo owner 收斂至 `99z.essay-trust-layer.part`。
+- AI stable client ID / timeout utility 收斂至 `99_p0_mobile_ai_guardrails.part`。
+- `85.escape-helper.part` 已刪除，escape helper 私有化至 `86.law-trust-ui.part`。
+- `87.new-resident-law-status-ui.part` 已合併至 `86.law-trust-ui.part`。
+- obsolete AI copy / final runtime / stable client shims 已移除。
+- essay metadata labels 已改為 idempotent MutationObserver enhancer，不再接管 global `render()`。
+- essay navigation 已於 `47dfca19` 收斂至 `zzz_fix_essay_navigation.part`：保留 slow/cache reload、tab state、state reset 與 render retry；`50.home-spacing-essay-entry.part` 與 `zzzz_product_v1_lock.part` 不再覆寫 `swsiOpenEssay`。
+- Runtime Owner QA 已鎖住上述 ownership 與保留的 fail-closed edge guards。
+
+### 明確保留的 deliberate owners
+
+- `70.learning-loop.part` 的 `renderReview`。
+- `91.feedback-context.part`。
+- `zzz_fix_essay_navigation.part`。
+- `zzzzz_quick_essay_scope_fix.part`。
+- `zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part` 的 invalid `acceptedAnswers()` 與 invalid-question `renderQuiz()` fail-closed guards。
+- `99_p0_mobile_ai_guardrails.part` 的 mobile / draft / timeout / cache / busy utilities。
+- `99z.essay-trust-layer.part` 的 AI trust/privacy/error boundary。
+- `86.law-trust-ui.part` 與 `88.theory-trust-ui.part` 的 law/theory trust presentation wrappers：它們有獨立產品責任，不為降低 owner 數量而拆除。
+
+### 最新 regression
+
+`34c22f3` essay metadata enhancer：
+- Runtime Owner QA #19：success
+- Cloudflare Frontend Preview #113：success
+- Monthly Frontend QA #134：success；`interaction-qa` 真正安裝並執行 Playwright Chromium
+- Storage Durability QA #44：success
+- Knowledge Runtime Snapshot QA #36：success
+
+`47dfca19` essay navigation consolidation：
+- Runtime Owner QA #22：success
+- Cloudflare Frontend Preview #114：success
+- Monthly Frontend QA #135：success；static + Chromium interaction 全綠
+- Storage Durability QA #45：success
+- Knowledge Runtime Snapshot QA #37：success
+- Cloudflare Workers Builds：success
+- P0 preflight、Service Worker / Worker / Supabase contracts、question shard integrity、knowledge catalog、production-shaped static smoke 均由 Monthly static job 驗證成功。
+
+### 安全與收尾
+
+- `main...branch` 77 個 changed files；64 個仍存在的文字檔已做高信心 secret scan。
+- 未發現 private key、GitHub/OpenAI/AWS token、JWT 或 production service-role literal。
+- 唯一字串命中是 `scripts/cloudflare_worker_smoke.js` 的明確測試 fixture：`internal-secret` / `groq-secret`。
+- `build-netlify-package.yml` 與 `verify-netlify-production.yml` 為手動 workflow；package job 只允許 `refs/heads/main`。
+- Cloudflare preview publish/wait 只允許 `refs/heads/main`；本 branch 僅 build 驗證。
+- 目前仍有 5 個本輪暫存 refs：`tmp-ai-client-owner-20260827-v2`、`tmp-ai-client-owner-20260827`、`tmp-law-status-consolidation-20260827-v2`、`tmp-law-status-consolidation-20260827`、`tmp-swsi-context-owner-20260827`。目前可用 GitHub 連接器未提供 delete-ref；不可用 force/move-ref 代替刪除。取得 delete-ref 權限後可安全移除，這不影響 runtime 或 merge correctness。
+
+### 下一步
+
+- 不再為 owner 數量繼續整理 `renderLaws` / `renderTheories` trust layers。
+- 若再做 P1，只接受有行為等價證據的 dead override、redundant wrapper 或 load-order shim；逐組 atomic commit + 全 gates。
+- merge 前使用一般 PR/fast-forward-compatible 流程，不 force；Netlify production deploy 仍需使用者另行明確授權。
+
+
 最後更新：2026-08-27（官方 grading contract regression + Unified QA 特殊給分 self-test 已補並全綠）
 
 > 下一個 ChatGPT 對話先讀本檔，再接著做：
