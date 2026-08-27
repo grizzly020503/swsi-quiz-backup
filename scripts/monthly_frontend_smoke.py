@@ -47,7 +47,7 @@ def main() -> int:
     require("const VERSION = 'v6';" in sw, 'service worker version was not bumped to v6')
     for asset in ['/monthly_patch.js', '/essay_guides.js', '/manifest.json']:
         require(asset in sw, f'mutable asset missing from service-worker handling: {asset}')
-    require('networkFirst(req, null, true)' in sw, 'mutable assets are not no-store network-first')
+    require('networkFirstAfterCleanup(req, null, true)' in sw, 'mutable assets are not cleanup + no-store network-first')
     print('MONTHLY FRONTEND STATIC SMOKE OK')
     return 0
 

@@ -175,7 +175,7 @@ else pass('SERVICE_WORKER_VERSION', 'service worker cache is bumped to v6');
 for(const asset of ['/monthly_patch.js','/essay_guides.js','/manifest.json']){
   if(!sw.includes(asset)) fail('SERVICE_WORKER_MUTABLE_ASSETS', `missing mutable asset handling for ${asset}`);
 }
-if(!/if \(isMutableStatic\) \{[\s\S]{0,180}networkFirst\(req, null, true\)/.test(sw)){
+if(!/if \(isMutableStatic\) \{[\s\S]{0,220}networkFirstAfterCleanup\(req, null, true\)/.test(sw)){
   fail('SERVICE_WORKER_MUTABLE_ASSETS', 'mutable scoring/content assets are not no-store network-first');
 }else pass('SERVICE_WORKER_MUTABLE_ASSETS', 'monthly patch, essay guides and manifest are no-store network-first');
 
