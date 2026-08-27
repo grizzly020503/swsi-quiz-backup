@@ -1,0 +1,84 @@
+name: Publish SWSI Admin Preview
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'admin/**'
+      - '.github/workflows/admin-preview.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: swsi-admin-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  admin-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Static admin gate
+        run: |
+          set -euo pipefail
+          test -f admin/index.html
+          grep -q '<title>SWSI 管理中心</title>' admin/index.html
+          grep -q 'noindex,nofollow,noarchive' admin/index.html
+          grep -q '/functions/v1/swsi-admin' admin/index.html
+          grep -q 'signInWithPassword' admin/index.html
+          grep -q 'shouldCreateUser:false' admin/index.html
+          grep -q 'SUPABASE_PUBLISHABLE_KEY' admin/index.html
+          if grep -Eqi 'service[_-]?role|SUPABASE_SERVICE_ROLE_KEY|NETLIFY_AUTH_TOKEN|CLOUDFLARE_API_TOKEN|GROQ_API_KEY' admin/index.html; then
+            echo 'ERROR: secret-like production credential reference leaked into admin frontend' >&2
+            exit 1
+          fi
+          echo 'ADMIN STATIC GATE OK'
+
+      - name: Publish admin into existing Cloudflare preview assets
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          rm -rf /tmp/swsi-admin-main
+          git worktree add --detach /tmp/swsi-admin-main origin/main
+          trap 'git worktree remove --force /tmp/swsi-admin-main >/dev/null 2>&1 || true' EXIT
+
+          rm -rf /tmp/swsi-admin-main/cdn/preview/admin
+          mkdir -p /tmp/swsi-admin-main/cdn/preview/admin
+          cp -a admin/. /tmp/swsi-admin-main/cdn/preview/admin/
+
+          cd /tmp/swsi-admin-main
+          git config user.name 'swsi-admin-preview-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add cdn/preview/admin
+          if git diff --cached --quiet; then
+            echo 'Admin preview already current.'
+            exit 0
+          fi
+          git commit -m '發布 SWSI 管理中心預覽'
+          git push origin HEAD:main
+
+      - name: Wait for Cloudflare admin preview
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          URL='https://wandering-wave-4418.c022050333.workers.dev/preview/admin/index.html'
+          for i in $(seq 1 36); do
+            code="$(curl --silent --show-error --location -o /tmp/live-admin.html -w '%{http_code}' "$URL?check=$GITHUB_RUN_ID-$i" || true)"
+            if [ "$code" = '200' ] \
+               && grep -q '<title>SWSI 管理中心</title>' /tmp/live-admin.html \
+               && grep -q '/functions/v1/swsi-admin' /tmp/live-admin.html; then
+              echo "SWSI ADMIN PREVIEW OK: $URL"
+              exit 0
+            fi
+            echo "Waiting for admin preview: attempt=$i http=$code"
+            sleep 5
+          done
+          echo 'Admin preview did not reach expected content in time' >&2
+          exit 1
