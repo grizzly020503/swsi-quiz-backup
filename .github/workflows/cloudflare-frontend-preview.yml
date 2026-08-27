@@ -75,7 +75,7 @@ jobs:
           grep -q 'SWSI Feedback / Quality Report V1 2026-08-26' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI Feedback Context State Owner 2026-08-27' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI Feedback Compact UI V2 2026-08-26' /tmp/swsi-preview/monthly_patch.js
-          grep -q '手寫可一次選 1–3 張' /tmp/swsi-preview/monthly_patch.js
+          grep -q '一次最多 3 張' /tmp/swsi-preview/monthly_patch.js
           grep -q '正式考題本身.*最高依據' /tmp/swsi-preview/monthly_patch.js
           grep -q '平台整理・可能相關理論' /tmp/swsi-preview/monthly_patch.js
           if grep -A80 'SWSI Essay Trust Layer 2026-08-26' /tmp/swsi-preview/monthly_patch.js | grep -q '校過骨架'; then
@@ -152,7 +152,7 @@ jobs:
                && grep -q 'SWSI Feedback / Quality Report V1 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Feedback Context State Owner 2026-08-27' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Feedback Compact UI V2 2026-08-26' /tmp/live-preview-patch.js \
-               && grep -q '手寫可一次選 1–3 張' /tmp/live-preview-patch.js \
+               && grep -q '一次最多 3 張' /tmp/live-preview-patch.js \
                && grep -q '從理論接到考題' /tmp/live-preview-patch.js \
                && grep -q '從法規接到考題' /tmp/live-preview-patch.js \
                && grep -q '正式考題本身.*最高依據' /tmp/live-preview-patch.js; then
