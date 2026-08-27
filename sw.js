@@ -6,7 +6,6 @@
    - 圖示等真正靜態資產：快取優先。
    - 跨網域（Cloudflare 題庫 shard、Supabase、AI）：完全不攔截，永遠走網路；題庫離線由 IndexedDB 處理。
 */
-// Legacy preview smoke compatibility only; runtime no longer uses: const VERSION = 'v5';
 const VERSION = 'v6';
 const CACHE = 'swsi-shell-' + VERSION;
 const SHELL = [
@@ -23,6 +22,15 @@ const SHELL = [
   './auto/sync_state.json'
 ];
 
+function cleanupStaleCaches() {
+  return caches.keys().then(function (keys) {
+    return Promise.all(keys.map(function (k) {
+      if (k !== CACHE) return caches.delete(k);
+      return false;
+    }));
+  });
+}
+
 self.addEventListener('install', function (e) {
   e.waitUntil(
     caches.open(CACHE)
@@ -32,14 +40,12 @@ self.addEventListener('install', function (e) {
 });
 
 self.addEventListener('activate', function (e) {
+  // 先清一次，再 claim clients 後再清一次。舊 worker 可能在交接瞬間完成
+  // 尚未結束的 cache write；第二次清理用來關掉這個 upgrade race。
   e.waitUntil(
-    caches.keys()
-      .then(function (keys) {
-        return Promise.all(keys.map(function (k) {
-          if (k !== CACHE) { return caches.delete(k); }
-        }));
-      })
+    cleanupStaleCaches()
       .then(function () { return self.clients.claim(); })
+      .then(function () { return cleanupStaleCaches(); })
   );
 });
 
@@ -56,6 +62,12 @@ function networkFirst(req, fallback, noStore) {
       if (r) return r;
       return fallback ? caches.match(fallback) : undefined;
     });
+  });
+}
+
+function networkFirstAfterCleanup(req, fallback, noStore) {
+  return cleanupStaleCaches().then(function () {
+    return networkFirst(req, fallback, noStore);
   });
 }
 
@@ -81,21 +93,22 @@ self.addEventListener('fetch', function (e) {
     || url.pathname.endsWith('/manifest.json');
 
   if (isDoc) {
-    e.respondWith(networkFirst(req, './index.html', true));
+    e.respondWith(networkFirstAfterCleanup(req, './index.html', true));
     return;
   }
 
   if (isAuto) {
-    e.respondWith(networkFirst(req, null, true));
+    e.respondWith(networkFirstAfterCleanup(req, null, true));
     return;
   }
 
   if (isMutableStatic) {
-    e.respondWith(networkFirst(req, null, true));
+    e.respondWith(networkFirstAfterCleanup(req, null, true));
     return;
   }
 
-  // 只有真正不影響內容／判題的靜態資產採快取優先。
+  // 真正靜態資產仍採快取優先，同時利用請求生命週期清掉任何晚到的舊 cache。
+  e.waitUntil(cleanupStaleCaches());
   e.respondWith(
     caches.match(req).then(function (r) {
       return r || fetch(req).then(function (res) {
