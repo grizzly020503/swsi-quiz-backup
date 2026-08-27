@@ -79,10 +79,10 @@ assert.deepStrictEqual(legacyAnswerGuessOwners, [], `legacy answer-text inferenc
 const mkOwners = ownersFor(/(?:window\.)?MK\s*=\s*(?![=])/g);
 assert.strictEqual(mkOwners[mkOwners.length - 1], 'zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part', `unexpected final MK owner: ${mkOwners.join(' -> ')}`);
 
-const aiFeedbackOwners = ownersFor(/function\s+runAIFeedback\s*\b|(?:window\.)?runAIFeedback\s*=\s*function\b/g);
+const aiFeedbackOwners = ownersFor(/function\s+runAIFeedback\s*\b|(?:window\.)?runAIFeedback\s*=\s*(?:async\s+)?function\b/g);
 assert.strictEqual(aiFeedbackOwners[aiFeedbackOwners.length - 1], '99z.essay-trust-layer.part', `unexpected final runAIFeedback owner: ${aiFeedbackOwners.join(' -> ')}`);
 
-const photoGradeOwners = ownersFor(/function\s+gradePhoto\s*\b|(?:window\.)?gradePhoto\s*=\s*function\b/g);
+const photoGradeOwners = ownersFor(/function\s+gradePhoto\s*\b|(?:window\.)?gradePhoto\s*=\s*(?:async\s+)?function\b/g);
 assert.strictEqual(photoGradeOwners[photoGradeOwners.length - 1], '99z.essay-trust-layer.part', `unexpected final gradePhoto owner: ${photoGradeOwners.join(' -> ')}`);
 
 console.log('RUNTIME OWNER SMOKE OK');
