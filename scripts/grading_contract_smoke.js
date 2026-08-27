@@ -17,10 +17,22 @@ const { chromium } = require('playwright');
     const standard = { id:'T-STD', answer:'B', accepted_answers:['B'], grading_mode:'standard' };
     const multi = { id:'T-MULTI', answer:'B', accepted_answers:['B','C'], grading_mode:'standard' };
     const allCredit = { id:'T-ALL', answer:'一律給分', accepted_answers:null, grading_mode:'all_credit' };
-    const anyAnswer = { id:'T-ANY', answer:'一律給分', accepted_answers:['A','B','C','D'], grading_mode:'any_answer' };
+    const anyAnswer = { id:'T-ANY', answer:'一律給分', accepted_answers:null, grading_mode:'any_answer' };
     const missingSpecial = { id:'T-MISSING', answer:'一律給分', accepted_answers:null };
     const ordinaryLegacy = { id:'T-LEGACY', answer:'D', accepted_answers:null };
-
+    const inconsistentSpecial = { id:'T-BAD-SPECIAL', answer:'B', accepted_answers:null, grading_mode:'all_credit' };
+    const specialWithAccepted = { id:'T-BAD-ACCEPTED', answer:'一律給分', accepted_answers:['A','B','C','D'], grading_mode:'any_answer' };
+    const inconsistentStandard = { id:'T-BAD-STANDARD', answer:'一律給分', accepted_answers:null, grading_mode:'standard' };
+    const badMulti = { id:'T-BAD-MULTI', answer:'B', accepted_answers:['C','C'], grading_mode:'standard' };
+    const mockPerfect = window.swsiEvaluateMockAnswers(
+      [standard,multi,allCredit,anyAnswer],
+      {0:'B',1:'C',3:'A'}
+    );
+    const mockAnyBlank = window.swsiEvaluateMockAnswers(
+      [standard,multi,allCredit,anyAnswer],
+      {0:'B',1:'C'}
+    );
+    const mockBlocked = window.swsiEvaluateMockAnswers([standard,inconsistentSpecial],{0:'B',1:'B'});
     const manifest={
       total_questions:4,
       shards:[
@@ -56,6 +68,15 @@ const { chromium } = require('playwright');
       missingSpecialA: window.isCorrectAnswer(missingSpecial,'A'),
       ordinaryLegacyMode: window.gradingMode(ordinaryLegacy),
       ordinaryLegacyD: window.isCorrectAnswer(ordinaryLegacy,'D'),
+      inconsistentSpecialMode: window.gradingMode(inconsistentSpecial),
+      specialWithAcceptedMode: window.gradingMode(specialWithAccepted),
+      inconsistentStandardMode: window.gradingMode(inconsistentStandard),
+      badMultiMode: window.gradingMode(badMulti),
+      mockPerfect: {blocked:mockPerfect.blocked,total:mockPerfect.total,correct:mockPerfect.correct,answered:mockPerfect.answered,wrong:mockPerfect.wrong.length},
+      mockAnyBlank: {blocked:mockAnyBlank.blocked,total:mockAnyBlank.total,correct:mockAnyBlank.correct,answered:mockAnyBlank.answered,wrong:mockAnyBlank.wrong.length},
+      mockBlocked: {blocked:mockBlocked.blocked,invalidIds:mockBlocked.invalidIds},
+      recordAllBlank: window.swsiShouldRecordMockAnswer('all_credit',null),
+      recordAnyBlank: window.swsiShouldRecordMockAnswer('any_answer',null),
       integrityContract: window.swsiShardIntegrityVersion,
       bankIntegrityContract: window.swsiQuestionBankIntegrityVersion,
       bankGood,
@@ -65,8 +86,8 @@ const { chromium } = require('playwright');
   });
 
   const expected = {
-    contract:'2026-08-26.fail-closed.v1',
-    mkContract:'2026-08-26.unified-grading.v1',
+    contract:'2026-08-26.fail-closed.v2',
+    mkContract:'2026-08-26.unified-grading.v2',
     standardB:true,
     standardC:false,
     multiB:true,
@@ -80,7 +101,16 @@ const { chromium } = require('playwright');
     missingSpecialA:false,
     ordinaryLegacyMode:'standard',
     ordinaryLegacyD:true,
-    integrityContract:'2026-08-26.sha256.v1',
+    inconsistentSpecialMode:'invalid',
+    specialWithAcceptedMode:'invalid',
+    inconsistentStandardMode:'invalid',
+    badMultiMode:'invalid',
+    mockPerfect:{blocked:false,total:4,correct:4,answered:3,wrong:0},
+    mockAnyBlank:{blocked:false,total:4,correct:3,answered:2,wrong:1},
+    mockBlocked:{blocked:true,invalidIds:['T-BAD-SPECIAL']},
+    recordAllBlank:false,
+    recordAnyBlank:true,
+    integrityContract:'2026-08-26.sha256.v2',
     bankIntegrityContract:'2026-08-27.full-bank.v1',
     bankGood:true,
     bankCollisionBlocked:true,
@@ -88,8 +118,9 @@ const { chromium } = require('playwright');
   };
 
   for (const [key, value] of Object.entries(expected)) {
-    if (result[key] !== value) throw new Error(`${key}: expected ${JSON.stringify(value)}, got ${JSON.stringify(result[key])}`);
+    if (JSON.stringify(result[key]) !== JSON.stringify(value)) throw new Error(`${key}: expected ${JSON.stringify(value)}, got ${JSON.stringify(result[key])}`);
   }
+
   if (errors.length) throw new Error('page errors: ' + errors.join(' | '));
 
   console.log('GRADING CONTRACT SMOKE OK');

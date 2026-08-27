@@ -15,14 +15,10 @@ let m;
 while ((m = keyRe.exec(source))) counts.set(m[1], (counts.get(m[1]) || 0) + 1);
 
 const duplicates = [...counts.entries()].filter(([, n]) => n > 1);
-const LEGACY_DUPLICATE = '社會工作-107-1-申論2';
-const unexpected = duplicates.filter(([id]) => id !== LEGACY_DUPLICATE);
-if (unexpected.length) {
-  throw new Error('Unexpected ESSAY_GUIDES duplicate key(s): ' + unexpected.map(([id,n]) => `${id} x${n}`).join(', '));
+if (duplicates.length) {
+  throw new Error('ESSAY_GUIDES duplicate key(s): ' + duplicates.map(([id,n]) => `${id} x${n}`).join(', '));
 }
-if (duplicates.some(([id,n]) => id === LEGACY_DUPLICATE && n !== 2)) {
-  throw new Error(`${LEGACY_DUPLICATE} legacy duplicate count changed unexpectedly`);
-}
+const VERIFIED_107_1_ID = '社會工作-107-1-申論2';
 
 const sandbox = { window: {} };
 vm.createContext(sandbox);
@@ -38,7 +34,7 @@ if (!guides || typeof guides !== 'object' || Array.isArray(guides)) {
  * Legacy source 曾以「增強權能」與「優勢／復原力」兩個 generic template
  * 重複使用同一 key；兩者都沒有完整回答官方三理論要求。
  */
-guides[LEGACY_DUPLICATE] = {
+guides[VERIFIED_107_1_ID] = {
   kao: '考認知行為學派、社會支持理論與優勢觀點三種理論的核心重點，並能在同一服務案例中說明三者如何互補運用。',
   dati: '先分三段準確界定三個觀點，再用一個具體案例整合：認知行為處理不利認知與行為循環；社會支持盤點並連結正式／非正式支持；優勢觀點從能力、資源、成功經驗與希望出發。最後說明三者如何共同形成處遇，而不是各寫各的。',
   biaoti: [
@@ -78,4 +74,3 @@ while ((m = runtimeKeyRe.exec(guideLiteral))) {
 if (duplicateRuntime) throw new Error('Generated ESSAY_GUIDES still contains duplicate historical IDs');
 
 console.log(`ESSAY GUIDES RUNTIME OK: ${ids.length} unique guides -> ${output}`);
-if (duplicates.length) console.log(`normalized legacy duplicate: ${LEGACY_DUPLICATE}`);

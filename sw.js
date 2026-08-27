@@ -25,7 +25,7 @@ const SHELL = [
 function cleanupStaleCaches() {
   return caches.keys().then(function (keys) {
     return Promise.all(keys.map(function (k) {
-      if (k !== CACHE) return caches.delete(k);
+      if (k.indexOf('swsi-shell-') === 0 && k !== CACHE) return caches.delete(k);
       return false;
     }));
   });
@@ -34,14 +34,18 @@ function cleanupStaleCaches() {
 self.addEventListener('install', function (e) {
   e.waitUntil(
     caches.open(CACHE)
-      .then(function (c) { return c.addAll(SHELL); })
+      .then(function (c) {
+        return c.addAll(SHELL.map(function (url) {
+          return new Request(url, { cache: 'reload' });
+        }));
+      })
       .then(function () { return self.skipWaiting(); })
   );
 });
 
 self.addEventListener('activate', function (e) {
-  // 先清一次，再 claim clients 後再清一次。舊 worker 可能在交接瞬間完成
-  // 尚未結束的 cache write；第二次清理用來關掉這個 upgrade race。
+  // A v5 worker may finish a late cache write during takeover. Clean both
+  // before and after claim, but never touch caches owned by another app.
   e.waitUntil(
     cleanupStaleCaches()
       .then(function () { return self.clients.claim(); })
@@ -51,10 +55,15 @@ self.addEventListener('activate', function (e) {
 
 function networkFirst(req, fallback, noStore) {
   var init = noStore ? { cache: 'no-store' } : undefined;
-  return fetch(req, init).then(function (res) {
+  return fetch(req, init).then(async function (res) {
     if (res && res.ok) {
-      var copy = res.clone();
-      caches.open(CACHE).then(function (c) { c.put(req, copy); });
+      try {
+        var copy = res.clone();
+        var c = await caches.open(CACHE);
+        await c.put(req, copy);
+      } catch (cacheErr) {
+        console.warn('[SWSI] cache write failed; serving fresh network response', cacheErr);
+      }
     }
     return res;
   }).catch(function () {
@@ -107,14 +116,19 @@ self.addEventListener('fetch', function (e) {
     return;
   }
 
-  // 真正靜態資產仍採快取優先，同時利用請求生命週期清掉任何晚到的舊 cache。
+  // 只有真正不影響內容／判題的靜態資產採快取優先。
   e.waitUntil(cleanupStaleCaches());
   e.respondWith(
     caches.match(req).then(function (r) {
-      return r || fetch(req).then(function (res) {
+      return r || fetch(req).then(async function (res) {
         if (res && res.ok) {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(req, copy); });
+          try {
+            var copy = res.clone();
+            var c = await caches.open(CACHE);
+            await c.put(req, copy);
+          } catch (cacheErr) {
+            console.warn('[SWSI] cache write failed; serving fresh network response', cacheErr);
+          }
         }
         return res;
       });

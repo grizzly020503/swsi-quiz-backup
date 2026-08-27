@@ -77,28 +77,49 @@
   }
   function tick(){left--;var el=document.getElementById('mk-timer');if(el){el.textContent=fmt(left);if(left<=60)el.classList.add('warn');}if(left<=0){if(timer)clearInterval(timer);timer=null;grade(true);}}
 
+  function evaluateMockAnswers(items,answers){
+    var rows=Array.isArray(items)?items:[];
+    var picks=answers&&typeof answers==='object'?answers:{};
+    var invalid=rows.filter(function(q){return gradeMode(q)==='invalid';});
+    if(invalid.length){
+      return {blocked:true,total:rows.length,correct:0,answered:0,bySubj:{},wrong:[],results:[],invalidIds:invalid.map(function(q){return q&&q.id||'';})};
+    }
+    var out={blocked:false,total:rows.length,correct:0,answered:0,bySubj:{},wrong:[],results:[],invalidIds:[]};
+    rows.forEach(function(q,i){
+      var picked=picks[i]!=null?picks[i]:null;
+      var gm=gradeMode(q),ok=correct(q,picked);
+      if(picked!=null)out.answered++;
+      if(ok)out.correct++;
+      if(!out.bySubj[q.subject])out.bySubj[q.subject]={t:0,c:0};
+      out.bySubj[q.subject].t++;if(ok)out.bySubj[q.subject].c++;
+      var row={q:q,picked:picked,gradingMode:gm,correct:ok,dataError:false};
+      out.results.push(row);
+      if(!ok)out.wrong.push(row);
+    });
+    return out;
+  }
+  window.swsiEvaluateMockAnswers=evaluateMockAnswers;
+
   function grade(auto){
     if(timer){clearInterval(timer);timer=null;}running=false;
-    var correctN=0,answeredN=0,bySubj={},wrong=[];
-    Q.forEach(function(q,i){
-      var picked=ans[i]!=null?ans[i]:null;
-      var gm=gradeMode(q);
-      if(gm==='invalid'){wrong.push({q:q,picked:picked,dataError:true});return;}
-      var ok=correct(q,picked);
-      if(picked!=null)answeredN++;
-      if(ok)correctN++;
-      if(!bySubj[q.subject])bySubj[q.subject]={t:0,c:0};
-      bySubj[q.subject].t++;if(ok)bySubj[q.subject].c++;
+    var scored=evaluateMockAnswers(Q,ans);
+    if(scored.blocked){
+      ov.innerHTML='<div class="mk-wrap"><div class="empty"><div class="ico">⚠</div><h3>這份模擬考暫停判分</h3><p>其中有 '+scored.invalidIds.length+' 題官方給分資料不完整。平台沒有計分，也沒有寫入學習紀錄。</p><button class="mk-btn go" onclick="MK.retry()">回設定頁</button></div></div>';
+      return;
+    }
+    scored.results.forEach(function(row){
       try{
         if(typeof record==='function'){
-          if(!(gm==='all_credit'&&picked==null))record(q,picked,ok);
+          var should=typeof window.swsiShouldRecordMockAnswer==='function'
+            ?window.swsiShouldRecordMockAnswer(row.gradingMode,row.picked)
+            :!(row.gradingMode==='all_credit'&&row.picked==null);
+          if(should)record(row.q,row.picked,row.correct);
         }
       }catch(_e){}
-      if(!ok)wrong.push({q:q,picked:picked,dataError:false});
     });
-    var used=Math.max(0,Math.floor((Date.now()-t0)/1000)),pct=Q.length?Math.round(correctN/Q.length*100):0;
-    var subjHtml=Object.keys(bySubj).map(function(s){var o=bySubj[s],r=o.t?Math.round(o.c/o.t*100):0;return '<div style="margin-top:10px"><div style="display:flex;justify-content:space-between"><span>'+E(s)+'</span><span>'+o.c+'/'+o.t+'（'+r+'%）</span></div><div class="mk-bar"><i style="width:'+r+'%"></i></div></div>';}).join('');
-    var revHtml=wrong.map(function(w){
+    var used=Math.max(0,Math.floor((Date.now()-t0)/1000)),pct=scored.total?Math.round(scored.correct/scored.total*100):0;
+    var subjHtml=Object.keys(scored.bySubj).map(function(s){var o=scored.bySubj[s],r=o.t?Math.round(o.c/o.t*100):0;return '<div style="margin-top:10px"><div style="display:flex;justify-content:space-between"><span>'+E(s)+'</span><span>'+o.c+'/'+o.t+'（'+r+'%）</span></div><div class="mk-bar"><i style="width:'+r+'%"></i></div></div>';}).join('');
+    var revHtml=scored.wrong.map(function(w){
       var q=w.q,p=w.picked,exp=q.exp||{},ex='';
       if(exp.why)ex+='<div class="ln"><b>為什麼答案對：</b>'+E(exp.why)+'</div>';
       if(exp.others)ex+='<div class="ln"><b>其他選項：</b>'+E(exp.others)+'</div>';
@@ -106,12 +127,12 @@
       var tag=p!=null?'<span class="mk-tag w">你選 '+E(p)+'</span>':'<span class="mk-tag n">未作答</span>';
       return '<div class="mk-rev"><div class="rq">'+E(q.q||'').slice(0,140)+'</div><div class="ln">'+tag+'<span class="mk-tag n">'+E(w.dataError?'給分資料異常':label(q))+'</span></div>'+ex+'</div>';
     }).join('');
-    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">模擬考結果</div><button class="mk-x" onclick="MK.close()">✕</button></div>'+(auto?'<div class="mk-sub" style="color:var(--wrong);margin-top:14px">⏰ 時間到，已自動交卷。</div>':'')+'<div class="mk-score"><div class="big">'+correctN+' / '+Q.length+'</div><div class="pct">答對率 '+pct+'%　·　實際作答 '+answeredN+' 題　·　用時 '+fmt(used)+'</div></div><div class="mk-lab">各科表現（未作答也列入分母）</div>'+subjHtml+(revHtml?'<div class="mk-lab">錯題與未作答（'+wrong.length+' 題）</div>'+revHtml:'<div class="mk-sub" style="margin-top:16px">🎉 全部計分正確！</div>')+'<div class="mk-nav"><button class="mk-btn ghost" onclick="MK.retry()">再考一次</button><button class="mk-btn go" onclick="MK.close()">完成</button></div></div>';
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">模擬考結果</div><button class="mk-x" onclick="MK.close()">✕</button></div>'+(auto?'<div class="mk-sub" style="color:var(--wrong);margin-top:14px">⏰ 時間到，已自動交卷。</div>':'')+'<div class="mk-score"><div class="big">'+scored.correct+' / '+scored.total+'</div><div class="pct">答對率 '+pct+'%　·　實際作答 '+scored.answered+' 題　·　用時 '+fmt(used)+'</div></div><div class="mk-lab">各科表現（未作答也列入分母）</div>'+subjHtml+(revHtml?'<div class="mk-lab">錯題與未作答（'+scored.wrong.length+' 題）</div>'+revHtml:'<div class="mk-sub" style="margin-top:16px">🎉 全部計分正確！</div>')+'<div class="mk-nav"><button class="mk-btn ghost" onclick="MK.retry()">再考一次</button><button class="mk-btn go" onclick="MK.close()">完成</button></div></div>';
     window.scrollTo(0,0);
   }
 
   window.MK={
-    contractVersion:'2026-08-26.unified-grading.v1',
+    contractVersion:'2026-08-26.unified-grading.v2',
     open:async function(){
       try{if(window.SWSI_QB&&!window.SWSI_QB.allComplete&&typeof window.ensureAllQuestionsLoaded==='function')await window.ensureAllQuestionsLoaded();}catch(err){if(typeof showLoadError==='function')showLoadError(err);return;}
       await prepareLegacyStyle();mount();setup();

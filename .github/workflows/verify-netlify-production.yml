@@ -37,7 +37,12 @@ jobs:
 
           grep -q '社工師國考免費題庫｜SWSI' /tmp/prod-index.html
           grep -q 'monthly_patch.js' /tmp/prod-index.html
-          grep -q "const VERSION = 'v5'" /tmp/prod-sw.js
+          grep -q "const VERSION = 'v6'" /tmp/prod-sw.js
+          ! grep -q "const VERSION = 'v5'" /tmp/prod-sw.js
+          grep -q '2026-08-26.fail-closed.v2' /tmp/prod-monthly-patch.js
+          grep -q '2026-08-26.sha256.v2' /tmp/prod-monthly-patch.js
+          grep -q '2026-08-26.unified-grading.v2' /tmp/prod-monthly-patch.js
+          grep -q '2026-08-26.typed-errors.v2' /tmp/prod-monthly-patch.js
           grep -q 'SWSI Product V1 Lock 2026-08-26' /tmp/prod-monthly-patch.js
           grep -q 'SWSI Law Trust Final Batch 2026-08-26' /tmp/prod-monthly-patch.js
           grep -q 'SWSI Theory Trust Final Batch 2026-08-26' /tmp/prod-monthly-patch.js
@@ -83,5 +88,6 @@ jobs:
 
       - name: Real browser smoke on official Netlify URL
         run: |
+          node scripts/grading_contract_smoke.js 'https://swsi-quiznetlify.netlify.app/?release_check=${{ github.run_id }}'
           node scripts/browser_interaction_smoke.js 'https://swsi-quiznetlify.netlify.app/?release_check=${{ github.run_id }}'
           echo 'NETLIFY PRODUCTION BROWSER RELEASE CHECK OK'

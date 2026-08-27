@@ -6,18 +6,32 @@
   var SPECIAL_ANSWER_MARKERS=new Set(['一律給分','送分','全體給分']);
 
   function txt(v){return String(v==null?'':v).trim();}
+  function validStandardMetadata(item){
+    var answer=txt(item&&item.answer).toUpperCase();
+    if(!/^[ABCD]$/.test(answer))return false;
+    var accepted=item&&item.accepted_answers;
+    if(accepted===undefined||accepted===null)return true;
+    if(!Array.isArray(accepted)||accepted.length<1||accepted.length>4)return false;
+    var xs=accepted.map(function(x){return txt(x).toUpperCase();});
+    if(xs.some(function(x){return !/^[ABCD]$/.test(x);}))return false;
+    if(new Set(xs).size!==xs.length)return false;
+    return xs.indexOf(answer)>=0;
+  }
   function strictMode(item){
     if(!item)return 'invalid';
     var raw=txt(item.grading_mode).toLowerCase();
-    if(raw){return STRICT_VALID_MODES.has(raw)?raw:'invalid';}
+    if(raw){
+      if(!STRICT_VALID_MODES.has(raw))return 'invalid';
+      if(raw==='standard')return validStandardMetadata(item)?'standard':'invalid';
+      return txt(item.answer)==='一律給分'&&(item.accepted_answers===undefined||item.accepted_answers===null)
+        ?raw
+        :'invalid';
+    }
 
     /* Ordinary legacy rows may safely default to standard.
        Special-credit semantics must NEVER be inferred from answer text. */
-    var answer=txt(item.answer).toUpperCase();
     if(SPECIAL_ANSWER_MARKERS.has(txt(item.answer)))return 'invalid';
-    if(/^[ABCD]$/.test(answer))return 'standard';
-    if(Array.isArray(item.accepted_answers)&&item.accepted_answers.some(function(x){return /^[ABCD]$/.test(txt(x).toUpperCase());}))return 'standard';
-    return 'invalid';
+    return validStandardMetadata(item)?'standard':'invalid';
   }
 
   function strictAccepted(item){
@@ -61,17 +75,15 @@
   window.acceptedAnswers=strictAccepted;
   window.isCorrectAnswer=strictCorrect;
   window.answerLabel=strictLabel;
-  window.swsiGradingContractVersion='2026-08-26.fail-closed.v1';
+  window.swsiGradingContractVersion='2026-08-26.fail-closed.v2';
 
   /* Re-wrap normalize so a prior compatibility fallback cannot survive. */
   if(typeof normalize==='function'){
     var previousNormalize=normalize;
     normalize=function(r){
       var q=previousNormalize(r);
-      var raw=txt(r&&r.grading_mode).toLowerCase();
-      if(STRICT_VALID_MODES.has(raw))q.grading_mode=raw;
-      else q.grading_mode=strictMode({
-        grading_mode:'',
+      q.grading_mode=strictMode({
+        grading_mode:r&&r.grading_mode,
         answer:r&&r.answer,
         accepted_answers:r&&r.accepted_answers
       });
@@ -93,82 +105,6 @@
       return oldRenderQuiz();
     };
   }
-
-  /* ---------- CDN shard integrity: verify actual response bytes ---------- */
-  var nativeFetch=window.fetch.bind(window);
-  async function sha256Hex(buffer){
-    if(!(window.crypto&&crypto.subtle&&crypto.subtle.digest))throw new Error('此瀏覽器無法驗證題庫完整性');
-    var digest=await crypto.subtle.digest('SHA-256',buffer);
-    return Array.from(new Uint8Array(digest)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
-  }
-  function shardMetaForUrl(url){
-    try{
-      var qb=window.SWSI_QB;
-      if(!qb||!qb.manifest||!Array.isArray(qb.manifest.shards))return null;
-      var u=new URL(url,location.href);
-      if(u.origin!==new URL(SWSI_QUESTION_CDN_BASE,location.href).origin)return null;
-      if(u.pathname.endsWith('/manifest.json'))return null;
-      var file=decodeURIComponent(u.pathname.split('/').pop()||'');
-      return qb.manifest.shards.find(function(x){return x&&x.file===file;})||null;
-    }catch(_e){return null;}
-  }
-
-  window.fetch=async function(input,init){
-    var res=await nativeFetch(input,init);
-    var url='';
-    try{url=typeof input==='string'?input:(input&&input.url)||'';}catch(_e){}
-    var meta=shardMetaForUrl(url);
-    if(!meta||!res||!res.ok)return res;
-    var expected=txt(meta.sha256).toLowerCase();
-    if(!/^[a-f0-9]{64}$/.test(expected))throw new Error('題庫目錄缺少有效 SHA-256');
-    var actual=await sha256Hex(await res.clone().arrayBuffer());
-    if(actual!==expected){
-      console.error('[SWSI] shard SHA-256 mismatch',{file:meta.file,expected:expected,actual:actual});
-      throw new Error('題庫版本完整性驗證失敗，已停止載入這份資料');
-    }
-    return res;
-  };
-  window.swsiShardIntegrityVersion='2026-08-26.sha256.v1';
-
-  /* Existing IndexedDB shards were created before byte-level verification.
-     Once a fresh network manifest is available, remove them once and rebuild
-     the cache through the verified fetch path. Offline-only users keep their
-     existing cache until they reconnect. */
-  var MIGRATION_KEY='swsi_verified_shard_cache_v1';
-  async function purgeOldShardCache(){
-    if(typeof openOfflineDB!=='function'||typeof OFFLINE_STORE==='undefined')return false;
-    var db=await openOfflineDB();
-    try{
-      await new Promise(function(resolve,reject){
-        var tx=db.transaction(OFFLINE_STORE,'readwrite');
-        var store=tx.objectStore(OFFLINE_STORE);
-        var req=store.openCursor();
-        req.onsuccess=function(){
-          var cur=req.result;
-          if(!cur)return;
-          if(String(cur.key||'').indexOf('question-shard:')===0)cur.delete();
-          cur.continue();
-        };
-        req.onerror=function(){reject(req.error||new Error('題庫快取掃描失敗'));};
-        tx.oncomplete=function(){resolve();};
-        tx.onerror=function(){reject(tx.error||new Error('題庫快取清理失敗'));};
-        tx.onabort=function(){reject(tx.error||new Error('題庫快取清理中止'));};
-      });
-      return true;
-    }finally{try{db.close();}catch(_e){}}
-  }
-
-  setTimeout(function(){
-    try{
-      if(localStorage.getItem(MIGRATION_KEY)==='done')return;
-    }catch(_e){}
-    if(!navigator.onLine||typeof window.loadQuestionManifest!=='function')return;
-    window.loadQuestionManifest().then(async function(){
-      if(!(window.SWSI_QB&&window.SWSI_QB.manifestSource==='cloudflare'))return;
-      var ok=await purgeOldShardCache();
-      if(ok){try{localStorage.setItem(MIGRATION_KEY,'done');}catch(_e){}}
-    }).catch(function(err){console.warn('[SWSI] verified shard cache migration skipped',err);});
-  },0);
 
   /* ---------- visible storage failure warning ---------- */
   function storageToast(message){

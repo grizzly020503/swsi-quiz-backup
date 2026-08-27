@@ -10,6 +10,7 @@ on:
       - 'data/essay_guide_audit*.json'
       - 'index.html'
       - 'essay_guides.js'
+      - 'scripts/build_essay_guides_runtime.js'
       - 'scripts/monthly_patch_build.py'
 
 permissions:
@@ -37,11 +38,13 @@ jobs:
           set -euo pipefail
           rm -rf _site
           mkdir -p _site/icons
-          cp index.html essay_guides.js manifest.json sw.js apple-touch-icon.png _site/
+          cp index.html manifest.json sw.js apple-touch-icon.png _site/
+          node scripts/build_essay_guides_runtime.js essay_guides.js _site/essay_guides.js
           cat monthly_patch_parts/*.part > _site/monthly_patch.js
           cp icons/icon-192.png icons/icon-512.png _site/icons/
           if [ -d auto ]; then cp -R auto _site/; fi
           python scripts/monthly_patch_build.py _site/index.html
+          node --check _site/essay_guides.js
           node --check _site/monthly_patch.js
           node --check scripts/essay_guide_audit_batch1_smoke.js
           grep -q 'SWSI Essay Guide Audit Batch 1 2026-08-26' _site/monthly_patch.js

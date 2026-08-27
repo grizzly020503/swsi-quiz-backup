@@ -41,6 +41,7 @@ export default {
         status,
         headers: {
           "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store",
           ...corsHeaders(),
           ...extraHeaders
         }
@@ -52,17 +53,20 @@ export default {
         JSON.stringify({ error: { message: "Forbidden" } }),
         {
           status: 403,
-          headers: { "Content-Type": "application/json; charset=utf-8" }
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Cache-Control": "no-store"
+          }
         }
       );
     }
 
     // 瀏覽器 CORS preflight 只對公開來源開放。
     if (request.method === "OPTIONS") {
-      if (!isPublic) return new Response(null, { status: 403 });
+      if (!isPublic) return new Response(null, { status: 403, headers: { "Cache-Control": "no-store" } });
       return new Response(null, {
         status: 204,
-        headers: corsHeaders()
+        headers: { ...corsHeaders(), "Cache-Control": "no-store" }
       });
     }
 
@@ -93,7 +97,7 @@ export default {
       const clientLimit = await env.AI_RATE_LIMIT.limit({ key: clientKey });
       if (!clientLimit.success) {
         return json(
-          { error: { message: "操作太快了，請等一分鐘再使用 AI 批改。" } },
+          { error: { message: "操作太快了，請等一分鐘再使用 AI 批改。", code: "CLIENT_MINUTE_RATE_LIMIT" } },
           429,
           { "Retry-After": "60" }
         );
@@ -102,7 +106,7 @@ export default {
       const ipLimit = await env.AI_IP_LIMIT.limit({ key: ip });
       if (!ipLimit.success) {
         return json(
-          { error: { message: "目前這個網路的 AI 使用量太高，請稍後再試。" } },
+          { error: { message: "目前這個網路的 AI 使用量太高，請稍後再試。", code: "IP_MINUTE_RATE_LIMIT" } },
           429,
           { "Retry-After": "60" }
         );
@@ -189,7 +193,8 @@ export default {
         if (await isGlobalQuotaFull(env.AI_QUOTA_DB, date, quotaKind, limits)) {
           return json(
             { error: { message: "今天全平台的免費 AI 額度已用完，題庫、錯題與申論骨架仍可正常使用。", code: "GLOBAL_DAILY_QUOTA" } },
-            429
+            429,
+            { "Retry-After": String(secondsUntilTaipeiMidnight()) }
           );
         }
 
@@ -210,13 +215,14 @@ export default {
 
           return json(
             { error: { message: msg, code: q.scope === "client" ? "CLIENT_DAILY_QUOTA" : "GLOBAL_DAILY_QUOTA" } },
-            429
+            429,
+            { "Retry-After": String(secondsUntilTaipeiMidnight()) }
           );
         }
         quotaReserved = true;
       } catch {
         return json(
-          { error: { message: "AI 額度服務暫時無法使用，請稍後再試。" } },
+          { error: { message: "AI 額度服務暫時無法使用，請稍後再試。", code: "QUOTA_SERVICE_UNAVAILABLE" } },
           503
         );
       }
@@ -228,6 +234,9 @@ export default {
       ? Math.min(Math.max(maxTokensRequested, 100), 1600)
       : Math.min(Math.max(maxTokensRequested, 100), publicMaxTokens);
 
+    const requestedTemperature = typeof body.temperature === "number" && Number.isFinite(body.temperature)
+      ? body.temperature
+      : 0.4;
     const safePayload = {
       model: body.model,
       messages: body.messages,
@@ -235,7 +244,7 @@ export default {
         ? body.reasoning_effort
         : "none",
       temperature: Math.min(
-        Math.max(Number.isFinite(Number(body.temperature)) ? Number(body.temperature) : 0.4, 0),
+        Math.max(requestedTemperature, 0),
         isInternal ? 1 : 0.7
       ),
       max_tokens: maxTokens
@@ -266,7 +275,7 @@ export default {
 
         if (resp.status === 429) {
           return json(
-            { error: { message: "AI 免費額度目前較忙碌，請稍後再試。" } },
+            { error: { message: "AI 免費額度目前較忙碌，請稍後再試。", code: "UPSTREAM_RATE_LIMIT" } },
             429,
             { "Retry-After": resp.headers.get("retry-after") || "60" }
           );
@@ -283,7 +292,8 @@ export default {
         status: 200,
         headers: {
           ...corsHeaders(),
-          "Content-Type": "application/json; charset=utf-8"
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store"
         }
       });
     } catch {
@@ -338,6 +348,18 @@ function taipeiDate() {
   }).formatToParts(new Date());
   const obj = Object.fromEntries(parts.map((p) => [p.type, p.value]));
   return `${obj.year}-${obj.month}-${obj.day}`;
+}
+
+function secondsUntilTaipeiMidnight() {
+  const now = new Date();
+  const taipeiNow = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+  const nextUtc = Date.UTC(
+    taipeiNow.getUTCFullYear(),
+    taipeiNow.getUTCMonth(),
+    taipeiNow.getUTCDate() + 1,
+    0, 0, 0
+  ) - 8 * 60 * 60 * 1000;
+  return Math.max(1, Math.ceil((nextUtc - now.getTime()) / 1000));
 }
 
 function changed(result) {
