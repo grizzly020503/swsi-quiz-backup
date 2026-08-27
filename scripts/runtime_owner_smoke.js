@@ -76,8 +76,8 @@ assert.deepStrictEqual(legacyAnswerGuessOwners, [], `legacy answer-text inferenc
 
 // Deliberate late product/runtime owners. Keep these visible so future cleanup
 // does not mistake intentional ownership for a removable shim.
-const mkOwners = ownersFor(/(?:window\.)?MK\s*=\s*(?![=])/g);
-assert.strictEqual(mkOwners[mkOwners.length - 1], 'zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part', `unexpected final MK owner: ${mkOwners.join(' -> ')}`);
+const mkOwners = ownersFor(/(?:window\.)?\bMK\s*=\s*(?![=])/g);
+assert.deepStrictEqual(mkOwners, ['zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part'], `unexpected MK ownership chain: ${mkOwners.join(' -> ')}`);
 
 const aiGuardrails = sourceOf('99_p0_mobile_ai_guardrails.part');
 assert(!/(?:window\.)?runAIFeedback\s*=\s*(?:async\s+)?function\b/.test(aiGuardrails), 'mobile AI guardrails must not own runAIFeedback');
