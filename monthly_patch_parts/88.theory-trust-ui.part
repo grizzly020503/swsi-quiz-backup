@@ -54,6 +54,7 @@
   window.SWSI_THEORY_TRUST={
     version:'SWSI Theory Trust Batch 1 2026-08-26',
     checkedAt:CHECKED_AT,
+    batch2:'SWSI Theory Trust Batch 2 2026-08-26',
     verifiedCount:function(){return rows.filter(function(t){return t&&t.theory_verify_status===VERIFY_CHECKED;}).length;},
     totalCount:function(){return rows.length;}
   };
