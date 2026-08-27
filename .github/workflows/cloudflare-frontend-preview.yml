@@ -78,7 +78,7 @@ jobs:
           grep -q 'SWSI Theory Trust Batch 2 2026-08-26' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI Theory Trust Final Batch 2026-08-26' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI Feedback / Quality Report V1 2026-08-26' /tmp/swsi-preview/monthly_patch.js
-          grep -q 'SWSI Feedback Context State Fix 2026-08-26' /tmp/swsi-preview/monthly_patch.js
+          grep -q 'SWSI Feedback Context State Owner 2026-08-27' /tmp/swsi-preview/monthly_patch.js
           grep -q 'SWSI Feedback Compact UI V2 2026-08-26' /tmp/swsi-preview/monthly_patch.js
           grep -q 'Bowen 家庭系統理論' /tmp/swsi-preview/monthly_patch.js
           grep -q 'Minuchin 結構家庭治療' /tmp/swsi-preview/monthly_patch.js
@@ -178,7 +178,7 @@ jobs:
                && grep -q 'SWSI Theory Trust Batch 2 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Theory Trust Final Batch 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Feedback / Quality Report V1 2026-08-26' /tmp/live-preview-patch.js \
-               && grep -q 'SWSI Feedback Context State Fix 2026-08-26' /tmp/live-preview-patch.js \
+               && grep -q 'SWSI Feedback Context State Owner 2026-08-27' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Feedback Compact UI V2 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'Bowen 家庭系統理論' /tmp/live-preview-patch.js \
                && grep -q 'Minuchin 結構家庭治療' /tmp/live-preview-patch.js \
@@ -200,8 +200,8 @@ jobs:
               echo "CLOUDFLARE FRONTEND PREVIEW OK: $URL"
               exit 0
             fi
-            echo "Waiting for preview deploy: attempt=$i html=$code patch=$patch_code"
+            echo "Waiting for Cloudflare preview: attempt=$i html=$code patch=$patch_code"
             sleep 5
           done
-          echo 'Cloudflare preview did not become ready within polling window.' >&2
+          echo 'Cloudflare preview did not reach expected content in time' >&2
           exit 1
