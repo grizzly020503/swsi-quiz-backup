@@ -80,8 +80,6 @@
 
   function decorate(){
     if(!app||app.querySelector('.swsi-myhub'))return;
-    var oldTitle=app.querySelector('.section-h');
-    if(oldTitle&&oldTitle.textContent.trim()==='我的學習進度') oldTitle.textContent='學習統計';
     var wrap=document.createElement('div');wrap.innerHTML=buildHub();
     var hub=wrap.firstElementChild;
     if(hub)app.insertBefore(hub,app.firstChild);
