@@ -30,19 +30,21 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
       if(!rel||rel!==path.basename(rel))return route.fulfill({status:404,body:'not found'});
       const file=path.join(LOCAL_SHARD_DIR,rel);
       if(!fs.existsSync(file))return route.fulfill({status:404,body:'not found'});
-      seenShardRequests++;
 
-      // Model a realistic slow-first-data condition. Delaying every shard would
-      // multiply the synthetic latency by the number of shards and no longer
-      // represent a normal slow network.
-      if(delayedShardRequests===0){
-        delayedShardRequests=1;
-        activeDelayedShardRequests=1;
-        delayedShardName=rel;
-        const delayStarted=Date.now();
-        await sleep(DELAY_MS);
-        firstDelayMs=Date.now()-delayStarted;
-        activeDelayedShardRequests=0;
+      // Keep manifest and any non-exam JSON deterministic but fast. Only real
+      // exam shards (e.g. 115-1.json) participate in the slow-network assertion.
+      const isExamShard=/^\d{3}-[12]\.json$/.test(rel);
+      if(isExamShard){
+        seenShardRequests++;
+        if(delayedShardRequests===0){
+          delayedShardRequests=1;
+          activeDelayedShardRequests=1;
+          delayedShardName=rel;
+          const delayStarted=Date.now();
+          await sleep(DELAY_MS);
+          firstDelayMs=Date.now()-delayStarted;
+          activeDelayedShardRequests=0;
+        }
       }
 
       return route.fulfill({status:200,contentType:'application/json; charset=utf-8',body:fs.readFileSync(file)});
@@ -53,7 +55,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   async function waitForDelayedShard(timeout=12000){
     const deadline=Date.now()+timeout;
     while(delayedShardRequests===0&&Date.now()<deadline)await sleep(50);
-    assert.strictEqual(delayedShardRequests,1,'slow-network: first shard delay was not exercised exactly once');
+    assert.strictEqual(delayedShardRequests,1,'slow-network: exam shard delay was not exercised exactly once');
   }
 
   await page.goto(base,{waitUntil:'commit',timeout:15000});
@@ -65,26 +67,44 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   assert(earlyApp.length>0,'slow-network: app shell rendered empty before quiz load');
   assert(earlyBody.length>0,'slow-network: page rendered blank before quiz load');
 
-  // Use the same real user path as the dead-end smoke so question data is
-  // definitely requested even when Home itself can render from cached metadata.
-  await page.getByRole('button',{name:/直接開始 20 題/}).click();
+  // Exercise one explicit exam session instead of the broad smart scope. This
+  // isolates a realistic slow first shard without multiplying the synthetic
+  // 2.5s delay across many exam sessions.
+  await page.getByRole('button',{name:/自訂範圍/}).click();
+  const scope=page.getByLabel('刷題範圍');
+  await scope.waitFor({state:'visible',timeout:10000});
+  await scope.selectOption('specific');
+
+  const yearSelect=page.getByLabel('考試年度');
+  await yearSelect.waitFor({state:'visible',timeout:10000});
+  const year=await yearSelect.locator('option').first().getAttribute('value');
+  assert(/^\d{3}$/.test(String(year||'')),'slow-network: no valid exam year available');
+  await yearSelect.selectOption(String(year));
+
+  const roundSelect=page.getByLabel('考試考次');
+  await roundSelect.waitFor({state:'visible',timeout:10000});
+  await roundSelect.selectOption('1');
+
+  await page.getByRole('button',{name:/開始這組題目/}).click();
   await waitForDelayedShard();
 
+  // startFocusedQuiz intentionally renders a loading shell while its one shard
+  // is delayed; it must stay visible rather than becoming blank.
   if(activeDelayedShardRequests>0){
-    assert((await page.locator('#app').innerText()).trim().length>0,'slow-network: app shell emptied while first shard was delayed');
-    assert((await page.locator('body').innerText()).trim().length>0,'slow-network: body went blank while first shard was delayed');
+    assert((await page.locator('#app').innerText()).trim().length>0,'slow-network: app shell emptied while exam shard was delayed');
+    assert((await page.locator('body').innerText()).trim().length>0,'slow-network: body went blank while exam shard was delayed');
   }
 
-  await page.waitForSelector('.qcard .opt',{timeout:45000});
-  assert(seenShardRequests>0,'slow-network: no question shard request was observed');
-  assert(firstDelayMs>=2000,'slow-network: first shard did not experience the intended delay');
-  console.log(`SLOW NETWORK FIRST SHARD OK: ${delayedShardName} ${firstDelayMs}ms; total shard requests=${seenShardRequests}`);
+  await page.waitForSelector('.qcard .opt',{timeout:30000});
+  assert(seenShardRequests>=1,'slow-network: no exam shard request was observed');
+  assert(firstDelayMs>=2000,'slow-network: exam shard did not experience the intended delay');
+  console.log(`SLOW NETWORK EXAM SHARD OK: ${delayedShardName} ${firstDelayMs}ms; exam shard requests=${seenShardRequests}`);
 
   await page.getByRole('button',{name:/結束這次練習/}).click();
   await page.waitForSelector('.swsi-focus-primary',{timeout:30000});
 
-  // Reload may reuse browser/service-worker caches. It only needs to remain
-  // visible and recover to Home; a second network fetch is not required.
+  // Reload may legitimately reuse browser/service-worker caches. It only needs
+  // to remain visible and recover to Home; a second network fetch is not required.
   await page.reload({waitUntil:'commit',timeout:15000});
   await page.waitForSelector('#app',{timeout:5000});
   assert((await page.locator('body').innerText()).trim().length>0,'slow-network reload: blank body');
