@@ -2334,6 +2334,183 @@ body:has(#app .section-h) main{
   };
 })();
 
+/* SWSI Public Branding / Information Center 2026-08-28
+   Public attribution, source notice, privacy summary and use terms.
+   This layer does not change quiz/grading/AI runtime contracts.
+*/
+(function(){
+  'use strict';
+
+  var STYLE_ID='swsi-public-info-20260828-style';
+  if(!document.getElementById(STYLE_ID)){
+    var st=document.createElement('style');
+    st.id=STYLE_ID;
+    st.textContent=`
+      .swsi-public-footer-brand{font-family:'Noto Sans TC',sans-serif;font-size:10.8px;line-height:1.7;color:var(--ink-soft)}
+      .swsi-public-footer-brand strong{font-family:'Noto Serif TC',serif;color:var(--ink);font-size:11.5px}
+      .swsi-public-footer-links{display:flex;justify-content:center;align-items:center;gap:4px 10px;flex-wrap:wrap;margin-top:5px}
+      .swsi-public-footer-links button{border:0;background:transparent;color:#68736E;font:700 10.8px/1.45 'Noto Sans TC',sans-serif;cursor:pointer;padding:4px 2px;text-decoration:underline;text-decoration-color:#B9C2BD;text-underline-offset:3px}
+      .swsi-public-footer-links button:hover,.swsi-public-footer-links button:focus-visible{color:var(--pine-deep)}
+      .swsi-public-info-backdrop{position:fixed;inset:0;z-index:990;background:rgba(25,31,28,.4);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px)}
+      .swsi-public-info-dialog{width:min(100%,540px);max-height:min(86vh,760px);max-height:min(86dvh,760px);overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:20px;box-shadow:0 22px 60px rgba(25,31,28,.22);padding:19px 18px;color:var(--ink);font-family:'Noto Sans TC',sans-serif;overscroll-behavior:contain}
+      .swsi-public-info-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+      .swsi-public-info-head h2{font-family:'Noto Serif TC',serif;font-size:21px;line-height:1.35;margin:0}
+      .swsi-public-info-head p{font-size:11.5px;line-height:1.6;color:var(--ink-soft);margin:3px 0 0}
+      .swsi-public-info-close{margin-left:auto;flex:0 0 auto;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--ink-soft);font-size:19px;cursor:pointer}
+      .swsi-public-info-body{font-size:13px;line-height:1.85;color:#414743}
+      .swsi-public-info-body h3{font-family:'Noto Serif TC',serif;color:var(--pine-deep);font-size:15px;margin:17px 0 5px}
+      .swsi-public-info-body h3:first-child{margin-top:0}
+      .swsi-public-info-body p{margin:0 0 10px}
+      .swsi-public-info-body ul{margin:5px 0 11px 20px;padding:0}
+      .swsi-public-info-body li{margin:3px 0}
+      .swsi-public-info-note{background:#F3F7F5;border-left:3px solid #91A9A0;border-radius:0 10px 10px 0;padding:10px 11px;margin:10px 0;color:#5D6762}
+      .swsi-public-info-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 14px}
+      .swsi-public-info-nav button{border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:9px;min-height:36px;font:700 11px/1.3 'Noto Sans TC',sans-serif;cursor:pointer;padding:6px 3px}
+      .swsi-public-info-nav button.on{background:var(--pine);border-color:var(--pine);color:#fff}
+      @media(min-width:620px){.swsi-public-info-backdrop{align-items:center}.swsi-public-info-dialog{border-radius:18px}}
+      @media(max-width:370px){.swsi-public-info-nav{grid-template-columns:1fr 1fr}.swsi-public-info-dialog{padding:16px 14px}}
+    `;
+    document.head.appendChild(st);
+  }
+
+  var INFO={
+    about:{
+      title:'關於 SWSI',
+      sub:'Social Work Study Initiative｜社工師國考免費學習平台',
+      html:`
+        <h3>SWSI 是什麼？</h3>
+        <p><b>SWSI</b> 代表 <b>Social Work Study Initiative</b>。這是一個以免費、集中、低門檻為方向的社工師國考學習平台。</p>
+        <h3>為什麼開始做？</h3>
+        <p>專案起點來自對社工學習環境的觀察：歷屆題庫與相關學習資源分散在不同地方；同時也看到同學使用各種刷題工具時，在資料整理、學習流程與使用體驗上仍有改善空間，因此開始嘗試把常用的學習工具集中到同一個平台。</p>
+        <h3>誰發起的？</h3>
+        <p><b>發起人暨產品規劃：熊品澄。</b></p>
+        <p>產品方向、需求整理、功能取捨、實際測試與迭代由專案發起人主導；程式實作主要透過生成式 AI 協作完成，並搭配自動 QA、版本控制與部署流程持續維護。</p>
+        <div class="swsi-public-info-note">SWSI 並非考選部、學校或補習班官方網站，也不代表任何補習班或教育機構。</div>
+      `
+    },
+    sources:{
+      title:'資料來源',
+      sub:'正式考題以官方來源為最高依據',
+      html:`
+        <h3>歷屆考題與答案</h3>
+        <p>正式歷屆試題與答案以<b>考選部公開之官方資料</b>為最高依據。SWSI 會進行資料整理、分類、顯示與學習輔助，但不把官方考題宣稱為平台原創內容。</p>
+        <h3>法規與理論</h3>
+        <p>法規整理會盡量連結或核對政府／主管機關等官方來源；理論、解析、考點、提示與申論學習內容屬 SWSI 的整理與學習輔助內容，可能包含 AI 協作產生或整理的文字。</p>
+        <h3>AI 回饋</h3>
+        <p>AI 批改與回饋只供練習與學習參考，<b>不是考選部官方評分，也不是正式考試成績</b>。若平台整理內容與官方資料不一致，應以官方資料為準。</p>
+        <div class="swsi-public-info-note">SWSI 不主張超出原始資料來源、實際權利歸屬或適用法律範圍的權利。</div>
+      `
+    },
+    privacy:{
+      title:'隱私說明',
+      sub:'只收平台運作真正需要的資料',
+      html:`
+        <h3>學習紀錄</h3>
+        <p>部分刷題、錯題、設定與草稿資料會儲存在使用者自己的瀏覽器／裝置中，讓學習功能可以持續使用。</p>
+        <h3>問題回報</h3>
+        <p>使用「回報問題／提供建議」時，平台可能保存回報類型、文字內容、所在頁面或題目脈絡、應用版本、瀏覽器資訊，以及你<b>自願填寫</b>的聯絡方式。平台使用匿名化的 client identifier 雜湊協助防止濫用；回報資料表不設計成公開資料來源。</p>
+        <h3>AI 功能</h3>
+        <p>使用 AI 批改或 AI 回饋時，為完成該功能，你提交的文字或影像內容會經平台的 AI 代理服務傳送至模型服務供應商處理。請不要輸入密碼、身分證字號、醫療紀錄或其他不必要的敏感個資。</p>
+        <h3>匿名使用統計</h3>
+        <p>平台未來可能啟用匿名使用統計，用來了解訪客量、作答量與功能是否正常；設計原則是不以追蹤個人身分為目的，也不蒐集營運上不必要的敏感個資。</p>
+      `
+    },
+    terms:{
+      title:'使用條款',
+      sub:'免費使用不等於可以冒用來源或重新包裝販售',
+      html:`
+        <h3>免費學習使用</h3>
+        <p>SWSI 目前以免費學習平台方式提供。個人學生可以直接使用；老師、同學、社群或補習班也可以分享<b>官方公開網址</b>給學習者使用。</p>
+        <h3>分享時請保留來源</h3>
+        <p>分享 SWSI 網址不需要把它說成自己的服務。不得冒用 SWSI、熊品澄或其他來源名義，也不得讓使用者誤以為 SWSI 與某補習班、學校、政府機關存在未經確認的官方合作或背書。</p>
+        <h3>商業整合／重新包裝</h3>
+        <p>若機構希望進行白牌化、嵌入自家付費產品、批量整合、客製化、重新包裝、轉售，或把 SWSI 品牌／介面／平台整理內容作為自身商業服務的一部分，應先取得明確同意並另談合作條件。</p>
+        <h3>內容責任</h3>
+        <p>平台盡力維護題庫與學習內容，但不能保證所有整理、解析、AI 回饋或法規摘要永遠零錯誤。正式考題、答案與法規應回到官方來源核對；重要決策不應只依賴 AI 回覆。</p>
+        <div class="swsi-public-info-note">第三方或政府來源資料之權利依原始來源及適用法律處理；本條款不把非 SWSI 所有的內容宣稱為 SWSI 所有。</div>
+      `
+    }
+  };
+
+  var lastOpener=null;
+
+  function footer(){return document.querySelector('.wrap > footer')||document.querySelector('footer');}
+
+  function ensureFooterBrand(){
+    var f=footer();
+    if(!f||f.querySelector('.swsi-public-footer-brand'))return;
+    var box=document.createElement('div');
+    box.className='swsi-public-footer-brand';
+    box.innerHTML=`
+      <strong>SWSI — Social Work Study Initiative</strong><br>
+      社工師國考免費學習平台<br>
+      發起人暨產品規劃：熊品澄 · AI 協作開發
+      <div class="swsi-public-footer-links" aria-label="SWSI 公開資訊">
+        <button type="button" data-swsi-public-info="about">關於 SWSI</button>
+        <button type="button" data-swsi-public-info="sources">資料來源</button>
+        <button type="button" data-swsi-public-info="privacy">隱私</button>
+        <button type="button" data-swsi-public-info="terms">使用條款</button>
+      </div>
+      <div style="margin-top:3px">© 2026 SWSI · 免費公開學習工具</div>
+      <div>正式考題以考選部官方資料為準；AI 回饋僅供練習參考</div>
+    `;
+    while(f.firstChild)f.removeChild(f.firstChild);
+    f.appendChild(box);
+  }
+
+  function closeInfo(){
+    var ov=document.getElementById('swsi-public-info-backdrop');
+    if(ov)ov.remove();
+    document.body.style.overflow='';
+    try{if(lastOpener&&lastOpener.focus)lastOpener.focus();}catch(_e){}
+    lastOpener=null;
+  }
+  window.swsiClosePublicInfo=closeInfo;
+
+  function renderInfo(key){
+    var info=INFO[key]||INFO.about;
+    var nav=Object.keys(INFO).map(function(k){
+      var label={about:'關於',sources:'資料來源',privacy:'隱私',terms:'使用條款'}[k];
+      return '<button type="button" data-swsi-info-nav="'+k+'" class="'+(k===key?'on':'')+'">'+label+'</button>';
+    }).join('');
+    return '<div class="swsi-public-info-dialog" role="dialog" aria-modal="true" aria-labelledby="swsi-public-info-title" onclick="event.stopPropagation()">'+
+      '<div class="swsi-public-info-head"><div><h2 id="swsi-public-info-title">'+info.title+'</h2><p>'+info.sub+'</p></div><button type="button" class="swsi-public-info-close" aria-label="關閉" onclick="swsiClosePublicInfo()">×</button></div>'+
+      '<div class="swsi-public-info-nav">'+nav+'</div><div class="swsi-public-info-body">'+info.html+'</div></div>';
+  }
+
+  function openInfo(key,opener){
+    closeInfo();
+    lastOpener=opener||document.activeElement;
+    var ov=document.createElement('div');
+    ov.id='swsi-public-info-backdrop';
+    ov.className='swsi-public-info-backdrop';
+    ov.onclick=closeInfo;
+    ov.innerHTML=renderInfo(key);
+    document.body.appendChild(ov);
+    document.body.style.overflow='hidden';
+    var close=ov.querySelector('.swsi-public-info-close');
+    if(close)close.focus();
+  }
+  window.swsiOpenPublicInfo=openInfo;
+
+  document.addEventListener('click',function(ev){
+    var b=ev.target&&ev.target.closest?ev.target.closest('[data-swsi-public-info]'):null;
+    if(b){ev.preventDefault();openInfo(b.getAttribute('data-swsi-public-info'),b);return;}
+    var nav=ev.target&&ev.target.closest?ev.target.closest('[data-swsi-info-nav]'):null;
+    if(nav){
+      var ov=document.getElementById('swsi-public-info-backdrop');
+      if(ov){ov.innerHTML=renderInfo(nav.getAttribute('data-swsi-info-nav'));var c=ov.querySelector('.swsi-public-info-close');if(c)c.focus();}
+    }
+  });
+  document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&document.getElementById('swsi-public-info-backdrop'))closeInfo();});
+
+  ensureFooterBrand();
+  var obs=new MutationObserver(function(){ensureFooterBrand();});
+  obs.observe(document.body,{childList:true,subtree:true});
+
+  window.SWSI_PUBLIC_INFO={version:'2026-08-28.v1',marker:'SWSI Public Branding / Information Center 2026-08-28'};
+})();
+
 /* SWSI Feedback / Quality Report V1 2026-08-26
    Quiet in-context reporting for MCQ, essay, theory, law and general site feedback.
    Reports go through a protected Supabase Edge Function; official exam content stays read-only.
