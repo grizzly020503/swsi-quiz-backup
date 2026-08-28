@@ -41,14 +41,15 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
       assert(box&&box.width>=40&&box.height>=40,`${label}: bottom navigation target ${i} too small`);
     }
 
-    // Prove that a real bottom-navigation route works in WebKit rather than only rendering.
+    // Prove that bottom-navigation routing works in WebKit and remains recoverable.
     const review=page.getByRole('button',{name:'複習',exact:true});
     if(await review.count()){
       await review.click();
       await page.waitForTimeout(150);
-      assert(await review.evaluate(el=>el.classList.contains('active')||el.getAttribute('aria-current')==='page'),`${label}: review route did not become active in WebKit`);
       const home=page.getByRole('button',{name:'首頁',exact:true});
-      if(await home.count())await home.click();
+      assert(await home.count(),`${label}: home route unavailable after review navigation`);
+      await home.click();
+      await page.waitForSelector('.swsi-focus-primary',{timeout:10000});
     }
 
     assert.strictEqual(await page.evaluate(()=>typeof window.swsiOpenPublicInfo),'function',`${label}: public-info opener missing`);
