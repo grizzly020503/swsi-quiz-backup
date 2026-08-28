@@ -69,8 +69,8 @@
 
   window.swsiSetAIBusy=function(id,busy,mode){
     var t=document.getElementById('aitype_'+id),p=document.getElementById('aiphoto_'+id),f=document.getElementById('photo_'+id);
-    if(t){t.disabled=!!busy;t.style.opacity=busy?'.55':'';t.style.cursor=busy?'not-allowed':'';t.textContent=(busy&&mode==='text')?'⏳ AI 批改中…':'🤖 我用打字的 · 請 AI 批改上面的作答';}
-    if(p){p.disabled=!!busy;p.style.opacity=busy?'.55':'';p.style.cursor=busy?'not-allowed':'';p.textContent=(busy&&mode==='photo')?'⏳ 照片處理／批改中…':'📷 我用手寫的 · 拍照上傳給 AI 批改';}
+    if(t){t.disabled=!!busy;t.style.opacity=busy?'.55':'';t.style.cursor=busy?'not-allowed':'';t.textContent=(busy&&mode==='text')?'⏳ AI 回饋中…':'🤖 請 AI 看我的作答';}
+    if(p){p.disabled=!!busy;p.style.opacity=busy?'.55':'';p.style.cursor=busy?'not-allowed':'';p.textContent=(busy&&mode==='photo')?'⏳ 照片處理／回饋中…':'📷 手寫作答 · 拍照請 AI 看';}
     if(f)f.disabled=!!busy;
   };
 
@@ -93,7 +93,7 @@
         id='swsi_'+crypto.randomUUID().replace(/-/g,'_');
       }else if(crypto&&typeof crypto.getRandomValues==='function'){
         var bytes=new Uint8Array(18);crypto.getRandomValues(bytes);
-        id='swsi_'+Array.from(bytes).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+        id='swsi_'+Array.from(bytes).map(function(b){return b.toString(16).padStart(2,'0')).join('');
       }
     }catch(e){}
 
