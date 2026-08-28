@@ -53,8 +53,10 @@ function hasUsableName(el){
     assert(metrics.tabbar.left>=-2&&metrics.tabbar.right<=width+2,`${label}: bottom nav escapes viewport horizontally`);
     assert(metrics.tabbar.bottom<=height+2&&metrics.tabbar.bottom>=height-70,`${label}: bottom nav not anchored near viewport bottom`);
 
-    const navButtons=page.locator('.tabbar button');
-    assert((await navButtons.count())>=3,`${label}: bottom nav controls missing`);
+    // Only visible navigation controls are actionable touch targets. Hidden route buttons
+    // intentionally use display:none and therefore have no bounding box to measure.
+    const navButtons=page.locator('.tabbar button:visible');
+    assert((await navButtons.count())>=3,`${label}: visible bottom nav controls missing`);
     for(let i=0;i<await navButtons.count();i++){
       const b=navButtons.nth(i);
       const box=await b.boundingBox();
