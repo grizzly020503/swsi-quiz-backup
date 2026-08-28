@@ -29,6 +29,10 @@
     document.head.appendChild(st);
   }
 
+  function setText(el,text){
+    if(el&&el.textContent!==text)el.textContent=text;
+  }
+
   function draftCount(){
     var n=0;
     try{
@@ -61,10 +65,8 @@
 
     var cards=hub.querySelectorAll('.swsi-myhub-card');
     if(cards[0]){
-      var title=cards[0].querySelector('.swsi-myhub-title');
-      var sub=cards[0].querySelector('.swsi-myhub-sub');
-      if(title)title.textContent='今天的學習';
-      if(sub)sub.textContent='刷題、錯題與申論都在這裡；依自己的進度選一個開始。';
+      setText(cards[0].querySelector('.swsi-myhub-title'),'今天的學習');
+      setText(cards[0].querySelector('.swsi-myhub-sub'),'刷題、錯題與申論都在這裡；依自己的進度選一個開始。');
       if(!cards[0].querySelector('.swsi-launch-reminder')){
         var reminder=document.createElement('div');
         reminder.className='swsi-launch-reminder';
@@ -73,29 +75,24 @@
         var grid=cards[0].querySelector('.swsi-myhub-grid');
         cards[0].insertBefore(reminder,grid||null);
       }
-      var msg=cards[0].querySelector('.swsi-launch-reminder span');
-      if(msg)msg.textContent=reminderText();
+      setText(cards[0].querySelector('.swsi-launch-reminder span'),reminderText());
     }
 
     if(cards[1]){
-      var title2=cards[1].querySelector('.swsi-myhub-title');
-      var sub2=cards[1].querySelector('.swsi-myhub-sub');
-      if(title2)title2.textContent='平台與支援';
-      if(sub2)sub2.textContent='分享、來源、隱私與管理入口集中在這裡。';
+      setText(cards[1].querySelector('.swsi-myhub-title'),'平台與支援');
+      setText(cards[1].querySelector('.swsi-myhub-sub'),'分享、來源、隱私與管理入口集中在這裡。');
     }
 
     var login=hub.querySelector('[data-swsi-admin-login]');
     if(login){
-      var label=login.querySelector('.label');
-      var meta=login.querySelector('.meta');
-      if(label)label.textContent='管理者入口';
-      if(meta)meta.textContent='僅管理者使用';
+      setText(login.querySelector('.label'),'管理者入口');
+      setText(login.querySelector('.meta'),'僅管理者使用');
     }
   }
 
   function keepFooterClear(){
     var f=document.querySelector('.wrap > footer')||document.querySelector('footer');
-    if(f)f.style.scrollMarginBottom='140px';
+    if(f&&f.style.scrollMarginBottom!=='140px')f.style.scrollMarginBottom='140px';
   }
 
   function run(){polishHub();keepFooterClear();}
