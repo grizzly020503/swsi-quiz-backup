@@ -1911,6 +1911,7 @@ body:has(#app .section-h) main{
       .swsi-myhub-row{border:0;border-bottom:1px solid var(--line);background:#fff;min-height:54px;padding:10px 12px;display:flex;align-items:center;gap:10px;width:100%;text-align:left;color:var(--ink);cursor:pointer;font-family:'Noto Sans TC',sans-serif}
       .swsi-myhub-row:last-child{border-bottom:0}.swsi-myhub-row .label{font-size:13px;font-weight:750;flex:1}.swsi-myhub-row .meta{font-size:10.5px;color:var(--ink-soft)}.swsi-myhub-row .arrow{color:#8A9690;font-size:18px}
       .swsi-myhub-row.admin{background:#F7F9FF}.swsi-myhub-row.admin .label{color:#2747A3}
+      .swsi-myhub-row.admin-login{background:#FBFCFB;color:#667085}.swsi-myhub-row.admin-login .label{font-weight:650;color:#667085}.swsi-myhub-row.admin-login .meta{color:#98A2B3}
       .swsi-myhub-row[hidden]{display:none!important}
       .swsi-myhub-toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:980;background:#27322D;color:#fff;border-radius:999px;padding:9px 13px;font:650 12px/1.3 'Noto Sans TC',sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.2)}
       .swsi-admin-layer{position:fixed;inset:0;z-index:1200;background:#F5F7FB;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
@@ -1957,6 +1958,7 @@ body:has(#app .section-h) main{
   }
   function setAdminEntryVisible(visible){
     document.querySelectorAll('[data-swsi-admin-entry]').forEach(function(el){el.hidden=!visible;});
+    document.querySelectorAll('[data-swsi-admin-login]').forEach(function(el){el.hidden=!!visible;});
   }
   async function verifyAdminAccess(){
     var token=getStoredAdminToken();
@@ -2029,6 +2031,7 @@ body:has(#app .section-h) main{
       +row('資料來源','正式考題以官方資料為準',"swsiOpenPublicInfo('sources',this)")
       +row('隱私說明','了解平台保存哪些資料',"swsiOpenPublicInfo('privacy',this)")
       +row('使用條款','免費分享與商業使用邊界',"swsiOpenPublicInfo('terms',this)")
+      +'<button type="button" class="swsi-myhub-row admin-login" data-swsi-admin-login onclick="swsiOpenAdminCenter()"><span class="label">管理登入</span><span class="meta">管理者</span><span class="arrow">›</span></button>'
       +'</div></div></section>';
   }
 
