@@ -8,6 +8,7 @@ on:
       - 'monthly_patch_parts/**'
       - 'scripts/launch_readiness_smoke.js'
       - 'scripts/pwa_resilience_smoke.js'
+      - 'scripts/prelaunch_deadend_smoke.js'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/build_essay_guides_runtime.js'
       - 'index.html'
@@ -22,6 +23,7 @@ on:
       - 'monthly_patch_parts/**'
       - 'scripts/launch_readiness_smoke.js'
       - 'scripts/pwa_resilience_smoke.js'
+      - 'scripts/prelaunch_deadend_smoke.js'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/build_essay_guides_runtime.js'
       - 'index.html'
@@ -55,6 +57,7 @@ jobs:
         run: |
           node --check scripts/launch_readiness_smoke.js
           node --check scripts/pwa_resilience_smoke.js
+          node --check scripts/prelaunch_deadend_smoke.js
           node --check sw.js
 
       - name: Build browser-test site
@@ -74,7 +77,7 @@ jobs:
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Mobile launch and PWA resilience smoke
+      - name: Mobile launch, dead-end and PWA resilience smoke
         run: |
           python -m http.server 4173 --directory _site >/tmp/swsi-launch-http.log 2>&1 &
           SERVER_PID=$!
@@ -84,4 +87,5 @@ jobs:
             sleep 1
           done
           node scripts/launch_readiness_smoke.js http://127.0.0.1:4173/
+          node scripts/prelaunch_deadend_smoke.js http://127.0.0.1:4173/
           node scripts/pwa_resilience_smoke.js http://127.0.0.1:4173/
