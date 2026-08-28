@@ -64,7 +64,8 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
   });
   const ta=page.locator('.wta').first();
   await ta.fill('這是一段用來測試 AI 服務暫時中斷時，平台是否仍能保存學生作答並提供清楚錯誤提示的測試內容。學生應該可以稍後再試，而不是卡在批改中的狀態。');
-  const aiButton=page.getByRole('button',{name:/請 AI 看我的作答/});
+  const aiButton=page.locator('[id^="aitype_"]').first();
+  assert(await aiButton.count(),'AI action button missing');
   await aiButton.click();
   await page.waitForFunction(()=>{
     const out=document.querySelector('[id^="airesult_"]');
@@ -72,6 +73,7 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
   },null,{timeout:15000});
   assert(blockedPost,'AI action did not issue a POST request');
   assert(!(await aiButton.isDisabled()),'AI button stayed disabled after failure');
+  assert(/請 AI 看我的作答/.test(await aiButton.innerText()),'AI action label did not return to its normal wording');
   assert((await ta.inputValue()).length>30,'essay answer disappeared after AI failure');
   const aiResult=await page.locator('[id^="airesult_"]').first().innerText();
   assert(/作答仍保存在這台裝置|稍後再試|網路/.test(aiResult),'AI failure lacks recovery guidance');
