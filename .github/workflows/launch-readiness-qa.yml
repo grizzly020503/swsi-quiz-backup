@@ -97,31 +97,3 @@ jobs:
           node scripts/prelaunch_error_states_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_accessibility_touch_smoke.js http://127.0.0.1:4173/
           node scripts/pwa_resilience_smoke.js http://127.0.0.1:4173/
-
-  production-state-probe:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Read current official Netlify state
-        env:
-          SITE: https://swsi-quiznetlify.netlify.app
-        run: |
-          set -u
-          fetch() {
-            path="$1"; out="$2"
-            code="$(curl --silent --show-error --location --retry 2 --retry-all-errors --connect-timeout 10 --max-time 30 -H 'Cache-Control: no-cache' -o "$out" -w '%{http_code}' "$SITE$path?release_probe=$GITHUB_RUN_ID" || true)"
-            echo "$path HTTP=$code"
-          }
-          fetch / /tmp/index.html
-          fetch /sw.js /tmp/sw.js
-          fetch /monthly_patch.js /tmp/monthly_patch.js
-          fetch /essay_guides.js /tmp/essay_guides.js
-          fetch /auto/essays_auto.json /tmp/essays.json
-
-          echo "INDEX_HAS_MONTHLY_PATCH=$(grep -q 'monthly_patch.js' /tmp/index.html && echo yes || echo no)"
-          echo "INDEX_HAS_BOOT_DEFERRED=$(grep -q 'window.__SWSI_BOOT_DEFERRED__=true' /tmp/index.html && echo yes || echo no)"
-          echo "INDEX_HAS_ROUND8_LABEL=$(grep -q '資產建構／資產累積理論' /tmp/index.html && echo yes || echo no)"
-          echo "SW_V6=$(grep -q \"const VERSION = 'v6'\" /tmp/sw.js && echo yes || echo no)"
-          echo "SW_V5=$(grep -q \"const VERSION = 'v5'\" /tmp/sw.js && echo yes || echo no)"
-          echo "PATCH_HAS_ROUND8=$(grep -q '2026-08-26.fail-closed.v2' /tmp/monthly_patch.js && echo yes || echo no)"
-          echo "ESSAY_GUIDE_GENERATED=$(grep -q 'Generated from essay_guides.js by scripts/build_essay_guides_runtime.js' /tmp/essay_guides.js && echo yes || echo no)"
-          echo "PRODUCTION STATE PROBE COMPLETE"
