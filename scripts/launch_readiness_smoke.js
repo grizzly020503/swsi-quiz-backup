@@ -48,16 +48,12 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await waitHome();
   assert.strictEqual(await page.locator('.swsi-launch-guide').count(), 0, 'dismissed guide returned after reload');
 
-  // Navigate through the student UI to progress / learning hub.
-  await page.getByRole('button', { name: '複習', exact: true }).click();
-  await page.waitForFunction(() => {
-    const app = document.querySelector('#app');
-    return app && /錯題複習|今天到期|還沒熟/.test(app.textContent || '');
-  }, null, { timeout: 30000 });
-
-  const progressButton = page.getByRole('button', { name: /查看完整學習進度/ });
-  assert((await progressButton.count()) > 0, 'progress entry missing from review page');
-  await progressButton.click();
+  // Existing interaction smoke owns seeded review navigation. This launch smoke
+  // enters progress directly so it remains valid for a completely new user.
+  await page.evaluate(() => {
+    if (typeof go !== 'function') throw new Error('go() route helper missing');
+    go('progress');
+  });
   await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
   await page.waitForSelector('.swsi-launch-reminder', { timeout: 10000 });
 
