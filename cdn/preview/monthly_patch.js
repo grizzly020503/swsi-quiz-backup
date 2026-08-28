@@ -2066,6 +2066,116 @@ body:has(#app .section-h) main{
   }catch(_e){}
 })();
 
+/* SWSI Prelaunch Mobile Polish 2026-08-28
+   Launch-readiness UI only: safe-area spacing, calmer study hub copy,
+   a real-data daily reminder, and a lower-profile admin entry.
+   Does not own runtime routes or change grading/question/AI contracts.
+*/
+(function(){
+  'use strict';
+
+  var STYLE_ID='swsi-prelaunch-mobile-polish-20260828';
+  if(!document.getElementById(STYLE_ID)){
+    var st=document.createElement('style');
+    st.id=STYLE_ID;
+    st.textContent=`
+      .swsi-launch-reminder{margin:11px 0 0;border:1px solid #D8E4DE;background:#F4F8F6;border-radius:13px;padding:10px 11px;display:flex;gap:9px;align-items:flex-start;font-family:'Noto Sans TC',sans-serif}
+      .swsi-launch-reminder .mark{flex:0 0 auto;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#E1ECE7;color:#45685B;font-weight:800;font-size:13px}
+      .swsi-launch-reminder b{display:block;font-size:12.5px;color:var(--ink);margin-bottom:2px}
+      .swsi-launch-reminder span{display:block;font-size:11px;line-height:1.55;color:var(--ink-soft)}
+      .swsi-myhub-row.admin-login{opacity:.78;background:#FAFBFA!important}
+      .swsi-myhub-row.admin-login .label{font-size:12px!important;font-weight:600!important}
+      .swsi-myhub-row.admin-login .meta{font-size:10px!important}
+      @media(max-width:720px){
+        .wrap>footer,body footer{padding-bottom:calc(128px + env(safe-area-inset-bottom))!important}
+        .swsi-public-footer-brand{padding-left:8px;padding-right:8px}
+        .swsi-myhub{gap:10px;margin-bottom:20px}
+        .swsi-myhub-card{box-shadow:none!important;border-radius:15px!important}
+      }
+    `;
+    document.head.appendChild(st);
+  }
+
+  function setText(el,text){
+    if(el&&el.textContent!==text)el.textContent=text;
+  }
+
+  function draftCount(){
+    var n=0;
+    try{
+      for(var i=0;i<localStorage.length;i++){
+        var k=localStorage.key(i);
+        if(k&&k.indexOf('essay_draft_')===0&&(localStorage.getItem(k)||'').trim())n++;
+      }
+    }catch(_e){}
+    return n;
+  }
+
+  function reminderText(){
+    try{
+      if(typeof reviewSummary==='function'){
+        var r=reviewSummary()||{};
+        var due=Number(r.dueCount||0);
+        var active=Number(r.activeCount||0);
+        if(due>0)return '今天有 '+due+' 題到期，先完成錯題複習會最有幫助。';
+        if(active>0)return '目前還有 '+active+' 題尚未熟練，可以從錯題複習開始。';
+      }
+    }catch(_e){}
+    var drafts=draftCount();
+    if(drafts>0)return '這台裝置還有 '+drafts+' 份申論草稿，想繼續時可以直接接著寫。';
+    return '今天若想維持進度，可以完成一組 20 題，或練一題申論。';
+  }
+
+  function polishHub(){
+    var hub=document.querySelector('.swsi-myhub');
+    if(!hub)return;
+
+    var cards=hub.querySelectorAll('.swsi-myhub-card');
+    if(cards[0]){
+      setText(cards[0].querySelector('.swsi-myhub-title'),'今天的學習');
+      setText(cards[0].querySelector('.swsi-myhub-sub'),'刷題、錯題與申論都在這裡；依自己的進度選一個開始。');
+      if(!cards[0].querySelector('.swsi-launch-reminder')){
+        var reminder=document.createElement('div');
+        reminder.className='swsi-launch-reminder';
+        reminder.setAttribute('role','status');
+        reminder.innerHTML='<div class="mark">!</div><div><b>今日提醒</b><span></span></div>';
+        var grid=cards[0].querySelector('.swsi-myhub-grid');
+        cards[0].insertBefore(reminder,grid||null);
+      }
+      setText(cards[0].querySelector('.swsi-launch-reminder span'),reminderText());
+    }
+
+    if(cards[1]){
+      setText(cards[1].querySelector('.swsi-myhub-title'),'平台與支援');
+      setText(cards[1].querySelector('.swsi-myhub-sub'),'分享、來源、隱私與管理入口集中在這裡。');
+    }
+
+    var login=hub.querySelector('[data-swsi-admin-login]');
+    if(login){
+      setText(login.querySelector('.label'),'管理者入口');
+      setText(login.querySelector('.meta'),'僅管理者使用');
+    }
+  }
+
+  function keepFooterClear(){
+    var f=document.querySelector('.wrap > footer')||document.querySelector('footer');
+    if(f&&f.style.scrollMarginBottom!=='140px')f.style.scrollMarginBottom='140px';
+  }
+
+  function run(){polishHub();keepFooterClear();}
+  run();
+
+  var root=document.getElementById('app')||document.body;
+  var pending=false;
+  new MutationObserver(function(){
+    if(pending)return;
+    pending=true;
+    queueMicrotask(function(){pending=false;run();});
+  }).observe(root,{childList:true,subtree:true});
+
+  window.addEventListener('focus',run);
+})();
+
 /* SWSI Knowledge Path V1 2026-08-26
    One query -> understand -> see exam patterns -> practice.
    Keeps theory/law summaries distinct from official exam questions.
