@@ -53,9 +53,15 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
   // AI network failure: answer stays saved, busy state clears, and the user gets plain-language recovery copy.
   await page.getByRole('button',{name:'直接練一題'}).click();
   await page.waitForSelector('.wta',{timeout:30000});
-  const aiUrl=await page.evaluate(()=>String(window.AI_PROXY_URL||''));
-  assert(/^https?:/.test(aiUrl),'AI proxy URL missing');
-  await page.route(aiUrl+'**',route=>route.abort('failed'));
+  let blockedPost='';
+  await page.route('**/*',route=>{
+    const req=route.request();
+    if(req.method()==='POST'){
+      blockedPost=req.url();
+      return route.abort('failed');
+    }
+    return route.continue();
+  });
   const ta=page.locator('.wta').first();
   await ta.fill('這是一段用來測試 AI 服務暫時中斷時，平台是否仍能保存學生作答並提供清楚錯誤提示的測試內容。學生應該可以稍後再試，而不是卡在批改中的狀態。');
   const aiButton=page.getByRole('button',{name:/請 AI 看我的作答/});
@@ -64,11 +70,12 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
     const out=document.querySelector('[id^="airesult_"]');
     return out&&/連線失敗|暫時|稍後再試|網路/.test(out.textContent||'');
   },null,{timeout:15000});
+  assert(blockedPost,'AI action did not issue a POST request');
   assert(!(await aiButton.isDisabled()),'AI button stayed disabled after failure');
   assert((await ta.inputValue()).length>30,'essay answer disappeared after AI failure');
   const aiResult=await page.locator('[id^="airesult_"]').first().innerText();
   assert(/作答仍保存在這台裝置|稍後再試|網路/.test(aiResult),'AI failure lacks recovery guidance');
-  await page.unroute(aiUrl+'**');
+  await page.unroute('**/*');
   await page.getByRole('button',{name:'首頁',exact:true}).click();
   await page.waitForSelector('.swsi-focus-primary',{timeout:10000});
 
