@@ -58,7 +58,8 @@ function hasUsableName(el){
     for(let i=0;i<await navButtons.count();i++){
       const b=navButtons.nth(i);
       const box=await b.boundingBox();
-      assert(box&&box.height>=40&&box.width>=40,`${label}: bottom nav touch target too small at ${i}`);
+      const state=await b.evaluate(el=>{const s=getComputedStyle(el);return {id:el.id,text:(el.textContent||'').trim(),display:s.display,visibility:s.visibility,opacity:s.opacity};});
+      assert(box&&box.height>=40&&box.width>=40,`${label}: bottom nav touch target too small at ${i}; box=${JSON.stringify(box)} state=${JSON.stringify(state)}`);
       const named=await b.evaluate(hasUsableName);
       assert(named,`${label}: bottom nav control ${i} has no accessible name`);
     }
