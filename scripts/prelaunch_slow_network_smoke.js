@@ -17,6 +17,8 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   const page=await context.newPage();
   const pageErrors=[];
   let delayedShardRequests=0;
+  let activeDelayedShardRequests=0;
+  const shardDelaySamples=[];
   page.on('pageerror',e=>pageErrors.push(String(e&&e.message||e)));
 
   await page.route('**/*',async route=>{
@@ -28,37 +30,56 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
       const file=path.join(LOCAL_SHARD_DIR,rel);
       if(!fs.existsSync(file))return route.fulfill({status:404,body:'not found'});
       delayedShardRequests++;
+      activeDelayedShardRequests++;
+      const delayStarted=Date.now();
       await sleep(DELAY_MS);
+      shardDelaySamples.push(Date.now()-delayStarted);
+      activeDelayedShardRequests--;
       return route.fulfill({status:200,contentType:'application/json; charset=utf-8',body:fs.readFileSync(file)});
     }
     return route.continue();
   });
 
-  const started=Date.now();
-  await page.goto(base,{waitUntil:'commit',timeout:15000});
+  async function waitForAnyDelayedShard(timeout=12000){
+    const deadline=Date.now()+timeout;
+    while(delayedShardRequests===0&&Date.now()<deadline)await sleep(50);
+    assert(delayedShardRequests>0,'slow-network: no question shard request was delayed');
+  }
 
-  // While question data is intentionally delayed, the rendered shell must remain
-  // visible and non-blank. The product does not require a specific loading label.
+  await page.goto(base,{waitUntil:'commit',timeout:15000});
   await page.waitForSelector('#app',{timeout:5000});
-  await page.waitForTimeout(700);
+  await page.waitForSelector('.swsi-focus-primary',{timeout:45000});
+
+  // The shell must already be useful before a quiz fetch is forced.
   const earlyApp=(await page.locator('#app').innerText()).trim();
   const earlyBody=(await page.locator('body').innerText()).trim();
-  assert(earlyApp.length>0,'slow-network: app shell rendered empty during load');
-  assert(earlyBody.length>0,'slow-network: page rendered blank during load');
+  assert(earlyApp.length>0,'slow-network: app shell rendered empty before quiz load');
+  assert(earlyBody.length>0,'slow-network: page rendered blank before quiz load');
 
-  await page.waitForSelector('.swsi-focus-primary',{timeout:45000});
-  assert(delayedShardRequests>0,'slow-network: no question shard request was delayed');
-  assert(Date.now()-started>=1500,'slow-network: shard delay was not exercised');
-  assert((await page.locator('.swsi-focus-primary').count())>0,'slow-network: home did not recover after delayed shards');
+  // Use the same real user path as the dead-end smoke. If home boot did not need a
+  // shard, starting a 20-question set guarantees that the question-data path is exercised.
+  await page.getByRole('button',{name:/直接開始 20 題/}).click();
+  await waitForAnyDelayedShard();
 
-  // A reload under the same delayed network must also recover instead of sticking
-  // forever on the initial shell.
-  const requestsBeforeReload=delayedShardRequests;
+  // While the intercepted shard is intentionally sleeping, the page must remain visible.
+  if(activeDelayedShardRequests>0){
+    assert((await page.locator('#app').innerText()).trim().length>0,'slow-network: app shell emptied while shard was delayed');
+    assert((await page.locator('body').innerText()).trim().length>0,'slow-network: body went blank while shard was delayed');
+  }
+
+  await page.waitForSelector('.qcard .opt',{timeout:45000});
+  assert(shardDelaySamples.some(ms=>ms>=2000),'slow-network: intercepted shard did not experience the intended delay');
+
+  // Recover from the delayed data path through the normal user exit route.
+  await page.getByRole('button',{name:/結束這次練習/}).click();
+  await page.waitForSelector('.swsi-focus-primary',{timeout:30000});
+
+  // Reload may legitimately reuse cached shards. It must still render and recover;
+  // do not require the browser to download the same shard again.
   await page.reload({waitUntil:'commit',timeout:15000});
   await page.waitForSelector('#app',{timeout:5000});
   assert((await page.locator('body').innerText()).trim().length>0,'slow-network reload: blank body');
   await page.waitForSelector('.swsi-focus-primary',{timeout:45000});
-  assert(delayedShardRequests>requestsBeforeReload,'slow-network reload: delayed shard path was not exercised');
 
   assert.deepStrictEqual(pageErrors,[],'slow-network page errors: '+pageErrors.join(' | '));
   console.log('PRELAUNCH SLOW NETWORK SMOKE OK');
