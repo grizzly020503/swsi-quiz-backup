@@ -37,10 +37,15 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
   assert(!await page.locator('#swsi-public-info-backdrop').count(),'public info backdrop stuck open');
 
   // Empty review must be a useful empty state, not an exception/dead-end.
-  await page.evaluate(()=>{try{localStorage.clear();}catch(_e){}; if(typeof window.go==='function')window.go('review');});
-  await page.waitForTimeout(300);
+  await page.evaluate(()=>{try{localStorage.clear();}catch(_e){}});
+  await page.getByRole('button',{name:'複習',exact:true}).click();
+  await page.waitForFunction(()=>{
+    const app=document.querySelector('#app');
+    return app&&(/還沒有錯題|目前沒有待複習題/.test(app.textContent||''));
+  },null,{timeout:10000});
   const emptyReview=await page.locator('#app').innerText();
-  assert(/錯題|複習/.test(emptyReview),'review route did not render');
+  assert(/還沒有錯題|目前沒有待複習題/.test(emptyReview),'review empty state missing');
+  assert(/開始刷題|看看我的進度/.test(emptyReview),'review empty state lacks a next step');
   assert(!/undefined|null|NaN/.test(emptyReview),'review empty state leaked invalid values');
   await page.getByRole('button',{name:'首頁',exact:true}).click();
   await page.waitForSelector('.swsi-focus-primary',{timeout:10000});
