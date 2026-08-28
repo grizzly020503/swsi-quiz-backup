@@ -78,6 +78,7 @@ jobs:
           grep -q '一次最多 3 張' /tmp/swsi-preview/monthly_patch.js
           grep -q '正式考題本身.*最高依據' /tmp/swsi-preview/monthly_patch.js
           grep -q '平台整理・可能相關理論' /tmp/swsi-preview/monthly_patch.js
+          grep -q 'SWSI My Learning Center V1 2026-08-28' /tmp/swsi-preview/monthly_patch.js
           if grep -A80 'SWSI Essay Trust Layer 2026-08-26' /tmp/swsi-preview/monthly_patch.js | grep -q '校過骨架'; then
             echo 'Essay Trust Layer still contains forbidden overclaim: 校過骨架' >&2
             exit 1
@@ -116,6 +117,12 @@ jobs:
           rm -rf /tmp/swsi-main-publish/cdn/preview
           mkdir -p /tmp/swsi-main-publish/cdn/preview
           cp -a /tmp/swsi-preview/. /tmp/swsi-main-publish/cdn/preview/
+          # The student preview and Admin preview share /cdn/preview. Re-add the
+          # tracked Admin source so a student frontend publish cannot delete it.
+          if [ -d /tmp/swsi-main-publish/admin ]; then
+            mkdir -p /tmp/swsi-main-publish/cdn/preview/admin
+            cp -a /tmp/swsi-main-publish/admin/. /tmp/swsi-main-publish/cdn/preview/admin/
+          fi
 
           cd /tmp/swsi-main-publish
           git config user.name 'swsi-preview-bot'
@@ -134,17 +141,20 @@ jobs:
           set -euo pipefail
           URL='https://wandering-wave-4418.c022050333.workers.dev/preview/index.html'
           PATCH_URL='https://wandering-wave-4418.c022050333.workers.dev/preview/monthly_patch.js'
+          ADMIN_URL='https://wandering-wave-4418.c022050333.workers.dev/preview/admin/index.html'
           code=''
           for i in $(seq 1 36); do
             code="$(curl --silent --show-error --location -o /tmp/live-preview.html -w '%{http_code}' "$URL?check=$GITHUB_RUN_ID-$i" || true)"
             patch_code="$(curl --silent --show-error --location -o /tmp/live-preview-patch.js -w '%{http_code}' "$PATCH_URL?check=$GITHUB_RUN_ID-$i" || true)"
-            if [ "$code" = '200' ] && [ "$patch_code" = '200' ] \
+            admin_code="$(curl --silent --show-error --location -o /tmp/live-admin.html -w '%{http_code}' "$ADMIN_URL?check=$GITHUB_RUN_ID-$i" || true)"
+            if [ "$code" = '200' ] && [ "$patch_code" = '200' ] && [ "$admin_code" = '200' ] \
                && grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW 20260826' /tmp/live-preview.html \
                && grep -q 'monthly_patch.js?v=preview-code-health-p0-20260826-2' /tmp/live-preview.html \
                && grep -q 'SWSI Essay Trust Layer 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Essay Guide Audit Batch 1 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Essay Metadata Labels 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Learning Loop V1 2026-08-26' /tmp/live-preview-patch.js \
+               && grep -q 'SWSI My Learning Center V1 2026-08-28' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Knowledge Path V1 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Law Trust UI Contract 2026-08-27' /tmp/live-preview-patch.js \
                && grep -q 'SWSI New Resident Basic Act Status Fix 2026-08-26' /tmp/live-preview-patch.js \
@@ -155,11 +165,13 @@ jobs:
                && grep -q '一次最多 3 張' /tmp/live-preview-patch.js \
                && grep -q '從理論接到考題' /tmp/live-preview-patch.js \
                && grep -q '從法規接到考題' /tmp/live-preview-patch.js \
-               && grep -q '正式考題本身.*最高依據' /tmp/live-preview-patch.js; then
+               && grep -q '正式考題本身.*最高依據' /tmp/live-preview-patch.js \
+               && grep -q '<title>SWSI 管理中心</title>' /tmp/live-admin.html; then
               echo "CLOUDFLARE FRONTEND PREVIEW OK: $URL"
+              echo "SWSI ADMIN PREVIEW PRESERVED: $ADMIN_URL"
               exit 0
             fi
-            echo "Waiting for Cloudflare preview: attempt=$i html=$code patch=$patch_code"
+            echo "Waiting for Cloudflare preview: attempt=$i html=$code patch=$patch_code admin=$admin_code"
             sleep 5
           done
           echo 'Cloudflare preview did not reach expected content in time' >&2

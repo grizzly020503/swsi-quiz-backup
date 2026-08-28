@@ -1,0 +1,92 @@
+
+/* SWSI My Learning Center V1 2026-08-28
+   Turns the existing progress page into a compact personal study hub.
+   This layer reuses existing study routes/data and does not invent unavailable metrics.
+*/
+(function(){
+  'use strict';
+  if(typeof renderProgress!=='function') return;
+
+  var baseRenderProgress=renderProgress;
+  var STYLE_ID='swsi-my-learning-center-v1-style';
+  if(!document.getElementById(STYLE_ID)){
+    var st=document.createElement('style');
+    st.id=STYLE_ID;
+    st.textContent=`
+      .swsi-myhub{margin:0 0 18px;display:grid;gap:12px}
+      .swsi-myhub-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;box-shadow:0 6px 22px rgba(35,48,42,.05)}
+      .swsi-myhub-title{font-family:'Noto Serif TC',serif;font-size:18px;font-weight:800;color:var(--ink);margin:0}
+      .swsi-myhub-sub{font:500 12px/1.65 'Noto Sans TC',sans-serif;color:var(--ink-soft);margin-top:3px}
+      .swsi-myhub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+      .swsi-myhub-action{border:1px solid var(--line);background:#FDFEFD;color:var(--ink);border-radius:13px;min-height:84px;padding:11px 8px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;text-align:left;cursor:pointer;font-family:'Noto Sans TC',sans-serif}
+      .swsi-myhub-action b{font-size:13px;line-height:1.35}.swsi-myhub-action small{font-size:10.5px;line-height:1.45;color:var(--ink-soft)}
+      .swsi-myhub-action .ico{font-size:19px;line-height:1}
+      .swsi-myhub-list{display:grid;margin-top:9px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+      .swsi-myhub-row{border:0;border-bottom:1px solid var(--line);background:#fff;min-height:54px;padding:10px 12px;display:flex;align-items:center;gap:10px;width:100%;text-align:left;color:var(--ink);cursor:pointer;font-family:'Noto Sans TC',sans-serif}
+      .swsi-myhub-row:last-child{border-bottom:0}.swsi-myhub-row .label{font-size:13px;font-weight:750;flex:1}.swsi-myhub-row .meta{font-size:10.5px;color:var(--ink-soft)}.swsi-myhub-row .arrow{color:#8A9690;font-size:18px}
+      .swsi-myhub-toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:980;background:#27322D;color:#fff;border-radius:999px;padding:9px 13px;font:650 12px/1.3 'Noto Sans TC',sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+      @media(max-width:430px){.swsi-myhub-grid{grid-template-columns:1fr 1fr}.swsi-myhub-action{min-height:78px}.swsi-myhub-card{padding:13px}}
+    `;
+    document.head.appendChild(st);
+  }
+
+  function draftCount(){
+    var n=0;
+    try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('essay_draft_')===0&&(localStorage.getItem(k)||'').trim())n++;}}catch(_e){}
+    return n;
+  }
+  function reviewMeta(){
+    try{var r=reviewSummary();return {due:Number(r.dueCount||0),active:Number(r.activeCount||0),mastered:Number(r.masteredCount||0)};}catch(_e){return {due:0,active:0,mastered:0};}
+  }
+  function toast(msg){
+    var old=document.querySelector('.swsi-myhub-toast');if(old)old.remove();
+    var el=document.createElement('div');el.className='swsi-myhub-toast';el.textContent=msg;document.body.appendChild(el);setTimeout(function(){if(el.parentNode)el.remove();},1800);
+  }
+  window.swsiSharePlatform=async function(){
+    var url=(location.origin&&location.origin!=='null')?location.origin+location.pathname:location.href;
+    var data={title:'SWSI — Social Work Study Initiative',text:'社工師國考免費學習平台 SWSI',url:url};
+    try{
+      if(navigator.share){await navigator.share(data);return;}
+      if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(url);toast('已複製 SWSI 網址');return;}
+    }catch(err){if(err&&err.name==='AbortError')return;}
+    try{var ta=document.createElement('textarea');ta.value=url;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('已複製 SWSI 網址');}catch(_e){toast('請從瀏覽器分享這個頁面');}
+  };
+
+  function action(icon,title,sub,onclick){
+    return '<button type="button" class="swsi-myhub-action" onclick="'+onclick+'"><span class="ico">'+icon+'</span><b>'+title+'</b><small>'+sub+'</small></button>';
+  }
+  function row(label,meta,onclick){
+    return '<button type="button" class="swsi-myhub-row" onclick="'+onclick+'"><span class="label">'+label+'</span>'+(meta?'<span class="meta">'+meta+'</span>':'')+'<span class="arrow">›</span></button>';
+  }
+  function buildHub(){
+    var rv=reviewMeta(),drafts=draftCount();
+    var reviewText=rv.due?('今天 '+rv.due+' 題到期'):(rv.active?('尚有 '+rv.active+' 題未熟練'):'目前沒有待複習題');
+    var essayText=drafts?('這台裝置有 '+drafts+' 份草稿'):'開始申論練習';
+    return '<section class="swsi-myhub" aria-label="我的學習中心">'
+      +'<div class="swsi-myhub-card"><h2 class="swsi-myhub-title">我的學習中心</h2><div class="swsi-myhub-sub">把刷題、錯題與申論集中在這裡。只顯示平台目前真的有的資料。</div>'
+      +'<div class="swsi-myhub-grid">'
+      +action('◎','繼續刷題','隨機 20 題','swsiStartRecommended20()')
+      +action('↻','錯題複習',reviewText,"go('review')")
+      +action('✎','申論練習',essayText,'window.swsiOpenEssay()')
+      +'</div></div>'
+      +'<div class="swsi-myhub-card"><h2 class="swsi-myhub-title">SWSI</h2><div class="swsi-myhub-sub">分享平台、查看來源與使用說明。</div><div class="swsi-myhub-list">'
+      +row('分享 SWSI','官方公開網址','swsiSharePlatform()')
+      +row('關於 SWSI','Social Work Study Initiative',"swsiOpenPublicInfo('about',this)")
+      +row('資料來源','正式考題以官方資料為準',"swsiOpenPublicInfo('sources',this)")
+      +row('隱私說明','了解平台保存哪些資料',"swsiOpenPublicInfo('privacy',this)")
+      +row('使用條款','免費分享與商業使用邊界',"swsiOpenPublicInfo('terms',this)")
+      +'</div></div></section>';
+  }
+
+  function decorate(){
+    if(!app||app.querySelector('.swsi-myhub'))return;
+    var wrap=document.createElement('div');wrap.innerHTML=buildHub();
+    var hub=wrap.firstElementChild;
+    if(hub)app.insertBefore(hub,app.firstChild);
+  }
+
+  renderProgress=function(){
+    baseRenderProgress();
+    decorate();
+  };
+})();
