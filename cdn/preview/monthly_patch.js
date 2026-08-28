@@ -1883,13 +1883,11 @@ body:has(#app .section-h) main{
 
 /* SWSI My Learning Center V1 2026-08-28
    Turns the existing progress page into a compact personal study hub.
-   This layer reuses existing study routes/data and does not invent unavailable metrics.
+   This layer is a UI enhancer only: it does not own renderProgress or other runtime routes.
 */
 (function(){
   'use strict';
-  if(typeof renderProgress!=='function') return;
 
-  var baseRenderProgress=renderProgress;
   var STYLE_ID='swsi-my-learning-center-v1-style';
   if(!document.getElementById(STYLE_ID)){
     var st=document.createElement('style');
@@ -1961,16 +1959,25 @@ body:has(#app .section-h) main{
   }
 
   function decorate(){
-    if(!app||app.querySelector('.swsi-myhub'))return;
+    var root=document.getElementById('app');
+    if(!root||root.querySelector('.swsi-myhub'))return;
+    var heading=root.querySelector('.section-h');
+    if(!heading||heading.textContent.trim()!=='我的學習進度')return;
     var wrap=document.createElement('div');wrap.innerHTML=buildHub();
     var hub=wrap.firstElementChild;
-    if(hub)app.insertBefore(hub,app.firstChild);
+    if(hub)root.insertBefore(hub,root.firstChild);
   }
 
-  renderProgress=function(){
-    baseRenderProgress();
+  var root=document.getElementById('app');
+  if(root){
     decorate();
-  };
+    var pending=false;
+    new MutationObserver(function(){
+      if(pending)return;
+      pending=true;
+      queueMicrotask(function(){pending=false;decorate();});
+    }).observe(root,{childList:true,subtree:true});
+  }
 })();
 
 /* SWSI Knowledge Path V1 2026-08-26
