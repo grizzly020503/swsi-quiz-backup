@@ -1,0 +1,75 @@
+name: Launch Readiness QA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/launch-readiness-qa.yml'
+      - 'monthly_patch_parts/**'
+      - 'scripts/launch_readiness_smoke.js'
+      - 'scripts/monthly_patch_build.py'
+      - 'scripts/build_essay_guides_runtime.js'
+      - 'index.html'
+      - 'essay_guides.js'
+      - 'cdn/question-shards/**'
+  pull_request:
+    paths:
+      - '.github/workflows/launch-readiness-qa.yml'
+      - 'monthly_patch_parts/**'
+      - 'scripts/launch_readiness_smoke.js'
+      - 'scripts/monthly_patch_build.py'
+      - 'scripts/build_essay_guides_runtime.js'
+      - 'index.html'
+      - 'essay_guides.js'
+      - 'cdn/question-shards/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-launch-readiness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mobile-launch-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Syntax check
+        run: node --check scripts/launch_readiness_smoke.js
+
+      - name: Build browser-test site
+        run: |
+          rm -rf _site
+          mkdir -p _site/icons
+          cp index.html manifest.json sw.js apple-touch-icon.png _site/
+          node scripts/build_essay_guides_runtime.js essay_guides.js _site/essay_guides.js
+          cat monthly_patch_parts/*.part > _site/monthly_patch.js
+          node --check _site/monthly_patch.js
+          cp icons/icon-192.png icons/icon-512.png _site/icons/
+          if [ -d auto ]; then cp -R auto _site/; fi
+          python scripts/monthly_patch_build.py _site/index.html
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Mobile launch acceptance smoke
+        run: |
+          python -m http.server 4173 --directory _site >/tmp/swsi-launch-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/launch_readiness_smoke.js http://127.0.0.1:4173/
