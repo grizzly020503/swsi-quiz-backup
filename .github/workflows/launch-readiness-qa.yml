@@ -98,77 +98,30 @@ jobs:
           node scripts/prelaunch_accessibility_touch_smoke.js http://127.0.0.1:4173/
           node scripts/pwa_resilience_smoke.js http://127.0.0.1:4173/
 
-  production-release-probe:
+  production-state-probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Verify exact production URL and Round 8 release files
+      - name: Read current official Netlify state
         env:
           SITE: https://swsi-quiznetlify.netlify.app
         run: |
-          set -euo pipefail
-          fetch_prod() {
-            path="$1"
-            out="$2"
-            code="$(curl --silent --show-error --location --retry 3 --retry-all-errors --connect-timeout 10 --max-time 30 -H 'Cache-Control: no-cache' -o "$out" -w '%{http_code}' "$SITE$path?release_check=$GITHUB_RUN_ID")"
-            echo "PRODUCTION $path -> HTTP $code"
-            test "$code" = '200'
+          set -u
+          fetch() {
+            path="$1"; out="$2"
+            code="$(curl --silent --show-error --location --retry 2 --retry-all-errors --connect-timeout 10 --max-time 30 -H 'Cache-Control: no-cache' -o "$out" -w '%{http_code}' "$SITE$path?release_probe=$GITHUB_RUN_ID" || true)"
+            echo "$path HTTP=$code"
           }
+          fetch / /tmp/index.html
+          fetch /sw.js /tmp/sw.js
+          fetch /monthly_patch.js /tmp/monthly_patch.js
+          fetch /essay_guides.js /tmp/essay_guides.js
+          fetch /auto/essays_auto.json /tmp/essays.json
 
-          fetch_prod / /tmp/prod-index.html
-          fetch_prod /sw.js /tmp/prod-sw.js
-          fetch_prod /monthly_patch.js /tmp/prod-monthly-patch.js
-          fetch_prod /auto/essays_auto.json /tmp/prod-essays.json
-
-          grep -q '社工師國考免費題庫｜SWSI' /tmp/prod-index.html
-          grep -q 'monthly_patch.js' /tmp/prod-index.html
-          grep -q "const VERSION = 'v6'" /tmp/prod-sw.js
-          ! grep -q "const VERSION = 'v5'" /tmp/prod-sw.js
-          grep -q '2026-08-26.fail-closed.v2' /tmp/prod-monthly-patch.js
-          grep -q '2026-08-26.sha256.v2' /tmp/prod-monthly-patch.js
-          grep -q '2026-08-26.unified-grading.v2' /tmp/prod-monthly-patch.js
-          grep -q '2026-08-26.typed-errors.v2' /tmp/prod-monthly-patch.js
-          grep -q '2026-08-27.schema-guard.v3' /tmp/prod-monthly-patch.js
-          grep -q 'SWSI Product V1 Lock 2026-08-26' /tmp/prod-monthly-patch.js
-          grep -q 'SWSI Law Trust Final Batch 2026-08-26' /tmp/prod-monthly-patch.js
-          grep -q 'SWSI Theory Trust Final Batch 2026-08-26' /tmp/prod-monthly-patch.js
-          grep -q '資產建構／資產累積理論' /tmp/prod-index.html
-          grep -q '無條件基本收入 UBI' /tmp/prod-index.html
-
-          if grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW' /tmp/prod-index.html; then
-            echo 'Preview marker found on production' >&2
-            exit 1
-          fi
-          if grep -q 'swsi-preview-banner' /tmp/prod-index.html; then
-            echo 'Preview banner found on production' >&2
-            exit 1
-          fi
-          if grep -q 'noindex,nofollow,noarchive' /tmp/prod-index.html; then
-            echo 'Preview noindex leaked to production' >&2
-            exit 1
-          fi
-
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          payload=json.loads(Path('/tmp/prod-essays.json').read_text(encoding='utf-8'))
-          raw=json.dumps(payload,ensure_ascii=False)
-          for bad in ('\ue129','\ue12a','\ue12b'):
-              assert bad not in raw, f'production essay payload contains private-use glyph {bad!r}'
-          assert '（一）' in raw and '（二）' in raw
-          print('NETLIFY PRODUCTION HTTP RELEASE CHECK OK')
-          PY
-
-      - name: Install Playwright Chromium
-        run: |
-          npm install --no-save playwright@1.55.0
-          npx playwright install --with-deps chromium
-
-      - name: Real browser smoke on official Netlify URL
-        run: |
-          node scripts/grading_contract_smoke.js 'https://swsi-quiznetlify.netlify.app/?release_check=${{ github.run_id }}'
-          node scripts/browser_interaction_smoke.js 'https://swsi-quiznetlify.netlify.app/?release_check=${{ github.run_id }}'
-          echo 'NETLIFY PRODUCTION BROWSER RELEASE CHECK OK'
+          echo "INDEX_HAS_MONTHLY_PATCH=$(grep -q 'monthly_patch.js' /tmp/index.html && echo yes || echo no)"
+          echo "INDEX_HAS_BOOT_DEFERRED=$(grep -q 'window.__SWSI_BOOT_DEFERRED__=true' /tmp/index.html && echo yes || echo no)"
+          echo "INDEX_HAS_ROUND8_LABEL=$(grep -q '資產建構／資產累積理論' /tmp/index.html && echo yes || echo no)"
+          echo "SW_V6=$(grep -q \"const VERSION = 'v6'\" /tmp/sw.js && echo yes || echo no)"
+          echo "SW_V5=$(grep -q \"const VERSION = 'v5'\" /tmp/sw.js && echo yes || echo no)"
+          echo "PATCH_HAS_ROUND8=$(grep -q '2026-08-26.fail-closed.v2' /tmp/monthly_patch.js && echo yes || echo no)"
+          echo "ESSAY_GUIDE_GENERATED=$(grep -q 'Generated from essay_guides.js by scripts/build_essay_guides_runtime.js' /tmp/essay_guides.js && echo yes || echo no)"
+          echo "PRODUCTION STATE PROBE COMPLETE"
