@@ -1904,8 +1904,16 @@ body:has(#app .section-h) main{
       .swsi-myhub-list{display:grid;margin-top:9px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
       .swsi-myhub-row{border:0;border-bottom:1px solid var(--line);background:#fff;min-height:54px;padding:10px 12px;display:flex;align-items:center;gap:10px;width:100%;text-align:left;color:var(--ink);cursor:pointer;font-family:'Noto Sans TC',sans-serif}
       .swsi-myhub-row:last-child{border-bottom:0}.swsi-myhub-row .label{font-size:13px;font-weight:750;flex:1}.swsi-myhub-row .meta{font-size:10.5px;color:var(--ink-soft)}.swsi-myhub-row .arrow{color:#8A9690;font-size:18px}
+      .swsi-myhub-row.admin{background:#F7F9FF}.swsi-myhub-row.admin .label{color:#2747A3}
       .swsi-myhub-toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:980;background:#27322D;color:#fff;border-radius:999px;padding:9px 13px;font:650 12px/1.3 'Noto Sans TC',sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.2)}
-      @media(max-width:430px){.swsi-myhub-grid{grid-template-columns:1fr 1fr}.swsi-myhub-action{min-height:78px}.swsi-myhub-card{padding:13px}}
+      .swsi-admin-layer{position:fixed;inset:0;z-index:1200;background:#F5F7FB;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+      .swsi-admin-layer[hidden]{display:none!important}
+      .swsi-admin-bar{min-height:54px;display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #E5E7EB;background:#fff;box-shadow:0 2px 10px rgba(20,32,51,.05);font-family:'Noto Sans TC',sans-serif}
+      .swsi-admin-back{border:1px solid #D7DCE3;background:#fff;color:#27322D;border-radius:11px;padding:8px 11px;font-weight:750;cursor:pointer}
+      .swsi-admin-title{font-weight:800;color:#18202A;font-size:14px}.swsi-admin-note{margin-left:auto;color:#667085;font-size:11px}
+      .swsi-admin-frame{border:0;width:100%;flex:1;min-height:0;background:#F5F7FB}
+      body.swsi-admin-open{overflow:hidden}
+      @media(max-width:430px){.swsi-myhub-grid{grid-template-columns:1fr 1fr}.swsi-myhub-action{min-height:78px}.swsi-myhub-card{padding:13px}.swsi-admin-note{display:none}}
     `;
     document.head.appendChild(st);
   }
@@ -1932,11 +1940,43 @@ body:has(#app .section-h) main{
     try{var ta=document.createElement('textarea');ta.value=url;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('已複製 SWSI 網址');}catch(_e){toast('請從瀏覽器分享這個頁面');}
   };
 
+  function ensureAdminLayer(){
+    var layer=document.getElementById('swsi-admin-layer');
+    if(layer)return layer;
+    layer=document.createElement('section');
+    layer.id='swsi-admin-layer';
+    layer.className='swsi-admin-layer';
+    layer.hidden=true;
+    layer.setAttribute('aria-label','SWSI 管理中心');
+    layer.innerHTML='<div class="swsi-admin-bar"><button type="button" class="swsi-admin-back" onclick="swsiCloseAdminCenter()">‹ 返回 SWSI</button><div class="swsi-admin-title">管理中心</div><div class="swsi-admin-note">管理者專用・權限仍由 Supabase 驗證</div></div><iframe class="swsi-admin-frame" title="SWSI 管理中心" loading="lazy"></iframe>';
+    document.body.appendChild(layer);
+    return layer;
+  }
+  function adminUrl(){
+    var p=location.pathname||'/';
+    if(/\/preview\/index\.html$/.test(p))return './admin/index.html';
+    if(/\/index\.html$/.test(p))return './admin/index.html';
+    if(/\/$/.test(p))return './admin/index.html';
+    return 'admin/index.html';
+  }
+  window.swsiOpenAdminCenter=function(){
+    var layer=ensureAdminLayer();
+    var frame=layer.querySelector('iframe');
+    if(frame&&!frame.getAttribute('src'))frame.setAttribute('src',adminUrl());
+    layer.hidden=false;
+    document.body.classList.add('swsi-admin-open');
+  };
+  window.swsiCloseAdminCenter=function(){
+    var layer=document.getElementById('swsi-admin-layer');
+    if(layer)layer.hidden=true;
+    document.body.classList.remove('swsi-admin-open');
+  };
+
   function action(icon,title,sub,onclick){
     return '<button type="button" class="swsi-myhub-action" onclick="'+onclick+'"><span class="ico">'+icon+'</span><b>'+title+'</b><small>'+sub+'</small></button>';
   }
-  function row(label,meta,onclick){
-    return '<button type="button" class="swsi-myhub-row" onclick="'+onclick+'"><span class="label">'+label+'</span>'+(meta?'<span class="meta">'+meta+'</span>':'')+'<span class="arrow">›</span></button>';
+  function row(label,meta,onclick,extraClass){
+    return '<button type="button" class="swsi-myhub-row'+(extraClass?' '+extraClass:'')+'" onclick="'+onclick+'"><span class="label">'+label+'</span>'+(meta?'<span class="meta">'+meta+'</span>':'')+'<span class="arrow">›</span></button>';
   }
   function buildHub(){
     var rv=reviewMeta(),drafts=draftCount();
@@ -1949,7 +1989,8 @@ body:has(#app .section-h) main{
       +action('↻','錯題複習',reviewText,"go('review')")
       +action('✎','申論練習',essayText,'window.swsiOpenEssay()')
       +'</div></div>'
-      +'<div class="swsi-myhub-card"><h2 class="swsi-myhub-title">SWSI</h2><div class="swsi-myhub-sub">分享平台、查看來源與使用說明。</div><div class="swsi-myhub-list">'
+      +'<div class="swsi-myhub-card"><h2 class="swsi-myhub-title">SWSI</h2><div class="swsi-myhub-sub">分享平台、查看來源與使用說明；管理者也從同一個入口進入後台。</div><div class="swsi-myhub-list">'
+      +row('管理中心','管理者專用','swsiOpenAdminCenter()','admin')
       +row('分享 SWSI','官方公開網址','swsiSharePlatform()')
       +row('關於 SWSI','Social Work Study Initiative',"swsiOpenPublicInfo('about',this)")
       +row('資料來源','正式考題以官方資料為準',"swsiOpenPublicInfo('sources',this)")
