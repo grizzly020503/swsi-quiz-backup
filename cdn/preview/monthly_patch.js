@@ -2296,6 +2296,24 @@ body:has(#app .section-h) main{
   window.addEventListener('focus',run);
 })();
 
+/* SWSI Accessibility Touch Guard 2026-08-28
+   Public-launch ergonomics only. Ensures primary bottom navigation targets
+   stay comfortably tappable on narrow phones without changing navigation logic.
+*/
+(function(){
+  'use strict';
+  var STYLE_ID='swsi-accessibility-touch-20260828';
+  if(document.getElementById(STYLE_ID))return;
+  var st=document.createElement('style');
+  st.id=STYLE_ID;
+  st.textContent=`
+    .tabbar button{
+      min-height:48px;
+    }
+  `;
+  document.head.appendChild(st);
+})();
+
 /* SWSI Prelaunch Resilience 2026-08-28
    Mobile modal safety only: viewport containment, background scroll lock,
    Escape close, keyboard focus containment, and focus restoration.
