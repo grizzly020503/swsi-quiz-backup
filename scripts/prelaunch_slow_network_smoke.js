@@ -70,7 +70,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   // Exercise one explicit exam session instead of the broad smart scope. This
   // isolates a realistic slow first shard without multiplying the synthetic
   // 2.5s delay across many exam sessions.
-  await page.getByRole('button',{name:/自訂範圍/}).click();
+  await page.getByRole('button',{name:/自己選範圍/}).click();
   const scope=page.getByLabel('刷題範圍');
   await scope.waitFor({state:'visible',timeout:10000});
   await scope.selectOption('specific');
