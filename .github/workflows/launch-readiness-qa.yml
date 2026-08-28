@@ -7,20 +7,28 @@ on:
       - '.github/workflows/launch-readiness-qa.yml'
       - 'monthly_patch_parts/**'
       - 'scripts/launch_readiness_smoke.js'
+      - 'scripts/pwa_resilience_smoke.js'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/build_essay_guides_runtime.js'
       - 'index.html'
+      - 'manifest.json'
+      - 'sw.js'
       - 'essay_guides.js'
+      - 'auto/**'
       - 'cdn/question-shards/**'
   pull_request:
     paths:
       - '.github/workflows/launch-readiness-qa.yml'
       - 'monthly_patch_parts/**'
       - 'scripts/launch_readiness_smoke.js'
+      - 'scripts/pwa_resilience_smoke.js'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/build_essay_guides_runtime.js'
       - 'index.html'
+      - 'manifest.json'
+      - 'sw.js'
       - 'essay_guides.js'
+      - 'auto/**'
       - 'cdn/question-shards/**'
 
 permissions:
@@ -33,7 +41,7 @@ concurrency:
 jobs:
   mobile-launch-acceptance:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 14
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,7 +52,10 @@ jobs:
           python-version: '3.12'
 
       - name: Syntax check
-        run: node --check scripts/launch_readiness_smoke.js
+        run: |
+          node --check scripts/launch_readiness_smoke.js
+          node --check scripts/pwa_resilience_smoke.js
+          node --check sw.js
 
       - name: Build browser-test site
         run: |
@@ -63,7 +74,7 @@ jobs:
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Mobile launch acceptance smoke
+      - name: Mobile launch and PWA resilience smoke
         run: |
           python -m http.server 4173 --directory _site >/tmp/swsi-launch-http.log 2>&1 &
           SERVER_PID=$!
@@ -73,3 +84,4 @@ jobs:
             sleep 1
           done
           node scripts/launch_readiness_smoke.js http://127.0.0.1:4173/
+          node scripts/pwa_resilience_smoke.js http://127.0.0.1:4173/

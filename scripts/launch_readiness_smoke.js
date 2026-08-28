@@ -61,17 +61,34 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/今日提醒/.test(reminderText), 'daily reminder missing');
   assert(/考試倒數/.test(reminderText), 'exam countdown entry missing');
 
+  // Exam-date modal must stay inside a phone viewport, lock background scroll,
+  // support Escape, focus its input, and restore focus to the opener.
+  const examButton = page.locator('.swsi-exam-reminder-btn');
+  await examButton.click();
+  await page.waitForSelector('#swsi-exam-backdrop');
+  await page.waitForFunction(() => document.body.classList.contains('swsi-modal-open'));
+  await page.waitForFunction(() => document.activeElement && document.activeElement.id === 'swsi-exam-date-input');
+  const dialogBox = await page.locator('.swsi-exam-dialog').boundingBox();
+  assert(dialogBox, 'exam dialog has no layout box');
+  assert(dialogBox.y >= -1, 'exam dialog extends above the viewport');
+  assert(dialogBox.y + dialogBox.height <= 845, 'exam dialog extends below the viewport');
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => !document.querySelector('#swsi-exam-backdrop'));
+  assert(!(await page.evaluate(() => document.body.classList.contains('swsi-modal-open'))), 'body remained scroll-locked after Escape close');
+  await page.waitForFunction(() => document.activeElement && document.activeElement.classList.contains('swsi-exam-reminder-btn'));
+
   // Target exam date must remain device-local and support save / clear.
-  await page.locator('.swsi-exam-reminder-btn').click();
+  await examButton.click();
   await page.waitForSelector('#swsi-exam-backdrop');
   const dateInput = page.locator('#swsi-exam-date-input');
   await dateInput.fill('2099-12-31');
   await page.getByRole('button', { name: '儲存日期' }).click();
   await page.waitForFunction(() => !document.querySelector('#swsi-exam-backdrop'));
+  assert(!(await page.evaluate(() => document.body.classList.contains('swsi-modal-open'))), 'body remained scroll-locked after save');
   assert.strictEqual(await page.evaluate(() => localStorage.getItem('swsi_target_exam_date_v1')), '2099-12-31', 'exam date was not stored locally');
   assert(/距離考試還有/.test(await page.locator('.swsi-exam-reminder-copy').innerText()), 'saved exam countdown was not rendered');
 
-  await page.locator('.swsi-exam-reminder-btn').click();
+  await examButton.click();
   await page.waitForSelector('#swsi-exam-backdrop');
   await page.getByRole('button', { name: '清除日期' }).click();
   await page.waitForFunction(() => !document.querySelector('#swsi-exam-backdrop'));

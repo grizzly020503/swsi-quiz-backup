@@ -1,0 +1,94 @@
+
+/* SWSI Prelaunch Resilience 2026-08-28
+   Mobile modal safety only: viewport containment, background scroll lock,
+   Escape close, keyboard focus containment, and focus restoration.
+   Does not own grading, questions, AI, storage schemas, or runtime routes.
+*/
+(function(){
+  'use strict';
+
+  var STYLE_ID='swsi-prelaunch-resilience-20260828';
+  if(!document.getElementById(STYLE_ID)){
+    var st=document.createElement('style');
+    st.id=STYLE_ID;
+    st.textContent=`
+      body.swsi-modal-open{overflow:hidden!important;overscroll-behavior:none}
+      .swsi-exam-backdrop{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+      .swsi-exam-dialog{box-sizing:border-box;max-height:calc(100vh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));max-height:calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+      @media(max-width:430px){
+        .swsi-exam-backdrop{padding-top:calc(10px + env(safe-area-inset-top));align-items:flex-end}
+        .swsi-exam-dialog{max-height:calc(100vh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));max-height:calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+      }
+    `;
+    document.head.appendChild(st);
+  }
+
+  var lastFocus=null;
+
+  function currentDialog(){return document.querySelector('#swsi-exam-backdrop .swsi-exam-dialog');}
+  function currentBackdrop(){return document.getElementById('swsi-exam-backdrop');}
+  function focusables(){
+    var dialog=currentDialog();
+    if(!dialog)return [];
+    return Array.from(dialog.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')).filter(function(el){
+      return !!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);
+    });
+  }
+  function lock(){document.body.classList.add('swsi-modal-open');}
+  function unlock(){if(!currentBackdrop())document.body.classList.remove('swsi-modal-open');}
+  function focusInitial(){
+    var input=document.getElementById('swsi-exam-date-input');
+    var target=input||focusables()[0];
+    if(target&&typeof target.focus==='function'){
+      try{target.focus({preventScroll:true});}catch(_e){try{target.focus();}catch(_e2){}}
+    }
+  }
+  function restoreFocus(){
+    var target=lastFocus;lastFocus=null;
+    if(target&&target.isConnected&&typeof target.focus==='function'){
+      try{target.focus({preventScroll:true});}catch(_e){try{target.focus();}catch(_e2){}}
+    }
+  }
+
+  if(typeof window.swsiOpenExamDate==='function'&&!window.swsiOpenExamDate.__swsiResilienceWrapped){
+    var openOriginal=window.swsiOpenExamDate;
+    var openWrapped=function(){
+      lastFocus=document.activeElement;
+      openOriginal.apply(this,arguments);
+      lock();
+      requestAnimationFrame(focusInitial);
+    };
+    openWrapped.__swsiResilienceWrapped=true;
+    window.swsiOpenExamDate=openWrapped;
+  }
+
+  if(typeof window.swsiCloseExamDate==='function'&&!window.swsiCloseExamDate.__swsiResilienceWrapped){
+    var closeOriginal=window.swsiCloseExamDate;
+    var closeWrapped=function(){
+      closeOriginal.apply(this,arguments);
+      unlock();
+      restoreFocus();
+    };
+    closeWrapped.__swsiResilienceWrapped=true;
+    window.swsiCloseExamDate=closeWrapped;
+  }
+
+  document.addEventListener('keydown',function(ev){
+    if(!currentBackdrop())return;
+    if(ev.key==='Escape'){
+      ev.preventDefault();
+      if(typeof window.swsiCloseExamDate==='function')window.swsiCloseExamDate();
+      return;
+    }
+    if(ev.key!=='Tab')return;
+    var list=focusables();if(!list.length)return;
+    var first=list[0],last=list[list.length-1],active=document.activeElement;
+    if(ev.shiftKey&&active===first){ev.preventDefault();last.focus();}
+    else if(!ev.shiftKey&&active===last){ev.preventDefault();first.focus();}
+  },true);
+
+  var observer=new MutationObserver(function(){
+    if(currentBackdrop())lock();else unlock();
+  });
+  observer.observe(document.body,{childList:true});
+})();
