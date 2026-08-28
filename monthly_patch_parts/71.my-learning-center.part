@@ -157,7 +157,10 @@
     var root=document.getElementById('app');
     if(!root||root.querySelector('.swsi-myhub'))return;
     var heading=root.querySelector('.section-h');
-    if(!heading||heading.textContent.trim()!=='我的學習進度')return;
+    var normalProgress=!!(heading&&heading.textContent.trim()==='我的學習進度');
+    var empty=root.querySelector('.empty');
+    var newUserProgress=!!(empty&&/還沒有刷題紀錄/.test(empty.textContent||''));
+    if(!normalProgress&&!newUserProgress)return;
     var wrap=document.createElement('div');wrap.innerHTML=buildHub();
     var hub=wrap.firstElementChild;
     if(hub){root.insertBefore(hub,root.firstChild);verifyAdminAccess();}
