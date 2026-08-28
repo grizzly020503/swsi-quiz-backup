@@ -23,6 +23,18 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
       }
     }catch(_e){}
 
+    // WebKit can expose the home content slightly before the bottom navigation finishes
+    // its initialization, especially in landscape. Keep the same visibility contract,
+    // but wait for the real controls instead of sampling the DOM too early.
+    await page.waitForFunction(()=>{
+      const buttons=[...document.querySelectorAll('.tabbar button')];
+      return buttons.filter(el=>{
+        const s=getComputedStyle(el);
+        const r=el.getBoundingClientRect();
+        return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)!==0&&r.width>0&&r.height>0;
+      }).length>=3;
+    },null,{timeout:10000});
+
     const layout=await page.evaluate(()=>({
       innerWidth:window.innerWidth,
       docWidth:document.documentElement.scrollWidth,
