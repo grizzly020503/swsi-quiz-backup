@@ -11,6 +11,7 @@ on:
       - 'scripts/prelaunch_deadend_smoke.js'
       - 'scripts/prelaunch_error_states_smoke.js'
       - 'scripts/prelaunch_accessibility_touch_smoke.js'
+      - 'scripts/prelaunch_webkit_smoke.js'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/build_essay_guides_runtime.js'
       - 'index.html'
@@ -28,6 +29,7 @@ on:
       - 'scripts/prelaunch_deadend_smoke.js'
       - 'scripts/prelaunch_error_states_smoke.js'
       - 'scripts/prelaunch_accessibility_touch_smoke.js'
+      - 'scripts/prelaunch_webkit_smoke.js'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/build_essay_guides_runtime.js'
       - 'index.html'
@@ -47,7 +49,7 @@ concurrency:
 jobs:
   mobile-launch-acceptance:
     runs-on: ubuntu-latest
-    timeout-minutes: 14
+    timeout-minutes: 16
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -64,6 +66,7 @@ jobs:
           node --check scripts/prelaunch_deadend_smoke.js
           node --check scripts/prelaunch_error_states_smoke.js
           node --check scripts/prelaunch_accessibility_touch_smoke.js
+          node --check scripts/prelaunch_webkit_smoke.js
           node --check sw.js
 
       - name: Build browser-test site
@@ -78,12 +81,12 @@ jobs:
           if [ -d auto ]; then cp -R auto _site/; fi
           python scripts/monthly_patch_build.py _site/index.html
 
-      - name: Install Playwright Chromium
+      - name: Install Playwright Chromium and WebKit
         run: |
           npm install --no-save playwright@1.55.0
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps chromium webkit
 
-      - name: Mobile launch, dead-end, error-state, accessibility and PWA resilience smoke
+      - name: Mobile launch, dead-end, error-state, accessibility, WebKit and PWA resilience smoke
         run: |
           python -m http.server 4173 --directory _site >/tmp/swsi-launch-http.log 2>&1 &
           SERVER_PID=$!
@@ -96,4 +99,5 @@ jobs:
           node scripts/prelaunch_deadend_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_error_states_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_accessibility_touch_smoke.js http://127.0.0.1:4173/
+          node scripts/prelaunch_webkit_smoke.js http://127.0.0.1:4173/
           node scripts/pwa_resilience_smoke.js http://127.0.0.1:4173/
