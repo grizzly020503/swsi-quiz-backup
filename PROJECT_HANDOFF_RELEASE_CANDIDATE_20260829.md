@@ -51,10 +51,12 @@ Known any_answer IDs remain:
 - `HBSE-108-2-039`
 - `HBSE-110-2-034`
 
+Latest production recheck during closeout reconfirmed all counts and IDs above exactly.
+
 ## Supabase production state changed during release closeout
 
 ### `swsi-feedback`
-Production Edge Function advanced to v4.
+Production Edge Function is currently v7.
 
 Origin policy:
 - `https://swsi-quiznetlify.netlify.app`
@@ -71,7 +73,7 @@ Existing feedback controls remain:
 - 3/minute and 30/day DB-side rate limits
 - service-role remains server-side only
 
-Repo source `supabase/functions/swsi-feedback/index.ts` was synchronized to deployed v4 behavior.
+Repo source `supabase/functions/swsi-feedback/index.ts` is the canonical source for this strict Preview-origin behavior. Versions v5-v7 were equivalent redeploys during source/production alignment; no additional permission broadening was introduced.
 
 ### `swsi-admin`
 Production Edge Function is v5 with `verify_jwt=true`.
@@ -96,7 +98,7 @@ Important: deployed v5 had drifted ahead of repo source. During this closeout, `
 
 Automation: `SWSI Feedback Triage`
 
-Current intent:
+Current verified state:
 - enabled
 - hourly
 - pre-group in SQL before semantic analysis
@@ -110,14 +112,16 @@ Current intent:
 
 Synthetic contract was verified previously. Synthetic report #7 was deleted during release closeout.
 
-Production feedback table at this checkpoint has zero rows with `metadata.synthetic_test=true`.
+Production feedback table latest check:
+- synthetic test rows: 0
+- pending feedback: 0
 
-`FEEDBACK_TRIAGE_POLICY.md` now explicitly includes `action=test_only` for synthetic verification only.
+`FEEDBACK_TRIAGE_POLICY.md` explicitly includes `action=test_only` for synthetic verification only.
 
 ## QA evidence
 
 ### Netlify Deploy Preview
-PR #33 Preview continues to deploy successfully.
+PR #33 Preview continues to deploy successfully on the latest runtime HEAD checked during closeout.
 
 `netlify.toml` build is meaningful QA, not a blind copy. It runs:
 - `scripts/admin_auth_build.py`
@@ -130,17 +134,42 @@ PR #33 Preview continues to deploy successfully.
 - `scripts/first_paint_static_qa.py`
 - runtime cache bust
 
-`first_paint_static_qa.py` now also fail-closes on the strict feedback Preview-origin source contract.
+`first_paint_static_qa.py` now fail-closes on:
+- strict feedback Preview-origin source contract
+- strict admin Preview-origin source contract
+- admin JWT session verification
+- `swsi_admin_users` membership verification
+- grouped-feedback aggregation contract
+- raw feedback cap
+- wildcard CORS regression
+
+### Final diff / secret / artifact scan
+
+Completed against `main...PR#33` through runtime HEAD `5ea7565a82219ba8573f197f6992ef2547855b1e` before this documentation-only update.
+
+Evidence:
+- 31 changed files were all expected source / QA / docs / admin / Supabase function files
+- no `_site`, archive, screenshot, tmp output, generated test artifact, or other accidental release junk in changed filenames
+- no private-key literal
+- no GitHub PAT pattern
+- no OpenAI-style `sk-` token literal
+- no AWS `AKIA` key literal
+- no JWT-like `eyJ` literal
+- `SUPABASE_SERVICE_ROLE_KEY` appears only as an environment-variable name; no service-role value is committed
+- no `debugger`
+- `console.log` additions are QA success markers only
+- synthetic-test references are policy/handoff documentation only; production DB contains zero synthetic rows
 
 ### GitHub Actions external blocker
 Multiple GitHub-hosted Actions workflows currently fail before executing any step.
 
-Observed evidence on new PR commits:
+Latest observed evidence includes:
 - workflow run conclusion: failure
 - jobs created
 - `steps=[]` / `steps=null`
+- `runner_id=0` / no assigned runner
 - job log blob does not exist (404)
-- affects multiple unrelated workflows at once
+- affects multiple unrelated PR workflows at once
 - scheduled main workflows have shown the same execution-layer symptom
 
 Therefore do not interpret these red checks as product test assertion failures.
@@ -150,17 +179,25 @@ Treat as:
 
 Do not mutate product code merely to clear these no-step failures.
 
+For a private repository, GitHub-hosted Actions consume the repository owner's included minutes / metered budget. If included usage is exhausted without payable overage, or an applicable budget stops usage, GitHub may block further hosted-runner usage. Check GitHub Billing & licensing / metered usage / budgets before changing workflow code.
+
 Once account/runner execution is restored, rerun the full relevant QA suite.
 
 ## Remaining release gates
 
-1. GitHub-hosted Actions must execute real steps again, or maintainer explicitly accepts a release with this external CI outage after sufficient alternate evidence.
-2. Preview Feedback must be manually submitted once from PR #33 UI and confirmed as HTTP 201 / DB receipt, then any test row must be removed.
-3. Admin password recovery must be manually rechecked once on newest Preview: recovery email -> Preview admin -> forced new-password UI -> update password -> dashboard.
-4. Final `main...PR#33` secret/artifact/debug scan.
-5. Confirm official question/grading invariants immediately before merge.
-6. Keep PR Draft until explicit release approval.
-7. Production Netlify remains untouched until explicit approval.
+1. **EXTERNAL BLOCKER:** GitHub-hosted Actions must execute real steps again, or maintainer explicitly accepts release with this external CI outage after sufficient alternate evidence.
+2. **MANUAL E2E:** Preview Feedback must be submitted once from PR #33 UI and confirmed by DB receipt, then the test row must be removed.
+3. **MANUAL E2E:** Admin password recovery must be rechecked once on newest Preview: recovery email -> Preview admin -> forced new-password UI -> update password -> dashboard.
+4. Keep PR Draft until explicit release approval.
+5. Production Netlify remains untouched until explicit approval.
+
+Completed release gates:
+- final `main...PR#33` secret/artifact/debug scan: PASS through runtime HEAD `5ea7565...`
+- official question/grading production invariants: PASS
+- synthetic feedback cleanup: PASS
+- Feedback Triage enabled: PASS
+- strict Preview CORS source/deployment contract: PASS
+- Netlify Deploy Preview build: PASS on latest runtime HEAD checked during closeout
 
 ## Stop rule
 
