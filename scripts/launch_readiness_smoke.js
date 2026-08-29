@@ -29,8 +29,42 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     return route.continue();
   });
 
+  async function dumpFirstPaintDiagnostics(label) {
+    let state = {};
+    try {
+      state = await page.evaluate(() => ({
+        readyState: document.readyState,
+        bootVersion: window.__SWSI_FAST_BOOT_VERSION__ || null,
+        bootDeferred: window.__SWSI_BOOT_DEFERRED__,
+        view: typeof view === 'undefined' ? null : view,
+        hasGo: typeof window.go === 'function' || typeof go === 'function',
+        hasRenderHome: typeof window.renderHome === 'function' || typeof renderHome === 'function',
+        hasManifestLoader: typeof window.loadQuestionManifest === 'function' || typeof loadQuestionManifest === 'function',
+        appText: (document.querySelector('#app')?.innerText || '').slice(0, 1200),
+        appHtml: (document.querySelector('#app')?.innerHTML || '').slice(0, 1800),
+        scriptSrcs: Array.from(document.scripts).map(s => s.src).filter(Boolean),
+        resources: performance.getEntriesByType('resource').map(r => ({
+          name: r.name,
+          duration: Math.round(r.duration),
+          initiatorType: r.initiatorType
+        })).slice(-30)
+      }));
+    } catch (err) {
+      state = { diagnosticEvaluateError: String(err && err.message || err) };
+    }
+    console.error('SWSI FIRST PAINT DIAGNOSTICS [' + label + '] ' + JSON.stringify({
+      browserErrors,
+      state
+    }, null, 2));
+  }
+
   async function waitHome() {
-    await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
+    try {
+      await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
+    } catch (err) {
+      await dumpFirstPaintDiagnostics('home-timeout');
+      throw err;
+    }
   }
 
   await page.goto(base, { waitUntil: 'commit', timeout: 15000 });
