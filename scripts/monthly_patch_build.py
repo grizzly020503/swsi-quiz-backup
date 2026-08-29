@@ -22,6 +22,20 @@ SEO_NEW = '''<title>社工師國考免費題庫｜SWSI</title>
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://swsi-quiznetlify.netlify.app/">'''
 
+# Student first paint must not wait for third-party fonts or a client SDK that is
+# not required by the CDN-first question path. The legacy code already has a
+# REST fallback whenever window.supabase is unavailable.
+FONT_OLD = '''<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">'''
+FONT_NEW = '''<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet"></noscript>'''
+SUPABASE_SDK_OLD = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>'
+SUPABASE_SDK_NEW = '<script>window.__SWSI_STUDENT_REST_ONLY__=true;</script>'
+INITIAL_APP_OLD = '<main id="app"><div class="empty"><div class="spinner"></div><p style="margin-top:16px">載入題庫中…</p></div></main>'
+INITIAL_APP_NEW = '''<main id="app"><div class="empty" aria-busy="true"><h3>正在開啟 SWSI</h3><p style="margin-top:8px">介面先顯示，題庫資料會在背景準備。</p></div></main>'''
+
 MK_GRADE_OLD = '''    var correct=0, answered=0, bySubj={}, wrong=[];
     Q.forEach(function(q,i){
       var picked=ans[i]!=null?ans[i]:null;
@@ -53,6 +67,44 @@ ROUND_1_OLD = '''<option value="第一次" '+(homeQuizRound==='第一次'?'selec
 ROUND_1_NEW = '''<option value="1" '+(homeQuizRound==='1'?'selected':'')+'>第一次</option>'''
 ROUND_2_OLD = '''<option value="第二次" '+(homeQuizRound==='第二次'?'selected':'')+'>第二次</option>'''
 ROUND_2_NEW = '''<option value="2" '+(homeQuizRound==='2'?'selected':'')+'>第二次</option>'''
+
+RUNTIME_BOOT_OLD = '''  // Final boot: build-time patch suppresses the legacy init() call until this file is loaded.
+  if(window.__SWSI_BOOT_DEFERRED__){
+    window.__SWSI_BOOT_DEFERRED__=false;
+    init().catch(showLoadError);
+  }
+})();'''
+
+RUNTIME_BOOT_NEW = '''  // Fast student boot 2026-08-29: first paint must not wait for data.
+  // The home/learning shells are local UI. Catalog + essay payloads hydrate in
+  // the background and re-render Home when metadata becomes available.
+  if(window.__SWSI_BOOT_DEFERRED__){
+    window.__SWSI_BOOT_DEFERRED__=false;
+    window.__SWSI_FAST_BOOT_VERSION__='2026-08-29.ui-first.v1';
+    try{
+      SUBJECTS=SWSI_CORE_SUBJECTS.slice();
+      sb=null;
+      tabbar.style.display='flex';
+      applyFocusedTabbar();
+      go('home');
+    }catch(err){
+      showLoadError(err);
+    }
+    Promise.resolve().then(async function(){
+      try{
+        await loadQuestionManifest();
+        if(typeof view!=='undefined' && view==='home') render();
+      }catch(err){
+        console.warn('[SWSI] background question catalog unavailable',err);
+      }
+      try{
+        await loadAutoEssays();
+      }catch(err){
+        console.warn('[SWSI] background essay payload unavailable',err);
+      }
+    });
+  }
+})();'''
 
 
 def replace_exact(text: str, old: str, new: str, label: str, expected: int = 1) -> str:
@@ -144,6 +196,9 @@ def transform(text: str, laws_json: str, theories_json: str, knowledge_manifest:
     text = replace_array_assignment(text, 'LAWS', laws_json)
     text = replace_array_assignment(text, 'THEORIES', theories_json)
     text = replace_exact(text, SEO_OLD, SEO_NEW, 'SEO title')
+    text = replace_exact(text, FONT_OLD, FONT_NEW, 'non-blocking web fonts')
+    text = replace_exact(text, SUPABASE_SDK_OLD, SUPABASE_SDK_NEW, 'student Supabase SDK removal')
+    text = replace_exact(text, INITIAL_APP_OLD, INITIAL_APP_NEW, 'first-paint placeholder')
     text = replace_exact(text, '\ninit();\n', '\nwindow.__SWSI_BOOT_DEFERRED__=true;\n', 'legacy init deferral')
     text = replace_exact(text, MK_GRADE_OLD, MK_GRADE_NEW, 'simulation grading')
     text = replace_exact(text, MK_LABEL_OLD, MK_LABEL_NEW, 'simulation answer label')
@@ -164,6 +219,15 @@ def transform(text: str, laws_json: str, theories_json: str, knowledge_manifest:
     return text
 
 
+def optimize_runtime_boot(site: Path) -> None:
+    patch_path = site / 'monthly_patch.js'
+    if not patch_path.exists():
+        raise RuntimeError('fast boot: built monthly_patch.js is missing')
+    patch = patch_path.read_text(encoding='utf-8')
+    patch = replace_exact(patch, RUNTIME_BOOT_OLD, RUNTIME_BOOT_NEW, 'UI-first runtime boot')
+    patch_path.write_text(patch, encoding='utf-8')
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('index', nargs='?', default='_site/index.html')
@@ -173,6 +237,7 @@ def main() -> int:
     laws_json, theories_json, knowledge_manifest = load_canonical_knowledge()
     patched = transform(text, laws_json, theories_json, knowledge_manifest)
     path.write_text(patched, encoding='utf-8')
+    optimize_runtime_boot(path.parent)
 
     # The current 115-2 auto essay payload contains three MOEX private-use glyphs.
     # Normalize the deployed copy without requiring a second production deploy.
@@ -185,6 +250,7 @@ def main() -> int:
 
     print(f'Applied SWSI monthly front-end build patch: {path}')
     print('Applied canonical knowledge bootstrap: laws=' + str(knowledge_manifest['laws']['count']) + ' theories=' + str(knowledge_manifest['theories']['count']))
+    print('Applied student UI-first boot: 2026-08-29.ui-first.v1')
     return 0
 
 
