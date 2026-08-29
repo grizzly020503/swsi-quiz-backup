@@ -29,8 +29,36 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     return route.continue();
   });
 
+  async function pageDiagnostic() {
+    return page.evaluate(() => {
+      const app = document.getElementById('app');
+      const essayTab = document.getElementById('t-essay');
+      const sectionH = app && app.querySelector('.section-h');
+      let routerView = 'unavailable';
+      try { routerView = typeof view === 'undefined' ? 'undefined' : String(view); } catch (_e) { routerView = 'error'; }
+      return {
+        dataPage: document.body && document.body.getAttribute('data-swsi-page'),
+        bodyClass: document.body && document.body.className,
+        routerView,
+        essayTabClass: essayTab && essayTab.className,
+        essayTabOnclick: essayTab && essayTab.getAttribute('onclick'),
+        sectionHeading: sectionH && sectionH.textContent,
+        hasEssayWriter: !!(app && app.querySelector('.wta,.wbox')),
+        hasLearningHub: !!(app && app.querySelector('.swsi-myhub')),
+        hasLearningDetail: !!(app && app.querySelector('.swsi-learning-section,.swsi-progress-hero')),
+        appText: ((app && app.textContent) || '').trim().replace(/\s+/g, ' ').slice(0, 400)
+      };
+    });
+  }
+
   async function waitPage(kind, timeout = 30000) {
-    await page.waitForFunction(expected => document.body.getAttribute('data-swsi-page') === expected, kind, { timeout });
+    try {
+      await page.waitForFunction(expected => document.body.getAttribute('data-swsi-page') === expected, kind, { timeout });
+    } catch (err) {
+      let diagnostic = null;
+      try { diagnostic = await pageDiagnostic(); } catch (diagErr) { diagnostic = { diagnostic_error: String(diagErr) }; }
+      throw new Error(`waitPage(${kind}) failed; snapshot=${JSON.stringify(diagnostic)}; cause=${err && err.message || err}`);
+    }
   }
 
   async function shellSnapshot() {
