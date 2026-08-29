@@ -1,0 +1,46 @@
+
+/* SWSI Learning Center Direct Route 2026-08-29
+   Final navigation owner for the preview simplification.
+   Opening Learning must never route through progress/full-bank loading.
+*/
+(function(){
+  'use strict';
+
+  /* Preserve the existing CDN-aware go() contract, but once the user leaves the
+     Learning surface, stop its self-healing observer from restoring the hub. */
+  var routedGo=window.go;
+  if(typeof routedGo==='function'&&!routedGo.__swsiLearningAware){
+    var wrapped=function(v){
+      if(v!=='learning')window.__SWSI_LEARNING_CENTER_OPEN__=false;
+      return routedGo(v);
+    };
+    wrapped.__swsiLearningAware=true;
+    window.go=wrapped;
+    try{go=wrapped;}catch(_e){}
+  }
+
+  window.swsiOpenLearningCenter=function(ev){
+    if(ev&&typeof ev.preventDefault==='function')ev.preventDefault();
+    if(typeof window.swsiRenderLearningCenter==='function')return window.swsiRenderLearningCenter();
+    return false;
+  };
+
+  function bind(){
+    var learning=document.getElementById('t-review');
+    if(learning){
+      learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');
+      learning.setAttribute('aria-label','學習中心');
+    }
+  }
+
+  bind();
+  try{
+    var bar=document.querySelector('.tabbar')||document.body;
+    var queued=false;
+    new MutationObserver(function(){
+      if(queued)return;
+      queued=true;
+      queueMicrotask(function(){queued=false;bind();});
+    }).observe(bar,{childList:true,subtree:true,attributes:true,attributeFilter:['onclick','aria-label']});
+  }catch(_e){}
+})();
