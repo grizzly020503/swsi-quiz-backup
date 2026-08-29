@@ -87,6 +87,16 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   const tabText = visibleTabs.join(' ');
   assert(/練題/.test(tabText) && /學習/.test(tabText) && /申論/.test(tabText), 'simplified bottom navigation labels missing');
 
+  // The homepage Learning Center card and bottom Learning tab must share the
+  // same direct local-state route. Neither may detour through legacy progress.
+  const homeLearning = page.locator('#app .swsi-study-card').filter({ hasText: '學習中心' }).first();
+  assert.strictEqual(await homeLearning.count(), 1, 'homepage Learning Center card missing');
+  await homeLearning.click();
+  await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
+  assert(/學習中心/.test(await page.locator('.swsi-myhub').innerText()), 'homepage Learning Center card did not open the hub');
+  await page.locator('#t-home').click();
+  await waitHome();
+
   const learningTab = page.locator('#t-review');
   await learningTab.click();
   await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
