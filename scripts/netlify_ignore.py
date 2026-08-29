@@ -15,7 +15,7 @@ import sys
 STUDENT_EXACT = {
     'index.html', 'essay_guides.js', 'manifest.json', 'sw.js',
     'netlify.toml', 'scripts/monthly_patch_build.py', 'scripts/netlify_ignore.py',
-    'scripts/cache_bust_runtime.py',
+    'scripts/cache_bust_runtime.py', 'scripts/first_paint_static_qa.py',
     'auto/questions_auto.json', 'auto/essays_auto.json',
 }
 
@@ -59,7 +59,7 @@ def main() -> int:
         if path in STUDENT_EXACT or path.startswith('icons/') or path.startswith('monthly_patch_parts/'):
             relevant.append(path)
     if not relevant:
-        print('Netlify ignore: no student-facing files changed.')
+        print('Netlify ignore: no student-facing or deploy-pipeline files changed.')
         return 0
 
     if set(relevant)=={'auto/essays_auto.json'} and semantic_same_auto_essays(base,head):
