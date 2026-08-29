@@ -149,8 +149,12 @@
 
   function syncLayout(){
     if(!document.body)return;
-    document.body.setAttribute('data-swsi-page',detectPage());
+    var page=detectPage();
+    document.body.setAttribute('data-swsi-page',page);
     document.body.classList.add('swsi-layout-ready');
+    /* Compatibility marker for existing interaction QA and any older owner that
+       only needs to know whether a question card is active. Geometry still lives here. */
+    document.body.classList.toggle('swsi-question-active',page==='quiz');
   }
 
   syncLayout();
