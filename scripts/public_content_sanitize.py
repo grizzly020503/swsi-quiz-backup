@@ -103,9 +103,9 @@ def main() -> int:
         raise RuntimeError('public content sanitizer expected legacy study-guide source note exactly once')
     text = text.replace(FOOT_OLD, FOOT_NEW, 1)
 
-    if text.count(TOPICS_GUIDE_OLD) != 1:
-        raise RuntimeError('public content sanitizer expected legacy Topics study-guide label exactly once')
-    text = text.replace(TOPICS_GUIDE_OLD, TOPICS_GUIDE_NEW, 1)
+    if TOPICS_GUIDE_OLD not in text:
+        raise RuntimeError('public content sanitizer expected at least one legacy Topics study-guide label')
+    text = text.replace(TOPICS_GUIDE_OLD, TOPICS_GUIDE_NEW)
 
     leftovers = [marker for marker in FORBIDDEN_PUBLIC_MARKERS if marker in text]
     if leftovers:
