@@ -56,7 +56,10 @@ def main() -> int:
 
     relevant=[]
     for path in changed:
-        if path in STUDENT_EXACT or path.startswith('icons/') or path.startswith('monthly_patch_parts/'):
+        if (path in STUDENT_EXACT
+                or path.startswith('icons/')
+                or path.startswith('monthly_patch_parts/')
+                or path.startswith('admin/')):
             relevant.append(path)
     if not relevant:
         print('Netlify ignore: no student-facing or deploy-pipeline files changed.')
