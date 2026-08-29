@@ -121,20 +121,26 @@ Production feedback table latest check:
 ## QA evidence
 
 ### Netlify Deploy Preview
-PR #33 Preview continues to deploy successfully on the latest runtime HEAD checked during closeout.
+PR #33 Preview deploy succeeded on runtime/QA HEAD `b4b604ef655c6148f17a1f5b8c533bc868739fdb` after strengthening the alternate release gate.
 
-`netlify.toml` build is meaningful QA, not a blind copy. It runs:
+`netlify.toml` build is meaningful QA, not a blind copy. It now runs:
 - `scripts/admin_auth_build.py`
 - recovery-gate build assertions
 - grouped feedback JS syntax
 - essay-guide runtime build
 - `node --check` on generated runtime
 - P0 frontend preflight
+- `scripts/runtime_owner_smoke.js`
+- `scripts/supabase_contract_smoke.js`
+- `scripts/unified_question_qa_selftest.py`
+- `scripts/official_exam_readonly_guard.py`
 - monthly frontend static smoke
 - `scripts/first_paint_static_qa.py`
 - runtime cache bust
 
-`first_paint_static_qa.py` now fail-closes on:
+The four added non-browser release checks all executed successfully because the Netlify deploy completed successfully. They are intentionally read-only and do not require external network or Playwright.
+
+`first_paint_static_qa.py` fail-closes on:
 - strict feedback Preview-origin source contract
 - strict admin Preview-origin source contract
 - admin JWT session verification
@@ -145,10 +151,10 @@ PR #33 Preview continues to deploy successfully on the latest runtime HEAD check
 
 ### Final diff / secret / artifact scan
 
-Completed against `main...PR#33` through runtime HEAD `5ea7565a82219ba8573f197f6992ef2547855b1e` before this documentation-only update.
+Completed against `main...PR#33` through runtime HEAD `5ea7565a82219ba8573f197f6992ef2547855b1e`; subsequent closeout commits through `b4b604e...` only changed the release handoff and Netlify QA command, not student runtime or official data.
 
 Evidence:
-- 31 changed files were all expected source / QA / docs / admin / Supabase function files
+- changed files were all expected source / QA / docs / admin / Supabase function files
 - no `_site`, archive, screenshot, tmp output, generated test artifact, or other accidental release junk in changed filenames
 - no private-key literal
 - no GitHub PAT pattern
@@ -171,6 +177,7 @@ Latest observed evidence includes:
 - job log blob does not exist (404)
 - affects multiple unrelated PR workflows at once
 - scheduled main workflows have shown the same execution-layer symptom
+- GitHub public status reports Actions operational, so this does not look like a platform-wide Actions incident
 
 Therefore do not interpret these red checks as product test assertion failures.
 
@@ -192,12 +199,13 @@ Once account/runner execution is restored, rerun the full relevant QA suite.
 5. Production Netlify remains untouched until explicit approval.
 
 Completed release gates:
-- final `main...PR#33` secret/artifact/debug scan: PASS through runtime HEAD `5ea7565...`
+- final `main...PR#33` secret/artifact/debug scan: PASS
 - official question/grading production invariants: PASS
 - synthetic feedback cleanup: PASS
 - Feedback Triage enabled: PASS
 - strict Preview CORS source/deployment contract: PASS
-- Netlify Deploy Preview build: PASS on latest runtime HEAD checked during closeout
+- strengthened Netlify alternate release QA: PASS on `b4b604e...`
+- Netlify Deploy Preview build: PASS on `b4b604e...`
 
 ## Stop rule
 
