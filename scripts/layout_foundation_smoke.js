@@ -84,13 +84,11 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   s = await shellSnapshot();
   assertInternal(s, 'learning');
 
-  // Layer 2 — Essay library template.
+  // Layer 2 — Essay library template. Layout classification follows stable nav
+  // state/structure, not a particular heading sentence that product copy may change.
   await page.locator('#t-essay').click();
-  await page.waitForFunction(() => {
-    const h = document.querySelector('#app .section-h');
-    return h && /申論題/.test(h.textContent || '');
-  }, null, { timeout: 30000 });
   await waitPage('essay-library');
+  assert.strictEqual(await page.locator('.swsi-myhub').count(), 0, 'essay route left Learning Center content mounted');
   s = await shellSnapshot();
   assertInternal(s, 'essay-library');
 
