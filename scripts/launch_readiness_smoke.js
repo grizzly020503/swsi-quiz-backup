@@ -143,10 +143,13 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   });
   assert(footerPadding >= 128, 'mobile footer does not reserve clearance for bottom navigation');
 
-  // Admin remains visually secondary for ordinary users.
+  // Admin remains visually secondary for ordinary users: its canonical label is
+  // present in the DOM, but the entry stays behind the closed More disclosure.
   const adminLogin = page.locator('[data-swsi-admin-login]');
   if (await adminLogin.count()) {
-    assert(/管理者入口/.test(await adminLogin.innerText()), 'admin entry is not using the launch-safe label');
+    const adminLabel = ((await adminLogin.locator('.label').textContent()) || '').trim();
+    assert.strictEqual(adminLabel, '管理者入口', 'admin entry is not using the canonical launch-safe label');
+    assert.strictEqual(await adminLogin.isVisible(), false, 'admin entry is visible before the secondary More disclosure is opened');
   }
 
   assert.deepStrictEqual(browserErrors, [], 'browser page errors: ' + browserErrors.join(' | '));
