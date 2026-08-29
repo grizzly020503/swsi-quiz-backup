@@ -3,9 +3,9 @@
 
 The legacy reader guide was assembled from third-party senior-student notes that
 were appropriate for private study but should not be redistributed by the public
-SWSI site without an explicit publication licence.  Replace that entire legacy
-DATA block with SWSI-authored material and fail closed if attribution/name
-markers survive into the built artifact.
+SWSI site without an explicit publication licence. Replace that entire legacy
+DATA block and related public labels with SWSI-authored material, then fail
+closed if attribution/name markers survive into the built artifact.
 """
 from __future__ import annotations
 
@@ -65,12 +65,15 @@ INTRO_OLD = '資深學長姐的應考心得與各科重點（平台已幫你更�
 INTRO_NEW = 'SWSI 自編的國考準備指南。用平台功能安排刷題、複習、申論與法規查核。'
 FOOT_OLD = '內容整理自老師提供的學長姐心得，並由平台查證更新。'
 FOOT_NEW = '本指南由 SWSI 自行整理撰寫；正式考試與法規資訊請以主管機關最新公告為準。'
+TOPICS_GUIDE_OLD = '學長姊應考心得 · 各科速查 · 申論策略'
+TOPICS_GUIDE_NEW = 'SWSI 自編備考策略 · 查漏整理 · 申論練習'
 
 FORBIDDEN_PUBLIC_MARKERS = (
     '蔡宇庭',
     '老師提供的學長姐心得',
     '資深學長姐的應考心得',
     '這份心得是資深學長姐',
+    '學長姊應考心得',
 )
 
 
@@ -100,6 +103,10 @@ def main() -> int:
         raise RuntimeError('public content sanitizer expected legacy study-guide source note exactly once')
     text = text.replace(FOOT_OLD, FOOT_NEW, 1)
 
+    if text.count(TOPICS_GUIDE_OLD) != 1:
+        raise RuntimeError('public content sanitizer expected legacy Topics study-guide label exactly once')
+    text = text.replace(TOPICS_GUIDE_OLD, TOPICS_GUIDE_NEW, 1)
+
     leftovers = [marker for marker in FORBIDDEN_PUBLIC_MARKERS if marker in text]
     if leftovers:
         raise RuntimeError('public build still contains third-party study-guide marker(s): ' + ', '.join(leftovers))
@@ -109,6 +116,7 @@ def main() -> int:
         '下面是一套 SWSI 自編的備考節奏範例',
         '本指南由 SWSI 自行整理撰寫',
         'SWSI 的整理內容是讀書輔助',
+        TOPICS_GUIDE_NEW,
     ):
         if required not in text:
             raise RuntimeError('public study-guide replacement marker missing: ' + required)
