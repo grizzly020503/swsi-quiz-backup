@@ -70,7 +70,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.goto(base, { waitUntil: 'commit', timeout: 15000 });
   await waitHome();
 
-  // First-time guidance must be compact, visible once, dismissible, and stay dismissed.
   const guide = page.locator('.swsi-launch-guide');
   assert.strictEqual(await guide.count(), 1, 'first-use guide missing on fresh localStorage');
   const guideText = await guide.innerText();
@@ -84,13 +83,10 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await waitHome();
   assert.strictEqual(await page.locator('.swsi-launch-guide').count(), 0, 'dismissed guide returned after reload');
 
-  // Bottom navigation must expose the simplified study information architecture.
   const visibleTabs = await page.locator('#tabbar button:visible').allInnerTexts();
   const tabText = visibleTabs.join(' ');
   assert(/練題/.test(tabText) && /學習/.test(tabText) && /申論/.test(tabText), 'simplified bottom navigation labels missing');
 
-  // Existing interaction smoke owns seeded review navigation. This launch smoke
-  // opens Learning exactly as a student does, without routing through legacy progress/full-bank loading.
   const learningTab = page.locator('#t-review');
   await learningTab.click();
   await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
@@ -102,8 +98,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   const reminderText = await page.locator('.swsi-exam-reminder').innerText();
   assert(/考試倒數/.test(reminderText), 'exam countdown entry missing');
 
-  // Exam-date modal must stay inside a phone viewport, lock background scroll,
-  // support Escape, focus its input, and restore focus to the opener.
   const examButton = page.locator('.swsi-exam-reminder-btn');
   await examButton.click();
   await page.waitForSelector('#swsi-exam-backdrop');
@@ -118,7 +112,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(!(await page.evaluate(() => document.body.classList.contains('swsi-modal-open'))), 'body remained scroll-locked after Escape close');
   await page.waitForFunction(() => document.activeElement && document.activeElement.classList.contains('swsi-exam-reminder-btn'));
 
-  // Target exam date must remain device-local and support save / clear.
   await examButton.click();
   await page.waitForSelector('#swsi-exam-backdrop');
   const dateInput = page.locator('#swsi-exam-date-input');
@@ -136,15 +129,35 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert.strictEqual(await page.evaluate(() => localStorage.getItem('swsi_target_exam_date_v1')), null, 'exam date did not clear');
   assert(/尚未設定日期/.test(await page.locator('.swsi-exam-reminder-copy').innerText()), 'cleared countdown did not return to unset state');
 
-  // Public footer must reserve enough room for the mobile fixed bottom navigation.
-  const footerPadding = await page.evaluate(() => {
+  // Mobile fixed-nav clearance has one owner: .wrap. Footer itself must stay compact.
+  const footerLayout = await page.evaluate(() => {
     const footer = document.querySelector('.wrap > footer') || document.querySelector('footer');
-    return footer ? parseFloat(getComputedStyle(footer).paddingBottom || '0') : -1;
+    const wrap = document.querySelector('.wrap');
+    if (!footer || !wrap) return null;
+    return {
+      footerPadding: parseFloat(getComputedStyle(footer).paddingBottom || '0'),
+      wrapPadding: parseFloat(getComputedStyle(wrap).paddingBottom || '0')
+    };
   });
-  assert(footerPadding >= 128, 'mobile footer does not reserve clearance for bottom navigation');
+  assert(footerLayout, 'mobile footer layout missing');
+  assert(footerLayout.footerPadding <= 40, 'mobile footer regained an oversized blank slab: '+footerLayout.footerPadding+'px');
+  assert(footerLayout.wrapPadding >= 70, 'wrap no longer reserves fixed-nav clearance: '+footerLayout.wrapPadding+'px');
 
-  // Admin remains visually secondary for ordinary users: its canonical label is
-  // present in the DOM, but the entry stays behind the closed More disclosure.
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await page.waitForTimeout(80);
+  const footerClearance = await page.evaluate(() => {
+    const footer = document.querySelector('.wrap > footer') || document.querySelector('footer');
+    const tab = document.querySelector('.tabbar');
+    if (!footer || !tab) return null;
+    const fr = footer.getBoundingClientRect();
+    const tr = tab.getBoundingClientRect();
+    return { footerBottom: fr.bottom, tabTop: tr.top };
+  });
+  assert(footerClearance, 'footer or bottom nav missing after scroll');
+  assert(footerClearance.footerBottom <= footerClearance.tabTop + 1,
+    'footer is covered by fixed bottom navigation: footerBottom='+footerClearance.footerBottom+' tabTop='+footerClearance.tabTop);
+  await page.evaluate(() => window.scrollTo(0, 0));
+
   const adminLogin = page.locator('[data-swsi-admin-login]');
   if (await adminLogin.count()) {
     const adminLabel = ((await adminLogin.locator('.label').textContent()) || '').trim();
