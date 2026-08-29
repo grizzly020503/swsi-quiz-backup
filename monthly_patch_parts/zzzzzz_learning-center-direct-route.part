@@ -43,6 +43,21 @@
     });
   }
 
+  /* Home is re-rendered often, so bind its Learning card immediately after the
+     canonical home renderer runs instead of watching every app DOM mutation. */
+  var previousRenderHome=window.renderHome;
+  try{if(typeof previousRenderHome!=='function'&&typeof renderHome==='function')previousRenderHome=renderHome;}catch(_e){}
+  if(typeof previousRenderHome==='function'&&!previousRenderHome.__swsiLearningDirectRoute){
+    var wrappedHome=function(){
+      var out=previousRenderHome.apply(this,arguments);
+      bind();
+      return out;
+    };
+    wrappedHome.__swsiLearningDirectRoute=true;
+    window.renderHome=wrappedHome;
+    try{renderHome=wrappedHome;}catch(_e){}
+  }
+
   /* Clear the local Learning-surface flag before the legacy inline handlers for
      the other two bottom tabs run. This works even if go() is a lexical global
      rather than a window property in an older browser build. */
@@ -62,7 +77,5 @@
   try{
     var bar=document.querySelector('.tabbar');
     if(bar)new MutationObserver(queueBind).observe(bar,{childList:true,subtree:true,attributes:true,attributeFilter:['onclick','aria-label']});
-    var app=document.getElementById('app');
-    if(app)new MutationObserver(queueBind).observe(app,{childList:true,subtree:true});
   }catch(_e){}
 })();
