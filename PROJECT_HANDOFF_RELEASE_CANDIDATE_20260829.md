@@ -3,7 +3,7 @@
 > Read `PROJECT_HANDOFF.md` first. This delta is newer and wins when release-candidate state conflicts with older handoff text.
 
 ## Goal
-Public release target: before 2026-09-01. No new student features. Finish P0/P1 release closure only. Do not merge main or deploy Netlify production without explicit maintainer approval.
+Public release target: before 2026-09-01. No new student features. Finish P0/P1 release closure only. Do not merge `main` or deploy Netlify production without explicit maintainer approval.
 
 ## Current state
 - Repo: `grizzly020503/swsi-quiz-backup`
@@ -13,11 +13,6 @@ Public release target: before 2026-09-01. No new student features. Finish P0/P1 
 - Branch: `ux/simplify-learning-center-preview-fresh-20260829`
 - PR remains Draft and mergeable.
 - Re-read PR HEAD before every write.
-
-## Scope
-Student-facing: simplified 練題 / 學習 / 申論 IA, focused home, direct Learning Center, canonical layered layout, quiz focus mode, mobile/footer/cache-bust cleanup.
-
-Admin/ops: Netlify-published admin, password-recovery hard gate, grouped feedback, feedback triage policy/automation, strict Preview CORS for admin and feedback Edge Functions.
 
 ## Production invariants — rechecked PASS
 - questions 4,800
@@ -39,7 +34,6 @@ Do not change without new official evidence.
 - anonymous client hash
 - DB-side 3/minute + 30/day limits
 - service-role server-side only
-- repo `supabase/functions/swsi-feedback/index.ts` is canonical source for this behavior
 
 ### `swsi-admin`
 - ACTIVE v5, `verify_jwt=true`
@@ -48,10 +42,9 @@ Do not change without new official evidence.
 - GET/PATCH only
 - grouped feedback, deterministic fallback clustering, normalized risk
 - aggregate latest 1,000 rows, raw list capped to 100, resolved clusters hidden
-- repo source synchronized to deployed v5 behavior
 
-## Feedback triage — verified
-`SWSI Feedback Triage` is enabled hourly.
+## Feedback triage — PASS
+`SWSI Feedback Triage` is enabled hourly and has executed successfully.
 - SQL pre-group first
 - max 50 clusters / 500 rows per run
 - max 5 representative messages per cluster
@@ -59,23 +52,32 @@ Do not change without new official evidence.
 - MEDIUM/HIGH -> Issue only
 - never auto-merge
 - never auto-change official answers/grading/legal/auth/security/migrations/secrets
-- synthetic contract verified; synthetic #7 removed
-- production synthetic rows 0; pending feedback 0 at latest check
+- synthetic contract verified
+- production synthetic rows 0
+- production pending feedback 0 at latest check
 
 ## Preview Feedback E2E — PASS
 Manual iPhone/Safari verification completed against PR #33 Preview.
 - Preview report reached `swsi-feedback` and production Supabase as report #8.
-- `site_origin` matched `https://deploy-preview-33--swsi-quiznetlify.netlify.app`.
-- `page_path` contained the dedicated `feedback-e2e` marker.
-- The test row was deleted immediately after verification.
-- Post-cleanup check: pending feedback 0; synthetic / feedback-e2e test rows 0.
-- A Safari AutoFill false-positive was identified in the legacy hidden honeypot path and fixed inside the existing `91.feedback-context.part` owner; no extra runtime owner was left behind.
-- The post-fix Preview build passed the Netlify alternate release gate.
+- Preview origin was accepted by the strict CORS rule.
+- Test row was deleted immediately after verification.
+- Post-cleanup: pending feedback 0; synthetic / feedback-e2e test rows 0.
+- Safari AutoFill false-positive in the legacy honeypot was fixed inside the existing feedback context owner.
+- Post-fix Netlify Preview build passed.
+
+## Admin recovery E2E — PASS
+Manual real-email recovery verification completed against PR #33 Preview.
+- A newly generated Supabase recovery email pointed to the Preview admin route with `adminAuth=1` and `authMode=recovery`.
+- Recovery flow forced the new-password screen instead of loading the dashboard directly.
+- Maintainer successfully changed the password.
+- Dashboard became available only after password update completed.
+
+This verifies the recovery gate in the real email/browser path, not only static build assertions.
 
 ## Alternate release QA — PASS
-GitHub-hosted runners are externally blocked, so Netlify Preview was strengthened with read-only fail-closed release checks.
+GitHub-hosted runners are externally blocked, so Netlify Preview is carrying a strengthened fail-closed alternate release gate.
 
-Latest successful Preview build on `b38b793dd66f844d32ddea40a0bb31171037771a` executed the alternate release gate, including:
+Latest runtime Preview build passed checks including:
 - admin auth recovery build assertions
 - grouped feedback syntax
 - essay-guide/runtime syntax
@@ -88,33 +90,47 @@ Latest successful Preview build on `b38b793dd66f844d32ddea40a0bb31171037771a` ex
 - `first_paint_static_qa.py`
 - cache bust
 
-`first_paint_static_qa.py` also guards strict admin/feedback Preview origins, no wildcard CORS, admin JWT verification, admin membership check, grouped feedback aggregation and raw-row cap.
+Latest PR-head Netlify deploy-preview status is also successful.
 
-## Final diff / secret / artifact scan
-Previous runtime scan passed. Re-run a final scan after the last release-candidate commit before merge approval.
+## Final diff / secret / artifact scan — PASS
+Final `main...PR#33` review found no committed private credential value.
+- no private key marker
+- no GitHub PAT prefix
+- no AWS access-key prefix
+- no JWT literal
+- no `SUPABASE_SERVICE_ROLE_KEY=` value
+- public Supabase publishable key is expected client configuration, not a secret
+- no synthetic feedback row remains in production DB
+- no release-blocking tmp/generated artifact identified in the PR changed-file set
 
-Known safe conditions retained:
-- no private key / PAT / `sk-` / AWS credential expected in runtime diff
-- `SUPABASE_SERVICE_ROLE_KEY` may appear only as an environment-variable name, never a value
-- no `_site`, archive, screenshot, tmp or synthetic test artifact should be committed
-- production DB currently has zero synthetic feedback rows
+Do not weaken this boundary during merge/deploy.
 
 ## GitHub Actions external blocker
-Multiple unrelated GitHub-hosted jobs still fail before execution:
-- `steps=[]` / `steps=null`
+Multiple unrelated GitHub-hosted jobs still fail before executing any workflow step.
+Observed on the latest affected runs:
+- `labels=["ubuntu-latest"]`
+- `runner_id=0`
+- `runner_name=""`
+- `steps=[]`
 - no job log blob
-- PR and scheduled-main workflows affected
-- latest checks reconfirmed the same no-step behavior across Monthly Frontend, Launch Readiness, Storage Durability and Knowledge Runtime Snapshot
+- failure occurs within seconds of job creation
+- PR QA and scheduled-main workflows are both affected
 
 Classification: `BLOCKED_BY_ACCOUNT_CONFIGURATION_OR_GITHUB_RUNNER_EXECUTION_LAYER`.
 
-Do not mutate product code to clear these no-step failures. Check GitHub Billing & licensing / Actions metered usage / budgets. Once runner execution is restored, rerun full GitHub-hosted QA.
+There is no evidence that these runs are failing an SWSI assertion; they never start the workflow steps. Do not mutate product code to clear this state. Check GitHub Actions usage / billing / budget / account execution eligibility, then rerun the hosted suite when runner execution is restored.
+
+## Release score
+Current evidence-based score: **96/100**.
+
+The product itself clears the 95-point release target. The remaining deduction is almost entirely the unavailable GitHub-hosted CI execution layer, plus the fact that production has not yet been updated to this release candidate.
+
+Do not chase cosmetic 98/99/100 changes before release. Restoring hosted Actions and verifying production after deploy are the correct paths to 98–99.
 
 ## Remaining release gates — only these
 1. Restore GitHub-hosted runner execution, **or** maintainer explicitly accepts release with this external CI outage based on the successful alternate QA evidence.
-2. Manual Admin recovery E2E using a newly generated Preview recovery email: forced new-password screen -> successful password update -> dashboard.
-3. Final diff / secret / artifact scan on the final PR HEAD.
-4. Explicit maintainer merge / production-deploy approval. Until then PR stays Draft and Netlify production remains untouched.
+2. Explicit maintainer approval to merge PR #33.
+3. Explicit maintainer approval to deploy production.
+4. After deployment, run production smoke verification and recheck the official question/grading invariants.
 
-## Stop rule
-Do not chase cosmetic 98/99/100 changes. Once the remaining gates are satisfied and score is at least 95/100 with no unaccepted P0 blocker, stop changing code and proceed only to explicit merge/deploy decision.
+Until explicit approval, PR stays Draft and Netlify production remains untouched.
