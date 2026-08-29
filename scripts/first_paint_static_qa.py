@@ -28,27 +28,18 @@ def main() -> int:
     require('<meta name="swsi-font-policy" content="system-font-first">' in html,
             'system-font-first startup marker missing')
     require('介面先顯示，題庫資料會在背景準備。' in html,
-            'UI-first initial shell missing')
+            'visible first-paint shell missing')
+    require('window.__SWSI_BOOT_DEFERRED__=true;' in html,
+            'legacy init is no longer deferred until monthly patch owners are installed')
 
-    marker = "window.__SWSI_FAST_BOOT_VERSION__='2026-08-29.ui-first.v2'"
-    require(marker in patch, 'UI-first runtime boot marker missing')
-    require("tabbar.style.display='flex';" in patch and "go('home');" in patch,
-            'home shell boot is missing')
-
-    fast_pos = patch.find(marker)
-    defer_pos = patch.find('Promise.resolve().then(function(){', fast_pos)
-    home_pos = patch.find("go('home');", defer_pos)
-    paint_gap_pos = patch.find('setTimeout(function(){', home_pos)
-    hydrate_pos = patch.find('loadQuestionManifest()', paint_gap_pos)
-    essay_pos = patch.find('loadAutoEssays()', paint_gap_pos)
-    require(fast_pos >= 0 and defer_pos > fast_pos and home_pos > defer_pos,
-            'Home is no longer deferred until later runtime owners are installed')
-    require(paint_gap_pos > home_pos,
-            'background hydration starts before the browser gets a paint opportunity')
-    require(hydrate_pos > paint_gap_pos and essay_pos > paint_gap_pos,
-            'question or essay hydration moved back ahead of Home')
-    require('Promise.allSettled([manifestTask,essayTask])' in patch[paint_gap_pos:],
-            'background data hydration is no longer isolated from first paint')
+    verified_boot = '''if(window.__SWSI_BOOT_DEFERRED__){
+    window.__SWSI_BOOT_DEFERRED__=false;
+    init().catch(showLoadError);
+  }'''
+    require(verified_boot in patch,
+            'verified deferred init boot contract missing from monthly patch')
+    require('__SWSI_FAST_BOOT_VERSION__' not in patch,
+            'experimental UI-first boot override returned')
 
     print('FIRST PAINT STATIC QA OK')
     return 0
