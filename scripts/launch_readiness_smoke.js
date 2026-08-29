@@ -36,29 +36,38 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.goto(base, { waitUntil: 'commit', timeout: 15000 });
   await waitHome();
 
-  // First-time guidance must be visible once, dismissible, and stay dismissed.
+  // First-time guidance must be compact, visible once, dismissible, and stay dismissed.
   const guide = page.locator('.swsi-launch-guide');
   assert.strictEqual(await guide.count(), 1, 'first-use guide missing on fresh localStorage');
-  assert(/30 秒看懂 SWSI/.test(await guide.innerText()), 'first-use guide copy missing');
+  const guideText = await guide.innerText();
+  assert(/不用先學整個平台/.test(guideText), 'compact first-use guide copy missing');
+  assert(/練題/.test(guideText) && /學習/.test(guideText) && /申論/.test(guideText), 'first-use guide does not explain the three primary areas');
   await guide.getByRole('button', { name: /不再顯示首次使用說明/ }).click();
   await page.waitForFunction(() => !document.querySelector('.swsi-launch-guide'));
-  assert.strictEqual(await page.evaluate(() => localStorage.getItem('swsi_launch_guide_dismissed_v1')), '1', 'guide dismissal was not persisted');
+  assert.strictEqual(await page.evaluate(() => localStorage.getItem('swsi_launch_guide_dismissed_v2')), '1', 'guide dismissal was not persisted');
 
   await page.reload({ waitUntil: 'commit' });
   await waitHome();
   assert.strictEqual(await page.locator('.swsi-launch-guide').count(), 0, 'dismissed guide returned after reload');
 
+  // Bottom navigation must expose the simplified study information architecture.
+  const visibleTabs = await page.locator('#tabbar button:visible').allInnerTexts();
+  const tabText = visibleTabs.join(' ');
+  assert(/練題/.test(tabText) && /學習/.test(tabText) && /申論/.test(tabText), 'simplified bottom navigation labels missing');
+
   // Existing interaction smoke owns seeded review navigation. This launch smoke
-  // enters progress directly so it remains valid for a completely new user.
+  // enters the learning center directly so it remains valid for a completely new user.
   await page.evaluate(() => {
     if (typeof go !== 'function') throw new Error('go() route helper missing');
     go('progress');
   });
   await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
-  await page.waitForSelector('.swsi-launch-reminder', { timeout: 10000 });
+  await page.waitForSelector('.swsi-exam-reminder', { timeout: 10000 });
 
-  const reminderText = await page.locator('.swsi-launch-reminder').innerText();
-  assert(/今日提醒/.test(reminderText), 'daily reminder missing');
+  const hubText = await page.locator('.swsi-myhub').innerText();
+  assert(/學習中心/.test(hubText), 'learning center heading missing');
+  assert(/錯題複習/.test(hubText) && /快速刷題/.test(hubText) && /申論練習/.test(hubText), 'learning center primary study actions missing');
+  const reminderText = await page.locator('.swsi-exam-reminder').innerText();
   assert(/考試倒數/.test(reminderText), 'exam countdown entry missing');
 
   // Exam-date modal must stay inside a phone viewport, lock background scroll,
