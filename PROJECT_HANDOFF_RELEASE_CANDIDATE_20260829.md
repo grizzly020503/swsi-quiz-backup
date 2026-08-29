@@ -90,7 +90,7 @@ Latest runtime Preview build passed checks including:
 - `first_paint_static_qa.py`
 - cache bust
 
-Latest PR-head Netlify deploy-preview status is also successful.
+Latest runtime PR-head Netlify deploy-preview status is successful.
 
 ## Final diff / secret / artifact scan — PASS
 Final `main...PR#33` review found no committed private credential value.
