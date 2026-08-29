@@ -36,18 +36,20 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
   }
   assert(!await page.locator('#swsi-public-info-backdrop').count(),'public info backdrop stuck open');
 
-  // Empty review must be a useful empty state, not an exception/dead-end.
+  // Empty review is now owned by the combined Learning Center. It must remain a
+  // useful state with a clear next action, not an exception/dead-end.
   await page.evaluate(()=>{try{localStorage.clear();}catch(_e){}});
-  await page.getByRole('button',{name:'複習',exact:true}).click();
+  await page.locator('#t-review').click();
+  await page.waitForSelector('.swsi-myhub',{timeout:10000});
   await page.waitForFunction(()=>{
     const app=document.querySelector('#app');
     return app&&(/還沒有錯題|目前沒有待複習題/.test(app.textContent||''));
   },null,{timeout:10000});
   const emptyReview=await page.locator('#app').innerText();
   assert(/還沒有錯題|目前沒有待複習題/.test(emptyReview),'review empty state missing');
-  assert(/開始刷題|看看我的進度/.test(emptyReview),'review empty state lacks a next step');
+  assert(/快速刷題|完成一組 20 題|開始刷題/.test(emptyReview),'review empty state lacks a next step');
   assert(!/undefined|null|NaN/.test(emptyReview),'review empty state leaked invalid values');
-  await page.getByRole('button',{name:'首頁',exact:true}).click();
+  await page.locator('#t-home').click();
   await page.waitForSelector('.swsi-focus-primary',{timeout:10000});
 
   // AI network failure: answer stays saved, busy state clears, and the user gets plain-language recovery copy.
@@ -78,7 +80,7 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
   const aiResult=await page.locator('[id^="airesult_"]').first().innerText();
   assert(/作答仍保存在這台裝置|稍後再試|網路/.test(aiResult),'AI failure lacks recovery guidance');
   await page.unroute('**/*');
-  await page.getByRole('button',{name:'首頁',exact:true}).click();
+  await page.locator('#t-home').click();
   await page.waitForSelector('.swsi-focus-primary',{timeout:10000});
 
   // Question CDN failure: a failed shard request must not leave a permanent loading/dead screen.
@@ -88,7 +90,7 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
   await page.waitForTimeout(3500);
   const afterFailure=await page.locator('#app').innerText();
   const hasQuiz=await page.locator('.qcard').count();
-  const recoverable=/載入|網路|稍後|重新|無法|失敗|首頁/.test(afterFailure);
+  const recoverable=/載入|網路|稍後|重新|無法|失敗|練題|首頁/.test(afterFailure);
   assert(hasQuiz||recoverable,'question shard failure left no understandable recovery state');
   assert(!/undefined|null|NaN/.test(afterFailure),'question failure leaked invalid values');
 
