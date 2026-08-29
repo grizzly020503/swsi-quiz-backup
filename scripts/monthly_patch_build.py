@@ -76,32 +76,40 @@ RUNTIME_BOOT_OLD = '''  // Final boot: build-time patch suppresses the legacy in
 })();'''
 
 RUNTIME_BOOT_NEW = '''  // Fast student boot 2026-08-29: first paint must not wait for data.
-  // The home/learning shells are local UI. Catalog + essay payloads hydrate in
-  // the background and re-render Home when metadata becomes available.
+  // Defer Home by one microtask so every later monthly-patch owner (especially
+  // the final Home renderer/navigation owner) is installed before first render.
   if(window.__SWSI_BOOT_DEFERRED__){
     window.__SWSI_BOOT_DEFERRED__=false;
-    window.__SWSI_FAST_BOOT_VERSION__='2026-08-29.ui-first.v1';
-    try{
-      SUBJECTS=SWSI_CORE_SUBJECTS.slice();
-      sb=null;
-      tabbar.style.display='flex';
-      applyFocusedTabbar();
-      go('home');
-    }catch(err){
-      showLoadError(err);
-    }
-    Promise.resolve().then(async function(){
+    window.__SWSI_FAST_BOOT_VERSION__='2026-08-29.ui-first.v2';
+    Promise.resolve().then(function(){
       try{
-        await loadQuestionManifest();
-        if(typeof view!=='undefined' && view==='home') render();
+        SUBJECTS=SWSI_CORE_SUBJECTS.slice();
+        sb=null;
+        tabbar.style.display='flex';
+        applyFocusedTabbar();
+        go('home');
       }catch(err){
-        console.warn('[SWSI] background question catalog unavailable',err);
+        showLoadError(err);
+        return;
       }
-      try{
-        await loadAutoEssays();
-      }catch(err){
-        console.warn('[SWSI] background essay payload unavailable',err);
-      }
+
+      // Give the browser a paint opportunity before starting background data work.
+      setTimeout(function(){
+        const manifestTask=Promise.resolve().then(function(){return loadQuestionManifest();});
+        const essayTask=Promise.resolve().then(function(){return loadAutoEssays();});
+        Promise.allSettled([manifestTask,essayTask]).then(function(results){
+          if(results[0].status==='fulfilled'){
+            try{ if(typeof view!=='undefined' && view==='home') render(); }catch(err){
+              console.warn('[SWSI] background catalog re-render failed',err);
+            }
+          }else{
+            console.warn('[SWSI] background question catalog unavailable',results[0].reason);
+          }
+          if(results[1].status==='rejected'){
+            console.warn('[SWSI] background essay payload unavailable',results[1].reason);
+          }
+        });
+      },0);
     });
   }
 })();'''
@@ -250,7 +258,7 @@ def main() -> int:
 
     print(f'Applied SWSI monthly front-end build patch: {path}')
     print('Applied canonical knowledge bootstrap: laws=' + str(knowledge_manifest['laws']['count']) + ' theories=' + str(knowledge_manifest['theories']['count']))
-    print('Applied student UI-first boot: 2026-08-29.ui-first.v1')
+    print('Applied student UI-first boot: 2026-08-29.ui-first.v2')
     return 0
 
 
