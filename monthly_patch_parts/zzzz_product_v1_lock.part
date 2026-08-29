@@ -73,9 +73,22 @@
     if(route&&el.getAttribute('onclick')!==route) el.setAttribute('onclick',route);
   }
 
+  window.swsiOpenLearningCenter=function(){
+    if(typeof go==='function') go('progress');
+    /* Learning Center V2 decorates the progress surface on focus. Trigger that
+       owner synchronously instead of relying on MutationObserver timing. */
+    try{window.dispatchEvent(new Event('focus'));}catch(_e){}
+    var home=document.getElementById('t-home');
+    var learning=document.getElementById('t-review');
+    var essay=document.getElementById('t-essay');
+    if(home)home.classList.remove('on');
+    if(learning)learning.classList.add('on');
+    if(essay)essay.classList.remove('on');
+  };
+
   function polishNav(){
     setNavButton('t-home','home','練題',"go('home')");
-    setNavButton('t-review','review','學習',"go('progress')");
+    setNavButton('t-review','review','學習',"swsiOpenLearningCenter()");
     setNavButton('t-essay','essay','申論',"go('essay')");
   }
 
