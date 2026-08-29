@@ -141,14 +141,19 @@
     if(app.querySelector('.sumcard'))return 'result';
     if(app.querySelector('.swsi-myhub'))return 'learning';
     if(app.querySelector('.wta,.wbox'))return 'essay-write';
+
+    /* Essay library is a router state, not a styling state. Later navigation
+       polish is allowed to rewrite tab markup/classes, so do not make shell
+       classification depend on the visual `.on` class. */
+    try{
+      if(typeof view!=='undefined'&&view==='essay')return 'essay-library';
+    }catch(_e){}
+
     if(app.querySelector('.swsi-learning-section,.swsi-progress-hero'))return 'learning-detail';
 
-    /* Page templates must follow stable navigation/structure, not copy text.
-       Essay headings are product copy and may change without changing layout. */
+    /* Compatibility fallback for older renderers that do not expose router state. */
     var essayTab=document.getElementById('t-essay');
     if(essayTab&&essayTab.classList.contains('on'))return 'essay-library';
-
-    /* Compatibility fallback for older renderers that have not yet marked the tab. */
     var h=app.querySelector('.section-h');
     if(h&&/申論/.test(h.textContent||''))return 'essay-library';
     return 'standard';
