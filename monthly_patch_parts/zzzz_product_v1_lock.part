@@ -58,22 +58,25 @@
     return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 19 3.8-.8L19 8a2.1 2.1 0 0 0-3-3L5.8 15.2 5 19Z"></path><path d="m14.8 6.2 3 3"></path><path d="M4 21h16"></path></svg></span>';
   }
 
-  function setNavButton(id,kind,label){
+  function setNavButton(id,kind,label,route){
     var el=document.getElementById(id); if(!el) return;
-    /* Do not compare serialized innerHTML. Browsers normalize SVG markup, so that
-       comparison can stay unequal forever and make MutationObserver trigger itself. */
+    /* Learning Center V2 may already have installed a simple icon + label.
+       Accept either markup shape so product polish and learning-center observers
+       do not continuously rewrite each other. */
     var currentLabel=el.querySelector('.swsi-nav-label');
-    var currentIcon=el.querySelector('.swsi-nav-ico');
-    if(!currentLabel || !currentIcon || currentLabel.textContent!==label){
+    var currentText=(el.textContent||'').trim();
+    var hasLabel=currentLabel ? currentLabel.textContent===label : currentText.slice(-label.length)===label;
+    if(!hasLabel){
       el.innerHTML=icon(kind)+'<span class="swsi-nav-label">'+label+'</span>';
     }
     if(el.getAttribute('aria-label')!==label) el.setAttribute('aria-label',label);
+    if(route&&el.getAttribute('onclick')!==route) el.setAttribute('onclick',route);
   }
 
   function polishNav(){
-    setNavButton('t-home','home','首頁');
-    setNavButton('t-review','review','複習');
-    setNavButton('t-essay','essay','申論');
+    setNavButton('t-home','home','練題',"go('home')");
+    setNavButton('t-review','review','學習',"go('progress')");
+    setNavButton('t-essay','essay','申論',"go('essay')");
   }
 
   /* Essay navigation is owned by zzz_fix_essay_navigation.part. */
