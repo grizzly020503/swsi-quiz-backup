@@ -33,6 +33,14 @@
     }
   }
 
+  /* Clear the local Learning-surface flag before the legacy inline handlers for
+     the other two bottom tabs run. This works even if go() is a lexical global
+     rather than a window property in an older browser build. */
+  document.addEventListener('click',function(ev){
+    var el=ev.target&&ev.target.closest?ev.target.closest('#t-home,#t-essay'):null;
+    if(el)window.__SWSI_LEARNING_CENTER_OPEN__=false;
+  },true);
+
   bind();
   try{
     var bar=document.querySelector('.tabbar')||document.body;
