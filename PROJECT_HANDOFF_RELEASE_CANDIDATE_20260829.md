@@ -62,10 +62,20 @@ Do not change without new official evidence.
 - synthetic contract verified; synthetic #7 removed
 - production synthetic rows 0; pending feedback 0 at latest check
 
+## Preview Feedback E2E — PASS
+Manual iPhone/Safari verification completed against PR #33 Preview.
+- Preview report reached `swsi-feedback` and production Supabase as report #8.
+- `site_origin` matched `https://deploy-preview-33--swsi-quiznetlify.netlify.app`.
+- `page_path` contained the dedicated `feedback-e2e` marker.
+- The test row was deleted immediately after verification.
+- Post-cleanup check: pending feedback 0; synthetic / feedback-e2e test rows 0.
+- A Safari AutoFill false-positive was identified in the legacy hidden honeypot path and fixed inside the existing `91.feedback-context.part` owner; no extra runtime owner was left behind.
+- The post-fix Preview build passed the Netlify alternate release gate.
+
 ## Alternate release QA — PASS
 GitHub-hosted runners are externally blocked, so Netlify Preview was strengthened with read-only fail-closed release checks.
 
-Successful Preview build on `b4b604ef655c6148f17a1f5b8c533bc868739fdb` executed:
+Latest successful Preview build on `b38b793dd66f844d32ddea40a0bb31171037771a` executed the alternate release gate, including:
 - admin auth recovery build assertions
 - grouped feedback syntax
 - essay-guide/runtime syntax
@@ -80,18 +90,21 @@ Successful Preview build on `b4b604ef655c6148f17a1f5b8c533bc868739fdb` executed:
 
 `first_paint_static_qa.py` also guards strict admin/feedback Preview origins, no wildcard CORS, admin JWT verification, admin membership check, grouped feedback aggregation and raw-row cap.
 
-## Final diff / secret / artifact scan — PASS
-Runtime diff through `5ea7565a82219ba8573f197f6992ef2547855b1e` passed; later commits are closeout docs / QA-command changes.
+## Final diff / secret / artifact scan
+Previous runtime scan passed. Re-run a final scan after the last release-candidate commit before merge approval.
 
-No private key, PAT, `sk-`, AWS key, JWT literal, service-role value, debugger, tmp/generated release junk, `_site`, archive or screenshot artifact found. `SUPABASE_SERVICE_ROLE_KEY` appears only as an environment-variable name. Production DB has zero synthetic feedback rows.
+Known safe conditions retained:
+- no private key / PAT / `sk-` / AWS credential expected in runtime diff
+- `SUPABASE_SERVICE_ROLE_KEY` may appear only as an environment-variable name, never a value
+- no `_site`, archive, screenshot, tmp or synthetic test artifact should be committed
+- production DB currently has zero synthetic feedback rows
 
 ## GitHub Actions external blocker
-Multiple unrelated GitHub-hosted jobs fail before execution:
+Multiple unrelated GitHub-hosted jobs still fail before execution:
 - `steps=[]` / `steps=null`
-- `runner_id=0`
-- no log blob
+- no job log blob
 - PR and scheduled-main workflows affected
-- GitHub public status reports Actions operational
+- latest checks reconfirmed the same no-step behavior across Monthly Frontend, Launch Readiness, Storage Durability and Knowledge Runtime Snapshot
 
 Classification: `BLOCKED_BY_ACCOUNT_CONFIGURATION_OR_GITHUB_RUNNER_EXECUTION_LAYER`.
 
@@ -99,9 +112,9 @@ Do not mutate product code to clear these no-step failures. Check GitHub Billing
 
 ## Remaining release gates — only these
 1. Restore GitHub-hosted runner execution, **or** maintainer explicitly accepts release with this external CI outage based on the successful alternate QA evidence.
-2. Manual Preview Feedback E2E: submit one report from PR #33 UI -> confirm DB receipt -> remove test row.
-3. Manual Admin recovery E2E: newest Preview recovery email -> forced new-password screen -> update password -> dashboard.
-4. Explicit maintainer merge/deploy approval. Until then PR stays Draft and Netlify production remains untouched.
+2. Manual Admin recovery E2E using a newly generated Preview recovery email: forced new-password screen -> successful password update -> dashboard.
+3. Final diff / secret / artifact scan on the final PR HEAD.
+4. Explicit maintainer merge / production-deploy approval. Until then PR stays Draft and Netlify production remains untouched.
 
 ## Stop rule
 Do not chase cosmetic 98/99/100 changes. Once the remaining gates are satisfied and score is at least 95/100 with no unaccepted P0 blocker, stop changing code and proceed only to explicit merge/deploy decision.
