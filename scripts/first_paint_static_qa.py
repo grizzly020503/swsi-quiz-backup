@@ -77,7 +77,24 @@ def main() -> int:
                 require(token not in text,
                         f'{name} regained Layer-1 shell ownership via {token}')
 
-    print('FIRST PAINT + LAYOUT OWNERSHIP STATIC QA OK')
+    # Feedback-origin contract. Production feedback must stay closed to arbitrary
+    # origins while still permitting the exact Netlify deploy-preview host shape
+    # used for pre-release E2E verification.
+    feedback_edge = Path('supabase/functions/swsi-feedback/index.ts')
+    if feedback_edge.is_file():
+        feedback = feedback_edge.read_text(encoding='utf-8')
+        require('https://swsi-quiznetlify.netlify.app' in feedback,
+                'production Netlify feedback origin missing')
+        require('https://wandering-wave-4418.c022050333.workers.dev' in feedback,
+                'known Worker feedback origin missing')
+        require('deploy-preview-' in feedback and '--swsi-quiznetlify\\.netlify\\.app' in feedback,
+                'strict Netlify deploy-preview feedback origin contract missing')
+        require('NETLIFY_PREVIEW_ORIGIN.test(origin)' in feedback,
+                'deploy-preview feedback origin is defined but not enforced')
+        require('Access-Control-Allow-Origin\": \"*\"' not in feedback,
+                'feedback CORS regressed to wildcard origin')
+
+    print('FIRST PAINT + LAYOUT OWNERSHIP + FEEDBACK ORIGIN STATIC QA OK')
     return 0
 
 
