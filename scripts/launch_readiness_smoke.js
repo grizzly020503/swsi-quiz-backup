@@ -90,11 +90,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/練題/.test(tabText) && /學習/.test(tabText) && /申論/.test(tabText), 'simplified bottom navigation labels missing');
 
   // Existing interaction smoke owns seeded review navigation. This launch smoke
-  // enters the learning center directly so it remains valid for a completely new user.
-  await page.evaluate(() => {
-    if (typeof go !== 'function') throw new Error('go() route helper missing');
-    go('progress');
-  });
+  // opens Learning exactly as a student does, without routing through legacy progress/full-bank loading.
+  const learningTab = page.locator('#t-review');
+  await learningTab.click();
   await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
   await page.waitForSelector('.swsi-exam-reminder', { timeout: 10000 });
 
