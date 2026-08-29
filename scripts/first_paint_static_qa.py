@@ -23,8 +23,10 @@ def main() -> int:
             'student first paint again blocks on Supabase JS SDK')
     require('window.__SWSI_STUDENT_REST_ONLY__=true;' in html,
             'student REST-only startup marker missing')
-    require('media="print" onload="this.media=\'all\'"' in html,
-            'Google Fonts stylesheet is render-blocking again')
+    require('fonts.googleapis.com' not in html and 'fonts.gstatic.com' not in html,
+            'student first paint again depends on external Google Fonts')
+    require('<meta name="swsi-font-policy" content="system-font-first">' in html,
+            'system-font-first startup marker missing')
     require('介面先顯示，題庫資料會在背景準備。' in html,
             'UI-first initial shell missing')
 
