@@ -21,20 +21,32 @@ Public release target: before 2026-09-01. No new student features. Finish P0/P1 
 - Netlify alternate release gate: PASS on the latest runtime build.
 - Final diff/secret/artifact scan: PASS; no private credential value identified.
 
-## GitHub Actions external blocker
-Multiple unrelated GitHub-hosted jobs fail before executing workflow steps: `runner_id=0`, empty runner name, `steps=[]`, no job log. PR QA and scheduled-main workflows are both affected. Classification: `BLOCKED_BY_ACCOUNT_CONFIGURATION_OR_GITHUB_RUNNER_EXECUTION_LAYER`.
+## GitHub Actions blocker — ROOT CAUSE CONFIRMED
+GitHub-hosted jobs fail before executing workflow steps with `runner_id=0`, empty runner name, `steps=[]`, and no job log because the personal account has exhausted its included Actions allowance.
 
-Do not mutate product code to clear this state. Restore Actions usage/billing/budget/account execution eligibility and rerun hosted QA when runner execution is available.
+GitHub account notification received 2026-08-29 confirms:
+- plan includes 2,000 Actions minutes per billing cycle
+- 2,000 / 2,000 minutes used (100%)
+- included usage resets on 2026-09-01
+- usage beyond the included amount requires billable Actions eligibility; a $0 Actions budget blocks further usage until reset
+
+Therefore this is not a SWSI workflow/YAML/product-code failure. Do not mutate product code to clear it.
+
+To restore GitHub-hosted CI before the 2026-09-01 reset, the maintainer must use GitHub Billing settings to ensure a valid payment method and a non-zero Actions budget / spending allowance. Otherwise wait for the included usage reset on 2026-09-01.
+
+Once hosted runner eligibility is restored, rerun the failed PR #33 workflows and require real executable steps plus passing results before choosing the strict release path.
 
 ## Release score
-Evidence-based release score: **96/100**.
+Evidence-based release score before hosted CI restoration: **96/100**.
 
-The release clears the 95-point target. The main deduction is the unavailable GitHub-hosted CI execution layer and the fact that production has not yet been deployed and smoke-verified. Restoring hosted Actions plus successful production verification are the legitimate path toward 98–99; do not chase cosmetic changes.
+Restoring hosted Actions and passing the full suite is the legitimate path toward 98–99; do not chase cosmetic changes.
 
-## Remaining gates
-1. Restore GitHub-hosted runner execution, **or** maintainer explicitly accepts release with that external CI outage based on the successful alternate QA evidence.
-2. Explicit maintainer approval to merge PR #33.
-3. Explicit maintainer approval to deploy production.
-4. After deployment, run production smoke verification and recheck official question/grading invariants.
+## Remaining gates — strict path selected
+1. Restore GitHub-hosted runner execution by billing/budget eligibility, or wait for the 2026-09-01 allowance reset.
+2. Rerun PR #33 hosted QA and require all relevant workflows to execute real steps and pass.
+3. Recheck final PR HEAD / diff after the hosted QA run.
+4. Explicit maintainer approval to merge PR #33.
+5. Explicit maintainer approval to deploy production.
+6. After deployment, run production smoke verification and recheck official question/grading invariants.
 
 Until explicit approval, PR stays Draft and Netlify production remains untouched.
