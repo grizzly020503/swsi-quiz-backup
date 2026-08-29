@@ -116,6 +116,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   // Force one genuinely wrong answer so the learning-loop UI is always exercised.
   await page.getByRole('button', { name: /直接開始 20 題/ }).click();
   await page.waitForSelector('.qcard .opt', { timeout: 45000 });
+  await page.waitForFunction(() => document.body.classList.contains('swsi-question-active'));
+  const quizFooter = page.locator('.wrap > footer');
+  assert.strictEqual(await quizFooter.isVisible(), false, 'public footer should stay hidden during an active question');
   const wrongIndex = await page.evaluate(() => {
     const item = queue && queue[idx];
     if (!item) return -1;
@@ -152,6 +155,8 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.waitForSelector('.qcard');
   await page.getByRole('button', { name: /結束這次練習/ }).click();
   await waitHome();
+  await page.waitForFunction(() => !document.body.classList.contains('swsi-question-active'));
+  assert.strictEqual(await quizFooter.isVisible(), true, 'public footer did not return after leaving the active quiz');
 
   // The simplified second tab opens Learning Center; review is one action inside it.
   await page.locator('#t-review').click();
