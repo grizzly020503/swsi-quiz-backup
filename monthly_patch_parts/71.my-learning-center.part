@@ -1,7 +1,8 @@
 
-/* SWSI Learning Center V2 2026-08-29
+/* SWSI Learning Center V3 2026-08-29
    Personal study hub: review, progress, quiz and essay in one place.
-   Platform/about/admin material is secondary and collapsed by default.
+   The hub renders immediately from local learning state and never requires a full
+   4,800-question load just to open the second tab.
 */
 (function(){
   'use strict';
@@ -11,7 +12,7 @@
   var SUPABASE_PUBLISHABLE_KEY='sb_publishable_6KL-X7KfkcfyP1kLxfokhA_0h2YuYMr';
   var ADMIN_ENDPOINT=SUPABASE_URL+'/functions/v1/swsi-admin';
   var AUTH_STORAGE_KEY='sb-'+SUPABASE_PROJECT_REF+'-auth-token';
-  var STYLE_ID='swsi-my-learning-center-v2-style';
+  var STYLE_ID='swsi-my-learning-center-v3-style';
 
   if(!document.getElementById(STYLE_ID)){
     var st=document.createElement('style');
@@ -60,10 +61,10 @@
   function row(icon,label,meta,onclick,extraClass,attrs){return '<button type="button" class="swsi-myhub-row'+(extraClass?' '+extraClass:'')+'" '+(attrs||'')+' onclick="'+onclick+'"><span class="ico">'+icon+'</span><span class="copy"><span class="label">'+label+'</span><span class="meta">'+meta+'</span></span><span class="arrow">›</span></button>';}
 
   function recommendation(rv,drafts){
-    if(rv.due>0)return {title:'先複習今天到期的 '+rv.due+' 題',sub:'到期錯題比再刷一批新題更值得。',onclick:'startDueReview()'};
-    if(rv.active>0)return {title:'整理還沒熟的錯題',sub:'目前還有 '+rv.active+' 題在複習循環裡。',onclick:"go('review')"};
-    if(drafts>0)return {title:'繼續一份申論草稿',sub:'這台裝置還有 '+drafts+' 份草稿可以接著寫。',onclick:'window.swsiOpenEssay()'};
-    return {title:'完成一組 20 題',sub:'先累積一點作答資料，平台才更知道你的弱點。',onclick:'swsiStartRecommended20()'};
+    if(rv.due>0)return {title:'先複習今天到期的 '+rv.due+' 題',sub:'到期錯題比再刷一批新題更值得。',onclick:"swsiLearningAction('due')"};
+    if(rv.active>0)return {title:'整理還沒熟的錯題',sub:'目前還有 '+rv.active+' 題在複習循環裡。',onclick:"swsiLearningAction('review')"};
+    if(drafts>0)return {title:'繼續一份申論草稿',sub:'這台裝置還有 '+drafts+' 份草稿可以接著寫。',onclick:"swsiLearningAction('essay')"};
+    return {title:'完成一組 20 題',sub:'先累積一點作答資料，平台才更知道你的弱點。',onclick:"swsiLearningAction('quiz')"};
   }
 
   function buildHub(){
@@ -73,9 +74,9 @@
       +'<button type="button" class="swsi-myhub-primary" onclick="'+rec.onclick+'"><span><b>'+rec.title+'</b><small>'+rec.sub+'</small></span><span class="arrow">›</span></button>'
       +'<div class="swsi-myhub-stats"><div class="swsi-myhub-stat"><b>'+rv.due+'</b><span>今天到期</span></div><div class="swsi-myhub-stat"><b>'+rv.active+'</b><span>還沒熟</span></div><div class="swsi-myhub-stat"><b>'+rv.mastered+'</b><span>已掌握</span></div></div>'
       +'<div class="swsi-myhub-list">'
-      +row('↻','錯題複習',rv.due?('今天 '+rv.due+' 題到期'):(rv.active?('尚有 '+rv.active+' 題未熟練'):'目前沒有待複習題'),"go('review')")
-      +row('◎','快速刷題','智慧推薦 20 題','swsiStartRecommended20()')
-      +row('✎','申論練習',drafts?('這台裝置有 '+drafts+' 份草稿'):'歷屆申論與 AI 練習回饋','window.swsiOpenEssay()')
+      +row('↻','錯題複習',rv.due?('今天 '+rv.due+' 題到期'):(rv.active?('尚有 '+rv.active+' 題未熟練'):'目前沒有待複習題'),"swsiLearningAction('review')")
+      +row('◎','快速刷題','智慧推薦 20 題',"swsiLearningAction('quiz')")
+      +row('✎','申論練習',drafts?('這台裝置有 '+drafts+' 份草稿'):'歷屆申論與 AI 練習回饋',"swsiLearningAction('essay')")
       +'</div></div>'
       +'<details class="swsi-myhub-more"><summary>更多與平台資訊</summary><div class="swsi-myhub-list">'
       +'<button type="button" class="swsi-myhub-row admin" data-swsi-admin-entry hidden onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理中心</span><span class="meta">管理者專用</span></span><span class="arrow">›</span></button>'
@@ -88,26 +89,56 @@
       +'</div></details></section>';
   }
 
+  function setLearningNavActive(){
+    var home=document.getElementById('t-home'),learning=document.getElementById('t-review'),essay=document.getElementById('t-essay');
+    if(home)home.classList.remove('on');
+    if(learning)learning.classList.add('on');
+    if(essay)essay.classList.remove('on');
+  }
+
+  window.swsiLearningAction=function(kind){
+    window.__SWSI_LEARNING_CENTER_OPEN__=false;
+    if(kind==='due'){if(typeof startDueReview==='function')startDueReview();return;}
+    if(kind==='review'){if(typeof go==='function')go('review');return;}
+    if(kind==='progress'){if(typeof go==='function')go('progress');return;}
+    if(kind==='essay'){if(typeof window.swsiOpenEssay==='function')window.swsiOpenEssay();else if(typeof go==='function')go('essay');return;}
+    if(typeof window.swsiStartRecommended20==='function')window.swsiStartRecommended20();
+    else if(typeof go==='function')go('home');
+  };
+
+  window.swsiRenderLearningCenter=function(){
+    var root=document.getElementById('app');
+    if(!root)return false;
+    window.__SWSI_LEARNING_CENTER_OPEN__=true;
+    root.innerHTML=buildHub();
+    setLearningNavActive();
+    try{window.scrollTo({top:0,left:0,behavior:'auto'});}catch(_e){try{window.scrollTo(0,0);}catch(_e2){}}
+    verifyAdminAccess();
+    return true;
+  };
+
+  window.swsiOpenLearningCenter=function(ev){
+    if(ev&&typeof ev.preventDefault==='function')ev.preventDefault();
+    return window.swsiRenderLearningCenter();
+  };
+
   function installLearningTab(){
     var home=document.getElementById('t-home'),learning=document.getElementById('t-review'),essay=document.getElementById('t-essay'),progress=document.getElementById('t-progress');
     if(home)home.innerHTML='<span class="ico">◎</span>練題';
-    if(learning){learning.innerHTML='<span class="ico">↻</span>學習';learning.setAttribute('onclick',"go('progress')");learning.setAttribute('aria-label','學習中心');}
+    if(learning){learning.innerHTML='<span class="ico">↻</span>學習';learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');learning.setAttribute('aria-label','學習中心');}
     if(essay)essay.innerHTML='<span class="ico">✒</span>申論';
     if(progress)progress.style.display='none';
-    try{if(typeof view!=='undefined'&&view==='progress'){if(learning)learning.classList.add('on');if(home)home.classList.remove('on');if(essay)essay.classList.remove('on');}}catch(_e){}
+    if(window.__SWSI_LEARNING_CENTER_OPEN__)setLearningNavActive();
   }
 
   function decorate(){
     installLearningTab();
-    var root=document.getElementById('app');if(!root||root.querySelector('.swsi-myhub'))return;
-    var heading=root.querySelector('.section-h');var normalProgress=!!(heading&&heading.textContent.trim()==='我的學習進度');
-    var empty=root.querySelector('.empty');var newUserProgress=!!(empty&&/還沒有刷題紀錄/.test(empty.textContent||''));
-    if(!normalProgress&&!newUserProgress)return;
-    var wrap=document.createElement('div');wrap.innerHTML=buildHub();var hub=wrap.firstElementChild;
-    if(hub){root.insertBefore(hub,root.firstChild);verifyAdminAccess();}
+    var root=document.getElementById('app');if(!root)return;
+    if(window.__SWSI_LEARNING_CENTER_OPEN__&&!root.querySelector('.swsi-myhub'))window.swsiRenderLearningCenter();
   }
 
-  window.addEventListener('storage',function(ev){if(!ev.key||ev.key===AUTH_STORAGE_KEY)verifyAdminAccess();});window.addEventListener('focus',function(){decorate();verifyAdminAccess();});
+  window.addEventListener('storage',function(ev){if(!ev.key||ev.key===AUTH_STORAGE_KEY)verifyAdminAccess();});
+  window.addEventListener('focus',function(){decorate();verifyAdminAccess();});
   var root=document.getElementById('app');
   if(root){decorate();var pending=false;new MutationObserver(function(){if(pending)return;pending=true;queueMicrotask(function(){pending=false;decorate();});}).observe(root,{childList:true,subtree:true});}
   installLearningTab();
