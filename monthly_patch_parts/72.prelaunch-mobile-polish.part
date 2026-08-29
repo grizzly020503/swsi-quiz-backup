@@ -1,8 +1,7 @@
 
-/* SWSI Prelaunch Mobile Polish V3 2026-08-29
-   Keep mobile spacing calm after the learning-center simplification.
-   Fixed-nav clearance belongs to .wrap; footer keeps only normal breathing room.
-   No grading/data/runtime contract changes.
+/* SWSI Prelaunch Mobile Polish V4 2026-08-29
+   Layer 3 only: visual polish inside Learning Center.
+   Global shell/footer/nav geometry is owned exclusively by 15.layout-foundation.part.
 */
 (function(){
   'use strict';
@@ -15,13 +14,6 @@
       .swsi-myhub-row.admin-login .label{font-size:12px!important;font-weight:600!important}
       .swsi-myhub-row.admin-login .meta{font-size:10px!important}
       @media(max-width:720px){
-        /* .wrap already owns --swsi-tabbar-clearance in the P0 mobile guardrail.
-           Do not add a second 128px reserve inside footer: that creates the large
-           blank slab visible on short result / Learning / Essay-library pages. */
-        .wrap>footer,body footer{
-          padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))!important;
-          margin-bottom:0!important;
-        }
         .swsi-public-footer-brand{padding-left:8px;padding-right:8px}
         .swsi-myhub{gap:9px;margin-bottom:18px}
         .swsi-myhub-card{box-shadow:none!important;border-radius:15px!important}
@@ -29,7 +21,4 @@
     `;
     document.head.appendChild(st);
   }
-  function keepFooterClear(){var f=document.querySelector('.wrap > footer')||document.querySelector('footer');if(f&&f.style.scrollMarginBottom!=='100px')f.style.scrollMarginBottom='100px';}
-  keepFooterClear();
-  window.addEventListener('focus',keepFooterClear);
 })();
