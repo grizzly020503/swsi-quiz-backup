@@ -16,7 +16,7 @@ STUDENT_EXACT = {
     'index.html', 'essay_guides.js', 'manifest.json', 'sw.js',
     'netlify.toml', 'scripts/monthly_patch_build.py', 'scripts/netlify_ignore.py',
     'scripts/cache_bust_runtime.py', 'scripts/first_paint_static_qa.py',
-    'scripts/admin_auth_build.py',
+    'scripts/admin_auth_build.py', 'scripts/admin_identity_privacy_build.py',
     'auto/questions_auto.json', 'auto/essays_auto.json',
 }
 
