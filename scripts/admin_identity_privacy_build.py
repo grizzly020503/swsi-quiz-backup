@@ -1,21 +1,15 @@
 #!/usr/bin/env python3
-"""Remove administrator identity hints from the published Admin login page.
+"""Fail closed if the published Admin page exposes a maintainer identity.
 
-Authorization remains server-side (Supabase Auth + swsi_admin_users). This build
-step is privacy defense-in-depth: the public artifact must not prefill or silently
-fall back to a maintainer email address.
+Authorization remains server-side (Supabase Auth + swsi_admin_users). The source
+must already be privacy-safe: no prefilled email and no silent default identity
+for login, password reset, or magic-link actions.
 """
 from __future__ import annotations
 
 import argparse
 import re
 from pathlib import Path
-
-
-def require_count(text: str, pattern: str, expected: int, label: str) -> None:
-    count = len(re.findall(pattern, text, flags=re.M))
-    if count != expected:
-        raise RuntimeError(f"admin identity privacy expected {expected} {label}; found {count}")
 
 
 def main() -> int:
@@ -25,46 +19,30 @@ def main() -> int:
     path = Path(args.path)
     text = path.read_text(encoding="utf-8")
 
-    # The source currently has one visible email input prefill. Remove the value
-    # without knowing or embedding the actual administrator identity here.
     email_tag_re = re.compile(r'<input\b[^>]*\bid="email"[^>]*>', re.I)
     match = email_tag_re.search(text)
     if not match:
         raise RuntimeError("admin identity privacy could not find email input")
-    tag = match.group(0)
-    value_matches = re.findall(r'\svalue="[^"]*"', tag, flags=re.I)
-    if len(value_matches) != 1:
+
+    # The public login form must never reveal or prefill an administrator identity.
+    if re.search(r'\svalue\s*=', match.group(0), flags=re.I):
+        raise RuntimeError("admin identity privacy found a prefilled email input")
+    if "DEFAULT_ADMIN_EMAIL" in text:
+        raise RuntimeError("admin identity privacy found a default administrator identity")
+
+    # Recovery and magic-link flows must use only the email explicitly typed into
+    # the form. No hidden account fallback is allowed.
+    entered_email = "const email=$('email').value.trim();"
+    if text.count(entered_email) != 2:
         raise RuntimeError(
-            f"admin identity privacy expected one email input prefill; found {len(value_matches)}"
+            f"admin identity privacy expected two explicit entered-email flows; found {text.count(entered_email)}"
         )
-    clean_tag = re.sub(r'\svalue="[^"]*"', '', tag, count=1, flags=re.I)
-    text = text[:match.start()] + clean_tag + text[match.end():]
-
-    # Remove the source-only default identity and the assignment that preloads it.
-    default_re = r'^\s*const\s+DEFAULT_ADMIN_EMAIL\s*=.*?;\s*$'
-    require_count(text, default_re, 1, "default admin email declaration")
-    text = re.sub(default_re, '', text, count=1, flags=re.M)
-
-    assignment_re = r"^\s*\$\('email'\)\.value\s*=\s*DEFAULT_ADMIN_EMAIL;\s*$"
-    require_count(text, assignment_re, 1, "default admin email assignment")
-    text = re.sub(assignment_re, '', text, count=1, flags=re.M)
-
-    # Password reset and magic-link actions must require manually entered email.
-    fallback = "||DEFAULT_ADMIN_EMAIL"
-    if text.count(fallback) != 2:
+    missing_email_guard = "if(!email){showLogin('請先輸入管理者 Email。','error');return;}"
+    if text.count(missing_email_guard) != 2:
         raise RuntimeError(
-            f"admin identity privacy expected two default-email fallbacks; found {text.count(fallback)}"
+            f"admin identity privacy expected two missing-email guards; found {text.count(missing_email_guard)}"
         )
-    text = text.replace(fallback, '')
 
-    if 'DEFAULT_ADMIN_EMAIL' in text:
-        raise RuntimeError("admin identity privacy left a default administrator identity reference")
-
-    final_match = email_tag_re.search(text)
-    if not final_match or re.search(r'\svalue=', final_match.group(0), flags=re.I):
-        raise RuntimeError("admin identity privacy left the email input prefilled")
-
-    path.write_text(text, encoding="utf-8")
     print("ADMIN IDENTITY PRIVACY OK")
     return 0
 
