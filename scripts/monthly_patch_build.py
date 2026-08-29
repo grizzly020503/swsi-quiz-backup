@@ -27,10 +27,7 @@ SEO_NEW = '''<title>社工師國考免費題庫｜SWSI</title>
 # REST fallback whenever window.supabase is unavailable.
 FONT_OLD = '''<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">'''
-FONT_NEW = '''<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet"></noscript>'''
+FONT_NEW = '<meta name="swsi-font-policy" content="system-font-first">'
 SUPABASE_SDK_OLD = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>'
 SUPABASE_SDK_NEW = '<script>window.__SWSI_STUDENT_REST_ONLY__=true;</script>'
 INITIAL_APP_OLD = '<main id="app"><div class="empty"><div class="spinner"></div><p style="margin-top:16px">載入題庫中…</p></div></main>'
@@ -204,7 +201,7 @@ def transform(text: str, laws_json: str, theories_json: str, knowledge_manifest:
     text = replace_array_assignment(text, 'LAWS', laws_json)
     text = replace_array_assignment(text, 'THEORIES', theories_json)
     text = replace_exact(text, SEO_OLD, SEO_NEW, 'SEO title')
-    text = replace_exact(text, FONT_OLD, FONT_NEW, 'non-blocking web fonts')
+    text = replace_exact(text, FONT_OLD, FONT_NEW, 'system-font-first policy')
     text = replace_exact(text, SUPABASE_SDK_OLD, SUPABASE_SDK_NEW, 'student Supabase SDK removal')
     text = replace_exact(text, INITIAL_APP_OLD, INITIAL_APP_NEW, 'first-paint placeholder')
     text = replace_exact(text, '\ninit();\n', '\nwindow.__SWSI_BOOT_DEFERRED__=true;\n', 'legacy init deferral')
