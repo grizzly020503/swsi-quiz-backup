@@ -142,6 +142,13 @@
     if(app.querySelector('.swsi-myhub'))return 'learning';
     if(app.querySelector('.wta,.wbox'))return 'essay-write';
     if(app.querySelector('.swsi-learning-section,.swsi-progress-hero'))return 'learning-detail';
+
+    /* Page templates must follow stable navigation/structure, not copy text.
+       Essay headings are product copy and may change without changing layout. */
+    var essayTab=document.getElementById('t-essay');
+    if(essayTab&&essayTab.classList.contains('on'))return 'essay-library';
+
+    /* Compatibility fallback for older renderers that have not yet marked the tab. */
     var h=app.querySelector('.section-h');
     if(h&&/申論/.test(h.textContent||''))return 'essay-library';
     return 'standard';
