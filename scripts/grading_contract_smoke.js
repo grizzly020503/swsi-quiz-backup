@@ -11,7 +11,31 @@ const { chromium } = require('playwright');
   page.on('pageerror', err => errors.push(String(err)));
 
   await page.goto(base, { waitUntil: 'networkidle', timeout: 60000 });
-  await page.waitForFunction(() => typeof window.isCorrectAnswer === 'function' && window.MK, null, { timeout: 30000 });
+  try {
+    await page.waitForFunction(() => typeof window.isCorrectAnswer === 'function' && window.MK, null, { timeout: 30000 });
+  } catch (err) {
+    const snapshot = await page.evaluate(() => ({
+      readyState: document.readyState,
+      href: location.href,
+      globals: {
+        isCorrectAnswer: typeof window.isCorrectAnswer,
+        MK: typeof window.MK,
+        render: typeof window.render,
+        renderHome: typeof window.renderHome,
+        init: typeof window.init,
+        supabase: typeof window.supabase,
+        SG: typeof window.SG,
+        NL: typeof window.NL,
+        SWSI_QB: typeof window.SWSI_QB,
+        bootDeferred: window.__SWSI_BOOT_DEFERRED__,
+        studentRestOnly: window.__SWSI_STUDENT_REST_ONLY__
+      },
+      appText: ((document.getElementById('app') || {}).textContent || '').trim().slice(0, 500),
+      scripts: Array.from(document.scripts).map(s => s.src || '[inline]').slice(-12)
+    }));
+    console.error('GRADING BOOT SNAPSHOT ' + JSON.stringify({ snapshot, pageErrors: errors }, null, 2));
+    throw err;
+  }
 
   const result = await page.evaluate(() => {
     const standard = { id:'T-STD', answer:'B', accepted_answers:['B'], grading_mode:'standard' };
