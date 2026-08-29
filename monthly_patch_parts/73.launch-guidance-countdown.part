@@ -8,6 +8,7 @@
   var GUIDE_KEY='swsi_launch_guide_dismissed_v2';
   var EXAM_KEY='swsi_target_exam_date_v1';
   var STYLE_ID='swsi-launch-guidance-countdown-v2-style';
+  var lastExamOpener=null;
 
   if(!document.getElementById(STYLE_ID)){
     var st=document.createElement('style');st.id=STYLE_ID;
@@ -15,8 +16,7 @@
       .swsi-launch-guide{margin:-2px 0 10px;border:1px solid #D7E2DC;background:#FBFCFB;border-radius:12px;padding:9px 10px;display:flex;align-items:flex-start;gap:8px;font-family:'Noto Sans TC',sans-serif;color:var(--ink)}
       .swsi-launch-guide .copy{min-width:0;flex:1}.swsi-launch-guide b{display:block;font-size:11.5px;line-height:1.45;color:var(--ink)}.swsi-launch-guide span{display:block;font-size:10.5px;line-height:1.55;color:var(--ink-soft);margin-top:1px}.swsi-launch-guide-close{flex:0 0 auto;border:0;background:transparent;color:#7C8781;width:28px;height:28px;border-radius:50%;font-size:17px;cursor:pointer}
       .swsi-exam-reminder{margin-top:10px;border:1px solid var(--line);background:#F8FAF9;border-radius:11px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-family:'Noto Sans TC',sans-serif}.swsi-exam-reminder-copy{min-width:0;flex:1;font-size:10.7px;line-height:1.5;color:var(--ink-soft)}.swsi-exam-reminder-copy b{color:var(--ink);font-weight:800}.swsi-exam-reminder-btn{flex:0 0 auto;border:1px solid #CBD8D1;background:#fff;color:var(--pine-deep);border-radius:9px;min-height:34px;padding:6px 9px;font:750 10.5px/1.2 'Noto Sans TC',sans-serif;cursor:pointer}
-      .swsi-exam-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(25,31,28,.38);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px)}
-      .swsi-exam-dialog{width:min(100%,480px);background:#FDFEFD;border:1px solid #D7E0DB;border-radius:19px;padding:17px 16px 16px;box-shadow:0 22px 60px rgba(25,31,28,.22);font-family:'Noto Sans TC',sans-serif;color:var(--ink)}.swsi-exam-dialog h2{font-family:'Noto Serif TC',serif;font-size:19px;margin:0 0 5px}.swsi-exam-dialog p{font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin:0 0 13px}.swsi-exam-dialog input{width:100%;box-sizing:border-box;min-height:46px;border:1px solid #CCD7D1;border-radius:11px;background:#fff;color:var(--ink);font:700 14px 'Noto Sans TC',sans-serif;padding:10px 11px}.swsi-exam-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px;margin-top:12px}.swsi-exam-actions button{min-height:43px;border-radius:10px;font:800 12.5px 'Noto Sans TC',sans-serif;cursor:pointer}.swsi-exam-clear{background:#fff;border:1px solid var(--line);color:var(--ink-soft)}.swsi-exam-save{background:var(--pine-deep);border:0;color:#fff}
+      .swsi-exam-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(25,31,28,.38);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px);overflow:auto}.swsi-exam-dialog{width:min(100%,480px);max-height:calc(100dvh - 28px - env(safe-area-inset-bottom));overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:19px;padding:17px 16px 16px;box-shadow:0 22px 60px rgba(25,31,28,.22);font-family:'Noto Sans TC',sans-serif;color:var(--ink)}.swsi-exam-dialog h2{font-family:'Noto Serif TC',serif;font-size:19px;margin:0 0 5px}.swsi-exam-dialog p{font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin:0 0 13px}.swsi-exam-dialog input{width:100%;box-sizing:border-box;min-height:46px;border:1px solid #CCD7D1;border-radius:11px;background:#fff;color:var(--ink);font:700 14px 'Noto Sans TC',sans-serif;padding:10px 11px}.swsi-exam-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px;margin-top:12px}.swsi-exam-actions button{min-height:43px;border-radius:10px;font:800 12.5px 'Noto Sans TC',sans-serif;cursor:pointer}.swsi-exam-clear{background:#fff;border:1px solid var(--line);color:var(--ink-soft)}.swsi-exam-save{background:var(--pine-deep);border:0;color:#fff}body.swsi-modal-open{overflow:hidden}
       @media(min-width:620px){.swsi-exam-backdrop{align-items:center}}@media(max-width:390px){.swsi-exam-actions{grid-template-columns:1fr}}
     `;
     document.head.appendChild(st);
@@ -26,34 +26,26 @@
   function setExamDate(v){try{if(v)localStorage.setItem(EXAM_KEY,v);else localStorage.removeItem(EXAM_KEY);}catch(_e){}}
   function parseLocalDate(v){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v||''));if(!m)return null;var d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),12,0,0,0);return Number.isNaN(d.getTime())?null:d;}
   function daysUntil(v){var d=parseLocalDate(v);if(!d)return null;var now=new Date();var today=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12,0,0,0);return Math.ceil((d.getTime()-today.getTime())/86400000);}
-  function examText(){var v=getExamDate();if(!v)return '<b>考試倒數</b>　設定日期後，只在這台裝置顯示倒數。';var n=daysUntil(v);if(n===null)return '<b>考試倒數</b>　日期格式無法讀取，請重新設定。';if(n>1)return '<b>距離考試還有 '+n+' 天</b>　照今天的學習節奏走就好。';if(n===1)return '<b>明天就是考試日</b>　今天以整理與休息為主。';if(n===0)return '<b>今天是你設定的考試日</b>　祝你穩穩作答。';return '<b>設定的考試日期已過</b>　可以更新下一個目標日期。';}
+  function examText(){var v=getExamDate();if(!v)return '<b>考試倒數</b>　尚未設定日期；需要時再設定，只會存在這台裝置。';var n=daysUntil(v);if(n===null)return '<b>考試倒數</b>　日期格式無法讀取，請重新設定。';if(n>1)return '<b>距離考試還有 '+n+' 天</b>　照今天的學習節奏走就好。';if(n===1)return '<b>明天就是考試日</b>　今天以整理與休息為主。';if(n===0)return '<b>今天是你設定的考試日</b>　祝你穩穩作答。';return '<b>設定的考試日期已過</b>　可以更新下一個目標日期。';}
 
   window.swsiDismissLaunchGuide=function(){try{localStorage.setItem(GUIDE_KEY,'1');}catch(_e){}var el=document.querySelector('.swsi-launch-guide');if(el)el.remove();};
   function guideDismissed(){try{return localStorage.getItem(GUIDE_KEY)==='1';}catch(_e){return false;}}
-  function decorateHome(){
-    if(guideDismissed())return;
-    var hero=document.querySelector('#app .swsi-focus-hero');if(!hero||document.querySelector('#app .swsi-launch-guide'))return;
-    var box=document.createElement('section');box.className='swsi-launch-guide';box.setAttribute('aria-label','第一次使用 SWSI');
-    box.innerHTML='<div class="copy"><b>第一次來？不用先學整個平台。</b><span>「練題」直接刷題；「學習」看錯題與進度；「申論」專心練申論。</span></div><button type="button" class="swsi-launch-guide-close" aria-label="不再顯示首次使用說明" onclick="swsiDismissLaunchGuide()">×</button>';
-    hero.insertAdjacentElement('afterend',box);
-  }
+  function decorateHome(){if(guideDismissed())return;var hero=document.querySelector('#app .swsi-focus-hero');if(!hero||document.querySelector('#app .swsi-launch-guide'))return;var box=document.createElement('section');box.className='swsi-launch-guide';box.setAttribute('aria-label','第一次使用 SWSI');box.innerHTML='<div class="copy"><b>第一次來？不用先學整個平台。</b><span>「練題」直接刷題；「學習」看錯題與進度；「申論」專心練申論。</span></div><button type="button" class="swsi-launch-guide-close" aria-label="不再顯示首次使用說明" onclick="swsiDismissLaunchGuide()">×</button>';hero.insertAdjacentElement('afterend',box);}
 
-  window.swsiOpenExamDate=function(){var old=document.getElementById('swsi-exam-backdrop');if(old)old.remove();var ov=document.createElement('div');ov.id='swsi-exam-backdrop';ov.className='swsi-exam-backdrop';ov.innerHTML='<div class="swsi-exam-dialog" role="dialog" aria-modal="true" aria-labelledby="swsi-exam-title" onclick="event.stopPropagation()"><h2 id="swsi-exam-title">設定考試日期</h2><p>日期只儲存在這台裝置，用來顯示倒數。這個預覽版不會要求通知權限，也不會把日期上傳。</p><input id="swsi-exam-date-input" type="date" value="'+getExamDate()+'"><div class="swsi-exam-actions"><button type="button" class="swsi-exam-clear" onclick="swsiClearExamDate()">清除日期</button><button type="button" class="swsi-exam-save" onclick="swsiSaveExamDate()">儲存日期</button></div></div>';ov.addEventListener('click',window.swsiCloseExamDate);document.body.appendChild(ov);};
-  window.swsiCloseExamDate=function(){var ov=document.getElementById('swsi-exam-backdrop');if(ov)ov.remove();};
+  function onExamKeydown(ev){if(ev.key==='Escape')window.swsiCloseExamDate();}
+  window.swsiOpenExamDate=function(){
+    var old=document.getElementById('swsi-exam-backdrop');if(old)old.remove();
+    lastExamOpener=document.activeElement&&document.activeElement.classList&&document.activeElement.classList.contains('swsi-exam-reminder-btn')?document.activeElement:null;
+    var ov=document.createElement('div');ov.id='swsi-exam-backdrop';ov.className='swsi-exam-backdrop';
+    ov.innerHTML='<div class="swsi-exam-dialog" role="dialog" aria-modal="true" aria-labelledby="swsi-exam-title" onclick="event.stopPropagation()"><h2 id="swsi-exam-title">設定考試日期</h2><p>日期只儲存在這台裝置，用來顯示倒數。這個預覽版不會要求通知權限，也不會把日期上傳。</p><input id="swsi-exam-date-input" type="date" value="'+getExamDate()+'"><div class="swsi-exam-actions"><button type="button" class="swsi-exam-clear" onclick="swsiClearExamDate()">清除日期</button><button type="button" class="swsi-exam-save" onclick="swsiSaveExamDate()">儲存日期</button></div></div>';
+    ov.addEventListener('click',window.swsiCloseExamDate);document.body.appendChild(ov);document.body.classList.add('swsi-modal-open');document.addEventListener('keydown',onExamKeydown);
+    var input=ov.querySelector('#swsi-exam-date-input');if(input)setTimeout(function(){try{input.focus();}catch(_e){}},0);
+  };
+  window.swsiCloseExamDate=function(){var ov=document.getElementById('swsi-exam-backdrop');if(ov)ov.remove();document.body.classList.remove('swsi-modal-open');document.removeEventListener('keydown',onExamKeydown);var opener=lastExamOpener;lastExamOpener=null;if(opener&&document.contains(opener))setTimeout(function(){try{opener.focus();}catch(_e){}},0);};
   window.swsiSaveExamDate=function(){var input=document.getElementById('swsi-exam-date-input');setExamDate(input?input.value:'');window.swsiCloseExamDate();decorateReminder(true);};
   window.swsiClearExamDate=function(){setExamDate('');window.swsiCloseExamDate();decorateReminder(true);};
 
-  function decorateReminder(force){
-    var card=document.querySelector('#app .swsi-myhub-card');if(!card)return;
-    var row=card.querySelector('.swsi-exam-reminder');
-    if(!row){row=document.createElement('div');row.className='swsi-exam-reminder';row.innerHTML='<div class="swsi-exam-reminder-copy"></div><button type="button" class="swsi-exam-reminder-btn" onclick="swsiOpenExamDate()">設定日期</button>';var list=card.querySelector('.swsi-myhub-list');card.insertBefore(row,list||null);}
-    var copy=row.querySelector('.swsi-exam-reminder-copy'),text=examText();if(force||copy.innerHTML!==text)copy.innerHTML=text;
-    var btn=row.querySelector('.swsi-exam-reminder-btn');if(btn)btn.textContent=getExamDate()?'修改日期':'設定日期';
-  }
+  function decorateReminder(force){var card=document.querySelector('#app .swsi-myhub-card');if(!card)return;var row=card.querySelector('.swsi-exam-reminder');if(!row){row=document.createElement('div');row.className='swsi-exam-reminder';row.innerHTML='<div class="swsi-exam-reminder-copy"></div><button type="button" class="swsi-exam-reminder-btn" onclick="swsiOpenExamDate()">設定日期</button>';var list=card.querySelector('.swsi-myhub-list');card.insertBefore(row,list||null);}var copy=row.querySelector('.swsi-exam-reminder-copy'),text=examText();if(force||copy.innerHTML!==text)copy.innerHTML=text;var btn=row.querySelector('.swsi-exam-reminder-btn');if(btn)btn.textContent=getExamDate()?'修改日期':'設定日期';}
 
-  function run(){decorateHome();decorateReminder(false);}
-  run();
-  var root=document.getElementById('app')||document.body,pending=false;
-  new MutationObserver(function(){if(pending)return;pending=true;queueMicrotask(function(){pending=false;run();});}).observe(root,{childList:true,subtree:true});
-  window.addEventListener('focus',run);
+  function run(){decorateHome();decorateReminder(false);}run();var root=document.getElementById('app')||document.body,pending=false;new MutationObserver(function(){if(pending)return;pending=true;queueMicrotask(function(){pending=false;run();});}).observe(root,{childList:true,subtree:true});window.addEventListener('focus',run);
 })();
