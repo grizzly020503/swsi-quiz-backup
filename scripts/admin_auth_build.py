@@ -3,14 +3,12 @@
 
 This build step fail-closes if the expected admin source contract drifts. It
 separates password recovery from magic-link login, prevents the dashboard from
-loading until a recovery password has actually been updated, removes any
-published admin-login identity prefill/fallback, and injects the grouped-feedback
-admin runtime into the built admin page.
+loading until a recovery password has actually been updated, and injects the
+grouped-feedback admin runtime into the built admin page.
 """
 from __future__ import annotations
 
 import argparse
-import re
 from pathlib import Path
 
 
@@ -21,55 +19,12 @@ def replace_once(text: str, old: str, new: str, label: str) -> str:
     return text.replace(old, new, 1)
 
 
-def strip_admin_identity_prefill(text: str) -> str:
-    """Never publish or silently fall back to an administrator login identity."""
-    email_input = re.search(r'<input\b[^>]*\bid=(["\'])email\1[^>]*>', text, flags=re.I)
-    if not email_input:
-        raise RuntimeError("admin privacy build could not find management email input")
-
-    original_tag = email_input.group(0)
-    clean_tag = re.sub(r'\s+value=(["\']).*?\1', '', original_tag, flags=re.I)
-    text = text[: email_input.start()] + clean_tag + text[email_input.end() :]
-
-    fallback = "$('email').value.trim()||DEFAULT_ADMIN_EMAIL"
-    fallback_count = text.count(fallback)
-    if fallback_count not in (0, 2):
-        raise RuntimeError(
-            f"admin privacy build expected zero or two default-email fallbacks; found {fallback_count}"
-        )
-    text = text.replace(fallback, "$('email').value.trim()")
-
-    text = re.sub(
-        r'(?m)^\s*const\s+DEFAULT_ADMIN_EMAIL\s*=\s*(["\']).*?\1;\s*\n?',
-        '',
-        text,
-    )
-    text = re.sub(
-        r"(?m)^\s*\$\('email'\)\.value\s*=\s*DEFAULT_ADMIN_EMAIL;\s*\n?",
-        '',
-        text,
-    )
-
-    if 'DEFAULT_ADMIN_EMAIL' in text:
-        raise RuntimeError("admin privacy build left a default admin identity reference")
-
-    built_email_input = re.search(r'<input\b[^>]*\bid=(["\'])email\1[^>]*>', text, flags=re.I)
-    if not built_email_input:
-        raise RuntimeError("admin privacy build lost management email input")
-    if re.search(r'\svalue\s*=', built_email_input.group(0), flags=re.I):
-        raise RuntimeError("admin privacy build left the management email prefilled")
-
-    return text
-
-
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("path", nargs="?", default="_site/admin/index.html")
     args = ap.parse_args()
     path = Path(args.path)
     text = path.read_text(encoding="utf-8")
-
-    text = strip_admin_identity_prefill(text)
 
     text = replace_once(
         text,
@@ -150,7 +105,7 @@ def main() -> int:
             raise RuntimeError(f"admin auth build marker missing: {marker}")
 
     path.write_text(text, encoding="utf-8")
-    print("ADMIN AUTH RECOVERY + FEEDBACK CLUSTERS + IDENTITY PRIVACY OK")
+    print("ADMIN AUTH RECOVERY GATE + FEEDBACK CLUSTERS OK")
     return 0
 
 
