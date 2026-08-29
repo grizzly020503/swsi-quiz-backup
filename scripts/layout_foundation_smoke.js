@@ -98,8 +98,13 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     assert(s.wrap.paddingBottom >= 80, label + ': shell lost bottom-nav clearance');
   }
 
-  function assertInternal(s, label) {
-    assertDocked(s, label);
+  function assertInternal(s, label, options = {}) {
+    if (options.focusedQuiz) {
+      assert(s.tab && s.tab.rect, label + ': bottom nav element missing');
+      assert.strictEqual(s.tab.display, 'none', label + ': focused quiz should hide bottom nav');
+    } else {
+      assertDocked(s, label);
+    }
     assert.strictEqual(s.footer.display, 'none', label + ': internal app page repeated public footer');
     assert(Number(s.main.flexGrow) >= 1, label + ': internal page main no longer owns flexible body space');
   }
@@ -128,15 +133,16 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   s = await shellSnapshot();
   assertInternal(s, 'essay-library');
 
-  // Layer 2 — Quiz template. It may lazily fetch one or more published shards,
-  // but shell geometry must remain identical while the question is active.
+  // Layer 2 — Quiz template. The active-question contract intentionally hides
+  // both the public footer and bottom navigation to reduce accidental exits while
+  // answering. Navigation must return on the result/home templates afterwards.
   await page.locator('#t-home').click();
   await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
   await page.getByRole('button', { name: /直接開始 20 題/ }).click();
   await page.waitForSelector('.qcard', { timeout: 45000 });
   await waitPage('quiz', 10000);
   s = await shellSnapshot();
-  assertInternal(s, 'quiz');
+  assertInternal(s, 'quiz', { focusedQuiz: true });
   assert(await page.evaluate(() => document.body.classList.contains('swsi-question-active')),
     'quiz: compatibility active-question marker missing');
 
