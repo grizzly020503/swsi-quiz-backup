@@ -43,6 +43,10 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
         essayTabClass: essayTab && essayTab.className,
         essayTabOnclick: essayTab && essayTab.getAttribute('onclick'),
         sectionHeading: sectionH && sectionH.textContent,
+        hasHomeHero: !!(app && app.querySelector('.swsi-focus-hero')),
+        hasHomePrimary: !!(app && app.querySelector('.swsi-focus-primary')),
+        hasQuestionCard: !!(app && app.querySelector('.qcard')),
+        hasResultCard: !!(app && app.querySelector('.sumcard')),
         hasEssayWriter: !!(app && app.querySelector('.wta,.wbox')),
         hasLearningHub: !!(app && app.querySelector('.swsi-myhub')),
         hasLearningDetail: !!(app && app.querySelector('.swsi-learning-section,.swsi-progress-hero')),
@@ -52,13 +56,17 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   }
 
   async function waitPage(kind, timeout = 30000) {
-    try {
-      await page.waitForFunction(expected => document.body.getAttribute('data-swsi-page') === expected, kind, { timeout });
-    } catch (err) {
-      let diagnostic = null;
-      try { diagnostic = await pageDiagnostic(); } catch (diagErr) { diagnostic = { diagnostic_error: String(diagErr) }; }
-      throw new Error(`waitPage(${kind}) failed; snapshot=${JSON.stringify(diagnostic)}; cause=${err && err.message || err}`);
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+      const current = await page.evaluate(() => document.body && document.body.getAttribute('data-swsi-page'));
+      if (current === kind) return;
+      await page.waitForTimeout(100);
     }
+    let diagnostic = null;
+    try { diagnostic = await pageDiagnostic(); } catch (diagErr) { diagnostic = { diagnostic_error: String(diagErr) }; }
+    const message = `LAYOUT WAIT TIMEOUT expected=${kind} snapshot=${JSON.stringify(diagnostic)}`;
+    console.error(message);
+    throw new Error(message);
   }
 
   async function shellSnapshot() {
