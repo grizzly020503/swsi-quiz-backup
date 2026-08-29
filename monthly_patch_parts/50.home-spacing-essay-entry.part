@@ -1,7 +1,8 @@
 
-/* SWSI Home Spacing + Essay Entry Fix 2026-08-26
-   - Home must not stretch a short study dashboard into a page of empty space.
-   - Essay entry should be resilient even if auto essays need one last async load.
+/* SWSI Home Spacing + Essay Entry Fix 2026-08-29
+   - Home must end naturally without an artificial blank slab.
+   - Fixed bottom navigation must not cover public footer content.
+   - Essay entry should remain resilient if auto essays need one last async load.
 */
 (function(){
   'use strict';
@@ -9,18 +10,27 @@
   var style=document.createElement('style');
   style.id='swsi-home-spacing-essay-entry-style';
   style.textContent=`
-/* Home is intentionally short. Do not let main flex-grow create a huge blank slab
-   between the study actions and the footer. */
+/* Home is intentionally short. Keep only normal content breathing room here;
+   do not reserve the navigation height inside <main>, because that creates a
+   visible blank block between the last home section and the footer. */
 body:has(#app .swsi-focus-hero) main{
   flex:0 0 auto!important;
-  padding-bottom:calc(92px + env(safe-area-inset-bottom))!important;
+  min-height:0!important;
+  height:auto!important;
+  padding-bottom:10px!important;
 }
 body:has(#app .swsi-focus-hero) .wrap{
+  min-height:0!important;
+  height:auto!important;
   padding-bottom:0!important;
 }
+
+/* The footer itself owns the fixed-tab clearance on the short home page. This
+   keeps every footer line scrollable above 練題／學習／申論 without creating an
+   empty slab before the footer. */
 body:has(#app .swsi-focus-hero) footer{
-  margin-top:18px!important;
-  padding-bottom:calc(18px + env(safe-area-inset-bottom))!important;
+  margin-top:12px!important;
+  padding-bottom:calc(var(--swsi-tabbar-button-height,58px) + 16px + env(safe-area-inset-bottom,0px))!important;
 }
 
 /* Review can use the normal compact safe area; long essay pages keep the larger
