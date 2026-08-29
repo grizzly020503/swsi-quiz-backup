@@ -29,10 +29,12 @@ Canonical metadata shape:
     "triaged_at": "ISO-8601",
     "github_issue": null,
     "github_pr": null,
-    "action": "draft_pr|issue|no_change|needs_review"
+    "action": "draft_pr|issue|no_change|needs_review|test_only"
   }
 }
 ```
+
+`test_only` is reserved for synthetic pipeline verification. Synthetic test reports must never create a persistent GitHub Issue/PR and must be removed after the contract is verified.
 
 ## Deduplication
 
