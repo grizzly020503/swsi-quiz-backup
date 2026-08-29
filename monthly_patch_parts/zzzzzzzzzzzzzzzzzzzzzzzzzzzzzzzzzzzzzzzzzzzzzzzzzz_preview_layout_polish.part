@@ -34,6 +34,14 @@
         }
       }
 
+      /* Active question pages are study surfaces, not public-information pages.
+         Keep the footer out of the answer flow; it returns automatically after
+         leaving the question card. */
+      body.swsi-question-active .wrap>footer,
+      body.swsi-question-active footer{
+        display:none!important;
+      }
+
       /* Closed disclosures should consume only their summary row. */
       #app details.swsi-other-tools:not([open]),
       #app details.swsi-data-version:not([open]){
@@ -65,7 +73,9 @@
     var app=document.getElementById('app');
     var text=app?(app.textContent||''):'';
     var preparing=/載入題庫|準備完整題庫|第一次開啟全庫功能|下載已發布的歷屆考次/.test(text);
+    var questionActive=!!(app&&app.querySelector('.qcard'));
     document.body.classList.toggle('swsi-bank-preparing',preparing);
+    document.body.classList.toggle('swsi-question-active',questionActive);
   }
 
   syncPreparingState();
