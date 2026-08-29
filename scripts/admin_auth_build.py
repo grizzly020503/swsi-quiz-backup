@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Harden the built admin auth flow without changing student runtime.
+"""Harden the built admin auth flow and attach admin-only runtimes.
 
 This build step fail-closes if the expected admin source contract drifts. It
-separates password recovery from magic-link login and prevents the dashboard
-from loading until a recovery password has actually been updated.
+separates password recovery from magic-link login, prevents the dashboard from
+loading until a recovery password has actually been updated, and injects the
+grouped-feedback admin runtime into the built admin page.
 """
 from __future__ import annotations
 
@@ -82,6 +83,14 @@ def main() -> int:
     new_boot = "  if(recoveryMode)showRecovery('正在驗證密碼重設連結…');\n  client.auth.getSession().then(({data})=>{if(recoveryMode){showRecovery(data.session?'請設定一組新的管理密碼。':'正在驗證密碼重設連結…');return;}if(data.session)loadAdmin();else showLogin();});"
     text = replace_once(text, old_boot, new_boot, "initial recovery gate")
 
+    if "feedback_clusters.js" not in text:
+        text = replace_once(
+            text,
+            "</body>",
+            '<script src="./feedback_clusters.js"></script>\n</body>',
+            "admin grouped-feedback runtime insertion point",
+        )
+
     required = [
         "authMode')==='recovery'",
         "callbackUrl('recovery')",
@@ -89,13 +98,14 @@ def main() -> int:
         "if(recoveryMode){showRecovery('請先設定新的管理密碼。');return;}",
         "if(event==='PASSWORD_RECOVERY')recoveryMode=true",
         "recoveryMode=false;history.replaceState",
+        '<script src="./feedback_clusters.js"></script>',
     ]
     for marker in required:
         if marker not in text:
             raise RuntimeError(f"admin auth build marker missing: {marker}")
 
     path.write_text(text, encoding="utf-8")
-    print("ADMIN AUTH RECOVERY GATE OK")
+    print("ADMIN AUTH RECOVERY GATE + FEEDBACK CLUSTERS OK")
     return 0
 
 
