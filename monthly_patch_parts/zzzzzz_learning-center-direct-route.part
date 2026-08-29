@@ -28,8 +28,9 @@
   function bind(){
     var learning=document.getElementById('t-review');
     if(learning){
-      learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');
-      learning.setAttribute('aria-label','學習中心');
+      var route='return swsiOpenLearningCenter(event)';
+      if(learning.getAttribute('onclick')!==route)learning.setAttribute('onclick',route);
+      if(learning.getAttribute('aria-label')!=='學習中心')learning.setAttribute('aria-label','學習中心');
     }
   }
 
