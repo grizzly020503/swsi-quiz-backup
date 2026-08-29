@@ -65,52 +65,6 @@ ROUND_1_NEW = '''<option value="1" '+(homeQuizRound==='1'?'selected':'')+'>第�
 ROUND_2_OLD = '''<option value="第二次" '+(homeQuizRound==='第二次'?'selected':'')+'>第二次</option>'''
 ROUND_2_NEW = '''<option value="2" '+(homeQuizRound==='2'?'selected':'')+'>第二次</option>'''
 
-RUNTIME_BOOT_OLD = '''  // Final boot: build-time patch suppresses the legacy init() call until this file is loaded.
-  if(window.__SWSI_BOOT_DEFERRED__){
-    window.__SWSI_BOOT_DEFERRED__=false;
-    init().catch(showLoadError);
-  }
-})();'''
-
-RUNTIME_BOOT_NEW = '''  // Fast student boot 2026-08-29: first paint must not wait for data.
-  // Defer Home by one microtask so every later monthly-patch owner (especially
-  // the final Home renderer/navigation owner) is installed before first render.
-  if(window.__SWSI_BOOT_DEFERRED__){
-    window.__SWSI_BOOT_DEFERRED__=false;
-    window.__SWSI_FAST_BOOT_VERSION__='2026-08-29.ui-first.v2';
-    Promise.resolve().then(function(){
-      try{
-        SUBJECTS=SWSI_CORE_SUBJECTS.slice();
-        sb=null;
-        tabbar.style.display='flex';
-        applyFocusedTabbar();
-        go('home');
-      }catch(err){
-        showLoadError(err);
-        return;
-      }
-
-      // Give the browser a paint opportunity before starting background data work.
-      setTimeout(function(){
-        const manifestTask=Promise.resolve().then(function(){return loadQuestionManifest();});
-        const essayTask=Promise.resolve().then(function(){return loadAutoEssays();});
-        Promise.allSettled([manifestTask,essayTask]).then(function(results){
-          if(results[0].status==='fulfilled'){
-            try{ if(typeof view!=='undefined' && view==='home') render(); }catch(err){
-              console.warn('[SWSI] background catalog re-render failed',err);
-            }
-          }else{
-            console.warn('[SWSI] background question catalog unavailable',results[0].reason);
-          }
-          if(results[1].status==='rejected'){
-            console.warn('[SWSI] background essay payload unavailable',results[1].reason);
-          }
-        });
-      },0);
-    });
-  }
-})();'''
-
 
 def replace_exact(text: str, old: str, new: str, label: str, expected: int = 1) -> str:
     count = text.count(old)
@@ -224,15 +178,6 @@ def transform(text: str, laws_json: str, theories_json: str, knowledge_manifest:
     return text
 
 
-def optimize_runtime_boot(site: Path) -> None:
-    patch_path = site / 'monthly_patch.js'
-    if not patch_path.exists():
-        raise RuntimeError('fast boot: built monthly_patch.js is missing')
-    patch = patch_path.read_text(encoding='utf-8')
-    patch = replace_exact(patch, RUNTIME_BOOT_OLD, RUNTIME_BOOT_NEW, 'UI-first runtime boot')
-    patch_path.write_text(patch, encoding='utf-8')
-
-
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('index', nargs='?', default='_site/index.html')
@@ -242,7 +187,6 @@ def main() -> int:
     laws_json, theories_json, knowledge_manifest = load_canonical_knowledge()
     patched = transform(text, laws_json, theories_json, knowledge_manifest)
     path.write_text(patched, encoding='utf-8')
-    optimize_runtime_boot(path.parent)
 
     # The current 115-2 auto essay payload contains three MOEX private-use glyphs.
     # Normalize the deployed copy without requiring a second production deploy.
@@ -255,7 +199,7 @@ def main() -> int:
 
     print(f'Applied SWSI monthly front-end build patch: {path}')
     print('Applied canonical knowledge bootstrap: laws=' + str(knowledge_manifest['laws']['count']) + ' theories=' + str(knowledge_manifest['theories']['count']))
-    print('Applied student UI-first boot: 2026-08-29.ui-first.v2')
+    print('Kept verified deferred student boot contract')
     return 0
 
 
