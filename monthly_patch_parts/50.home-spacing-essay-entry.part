@@ -1,49 +1,12 @@
 
-/* SWSI Home Spacing + Essay Entry Fix 2026-08-29
-   - Home must end naturally without an artificial blank slab.
-   - Fixed bottom navigation must not cover public footer content.
-   - Essay entry should remain resilient if auto essays need one last async load.
+/* SWSI Essay Entry Binding 2026-08-29
+   Layer 3 only: bind essay-entry controls.
+   Global shell spacing is owned exclusively by 15.layout-foundation.part.
 */
 (function(){
   'use strict';
 
-  var style=document.createElement('style');
-  style.id='swsi-home-spacing-essay-entry-style';
-  style.textContent=`
-/* Home is intentionally short. Keep only normal content breathing room here;
-   do not reserve the navigation height inside <main>, because that creates a
-   visible blank block between the last home section and the footer. */
-body:has(#app .swsi-focus-hero) main{
-  flex:0 0 auto!important;
-  min-height:0!important;
-  height:auto!important;
-  padding-bottom:10px!important;
-}
-body:has(#app .swsi-focus-hero) .wrap{
-  min-height:0!important;
-  height:auto!important;
-  padding-bottom:0!important;
-}
-
-/* The footer itself owns the fixed-tab clearance on the short home page. This
-   keeps every footer line scrollable above 練題／學習／申論 without creating an
-   empty slab before the footer. */
-body:has(#app .swsi-focus-hero) footer{
-  margin-top:12px!important;
-  padding-bottom:calc(var(--swsi-tabbar-button-height,58px) + 16px + env(safe-area-inset-bottom,0px))!important;
-}
-
-/* Review can use the normal compact safe area; long essay pages keep the larger
-   mobile-reading safe area from the previous patch. */
-body:has(#app .ux-page-head) main,
-body:has(#app .section-h) main{
-  padding-bottom:calc(100px + env(safe-area-inset-bottom));
-}
-`;
-  document.head.appendChild(style);
-
   /* Essay navigation is owned by zzz_fix_essay_navigation.part. This module only binds entry controls. */
-
   function bindEssayEntries(root){
     var tab=document.getElementById('t-essay');
     if(tab && tab.dataset.swsiEssayBound!=='1'){
