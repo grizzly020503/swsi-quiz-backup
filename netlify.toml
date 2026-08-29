@@ -1,6 +1,6 @@
 [build]
   publish = "_site"
-  command = "rm -rf _site && mkdir -p _site/icons && cp index.html manifest.json sw.js apple-touch-icon.png _site/ && node scripts/build_essay_guides_runtime.js essay_guides.js _site/essay_guides.js && cat monthly_patch_parts/*.part > _site/monthly_patch.js && node --check _site/essay_guides.js && node --check _site/monthly_patch.js && node --check sw.js && node scripts/p0_frontend_preflight.js && cp icons/icon-192.png icons/icon-512.png _site/icons/ && if [ -d auto ]; then cp -R auto _site/; fi && python3 scripts/monthly_patch_build.py _site/index.html && python3 scripts/cache_bust_runtime.py _site && python3 scripts/monthly_frontend_smoke.py --site _site"
+  command = "rm -rf _site && mkdir -p _site/icons && cp index.html manifest.json sw.js apple-touch-icon.png _site/ && node scripts/build_essay_guides_runtime.js essay_guides.js _site/essay_guides.js && cat monthly_patch_parts/*.part > _site/monthly_patch.js && node --check _site/essay_guides.js && node --check _site/monthly_patch.js && node --check sw.js && node scripts/p0_frontend_preflight.js && cp icons/icon-192.png icons/icon-512.png _site/icons/ && if [ -d auto ]; then cp -R auto _site/; fi && python3 scripts/monthly_patch_build.py _site/index.html && python3 scripts/monthly_frontend_smoke.py --site _site && python3 scripts/cache_bust_runtime.py _site"
   # Netlify Free 的 production deploy 會消耗 credits。
   # 只有真正影響學生端網站的檔案變更才部署；PUA-only auto essay cleanup 也會智慧略過。
   ignore = "python3 scripts/netlify_ignore.py $CACHED_COMMIT_REF $COMMIT_REF"
