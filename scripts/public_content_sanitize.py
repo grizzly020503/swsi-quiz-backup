@@ -57,6 +57,10 @@ NEW_DATA = r"""  var DATA={
     ]
   };"""
 
+COMMENT_HEADER_OLD = """/* ===== 讀書指南（資深學長姐應考心得，經更正與更新；自包含浮層）— 由 品澄 平台擴充 =====
+   內容來源：老師提供的學長姐心得（約 107 年）＋平台查證更新。要改內容：改下方 DATA。 */"""
+COMMENT_HEADER_NEW = """/* ===== SWSI 讀書指南（自編公開內容；自包含浮層） =====
+   公開內容由 SWSI 自行整理；正式考試與法規資訊請以主管機關最新公告為準。 */"""
 INTRO_OLD = '資深學長姐的應考心得與各科重點（平台已幫你更正錯字、補上新法規）。讀方法、抓重點、撐住心態。'
 INTRO_NEW = 'SWSI 自編的國考準備指南。用平台功能安排刷題、複習、申論與法規查核。'
 FOOT_OLD = '內容整理自老師提供的學長姐心得，並由平台查證更新。'
@@ -84,6 +88,10 @@ def main() -> int:
 
     text = text[:start] + NEW_DATA + text[end:]
 
+    if text.count(COMMENT_HEADER_OLD) != 1:
+        raise RuntimeError('public content sanitizer expected legacy study-guide source comment exactly once')
+    text = text.replace(COMMENT_HEADER_OLD, COMMENT_HEADER_NEW, 1)
+
     if INTRO_OLD not in text:
         raise RuntimeError('public content sanitizer expected legacy study-guide intro exactly once')
     text = text.replace(INTRO_OLD, INTRO_NEW, 1)
@@ -97,6 +105,7 @@ def main() -> int:
         raise RuntimeError('public build still contains third-party study-guide marker(s): ' + ', '.join(leftovers))
 
     for required in (
+        'SWSI 讀書指南（自編公開內容；自包含浮層）',
         '下面是一套 SWSI 自編的備考節奏範例',
         '本指南由 SWSI 自行整理撰寫',
         'SWSI 的整理內容是讀書輔助',
