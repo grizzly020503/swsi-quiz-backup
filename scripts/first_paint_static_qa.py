@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail closed if SWSI first paint or global layout ownership regresses."""
+"""Fail closed if SWSI first paint or global layout/ops ownership regresses."""
 from __future__ import annotations
 
 import argparse
@@ -94,7 +94,31 @@ def main() -> int:
         require('Access-Control-Allow-Origin\": \"*\"' not in feedback,
                 'feedback CORS regressed to wildcard origin')
 
-    print('FIRST PAINT + LAYOUT OWNERSHIP + FEEDBACK ORIGIN STATIC QA OK')
+    # Admin source-of-truth contract. This guards against redeploying the older
+    # pre-v5 admin function that lacked Preview CORS and grouped feedback.
+    admin_edge = Path('supabase/functions/swsi-admin/index.ts')
+    if admin_edge.is_file():
+        admin = admin_edge.read_text(encoding='utf-8')
+        require('https://swsi-quiznetlify.netlify.app' in admin,
+                'production Netlify admin origin missing')
+        require('https://wandering-wave-4418.c022050333.workers.dev' in admin,
+                'known Worker admin origin missing')
+        require('deploy-preview-' in admin and '--swsi-quiznetlify\\.netlify\\.app' in admin,
+                'strict Netlify deploy-preview admin origin contract missing')
+        require('NETLIFY_PREVIEW_ORIGIN.test(origin)' in admin,
+                'deploy-preview admin origin is defined but not enforced')
+        require('admin.auth.getUser(token)' in admin,
+                'admin Edge Function lost JWT session verification')
+        require('.from("swsi_admin_users")' in admin,
+                'admin Edge Function lost administrator membership check')
+        require('.limit(1000)' in admin and 'feedback_clusters' in admin,
+                'admin Edge Function lost grouped-feedback aggregation contract')
+        require('rawFeedbackRows = feedbackRows.slice(0, 100)' in admin,
+                'admin raw feedback cap regressed')
+        require('Access-Control-Allow-Origin\": \"*\"' not in admin,
+                'admin CORS regressed to wildcard origin')
+
+    print('FIRST PAINT + LAYOUT + ADMIN/FEEDBACK OPS STATIC QA OK')
     return 0
 
 
