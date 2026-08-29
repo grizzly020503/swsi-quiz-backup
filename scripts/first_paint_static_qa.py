@@ -27,17 +27,26 @@ def main() -> int:
             'Google Fonts stylesheet is render-blocking again')
     require('介面先顯示，題庫資料會在背景準備。' in html,
             'UI-first initial shell missing')
-    require("window.__SWSI_FAST_BOOT_VERSION__='2026-08-29.ui-first.v1'" in patch,
-            'UI-first runtime boot marker missing')
+
+    marker = "window.__SWSI_FAST_BOOT_VERSION__='2026-08-29.ui-first.v2'"
+    require(marker in patch, 'UI-first runtime boot marker missing')
     require("tabbar.style.display='flex';" in patch and "go('home');" in patch,
-            'home shell is not rendered synchronously by fast boot')
-    fast_pos = patch.find("window.__SWSI_FAST_BOOT_VERSION__='2026-08-29.ui-first.v1'")
-    home_pos = patch.find("go('home');", fast_pos)
-    hydrate_pos = patch.find('await loadQuestionManifest();', fast_pos)
-    require(fast_pos >= 0 and home_pos >= 0 and hydrate_pos > home_pos,
-            'question catalog hydration moved back ahead of Home')
-    require('await loadAutoEssays();' in patch[hydrate_pos:],
-            'background essay hydration marker missing')
+            'home shell boot is missing')
+
+    fast_pos = patch.find(marker)
+    defer_pos = patch.find('Promise.resolve().then(function(){', fast_pos)
+    home_pos = patch.find("go('home');", defer_pos)
+    paint_gap_pos = patch.find('setTimeout(function(){', home_pos)
+    hydrate_pos = patch.find('loadQuestionManifest()', paint_gap_pos)
+    essay_pos = patch.find('loadAutoEssays()', paint_gap_pos)
+    require(fast_pos >= 0 and defer_pos > fast_pos and home_pos > defer_pos,
+            'Home is no longer deferred until later runtime owners are installed')
+    require(paint_gap_pos > home_pos,
+            'background hydration starts before the browser gets a paint opportunity')
+    require(hydrate_pos > paint_gap_pos and essay_pos > paint_gap_pos,
+            'question or essay hydration moved back ahead of Home')
+    require('Promise.allSettled([manifestTask,essayTask])' in patch[paint_gap_pos:],
+            'background data hydration is no longer isolated from first paint')
 
     print('FIRST PAINT STATIC QA OK')
     return 0
