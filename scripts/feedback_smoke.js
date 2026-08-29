@@ -110,8 +110,15 @@ async function optionTexts(page) {
   assert.deepStrictEqual(await optionTexts(page), ['答案好像不對', '解析有疑問', '題目顯示異常', '其他'], 'essay compact categories incorrect');
   await page.getByRole('button', { name: /關閉回報視窗/ }).click();
 
-  // General footer is the only place that carries feature suggestions.
-  await page.locator('footer .swsi-report-footer-btn').click();
+  // General feature suggestions live in the public footer, and the layered shell
+  // intentionally exposes that footer on Home rather than repeating it on every
+  // internal study page. Return through the real navigation before testing it.
+  await page.locator('#t-home').click();
+  await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
+  await page.waitForFunction(() => document.body.getAttribute('data-swsi-page') === 'home');
+  const footerFeedback = page.locator('footer .swsi-report-footer-btn');
+  await footerFeedback.waitFor({ state: 'visible', timeout: 10000 });
+  await footerFeedback.click();
   await page.waitForSelector('.swsi-report-dialog[data-swsi-compact="2"]');
   modalText = await page.locator('.swsi-report-dialog').innerText();
   assert(/回報／提供建議/.test(modalText), 'general feedback compact title missing');
