@@ -1,12 +1,8 @@
 
 /* SWSI Preview Layout Polish 2026-08-29
-   Feedback from real iPhone preview:
-   - keep public information lower while the full question bank is preparing
-   - dock the mobile bottom navigation to the viewport edge instead of a floating card
-   - let short home pages end naturally without a large empty flex area
-   - keep footer content readable above the fixed bottom navigation
-   - hide the duplicate progress shortcut because Learning already owns that route
-   Presentation/layout only; no grading, question, AI, storage or data contract changes.
+   Visual-review-only refinements after the learning-center simplification.
+   Home vertical spacing is owned by 50.home-spacing-essay-entry.part.
+   This layer only keeps the mobile tabbar flush and loading-state attribution lower.
 */
 (function(){
   'use strict';
@@ -16,54 +12,7 @@
     var st=document.createElement('style');
     st.id=STYLE_ID;
     st.textContent=`
-      /* Short pages should end where their content ends.  The original shell uses
-         a flex-filling main area for long loading states; that creates a large hole
-         once the compact home sections are collapsed. */
-      .wrap{
-        min-height:0!important;
-        height:auto!important;
-      }
-      main#app,
-      .wrap>main{
-        flex:0 0 auto!important;
-        min-height:0!important;
-        height:auto!important;
-      }
-
-      /* Learning is already a primary bottom tab.  Keep the legacy progress entry
-         in the DOM as a hidden sentinel so the older learning-loop observer does
-         not keep re-inserting it, but do not show a duplicate button to users. */
-      #app .swsi-other-grid .swsi-progress-entry{
-        display:none!important;
-      }
-
-      /* Closed home details should consume only their visible summary row. */
-      #app details.swsi-other-tools:not([open]),
-      #app details.swsi-data-version:not([open]){
-        padding-bottom:0!important;
-        margin-bottom:0!important;
-      }
-      #app details.swsi-other-tools:not([open]) .swsi-other-grid,
-      #app details.swsi-data-version:not([open]) .body{
-        display:none!important;
-      }
-      #app .swsi-principle-note{margin-bottom:0!important;}
-      #app .swsi-data-version{margin-bottom:0!important;}
-
-      /* Footer follows content directly.  Its own bottom padding is only fixed-nav
-         clearance, so the final attribution lines can scroll fully above the dock. */
-      .wrap>footer,
-      body footer{
-        margin-top:8px!important;
-      }
-
       @media(max-width:720px){
-        .wrap>footer,
-        body footer{
-          padding-bottom:calc(var(--swsi-tabbar-clearance,88px) + 10px)!important;
-          margin-bottom:0!important;
-        }
-
         /* Native-style dock: full width, flush to the viewport edge, no floating
            rounded card / detached shadow. */
         .tabbar{
@@ -85,9 +34,21 @@
         }
       }
 
+      /* Closed disclosures should consume only their summary row. */
+      #app details.swsi-other-tools:not([open]),
+      #app details.swsi-data-version:not([open]){
+        padding-bottom:0!important;
+      }
+      #app details.swsi-other-tools:not([open]) .swsi-other-grid,
+      #app details.swsi-data-version:not([open]) .body{
+        display:none!important;
+      }
+      #app .swsi-principle-note{margin-bottom:0!important;}
+      #app .swsi-data-version{margin-bottom:0!important;}
+
       /* Only the bank-preparation screen gets deliberate vertical separation.
          This keeps attribution/info visually below the loading message without
-         making every normal short page look empty. */
+         changing normal home spacing. */
       body.swsi-bank-preparing .wrap>footer,
       body.swsi-bank-preparing footer{
         margin-top:clamp(150px,22dvh,260px)!important;
