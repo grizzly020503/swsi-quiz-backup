@@ -20,7 +20,7 @@
     <h2>SWSI 管理中心</h2>
     <p class="hint">管理者專用。帳號已經存在，不需要另外註冊。</p>
     <form id="loginForm">
-      <div class="field"><label for="email">管理者 Email</label><input id="email" type="email" autocomplete="username" value="c022050333@gmail.com" required></div>
+      <div class="field"><label for="email">管理者 Email</label><input id="email" type="email" autocomplete="username" required></div>
       <div class="field"><label for="password">密碼</label><input id="password" type="password" autocomplete="current-password" required></div>
       <button class="btn primary" type="submit" style="width:100%">登入管理中心</button>
     </form>
@@ -63,7 +63,6 @@
   const SUPABASE_URL='https://yumjtrdctaxyczpspuyo.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY='sb_publishable_6KL-X7KfkcfyP1kLxfokhA_0h2YuYMr';
   const ADMIN_ENDPOINT=SUPABASE_URL+'/functions/v1/swsi-admin';
-  const DEFAULT_ADMIN_EMAIL='c022050333@gmail.com';
   const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   let payload=null; let recoveryMode=false;
   const $=id=>document.getElementById(id);
@@ -72,7 +71,6 @@
   const categoryText={question_display:'題目顯示',answer_question:'答案疑問',explanation_error:'解析問題',law_outdated:'法規可能過期',theory_question:'理論疑問',site_bug:'網站問題',ai_feedback:'AI 回饋',suggestion:'建議',other:'其他'};
   const contextText={mcq:'選擇題',essay:'申論',theory:'理論',law:'法規',general:'網站'};
 
-  $('email').value=DEFAULT_ADMIN_EMAIL;
   const callbackUrl=()=>location.origin+location.pathname+'?adminAuth=1';
   async function getToken(){const {data}=await client.auth.getSession();return data.session?.access_token||'';}
   async function adminFetch(method='GET',body){const token=await getToken();if(!token){const e=new Error('尚未登入');e.status=401;throw e;}const res=await fetch(ADMIN_ENDPOINT,{method,headers:{apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+token,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});const data=await res.json().catch(()=>({}));if(!res.ok){const e=new Error(data.error||('HTTP '+res.status));e.status=res.status;throw e;}return data;}
@@ -87,8 +85,8 @@
   async function saveFeedback(ev){const article=ev.target.closest('[data-report]');const reportNo=Number(article.dataset.report);const status=article.querySelector('[data-role="status"]').value;const note=article.querySelector('[data-role="note"]').value;ev.target.disabled=true;ev.target.textContent='儲存中…';try{await adminFetch('PATCH',{action:'feedback_update',report_no:reportNo,status,reviewer_note:note});await loadAdmin();}catch(e){alert('儲存失敗：'+e.message);}finally{ev.target.disabled=false;ev.target.textContent='儲存';}}
 
   $('loginForm').addEventListener('submit',async ev=>{ev.preventDefault();$('loginMessage').className='hint';$('loginMessage').textContent='登入中…';const {error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)showLogin('登入失敗。若不確定密碼，請按「忘記密碼／設定新密碼」。','error');else loadAdmin();});
-  $('resetBtn').addEventListener('click',async()=>{const email=$('email').value.trim()||DEFAULT_ADMIN_EMAIL;$('loginMessage').className='hint';$('loginMessage').textContent='正在寄送密碼重設信…';const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:callbackUrl()});showLogin(error?'寄送失敗：'+error.message:'密碼重設信已寄出。請從信件中的連結回到 SWSI，會直接看到「設定新的管理密碼」。',error?'error':'success');});
-  $('magicBtn').addEventListener('click',async()=>{const email=$('email').value.trim()||DEFAULT_ADMIN_EMAIL;const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:callbackUrl()}});showLogin(error?'寄送失敗：'+error.message:'一次性登入連結已寄出。開啟後會自動建立登入狀態。',error?'error':'success');});
+  $('resetBtn').addEventListener('click',async()=>{const email=$('email').value.trim();if(!email){showLogin('請先輸入管理者 Email。','error');return;}$('loginMessage').className='hint';$('loginMessage').textContent='正在寄送密碼重設信…';const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:callbackUrl()});showLogin(error?'寄送失敗：'+error.message:'密碼重設信已寄出。請從信件中的連結回到 SWSI，會直接看到「設定新的管理密碼」。',error?'error':'success');});
+  $('magicBtn').addEventListener('click',async()=>{const email=$('email').value.trim();if(!email){showLogin('請先輸入管理者 Email。','error');return;}const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:callbackUrl()}});showLogin(error?'寄送失敗：'+error.message:'一次性登入連結已寄出。開啟後會自動建立登入狀態。',error?'error':'success');});
   $('recoveryForm').addEventListener('submit',async ev=>{ev.preventDefault();const p1=$('newPassword').value,p2=$('confirmPassword').value;if(p1!==p2){$('recoveryMessage').className='error';$('recoveryMessage').textContent='兩次密碼不一致。';return;}if(p1.length<8){$('recoveryMessage').className='error';$('recoveryMessage').textContent='密碼至少 8 個字元。';return;}$('recoveryMessage').className='hint';$('recoveryMessage').textContent='正在儲存新密碼…';const {error}=await client.auth.updateUser({password:p1});if(error){$('recoveryMessage').className='error';$('recoveryMessage').textContent='設定失敗：'+error.message;return;}history.replaceState({},'',location.pathname);$('recoveryMessage').className='success';$('recoveryMessage').textContent='新密碼已設定，正在進入管理中心…';setTimeout(loadAdmin,300);});
   $('logoutBtn').addEventListener('click',async()=>{await client.auth.signOut();showLogin('已登出。','success');});$('refreshBtn').addEventListener('click',loadAdmin);$('feedbackFilter').addEventListener('change',renderFeedback);
   document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===btn));['overview','feedback','analytics'].forEach(n=>$('tab-'+n).classList.toggle('hidden',n!==btn.dataset.tab));}));
