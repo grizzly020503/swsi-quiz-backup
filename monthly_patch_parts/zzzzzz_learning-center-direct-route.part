@@ -26,12 +26,21 @@
   };
 
   function bind(){
+    var route='return swsiOpenLearningCenter(event)';
     var learning=document.getElementById('t-review');
     if(learning){
-      var route='return swsiOpenLearningCenter(event)';
       if(learning.getAttribute('onclick')!==route)learning.setAttribute('onclick',route);
       if(learning.getAttribute('aria-label')!=='學習中心')learning.setAttribute('aria-label','學習中心');
     }
+
+    /* Home also exposes a Learning Center card. Keep it on the same direct local
+       route as the bottom Learning tab instead of falling back to legacy progress. */
+    document.querySelectorAll('#app .swsi-study-card').forEach(function(card){
+      var title=card.querySelector('.title');
+      if(title&&(title.textContent||'').trim()==='學習中心'&&card.getAttribute('onclick')!==route){
+        card.setAttribute('onclick',route);
+      }
+    });
   }
 
   /* Clear the local Learning-surface flag before the legacy inline handlers for
@@ -42,14 +51,18 @@
     if(el)window.__SWSI_LEARNING_CENTER_OPEN__=false;
   },true);
 
+  var queued=false;
+  function queueBind(){
+    if(queued)return;
+    queued=true;
+    queueMicrotask(function(){queued=false;bind();});
+  }
+
   bind();
   try{
-    var bar=document.querySelector('.tabbar')||document.body;
-    var queued=false;
-    new MutationObserver(function(){
-      if(queued)return;
-      queued=true;
-      queueMicrotask(function(){queued=false;bind();});
-    }).observe(bar,{childList:true,subtree:true,attributes:true,attributeFilter:['onclick','aria-label']});
+    var bar=document.querySelector('.tabbar');
+    if(bar)new MutationObserver(queueBind).observe(bar,{childList:true,subtree:true,attributes:true,attributeFilter:['onclick','aria-label']});
+    var app=document.getElementById('app');
+    if(app)new MutationObserver(queueBind).observe(app,{childList:true,subtree:true});
   }catch(_e){}
 })();
