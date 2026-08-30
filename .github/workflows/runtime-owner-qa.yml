@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/runtime-owner-qa.yml'
       - 'monthly_patch_parts/**'
+      - 'config/monthly_patch_structure.json'
+      - 'scripts/maintainability_smoke.py'
       - 'scripts/runtime_owner_smoke.js'
 
 jobs:
@@ -15,6 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Verify maintainability structure
+        run: python3 scripts/maintainability_smoke.py
       - name: Verify runtime owner chain
         run: node scripts/runtime_owner_smoke.js
       - name: Expose remaining late owner chains
