@@ -16,7 +16,7 @@ on:
       - 'scripts/build_current_affairs_snapshot.py'
       - 'data/legal_watch_names.json'
   schedule:
-    # 台灣時間每天 10:35（UTC 02:35）。國考與時事每日檢查；法規成功後 28 天才再抓，失敗至少隔 3 天再試。
+    # 台灣時間每天 10:35（UTC 02:35）。國考與時事每日檢查；法規成功後 7 天再完整核對，失敗至少隔 3 天再試。
     - cron: '35 2 * * *'
 
 permissions:
@@ -82,6 +82,7 @@ jobs:
             --state data/legal_watch_state.json \
             --report data/legal_watch_report.json \
             --attempt-state data/legal_watch_attempt.json \
+            --min-days 7 \
             $force
           if git status --porcelain -- data/legal_watch_state.json data/legal_watch_report.json | grep -q .; then
             echo 'updated=true' >> "$GITHUB_OUTPUT"
