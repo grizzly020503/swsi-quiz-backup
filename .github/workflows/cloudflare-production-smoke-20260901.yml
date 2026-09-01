@@ -51,17 +51,29 @@ jobs:
           PY
 
       - name: Verify all 24 shards and grading invariants
+        shell: bash
         run: |
+          set -euo pipefail
+          mkdir -p /tmp/shards
+          python - <<'PY' > /tmp/shard-files.txt
+          import json
+          m=json.load(open('/tmp/questions.json',encoding='utf-8'))
+          for shard in m['shards']:
+              print(shard['file'])
+          PY
+          while IFS= read -r file; do
+            curl --silent --show-error --fail --retry 3 \
+              "$ORIGIN/question-shards/$file?corpus=$GITHUB_RUN_ID" \
+              -o "/tmp/shards/$file"
+          done < /tmp/shard-files.txt
+
           python - <<'PY'
-          import json, urllib.request, collections
-          origin='https://wandering-wave-4418.c022050333.workers.dev'
-          with urllib.request.urlopen(origin+'/question-shards/manifest.json?corpus=1', timeout=30) as r:
-              m=json.load(r)
+          import json, collections, pathlib
+          m=json.load(open('/tmp/questions.json',encoding='utf-8'))
           rows=[]
           for shard in m['shards']:
-              url=origin+'/question-shards/'+shard['file']+'?corpus=1'
-              with urllib.request.urlopen(url, timeout=30) as r:
-                  data=json.load(r)
+              path=pathlib.Path('/tmp/shards')/shard['file']
+              data=json.loads(path.read_text(encoding='utf-8'))
               if isinstance(data,list): qs=data
               elif isinstance(data,dict): qs=data.get('questions', data.get('items', []))
               else: raise AssertionError((shard['file'], type(data)))
