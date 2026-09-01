@@ -18,25 +18,26 @@ jobs:
           fetch-depth: 0
       - name: Apply monitoring center patch
         run: python scripts/monitoring_center_v1_apply.py
-      - name: Rebuild maintained runtime artifacts
+      - name: Rebuild maintained runtime artifact
         run: |
-          cat monthly_patch_parts/*.part > monthly_patch.js
-          cp monthly_patch.js cdn/monthly_patch.js
-          node --check monthly_patch.js
+          cat monthly_patch_parts/*.part > /tmp/monthly_patch.js
+          cp /tmp/monthly_patch.js cdn/monthly_patch.js
+          node --check /tmp/monthly_patch.js
           node --check cdn/monthly_patch.js
-          grep -q 'SWSI Public Branding / Monitoring Center V1 2026-09-01' monthly_patch.js
-          grep -q 'data-swsi-public-info="monitor"' monthly_patch.js
-          grep -q 'total_questions)!==4800' monthly_patch.js
-          grep -q "method:'OPTIONS'" monthly_patch.js
+          grep -q 'SWSI Public Branding / Monitoring Center V1 2026-09-01' /tmp/monthly_patch.js
+          grep -q 'data-swsi-public-info="monitor"' /tmp/monthly_patch.js
+          grep -q 'total_questions)!==4800' /tmp/monthly_patch.js
+          grep -q "method:'OPTIONS'" /tmp/monthly_patch.js
       - name: Scope and safety gate
         run: |
           git diff --check
-          test "$(git diff --name-only | sort | tr '\n' ' ')" = "cdn/monthly_patch.js monthly_patch.js monthly_patch_parts/89.public-branding-info.part "
-          ! git diff | grep -E 'SUPABASE_SERVICE_ROLE_KEY|accepted_answers|grading_mode|GROQ_KEY|SWSI_INTERNAL_KEY'
+          printf '%s\n' "$(git diff --name-only | sort)"
+          test "$(git diff --name-only | sort | tr '\n' ' ')" = "cdn/monthly_patch.js monthly_patch_parts/89.public-branding-info.part "
+          ! git diff -- monthly_patch_parts/89.public-branding-info.part | grep -E '^\+.*(SUPABASE_SERVICE_ROLE_KEY|accepted_answers|grading_mode|GROQ_KEY|SWSI_INTERNAL_KEY)'
       - name: Commit feature runtime
         run: |
           git config user.name "swsi-monitoring-v1-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add monthly_patch_parts/89.public-branding-info.part monthly_patch.js cdn/monthly_patch.js
+          git add monthly_patch_parts/89.public-branding-info.part cdn/monthly_patch.js
           git commit -m "feat: add public monitoring center v1"
           git push
