@@ -1,0 +1,66 @@
+name: Cloudflare Public Candidate Diagnostic
+
+on:
+  push:
+    branches: [swsi-public-candidate]
+    paths: ['.github/workflows/cloudflare-public-candidate-diagnostic.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ORIGIN: https://swsi-public-candidate-wandering-wave-4418.c022050333.workers.dev
+    steps:
+      - name: Print hosted candidate contract
+        run: |
+          set -u
+          fetch(){
+            local path="$1" out="$2"
+            local code
+            code="$(curl --silent --show-error --location -o "$out" -w '%{http_code}' "$ORIGIN/$path?diag=$GITHUB_RUN_ID" || true)"
+            echo "HTTP $code /$path bytes=$(wc -c < "$out" 2>/dev/null || echo 0)"
+          }
+          fetch '' /tmp/root.html
+          fetch 'manifest.json' /tmp/pwa.json
+          fetch 'sw.js' /tmp/sw.js
+          fetch 'monthly_patch.js' /tmp/patch.js
+          fetch 'essay_guides.js' /tmp/essay.js
+          fetch 'icons/icon-192.png' /tmp/icon.png
+          fetch 'admin/index.html' /tmp/admin.html
+          fetch 'question-shards/manifest.json' /tmp/questions.json
+
+          check(){
+            local label="$1" pattern="$2" file="$3"
+            if grep -qF "$pattern" "$file"; then echo "PASS $label"; else echo "FAIL $label"; fi
+          }
+          absent(){
+            local label="$1" pattern="$2" file="$3"
+            if grep -qF "$pattern" "$file"; then echo "FAIL $label"; else echo "PASS $label"; fi
+          }
+          check candidate-marker 'SWSI CLOUDFLARE PUBLIC CANDIDATE' /tmp/root.html
+          check noindex 'noindex,nofollow,noarchive' /tmp/root.html
+          check public-guide 'SWSI 讀書指南（自編公開內容' /tmp/root.html
+          check candidate-ai "$ORIGIN/api/ai" /tmp/root.html
+          absent no-third-party-name '蔡宇庭' /tmp/root.html
+          absent no-third-party-note '老師提供的學長姐心得' /tmp/root.html
+          check admin-title '<title>SWSI 管理中心</title>' /tmp/admin.html
+          absent admin-no-default-email 'DEFAULT_ADMIN_EMAIL' /tmp/admin.html
+          check service-worker-v6 "const VERSION = 'v6'" /tmp/sw.js
+
+          python - <<'PY'
+          import json
+          for name,path in [('pwa','/tmp/pwa.json'),('questions','/tmp/questions.json')]:
+              try:
+                  x=json.load(open(path,encoding='utf-8'))
+                  print('JSON',name,'OK', {k:x.get(k) for k in ('name','start_url','scope','display','total_questions','shard_count')})
+              except Exception as e:
+                  print('JSON',name,'FAIL',repr(e))
+          PY
+
+          code="$(curl --silent --show-error -X OPTIONS -H "Origin: $ORIGIN" -H 'Access-Control-Request-Method: POST' -D /tmp/cors.h -o /tmp/cors.b -w '%{http_code}' "$ORIGIN/api/ai?diag=$GITHUB_RUN_ID" || true)"
+          echo "AI_PREFLIGHT_HTTP=$code"
+          tr -d '\r' < /tmp/cors.h | grep -i '^access-control-' || true
