@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Python syntax
         run: python3 -m py_compile scripts/ai_feedback_eval.py scripts/ai_feedback_eval_selftest.py
