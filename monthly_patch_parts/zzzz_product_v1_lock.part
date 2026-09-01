@@ -144,7 +144,7 @@
     var f=document.querySelector('footer'); if(!f) return;
     if(f.classList.contains('swsi-footer-clean')) return;
     f.classList.add('swsi-footer-clean');
-    f.innerHTML='<div>© 2026 熊品澄 · 免費公開學習工具</div><div class="sub">社工師國考題目以考選部官方資料為準</div>';
+    f.innerHTML='<div>© 2026 SWSI · 免費公開學習工具</div><div class="sub">社工師國考題目以考選部官方資料為準</div>';
   }
 
   function collapseExplanation(){
