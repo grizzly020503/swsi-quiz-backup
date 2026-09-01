@@ -1,0 +1,78 @@
+name: Monitoring V2 Apply Once
+
+on:
+  push:
+    branches:
+      - feat/monitoring-v2-five-radars-20260901
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/monitoring-v2-five-radars-20260901
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build legal public snapshot
+        run: python scripts/build_public_legal_watch_snapshot.py --input data/legal_watch_report.json --output auto/legal_watch.json
+
+      - name: Apply Monitoring V2 integration
+        run: python scripts/apply_monitoring_v2_once.py
+
+      - name: Syntax and five-radar contract
+        run: |
+          set -euo pipefail
+          cat monthly_patch_parts/*.part > /tmp/monthly_patch.js
+          node --check /tmp/monthly_patch.js
+          node --check cdn/monthly_patch.js
+          python -m py_compile \
+            scripts/build_public_legal_watch_snapshot.py \
+            scripts/public_monitoring_v2_smoke.py \
+            scripts/public_uptime_smoke.py
+          python scripts/public_monitoring_v2_smoke.py
+          git diff --check
+          grep -q 'SWSI Public Branding / Monitoring Center V2 2026-09-01' monthly_patch_parts/89.public-branding-info.part
+          grep -q '2026-09-01.monitoring-v2' cdn/monthly_patch.js
+          grep -q -- '--min-days 7' .github/workflows/moex-social-worker-sync.yml
+
+      - name: Guard final product scope
+        run: |
+          set -euo pipefail
+          git diff --name-only | sort > /tmp/changed.txt
+          cat /tmp/changed.txt
+          cat > /tmp/expected.txt <<'EOF'
+          .github/workflows/moex-social-worker-sync.yml
+          auto/legal_watch.json
+          cdn/auto/current_affairs.json
+          cdn/auto/health.json
+          cdn/auto/legal_watch.json
+          cdn/auto/sync_state.json
+          cdn/monthly_patch.js
+          monthly_patch_parts/89.public-branding-info.part
+          scripts/public_uptime_smoke.py
+          EOF
+          sort -o /tmp/expected.txt /tmp/expected.txt
+          diff -u /tmp/expected.txt /tmp/changed.txt
+
+      - name: Commit actual integration
+        run: |
+          set -euo pipefail
+          git config user.name 'swsi-monitoring-v2-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add \
+            .github/workflows/moex-social-worker-sync.yml \
+            auto/legal_watch.json \
+            cdn/auto/current_affairs.json cdn/auto/health.json cdn/auto/legal_watch.json cdn/auto/sync_state.json \
+            cdn/monthly_patch.js monthly_patch_parts/89.public-branding-info.part \
+            scripts/public_uptime_smoke.py
+          git commit -m 'feat: connect SWSI five monitoring radars'
+          git push origin HEAD:feat/monitoring-v2-five-radars-20260901
