@@ -1,0 +1,91 @@
+name: Prepare Cloudflare Soft Launch Artifact
+
+on:
+  push:
+    branches: [release/cloudflare-public-soft-launch-20260901]
+    paths: ['.github/workflows/prepare-cloudflare-soft-launch-artifact.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Convert candidate artifact to final-origin soft launch
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          candidate='https://swsi-public-candidate-wandering-wave-4418.c022050333.workers.dev'
+          final='https://wandering-wave-4418.c022050333.workers.dev'
+
+          p=Path('cdn/index.html')
+          s=p.read_text(encoding='utf-8')
+          if 'SWSI CLOUDFLARE PUBLIC CANDIDATE' not in s:
+              raise SystemExit('candidate marker missing; refusing release transform')
+          if candidate + '/api/ai' not in s:
+              raise SystemExit('candidate AI endpoint missing; refusing release transform')
+
+          # Preserve noindex for the first public soft launch. Sharing by direct URL
+          # works normally while search engines are asked not to index it yet.
+          s=s.replace('SWSI CLOUDFLARE PUBLIC CANDIDATE','SWSI CLOUDFLARE PUBLIC SOFT LAUNCH',1)
+          s=s.replace(candidate + '/api/ai', final, 1)
+          s=s.replace(candidate + '/', final + '/')
+
+          import re
+          s,n=re.subn(r'\n<meta name="swsi-candidate-source" content="[0-9a-f]+">','',s,count=1)
+          if n != 1:
+              raise SystemExit(f'candidate source marker count={n}; refusing release transform')
+
+          forbidden=('蔡宇庭','老師提供的學長姐心得','資深學長姐的應考心得','這份心得是資深學長姐','學長姊應考心得')
+          leaked=[x for x in forbidden if x in s]
+          if leaked:
+              raise SystemExit('third-party content leak: '+', '.join(leaked))
+          if '<meta name="robots" content="noindex,nofollow,noarchive">' not in s:
+              raise SystemExit('soft-launch noindex guard missing')
+          if final not in s:
+              raise SystemExit('final Cloudflare origin missing')
+          if candidate in s:
+              raise SystemExit('candidate origin remains in release artifact')
+          p.write_text(s,encoding='utf-8')
+
+          w=Path('cloudflare/wandering-wave-4418/worker.js')
+          ws=w.read_text(encoding='utf-8')
+          line='      "'+candidate+'"\n'
+          line_comma='      "'+candidate+'",\n'
+          if line_comma in ws:
+              ws=ws.replace(line_comma,'',1)
+          elif line in ws:
+              ws=ws.replace(line,'',1)
+          else:
+              raise SystemExit('candidate Worker origin missing; refusing broad edit')
+          # Fix a trailing comma shape only if candidate had been the final entry.
+          ws=ws.replace('      "'+final+'",\n    ]);','      "'+final+'"\n    ]);',1)
+          if candidate in ws:
+              raise SystemExit('candidate origin remains in Worker')
+          if 'https://swsi-quiznetlify.netlify.app' not in ws or final not in ws:
+              raise SystemExit('production Worker origin contract damaged')
+          w.write_text(ws,encoding='utf-8')
+          PY
+
+          node --check cloudflare/wandering-wave-4418/worker.js
+          grep -qF 'SWSI CLOUDFLARE PUBLIC SOFT LAUNCH' cdn/index.html
+          grep -qF 'noindex,nofollow,noarchive' cdn/index.html
+          grep -qF 'const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev";' cdn/index.html
+          ! grep -qF 'swsi-public-candidate-wandering-wave-4418' cdn/index.html
+          ! grep -qF 'swsi-public-candidate-wandering-wave-4418' cloudflare/wandering-wave-4418/worker.js
+
+      - name: Commit release artifact to release branch only
+        run: |
+          set -euo pipefail
+          git config user.name 'swsi-release-prep-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add cdn/index.html cloudflare/wandering-wave-4418/worker.js
+          git commit -m 'release: prepare Cloudflare public soft-launch artifact'
+          git push origin HEAD:release/cloudflare-public-soft-launch-20260901
