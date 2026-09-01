@@ -125,7 +125,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     const root = document.querySelector('#swsi-public-monitor');
     return root && root.dataset.running === '0';
   }, null, { timeout: 15000 });
-  await page.getByRole('button', { name: '隱私', exact: true }).click();
+  await page.locator('[data-swsi-info-nav="privacy"]').click();
   await page.waitForFunction(() => {
     const h = document.querySelector('#swsi-public-info-title');
     return h && /隱私說明/.test(h.textContent || '');
