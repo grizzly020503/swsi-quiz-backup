@@ -5,6 +5,7 @@ No secrets, browser automation, model calls, database writes, or user data.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 import urllib.error
@@ -37,6 +38,13 @@ def require_status(label: str, url: str, expected: int = 200, *, method: str = "
 
 
 def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "--monitoring-v2",
+        action="store_true",
+        help="Require Monitoring V2 public snapshots. Use after V2 is deployed, not while a PR still targets old production.",
+    )
+    args = ap.parse_args()
     checks: list[str] = []
 
     body, _ = require_status("Cloudflare home", PRIMARY + "/")
@@ -62,27 +70,28 @@ def main() -> int:
         raise AssertionError("Question manifest: shards length != 24")
     checks.append("questions-4800-24")
 
-    body, _ = require_status("Current-affairs snapshot", PRIMARY + "/auto/current_affairs.json")
-    news = json.loads(body)
-    news_items = news.get("items") or []
-    if int(news.get("schema_version", -1)) != 2 or not news_items:
-        raise AssertionError("Current-affairs snapshot: contract mismatch")
-    checks.append(f"news-{len(news_items)}")
+    if args.monitoring_v2:
+        body, _ = require_status("Current-affairs snapshot", PRIMARY + "/auto/current_affairs.json")
+        news = json.loads(body)
+        news_items = news.get("items") or []
+        if int(news.get("schema_version", -1)) != 2 or not news_items:
+            raise AssertionError("Current-affairs snapshot: contract mismatch")
+        checks.append(f"news-{len(news_items)}")
 
-    body, _ = require_status("Legal-watch snapshot", PRIMARY + "/auto/legal_watch.json")
-    laws = json.loads(body)
-    law_watch = int(laws.get("watch_count", -1))
-    law_matched = int(laws.get("matched_count", -1))
-    law_changed = int(laws.get("changed_count", -1))
-    if law_watch < 20 or law_matched < 20 or law_changed != len(laws.get("changes") or []):
-        raise AssertionError("Legal-watch snapshot: contract mismatch")
-    checks.append(f"laws-{law_matched}/{law_watch}")
+        body, _ = require_status("Legal-watch snapshot", PRIMARY + "/auto/legal_watch.json")
+        laws = json.loads(body)
+        law_watch = int(laws.get("watch_count", -1))
+        law_matched = int(laws.get("matched_count", -1))
+        law_changed = int(laws.get("changed_count", -1))
+        if law_watch < 20 or law_matched < 20 or law_changed != len(laws.get("changes") or []):
+            raise AssertionError("Legal-watch snapshot: contract mismatch")
+        checks.append(f"laws-{law_matched}/{law_watch}")
 
-    body, _ = require_status("Question health", PRIMARY + "/auto/health.json")
-    qhealth = json.loads(body)
-    if qhealth.get("status") != "ok" or int(qhealth.get("expected_total_questions", -1)) != 4800:
-        raise AssertionError("Question health: contract mismatch")
-    checks.append("question-health")
+        body, _ = require_status("Question health", PRIMARY + "/auto/health.json")
+        qhealth = json.loads(body)
+        if qhealth.get("status") != "ok" or int(qhealth.get("expected_total_questions", -1)) != 4800:
+            raise AssertionError("Question health: contract mismatch")
+        checks.append("question-health")
 
     cors_headers = {
         "Origin": PRIMARY,
@@ -105,7 +114,8 @@ def main() -> int:
         raise AssertionError("Netlify fallback: expected social-work-study marker missing")
     checks.append("netlify-fallback")
 
-    print("SWSI PUBLIC UPTIME SENTINEL OK: " + ", ".join(checks))
+    mode = "monitoring-v2" if args.monitoring_v2 else "baseline"
+    print(f"SWSI PUBLIC UPTIME SENTINEL OK [{mode}]: " + ", ".join(checks))
     print("No model call, no database write, no user data collected.")
     return 0
 
