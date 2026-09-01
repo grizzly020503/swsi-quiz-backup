@@ -1,0 +1,31 @@
+name: Cloudflare D1 Recovery QA
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/cloudflare-d1-recovery-qa.yml'
+      - 'cloudflare/wandering-wave-4418/d1/**'
+      - 'cloudflare/wandering-wave-4418/worker.js'
+      - 'scripts/cloudflare_d1_recovery_smoke.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-d1-recovery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  recovery-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Python syntax
+        run: python3 -m py_compile scripts/cloudflare_d1_recovery_smoke.py
+
+      - name: Verify D1 recovery contract
+        run: python3 scripts/cloudflare_d1_recovery_smoke.py
