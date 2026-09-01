@@ -66,8 +66,45 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     }
   }
 
+  async function assertCompactHomeFooter() {
+    const dataDetails = page.locator('details.swsi-data-version');
+    if (await dataDetails.count()) {
+      await dataDetails.first().evaluate(el => { el.open = true; });
+      await page.waitForTimeout(50);
+    }
+    const layout = await page.evaluate(() => {
+      const app = document.querySelector('#app');
+      const footer = document.querySelector('.wrap > footer') || document.querySelector('footer');
+      const tab = document.querySelector('.tabbar');
+      const brand = footer && footer.querySelector('.swsi-public-footer-brand');
+      if (!app || !footer || !tab) return null;
+      const ar = app.getBoundingClientRect();
+      const fr = footer.getBoundingClientRect();
+      return { gap: fr.top - ar.bottom, tabDisplay: getComputedStyle(tab).display };
+    });
+    assert(layout, 'home/footer layout elements missing');
+    assert(layout.gap <= 48, 'home leaves an artificial blank slab before footer: '+layout.gap+'px');
+
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.waitForTimeout(80);
+    const clearance = await page.evaluate(() => {
+      const footer = document.querySelector('.wrap > footer') || document.querySelector('footer');
+      const brand = footer && footer.querySelector('.swsi-public-footer-brand');
+      const tab = document.querySelector('.tabbar');
+      if (!brand || !tab) return null;
+      const br = brand.getBoundingClientRect();
+      const tr = tab.getBoundingClientRect();
+      return { brandBottom: br.bottom, tabTop: tr.top };
+    });
+    assert(clearance, 'footer brand or bottom nav missing');
+    assert(clearance.brandBottom <= clearance.tabTop + 1,
+      'footer content is covered by fixed bottom navigation: brandBottom='+clearance.brandBottom+' tabTop='+clearance.tabTop);
+    await page.evaluate(() => window.scrollTo(0, 0));
+  }
+
   await page.goto(base, { waitUntil: 'commit', timeout: 15000 });
   await waitHome();
+  await assertCompactHomeFooter();
 
   const fontButtons = page.locator('.fontctl button');
   assert((await fontButtons.count()) >= 3, 'font controls missing');
@@ -76,9 +113,12 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await fontButtons.nth(0).click();
   await page.waitForFunction(() => document.documentElement.getAttribute('data-fs') === '0');
 
-  // Force one genuinely wrong answer so the new learning-loop UI is always exercised.
+  // Force one genuinely wrong answer so the learning-loop UI is always exercised.
   await page.getByRole('button', { name: /直接開始 20 題/ }).click();
   await page.waitForSelector('.qcard .opt', { timeout: 45000 });
+  await page.waitForFunction(() => document.body.classList.contains('swsi-question-active'));
+  const quizFooter = page.locator('.wrap > footer');
+  assert.strictEqual(await quizFooter.isVisible(), false, 'public footer should stay hidden during an active question');
   const wrongIndex = await page.evaluate(() => {
     const item = queue && queue[idx];
     if (!item) return -1;
@@ -115,16 +155,23 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.waitForSelector('.qcard');
   await page.getByRole('button', { name: /結束這次練習/ }).click();
   await waitHome();
+  await page.waitForFunction(() => !document.body.classList.contains('swsi-question-active'));
+  assert.strictEqual(await quizFooter.isVisible(), true, 'public footer did not return after leaving the active quiz');
 
-  // Review must preserve the user's self-reported reason and distinguish it from platform weak-topic grouping.
-  await page.getByRole('button', { name: '複習', exact: true }).click();
+  // The simplified second tab opens Learning Center; review is one action inside it.
+  await page.locator('#t-review').click();
+  await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
+  const hubText = await page.locator('.swsi-myhub').innerText();
+  assert(/學習中心/.test(hubText), 'learning tab did not open Learning Center');
+  assert(/錯題複習/.test(hubText), 'review action missing from Learning Center');
+  await page.getByRole('button', { name: /錯題複習/ }).click();
   await page.waitForSelector('.swsi-learning-section', { timeout: 30000 });
   const reviewText = await page.locator('#app').innerText();
   assert(/你自己標記的錯因/.test(reviewText), 'self-reported cause section missing from review');
   assert(/概念不熟/.test(reviewText), 'saved self-reported cause missing from review');
   assert(/平台看到的弱點考點/.test(reviewText), 'platform weak-topic section missing from review');
 
-  // Progress must expose actionable learning data and a next step.
+  // Progress remains available from review and exposes actionable learning data.
   await page.getByRole('button', { name: /查看完整學習進度/ }).click();
   await page.waitForSelector('.swsi-progress-hero', { timeout: 30000 });
   const progressText = await page.locator('#app').innerText();
@@ -133,10 +180,10 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/不同題目/.test(progressText), 'unique-question progress missing');
   assert(/題庫覆蓋/.test(progressText), 'coverage progress missing');
 
-  await page.getByRole('button', { name: '首頁', exact: true }).click();
+  await page.locator('#t-home').click();
   await waitHome();
 
-  // Essay flow remains intact after learning-loop changes.
+  // Essay flow remains intact after learning-center simplification.
   await page.getByRole('button', { name: '直接練一題' }).click();
   await page.waitForSelector('.wta', { timeout: 30000 });
   const textarea = page.locator('.wta').first();
@@ -156,20 +203,19 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   });
   assert(sawConfirm, 'clear draft did not ask for confirmation');
 
-  await page.getByRole('button', { name: '首頁', exact: true }).click();
+  await page.locator('#t-home').click();
   await waitHome();
-  await page.getByRole('button', { name: '申論', exact: true }).click();
+  await page.locator('#t-essay').click();
   await page.waitForFunction(() => {
     const h = document.querySelector('#app .section-h');
     return h && /申論題/.test(h.textContent || '');
   }, null, { timeout: 30000 });
   assert((await page.locator('.wta').count()) === 0, 'bottom Essay nav should open the library, not force a random question');
 
-  await page.getByRole('button', { name: '複習', exact: true }).click();
-  await page.waitForFunction(() => {
-    const app = document.querySelector('#app');
-    return app && (/錯題複習|今天到期|還沒熟/.test(app.textContent || ''));
-  }, null, { timeout: 60000 });
+  // Learning tab must still land on the hub rather than bypassing it into raw review.
+  await page.locator('#t-review').click();
+  await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
+  assert(/錯題複習/.test(await page.locator('.swsi-myhub').innerText()), 'learning hub lost its review entry');
 
   assert.deepStrictEqual(browserErrors, [], 'browser page errors: ' + browserErrors.join(' | '));
   console.log('BROWSER INTERACTION SMOKE OK');

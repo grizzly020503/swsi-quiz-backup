@@ -1,39 +1,12 @@
 
-/* SWSI Home Spacing + Essay Entry Fix 2026-08-26
-   - Home must not stretch a short study dashboard into a page of empty space.
-   - Essay entry should be resilient even if auto essays need one last async load.
+/* SWSI Essay Entry Binding 2026-08-29
+   Layer 3 only: bind essay-entry controls.
+   Global shell spacing is owned exclusively by 15.layout-foundation.part.
 */
 (function(){
   'use strict';
 
-  var style=document.createElement('style');
-  style.id='swsi-home-spacing-essay-entry-style';
-  style.textContent=`
-/* Home is intentionally short. Do not let main flex-grow create a huge blank slab
-   between the study actions and the footer. */
-body:has(#app .swsi-focus-hero) main{
-  flex:0 0 auto!important;
-  padding-bottom:calc(92px + env(safe-area-inset-bottom))!important;
-}
-body:has(#app .swsi-focus-hero) .wrap{
-  padding-bottom:0!important;
-}
-body:has(#app .swsi-focus-hero) footer{
-  margin-top:18px!important;
-  padding-bottom:calc(18px + env(safe-area-inset-bottom))!important;
-}
-
-/* Review can use the normal compact safe area; long essay pages keep the larger
-   mobile-reading safe area from the previous patch. */
-body:has(#app .ux-page-head) main,
-body:has(#app .section-h) main{
-  padding-bottom:calc(100px + env(safe-area-inset-bottom));
-}
-`;
-  document.head.appendChild(style);
-
   /* Essay navigation is owned by zzz_fix_essay_navigation.part. This module only binds entry controls. */
-
   function bindEssayEntries(root){
     var tab=document.getElementById('t-essay');
     if(tab && tab.dataset.swsiEssayBound!=='1'){

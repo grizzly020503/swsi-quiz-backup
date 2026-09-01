@@ -29,40 +29,85 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     return route.continue();
   });
 
+  async function dumpFirstPaintDiagnostics(label) {
+    let state = {};
+    try {
+      state = await page.evaluate(() => ({
+        readyState: document.readyState,
+        bootVersion: window.__SWSI_FAST_BOOT_VERSION__ || null,
+        bootDeferred: window.__SWSI_BOOT_DEFERRED__,
+        view: typeof view === 'undefined' ? null : view,
+        hasGo: typeof window.go === 'function' || typeof go === 'function',
+        hasRenderHome: typeof window.renderHome === 'function' || typeof renderHome === 'function',
+        hasManifestLoader: typeof window.loadQuestionManifest === 'function' || typeof loadQuestionManifest === 'function',
+        appText: (document.querySelector('#app')?.innerText || '').slice(0, 1200),
+        appHtml: (document.querySelector('#app')?.innerHTML || '').slice(0, 1800),
+        scriptSrcs: Array.from(document.scripts).map(s => s.src).filter(Boolean),
+        resources: performance.getEntriesByType('resource').map(r => ({
+          name: r.name,
+          duration: Math.round(r.duration),
+          initiatorType: r.initiatorType
+        })).slice(-30)
+      }));
+    } catch (err) {
+      state = { diagnosticEvaluateError: String(err && err.message || err) };
+    }
+    console.error('SWSI FIRST PAINT DIAGNOSTICS [' + label + '] ' + JSON.stringify({
+      browserErrors,
+      state
+    }, null, 2));
+  }
+
   async function waitHome() {
-    await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
+    try {
+      await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
+    } catch (err) {
+      await dumpFirstPaintDiagnostics('home-timeout');
+      throw err;
+    }
   }
 
   await page.goto(base, { waitUntil: 'commit', timeout: 15000 });
   await waitHome();
 
-  // First-time guidance must be visible once, dismissible, and stay dismissed.
   const guide = page.locator('.swsi-launch-guide');
   assert.strictEqual(await guide.count(), 1, 'first-use guide missing on fresh localStorage');
-  assert(/30 秒看懂 SWSI/.test(await guide.innerText()), 'first-use guide copy missing');
+  const guideText = await guide.innerText();
+  assert(/不用先學整個平台/.test(guideText), 'compact first-use guide copy missing');
+  assert(/練題/.test(guideText) && /學習/.test(guideText) && /申論/.test(guideText), 'first-use guide does not explain the three primary areas');
   await guide.getByRole('button', { name: /不再顯示首次使用說明/ }).click();
   await page.waitForFunction(() => !document.querySelector('.swsi-launch-guide'));
-  assert.strictEqual(await page.evaluate(() => localStorage.getItem('swsi_launch_guide_dismissed_v1')), '1', 'guide dismissal was not persisted');
+  assert.strictEqual(await page.evaluate(() => localStorage.getItem('swsi_launch_guide_dismissed_v2')), '1', 'guide dismissal was not persisted');
 
   await page.reload({ waitUntil: 'commit' });
   await waitHome();
   assert.strictEqual(await page.locator('.swsi-launch-guide').count(), 0, 'dismissed guide returned after reload');
 
-  // Existing interaction smoke owns seeded review navigation. This launch smoke
-  // enters progress directly so it remains valid for a completely new user.
-  await page.evaluate(() => {
-    if (typeof go !== 'function') throw new Error('go() route helper missing');
-    go('progress');
-  });
-  await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
-  await page.waitForSelector('.swsi-launch-reminder', { timeout: 10000 });
+  const visibleTabs = await page.locator('#tabbar button:visible').allInnerTexts();
+  const tabText = visibleTabs.join(' ');
+  assert(/練題/.test(tabText) && /學習/.test(tabText) && /申論/.test(tabText), 'simplified bottom navigation labels missing');
 
-  const reminderText = await page.locator('.swsi-launch-reminder').innerText();
-  assert(/今日提醒/.test(reminderText), 'daily reminder missing');
+  // The homepage Learning Center card and bottom Learning tab must share the
+  // same direct local-state route. Neither may detour through legacy progress.
+  const homeLearning = page.locator('#app .swsi-study-card').filter({ hasText: '學習中心' }).first();
+  assert.strictEqual(await homeLearning.count(), 1, 'homepage Learning Center card missing');
+  await homeLearning.click();
+  await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
+  assert(/學習中心/.test(await page.locator('.swsi-myhub').innerText()), 'homepage Learning Center card did not open the hub');
+  await page.locator('#t-home').click();
+  await waitHome();
+
+  const learningTab = page.locator('#t-review');
+  await learningTab.click();
+  await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
+  await page.waitForSelector('.swsi-exam-reminder', { timeout: 10000 });
+
+  const hubText = await page.locator('.swsi-myhub').innerText();
+  assert(/學習中心/.test(hubText), 'learning center heading missing');
+  assert(/錯題複習/.test(hubText) && /快速刷題/.test(hubText) && /申論練習/.test(hubText), 'learning center primary study actions missing');
+  const reminderText = await page.locator('.swsi-exam-reminder').innerText();
   assert(/考試倒數/.test(reminderText), 'exam countdown entry missing');
 
-  // Exam-date modal must stay inside a phone viewport, lock background scroll,
-  // support Escape, focus its input, and restore focus to the opener.
   const examButton = page.locator('.swsi-exam-reminder-btn');
   await examButton.click();
   await page.waitForSelector('#swsi-exam-backdrop');
@@ -77,7 +122,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(!(await page.evaluate(() => document.body.classList.contains('swsi-modal-open'))), 'body remained scroll-locked after Escape close');
   await page.waitForFunction(() => document.activeElement && document.activeElement.classList.contains('swsi-exam-reminder-btn'));
 
-  // Target exam date must remain device-local and support save / clear.
   await examButton.click();
   await page.waitForSelector('#swsi-exam-backdrop');
   const dateInput = page.locator('#swsi-exam-date-input');
@@ -95,17 +139,40 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert.strictEqual(await page.evaluate(() => localStorage.getItem('swsi_target_exam_date_v1')), null, 'exam date did not clear');
   assert(/尚未設定日期/.test(await page.locator('.swsi-exam-reminder-copy').innerText()), 'cleared countdown did not return to unset state');
 
-  // Public footer must reserve enough room for the mobile fixed bottom navigation.
-  const footerPadding = await page.evaluate(() => {
+  // Mobile fixed-nav clearance has one owner: .wrap. Footer itself must stay compact.
+  const footerLayout = await page.evaluate(() => {
     const footer = document.querySelector('.wrap > footer') || document.querySelector('footer');
-    return footer ? parseFloat(getComputedStyle(footer).paddingBottom || '0') : -1;
+    const wrap = document.querySelector('.wrap');
+    if (!footer || !wrap) return null;
+    return {
+      footerPadding: parseFloat(getComputedStyle(footer).paddingBottom || '0'),
+      wrapPadding: parseFloat(getComputedStyle(wrap).paddingBottom || '0')
+    };
   });
-  assert(footerPadding >= 128, 'mobile footer does not reserve clearance for bottom navigation');
+  assert(footerLayout, 'mobile footer layout missing');
+  assert(footerLayout.footerPadding <= 40, 'mobile footer regained an oversized blank slab: '+footerLayout.footerPadding+'px');
+  assert(footerLayout.wrapPadding >= 70, 'wrap no longer reserves fixed-nav clearance: '+footerLayout.wrapPadding+'px');
 
-  // Admin remains visually secondary for ordinary users.
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await page.waitForTimeout(80);
+  const footerClearance = await page.evaluate(() => {
+    const footer = document.querySelector('.wrap > footer') || document.querySelector('footer');
+    const tab = document.querySelector('.tabbar');
+    if (!footer || !tab) return null;
+    const fr = footer.getBoundingClientRect();
+    const tr = tab.getBoundingClientRect();
+    return { footerBottom: fr.bottom, tabTop: tr.top };
+  });
+  assert(footerClearance, 'footer or bottom nav missing after scroll');
+  assert(footerClearance.footerBottom <= footerClearance.tabTop + 1,
+    'footer is covered by fixed bottom navigation: footerBottom='+footerClearance.footerBottom+' tabTop='+footerClearance.tabTop);
+  await page.evaluate(() => window.scrollTo(0, 0));
+
   const adminLogin = page.locator('[data-swsi-admin-login]');
   if (await adminLogin.count()) {
-    assert(/管理者入口/.test(await adminLogin.innerText()), 'admin entry is not using the launch-safe label');
+    const adminLabel = ((await adminLogin.locator('.label').textContent()) || '').trim();
+    assert.strictEqual(adminLabel, '管理者入口', 'admin entry is not using the canonical launch-safe label');
+    assert.strictEqual(await adminLogin.isVisible(), false, 'admin entry is visible before the secondary More disclosure is opened');
   }
 
   assert.deepStrictEqual(browserErrors, [], 'browser page errors: ' + browserErrors.join(' | '));

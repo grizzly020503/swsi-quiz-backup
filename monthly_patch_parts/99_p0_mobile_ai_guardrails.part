@@ -1,38 +1,11 @@
-/* ===== SWSI P0 mobile + AI utilities (2026-08-26) ===== */
+/* ===== SWSI P0 AI utilities (2026-08-29) ===== */
 (function(){
   'use strict';
 
+  /* Layer 3 interaction guard only. Global mobile shell geometry now belongs to
+     15.layout-foundation.part so later feature modules cannot fight over it. */
   var style=document.createElement('style');
-  style.textContent=`
-    :root{
-      --swsi-tabbar-button-height:58px;
-      --swsi-tabbar-clearance:calc(84px + env(safe-area-inset-bottom,0px));
-    }
-    header{
-      padding-top:calc(20px + env(safe-area-inset-top,0px))!important;
-    }
-    .tabbar{
-      bottom:0!important;
-      padding-bottom:env(safe-area-inset-bottom,0px)!important;
-    }
-    .tabbar button{padding:8px 4px 10px!important;min-height:var(--swsi-tabbar-button-height);}
-    .tabbar .ico{font-size:17px!important;}
-    html{scroll-padding-bottom:var(--swsi-tabbar-clearance);}
-    body{padding-bottom:0!important;}
-    .wrap{padding-bottom:var(--swsi-tabbar-clearance)!important;}
-    main{padding-bottom:24px!important;}
-    button:disabled{pointer-events:none;}
-    @media (max-width:420px){
-      :root{--swsi-tabbar-clearance:calc(88px + env(safe-area-inset-bottom,0px));}
-    }
-    html[data-fs="2"]{
-      --swsi-tabbar-clearance:calc(94px + env(safe-area-inset-bottom,0px));
-    }
-    @media (display-mode:standalone),(display-mode:fullscreen){
-      :root{--swsi-tabbar-clearance:calc(90px + env(safe-area-inset-bottom,0px));}
-      html[data-fs="2"]{--swsi-tabbar-clearance:calc(98px + env(safe-area-inset-bottom,0px));}
-    }
-  `;
+  style.textContent=`button:disabled{pointer-events:none;}`;
   document.head.appendChild(style);
 
   window.effectiveEssayText=function(s){
@@ -115,4 +88,4 @@
     finally{clearTimeout(timer);}
   };
 })();
-/* ===== SWSI P0 mobile + AI utilities END ===== */
+/* ===== SWSI P0 AI utilities END ===== */

@@ -45,12 +45,21 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.getByRole('button', { name: '直接練一題' }).click();
   await page.waitForSelector('.wta', { timeout: 30000 });
   await page.locator('.wta').first().fill('未完成草稿，dead-end smoke');
-  await page.getByRole('button', { name: '首頁', exact: true }).click();
+  await page.locator('#t-home').click();
   await waitHome();
 
-  // Progress/support hub must remain navigable after repeated route changes.
-  await page.evaluate(() => { if (typeof go !== 'function') throw new Error('go() missing'); go('progress'); });
+  // Learning/support hub must remain navigable after repeated route changes.
+  // Use the same direct Learning tab route students use; do not invoke legacy progress loading.
+  await page.locator('#t-review').click();
   await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
+
+  // Platform/support actions are intentionally secondary behind the closed disclosure.
+  const more = page.locator('.swsi-myhub-more');
+  if (!(await more.evaluate(el => el.open))) await more.locator('summary').click();
+  await page.waitForFunction(() => {
+    const el = document.querySelector('.swsi-myhub-more');
+    return !!(el && el.open);
+  });
 
   // Sharing cancellation is not an error and must leave the page usable.
   await page.evaluate(() => {
@@ -84,14 +93,14 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     assert.strictEqual(await page.locator('.swsi-myhub').count(), 1, 'admin close did not return to support hub');
   }
 
-  // Exercise every bottom navigation destination and prove Home is always recoverable.
-  for (const label of ['首頁', '複習', '申論']) {
-    const btn = page.getByRole('button', { name: label, exact: true });
+  // Exercise every canonical bottom navigation destination and prove Practice is always recoverable.
+  for (const selector of ['#t-home', '#t-review', '#t-essay']) {
+    const btn = page.locator(selector);
     if (!(await btn.count())) continue;
     await btn.click();
     await page.waitForTimeout(150);
   }
-  await page.getByRole('button', { name: '首頁', exact: true }).click();
+  await page.locator('#t-home').click();
   await waitHome();
 
   assert.deepStrictEqual(browserErrors, [], 'browser page errors: ' + browserErrors.join(' | '));

@@ -1,7 +1,8 @@
 
-/* SWSI My Learning Center V1 2026-08-28
-   Turns the existing progress page into a compact personal study hub.
-   This layer is a UI enhancer only: it does not own renderProgress or other runtime routes.
+/* SWSI Learning Center V3 2026-08-29
+   Personal study hub: review, progress, quiz and essay in one place.
+   The hub renders immediately from local learning state and never requires a full
+   4,800-question load just to open the second tab.
 */
 (function(){
   'use strict';
@@ -11,178 +12,135 @@
   var SUPABASE_PUBLISHABLE_KEY='sb_publishable_6KL-X7KfkcfyP1kLxfokhA_0h2YuYMr';
   var ADMIN_ENDPOINT=SUPABASE_URL+'/functions/v1/swsi-admin';
   var AUTH_STORAGE_KEY='sb-'+SUPABASE_PROJECT_REF+'-auth-token';
+  var STYLE_ID='swsi-my-learning-center-v3-style';
 
-  var STYLE_ID='swsi-my-learning-center-v1-style';
   if(!document.getElementById(STYLE_ID)){
     var st=document.createElement('style');
     st.id=STYLE_ID;
     st.textContent=`
-      .swsi-myhub{margin:0 0 18px;display:grid;gap:12px}
-      .swsi-myhub-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;box-shadow:0 6px 22px rgba(35,48,42,.05)}
-      .swsi-myhub-title{font-family:'Noto Serif TC',serif;font-size:18px;font-weight:800;color:var(--ink);margin:0}
-      .swsi-myhub-sub{font:500 12px/1.65 'Noto Sans TC',sans-serif;color:var(--ink-soft);margin-top:3px}
-      .swsi-myhub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
-      .swsi-myhub-action{border:1px solid var(--line);background:#FDFEFD;color:var(--ink);border-radius:13px;min-height:84px;padding:11px 8px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;text-align:left;cursor:pointer;font-family:'Noto Sans TC',sans-serif}
-      .swsi-myhub-action b{font-size:13px;line-height:1.35}.swsi-myhub-action small{font-size:10.5px;line-height:1.45;color:var(--ink-soft)}
-      .swsi-myhub-action .ico{font-size:19px;line-height:1}
-      .swsi-myhub-list{display:grid;margin-top:9px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
-      .swsi-myhub-row{border:0;border-bottom:1px solid var(--line);background:#fff;min-height:54px;padding:10px 12px;display:flex;align-items:center;gap:10px;width:100%;text-align:left;color:var(--ink);cursor:pointer;font-family:'Noto Sans TC',sans-serif}
-      .swsi-myhub-row:last-child{border-bottom:0}.swsi-myhub-row .label{font-size:13px;font-weight:750;flex:1}.swsi-myhub-row .meta{font-size:10.5px;color:var(--ink-soft)}.swsi-myhub-row .arrow{color:#8A9690;font-size:18px}
-      .swsi-myhub-row.admin{background:#F7F9FF}.swsi-myhub-row.admin .label{color:#2747A3}
-      .swsi-myhub-row.admin-login{background:#FBFCFB;color:#667085}.swsi-myhub-row.admin-login .label{font-weight:650;color:#667085}.swsi-myhub-row.admin-login .meta{color:#98A2B3}
-      .swsi-myhub-row[hidden]{display:none!important}
+      .swsi-myhub{margin:0 0 16px;display:grid;gap:10px}
+      .swsi-myhub-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:16px;box-shadow:0 4px 16px rgba(35,48,42,.035)}
+      .swsi-myhub-kicker{font:800 10.5px/1.3 'Noto Sans TC',sans-serif;letter-spacing:1px;color:var(--pine);margin-bottom:4px}
+      .swsi-myhub-title{font-family:'Noto Serif TC',serif;font-size:19px;font-weight:900;line-height:1.4;color:var(--ink);margin:0}
+      .swsi-myhub-sub{font:500 11.5px/1.65 'Noto Sans TC',sans-serif;color:var(--ink-soft);margin-top:4px}
+      .swsi-myhub-primary{width:100%;margin-top:13px;border:0;border-radius:13px;background:var(--pine-deep);color:#fff;min-height:48px;padding:11px 13px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;font-family:'Noto Sans TC',sans-serif}
+      .swsi-myhub-primary b{display:block;font-size:14px;line-height:1.4}.swsi-myhub-primary small{display:block;font-size:10.5px;line-height:1.45;opacity:.86;margin-top:2px}.swsi-myhub-primary .arrow{font-size:21px;opacity:.9}
+      .swsi-myhub-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:11px}
+      .swsi-myhub-stat{background:#F7F9F8;border:1px solid var(--line);border-radius:11px;padding:9px 8px;text-align:center}.swsi-myhub-stat b{display:block;font:850 17px/1.1 'Noto Sans TC',sans-serif;color:var(--ink)}.swsi-myhub-stat span{display:block;margin-top:3px;font:600 9.8px/1.35 'Noto Sans TC',sans-serif;color:var(--ink-soft)}
+      .swsi-myhub-list{display:grid;margin-top:11px;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff}
+      .swsi-myhub-row{border:0;border-bottom:1px solid var(--line);background:#fff;min-height:52px;padding:9px 11px;display:flex;align-items:center;gap:10px;width:100%;text-align:left;color:var(--ink);cursor:pointer;font-family:'Noto Sans TC',sans-serif}.swsi-myhub-row:last-child{border-bottom:0}.swsi-myhub-row .ico{width:25px;height:25px;border-radius:8px;background:#F1F5F3;color:var(--pine-deep);display:grid;place-items:center;font-weight:800;flex:0 0 auto}.swsi-myhub-row .copy{min-width:0;flex:1}.swsi-myhub-row .label{display:block;font-size:12.5px;font-weight:780;line-height:1.35}.swsi-myhub-row .meta{display:block;font-size:10.3px;line-height:1.45;color:var(--ink-soft);margin-top:2px}.swsi-myhub-row .arrow{color:#8A9690;font-size:18px}
+      .swsi-myhub-more{border:1px solid var(--line);border-radius:14px;background:#FAFBFA;overflow:hidden}.swsi-myhub-more>summary{list-style:none;min-height:44px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font:750 11.5px/1.4 'Noto Sans TC',sans-serif;color:var(--ink-soft)}.swsi-myhub-more>summary::-webkit-details-marker{display:none}.swsi-myhub-more>summary::after{content:'＋';color:var(--ink-3);font-size:16px}.swsi-myhub-more[open]>summary::after{content:'－'}.swsi-myhub-more .swsi-myhub-list{margin:0;border:0;border-top:1px solid var(--line);border-radius:0}
+      .swsi-myhub-row.admin{background:#F7F9FF}.swsi-myhub-row.admin .label{color:#2747A3}.swsi-myhub-row.admin-login{background:#FBFCFB}.swsi-myhub-row.admin-login .label{font-weight:650;color:#667085}.swsi-myhub-row[hidden]{display:none!important}
       .swsi-myhub-toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:980;background:#27322D;color:#fff;border-radius:999px;padding:9px 13px;font:650 12px/1.3 'Noto Sans TC',sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.2)}
-      .swsi-admin-layer{position:fixed;inset:0;z-index:1200;background:#F5F7FB;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
-      .swsi-admin-layer[hidden]{display:none!important}
-      .swsi-admin-bar{min-height:54px;display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #E5E7EB;background:#fff;box-shadow:0 2px 10px rgba(20,32,51,.05);font-family:'Noto Sans TC',sans-serif}
-      .swsi-admin-back{border:1px solid #D7DCE3;background:#fff;color:#27322D;border-radius:11px;padding:8px 11px;font-weight:750;cursor:pointer}
-      .swsi-admin-title{font-weight:800;color:#18202A;font-size:14px}.swsi-admin-note{margin-left:auto;color:#667085;font-size:11px}
-      .swsi-admin-frame{border:0;width:100%;flex:1;min-height:0;background:#F5F7FB}
-      body.swsi-admin-open{overflow:hidden}
-      @media(max-width:430px){.swsi-myhub-grid{grid-template-columns:1fr 1fr}.swsi-myhub-action{min-height:78px}.swsi-myhub-card{padding:13px}.swsi-admin-note{display:none}}
+      .swsi-admin-layer{position:fixed;inset:0;z-index:1200;background:#F5F7FB;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}.swsi-admin-layer[hidden]{display:none!important}.swsi-admin-bar{min-height:54px;display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #E5E7EB;background:#fff;box-shadow:0 2px 10px rgba(20,32,51,.05);font-family:'Noto Sans TC',sans-serif}.swsi-admin-back{border:1px solid #D7DCE3;background:#fff;color:#27322D;border-radius:11px;padding:8px 11px;font-weight:750;cursor:pointer}.swsi-admin-title{font-weight:800;color:#18202A;font-size:14px}.swsi-admin-note{margin-left:auto;color:#667085;font-size:11px}.swsi-admin-frame{border:0;width:100%;flex:1;min-height:0;background:#F5F7FB}body.swsi-admin-open{overflow:hidden}
+      @media(max-width:430px){.swsi-myhub-card{padding:14px;box-shadow:none}.swsi-admin-note{display:none}}
     `;
     document.head.appendChild(st);
   }
 
-  function draftCount(){
-    var n=0;
-    try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('essay_draft_')===0&&(localStorage.getItem(k)||'').trim())n++;}}catch(_e){}
-    return n;
-  }
-  function reviewMeta(){
-    try{var r=reviewSummary();return {due:Number(r.dueCount||0),active:Number(r.activeCount||0),mastered:Number(r.masteredCount||0)};}catch(_e){return {due:0,active:0,mastered:0};}
-  }
-  function toast(msg){
-    var old=document.querySelector('.swsi-myhub-toast');if(old)old.remove();
-    var el=document.createElement('div');el.className='swsi-myhub-toast';el.textContent=msg;document.body.appendChild(el);setTimeout(function(){if(el.parentNode)el.remove();},1800);
-  }
+  function draftCount(){var n=0;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('essay_draft_')===0&&(localStorage.getItem(k)||'').trim())n++;}}catch(_e){}return n;}
+  function reviewMeta(){try{var r=reviewSummary();return {due:Number(r.dueCount||0),active:Number(r.activeCount||0),mastered:Number(r.masteredCount||0)};}catch(_e){return {due:0,active:0,mastered:0};}}
+  function toast(msg){var old=document.querySelector('.swsi-myhub-toast');if(old)old.remove();var el=document.createElement('div');el.className='swsi-myhub-toast';el.textContent=msg;document.body.appendChild(el);setTimeout(function(){if(el.parentNode)el.remove();},1800);}
+
   window.swsiSharePlatform=async function(){
     var url=(location.origin&&location.origin!=='null')?location.origin+location.pathname:location.href;
     var data={title:'SWSI — Social Work Study Initiative',text:'社工師國考免費學習平台 SWSI',url:url};
-    try{
-      if(navigator.share){await navigator.share(data);return;}
-      if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(url);toast('已複製 SWSI 網址');return;}
-    }catch(err){if(err&&err.name==='AbortError')return;}
+    try{if(navigator.share){await navigator.share(data);return;}if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(url);toast('已複製 SWSI 網址');return;}}catch(err){if(err&&err.name==='AbortError')return;}
     try{var ta=document.createElement('textarea');ta.value=url;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('已複製 SWSI 網址');}catch(_e){toast('請從瀏覽器分享這個頁面');}
   };
 
-  function getStoredAdminToken(){
-    try{
-      var raw=localStorage.getItem(AUTH_STORAGE_KEY);
-      if(!raw)return '';
-      var data=JSON.parse(raw);
-      return String(data&&data.access_token||'');
-    }catch(_e){return '';}
-  }
-  function setAdminEntryVisible(visible){
-    document.querySelectorAll('[data-swsi-admin-entry]').forEach(function(el){el.hidden=!visible;});
-    document.querySelectorAll('[data-swsi-admin-login]').forEach(function(el){el.hidden=!!visible;});
-  }
-  async function verifyAdminAccess(){
-    var token=getStoredAdminToken();
-    if(!token){setAdminEntryVisible(false);return false;}
-    try{
-      var res=await fetch(ADMIN_ENDPOINT,{method:'GET',headers:{'apikey':SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+token}});
-      var ok=res.ok;
-      setAdminEntryVisible(ok);
-      return ok;
-    }catch(_e){
-      setAdminEntryVisible(false);
-      return false;
-    }
+  function getStoredAdminToken(){try{var raw=localStorage.getItem(AUTH_STORAGE_KEY);if(!raw)return '';var data=JSON.parse(raw);return String(data&&data.access_token||'');}catch(_e){return '';}}
+  function setAdminEntryVisible(visible){document.querySelectorAll('[data-swsi-admin-entry]').forEach(function(el){el.hidden=!visible;});document.querySelectorAll('[data-swsi-admin-login]').forEach(function(el){el.hidden=!!visible;});}
+  async function verifyAdminAccess(){var token=getStoredAdminToken();if(!token){setAdminEntryVisible(false);return false;}try{var res=await fetch(ADMIN_ENDPOINT,{method:'GET',headers:{'apikey':SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+token}});var ok=res.ok;setAdminEntryVisible(ok);return ok;}catch(_e){setAdminEntryVisible(false);return false;}}
+
+  function ensureAdminLayer(){var layer=document.getElementById('swsi-admin-layer');if(layer)return layer;layer=document.createElement('section');layer.id='swsi-admin-layer';layer.className='swsi-admin-layer';layer.hidden=true;layer.setAttribute('aria-label','SWSI 管理中心');layer.innerHTML='<div class="swsi-admin-bar"><button type="button" class="swsi-admin-back" onclick="swsiCloseAdminCenter()">‹ 返回 SWSI</button><div class="swsi-admin-title">管理中心</div><div class="swsi-admin-note">管理者專用・權限仍由 Supabase 驗證</div></div><iframe class="swsi-admin-frame" title="SWSI 管理中心" loading="lazy"></iframe>';document.body.appendChild(layer);return layer;}
+  function adminUrl(){var p=location.pathname||'/';if(/\/preview\/index\.html$/.test(p))return './admin/index.html';if(/\/index\.html$/.test(p))return './admin/index.html';if(/\/$/.test(p))return './admin/index.html';return 'admin/index.html';}
+  window.swsiOpenAdminCenter=function(){var layer=ensureAdminLayer();var frame=layer.querySelector('iframe');if(frame&&!frame.getAttribute('src'))frame.setAttribute('src',adminUrl());layer.hidden=false;document.body.classList.add('swsi-admin-open');};
+  window.swsiCloseAdminCenter=function(){var layer=document.getElementById('swsi-admin-layer');if(layer)layer.hidden=true;document.body.classList.remove('swsi-admin-open');verifyAdminAccess();};
+
+  function row(icon,label,meta,onclick,extraClass,attrs){return '<button type="button" class="swsi-myhub-row'+(extraClass?' '+extraClass:'')+'" '+(attrs||'')+' onclick="'+onclick+'"><span class="ico">'+icon+'</span><span class="copy"><span class="label">'+label+'</span><span class="meta">'+meta+'</span></span><span class="arrow">›</span></button>';}
+
+  function recommendation(rv,drafts){
+    if(rv.due>0)return {title:'先複習今天到期的 '+rv.due+' 題',sub:'到期錯題比再刷一批新題更值得。',onclick:"swsiLearningAction('due')"};
+    if(rv.active>0)return {title:'整理還沒熟的錯題',sub:'目前還有 '+rv.active+' 題在複習循環裡。',onclick:"swsiLearningAction('review')"};
+    if(drafts>0)return {title:'繼續一份申論草稿',sub:'這台裝置還有 '+drafts+' 份草稿可以接著寫。',onclick:"swsiLearningAction('essay')"};
+    return {title:'完成一組 20 題',sub:'先累積一點作答資料，平台才更知道你的弱點。',onclick:"swsiLearningAction('quiz')"};
   }
 
-  function ensureAdminLayer(){
-    var layer=document.getElementById('swsi-admin-layer');
-    if(layer)return layer;
-    layer=document.createElement('section');
-    layer.id='swsi-admin-layer';
-    layer.className='swsi-admin-layer';
-    layer.hidden=true;
-    layer.setAttribute('aria-label','SWSI 管理中心');
-    layer.innerHTML='<div class="swsi-admin-bar"><button type="button" class="swsi-admin-back" onclick="swsiCloseAdminCenter()">‹ 返回 SWSI</button><div class="swsi-admin-title">管理中心</div><div class="swsi-admin-note">管理者專用・權限仍由 Supabase 驗證</div></div><iframe class="swsi-admin-frame" title="SWSI 管理中心" loading="lazy"></iframe>';
-    document.body.appendChild(layer);
-    return layer;
-  }
-  function adminUrl(){
-    var p=location.pathname||'/';
-    if(/\/preview\/index\.html$/.test(p))return './admin/index.html';
-    if(/\/index\.html$/.test(p))return './admin/index.html';
-    if(/\/$/.test(p))return './admin/index.html';
-    return 'admin/index.html';
-  }
-  window.swsiOpenAdminCenter=function(){
-    var layer=ensureAdminLayer();
-    var frame=layer.querySelector('iframe');
-    if(frame&&!frame.getAttribute('src'))frame.setAttribute('src',adminUrl());
-    layer.hidden=false;
-    document.body.classList.add('swsi-admin-open');
-  };
-  window.swsiCloseAdminCenter=function(){
-    var layer=document.getElementById('swsi-admin-layer');
-    if(layer)layer.hidden=true;
-    document.body.classList.remove('swsi-admin-open');
-    verifyAdminAccess();
-  };
-
-  function action(icon,title,sub,onclick){
-    return '<button type="button" class="swsi-myhub-action" onclick="'+onclick+'"><span class="ico">'+icon+'</span><b>'+title+'</b><small>'+sub+'</small></button>';
-  }
-  function row(label,meta,onclick,extraClass){
-    return '<button type="button" class="swsi-myhub-row'+(extraClass?' '+extraClass:'')+'" onclick="'+onclick+'"><span class="label">'+label+'</span>'+(meta?'<span class="meta">'+meta+'</span>':'')+'<span class="arrow">›</span></button>';
-  }
   function buildHub(){
-    var rv=reviewMeta(),drafts=draftCount();
-    var reviewText=rv.due?('今天 '+rv.due+' 題到期'):(rv.active?('尚有 '+rv.active+' 題未熟練'):'目前沒有待複習題');
-    var essayText=drafts?('這台裝置有 '+drafts+' 份草稿'):'開始申論練習';
-    return '<section class="swsi-myhub" aria-label="我的學習中心">'
-      +'<div class="swsi-myhub-card"><h2 class="swsi-myhub-title">我的學習中心</h2><div class="swsi-myhub-sub">把刷題、錯題與申論集中在這裡。只顯示平台目前真的有的資料。</div>'
-      +'<div class="swsi-myhub-grid">'
-      +action('◎','繼續刷題','隨機 20 題','swsiStartRecommended20()')
-      +action('↻','錯題複習',reviewText,"go('review')")
-      +action('✎','申論練習',essayText,'window.swsiOpenEssay()')
+    var rv=reviewMeta(),drafts=draftCount(),rec=recommendation(rv,drafts);
+    return '<section class="swsi-myhub" aria-label="學習中心">'
+      +'<div class="swsi-myhub-card"><div class="swsi-myhub-kicker">學習中心</div><h2 class="swsi-myhub-title">今天先做一件就好</h2><div class="swsi-myhub-sub">這裡只放和你自己的學習進度有關的東西。</div>'
+      +'<button type="button" class="swsi-myhub-primary" onclick="'+rec.onclick+'"><span><b>'+rec.title+'</b><small>'+rec.sub+'</small></span><span class="arrow">›</span></button>'
+      +'<div class="swsi-myhub-stats"><div class="swsi-myhub-stat"><b>'+rv.due+'</b><span>今天到期</span></div><div class="swsi-myhub-stat"><b>'+rv.active+'</b><span>還沒熟</span></div><div class="swsi-myhub-stat"><b>'+rv.mastered+'</b><span>已掌握</span></div></div>'
+      +'<div class="swsi-myhub-list">'
+      +row('↻','錯題複習',rv.due?('今天 '+rv.due+' 題到期'):(rv.active?('尚有 '+rv.active+' 題未熟練'):'目前沒有待複習題'),"swsiLearningAction('review')")
+      +row('◎','快速刷題','智慧推薦 20 題',"swsiLearningAction('quiz')")
+      +row('✎','申論練習',drafts?('這台裝置有 '+drafts+' 份草稿'):'歷屆申論與 AI 練習回饋',"swsiLearningAction('essay')")
       +'</div></div>'
-      +'<div class="swsi-myhub-card"><h2 class="swsi-myhub-title">SWSI</h2><div class="swsi-myhub-sub">分享平台、查看來源與使用說明。</div><div class="swsi-myhub-list">'
-      +'<button type="button" class="swsi-myhub-row admin" data-swsi-admin-entry hidden onclick="swsiOpenAdminCenter()"><span class="label">管理中心</span><span class="meta">管理者專用</span><span class="arrow">›</span></button>'
-      +row('分享 SWSI','官方公開網址','swsiSharePlatform()')
-      +row('關於 SWSI','Social Work Study Initiative',"swsiOpenPublicInfo('about',this)")
-      +row('資料來源','正式考題以官方資料為準',"swsiOpenPublicInfo('sources',this)")
-      +row('隱私說明','了解平台保存哪些資料',"swsiOpenPublicInfo('privacy',this)")
-      +row('使用條款','免費分享與商業使用邊界',"swsiOpenPublicInfo('terms',this)")
-      +'<button type="button" class="swsi-myhub-row admin-login" data-swsi-admin-login onclick="swsiOpenAdminCenter()"><span class="label">管理登入</span><span class="meta">管理者</span><span class="arrow">›</span></button>'
-      +'</div></div></section>';
+      +'<details class="swsi-myhub-more"><summary>更多與平台資訊</summary><div class="swsi-myhub-list">'
+      +'<button type="button" class="swsi-myhub-row admin" data-swsi-admin-entry hidden onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理中心</span><span class="meta">管理者專用</span></span><span class="arrow">›</span></button>'
+      +row('↗','分享 SWSI','分享官方公開網址','swsiSharePlatform()')
+      +row('i','關於 SWSI','平台目的與使用方式',"swsiOpenPublicInfo('about',this)")
+      +row('源','資料來源','正式考題以官方資料為準',"swsiOpenPublicInfo('sources',this)")
+      +row('隱','隱私說明','了解平台保存哪些資料',"swsiOpenPublicInfo('privacy',this)")
+      +row('條','使用條款','免費分享與商業使用邊界',"swsiOpenPublicInfo('terms',this)")
+      +'<button type="button" class="swsi-myhub-row admin-login" data-swsi-admin-login onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理者入口</span><span class="meta">僅管理者使用</span></span><span class="arrow">›</span></button>'
+      +'</div></details></section>';
+  }
+
+  function setLearningNavActive(){
+    var home=document.getElementById('t-home'),learning=document.getElementById('t-review'),essay=document.getElementById('t-essay');
+    if(home)home.classList.remove('on');
+    if(learning)learning.classList.add('on');
+    if(essay)essay.classList.remove('on');
+  }
+
+  window.swsiLearningAction=function(kind){
+    window.__SWSI_LEARNING_CENTER_OPEN__=false;
+    if(kind==='due'){if(typeof startDueReview==='function')startDueReview();return;}
+    if(kind==='review'){if(typeof go==='function')go('review');return;}
+    if(kind==='progress'){if(typeof go==='function')go('progress');return;}
+    if(kind==='essay'){if(typeof window.swsiOpenEssay==='function')window.swsiOpenEssay();else if(typeof go==='function')go('essay');return;}
+    if(typeof window.swsiStartRecommended20==='function')window.swsiStartRecommended20();
+    else if(typeof go==='function')go('home');
+  };
+
+  window.swsiRenderLearningCenter=function(){
+    var root=document.getElementById('app');
+    if(!root)return false;
+    window.__SWSI_LEARNING_CENTER_OPEN__=true;
+    root.innerHTML=buildHub();
+    setLearningNavActive();
+    try{window.scrollTo({top:0,left:0,behavior:'auto'});}catch(_e){try{window.scrollTo(0,0);}catch(_e2){}}
+    verifyAdminAccess();
+    return true;
+  };
+
+  window.swsiOpenLearningCenter=function(ev){
+    if(ev&&typeof ev.preventDefault==='function')ev.preventDefault();
+    return window.swsiRenderLearningCenter();
+  };
+
+  function installLearningTab(){
+    var home=document.getElementById('t-home'),learning=document.getElementById('t-review'),essay=document.getElementById('t-essay'),progress=document.getElementById('t-progress');
+    if(home)home.innerHTML='<span class="ico">◎</span>練題';
+    if(learning){learning.innerHTML='<span class="ico">↻</span>學習';learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');learning.setAttribute('aria-label','學習中心');}
+    if(essay)essay.innerHTML='<span class="ico">✒</span>申論';
+    if(progress)progress.style.display='none';
+    if(window.__SWSI_LEARNING_CENTER_OPEN__)setLearningNavActive();
   }
 
   function decorate(){
-    var root=document.getElementById('app');
-    if(!root||root.querySelector('.swsi-myhub'))return;
-    var heading=root.querySelector('.section-h');
-    var normalProgress=!!(heading&&heading.textContent.trim()==='我的學習進度');
-    var empty=root.querySelector('.empty');
-    var newUserProgress=!!(empty&&/還沒有刷題紀錄/.test(empty.textContent||''));
-    if(!normalProgress&&!newUserProgress)return;
-    var wrap=document.createElement('div');wrap.innerHTML=buildHub();
-    var hub=wrap.firstElementChild;
-    if(hub){root.insertBefore(hub,root.firstChild);verifyAdminAccess();}
+    installLearningTab();
+    var root=document.getElementById('app');if(!root)return;
+    if(window.__SWSI_LEARNING_CENTER_OPEN__&&!root.querySelector('.swsi-myhub'))window.swsiRenderLearningCenter();
   }
 
-  window.addEventListener('storage',function(ev){
-    if(!ev.key||ev.key===AUTH_STORAGE_KEY)verifyAdminAccess();
-  });
-  window.addEventListener('focus',verifyAdminAccess);
-
+  window.addEventListener('storage',function(ev){if(!ev.key||ev.key===AUTH_STORAGE_KEY)verifyAdminAccess();});
+  window.addEventListener('focus',function(){decorate();verifyAdminAccess();});
   var root=document.getElementById('app');
-  if(root){
-    decorate();
-    var pending=false;
-    new MutationObserver(function(){
-      if(pending)return;
-      pending=true;
-      queueMicrotask(function(){pending=false;decorate();});
-    }).observe(root,{childList:true,subtree:true});
-  }
-
-  try{
-    if(new URLSearchParams(location.search).get('admin')==='1')setTimeout(window.swsiOpenAdminCenter,0);
-  }catch(_e){}
+  if(root){decorate();var pending=false;new MutationObserver(function(){if(pending)return;pending=true;queueMicrotask(function(){pending=false;decorate();});}).observe(root,{childList:true,subtree:true});}
+  installLearningTab();
+  try{if(new URLSearchParams(location.search).get('admin')==='1')setTimeout(window.swsiOpenAdminCenter,0);}catch(_e){}
 })();

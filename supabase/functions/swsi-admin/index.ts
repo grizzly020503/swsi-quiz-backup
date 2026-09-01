@@ -1,13 +1,18 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const ALLOWED_ORIGINS = new Set([
+const STATIC_ALLOWED_ORIGINS = new Set([
   "https://swsi-quiznetlify.netlify.app",
   "https://wandering-wave-4418.c022050333.workers.dev"
 ]);
+const NETLIFY_PREVIEW_ORIGIN = /^https:\/\/deploy-preview-\d+--swsi-quiznetlify\.netlify\.app$/;
+
+function isAllowedOrigin(origin: string) {
+  return STATIC_ALLOWED_ORIGINS.has(origin) || NETLIFY_PREVIEW_ORIGIN.test(origin);
+}
 
 function cors(origin: string) {
-  const allowed = ALLOWED_ORIGINS.has(origin) ? origin : "";
+  const allowed = isAllowedOrigin(origin) ? origin : "";
   return {
     "Access-Control-Allow-Origin": allowed,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -23,11 +28,78 @@ function json(origin: string, data: unknown, status = 200) {
   });
 }
 
+function safeString(value: unknown, max = 240) {
+  return typeof value === "string" ? value.trim().slice(0, max) : "";
+}
+
+function normalizeRisk(value: unknown) {
+  const risk = safeString(value, 24).toLowerCase();
+  return risk === "high" || risk === "medium" || risk === "low" ? risk : "untriaged";
+}
+
+function fallbackClusterKey(row: any) {
+  const context = safeString(row?.context_id, 120);
+  if (context) return `untriaged:${safeString(row?.context_type, 40) || "general"}:${context}:${safeString(row?.category, 60) || "other"}`;
+  const path = safeString(row?.page_path, 180).split("?")[0] || "/";
+  return `untriaged:${safeString(row?.context_type, 40) || "general"}:${safeString(row?.category, 60) || "other"}:${path}`;
+}
+
+function buildFeedbackClusters(rows: any[]) {
+  const map = new Map<string, any>();
+  for (const row of rows) {
+    const triage = row?.metadata && typeof row.metadata === "object" ? row.metadata.triage : null;
+    const clusterKey = safeString(triage?.cluster_key, 240) || fallbackClusterKey(row);
+    const triageRisk = normalizeRisk(triage?.risk_level);
+    let cluster = map.get(clusterKey);
+    if (!cluster) {
+      cluster = {
+        cluster_key: clusterKey,
+        count: 0,
+        report_nos: [],
+        category: safeString(row?.category, 60) || "other",
+        context_type: safeString(row?.context_type, 40) || "general",
+        context_id: safeString(row?.context_id, 120) || null,
+        context_title: safeString(row?.context_title, 240) || null,
+        subject: safeString(row?.subject, 120) || null,
+        risk_level: triageRisk,
+        confidence: Number.isFinite(Number(triage?.confidence)) ? Number(triage.confidence) : null,
+        summary: safeString(triage?.summary, 500) || safeString(row?.message, 240) || "尚待自動分流",
+        github_issue: safeString(triage?.github_issue, 240) || null,
+        github_pr: safeString(triage?.github_pr, 240) || null,
+        action: safeString(triage?.action, 40) || "pending_triage",
+        latest_at: row?.created_at || null,
+        status_counts: { pending: 0, reviewed: 0, fixed: 0, no_change: 0 },
+      };
+      map.set(clusterKey, cluster);
+    }
+    cluster.count += 1;
+    if (cluster.report_nos.length < 50) cluster.report_nos.push(Number(row.report_no));
+    if (row?.created_at && (!cluster.latest_at || String(row.created_at) > String(cluster.latest_at))) cluster.latest_at = row.created_at;
+    if (row?.status && Object.prototype.hasOwnProperty.call(cluster.status_counts, row.status)) cluster.status_counts[row.status] += 1;
+    if (cluster.risk_level === "untriaged" && triageRisk !== "untriaged") cluster.risk_level = triageRisk;
+    if (!cluster.github_issue && safeString(triage?.github_issue, 240)) cluster.github_issue = safeString(triage.github_issue, 240);
+    if (!cluster.github_pr && safeString(triage?.github_pr, 240)) cluster.github_pr = safeString(triage.github_pr, 240);
+  }
+  const riskRank: Record<string, number> = { high: 0, medium: 1, low: 2, untriaged: 3 };
+  return Array.from(map.values()).sort((a, b) => {
+    const ar = riskRank[a.risk_level] ?? 4;
+    const br = riskRank[b.risk_level] ?? 4;
+    if (ar !== br) return ar - br;
+    if (b.status_counts.pending !== a.status_counts.pending) return b.status_counts.pending - a.status_counts.pending;
+    if (b.count !== a.count) return b.count - a.count;
+    return String(b.latest_at || "").localeCompare(String(a.latest_at || ""));
+  });
+}
+
+function isActionableCluster(cluster: any) {
+  return Number(cluster?.status_counts?.pending || 0) + Number(cluster?.status_counts?.reviewed || 0) > 0;
+}
+
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("Origin") || "";
-  if (!ALLOWED_ORIGINS.has(origin)) return json(origin, { error: "forbidden_origin" }, 403);
+  if (!isAllowedOrigin(origin)) return json(origin, { error: "forbidden_origin" }, 403);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(origin) });
-  if (!['GET','PATCH'].includes(req.method)) return json(origin, { error: "method_not_allowed" }, 405);
+  if (!["GET", "PATCH"].includes(req.method)) return json(origin, { error: "method_not_allowed" }, 405);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -36,7 +108,7 @@ Deno.serve(async (req: Request) => {
   if (!token) return json(origin, { error: "missing_token" }, 401);
 
   const admin = createClient(supabaseUrl, serviceRole, {
-    auth: { persistSession: false, autoRefreshToken: false }
+    auth: { persistSession: false, autoRefreshToken: false },
   });
 
   const { data: userData, error: userError } = await admin.auth.getUser(token);
@@ -81,9 +153,9 @@ Deno.serve(async (req: Request) => {
     admin.from("questions").select("id", { count: "exact", head: true }),
     admin.from("essays").select("id", { count: "exact", head: true }),
     admin.from("swsi_feedback_reports")
-      .select("report_no,created_at,updated_at,status,category,context_type,context_title,subject,exam_year,exam_round,question_no,message,contact,page_path,app_version,reviewer_note,resolved_at")
+      .select("report_no,created_at,updated_at,status,category,context_type,context_id,context_title,subject,exam_year,exam_round,question_no,message,contact,page_path,app_version,metadata,reviewer_note,resolved_at")
       .order("created_at", { ascending: false })
-      .limit(100),
+      .limit(1000),
     admin.from("swsi_feedback_reports").select("id", { count: "exact", head: true }),
     admin.from("swsi_feedback_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
     admin.from("legal_watch_hits").select("id", { count: "exact", head: true }).is("resolved_at", null),
@@ -92,6 +164,11 @@ Deno.serve(async (req: Request) => {
   if (questionsRes.error || essaysRes.error || feedbackRes.error || feedbackCountRes.error || pendingRes.error || legalHitsRes.error) {
     return json(origin, { error: "admin_query_failed" }, 500);
   }
+
+  const feedbackRows = feedbackRes.data ?? [];
+  const allFeedbackClusters = buildFeedbackClusters(feedbackRows);
+  const feedbackClusters = allFeedbackClusters.filter(isActionableCluster);
+  const rawFeedbackRows = feedbackRows.slice(0, 100);
 
   return json(origin, {
     ok: true,
@@ -102,10 +179,15 @@ Deno.serve(async (req: Request) => {
       essays: essaysRes.count ?? 0,
       feedback_total: feedbackCountRes.count ?? 0,
       feedback_pending: pendingRes.count ?? 0,
+      feedback_cluster_count: feedbackClusters.length,
+      feedback_resolved_cluster_count: allFeedbackClusters.length - feedbackClusters.length,
+      feedback_window_count: feedbackRows.length,
+      feedback_raw_count: rawFeedbackRows.length,
       unresolved_legal_watch_hits: legalHitsRes.count ?? 0,
       analytics: "not_enabled",
-      ai_telemetry: "not_enabled"
+      ai_telemetry: "not_enabled",
     },
-    feedback: feedbackRes.data ?? []
+    feedback_clusters: feedbackClusters,
+    feedback: rawFeedbackRows,
   });
 });

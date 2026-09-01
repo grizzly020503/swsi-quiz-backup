@@ -4,6 +4,7 @@ const ALLOWED_ORIGINS = new Set([
   "https://swsi-quiznetlify.netlify.app",
   "https://wandering-wave-4418.c022050333.workers.dev",
 ]);
+const NETLIFY_PREVIEW_ORIGIN = /^https:\/\/deploy-preview-\d+--swsi-quiznetlify\.netlify\.app$/;
 
 const ALLOWED_CATEGORIES = new Set([
   "question_display",
@@ -19,6 +20,10 @@ const ALLOWED_CATEGORIES = new Set([
 
 const ALLOWED_CONTEXTS = new Set(["mcq", "essay", "theory", "law", "general"]);
 const ALLOWED_SOURCES = new Set(["official_exam", "swsi", "ai", "unknown"]);
+
+function isAllowedOrigin(origin: string) {
+  return ALLOWED_ORIGINS.has(origin) || NETLIFY_PREVIEW_ORIGIN.test(origin);
+}
 
 function cors(origin: string) {
   return {
@@ -69,7 +74,7 @@ async function sha256Hex(input: string) {
 
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("Origin") || "";
-  if (!ALLOWED_ORIGINS.has(origin)) {
+  if (!isAllowedOrigin(origin)) {
     return new Response(JSON.stringify({ error: { message: "Forbidden origin" } }), {
       status: 403,
       headers: { "Content-Type": "application/json; charset=utf-8" },

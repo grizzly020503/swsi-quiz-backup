@@ -51,6 +51,10 @@
   window.swsiOpenEssay=async function(){
     if(essayOpening) return;
     essayOpening=true;
+    /* The Learning Center owns #app while this flag is true and will restore its
+       hub after any DOM replacement. Release that ownership before the essay
+       renderer changes #app, including navigation from the fixed bottom tab. */
+    window.__SWSI_LEARNING_CENTER_OPEN__=false;
     try{
       /* Keep the original slow/cache recovery without leaving a separate late owner. */
       try{

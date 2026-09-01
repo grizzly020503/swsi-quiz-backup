@@ -36,22 +36,44 @@ function hasUsableName(el){
       await page.waitForFunction(()=>document.documentElement.getAttribute('data-fs')==='2');
     }
 
-    const metrics=await page.evaluate(()=>({
-      innerWidth:window.innerWidth,
-      scrollWidth:document.documentElement.scrollWidth,
-      bodyWidth:document.body.scrollWidth,
-      tabbar:document.querySelector('.tabbar')?.getBoundingClientRect()||null,
-      primary:[...document.querySelectorAll('.swsi-focus-primary button,.swsi-focus-primary')].map(el=>({
-        tag:el.tagName,
-        rect:el.getBoundingClientRect().toJSON?el.getBoundingClientRect().toJSON():{width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height},
-        text:(el.textContent||'').trim()
-      }))
-    }));
+    // The verified first-paint contract renders the Home shell before deferred
+    // question initialization finishes. The legacy nav starts inline-hidden and
+    // init() switches it to flex when the interactive shell is actually ready.
+    // Wait for that explicit ready state before measuring touch geometry. This
+    // still fails closed if the nav never becomes visible.
+    await page.waitForFunction(()=>{
+      const tab=document.querySelector('.tabbar');
+      if(!tab)return false;
+      const s=getComputedStyle(tab);
+      const r=tab.getBoundingClientRect();
+      return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)!==0&&r.width>0&&r.height>0;
+    },null,{timeout:30000});
+
+    const metrics=await page.evaluate(()=>{
+      const tab=document.querySelector('.tabbar');
+      const tabStyle=tab?getComputedStyle(tab):null;
+      const tabRect=tab?tab.getBoundingClientRect():null;
+      return {
+        innerWidth:window.innerWidth,
+        innerHeight:window.innerHeight,
+        visualViewport:window.visualViewport?{width:window.visualViewport.width,height:window.visualViewport.height,offsetTop:window.visualViewport.offsetTop,offsetLeft:window.visualViewport.offsetLeft}:null,
+        scrollWidth:document.documentElement.scrollWidth,
+        bodyWidth:document.body.scrollWidth,
+        tabbar:tabRect?(tabRect.toJSON?tabRect.toJSON():{left:tabRect.left,right:tabRect.right,top:tabRect.top,bottom:tabRect.bottom,width:tabRect.width,height:tabRect.height}):null,
+        tabbarStyle:tabStyle?{display:tabStyle.display,position:tabStyle.position,bottom:tabStyle.bottom,left:tabStyle.left,right:tabStyle.right,transform:tabStyle.transform,visibility:tabStyle.visibility,opacity:tabStyle.opacity}:null,
+        tabbarInline:tab?tab.getAttribute('style'):null,
+        primary:[...document.querySelectorAll('.swsi-focus-primary button,.swsi-focus-primary')].map(el=>({
+          tag:el.tagName,
+          rect:el.getBoundingClientRect().toJSON?el.getBoundingClientRect().toJSON():{width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height},
+          text:(el.textContent||'').trim()
+        }))
+      };
+    });
     assert(metrics.scrollWidth<=metrics.innerWidth+3,`${label}: document horizontally overflows (${metrics.scrollWidth}>${metrics.innerWidth})`);
     assert(metrics.bodyWidth<=metrics.innerWidth+3,`${label}: body horizontally overflows (${metrics.bodyWidth}>${metrics.innerWidth})`);
     assert(metrics.tabbar,`${label}: bottom nav missing`);
-    assert(metrics.tabbar.left>=-2&&metrics.tabbar.right<=width+2,`${label}: bottom nav escapes viewport horizontally`);
-    assert(metrics.tabbar.bottom<=height+2&&metrics.tabbar.bottom>=height-70,`${label}: bottom nav not anchored near viewport bottom`);
+    assert(metrics.tabbar.left>=-2&&metrics.tabbar.right<=width+2,`${label}: bottom nav escapes viewport horizontally; metrics=${JSON.stringify(metrics)}`);
+    assert(metrics.tabbar.bottom<=height+2&&metrics.tabbar.bottom>=height-70,`${label}: bottom nav not anchored near viewport bottom; metrics=${JSON.stringify(metrics)}`);
 
     // Only visible navigation controls are actionable touch targets. Hidden route buttons
     // intentionally use display:none and therefore have no bounding box to measure.

@@ -7,6 +7,7 @@ on:
       - '.github/workflows/launch-readiness-qa.yml'
       - 'monthly_patch_parts/**'
       - 'scripts/launch_readiness_smoke.js'
+      - 'scripts/layout_foundation_smoke.js'
       - 'scripts/pwa_resilience_smoke.js'
       - 'scripts/prelaunch_deadend_smoke.js'
       - 'scripts/prelaunch_error_states_smoke.js'
@@ -27,6 +28,7 @@ on:
       - '.github/workflows/launch-readiness-qa.yml'
       - 'monthly_patch_parts/**'
       - 'scripts/launch_readiness_smoke.js'
+      - 'scripts/layout_foundation_smoke.js'
       - 'scripts/pwa_resilience_smoke.js'
       - 'scripts/prelaunch_deadend_smoke.js'
       - 'scripts/prelaunch_error_states_smoke.js'
@@ -66,6 +68,7 @@ jobs:
       - name: Syntax check
         run: |
           node --check scripts/launch_readiness_smoke.js
+          node --check scripts/layout_foundation_smoke.js
           node --check scripts/pwa_resilience_smoke.js
           node --check scripts/prelaunch_deadend_smoke.js
           node --check scripts/prelaunch_error_states_smoke.js
@@ -92,7 +95,7 @@ jobs:
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium webkit
 
-      - name: Mobile launch, dead-end, error-state, accessibility, WebKit, storage, slow-network and PWA resilience smoke
+      - name: Mobile launch, layout, dead-end, error-state, accessibility, WebKit, storage, slow-network and PWA resilience smoke
         run: |
           python -m http.server 4173 --directory _site >/tmp/swsi-launch-http.log 2>&1 &
           SERVER_PID=$!
@@ -102,6 +105,7 @@ jobs:
             sleep 1
           done
           node scripts/launch_readiness_smoke.js http://127.0.0.1:4173/
+          node scripts/layout_foundation_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_deadend_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_error_states_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_accessibility_touch_smoke.js http://127.0.0.1:4173/

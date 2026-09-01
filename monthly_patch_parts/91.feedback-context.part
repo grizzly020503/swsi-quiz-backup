@@ -2,8 +2,9 @@
 /* SWSI Feedback Context State Owner 2026-08-27
    Keep context cleanup local to the feedback action instead of continuously
    watching the whole document. The core feedback module still owns context
-   derivation; this compatibility owner only clears stale cross-view state
-   immediately before a report is opened.
+   derivation; this compatibility owner clears stale cross-view state before a
+   report is opened and protects the legacy honeypot from Safari AutoFill false
+   positives without adding another swsiOpenReport owner.
 */
 (function(){
   'use strict';
@@ -25,11 +26,37 @@
     }catch(_e){}
   }
 
+  function protectHoneypot(){
+    var form=document.getElementById('swsi-report-form');
+    var hp=document.getElementById('swsi-report-website');
+    if(!form||!hp)return;
+
+    /* Safari may ignore autocomplete="off" and populate off-screen fields.
+       A real user's report must never be silently discarded for that reason.
+       Server-side origin validation + DB rate limits remain authoritative. */
+    try{
+      hp.value='';
+      hp.readOnly=true;
+      hp.setAttribute('autocomplete','new-password');
+      hp.setAttribute('data-lpignore','true');
+      hp.setAttribute('data-1p-ignore','true');
+    }catch(_e){}
+
+    if(form.dataset.swsiHoneypotGuard==='1')return;
+    form.dataset.swsiHoneypotGuard='1';
+    form.addEventListener('submit',function(){
+      try{hp.value='';}catch(_e){}
+    },true);
+  }
+
   function openWithCurrentContext(){
     syncForCurrentView();
-    return baseOpen.apply(this,arguments);
+    var result=baseOpen.apply(this,arguments);
+    protectHoneypot();
+    return result;
   }
   openWithCurrentContext.__swsiContextStateOwner='2026-08-27';
   openWithCurrentContext.__swsiBaseOpen=baseOpen;
   window.swsiOpenReport=openWithCurrentContext;
+  window.SWSI_FEEDBACK_SAFARI_GUARD={version:'2026-08-29'};
 })();

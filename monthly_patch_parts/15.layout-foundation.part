@@ -1,0 +1,186 @@
+
+/* SWSI Layout Foundation V1 2026-08-29
+   Layer 1: one owner for the global shell (header / main / footer / bottom nav).
+   Layer 2: page templates are expressed only through body[data-swsi-page].
+   Layer 3: feature modules own their cards/components, never the global shell.
+*/
+(function(){
+  'use strict';
+
+  var STYLE_ID='swsi-layout-foundation-v1';
+  if(!document.getElementById(STYLE_ID)){
+    var st=document.createElement('style');
+    st.id=STYLE_ID;
+    st.textContent=`
+      :root{
+        --swsi-shell-max:540px;
+        --swsi-shell-x:22px;
+        --swsi-main-y:24px;
+        --swsi-tabbar-button-height:58px;
+        --swsi-tabbar-clearance:calc(84px + env(safe-area-inset-bottom,0px));
+      }
+
+      html{
+        min-height:100%;
+        scroll-padding-bottom:var(--swsi-tabbar-clearance);
+      }
+      body{
+        min-height:100vh;
+        min-height:100dvh;
+        padding-bottom:0!important;
+      }
+      .wrap{
+        width:100%;
+        max-width:var(--swsi-shell-max);
+        margin:0 auto;
+        min-height:100vh!important;
+        min-height:100dvh!important;
+        height:auto!important;
+        display:flex!important;
+        flex-direction:column!important;
+        padding-bottom:var(--swsi-tabbar-clearance)!important;
+      }
+      header{
+        padding-top:calc(20px + env(safe-area-inset-top,0px))!important;
+      }
+      main{
+        flex:1 0 auto!important;
+        min-height:0!important;
+        height:auto!important;
+        padding-bottom:24px!important;
+      }
+      footer{
+        margin-top:auto!important;
+        margin-bottom:0!important;
+        padding:16px var(--swsi-shell-x) 18px!important;
+      }
+
+      .tabbar{
+        position:fixed!important;
+        left:50%!important;
+        right:auto!important;
+        bottom:0!important;
+        width:100%!important;
+        max-width:var(--swsi-shell-max)!important;
+        transform:translateX(-50%)!important;
+        padding-bottom:env(safe-area-inset-bottom,0px)!important;
+        z-index:30!important;
+      }
+      .tabbar button{
+        min-height:var(--swsi-tabbar-button-height)!important;
+        padding:8px 4px 10px!important;
+      }
+      .tabbar .ico{font-size:17px!important;}
+
+      /* Internal app pages do not repeat the large public footer. The complete
+         footer is reserved for the platform entry/loading shell; public info is
+         still available from Learning > 更多與平台資訊. */
+      body.swsi-layout-ready footer{display:none!important;}
+      body.swsi-layout-ready[data-swsi-page="home"] footer,
+      body.swsi-layout-ready[data-swsi-page="loading"] footer{display:block!important;}
+
+      /* Home is intentionally content-height so the public footer follows the
+         home content naturally. Bottom-nav clearance still belongs to .wrap. */
+      body[data-swsi-page="home"] .wrap{
+        min-height:0!important;
+        height:auto!important;
+      }
+      body[data-swsi-page="home"] main{
+        flex:0 0 auto!important;
+        min-height:0!important;
+        padding-bottom:10px!important;
+      }
+      body[data-swsi-page="home"] footer{
+        margin-top:12px!important;
+        padding-bottom:18px!important;
+      }
+
+      /* Loading keeps the shell stable: the flexible main pushes attribution
+         toward the lower part of the viewport without arbitrary spacer pixels. */
+      body[data-swsi-page="loading"] main{flex:1 0 auto!important;}
+
+      @media(max-width:720px){
+        .tabbar{
+          left:0!important;
+          right:0!important;
+          width:100%!important;
+          max-width:none!important;
+          transform:none!important;
+          border-radius:0!important;
+          box-shadow:none!important;
+          border-left:0!important;
+          border-right:0!important;
+          border-bottom:0!important;
+          border-top:1px solid var(--line)!important;
+          background:rgba(248,250,249,.985)!important;
+          padding-left:env(safe-area-inset-left,0px)!important;
+          padding-right:env(safe-area-inset-right,0px)!important;
+        }
+      }
+      @media(max-width:420px){
+        :root{--swsi-tabbar-clearance:calc(88px + env(safe-area-inset-bottom,0px));}
+      }
+      html[data-fs="2"]{
+        --swsi-tabbar-clearance:calc(94px + env(safe-area-inset-bottom,0px));
+      }
+      @media(display-mode:standalone),(display-mode:fullscreen){
+        :root{--swsi-tabbar-clearance:calc(90px + env(safe-area-inset-bottom,0px));}
+        html[data-fs="2"]{--swsi-tabbar-clearance:calc(98px + env(safe-area-inset-bottom,0px));}
+      }
+    `;
+    document.head.appendChild(st);
+  }
+
+  function detectPage(){
+    var app=document.getElementById('app');
+    if(!app)return 'loading';
+    var text=(app.textContent||'').trim();
+    if(/正在開啟 SWSI|載入題庫|準備完整題庫|第一次開啟全庫功能|下載已發布的歷屆考次/.test(text))return 'loading';
+    if(app.querySelector('.qcard'))return 'quiz';
+    if(app.querySelector('.swsi-focus-hero'))return 'home';
+    if(app.querySelector('.sumcard'))return 'result';
+    if(app.querySelector('.swsi-myhub'))return 'learning';
+    if(app.querySelector('.wta,.wbox'))return 'essay-write';
+
+    /* Essay library is a router state, not a styling state. Later navigation
+       polish is allowed to rewrite tab markup/classes, so do not make shell
+       classification depend on the visual `.on` class. */
+    try{
+      if(typeof view!=='undefined'&&view==='essay')return 'essay-library';
+    }catch(_e){}
+
+    if(app.querySelector('.swsi-learning-section,.swsi-progress-hero'))return 'learning-detail';
+
+    /* Compatibility fallback for older renderers that do not expose router state. */
+    var essayTab=document.getElementById('t-essay');
+    if(essayTab&&essayTab.classList.contains('on'))return 'essay-library';
+    var h=app.querySelector('.section-h');
+    if(h&&/申論/.test(h.textContent||''))return 'essay-library';
+    return 'standard';
+  }
+
+  function syncLayout(){
+    if(!document.body)return;
+    var page=detectPage();
+    document.body.setAttribute('data-swsi-page',page);
+    document.body.classList.add('swsi-layout-ready');
+    /* Compatibility marker for existing interaction QA and any older owner that
+       only needs to know whether a question card is active. Geometry still lives here. */
+    document.body.classList.toggle('swsi-question-active',page==='quiz');
+  }
+
+  syncLayout();
+  var app=document.getElementById('app');
+  if(app){
+    try{
+      var queued=false;
+      new MutationObserver(function(){
+        if(queued)return;
+        queued=true;
+        requestAnimationFrame(function(){queued=false;syncLayout();});
+      }).observe(app,{childList:true,subtree:true,characterData:true});
+    }catch(_e){}
+  }
+  window.addEventListener('pageshow',syncLayout);
+  window.addEventListener('focus',syncLayout);
+})();

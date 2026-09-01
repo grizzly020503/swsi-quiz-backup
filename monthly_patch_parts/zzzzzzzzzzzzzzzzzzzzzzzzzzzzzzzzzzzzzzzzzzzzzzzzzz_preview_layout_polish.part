@@ -1,0 +1,28 @@
+
+/* SWSI Preview Component Polish 2026-08-29
+   Layer 3 only. Global shell, footer visibility and bottom-nav geometry are owned
+   exclusively by 15.layout-foundation.part.
+*/
+(function(){
+  'use strict';
+
+  var STYLE_ID='swsi-preview-component-polish-20260829';
+  if(!document.getElementById(STYLE_ID)){
+    var st=document.createElement('style');
+    st.id=STYLE_ID;
+    st.textContent=`
+      /* Closed disclosures consume only their summary row. */
+      #app details.swsi-other-tools:not([open]),
+      #app details.swsi-data-version:not([open]){
+        padding-bottom:0!important;
+      }
+      #app details.swsi-other-tools:not([open]) .swsi-other-grid,
+      #app details.swsi-data-version:not([open]) .body{
+        display:none!important;
+      }
+      #app .swsi-principle-note{margin-bottom:0!important;}
+      #app .swsi-data-version{margin-bottom:0!important;}
+    `;
+    document.head.appendChild(st);
+  }
+})();
