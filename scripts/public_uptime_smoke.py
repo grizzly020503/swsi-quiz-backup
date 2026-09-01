@@ -23,6 +23,14 @@ ORIGIN = NETLIFY
 TIMEOUT = 20
 USER_AGENT = "SWSI-Zero-Cost-Uptime/1.0"
 
+# Production is currently on the pre-PR#33 title. The release candidate changes
+# the public title to the SWSI-branded form. Both are known-good release states
+# during this transition; unrelated HTML must still fail closed.
+VALID_HOME_TITLES = (
+    "<title>社工師國考題庫</title>",
+    "<title>社工師國考免費題庫｜SWSI</title>",
+)
+
 
 @dataclass
 class HttpResult:
@@ -87,8 +95,8 @@ def check_netlify_shell() -> None:
     if "text/html" not in content_type:
         fail(f"Netlify home content-type is not HTML: {content_type!r}")
     html = home.body.decode("utf-8", errors="replace")
-    if "SWSI" not in html:
-        fail("Netlify home is missing the SWSI product marker")
+    if not any(title in html for title in VALID_HOME_TITLES):
+        fail("Netlify home does not match a known SWSI production title")
 
     manifest_result = request(NETLIFY + cache_bust("/manifest.json"))
     require_200("netlify-manifest", manifest_result)
