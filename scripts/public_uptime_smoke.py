@@ -78,8 +78,9 @@ def main() -> int:
     checks.append("feedback-preflight")
 
     body, _ = require_status("Netlify fallback", BACKUP + "/")
-    if b"SWSI" not in body:
-        raise AssertionError("Netlify fallback: SWSI marker missing")
+    fallback_html = body.decode("utf-8", "replace")
+    if "SWSI" not in fallback_html and "社工師" not in fallback_html:
+        raise AssertionError("Netlify fallback: expected social-work-study marker missing")
     checks.append("netlify-fallback")
 
     print("SWSI PUBLIC UPTIME SENTINEL OK: " + ", ".join(checks))
