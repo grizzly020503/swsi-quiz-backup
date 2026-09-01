@@ -26,7 +26,11 @@ jobs:
         run: python scripts/build_public_legal_watch_snapshot.py --input data/legal_watch_report.json --output auto/legal_watch.json
 
       - name: Apply Monitoring V2 integration
-        run: python scripts/apply_monitoring_v2_once.py
+        run: |
+          python scripts/apply_monitoring_v2_once.py
+          # GitHub Actions tokens cannot update workflow files. Keep that reviewed
+          # one-line cadence change for the authorized connector commit instead.
+          git restore --source=HEAD --worktree -- .github/workflows/moex-social-worker-sync.yml
 
       - name: Syntax and five-radar contract
         run: |
@@ -43,7 +47,6 @@ jobs:
           git diff --check
           grep -q 'SWSI Public Branding / Monitoring Center V2 2026-09-01' monthly_patch_parts/89.public-branding-info.part
           grep -q '2026-09-01.monitoring-v2' cdn/monthly_patch.js
-          grep -q -- '--min-days 7' .github/workflows/moex-social-worker-sync.yml
 
       - name: Guard final product scope
         run: |
@@ -51,7 +54,6 @@ jobs:
           { git diff --name-only; git ls-files --others --exclude-standard; } | sort -u > /tmp/changed.txt
           cat /tmp/changed.txt
           cat > /tmp/allowed.txt <<'EOF'
-          .github/workflows/moex-social-worker-sync.yml
           auto/legal_watch.json
           cdn/auto/current_affairs.json
           cdn/auto/health.json
@@ -69,7 +71,6 @@ jobs:
             exit 1
           fi
           for required in \
-            .github/workflows/moex-social-worker-sync.yml \
             auto/legal_watch.json \
             cdn/auto/current_affairs.json \
             cdn/auto/legal_watch.json \
@@ -85,7 +86,6 @@ jobs:
           git config user.name 'swsi-monitoring-v2-bot'
           git config user.email 'actions@users.noreply.github.com'
           git add \
-            .github/workflows/moex-social-worker-sync.yml \
             auto/legal_watch.json \
             cdn/auto/current_affairs.json cdn/auto/health.json cdn/auto/legal_watch.json cdn/auto/sync_state.json \
             cdn/monthly_patch.js monthly_patch_parts/89.public-branding-info.part \
