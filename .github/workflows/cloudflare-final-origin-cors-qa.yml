@@ -1,0 +1,57 @@
+name: Cloudflare Final Origin CORS QA
+
+on:
+  push:
+    branches: [swsi-public-candidate]
+    paths: ['.github/workflows/cloudflare-final-origin-cors-qa.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cors:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      FINAL_ORIGIN: https://wandering-wave-4418.c022050333.workers.dev
+      AI_ENDPOINT: https://wandering-wave-4418.c022050333.workers.dev
+      FEEDBACK_ENDPOINT: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-feedback
+    steps:
+      - name: AI Worker accepts final public origin
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error -X OPTIONS \
+            -H "Origin: $FINAL_ORIGIN" \
+            -H 'Access-Control-Request-Method: POST' \
+            -D /tmp/ai.headers -o /tmp/ai.body -w '%{http_code}' \
+            "$AI_ENDPOINT?cors=$GITHUB_RUN_ID")"
+          echo "AI OPTIONS HTTP=$code"
+          tr -d '\r' < /tmp/ai.headers > /tmp/ai.clean
+          grep -i '^access-control-' /tmp/ai.clean || true
+          test "$code" = '204'
+          grep -qiF "access-control-allow-origin: $FINAL_ORIGIN" /tmp/ai.clean
+          echo 'AI CORS PASS — no model request made'
+
+      - name: Feedback Edge Function accepts final public origin
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error -X OPTIONS \
+            -H "Origin: $FINAL_ORIGIN" \
+            -H 'Access-Control-Request-Method: POST' \
+            -H 'Access-Control-Request-Headers: content-type' \
+            -D /tmp/fb.headers -o /tmp/fb.body -w '%{http_code}' \
+            "$FEEDBACK_ENDPOINT?cors=$GITHUB_RUN_ID")"
+          echo "FEEDBACK OPTIONS HTTP=$code"
+          tr -d '\r' < /tmp/fb.headers > /tmp/fb.clean
+          grep -i '^access-control-' /tmp/fb.clean || true
+          test "$code" = '204'
+          grep -qiF "access-control-allow-origin: $FINAL_ORIGIN" /tmp/fb.clean
+          echo 'FEEDBACK CORS PASS — no report written'
+
+      - name: Netlify remains untouched and reachable
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --location -o /dev/null -w '%{http_code}' https://swsi-quiznetlify.netlify.app/)"
+          echo "NETLIFY HTTP=$code"
+          test "$code" = '200'
