@@ -91,6 +91,24 @@ Unified QA 必須從 manifest 自動辨識最新考次，不要每年硬改 work
 - 失敗時不丟失本機申論草稿。
 - quota refund contract 正常。
 
+### AI 回饋品質 Golden Set
+
+Worker/security smoke 只能證明「管線與防線正常」，不能證明生成內容品質沒有退步。
+
+若修改以下任一項，除原本 Worker / browser contract 外，還必須做 AI feedback Golden Set 評估：
+- `monthly_patch_parts/99z.essay-trust-layer.part` 的主要申論回饋 prompt / authority boundary /輸出結構；
+- Cloudflare Worker 的 public model；
+- 會明顯改變申論 AI 回饋內容的模型參數或行為。
+
+最低步驟：
+1. `python3 scripts/ai_feedback_eval.py`：確認 Golden Set、prompt version、required clauses、temperature 與 public-model contract 沒有無聲漂移。
+2. `python3 scripts/ai_feedback_eval_selftest.py`：確認 evaluator 對權威式給分、漏 section、漏 case、prompt/model drift 會 fail closed。
+3. 真正要更換 prompt / public model 時，對固定 Golden Set 產生一輪 candidate outputs，逐案例做 human rubric review，再跑 `python3 scripts/ai_feedback_eval.py --outputs <file> --require-human-scores`。
+
+Default GitHub Actions **不得直接呼叫 live AI provider**。Golden Set 的 CI gate 應維持 deterministic / no-network / no-model-quota；live-model 比較是有目的、有限次數的人工 release/review 動作，不得為了綠燈重複燒免費額度。
+
+目前 V1 只涵蓋文字申論回饋；photo/OCR 是不同 failure surface，後續若要納入應建立獨立案例集，不得把文字 Golden Set 的 PASS 當成照片辨識品質證據。
+
 ## 8. Supabase
 
 若變更 SQL / migration / trigger / function：
