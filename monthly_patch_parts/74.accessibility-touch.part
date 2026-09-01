@@ -19,14 +19,14 @@
     document.head.appendChild(st);
   }
 
-  if(window.SWSI_MODAL_FOCUS_TRAP&&window.SWSI_MODAL_FOCUS_TRAP.version==='2026-09-01.v1')return;
+  if(window.SWSI_MODAL_FOCUS_TRAP&&window.SWSI_MODAL_FOCUS_TRAP.version==='2026-09-01.v2')return;
 
   var BACKDROPS=[
     '#swsi-public-info-backdrop',
     '#swsi-report-backdrop',
     '#swsi-exam-backdrop'
   ];
-  var FOCUSABLE='button:not([disabled]),a[href],input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+  var FOCUSABLE='button:not([disabled]),a[href],input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]';
 
   function visible(el){
     if(!el)return false;
@@ -46,7 +46,9 @@
   }
 
   function focusables(dialog){
-    return Array.prototype.filter.call(dialog.querySelectorAll(FOCUSABLE),visible);
+    return Array.prototype.filter.call(dialog.querySelectorAll(FOCUSABLE),function(el){
+      return visible(el)&&Number(el.tabIndex)>=0;
+    });
   }
 
   function onKeydown(ev){
@@ -54,30 +56,27 @@
     var dialog=currentDialog();
     if(!dialog)return;
     var items=focusables(dialog);
+    ev.preventDefault();
+
     if(!items.length){
-      ev.preventDefault();
       if(!dialog.hasAttribute('tabindex'))dialog.setAttribute('tabindex','-1');
       try{dialog.focus();}catch(_e){}
       return;
     }
 
-    var first=items[0],last=items[items.length-1],active=document.activeElement;
-    if(!dialog.contains(active)){
-      ev.preventDefault();
-      try{(ev.shiftKey?last:first).focus();}catch(_e){}
-      return;
+    var active=document.activeElement;
+    var index=items.indexOf(active);
+    var nextIndex;
+    if(index<0){
+      nextIndex=ev.shiftKey?items.length-1:0;
+    }else if(ev.shiftKey){
+      nextIndex=(index-1+items.length)%items.length;
+    }else{
+      nextIndex=(index+1)%items.length;
     }
-    if(ev.shiftKey&&active===first){
-      ev.preventDefault();
-      try{last.focus();}catch(_e){}
-      return;
-    }
-    if(!ev.shiftKey&&active===last){
-      ev.preventDefault();
-      try{first.focus();}catch(_e){}
-    }
+    try{items[nextIndex].focus();}catch(_e){}
   }
 
   document.addEventListener('keydown',onKeydown,true);
-  window.SWSI_MODAL_FOCUS_TRAP={version:'2026-09-01.v1'};
+  window.SWSI_MODAL_FOCUS_TRAP={version:'2026-09-01.v2'};
 })();
