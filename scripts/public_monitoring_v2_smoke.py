@@ -33,11 +33,17 @@ def main() -> int:
     assert int(laws.get("watch_count") or 0) >= 20
     assert int(laws.get("matched_count") or 0) >= 20
     assert int(laws.get("changed_count") or 0) == len(laws.get("changes") or [])
+    allowed_law_fields = {
+        "name",
+        "official_url",
+        "official_modified_date",
+        "previous_modified_date",
+        "changed",
+    }
     for row in (laws.get("changes") or []) + (laws.get("recently_modified") or []):
         url = str(row.get("official_url") or "")
         assert url.startswith("https://law.moj.gov.tw/"), url
-        forbidden = {"question_count", "lookup_errors", "error", "client_id", "contact"}
-        assert not forbidden.intersection(row), row
+        assert set(row).issubset(allowed_law_fields), row
 
     assert health.get("status") == "ok"
     assert int(health.get("expected_total_questions") or 0) == 4800
