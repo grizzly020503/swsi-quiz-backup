@@ -62,6 +62,28 @@ def main() -> int:
         raise AssertionError("Question manifest: shards length != 24")
     checks.append("questions-4800-24")
 
+    body, _ = require_status("Current-affairs snapshot", PRIMARY + "/auto/current_affairs.json")
+    news = json.loads(body)
+    news_items = news.get("items") or []
+    if int(news.get("schema_version", -1)) != 2 or not news_items:
+        raise AssertionError("Current-affairs snapshot: contract mismatch")
+    checks.append(f"news-{len(news_items)}")
+
+    body, _ = require_status("Legal-watch snapshot", PRIMARY + "/auto/legal_watch.json")
+    laws = json.loads(body)
+    law_watch = int(laws.get("watch_count", -1))
+    law_matched = int(laws.get("matched_count", -1))
+    law_changed = int(laws.get("changed_count", -1))
+    if law_watch < 20 or law_matched < 20 or law_changed != len(laws.get("changes") or []):
+        raise AssertionError("Legal-watch snapshot: contract mismatch")
+    checks.append(f"laws-{law_matched}/{law_watch}")
+
+    body, _ = require_status("Question health", PRIMARY + "/auto/health.json")
+    qhealth = json.loads(body)
+    if qhealth.get("status") != "ok" or int(qhealth.get("expected_total_questions", -1)) != 4800:
+        raise AssertionError("Question health: contract mismatch")
+    checks.append("question-health")
+
     cors_headers = {
         "Origin": PRIMARY,
         "Access-Control-Request-Method": "POST",

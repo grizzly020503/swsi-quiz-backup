@@ -41,6 +41,9 @@
       .swsi-monitor-label{font-weight:800;color:#303833}.swsi-monitor-detail{font-size:11.5px;line-height:1.55;color:var(--ink-soft);margin-top:2px}
       .swsi-monitor-meta{font-size:11px;line-height:1.6;color:var(--ink-soft);margin-top:8px}
       .swsi-monitor-refresh{width:100%;min-height:42px;border:1px solid var(--pine);border-radius:11px;background:#fff;color:var(--pine-deep);font:800 12px/1.4 'Noto Sans TC',sans-serif;cursor:pointer}
+      .swsi-monitor-links{display:grid;gap:5px;margin-top:7px}
+      .swsi-monitor-links a{color:var(--pine-deep);font-size:11.5px;line-height:1.5;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}
+      .swsi-monitor-cadence{display:flex;gap:5px 9px;flex-wrap:wrap;margin:8px 0 2px;color:var(--ink-soft);font-size:10.8px;line-height:1.5}
       @media(min-width:620px){.swsi-public-info-backdrop{align-items:center}.swsi-public-info-dialog{border-radius:18px}}
       @media(max-width:370px){.swsi-public-info-nav{grid-template-columns:1fr 1fr}.swsi-public-info-dialog{padding:16px 14px}}
     `;
@@ -75,25 +78,25 @@
       `
     },
     monitor:{
-      title:'SWSI 監測',
-      sub:'開啟當下即時檢查｜背景另有低成本定期哨兵',
+      title:'SWSI 五大監測',
+      sub:'新聞＋法規＋題庫＋系統＋回報｜持續監測，重要變更仍由人工確認',
       html:`
         <div id="swsi-public-monitor" data-running="0">
           <div class="swsi-monitor-summary">
             <strong id="swsi-monitor-summary-title">準備檢查中…</strong>
-            <div id="swsi-monitor-summary-text">SWSI 會檢查公開學習路徑是否可用；這不是每秒追蹤，也不蒐集你的個人資料。</div>
+            <div id="swsi-monitor-summary-text">正在讀取 SWSI 的五個監測來源；不會呼叫 AI 模型，也不會寫入回報或學習資料。</div>
+            <div class="swsi-monitor-cadence"><span>新聞：約每 6 小時</span><span>法規：完整核對約每 7 天</span><span>系統：開啟當下即時檢查</span></div>
           </div>
           <div class="swsi-monitor-grid">
-            <div class="swsi-monitor-item" data-monitor-key="site"><span class="swsi-monitor-dot"></span><div><div class="swsi-monitor-label">網站</div><div class="swsi-monitor-detail">等待檢查 Cloudflare 主站。</div></div></div>
-            <div class="swsi-monitor-item" data-monitor-key="pwa"><span class="swsi-monitor-dot"></span><div><div class="swsi-monitor-label">PWA</div><div class="swsi-monitor-detail">等待檢查 manifest 與 Service Worker。</div></div></div>
-            <div class="swsi-monitor-item" data-monitor-key="questions"><span class="swsi-monitor-dot"></span><div><div class="swsi-monitor-label">題庫完整性</div><div class="swsi-monitor-detail">等待核對 4,800 題／24 shards。</div></div></div>
-            <div class="swsi-monitor-item" data-monitor-key="ai"><span class="swsi-monitor-dot"></span><div><div class="swsi-monitor-label">AI 入口</div><div class="swsi-monitor-detail">等待檢查 /api/ai；不會送出申論內容，也不會呼叫模型。</div></div></div>
-            <div class="swsi-monitor-item" data-monitor-key="feedback"><span class="swsi-monitor-dot"></span><div><div class="swsi-monitor-label">問題回報</div><div class="swsi-monitor-detail">等待檢查回報 Edge Function 的公開 CORS 入口；不會寫入資料。</div></div></div>
-            <div class="swsi-monitor-item" data-monitor-key="law"><span class="swsi-monitor-dot ok"></span><div><div class="swsi-monitor-label">法規監測</div><div class="swsi-monitor-detail">法規監測機制已建置；異動需經核對後才影響正式內容，不自動改答案。</div></div></div>
+            <div class="swsi-monitor-item" data-monitor-key="news"><span class="swsi-monitor-dot"></span><div><div class="swsi-monitor-label">新聞／時事監測</div><div class="swsi-monitor-detail">等待讀取社工、社福、長照與政策時事雷達。</div><div class="swsi-monitor-links" data-monitor-links="news"></div></div></div>
+            <div class="swsi-monitor-item" data-monitor-key="law"><span class="swsi-monitor-dot"></span><div><div class="swsi-monitor-label">法規監測</div><div class="swsi-monitor-detail">等待讀取全國法規資料庫核對快照；異動只警示，不自動改答案。</div><div class="swsi-monitor-links" data-monitor-links="law"></div></div></div>
+            <div class="swsi-monitor-item" data-monitor-key="questions"><span class="swsi-monitor-dot"></span><div><div class="swsi-monitor-label">題庫監測</div><div class="swsi-monitor-detail">等待核對 4,800 題／24 shards、health 與考選部同步狀態。</div></div></div>
+            <div class="swsi-monitor-item" data-monitor-key="system"><span class="swsi-monitor-dot"></span><div><div class="swsi-monitor-label">系統監測</div><div class="swsi-monitor-detail">等待檢查主站、PWA、Service Worker 與 AI 入口。</div></div></div>
+            <div class="swsi-monitor-item" data-monitor-key="feedback"><span class="swsi-monitor-dot"></span><div><div class="swsi-monitor-label">使用者回報監測</div><div class="swsi-monitor-detail">等待檢查回報入口；不會建立測試回報。</div></div></div>
           </div>
           <button type="button" class="swsi-monitor-refresh" data-swsi-monitor-refresh>重新檢查</button>
           <div id="swsi-monitor-time" class="swsi-monitor-meta">尚未執行檢查。</div>
-          <div class="swsi-public-info-note">監測結果只代表檢查當下的公開服務狀態；正式考題、答案與法規仍以官方資料及人工核對為準。</div>
+          <div class="swsi-public-info-note">新聞來源是考試時事雷達，不等於官方考試答案；法規與正式考題仍以官方資料為最高依據。監測發現異常只產生警示，不自動修改題目、答案、法規解讀或權限。</div>
         </div>
       `
     },
@@ -193,6 +196,32 @@
     return fetch(url,opts);
   }
 
+  function monitorClearLinks(key){
+    var root=document.getElementById('swsi-public-monitor');
+    var box=root&&root.querySelector('[data-monitor-links="'+key+'"]');
+    if(box)box.textContent='';
+    return box;
+  }
+
+  function monitorLinks(key,rows){
+    var box=monitorClearLinks(key);
+    if(!box)return;
+    (rows||[]).slice(0,3).forEach(function(row){
+      var url=String(row&&row.url||'');
+      if(!/^https:\/\//i.test(url))return;
+      var a=document.createElement('a');
+      a.href=url;a.target='_blank';a.rel='noopener noreferrer';
+      a.textContent=String(row&&row.label||url).slice(0,120);
+      box.appendChild(a);
+    });
+  }
+
+  function monitorLocalTime(value){
+    if(!value)return '時間未提供';
+    var d=new Date(value);
+    return isNaN(d.getTime())?String(value):d.toLocaleString('zh-TW');
+  }
+
   async function runPublicMonitor(){
     var root=document.getElementById('swsi-public-monitor');
     if(!root||root.dataset.running==='1')return;
@@ -200,17 +229,84 @@
     var title=document.getElementById('swsi-monitor-summary-title');
     var summary=document.getElementById('swsi-monitor-summary-text');
     var time=document.getElementById('swsi-monitor-time');
-    if(title)title.textContent='正在檢查公開服務…';
-    if(summary)summary.textContent='只做公開讀取與 CORS preflight，不送出答案、聯絡方式或 AI prompt。';
-    ['site','pwa','questions','ai','feedback'].forEach(function(k){monitorItem(k,'warn','檢查中…');});
-    var bust='swsi_monitor='+Date.now();
-    var passed=0,total=5;
-    try{var home=await monitorFetch(location.origin+'/?'+bust);if(!home.ok)throw new Error('HTTP '+home.status);monitorItem('site','ok','Cloudflare 主站可連線（HTTP '+home.status+'）。');passed++;}catch(e){monitorItem('site','bad','主站檢查失敗：'+(e&&e.message?e.message:'無法連線'));}
-    try{var pair=await Promise.all([monitorFetch(location.origin+'/manifest.json?'+bust),monitorFetch(location.origin+'/sw.js?'+bust)]);if(!pair[0].ok||!pair[1].ok)throw new Error('manifest '+pair[0].status+' / sw '+pair[1].status);var manifest=await pair[0].json();if(manifest.display!=='standalone'||!manifest.start_url)throw new Error('PWA contract 不完整');monitorItem('pwa','ok','manifest 與 Service Worker 均可讀取。');passed++;}catch(e){monitorItem('pwa','bad','PWA 檢查失敗：'+(e&&e.message?e.message:'無法讀取'));}
-    try{var qr=await monitorFetch(location.origin+'/question-shards/manifest.json?'+bust);if(!qr.ok)throw new Error('HTTP '+qr.status);var qm=await qr.json();if(Number(qm.total_questions)!==4800||Number(qm.shard_count)!==24)throw new Error('題庫基線不符');monitorItem('questions','ok','題庫 manifest：4,800 題／24 shards。');passed++;}catch(e){monitorItem('questions','bad','題庫檢查失敗：'+(e&&e.message?e.message:'無法核對'));}
-    try{var isOfficial=location.hostname==='wandering-wave-4418.c022050333.workers.dev';if(!isOfficial){monitorItem('ai','warn','預覽網址不放寬正式 AI CORS；正式站會檢查 /api/ai。');total--;}else{var ai=await monitorFetch(location.origin+'/api/ai',{method:'OPTIONS'});if(ai.status!==204)throw new Error('HTTP '+ai.status);monitorItem('ai','ok','AI 入口 preflight 正常（204），未呼叫模型。');passed++;}}catch(e){monitorItem('ai','bad','AI 入口檢查失敗：'+(e&&e.message?e.message:'無法連線'));}
-    try{var fb=await monitorFetch('https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-feedback',{method:'OPTIONS'});if(fb.status!==204)throw new Error('HTTP '+fb.status);monitorItem('feedback','ok','回報入口 preflight 正常（204），未寫入資料。');passed++;}catch(e){monitorItem('feedback','bad','問題回報入口檢查失敗：'+(e&&e.message?e.message:'無法連線'));}
-    var allGood=passed===total;if(title)title.textContent=allGood?'目前公開學習路徑正常':'部分服務需要注意';if(summary)summary.textContent=allGood?('即時檢查 '+passed+'/'+total+' 項通過；法規監測機制另以人工核對守門。'):('即時檢查 '+passed+'/'+total+' 項通過；異常不代表你的學習紀錄遺失，可稍後重新檢查。');if(time)time.textContent='最後檢查：'+new Date().toLocaleString('zh-TW');root.dataset.running='0';
+    if(title)title.textContent='五大監測檢查中…';
+    if(summary)summary.textContent='正在讀取新聞、法規、題庫、系統與回報狀態。';
+    ['news','law','questions','system','feedback'].forEach(function(k){monitorItem(k,'','檢查中…');monitorClearLinks(k);});
+    var ok=0,warn=0,bad=0,total=5;
+    var bust='swsi_monitor_v2='+Date.now();
+
+    try{
+      var nr=await monitorFetch(location.origin+'/auto/current_affairs.json?'+bust);
+      if(!nr.ok)throw new Error('HTTP '+nr.status);
+      var news=await nr.json();
+      var items=Array.isArray(news.items)?news.items:[];
+      if(Number(news.schema_version)!==2||!items.length)throw new Error('時事快照格式或內容異常');
+      items.sort(function(a,b){return String(b.published_at||'').localeCompare(String(a.published_at||''));});
+      var newest=items[0]||{};
+      monitorItem('news','ok','近期待追蹤 '+items.length+' 個議題；最新：'+String(newest.title||'未命名議題').slice(0,64)+'（'+monitorLocalTime(newest.published_at)+'）。');
+      monitorLinks('news',items.map(function(x){return {url:x.source_url,label:(x.category?x.category+'｜':'')+String(x.title||'來源')};}));
+      ok++;
+    }catch(e){monitorItem('news','bad','新聞／時事快照讀取失敗：'+(e&&e.message?e.message:'無法讀取'));bad++;}
+
+    try{
+      var lr=await monitorFetch(location.origin+'/auto/legal_watch.json?'+bust);
+      if(!lr.ok)throw new Error('HTTP '+lr.status);
+      var law=await lr.json();
+      var wc=Number(law.watch_count||0),mc=Number(law.matched_count||0),cc=Number(law.changed_count||0);
+      if(wc<20||mc<20||mc>wc)throw new Error('法規核對基線異常');
+      var changes=Array.isArray(law.changes)?law.changes:[];
+      if(cc!==changes.length)throw new Error('法規變更統計不一致');
+      if(cc>0){
+        monitorItem('law','warn','發現 '+cc+' 部法規修正日期變動，等待人工核對後才可能影響正式內容。上次完整核對：'+monitorLocalTime(law.checked_at)+'。');
+        monitorLinks('law',changes.map(function(x){return {url:x.official_url,label:String(x.name||'法規')+'｜'+String(x.previous_modified_date||'?')+' → '+String(x.official_modified_date||'?')};}));
+        warn++;
+      }else{
+        monitorItem('law','ok','官方法規核對 '+mc+'/'+wc+' 部，這次沒有偵測到修正日期變動。上次完整核對：'+monitorLocalTime(law.checked_at)+'。');
+        monitorLinks('law',(law.recently_modified||[]).map(function(x){return {url:x.official_url,label:String(x.name||'法規')+'｜官方頁'};}));
+        ok++;
+      }
+    }catch(e){monitorItem('law','bad','法規快照讀取失敗：'+(e&&e.message?e.message:'無法讀取'));bad++;}
+
+    try{
+      var qr=await monitorFetch(location.origin+'/question-shards/manifest.json?'+bust);
+      if(!qr.ok)throw new Error('manifest HTTP '+qr.status);
+      var qm=await qr.json();
+      if(Number(qm.total_questions)!==4800||Number(qm.shard_count)!==24||!Array.isArray(qm.shards)||qm.shards.length!==24)throw new Error('題庫 manifest 基線不符');
+      var hr=await monitorFetch(location.origin+'/auto/health.json?'+bust);
+      if(!hr.ok)throw new Error('health HTTP '+hr.status);
+      var health=await hr.json();
+      if(health.status!=='ok'||Number(health.expected_total_questions)!==4800)throw new Error('題庫 health 不正常');
+      var sr=await monitorFetch(location.origin+'/auto/sync_state.json?'+bust);
+      if(!sr.ok)throw new Error('sync HTTP '+sr.status);
+      var sync=await sr.json();
+      if(!Array.isArray(sync.included_exams))throw new Error('考選部同步狀態格式異常');
+      var exams=sync.included_exams.map(function(x){return String(x&&x.exam_code||'');}).filter(Boolean);
+      monitorItem('questions','ok','題庫 4,800 題／24 shards、health 正常；考選部自動同步考次：'+(exams.length?exams.join('、'):'目前無新增考次')+'。');
+      ok++;
+    }catch(e){monitorItem('questions','bad','題庫監測失敗：'+(e&&e.message?e.message:'無法核對'));bad++;}
+
+    try{
+      var sysParts=[];
+      var mr=await monitorFetch(location.origin+'/manifest.json?'+bust);if(!mr.ok)throw new Error('manifest HTTP '+mr.status);var manifest=await mr.json();if(manifest.display!=='standalone'||!manifest.start_url)throw new Error('PWA manifest contract 不符');sysParts.push('PWA');
+      var sw=await monitorFetch(location.origin+'/sw.js?'+bust);if(!sw.ok)throw new Error('Service Worker HTTP '+sw.status);sysParts.push('SW');
+      var isOfficial=location.hostname==='wandering-wave-4418.c022050333.workers.dev';
+      if(isOfficial){var ai=await monitorFetch(location.origin+'/api/ai',{method:'OPTIONS'});if(ai.status!==204)throw new Error('AI HTTP '+ai.status);sysParts.push('AI');monitorItem('system','ok','主站已載入；'+sysParts.join('／')+' 入口正常，AI 僅做 preflight、未呼叫模型。');ok++;}
+      else{monitorItem('system','warn','預覽環境：主站資產、PWA、Service Worker 可讀；正式 AI CORS 只在正式站驗證。');warn++;}
+    }catch(e){monitorItem('system','bad','系統監測失敗：'+(e&&e.message?e.message:'無法連線'));bad++;}
+
+    try{
+      var fb=await monitorFetch('https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-feedback',{method:'OPTIONS'});
+      if(fb.status!==204)throw new Error('HTTP '+fb.status);
+      monitorItem('feedback','ok','回報入口 preflight 正常（204）；未建立測試回報，也未讀取管理端個資。');ok++;
+    }catch(e){monitorItem('feedback','bad','使用者回報入口檢查失敗：'+(e&&e.message?e.message:'無法連線'));bad++;}
+
+    if(title)title.textContent=bad?'部分監測需要處理':(warn?'監測正常，但有待確認事項':'五大監測目前正常');
+    if(summary){
+      summary.textContent='五大監測：'+ok+' 正常、'+warn+' 注意、'+bad+' 異常。'+
+        (bad?'異常只代表檢查當下有問題，可稍後重新檢查；正式資料不會因此自動修改。':warn?'注意項目會交由人工核對，不自動改答案。':'目前沒有發現阻斷性異常。');
+    }
+    if(time)time.textContent='最後檢查：'+new Date().toLocaleString('zh-TW');
+    root.dataset.running='0';
   }
   window.swsiRunPublicMonitor=runPublicMonitor;
 
@@ -248,5 +344,5 @@
   var obs=new MutationObserver(function(){ensureFooterBrand();});
   obs.observe(document.body,{childList:true,subtree:true});
 
-  window.SWSI_PUBLIC_INFO={version:'2026-09-01.monitoring-v1.1',marker:'SWSI Public Branding / Monitoring Center V1.1 2026-09-01'};
+  window.SWSI_PUBLIC_INFO={version:'2026-09-01.monitoring-v2',marker:'SWSI Public Branding / Monitoring Center V2 2026-09-01'};
 })();
