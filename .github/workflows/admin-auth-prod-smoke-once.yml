@@ -1,0 +1,26 @@
+name: Admin Auth Production Smoke Once
+
+on:
+  push:
+    branches:
+      - qa/admin-auth-prod-smoke-20260901
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify production admin recovery copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://wandering-wave-4418.c022050333.workers.dev/admin/'
+          curl -fsSL --retry 3 --retry-delay 2 "$url" -o /tmp/admin.html
+          grep -Fq '只有已登錄的管理員帳號可進入；其他 Email 無法取得管理權限。' /tmp/admin.html
+          grep -Fq '如果這個 Email 是已登錄的管理員帳號，系統會寄出密碼重設信；若不是，不會寄送。為了安全，畫面不會透露帳號是否存在。' /tmp/admin.html
+          grep -Fq '如果這個 Email 是已登錄的管理員帳號，系統會寄出一次性登入連結；若不是，不會寄送。為了安全，畫面不會透露帳號是否存在。' /tmp/admin.html
+          ! grep -Fq '密碼重設信已寄出。請從信件中的連結回到 SWSI' /tmp/admin.html
+          ! grep -Fq '一次性登入連結已寄出。開啟後會自動建立登入狀態。' /tmp/admin.html
+          echo 'Production admin auth copy: PASS'
