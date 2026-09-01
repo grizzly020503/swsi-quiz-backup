@@ -3017,7 +3017,7 @@ html[data-fs="2"]{
       var label={about:'關於',sources:'資料來源',monitor:'監測',privacy:'隱私',terms:'使用條款'}[k];
       return '<button type="button" data-swsi-info-nav="'+k+'" class="'+(k===key?'on':'')+'">'+label+'</button>';
     }).join('');
-    return '<div class="swsi-public-info-dialog" role="dialog" aria-modal="true" aria-labelledby="swsi-public-info-title" onclick="event.stopPropagation()">'+
+    return '<div class="swsi-public-info-dialog" role="dialog" aria-modal="true" aria-labelledby="swsi-public-info-title">'+
       '<div class="swsi-public-info-head"><div><h2 id="swsi-public-info-title">'+info.title+'</h2><p>'+info.sub+'</p></div><button type="button" class="swsi-public-info-close" aria-label="關閉" onclick="swsiClosePublicInfo()">×</button></div>'+
       '<div class="swsi-public-info-nav">'+nav+'</div><div class="swsi-public-info-body">'+info.html+'</div></div>';
   }
@@ -3067,7 +3067,7 @@ html[data-fs="2"]{
     var ov=document.createElement('div');
     ov.id='swsi-public-info-backdrop';
     ov.className='swsi-public-info-backdrop';
-    ov.onclick=closeInfo;
+    ov.onclick=function(ev){if(ev.target===ov)closeInfo();};
     ov.innerHTML=renderInfo(key);
     document.body.appendChild(ov);
     document.body.style.overflow='hidden';
@@ -3095,7 +3095,7 @@ html[data-fs="2"]{
   var obs=new MutationObserver(function(){ensureFooterBrand();});
   obs.observe(document.body,{childList:true,subtree:true});
 
-  window.SWSI_PUBLIC_INFO={version:'2026-09-01.monitoring-v1',marker:'SWSI Public Branding / Monitoring Center V1 2026-09-01'};
+  window.SWSI_PUBLIC_INFO={version:'2026-09-01.monitoring-v1.1',marker:'SWSI Public Branding / Monitoring Center V1.1 2026-09-01'};
 })();
 
 /* SWSI Feedback / Quality Report V1 2026-08-26
