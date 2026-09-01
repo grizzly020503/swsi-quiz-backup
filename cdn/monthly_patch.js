@@ -2894,9 +2894,8 @@ html[data-fs="2"]{
         <p><b>SWSI</b> 代表 <b>Social Work Study Initiative</b>。這是一個以免費、集中、低門檻為方向的社工師國考學習平台。</p>
         <h3>為什麼開始做？</h3>
         <p>專案起點來自對社工學習環境的觀察：歷屆題庫與相關學習資源分散在不同地方；同時也看到同學使用各種刷題工具時，在資料整理、學習流程與使用體驗上仍有改善空間，因此開始嘗試把常用的學習工具集中到同一個平台。</p>
-        <h3>誰發起的？</h3>
-        <p><b>發起人暨產品規劃：熊品澄。</b></p>
-        <p>產品方向、需求整理、功能取捨、實際測試與迭代由專案發起人主導；程式實作主要透過生成式 AI 協作完成，並搭配自動 QA、版本控制與部署流程持續維護。</p>
+        <h3>如何維護？</h3>
+        <p>產品方向、需求整理、功能取捨、實際測試與迭代由個人專案持續維護；程式實作主要透過生成式 AI 協作完成，並搭配自動 QA、版本控制與部署流程。</p>
         <div class="swsi-public-info-note">SWSI 並非考選部、學校或補習班官方網站，也不代表任何補習班或教育機構。</div>
       `
     },
@@ -2934,7 +2933,7 @@ html[data-fs="2"]{
         <h3>免費學習使用</h3>
         <p>SWSI 目前以免費學習平台方式提供。個人學生可以直接使用；老師、同學、社群或補習班也可以分享<b>官方公開網址</b>給學習者使用。</p>
         <h3>分享時請保留來源</h3>
-        <p>分享 SWSI 網址不需要把它說成自己的服務。不得冒用 SWSI、熊品澄或其他來源名義，也不得讓使用者誤以為 SWSI 與某補習班、學校、政府機關存在未經確認的官方合作或背書。</p>
+        <p>分享 SWSI 網址不需要把它說成自己的服務。不得冒用 SWSI 或其他來源名義，也不得讓使用者誤以為 SWSI 與某補習班、學校、政府機關存在未經確認的官方合作或背書。</p>
         <h3>商業整合／重新包裝</h3>
         <p>若機構希望進行白牌化、嵌入自家付費產品、批量整合、客製化、重新包裝、轉售，或把 SWSI 品牌／介面／平台整理內容作為自身商業服務的一部分，應先取得明確同意並另談合作條件。</p>
         <h3>內容責任</h3>
@@ -2956,7 +2955,7 @@ html[data-fs="2"]{
     box.innerHTML=`
       <strong>SWSI — Social Work Study Initiative</strong><br>
       社工師國考免費學習平台<br>
-      發起人暨產品規劃：熊品澄 · AI 協作開發
+      免費公開學習工具 · AI 協作開發
       <div class="swsi-public-footer-links" aria-label="SWSI 公開資訊">
         <button type="button" data-swsi-public-info="about">關於 SWSI</button>
         <button type="button" data-swsi-public-info="sources">資料來源</button>
@@ -4070,7 +4069,7 @@ html[data-fs="2"]{
     var f=document.querySelector('footer'); if(!f) return;
     if(f.classList.contains('swsi-footer-clean')) return;
     f.classList.add('swsi-footer-clean');
-    f.innerHTML='<div>© 2026 熊品澄 · 免費公開學習工具</div><div class="sub">社工師國考題目以考選部官方資料為準</div>';
+    f.innerHTML='<div>© 2026 SWSI · 免費公開學習工具</div><div class="sub">社工師國考題目以考選部官方資料為準</div>';
   }
 
   function collapseExplanation(){
