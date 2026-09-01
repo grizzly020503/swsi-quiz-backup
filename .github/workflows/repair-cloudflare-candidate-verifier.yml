@@ -1,0 +1,39 @@
+name: Repair Cloudflare Candidate Verifier
+
+on:
+  push:
+    branches:
+      - swsi-public-candidate
+    paths:
+      - '.github/workflows/repair-cloudflare-candidate-verifier.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Repair basename collision and remove this one-shot workflow
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('.github/workflows/cloudflare-public-candidate.yml')
+          s = p.read_text(encoding='utf-8')
+          old = 'for path in manifest.json sw.js monthly_patch.js essay_guides.js icons/icon-192.png admin/index.html question-shards/manifest.json; do'
+          new = 'for path in manifest.json sw.js monthly_patch.js essay_guides.js icons/icon-192.png admin/index.html; do'
+          if s.count(old) != 1:
+              raise SystemExit(f'expected verifier loop once, found {s.count(old)}')
+          s = s.replace(old, new, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+          rm .github/workflows/repair-cloudflare-candidate-verifier.yml
+          git config user.name 'swsi-candidate-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add .github/workflows/cloudflare-public-candidate.yml .github/workflows/repair-cloudflare-candidate-verifier.yml
+          git commit -m 'qa: fix candidate manifest verification collision'
+          git push origin HEAD:swsi-public-candidate
