@@ -1,0 +1,86 @@
+name: Cloudflare Public Cutover Preflight
+
+on:
+  push:
+    branches: [swsi-public-candidate]
+    paths: ['.github/workflows/cloudflare-public-cutover-preflight.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CANDIDATE: https://swsi-public-candidate-wandering-wave-4418.c022050333.workers.dev
+      FINAL_ORIGIN: https://wandering-wave-4418.c022050333.workers.dev
+      FEEDBACK_ENDPOINT: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-feedback
+    steps:
+      - name: Verify hosted candidate core
+        run: |
+          set -euo pipefail
+          curl --silent --show-error --fail "$CANDIDATE/?preflight=$GITHUB_RUN_ID" -o /tmp/root.html
+          curl --silent --show-error --fail "$CANDIDATE/manifest.json?preflight=$GITHUB_RUN_ID" -o /tmp/pwa.json
+          curl --silent --show-error --fail "$CANDIDATE/sw.js?preflight=$GITHUB_RUN_ID" -o /tmp/sw.js
+          curl --silent --show-error --fail "$CANDIDATE/admin/index.html?preflight=$GITHUB_RUN_ID" -o /tmp/admin.html
+          curl --silent --show-error --fail "$CANDIDATE/question-shards/manifest.json?preflight=$GITHUB_RUN_ID" -o /tmp/questions.json
+
+          grep -qF 'SWSI CLOUDFLARE PUBLIC CANDIDATE' /tmp/root.html
+          grep -qF 'SWSI 讀書指南（自編公開內容' /tmp/root.html
+          grep -qF "$CANDIDATE/api/ai" /tmp/root.html
+          if grep -qF '蔡宇庭' /tmp/root.html || grep -qF '老師提供的學長姐心得' /tmp/root.html || grep -qF '資深學長姐的應考心得' /tmp/root.html; then
+            echo 'Third-party guide marker leaked into candidate' >&2
+            exit 1
+          fi
+          grep -qF '<title>SWSI 管理中心</title>' /tmp/admin.html
+          if grep -qF 'DEFAULT_ADMIN_EMAIL' /tmp/admin.html; then
+            echo 'Admin default identity marker leaked into candidate' >&2
+            exit 1
+          fi
+          grep -qF "const VERSION = 'v6'" /tmp/sw.js
+
+          python - <<'PY'
+          import json
+          p=json.load(open('/tmp/pwa.json',encoding='utf-8'))
+          assert p['start_url']=='./' and p['scope']=='./' and p['display']=='standalone', p
+          q=json.load(open('/tmp/questions.json',encoding='utf-8'))
+          assert int(q['total_questions'])==4800, q
+          assert int(q['shard_count'])==24 and len(q['shards'])==24, q
+          print('CANDIDATE CORE PASS: PWA + 4800 / 24')
+          PY
+
+      - name: Verify final-origin AI CORS without model call
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error -X OPTIONS \
+            -H "Origin: $FINAL_ORIGIN" \
+            -H 'Access-Control-Request-Method: POST' \
+            -D /tmp/ai.h -o /tmp/ai.b -w '%{http_code}' \
+            "$FINAL_ORIGIN/?preflight=$GITHUB_RUN_ID")"
+          test "$code" = '204'
+          tr -d '\r' < /tmp/ai.h > /tmp/ai.clean
+          grep -qiF "access-control-allow-origin: $FINAL_ORIGIN" /tmp/ai.clean
+          echo 'FINAL AI CORS PASS — no model call made'
+
+      - name: Verify final-origin feedback CORS without write
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error -X OPTIONS \
+            -H "Origin: $FINAL_ORIGIN" \
+            -H 'Access-Control-Request-Method: POST' \
+            -H 'Access-Control-Request-Headers: content-type' \
+            -D /tmp/fb.h -o /tmp/fb.b -w '%{http_code}' \
+            "$FEEDBACK_ENDPOINT?preflight=$GITHUB_RUN_ID")"
+          test "$code" = '204'
+          tr -d '\r' < /tmp/fb.h > /tmp/fb.clean
+          grep -qiF "access-control-allow-origin: $FINAL_ORIGIN" /tmp/fb.clean
+          echo 'FINAL FEEDBACK CORS PASS — no report written'
+
+      - name: Confirm existing Netlify site remains reachable
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --location -o /dev/null -w '%{http_code}' https://swsi-quiznetlify.netlify.app/)"
+          test "$code" = '200'
+          echo 'CUTOVER PREFLIGHT PASS: candidate ready; Netlify still untouched'
