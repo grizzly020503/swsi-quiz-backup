@@ -106,6 +106,34 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await waitHome();
   await assertCompactHomeFooter();
 
+  // Public monitoring controls must remain clickable inside the modal.
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await page.getByRole('button', { name: '監測', exact: true }).click();
+  await page.waitForSelector('#swsi-public-monitor', { timeout: 10000 });
+  await page.waitForFunction(() => {
+    const root = document.querySelector('#swsi-public-monitor');
+    return root && root.dataset.running === '0';
+  }, null, { timeout: 15000 });
+  const refresh = page.locator('[data-swsi-monitor-refresh]');
+  assert.strictEqual(await refresh.count(), 1, 'monitor refresh button missing');
+  await refresh.click();
+  await page.waitForFunction(() => {
+    const root = document.querySelector('#swsi-public-monitor');
+    return root && root.dataset.running === '1';
+  }, null, { timeout: 5000 });
+  await page.waitForFunction(() => {
+    const root = document.querySelector('#swsi-public-monitor');
+    return root && root.dataset.running === '0';
+  }, null, { timeout: 15000 });
+  await page.getByRole('button', { name: '隱私', exact: true }).click();
+  await page.waitForFunction(() => {
+    const h = document.querySelector('#swsi-public-info-title');
+    return h && /隱私說明/.test(h.textContent || '');
+  }, null, { timeout: 5000 });
+  await page.locator('.swsi-public-info-close').click();
+  await page.waitForSelector('#swsi-public-info-backdrop', { state: 'detached' });
+  await page.evaluate(() => window.scrollTo(0, 0));
+
   const fontButtons = page.locator('.fontctl button');
   assert((await fontButtons.count()) >= 3, 'font controls missing');
   await fontButtons.nth(1).click();
