@@ -3286,7 +3286,7 @@ function insertFmt(id, level){
 
 /* ---------- AI 申論練習回饋（透過 Cloudflare 中間人呼叫 Groq、餵校過骨架、非官方評分）---------- */
 /* ====== 管理員設定：下面是你的 Cloudflare 中間人網址；換中間人才需要改這行 ====== */
-const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev";
+const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev/api/ai";
 const GROQ_MODEL = 'qwen/qwen3.6-27b'; /* Qwen 多模態：同時支援「打字批改」與「手寫照片辨識」，中文最強的免費選項。日後想換模型只改這行 */
 function aiFeedbackHTML(id){
   return `<div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">
