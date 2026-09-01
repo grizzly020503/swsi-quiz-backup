@@ -36,6 +36,19 @@ function hasUsableName(el){
       await page.waitForFunction(()=>document.documentElement.getAttribute('data-fs')==='2');
     }
 
+    // The verified first-paint contract renders the Home shell before deferred
+    // question initialization finishes. The legacy nav starts inline-hidden and
+    // init() switches it to flex when the interactive shell is actually ready.
+    // Wait for that explicit ready state before measuring touch geometry. This
+    // still fails closed if the nav never becomes visible.
+    await page.waitForFunction(()=>{
+      const tab=document.querySelector('.tabbar');
+      if(!tab)return false;
+      const s=getComputedStyle(tab);
+      const r=tab.getBoundingClientRect();
+      return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)!==0&&r.width>0&&r.height>0;
+    },null,{timeout:30000});
+
     const metrics=await page.evaluate(()=>{
       const tab=document.querySelector('.tabbar');
       const tabStyle=tab?getComputedStyle(tab):null;
