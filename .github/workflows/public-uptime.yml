@@ -1,0 +1,31 @@
+name: Public Uptime Sentinel
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 0 * * *'
+  pull_request:
+    paths:
+      - '.github/workflows/public-uptime.yml'
+      - 'scripts/public_uptime_smoke.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-public-uptime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  public-uptime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax check
+        run: python -m py_compile scripts/public_uptime_smoke.py
+      - name: Read-only public availability checks
+        run: python scripts/public_uptime_smoke.py
