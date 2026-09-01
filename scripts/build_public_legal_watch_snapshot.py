@@ -22,7 +22,6 @@ def safe_record(row: dict) -> dict:
         "official_modified_date": row.get("official_modified_date"),
         "previous_modified_date": row.get("previous_modified_date"),
         "changed": bool(row.get("changed")),
-        "abandon_note": row.get("abandon_note"),
     }
 
 
