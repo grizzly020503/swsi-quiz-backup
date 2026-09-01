@@ -1,0 +1,26 @@
+name: Verify Public Name Removed 20260901
+
+on:
+  push:
+    branches: [qa/cloudflare-production-smoke-20260901]
+    paths: ['.github/workflows/verify-public-name-removed-20260901.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify production public attribution
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://wandering-wave-4418.c022050333.workers.dev/monthly_patch.js'
+          curl --silent --show-error --fail --retry 3 "$URL?privacy=$GITHUB_RUN_ID" -o /tmp/monthly_patch.js
+          ! grep -qF '熊品澄' /tmp/monthly_patch.js
+          grep -qF '如何維護？' /tmp/monthly_patch.js
+          grep -qF '不得冒用 SWSI 或其他來源名義' /tmp/monthly_patch.js
+          grep -qF '© 2026 SWSI · 免費公開學習工具' /tmp/monthly_patch.js
+          echo 'PUBLIC NAME REMOVAL PASS'
