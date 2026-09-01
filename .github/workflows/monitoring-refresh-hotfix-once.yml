@@ -1,0 +1,39 @@
+name: Monitoring Refresh Hotfix Once
+
+on:
+  push:
+    branches:
+      - fix/monitoring-refresh-click-20260901
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/monitoring-refresh-click-20260901
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply targeted hotfix
+        run: python scripts/monitoring_refresh_hotfix_once.py
+      - name: Syntax and scope checks
+        run: |
+          cat monthly_patch_parts/*.part > /tmp/monthly_patch.js
+          node --check /tmp/monthly_patch.js
+          node --check cdn/monthly_patch.js
+          node --check scripts/browser_interaction_smoke.js
+          git diff --check
+          git diff --name-only
+          test "$(git diff --name-only | sort | tr '\n' ' ')" = "cdn/monthly_patch.js monthly_patch_parts/89.public-branding-info.part scripts/browser_interaction_smoke.js "
+      - name: Commit hotfix
+        run: |
+          git config user.name 'swsi-monitoring-hotfix-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add cdn/monthly_patch.js monthly_patch_parts/89.public-branding-info.part scripts/browser_interaction_smoke.js
+          git commit -m 'fix: restore monitoring dialog controls'
+          git push origin HEAD:fix/monitoring-refresh-click-20260901
