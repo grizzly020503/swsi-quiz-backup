@@ -39,6 +39,7 @@ jobs:
             scripts/public_monitoring_v2_smoke.py \
             scripts/public_uptime_smoke.py
           python scripts/public_monitoring_v2_smoke.py
+          find scripts -type d -name '__pycache__' -prune -exec rm -rf {} +
           git diff --check
           grep -q 'SWSI Public Branding / Monitoring Center V2 2026-09-01' monthly_patch_parts/89.public-branding-info.part
           grep -q '2026-09-01.monitoring-v2' cdn/monthly_patch.js
