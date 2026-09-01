@@ -35,7 +35,7 @@ jobs:
           # Preserve noindex for the first public soft launch. Sharing by direct URL
           # works normally while search engines are asked not to index it yet.
           s=s.replace('SWSI CLOUDFLARE PUBLIC CANDIDATE','SWSI CLOUDFLARE PUBLIC SOFT LAUNCH',1)
-          s=s.replace(candidate + '/api/ai', final, 1)
+          s=s.replace(candidate + '/api/ai', final + '/api/ai', 1)
           s=s.replace(candidate + '/', final + '/')
 
           import re
@@ -77,7 +77,7 @@ jobs:
           node --check cloudflare/wandering-wave-4418/worker.js
           grep -qF 'SWSI CLOUDFLARE PUBLIC SOFT LAUNCH' cdn/index.html
           grep -qF 'noindex,nofollow,noarchive' cdn/index.html
-          grep -qF 'const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev";' cdn/index.html
+          grep -qF 'const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev/api/ai";' cdn/index.html
           ! grep -qF 'swsi-public-candidate-wandering-wave-4418' cdn/index.html
           ! grep -qF 'swsi-public-candidate-wandering-wave-4418' cloudflare/wandering-wave-4418/worker.js
 
