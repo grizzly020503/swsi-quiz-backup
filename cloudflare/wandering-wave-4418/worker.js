@@ -2,8 +2,7 @@ export default {
   async fetch(request, env) {
     const PUBLIC_ORIGINS = new Set([
       "https://swsi-quiznetlify.netlify.app",
-      "https://wandering-wave-4418.c022050333.workers.dev",
-      "https://swsi-public-candidate-wandering-wave-4418.c022050333.workers.dev"
+      "https://wandering-wave-4418.c022050333.workers.dev"
     ]);
 
     const PUBLIC_MODEL = "qwen/qwen3.6-27b";
