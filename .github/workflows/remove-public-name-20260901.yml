@@ -2,60 +2,48 @@ name: Remove Public Name 20260901
 
 on:
   push:
-    branches: [fix/remove-public-name-20260901]
-    paths: ['.github/workflows/remove-public-name-20260901.yml']
+    paths:
+      - '.github/workflows/remove-public-name-20260901.yml'
 
 permissions:
   contents: write
 
 jobs:
-  patch:
+  fix:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - name: Remove personal name from public UI sources and rebuild runtime
+      - uses: actions/checkout@v4
+      - name: Remove personal name and rebuild public runtime
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
+          python3 - <<'PY'
           from pathlib import Path
 
           branding = Path('monthly_patch_parts/89.public-branding-info.part')
           s = branding.read_text(encoding='utf-8')
-          old = '''        <h3>誰發起的？</h3>
-        <p><b>發起人暨產品規劃：熊品澄。</b></p>
-        <p>產品方向、需求整理、功能取捨、實際測試與迭代由專案發起人主導；程式實作主要透過生成式 AI 協作完成，並搭配自動 QA、版本控制與部署流程持續維護。</p>'''
-          new = '''        <h3>如何維護？</h3>
-        <p>產品方向、需求整理、功能取捨、實際測試與迭代由個人專案持續維護；程式實作主要透過生成式 AI 協作完成，並搭配自動 QA、版本控制與部署流程。</p>'''
-          if s.count(old) != 1:
-              raise SystemExit('about attribution block mismatch')
-          s = s.replace(old, new, 1)
-
-          old_terms = '不得冒用 SWSI、熊品澄或其他來源名義'
-          new_terms = '不得冒用 SWSI 或其他來源名義'
-          if s.count(old_terms) != 1:
-              raise SystemExit('terms attribution text mismatch')
-          s = s.replace(old_terms, new_terms, 1)
-
-          old_footer = '發起人暨產品規劃：熊品澄 · AI 協作開發'
-          new_footer = '免費公開學習工具 · AI 協作開發'
-          if s.count(old_footer) != 1:
-              raise SystemExit('public footer attribution mismatch')
-          s = s.replace(old_footer, new_footer, 1)
+          replacements = [
+              ('''        <h3>誰發起的？</h3>\n        <p><b>發起人暨產品規劃：熊品澄。</b></p>\n        <p>產品方向、需求整理、功能取捨、實際測試與迭代由專案發起人主導；程式實作主要透過生成式 AI 協作完成，並搭配自動 QA、版本控制與部署流程持續維護。</p>''',
+               '''        <h3>如何維護？</h3>\n        <p>產品方向、需求整理、功能取捨、實際測試與迭代由個人專案持續維護；程式實作主要透過生成式 AI 協作完成，並搭配自動 QA、版本控制與部署流程。</p>'''),
+              ('不得冒用 SWSI、熊品澄或其他來源名義', '不得冒用 SWSI 或其他來源名義'),
+              ('發起人暨產品規劃：熊品澄 · AI 協作開發', '免費公開學習工具 · AI 協作開發'),
+          ]
+          for old, new in replacements:
+              if s.count(old) != 1:
+                  raise SystemExit(f'branding replacement mismatch: {old[:24]}')
+              s = s.replace(old, new, 1)
           if '熊品澄' in s:
-              raise SystemExit('personal name remains in public branding source')
+              raise SystemExit('personal name remains in branding source')
           branding.write_text(s, encoding='utf-8')
 
           lock = Path('monthly_patch_parts/zzzz_product_v1_lock.part')
           t = lock.read_text(encoding='utf-8')
-          old_lock = '© 2026 熊品澄 · 免費公開學習工具'
-          new_lock = '© 2026 SWSI · 免費公開學習工具'
-          if t.count(old_lock) != 1:
+          old = '© 2026 熊品澄 · 免費公開學習工具'
+          new = '© 2026 SWSI · 免費公開學習工具'
+          if t.count(old) != 1:
               raise SystemExit('legacy footer attribution mismatch')
-          t = t.replace(old_lock, new_lock, 1)
+          t = t.replace(old, new, 1)
           if '熊品澄' in t:
               raise SystemExit('personal name remains in product lock source')
           lock.write_text(t, encoding='utf-8')
@@ -69,8 +57,7 @@ jobs:
           grep -qF '© 2026 SWSI · 免費公開學習工具' cdn/monthly_patch.js
           grep -qF '不得冒用 SWSI 或其他來源名義' cdn/monthly_patch.js
           grep -qF '如何維護？' cdn/monthly_patch.js
-
-      - name: Commit privacy copy update on fix branch only
+      - name: Commit privacy copy update
         shell: bash
         run: |
           set -euo pipefail
@@ -78,4 +65,4 @@ jobs:
           git config user.email 'actions@users.noreply.github.com'
           git add monthly_patch_parts/89.public-branding-info.part monthly_patch_parts/zzzz_product_v1_lock.part cdn/monthly_patch.js
           git commit -m 'fix: remove personal name from public SWSI UI'
-          git push origin HEAD:fix/remove-public-name-20260901
+          git push
