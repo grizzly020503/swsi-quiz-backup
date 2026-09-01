@@ -87,21 +87,25 @@ jobs:
           print('CORPUS PASS', len(rows), dict(modes), 'multi_answer=', multi)
           PY
 
-      - name: Verify AI POST route without model call
+      - name: Diagnose root versus api AI route without model call
         shell: bash
         run: |
           set -euo pipefail
-          code="$(curl --silent --show-error --request POST "$ORIGIN/" --header "Origin: $ORIGIN" --header 'Content-Type: application/json' --data '{}' --dump-header /tmp/ai.headers --output /tmp/ai.body --write-out '%{http_code}')"
-          test "$code" = '400'
-          grep -qiF "access-control-allow-origin: $ORIGIN" /tmp/ai.headers
-          grep -qF 'Invalid AI request' /tmp/ai.body
-          echo 'AI ROUTE PASS: invalid request rejected before model/quota reservation'
+          root_code="$(curl --silent --show-error --request POST "$ORIGIN/" --header "Origin: $ORIGIN" --header 'Content-Type: application/json' --data '{}' --dump-header /tmp/root-ai.headers --output /tmp/root-ai.body --write-out '%{http_code}')"
+          api_code="$(curl --silent --show-error --request POST "$ORIGIN/api/ai" --header "Origin: $ORIGIN" --header 'Content-Type: application/json' --data '{}' --dump-header /tmp/api-ai.headers --output /tmp/api-ai.body --write-out '%{http_code}')"
+          echo "AI root invalid-request HTTP=$root_code"
+          echo "AI /api/ai invalid-request HTTP=$api_code"
+          test "$api_code" = '400'
+          grep -qiF "access-control-allow-origin: $ORIGIN" /tmp/api-ai.headers
+          grep -qF 'Invalid AI request' /tmp/api-ai.body
+          echo 'AI /api/ai ROUTE PASS: rejected before model/daily-quota reservation'
 
       - name: Verify feedback CORS without write
         shell: bash
         run: |
           set -euo pipefail
           code="$(curl --silent --show-error --request OPTIONS "$FEEDBACK_ENDPOINT" --header "Origin: $ORIGIN" --header 'Access-Control-Request-Method: POST' --header 'Access-Control-Request-Headers: content-type' --dump-header /tmp/fb.headers --output /tmp/fb.body --write-out '%{http_code}')"
+          echo "Feedback preflight HTTP=$code"
           test "$code" = '204'
           grep -qiF "access-control-allow-origin: $ORIGIN" /tmp/fb.headers
           echo 'FEEDBACK CORS PASS: no row written'
@@ -111,5 +115,6 @@ jobs:
         run: |
           set -euo pipefail
           code="$(curl --silent --show-error --location --output /dev/null --write-out '%{http_code}' 'https://swsi-quiznetlify.netlify.app/?fallback-smoke=1')"
+          echo "Netlify fallback HTTP=$code"
           test "$code" = '200'
           echo 'NETLIFY FALLBACK PASS'
