@@ -47,9 +47,9 @@ jobs:
       - name: Guard final product scope
         run: |
           set -euo pipefail
-          git diff --name-only | sort > /tmp/changed.txt
+          { git diff --name-only; git ls-files --others --exclude-standard; } | sort -u > /tmp/changed.txt
           cat /tmp/changed.txt
-          cat > /tmp/expected.txt <<'EOF'
+          cat > /tmp/allowed.txt <<'EOF'
           .github/workflows/moex-social-worker-sync.yml
           auto/legal_watch.json
           cdn/auto/current_affairs.json
@@ -60,8 +60,23 @@ jobs:
           monthly_patch_parts/89.public-branding-info.part
           scripts/public_uptime_smoke.py
           EOF
-          sort -o /tmp/expected.txt /tmp/expected.txt
-          diff -u /tmp/expected.txt /tmp/changed.txt
+          sort -o /tmp/allowed.txt /tmp/allowed.txt
+          unexpected="$(comm -23 /tmp/changed.txt /tmp/allowed.txt)"
+          if [ -n "$unexpected" ]; then
+            echo 'Unexpected Monitoring V2 files:' >&2
+            echo "$unexpected" >&2
+            exit 1
+          fi
+          for required in \
+            .github/workflows/moex-social-worker-sync.yml \
+            auto/legal_watch.json \
+            cdn/auto/current_affairs.json \
+            cdn/auto/legal_watch.json \
+            cdn/monthly_patch.js \
+            monthly_patch_parts/89.public-branding-info.part \
+            scripts/public_uptime_smoke.py; do
+            grep -Fxq "$required" /tmp/changed.txt || { echo "Required Monitoring V2 change missing: $required" >&2; exit 1; }
+          done
 
       - name: Commit actual integration
         run: |
