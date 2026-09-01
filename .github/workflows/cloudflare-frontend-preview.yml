@@ -31,7 +31,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -78,7 +78,7 @@ jobs:
           grep -q '一次最多 3 張' /tmp/swsi-preview/monthly_patch.js
           grep -q '正式考題本身.*最高依據' /tmp/swsi-preview/monthly_patch.js
           grep -q '平台整理・可能相關理論' /tmp/swsi-preview/monthly_patch.js
-          grep -q 'SWSI My Learning Center V1 2026-08-28' /tmp/swsi-preview/monthly_patch.js
+          grep -q 'SWSI Learning Center V3 2026-08-29' /tmp/swsi-preview/monthly_patch.js
           if grep -A80 'SWSI Essay Trust Layer 2026-08-26' /tmp/swsi-preview/monthly_patch.js | grep -q '校過骨架'; then
             echo 'Essay Trust Layer still contains forbidden overclaim: 校過骨架' >&2
             exit 1
@@ -154,7 +154,7 @@ jobs:
                && grep -q 'SWSI Essay Guide Audit Batch 1 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Essay Metadata Labels 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Learning Loop V1 2026-08-26' /tmp/live-preview-patch.js \
-               && grep -q 'SWSI My Learning Center V1 2026-08-28' /tmp/live-preview-patch.js \
+               && grep -q 'SWSI Learning Center V3 2026-08-29' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Knowledge Path V1 2026-08-26' /tmp/live-preview-patch.js \
                && grep -q 'SWSI Law Trust UI Contract 2026-08-27' /tmp/live-preview-patch.js \
                && grep -q 'SWSI New Resident Basic Act Status Fix 2026-08-26' /tmp/live-preview-patch.js \
