@@ -3,6 +3,8 @@ name: MOEX Social Worker Exam Sync
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/moex-social-worker-sync.yml'
       - 'scripts/moex_sync.py'
