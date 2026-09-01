@@ -29,7 +29,8 @@ jobs:
           grep -qF 'SWSI CLOUDFLARE PUBLIC SOFT LAUNCH' /tmp/root.html
           grep -qF '<meta name="robots" content="noindex,nofollow,noarchive">' /tmp/root.html
           grep -qF '<link rel="canonical" href="https://wandering-wave-4418.c022050333.workers.dev/">' /tmp/root.html
-          grep -qF 'const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev";' /tmp/root.html
+          grep -qF 'const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev/api/ai";' /tmp/root.html
+          ! grep -qF 'const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev";' /tmp/root.html
           ! grep -qF '蔡宇庭' /tmp/root.html
           ! grep -qF '老師提供的學長姐心得' /tmp/root.html
           ! grep -qF '資深學長姐的應考心得' /tmp/root.html
@@ -47,7 +48,7 @@ jobs:
           assert int(q['total_questions'])==4800, q
           assert int(q['shard_count'])==24, q
           assert len(q['shards'])==24, q
-          print('ROOT/PWA/ADMIN/PRIVACY PASS; manifest=4800/24')
+          print('ROOT/PWA/ADMIN/PRIVACY PASS; AI=/api/ai; manifest=4800/24')
           PY
 
       - name: Verify all 24 shards and grading invariants
@@ -87,18 +88,16 @@ jobs:
           print('CORPUS PASS', len(rows), dict(modes), 'multi_answer=', multi)
           PY
 
-      - name: Diagnose root versus api AI route without model call
+      - name: Verify AI api route without model call
         shell: bash
         run: |
           set -euo pipefail
-          root_code="$(curl --silent --show-error --request POST "$ORIGIN/" --header "Origin: $ORIGIN" --header 'Content-Type: application/json' --data '{}' --dump-header /tmp/root-ai.headers --output /tmp/root-ai.body --write-out '%{http_code}')"
-          api_code="$(curl --silent --show-error --request POST "$ORIGIN/api/ai" --header "Origin: $ORIGIN" --header 'Content-Type: application/json' --data '{}' --dump-header /tmp/api-ai.headers --output /tmp/api-ai.body --write-out '%{http_code}')"
-          echo "AI root invalid-request HTTP=$root_code"
-          echo "AI /api/ai invalid-request HTTP=$api_code"
-          test "$api_code" = '400'
-          grep -qiF "access-control-allow-origin: $ORIGIN" /tmp/api-ai.headers
-          grep -qF 'Invalid AI request' /tmp/api-ai.body
-          echo 'AI /api/ai ROUTE PASS: rejected before model/daily-quota reservation'
+          code="$(curl --silent --show-error --request POST "$ORIGIN/api/ai" --header "Origin: $ORIGIN" --header 'Content-Type: application/json' --data '{}' --dump-header /tmp/ai.headers --output /tmp/ai.body --write-out '%{http_code}')"
+          echo "AI /api/ai invalid-request HTTP=$code"
+          test "$code" = '400'
+          grep -qiF "access-control-allow-origin: $ORIGIN" /tmp/ai.headers
+          grep -qF 'Invalid AI request' /tmp/ai.body
+          echo 'AI ROUTE PASS: /api/ai reaches Worker; no model call / no daily quota reservation'
 
       - name: Verify feedback CORS without write
         shell: bash
@@ -110,11 +109,11 @@ jobs:
           grep -qiF "access-control-allow-origin: $ORIGIN" /tmp/fb.headers
           echo 'FEEDBACK CORS PASS: no row written'
 
-      - name: Confirm Netlify fallback still reachable
+      - name: Confirm Netlify core fallback still reachable
         shell: bash
         run: |
           set -euo pipefail
-          code="$(curl --silent --show-error --location --output /dev/null --write-out '%{http_code}' 'https://swsi-quiznetlify.netlify.app/?fallback-smoke=1')"
+          code="$(curl --silent --show-error --location --output /tmp/netlify.html --write-out '%{http_code}' 'https://swsi-quiznetlify.netlify.app/?fallback-smoke=1')"
           echo "Netlify fallback HTTP=$code"
           test "$code" = '200'
-          echo 'NETLIFY FALLBACK PASS'
+          echo 'NETLIFY CORE FALLBACK PASS'
