@@ -1165,9 +1165,194 @@ main [style*="font-size:15px"]{
   document.head.appendChild(style);
 })();
 
-/* SWSI Product Philosophy Home 2026-08-26
-   Keep the exam-prep flow calm and direct: study first, platform second.
-   Core promise: free, no answer locks, no points, no anxiety-selling UI.
+/* SWSI Layout Foundation V1 2026-08-29
+   Layer 1: one owner for the global shell (header / main / footer / bottom nav).
+   Layer 2: page templates are expressed only through body[data-swsi-page].
+   Layer 3: feature modules own their cards/components, never the global shell.
+*/
+(function(){
+  'use strict';
+
+  var STYLE_ID='swsi-layout-foundation-v1';
+  if(!document.getElementById(STYLE_ID)){
+    var st=document.createElement('style');
+    st.id=STYLE_ID;
+    st.textContent=`
+      :root{
+        --swsi-shell-max:540px;
+        --swsi-shell-x:22px;
+        --swsi-main-y:24px;
+        --swsi-tabbar-button-height:58px;
+        --swsi-tabbar-clearance:calc(84px + env(safe-area-inset-bottom,0px));
+      }
+
+      html{
+        min-height:100%;
+        scroll-padding-bottom:var(--swsi-tabbar-clearance);
+      }
+      body{
+        min-height:100vh;
+        min-height:100dvh;
+        padding-bottom:0!important;
+      }
+      .wrap{
+        width:100%;
+        max-width:var(--swsi-shell-max);
+        margin:0 auto;
+        min-height:100vh!important;
+        min-height:100dvh!important;
+        height:auto!important;
+        display:flex!important;
+        flex-direction:column!important;
+        padding-bottom:var(--swsi-tabbar-clearance)!important;
+      }
+      header{
+        padding-top:calc(20px + env(safe-area-inset-top,0px))!important;
+      }
+      main{
+        flex:1 0 auto!important;
+        min-height:0!important;
+        height:auto!important;
+        padding-bottom:24px!important;
+      }
+      footer{
+        margin-top:auto!important;
+        margin-bottom:0!important;
+        padding:16px var(--swsi-shell-x) 18px!important;
+      }
+
+      .tabbar{
+        position:fixed!important;
+        left:50%!important;
+        right:auto!important;
+        bottom:0!important;
+        width:100%!important;
+        max-width:var(--swsi-shell-max)!important;
+        transform:translateX(-50%)!important;
+        padding-bottom:env(safe-area-inset-bottom,0px)!important;
+        z-index:30!important;
+      }
+      .tabbar button{
+        min-height:var(--swsi-tabbar-button-height)!important;
+        padding:8px 4px 10px!important;
+      }
+      .tabbar .ico{font-size:17px!important;}
+
+      /* Internal app pages do not repeat the large public footer. The complete
+         footer is reserved for the platform entry/loading shell; public info is
+         still available from Learning > 更多與平台資訊. */
+      body.swsi-layout-ready footer{display:none!important;}
+      body.swsi-layout-ready[data-swsi-page="home"] footer,
+      body.swsi-layout-ready[data-swsi-page="loading"] footer{display:block!important;}
+
+      /* Home is intentionally content-height so the public footer follows the
+         home content naturally. Bottom-nav clearance still belongs to .wrap. */
+      body[data-swsi-page="home"] .wrap{
+        min-height:0!important;
+        height:auto!important;
+      }
+      body[data-swsi-page="home"] main{
+        flex:0 0 auto!important;
+        min-height:0!important;
+        padding-bottom:10px!important;
+      }
+      body[data-swsi-page="home"] footer{
+        margin-top:12px!important;
+        padding-bottom:18px!important;
+      }
+
+      /* Loading keeps the shell stable: the flexible main pushes attribution
+         toward the lower part of the viewport without arbitrary spacer pixels. */
+      body[data-swsi-page="loading"] main{flex:1 0 auto!important;}
+
+      @media(max-width:720px){
+        .tabbar{
+          left:0!important;
+          right:0!important;
+          width:100%!important;
+          max-width:none!important;
+          transform:none!important;
+          border-radius:0!important;
+          box-shadow:none!important;
+          border-left:0!important;
+          border-right:0!important;
+          border-bottom:0!important;
+          border-top:1px solid var(--line)!important;
+          background:rgba(248,250,249,.985)!important;
+          padding-left:env(safe-area-inset-left,0px)!important;
+          padding-right:env(safe-area-inset-right,0px)!important;
+        }
+      }
+      @media(max-width:420px){
+        :root{--swsi-tabbar-clearance:calc(88px + env(safe-area-inset-bottom,0px));}
+      }
+      html[data-fs="2"]{
+        --swsi-tabbar-clearance:calc(94px + env(safe-area-inset-bottom,0px));
+      }
+      @media(display-mode:standalone),(display-mode:fullscreen){
+        :root{--swsi-tabbar-clearance:calc(90px + env(safe-area-inset-bottom,0px));}
+        html[data-fs="2"]{--swsi-tabbar-clearance:calc(98px + env(safe-area-inset-bottom,0px));}
+      }
+    `;
+    document.head.appendChild(st);
+  }
+
+  function detectPage(){
+    var app=document.getElementById('app');
+    if(!app)return 'loading';
+    var text=(app.textContent||'').trim();
+    if(/正在開啟 SWSI|載入題庫|準備完整題庫|第一次開啟全庫功能|下載已發布的歷屆考次/.test(text))return 'loading';
+    if(app.querySelector('.qcard'))return 'quiz';
+    if(app.querySelector('.swsi-focus-hero'))return 'home';
+    if(app.querySelector('.sumcard'))return 'result';
+    if(app.querySelector('.swsi-myhub'))return 'learning';
+    if(app.querySelector('.wta,.wbox'))return 'essay-write';
+
+    /* Essay library is a router state, not a styling state. Later navigation
+       polish is allowed to rewrite tab markup/classes, so do not make shell
+       classification depend on the visual `.on` class. */
+    try{
+      if(typeof view!=='undefined'&&view==='essay')return 'essay-library';
+    }catch(_e){}
+
+    if(app.querySelector('.swsi-learning-section,.swsi-progress-hero'))return 'learning-detail';
+
+    /* Compatibility fallback for older renderers that do not expose router state. */
+    var essayTab=document.getElementById('t-essay');
+    if(essayTab&&essayTab.classList.contains('on'))return 'essay-library';
+    var h=app.querySelector('.section-h');
+    if(h&&/申論/.test(h.textContent||''))return 'essay-library';
+    return 'standard';
+  }
+
+  function syncLayout(){
+    if(!document.body)return;
+    var page=detectPage();
+    document.body.setAttribute('data-swsi-page',page);
+    document.body.classList.add('swsi-layout-ready');
+    /* Compatibility marker for existing interaction QA and any older owner that
+       only needs to know whether a question card is active. Geometry still lives here. */
+    document.body.classList.toggle('swsi-question-active',page==='quiz');
+  }
+
+  syncLayout();
+  var app=document.getElementById('app');
+  if(app){
+    try{
+      var queued=false;
+      new MutationObserver(function(){
+        if(queued)return;
+        queued=true;
+        requestAnimationFrame(function(){queued=false;syncLayout();});
+      }).observe(app,{childList:true,subtree:true,characterData:true});
+    }catch(_e){}
+  }
+  window.addEventListener('pageshow',syncLayout);
+  window.addEventListener('focus',syncLayout);
+})();
+/* SWSI Focused Study Home V2 2026-08-29
+   UX simplification preview: one clear study action at a time.
+   No grading, question-bank, AI or storage contract changes.
 */
 (function(){
   'use strict';
@@ -1177,61 +1362,35 @@ main [style*="font-size:15px"]{
     var style=document.createElement('style');
     style.id='swsi-product-philosophy-style';
     style.textContent=`
-      .swsi-focus-hero{background:linear-gradient(155deg,#426D64,#355A52);color:#fff;border-radius:22px;padding:24px 21px 21px;margin-bottom:14px;box-shadow:0 7px 24px rgba(43,62,57,.14)}
-      .swsi-focus-hero .kicker{font-size:var(--swsi-ui-small,11.5px);font-weight:800;letter-spacing:1.8px;opacity:.78;margin-bottom:5px}
-      .swsi-focus-hero h1{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-hero,25px);font-weight:900;line-height:1.35;letter-spacing:.2px;margin:0}
-      .swsi-focus-hero p{font-size:var(--swsi-ui-body,14px);line-height:1.72;opacity:.92;margin:8px 0 0}
-      .swsi-promise-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:15px}
-      .swsi-promise-row span{font-size:var(--swsi-ui-small,11.5px);line-height:1.3;padding:5px 9px;border:1px solid rgba(255,255,255,.20);background:rgba(255,255,255,.11);border-radius:999px}
-
-      .swsi-focus-primary{background:#fff;border:1px solid rgba(79,126,118,.48);border-radius:19px;padding:18px;margin-bottom:10px;box-shadow:0 3px 14px rgba(43,42,38,.035)}
-      .swsi-focus-primary .label{font-size:var(--swsi-ui-small,11.5px);font-weight:800;color:var(--pine);letter-spacing:1px;margin-bottom:3px}
-      .swsi-focus-primary h2{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-title,15px);line-height:1.4;margin:0;font-weight:900}
+      .swsi-focus-hero{background:linear-gradient(155deg,#426D64,#355A52);color:#fff;border-radius:18px;padding:18px 18px 17px;margin-bottom:11px;box-shadow:0 5px 18px rgba(43,62,57,.11)}
+      .swsi-focus-hero .kicker{font-size:var(--swsi-ui-small,11px);font-weight:800;letter-spacing:1.2px;opacity:.8;margin-bottom:4px}
+      .swsi-focus-hero h1{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-hero,22px);font-weight:900;line-height:1.35;letter-spacing:.1px;margin:0}
+      .swsi-focus-hero p{font-size:var(--swsi-ui-body,13px);line-height:1.65;opacity:.9;margin:6px 0 0}
+      .swsi-focus-primary{background:#fff;border:1px solid rgba(79,126,118,.44);border-radius:17px;padding:17px;margin-bottom:9px;box-shadow:0 2px 10px rgba(43,42,38,.025)}
+      .swsi-focus-primary .label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--pine);letter-spacing:.8px;margin-bottom:3px}
+      .swsi-focus-primary h2{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-title,16px);line-height:1.4;margin:0;font-weight:900}
       .swsi-focus-primary p{font-size:var(--swsi-ui-small,11.5px);line-height:1.65;color:var(--ink-soft);margin:4px 0 0}
-      .swsi-focus-actions{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px;margin-top:14px}
+      .swsi-focus-actions{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:8px;margin-top:13px}
       .swsi-focus-actions button{min-height:48px;border-radius:12px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,14px);font-weight:800;cursor:pointer}
-      .swsi-focus-actions .go{border:none;background:var(--pine-deep);color:#fff}
-      .swsi-focus-actions .choose{border:1px solid var(--line);background:var(--paper2);color:var(--pine)}
-
-      .swsi-focus-custom{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:-2px 0 11px}
-      .swsi-focus-custom .field-label{font-size:var(--swsi-ui-small,11.5px);font-weight:800;color:var(--ink-soft);margin:0 0 5px}
-      .swsi-focus-custom .hint{font-size:var(--swsi-ui-small,11.5px);line-height:1.6;color:var(--ink-soft);margin:1px 0 9px}
-
-      .swsi-study-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:16px 17px;margin:0 0 9px;cursor:pointer;color:var(--ink);font-family:inherit}
-      .swsi-study-card.due{border-color:rgba(158,97,85,.45);background:var(--wrong-bg)}
-      .swsi-study-card .copy{min-width:0}
-      .swsi-study-card .title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:var(--swsi-ui-title,15px);line-height:1.4}
-      .swsi-study-card .sub{font-size:var(--swsi-ui-small,11.5px);color:var(--ink-soft);line-height:1.6;margin-top:3px}
-      .swsi-study-card .aside{flex:0 0 auto;color:var(--ink-3);font-size:22px}
-      .swsi-study-card .count{font-size:var(--swsi-ui-small,11.5px);font-weight:800;color:var(--wrong);background:#fff;border-radius:999px;padding:5px 9px;white-space:nowrap}
-
-      .swsi-other-tools{margin:14px 0 0;border-top:1px solid var(--line);padding-top:4px}
-      .swsi-other-tools summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:var(--swsi-ui-small,11.5px);font-weight:800;color:var(--ink-soft)}
-      .swsi-other-tools summary::-webkit-details-marker{display:none}
-      .swsi-other-tools summary::after{content:'＋';margin-left:7px;color:var(--ink-3)}
-      .swsi-other-tools[open] summary::after{content:'－'}
-      .swsi-other-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-bottom:4px}
-      .swsi-other-grid button{min-height:45px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--pine);font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,14px);font-weight:800}
-
-      .swsi-principle-note{margin:15px 4px 2px;text-align:center;font-size:var(--swsi-ui-small,11.5px);line-height:1.65;color:var(--ink-soft)}
-      .swsi-principle-note b{color:var(--ink);font-weight:800}
-      @media(max-width:370px){.swsi-focus-actions,.swsi-other-grid{grid-template-columns:1fr}.swsi-focus-hero{padding:21px 18px}}
+      .swsi-focus-actions .go{border:none;background:var(--pine-deep);color:#fff}.swsi-focus-actions .choose{border:1px solid var(--line);background:var(--paper2);color:var(--pine)}
+      .swsi-focus-custom{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px;margin:-1px 0 10px}
+      .swsi-focus-custom .field-label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--ink-soft);margin:0 0 5px}.swsi-focus-custom .hint{font-size:var(--swsi-ui-small,11px);line-height:1.6;color:var(--ink-soft);margin:1px 0 9px}
+      .swsi-study-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px 16px;margin:0 0 8px;cursor:pointer;color:var(--ink);font-family:inherit}
+      .swsi-study-card.due{border-color:rgba(158,97,85,.42);background:#FBF6F4}.swsi-study-card .copy{min-width:0}.swsi-study-card .title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:var(--swsi-ui-title,15px);line-height:1.4}.swsi-study-card .sub{font-size:var(--swsi-ui-small,11.5px);color:var(--ink-soft);line-height:1.55;margin-top:3px}.swsi-study-card .aside{flex:0 0 auto;color:var(--ink-3);font-size:21px}.swsi-study-card .count{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--wrong);background:#fff;border-radius:999px;padding:5px 9px;white-space:nowrap}
+      .swsi-other-tools{margin:12px 0 0;border-top:1px solid var(--line);padding-top:3px}.swsi-other-tools summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:var(--swsi-ui-small,11.5px);font-weight:800;color:var(--ink-soft)}.swsi-other-tools summary::-webkit-details-marker{display:none}.swsi-other-tools summary::after{content:'＋';margin-left:7px;color:var(--ink-3)}.swsi-other-tools[open] summary::after{content:'－'}.swsi-other-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-bottom:4px}.swsi-other-grid button{min-height:45px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--pine);font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,13.5px);font-weight:800}
+      .swsi-principle-note{margin:12px 4px 2px;text-align:center;font-size:var(--swsi-ui-small,10.8px);line-height:1.6;color:var(--ink-soft)}
+      @media(max-width:370px){.swsi-focus-actions,.swsi-other-grid{grid-template-columns:1fr}.swsi-focus-hero{padding:17px 16px}}
     `;
     document.head.appendChild(style);
   }
 
   window.swsiStartNow=function(){
-    try{
-      homeQuizScope='smart';
-      homeQuizCount=20;
-      subjFilter='全部科目';
-      homeQuizOpen=false;
-    }catch(_e){}
+    try{homeQuizScope='smart';homeQuizCount=20;subjFilter='全部科目';homeQuizOpen=false;}catch(_e){}
     if(typeof startFocusedQuiz==='function') startFocusedQuiz();
   };
 
   function safeReviewSummary(){
-    try{return reviewSummary();}catch(_e){return {dueCount:0,nextDueAt:null};}
+    try{return reviewSummary();}catch(_e){return {dueCount:0,activeCount:0,nextDueAt:null};}
   }
 
   renderHome=function(){
@@ -1240,50 +1399,28 @@ main [style*="font-size:15px"]{
     var years=examYears();
     if(!homeQuizYear&&years.length) homeQuizYear=String(years[0]);
     homeQuizRound=homeQuizRound==='all'?'all':canonicalRound(homeQuizRound);
-    var newest=years[0]||'';
     var specific=homeQuizScope==='specific';
     var subjOpts=['全部科目'].concat(SUBJECTS).map(function(x){return '<option value="'+swsiEsc(x)+'" '+(x===subjFilter?'selected':'')+'>'+swsiEsc(x)+'</option>';}).join('');
     var yearOpts=years.map(function(y){return '<option value="'+y+'" '+(String(y)===String(homeQuizYear)?'selected':'')+'>'+y+' 年</option>';}).join('');
-    var reviewSub=rv.dueCount?('今天有 '+rv.dueCount+' 題該再看一次'):(rv.nextDueAt?('今天沒有到期題；下一批 '+reviewDueLabel(rv.nextDueAt)):'目前沒有待複習題');
+    var learnSub=rv.dueCount?('今天有 '+rv.dueCount+' 題到期，先處理最值得。'):(rv.activeCount?('還有 '+rv.activeCount+' 題尚未熟練。'):'查看錯題、弱點與學習進度。');
     var scopeHint=homeQuizScope==='smart'?'最近 10 年為主，近 3 年與高頻考點優先。':homeQuizScope==='specific'?'只刷你指定的年度與考次。':homeQuizScope==='all'?'從完整歷史題庫抽題。':'只從較新的歷屆題目抽題。';
     var offlineNote='';
-    try{
-      if(window.SWSI_QB&&window.SWSI_QB.usingOffline) offlineNote='<div style="margin-bottom:10px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:var(--swsi-ui-small);color:var(--ink-soft)">目前使用這台裝置已儲存的離線題庫。</div>';
-    }catch(_e){}
+    try{if(window.SWSI_QB&&window.SWSI_QB.usingOffline)offlineNote='<div style="margin-bottom:9px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:var(--swsi-ui-small);color:var(--ink-soft)">目前使用這台裝置已儲存的離線題庫。</div>';}catch(_e){}
 
     app.innerHTML=offlineNote+
-      '<section class="swsi-focus-hero" aria-label="SWSI 平台理念">'+
-        '<div class="kicker">SWSI · 免費社工師國考工具</div>'+
-        '<h1>把時間留給讀書。</h1>'+
-        '<p>不鎖題、不賣解答、不用點數。做題、訂正、複習，然後離開。</p>'+
-        '<div class="swsi-promise-row"><span>核心功能免費</span><span>'+questionTotal()+' 題</span>'+(newest?'<span>'+newest+' 最新考次</span>':'')+'</div>'+
-      '</section>'+
+      '<section class="swsi-focus-hero"><div class="kicker">SWSI · 免費社工師國考學習平台</div><h1>今天想練什麼？</h1><p>做題、複習、申論。先完成一件就好。</p></section>'+
+      '<section class="swsi-focus-primary"><div class="label">快速練題</div><h2>刷 20 題選擇題</h2><p>直接用智慧推薦開始；需要指定年度、考次或科目時再打開設定。</p><div class="swsi-focus-actions"><button class="go" onclick="swsiStartNow()">直接開始 20 題</button><button class="choose" onclick="toggleHomeQuiz()">'+(homeQuizOpen?'收起設定':'自己選範圍')+'</button></div></section>'+
+      (homeQuizOpen?('<section class="swsi-focus-custom"><div class="field-label">範圍</div><select class="subj" aria-label="刷題範圍" onchange="setHomeQuizScope(this.value)" style="margin-bottom:9px"><option value="smart" '+(homeQuizScope==='smart'?'selected':'')+'>智慧推薦</option><option value="recent3" '+(homeQuizScope==='recent3'?'selected':'')+'>近 3 年</option><option value="recent5" '+(homeQuizScope==='recent5'?'selected':'')+'>近 5 年</option><option value="specific" '+(homeQuizScope==='specific'?'selected':'')+'>指定歷屆</option><option value="all" '+(homeQuizScope==='all'?'selected':'')+'>全部題庫</option></select>'+(specific?('<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="subj" aria-label="考試年度" onchange="setHomeQuizYear(this.value)" style="margin-bottom:9px">'+yearOpts+'</select><select class="subj" aria-label="考試考次" onchange="setHomeQuizRound(this.value)" style="margin-bottom:9px"><option value="all" '+(homeQuizRound==='all'?'selected':'')+'>全部考次</option><option value="1" '+(homeQuizRound==='1'?'selected':'')+'>第一次</option><option value="2" '+(homeQuizRound==='2'?'selected':'')+'>第二次</option></select></div>'):'')+'<div class="field-label">科目</div><select class="subj" aria-label="科目" onchange="subjFilter=this.value;render()" style="margin-bottom:9px">'+subjOpts+'</select><div class="field-label">題數</div><select class="subj" aria-label="題數" onchange="setHomeQuizCount(this.value)" style="margin-bottom:7px"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="40" '+(homeQuizCount===40?'selected':'')+'>40 題</option></select><div class="hint">'+swsiEsc(scopeHint)+'</div><button class="btn" onclick="startFocusedQuiz()" style="margin-top:2px">開始這組題目</button></section>'):'')+
+      '<button class="swsi-study-card '+(rv.dueCount?'due':'')+'" onclick="go(\'progress\')"><span class="copy"><span class="title">學習中心</span><span class="sub">'+swsiEsc(learnSub)+'</span></span>'+(rv.dueCount?'<span class="count">'+rv.dueCount+' 題</span>':'<span class="aside">›</span>')+'</button>'+
+      '<button class="swsi-study-card" onclick="go(\'essay\')"><span class="copy"><span class="title">申論練習</span><span class="sub">歷屆申論、時事題材、草稿與 AI 練習回饋。</span></span><span class="aside">›</span></button>'+
+      '<details class="swsi-other-tools"><summary>更多練習方式</summary><div class="swsi-other-grid"><button onclick="MK.open()">計時模擬考</button><button onclick="go(\'topics\')">理論、法規與時事</button></div></details>'+
+      '<div class="swsi-principle-note">核心備考功能免費 · 不鎖答案 · 不用點數</div>';
 
-      '<section class="swsi-focus-primary">'+
-        '<div class="label">現在開始</div><h2>刷 20 題選擇題</h2>'+
-        '<p>直接用智慧推薦開始；想指定年度、考次或科目時再打開設定。</p>'+
-        '<div class="swsi-focus-actions"><button class="go" onclick="swsiStartNow()">直接開始 20 題</button><button class="choose" onclick="toggleHomeQuiz()">'+(homeQuizOpen?'收起設定':'自己選範圍')+'</button></div>'+
-      '</section>'+
-
-      (homeQuizOpen?('<section class="swsi-focus-custom">'+
-        '<div class="field-label">範圍</div><select class="subj" aria-label="刷題範圍" onchange="setHomeQuizScope(this.value)" style="margin-bottom:9px">'+
-          '<option value="smart" '+(homeQuizScope==='smart'?'selected':'')+'>智慧推薦</option><option value="recent3" '+(homeQuizScope==='recent3'?'selected':'')+'>近 3 年</option><option value="recent5" '+(homeQuizScope==='recent5'?'selected':'')+'>近 5 年</option><option value="specific" '+(homeQuizScope==='specific'?'selected':'')+'>指定歷屆</option><option value="all" '+(homeQuizScope==='all'?'selected':'')+'>全部題庫</option></select>'+
-        (specific?('<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="subj" aria-label="考試年度" onchange="setHomeQuizYear(this.value)" style="margin-bottom:9px">'+yearOpts+'</select><select class="subj" aria-label="考試考次" onchange="setHomeQuizRound(this.value)" style="margin-bottom:9px"><option value="all" '+(homeQuizRound==='all'?'selected':'')+'>全部考次</option><option value="1" '+(homeQuizRound==='1'?'selected':'')+'>第一次</option><option value="2" '+(homeQuizRound==='2'?'selected':'')+'>第二次</option></select></div>'):'')+
-        '<div class="field-label">科目</div><select class="subj" aria-label="科目" onchange="subjFilter=this.value;render()" style="margin-bottom:9px">'+subjOpts+'</select>'+
-        '<div class="field-label">題數</div><select class="subj" aria-label="題數" onchange="setHomeQuizCount(this.value)" style="margin-bottom:7px"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="40" '+(homeQuizCount===40?'selected':'')+'>40 題</option></select>'+
-        '<div class="hint">'+swsiEsc(scopeHint)+'</div><button class="btn" onclick="startFocusedQuiz()" style="margin-top:2px">開始這組題目</button></section>'):'')+
-
-      '<button class="swsi-study-card '+(rv.dueCount?'due':'')+'" onclick="'+(rv.dueCount?'startDueReview()':"go('review')")+'"><span class="copy"><span class="title">今天該複習的</span><span class="sub">'+swsiEsc(reviewSub)+'</span></span>'+(rv.dueCount?'<span class="count">'+rv.dueCount+' 題</span>':'<span class="aside">›</span>')+'</button>'+
-      '<button class="swsi-study-card" onclick="go(\'essay\')"><span class="copy"><span class="title">練一題申論</span><span class="sub">先自己寫，再看作答骨架與 AI 練習回饋；AI 不冒充官方閱卷。</span></span><span class="aside">›</span></button>'+
-
-      '<details class="swsi-other-tools"><summary>其他工具，需要時再開</summary><div class="swsi-other-grid"><button onclick="MK.open()">計時模擬考</button><button onclick="go(\'topics\')">學習工具</button></div></details>'+
-      '<div class="swsi-principle-note"><b>SWSI 不賣焦慮。</b> 核心備考功能保持免費，沒有答案鎖與點數門檻。</div>';
-
-    if(typeof relabelTabs==='function') try{relabelTabs();}catch(_e){}
+    if(typeof relabelTabs==='function')try{relabelTabs();}catch(_e){}
   };
 
   installStyle();
-  try{if(typeof view!=='undefined'&&view==='home') render();}catch(_e){}
+  try{if(typeof view!=='undefined'&&view==='home')render();}catch(_e){}
 })();
 
 /* SWSI Focused Quiz UI 2026-08-26
@@ -1516,41 +1653,14 @@ html[data-fs="2"]{
   }
 })();
 
-/* SWSI Home Spacing + Essay Entry Fix 2026-08-26
-   - Home must not stretch a short study dashboard into a page of empty space.
-   - Essay entry should be resilient even if auto essays need one last async load.
+/* SWSI Essay Entry Binding 2026-08-29
+   Layer 3 only: bind essay-entry controls.
+   Global shell spacing is owned exclusively by 15.layout-foundation.part.
 */
 (function(){
   'use strict';
 
-  var style=document.createElement('style');
-  style.id='swsi-home-spacing-essay-entry-style';
-  style.textContent=`
-/* Home is intentionally short. Do not let main flex-grow create a huge blank slab
-   between the study actions and the footer. */
-body:has(#app .swsi-focus-hero) main{
-  flex:0 0 auto!important;
-  padding-bottom:calc(92px + env(safe-area-inset-bottom))!important;
-}
-body:has(#app .swsi-focus-hero) .wrap{
-  padding-bottom:0!important;
-}
-body:has(#app .swsi-focus-hero) footer{
-  margin-top:18px!important;
-  padding-bottom:calc(18px + env(safe-area-inset-bottom))!important;
-}
-
-/* Review can use the normal compact safe area; long essay pages keep the larger
-   mobile-reading safe area from the previous patch. */
-body:has(#app .ux-page-head) main,
-body:has(#app .section-h) main{
-  padding-bottom:calc(100px + env(safe-area-inset-bottom));
-}
-`;
-  document.head.appendChild(style);
-
   /* Essay navigation is owned by zzz_fix_essay_navigation.part. This module only binds entry controls. */
-
   function bindEssayEntries(root){
     var tab=document.getElementById('t-essay');
     if(tab && tab.dataset.swsiEssayBound!=='1'){
@@ -1881,9 +1991,10 @@ body:has(#app .section-h) main{
   try{if(typeof view!=='undefined'&&(view==='home'||view==='review'||view==='progress'))render();}catch(_e){}
 })();
 
-/* SWSI My Learning Center V1 2026-08-28
-   Turns the existing progress page into a compact personal study hub.
-   This layer is a UI enhancer only: it does not own renderProgress or other runtime routes.
+/* SWSI Learning Center V3 2026-08-29
+   Personal study hub: review, progress, quiz and essay in one place.
+   The hub renders immediately from local learning state and never requires a full
+   4,800-question load just to open the second tab.
 */
 (function(){
   'use strict';
@@ -1893,407 +2004,211 @@ body:has(#app .section-h) main{
   var SUPABASE_PUBLISHABLE_KEY='sb_publishable_6KL-X7KfkcfyP1kLxfokhA_0h2YuYMr';
   var ADMIN_ENDPOINT=SUPABASE_URL+'/functions/v1/swsi-admin';
   var AUTH_STORAGE_KEY='sb-'+SUPABASE_PROJECT_REF+'-auth-token';
+  var STYLE_ID='swsi-my-learning-center-v3-style';
 
-  var STYLE_ID='swsi-my-learning-center-v1-style';
   if(!document.getElementById(STYLE_ID)){
     var st=document.createElement('style');
     st.id=STYLE_ID;
     st.textContent=`
-      .swsi-myhub{margin:0 0 18px;display:grid;gap:12px}
-      .swsi-myhub-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;box-shadow:0 6px 22px rgba(35,48,42,.05)}
-      .swsi-myhub-title{font-family:'Noto Serif TC',serif;font-size:18px;font-weight:800;color:var(--ink);margin:0}
-      .swsi-myhub-sub{font:500 12px/1.65 'Noto Sans TC',sans-serif;color:var(--ink-soft);margin-top:3px}
-      .swsi-myhub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
-      .swsi-myhub-action{border:1px solid var(--line);background:#FDFEFD;color:var(--ink);border-radius:13px;min-height:84px;padding:11px 8px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;text-align:left;cursor:pointer;font-family:'Noto Sans TC',sans-serif}
-      .swsi-myhub-action b{font-size:13px;line-height:1.35}.swsi-myhub-action small{font-size:10.5px;line-height:1.45;color:var(--ink-soft)}
-      .swsi-myhub-action .ico{font-size:19px;line-height:1}
-      .swsi-myhub-list{display:grid;margin-top:9px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
-      .swsi-myhub-row{border:0;border-bottom:1px solid var(--line);background:#fff;min-height:54px;padding:10px 12px;display:flex;align-items:center;gap:10px;width:100%;text-align:left;color:var(--ink);cursor:pointer;font-family:'Noto Sans TC',sans-serif}
-      .swsi-myhub-row:last-child{border-bottom:0}.swsi-myhub-row .label{font-size:13px;font-weight:750;flex:1}.swsi-myhub-row .meta{font-size:10.5px;color:var(--ink-soft)}.swsi-myhub-row .arrow{color:#8A9690;font-size:18px}
-      .swsi-myhub-row.admin{background:#F7F9FF}.swsi-myhub-row.admin .label{color:#2747A3}
-      .swsi-myhub-row.admin-login{background:#FBFCFB;color:#667085}.swsi-myhub-row.admin-login .label{font-weight:650;color:#667085}.swsi-myhub-row.admin-login .meta{color:#98A2B3}
-      .swsi-myhub-row[hidden]{display:none!important}
+      .swsi-myhub{margin:0 0 16px;display:grid;gap:10px}
+      .swsi-myhub-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:16px;box-shadow:0 4px 16px rgba(35,48,42,.035)}
+      .swsi-myhub-kicker{font:800 10.5px/1.3 'Noto Sans TC',sans-serif;letter-spacing:1px;color:var(--pine);margin-bottom:4px}
+      .swsi-myhub-title{font-family:'Noto Serif TC',serif;font-size:19px;font-weight:900;line-height:1.4;color:var(--ink);margin:0}
+      .swsi-myhub-sub{font:500 11.5px/1.65 'Noto Sans TC',sans-serif;color:var(--ink-soft);margin-top:4px}
+      .swsi-myhub-primary{width:100%;margin-top:13px;border:0;border-radius:13px;background:var(--pine-deep);color:#fff;min-height:48px;padding:11px 13px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;font-family:'Noto Sans TC',sans-serif}
+      .swsi-myhub-primary b{display:block;font-size:14px;line-height:1.4}.swsi-myhub-primary small{display:block;font-size:10.5px;line-height:1.45;opacity:.86;margin-top:2px}.swsi-myhub-primary .arrow{font-size:21px;opacity:.9}
+      .swsi-myhub-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:11px}
+      .swsi-myhub-stat{background:#F7F9F8;border:1px solid var(--line);border-radius:11px;padding:9px 8px;text-align:center}.swsi-myhub-stat b{display:block;font:850 17px/1.1 'Noto Sans TC',sans-serif;color:var(--ink)}.swsi-myhub-stat span{display:block;margin-top:3px;font:600 9.8px/1.35 'Noto Sans TC',sans-serif;color:var(--ink-soft)}
+      .swsi-myhub-list{display:grid;margin-top:11px;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff}
+      .swsi-myhub-row{border:0;border-bottom:1px solid var(--line);background:#fff;min-height:52px;padding:9px 11px;display:flex;align-items:center;gap:10px;width:100%;text-align:left;color:var(--ink);cursor:pointer;font-family:'Noto Sans TC',sans-serif}.swsi-myhub-row:last-child{border-bottom:0}.swsi-myhub-row .ico{width:25px;height:25px;border-radius:8px;background:#F1F5F3;color:var(--pine-deep);display:grid;place-items:center;font-weight:800;flex:0 0 auto}.swsi-myhub-row .copy{min-width:0;flex:1}.swsi-myhub-row .label{display:block;font-size:12.5px;font-weight:780;line-height:1.35}.swsi-myhub-row .meta{display:block;font-size:10.3px;line-height:1.45;color:var(--ink-soft);margin-top:2px}.swsi-myhub-row .arrow{color:#8A9690;font-size:18px}
+      .swsi-myhub-more{border:1px solid var(--line);border-radius:14px;background:#FAFBFA;overflow:hidden}.swsi-myhub-more>summary{list-style:none;min-height:44px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font:750 11.5px/1.4 'Noto Sans TC',sans-serif;color:var(--ink-soft)}.swsi-myhub-more>summary::-webkit-details-marker{display:none}.swsi-myhub-more>summary::after{content:'＋';color:var(--ink-3);font-size:16px}.swsi-myhub-more[open]>summary::after{content:'－'}.swsi-myhub-more .swsi-myhub-list{margin:0;border:0;border-top:1px solid var(--line);border-radius:0}
+      .swsi-myhub-row.admin{background:#F7F9FF}.swsi-myhub-row.admin .label{color:#2747A3}.swsi-myhub-row.admin-login{background:#FBFCFB}.swsi-myhub-row.admin-login .label{font-weight:650;color:#667085}.swsi-myhub-row[hidden]{display:none!important}
       .swsi-myhub-toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:980;background:#27322D;color:#fff;border-radius:999px;padding:9px 13px;font:650 12px/1.3 'Noto Sans TC',sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.2)}
-      .swsi-admin-layer{position:fixed;inset:0;z-index:1200;background:#F5F7FB;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
-      .swsi-admin-layer[hidden]{display:none!important}
-      .swsi-admin-bar{min-height:54px;display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #E5E7EB;background:#fff;box-shadow:0 2px 10px rgba(20,32,51,.05);font-family:'Noto Sans TC',sans-serif}
-      .swsi-admin-back{border:1px solid #D7DCE3;background:#fff;color:#27322D;border-radius:11px;padding:8px 11px;font-weight:750;cursor:pointer}
-      .swsi-admin-title{font-weight:800;color:#18202A;font-size:14px}.swsi-admin-note{margin-left:auto;color:#667085;font-size:11px}
-      .swsi-admin-frame{border:0;width:100%;flex:1;min-height:0;background:#F5F7FB}
-      body.swsi-admin-open{overflow:hidden}
-      @media(max-width:430px){.swsi-myhub-grid{grid-template-columns:1fr 1fr}.swsi-myhub-action{min-height:78px}.swsi-myhub-card{padding:13px}.swsi-admin-note{display:none}}
+      .swsi-admin-layer{position:fixed;inset:0;z-index:1200;background:#F5F7FB;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}.swsi-admin-layer[hidden]{display:none!important}.swsi-admin-bar{min-height:54px;display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #E5E7EB;background:#fff;box-shadow:0 2px 10px rgba(20,32,51,.05);font-family:'Noto Sans TC',sans-serif}.swsi-admin-back{border:1px solid #D7DCE3;background:#fff;color:#27322D;border-radius:11px;padding:8px 11px;font-weight:750;cursor:pointer}.swsi-admin-title{font-weight:800;color:#18202A;font-size:14px}.swsi-admin-note{margin-left:auto;color:#667085;font-size:11px}.swsi-admin-frame{border:0;width:100%;flex:1;min-height:0;background:#F5F7FB}body.swsi-admin-open{overflow:hidden}
+      @media(max-width:430px){.swsi-myhub-card{padding:14px;box-shadow:none}.swsi-admin-note{display:none}}
     `;
     document.head.appendChild(st);
   }
 
-  function draftCount(){
-    var n=0;
-    try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('essay_draft_')===0&&(localStorage.getItem(k)||'').trim())n++;}}catch(_e){}
-    return n;
-  }
-  function reviewMeta(){
-    try{var r=reviewSummary();return {due:Number(r.dueCount||0),active:Number(r.activeCount||0),mastered:Number(r.masteredCount||0)};}catch(_e){return {due:0,active:0,mastered:0};}
-  }
-  function toast(msg){
-    var old=document.querySelector('.swsi-myhub-toast');if(old)old.remove();
-    var el=document.createElement('div');el.className='swsi-myhub-toast';el.textContent=msg;document.body.appendChild(el);setTimeout(function(){if(el.parentNode)el.remove();},1800);
-  }
+  function draftCount(){var n=0;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('essay_draft_')===0&&(localStorage.getItem(k)||'').trim())n++;}}catch(_e){}return n;}
+  function reviewMeta(){try{var r=reviewSummary();return {due:Number(r.dueCount||0),active:Number(r.activeCount||0),mastered:Number(r.masteredCount||0)};}catch(_e){return {due:0,active:0,mastered:0};}}
+  function toast(msg){var old=document.querySelector('.swsi-myhub-toast');if(old)old.remove();var el=document.createElement('div');el.className='swsi-myhub-toast';el.textContent=msg;document.body.appendChild(el);setTimeout(function(){if(el.parentNode)el.remove();},1800);}
+
   window.swsiSharePlatform=async function(){
     var url=(location.origin&&location.origin!=='null')?location.origin+location.pathname:location.href;
     var data={title:'SWSI — Social Work Study Initiative',text:'社工師國考免費學習平台 SWSI',url:url};
-    try{
-      if(navigator.share){await navigator.share(data);return;}
-      if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(url);toast('已複製 SWSI 網址');return;}
-    }catch(err){if(err&&err.name==='AbortError')return;}
+    try{if(navigator.share){await navigator.share(data);return;}if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(url);toast('已複製 SWSI 網址');return;}}catch(err){if(err&&err.name==='AbortError')return;}
     try{var ta=document.createElement('textarea');ta.value=url;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('已複製 SWSI 網址');}catch(_e){toast('請從瀏覽器分享這個頁面');}
   };
 
-  function getStoredAdminToken(){
-    try{
-      var raw=localStorage.getItem(AUTH_STORAGE_KEY);
-      if(!raw)return '';
-      var data=JSON.parse(raw);
-      return String(data&&data.access_token||'');
-    }catch(_e){return '';}
-  }
-  function setAdminEntryVisible(visible){
-    document.querySelectorAll('[data-swsi-admin-entry]').forEach(function(el){el.hidden=!visible;});
-    document.querySelectorAll('[data-swsi-admin-login]').forEach(function(el){el.hidden=!!visible;});
-  }
-  async function verifyAdminAccess(){
-    var token=getStoredAdminToken();
-    if(!token){setAdminEntryVisible(false);return false;}
-    try{
-      var res=await fetch(ADMIN_ENDPOINT,{method:'GET',headers:{'apikey':SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+token}});
-      var ok=res.ok;
-      setAdminEntryVisible(ok);
-      return ok;
-    }catch(_e){
-      setAdminEntryVisible(false);
-      return false;
-    }
+  function getStoredAdminToken(){try{var raw=localStorage.getItem(AUTH_STORAGE_KEY);if(!raw)return '';var data=JSON.parse(raw);return String(data&&data.access_token||'');}catch(_e){return '';}}
+  function setAdminEntryVisible(visible){document.querySelectorAll('[data-swsi-admin-entry]').forEach(function(el){el.hidden=!visible;});document.querySelectorAll('[data-swsi-admin-login]').forEach(function(el){el.hidden=!!visible;});}
+  async function verifyAdminAccess(){var token=getStoredAdminToken();if(!token){setAdminEntryVisible(false);return false;}try{var res=await fetch(ADMIN_ENDPOINT,{method:'GET',headers:{'apikey':SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+token}});var ok=res.ok;setAdminEntryVisible(ok);return ok;}catch(_e){setAdminEntryVisible(false);return false;}}
+
+  function ensureAdminLayer(){var layer=document.getElementById('swsi-admin-layer');if(layer)return layer;layer=document.createElement('section');layer.id='swsi-admin-layer';layer.className='swsi-admin-layer';layer.hidden=true;layer.setAttribute('aria-label','SWSI 管理中心');layer.innerHTML='<div class="swsi-admin-bar"><button type="button" class="swsi-admin-back" onclick="swsiCloseAdminCenter()">‹ 返回 SWSI</button><div class="swsi-admin-title">管理中心</div><div class="swsi-admin-note">管理者專用・權限仍由 Supabase 驗證</div></div><iframe class="swsi-admin-frame" title="SWSI 管理中心" loading="lazy"></iframe>';document.body.appendChild(layer);return layer;}
+  function adminUrl(){var p=location.pathname||'/';if(/\/preview\/index\.html$/.test(p))return './admin/index.html';if(/\/index\.html$/.test(p))return './admin/index.html';if(/\/$/.test(p))return './admin/index.html';return 'admin/index.html';}
+  window.swsiOpenAdminCenter=function(){var layer=ensureAdminLayer();var frame=layer.querySelector('iframe');if(frame&&!frame.getAttribute('src'))frame.setAttribute('src',adminUrl());layer.hidden=false;document.body.classList.add('swsi-admin-open');};
+  window.swsiCloseAdminCenter=function(){var layer=document.getElementById('swsi-admin-layer');if(layer)layer.hidden=true;document.body.classList.remove('swsi-admin-open');verifyAdminAccess();};
+
+  function row(icon,label,meta,onclick,extraClass,attrs){return '<button type="button" class="swsi-myhub-row'+(extraClass?' '+extraClass:'')+'" '+(attrs||'')+' onclick="'+onclick+'"><span class="ico">'+icon+'</span><span class="copy"><span class="label">'+label+'</span><span class="meta">'+meta+'</span></span><span class="arrow">›</span></button>';}
+
+  function recommendation(rv,drafts){
+    if(rv.due>0)return {title:'先複習今天到期的 '+rv.due+' 題',sub:'到期錯題比再刷一批新題更值得。',onclick:"swsiLearningAction('due')"};
+    if(rv.active>0)return {title:'整理還沒熟的錯題',sub:'目前還有 '+rv.active+' 題在複習循環裡。',onclick:"swsiLearningAction('review')"};
+    if(drafts>0)return {title:'繼續一份申論草稿',sub:'這台裝置還有 '+drafts+' 份草稿可以接著寫。',onclick:"swsiLearningAction('essay')"};
+    return {title:'完成一組 20 題',sub:'先累積一點作答資料，平台才更知道你的弱點。',onclick:"swsiLearningAction('quiz')"};
   }
 
-  function ensureAdminLayer(){
-    var layer=document.getElementById('swsi-admin-layer');
-    if(layer)return layer;
-    layer=document.createElement('section');
-    layer.id='swsi-admin-layer';
-    layer.className='swsi-admin-layer';
-    layer.hidden=true;
-    layer.setAttribute('aria-label','SWSI 管理中心');
-    layer.innerHTML='<div class="swsi-admin-bar"><button type="button" class="swsi-admin-back" onclick="swsiCloseAdminCenter()">‹ 返回 SWSI</button><div class="swsi-admin-title">管理中心</div><div class="swsi-admin-note">管理者專用・權限仍由 Supabase 驗證</div></div><iframe class="swsi-admin-frame" title="SWSI 管理中心" loading="lazy"></iframe>';
-    document.body.appendChild(layer);
-    return layer;
-  }
-  function adminUrl(){
-    var p=location.pathname||'/';
-    if(/\/preview\/index\.html$/.test(p))return './admin/index.html';
-    if(/\/index\.html$/.test(p))return './admin/index.html';
-    if(/\/$/.test(p))return './admin/index.html';
-    return 'admin/index.html';
-  }
-  window.swsiOpenAdminCenter=function(){
-    var layer=ensureAdminLayer();
-    var frame=layer.querySelector('iframe');
-    if(frame&&!frame.getAttribute('src'))frame.setAttribute('src',adminUrl());
-    layer.hidden=false;
-    document.body.classList.add('swsi-admin-open');
-  };
-  window.swsiCloseAdminCenter=function(){
-    var layer=document.getElementById('swsi-admin-layer');
-    if(layer)layer.hidden=true;
-    document.body.classList.remove('swsi-admin-open');
-    verifyAdminAccess();
-  };
-
-  function action(icon,title,sub,onclick){
-    return '<button type="button" class="swsi-myhub-action" onclick="'+onclick+'"><span class="ico">'+icon+'</span><b>'+title+'</b><small>'+sub+'</small></button>';
-  }
-  function row(label,meta,onclick,extraClass){
-    return '<button type="button" class="swsi-myhub-row'+(extraClass?' '+extraClass:'')+'" onclick="'+onclick+'"><span class="label">'+label+'</span>'+(meta?'<span class="meta">'+meta+'</span>':'')+'<span class="arrow">›</span></button>';
-  }
   function buildHub(){
-    var rv=reviewMeta(),drafts=draftCount();
-    var reviewText=rv.due?('今天 '+rv.due+' 題到期'):(rv.active?('尚有 '+rv.active+' 題未熟練'):'目前沒有待複習題');
-    var essayText=drafts?('這台裝置有 '+drafts+' 份草稿'):'開始申論練習';
-    return '<section class="swsi-myhub" aria-label="我的學習中心">'
-      +'<div class="swsi-myhub-card"><h2 class="swsi-myhub-title">我的學習中心</h2><div class="swsi-myhub-sub">把刷題、錯題與申論集中在這裡。只顯示平台目前真的有的資料。</div>'
-      +'<div class="swsi-myhub-grid">'
-      +action('◎','繼續刷題','隨機 20 題','swsiStartRecommended20()')
-      +action('↻','錯題複習',reviewText,"go('review')")
-      +action('✎','申論練習',essayText,'window.swsiOpenEssay()')
+    var rv=reviewMeta(),drafts=draftCount(),rec=recommendation(rv,drafts);
+    return '<section class="swsi-myhub" aria-label="學習中心">'
+      +'<div class="swsi-myhub-card"><div class="swsi-myhub-kicker">學習中心</div><h2 class="swsi-myhub-title">今天先做一件就好</h2><div class="swsi-myhub-sub">這裡只放和你自己的學習進度有關的東西。</div>'
+      +'<button type="button" class="swsi-myhub-primary" onclick="'+rec.onclick+'"><span><b>'+rec.title+'</b><small>'+rec.sub+'</small></span><span class="arrow">›</span></button>'
+      +'<div class="swsi-myhub-stats"><div class="swsi-myhub-stat"><b>'+rv.due+'</b><span>今天到期</span></div><div class="swsi-myhub-stat"><b>'+rv.active+'</b><span>還沒熟</span></div><div class="swsi-myhub-stat"><b>'+rv.mastered+'</b><span>已掌握</span></div></div>'
+      +'<div class="swsi-myhub-list">'
+      +row('↻','錯題複習',rv.due?('今天 '+rv.due+' 題到期'):(rv.active?('尚有 '+rv.active+' 題未熟練'):'目前沒有待複習題'),"swsiLearningAction('review')")
+      +row('◎','快速刷題','智慧推薦 20 題',"swsiLearningAction('quiz')")
+      +row('✎','申論練習',drafts?('這台裝置有 '+drafts+' 份草稿'):'歷屆申論與 AI 練習回饋',"swsiLearningAction('essay')")
       +'</div></div>'
-      +'<div class="swsi-myhub-card"><h2 class="swsi-myhub-title">SWSI</h2><div class="swsi-myhub-sub">分享平台、查看來源與使用說明。</div><div class="swsi-myhub-list">'
-      +'<button type="button" class="swsi-myhub-row admin" data-swsi-admin-entry hidden onclick="swsiOpenAdminCenter()"><span class="label">管理中心</span><span class="meta">管理者專用</span><span class="arrow">›</span></button>'
-      +row('分享 SWSI','官方公開網址','swsiSharePlatform()')
-      +row('關於 SWSI','Social Work Study Initiative',"swsiOpenPublicInfo('about',this)")
-      +row('資料來源','正式考題以官方資料為準',"swsiOpenPublicInfo('sources',this)")
-      +row('隱私說明','了解平台保存哪些資料',"swsiOpenPublicInfo('privacy',this)")
-      +row('使用條款','免費分享與商業使用邊界',"swsiOpenPublicInfo('terms',this)")
-      +'<button type="button" class="swsi-myhub-row admin-login" data-swsi-admin-login onclick="swsiOpenAdminCenter()"><span class="label">管理登入</span><span class="meta">管理者</span><span class="arrow">›</span></button>'
-      +'</div></div></section>';
+      +'<details class="swsi-myhub-more"><summary>更多與平台資訊</summary><div class="swsi-myhub-list">'
+      +'<button type="button" class="swsi-myhub-row admin" data-swsi-admin-entry hidden onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理中心</span><span class="meta">管理者專用</span></span><span class="arrow">›</span></button>'
+      +row('↗','分享 SWSI','分享官方公開網址','swsiSharePlatform()')
+      +row('i','關於 SWSI','平台目的與使用方式',"swsiOpenPublicInfo('about',this)")
+      +row('源','資料來源','正式考題以官方資料為準',"swsiOpenPublicInfo('sources',this)")
+      +row('隱','隱私說明','了解平台保存哪些資料',"swsiOpenPublicInfo('privacy',this)")
+      +row('條','使用條款','免費分享與商業使用邊界',"swsiOpenPublicInfo('terms',this)")
+      +'<button type="button" class="swsi-myhub-row admin-login" data-swsi-admin-login onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理者入口</span><span class="meta">僅管理者使用</span></span><span class="arrow">›</span></button>'
+      +'</div></details></section>';
+  }
+
+  function setLearningNavActive(){
+    var home=document.getElementById('t-home'),learning=document.getElementById('t-review'),essay=document.getElementById('t-essay');
+    if(home)home.classList.remove('on');
+    if(learning)learning.classList.add('on');
+    if(essay)essay.classList.remove('on');
+  }
+
+  window.swsiLearningAction=function(kind){
+    window.__SWSI_LEARNING_CENTER_OPEN__=false;
+    if(kind==='due'){if(typeof startDueReview==='function')startDueReview();return;}
+    if(kind==='review'){if(typeof go==='function')go('review');return;}
+    if(kind==='progress'){if(typeof go==='function')go('progress');return;}
+    if(kind==='essay'){if(typeof window.swsiOpenEssay==='function')window.swsiOpenEssay();else if(typeof go==='function')go('essay');return;}
+    if(typeof window.swsiStartRecommended20==='function')window.swsiStartRecommended20();
+    else if(typeof go==='function')go('home');
+  };
+
+  window.swsiRenderLearningCenter=function(){
+    var root=document.getElementById('app');
+    if(!root)return false;
+    window.__SWSI_LEARNING_CENTER_OPEN__=true;
+    root.innerHTML=buildHub();
+    setLearningNavActive();
+    try{window.scrollTo({top:0,left:0,behavior:'auto'});}catch(_e){try{window.scrollTo(0,0);}catch(_e2){}}
+    verifyAdminAccess();
+    return true;
+  };
+
+  window.swsiOpenLearningCenter=function(ev){
+    if(ev&&typeof ev.preventDefault==='function')ev.preventDefault();
+    return window.swsiRenderLearningCenter();
+  };
+
+  function installLearningTab(){
+    var home=document.getElementById('t-home'),learning=document.getElementById('t-review'),essay=document.getElementById('t-essay'),progress=document.getElementById('t-progress');
+    if(home)home.innerHTML='<span class="ico">◎</span>練題';
+    if(learning){learning.innerHTML='<span class="ico">↻</span>學習';learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');learning.setAttribute('aria-label','學習中心');}
+    if(essay)essay.innerHTML='<span class="ico">✒</span>申論';
+    if(progress)progress.style.display='none';
+    if(window.__SWSI_LEARNING_CENTER_OPEN__)setLearningNavActive();
   }
 
   function decorate(){
-    var root=document.getElementById('app');
-    if(!root||root.querySelector('.swsi-myhub'))return;
-    var heading=root.querySelector('.section-h');
-    var normalProgress=!!(heading&&heading.textContent.trim()==='我的學習進度');
-    var empty=root.querySelector('.empty');
-    var newUserProgress=!!(empty&&/還沒有刷題紀錄/.test(empty.textContent||''));
-    if(!normalProgress&&!newUserProgress)return;
-    var wrap=document.createElement('div');wrap.innerHTML=buildHub();
-    var hub=wrap.firstElementChild;
-    if(hub){root.insertBefore(hub,root.firstChild);verifyAdminAccess();}
+    installLearningTab();
+    var root=document.getElementById('app');if(!root)return;
+    if(window.__SWSI_LEARNING_CENTER_OPEN__&&!root.querySelector('.swsi-myhub'))window.swsiRenderLearningCenter();
   }
 
-  window.addEventListener('storage',function(ev){
-    if(!ev.key||ev.key===AUTH_STORAGE_KEY)verifyAdminAccess();
-  });
-  window.addEventListener('focus',verifyAdminAccess);
-
+  window.addEventListener('storage',function(ev){if(!ev.key||ev.key===AUTH_STORAGE_KEY)verifyAdminAccess();});
+  window.addEventListener('focus',function(){decorate();verifyAdminAccess();});
   var root=document.getElementById('app');
-  if(root){
-    decorate();
-    var pending=false;
-    new MutationObserver(function(){
-      if(pending)return;
-      pending=true;
-      queueMicrotask(function(){pending=false;decorate();});
-    }).observe(root,{childList:true,subtree:true});
-  }
-
-  try{
-    if(new URLSearchParams(location.search).get('admin')==='1')setTimeout(window.swsiOpenAdminCenter,0);
-  }catch(_e){}
+  if(root){decorate();var pending=false;new MutationObserver(function(){if(pending)return;pending=true;queueMicrotask(function(){pending=false;decorate();});}).observe(root,{childList:true,subtree:true});}
+  installLearningTab();
+  try{if(new URLSearchParams(location.search).get('admin')==='1')setTimeout(window.swsiOpenAdminCenter,0);}catch(_e){}
 })();
-
-/* SWSI Prelaunch Mobile Polish 2026-08-28
-   Launch-readiness UI only: safe-area spacing, calmer study hub copy,
-   a real-data daily reminder, and a lower-profile admin entry.
-   Does not own runtime routes or change grading/question/AI contracts.
+/* SWSI Prelaunch Mobile Polish V4 2026-08-29
+   Layer 3 only: visual polish inside Learning Center.
+   Global shell/footer/nav geometry is owned exclusively by 15.layout-foundation.part.
 */
 (function(){
   'use strict';
-
-  var STYLE_ID='swsi-prelaunch-mobile-polish-20260828';
+  var STYLE_ID='swsi-prelaunch-mobile-polish-20260829';
   if(!document.getElementById(STYLE_ID)){
     var st=document.createElement('style');
     st.id=STYLE_ID;
     st.textContent=`
-      .swsi-launch-reminder{margin:11px 0 0;border:1px solid #D8E4DE;background:#F4F8F6;border-radius:13px;padding:10px 11px;display:flex;gap:9px;align-items:flex-start;font-family:'Noto Sans TC',sans-serif}
-      .swsi-launch-reminder .mark{flex:0 0 auto;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#E1ECE7;color:#45685B;font-weight:800;font-size:13px}
-      .swsi-launch-reminder b{display:block;font-size:12.5px;color:var(--ink);margin-bottom:2px}
-      .swsi-launch-reminder span{display:block;font-size:11px;line-height:1.55;color:var(--ink-soft)}
-      .swsi-myhub-row.admin-login{opacity:.78;background:#FAFBFA!important}
+      .swsi-myhub-row.admin-login{opacity:.72;background:#FAFBFA!important}
       .swsi-myhub-row.admin-login .label{font-size:12px!important;font-weight:600!important}
       .swsi-myhub-row.admin-login .meta{font-size:10px!important}
       @media(max-width:720px){
-        .wrap>footer,body footer{padding-bottom:calc(128px + env(safe-area-inset-bottom))!important}
         .swsi-public-footer-brand{padding-left:8px;padding-right:8px}
-        .swsi-myhub{gap:10px;margin-bottom:20px}
+        .swsi-myhub{gap:9px;margin-bottom:18px}
         .swsi-myhub-card{box-shadow:none!important;border-radius:15px!important}
       }
     `;
     document.head.appendChild(st);
   }
-
-  function setText(el,text){
-    if(el&&el.textContent!==text)el.textContent=text;
-  }
-
-  function draftCount(){
-    var n=0;
-    try{
-      for(var i=0;i<localStorage.length;i++){
-        var k=localStorage.key(i);
-        if(k&&k.indexOf('essay_draft_')===0&&(localStorage.getItem(k)||'').trim())n++;
-      }
-    }catch(_e){}
-    return n;
-  }
-
-  function reminderText(){
-    try{
-      if(typeof reviewSummary==='function'){
-        var r=reviewSummary()||{};
-        var due=Number(r.dueCount||0);
-        var active=Number(r.activeCount||0);
-        if(due>0)return '今天有 '+due+' 題到期，先完成錯題複習會最有幫助。';
-        if(active>0)return '目前還有 '+active+' 題尚未熟練，可以從錯題複習開始。';
-      }
-    }catch(_e){}
-    var drafts=draftCount();
-    if(drafts>0)return '這台裝置還有 '+drafts+' 份申論草稿，想繼續時可以直接接著寫。';
-    return '今天若想維持進度，可以完成一組 20 題，或練一題申論。';
-  }
-
-  function polishHub(){
-    var hub=document.querySelector('.swsi-myhub');
-    if(!hub)return;
-
-    var cards=hub.querySelectorAll('.swsi-myhub-card');
-    if(cards[0]){
-      setText(cards[0].querySelector('.swsi-myhub-title'),'今天的學習');
-      setText(cards[0].querySelector('.swsi-myhub-sub'),'刷題、錯題與申論都在這裡；依自己的進度選一個開始。');
-      if(!cards[0].querySelector('.swsi-launch-reminder')){
-        var reminder=document.createElement('div');
-        reminder.className='swsi-launch-reminder';
-        reminder.setAttribute('role','status');
-        reminder.innerHTML='<div class="mark">!</div><div><b>今日提醒</b><span></span></div>';
-        var grid=cards[0].querySelector('.swsi-myhub-grid');
-        cards[0].insertBefore(reminder,grid||null);
-      }
-      setText(cards[0].querySelector('.swsi-launch-reminder span'),reminderText());
-    }
-
-    if(cards[1]){
-      setText(cards[1].querySelector('.swsi-myhub-title'),'平台與支援');
-      setText(cards[1].querySelector('.swsi-myhub-sub'),'分享、來源、隱私與管理入口集中在這裡。');
-    }
-
-    var login=hub.querySelector('[data-swsi-admin-login]');
-    if(login){
-      setText(login.querySelector('.label'),'管理者入口');
-      setText(login.querySelector('.meta'),'僅管理者使用');
-    }
-  }
-
-  function keepFooterClear(){
-    var f=document.querySelector('.wrap > footer')||document.querySelector('footer');
-    if(f&&f.style.scrollMarginBottom!=='140px')f.style.scrollMarginBottom='140px';
-  }
-
-  function run(){polishHub();keepFooterClear();}
-  run();
-
-  var root=document.getElementById('app')||document.body;
-  var pending=false;
-  new MutationObserver(function(){
-    if(pending)return;
-    pending=true;
-    queueMicrotask(function(){pending=false;run();});
-  }).observe(root,{childList:true,subtree:true});
-
-  window.addEventListener('focus',run);
 })();
 
-/* SWSI Launch Guidance + Exam Countdown 2026-08-28
-   Public-launch UX only. Adds a dismissible first-use guide and a local-only
-   target exam countdown. Does not own quiz/grading/AI/data contracts.
+/* SWSI Launch Guidance + Exam Countdown V2 2026-08-29
+   Compact first-use help and local-only exam countdown inside Learning Center.
+   Notifications are intentionally NOT enabled in this preview.
 */
 (function(){
   'use strict';
-
-  var GUIDE_KEY='swsi_launch_guide_dismissed_v1';
+  var GUIDE_KEY='swsi_launch_guide_dismissed_v2';
   var EXAM_KEY='swsi_target_exam_date_v1';
-  var STYLE_ID='swsi-launch-guidance-countdown-style';
+  var STYLE_ID='swsi-launch-guidance-countdown-v2-style';
+  var lastExamOpener=null;
 
   if(!document.getElementById(STYLE_ID)){
-    var st=document.createElement('style');
-    st.id=STYLE_ID;
+    var st=document.createElement('style');st.id=STYLE_ID;
     st.textContent=`
-      .swsi-launch-guide{margin:0 0 11px;border:1px solid #D7E2DC;background:#FBFCFB;border-radius:16px;padding:14px 14px 13px;font-family:'Noto Sans TC',sans-serif;color:var(--ink)}
-      .swsi-launch-guide-head{display:flex;align-items:flex-start;gap:10px}
-      .swsi-launch-guide-head h2{font-family:'Noto Serif TC',serif;font-size:15px;line-height:1.45;margin:0;font-weight:900}
-      .swsi-launch-guide-head p{font-size:11px;line-height:1.6;color:var(--ink-soft);margin:2px 0 0}
-      .swsi-launch-guide-close{margin-left:auto;flex:0 0 auto;border:0;background:transparent;color:#7C8781;width:30px;height:30px;border-radius:50%;font-size:19px;cursor:pointer}
-      .swsi-launch-guide-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:11px}
-      .swsi-launch-guide-step{border:1px solid var(--line);border-radius:11px;padding:9px;background:#fff;font-size:10.7px;line-height:1.55;color:var(--ink-soft)}
-      .swsi-launch-guide-step b{display:block;color:var(--pine-deep);font-size:11.5px;margin-bottom:2px}
-      .swsi-exam-reminder{margin:9px 0 0;border-top:1px solid #D8E4DE;padding-top:9px;display:flex;align-items:center;gap:8px}
-      .swsi-exam-reminder-copy{min-width:0;flex:1;font:650 10.8px/1.55 'Noto Sans TC',sans-serif;color:var(--ink-soft)}
-      .swsi-exam-reminder-copy b{color:var(--ink);font-weight:800}
-      .swsi-exam-reminder-btn{flex:0 0 auto;border:1px solid #CBD8D1;background:#fff;color:var(--pine-deep);border-radius:9px;min-height:32px;padding:6px 9px;font:750 10.5px/1.2 'Noto Sans TC',sans-serif;cursor:pointer}
-      .swsi-exam-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(25,31,28,.38);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px)}
-      .swsi-exam-dialog{width:min(100%,480px);background:#FDFEFD;border:1px solid #D7E0DB;border-radius:19px;padding:17px 16px 16px;box-shadow:0 22px 60px rgba(25,31,28,.22);font-family:'Noto Sans TC',sans-serif;color:var(--ink)}
-      .swsi-exam-dialog h2{font-family:'Noto Serif TC',serif;font-size:19px;margin:0 0 5px}.swsi-exam-dialog p{font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin:0 0 13px}
-      .swsi-exam-dialog input{width:100%;box-sizing:border-box;min-height:46px;border:1px solid #CCD7D1;border-radius:11px;background:#fff;color:var(--ink);font:700 14px 'Noto Sans TC',sans-serif;padding:10px 11px}
-      .swsi-exam-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px;margin-top:12px}.swsi-exam-actions button{min-height:43px;border-radius:10px;font:800 12.5px 'Noto Sans TC',sans-serif;cursor:pointer}.swsi-exam-clear{background:#fff;border:1px solid var(--line);color:var(--ink-soft)}.swsi-exam-save{background:var(--pine-deep);border:0;color:#fff}
-      @media(min-width:620px){.swsi-exam-backdrop{align-items:center}}
-      @media(max-width:390px){.swsi-launch-guide-steps{grid-template-columns:1fr}.swsi-exam-actions{grid-template-columns:1fr}}
+      .swsi-launch-guide{margin:-2px 0 10px;border:1px solid #D7E2DC;background:#FBFCFB;border-radius:12px;padding:9px 10px;display:flex;align-items:flex-start;gap:8px;font-family:'Noto Sans TC',sans-serif;color:var(--ink)}
+      .swsi-launch-guide .copy{min-width:0;flex:1}.swsi-launch-guide b{display:block;font-size:11.5px;line-height:1.45;color:var(--ink)}.swsi-launch-guide span{display:block;font-size:10.5px;line-height:1.55;color:var(--ink-soft);margin-top:1px}.swsi-launch-guide-close{flex:0 0 auto;border:0;background:transparent;color:#7C8781;width:28px;height:28px;border-radius:50%;font-size:17px;cursor:pointer}
+      .swsi-exam-reminder{margin-top:10px;border:1px solid var(--line);background:#F8FAF9;border-radius:11px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-family:'Noto Sans TC',sans-serif}.swsi-exam-reminder-copy{min-width:0;flex:1;font-size:10.7px;line-height:1.5;color:var(--ink-soft)}.swsi-exam-reminder-copy b{color:var(--ink);font-weight:800}.swsi-exam-reminder-btn{flex:0 0 auto;border:1px solid #CBD8D1;background:#fff;color:var(--pine-deep);border-radius:9px;min-height:34px;padding:6px 9px;font:750 10.5px/1.2 'Noto Sans TC',sans-serif;cursor:pointer}
+      .swsi-exam-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(25,31,28,.38);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px);overflow:auto}.swsi-exam-dialog{width:min(100%,480px);max-height:calc(100dvh - 28px - env(safe-area-inset-bottom));overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:19px;padding:17px 16px 16px;box-shadow:0 22px 60px rgba(25,31,28,.22);font-family:'Noto Sans TC',sans-serif;color:var(--ink)}.swsi-exam-dialog h2{font-family:'Noto Serif TC',serif;font-size:19px;margin:0 0 5px}.swsi-exam-dialog p{font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin:0 0 13px}.swsi-exam-dialog input{width:100%;box-sizing:border-box;min-height:46px;border:1px solid #CCD7D1;border-radius:11px;background:#fff;color:var(--ink);font:700 14px 'Noto Sans TC',sans-serif;padding:10px 11px}.swsi-exam-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px;margin-top:12px}.swsi-exam-actions button{min-height:43px;border-radius:10px;font:800 12.5px 'Noto Sans TC',sans-serif;cursor:pointer}.swsi-exam-clear{background:#fff;border:1px solid var(--line);color:var(--ink-soft)}.swsi-exam-save{background:var(--pine-deep);border:0;color:#fff}body.swsi-modal-open{overflow:hidden}
+      @media(min-width:620px){.swsi-exam-backdrop{align-items:center}}@media(max-width:390px){.swsi-exam-actions{grid-template-columns:1fr}}
     `;
     document.head.appendChild(st);
   }
 
-  function getExamDate(){
-    try{return String(localStorage.getItem(EXAM_KEY)||'').trim();}catch(_e){return '';}
-  }
-  function setExamDate(v){
-    try{if(v)localStorage.setItem(EXAM_KEY,v);else localStorage.removeItem(EXAM_KEY);}catch(_e){}
-  }
-  function parseLocalDate(v){
-    var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v||''));
-    if(!m)return null;
-    var d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),12,0,0,0);
-    return Number.isNaN(d.getTime())?null:d;
-  }
-  function daysUntil(v){
-    var d=parseLocalDate(v);if(!d)return null;
-    var now=new Date();var today=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12,0,0,0);
-    return Math.ceil((d.getTime()-today.getTime())/86400000);
-  }
-  function examText(){
-    var v=getExamDate();
-    if(!v)return '<b>考試倒數</b>　尚未設定日期。設定後，這裡會提醒距離考試還有幾天。';
-    var n=daysUntil(v);
-    if(n===null)return '<b>考試倒數</b>　日期格式無法讀取，請重新設定。';
-    if(n>1)return '<b>距離考試還有 '+n+' 天</b>　不用一次讀完，照今天的進度走就好。';
-    if(n===1)return '<b>明天就是考試日</b>　今天以整理與休息為主。';
-    if(n===0)return '<b>今天是你設定的考試日</b>　祝你穩穩作答。';
-    return '<b>你設定的考試日期已經過了</b>　可以更新下一個目標日期。';
-  }
+  function getExamDate(){try{return String(localStorage.getItem(EXAM_KEY)||'').trim();}catch(_e){return '';}}
+  function setExamDate(v){try{if(v)localStorage.setItem(EXAM_KEY,v);else localStorage.removeItem(EXAM_KEY);}catch(_e){}}
+  function parseLocalDate(v){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v||''));if(!m)return null;var d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),12,0,0,0);return Number.isNaN(d.getTime())?null:d;}
+  function daysUntil(v){var d=parseLocalDate(v);if(!d)return null;var now=new Date();var today=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12,0,0,0);return Math.ceil((d.getTime()-today.getTime())/86400000);}
+  function examText(){var v=getExamDate();if(!v)return '<b>考試倒數</b>　尚未設定日期；需要時再設定，只會存在這台裝置。';var n=daysUntil(v);if(n===null)return '<b>考試倒數</b>　日期格式無法讀取，請重新設定。';if(n>1)return '<b>距離考試還有 '+n+' 天</b>　照今天的學習節奏走就好。';if(n===1)return '<b>明天就是考試日</b>　今天以整理與休息為主。';if(n===0)return '<b>今天是你設定的考試日</b>　祝你穩穩作答。';return '<b>設定的考試日期已過</b>　可以更新下一個目標日期。';}
 
-  window.swsiDismissLaunchGuide=function(){
-    try{localStorage.setItem(GUIDE_KEY,'1');}catch(_e){}
-    var el=document.querySelector('.swsi-launch-guide');if(el)el.remove();
-  };
-
+  window.swsiDismissLaunchGuide=function(){try{localStorage.setItem(GUIDE_KEY,'1');}catch(_e){}var el=document.querySelector('.swsi-launch-guide');if(el)el.remove();};
   function guideDismissed(){try{return localStorage.getItem(GUIDE_KEY)==='1';}catch(_e){return false;}}
-  function decorateHome(){
-    if(guideDismissed())return;
-    var hero=document.querySelector('#app .swsi-focus-hero');
-    if(!hero||document.querySelector('#app .swsi-launch-guide'))return;
-    var box=document.createElement('section');
-    box.className='swsi-launch-guide';
-    box.setAttribute('aria-label','第一次使用 SWSI');
-    box.innerHTML='<div class="swsi-launch-guide-head"><div><h2>第一次來？30 秒看懂 SWSI</h2><p>不用先學會整個平台，先選一件事開始就好。</p></div><button type="button" class="swsi-launch-guide-close" aria-label="不再顯示首次使用說明" onclick="swsiDismissLaunchGuide()">×</button></div><div class="swsi-launch-guide-steps"><div class="swsi-launch-guide-step"><b>① 想直接讀</b>按「直接開始 20 題」，系統會幫你抽題。</div><div class="swsi-launch-guide-step"><b>② 想補弱點</b>到「複習」看錯題與今天到期的題目。</div><div class="swsi-launch-guide-step"><b>③ 想練申論</b>底部「申論」可寫草稿、看骨架與 AI 練習回饋。</div></div>';
-    hero.insertAdjacentElement('afterend',box);
-  }
+  function decorateHome(){if(guideDismissed())return;var hero=document.querySelector('#app .swsi-focus-hero');if(!hero||document.querySelector('#app .swsi-launch-guide'))return;var box=document.createElement('section');box.className='swsi-launch-guide';box.setAttribute('aria-label','第一次使用 SWSI');box.innerHTML='<div class="copy"><b>第一次來？不用先學整個平台。</b><span>「練題」直接刷題；「學習」看錯題與進度；「申論」專心練申論。</span></div><button type="button" class="swsi-launch-guide-close" aria-label="不再顯示首次使用說明" onclick="swsiDismissLaunchGuide()">×</button>';hero.insertAdjacentElement('afterend',box);}
 
+  function onExamKeydown(ev){if(ev.key==='Escape')window.swsiCloseExamDate();}
   window.swsiOpenExamDate=function(){
     var old=document.getElementById('swsi-exam-backdrop');if(old)old.remove();
-    var ov=document.createElement('div');
-    ov.id='swsi-exam-backdrop';ov.className='swsi-exam-backdrop';
-    ov.innerHTML='<div class="swsi-exam-dialog" role="dialog" aria-modal="true" aria-labelledby="swsi-exam-title" onclick="event.stopPropagation()"><h2 id="swsi-exam-title">設定考試日期</h2><p>日期只儲存在這台裝置，用來顯示倒數提醒；不會建立帳號或上傳個資。</p><input id="swsi-exam-date-input" type="date" value="'+getExamDate()+'"><div class="swsi-exam-actions"><button type="button" class="swsi-exam-clear" onclick="swsiClearExamDate()">清除日期</button><button type="button" class="swsi-exam-save" onclick="swsiSaveExamDate()">儲存日期</button></div></div>';
-    ov.addEventListener('click',window.swsiCloseExamDate);
-    document.body.appendChild(ov);
+    lastExamOpener=document.activeElement&&document.activeElement.classList&&document.activeElement.classList.contains('swsi-exam-reminder-btn')?document.activeElement:null;
+    var ov=document.createElement('div');ov.id='swsi-exam-backdrop';ov.className='swsi-exam-backdrop';
+    ov.innerHTML='<div class="swsi-exam-dialog" role="dialog" aria-modal="true" aria-labelledby="swsi-exam-title" onclick="event.stopPropagation()"><h2 id="swsi-exam-title">設定考試日期</h2><p>日期只儲存在這台裝置，用來顯示倒數。這個預覽版不會要求通知權限，也不會把日期上傳。</p><input id="swsi-exam-date-input" type="date" value="'+getExamDate()+'"><div class="swsi-exam-actions"><button type="button" class="swsi-exam-clear" onclick="swsiClearExamDate()">清除日期</button><button type="button" class="swsi-exam-save" onclick="swsiSaveExamDate()">儲存日期</button></div></div>';
+    ov.addEventListener('click',window.swsiCloseExamDate);document.body.appendChild(ov);document.body.classList.add('swsi-modal-open');document.addEventListener('keydown',onExamKeydown);
+    var input=ov.querySelector('#swsi-exam-date-input');if(input)setTimeout(function(){try{input.focus();}catch(_e){}},0);
   };
-  window.swsiCloseExamDate=function(){var ov=document.getElementById('swsi-exam-backdrop');if(ov)ov.remove();};
+  window.swsiCloseExamDate=function(){var ov=document.getElementById('swsi-exam-backdrop');if(ov)ov.remove();document.body.classList.remove('swsi-modal-open');document.removeEventListener('keydown',onExamKeydown);var opener=lastExamOpener;lastExamOpener=null;if(opener&&document.contains(opener))setTimeout(function(){try{opener.focus();}catch(_e){}},0);};
   window.swsiSaveExamDate=function(){var input=document.getElementById('swsi-exam-date-input');setExamDate(input?input.value:'');window.swsiCloseExamDate();decorateReminder(true);};
   window.swsiClearExamDate=function(){setExamDate('');window.swsiCloseExamDate();decorateReminder(true);};
 
-  function decorateReminder(force){
-    var reminder=document.querySelector('.swsi-launch-reminder');
-    if(!reminder)return;
-    var row=reminder.querySelector('.swsi-exam-reminder');
-    if(!row){
-      row=document.createElement('div');row.className='swsi-exam-reminder';
-      row.innerHTML='<div class="swsi-exam-reminder-copy"></div><button type="button" class="swsi-exam-reminder-btn" onclick="swsiOpenExamDate()">設定日期</button>';
-      reminder.appendChild(row);
-    }
-    var copy=row.querySelector('.swsi-exam-reminder-copy');var text=examText();
-    if(force||copy.innerHTML!==text)copy.innerHTML=text;
-    var btn=row.querySelector('.swsi-exam-reminder-btn');
-    if(btn){var label=getExamDate()?'修改日期':'設定日期';if(btn.textContent!==label)btn.textContent=label;}
-  }
+  function decorateReminder(force){var card=document.querySelector('#app .swsi-myhub-card');if(!card)return;var row=card.querySelector('.swsi-exam-reminder');if(!row){row=document.createElement('div');row.className='swsi-exam-reminder';row.innerHTML='<div class="swsi-exam-reminder-copy"></div><button type="button" class="swsi-exam-reminder-btn" onclick="swsiOpenExamDate()">設定日期</button>';var list=card.querySelector('.swsi-myhub-list');card.insertBefore(row,list||null);}var copy=row.querySelector('.swsi-exam-reminder-copy'),text=examText();if(force||copy.innerHTML!==text)copy.innerHTML=text;var btn=row.querySelector('.swsi-exam-reminder-btn'),label=getExamDate()?'修改日期':'設定日期';if(btn&&btn.textContent!==label)btn.textContent=label;}
 
-  function run(){decorateHome();decorateReminder(false);}
-  run();
-  var root=document.getElementById('app')||document.body;var pending=false;
-  new MutationObserver(function(){if(pending)return;pending=true;queueMicrotask(function(){pending=false;run();});}).observe(root,{childList:true,subtree:true});
-  window.addEventListener('focus',run);
+  function run(){decorateHome();decorateReminder(false);}run();var root=document.getElementById('app')||document.body,pending=false;new MutationObserver(function(){if(pending)return;pending=true;queueMicrotask(function(){pending=false;run();});}).observe(root,{childList:true,subtree:true});window.addEventListener('focus',run);
 })();
 
 /* SWSI Accessibility Touch Guard 2026-08-28
@@ -2406,6 +2321,76 @@ body:has(#app .section-h) main{
     if(currentBackdrop())lock();else unlock();
   });
   observer.observe(document.body,{childList:true});
+})();
+
+/* SWSI Learning Typography Bridge V1 2026-08-29
+   Accessibility contract: Learning Center / review / progress typography follows
+   the existing global A/A/A variables (--fs-q/--fs-h/--fs-b/--fs-s).
+   This layer owns typography only; it must not own shell geometry or routing.
+*/
+(function(){
+  'use strict';
+  var STYLE_ID='swsi-learning-font-scale-v1';
+  if(document.getElementById(STYLE_ID))return;
+  var st=document.createElement('style');
+  st.id=STYLE_ID;
+  st.textContent=`
+    /* Learning Center hub: preserve the current visual hierarchy at the default
+       size, but make every user-facing text tier respond to html[data-fs]. */
+    .swsi-myhub-kicker{font-size:calc(var(--fs-s) - 4px)!important}
+    .swsi-myhub-title{font-size:calc(var(--fs-h) + 2px)!important}
+    .swsi-myhub-sub{font-size:calc(var(--fs-s) - 3px)!important}
+    .swsi-myhub-primary b{font-size:calc(var(--fs-b) - 2px)!important}
+    .swsi-myhub-primary small{font-size:calc(var(--fs-s) - 4px)!important}
+    .swsi-myhub-stat b{font-size:var(--fs-h)!important}
+    .swsi-myhub-stat span{font-size:calc(var(--fs-s) - 5px)!important}
+    .swsi-myhub-row .label{font-size:calc(var(--fs-b) - 3px)!important}
+    .swsi-myhub-row .meta{font-size:calc(var(--fs-s) - 4px)!important}
+    .swsi-myhub-more>summary{font-size:calc(var(--fs-s) - 3px)!important}
+    .swsi-myhub-toast{font-size:calc(var(--fs-s) - 2px)!important}
+
+    /* Wrong-answer review / learning progress. */
+    body[data-swsi-page="learning-detail"] .section-h{
+      font-size:calc(var(--fs-h) + 5px)!important;
+    }
+    body[data-swsi-page="learning-detail"] .section-s{
+      font-size:var(--fs-s)!important;
+    }
+    body[data-swsi-page="learning-detail"] .btn{
+      font-size:calc(var(--fs-b) - .5px)!important;
+    }
+    body[data-swsi-page="learning-detail"] .empty h3{
+      font-size:calc(var(--fs-h) + 2px)!important;
+    }
+    body[data-swsi-page="learning-detail"] .empty p{
+      font-size:calc(var(--fs-b) - 3px)!important;
+    }
+    .swsi-review-stats .stat .v{font-size:calc(var(--fs-h) + 5px)!important}
+    .swsi-review-stats .stat .k{font-size:calc(var(--fs-s) - 3px)!important}
+    .swsi-calm-note{font-size:calc(var(--fs-b) - 3px)!important}
+    .swsi-learning-h{font-size:calc(var(--fs-b) - 2px)!important}
+    .swsi-learning-muted{font-size:calc(var(--fs-s) - 2px)!important}
+    .swsi-learning-row b{font-size:calc(var(--fs-b) - 2px)!important}
+    .swsi-learning-row small{font-size:calc(var(--fs-s) - 3px)!important}
+    .swsi-progress-hero>div:first-child small{font-size:calc(var(--fs-s) - 2px)!important}
+    .swsi-progress-hero strong{font-size:calc(var(--fs-q) + 17px)!important}
+    .swsi-progress-mini span{font-size:calc(var(--fs-s) - 4px)!important}
+    .swsi-progress-mini b{font-size:calc(var(--fs-b) - 2px)!important}
+    .swsi-progress-strip b{font-size:var(--fs-h)!important}
+    .swsi-progress-strip span{font-size:calc(var(--fs-s) - 4px)!important}
+    .swsi-next-copy b{font-size:calc(var(--fs-b) - 2px)!important}
+    .swsi-next-copy span{font-size:calc(var(--fs-s) - 2px)!important}
+    .swsi-progress-subject .top{font-size:calc(var(--fs-b) - 3px)!important}
+    .swsi-progress-subject small{font-size:calc(var(--fs-s) - 4px)!important}
+    .swsi-cause-stat{font-size:calc(var(--fs-b) - 3px)!important}
+    .swsi-danger-link{font-size:calc(var(--fs-s) - 2px)!important}
+
+    /* Text generated by the learning loop with an inline legacy 13px size. */
+    body[data-swsi-page="learning-detail"] .empty [style*="font-size:13px"]{
+      font-size:calc(var(--fs-b) - 3px)!important;
+    }
+  `;
+  document.head.appendChild(st);
 })();
 
 /* SWSI Knowledge Path V1 2026-08-26
@@ -3261,8 +3246,9 @@ body:has(#app .section-h) main{
 /* SWSI Feedback Context State Owner 2026-08-27
    Keep context cleanup local to the feedback action instead of continuously
    watching the whole document. The core feedback module still owns context
-   derivation; this compatibility owner only clears stale cross-view state
-   immediately before a report is opened.
+   derivation; this compatibility owner clears stale cross-view state before a
+   report is opened and protects the legacy honeypot from Safari AutoFill false
+   positives without adding another swsiOpenReport owner.
 */
 (function(){
   'use strict';
@@ -3284,13 +3270,39 @@ body:has(#app .section-h) main{
     }catch(_e){}
   }
 
+  function protectHoneypot(){
+    var form=document.getElementById('swsi-report-form');
+    var hp=document.getElementById('swsi-report-website');
+    if(!form||!hp)return;
+
+    /* Safari may ignore autocomplete="off" and populate off-screen fields.
+       A real user's report must never be silently discarded for that reason.
+       Server-side origin validation + DB rate limits remain authoritative. */
+    try{
+      hp.value='';
+      hp.readOnly=true;
+      hp.setAttribute('autocomplete','new-password');
+      hp.setAttribute('data-lpignore','true');
+      hp.setAttribute('data-1p-ignore','true');
+    }catch(_e){}
+
+    if(form.dataset.swsiHoneypotGuard==='1')return;
+    form.dataset.swsiHoneypotGuard='1';
+    form.addEventListener('submit',function(){
+      try{hp.value='';}catch(_e){}
+    },true);
+  }
+
   function openWithCurrentContext(){
     syncForCurrentView();
-    return baseOpen.apply(this,arguments);
+    var result=baseOpen.apply(this,arguments);
+    protectHoneypot();
+    return result;
   }
   openWithCurrentContext.__swsiContextStateOwner='2026-08-27';
   openWithCurrentContext.__swsiBaseOpen=baseOpen;
   window.swsiOpenReport=openWithCurrentContext;
+  window.SWSI_FEEDBACK_SAFARI_GUARD={version:'2026-08-29'};
 })();
 
 /* SWSI Feedback Compact UI V2 2026-08-26
@@ -3486,41 +3498,14 @@ body:has(#app .section-h) main{
   }).observe(document.documentElement,{childList:true,subtree:true,characterData:true});
   polish();
 })();
-/* ===== SWSI P0 mobile + AI utilities (2026-08-26) ===== */
+/* ===== SWSI P0 AI utilities (2026-08-29) ===== */
 (function(){
   'use strict';
 
+  /* Layer 3 interaction guard only. Global mobile shell geometry now belongs to
+     15.layout-foundation.part so later feature modules cannot fight over it. */
   var style=document.createElement('style');
-  style.textContent=`
-    :root{
-      --swsi-tabbar-button-height:58px;
-      --swsi-tabbar-clearance:calc(84px + env(safe-area-inset-bottom,0px));
-    }
-    header{
-      padding-top:calc(20px + env(safe-area-inset-top,0px))!important;
-    }
-    .tabbar{
-      bottom:0!important;
-      padding-bottom:env(safe-area-inset-bottom,0px)!important;
-    }
-    .tabbar button{padding:8px 4px 10px!important;min-height:var(--swsi-tabbar-button-height);}
-    .tabbar .ico{font-size:17px!important;}
-    html{scroll-padding-bottom:var(--swsi-tabbar-clearance);}
-    body{padding-bottom:0!important;}
-    .wrap{padding-bottom:var(--swsi-tabbar-clearance)!important;}
-    main{padding-bottom:24px!important;}
-    button:disabled{pointer-events:none;}
-    @media (max-width:420px){
-      :root{--swsi-tabbar-clearance:calc(88px + env(safe-area-inset-bottom,0px));}
-    }
-    html[data-fs="2"]{
-      --swsi-tabbar-clearance:calc(94px + env(safe-area-inset-bottom,0px));
-    }
-    @media (display-mode:standalone),(display-mode:fullscreen){
-      :root{--swsi-tabbar-clearance:calc(90px + env(safe-area-inset-bottom,0px));}
-      html[data-fs="2"]{--swsi-tabbar-clearance:calc(98px + env(safe-area-inset-bottom,0px));}
-    }
-  `;
+  style.textContent=`button:disabled{pointer-events:none;}`;
   document.head.appendChild(style);
 
   window.effectiveEssayText=function(s){
@@ -3603,7 +3588,7 @@ body:has(#app .section-h) main{
     finally{clearTimeout(timer);}
   };
 })();
-/* ===== SWSI P0 mobile + AI utilities END ===== *//* ===== SWSI Essay Trust Layer 2026-08-26 =====
+/* ===== SWSI P0 AI utilities END ===== *//* ===== SWSI Essay Trust Layer 2026-08-26 =====
    IMPORTANT: This layer never edits official past-exam question text.
    It only changes SWSI-authored guidance labels, trust status, and AI feedback prompts.
 */
@@ -3887,6 +3872,10 @@ body:has(#app .section-h) main{
   window.swsiOpenEssay=async function(){
     if(essayOpening) return;
     essayOpening=true;
+    /* The Learning Center owns #app while this flag is true and will restore its
+       hub after any DOM replacement. Release that ownership before the essay
+       renderer changes #app, including navigation from the fixed bottom tab. */
+    window.__SWSI_LEARNING_CENTER_OPEN__=false;
     try{
       /* Keep the original slow/cache recovery without leaving a separate late owner. */
       try{
@@ -3936,7 +3925,6 @@ body:has(#app .section-h) main{
     mo.observe(document.body,{childList:true,subtree:true});
   }catch(_e){}
 })();
-
 /* SWSI Product V1 Lock 2026-08-26
    Product principle: open -> study -> review -> leave.
    - one-tap essay practice + separate choose-your-own entry
@@ -3996,22 +3984,38 @@ body:has(#app .section-h) main{
     return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 19 3.8-.8L19 8a2.1 2.1 0 0 0-3-3L5.8 15.2 5 19Z"></path><path d="m14.8 6.2 3 3"></path><path d="M4 21h16"></path></svg></span>';
   }
 
-  function setNavButton(id,kind,label){
+  function setNavButton(id,kind,label,route){
     var el=document.getElementById(id); if(!el) return;
-    /* Do not compare serialized innerHTML. Browsers normalize SVG markup, so that
-       comparison can stay unequal forever and make MutationObserver trigger itself. */
+    /* Learning Center V2 may already have installed a simple icon + label.
+       Accept either markup shape so product polish and learning-center observers
+       do not continuously rewrite each other. */
     var currentLabel=el.querySelector('.swsi-nav-label');
-    var currentIcon=el.querySelector('.swsi-nav-ico');
-    if(!currentLabel || !currentIcon || currentLabel.textContent!==label){
+    var currentText=(el.textContent||'').trim();
+    var hasLabel=currentLabel ? currentLabel.textContent===label : currentText.slice(-label.length)===label;
+    if(!hasLabel){
       el.innerHTML=icon(kind)+'<span class="swsi-nav-label">'+label+'</span>';
     }
     if(el.getAttribute('aria-label')!==label) el.setAttribute('aria-label',label);
+    if(route&&el.getAttribute('onclick')!==route) el.setAttribute('onclick',route);
   }
 
+  window.swsiOpenLearningCenter=function(){
+    if(typeof go==='function') go('progress');
+    /* Learning Center V2 decorates the progress surface on focus. Trigger that
+       owner synchronously instead of relying on MutationObserver timing. */
+    try{window.dispatchEvent(new Event('focus'));}catch(_e){}
+    var home=document.getElementById('t-home');
+    var learning=document.getElementById('t-review');
+    var essay=document.getElementById('t-essay');
+    if(home)home.classList.remove('on');
+    if(learning)learning.classList.add('on');
+    if(essay)essay.classList.remove('on');
+  };
+
   function polishNav(){
-    setNavButton('t-home','home','首頁');
-    setNavButton('t-review','review','複習');
-    setNavButton('t-essay','essay','申論');
+    setNavButton('t-home','home','練題',"go('home')");
+    setNavButton('t-review','review','學習',"swsiOpenLearningCenter()");
+    setNavButton('t-essay','essay','申論',"go('essay')");
   }
 
   /* Essay navigation is owned by zzz_fix_essay_navigation.part. */
@@ -4189,6 +4193,87 @@ body:has(#app .section-h) main{
     return `<button class="dbtn" onclick="toggleDissect('${id}')">${open?'▾':'▸'} 不知道怎麼下筆？先照這 5 步</button>`
       + (open?`<div class="dsteps">${steps.map(s=>`<div class="dstep"><b>${s[0]}</b><span>${s[1]}</span></div>`).join('')}<div style="margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);line-height:1.6;color:var(--ink-soft)">${note}</div></div>`:'');
   };
+})();
+
+/* SWSI Learning Center Direct Route 2026-08-29
+   Final navigation owner for the preview simplification.
+   Opening Learning must never route through progress/full-bank loading.
+*/
+(function(){
+  'use strict';
+
+  /* Preserve the existing CDN-aware go() contract, but once the user leaves the
+     Learning surface, stop its self-healing observer from restoring the hub. */
+  var routedGo=window.go;
+  if(typeof routedGo==='function'&&!routedGo.__swsiLearningAware){
+    var wrapped=function(v){
+      if(v!=='learning')window.__SWSI_LEARNING_CENTER_OPEN__=false;
+      return routedGo(v);
+    };
+    wrapped.__swsiLearningAware=true;
+    window.go=wrapped;
+    try{go=wrapped;}catch(_e){}
+  }
+
+  window.swsiOpenLearningCenter=function(ev){
+    if(ev&&typeof ev.preventDefault==='function')ev.preventDefault();
+    if(typeof window.swsiRenderLearningCenter==='function')return window.swsiRenderLearningCenter();
+    return false;
+  };
+
+  function bind(){
+    var route='return swsiOpenLearningCenter(event)';
+    var learning=document.getElementById('t-review');
+    if(learning){
+      if(learning.getAttribute('onclick')!==route)learning.setAttribute('onclick',route);
+      if(learning.getAttribute('aria-label')!=='學習中心')learning.setAttribute('aria-label','學習中心');
+    }
+
+    /* Home also exposes a Learning Center card. Keep it on the same direct local
+       route as the bottom Learning tab instead of falling back to legacy progress. */
+    document.querySelectorAll('#app .swsi-study-card').forEach(function(card){
+      var title=card.querySelector('.title');
+      if(title&&(title.textContent||'').trim()==='學習中心'&&card.getAttribute('onclick')!==route){
+        card.setAttribute('onclick',route);
+      }
+    });
+  }
+
+  /* Home is re-rendered often, so bind its Learning card immediately after the
+     canonical home renderer runs instead of watching every app DOM mutation. */
+  var previousRenderHome=window.renderHome;
+  try{if(typeof previousRenderHome!=='function'&&typeof renderHome==='function')previousRenderHome=renderHome;}catch(_e){}
+  if(typeof previousRenderHome==='function'&&!previousRenderHome.__swsiLearningDirectRoute){
+    var wrappedHome=function(){
+      var out=previousRenderHome.apply(this,arguments);
+      bind();
+      return out;
+    };
+    wrappedHome.__swsiLearningDirectRoute=true;
+    window.renderHome=wrappedHome;
+    try{renderHome=wrappedHome;}catch(_e){}
+  }
+
+  /* Clear the local Learning-surface flag before the legacy inline handlers for
+     the other two bottom tabs run. This works even if go() is a lexical global
+     rather than a window property in an older browser build. */
+  document.addEventListener('click',function(ev){
+    var el=ev.target&&ev.target.closest?ev.target.closest('#t-home,#t-essay'):null;
+    if(el)window.__SWSI_LEARNING_CENTER_OPEN__=false;
+  },true);
+
+  var queued=false;
+  function queueBind(){
+    if(queued)return;
+    queued=true;
+    queueMicrotask(function(){queued=false;bind();});
+  }
+
+  bind();
+  try{
+    var bar=document.querySelector('.tabbar');
+    if(bar)new MutationObserver(queueBind).observe(bar,{childList:true,subtree:true,attributes:true,attributeFilter:['onclick','aria-label']});
+  }catch(_e){}
 })();
 /* ===== SWSI Essay Metadata Labels 2026-08-26 =====
    UI-only trust polish. Never mutates official past-exam question text or exam facts.
@@ -4803,3 +4888,31 @@ body:has(#app .section-h) main{
   }
 })();
 /* ===== SWSI Full Question Bank Integrity Guard END ===== */
+
+/* SWSI Preview Component Polish 2026-08-29
+   Layer 3 only. Global shell, footer visibility and bottom-nav geometry are owned
+   exclusively by 15.layout-foundation.part.
+*/
+(function(){
+  'use strict';
+
+  var STYLE_ID='swsi-preview-component-polish-20260829';
+  if(!document.getElementById(STYLE_ID)){
+    var st=document.createElement('style');
+    st.id=STYLE_ID;
+    st.textContent=`
+      /* Closed disclosures consume only their summary row. */
+      #app details.swsi-other-tools:not([open]),
+      #app details.swsi-data-version:not([open]){
+        padding-bottom:0!important;
+      }
+      #app details.swsi-other-tools:not([open]) .swsi-other-grid,
+      #app details.swsi-data-version:not([open]) .body{
+        display:none!important;
+      }
+      #app .swsi-principle-note{margin-bottom:0!important;}
+      #app .swsi-data-version{margin-bottom:0!important;}
+    `;
+    document.head.appendChild(st);
+  }
+})();

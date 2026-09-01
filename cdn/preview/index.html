@@ -20,9 +20,8 @@
 <meta property="og:description" content="免費練社工師國考歷屆試題、錯題複習、模擬考與申論。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://swsi-quiznetlify.netlify.app/">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="swsi-font-policy" content="system-font-first">
+<script>window.__SWSI_STUDENT_REST_ONLY__=true;</script>
 <style>
   :root{--paper:#EFF3F0;--paper2:#F8FAF9;--ink:#2A2C2A;--ink-soft:#757A75;--ink-3:#A9AFA9;--line:#DCE4DF;
     --pine:#4F7E76;--pine-deep:#3F6961;--gold:#95988A;--correct:#4F7E76;--correct-bg:#E3EDE9;--wrong:#9E6155;--wrong-bg:#F3EBE7;}
@@ -267,7 +266,7 @@ button:focus-visible,.opt:focus-visible,a:focus-visible,input:focus-visible{ out
       <button class="gear" onclick="go('search')" title="搜尋" aria-label="搜尋"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="vertical-align:middle"><circle cx="11" cy="11" r="7"></circle><line x1="20.5" y1="20.5" x2="16.4" y2="16.4"></line></svg></button>
     </div>
   </header>
-  <main id="app"><div class="empty"><div class="spinner"></div><p style="margin-top:16px">載入題庫中…</p></div></main>
+  <main id="app"><div class="empty" aria-busy="true"><h3>正在開啟 SWSI</h3><p style="margin-top:8px">介面先顯示，題庫資料會在背景準備。</p></div></main>
   <footer style="text-align:center;padding:16px 22px 2px;font-size:10.5px;line-height:1.8;color:var(--ink-soft);border-top:1px solid var(--line);margin-top:8px">
     © 2026 熊品澄 · 免費公開學習工具<br>社工師國考題目以考選部官方資料為準；AI 回饋僅供練習參考，不作為官方評分
   </footer>
