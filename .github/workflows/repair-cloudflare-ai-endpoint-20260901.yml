@@ -1,0 +1,50 @@
+name: Repair Cloudflare AI Endpoint 20260901
+
+on:
+  push:
+    branches: [fix/cloudflare-ai-endpoint-20260901]
+    paths: ['.github/workflows/repair-cloudflare-ai-endpoint-20260901.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Patch canonical and Cloudflare frontend endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          old='const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev";'
+          new='const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev/api/ai";'
+          for name in ('index.html','cdn/index.html'):
+              p=Path(name)
+              s=p.read_text(encoding='utf-8')
+              count=s.count(old)
+              if count != 1:
+                  raise SystemExit(f'{name}: expected exactly one old AI endpoint, found {count}')
+              s=s.replace(old,new,1)
+              if s.count(new) != 1:
+                  raise SystemExit(f'{name}: new AI endpoint count invalid')
+              p.write_text(s,encoding='utf-8')
+          PY
+          grep -qF 'const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev/api/ai";' index.html
+          grep -qF 'const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev/api/ai";' cdn/index.html
+          ! grep -qF 'const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev";' index.html
+          ! grep -qF 'const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev";' cdn/index.html
+      - name: Commit runtime hotfix on fix branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'swsi-ai-endpoint-hotfix-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html cdn/index.html
+          git commit -m 'fix: route AI requests through /api/ai'
+          git push origin HEAD:fix/cloudflare-ai-endpoint-20260901
