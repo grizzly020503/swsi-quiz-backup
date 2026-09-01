@@ -1,0 +1,122 @@
+name: Cloudflare Production Smoke 20260901
+
+on:
+  push:
+    branches: [qa/cloudflare-production-smoke-20260901]
+    paths: ['.github/workflows/cloudflare-production-smoke-20260901.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      ORIGIN: https://wandering-wave-4418.c022050333.workers.dev
+      FEEDBACK_ENDPOINT: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-feedback
+    steps:
+      - name: Verify public root, PWA, Admin, privacy and shard manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --silent --show-error --fail --retry 3 "$ORIGIN/?smoke=$GITHUB_RUN_ID" -o /tmp/root.html
+          curl --silent --show-error --fail --retry 3 "$ORIGIN/manifest.json?smoke=$GITHUB_RUN_ID" -o /tmp/pwa.json
+          curl --silent --show-error --fail --retry 3 "$ORIGIN/sw.js?smoke=$GITHUB_RUN_ID" -o /tmp/sw.js
+          curl --silent --show-error --fail --retry 3 "$ORIGIN/admin/index.html?smoke=$GITHUB_RUN_ID" -o /tmp/admin.html
+          curl --silent --show-error --fail --retry 3 "$ORIGIN/question-shards/manifest.json?smoke=$GITHUB_RUN_ID" -o /tmp/questions.json
+
+          grep -qF 'SWSI CLOUDFLARE PUBLIC SOFT LAUNCH' /tmp/root.html
+          grep -qF '<meta name="robots" content="noindex,nofollow,noarchive">' /tmp/root.html
+          grep -qF '<link rel="canonical" href="https://wandering-wave-4418.c022050333.workers.dev/">' /tmp/root.html
+          grep -qF 'const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev";' /tmp/root.html
+          ! grep -qF '蔡宇庭' /tmp/root.html
+          ! grep -qF '老師提供的學長姐心得' /tmp/root.html
+          ! grep -qF '資深學長姐的應考心得' /tmp/root.html
+          grep -qF '<title>SWSI 管理中心</title>' /tmp/admin.html
+          ! grep -qF 'DEFAULT_ADMIN_EMAIL' /tmp/admin.html
+          grep -qF "const VERSION = 'v6'" /tmp/sw.js
+
+          python - <<'PY'
+          import json
+          p=json.load(open('/tmp/pwa.json',encoding='utf-8'))
+          assert p.get('start_url')=='./', p
+          assert p.get('scope')=='./', p
+          assert p.get('display')=='standalone', p
+          q=json.load(open('/tmp/questions.json',encoding='utf-8'))
+          assert int(q['total_questions'])==4800, q
+          assert int(q['shard_count'])==24, q
+          assert len(q['shards'])==24, q
+          print('ROOT/PWA/ADMIN/PRIVACY PASS; manifest=4800/24')
+          PY
+
+      - name: Verify all 24 shards and grading invariants
+        run: |
+          python - <<'PY'
+          import json, urllib.request, collections
+          origin='https://wandering-wave-4418.c022050333.workers.dev'
+          with urllib.request.urlopen(origin+'/question-shards/manifest.json?corpus=1', timeout=30) as r:
+              m=json.load(r)
+          rows=[]
+          for shard in m['shards']:
+              url=origin+'/question-shards/'+shard['file']+'?corpus=1'
+              with urllib.request.urlopen(url, timeout=30) as r:
+                  data=json.load(r)
+              if isinstance(data,list):
+                  qs=data
+              elif isinstance(data,dict):
+                  qs=data.get('questions', data.get('items', []))
+              else:
+                  raise AssertionError((shard['file'], type(data)))
+              assert len(qs)==int(shard['question_count']), (shard['file'],len(qs),shard['question_count'])
+              rows.extend(qs)
+          assert len(rows)==4800, len(rows)
+          modes=collections.Counter(str(x.get('grading_mode') or 'standard') for x in rows)
+          assert modes==collections.Counter({'standard':4784,'all_credit':12,'any_answer':4}), modes
+          multi=0
+          for x in rows:
+              a=x.get('accepted_answers')
+              if isinstance(a,list) and len(a)>1:
+                  multi += 1
+          assert multi==24, multi
+          print('CORPUS PASS', len(rows), dict(modes), 'multi_answer=', multi)
+          PY
+
+      - name: Verify AI POST route without model call
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --request POST "$ORIGIN/" \
+            --header "Origin: $ORIGIN" \
+            --header 'Content-Type: application/json' \
+            --data '{}' \
+            --dump-header /tmp/ai.headers \
+            --output /tmp/ai.body \
+            --write-out '%{http_code}')"
+          test "$code" = '400'
+          grep -qiF "access-control-allow-origin: $ORIGIN" /tmp/ai.headers
+          grep -qF 'Invalid AI request' /tmp/ai.body
+          echo 'AI ROUTE PASS: invalid request rejected before model/quota reservation'
+
+      - name: Verify feedback CORS without write
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --request OPTIONS "$FEEDBACK_ENDPOINT" \
+            --header "Origin: $ORIGIN" \
+            --header 'Access-Control-Request-Method: POST' \
+            --header 'Access-Control-Request-Headers: content-type' \
+            --dump-header /tmp/fb.headers \
+            --output /tmp/fb.body \
+            --write-out '%{http_code}')"
+          test "$code" = '204'
+          grep -qiF "access-control-allow-origin: $ORIGIN" /tmp/fb.headers
+          echo 'FEEDBACK CORS PASS: no row written'
+
+      - name: Confirm Netlify fallback still reachable
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --location --output /dev/null --write-out '%{http_code}' 'https://swsi-quiznetlify.netlify.app/?fallback-smoke=1')"
+          test "$code" = '200'
+          echo 'NETLIFY FALLBACK PASS'
