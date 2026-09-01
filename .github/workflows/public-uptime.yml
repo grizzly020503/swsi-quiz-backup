@@ -4,12 +4,16 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '17 0 * * *'
+  pull_request:
+    paths:
+      - '.github/workflows/public-uptime.yml'
+      - 'scripts/public_uptime_smoke.py'
 
 permissions:
   contents: read
 
 concurrency:
-  group: swsi-public-uptime
+  group: swsi-public-uptime-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
