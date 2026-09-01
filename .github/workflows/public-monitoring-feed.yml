@@ -74,7 +74,7 @@ jobs:
           git diff --check
 
       - name: Publish changed monitoring snapshots
-        if: github.event_name != 'pull_request'
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: |
           set -euo pipefail
           git config user.name 'swsi-monitoring-bot'
