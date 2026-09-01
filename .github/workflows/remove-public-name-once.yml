@@ -1,0 +1,66 @@
+name: Remove Public Name Once
+
+on:
+  push:
+    branches: [fix/remove-public-name-20260901]
+    paths: ['.github/workflows/remove-public-name-once.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  remove-name:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: fix/remove-public-name-20260901
+          fetch-depth: 0
+      - name: Remove public personal attribution
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          roots = [Path('monthly_patch_parts'), Path('monthly_patch.js'), Path('cdn')]
+          files=[]
+          for root in roots:
+              if root.is_file():
+                  files.append(root)
+              elif root.is_dir():
+                  files.extend(p for p in root.rglob('*') if p.is_file())
+          replacements = [
+              ('        <h3>誰發起的？</h3>\n        <p><b>發起人暨產品規劃：熊品澄。</b></p>\n', ''),
+              ('不得冒用 SWSI、熊品澄或其他來源名義', '不得冒用 SWSI 或其他來源名義'),
+              ('發起人暨產品規劃：熊品澄 · AI 協作開發', 'AI 協作開發'),
+          ]
+          changed=[]
+          for p in files:
+              try:
+                  s=p.read_text(encoding='utf-8')
+              except Exception:
+                  continue
+              old=s
+              for a,b in replacements:
+                  s=s.replace(a,b)
+              if s!=old:
+                  p.write_text(s,encoding='utf-8')
+                  changed.append(str(p))
+          print('changed files:')
+          print('\n'.join(changed))
+          assert changed, 'no public attribution changed'
+          for p in [Path('monthly_patch_parts/89.public-branding-info.part'), Path('monthly_patch.js'), Path('cdn/monthly_patch.js')]:
+              assert p.exists(), p
+              assert '熊品澄' not in p.read_text(encoding='utf-8'), p
+          print('PUBLIC NAME REMOVAL OK')
+          PY
+      - name: Commit privacy change
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name swsi-privacy-bot
+          git config user.email actions@users.noreply.github.com
+          git add monthly_patch_parts/89.public-branding-info.part monthly_patch.js cdn
+          git diff --cached --quiet && exit 0
+          git commit -m 'privacy: remove personal name from public site'
+          git push origin HEAD:fix/remove-public-name-20260901
