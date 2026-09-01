@@ -1,0 +1,89 @@
+name: Cloudflare Public Candidate Hosted QA
+
+on:
+  push:
+    branches:
+      - swsi-public-candidate
+    paths:
+      - '.github/workflows/cloudflare-public-candidate-hosted-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hosted-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CANDIDATE_ORIGIN: https://swsi-public-candidate-wandering-wave-4418.c022050333.workers.dev
+    steps:
+      - name: Verify candidate shell, PWA, admin and corpus
+        run: |
+          set -euo pipefail
+          ORIGIN="$CANDIDATE_ORIGIN"
+          ready=0
+          for i in $(seq 1 36); do
+            code="$(curl --silent --show-error --location -o /tmp/candidate.html -w '%{http_code}' "$ORIGIN/?hosted=$GITHUB_RUN_ID-$i" || true)"
+            if [ "$code" = '200' ] && grep -q 'SWSI CLOUDFLARE PUBLIC CANDIDATE' /tmp/candidate.html; then
+              ready=1
+              break
+            fi
+            echo "Waiting for stable branch alias: attempt=$i status=$code"
+            sleep 5
+          done
+          test "$ready" = '1'
+
+          curl --silent --show-error --fail "$ORIGIN/manifest.json?hosted=$GITHUB_RUN_ID" -o /tmp/pwa-manifest.json
+          curl --silent --show-error --fail "$ORIGIN/sw.js?hosted=$GITHUB_RUN_ID" -o /tmp/sw.js
+          curl --silent --show-error --fail "$ORIGIN/monthly_patch.js?hosted=$GITHUB_RUN_ID" -o /tmp/monthly_patch.js
+          curl --silent --show-error --fail "$ORIGIN/essay_guides.js?hosted=$GITHUB_RUN_ID" -o /tmp/essay_guides.js
+          curl --silent --show-error --fail "$ORIGIN/icons/icon-192.png?hosted=$GITHUB_RUN_ID" -o /tmp/icon-192.png
+          curl --silent --show-error --fail "$ORIGIN/admin/index.html?hosted=$GITHUB_RUN_ID" -o /tmp/admin-index.html
+          curl --silent --show-error --fail "$ORIGIN/question-shards/manifest.json?hosted=$GITHUB_RUN_ID" -o /tmp/question-manifest.json
+
+          grep -q 'noindex,nofollow,noarchive' /tmp/candidate.html
+          grep -q 'SWSI 讀書指南（自編公開內容' /tmp/candidate.html
+          grep -q "$ORIGIN/api/ai" /tmp/candidate.html
+          ! grep -q '蔡宇庭' /tmp/candidate.html
+          ! grep -q '老師提供的學長姐心得' /tmp/candidate.html
+          ! grep -q '資深學長姐的應考心得' /tmp/candidate.html
+          grep -q '<title>SWSI 管理中心</title>' /tmp/admin-index.html
+          ! grep -q 'DEFAULT_ADMIN_EMAIL' /tmp/admin-index.html
+          grep -q "const VERSION = 'v6'" /tmp/sw.js
+
+          python - <<'PY'
+          import json
+          pwa = json.load(open('/tmp/pwa-manifest.json', encoding='utf-8'))
+          assert pwa.get('start_url') == './', pwa
+          assert pwa.get('scope') == './', pwa
+          assert pwa.get('display') == 'standalone', pwa
+          q = json.load(open('/tmp/question-manifest.json', encoding='utf-8'))
+          assert int(q['total_questions']) == 4800, q
+          assert int(q['shard_count']) == 24, q
+          assert len(q['shards']) == 24, q
+          print('HOSTED CORE OK: PWA + 4800 questions / 24 shards')
+          PY
+
+      - name: Verify candidate AI CORS without model call
+        run: |
+          set -euo pipefail
+          ORIGIN="$CANDIDATE_ORIGIN"
+          code="$(curl --silent --show-error -X OPTIONS \
+            -H "Origin: $ORIGIN" \
+            -H 'Access-Control-Request-Method: POST' \
+            -D /tmp/ai-cors.headers -o /tmp/ai-cors.body -w '%{http_code}' \
+            "$ORIGIN/api/ai?hosted=$GITHUB_RUN_ID")"
+          test "$code" = '204'
+          tr -d '\r' < /tmp/ai-cors.headers > /tmp/ai-cors.clean
+          grep -qi "^access-control-allow-origin: $ORIGIN$" /tmp/ai-cors.clean
+          echo 'HOSTED AI PREFLIGHT OK — no Groq/model request made'
+
+      - name: Confirm production URLs remain separate
+        run: |
+          set -euo pipefail
+          test "$CANDIDATE_ORIGIN" != 'https://wandering-wave-4418.c022050333.workers.dev'
+          test "$CANDIDATE_ORIGIN" != 'https://swsi-quiznetlify.netlify.app'
+          code="$(curl --silent --show-error --location -o /dev/null -w '%{http_code}' https://swsi-quiznetlify.netlify.app/ || true)"
+          test "$code" = '200'
+          echo "CLOUDFLARE PUBLIC CANDIDATE HOSTED QA OK: $CANDIDATE_ORIGIN/"
