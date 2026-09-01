@@ -1,0 +1,39 @@
+{
+  "baseline_exams": [
+    "115030"
+  ],
+  "included_exams": [
+    {
+      "exam_code": "115100",
+      "roc_year": "115",
+      "round": "第二次",
+      "source_page": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115100&y=2026",
+      "mc_count": 200,
+      "essay_count": 10,
+      "stats": {
+        "社會工作": {
+          "mc": 40,
+          "essay": 2
+        },
+        "社會工作直接服務": {
+          "mc": 40,
+          "essay": 2
+        },
+        "社會政策與社會立法": {
+          "mc": 40,
+          "essay": 2
+        },
+        "人類行為與社會環境": {
+          "mc": 40,
+          "essay": 2
+        },
+        "社會工作研究方法": {
+          "mc": 40,
+          "essay": 2
+        }
+      }
+    }
+  ],
+  "mc_count": 200,
+  "essay_count": 10
+}

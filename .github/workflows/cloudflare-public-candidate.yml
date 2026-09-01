@@ -1,0 +1,267 @@
+name: Build Cloudflare Public Candidate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - swsi-public-candidate
+    paths:
+      - '.github/workflows/cloudflare-public-candidate.yml'
+      - 'index.html'
+      - 'manifest.json'
+      - 'sw.js'
+      - 'apple-touch-icon.png'
+      - 'icons/**'
+      - 'admin/**'
+      - 'essay_guides.js'
+      - 'monthly_patch_parts/**'
+      - 'auto/**'
+      - 'data/laws.canonical.json'
+      - 'data/theories.canonical.json'
+      - 'data/knowledge_canonical_manifest.json'
+      - 'data/knowledge_runtime_baseline.json'
+      - 'scripts/admin_identity_privacy_build.py'
+      - 'scripts/admin_auth_build.py'
+      - 'scripts/build_essay_guides_runtime.js'
+      - 'scripts/monthly_patch_build.py'
+      - 'scripts/public_content_sanitize.py'
+      - 'scripts/cache_bust_runtime.py'
+      - 'scripts/monthly_frontend_smoke.py'
+      - 'scripts/first_paint_static_qa.py'
+      - 'scripts/p0_frontend_preflight.js'
+      - 'scripts/runtime_owner_smoke.js'
+      - 'scripts/supabase_contract_smoke.js'
+      - 'scripts/unified_question_qa_selftest.py'
+      - 'scripts/official_exam_readonly_guard.py'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: swsi-cloudflare-public-candidate
+  cancel-in-progress: true
+
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout candidate branch
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build production-shaped sanitized candidate
+        env:
+          CANDIDATE_ORIGIN: https://swsi-public-candidate-wandering-wave-4418.c022050333.workers.dev
+        run: |
+          set -euo pipefail
+          SITE=/tmp/swsi-public-candidate
+          rm -rf "$SITE"
+          mkdir -p "$SITE/icons" "$SITE/admin"
+
+          cp index.html manifest.json sw.js apple-touch-icon.png "$SITE/"
+          cp admin/index.html admin/feedback_clusters.js "$SITE/admin/"
+          python scripts/admin_identity_privacy_build.py "$SITE/admin/index.html"
+          python scripts/admin_auth_build.py "$SITE/admin/index.html"
+
+          node scripts/build_essay_guides_runtime.js essay_guides.js "$SITE/essay_guides.js"
+          cat monthly_patch_parts/*.part > "$SITE/monthly_patch.js"
+          cp icons/icon-192.png icons/icon-512.png "$SITE/icons/"
+          if [ -d auto ]; then cp -R auto "$SITE/"; fi
+
+          node --check "$SITE/essay_guides.js"
+          node --check "$SITE/monthly_patch.js"
+          node --check sw.js
+          node scripts/p0_frontend_preflight.js
+          node scripts/runtime_owner_smoke.js
+          node scripts/supabase_contract_smoke.js
+          python scripts/unified_question_qa_selftest.py
+          python scripts/official_exam_readonly_guard.py
+
+          python scripts/monthly_patch_build.py "$SITE/index.html"
+          python scripts/public_content_sanitize.py "$SITE/index.html"
+          python scripts/monthly_frontend_smoke.py --site "$SITE"
+          python scripts/first_paint_static_qa.py --site "$SITE"
+          python scripts/cache_bust_runtime.py "$SITE"
+
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          site = Path('/tmp/swsi-public-candidate')
+          index = site / 'index.html'
+          text = index.read_text(encoding='utf-8')
+          origin = os.environ['CANDIDATE_ORIGIN']
+          source_sha = os.environ['GITHUB_SHA']
+
+          # Candidate is intentionally noindex and must not claim the Netlify URL
+          # as its own canonical/OG URL while we validate the Cloudflare host.
+          text = text.replace('https://swsi-quiznetlify.netlify.app/', origin + '/')
+
+          # Keep production AI untouched. Candidate browser requests exercise the
+          # candidate Worker version on a non-asset path instead.
+          old_ai = 'const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev";'
+          new_ai = f'const AI_PROXY_URL = "{origin}/api/ai";'
+          if text.count(old_ai) != 1:
+              raise SystemExit(f'candidate AI URL contract expected once, found {text.count(old_ai)}')
+          text = text.replace(old_ai, new_ai, 1)
+
+          marker = (
+              '<!-- SWSI CLOUDFLARE PUBLIC CANDIDATE -->\n'
+              '<meta name="robots" content="noindex,nofollow,noarchive">\n'
+              f'<meta name="swsi-candidate-source" content="{source_sha}">'
+          )
+          if '<head>' not in text:
+              raise SystemExit('candidate index missing <head>')
+          text = text.replace('<head>', '<head>\n' + marker, 1)
+          index.write_text(text, encoding='utf-8')
+
+          forbidden = (
+              '蔡宇庭',
+              '老師提供的學長姐心得',
+              '資深學長姐的應考心得',
+              '這份心得是資深學長姐',
+              '學長姊應考心得',
+          )
+          leaked = [x for x in forbidden if x in text]
+          if leaked:
+              raise SystemExit('candidate public-content leak: ' + ', '.join(leaked))
+          if origin + '/api/ai' not in text:
+              raise SystemExit('candidate AI endpoint rewrite missing')
+          PY
+
+          grep -q 'SWSI CLOUDFLARE PUBLIC CANDIDATE' "$SITE/index.html"
+          grep -q 'noindex,nofollow,noarchive' "$SITE/index.html"
+          grep -q 'SWSI 讀書指南（自編公開內容' "$SITE/index.html"
+          ! grep -q '蔡宇庭' "$SITE/index.html"
+          ! grep -q '老師提供的學長姐心得' "$SITE/index.html"
+          test -f "$SITE/admin/index.html"
+          test -f "$SITE/admin/feedback_clusters.js"
+          grep -q '<title>SWSI 管理中心</title>' "$SITE/admin/index.html"
+          ! grep -q 'DEFAULT_ADMIN_EMAIL' "$SITE/admin/index.html"
+
+      - name: Allow candidate origin in candidate Worker only
+        env:
+          CANDIDATE_ORIGIN: https://swsi-public-candidate-wandering-wave-4418.c022050333.workers.dev
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          p = Path('cloudflare/wandering-wave-4418/worker.js')
+          s = p.read_text(encoding='utf-8')
+          origin = os.environ['CANDIDATE_ORIGIN']
+          old = '''    const PUBLIC_ORIGINS = new Set([\n      "https://swsi-quiznetlify.netlify.app",\n      "https://wandering-wave-4418.c022050333.workers.dev"\n    ]);'''
+          new = '''    const PUBLIC_ORIGINS = new Set([\n      "https://swsi-quiznetlify.netlify.app",\n      "https://wandering-wave-4418.c022050333.workers.dev",\n      "''' + origin + '''"\n    ]);'''
+          if new in s:
+              print('Candidate origin already present.')
+          elif old in s:
+              s = s.replace(old, new, 1)
+              p.write_text(s, encoding='utf-8')
+          else:
+              raise SystemExit('PUBLIC_ORIGINS contract drifted; refusing broad candidate edit')
+          PY
+          node --check cloudflare/wandering-wave-4418/worker.js
+          grep -q "$CANDIDATE_ORIGIN" cloudflare/wandering-wave-4418/worker.js
+
+      - name: Materialize candidate into Cloudflare static assets
+        run: |
+          set -euo pipefail
+          SITE=/tmp/swsi-public-candidate
+
+          rm -f cdn/index.html cdn/manifest.json cdn/sw.js cdn/apple-touch-icon.png cdn/essay_guides.js cdn/monthly_patch.js
+          rm -rf cdn/icons cdn/auto cdn/admin
+
+          cp "$SITE/index.html" "$SITE/manifest.json" "$SITE/sw.js" "$SITE/apple-touch-icon.png" "$SITE/essay_guides.js" "$SITE/monthly_patch.js" cdn/
+          cp -R "$SITE/icons" cdn/icons
+          if [ -d "$SITE/auto" ]; then cp -R "$SITE/auto" cdn/auto; fi
+          cp -R "$SITE/admin" cdn/admin
+
+          # Existing question shards and preview namespace are intentionally preserved.
+          test -f cdn/question-shards/manifest.json
+          test -d cdn/preview
+          test -f cdn/index.html
+
+      - name: Commit candidate artifacts to candidate branch only
+        id: publish
+        run: |
+          set -euo pipefail
+          git config user.name 'swsi-candidate-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add cloudflare/wandering-wave-4418/worker.js cdn/index.html cdn/manifest.json cdn/sw.js cdn/apple-touch-icon.png cdn/essay_guides.js cdn/monthly_patch.js cdn/icons cdn/auto cdn/admin
+          if git diff --cached --quiet; then
+            echo 'Candidate artifacts already current.'
+            echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m 'build: refresh Cloudflare public candidate'
+            git push origin HEAD:swsi-public-candidate
+            echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify hosted stable branch candidate
+        env:
+          CANDIDATE_ORIGIN: https://swsi-public-candidate-wandering-wave-4418.c022050333.workers.dev
+        run: |
+          set -euo pipefail
+          ORIGIN="$CANDIDATE_ORIGIN"
+          SOURCE_SHA="$GITHUB_SHA"
+          ready=0
+          for i in $(seq 1 60); do
+            code="$(curl --silent --show-error --location -o /tmp/candidate.html -w '%{http_code}' "$ORIGIN/?check=$GITHUB_RUN_ID-$i" || true)"
+            if [ "$code" = '200' ] \
+               && grep -q 'SWSI CLOUDFLARE PUBLIC CANDIDATE' /tmp/candidate.html \
+               && grep -q "swsi-candidate-source\" content=\"$SOURCE_SHA" /tmp/candidate.html; then
+              ready=1
+              break
+            fi
+            echo "Waiting for candidate branch deployment: attempt=$i status=$code"
+            sleep 5
+          done
+          test "$ready" = '1'
+
+          for path in manifest.json sw.js monthly_patch.js essay_guides.js icons/icon-192.png admin/index.html question-shards/manifest.json; do
+            curl --silent --show-error --fail "$ORIGIN/$path?check=$GITHUB_RUN_ID" -o "/tmp/$(basename "$path")"
+          done
+
+          grep -q 'noindex,nofollow,noarchive' /tmp/candidate.html
+          grep -q 'SWSI 讀書指南（自編公開內容' /tmp/candidate.html
+          ! grep -q '蔡宇庭' /tmp/candidate.html
+          ! grep -q '老師提供的學長姐心得' /tmp/candidate.html
+          grep -q '<title>SWSI 管理中心</title>' /tmp/index.html
+
+          python - <<'PY'
+          import json
+          m = json.load(open('/tmp/manifest.json', encoding='utf-8'))
+          assert m.get('start_url') == './', m
+          q = json.load(open('/tmp/manifest.json', encoding='utf-8')) if False else None
+          qm = json.load(open('/tmp/manifest.json', encoding='utf-8'))
+          print('PWA manifest OK:', qm.get('name'))
+          PY
+
+          curl --silent --show-error --fail "$ORIGIN/question-shards/manifest.json?verify=$GITHUB_RUN_ID" -o /tmp/question-manifest.json
+          python - <<'PY'
+          import json
+          m = json.load(open('/tmp/question-manifest.json', encoding='utf-8'))
+          assert int(m['total_questions']) == 4800, m
+          assert int(m['shard_count']) == 24, m
+          assert len(m['shards']) == 24, m
+          print('QUESTION CORPUS OK: 4800 / 24 shards')
+          PY
+
+          cors_code="$(curl --silent --show-error -X OPTIONS \
+            -H "Origin: $ORIGIN" \
+            -H 'Access-Control-Request-Method: POST' \
+            -D /tmp/cors.headers -o /tmp/cors.body -w '%{http_code}' \
+            "$ORIGIN/api/ai?check=$GITHUB_RUN_ID")"
+          test "$cors_code" = '204'
+          tr -d '\r' < /tmp/cors.headers > /tmp/cors.clean
+          grep -qi "^access-control-allow-origin: $ORIGIN$" /tmp/cors.clean
+          echo 'CANDIDATE AI PREFLIGHT OK — no model call made'
+          echo "CLOUDFLARE PUBLIC CANDIDATE OK: $ORIGIN/"
