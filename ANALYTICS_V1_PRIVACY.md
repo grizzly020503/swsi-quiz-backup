@@ -38,6 +38,12 @@ Cloudflare branch previews, Netlify, localhost and other origins do not send ana
 
 The Edge Function independently enforces the same production Origin and accepts only a small `page_view` event body plus the anonymous client ID header.
 
+## Accuracy and abuse boundary
+
+These figures are operational estimates, not verified human-account counts. The browser Origin check is useful for the normal browser/CORS boundary, but a direct HTTP client can spoof the `Origin` header and generate random client IDs. Therefore Analytics V1 is not designed to provide tamper-proof traffic numbers.
+
+Do not use these counts as billing data, security/audit evidence, legal evidence, or proof of a precise number of unique people. They are appropriate for lightweight product-operation questions such as whether the site is being used and whether usage is broadly increasing or decreasing.
+
 ## Access boundary
 
 - `swsi_usage_daily` has RLS enabled.
