@@ -1,0 +1,74 @@
+name: Usage Analytics QA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/usage-analytics-qa.yml'
+      - 'supabase/migrations/20260902143000_add_anonymous_usage_analytics.sql'
+      - 'supabase/functions/swsi-usage/**'
+      - 'supabase/functions/swsi-admin/index.ts'
+      - 'admin/index.html'
+      - 'cdn/admin/index.html'
+      - 'monthly_patch_parts/99_p0_mobile_ai_guardrails.part'
+      - 'cdn/monthly_patch.js'
+      - 'scripts/usage_analytics_v1_smoke.py'
+  pull_request:
+    paths:
+      - '.github/workflows/usage-analytics-qa.yml'
+      - 'supabase/migrations/20260902143000_add_anonymous_usage_analytics.sql'
+      - 'supabase/functions/swsi-usage/**'
+      - 'supabase/functions/swsi-admin/index.ts'
+      - 'admin/index.html'
+      - 'cdn/admin/index.html'
+      - 'monthly_patch_parts/99_p0_mobile_ai_guardrails.part'
+      - 'cdn/monthly_patch.js'
+      - 'scripts/usage_analytics_v1_smoke.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-usage-analytics-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analytics-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          node --check cdn/monthly_patch.js
+          python -m py_compile scripts/usage_analytics_v1_smoke.py
+          deno check supabase/functions/swsi-usage/index.ts
+          deno check supabase/functions/swsi-admin/index.ts
+
+      - name: Generated runtime matches canonical parts
+        run: |
+          set -euo pipefail
+          cat monthly_patch_parts/*.part > /tmp/monthly_patch.js
+          cmp /tmp/monthly_patch.js cdn/monthly_patch.js
+
+      - name: Privacy and integration contract
+        run: python scripts/usage_analytics_v1_smoke.py
+
+      - name: Migration permission guard
+        run: |
+          set -euo pipefail
+          m='supabase/migrations/20260902143000_add_anonymous_usage_analytics.sql'
+          grep -q 'alter table public.swsi_usage_daily enable row level security' "$m"
+          grep -q 'revoke all on table public.swsi_usage_daily from anon, authenticated' "$m"
+          grep -q 'revoke all on function public.record_swsi_usage(text) from public, anon, authenticated' "$m"
+          grep -q 'revoke all on function public.swsi_usage_summary() from public, anon, authenticated' "$m"
+          grep -q 'set search_path = public, pg_temp' "$m"
