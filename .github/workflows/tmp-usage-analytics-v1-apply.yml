@@ -1,0 +1,73 @@
+name: TMP Usage Analytics V1 Apply
+
+on:
+  push:
+    branches:
+      - feat/anonymous-usage-analytics-v1-20260902
+    paths:
+      - '.github/workflows/tmp-usage-analytics-v1-apply.yml'
+      - 'scripts/apply_usage_analytics_v1.py'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/anonymous-usage-analytics-v1-20260902
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Apply deterministic integration patch
+        run: python scripts/apply_usage_analytics_v1.py
+
+      - name: Syntax and privacy contract
+        run: |
+          node --check cdn/monthly_patch.js
+          python -m py_compile scripts/apply_usage_analytics_v1.py scripts/usage_analytics_v1_smoke.py
+          deno check supabase/functions/swsi-usage/index.ts
+          deno check supabase/functions/swsi-admin/index.ts
+          python scripts/usage_analytics_v1_smoke.py
+
+      - name: Fail-closed scope gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected=$(printf '%s\n' \
+            admin/index.html \
+            cdn/admin/index.html \
+            cdn/monthly_patch.js \
+            monthly_patch_parts/99_p0_mobile_ai_guardrails.part \
+            supabase/functions/swsi-admin/index.ts | sort)
+          actual=$(git diff --name-only | sort)
+          echo 'Expected:'
+          echo "$expected"
+          echo 'Actual:'
+          echo "$actual"
+          test "$actual" = "$expected"
+
+      - name: Commit product integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'swsi-analytics-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add \
+            admin/index.html \
+            cdn/admin/index.html \
+            cdn/monthly_patch.js \
+            monthly_patch_parts/99_p0_mobile_ai_guardrails.part \
+            supabase/functions/swsi-admin/index.ts
+          git commit -m 'Analytics: connect anonymous usage counts to public app and admin'
+          git push origin HEAD:feat/anonymous-usage-analytics-v1-20260902
