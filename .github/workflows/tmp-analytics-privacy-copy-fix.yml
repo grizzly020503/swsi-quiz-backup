@@ -1,0 +1,57 @@
+name: TMP Analytics Privacy Copy Fix
+
+on:
+  push:
+    branches:
+      - feat/anonymous-usage-analytics-v1-20260902
+    paths:
+      - '.github/workflows/tmp-analytics-privacy-copy-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix-copy:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/anonymous-usage-analytics-v1-20260902
+          fetch-depth: 0
+
+      - name: Replace privacy wording exactly
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          old = '伺服器只保存 SHA-256 雜湊與每日瀏覽次數'
+          new = '統計資料庫只保存 SHA-256 雜湊與每日瀏覽次數'
+          paths = [Path('admin/index.html'), Path('cdn/admin/index.html')]
+          changed = 0
+          for path in paths:
+              text = path.read_text(encoding='utf-8')
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{path}: expected 1 exact phrase, got {count}')
+              path.write_text(text.replace(old, new, 1), encoding='utf-8')
+              changed += 1
+          if changed != 2:
+              raise SystemExit(f'expected 2 files changed, got {changed}')
+          PY
+          actual=$(git diff --name-only | sort)
+          expected=$(printf '%s\n' admin/index.html cdn/admin/index.html | sort)
+          test "$actual" = "$expected"
+          grep -q '統計資料庫只保存 SHA-256 雜湊與每日瀏覽次數' admin/index.html
+          grep -q '統計資料庫只保存 SHA-256 雜湊與每日瀏覽次數' cdn/admin/index.html
+
+      - name: Commit copy precision fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'swsi-analytics-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add admin/index.html cdn/admin/index.html
+          git commit -m 'Privacy: clarify analytics database storage wording'
+          git push origin HEAD:feat/anonymous-usage-analytics-v1-20260902
