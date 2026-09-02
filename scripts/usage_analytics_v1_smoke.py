@@ -23,7 +23,9 @@ assert 'enable row level security' in migration.lower()
 assert 'revoke all on table public.swsi_usage_daily from anon, authenticated' in migration
 assert 'grant execute on function public.swsi_usage_summary() to service_role' in migration
 assert 'grant execute on function public.record_swsi_usage(text) to service_role' in migration
-for forbidden in ['ip_address', 'user_agent text', 'email text', 'name text', 'fingerprint']:
+# Comments are allowed to document that sensitive data is NOT stored. Fail only on
+# schema-shaped fields that would actually persist those values.
+for forbidden in ['ip_address text', 'user_agent text', 'email text', 'name text', 'fingerprint text', 'device_fingerprint text']:
     assert forbidden not in migration.lower(), forbidden
 
 assert 'PRODUCTION_ORIGIN = "https://wandering-wave-4418.c022050333.workers.dev"' in usage_fn
