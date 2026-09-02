@@ -12,7 +12,10 @@ for path in [ROOT / 'admin/index.html', ROOT / 'cdn/admin/index.html']:
     text = path.read_text(encoding='utf-8')
     for marker in ['analyticsTodayUsers', 'analyticsTodayViews', 'analytics7dUsers', 'analyticsTotalUsers', 'analyticsTotalViews', 'function renderAnalytics(){']:
         assert marker in text, (path, marker)
-    assert '匿名使用統計尚未啟用' not in text, path
+    # The exact old placeholder card must be gone. A fail-safe health message may still
+    # legitimately say analytics is not enabled/unavailable when the backend is absent.
+    assert '<strong>匿名使用統計尚未啟用</strong>' not in text, path
+    assert '下一步才接「今日使用者、作答題數、模擬考、申論、AI 使用量」' not in text, path
     assert '不保存姓名、Email、原始 IP、User-Agent 或裝置指紋' in text, path
 
 assert 'create table if not exists public.swsi_usage_daily' in migration
