@@ -101,7 +101,7 @@ jobs:
         run: |
           set -euo pipefail
           BASE='https://wandering-wave-4418.c022050333.workers.dev/question-shards'
-          AI_URL='https://wandering-wave-4418.c022050333.workers.dev/'
+          AI_URL='https://wandering-wave-4418.c022050333.workers.dev/api/ai'
           PUBLIC_ORIGIN='https://swsi-quiznetlify.netlify.app'
 
           # A changed dataset/header triggers a separate Cloudflare Git deployment.
