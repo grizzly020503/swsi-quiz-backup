@@ -38,8 +38,33 @@ jobs:
       - name: Build verified shards
         run: python scripts/build_question_shards.py --output-dir /tmp/question-shards
 
+      - name: Resolve expected production revision
+        id: revision
+        run: |
+          set -euo pipefail
+          generated_revision="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          print(json.loads(Path('/tmp/question-shards/manifest.json').read_text(encoding='utf-8'))['dataset_revision'])
+          PY
+          )"
+          main_revision="$(git show origin/main:cdn/question-shards/manifest.json | python -c "import json,sys; print(json.load(sys.stdin).get('dataset_revision',''))")"
+
+          test -n "$generated_revision"
+          test -n "$main_revision"
+
+          if [ "$GITHUB_REF" = 'refs/heads/main' ]; then
+            expected_revision="$generated_revision"
+          else
+            expected_revision="$main_revision"
+          fi
+
+          echo "generated_revision=$generated_revision"
+          echo "main_revision=$main_revision"
+          echo "revision=$expected_revision" >> "$GITHUB_OUTPUT"
+
       - name: Publish dataset or headers when changed
-        id: publish
+        if: github.ref == 'refs/heads/main'
         run: |
           set -euo pipefail
           old_revision=''
@@ -62,7 +87,6 @@ jobs:
           PY
           )"
 
-          echo "revision=$new_revision" >> "$GITHUB_OUTPUT"
           echo "old_revision=$old_revision"
           echo "new_revision=$new_revision"
 
@@ -97,15 +121,15 @@ jobs:
 
       - name: Smoke test Cloudflare production static assets and public AI guards
         env:
-          EXPECTED_REVISION: ${{ steps.publish.outputs.revision }}
+          EXPECTED_REVISION: ${{ steps.revision.outputs.revision }}
         run: |
           set -euo pipefail
           BASE='https://wandering-wave-4418.c022050333.workers.dev/question-shards'
-          AI_URL='https://wandering-wave-4418.c022050333.workers.dev/'
+          AI_URL='https://wandering-wave-4418.c022050333.workers.dev/api/ai'
           PUBLIC_ORIGIN='https://swsi-quiznetlify.netlify.app'
 
-          # A changed dataset/header triggers a separate Cloudflare Git deployment.
-          # Poll until production serves both the expected revision and the non-duplicated headers.
+          # Main publishes a changed dataset/header and waits for production to catch up.
+          # Feature branches are validation-only and must smoke the current main/production revision.
           live_revision=''
           live_cors=''
           live_cache=''
