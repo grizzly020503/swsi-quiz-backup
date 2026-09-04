@@ -10,6 +10,64 @@ function hasUsableName(el){
   return !!(aria||title||text);
 }
 
+async function assertFocusTrap(page,dialogSelector,label){
+  const count=await page.locator(dialogSelector).count();
+  assert.strictEqual(count,1,`${label}: dialog missing`);
+
+  const focusableCount=await page.evaluate((selector)=>{
+    const dialog=document.querySelector(selector);
+    if(!dialog)return 0;
+    const query='button:not([disabled]),a[href],input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+    return [...dialog.querySelectorAll(query)].filter((el)=>{
+      const s=getComputedStyle(el);
+      return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)!==0&&!!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);
+    }).length;
+  },dialogSelector);
+  assert(focusableCount>=1,`${label}: no focusable controls`);
+
+  await page.evaluate((selector)=>{
+    const dialog=document.querySelector(selector);
+    const query='button:not([disabled]),a[href],input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+    const items=[...dialog.querySelectorAll(query)].filter((el)=>{
+      const s=getComputedStyle(el);
+      return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)!==0&&!!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);
+    });
+    items[items.length-1].focus();
+  },dialogSelector);
+  await page.keyboard.press('Tab');
+  let edge=await page.evaluate((selector)=>{
+    const dialog=document.querySelector(selector);
+    const query='button:not([disabled]),a[href],input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+    const items=[...dialog.querySelectorAll(query)].filter((el)=>{
+      const s=getComputedStyle(el);
+      return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)!==0&&!!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);
+    });
+    return {inside:dialog.contains(document.activeElement),atFirst:document.activeElement===items[0]};
+  },dialogSelector);
+  assert(edge.inside&&edge.atFirst,`${label}: Tab escaped instead of wrapping to first control`);
+
+  await page.evaluate((selector)=>{
+    const dialog=document.querySelector(selector);
+    const query='button:not([disabled]),a[href],input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+    const items=[...dialog.querySelectorAll(query)].filter((el)=>{
+      const s=getComputedStyle(el);
+      return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)!==0&&!!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);
+    });
+    items[0].focus();
+  },dialogSelector);
+  await page.keyboard.press('Shift+Tab');
+  edge=await page.evaluate((selector)=>{
+    const dialog=document.querySelector(selector);
+    const query='button:not([disabled]),a[href],input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+    const items=[...dialog.querySelectorAll(query)].filter((el)=>{
+      const s=getComputedStyle(el);
+      return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)!==0&&!!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);
+    });
+    return {inside:dialog.contains(document.activeElement),atLast:document.activeElement===items[items.length-1]};
+  },dialogSelector);
+  assert(edge.inside&&edge.atLast,`${label}: Shift+Tab escaped instead of wrapping to last control`);
+}
+
 (async()=>{
   const browser=await chromium.launch({headless:true});
 
@@ -36,11 +94,6 @@ function hasUsableName(el){
       await page.waitForFunction(()=>document.documentElement.getAttribute('data-fs')==='2');
     }
 
-    // The verified first-paint contract renders the Home shell before deferred
-    // question initialization finishes. The legacy nav starts inline-hidden and
-    // init() switches it to flex when the interactive shell is actually ready.
-    // Wait for that explicit ready state before measuring touch geometry. This
-    // still fails closed if the nav never becomes visible.
     await page.waitForFunction(()=>{
       const tab=document.querySelector('.tabbar');
       if(!tab)return false;
@@ -75,8 +128,6 @@ function hasUsableName(el){
     assert(metrics.tabbar.left>=-2&&metrics.tabbar.right<=width+2,`${label}: bottom nav escapes viewport horizontally; metrics=${JSON.stringify(metrics)}`);
     assert(metrics.tabbar.bottom<=height+2&&metrics.tabbar.bottom>=height-70,`${label}: bottom nav not anchored near viewport bottom; metrics=${JSON.stringify(metrics)}`);
 
-    // Only visible navigation controls are actionable touch targets. Hidden route buttons
-    // intentionally use display:none and therefore have no bounding box to measure.
     const navButtons=page.locator('.tabbar button:visible');
     assert((await navButtons.count())>=3,`${label}: visible bottom nav controls missing`);
     for(let i=0;i<await navButtons.count();i++){
@@ -84,8 +135,7 @@ function hasUsableName(el){
       const box=await b.boundingBox();
       const state=await b.evaluate(el=>{const s=getComputedStyle(el);return {id:el.id,text:(el.textContent||'').trim(),display:s.display,visibility:s.visibility,opacity:s.opacity};});
       assert(box&&box.height>=40&&box.width>=40,`${label}: bottom nav touch target too small at ${i}; box=${JSON.stringify(box)} state=${JSON.stringify(state)}`);
-      const named=await b.evaluate(hasUsableName);
-      assert(named,`${label}: bottom nav control ${i} has no accessible name`);
+      assert(await b.evaluate(hasUsableName),`${label}: bottom nav control ${i} has no accessible name`);
     }
 
     const mainActions=page.locator('.swsi-focus-primary button');
@@ -96,23 +146,35 @@ function hasUsableName(el){
       assert(await b.evaluate(hasUsableName),`${label}: main CTA ${i} has no accessible name`);
     }
 
-    // Keyboard users must be able to move focus onto a real interactive element.
     await page.keyboard.press('Tab');
     await page.waitForTimeout(50);
     const firstFocus=await page.evaluate(()=>({tag:document.activeElement&&document.activeElement.tagName,name:(document.activeElement&&((document.activeElement.getAttribute('aria-label')||document.activeElement.textContent||'')))||''}));
     assert(firstFocus.tag&&firstFocus.tag!=='BODY',`${label}: Tab did not move focus to an interactive control`);
 
-    // Public info modal must remain within the smallest mobile viewport and close by keyboard.
     assert.strictEqual(await page.evaluate(()=>typeof window.swsiOpenPublicInfo),'function',`${label}: public info opener missing`);
     await page.evaluate(()=>window.swsiOpenPublicInfo('about'));
     await page.waitForSelector('.swsi-public-info-dialog',{timeout:5000});
     const infoBox=await page.locator('.swsi-public-info-dialog').boundingBox();
     assert(infoBox&&infoBox.x>=-1&&infoBox.x+infoBox.width<=width+1,`${label}: public info modal overflows horizontally`);
     assert(infoBox&&infoBox.y>=-1&&infoBox.y+infoBox.height<=height+2,`${label}: public info modal overflows vertically`);
+    await assertFocusTrap(page,'.swsi-public-info-dialog',`${label}: public info`);
     await page.keyboard.press('Escape');
     await page.waitForFunction(()=>!document.getElementById('swsi-public-info-backdrop'));
 
-    // Progress / learning center should not horizontally overflow at large app text.
+    assert.strictEqual(await page.evaluate(()=>typeof window.swsiOpenReport),'function',`${label}: feedback opener missing`);
+    await page.evaluate(()=>window.swsiOpenReport());
+    await page.waitForSelector('.swsi-report-dialog',{timeout:5000});
+    await assertFocusTrap(page,'.swsi-report-dialog',`${label}: feedback`);
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(()=>!document.getElementById('swsi-report-backdrop'));
+
+    assert.strictEqual(await page.evaluate(()=>typeof window.swsiOpenExamDate),'function',`${label}: exam date opener missing`);
+    await page.evaluate(()=>window.swsiOpenExamDate());
+    await page.waitForSelector('.swsi-exam-dialog',{timeout:5000});
+    await assertFocusTrap(page,'.swsi-exam-dialog',`${label}: exam date`);
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(()=>!document.getElementById('swsi-exam-backdrop'));
+
     if(opts.maxFont){
       const progressBtn=page.getByRole('button',{name:/查看完整學習進度/});
       if(await progressBtn.count())await progressBtn.click();

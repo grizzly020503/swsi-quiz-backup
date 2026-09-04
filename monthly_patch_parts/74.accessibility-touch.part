@@ -1,18 +1,80 @@
 
-/* SWSI Accessibility Touch Guard 2026-08-28
-   Public-launch ergonomics only. Ensures primary bottom navigation targets
-   stay comfortably tappable on narrow phones without changing navigation logic.
+/* SWSI Accessibility Guard 2026-09-04
+   Public-launch ergonomics and keyboard accessibility only.
+   - keeps primary bottom navigation comfortably tappable on narrow phones
+   - traps Tab / Shift+Tab inside known aria-modal dialogs
+   Does not own modal open/close behavior, navigation logic, grading, AI or data.
 */
 (function(){
   'use strict';
   var STYLE_ID='swsi-accessibility-touch-20260828';
-  if(document.getElementById(STYLE_ID))return;
-  var st=document.createElement('style');
-  st.id=STYLE_ID;
-  st.textContent=`
-    .tabbar button{
-      min-height:48px;
+  if(!document.getElementById(STYLE_ID)){
+    var st=document.createElement('style');
+    st.id=STYLE_ID;
+    st.textContent=`
+      .tabbar button{
+        min-height:48px;
+      }
+    `;
+    document.head.appendChild(st);
+  }
+
+  if(window.SWSI_MODAL_FOCUS_TRAP&&window.SWSI_MODAL_FOCUS_TRAP.version==='2026-09-04.v3')return;
+
+  var DIALOGS=[
+    '.swsi-public-info-dialog',
+    '.swsi-report-dialog',
+    '.swsi-exam-dialog'
+  ];
+  var FOCUSABLE='button:not([disabled]),a[href],input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]';
+
+  function visible(el){
+    if(!el)return false;
+    var s=getComputedStyle(el);
+    if(s.display==='none'||s.visibility==='hidden'||Number(s.opacity)===0)return false;
+    return !!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);
+  }
+
+  function currentDialog(){
+    for(var i=0;i<DIALOGS.length;i++){
+      var dialog=document.querySelector(DIALOGS[i]+'[role="dialog"][aria-modal="true"]');
+      if(dialog&&visible(dialog))return dialog;
     }
-  `;
-  document.head.appendChild(st);
+    return null;
+  }
+
+  function focusables(dialog){
+    return Array.prototype.filter.call(dialog.querySelectorAll(FOCUSABLE),function(el){
+      return visible(el)&&Number(el.tabIndex)>=0;
+    });
+  }
+
+  function onKeydown(ev){
+    if(ev.key!=='Tab')return;
+    var dialog=currentDialog();
+    if(!dialog)return;
+    var items=focusables(dialog);
+    ev.preventDefault();
+
+    if(!items.length){
+      if(!dialog.hasAttribute('tabindex'))dialog.setAttribute('tabindex','-1');
+      try{dialog.focus();}catch(_e){}
+      return;
+    }
+
+    var active=document.activeElement;
+    var index=items.indexOf(active);
+    var nextIndex;
+    if(index<0){
+      nextIndex=ev.shiftKey?items.length-1:0;
+    }else if(ev.shiftKey){
+      nextIndex=(index-1+items.length)%items.length;
+    }else{
+      nextIndex=(index+1)%items.length;
+    }
+    try{items[nextIndex].focus();}catch(_e){}
+  }
+
+  document.addEventListener('keydown',onKeydown,true);
+  window.SWSI_MODAL_FOCUS_TRAP={version:'2026-09-04.v3'};
 })();
