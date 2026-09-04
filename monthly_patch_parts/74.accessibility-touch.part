@@ -1,5 +1,5 @@
 
-/* SWSI Accessibility Guard 2026-09-01
+/* SWSI Accessibility Guard 2026-09-04
    Public-launch ergonomics and keyboard accessibility only.
    - keeps primary bottom navigation comfortably tappable on narrow phones
    - traps Tab / Shift+Tab inside known aria-modal dialogs
@@ -19,12 +19,12 @@
     document.head.appendChild(st);
   }
 
-  if(window.SWSI_MODAL_FOCUS_TRAP&&window.SWSI_MODAL_FOCUS_TRAP.version==='2026-09-01.v2')return;
+  if(window.SWSI_MODAL_FOCUS_TRAP&&window.SWSI_MODAL_FOCUS_TRAP.version==='2026-09-04.v3')return;
 
-  var BACKDROPS=[
-    '#swsi-public-info-backdrop',
-    '#swsi-report-backdrop',
-    '#swsi-exam-backdrop'
+  var DIALOGS=[
+    '.swsi-public-info-dialog',
+    '.swsi-report-dialog',
+    '.swsi-exam-dialog'
   ];
   var FOCUSABLE='button:not([disabled]),a[href],input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]';
 
@@ -36,10 +36,8 @@
   }
 
   function currentDialog(){
-    for(var i=0;i<BACKDROPS.length;i++){
-      var backdrop=document.querySelector(BACKDROPS[i]);
-      if(!backdrop||!visible(backdrop))continue;
-      var dialog=backdrop.querySelector('[role="dialog"][aria-modal="true"]');
+    for(var i=0;i<DIALOGS.length;i++){
+      var dialog=document.querySelector(DIALOGS[i]+'[role="dialog"][aria-modal="true"]');
       if(dialog&&visible(dialog))return dialog;
     }
     return null;
@@ -78,5 +76,5 @@
   }
 
   document.addEventListener('keydown',onKeydown,true);
-  window.SWSI_MODAL_FOCUS_TRAP={version:'2026-09-01.v2'};
+  window.SWSI_MODAL_FOCUS_TRAP={version:'2026-09-04.v3'};
 })();
