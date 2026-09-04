@@ -1,0 +1,36 @@
+name: AI Feedback Eval
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/ai-feedback-eval.yml'
+      - 'ai_eval/**'
+      - 'scripts/ai_feedback_eval.py'
+      - 'scripts/ai_feedback_eval_selftest.py'
+      - 'monthly_patch_parts/99z.essay-trust-layer.part'
+      - 'cloudflare/wandering-wave-4418/worker.js'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-feedback-eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Python syntax
+        run: python3 -m py_compile scripts/ai_feedback_eval.py scripts/ai_feedback_eval_selftest.py
+
+      - name: Verify Golden Set contract
+        run: python3 scripts/ai_feedback_eval.py
+
+      - name: Self-test evaluator fail-closed behavior
+        run: python3 scripts/ai_feedback_eval_selftest.py

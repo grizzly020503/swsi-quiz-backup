@@ -114,3 +114,26 @@ Official Core 完整性通過後可以發布；解析、申論 guide、法規說
 修復可在 branch + preview 完成；`main` merge 與 production deploy 是獨立決策。
 
 沒有使用者明確授權，不得自動 merge main 或正式 Netlify deploy。
+
+---
+
+## D-013 AI 回饋品質使用固定 Golden Set，與管線／安全測試分離
+
+**決策：** 申論 AI 的 transport / Worker / quota / security smoke 與「生成內容品質」是兩種不同證據。主要申論 feedback prompt、public model 或會明顯改變輸出品質的行為變更，必須用固定 Golden Set 做 regression，而不能只因 API 回 200、Worker contract 全綠或新模型看起來更強就視為品質通過。
+
+Golden Set baseline 放在 `ai_eval/`，deterministic evaluator 放在 `scripts/ai_feedback_eval.py`。
+
+預設 GitHub Actions 只做：
+- dataset/schema 完整性；
+- prompt version / required clauses / temperature pin；
+- public-model pin；
+- evaluator fail-closed self-test。
+
+**預設 CI 不呼叫 live AI provider。** 理由是：
+- 避免把 Groq / 模型 availability 變成 merge 的隨機單點；
+- 避免每個 commit 自動消耗有限免費 AI 額度；
+- 生成品質不能只靠 deterministic keyword gate 取代人工判斷。
+
+真正更換 prompt / public model 時，應有目的地對固定案例產生 candidate outputs，再由人依 rubric 評 `task_alignment / answer_specificity / uncertainty_discipline / pedagogical_usefulness / non_authoritative_tone`，最後以 evaluator 檢查完整性與 hard gates。
+
+V1 使用 synthetic text cases，不納入真實學生個資，也不把文字 Golden Set 的 PASS 當成 photo/OCR 品質證據。後續只在出現新的 failure mode 時增加案例，避免為了測試數量而無限擴張。
