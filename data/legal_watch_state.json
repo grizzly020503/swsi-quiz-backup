@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "checked_at": "2026-08-25T23:29:18Z",
+  "checked_at": "2026-09-06T02:12:02Z",
   "official_sources": [
     {
       "type": "law_moj_direct",
@@ -190,7 +190,7 @@
       "question_count": 4,
       "source_type": "law_moj_direct",
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0000001",
-      "official_modified_date": "2021-01-20",
+      "official_modified_date": "2026-08-17",
       "abandon_note": null
     },
     "消除對婦女一切形式歧視公約施行法": {
