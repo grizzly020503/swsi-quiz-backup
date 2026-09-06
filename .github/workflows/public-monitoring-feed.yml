@@ -1,0 +1,100 @@
+name: Public Monitoring Feed
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 每 6 小時掃描一次社工／社福時事；比完整題庫同步輕量，避免每小時浪費 Actions 額度。
+    - cron: '15 */6 * * *'
+  pull_request:
+    paths:
+      - '.github/workflows/public-monitoring-feed.yml'
+      - 'scripts/current_affairs_watch.py'
+      - 'scripts/build_current_affairs_snapshot.py'
+      - 'scripts/build_public_legal_watch_snapshot.py'
+      - 'scripts/public_monitoring_v2_smoke.py'
+      - 'monthly_patch_parts/89.public-branding-info.part'
+      - 'auto/current_affairs.json'
+      - 'auto/legal_watch.json'
+      - 'auto/health.json'
+      - 'auto/sync_state.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: swsi-public-monitoring-feed-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  monitoring-feed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install RSS parser
+        run: python -m pip install --disable-pip-version-check feedparser
+
+      - name: Scan social-work current affairs
+        run: python scripts/current_affairs_watch.py --output /tmp/current_affairs_payload.json --days 21
+
+      - name: Build privacy-safe public snapshots
+        run: |
+          set -euo pipefail
+          python scripts/build_current_affairs_snapshot.py \
+            --input /tmp/current_affairs_payload.json \
+            --output auto/current_affairs.json \
+            --limit 30
+          python scripts/build_public_legal_watch_snapshot.py \
+            --input data/legal_watch_report.json \
+            --output auto/legal_watch.json
+
+          mkdir -p cdn/auto
+          cp auto/current_affairs.json cdn/auto/current_affairs.json
+          cp auto/legal_watch.json cdn/auto/legal_watch.json
+          cp auto/health.json cdn/auto/health.json
+          cp auto/sync_state.json cdn/auto/sync_state.json
+
+      - name: Five-radar contract smoke
+        run: |
+          python -m py_compile \
+            scripts/current_affairs_watch.py \
+            scripts/build_current_affairs_snapshot.py \
+            scripts/build_public_legal_watch_snapshot.py \
+            scripts/public_monitoring_v2_smoke.py
+          python scripts/public_monitoring_v2_smoke.py
+          git diff --check
+
+      - name: Publish changed monitoring snapshots
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          set -euo pipefail
+          git config user.name 'swsi-monitoring-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add \
+            auto/current_affairs.json auto/legal_watch.json \
+            cdn/auto/current_affairs.json cdn/auto/legal_watch.json \
+            cdn/auto/health.json cdn/auto/sync_state.json
+          if git diff --cached --quiet; then
+            echo 'Public monitoring snapshots unchanged.'
+            exit 0
+          fi
+          git commit -m '更新 SWSI 五大監測公開快照'
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "monitoring snapshot push race on attempt $attempt; retrying..."
+          done
+          echo 'Unable to publish monitoring snapshots after 3 attempts.' >&2
+          exit 1
