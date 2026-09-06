@@ -3725,7 +3725,34 @@ html[data-fs="2"]{
     finally{clearTimeout(timer);}
   };
 })();
-/* ===== SWSI P0 AI utilities END ===== *//* ===== SWSI Essay Trust Layer 2026-08-26 =====
+/* ===== SWSI P0 AI utilities END ===== */
+
+/* ===== SWSI Anonymous Usage Analytics V1 2026-09-02 ===== */
+(function(){
+  'use strict';
+  var PRODUCTION_ORIGIN='https://wandering-wave-4418.c022050333.workers.dev';
+  var ENDPOINT='https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-usage';
+  if(location.origin!==PRODUCTION_ORIGIN)return;
+
+  function recordPageView(){
+    try{
+      if(typeof window.swsiGetClientId!=='function')return;
+      var client=window.swsiGetClientId();
+      fetch(ENDPOINT,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-SWSI-Client-ID':client},
+        body:'{"event":"page_view"}',
+        keepalive:true,
+        credentials:'omit'
+      }).catch(function(){});
+    }catch(_e){}
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',recordPageView,{once:true});
+  else setTimeout(recordPageView,0);
+})();
+/* ===== SWSI Anonymous Usage Analytics V1 END ===== */
+/* ===== SWSI Essay Trust Layer 2026-08-26 =====
    IMPORTANT: This layer never edits official past-exam question text.
    It only changes SWSI-authored guidance labels, trust status, and AI feedback prompts.
 */
