@@ -28,4 +28,14 @@ jobs:
       - name: Syntax check
         run: python -m py_compile scripts/public_uptime_smoke.py
       - name: Read-only public availability checks
-        run: python scripts/public_uptime_smoke.py
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=''
+          # A pull request still points at the old production deployment, so it
+          # validates the existing public baseline. Scheduled/manual runs happen
+          # on main after deployment and must also require Monitoring V2 snapshots.
+          if [ "$GITHUB_EVENT_NAME" != 'pull_request' ]; then
+            args='--monitoring-v2'
+          fi
+          python scripts/public_uptime_smoke.py $args
