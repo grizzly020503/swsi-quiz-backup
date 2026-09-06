@@ -16,18 +16,71 @@
 
   /* normalize is owned by 00.part. Its body resolves gradingMode at call time. */
 
-  /* Fail closed before a bad special-credit row can reach scoring UI. */
+  /* Presentation-only context for official questions whose stem depends on the
+     preceding question. Keep official shard wording untouched. */
+  var DEPENDENT_STEM_RE=/^\s*(承上題|承前題|依上題|依前題|根據上題|根據前題|續上題|承前)/;
+  var DEPENDENT_CONTEXT_PREFIX='【前題情境】';
+  function contextText(v){return String(v==null?'':v).trim();}
+  function contextQno(v){
+    var n=parseInt(contextText(v),10);
+    return Number.isFinite(n)?n:null;
+  }
+  function sameExamContext(a,b){
+    return contextText(a&&a.subject)===contextText(b&&b.subject)
+      &&contextText(a&&a.year)===contextText(b&&b.year)
+      &&contextText(a&&a.round)===contextText(b&&b.round);
+  }
+  function originalStem(item){return contextText(item&&(item.q!=null?item.q:item.question));}
+  function isDependentStem(item){return DEPENDENT_STEM_RE.test(originalStem(item));}
+  function previousContextQuestion(item){
+    var n=contextQno(item&&item.qno);
+    if(n==null||n<=1||typeof ALL==='undefined'||!Array.isArray(ALL))return null;
+    for(var i=0;i<ALL.length;i++){
+      var candidate=ALL[i];
+      if(candidate===item||!sameExamContext(candidate,item))continue;
+      if(contextQno(candidate&&candidate.qno)===n-1)return candidate;
+    }
+    return null;
+  }
+  function dependentDisplayStem(item){
+    var stem=originalStem(item);
+    if(!stem||!isDependentStem(item)||stem.indexOf(DEPENDENT_CONTEXT_PREFIX)===0)return stem;
+    var prev=previousContextQuestion(item);
+    var prevStem=originalStem(prev);
+    if(!prevStem)return stem;
+    return DEPENDENT_CONTEXT_PREFIX+'\n'+prevStem+'\n\n'+stem;
+  }
+  window.swsiDependentQuestionContext={
+    version:'2026-09-06.v2-owner-folded',
+    isDependent:isDependentStem,
+    displayStem:dependentDisplayStem
+  };
+
+  /* Fail closed before a bad special-credit row can reach scoring UI.
+     This remains the single allowed late renderQuiz owner and also supplies
+     presentation context for dependent official MCQs. */
   var oldRenderQuiz=typeof renderQuiz==='function'?renderQuiz:null;
   if(oldRenderQuiz){
     renderQuiz=function(){
+      var item=null;
       try{
-        var item=(typeof queue!=='undefined'&&queue&&queue.length)?queue[idx]:null;
+        item=(typeof queue!=='undefined'&&queue&&queue.length)?queue[idx]:null;
         if(item&&typeof gradingMode==='function'&&gradingMode(item)==='invalid'){
           app.innerHTML='<div class="empty"><div class="ico">⚠</div><h3>這題暫停判分</h3><p>官方給分資料不完整或格式異常。平台不會自行猜測答案，請回首頁改練其他題目。</p><button class="btn" style="max-width:220px;margin:20px auto 0" onclick="go(\'home\')">回首頁</button></div>';
           return;
         }
       }catch(_e){}
-      return oldRenderQuiz();
+      if(!item)return oldRenderQuiz();
+      var hadOwnQ=Object.prototype.hasOwnProperty.call(item,'q');
+      var originalQ=item.q;
+      var shown=dependentDisplayStem(item);
+      if(shown&&shown!==originalStem(item))item.q=shown;
+      try{
+        return oldRenderQuiz();
+      }finally{
+        if(hadOwnQ)item.q=originalQ;
+        else delete item.q;
+      }
     };
   }
 })();

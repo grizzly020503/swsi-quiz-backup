@@ -6,7 +6,8 @@ const vm = require('vm');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const source = fs.readFileSync(path.join(root, 'monthly_patch_parts/76.dependent-question-context.part'), 'utf8');
+const ownerPath = path.join(root, 'monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part');
+const source = fs.readFileSync(ownerPath, 'utf8');
 
 let renderedStem = null;
 const q30 = {
@@ -30,11 +31,10 @@ const context = {
   idx: 0,
   renderQuiz() { renderedStem = context.queue[context.idx].q; }
 };
-context.window.renderQuiz = context.renderQuiz;
 vm.createContext(context);
-vm.runInContext(source, context, {filename: '76.dependent-question-context.part'});
+vm.runInContext(source, context, {filename: 'code_health_p0.part'});
 
-context.window.renderQuiz();
+context.renderQuiz();
 if (!renderedStem || !renderedStem.includes('【前題情境】')) throw new Error('dependent stem did not receive context label');
 if (!renderedStem.includes(q30.q)) throw new Error('previous question stem was not included');
 if (!renderedStem.endsWith(q31.q)) throw new Error('original dependent stem was not preserved');
@@ -43,11 +43,11 @@ if (q31.q !== '承上題，這個研究所採用的研究方法是下列何者�
 context.queue = [standalone];
 context.idx = 0;
 renderedStem = null;
-context.window.renderQuiz();
+context.renderQuiz();
 if (renderedStem !== standalone.q) throw new Error('standalone question was changed');
 
 const helper = context.window.swsiDependentQuestionContext;
-if (!helper || helper.version !== '2026-09-06.v1') throw new Error('context helper/version missing');
+if (!helper || helper.version !== '2026-09-06.v2-owner-folded') throw new Error('context helper/version missing');
 if (!helper.isDependent(q31) || helper.isDependent(standalone)) throw new Error('dependency detection is incorrect');
 
 console.log('DEPENDENT QUESTION CONTEXT SMOKE PASS');
