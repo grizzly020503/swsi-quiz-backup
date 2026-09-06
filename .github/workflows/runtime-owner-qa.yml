@@ -9,6 +9,13 @@ on:
       - 'config/monthly_patch_structure.json'
       - 'scripts/maintainability_smoke.py'
       - 'scripts/runtime_owner_smoke.js'
+  pull_request:
+    paths:
+      - '.github/workflows/runtime-owner-qa.yml'
+      - 'monthly_patch_parts/**'
+      - 'config/monthly_patch_structure.json'
+      - 'scripts/maintainability_smoke.py'
+      - 'scripts/runtime_owner_smoke.js'
 
 jobs:
   owner-contract:
