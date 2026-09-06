@@ -2454,70 +2454,6 @@ html[data-fs="2"]{
   `;
   document.head.appendChild(st);
 })();
-/* ===== SWSI Dependent Question Context Adapter 2026-09-06 ===== */
-(function(){
-  'use strict';
-
-  var DEPENDENT_STEM_RE = /^\s*(承上題|承前題|依上題|依前題|根據上題|根據前題|續上題|承前)/;
-  var CONTEXT_PREFIX = '【前題情境】';
-
-  function text(v){ return String(v == null ? '' : v).trim(); }
-  function qno(v){
-    var n = parseInt(text(v), 10);
-    return Number.isFinite(n) ? n : null;
-  }
-  function sameExam(a,b){
-    return text(a&&a.subject) === text(b&&b.subject)
-      && text(a&&a.year) === text(b&&b.year)
-      && text(a&&a.round) === text(b&&b.round);
-  }
-  function originalStem(item){ return text(item && (item.q != null ? item.q : item.question)); }
-  function isDependent(item){ return DEPENDENT_STEM_RE.test(originalStem(item)); }
-
-  function previousQuestion(item){
-    var n = qno(item && item.qno);
-    if(n == null || n <= 1 || typeof ALL === 'undefined' || !Array.isArray(ALL)) return null;
-    for(var i=0;i<ALL.length;i++){
-      var candidate = ALL[i];
-      if(candidate === item || !sameExam(candidate,item)) continue;
-      if(qno(candidate && candidate.qno) === n-1) return candidate;
-    }
-    return null;
-  }
-
-  function displayStem(item){
-    var stem = originalStem(item);
-    if(!stem || !isDependent(item) || stem.indexOf(CONTEXT_PREFIX) === 0) return stem;
-    var prev = previousQuestion(item);
-    var prevStem = originalStem(prev);
-    if(!prevStem) return stem;
-    return CONTEXT_PREFIX + '\n' + prevStem + '\n\n' + stem;
-  }
-
-  window.swsiDependentQuestionContext = {
-    version: '2026-09-06.v1',
-    isDependent: isDependent,
-    displayStem: displayStem
-  };
-
-  if(typeof window.renderQuiz === 'function'){
-    var previousRenderQuiz = window.renderQuiz;
-    window.renderQuiz = function(){
-      var item = (typeof queue !== 'undefined' && Array.isArray(queue) && typeof idx !== 'undefined') ? queue[idx] : null;
-      if(!item) return previousRenderQuiz.apply(this, arguments);
-      var originalQ = item.q;
-      var shown = displayStem(item);
-      if(shown && shown !== originalStem(item)) item.q = shown;
-      try{
-        return previousRenderQuiz.apply(this, arguments);
-      } finally {
-        item.q = originalQ;
-      }
-    };
-    try{ renderQuiz = window.renderQuiz; }catch(_e){}
-  }
-})();
-/* ===== SWSI Dependent Question Context Adapter END ===== */
 
 /* SWSI Knowledge Path V1 2026-08-26
    One query -> understand -> see exam patterns -> practice.
@@ -3381,7 +3317,7 @@ html[data-fs="2"]{
     ov._swsiContext=c;
     var msg=document.getElementById('swsi-report-message');
     var count=document.getElementById('swsi-report-count');
-    if(msg){msg.addEventListener('input',function(){if(count)count.textContent=msg.value.length+' / 2000';});setTimeout(function(){try{msg.focus();}catch(_e){}},30);}
+    if(msg){msg.addEventListener('input',function(){if(count)count.textContent=msg.value.length+' / 2000';});try{msg.focus();}catch(_e){}}
     var form=document.getElementById('swsi-report-form');if(form)form.addEventListener('submit',submitReport);
   };
 
@@ -4817,18 +4753,71 @@ html[data-fs="2"]{
 
   /* normalize is owned by 00.part. Its body resolves gradingMode at call time. */
 
-  /* Fail closed before a bad special-credit row can reach scoring UI. */
+  /* Presentation-only context for official questions whose stem depends on the
+     preceding question. Keep official shard wording untouched. */
+  var DEPENDENT_STEM_RE=/^\s*(承上題|承前題|依上題|依前題|根據上題|根據前題|續上題|承前)/;
+  var DEPENDENT_CONTEXT_PREFIX='【前題情境】';
+  function contextText(v){return String(v==null?'':v).trim();}
+  function contextQno(v){
+    var n=parseInt(contextText(v),10);
+    return Number.isFinite(n)?n:null;
+  }
+  function sameExamContext(a,b){
+    return contextText(a&&a.subject)===contextText(b&&b.subject)
+      &&contextText(a&&a.year)===contextText(b&&b.year)
+      &&contextText(a&&a.round)===contextText(b&&b.round);
+  }
+  function originalStem(item){return contextText(item&&(item.q!=null?item.q:item.question));}
+  function isDependentStem(item){return DEPENDENT_STEM_RE.test(originalStem(item));}
+  function previousContextQuestion(item){
+    var n=contextQno(item&&item.qno);
+    if(n==null||n<=1||typeof ALL==='undefined'||!Array.isArray(ALL))return null;
+    for(var i=0;i<ALL.length;i++){
+      var candidate=ALL[i];
+      if(candidate===item||!sameExamContext(candidate,item))continue;
+      if(contextQno(candidate&&candidate.qno)===n-1)return candidate;
+    }
+    return null;
+  }
+  function dependentDisplayStem(item){
+    var stem=originalStem(item);
+    if(!stem||!isDependentStem(item)||stem.indexOf(DEPENDENT_CONTEXT_PREFIX)===0)return stem;
+    var prev=previousContextQuestion(item);
+    var prevStem=originalStem(prev);
+    if(!prevStem)return stem;
+    return DEPENDENT_CONTEXT_PREFIX+'\n'+prevStem+'\n\n'+stem;
+  }
+  window.swsiDependentQuestionContext={
+    version:'2026-09-06.v2-owner-folded',
+    isDependent:isDependentStem,
+    displayStem:dependentDisplayStem
+  };
+
+  /* Fail closed before a bad special-credit row can reach scoring UI.
+     This remains the single allowed late renderQuiz owner and also supplies
+     presentation context for dependent official MCQs. */
   var oldRenderQuiz=typeof renderQuiz==='function'?renderQuiz:null;
   if(oldRenderQuiz){
     renderQuiz=function(){
+      var item=null;
       try{
-        var item=(typeof queue!=='undefined'&&queue&&queue.length)?queue[idx]:null;
+        item=(typeof queue!=='undefined'&&queue&&queue.length)?queue[idx]:null;
         if(item&&typeof gradingMode==='function'&&gradingMode(item)==='invalid'){
           app.innerHTML='<div class="empty"><div class="ico">⚠</div><h3>這題暫停判分</h3><p>官方給分資料不完整或格式異常。平台不會自行猜測答案，請回首頁改練其他題目。</p><button class="btn" style="max-width:220px;margin:20px auto 0" onclick="go(\'home\')">回首頁</button></div>';
           return;
         }
       }catch(_e){}
-      return oldRenderQuiz();
+      if(!item)return oldRenderQuiz();
+      var hadOwnQ=Object.prototype.hasOwnProperty.call(item,'q');
+      var originalQ=item.q;
+      var shown=dependentDisplayStem(item);
+      if(shown&&shown!==originalStem(item))item.q=shown;
+      try{
+        return oldRenderQuiz();
+      }finally{
+        if(hadOwnQ)item.q=originalQ;
+        else delete item.q;
+      }
     };
   }
 })();
