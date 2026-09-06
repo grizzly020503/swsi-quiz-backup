@@ -1,0 +1,46 @@
+name: Dependent Question Context QA
+
+on:
+  pull_request:
+    paths:
+      - 'monthly_patch_parts/**'
+      - 'scripts/dependent_question_context_smoke.js'
+      - 'scripts/official_exam_readonly_guard.py'
+      - 'cdn/question-shards/**'
+      - '.github/workflows/dependent-question-context-qa.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'monthly_patch_parts/**'
+      - 'scripts/dependent_question_context_smoke.js'
+      - 'scripts/official_exam_readonly_guard.py'
+      - 'cdn/question-shards/**'
+      - '.github/workflows/dependent-question-context-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  dependent-question-context:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: JavaScript syntax
+        run: |
+          cat monthly_patch_parts/*.part > /tmp/monthly_patch.js
+          node --check /tmp/monthly_patch.js
+          node --check scripts/dependent_question_context_smoke.js
+
+      - name: Official question read-only guard
+        run: python scripts/official_exam_readonly_guard.py
+
+      - name: Dependent-question context regression
+        run: node scripts/dependent_question_context_smoke.js
