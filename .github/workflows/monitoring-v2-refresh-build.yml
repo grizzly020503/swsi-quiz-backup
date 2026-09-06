@@ -1,3 +1,4 @@
+# one-shot refresh retrigger after syncing canonical current-affairs snapshot
 name: Monitoring V2 Refresh Build
 
 on:
