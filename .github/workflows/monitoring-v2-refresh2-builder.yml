@@ -1,0 +1,54 @@
+name: Monitoring V2 Refresh2 Builder
+
+on:
+  push:
+    branches:
+      - feat/monitoring-v2-refresh2-20260906
+    paths:
+      - '.github/workflows/monitoring-v2-refresh2-builder.yml'
+      - 'monthly_patch_parts/**'
+      - 'scripts/public_monitoring_v2_smoke.py'
+      - 'scripts/build_public_legal_watch_snapshot.py'
+      - 'scripts/public_uptime_smoke.py'
+      - 'auto/**'
+      - 'cdn/auto/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monitoring-v2-refresh2-builder
+  cancel-in-progress: true
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Rebuild canonical runtime
+        run: |
+          set -euo pipefail
+          cat monthly_patch_parts/*.part > cdn/monthly_patch.js
+          node --check cdn/monthly_patch.js
+          node scripts/runtime_owner_smoke.js
+          node scripts/dependent_question_context_smoke.js
+          python -m py_compile scripts/build_public_legal_watch_snapshot.py scripts/public_monitoring_v2_smoke.py scripts/public_uptime_smoke.py
+          python scripts/public_monitoring_v2_smoke.py
+          git diff --check
+      - name: Commit rebuilt runtime
+        run: |
+          set -euo pipefail
+          git config user.name 'swsi-refresh-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add cdn/monthly_patch.js
+          if git diff --cached --quiet; then
+            echo 'Generated runtime already current.'
+            exit 0
+          fi
+          git commit -m '重建 Monitoring V2 最新前端 runtime'
+          git push origin HEAD:feat/monitoring-v2-refresh2-20260906
