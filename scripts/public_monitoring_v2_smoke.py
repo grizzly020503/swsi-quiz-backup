@@ -65,6 +65,26 @@ def main() -> int:
         if public.exists():
             assert json.loads(public.read_text(encoding="utf-8")) == read_json("auto/" + rel), rel
 
+    # Legal-watch changes must reach the public snapshot immediately after the
+    # reviewed MOEX/MOJ report is committed to main. Keep the push trigger
+    # narrow so the monitoring bot's own auto/*.json commit cannot trigger an
+    # infinite self-loop. Parse only YAML list entries so explanatory comments
+    # cannot create a false positive.
+    workflow = (ROOT / ".github/workflows/public-monitoring-feed.yml").read_text(encoding="utf-8")
+    push_start = workflow.find("\n  push:\n")
+    pr_start = workflow.find("\n  pull_request:\n")
+    assert push_start >= 0 and pr_start > push_start, "public monitoring feed is missing its main push trigger"
+    push_block = workflow[push_start:pr_start]
+    push_entries = []
+    for raw in push_block.splitlines():
+        stripped = raw.strip()
+        if stripped.startswith("#") or not stripped.startswith("- "):
+            continue
+        push_entries.append(stripped[2:].strip().strip("'\""))
+    assert "main" in push_entries, "legal snapshot push trigger must be main-only"
+    assert "data/legal_watch_report.json" in push_entries, "MOJ report changes must trigger public legal snapshot refresh"
+    assert "auto/legal_watch.json" not in push_entries, "public snapshot output must not self-trigger the workflow"
+
     print(
         "PUBLIC MONITORING V2 CONTRACT OK: "
         f"news={len(items)}, laws={laws['matched_count']}/{laws['watch_count']}, questions=4800, five-radar-ui=yes"

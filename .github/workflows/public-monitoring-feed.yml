@@ -5,6 +5,14 @@ on:
   schedule:
     # 每 6 小時掃描一次社工／社福時事；比完整題庫同步輕量，避免每小時浪費 Actions 額度。
     - cron: '15 */6 * * *'
+  push:
+    branches:
+      - main
+    paths:
+      # MOEX/MOJ sync 更新內部法規報告後，立即重建公開 legal-watch；
+      # 不監聽 auto/legal_watch.json，避免 monitoring bot 自己的 snapshot commit 再觸發自己。
+      - '.github/workflows/public-monitoring-feed.yml'
+      - 'data/legal_watch_report.json'
   pull_request:
     paths:
       - '.github/workflows/public-monitoring-feed.yml'
