@@ -1,0 +1,33 @@
+name: Repair Generated Monthly Patch
+
+on:
+  push:
+    paths:
+      - '.github/workflows/repair-generated-monthly-patch.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Regenerate canonical monthly patch
+        run: |
+          set -euo pipefail
+          cat monthly_patch_parts/*.part > cdn/monthly_patch.js
+          node --check cdn/monthly_patch.js
+      - name: Commit only if generated file changed
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- cdn/monthly_patch.js; then
+            echo 'Generated runtime already canonical.'
+            exit 0
+          fi
+          git config user.name 'swsi-runtime-repair-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add cdn/monthly_patch.js
+          git commit -m '修復 Analytics 合併後的 canonical runtime'
+          git push origin HEAD:main
