@@ -156,7 +156,7 @@
     ov._swsiContext=c;
     var msg=document.getElementById('swsi-report-message');
     var count=document.getElementById('swsi-report-count');
-    if(msg){msg.addEventListener('input',function(){if(count)count.textContent=msg.value.length+' / 2000';});setTimeout(function(){try{msg.focus();}catch(_e){}},30);}
+    if(msg){msg.addEventListener('input',function(){if(count)count.textContent=msg.value.length+' / 2000';});try{msg.focus();}catch(_e){}}
     var form=document.getElementById('swsi-report-form');if(form)form.addEventListener('submit',submitReport);
   };
 
