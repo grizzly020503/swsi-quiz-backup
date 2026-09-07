@@ -1,0 +1,41 @@
+name: Legal Watch Article Scope QA
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/moj_law_watch.py'
+      - 'scripts/moj_law_watch_selftest.py'
+      - 'supabase/functions/sync-legal-watch/**'
+      - '.github/workflows/legal-watch-article-scope-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  article-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Python syntax and watcher regression
+        run: |
+          python -m py_compile scripts/moj_law_watch.py scripts/moj_law_watch_selftest.py
+          python scripts/moj_law_watch_selftest.py
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Article scope unit tests
+        run: deno test supabase/functions/sync-legal-watch/article_scope_test.ts
+
+      - name: Edge function type check
+        run: deno check supabase/functions/sync-legal-watch/index.ts
