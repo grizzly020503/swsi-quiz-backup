@@ -1,28 +1,20 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-09-06T02:12:02Z",
+  "checked_at": "2026-09-07T16:01:28Z",
   "baseline": false,
   "source_label": "全國法規資料庫",
   "watch_count": 52,
   "matched_count": 52,
   "missing_count": 0,
-  "changed_count": 1,
-  "changes": [
-    {
-      "name": "民法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0000001",
-      "official_modified_date": "2026-08-17",
-      "previous_modified_date": "2021-01-20",
-      "changed": true
-    }
-  ],
+  "changed_count": 0,
+  "changes": [],
   "recently_modified": [
     {
       "name": "民法",
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0000001",
       "official_modified_date": "2026-08-17",
-      "previous_modified_date": "2021-01-20",
-      "changed": true
+      "previous_modified_date": "2026-08-17",
+      "changed": false
     },
     {
       "name": "中華民國刑法",
