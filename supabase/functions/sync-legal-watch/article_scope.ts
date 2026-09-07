@@ -11,8 +11,13 @@ export type LegalQuestionLike = {
 
 export function normalizeArticleNo(value: unknown): string | null {
   let text = String(value ?? "").normalize("NFKC").trim();
-  text = text.replace(/\s+/g, "").replace(/之/g, "-");
-  text = text.replace(/^第/, "").replace(/^§/, "").replace(/條.*$/, "");
+  text = text.replace(/\s+/g, "");
+  text = text.replace(/^第/, "").replace(/^§/, "");
+  text = text
+    .replace(/條之/g, "-")
+    .replace(/條-/g, "-")
+    .replace(/條$/, "")
+    .replace(/之/g, "-");
   if (!/^\d+(?:-\d+)*$/.test(text)) return null;
   return text
     .split("-")
