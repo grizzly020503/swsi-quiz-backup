@@ -1,5 +1,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import {
+  questionArticleRefs,
+  questionTouchesChangedArticles,
+  normalizeArticleNo,
+} from "./article_scope.ts";
 
 const REPO = "grizzly020503/swsi-quiz-backup";
 
@@ -12,6 +17,8 @@ type WatchRecord = {
   official_modified_date?: string | null;
   previous_modified_date?: string | null;
   changed?: boolean;
+  article_diff_available?: boolean;
+  changed_articles?: unknown[];
 };
 
 function json(body: unknown, status = 200) {
@@ -27,7 +34,7 @@ async function verifyGitHubRepoToken(token: string) {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
       "X-GitHub-Api-Version": "2022-11-28",
-      "User-Agent": "swsi-supabase-legal-watch/1.1",
+      "User-Agent": "swsi-supabase-legal-watch/1.2",
     },
   });
   if (!r.ok) return false;
@@ -45,6 +52,15 @@ function safeOfficialUrl(value: unknown) {
   } catch {
     return null;
   }
+}
+
+function normalizedChangedArticles(record: WatchRecord): string[] {
+  const out = new Set<string>();
+  for (const value of Array.isArray(record.changed_articles) ? record.changed_articles : []) {
+    const normalized = normalizeArticleNo(value);
+    if (normalized) out.add(normalized);
+  }
+  return [...out].sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
 }
 
 Deno.serve(async (req: Request) => {
@@ -82,6 +98,9 @@ Deno.serve(async (req: Request) => {
     if (r.official_url && !safeOfficialUrl(r.official_url)) {
       return json({ error: `non-MOJ official_url rejected: ${r.canonical_name}` }, 400);
     }
+    if (r.article_diff_available === true && !Array.isArray(r.changed_articles)) {
+      return json({ error: `changed_articles must be an array: ${r.canonical_name}` }, 400);
+    }
   }
 
   const url = Deno.env.get("SUPABASE_URL");
@@ -90,13 +109,17 @@ Deno.serve(async (req: Request) => {
   const sb = createClient(url, serviceRole, { auth: { persistSession: false } });
 
   let changedLaws = 0;
+  let articleScopedLaws = 0;
   let impactedQuestions = 0;
+  let canonicalOnlyReferences = 0;
   const errors: string[] = [];
 
   for (const r of records) {
     const canonicalName = r.canonical_name.trim();
     const officialUrl = safeOfficialUrl(r.official_url);
     const changed = r.changed === true && !baseline && r.found === true;
+    const changedArticles = normalizedChangedArticles(r);
+    const articleScoped = changed && r.article_diff_available === true && changedArticles.length > 0;
     const watchStatus = !r.found ? "missing" : baseline ? "baseline" : changed ? "changed" : "unchanged";
 
     const registryRow: Record<string, unknown> = {
@@ -108,7 +131,13 @@ Deno.serve(async (req: Request) => {
       previous_modified_date: r.previous_modified_date || null,
       last_checked_at: checkedAt,
       watch_status: watchStatus,
-      note: !r.found ? "Official MOJ dataset did not contain an exact matching name on this check." : null,
+      note: !r.found
+        ? "Official MOJ dataset did not contain an exact matching name on this check."
+        : articleScoped
+          ? `Article-level MOJ diff available: ${changedArticles.map((a) => `§${a}`).join(", ")}.`
+          : changed
+            ? "Article-level diff unavailable; broad law-level fallback remains active."
+            : null,
       updated_at: new Date().toISOString(),
     };
     if (changed) registryRow.last_change_detected_at = checkedAt;
@@ -123,20 +152,53 @@ Deno.serve(async (req: Request) => {
 
     if (!changed || !r.official_modified_date) continue;
     changedLaws += 1;
+    if (articleScoped) articleScopedLaws += 1;
 
     const { data: questions, error: qErr } = await sb
       .from("questions")
-      .select("id")
+      .select("id,law,question,exp_why,exp_others,exp_trap,exp_raw,extension")
       .contains("legal_canonical_names", [canonicalName]);
     if (qErr) {
       errors.push(`${canonicalName}: questions ${qErr.message}`);
       continue;
     }
 
-    const ids = (questions || []).map((q: any) => String(q.id));
+    const candidates = questions || [];
+    let selected = candidates;
+    let unscopedCount = 0;
+
+    if (articleScoped) {
+      selected = candidates.filter((q: any) =>
+        questionTouchesChangedArticles(q, changedArticles)
+      );
+      unscopedCount = candidates.filter((q: any) => questionArticleRefs(q).size === 0).length;
+      canonicalOnlyReferences += unscopedCount;
+
+      const { error: registryScopeError } = await sb
+        .from("legal_reference_registry")
+        .update({
+          question_count: candidates.length,
+          note:
+            `Article-level MOJ diff: ${changedArticles.map((a) => `§${a}`).join(", ")}. ` +
+            `${selected.length} explicit article citation(s) auto-flagged; ` +
+            `${unscopedCount} canonical-only question reference(s) were not guessed and remain for periodic manual audit.`,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("canonical_name", canonicalName);
+      if (registryScopeError) {
+        errors.push(`${canonicalName}: registry scope ${registryScopeError.message}`);
+      }
+    }
+
+    const ids = selected.map((q: any) => String(q.id));
     impactedQuestions += ids.length;
 
     if (ids.length) {
+      const changedArticleText = changedArticles.map((a) => `§${a}`).join(", ");
+      const hitNote = articleScoped
+        ? `Official MOJ article-level diff detected (${changedArticleText}); this question explicitly cites an affected article and requires legal review. Official question/answer were not modified.`
+        : "Official MOJ latest-modified date changed and article-level diff was unavailable; broad legal review fallback applied. Official question/answer were not modified.";
+
       const hits = ids.map((questionId: string) => ({
         question_id: questionId,
         canonical_name: canonicalName,
@@ -144,7 +206,7 @@ Deno.serve(async (req: Request) => {
         new_modified_date: String(r.official_modified_date),
         official_url: officialUrl,
         detected_at: checkedAt,
-        note: "Official MOJ latest-modified date changed; question requires legal review. Official question/answer were not modified.",
+        note: hitNote,
       }));
 
       const { error: hitErr } = await sb
@@ -155,21 +217,32 @@ Deno.serve(async (req: Request) => {
         });
       if (hitErr) errors.push(`${canonicalName}: hits ${hitErr.message}`);
 
+      const legalNote = articleScoped
+        ? `監測到《${canonicalName}》條文異動（${changedArticleText}）；本題明確引用受影響條文，需依最新法規重新核對。`
+        : `監測到《${canonicalName}》官方修正日期變動，但條文差異無法可靠解析；本題依保守策略重新核對。`;
+
       const { error: updateErr } = await sb
         .from("questions")
         .update({
           legal_status: "changed",
           legal_checked_at: null,
-          legal_note: `監測到《${canonicalName}》官方修正日期變動；本題需依最新法規重新核對。`,
+          legal_note: legalNote,
           legal_source_url: officialUrl,
         })
-        .contains("legal_canonical_names", [canonicalName]);
+        .in("id", ids);
       if (updateErr) errors.push(`${canonicalName}: mark changed ${updateErr.message}`);
     }
   }
 
   if (errors.length) {
-    return json({ ok: false, changed_laws: changedLaws, impacted_questions: impactedQuestions, errors }, 500);
+    return json({
+      ok: false,
+      changed_laws: changedLaws,
+      article_scoped_laws: articleScopedLaws,
+      impacted_questions: impactedQuestions,
+      canonical_only_references: canonicalOnlyReferences,
+      errors,
+    }, 500);
   }
 
   return json({
@@ -177,6 +250,8 @@ Deno.serve(async (req: Request) => {
     baseline,
     records: records.length,
     changed_laws: changedLaws,
+    article_scoped_laws: articleScopedLaws,
     impacted_questions: impactedQuestions,
+    canonical_only_references: canonicalOnlyReferences,
   });
 });
