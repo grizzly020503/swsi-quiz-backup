@@ -1,0 +1,96 @@
+name: Netlify Manual Deploy Artifact
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/netlify-manual-deploy-artifact.yml'
+      - 'docs/NETLIFY_MANUAL_DEPLOY.md'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/netlify-manual-deploy-artifact.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-netlify-manual-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build exactly as Netlify
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/swsi-netlify-build.sh
+          import tomllib
+          from pathlib import Path
+
+          cfg = tomllib.loads(Path('netlify.toml').read_text(encoding='utf-8'))
+          command = cfg['build']['command']
+          publish = cfg['build']['publish']
+          if publish != '_site':
+              raise SystemExit(f'Unexpected Netlify publish directory: {publish!r}')
+          print('set -euo pipefail')
+          print(command)
+          PY
+          bash /tmp/swsi-netlify-build.sh
+
+      - name: Verify deploy root
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+          test -f _site/admin/index.html
+          test -f _site/monthly_patch.js
+          test -f _site/manifest.json
+          test -f _site/sw.js
+          test -d _site/icons
+          node --check _site/monthly_patch.js
+
+      - name: Package Netlify manual deploy ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f swsi-netlify-manual-deploy.zip swsi-netlify-manual-deploy.sha256 NETLIFY_MANUAL_DEPLOY_INFO.txt
+          (
+            cd _site
+            zip -q -r ../swsi-netlify-manual-deploy.zip .
+          )
+          sha256sum swsi-netlify-manual-deploy.zip > swsi-netlify-manual-deploy.sha256
+          {
+            echo 'SWSI Netlify manual deploy package'
+            echo "Commit: ${GITHUB_SHA}"
+            echo "Built from: ${GITHUB_REF_NAME}"
+            echo 'Publish root: contents of _site at ZIP root'
+            echo 'Upload swsi-netlify-manual-deploy.zip to the existing Netlify site manual deploy UI.'
+            echo 'This package updates the static frontend only. It does not deploy Supabase migrations/Edge Functions or Cloudflare Worker code.'
+          } > NETLIFY_MANUAL_DEPLOY_INFO.txt
+          unzip -t swsi-netlify-manual-deploy.zip
+
+      - name: Upload manual deploy artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-netlify-manual-deploy
+          path: |
+            swsi-netlify-manual-deploy.zip
+            swsi-netlify-manual-deploy.sha256
+            NETLIFY_MANUAL_DEPLOY_INFO.txt
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
