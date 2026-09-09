@@ -2,11 +2,17 @@
   "schema_version": 2,
   "items": [
     {
-      "title": "冷卻補助擴大納老人、長照機構 提升弱勢族群調適高溫能力",
-      "category": "長照與高齡",
-      "summary": "（中央社記者張雄風台北9日電）環境部今天修正發布擴大冷卻計畫補助對象，針對依法設立的老人福利機構、長期照顧機構、身心障礙福利機構等，今年11月30日前可提出申請，改善室內熱環境。",
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
+      "region": "taiwan",
+      "id": "67bab781e39aff3305494a6e91daf278",
+      "source_url": "https://www.cna.com.tw/news/ahel/202609090127.aspx",
       "source_name": "中央社生活",
-      "published_at": "2026-09-09T05:05:36Z",
+      "category": "長照與高齡",
+      "title": "冷卻補助擴大納老人、長照機構 提升弱勢族群調適高溫能力",
+      "summary": "（中央社記者張雄風台北9日電）環境部今天修正發布擴大冷卻計畫補助對象，針對依法設立的老人福利機構、長期照顧機構、身心障礙福利機構等，今年11月30日前可提出申請，改善室內熱環境。",
       "exam_tags": [
         "長照",
         "老人",
@@ -14,14 +20,8 @@
         "補助",
         "福利"
       ],
-      "source_url": "https://www.cna.com.tw/news/ahel/202609090127.aspx",
-      "region": "taiwan",
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
       "relevance_score": 5,
-      "id": "67bab781e39aff3305494a6e91daf278",
+      "published_at": "2026-09-09T05:05:36Z",
       "source_count": 1,
       "sources": [
         {
@@ -34,55 +34,25 @@
       "clustered": false
     },
     {
-      "title": "陳品安拋成立苗栗未來基金 兒少專戶每月提撥1000元",
-      "category": "兒少保護",
-      "summary": "（中央社記者陳俊華台北9日電）民進黨苗栗縣長參選人陳品安今天說，她主張成立「苗栗未來基金」與「兒少成長專戶」，基金以10億元為本金，透過三層防護網防範炒股、圖利，收益可支應長照、青年留才等政策；「兒少成長專戶」則是每月提撥1000元，給0到18歲的苗栗縣兒少，成年後再由本人一次領回。",
-      "source_name": "中央社政治",
-      "published_at": "2026-09-09T04:45:23Z",
-      "exam_tags": [
-        "兒少",
-        "政策"
-      ],
-      "source_url": "https://www.cna.com.tw/news/aipl/202609090121.aspx",
-      "region": "taiwan",
       "subjects": [
-        "社會工作直接服務",
         "社會政策與社會立法",
-        "社會工作"
+        "社會工作直接服務"
       ],
-      "relevance_score": 5,
-      "id": "5a94f4ff12b630cc552dfe3e66b4dc30",
-      "source_count": 1,
-      "sources": [
-        {
-          "source_name": "中央社政治",
-          "source_url": "https://www.cna.com.tw/news/aipl/202609090121.aspx",
-          "published_at": "2026-09-09T04:45:23Z",
-          "title": "陳品安拋成立苗栗未來基金 兒少專戶每月提撥1000元"
-        }
-      ],
-      "clustered": false
-    },
-    {
-      "title": "響應國際失智月 衛生福利部攜手誠品書店推出失智主題書展",
-      "category": "長照與高齡",
-      "summary": "為響應國際失智月，衛生福利部跨界攜手誠品書店，於9月份推出失智主題書展，轉譯今年國際阿茲海默症協會之主題「The Earlier You Know, The More You Can Do: A Dementia Diagnosis Matters.」策劃「早一點認識，就多一些選擇」主題書展、精選失智相關書籍、舉辦專題講座與長照資源串聯，邀請民眾從日常閱讀出發，更早認識失智症、理解失智者與照顧家庭，並在需要時及早連結適切的醫療與長照支持。 從閱讀認識失智世界 「記憶之書」轉譯十大早期徵兆 本次書展以「記憶之書」為核心概念，運用書頁、頁碼、字句與書籤等閱讀",
+      "region": "taiwan",
+      "id": "0fd193adbb72a011a239b86d84364710",
+      "source_url": "https://www.mohw.gov.tw/cp-16-87737-1.html",
       "source_name": "衛生福利部焦點新聞",
-      "published_at": "2026-09-01T06:34:00Z",
+      "category": "長照與高齡",
+      "title": "響應國際失智月 衛生福利部攜手誠品書店推出失智主題書展",
+      "summary": "為響應國際失智月，衛生福利部跨界攜手誠品書店，於9月份推出失智主題書展，轉譯今年國際阿茲海默症協會之主題「The Earlier You Know, The More You Can Do: A Dementia Diagnosis Matters.」策劃「早一點認識，就多一些選擇」主題書展、精選失智相關書籍、舉辦專題講座與長照資源串聯，邀請民眾從日常閱讀出發，更早認識失智症、理解失智者與照顧家庭，並在需要時及早連結適切的醫療與長照支持。 從閱讀認識失智世界 「記憶之書」轉譯十大早期徵兆 本次書展以「記憶之書」為核心概念，運用書頁、頁碼、字句與書籤等閱讀",
       "exam_tags": [
         "長照",
         "失智",
         "照顧者",
         "福利"
       ],
-      "source_url": "https://www.mohw.gov.tw/cp-16-87737-1.html",
-      "region": "taiwan",
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
       "relevance_score": 5,
-      "id": "0fd193adbb72a011a239b86d84364710",
+      "published_at": "2026-09-01T06:34:00Z",
       "source_count": 1,
       "sources": [
         {
