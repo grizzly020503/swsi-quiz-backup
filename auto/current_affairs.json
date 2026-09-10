@@ -2,57 +2,25 @@
   "schema_version": 2,
   "items": [
     {
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
       "region": "taiwan",
-      "id": "67bab781e39aff3305494a6e91daf278",
-      "source_url": "https://www.cna.com.tw/news/ahel/202609090127.aspx",
-      "source_name": "中央社生活",
-      "category": "長照與高齡",
-      "title": "冷卻補助擴大納老人、長照機構 提升弱勢族群調適高溫能力",
-      "summary": "（中央社記者張雄風台北9日電）環境部今天修正發布擴大冷卻計畫補助對象，針對依法設立的老人福利機構、長期照顧機構、身心障礙福利機構等，今年11月30日前可提出申請，改善室內熱環境。",
-      "exam_tags": [
-        "長照",
-        "老人",
-        "修正",
-        "補助",
-        "福利"
-      ],
-      "relevance_score": 5,
-      "published_at": "2026-09-09T05:05:36Z",
-      "source_count": 1,
-      "sources": [
-        {
-          "source_name": "中央社生活",
-          "source_url": "https://www.cna.com.tw/news/ahel/202609090127.aspx",
-          "published_at": "2026-09-09T05:05:36Z",
-          "title": "冷卻補助擴大納老人、長照機構 提升弱勢族群調適高溫能力"
-        }
-      ],
-      "clustered": false
-    },
-    {
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
-      "region": "taiwan",
-      "id": "0fd193adbb72a011a239b86d84364710",
       "source_url": "https://www.mohw.gov.tw/cp-16-87737-1.html",
-      "source_name": "衛生福利部焦點新聞",
-      "category": "長照與高齡",
-      "title": "響應國際失智月 衛生福利部攜手誠品書店推出失智主題書展",
-      "summary": "為響應國際失智月，衛生福利部跨界攜手誠品書店，於9月份推出失智主題書展，轉譯今年國際阿茲海默症協會之主題「The Earlier You Know, The More You Can Do: A Dementia Diagnosis Matters.」策劃「早一點認識，就多一些選擇」主題書展、精選失智相關書籍、舉辦專題講座與長照資源串聯，邀請民眾從日常閱讀出發，更早認識失智症、理解失智者與照顧家庭，並在需要時及早連結適切的醫療與長照支持。 從閱讀認識失智世界 「記憶之書」轉譯十大早期徵兆 本次書展以「記憶之書」為核心概念，運用書頁、頁碼、字句與書籤等閱讀",
+      "id": "0fd193adbb72a011a239b86d84364710",
       "exam_tags": [
         "長照",
         "失智",
         "照顧者",
         "福利"
       ],
-      "relevance_score": 5,
       "published_at": "2026-09-01T06:34:00Z",
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
+      "relevance_score": 5,
+      "title": "響應國際失智月 衛生福利部攜手誠品書店推出失智主題書展",
+      "category": "長照與高齡",
+      "summary": "為響應國際失智月，衛生福利部跨界攜手誠品書店，於9月份推出失智主題書展，轉譯今年國際阿茲海默症協會之主題「The Earlier You Know, The More You Can Do: A Dementia Diagnosis Matters.」策劃「早一點認識，就多一些選擇」主題書展、精選失智相關書籍、舉辦專題講座與長照資源串聯，邀請民眾從日常閱讀出發，更早認識失智症、理解失智者與照顧家庭，並在需要時及早連結適切的醫療與長照支持。 從閱讀認識失智世界 「記憶之書」轉譯十大早期徵兆 本次書展以「記憶之書」為核心概念，運用書頁、頁碼、字句與書籤等閱讀",
+      "source_name": "衛生福利部焦點新聞",
       "source_count": 1,
       "sources": [
         {
