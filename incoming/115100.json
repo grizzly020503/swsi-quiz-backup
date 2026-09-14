@@ -4,7 +4,7 @@
   "roc_year": "115",
   "round": "第二次",
   "source_page": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115100&y=2026",
-  "fetched_at": "2026-08-25T23:32:22.880115+00:00",
+  "fetched_at": "2026-09-14T08:06:22.711458+00:00",
   "stats": {
     "社會工作": {
       "mc": 40,
@@ -2266,6 +2266,10 @@
       "source_exam_code": "115100",
       "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115100&q=1&s=0302&t=Q",
       "analysis_status": "pending",
+      "accepted_answers": [
+        "B",
+        "D"
+      ],
       "grading_mode": "standard"
     },
     {
