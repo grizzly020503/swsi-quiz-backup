@@ -1,0 +1,109 @@
+name: Publish SWSI Admin Production
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/admin-production.yml'
+      - 'admin/**'
+      - 'scripts/admin_identity_privacy_build.py'
+      - 'scripts/admin_auth_build.py'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/admin-production.yml'
+      - 'admin/**'
+      - 'scripts/admin_identity_privacy_build.py'
+      - 'scripts/admin_auth_build.py'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: swsi-admin-production-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  admin-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build hardened admin
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/swsi-admin
+          mkdir -p /tmp/swsi-admin
+          cp -a admin/. /tmp/swsi-admin/
+          python scripts/admin_identity_privacy_build.py /tmp/swsi-admin/index.html
+          python scripts/admin_auth_build.py /tmp/swsi-admin/index.html
+
+          grep -q '<title>SWSI 管理中心</title>' /tmp/swsi-admin/index.html
+          grep -q 'noindex,nofollow,noarchive' /tmp/swsi-admin/index.html
+          grep -q 'id="aiDot"' /tmp/swsi-admin/index.html
+          grep -q 'function renderAITelemetry()' /tmp/swsi-admin/index.html
+          grep -q './feedback_clusters.js' /tmp/swsi-admin/index.html
+          if grep -Eqi 'service[_-]?role|SUPABASE_SERVICE_ROLE_KEY|NETLIFY_AUTH_TOKEN|CLOUDFLARE_API_TOKEN|GROQ_API_KEY' /tmp/swsi-admin/index.html; then
+            echo 'ERROR: secret-like credential reference leaked into admin frontend' >&2
+            exit 1
+          fi
+
+      - name: Publish hardened admin to Cloudflare assets
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          rm -rf /tmp/swsi-admin-main
+          git worktree add --detach /tmp/swsi-admin-main origin/main
+          trap 'git worktree remove --force /tmp/swsi-admin-main >/dev/null 2>&1 || true' EXIT
+
+          rm -rf /tmp/swsi-admin-main/cdn/admin
+          mkdir -p /tmp/swsi-admin-main/cdn/admin
+          cp -a /tmp/swsi-admin/. /tmp/swsi-admin-main/cdn/admin/
+
+          cd /tmp/swsi-admin-main
+          git config user.name 'swsi-admin-production-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add cdn/admin
+          if git diff --cached --quiet; then
+            echo 'Production admin already current.'
+            exit 0
+          fi
+          git commit -m '發布 SWSI 管理中心正式版'
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "admin production push race on attempt $attempt; retrying..."
+          done
+          echo 'Unable to publish admin after 3 attempts.' >&2
+          exit 1
+
+      - name: Wait for Cloudflare production admin
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          URL='https://wandering-wave-4418.c022050333.workers.dev/admin/index.html'
+          for i in $(seq 1 36); do
+            code="$(curl --silent --show-error --location -o /tmp/live-admin.html -w '%{http_code}' "$URL?check=$GITHUB_RUN_ID-$i" || true)"
+            if [ "$code" = '200' ]                && grep -q '<title>SWSI 管理中心</title>' /tmp/live-admin.html                && grep -q 'id="aiDot"' /tmp/live-admin.html                && grep -q 'function renderAITelemetry()' /tmp/live-admin.html; then
+              echo "SWSI ADMIN PRODUCTION OK: $URL"
+              exit 0
+            fi
+            echo "Waiting for production admin: attempt=$i http=$code"
+            sleep 5
+          done
+          echo 'Production admin did not reach AI telemetry UI in time' >&2
+          exit 1
