@@ -37,7 +37,7 @@
 - `import-moex-social-worker` production v4 會 fail-closed 驗證 grading mode
 - Cloudflare shard builder 已保留／驗證 `grading_mode`
 - production CDN revision：`e721d6293d4c6acdddee`
-- builder 驗收：4,800 題、24 multi-answer、12 all_credit、4 any_answer
+- builder 驗收：4,800 題、25 multi-answer、12 all_credit、4 any_answer
 
 ## 上游／audit
 
@@ -59,3 +59,11 @@
 - `standard`：依 accepted answer set
 
 因此「模擬考未作答一律算錯」不能套用到 `all_credit`。
+
+## 2026-09-15 官方最終答案再稽核
+
+- 觸發原因：115 年第 2 次 `DS-115-2-040` 在考選部更正答案重新同步後新增 `accepted_answers = [B, D]`，使歷史 multi-answer 數由 24 增為 25。
+- 驗證方式：以 `scripts/historical_answer_audit_v4.py` 重新下載並逐題比對 104–115 年、24 場考試、4,800 題的考選部各科最終答案 PDF。
+- 結果：`answer_findings = 0`、`grading_mode_mismatches = 0`；給分模式仍為 standard 4784、all_credit 12、any_answer 4。
+- 結論：第 25 題 multi-answer 為官方最終答案更新，不是資料污染；immutable shard baseline 可由 24 正式更新為 25。
+- 原則：未來若 multi-answer 數再次漂移，仍必須先重新執行完整官方答案稽核，不得只修改常數消除 CI 紅燈。
