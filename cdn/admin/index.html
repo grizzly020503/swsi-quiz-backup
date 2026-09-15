@@ -49,7 +49,7 @@
       <section id="tab-overview">
         <div class="card hero"><strong>現在需要我做什麼？</strong><div id="needAction" class="statusline"><span class="dot warn"></span><span>正在讀取系統狀態…</span></div><div id="lastUpdated" class="small"></div></div>
         <div class="grid"><div class="metric"><div class="k">題庫</div><div id="qCount" class="v">—</div><div class="s">正式選擇題</div></div><div class="metric"><div class="k">申論題</div><div id="essayCount" class="v">—</div><div class="s">正式申論資料</div></div><div class="metric"><div class="k">待處理回報</div><div id="pendingCount" class="v">—</div><div class="s">需要你查看</div></div><div class="metric"><div class="k">法規警示</div><div id="lawCount" class="v">—</div><div class="s">尚未解決</div></div></div>
-        <div class="section card"><h2>系統狀態</h2><div class="list"><div class="statusline"><span class="dot ok"></span><div><strong>Supabase</strong><div class="small">管理資料可正常讀取</div></div></div><div class="statusline"><span id="questionDot" class="dot warn"></span><div><strong>題庫完整性</strong><div id="questionHealth" class="small">讀取中</div></div></div><div class="statusline"><span id="analyticsDot" class="dot warn"></span><div><strong>使用統計</strong><div id="analyticsHealth" class="small">尚未取得匿名統計資料</div></div></div><div class="statusline"><span class="dot warn"></span><div><strong>AI 即時監測</strong><div class="small">尚未接入 telemetry；AI 功能本身仍由既有 QA / rate limit 保護</div></div></div></div></div>
+        <div class="section card"><h2>系統狀態</h2><div class="list"><div class="statusline"><span class="dot ok"></span><div><strong>Supabase</strong><div class="small">管理資料可正常讀取</div></div></div><div class="statusline"><span id="questionDot" class="dot warn"></span><div><strong>題庫完整性</strong><div id="questionHealth" class="small">讀取中</div></div></div><div class="statusline"><span id="analyticsDot" class="dot warn"></span><div><strong>使用統計</strong><div id="analyticsHealth" class="small">尚未取得匿名統計資料</div></div></div><div class="statusline"><span id="aiTelemetryDot" class="dot warn"></span><div><strong>AI 即時監測</strong><div id="aiTelemetryHealth" class="small">讀取中…</div></div></div></div></div>
       </section>
       <section id="tab-feedback" class="hidden"><div class="row section"><h2 style="margin:0">使用者回報</h2><div class="spacer"></div><select id="feedbackFilter" class="btn"><option value="all">全部</option><option value="pending">只看待處理</option><option value="reviewed">處理中</option><option value="fixed">已修正</option><option value="no_change">不需修改</option></select></div><div id="feedbackList" class="list"></div></section>
       <section id="tab-analytics" class="hidden"><div class="grid section"><div class="metric"><div class="k">今日使用者</div><div id="analyticsTodayUsers" class="v">—</div><div class="s">匿名瀏覽器約數</div></div><div class="metric"><div class="k">今日瀏覽量</div><div id="analyticsTodayViews" class="v">—</div><div class="s">正式站頁面開啟次數</div></div><div class="metric"><div class="k">近 7 日使用者</div><div id="analytics7dUsers" class="v">—</div><div class="s">7 日不重複匿名瀏覽器</div></div><div class="metric"><div class="k">累計使用者</div><div id="analyticsTotalUsers" class="v">—</div><div class="s">從啟用統計開始</div></div></div><div class="card section"><h2>累計與近 7 日</h2><div class="grid"><div class="metric"><div class="k">累計瀏覽量</div><div id="analyticsTotalViews" class="v">—</div><div class="s">從啟用統計開始</div></div><div class="metric"><div class="k">開始統計</div><div id="analyticsSince" class="v" style="font-size:18px">—</div><div class="s">舊的歷史訪客無法回補</div></div></div><div id="analyticsDaily" class="list" style="margin-top:14px"></div></div><div class="card section"><h2>統計方式</h2><div class="hint">只統計 SWSI 正式 Cloudflare 網址。使用者數以這台瀏覽器隨機產生的匿名 ID 估算；統計資料庫只保存 SHA-256 雜湊與每日瀏覽次數，不保存姓名、Email、原始 IP、User-Agent 或裝置指紋。同一人換瀏覽器／裝置會分開計算，清除網站資料後也可能被視為新的匿名使用者。</div></div></section>
@@ -63,26 +63,52 @@
   const SUPABASE_URL='https://yumjtrdctaxyczpspuyo.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY='sb_publishable_6KL-X7KfkcfyP1kLxfokhA_0h2YuYMr';
   const ADMIN_ENDPOINT=SUPABASE_URL+'/functions/v1/swsi-admin';
-  const authQuery=new URLSearchParams(location.search);
-  const authHash=new URLSearchParams(location.hash.replace(/^#/,''));
-  let payload=null;
-  let recoveryMode=authQuery.get('authMode')==='recovery'||authHash.get('type')==='recovery';
+  const AI_HEALTH_ENDPOINT='https://wandering-wave-4418.c022050333.workers.dev/api/ai-health';
   const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  let payload=null; let recoveryMode=false;
   const $=id=>document.getElementById(id);
   const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const statusText={pending:'待處理',reviewed:'處理中',fixed:'已修正',no_change:'不需修改'};
   const categoryText={question_display:'題目顯示',answer_question:'答案疑問',explanation_error:'解析問題',law_outdated:'法規可能過期',theory_question:'理論疑問',site_bug:'網站問題',ai_feedback:'AI 回饋',suggestion:'建議',other:'其他'};
   const contextText={mcq:'選擇題',essay:'申論',theory:'理論',law:'法規',general:'網站'};
 
-  const callbackUrl=(mode)=>{const u=new URL(location.origin+location.pathname);u.searchParams.set('adminAuth','1');u.searchParams.set('authMode',mode);return u.toString();};
+  const callbackUrl=()=>location.origin+location.pathname+'?adminAuth=1';
   async function getToken(){const {data}=await client.auth.getSession();return data.session?.access_token||'';}
   async function adminFetch(method='GET',body){const token=await getToken();if(!token){const e=new Error('尚未登入');e.status=401;throw e;}const res=await fetch(ADMIN_ENDPOINT,{method,headers:{apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+token,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});const data=await res.json().catch(()=>({}));if(!res.ok){const e=new Error(data.error||('HTTP '+res.status));e.status=res.status;throw e;}return data;}
   function hideAuthViews(){$('loginView').classList.add('hidden');$('recoveryView').classList.add('hidden');}
   function showLogin(message='',cls='hint'){recoveryMode=false;$('loginView').classList.remove('hidden');$('recoveryView').classList.add('hidden');$('adminView').classList.add('hidden');$('loginMessage').className=cls;$('loginMessage').textContent=message;}
   function showRecovery(message=''){recoveryMode=true;$('loginView').classList.add('hidden');$('recoveryView').classList.remove('hidden');$('adminView').classList.add('hidden');$('recoveryMessage').className='hint';$('recoveryMessage').textContent=message;}
-  function showAdmin(){if(recoveryMode){showRecovery('請先設定新的管理密碼。');return;}hideAuthViews();$('adminView').classList.remove('hidden');}
-  async function loadAdmin(){if(recoveryMode){showRecovery('請先設定新的管理密碼。');return;}try{payload=await adminFetch();showAdmin();render();}catch(e){if(e.status===401||e.status===403){if(e.status===403)await client.auth.signOut();showLogin(e.status===403?'這個帳號沒有管理權限。':'登入已失效，請重新登入。','error');}else{showAdmin();$('needAction').innerHTML='<span class="dot bad"></span><span>管理資料暫時讀取失敗，請稍後重新整理。</span>';}}}
-  function render(){const s=payload?.summary||{};$('qCount').textContent=(s.questions??'—').toLocaleString?.()||s.questions;$('essayCount').textContent=s.essays??'—';$('pendingCount').textContent=s.feedback_pending??'—';$('lawCount').textContent=s.unresolved_legal_watch_hits??'—';$('pendingBadge').textContent=s.feedback_pending?'('+s.feedback_pending+')':'';const qOk=Number(s.questions)===4800;$('questionDot').className='dot '+(qOk?'ok':'warn');$('questionHealth').textContent=qOk?'4,800 / 4,800，正常':'目前 '+(s.questions??'未知')+' 題，請確認題庫同步';const problems=[];if(Number(s.feedback_pending)>0)problems.push('有 '+s.feedback_pending+' 件使用者回報待處理');if(Number(s.unresolved_legal_watch_hits)>0)problems.push('有 '+s.unresolved_legal_watch_hits+' 件法規異動需要確認');if(!qOk)problems.push('題庫數量不是 4,800 題');$('needAction').innerHTML=problems.length?'<span class="dot warn"></span><span>'+esc(problems.join('；'))+'。</span>':'<span class="dot ok"></span><span>目前不需要處理任何事情。</span>';$('lastUpdated').textContent='最後更新：'+new Date(payload.generated_at).toLocaleString('zh-TW');renderAnalytics();renderFeedback();}
+  function showAdmin(){recoveryMode=false;hideAuthViews();$('adminView').classList.remove('hidden');}
+  async function loadAdmin(){try{payload=await adminFetch();showAdmin();render();}catch(e){if(e.status===401||e.status===403){if(e.status===403)await client.auth.signOut();showLogin(e.status===403?'這個帳號沒有管理權限。':'登入已失效，請重新登入。','error');}else{showAdmin();$('needAction').innerHTML='<span class="dot bad"></span><span>管理資料暫時讀取失敗，請稍後重新整理。</span>';}}}
+  function render(){const s=payload?.summary||{};$('qCount').textContent=(s.questions??'—').toLocaleString?.()||s.questions;$('essayCount').textContent=s.essays??'—';$('pendingCount').textContent=s.feedback_pending??'—';$('lawCount').textContent=s.unresolved_legal_watch_hits??'—';$('pendingBadge').textContent=s.feedback_pending?'('+s.feedback_pending+')':'';const qOk=Number(s.questions)===4800;$('questionDot').className='dot '+(qOk?'ok':'warn');$('questionHealth').textContent=qOk?'4,800 / 4,800，正常':'目前 '+(s.questions??'未知')+' 題，請確認題庫同步';const problems=[];if(Number(s.feedback_pending)>0)problems.push('有 '+s.feedback_pending+' 件使用者回報待處理');if(Number(s.unresolved_legal_watch_hits)>0)problems.push('有 '+s.unresolved_legal_watch_hits+' 件法規異動需要確認');if(!qOk)problems.push('題庫數量不是 4,800 題');$('needAction').innerHTML=problems.length?'<span class="dot warn"></span><span>'+esc(problems.join('；'))+'。</span>':'<span class="dot ok"></span><span>目前不需要處理任何事情。</span>';$('lastUpdated').textContent='最後更新：'+new Date(payload.generated_at).toLocaleString('zh-TW');renderAnalytics();loadAiTelemetry();renderFeedback();}
+
+  async function loadAiTelemetry(){
+    const dot=$('aiTelemetryDot'),health=$('aiTelemetryHealth');
+    if(!dot||!health)return;
+    dot.className='dot warn';
+    health.textContent='正在讀取近 24 小時 AI 運行狀態…';
+    try{
+      const res=await fetch(AI_HEALTH_ENDPOINT,{cache:'no-store'});
+      const a=await res.json().catch(()=>({}));
+      if(!res.ok||a.enabled!==true)throw new Error('telemetry_unavailable');
+      const requests=Number(a.requests||0);
+      const successes=Number(a.successes||0);
+      const rateLimited=Number(a.rate_limited||0);
+      const serviceErrors=Number(a.service_errors||0);
+      const avgMs=Math.max(0,Number(a.avg_latency_ms||0));
+      const degraded=a.status==='degraded';
+      dot.className='dot '+(degraded?'warn':'ok');
+      if(requests===0){
+        health.textContent='即時監測已接入；近 24 小時尚無 AI 請求';
+      }else{
+        const avgSec=(avgMs/1000).toFixed(avgMs>=10000?0:1);
+        health.textContent='近 24 小時 '+requests.toLocaleString('zh-TW')+' 次；成功 '+successes.toLocaleString('zh-TW')+'、429 '+rateLimited.toLocaleString('zh-TW')+'、5xx '+serviceErrors.toLocaleString('zh-TW')+'；平均 '+avgSec+' 秒';
+      }
+    }catch(_){
+      dot.className='dot warn';
+      health.textContent='AI telemetry 暫時無法讀取；AI 功能仍由既有 QA / rate limit 保護';
+    }
+  }
 
   function renderAnalytics(){
     const a=payload?.analytics||{};
@@ -109,16 +135,14 @@
   async function saveFeedback(ev){const article=ev.target.closest('[data-report]');const reportNo=Number(article.dataset.report);const status=article.querySelector('[data-role="status"]').value;const note=article.querySelector('[data-role="note"]').value;ev.target.disabled=true;ev.target.textContent='儲存中…';try{await adminFetch('PATCH',{action:'feedback_update',report_no:reportNo,status,reviewer_note:note});await loadAdmin();}catch(e){alert('儲存失敗：'+e.message);}finally{ev.target.disabled=false;ev.target.textContent='儲存';}}
 
   $('loginForm').addEventListener('submit',async ev=>{ev.preventDefault();$('loginMessage').className='hint';$('loginMessage').textContent='登入中…';const {error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)showLogin('登入失敗。若不確定密碼，請按「忘記密碼／設定新密碼」。','error');else loadAdmin();});
-  $('resetBtn').addEventListener('click',async()=>{const email=$('email').value.trim();if(!email){showLogin('請先輸入管理者 Email。','error');return;}$('loginMessage').className='hint';$('loginMessage').textContent='正在寄送密碼重設信…';const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:callbackUrl('recovery')});showLogin(error?'寄送失敗：'+error.message:'如果這個 Email 是已登錄的管理員帳號，系統會寄出密碼重設信；若不是，不會寄送。為了安全，畫面不會透露帳號是否存在。',error?'error':'success');});
-  $('magicBtn').addEventListener('click',async()=>{const email=$('email').value.trim();if(!email){showLogin('請先輸入管理者 Email。','error');return;}const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:callbackUrl('magic')}});showLogin(error?'寄送失敗：'+error.message:'如果這個 Email 是已登錄的管理員帳號，系統會寄出一次性登入連結；若不是，不會寄送。為了安全，畫面不會透露帳號是否存在。',error?'error':'success');});
-  $('recoveryForm').addEventListener('submit',async ev=>{ev.preventDefault();const p1=$('newPassword').value,p2=$('confirmPassword').value;if(p1!==p2){$('recoveryMessage').className='error';$('recoveryMessage').textContent='兩次密碼不一致。';return;}if(p1.length<8){$('recoveryMessage').className='error';$('recoveryMessage').textContent='密碼至少 8 個字元。';return;}$('recoveryMessage').className='hint';$('recoveryMessage').textContent='正在儲存新密碼…';const {error}=await client.auth.updateUser({password:p1});if(error){$('recoveryMessage').className='error';$('recoveryMessage').textContent='設定失敗：'+error.message;return;}recoveryMode=false;history.replaceState({},'',location.pathname);$('recoveryMessage').className='success';$('recoveryMessage').textContent='新密碼已設定，正在進入管理中心…';setTimeout(loadAdmin,300);});
+  $('resetBtn').addEventListener('click',async()=>{const email=$('email').value.trim();if(!email){showLogin('請先輸入管理者 Email。','error');return;}$('loginMessage').className='hint';$('loginMessage').textContent='正在寄送密碼重設信…';const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:callbackUrl()});showLogin(error?'寄送失敗：'+error.message:'如果這個 Email 是已登錄的管理員帳號，系統會寄出密碼重設信；若不是，不會寄送。為了安全，畫面不會透露帳號是否存在。',error?'error':'success');});
+  $('magicBtn').addEventListener('click',async()=>{const email=$('email').value.trim();if(!email){showLogin('請先輸入管理者 Email。','error');return;}const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:callbackUrl()}});showLogin(error?'寄送失敗：'+error.message:'如果這個 Email 是已登錄的管理員帳號，系統會寄出一次性登入連結；若不是，不會寄送。為了安全，畫面不會透露帳號是否存在。',error?'error':'success');});
+  $('recoveryForm').addEventListener('submit',async ev=>{ev.preventDefault();const p1=$('newPassword').value,p2=$('confirmPassword').value;if(p1!==p2){$('recoveryMessage').className='error';$('recoveryMessage').textContent='兩次密碼不一致。';return;}if(p1.length<8){$('recoveryMessage').className='error';$('recoveryMessage').textContent='密碼至少 8 個字元。';return;}$('recoveryMessage').className='hint';$('recoveryMessage').textContent='正在儲存新密碼…';const {error}=await client.auth.updateUser({password:p1});if(error){$('recoveryMessage').className='error';$('recoveryMessage').textContent='設定失敗：'+error.message;return;}history.replaceState({},'',location.pathname);$('recoveryMessage').className='success';$('recoveryMessage').textContent='新密碼已設定，正在進入管理中心…';setTimeout(loadAdmin,300);});
   $('logoutBtn').addEventListener('click',async()=>{await client.auth.signOut();showLogin('已登出。','success');});$('refreshBtn').addEventListener('click',loadAdmin);$('feedbackFilter').addEventListener('change',renderFeedback);
   document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===btn));['overview','feedback','analytics'].forEach(n=>$('tab-'+n).classList.toggle('hidden',n!==btn.dataset.tab));}));
-  client.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY')recoveryMode=true;if(recoveryMode){showRecovery(session?'請設定一組新的管理密碼。':'正在驗證密碼重設連結…');return;}if(session)loadAdmin();});
-  if(recoveryMode)showRecovery('正在驗證密碼重設連結…');
-  client.auth.getSession().then(({data})=>{if(recoveryMode){showRecovery(data.session?'請設定一組新的管理密碼。':'正在驗證密碼重設連結…');return;}if(data.session)loadAdmin();else showLogin();});
+  client.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){showRecovery('請設定一組新的管理密碼。');return;}if(session&&!recoveryMode)loadAdmin();});
+  client.auth.getSession().then(({data})=>{const wantsRecovery=new URLSearchParams(location.search).has('adminAuth')&&location.hash.includes('type=recovery');if(wantsRecovery&&data.session)showRecovery('請設定一組新的管理密碼。');else if(data.session)loadAdmin();else showLogin();});
 })();
 </script>
-<script src="./feedback_clusters.js"></script>
 </body>
 </html>
