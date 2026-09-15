@@ -49,7 +49,7 @@
       <section id="tab-overview">
         <div class="card hero"><strong>現在需要我做什麼？</strong><div id="needAction" class="statusline"><span class="dot warn"></span><span>正在讀取系統狀態…</span></div><div id="lastUpdated" class="small"></div></div>
         <div class="grid"><div class="metric"><div class="k">題庫</div><div id="qCount" class="v">—</div><div class="s">正式選擇題</div></div><div class="metric"><div class="k">申論題</div><div id="essayCount" class="v">—</div><div class="s">正式申論資料</div></div><div class="metric"><div class="k">待處理回報</div><div id="pendingCount" class="v">—</div><div class="s">需要你查看</div></div><div class="metric"><div class="k">法規警示</div><div id="lawCount" class="v">—</div><div class="s">尚未解決</div></div></div>
-        <div class="section card"><h2>系統狀態</h2><div class="list"><div class="statusline"><span class="dot ok"></span><div><strong>Supabase</strong><div class="small">管理資料可正常讀取</div></div></div><div class="statusline"><span id="questionDot" class="dot warn"></span><div><strong>題庫完整性</strong><div id="questionHealth" class="small">讀取中</div></div></div><div class="statusline"><span id="analyticsDot" class="dot warn"></span><div><strong>使用統計</strong><div id="analyticsHealth" class="small">尚未取得匿名統計資料</div></div></div><div class="statusline"><span class="dot warn"></span><div><strong>AI 即時監測</strong><div class="small">尚未接入 telemetry；AI 功能本身仍由既有 QA / rate limit 保護</div></div></div></div></div>
+        <div class="section card"><h2>系統狀態</h2><div class="list"><div class="statusline"><span class="dot ok"></span><div><strong>Supabase</strong><div class="small">管理資料可正常讀取</div></div></div><div class="statusline"><span id="questionDot" class="dot warn"></span><div><strong>題庫完整性</strong><div id="questionHealth" class="small">讀取中</div></div></div><div class="statusline"><span id="analyticsDot" class="dot warn"></span><div><strong>使用統計</strong><div id="analyticsHealth" class="small">尚未取得匿名統計資料</div></div></div><div class="statusline"><span id="aiDot" class="dot warn"></span><div><strong>AI 即時監測</strong><div id="aiHealth" class="small">正在讀取 AI telemetry…</div></div></div></div></div>
       </section>
       <section id="tab-feedback" class="hidden"><div class="row section"><h2 style="margin:0">使用者回報</h2><div class="spacer"></div><select id="feedbackFilter" class="btn"><option value="all">全部</option><option value="pending">只看待處理</option><option value="reviewed">處理中</option><option value="fixed">已修正</option><option value="no_change">不需修改</option></select></div><div id="feedbackList" class="list"></div></section>
       <section id="tab-analytics" class="hidden"><div class="grid section"><div class="metric"><div class="k">今日使用者</div><div id="analyticsTodayUsers" class="v">—</div><div class="s">匿名瀏覽器約數</div></div><div class="metric"><div class="k">今日瀏覽量</div><div id="analyticsTodayViews" class="v">—</div><div class="s">正式站頁面開啟次數</div></div><div class="metric"><div class="k">近 7 日使用者</div><div id="analytics7dUsers" class="v">—</div><div class="s">7 日不重複匿名瀏覽器</div></div><div class="metric"><div class="k">累計使用者</div><div id="analyticsTotalUsers" class="v">—</div><div class="s">從啟用統計開始</div></div></div><div class="card section"><h2>累計與近 7 日</h2><div class="grid"><div class="metric"><div class="k">累計瀏覽量</div><div id="analyticsTotalViews" class="v">—</div><div class="s">從啟用統計開始</div></div><div class="metric"><div class="k">開始統計</div><div id="analyticsSince" class="v" style="font-size:18px">—</div><div class="s">舊的歷史訪客無法回補</div></div></div><div id="analyticsDaily" class="list" style="margin-top:14px"></div></div><div class="card section"><h2>統計方式</h2><div class="hint">只統計 SWSI 正式 Cloudflare 網址。使用者數以這台瀏覽器隨機產生的匿名 ID 估算；統計資料庫只保存 SHA-256 雜湊與每日瀏覽次數，不保存姓名、Email、原始 IP、User-Agent 或裝置指紋。同一人換瀏覽器／裝置會分開計算，清除網站資料後也可能被視為新的匿名使用者。</div></div></section>
@@ -79,7 +79,7 @@
   function showRecovery(message=''){recoveryMode=true;$('loginView').classList.add('hidden');$('recoveryView').classList.remove('hidden');$('adminView').classList.add('hidden');$('recoveryMessage').className='hint';$('recoveryMessage').textContent=message;}
   function showAdmin(){recoveryMode=false;hideAuthViews();$('adminView').classList.remove('hidden');}
   async function loadAdmin(){try{payload=await adminFetch();showAdmin();render();}catch(e){if(e.status===401||e.status===403){if(e.status===403)await client.auth.signOut();showLogin(e.status===403?'這個帳號沒有管理權限。':'登入已失效，請重新登入。','error');}else{showAdmin();$('needAction').innerHTML='<span class="dot bad"></span><span>管理資料暫時讀取失敗，請稍後重新整理。</span>';}}}
-  function render(){const s=payload?.summary||{};$('qCount').textContent=(s.questions??'—').toLocaleString?.()||s.questions;$('essayCount').textContent=s.essays??'—';$('pendingCount').textContent=s.feedback_pending??'—';$('lawCount').textContent=s.unresolved_legal_watch_hits??'—';$('pendingBadge').textContent=s.feedback_pending?'('+s.feedback_pending+')':'';const qOk=Number(s.questions)===4800;$('questionDot').className='dot '+(qOk?'ok':'warn');$('questionHealth').textContent=qOk?'4,800 / 4,800，正常':'目前 '+(s.questions??'未知')+' 題，請確認題庫同步';const problems=[];if(Number(s.feedback_pending)>0)problems.push('有 '+s.feedback_pending+' 件使用者回報待處理');if(Number(s.unresolved_legal_watch_hits)>0)problems.push('有 '+s.unresolved_legal_watch_hits+' 件法規異動需要確認');if(!qOk)problems.push('題庫數量不是 4,800 題');$('needAction').innerHTML=problems.length?'<span class="dot warn"></span><span>'+esc(problems.join('；'))+'。</span>':'<span class="dot ok"></span><span>目前不需要處理任何事情。</span>';$('lastUpdated').textContent='最後更新：'+new Date(payload.generated_at).toLocaleString('zh-TW');renderAnalytics();renderFeedback();}
+  function render(){const s=payload?.summary||{};$('qCount').textContent=(s.questions??'—').toLocaleString?.()||s.questions;$('essayCount').textContent=s.essays??'—';$('pendingCount').textContent=s.feedback_pending??'—';$('lawCount').textContent=s.unresolved_legal_watch_hits??'—';$('pendingBadge').textContent=s.feedback_pending?'('+s.feedback_pending+')':'';const qOk=Number(s.questions)===4800;$('questionDot').className='dot '+(qOk?'ok':'warn');$('questionHealth').textContent=qOk?'4,800 / 4,800，正常':'目前 '+(s.questions??'未知')+' 題，請確認題庫同步';const problems=[];if(Number(s.feedback_pending)>0)problems.push('有 '+s.feedback_pending+' 件使用者回報待處理');if(Number(s.unresolved_legal_watch_hits)>0)problems.push('有 '+s.unresolved_legal_watch_hits+' 件法規異動需要確認');if(!qOk)problems.push('題庫數量不是 4,800 題');const aiStatus=String(payload?.ai_telemetry?.status||'unavailable');if(aiStatus==='down')problems.push('AI 最近請求持續失敗');else if(aiStatus==='degraded')problems.push('AI 最近錯誤率偏高');else if(aiStatus==='unavailable')problems.push('AI 即時監測暫時無法讀取');$('needAction').innerHTML=problems.length?'<span class="dot warn"></span><span>'+esc(problems.join('；'))+'。</span>':'<span class="dot ok"></span><span>目前不需要處理任何事情。</span>';$('lastUpdated').textContent='最後更新：'+new Date(payload.generated_at).toLocaleString('zh-TW');renderAnalytics();renderAITelemetry();renderFeedback();}
 
   function renderAnalytics(){
     const a=payload?.analytics||{};
@@ -99,6 +99,39 @@
     const rows=enabled&&Array.isArray(a.daily_7d)?a.daily_7d:[];
     if(!rows.length){daily.innerHTML='<div class="empty">統計啟用後，這裡會顯示近 7 日使用趨勢。</div>';return;}
     daily.innerHTML=rows.slice().reverse().map(r=>'<div class="feedback" style="padding:11px 13px"><div class="row"><strong>'+esc(r.date||'')+'</strong><div class="spacer"></div><span class="small">使用者 '+esc(Number(r.users||0).toLocaleString('zh-TW'))+'　·　瀏覽 '+esc(Number(r.page_views||0).toLocaleString('zh-TW'))+'</span></div></div>').join('');
+  }
+
+  function renderAITelemetry(){
+    const a=payload?.ai_telemetry||{};
+    const dot=$('aiDot'),health=$('aiHealth');
+    if(!dot||!health)return;
+    const status=String(a.status||'unavailable');
+    const enabled=a.enabled===true;
+    if(!enabled||status==='unavailable'){
+      dot.className='dot warn';
+      health.textContent='AI telemetry 暫時無法讀取；既有 QA / rate limit 仍持續保護';
+      return;
+    }
+    if(status==='down')dot.className='dot bad';
+    else if(status==='degraded'||status==='busy')dot.className='dot warn';
+    else dot.className='dot ok';
+
+    const req=Number(a.requests_60m||0);
+    const success=Number(a.successes_60m||0);
+    const rate=Number(a.rate_limited_60m||0);
+    const hard=Number(a.hard_errors_60m||0);
+    const pct=a.success_rate_pct;
+    const latency=a.avg_latency_ms;
+    if(status==='idle'){
+      health.textContent='監測已啟用；最近 60 分鐘沒有 AI 請求';
+      return;
+    }
+    const bits=['最近 60 分鐘 '+req+' 次'];
+    if(pct!==null&&pct!==undefined)bits.push('成功率 '+Number(pct).toFixed(1)+'%');
+    if(latency!==null&&latency!==undefined)bits.push('平均 '+Number(latency).toLocaleString('zh-TW')+' ms');
+    if(rate>0)bits.push('429 '+rate+' 次');
+    if(hard>0)bits.push('服務/連線錯誤 '+hard+' 次');
+    health.textContent=bits.join('；')+(status==='down'?'（異常）':status==='degraded'?'（需留意）':status==='busy'?'（使用量較高）':'');
   }
 
   function feedbackWhere(f){const bits=[];if(f.context_type)bits.push(contextText[f.context_type]||f.context_type);if(f.subject)bits.push(f.subject);if(f.exam_year)bits.push(f.exam_year+' 年');if(f.exam_round)bits.push('第 '+f.exam_round+' 次');if(f.question_no)bits.push('第 '+f.question_no+' 題');return bits.join('｜')||(f.context_title||'一般網站回報');}
