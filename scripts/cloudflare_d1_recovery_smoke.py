@@ -18,10 +18,15 @@ WORKER = ROOT / "cloudflare" / "wandering-wave-4418" / "worker.js"
 
 CLIENT_TABLE = "ai_daily_client_usage"
 GLOBAL_TABLE = "ai_daily_global_usage"
+TELEMETRY_TABLE = "ai_telemetry_hourly"
 
 REQUIRED_COLUMNS = {
     CLIENT_TABLE: {"usage_date", "client_key", "text_count", "photo_count", "updated_at"},
     GLOBAL_TABLE: {"usage_date", "text_count", "photo_count", "updated_at"},
+    TELEMETRY_TABLE: {
+        "bucket_hour", "requests", "successes", "rate_limited", "service_errors",
+        "client_rejected", "total_latency_ms", "max_latency_ms", "updated_at"
+    },
 }
 
 DESTRUCTIVE_BOOTSTRAP = re.compile(r"\b(DROP|DELETE|TRUNCATE|ALTER)\b", re.IGNORECASE)
@@ -72,7 +77,14 @@ def verify_schema_shape(db: sqlite3.Connection) -> None:
         if missing:
             fail(f"{table} missing required columns: {', '.join(missing)}")
 
-        for counter in ("text_count", "photo_count"):
+        if table in (CLIENT_TABLE, GLOBAL_TABLE):
+            counters = ("text_count", "photo_count")
+        else:
+            counters = (
+                "requests", "successes", "rate_limited", "service_errors",
+                "client_rejected", "total_latency_ms", "max_latency_ms"
+            )
+        for counter in counters:
             row = next(item for item in rows if item["name"] == counter)
             if not row["notnull"]:
                 fail(f"{table}.{counter} must be NOT NULL")
@@ -94,6 +106,15 @@ def verify_schema_shape(db: sqlite3.Connection) -> None:
         fail(f"global conflict key drift: {global_pk!r}")
 
 
+    telemetry_pk = {
+        row["name"]: int(row["pk"])
+        for row in table_info(db, TELEMETRY_TABLE)
+        if int(row["pk"]) > 0
+    }
+    if telemetry_pk != {"bucket_hour": 1}:
+        fail(f"telemetry conflict key drift: {telemetry_pk!r}")
+
+
 def verify_worker_contract(worker: str, schema: str) -> None:
     required_worker_fragments = [
         "FROM ai_daily_global_usage",
@@ -103,6 +124,9 @@ def verify_worker_contract(worker: str, schema: str) -> None:
         "ON CONFLICT(usage_date)",
         "UPDATE ai_daily_client_usage",
         "UPDATE ai_daily_global_usage",
+        "INSERT INTO ai_telemetry_hourly",
+        "ON CONFLICT(bucket_hour)",
+        "FROM ai_telemetry_hourly",
     ]
     for fragment in required_worker_fragments:
         if fragment not in worker:
@@ -225,6 +249,37 @@ def verify_quota_semantics(db: sqlite3.Connection) -> None:
         fail(f"counter floor-at-zero contract failed: {tuple(row)!r}")
 
 
+def verify_telemetry_semantics(db: sqlite3.Connection) -> None:
+    bucket = "2026-09-15T14:00:00Z"
+    sql = """
+    INSERT INTO ai_telemetry_hourly
+      (bucket_hour, requests, successes, rate_limited, service_errors, client_rejected, total_latency_ms, max_latency_ms, updated_at)
+    VALUES (?, 1, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(bucket_hour) DO UPDATE SET
+      requests = requests + 1,
+      successes = successes + excluded.successes,
+      rate_limited = rate_limited + excluded.rate_limited,
+      service_errors = service_errors + excluded.service_errors,
+      client_rejected = client_rejected + excluded.client_rejected,
+      total_latency_ms = total_latency_ms + excluded.total_latency_ms,
+      max_latency_ms = MAX(max_latency_ms, excluded.max_latency_ms),
+      updated_at = CURRENT_TIMESTAMP
+    """
+    db.execute(sql, (bucket, 1, 0, 0, 0, 1200, 1200))
+    db.execute(sql, (bucket, 0, 1, 0, 0, 300, 300))
+    row = db.execute(
+        """
+        SELECT requests, successes, rate_limited, service_errors, client_rejected,
+               total_latency_ms, max_latency_ms
+        FROM ai_telemetry_hourly
+        WHERE bucket_hour=?
+        """,
+        (bucket,),
+    ).fetchone()
+    if tuple(row) != (2, 1, 1, 0, 0, 1500, 1200):
+        fail(f"telemetry aggregate semantics incorrect: {tuple(row)!r}")
+
+
 def main() -> int:
     if not SCHEMA.is_file():
         fail(f"missing recovery schema: {SCHEMA.relative_to(ROOT)}")
@@ -249,12 +304,13 @@ def main() -> int:
         db.executescript(schema)
         verify_schema_shape(db)
         verify_quota_semantics(db)
+        verify_telemetry_semantics(db)
     except sqlite3.DatabaseError as exc:
         fail(f"SQLite contract error: {exc}")
     finally:
         db.close()
 
-    print("D1 recovery tables: ai_daily_client_usage, ai_daily_global_usage")
+    print("D1 recovery tables: ai_daily_client_usage, ai_daily_global_usage, ai_telemetry_hourly")
     print("D1 recovery conflict keys: (usage_date, client_key), (usage_date)")
     print("CLOUDFLARE D1 RECOVERY SMOKE OK")
     return 0
