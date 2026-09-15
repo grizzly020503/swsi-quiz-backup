@@ -32,7 +32,7 @@ MIN_WATCH_MATCHES = 20
 DEFAULT_MIN_DAYS = 28
 DEFAULT_RETRY_DAYS = 3
 REQUEST_TIMEOUT = 30
-ARTICLE_FINGERPRINT_VERSION = "sha256-v1"
+ARTICLE_FINGERPRINT_VERSION = "sha256-v2-law-body"
 
 
 def utc_now():
@@ -260,6 +260,16 @@ def diff_article_fingerprints(previous, current):
     return sorted(changed, key=article_sort_key)
 
 
+def compatible_previous_fingerprints(record):
+    """Return prior fingerprints only when they use the current contract version."""
+    if not isinstance(record, dict):
+        return {}
+    if clean_text(record.get("article_fingerprint_version")) != ARTICLE_FINGERPRINT_VERSION:
+        return {}
+    fingerprints = record.get("article_fingerprints")
+    return fingerprints if isinstance(fingerprints, dict) else {}
+
+
 def fetch_html(session, url):
     last = None
     for attempt in range(2):
@@ -441,11 +451,7 @@ def main():
                     if isinstance(found.get("article_fingerprints"), dict)
                     else {}
                 )
-                previous_fingerprints = (
-                    old.get("article_fingerprints")
-                    if isinstance(old.get("article_fingerprints"), dict)
-                    else {}
-                )
+                previous_fingerprints = compatible_previous_fingerprints(old)
                 article_diff = diff_article_fingerprints(previous_fingerprints, current_fingerprints)
                 article_diff_available = article_diff is not None
                 changed_articles = article_diff or []
