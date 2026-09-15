@@ -2,6 +2,15 @@ name: Publish Question Shards to Repo
 
 on:
   workflow_dispatch:
+  workflow_run:
+    # MOEX sync 會用 GITHUB_TOKEN 寫入官方題庫／法規 metadata；GitHub 不會讓該 commit 再觸發一般 push workflow。
+    # 直接監聽成功完成的 MOEX workflow，讓 shards 在 verified Supabase 狀態更新後立即重建。
+    workflows:
+      - MOEX Social Worker Exam Sync
+    types:
+      - completed
+    branches:
+      - main
   push:
     paths:
       - '.github/workflows/question-shards-publish.yml'
@@ -26,6 +35,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # workflow_run 的 SHA 是上游 workflow 起點，不一定包含它最後 push 的 bot commit；
+          # 因此事件鏈必須明確 checkout 最新 main。
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || github.ref }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -53,7 +65,7 @@ jobs:
           test -n "$generated_revision"
           test -n "$main_revision"
 
-          if [ "$GITHUB_REF" = 'refs/heads/main' ]; then
+          if [ "$GITHUB_REF" = 'refs/heads/main' ] || [ "$GITHUB_EVENT_NAME" = 'workflow_run' ]; then
             expected_revision="$generated_revision"
           else
             expected_revision="$main_revision"
@@ -64,7 +76,11 @@ jobs:
           echo "revision=$expected_revision" >> "$GITHUB_OUTPUT"
 
       - name: Publish dataset or headers when changed
-        if: github.ref == 'refs/heads/main'
+        if: >
+          (github.event_name == 'workflow_run' &&
+           github.event.workflow_run.conclusion == 'success' &&
+           github.event.workflow_run.head_branch == 'main') ||
+          (github.event_name != 'workflow_run' && github.ref == 'refs/heads/main')
         run: |
           set -euo pipefail
           old_revision=''
