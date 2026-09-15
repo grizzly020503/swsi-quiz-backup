@@ -4,10 +4,11 @@
 
 The SWSI AI Worker uses Cloudflare D1 database `swsi-ai-quota` through binding `AI_QUOTA_DB`.
 
-The current Worker relies on two tables:
+The current Worker relies on three tables:
 
 - `ai_daily_client_usage`
 - `ai_daily_global_usage`
+- `ai_telemetry_hourly`
 
 The Worker uses those tables to reserve and refund public daily text/photo quota. In particular, its SQL depends on these conflict keys:
 
@@ -62,7 +63,7 @@ Any production binding change remains an explicit human-approved production oper
 
 The Worker hashes its client identifier before using `client_key`; recovery tables should not be expanded into a per-user analytics store. Do not add raw IP, raw User-Agent, student answers, images, names, email addresses, or other personal data to these quota tables.
 
-Operational telemetry, if added later, should use aggregate counters and a separate reviewed schema rather than turning quota storage into behavioral tracking.
+Operational telemetry uses the separate `ai_telemetry_hourly` table with aggregate hourly counters and latency only. It must never store prompts, answers, images, raw IP, raw User-Agent, names, email addresses, or client identifiers.
 
 ## Executable contract
 
@@ -71,6 +72,7 @@ Operational telemetry, if added later, should use aggregate counters and a separ
 - apply the recovery bootstrap to a clean in-memory database;
 - verify the required columns and primary/conflict keys;
 - exercise the same reserve/cap/refund semantics the Worker requires;
+- exercise hourly AI telemetry aggregation semantics;
 - fail if destructive bootstrap statements are introduced;
 - fail if the current Worker starts relying on a quota table/column that the recovery bootstrap does not provide.
 
