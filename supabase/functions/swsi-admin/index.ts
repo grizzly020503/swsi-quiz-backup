@@ -149,7 +149,7 @@ Deno.serve(async (req: Request) => {
     return json(origin, { ok: true, feedback: data });
   }
 
-  const [questionsRes, essaysRes, feedbackRes, feedbackCountRes, pendingRes, legalHitsRes, analyticsRes] = await Promise.all([
+  const [questionsRes, essaysRes, feedbackRes, feedbackCountRes, pendingRes, legalHitsRes, analyticsRes, aiTelemetryRes] = await Promise.all([
     admin.from("questions").select("id", { count: "exact", head: true }),
     admin.from("essays").select("id", { count: "exact", head: true }),
     admin.from("swsi_feedback_reports")
@@ -160,6 +160,7 @@ Deno.serve(async (req: Request) => {
     admin.from("swsi_feedback_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
     admin.from("legal_watch_hits").select("id", { count: "exact", head: true }).is("resolved_at", null),
     admin.rpc("swsi_usage_summary"),
+    admin.rpc("swsi_ai_telemetry_summary"),
   ]);
 
   if (questionsRes.error || essaysRes.error || feedbackRes.error || feedbackCountRes.error || pendingRes.error || legalHitsRes.error) {
@@ -186,9 +187,12 @@ Deno.serve(async (req: Request) => {
       feedback_raw_count: rawFeedbackRows.length,
       unresolved_legal_watch_hits: legalHitsRes.count ?? 0,
       analytics: analyticsRes.error ? "unavailable" : "enabled",
-      ai_telemetry: "not_enabled",
+      ai_telemetry: aiTelemetryRes.error ? "unavailable" : "enabled",
     },
     analytics: analyticsRes.error ? { enabled: false, status: "unavailable" } : (analyticsRes.data ?? { enabled: false, status: "empty" }),
+    ai_telemetry: aiTelemetryRes.error
+      ? { enabled: false, status: "unavailable" }
+      : (aiTelemetryRes.data ?? { enabled: true, status: "idle", window_minutes: 60 }),
     feedback_clusters: feedbackClusters,
     feedback: rawFeedbackRows,
   });
