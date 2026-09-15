@@ -7,9 +7,14 @@ const vm = require('vm');
 const { webcrypto } = require('crypto');
 
 function makeDb(mode = 'ok') {
-  return {
+  const db = {
+    telemetryWrites: 0,
     prepare(sql) {
       return {
+        async run() {
+          if (mode === 'failure') throw new Error('simulated D1 outage');
+          return { meta: { changes: 1 } };
+        },
         bind() {
           return {
             async first() {
@@ -17,10 +22,23 @@ function makeDb(mode = 'ok') {
               if (/FROM ai_daily_global_usage/.test(sql) && mode === 'globalFull') {
                 return { text_count: 50, photo_count: 10 };
               }
+              if (/FROM ai_telemetry_hourly/.test(sql)) {
+                return {
+                  requests: 5,
+                  successes: 4,
+                  rate_limited: 1,
+                  service_errors: 0,
+                  client_rejected: 0,
+                  total_latency_ms: 5000,
+                  max_latency_ms: 2000,
+                  last_bucket: '2026-09-15T14:00:00Z'
+                };
+              }
               return null;
             },
             async run() {
               if (/INSERT INTO ai_daily_client_usage/.test(sql) && mode === 'clientFull') return { meta: { changes: 0 } };
+              if (/INSERT INTO ai_telemetry_hourly/.test(sql)) db.telemetryWrites++;
               return { meta: { changes: 1 } };
             }
           };
@@ -29,6 +47,7 @@ function makeDb(mode = 'ok') {
     },
     async batch() { return []; }
   };
+  return db;
 }
 
 function request(body) {
@@ -84,6 +103,20 @@ function request(body) {
     max_tokens: 200
   };
 
+  response = await worker.fetch(new Request('https://worker.test/api/ai-health', {
+    method: 'GET'
+  }), env());
+  assert.strictEqual(response.status, 200);
+  const health = await response.json();
+  assert.strictEqual(health.enabled, true);
+  assert.strictEqual(health.status, 'ok');
+  assert.strictEqual(health.window_hours, 24);
+  assert.strictEqual(health.requests, 5);
+  assert.strictEqual(health.successes, 4);
+  assert.strictEqual(health.rate_limited, 1);
+  assert.strictEqual(health.service_errors, 0);
+  assert.strictEqual(health.avg_latency_ms, 1000);
+
   let response = await worker.fetch(new Request('https://worker.test/', {
     method:'POST',
     headers:{Origin:'https://attacker.invalid','Content-Type':'application/json'},
@@ -115,10 +148,12 @@ function request(body) {
   assert.strictEqual(response.status, 503);
   assert.strictEqual((await response.json()).error.code, 'QUOTA_SERVICE_UNAVAILABLE');
 
-  response = await worker.fetch(request(body), env());
+  const telemetryDb = makeDb();
+  response = await worker.fetch(request(body), env({ AI_QUOTA_DB: telemetryDb }));
   assert.strictEqual(response.status, 200);
   assert.strictEqual(upstreamPayload.temperature, 0, 'explicit temperature=0 was not preserved');
   assert.strictEqual(response.headers.get('cache-control'), 'no-store');
+  assert(telemetryDb.telemetryWrites >= 1, 'successful public AI request did not record telemetry');
 
   upstreamStatus = 429;
   response = await worker.fetch(request({ ...body, temperature: null }), env());
@@ -127,7 +162,7 @@ function request(body) {
   assert.strictEqual(response.headers.get('retry-after'), '17');
   assert.strictEqual(upstreamPayload.temperature, 0.4, 'null temperature should use the safe default');
 
-  console.log('CLOUDFLARE WORKER SMOKE OK');
+  console.log('CLOUDFLARE WORKER SMOKE OK — quota + AI telemetry health');
 })().catch(err => {
   console.error(err && err.stack || err);
   process.exit(1);
