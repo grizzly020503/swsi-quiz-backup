@@ -3820,6 +3820,25 @@ html[data-fs="2"]{
     try{return await fetch(url,opts);}
     finally{clearTimeout(timer);}
   };
+
+  var AI_TELEMETRY_ORIGIN='https://wandering-wave-4418.c022050333.workers.dev';
+  var AI_TELEMETRY_ENDPOINT='https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-ai-telemetry';
+  var AI_TELEMETRY_MODES={text:true,photo:true};
+  var AI_TELEMETRY_OUTCOMES={success:true,rate_limited:true,service_error:true,timeout:true,network_error:true,client_error:true};
+  window.swsiRecordAITelemetry=function(mode,outcome,latencyMs){
+    try{
+      if(location.origin!==AI_TELEMETRY_ORIGIN)return;
+      if(!AI_TELEMETRY_MODES[mode]||!AI_TELEMETRY_OUTCOMES[outcome])return;
+      var ms=Math.max(0,Math.min(120000,Math.round(Number(latencyMs)||0)));
+      fetch(AI_TELEMETRY_ENDPOINT,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-SWSI-Client-ID':window.swsiGetClientId()},
+        body:JSON.stringify({event:'ai_request',mode:mode,outcome:outcome,latency_ms:ms}),
+        keepalive:true,
+        credentials:'omit'
+      }).catch(function(){});
+    }catch(_e){}
+  };
 })();
 /* ===== SWSI P0 AI utilities END ===== */
 
@@ -3944,11 +3963,33 @@ html[data-fs="2"]{
       +'<div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 只提供申論練習回饋，不是考選部官方評分；法規、政策或年代內容若有疑義，請再查課本、老師或官方資料。</div>';
   }
 
-  async function postAI(payload,timeoutMs){
-    if(typeof window.swsiFetchWithTimeout==='function'){
-      return window.swsiFetchWithTimeout(AI_PROXY_URL,payload,timeoutMs);
+  async function postAI(payload,timeoutMs,mode){
+    var started=(window.performance&&typeof performance.now==='function')?performance.now():Date.now();
+    function elapsed(){
+      var now=(window.performance&&typeof performance.now==='function')?performance.now():Date.now();
+      return Math.max(0,Math.round(now-started));
     }
-    return fetch(AI_PROXY_URL,payload);
+    function record(outcome){
+      if(typeof window.swsiRecordAITelemetry==='function'){
+        window.swsiRecordAITelemetry(mode||'text',outcome,elapsed());
+      }
+    }
+    try{
+      var r;
+      if(typeof window.swsiFetchWithTimeout==='function'){
+        r=await window.swsiFetchWithTimeout(AI_PROXY_URL,payload,timeoutMs);
+      }else{
+        r=await fetch(AI_PROXY_URL,payload);
+      }
+      if(r.ok)record('success');
+      else if(r.status===429)record('rate_limited');
+      else if(r.status>=500||r.status===401||r.status===403)record('service_error');
+      else record('client_error');
+      return r;
+    }catch(err){
+      record(err&&err.name==='AbortError'?'timeout':'network_error');
+      throw err;
+    }
   }
 
   window.swsiReadAIError=async function(response){
@@ -4004,7 +4045,7 @@ html[data-fs="2"]{
     if(typeof window.swsiSetAIBusy==='function')window.swsiSetAIBusy(id,true,'text');
     out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 正在閱讀題目與你的作答…</div>';
     try{
-      var r=await postAI({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0.35,max_tokens:1200,messages:[{role:'user',content:sys+'\n\n'+user}]})},45000);
+      var r=await postAI({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0.35,max_tokens:1200,messages:[{role:'user',content:sys+'\n\n'+user}]})},45000,'text');
       if(!r.ok){
         var info=await window.swsiReadAIError(r);
         out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">'+E(info.message)+'<br>你的作答仍保存在這台裝置。</div>';return;
@@ -4044,7 +4085,7 @@ html[data-fs="2"]{
       imgs.forEach(function(u){content.push({type:'image_url',image_url:{url:u}});});
       out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 正在讀 '+imgs.length+' 張作答照片…</div>';
 
-      var r=await postAI({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0.25,max_tokens:1300,messages:[{role:'user',content:content}]})},60000);
+      var r=await postAI({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0.25,max_tokens:1300,messages:[{role:'user',content:content}]})},60000,'photo');
       if(!r.ok){
         var info=await window.swsiReadAIError(r);
         out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">'+E(info.message)+'</div>';return;

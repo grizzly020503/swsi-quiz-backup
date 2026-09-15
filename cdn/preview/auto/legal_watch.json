@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-08-25T23:29:18Z",
+  "checked_at": "2026-09-15T13:17:36Z",
   "baseline": false,
   "source_label": "全國法規資料庫",
   "watch_count": 52,
@@ -9,6 +9,13 @@
   "changed_count": 0,
   "changes": [],
   "recently_modified": [
+    {
+      "name": "民法",
+      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0000001",
+      "official_modified_date": "2026-08-17",
+      "previous_modified_date": "2026-08-17",
+      "changed": false
+    },
     {
       "name": "中華民國刑法",
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0000001",
@@ -56,13 +63,6 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070058",
       "official_modified_date": "2024-12-18",
       "previous_modified_date": "2024-12-18",
-      "changed": false
-    },
-    {
-      "name": "兒童及少年性剝削防制條例",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050023",
-      "official_modified_date": "2024-08-07",
-      "previous_modified_date": "2024-08-07",
       "changed": false
     }
   ]
