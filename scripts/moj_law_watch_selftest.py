@@ -20,19 +20,25 @@ def require(condition, message):
 
 html_v1 = """
 <html><body>
+<div id="pnLawFla">
 <div>測試法</div>
 <div>第 188 條</div><div>受僱人因執行職務，不法侵害他人之權利者，由僱用人負連帶責任。</div>
 <div>第 189 條</div><div>承攬人因執行承攬事項，不法侵害他人權利者。</div>
 <div>第 1055-1 條</div><div>法院為子女之最佳利益，依規定審酌一切情狀。</div>
+</div>
+<footer>頁尾版本 A</footer>
 </body></html>
 """
 
 html_v2 = """
 <html><body>
+<div id="pnLawFla">
 <div>測試法</div>
 <div>第 188 條</div><div>受僱人因執行職務，不法侵害他人之權利者，由僱用人負連帶責任。</div>
 <div>第 189 條</div><div>承攬人因執行承攬事項，不法侵害他人權利者；本句已修正。</div>
 <div>第 1055-1 條</div><div>法院為子女之最佳利益，依規定審酌一切情狀。</div>
+</div>
+<footer>頁尾版本 B</footer>
 </body></html>
 """
 
@@ -43,11 +49,20 @@ require(set(first) == {"188", "189", "1055-1"}, f"unexpected article keys: {sort
 require(module.diff_article_fingerprints({}, first) is None, "empty prior state must initialize baseline")
 require(module.diff_article_fingerprints(first, second) == ["189"], "only changed article should be reported")
 require(module.normalize_article_no("1055 - 1") == "1055-1", "sub-article normalization failed")
+require(first["1055-1"] == second["1055-1"], "dynamic footer must not contaminate final article fingerprint")
+
+# Fail closed if MOJ removes/renames the official law-body container.
+require(
+    module.extract_article_fingerprints("<html><body><div>第 1 條</div><footer>noise</footer></body></html>") == {},
+    "missing #pnLawFla must disable article fingerprints",
+)
 
 # A repeated navigation heading must not replace a longer article body block.
 duplicate_heading = """
+<div id="pnLawFla">
 <div>第 188 條</div>
 <div>第 188 條</div><div>完整條文內容應該勝過只有標題的短區塊。</div>
+</div>
 """
 dupe = module.extract_article_fingerprints(duplicate_heading)
 require("188" in dupe and len(dupe["188"]) == 64, "duplicate heading handling failed")
