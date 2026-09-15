@@ -186,7 +186,7 @@ Deno.serve(async (req: Request) => {
       feedback_raw_count: rawFeedbackRows.length,
       unresolved_legal_watch_hits: legalHitsRes.count ?? 0,
       analytics: analyticsRes.error ? "unavailable" : "enabled",
-      ai_telemetry: "not_enabled",
+      ai_telemetry: "worker_health_endpoint",
     },
     analytics: analyticsRes.error ? { enabled: false, status: "unavailable" } : (analyticsRes.data ?? { enabled: false, status: "empty" }),
     feedback_clusters: feedbackClusters,
