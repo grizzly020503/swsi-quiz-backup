@@ -71,7 +71,7 @@ jobs:
           }), mode_counts
 
           multi=[q for q in baseline if q.get('accepted_answers')]
-          assert len(multi)==24, len(multi)
+          assert len(multi)==25, len(multi)
           assert all(q.get('grading_mode')=='standard' for q in multi)
           assert all(isinstance(q.get('accepted_answers'),list) and len(q['accepted_answers'])>=2 for q in multi)
 
