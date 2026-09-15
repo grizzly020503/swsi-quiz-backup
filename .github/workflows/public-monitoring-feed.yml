@@ -5,6 +5,15 @@ on:
   schedule:
     # 每 6 小時掃描一次社工／社福時事；比完整題庫同步輕量，避免每小時浪費 Actions 額度。
     - cron: '15 */6 * * *'
+  workflow_run:
+    # MOEX sync 使用 GITHUB_TOKEN 推資料 commit；GitHub 不會讓該 commit 再觸發一般 push workflow。
+    # 直接監聽成功完成的 MOEX workflow，才能在 legal-watch report 寫回 main 後立即發布公開快照。
+    workflows:
+      - MOEX Social Worker Exam Sync
+    types:
+      - completed
+    branches:
+      - main
   push:
     branches:
       - main
@@ -42,6 +51,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # workflow_run 的 GITHUB_SHA 不代表被監聽 workflow 最後 push 的資料 commit；
+          # 明確讀最新 main，確保拿到 MOEX/MOJ sync 剛寫入的 report/state。
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || github.ref }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -82,7 +94,11 @@ jobs:
           git diff --check
 
       - name: Publish changed monitoring snapshots
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        if: >
+          (github.event_name == 'workflow_run' &&
+           github.event.workflow_run.conclusion == 'success' &&
+           github.event.workflow_run.head_branch == 'main') ||
+          (github.event_name != 'pull_request' && github.ref == 'refs/heads/main')
         run: |
           set -euo pipefail
           git config user.name 'swsi-monitoring-bot'
