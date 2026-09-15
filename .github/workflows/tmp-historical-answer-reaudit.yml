@@ -1,0 +1,48 @@
+name: Temporary Historical Answer Reaudit
+
+on:
+  push:
+    branches:
+      - audit/historical-answer-reaudit-20260915
+    paths:
+      - '.github/workflows/tmp-historical-answer-reaudit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  reaudit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install audit dependencies
+        run: python -m pip install --disable-pip-version-check requests pypdf pdfplumber beautifulsoup4
+      - name: Read-only compare 4,800 answers and grading modes with MOEX final PDFs
+        run: python scripts/historical_answer_audit_v4.py --output-dir audit_output
+      - name: Summarize accepted-answer cardinality
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('audit_output/historical_answer_audit.json')
+          data=json.loads(p.read_text(encoding='utf-8'))
+          print(json.dumps({
+            'official_question_count': data.get('official_question_count'),
+            'finding_count': data.get('finding_count'),
+            'grading_mode_audit': data.get('grading_mode_audit'),
+          }, ensure_ascii=False))
+          PY
+      - name: Upload read-only reaudit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: historical-answer-reaudit-20260915
+          path: audit_output/
+          if-no-files-found: warn
+          retention-days: 7
