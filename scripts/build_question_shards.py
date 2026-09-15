@@ -63,6 +63,9 @@ BASELINE_GRADING_MODE_COUNTS = Counter(
         "any_answer": 4,
     }
 )
+# 2026-09-15 read-only MOEX reaudit: 4,800/4,800 final answers matched,
+# grading-mode mismatches=0. DS-115-2-040 gained official accepted B/D,
+# so the reviewed historical multi-answer baseline is now 25.
 BASELINE_MULTI_ANSWER_COUNT = 25
 BASELINE_ANY_ANSWER_IDS = frozenset(
     {
