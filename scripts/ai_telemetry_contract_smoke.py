@@ -20,11 +20,12 @@ def table_columns(sql: str, table: str) -> list[str]:
     if not m:
         raise AssertionError(f"missing table {table}")
     cols = []
+    column_re = re.compile(r'^([a-z_][a-z0-9_]*)\\s+(date|text|integer|bigint|timestamptz)\\b', re.I)
     for raw in m.group(1).splitlines():
         line = raw.strip().rstrip(",")
-        if not line or line.lower().startswith(("primary key", "constraint", "unique", "check", "foreign key")):
-            continue
-        cols.append(line.split()[0].strip('"'))
+        match = column_re.match(line)
+        if match:
+            cols.append(match.group(1))
     return cols
 
 
