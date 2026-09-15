@@ -123,10 +123,17 @@ class BlockTextParser(HTMLParser):
     }
     SKIP_TAGS = {"script", "style", "noscript"}
 
-    def __init__(self):
+    def __init__(self, target_id=None):
         super().__init__(convert_charrefs=True)
         self.parts = []
         self._skip_depth = 0
+        self._target_id = target_id
+        self._target_div_depth = 0
+        self.target_seen = False
+
+    @property
+    def _active(self):
+        return self._target_id is None or self._target_div_depth > 0
 
     def _break(self):
         if self.parts and self.parts[-1] != "\n":
@@ -134,6 +141,16 @@ class BlockTextParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         tag = tag.lower()
+        attrs = dict(attrs)
+        if self._target_id is not None and tag == "div":
+            if self._target_div_depth > 0:
+                self._target_div_depth += 1
+            elif attrs.get("id") == self._target_id:
+                self._target_div_depth = 1
+                self.target_seen = True
+
+        if not self._active:
+            return
         if tag in self.SKIP_TAGS:
             self._skip_depth += 1
             return
@@ -142,14 +159,18 @@ class BlockTextParser(HTMLParser):
 
     def handle_endtag(self, tag):
         tag = tag.lower()
+        if not self._active:
+            return
         if tag in self.SKIP_TAGS:
             self._skip_depth = max(0, self._skip_depth - 1)
-            return
-        if self._skip_depth == 0 and tag in self.BLOCK_TAGS:
+        elif self._skip_depth == 0 and tag in self.BLOCK_TAGS:
             self._break()
 
+        if self._target_id is not None and tag == "div" and self._target_div_depth > 0:
+            self._target_div_depth -= 1
+
     def handle_data(self, data):
-        if self._skip_depth == 0 and data:
+        if self._active and self._skip_depth == 0 and data:
             self.parts.append(data)
 
     @property
@@ -180,9 +201,18 @@ def article_sort_key(value):
 
 
 def extract_article_fingerprints(page_html):
-    """Return stable per-article hashes without storing official legal text."""
-    parser = BlockTextParser()
+    """Return stable per-article hashes without storing official legal text.
+
+    MOJ LawAll keeps the law body inside div#pnLawFla. Hash only that
+    container so dynamic navigation/footer text cannot leak into the final
+    article. If the official layout changes and the container disappears,
+    return no article fingerprints; date-level monitoring remains available
+    instead of manufacturing article changes from unrelated page text.
+    """
+    parser = BlockTextParser(target_id="pnLawFla")
     parser.feed(page_html)
+    if not parser.target_seen:
+        return {}
 
     article_texts = {}
     current_no = None
