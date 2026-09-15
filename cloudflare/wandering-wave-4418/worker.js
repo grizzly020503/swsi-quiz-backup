@@ -1,5 +1,7 @@
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
+    const requestStartedAt = Date.now();
+    const requestUrl = new URL(request.url);
     const PUBLIC_ORIGINS = new Set([
       "https://swsi-quiznetlify.netlify.app",
       "https://wandering-wave-4418.c022050333.workers.dev"
@@ -18,6 +20,35 @@ export default {
     const GLOBAL_PHOTO_DAILY = 10;
 
     const origin = request.headers.get("Origin") || "";
+
+    if (requestUrl.pathname === "/api/ai-health" && request.method === "GET") {
+      try {
+        const health = await getAiTelemetryHealth(env.AI_QUOTA_DB);
+        const healthHeaders = {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store"
+        };
+        if (PUBLIC_ORIGINS.has(origin)) {
+          healthHeaders["Access-Control-Allow-Origin"] = origin;
+          healthHeaders["Vary"] = "Origin";
+        }
+        return new Response(JSON.stringify(health), { status: 200, headers: healthHeaders });
+      } catch {
+        const healthHeaders = {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store"
+        };
+        if (PUBLIC_ORIGINS.has(origin)) {
+          healthHeaders["Access-Control-Allow-Origin"] = origin;
+          healthHeaders["Vary"] = "Origin";
+        }
+        return new Response(JSON.stringify({
+          enabled: false,
+          status: "unavailable",
+          window_hours: 24
+        }), { status: 503, headers: healthHeaders });
+      }
+    }
     const suppliedInternalKey = request.headers.get("X-SWSI-Internal-Key") || "";
     const isPublic = PUBLIC_ORIGINS.has(origin);
     const isInternal = await safeSecretEqual(
@@ -25,11 +56,23 @@ export default {
       env.SWSI_INTERNAL_KEY || ""
     );
 
+    async function observed(response, outcome) {
+      if (isPublic && !isInternal && request.method === "POST") {
+        await scheduleAiTelemetry(
+          env.AI_QUOTA_DB,
+          ctx,
+          outcome,
+          Math.max(0, Date.now() - requestStartedAt)
+        );
+      }
+      return response;
+    }
+
     function corsHeaders() {
       if (!isPublic) return {};
       return {
         "Access-Control-Allow-Origin": origin,
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, X-SWSI-Client-ID",
         "Access-Control-Max-Age": "86400",
         "Vary": "Origin"
@@ -96,20 +139,20 @@ export default {
     if (isPublic && !isInternal) {
       const clientLimit = await env.AI_RATE_LIMIT.limit({ key: clientKey });
       if (!clientLimit.success) {
-        return json(
+        return observed(json(
           { error: { message: "操作太快了，請等一分鐘再使用 AI 批改。", code: "CLIENT_MINUTE_RATE_LIMIT" } },
           429,
           { "Retry-After": "60" }
-        );
+        ), "rate_limited");
       }
 
       const ipLimit = await env.AI_IP_LIMIT.limit({ key: ip });
       if (!ipLimit.success) {
-        return json(
+        return observed(json(
           { error: { message: "目前這個網路的 AI 使用量太高，請稍後再試。", code: "IP_MINUTE_RATE_LIMIT" } },
           429,
           { "Retry-After": "60" }
-        );
+        ), "rate_limited");
       }
     }
 
@@ -117,18 +160,18 @@ export default {
     try {
       raw = await request.text();
     } catch {
-      return json({ error: { message: "Invalid request body" } }, 400);
+      return observed(json({ error: { message: "Invalid request body" } }, 400), "client_rejected");
     }
 
     if (new TextEncoder().encode(raw).byteLength > 4_000_000) {
-      return json({ error: { message: "Request too large" } }, 413);
+      return observed(json({ error: { message: "Request too large" } }, 413), "client_rejected");
     }
 
     let body;
     try {
       body = JSON.parse(raw);
     } catch {
-      return json({ error: { message: "Invalid JSON" } }, 400);
+      return observed(json({ error: { message: "Invalid JSON" } }, 400), "client_rejected");
     }
 
     if (
@@ -137,7 +180,7 @@ export default {
       body.messages.length < 1 ||
       body.messages.length > 3
     ) {
-      return json({ error: { message: "Invalid AI request" } }, 400);
+      return observed(json({ error: { message: "Invalid AI request" } }, 400), "client_rejected");
     }
 
     if (isInternal) {
@@ -145,13 +188,13 @@ export default {
         return json({ error: { message: "Invalid internal model" } }, 400);
       }
     } else if (body.model !== PUBLIC_MODEL) {
-      return json({ error: { message: "Invalid AI model" } }, 400);
+      return observed(json({ error: { message: "Invalid AI model" } }, 400), "client_rejected");
     }
 
     let imageCount = 0;
     for (const message of body.messages) {
       if (!message || !["user", "system"].includes(message.role)) {
-        return json({ error: { message: "Invalid message" } }, 400);
+        return observed(json({ error: { message: "Invalid message" } }, 400), "client_rejected");
       }
       if (Array.isArray(message.content)) {
         for (const item of message.content) {
@@ -162,7 +205,7 @@ export default {
             if (!isInternal) {
               const imageUrl = String(item?.image_url?.url || "");
               if (!imageUrl.startsWith("data:image/jpeg;base64,")) {
-                return json({ error: { message: "公開照片只接受 JPEG 上傳內容。" } }, 400);
+                return observed(json({ error: { message: "公開照片只接受 JPEG 上傳內容。" } }, 400), "client_rejected");
               }
             }
           }
@@ -172,7 +215,7 @@ export default {
 
     // Qwen 3.6 官方模型限制採保守值：最多 3 張輸入圖片。
     if (imageCount > 3) {
-      return json({ error: { message: "最多一次上傳 3 張照片。" } }, 400);
+      return observed(json({ error: { message: "最多一次上傳 3 張照片。" } }, 400), "client_rejected");
     }
 
     const quotaKind = imageCount > 0 ? "photo" : "text";
@@ -191,11 +234,11 @@ export default {
 
         // 全站額度已滿時先讀一行就直接拒絕，避免每次重試都先寫 client 再退款。
         if (await isGlobalQuotaFull(env.AI_QUOTA_DB, date, quotaKind, limits)) {
-          return json(
+          return observed(json(
             { error: { message: "今天全平台的免費 AI 額度已用完，題庫、錯題與申論骨架仍可正常使用。", code: "GLOBAL_DAILY_QUOTA" } },
             429,
             { "Retry-After": String(secondsUntilTaipeiMidnight()) }
-          );
+          ), "rate_limited");
         }
 
         const q = await reservePublicQuota(
@@ -213,18 +256,18 @@ export default {
               : `你今天的文字 AI 批改 ${CLIENT_TEXT_DAILY} 次已用完，明天再試。`)
             : "今天全平台的免費 AI 額度已用完，題庫、錯題與申論骨架仍可正常使用。";
 
-          return json(
+          return observed(json(
             { error: { message: msg, code: q.scope === "client" ? "CLIENT_DAILY_QUOTA" : "GLOBAL_DAILY_QUOTA" } },
             429,
             { "Retry-After": String(secondsUntilTaipeiMidnight()) }
-          );
+          ), "rate_limited");
         }
         quotaReserved = true;
       } catch {
-        return json(
+        return observed(json(
           { error: { message: "AI 額度服務暫時無法使用，請稍後再試。", code: "QUOTA_SERVICE_UNAVAILABLE" } },
           503
-        );
+        ), "service_error");
       }
     }
 
@@ -274,28 +317,28 @@ export default {
         }
 
         if (resp.status === 429) {
-          return json(
+          return observed(json(
             { error: { message: "AI 免費額度目前較忙碌，請稍後再試。", code: "UPSTREAM_RATE_LIMIT" } },
             429,
             { "Retry-After": resp.headers.get("retry-after") || "60" }
-          );
+          ), "rate_limited");
         }
 
-        return json(
+        return observed(json(
           { error: { message: "AI service temporarily unavailable" } },
           502
-        );
+        ), "service_error");
       }
 
       const result = await resp.text();
-      return new Response(result, {
+      return observed(new Response(result, {
         status: 200,
         headers: {
           ...corsHeaders(),
           "Content-Type": "application/json; charset=utf-8",
           "Cache-Control": "no-store"
         }
-      });
+      }), "success");
     } catch {
       if (quotaReserved) {
         await refundPublicQuota(
@@ -306,13 +349,128 @@ export default {
         ).catch(() => {});
       }
 
-      return json(
+      return observed(json(
         { error: { message: "AI service temporarily unavailable" } },
         502
-      );
+      ), "service_error");
     }
   }
 };
+
+const AI_TELEMETRY_TABLE_SQL = `
+CREATE TABLE IF NOT EXISTS ai_telemetry_hourly (
+  bucket_hour TEXT NOT NULL PRIMARY KEY,
+  requests INTEGER NOT NULL DEFAULT 0 CHECK (requests >= 0),
+  successes INTEGER NOT NULL DEFAULT 0 CHECK (successes >= 0),
+  rate_limited INTEGER NOT NULL DEFAULT 0 CHECK (rate_limited >= 0),
+  service_errors INTEGER NOT NULL DEFAULT 0 CHECK (service_errors >= 0),
+  client_rejected INTEGER NOT NULL DEFAULT 0 CHECK (client_rejected >= 0),
+  total_latency_ms INTEGER NOT NULL DEFAULT 0 CHECK (total_latency_ms >= 0),
+  max_latency_ms INTEGER NOT NULL DEFAULT 0 CHECK (max_latency_ms >= 0),
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+`;
+
+function telemetryBucketHour(date = new Date()) {
+  return date.toISOString().slice(0, 13) + ":00:00Z";
+}
+
+async function ensureAiTelemetryTable(db) {
+  await db.prepare(AI_TELEMETRY_TABLE_SQL).run();
+}
+
+async function writeAiTelemetry(db, outcome, latencyMs) {
+  const flags = {
+    success: [1, 0, 0, 0],
+    rate_limited: [0, 1, 0, 0],
+    service_error: [0, 0, 1, 0],
+    client_rejected: [0, 0, 0, 1]
+  }[outcome] || [0, 0, 1, 0];
+  const runInsert = () => db.prepare(`
+    INSERT INTO ai_telemetry_hourly
+      (bucket_hour, requests, successes, rate_limited, service_errors, client_rejected, total_latency_ms, max_latency_ms, updated_at)
+    VALUES (?, 1, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(bucket_hour) DO UPDATE SET
+      requests = requests + 1,
+      successes = successes + excluded.successes,
+      rate_limited = rate_limited + excluded.rate_limited,
+      service_errors = service_errors + excluded.service_errors,
+      client_rejected = client_rejected + excluded.client_rejected,
+      total_latency_ms = total_latency_ms + excluded.total_latency_ms,
+      max_latency_ms = MAX(max_latency_ms, excluded.max_latency_ms),
+      updated_at = CURRENT_TIMESTAMP
+  `).bind(
+    telemetryBucketHour(),
+    flags[0],
+    flags[1],
+    flags[2],
+    flags[3],
+    Math.max(0, Math.round(Number(latencyMs) || 0)),
+    Math.max(0, Math.round(Number(latencyMs) || 0))
+  ).run();
+
+  try {
+    await runInsert();
+  } catch (err) {
+    if (!String(err || "").includes("no such table")) throw err;
+    await ensureAiTelemetryTable(db);
+    await runInsert();
+  }
+}
+
+async function scheduleAiTelemetry(db, ctx, outcome, latencyMs) {
+  const task = writeAiTelemetry(db, outcome, latencyMs).catch(() => {});
+  if (ctx && typeof ctx.waitUntil === "function") {
+    ctx.waitUntil(task);
+    return;
+  }
+  await task;
+}
+
+async function getAiTelemetryHealth(db) {
+  await ensureAiTelemetryTable(db);
+  const cutoff = telemetryBucketHour(new Date(Date.now() - 24 * 60 * 60 * 1000));
+  const row = await db.prepare(`
+    SELECT
+      COALESCE(SUM(requests), 0) AS requests,
+      COALESCE(SUM(successes), 0) AS successes,
+      COALESCE(SUM(rate_limited), 0) AS rate_limited,
+      COALESCE(SUM(service_errors), 0) AS service_errors,
+      COALESCE(SUM(client_rejected), 0) AS client_rejected,
+      COALESCE(SUM(total_latency_ms), 0) AS total_latency_ms,
+      COALESCE(MAX(max_latency_ms), 0) AS max_latency_ms,
+      MAX(bucket_hour) AS last_bucket
+    FROM ai_telemetry_hourly
+    WHERE bucket_hour >= ?
+  `).bind(cutoff).first();
+
+  const requests = Number(row?.requests || 0);
+  const successes = Number(row?.successes || 0);
+  const rateLimited = Number(row?.rate_limited || 0);
+  const serviceErrors = Number(row?.service_errors || 0);
+  const clientRejected = Number(row?.client_rejected || 0);
+  const totalLatencyMs = Number(row?.total_latency_ms || 0);
+  const maxLatencyMs = Number(row?.max_latency_ms || 0);
+  const avgLatencyMs = requests > 0 ? Math.round(totalLatencyMs / requests) : 0;
+  const serviceErrorRate = requests > 0 ? serviceErrors / requests : 0;
+  const status = requests === 0
+    ? "idle"
+    : (serviceErrors >= 3 && serviceErrorRate >= 0.1 ? "degraded" : "ok");
+
+  return {
+    enabled: true,
+    status,
+    window_hours: 24,
+    requests,
+    successes,
+    rate_limited: rateLimited,
+    service_errors: serviceErrors,
+    client_rejected: clientRejected,
+    avg_latency_ms: avgLatencyMs,
+    max_latency_ms: maxLatencyMs,
+    last_bucket: row?.last_bucket || null
+  };
+}
 
 async function safeSecretEqual(a, b) {
   if (!a || !b) return false;
