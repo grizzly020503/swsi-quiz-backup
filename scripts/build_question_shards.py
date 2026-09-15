@@ -63,7 +63,7 @@ BASELINE_GRADING_MODE_COUNTS = Counter(
         "any_answer": 4,
     }
 )
-BASELINE_MULTI_ANSWER_COUNT = 24
+BASELINE_MULTI_ANSWER_COUNT = 25
 BASELINE_ANY_ANSWER_IDS = frozenset(
     {
         "SW-105-1-17",
