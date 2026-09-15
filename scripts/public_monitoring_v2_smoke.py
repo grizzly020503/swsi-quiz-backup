@@ -85,6 +85,20 @@ def main() -> int:
     assert "data/legal_watch_report.json" in push_entries, "MOJ report changes must trigger public legal snapshot refresh"
     assert "auto/legal_watch.json" not in push_entries, "public snapshot output must not self-trigger the workflow"
 
+    # Commits pushed by a workflow with GITHUB_TOKEN do not recursively trigger
+    # ordinary push workflows. The public feed therefore must also subscribe
+    # to successful MOEX workflow completion on main.
+    wr_start = workflow.find("\n  workflow_run:\n")
+    push_start_for_wr = workflow.find("\n  push:\n")
+    assert wr_start >= 0 and push_start_for_wr > wr_start, "public monitoring feed is missing workflow_run chaining"
+    workflow_run_block = workflow[wr_start:push_start_for_wr]
+    assert "MOEX Social Worker Exam Sync" in workflow_run_block, "workflow_run must follow the MOEX sync workflow"
+    assert "- completed" in workflow_run_block, "workflow_run must wait for MOEX completion"
+    assert "- main" in workflow_run_block, "workflow_run must be main-only"
+    assert "github.event.workflow_run.conclusion == 'success'" in workflow, "publish must require successful upstream MOEX sync"
+    assert "github.event.workflow_run.head_branch == 'main'" in workflow, "workflow_run publish must be main-only"
+    assert "github.event_name == 'workflow_run' && 'main' || github.ref" in workflow, "workflow_run checkout must refresh latest main"
+
     print(
         "PUBLIC MONITORING V2 CONTRACT OK: "
         f"news={len(items)}, laws={laws['matched_count']}/{laws['watch_count']}, questions=4800, five-radar-ui=yes"
