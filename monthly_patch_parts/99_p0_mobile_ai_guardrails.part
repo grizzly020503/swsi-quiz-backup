@@ -87,6 +87,25 @@
     try{return await fetch(url,opts);}
     finally{clearTimeout(timer);}
   };
+
+  var AI_TELEMETRY_ORIGIN='https://wandering-wave-4418.c022050333.workers.dev';
+  var AI_TELEMETRY_ENDPOINT='https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-ai-telemetry';
+  var AI_TELEMETRY_MODES={text:true,photo:true};
+  var AI_TELEMETRY_OUTCOMES={success:true,rate_limited:true,service_error:true,timeout:true,network_error:true,client_error:true};
+  window.swsiRecordAITelemetry=function(mode,outcome,latencyMs){
+    try{
+      if(location.origin!==AI_TELEMETRY_ORIGIN)return;
+      if(!AI_TELEMETRY_MODES[mode]||!AI_TELEMETRY_OUTCOMES[outcome])return;
+      var ms=Math.max(0,Math.min(120000,Math.round(Number(latencyMs)||0)));
+      fetch(AI_TELEMETRY_ENDPOINT,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-SWSI-Client-ID':window.swsiGetClientId()},
+        body:JSON.stringify({event:'ai_request',mode:mode,outcome:outcome,latency_ms:ms}),
+        keepalive:true,
+        credentials:'omit'
+      }).catch(function(){});
+    }catch(_e){}
+  };
 })();
 /* ===== SWSI P0 AI utilities END ===== */
 
