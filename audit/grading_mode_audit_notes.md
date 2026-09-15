@@ -37,7 +37,8 @@
 - `import-moex-social-worker` production v4 會 fail-closed 驗證 grading mode
 - Cloudflare shard builder 已保留／驗證 `grading_mode`
 - production CDN revision：`e721d6293d4c6acdddee`
-- builder 驗收：4,800 題、24 multi-answer、12 all_credit、4 any_answer
+- builder 驗收：4,800 題、25 multi-answer、12 all_credit、4 any_answer
+- 2026-09-15 read-only historical reaudit：4,800/4,800 官方最終答案 finding=0、grading-mode mismatch=0；115-2 `DS-115-2-040` 由考選部更正答案新增 `accepted_answers = [B, D]`，因此 immutable multi-answer baseline 經重新稽核後由 24 更新為 25
 
 ## 上游／audit
 
