@@ -103,6 +103,8 @@ function request(body) {
     max_tokens: 200
   };
 
+  let response;
+
   response = await worker.fetch(new Request('https://worker.test/api/ai-health', {
     method: 'GET'
   }), env());
@@ -117,7 +119,7 @@ function request(body) {
   assert.strictEqual(health.service_errors, 0);
   assert.strictEqual(health.avg_latency_ms, 1000);
 
-  let response = await worker.fetch(new Request('https://worker.test/', {
+  response = await worker.fetch(new Request('https://worker.test/', {
     method:'POST',
     headers:{Origin:'https://attacker.invalid','Content-Type':'application/json'},
     body:JSON.stringify(body)
