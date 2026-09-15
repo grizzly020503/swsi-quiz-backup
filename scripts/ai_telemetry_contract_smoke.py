@@ -20,7 +20,7 @@ def table_columns(sql: str, table: str) -> list[str]:
     if not m:
         raise AssertionError(f"missing table {table}")
     cols = []
-    column_re = re.compile(r'^([a-z_][a-z0-9_]*)\\s+(date|text|integer|bigint|timestamptz)\\b', re.I)
+    column_re = re.compile(r'^([a-z_][a-z0-9_]*)\s+(date|text|integer|bigint|timestamptz)\b', re.I)
     for raw in m.group(1).splitlines():
         line = raw.strip().rstrip(",")
         match = column_re.match(line)
