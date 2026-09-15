@@ -31,6 +31,9 @@ jobs:
           grep -q '<title>SWSI 管理中心</title>' admin/index.html
           grep -q 'noindex,nofollow,noarchive' admin/index.html
           grep -q '/functions/v1/swsi-admin' admin/index.html
+          grep -q '/api/ai-health' admin/index.html
+          grep -q 'aiTelemetryDot' admin/index.html
+          grep -q 'aiTelemetryHealth' admin/index.html
           grep -q 'signInWithPassword' admin/index.html
           grep -q 'shouldCreateUser:false' admin/index.html
           grep -q 'SUPABASE_PUBLISHABLE_KEY' admin/index.html
