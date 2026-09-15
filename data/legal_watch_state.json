@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checked_at": "2026-09-15T13:04:10Z",
+  "checked_at": "2026-09-15T13:17:36Z",
   "official_sources": [
     {
       "type": "law_moj_direct",
@@ -10,7 +10,7 @@
   "source_record_counts": {
     "law_moj_direct": 52
   },
-  "article_fingerprint_version": "sha256-v1",
+  "article_fingerprint_version": "sha256-v2-law-body",
   "records": {
     "兒童及少年福利與權益保障法": {
       "question_count": 64,
@@ -18,7 +18,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050001",
       "official_modified_date": "2021-01-20",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 136,
       "article_fingerprints": {
         "1": "4afe13e22f521465edc44b7df958ece8982a077c1a0b00c7945865410f54c419",
@@ -165,7 +165,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050037",
       "official_modified_date": "2025-08-01",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 58,
       "article_fingerprints": {
         "1": "f42b6c84d89cf6f84d5842051e4d4823aaf2bdee89392afc6dbc257b7ebc5401",
@@ -234,7 +234,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050046",
       "official_modified_date": "2025-08-01",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 121,
       "article_fingerprints": {
         "1": "adee65af35d93b75874ed92224c9c858fa866a2b32d69d7788a90d93dc47cdb4",
@@ -366,7 +366,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050071",
       "official_modified_date": "2023-12-06",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 77,
       "article_fingerprints": {
         "1": "229344befd9475ed700c6ef5d08bb88e19e33ac5157b21b3e87fff400c969c67",
@@ -454,7 +454,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050078",
       "official_modified_date": "2015-12-30",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 59,
       "article_fingerprints": {
         "1": "b4264140c8e8e9213bdc0a08bc261e3531a984c087e6a4584b5a924b89d1a074",
@@ -524,7 +524,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050125",
       "official_modified_date": "2023-06-09",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 56,
       "article_fingerprints": {
         "1": "bee04779ef3c8bf199e2e97d2febe595a87ef4d36c79868f785ea056be32275b",
@@ -591,7 +591,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0070040",
       "official_modified_date": "2021-06-09",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 72,
       "article_fingerprints": {
         "1": "814a81a508d4ec46f43b3ba3c455e41b5ba42b1f7c808b274f0eb48307a37b9e",
@@ -674,7 +674,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050023",
       "official_modified_date": "2024-08-07",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 59,
       "article_fingerprints": {
         "1": "0435b7bdf0b7d36f75b3f8b7b119be9b89c3c7518b1793089602f5ad014f7056",
@@ -744,7 +744,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0030014",
       "official_modified_date": "2023-08-16",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 50,
       "article_fingerprints": {
         "1": "72aae8530026b9a74f40bd3b46240974f737e500179f541957187c231c115a65",
@@ -805,7 +805,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0080079",
       "official_modified_date": "2023-02-15",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 56,
       "article_fingerprints": {
         "1": "5b890f925b97ac6cb73b74567897f780e3536a4ec0242794dd997a047b2e28b1",
@@ -872,7 +872,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075",
       "official_modified_date": "2021-01-20",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 20,
       "article_fingerprints": {
         "1": "5bed6dcbeddedafa5633442e119c91e1c1d9cde110c3b3fa5f72bdb5bec01332",
@@ -903,7 +903,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050152",
       "official_modified_date": "2020-06-03",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 63,
       "article_fingerprints": {
         "1": "f4386cb41348dd46c96db9542703b4072437cd73fbbffbfe509cb86297164d23",
@@ -977,7 +977,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194",
       "official_modified_date": null,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 12,
       "article_fingerprints": {
         "1": "8037a3c5eee86e87f5ba97ca432559c61394da353e1349d7b0ca40b6b6500c91",
@@ -1000,7 +1000,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050131",
       "official_modified_date": "2020-01-15",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 26,
       "article_fingerprints": {
         "1": "dc078e4db3a83a8ce91351fa8e50295aeba4d29404bbfddd3c557f05bba976b4",
@@ -1037,7 +1037,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050205",
       "official_modified_date": null,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 27,
       "article_fingerprints": {
         "1": "11c8b06915f1fcead90a25ded7ef19b5575fa15a3ac57e60391975c50bc6009e",
@@ -1075,7 +1075,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0020030",
       "official_modified_date": "2022-12-14",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 91,
       "article_fingerprints": {
         "1": "17931cf4a309d17c2adc229fa947b0b994868f37e3cdcf89555c461ac33a0ce3",
@@ -1177,7 +1177,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050193",
       "official_modified_date": "2019-06-19",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 10,
       "article_fingerprints": {
         "1": "26492e497823a288389cf09c19b52fa083861bcfbd7c6caf54a9dc9421e56419",
@@ -1198,7 +1198,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050138",
       "official_modified_date": "2020-01-15",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 32,
       "article_fingerprints": {
         "1": "d45d7fb90174c7229a2dff5e4f4ae01accdda5c622d60bcd5b30a8a9b14b2bf9",
@@ -1241,7 +1241,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194",
       "official_modified_date": null,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 12,
       "article_fingerprints": {
         "1": "8037a3c5eee86e87f5ba97ca432559c61394da353e1349d7b0ca40b6b6500c91",
@@ -1264,7 +1264,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0020189",
       "official_modified_date": "2021-01-20",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 19,
       "article_fingerprints": {
         "1": "b4c279782e5f32c9cd9737abc696c16b366b635ddd8acc58d183af406da33306",
@@ -1294,7 +1294,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0020028",
       "official_modified_date": null,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 9,
       "article_fingerprints": {
         "1": "7131bb2500215dc174d90fb25e43dc64953d084ebd0f684d843797780c838cb8",
@@ -1314,7 +1314,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050021",
       "official_modified_date": "2022-01-12",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 47,
       "article_fingerprints": {
         "1": "ca118a8a19b30884188b29c16e561e5dc66535c8c72e95b6fcd1072410dc089e",
@@ -1372,7 +1372,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050193",
       "official_modified_date": "2019-06-19",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 10,
       "article_fingerprints": {
         "1": "26492e497823a288389cf09c19b52fa083861bcfbd7c6caf54a9dc9421e56419",
@@ -1393,7 +1393,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0060001",
       "official_modified_date": "2023-06-28",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 106,
       "article_fingerprints": {
         "1": "a94383da22c2b54163134e730f86dd7fe25be822edfa9c08793bb951defb8388",
@@ -1510,7 +1510,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070058",
       "official_modified_date": "2024-12-18",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 27,
       "article_fingerprints": {
         "1": "086c6632c2ff08b1c2f5798d57a17a446ff19f9847b83a595f983408d3394350",
@@ -1548,7 +1548,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0000001",
       "official_modified_date": "2026-08-17",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 1439,
       "article_fingerprints": {
         "1": "e660d24b71a830a571896dd8d7f1f5e0fae51c99bf21ec5b23912e4aa093eb83",
@@ -2998,7 +2998,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050175",
       "official_modified_date": null,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 9,
       "article_fingerprints": {
         "1": "e87ff5840e3b56b65d24e2f6b82a22e08b95661e031d61c03a2d833831f98120",
@@ -3018,7 +3018,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0130006",
       "official_modified_date": "2015-02-04",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 26,
       "article_fingerprints": {
         "1": "0c9d9352808c906b16e82d35a112957f5ea2dd3aedfcf2d10aa6865c480410b5",
@@ -3055,7 +3055,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050170",
       "official_modified_date": "2020-01-03",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 19,
       "article_fingerprints": {
         "1": "a2fb67780e875f11a312552fdc0f190dca46df505edf2177dae0c5b92fe2134b",
@@ -3085,7 +3085,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0010011",
       "official_modified_date": "2023-06-21",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 120,
       "article_fingerprints": {
         "1": "bd8bfb8a5051d644fea03201515ac8d38a72e597a27ff8ceef619a32ebba8d18",
@@ -3216,7 +3216,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050077",
       "official_modified_date": null,
       "abandon_note": "廢止",
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 24,
       "article_fingerprints": {
         "1": "b20873ca156bb95e94db9712f54b3a083dfd54547f310a49a492216780469825",
@@ -3251,7 +3251,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0000001",
       "official_modified_date": "2026-07-22",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 421,
       "article_fingerprints": {
         "1": "a82e17e4cbf277f96a106ecbc222aa3cda8b770e6cac1edeb9929ab4f6bf37f4",
@@ -3683,7 +3683,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=G0380187",
       "official_modified_date": "2016-11-09",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 24,
       "article_fingerprints": {
         "1": "f82a70552498aa6622d1a6031c5b245f9ef69ffa7f10c33d0be261242a2944a1",
@@ -3718,7 +3718,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050074",
       "official_modified_date": "2023-08-16",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 34,
       "article_fingerprints": {
         "1": "17310de886b578924a7854c5fe6089ab8d686f85d5e8bd8aca344d21a48e00b9",
@@ -3763,7 +3763,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0000008",
       "official_modified_date": "2022-05-04",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 48,
       "article_fingerprints": {
         "1": "c60d7e82dc65c682974c96e161b455cf085639953b9f83ad114742d48d702e13",
@@ -3822,7 +3822,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0070051",
       "official_modified_date": null,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 47,
       "article_fingerprints": {
         "1": "2f6dd9184a276fd4c69c31ac274c518bd9439e29a48a8359328c1d8d880e4034",
@@ -3880,7 +3880,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0000002",
       "official_modified_date": "2005-06-10",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 12,
       "article_fingerprints": {
         "1": "b84111fd9b549ff6798a966d8c32fc2f8993114f0665829685128bb89145870d",
@@ -3903,7 +3903,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0080177",
       "official_modified_date": "2023-06-14",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 47,
       "article_fingerprints": {
         "1": "4338d4d1e5399371b0f9e54aba6606779185228c3c903d368252aa8a411de72a",
@@ -3961,7 +3961,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0070195",
       "official_modified_date": "2026-03-04",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 67,
       "article_fingerprints": {
         "1": "ef1586a68cae8f524bf0cfd7687bf5a6c44521097fb9eb27731f8c0cb05fdb7d",
@@ -4039,7 +4039,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0060032",
       "official_modified_date": "2025-03-24",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 12,
       "article_fingerprints": {
         "1": "7faa2e120fbfa90a79f98168c137345f3f72238c2b08416dfeeefb2184a137cb",
@@ -4062,7 +4062,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050001",
       "official_modified_date": "2026-01-21",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 103,
       "article_fingerprints": {
         "1": "9e782dd27b2bdb9dbd8d2427396c4e9b6c3a06ab550ee660913bbb33536472c6",
@@ -4176,7 +4176,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050199",
       "official_modified_date": "2016-06-06",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 11,
       "article_fingerprints": {
         "1": "c3a8db0b0408c171b96b52532007921b6b0105784feef0cc03137e7a1f9d9b3d",
@@ -4198,7 +4198,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070015",
       "official_modified_date": "2020-06-08",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 13,
       "article_fingerprints": {
         "1": "4b969e082bb97affa49fd8c8fade6080580a9fb1edfa64d2ce456bbdf8a352d9",
@@ -4222,7 +4222,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070001",
       "official_modified_date": "2023-06-21",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 62,
       "article_fingerprints": {
         "1": "5d2df14b52c9177078f8520df20e99bd279e03fab23cb7d0a32900230d92b883",
@@ -4295,7 +4295,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0010048",
       "official_modified_date": "2023-06-21",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 200,
       "article_fingerprints": {
         "1": "a20a0e016e01e6c5da50ccea8372caceb3ce726c2fc066977543c06d59f029a7",
@@ -4506,7 +4506,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0080067",
       "official_modified_date": "2023-08-16",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 48,
       "article_fingerprints": {
         "1": "4292afc98ec7325d18d9f91942623efb887ee9e3abb2f1478661bc787aa5fd82",
@@ -4565,7 +4565,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0020081",
       "official_modified_date": "2024-04-17",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 74,
       "article_fingerprints": {
         "1": "d0f28988677c1a7ec612dd21335e8e88488a3ebe989bd4f313576538eb8d13f7",
@@ -4650,7 +4650,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050169",
       "official_modified_date": "2023-08-25",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 16,
       "article_fingerprints": {
         "1": "544acb938872cdedac76d18fd7f99a4cb1216f31f711e7ba2e89286040e56ba2",
@@ -4677,7 +4677,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050213",
       "official_modified_date": null,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 31,
       "article_fingerprints": {
         "1": "938ac40a87fab5a9076d94da9a6c7cbb96312bd47323c1049842ad57ba8b6ce0",
@@ -4719,7 +4719,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0020028",
       "official_modified_date": null,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 9,
       "article_fingerprints": {
         "1": "7131bb2500215dc174d90fb25e43dc64953d084ebd0f684d843797780c838cb8",
@@ -4739,7 +4739,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=M0090015",
       "official_modified_date": "2018-06-13",
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 8,
       "article_fingerprints": {
         "1": "405c1b263151d16801f757839f3d4367596b69ca3fa0caaec261c02a3e1f23b3",
@@ -4758,7 +4758,7 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0080211",
       "official_modified_date": null,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 23,
       "article_fingerprints": {
         "1": "933ea43ba2fb19a9a6976b1551c5027a42cfc12687d7ba80a19b247fa16731ed",

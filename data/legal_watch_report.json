@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checked_at": "2026-09-15T13:04:10Z",
+  "checked_at": "2026-09-15T13:17:36Z",
   "baseline": false,
   "official_sources": [
     {
@@ -14,9 +14,9 @@
   "watch_count": 52,
   "matched_count": 52,
   "missing_count": 0,
-  "changed_count": 52,
-  "article_scoped_change_count": 52,
-  "article_fingerprint_version": "sha256-v1",
+  "changed_count": 0,
+  "article_scoped_change_count": 0,
+  "article_fingerprint_version": "sha256-v2-law-body",
   "lookup_error_count": 0,
   "lookup_errors": [],
   "records": [
@@ -28,14 +28,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050001",
       "official_modified_date": "2021-01-20",
       "previous_modified_date": "2021-01-20",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 136,
-      "article_diff_available": true,
-      "changed_articles": [
-        "118"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "老人福利法",
@@ -45,14 +43,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050037",
       "official_modified_date": "2025-08-01",
       "previous_modified_date": "2025-08-01",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 58,
-      "article_diff_available": true,
-      "changed_articles": [
-        "55"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "身心障礙者權益保障法",
@@ -62,14 +58,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050046",
       "official_modified_date": "2025-08-01",
       "previous_modified_date": "2025-08-01",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 121,
-      "article_diff_available": true,
-      "changed_articles": [
-        "109"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "家庭暴力防治法",
@@ -79,14 +73,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050071",
       "official_modified_date": "2023-12-06",
       "previous_modified_date": "2023-12-06",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 77,
-      "article_diff_available": true,
-      "changed_articles": [
-        "66"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "社會救助法",
@@ -96,14 +88,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050078",
       "official_modified_date": "2015-12-30",
       "previous_modified_date": "2015-12-30",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 59,
-      "article_diff_available": true,
-      "changed_articles": [
-        "46"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "社會工作師法",
@@ -113,14 +103,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050125",
       "official_modified_date": "2023-06-09",
       "previous_modified_date": "2023-06-09",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 56,
-      "article_diff_available": true,
-      "changed_articles": [
-        "51"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "長期照顧服務法",
@@ -130,14 +118,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0070040",
       "official_modified_date": "2021-06-09",
       "previous_modified_date": "2021-06-09",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 72,
-      "article_diff_available": true,
-      "changed_articles": [
-        "66"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "兒童及少年性剝削防制條例",
@@ -147,14 +133,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050023",
       "official_modified_date": "2024-08-07",
       "previous_modified_date": "2024-08-07",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 59,
-      "article_diff_available": true,
-      "changed_articles": [
-        "55"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "性別平等工作法",
@@ -164,14 +148,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0030014",
       "official_modified_date": "2023-08-16",
       "previous_modified_date": "2023-08-16",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 50,
-      "article_diff_available": true,
-      "changed_articles": [
-        "40"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "性侵害犯罪防治法",
@@ -181,14 +163,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0080079",
       "official_modified_date": "2023-02-15",
       "previous_modified_date": "2023-02-15",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 56,
-      "article_diff_available": true,
-      "changed_articles": [
-        "56"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "特殊境遇家庭扶助條例",
@@ -198,14 +178,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075",
       "official_modified_date": "2021-01-20",
       "previous_modified_date": "2021-01-20",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 20,
-      "article_diff_available": true,
-      "changed_articles": [
-        "16"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "國民年金法",
@@ -215,14 +193,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050152",
       "official_modified_date": "2020-06-03",
       "previous_modified_date": "2020-06-03",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 63,
-      "article_diff_available": true,
-      "changed_articles": [
-        "59"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "身心障礙者權利公約",
@@ -232,14 +208,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194",
       "official_modified_date": null,
       "previous_modified_date": null,
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 12,
-      "article_diff_available": true,
-      "changed_articles": [
-        "12"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "志願服務法",
@@ -249,14 +223,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050131",
       "official_modified_date": "2020-01-15",
       "previous_modified_date": "2020-01-15",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 26,
-      "article_diff_available": true,
-      "changed_articles": [
-        "25"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "兒童及少年未來教育與發展帳戶條例",
@@ -266,14 +238,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050205",
       "official_modified_date": null,
       "previous_modified_date": null,
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 27,
-      "article_diff_available": true,
-      "changed_articles": [
-        "27"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "精神衛生法",
@@ -283,14 +253,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0020030",
       "official_modified_date": "2022-12-14",
       "previous_modified_date": "2022-12-14",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 91,
-      "article_diff_available": true,
-      "changed_articles": [
-        "91"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "兒童權利公約",
@@ -300,14 +268,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050193",
       "official_modified_date": "2019-06-19",
       "previous_modified_date": "2019-06-19",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 10,
-      "article_diff_available": true,
-      "changed_articles": [
-        "10"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "公益勸募條例",
@@ -317,14 +283,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050138",
       "official_modified_date": "2020-01-15",
       "previous_modified_date": "2020-01-15",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 32,
-      "article_diff_available": true,
-      "changed_articles": [
-        "32"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "身心障礙者權利公約施行法",
@@ -334,14 +298,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194",
       "official_modified_date": null,
       "previous_modified_date": null,
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 12,
-      "article_diff_available": true,
-      "changed_articles": [
-        "12"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "病人自主權利法",
@@ -351,14 +313,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0020189",
       "official_modified_date": "2021-01-20",
       "previous_modified_date": "2021-01-20",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 19,
-      "article_diff_available": true,
-      "changed_articles": [
-        "19"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "公民與政治權利國際公約及經濟社會文化權利國際公約施行法",
@@ -368,14 +328,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0020028",
       "official_modified_date": null,
       "previous_modified_date": null,
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 9,
-      "article_diff_available": true,
-      "changed_articles": [
-        "9"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "就業保險法",
@@ -385,14 +343,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050021",
       "official_modified_date": "2022-01-12",
       "previous_modified_date": "2022-01-12",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 47,
-      "article_diff_available": true,
-      "changed_articles": [
-        "44"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "兒童權利公約施行法",
@@ -402,14 +358,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050193",
       "official_modified_date": "2019-06-19",
       "previous_modified_date": "2019-06-19",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 10,
-      "article_diff_available": true,
-      "changed_articles": [
-        "10"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "全民健康保險法",
@@ -419,14 +373,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0060001",
       "official_modified_date": "2023-06-28",
       "previous_modified_date": "2023-06-28",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 106,
-      "article_diff_available": true,
-      "changed_articles": [
-        "104"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "學生輔導法",
@@ -436,14 +388,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070058",
       "official_modified_date": "2024-12-18",
       "previous_modified_date": "2024-12-18",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 27,
-      "article_diff_available": true,
-      "changed_articles": [
-        "24"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "民法",
@@ -453,14 +403,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0000001",
       "official_modified_date": "2026-08-17",
       "previous_modified_date": "2026-08-17",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 1439,
-      "article_diff_available": true,
-      "changed_articles": [
-        "1225"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "消除對婦女一切形式歧視公約施行法",
@@ -470,14 +418,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050175",
       "official_modified_date": null,
       "previous_modified_date": null,
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 9,
-      "article_diff_available": true,
-      "changed_articles": [
-        "9"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "原住民族工作權保障法",
@@ -487,14 +433,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0130006",
       "official_modified_date": "2015-02-04",
       "previous_modified_date": "2015-02-04",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 26,
-      "article_diff_available": true,
-      "changed_articles": [
-        "26"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "專科社會工作師分科甄審及接受繼續教育辦法",
@@ -504,14 +448,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050170",
       "official_modified_date": "2020-01-03",
       "previous_modified_date": "2020-01-03",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 19,
-      "article_diff_available": true,
-      "changed_articles": [
-        "21"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "少年事件處理法",
@@ -521,14 +463,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0010011",
       "official_modified_date": "2023-06-21",
       "previous_modified_date": "2023-06-21",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 120,
-      "article_diff_available": true,
-      "changed_articles": [
-        "87"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "社區發展工作綱要",
@@ -538,14 +478,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050077",
       "official_modified_date": null,
       "previous_modified_date": null,
-      "changed": true,
+      "changed": false,
       "abandon_note": "廢止",
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 24,
-      "article_diff_available": true,
-      "changed_articles": [
-        "24"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "中華民國刑法",
@@ -555,14 +493,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0000001",
       "official_modified_date": "2026-07-22",
       "previous_modified_date": "2026-07-22",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 421,
-      "article_diff_available": true,
-      "changed_articles": [
-        "363"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "公益彩券發行條例",
@@ -572,14 +508,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=G0380187",
       "official_modified_date": "2016-11-09",
       "previous_modified_date": "2016-11-09",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 24,
-      "article_diff_available": true,
-      "changed_articles": [
-        "21"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "性騷擾防治法",
@@ -589,14 +523,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050074",
       "official_modified_date": "2023-08-16",
       "previous_modified_date": "2023-08-16",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 34,
-      "article_diff_available": true,
-      "changed_articles": [
-        "34"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "毒品危害防制條例",
@@ -606,14 +538,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0000008",
       "official_modified_date": "2022-05-04",
       "previous_modified_date": "2022-05-04",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 48,
-      "article_diff_available": true,
-      "changed_articles": [
-        "36"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "長期照顧服務機構法人條例",
@@ -623,14 +553,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0070051",
       "official_modified_date": null,
       "previous_modified_date": null,
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 47,
-      "article_diff_available": true,
-      "changed_articles": [
-        "47"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "中華民國憲法增修條文",
@@ -640,14 +568,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0000002",
       "official_modified_date": "2005-06-10",
       "previous_modified_date": "2005-06-10",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 12,
-      "article_diff_available": true,
-      "changed_articles": [
-        "12"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "人口販運防制法",
@@ -657,14 +583,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0080177",
       "official_modified_date": "2023-06-14",
       "previous_modified_date": "2023-06-14",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 47,
-      "article_diff_available": true,
-      "changed_articles": [
-        "47"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "住宅法",
@@ -674,14 +598,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0070195",
       "official_modified_date": "2026-03-04",
       "previous_modified_date": "2026-03-04",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 67,
-      "article_diff_available": true,
-      "changed_articles": [
-        "65"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "全民健康保險醫療服務給付項目及支付標準",
@@ -691,14 +613,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0060032",
       "official_modified_date": "2025-03-24",
       "previous_modified_date": "2025-03-24",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 12,
-      "article_diff_available": true,
-      "changed_articles": [
-        "12"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "勞工保險條例",
@@ -708,14 +628,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050001",
       "official_modified_date": "2026-01-21",
       "previous_modified_date": "2026-01-21",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 103,
-      "article_diff_available": true,
-      "changed_articles": [
-        "79"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "協助積極自立脫離貧窮實施辦法",
@@ -725,14 +643,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050199",
       "official_modified_date": "2016-06-06",
       "previous_modified_date": "2016-06-06",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 11,
-      "article_diff_available": true,
-      "changed_articles": [
-        "11"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "國民小學與國民中學未入學或中途輟學學生通報及復學輔導辦法",
@@ -742,14 +658,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070015",
       "official_modified_date": "2020-06-08",
       "previous_modified_date": "2020-06-08",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 13,
-      "article_diff_available": true,
-      "changed_articles": [
-        "13"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "國民教育法",
@@ -759,14 +673,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070001",
       "official_modified_date": "2023-06-21",
       "previous_modified_date": "2023-06-21",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 62,
-      "article_diff_available": true,
-      "changed_articles": [
-        "62"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "家事事件法",
@@ -776,14 +688,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0010048",
       "official_modified_date": "2023-06-21",
       "previous_modified_date": "2023-06-21",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 200,
-      "article_diff_available": true,
-      "changed_articles": [
-        "200"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "性別平等教育法",
@@ -793,14 +703,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0080067",
       "official_modified_date": "2023-08-16",
       "previous_modified_date": "2023-08-16",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 48,
-      "article_diff_available": true,
-      "changed_articles": [
-        "48"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "校園霸凌防制準則",
@@ -810,14 +718,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0020081",
       "official_modified_date": "2024-04-17",
       "previous_modified_date": "2024-04-17",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 74,
-      "article_diff_available": true,
-      "changed_articles": [
-        "74"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "社會工作師接受繼續教育及執業執照更新辦法",
@@ -827,14 +733,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050169",
       "official_modified_date": "2023-08-25",
       "previous_modified_date": "2023-08-25",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 16,
-      "article_diff_available": true,
-      "changed_articles": [
-        "17"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "社會福利基本法",
@@ -844,14 +748,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050213",
       "official_modified_date": null,
       "previous_modified_date": null,
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 31,
-      "article_diff_available": true,
-      "changed_articles": [
-        "31"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "經濟社會文化權利國際公約",
@@ -861,14 +763,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0020028",
       "official_modified_date": null,
       "previous_modified_date": null,
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 9,
-      "article_diff_available": true,
-      "changed_articles": [
-        "9"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "老年農民福利津貼暫行條例",
@@ -878,14 +778,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=M0090015",
       "official_modified_date": "2018-06-13",
       "previous_modified_date": "2018-06-13",
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 8,
-      "article_diff_available": true,
-      "changed_articles": [
-        "7"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     },
     {
       "canonical_name": "跟蹤騷擾防制法",
@@ -895,14 +793,12 @@
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0080211",
       "official_modified_date": null,
       "previous_modified_date": null,
-      "changed": true,
+      "changed": false,
       "abandon_note": null,
-      "article_fingerprint_version": "sha256-v1",
+      "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 23,
-      "article_diff_available": true,
-      "changed_articles": [
-        "23"
-      ]
+      "article_diff_available": false,
+      "changed_articles": []
     }
   ]
 }
