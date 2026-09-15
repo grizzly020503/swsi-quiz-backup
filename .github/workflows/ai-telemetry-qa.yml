@@ -1,0 +1,74 @@
+name: AI Telemetry QA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/ai-telemetry-qa.yml'
+      - 'supabase/migrations/20260915151500_add_ai_telemetry.sql'
+      - 'supabase/functions/swsi-ai-telemetry/**'
+      - 'supabase/functions/swsi-admin/index.ts'
+      - 'admin/index.html'
+      - 'monthly_patch_parts/99_p0_mobile_ai_guardrails.part'
+      - 'monthly_patch_parts/99z.essay-trust-layer.part'
+      - 'cdn/monthly_patch.js'
+      - 'scripts/ai_telemetry_contract_smoke.py'
+  pull_request:
+    paths:
+      - '.github/workflows/ai-telemetry-qa.yml'
+      - 'supabase/migrations/20260915151500_add_ai_telemetry.sql'
+      - 'supabase/functions/swsi-ai-telemetry/**'
+      - 'supabase/functions/swsi-admin/index.ts'
+      - 'admin/index.html'
+      - 'monthly_patch_parts/99_p0_mobile_ai_guardrails.part'
+      - 'monthly_patch_parts/99z.essay-trust-layer.part'
+      - 'cdn/monthly_patch.js'
+      - 'scripts/ai_telemetry_contract_smoke.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-ai-telemetry-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  telemetry-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          node --check cdn/monthly_patch.js
+          python -m py_compile scripts/ai_telemetry_contract_smoke.py
+          deno check supabase/functions/swsi-ai-telemetry/index.ts
+          deno check supabase/functions/swsi-admin/index.ts
+
+      - name: Privacy, schema and integration contract
+        run: |
+          set -euo pipefail
+          python scripts/ai_telemetry_contract_smoke.py
+          git diff --check
+
+      - name: Build hardened admin candidate
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/swsi-admin
+          mkdir -p /tmp/swsi-admin
+          cp -a admin/. /tmp/swsi-admin/
+          python scripts/admin_identity_privacy_build.py /tmp/swsi-admin/index.html
+          python scripts/admin_auth_build.py /tmp/swsi-admin/index.html
+          grep -q 'id="aiDot"' /tmp/swsi-admin/index.html
+          grep -q 'function renderAITelemetry()' /tmp/swsi-admin/index.html
+          grep -q './feedback_clusters.js' /tmp/swsi-admin/index.html
