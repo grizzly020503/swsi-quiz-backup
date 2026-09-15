@@ -49,6 +49,25 @@ require(set(first) == {"188", "189", "1055-1"}, f"unexpected article keys: {sort
 require(module.diff_article_fingerprints({}, first) is None, "empty prior state must initialize baseline")
 require(module.diff_article_fingerprints(first, second) == ["189"], "only changed article should be reported")
 require(module.normalize_article_no("1055 - 1") == "1055-1", "sub-article normalization failed")
+
+# Fingerprint contract upgrades must establish a fresh baseline without
+# reporting every law as changed once.
+legacy_record = {
+    "article_fingerprint_version": "sha256-v1",
+    "article_fingerprints": {"188": "legacy-hash"},
+}
+require(
+    module.compatible_previous_fingerprints(legacy_record) == {},
+    "legacy fingerprint contract must not be compared to the new law-body contract",
+)
+current_record = {
+    "article_fingerprint_version": module.ARTICLE_FINGERPRINT_VERSION,
+    "article_fingerprints": {"188": "current-hash"},
+}
+require(
+    module.compatible_previous_fingerprints(current_record) == {"188": "current-hash"},
+    "current fingerprint contract must preserve the comparison baseline",
+)
 require(first["1055-1"] == second["1055-1"], "dynamic footer must not contaminate final article fingerprint")
 
 # Fail closed if MOJ removes/renames the official law-body container.
