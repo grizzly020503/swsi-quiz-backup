@@ -25,3 +25,19 @@ CREATE TABLE IF NOT EXISTS ai_daily_global_usage (
   photo_count INTEGER NOT NULL DEFAULT 0 CHECK (photo_count >= 0),
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+
+-- Privacy-minimized AI operational telemetry.
+-- Stores only aggregate hourly counters/latency; never prompts, answers, images,
+-- raw IP, User-Agent, names, email addresses, or client identifiers.
+CREATE TABLE IF NOT EXISTS ai_telemetry_hourly (
+  bucket_hour TEXT NOT NULL PRIMARY KEY,
+  requests INTEGER NOT NULL DEFAULT 0 CHECK (requests >= 0),
+  successes INTEGER NOT NULL DEFAULT 0 CHECK (successes >= 0),
+  rate_limited INTEGER NOT NULL DEFAULT 0 CHECK (rate_limited >= 0),
+  service_errors INTEGER NOT NULL DEFAULT 0 CHECK (service_errors >= 0),
+  client_rejected INTEGER NOT NULL DEFAULT 0 CHECK (client_rejected >= 0),
+  total_latency_ms INTEGER NOT NULL DEFAULT 0 CHECK (total_latency_ms >= 0),
+  max_latency_ms INTEGER NOT NULL DEFAULT 0 CHECK (max_latency_ms >= 0),
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
