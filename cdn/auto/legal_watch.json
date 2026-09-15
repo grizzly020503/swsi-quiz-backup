@@ -1,434 +1,69 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-09-15T08:00:11Z",
+  "checked_at": "2026-09-15T13:17:36Z",
   "baseline": false,
   "source_label": "全國法規資料庫",
   "watch_count": 52,
   "matched_count": 52,
   "missing_count": 0,
-  "changed_count": 52,
-  "changes": [
-    {
-      "name": "兒童及少年福利與權益保障法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050001",
-      "official_modified_date": "2021-01-20",
-      "previous_modified_date": "2021-01-20",
-      "changed": true
-    },
-    {
-      "name": "老人福利法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050037",
-      "official_modified_date": "2025-08-01",
-      "previous_modified_date": "2025-08-01",
-      "changed": true
-    },
-    {
-      "name": "身心障礙者權益保障法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050046",
-      "official_modified_date": "2025-08-01",
-      "previous_modified_date": "2025-08-01",
-      "changed": true
-    },
-    {
-      "name": "家庭暴力防治法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050071",
-      "official_modified_date": "2023-12-06",
-      "previous_modified_date": "2023-12-06",
-      "changed": true
-    },
-    {
-      "name": "社會救助法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050078",
-      "official_modified_date": "2015-12-30",
-      "previous_modified_date": "2015-12-30",
-      "changed": true
-    },
-    {
-      "name": "社會工作師法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050125",
-      "official_modified_date": "2023-06-09",
-      "previous_modified_date": "2023-06-09",
-      "changed": true
-    },
-    {
-      "name": "長期照顧服務法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0070040",
-      "official_modified_date": "2021-06-09",
-      "previous_modified_date": "2021-06-09",
-      "changed": true
-    },
-    {
-      "name": "兒童及少年性剝削防制條例",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050023",
-      "official_modified_date": "2024-08-07",
-      "previous_modified_date": "2024-08-07",
-      "changed": true
-    },
-    {
-      "name": "性別平等工作法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0030014",
-      "official_modified_date": "2023-08-16",
-      "previous_modified_date": "2023-08-16",
-      "changed": true
-    },
-    {
-      "name": "性侵害犯罪防治法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0080079",
-      "official_modified_date": "2023-02-15",
-      "previous_modified_date": "2023-02-15",
-      "changed": true
-    },
-    {
-      "name": "特殊境遇家庭扶助條例",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075",
-      "official_modified_date": "2021-01-20",
-      "previous_modified_date": "2021-01-20",
-      "changed": true
-    },
-    {
-      "name": "國民年金法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050152",
-      "official_modified_date": "2020-06-03",
-      "previous_modified_date": "2020-06-03",
-      "changed": true
-    },
-    {
-      "name": "身心障礙者權利公約",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194",
-      "official_modified_date": null,
-      "previous_modified_date": null,
-      "changed": true
-    },
-    {
-      "name": "志願服務法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050131",
-      "official_modified_date": "2020-01-15",
-      "previous_modified_date": "2020-01-15",
-      "changed": true
-    },
-    {
-      "name": "兒童及少年未來教育與發展帳戶條例",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050205",
-      "official_modified_date": null,
-      "previous_modified_date": null,
-      "changed": true
-    },
-    {
-      "name": "精神衛生法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0020030",
-      "official_modified_date": "2022-12-14",
-      "previous_modified_date": "2022-12-14",
-      "changed": true
-    },
-    {
-      "name": "兒童權利公約",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050193",
-      "official_modified_date": "2019-06-19",
-      "previous_modified_date": "2019-06-19",
-      "changed": true
-    },
-    {
-      "name": "公益勸募條例",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050138",
-      "official_modified_date": "2020-01-15",
-      "previous_modified_date": "2020-01-15",
-      "changed": true
-    },
-    {
-      "name": "身心障礙者權利公約施行法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194",
-      "official_modified_date": null,
-      "previous_modified_date": null,
-      "changed": true
-    },
-    {
-      "name": "病人自主權利法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0020189",
-      "official_modified_date": "2021-01-20",
-      "previous_modified_date": "2021-01-20",
-      "changed": true
-    },
-    {
-      "name": "公民與政治權利國際公約及經濟社會文化權利國際公約施行法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0020028",
-      "official_modified_date": null,
-      "previous_modified_date": null,
-      "changed": true
-    },
-    {
-      "name": "就業保險法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050021",
-      "official_modified_date": "2022-01-12",
-      "previous_modified_date": "2022-01-12",
-      "changed": true
-    },
-    {
-      "name": "兒童權利公約施行法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050193",
-      "official_modified_date": "2019-06-19",
-      "previous_modified_date": "2019-06-19",
-      "changed": true
-    },
-    {
-      "name": "全民健康保險法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0060001",
-      "official_modified_date": "2023-06-28",
-      "previous_modified_date": "2023-06-28",
-      "changed": true
-    },
-    {
-      "name": "學生輔導法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070058",
-      "official_modified_date": "2024-12-18",
-      "previous_modified_date": "2024-12-18",
-      "changed": true
-    },
-    {
-      "name": "民法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0000001",
-      "official_modified_date": "2026-08-17",
-      "previous_modified_date": "2026-08-17",
-      "changed": true
-    },
-    {
-      "name": "消除對婦女一切形式歧視公約施行法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050175",
-      "official_modified_date": null,
-      "previous_modified_date": null,
-      "changed": true
-    },
-    {
-      "name": "原住民族工作權保障法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0130006",
-      "official_modified_date": "2015-02-04",
-      "previous_modified_date": "2015-02-04",
-      "changed": true
-    },
-    {
-      "name": "專科社會工作師分科甄審及接受繼續教育辦法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050170",
-      "official_modified_date": "2020-01-03",
-      "previous_modified_date": "2020-01-03",
-      "changed": true
-    },
-    {
-      "name": "少年事件處理法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0010011",
-      "official_modified_date": "2023-06-21",
-      "previous_modified_date": "2023-06-21",
-      "changed": true
-    },
-    {
-      "name": "社區發展工作綱要",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050077",
-      "official_modified_date": null,
-      "previous_modified_date": null,
-      "changed": true
-    },
-    {
-      "name": "中華民國刑法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0000001",
-      "official_modified_date": "2026-07-22",
-      "previous_modified_date": "2026-07-22",
-      "changed": true
-    },
-    {
-      "name": "公益彩券發行條例",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=G0380187",
-      "official_modified_date": "2016-11-09",
-      "previous_modified_date": "2016-11-09",
-      "changed": true
-    },
-    {
-      "name": "性騷擾防治法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050074",
-      "official_modified_date": "2023-08-16",
-      "previous_modified_date": "2023-08-16",
-      "changed": true
-    },
-    {
-      "name": "毒品危害防制條例",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0000008",
-      "official_modified_date": "2022-05-04",
-      "previous_modified_date": "2022-05-04",
-      "changed": true
-    },
-    {
-      "name": "長期照顧服務機構法人條例",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0070051",
-      "official_modified_date": null,
-      "previous_modified_date": null,
-      "changed": true
-    },
-    {
-      "name": "中華民國憲法增修條文",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0000002",
-      "official_modified_date": "2005-06-10",
-      "previous_modified_date": "2005-06-10",
-      "changed": true
-    },
-    {
-      "name": "人口販運防制法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0080177",
-      "official_modified_date": "2023-06-14",
-      "previous_modified_date": "2023-06-14",
-      "changed": true
-    },
-    {
-      "name": "住宅法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0070195",
-      "official_modified_date": "2026-03-04",
-      "previous_modified_date": "2026-03-04",
-      "changed": true
-    },
-    {
-      "name": "全民健康保險醫療服務給付項目及支付標準",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0060032",
-      "official_modified_date": "2025-03-24",
-      "previous_modified_date": "2025-03-24",
-      "changed": true
-    },
-    {
-      "name": "勞工保險條例",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050001",
-      "official_modified_date": "2026-01-21",
-      "previous_modified_date": "2026-01-21",
-      "changed": true
-    },
-    {
-      "name": "協助積極自立脫離貧窮實施辦法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050199",
-      "official_modified_date": "2016-06-06",
-      "previous_modified_date": "2016-06-06",
-      "changed": true
-    },
-    {
-      "name": "國民小學與國民中學未入學或中途輟學學生通報及復學輔導辦法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070015",
-      "official_modified_date": "2020-06-08",
-      "previous_modified_date": "2020-06-08",
-      "changed": true
-    },
-    {
-      "name": "國民教育法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070001",
-      "official_modified_date": "2023-06-21",
-      "previous_modified_date": "2023-06-21",
-      "changed": true
-    },
-    {
-      "name": "家事事件法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0010048",
-      "official_modified_date": "2023-06-21",
-      "previous_modified_date": "2023-06-21",
-      "changed": true
-    },
-    {
-      "name": "性別平等教育法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0080067",
-      "official_modified_date": "2023-08-16",
-      "previous_modified_date": "2023-08-16",
-      "changed": true
-    },
-    {
-      "name": "校園霸凌防制準則",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0020081",
-      "official_modified_date": "2024-04-17",
-      "previous_modified_date": "2024-04-17",
-      "changed": true
-    },
-    {
-      "name": "社會工作師接受繼續教育及執業執照更新辦法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050169",
-      "official_modified_date": "2023-08-25",
-      "previous_modified_date": "2023-08-25",
-      "changed": true
-    },
-    {
-      "name": "社會福利基本法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050213",
-      "official_modified_date": null,
-      "previous_modified_date": null,
-      "changed": true
-    },
-    {
-      "name": "經濟社會文化權利國際公約",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0020028",
-      "official_modified_date": null,
-      "previous_modified_date": null,
-      "changed": true
-    },
-    {
-      "name": "老年農民福利津貼暫行條例",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=M0090015",
-      "official_modified_date": "2018-06-13",
-      "previous_modified_date": "2018-06-13",
-      "changed": true
-    },
-    {
-      "name": "跟蹤騷擾防制法",
-      "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0080211",
-      "official_modified_date": null,
-      "previous_modified_date": null,
-      "changed": true
-    }
-  ],
+  "changed_count": 0,
+  "changes": [],
   "recently_modified": [
     {
       "name": "民法",
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0000001",
       "official_modified_date": "2026-08-17",
       "previous_modified_date": "2026-08-17",
-      "changed": true
+      "changed": false
     },
     {
       "name": "中華民國刑法",
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0000001",
       "official_modified_date": "2026-07-22",
       "previous_modified_date": "2026-07-22",
-      "changed": true
+      "changed": false
     },
     {
       "name": "住宅法",
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0070195",
       "official_modified_date": "2026-03-04",
       "previous_modified_date": "2026-03-04",
-      "changed": true
+      "changed": false
     },
     {
       "name": "勞工保險條例",
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050001",
       "official_modified_date": "2026-01-21",
       "previous_modified_date": "2026-01-21",
-      "changed": true
+      "changed": false
     },
     {
       "name": "老人福利法",
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050037",
       "official_modified_date": "2025-08-01",
       "previous_modified_date": "2025-08-01",
-      "changed": true
+      "changed": false
     },
     {
       "name": "身心障礙者權益保障法",
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050046",
       "official_modified_date": "2025-08-01",
       "previous_modified_date": "2025-08-01",
-      "changed": true
+      "changed": false
     },
     {
       "name": "全民健康保險醫療服務給付項目及支付標準",
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0060032",
       "official_modified_date": "2025-03-24",
       "previous_modified_date": "2025-03-24",
-      "changed": true
+      "changed": false
     },
     {
       "name": "學生輔導法",
       "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0070058",
       "official_modified_date": "2024-12-18",
       "previous_modified_date": "2024-12-18",
-      "changed": true
+      "changed": false
     }
   ]
 }
