@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
 """Offline analyzer: turn current-affairs radar items into exam-signal fields.
 
-Phase 1 helper for Issue #74 (時事庫 = 國考命題趨勢資料庫).
+Phase 1–2 helper for Issue #74 (時事庫 = 國考命題趨勢資料庫).
 
 - Does NOT modify production files by default.
 - Does NOT touch frontend, workflows, or Netlify.
 - Reads auto/current_affairs.json and writes an enhanced snapshot for review.
+- Optionally links items to past exam questions (CSV or JSON list).
 
 Usage:
   python3 scripts/analyze_current_affairs_signals.py
   python3 scripts/analyze_current_affairs_signals.py \\
       --input auto/current_affairs.json \\
-      --output audit/current_affairs_signals_preview.json
+      --output audit/current_affairs_signals_preview.json \\
+      --questions-csv data/questions_master_backup_20260824_2220.csv
 """
 
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import re
 from datetime import datetime, timezone
@@ -24,7 +27,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# High-value law names commonly tested (from data/legal_watch_names.json).
 KNOWN_LAWS = [
     "兒童及少年福利與權益保障法",
     "老人福利法",
@@ -91,8 +93,8 @@ ESSAY_LOW = [
 ]
 
 MCQ_HIGH_PATTERNS = [
-    r"\d{1,3}[,，]\d{3}",
-    r"每月", r"每年", r"追溯自", r"自\d+年", r"第\d+條",
+    r"\\d{1,3}[,，]\\d{3}",
+    r"每月", r"每年", r"追溯自", r"自\\d+年", r"第\\d+條",
     r"主管機關", r"衛福部", r"內政部", r"勞動部",
     r"施行細則", r"補助方案",
 ]
@@ -112,6 +114,12 @@ CATEGORY_ESSAY_HINT = {
     "社工專業與社福制度": "專業角色倫理、服務輸送、人力督導與政策落差",
 }
 
+# Generic tags that should not drive question matching alone.
+WEAK_TAGS = {
+    "政策", "制度", "福利", "保護", "權益", "服務", "補助", "津貼",
+    "兒童", "少年", "老人", "高齡", "社工", "社會工作", "衛福部",
+}
+
 
 def text_of(row: dict) -> str:
     return f"{row.get('title') or ''} {row.get('summary') or ''}"
@@ -120,9 +128,7 @@ def text_of(row: dict) -> str:
 def extract_laws(text: str) -> list[str]:
     bracket = re.findall(r"《([^》]{2,40})》", text)
     known = [name for name in KNOWN_LAWS if name in text]
-    # Prefer longer / more specific names first, then unique.
-    merged = list(dict.fromkeys(bracket + known))
-    return merged[:8]
+    return list(dict.fromkeys(bracket + known))[:8]
 
 
 def level_from_hits(
@@ -204,8 +210,8 @@ def build_exam_point_summary(
     return f"{head}。{law_part}{body}。此為命題訊號，非命題保證。"
 
 
-def confidence_for(policy: str, essay: str, mcq: str, laws: list[str]) -> str:
-    score = 0
+def confidence_for(policy: str, essay: str, mcq: str, laws: list[str], n_related: int) -> str:
+    score = 0.0
     if policy == "high":
         score += 2
     elif policy == "medium":
@@ -220,6 +226,10 @@ def confidence_for(policy: str, essay: str, mcq: str, laws: list[str]) -> str:
         score += 1
     if laws:
         score += 1
+    if n_related >= 2:
+        score += 1
+    elif n_related == 1:
+        score += 0.5
     if score >= 5:
         return "high"
     if score >= 3:
@@ -227,14 +237,164 @@ def confidence_for(policy: str, essay: str, mcq: str, laws: list[str]) -> str:
     return "low"
 
 
-def analyze_item(row: dict) -> dict:
+def _split_keywords(raw) -> list[str]:
+    if raw is None:
+        return []
+    if isinstance(raw, list):
+        return [str(x).strip() for x in raw if str(x).strip()]
+    s = str(raw).strip()
+    if not s:
+        return []
+    if s.startswith("["):
+        try:
+            arr = json.loads(s)
+            if isinstance(arr, list):
+                return [str(x).strip() for x in arr if str(x).strip()]
+        except Exception:
+            pass
+    parts = re.split(r"[,，;；|/\\s]+", s)
+    return [p for p in parts if p]
+
+
+def load_questions_csv(path: Path, limit: int = 0) -> list[dict]:
+    rows: list[dict] = []
+    with path.open("r", encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        for i, row in enumerate(reader):
+            q = {
+                "id": str(row.get("id") or "").strip(),
+                "subject": str(row.get("subject") or "").strip(),
+                "year": str(row.get("year") or "").strip(),
+                "round": str(row.get("round") or "").strip(),
+                "qno": str(row.get("qno") or "").strip(),
+                "major": str(row.get("major") or "").strip(),
+                "topic": str(row.get("topic") or "").strip(),
+                "keywords": _split_keywords(row.get("keywords")),
+                "question": str(row.get("question") or "").strip(),
+                "law": str(row.get("law") or "").strip(),
+            }
+            if q["id"]:
+                rows.append(q)
+            if limit and len(rows) >= limit:
+                break
+    return rows
+
+
+def load_questions_json(path: Path) -> list[dict]:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if isinstance(data, list):
+        items = data
+    elif isinstance(data, dict) and isinstance(data.get("questions"), list):
+        items = data["questions"]
+    elif isinstance(data, dict) and isinstance(data.get("items"), list):
+        items = data["items"]
+    else:
+        raise SystemExit(f"Unsupported questions JSON shape: {path}")
+    out = []
+    for row in items:
+        if not isinstance(row, dict):
+            continue
+        q = {
+            "id": str(row.get("id") or "").strip(),
+            "subject": str(row.get("subject") or "").strip(),
+            "year": str(row.get("year") or "").strip(),
+            "round": str(row.get("round") or "").strip(),
+            "qno": str(row.get("qno") or "").strip(),
+            "major": str(row.get("major") or "").strip(),
+            "topic": str(row.get("topic") or "").strip(),
+            "keywords": _split_keywords(row.get("keywords")),
+            "question": str(row.get("question") or "").strip(),
+            "law": str(row.get("law") or "").strip(),
+        }
+        if q["id"]:
+            out.append(q)
+    return out
+
+
+def informative_tags(row: dict) -> set[str]:
+    tags = set()
+    for t in row.get("exam_tags") or []:
+        s = str(t).strip()
+        if s and s not in WEAK_TAGS and len(s) >= 2:
+            tags.add(s)
+    return tags
+
+
+def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits: int = 5) -> list[dict]:
+    """Return related exam questions with fail-closed thresholds.
+
+    Strong: shared law name
+    Medium: subject overlap + informative tag / topic keyword overlap
+    """
+    if not questions:
+        return []
+
+    subjects = set(str(s) for s in (row.get("subjects") or []) if s)
+    tags = informative_tags(row)
+    scored: list[tuple[float, dict]] = []
+
+    for q in questions:
+        score = 0.0
+        reasons: list[str] = []
+        q_law = q.get("law") or ""
+        q_text = f"{q.get('question') or ''} {q.get('topic') or ''} {q.get('major') or ''} {' '.join(q.get('keywords') or [])}"
+
+        law_hit = None
+        for law in laws:
+            if law and (law in q_law or law in q_text):
+                law_hit = law
+                break
+        if law_hit:
+            score += 5.0
+            reasons.append(f"法規「{law_hit}」")
+
+        subj = q.get("subject") or ""
+        subj_ok = (not subjects) or (subj in subjects)
+        if not law_hit and not subj_ok:
+            continue
+
+        tag_hits = [t for t in tags if t in q_text or t in q_law]
+        if tag_hits:
+            score += min(3.0, 1.0 * len(tag_hits))
+            reasons.append("關鍵詞：" + "、".join(tag_hits[:3]))
+
+        if score > 0 and subj_ok:
+            score += 0.2
+
+        if law_hit or len(tag_hits) >= 2:
+            scored.append((score, {
+                "id": q.get("id"),
+                "subject": subj,
+                "year": q.get("year"),
+                "round": q.get("round"),
+                "qno": q.get("qno"),
+                "match_reason": "；".join(reasons) if reasons else "相關",
+                "match_score": round(score, 2),
+            }))
+
+    scored.sort(key=lambda x: (-x[0], str(x[1].get("year") or ""), str(x[1].get("qno") or "")))
+    seen = set()
+    out = []
+    for _, item in scored:
+        qid = item.get("id")
+        if not qid or qid in seen:
+            continue
+        seen.add(qid)
+        out.append(item)
+        if len(out) >= max_hits:
+            break
+    return out
+
+
+def analyze_item(row: dict, questions: list[dict], max_related: int = 5) -> dict:
     text = text_of(row)
     laws = extract_laws(text)
     policy = score_policy_signal(text)
     essay = score_essay_value(text, str(row.get("category") or ""))
     mcq = score_mcq_fact_density(text)
+    related = match_questions(row, laws, questions, max_hits=max_related)
     summary = build_exam_point_summary(row, laws, policy, essay, mcq)
-    conf = confidence_for(policy, essay, mcq, laws)
+    conf = confidence_for(policy, essay, mcq, laws, len(related))
 
     out = dict(row)
     out.update(
@@ -244,7 +404,7 @@ def analyze_item(row: dict) -> dict:
             "mcq_fact_density": mcq,
             "exam_point_summary": summary,
             "related_laws": laws,
-            "related_exam_questions": [],  # Phase 2: link to question bank
+            "related_exam_questions": related,
             "signal_confidence": conf,
             "analysis_status": "auto",
         }
@@ -253,13 +413,17 @@ def analyze_item(row: dict) -> dict:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Offline current-affairs exam-signal analyzer (Issue #74 Phase 1)")
+    ap = argparse.ArgumentParser(description="Offline current-affairs exam-signal analyzer (Issue #74)")
     ap.add_argument("--input", default=str(ROOT / "auto" / "current_affairs.json"))
     ap.add_argument(
         "--output",
         default=str(ROOT / "audit" / "current_affairs_signals_preview.json"),
         help="Review output path. Default writes under audit/ and does not touch auto/.",
     )
+    ap.add_argument("--questions-csv", default="", help="Optional questions CSV for related_exam_questions")
+    ap.add_argument("--questions-json", default="", help="Optional questions JSON for related_exam_questions")
+    ap.add_argument("--questions-limit", type=int, default=0, help="Optional cap when loading CSV (0=all)")
+    ap.add_argument("--max-related", type=int, default=5, help="Max related questions per item")
     args = ap.parse_args()
 
     src_path = Path(args.input)
@@ -271,13 +435,35 @@ def main() -> int:
     if not isinstance(items, list):
         raise SystemExit("Input items must be a list")
 
-    analyzed = [analyze_item(x) for x in items if isinstance(x, dict)]
+    questions: list[dict] = []
+    if args.questions_csv:
+        qpath = Path(args.questions_csv)
+        if not qpath.exists():
+            raise SystemExit(f"Questions CSV not found: {qpath}")
+        questions = load_questions_csv(qpath, limit=max(0, args.questions_limit))
+        print(f"Loaded {len(questions)} questions from CSV")
+    elif args.questions_json:
+        qpath = Path(args.questions_json)
+        if not qpath.exists():
+            raise SystemExit(f"Questions JSON not found: {qpath}")
+        questions = load_questions_json(qpath)
+        print(f"Loaded {len(questions)} questions from JSON")
+    else:
+        print("No --questions-csv/--questions-json provided; related_exam_questions will be empty")
+
+    analyzed = [analyze_item(x, questions, max_related=max(1, args.max_related)) for x in items if isinstance(x, dict)]
+
     payload = {
-        "schema_version": 1,
+        "schema_version": 2,
         "analyzer": "analyze_current_affairs_signals.py",
         "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "source": str(src_path),
-        "note": "Offline preview for Issue #74. Not a production public snapshot. related_exam_questions left empty until Phase 2.",
+        "questions_source": args.questions_csv or args.questions_json or None,
+        "questions_loaded": len(questions),
+        "note": (
+            "Offline preview for Issue #74. Not a production public snapshot. "
+            "related_exam_questions uses fail-closed law/tag matching."
+        ),
         "item_count": len(analyzed),
         "items": analyzed,
     }
@@ -288,12 +474,19 @@ def main() -> int:
 
     print(f"Analyzed {len(analyzed)} items -> {out}")
     for row in analyzed[:12]:
+        related = row.get("related_exam_questions") or []
         print(
             f"[{row.get('policy_signal')}/{row.get('essay_value')}/{row.get('mcq_fact_density')}] "
-            f"conf={row.get('signal_confidence')} | {row.get('category')} | {row.get('title')}"
+            f"conf={row.get('signal_confidence')} related={len(related)} | "
+            f"{row.get('category')} | {row.get('title')}"
         )
         if row.get("related_laws"):
             print(f"  laws: {', '.join(row['related_laws'][:4])}")
+        for rq in related[:3]:
+            print(
+                f"  Q: {rq.get('id')} ({rq.get('subject')} {rq.get('year')}-{rq.get('qno')}) "
+                f"— {rq.get('match_reason')}"
+            )
         print(f"  point: {row.get('exam_point_summary')}")
     return 0
 
