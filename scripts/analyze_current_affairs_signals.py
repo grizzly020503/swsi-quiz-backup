@@ -93,8 +93,8 @@ ESSAY_LOW = [
 ]
 
 MCQ_HIGH_PATTERNS = [
-    r"\\d{1,3}[,，]\\d{3}",
-    r"每月", r"每年", r"追溯自", r"自\\d+年", r"第\\d+條",
+    r"\d{1,3}[,，]\d{3}",
+    r"每月", r"每年", r"追溯自", r"自\d+年", r"第\d+條",
     r"主管機關", r"衛福部", r"內政部", r"勞動部",
     r"施行細則", r"補助方案",
 ]
@@ -114,7 +114,6 @@ CATEGORY_ESSAY_HINT = {
     "社工專業與社福制度": "專業角色倫理、服務輸送、人力督導與政策落差",
 }
 
-# Generic tags that should not drive question matching alone.
 WEAK_TAGS = {
     "政策", "制度", "福利", "保護", "權益", "服務", "補助", "津貼",
     "兒童", "少年", "老人", "高齡", "社工", "社會工作", "衛福部",
@@ -252,7 +251,7 @@ def _split_keywords(raw) -> list[str]:
                 return [str(x).strip() for x in arr if str(x).strip()]
         except Exception:
             pass
-    parts = re.split(r"[,，;；|/\\s]+", s)
+    parts = re.split(r"[,，;；|/\s]+", s)
     return [p for p in parts if p]
 
 
