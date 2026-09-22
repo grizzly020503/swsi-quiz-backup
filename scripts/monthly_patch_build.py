@@ -49,11 +49,13 @@ MK_GRADE_NEW = '''    var correct=0, answered=0, bySubj={}, wrong=[];
     Q.forEach(function(q,i){
       var picked=ans[i]!=null?ans[i]:null;
       var ok=(typeof isCorrectAnswer==='function')?isCorrectAnswer(q,picked):(picked!=null&&picked===q.answer);
-      if(picked!=null) answered++;
-      if(!bySubj[q.subject])bySubj[q.subject]={t:0,c:0};
-      bySubj[q.subject].t++;
-      if(ok){ correct++; bySubj[q.subject].c++; }
-      try{ if(typeof record==='function') record(q,picked,ok); }catch(e){}
+      if(ok) correct++;
+      if(picked!=null){
+        answered++;
+        if(!bySubj[q.subject])bySubj[q.subject]={t:0,c:0};
+        bySubj[q.subject].t++; if(ok)bySubj[q.subject].c++;
+        try{ if(typeof record==='function') record(q,picked,ok); }catch(e){}
+      }
       if(!ok) wrong.push({q:q,picked:picked});
     });'''
 
@@ -71,6 +73,15 @@ def replace_exact(text: str, old: str, new: str, label: str, expected: int = 1) 
     if count != expected:
         raise RuntimeError(f'{label}: expected {expected} occurrence(s), found {count}')
     return text.replace(old, new, expected)
+
+def replace_exact_or_current(text: str, old: str, current: str, new: str, label: str) -> str:
+    old_count = text.count(old)
+    current_count = text.count(current)
+    if current_count == 1 and old_count == 0:
+        return text
+    if old_count == 1 and current_count == 0:
+        return text.replace(old, new, 1)
+    raise RuntimeError(f'{label}: expected exactly one legacy or current occurrence, found legacy={old_count}, current={current_count}')
 
 
 def _array_span(text: str, name: str) -> tuple[int, int]:
@@ -159,8 +170,8 @@ def transform(text: str, laws_json: str, theories_json: str, knowledge_manifest:
     text = replace_exact(text, SUPABASE_SDK_OLD, SUPABASE_SDK_NEW, 'student Supabase SDK removal')
     text = replace_exact(text, INITIAL_APP_OLD, INITIAL_APP_NEW, 'first-paint placeholder')
     text = replace_exact(text, '\ninit();\n', '\nwindow.__SWSI_BOOT_DEFERRED__=true;\n', 'legacy init deferral')
-    text = replace_exact(text, MK_GRADE_OLD, MK_GRADE_NEW, 'simulation grading')
-    text = replace_exact(text, MK_LABEL_OLD, MK_LABEL_NEW, 'simulation answer label')
+    text = replace_exact_or_current(text, MK_GRADE_OLD, MK_GRADE_NEW, MK_GRADE_NEW, 'simulation grading')
+    text = replace_exact_or_current(text, MK_LABEL_OLD, MK_LABEL_NEW, MK_LABEL_NEW, 'simulation answer label')
     text = replace_exact(text, ROUND_1_OLD, ROUND_1_NEW, 'UIUX round 1')
     text = replace_exact(text, ROUND_2_OLD, ROUND_2_NEW, 'UIUX round 2')
 
