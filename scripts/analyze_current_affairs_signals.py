@@ -367,6 +367,8 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
                 "year": q.get("year"),
                 "round": q.get("round"),
                 "qno": q.get("qno"),
+                "major": q.get("major"),
+                "topic": q.get("topic"),
                 "match_reason": "；".join(reasons) if reasons else "相關",
                 "match_score": round(score, 2),
             }))
@@ -385,6 +387,38 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
     return out
 
 
+def essay_direction_for(row: dict, laws: list[str]) -> str:
+    category = str(row.get("category") or "時事")
+    hint = CATEGORY_ESSAY_HINT.get(category, "事件脈絡、社工角色、政策工具與制度改善")
+    if laws:
+        return f"可從「{hint}」切入，並結合「{'、'.join(laws[:2])}」的制度與實務影響分析；此為練習方向，不代表命題保證。"
+    return f"可從「{hint}」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。"
+
+
+def mcq_focus_for(row: dict, text: str, laws: list[str]) -> list[str]:
+    facts: list[str] = []
+    patterns = [
+        r"\b\d{1,3}(?:[,，]\d{3})+(?:\.\d+)?%?",
+        r"\b\d{4}\s*年(?:\d{1,2}\s*月)?",
+        r"第\s*\d+\s*條",
+    ]
+    for pat in patterns:
+        for m in re.findall(pat, text):
+            if m not in facts:
+                facts.append(m)
+    for agency in ["衛福部", "衛生福利部", "內政部", "勞動部", "教育部", "法務部", "行政院", "考試院", "國民健康署"]:
+        if agency in text and agency not in facts:
+            facts.append(agency)
+    for law in laws[:3]:
+        if law not in facts:
+            facts.append(law)
+    for tag in row.get("exam_tags") or []:
+        tag = str(tag).strip()
+        if tag and tag not in WEAK_TAGS and tag not in facts:
+            facts.append(tag)
+    return facts[:8]
+
+
 def analyze_item(row: dict, questions: list[dict], max_related: int = 5) -> dict:
     text = text_of(row)
     laws = extract_laws(text)
@@ -393,6 +427,8 @@ def analyze_item(row: dict, questions: list[dict], max_related: int = 5) -> dict
     mcq = score_mcq_fact_density(text)
     related = match_questions(row, laws, questions, max_hits=max_related)
     summary = build_exam_point_summary(row, laws, policy, essay, mcq)
+    essay_direction = essay_direction_for(row, laws)
+    mcq_focus = mcq_focus_for(row, text, laws)
     conf = confidence_for(policy, essay, mcq, laws, len(related))
 
     out = dict(row)
@@ -402,6 +438,8 @@ def analyze_item(row: dict, questions: list[dict], max_related: int = 5) -> dict
             "essay_value": essay,
             "mcq_fact_density": mcq,
             "exam_point_summary": summary,
+            "essay_direction": essay_direction,
+            "mcq_focus": mcq_focus,
             "related_laws": laws,
             "related_exam_questions": related,
             "signal_confidence": conf,
