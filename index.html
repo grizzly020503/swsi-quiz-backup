@@ -2074,8 +2074,8 @@ function searchAll(query){
 function snip(s,n){ s=String(s||'').replace(/\s+/g,' ').trim(); return s.length>n?s.slice(0,n)+'…':s; }
 function studyOne(id){ const q=ALL.find(x=>x.id===id); if(!q) return; queue=[q]; idx=0; selected=null; answered=false; sessionStats={done:0,correct:0,wrongTopics:[]}; view='quiz'; window.scrollTo(0,0); render(); }
 function searchQuizMcq(){ const res=searchAll(searchQ); if(!res.mcq.length) return; const ids=new Set(res.mcq.map(q=>q.id)); startQuiz(q=>ids.has(q.id)); }
-function openTheory(name){ theoryQ=name; theoryOpen=name; go('theories'); }
-function openLawCard(name){ lawQ=name; lawOpen=name; go('laws'); }
+function openTheory(name){ theoryQ=''; theoryOpen=THEORIES.findIndex(t=>t.n===name); go('theories'); }
+function openLawCard(name){ lawQ=''; lawOpen=LAWS.findIndex(l=>l.n===name); go('laws'); }
 function openEssayCard(id,subject){ essaySubj=subject||'全部科目'; essayCluster=null; openEssay=id; guideOpen=null; dissectOpen=null; go('essay'); setTimeout(()=>{const el=document.getElementById('es-'+id); if(el) el.scrollIntoView({block:'center'});},70); }
 function renderSearch(){
   app.innerHTML=`<div style="padding-top:6px">
@@ -2467,6 +2467,28 @@ function insertFmt(id, level){
 /* ---------- AI 申論練習回饋（透過 Cloudflare 中間人呼叫 Groq、餵校過骨架、非官方評分）---------- */
 /* ====== 管理員設定：下面是你的 Cloudflare 中間人網址；換中間人才需要改這行 ====== */
 const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev/api/ai";
+const AI_CLIENT_ID_KEY='swsi_ai_client_id_v1';
+function getAIClientId(){
+  try{
+    let id=localStorage.getItem(AI_CLIENT_ID_KEY)||'';
+    if(!/^[A-Za-z0-9_-]{16,128}$/.test(id)){
+      id=(crypto.randomUUID?crypto.randomUUID():('swsi_'+Date.now()+'_'+Math.random().toString(36).slice(2)));
+      localStorage.setItem(AI_CLIENT_ID_KEY,id);
+    }
+    return id;
+  }catch(_e){ return 'swsi_'+Date.now()+'_'+Math.random().toString(36).slice(2); }
+}
+async function aiErrorResult(res){
+  let payload=null; try{ payload=await res.clone().json(); }catch(_e){}
+  const code=String(payload?.error?.code||payload?.code||'');
+  const raw=String(payload?.error?.message||payload?.message||'');
+  if(code.includes('CLIENT_DAILY_QUOTA')) return {message:'今天這台裝置的免費 AI 額度已用完，請明天再試。',retry:false};
+  if(code.includes('GLOBAL_DAILY_QUOTA')) return {message:'平台今天的免費 AI 額度已用完，請明天再試。',retry:false};
+  if(res.status===429) return {message:raw||'目前 AI 使用量較高或已達限制，請稍後再試。',retry:false};
+  if(res.status===413) return {message:'照片太大了，請縮小或裁切後再試。',retry:true};
+  if(res.status===502||res.status===503) return {message:'AI 服務目前暫時無法使用，請稍後再試。',retry:true};
+  return {message:raw||'AI 批改暫時無法使用，請稍後再試。',retry:true};
+}
 const GROQ_MODEL = 'qwen/qwen3.6-27b'; /* Qwen 多模態：同時支援「打字批改」與「手寫照片辨識」，中文最強的免費選項。日後想換模型只改這行 */
 function aiFeedbackHTML(id){
   return `<div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">
@@ -2475,7 +2497,7 @@ function aiFeedbackHTML(id){
     <button class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600" onclick="runAIFeedback('${id}')">🤖 我用打字的 · 請 AI 批改上面的作答</button>
     <input type="file" id="photo_${id}" accept="image/*" multiple style="display:none" onchange="gradePhoto('${id}',this)">
     <button class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600;margin-top:8px" onclick="document.getElementById('photo_${id}').click()">📷 我用手寫的 · 拍照上傳給 AI 批改</button>
-    <div class="aihelp" style="color:var(--ink-soft);margin-top:7px">手寫的同學直接拍紙本上傳就好。寫兩面／多頁可以一次選多張（建議 1–3 張）。光線充足、字跡清楚、整頁入鏡會讀得更準；AI 會先把「讀到的字」秀出來，萬一讀錯可以重拍。</div>
+    <div class="aihelp" style="color:var(--ink-soft);margin-top:7px">手寫的同學直接拍紙本上傳就好。寫兩面／多頁可以一次選多張（一次最多 3 張）。光線充足、字跡清楚、整頁入鏡會讀得更準；AI 會先把「讀到的字」秀出來，萬一讀錯可以重拍。</div>
     <div id="airesult_${id}"></div>
   </div>`;
 }
@@ -2509,14 +2531,12 @@ ${ans}`;
   out.innerHTML=`<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 批改中…（約 10 秒，請別關頁面）</div>`;
   try{
     const r=await fetch(AI_PROXY_URL,{
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json','X-SWSI-Client-ID':getAIClientId()},
       body:JSON.stringify({ model:GROQ_MODEL, reasoning_effort:'none', temperature:0.5, max_tokens:1200, messages:[{role:'user',content:sys+'\n\n'+user}] })
     });
     if(!r.ok){
-      let msg='AI 批改暫時無法使用。';
-      if(r.status===429) msg='現在用的人比較多、或今天的免費額度用完了，等一下再試。';
-      else if(r.status===401||r.status===403) msg='AI 批改設定有誤（金鑰問題），請聯絡管理員。';
-      out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">${msg} <span onclick="runAIFeedback('${id}')" style="color:var(--pine);cursor:pointer;text-decoration:underline">重試</span></div>`; return;
+      const er=await aiErrorResult(r);
+      out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">${esc(er.message)} ${er.retry?'<span onclick="runAIFeedback(\\''+id+'\\')" style="color:var(--pine);cursor:pointer;text-decoration:underline">重試</span>':''}</div>`; return;
     }
     const data=await r.json();
     const txt=(data?.choices?.[0]?.message?.content||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
@@ -2555,7 +2575,7 @@ async function gradePhoto(id, inputEl){
   if(!AI_PROXY_URL || AI_PROXY_URL.indexOf('http')!==0){ out.innerHTML=`<div style="margin-top:10px;font-size:13px;color:var(--ink-soft);line-height:1.7">AI 批改尚未啟用（管理員還沒設定中間人網址）。</div>`; return; }
   let files=(inputEl&&inputEl.files)?Array.from(inputEl.files):[];
   if(!files.length){ return; }
-  if(files.length>4){ files=files.slice(0,4); }
+  if(files.length>3){ out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">一次最多 3 張照片。請刪除多出的照片後再送出。</div>'; if(inputEl) inputEl.value=''; return; }
   out.innerHTML=`<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">📷 照片處理中…（${files.length} 張）</div>`;
   let imgs=[];
   try{ for(const f of files){ imgs.push(await shrinkImage(f,1200,0.8)); } }
