@@ -2134,7 +2134,7 @@ function renderQuiz(){
     if(answered&&k===selected&&isCorrectAnswer(item,selected)) mk='<span class="mk"><b class="ck ok">✓</b>'+answerLabel(item)+'</span>';
     else if(answered&&mode==='standard'&&acceptedAnswers(item).has(k)) mk='<span class="mk"><b class="ck ok">✓</b>正解</span>';
     else if(answered&&k===selected) mk='<span class="mk"><b class="ck no">✗</b>你選的</span>';
-    optHTML+=`<div class="${cls}" onclick="pick('${k}')"><span class="lab">${k}</span><span>${item.options[k]}</span>${mk}</div>`;
+    optHTML+=`<div class="${cls}" role="radio" aria-checked="${k===selected?'true':'false'}" tabindex="0" onclick="pick('${k}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pick('${k}')}"><span class="lab">${k}</span><span>${esc(item.options[k]).replace(/\n/g,'<br>')}</span>${mk}</div>`;
   }
   let expHTML='';
   if(answered){
@@ -2156,9 +2156,9 @@ function renderQuiz(){
     <button class="quit" onclick="go('home')">← 結束這次練習</button>
     <div class="pstrip"><div class="pbar"><i style="width:${pct}%"></i></div><span class="pcount">${idx+1} / ${queue.length}</span></div>
     <div class="qcard">
-      <div class="qmeta"><span class="tag subj">${item.subject}</span><span class="tag year">${item.year}年 ${item.round}</span>${yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':''}${(maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':''}${legalBadge(item)}</div>
+      <div class="qmeta"><span class="tag subj">${esc(item.subject)}</span><span class="tag year">${esc(item.year)}年 ${esc(item.round)}</span>${yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':''}${(maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':''}${legalBadge(item)}</div>
       ${legalNotice(item)}
-      <div class="qtext">${item.q}</div>${optHTML}
+      <div class="qtext">${esc(item.q).replace(/\n/g,'<br>')}</div>${optHTML}
       ${!answered?`<button class="btn" ${selected?'':'disabled'} onclick="submit()">送出答案</button>`:''}${expHTML}
     </div>`;
 }
