@@ -113,14 +113,14 @@ BLOCK = r'''
   }
   function loadLive(){
     if(loadPromise) return loadPromise;
-    loadPromise=Promise.all([
-      fetch('./auto/current_affairs.json',{cache:'no-store'}).then(function(r){if(!r.ok) throw new Error('current affairs HTTP '+r.status);return r.json();}),
-      fetch('./auto/current_affairs_signals.json',{cache:'no-store'}).then(function(r){if(!r.ok) throw new Error('signals HTTP '+r.status);return r.json();})
-    ])
-      .then(function(all){
-        liveItems=Array.isArray(all[0].items)?all[0].items:[];
-        signalItems=Array.isArray(all[1].items)?all[1].items:[];
-        return liveItems;
+    loadPromise=fetch('./auto/current_affairs.json',{cache:'no-store'})
+      .then(function(r){if(!r.ok) throw new Error('current affairs HTTP '+r.status);return r.json();})
+      .then(function(d){
+        liveItems=Array.isArray(d.items)?d.items:[];
+        return fetch('./auto/current_affairs_signals.json',{cache:'no-store'})
+          .then(function(r){if(!r.ok) throw new Error('signals HTTP '+r.status);return r.json();})
+          .then(function(s){signalItems=Array.isArray(s.items)?s.items:[];return liveItems;})
+          .catch(function(){signalItems=[];return liveItems;});
       })
       .catch(function(){liveItems=[];signalItems=[];return liveItems;});
     return loadPromise;
