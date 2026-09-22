@@ -46,7 +46,7 @@ def main() -> int:
     ]:
         require(token in patch, f'monthly patch critical token missing: {token}')
 
-    require("const VERSION = 'v6';" in sw, 'service worker version was not bumped to v6')
+    require("const VERSION = 'v7';" in sw, 'service worker version was not bumped to v7')
     for asset in ['/monthly_patch.js', '/essay_guides.js', '/manifest.json']:
         require(asset in sw, f'mutable asset missing from service-worker handling: {asset}')
     require('networkFirstAfterCleanup(req, null, true)' in sw, 'mutable assets are not cleanup + no-store network-first')
