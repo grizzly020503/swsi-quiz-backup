@@ -78,6 +78,11 @@ jobs:
             --input /tmp/current_affairs_payload.json \
             --output auto/current_affairs.json \
             --limit 30
+          python scripts/build_current_affairs_signals_snapshot.py \
+            --input auto/current_affairs.json \
+            --questions-csv data/questions_master_backup_20260824_2220.csv \
+            --output auto/current_affairs_signals.json \
+            --limit 30
           python scripts/build_public_legal_watch_snapshot.py \
             --input data/legal_watch_report.json \
             --output auto/legal_watch.json
