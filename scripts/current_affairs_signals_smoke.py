@@ -56,6 +56,8 @@ def main() -> int:
         raise SystemExit("signal snapshot has no items")
     if len(items) > 30:
         raise SystemExit("public signal snapshot exceeds limit")
+    if int(data.get("questions_loaded") or 0) < 4800:
+        raise SystemExit("signal snapshot must match the current official 4800-question baseline")
 
     allowed_confidence = {"low", "medium", "high"}
     for row in items:
