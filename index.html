@@ -1320,7 +1320,15 @@ const tabbar=document.getElementById('tabbar');
 
 /* ---------- localStorage ---------- */
 function loadHist(){ try{return JSON.parse(localStorage.getItem(LS_KEY))||[];}catch(e){return [];} }
-function saveHist(h){ try{localStorage.setItem(LS_KEY,JSON.stringify(h));}catch(e){} }
+function markStorageFailure(){
+  window._storageWarning=true;
+  document.querySelectorAll('[data-storage-status]').forEach(el=>{ el.textContent='⚠ 無法儲存，請立即備份'; el.style.color='var(--wrong)'; });
+}
+function markStorageSaved(){
+  window._storageWarning=false;
+  document.querySelectorAll('[data-storage-status]').forEach(el=>{ el.textContent='✓ 已儲存在這台裝置'; el.style.color='var(--correct)'; });
+}
+function saveHist(h){ try{localStorage.setItem(LS_KEY,JSON.stringify(h)); markStorageSaved(); }catch(e){ markStorageFailure(); } }
 function record(item,picked,correct){ const h=loadHist();
   h.push({id:item.id,subject:item.subject,major:item.major,mistake:item.mistake||'',correct,ts:Date.now()}); saveHist(h);
   updateReviewSchedule(item,correct); }
@@ -1333,7 +1341,7 @@ function loadReviewState(){
   }catch(e){}
   return {version:2,migratedFromHistory:false,items:{}};
 }
-function saveReviewState(st){ try{localStorage.setItem(REVIEW_KEY,JSON.stringify(st));}catch(e){} }
+function saveReviewState(st){ try{localStorage.setItem(REVIEW_KEY,JSON.stringify(st)); markStorageSaved(); }catch(e){ markStorageFailure(); } }
 function bootstrapReviewState(){
   const st=loadReviewState(); let changed=false;
   if(!st.migratedFromHistory){
@@ -2417,7 +2425,7 @@ function dissectHTML(id){
 function writeBoxHTML(id){
   const saved = getDraft(id);
   return `<div class="wbox">
-    <div class="wlabel">✍ 我的作答（自動儲存在這台裝置）</div>
+    <div class="wlabel">✍ 我的作答 <span data-storage-status style="font-size:11px;color:var(--correct);font-weight:500">✓ 已儲存在這台裝置</span></div>
     <div class="fmtbar">
       ${[['cn','一、'],['cnp','（一）'],['num','1、'],['lat','a.'],['rom','(i)']].map(p=>`<button class="fbtn" onclick="insertFmt('${id}','${p[0]}')">${p[1]}</button>`).join('')}
       <button class="fbtn clear" onclick="clearDraft('${id}')">清空</button>
@@ -2429,7 +2437,7 @@ function writeBoxHTML(id){
 }
 function saveDraft(id){
   const ta=document.getElementById('ta_'+id); if(!ta) return;
-  try{ localStorage.setItem(essayDraftKey(id), ta.value); }catch(e){}
+  try{ localStorage.setItem(essayDraftKey(id), ta.value); markStorageSaved(); }catch(e){ markStorageFailure(); }
   const wc=document.getElementById('wc_'+id); if(wc) wc.textContent=ta.value.length;
   const gb=document.getElementById('gbtn_'+id); if(gb) gb.style.display = ta.value.trim() ? '' : 'none';
 }
@@ -2464,7 +2472,7 @@ function insertFmt(id, level){
   ta.focus(); saveDraft(id);
 }
 
-/* ---------- AI 申論練習回饋（透過 Cloudflare 中間人呼叫 Groq、餵校過骨架、非官方評分）---------- */
+/* ---------- AI 申論練習回饋（透過 Cloudflare 中間人呼叫 Groq、使用平台參考骨架、非官方評分）---------- */
 /* ====== 管理員設定：下面是你的 Cloudflare 中間人網址；換中間人才需要改這行 ====== */
 const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev/api/ai";
 const AI_CLIENT_ID_KEY='swsi_ai_client_id_v1';
@@ -2511,7 +2519,7 @@ async function runAIFeedback(id){
   const g=(window.ESSAY_GUIDES||{})[id]||{};
   const skel=`考點：${g.kao||'（無）'}\n破題心法：${g.dati||'（無）'}\n必踩大標：${(g.biaoti||[]).join('；')}\n搶分關鍵字：${(g.kw||[]).join('、')}`;
   const sys=`【最重要規則：整份回饋務必用「繁體中文」書寫，禁止使用英文句子或英文段落。】
-你是台灣「社工師」國家考試的申論練習教練。會提供題目、這題的「校過骨架」（已人工核對的正確考點／破題／必踩大標／關鍵字），以及學生作答。請依骨架與你的社工專業知識，給「練習回饋」。
+你是台灣「社工師」國家考試的申論練習教練。會提供題目、這題的「平台提供的參考骨架與關鍵字」（非官方評分標準），以及學生作答。請依骨架與你的社工專業知識，給「練習回饋」。
 
 嚴格規則：
 - 這是練習回饋、不是官方評分：不要給分數、不要自稱評分標準或官方細則。
@@ -2524,7 +2532,7 @@ async function runAIFeedback(id){
 二、可以補強：漏了哪些『必踩大標』或關鍵概念、可補哪個理論／法源（只從骨架與正確社工知識出發）。
 三、一句鼓勵。`;
   const user=`【題目】${e.q||''}（${e.points||20}分）
-【校過骨架】
+【平台參考骨架與關鍵字】
 ${skel}
 【學生作答】
 ${ans}`;
@@ -2542,7 +2550,7 @@ ${ans}`;
     const txt=(data?.choices?.[0]?.message?.content||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
     if(!txt){ out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong)">AI 沒有回傳內容，請再試一次。</div>`; return; }
     out.innerHTML=`<div style="margin-top:12px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--pine);border-radius:10px;padding:14px;font-size:14px;line-height:1.8;color:var(--ink);white-space:pre-wrap">${esc(txt)}</div>
-      <div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 練習回饋僅供參考、非官方評分；正式標準以老師與考選部為準。手寫一次完整版才是真正的練習。</div>
+      <div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 練習回饋僅供參考、非官方評分；照片／文字會送至外部 AI 服務處理，請勿輸入或上傳可識別真實個案或個人的資料。正式標準以老師與考選部為準。</div>
       <button class="fbtn" style="margin-top:8px;padding:8px 14px;font-size:13px" onclick="runAIFeedback('${id}')">再批一次</button>`;
   }catch(err){
     out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">連線失敗，可能是網路問題或中間人未啟用。請檢查網路後再試一次。</div>`;
@@ -2589,7 +2597,7 @@ async function gradePhoto(id, inputEl){
 
 第一步：辨識所有照片中的手寫文字，依頁面順序盡量逐字呈現在【我讀到的作答】底下；看不清楚的字用「◌」代替，不要自己補字或改寫成別的意思。
 第二步：若照片模糊、空白、不是申論作答、或幾乎讀不出字，就「只」回這一句：「這張照片我讀不太出來，請在光線充足的地方、把整頁字跡清楚地重拍一張。」其他都不要寫。
-第三步：依提供的「校過骨架」（已人工核對的正確考點／破題／必踩大標／關鍵字）與你的社工專業，給練習回饋。
+第三步：依提供的「平台參考骨架與關鍵字」（非官方評分標準）與你的社工專業，給練習回饋。
 
 嚴格規則：
 - 這是練習回饋、不是官方評分：不要給分數、不要自稱評分標準或官方細則。
@@ -2604,7 +2612,7 @@ async function gradePhoto(id, inputEl){
 一、方向與架構：有沒有抓到核心考點？大標對不對？
 二、可以補強：漏了哪些必踩大標或關鍵概念、可補哪個理論／法源（只從骨架與正確社工知識出發）。
 三、鼓勵：一句話。`;
-  const userText=`【題目】${e.q||''}（${e.points||20}分）\n【校過骨架】\n${skel}\n\n下面是學生手寫作答的照片（可能多張，是同一份作答的正反面或多頁），請依上面步驟辨識並批改。`;
+  const userText=`【題目】${e.q||''}（${e.points||20}分）\n【校過骨架】\n${skel}\n\n下面是學生手寫作答的照片（最多 3 張，可能是同一份作答的正反面或多頁），請依上面步驟辨識並批改。`;
   const content=[{type:'text',text:sys+'\n\n'+userText}];
   for(const u of imgs){ content.push({type:'image_url',image_url:{url:u}}); }
   out.innerHTML=`<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 正在讀 ${imgs.length} 張照片並批改…（手寫辨識較久，約 15–20 秒，請別關頁面）</div>`;
@@ -2624,7 +2632,7 @@ async function gradePhoto(id, inputEl){
     const txt=(data?.choices?.[0]?.message?.content||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
     if(!txt){ out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong)">AI 沒有回傳內容，請再試一次。</div>`; return; }
     out.innerHTML=`<div style="margin-top:12px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--pine);border-radius:10px;padding:14px;font-size:14px;line-height:1.8;color:var(--ink);white-space:pre-wrap">${esc(txt)}</div>
-      <div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 練習回饋僅供參考、非官方評分；手寫辨識可能有誤，請對照「我讀到的作答」確認。正式標準以老師與考選部為準。</div>
+      <div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 練習回饋僅供參考、非官方評分；照片／文字會送至外部 AI 服務處理，請勿輸入或上傳可識別真實個案或個人的資料。手寫辨識可能有誤，請對照「我讀到的作答」確認。正式標準以老師與考選部為準。</div>
       <button class="fbtn" style="margin-top:8px;padding:8px 14px;font-size:13px" onclick="document.getElementById('photo_${id}').click()">重拍／換照片再批</button>`;
   }catch(err){
     out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">連線失敗，可能是網路問題或照片太大。請檢查網路後再試一次。</div>`;
