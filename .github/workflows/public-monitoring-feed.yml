@@ -29,6 +29,7 @@ on:
       - 'scripts/build_current_affairs_snapshot.py'
       - 'scripts/analyze_current_affairs_signals.py'
       - 'scripts/build_current_affairs_signals_snapshot.py'
+      - 'scripts/current_affairs_signals_smoke.py'
       - 'scripts/build_public_legal_watch_snapshot.py'
       - 'scripts/public_monitoring_v2_smoke.py'
       - 'monthly_patch_parts/89.public-branding-info.part'
@@ -95,6 +96,7 @@ jobs:
             scripts/build_public_legal_watch_snapshot.py \
             scripts/public_monitoring_v2_smoke.py
           python scripts/public_monitoring_v2_smoke.py
+          python scripts/current_affairs_signals_smoke.py
           git diff --check
 
       - name: Publish changed monitoring snapshots
