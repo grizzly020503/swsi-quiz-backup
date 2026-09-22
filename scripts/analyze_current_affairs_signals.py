@@ -119,6 +119,20 @@ WEAK_TAGS = {
     "兒童", "少年", "老人", "高齡", "社工", "社會工作", "衛福部",
 }
 
+CATEGORY_MATCH_TERMS = {
+    "兒少保護": ["兒童", "少年", "兒少", "通報", "安置", "最佳利益"],
+    "家暴與性暴力": ["家暴", "家庭暴力", "性暴力", "保護令", "被害人", "危險評估"],
+    "心理健康與成癮": ["精神衛生", "心理健康", "成癮", "危機介入", "復元", "去污名", "自殺"],
+    "長照與高齡": ["長照", "高齡", "老人", "失智", "家庭照顧者", "照顧者", "在地老化"],
+    "社會救助與居住": ["社會救助", "貧窮", "低收入", "最低生活", "住宅", "居住權", "脫貧"],
+    "身障與人權": ["身心障礙", "障礙", "CRPD", "合理調整", "自立生活", "無障礙", "去機構化"],
+    "移工與新住民": ["移工", "新住民", "移民", "文化能力", "反歧視", "勞動權益"],
+    "少年司法與犯罪防治": ["少年司法", "少年事件", "曝險少年", "犯罪防治", "去標籤", "復歸"],
+    "性別與家庭政策": ["性別", "性別平等", "家庭政策", "照顧負荷", "性別主流化", "工作家庭"],
+    "災害與社區工作": ["災害", "災民", "社區", "韌性", "復原", "重建", "安置"],
+    "社工專業與社福制度": ["社工", "社會工作", "專業", "倫理", "督導", "執業", "服務輸送"],
+}
+
 
 def text_of(row: dict) -> str:
     return f"{row.get('title') or ''} {row.get('summary') or ''}"
@@ -330,6 +344,7 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
 
     subjects = set(str(s) for s in (row.get("subjects") or []) if s)
     tags = informative_tags(row)
+    category_terms = set(CATEGORY_MATCH_TERMS.get(str(row.get("category") or ""), []))
     scored: list[tuple[float, dict]] = []
 
     for q in questions:
@@ -353,14 +368,16 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
             continue
 
         tag_hits = [t for t in tags if t in q_text or t in q_law]
-        if tag_hits:
-            score += min(3.0, 1.0 * len(tag_hits))
-            reasons.append("關鍵詞：" + "、".join(tag_hits[:3]))
+        category_hits = [t for t in category_terms if t in q_text or t in q_law]
+        combined_hits = list(dict.fromkeys(tag_hits + category_hits))
+        if combined_hits:
+            score += min(3.0, 1.0 * len(combined_hits))
+            reasons.append("關鍵詞：" + "、".join(combined_hits[:4]))
 
         if score > 0 and subj_ok:
             score += 0.2
 
-        if law_hit or len(tag_hits) >= 2:
+        if law_hit or len(combined_hits) >= 2:
             scored.append((score, {
                 "id": q.get("id"),
                 "subject": subj,
