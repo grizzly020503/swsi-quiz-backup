@@ -1923,7 +1923,7 @@ function legalNotice(q){
 function startQuiz(filterFn,n){ let pool=ALL.filter(filterFn).map(q=>({q,k:Math.pow(Math.random(),1/drawWeight(q))})).sort((a,b)=>b.k-a.k).map(x=>x.q);
   if(n) pool=pool.slice(0,n); queue=pool; idx=0; selected=null; answered=false;
   sessionStats={done:0,correct:0,wrongTopics:[]}; view='quiz'; window.scrollTo(0,0); render(); }
-function startBySubject(n){ const f=subjFilter==='全部科目'?(()=>true):(q=>q.subject===subjFilter); startQuiz(f,n); }
+async function startBySubject(n){ await ensureAllQuestionsLoadedWithUI(); const f=subjFilter==='全部科目'?(()=>true):(q=>q.subject===subjFilter); startQuiz(f,n); }
 
 function render(){
   if(view==='home') return renderHome();
@@ -2000,7 +2000,7 @@ function renderHome(){
       <div class="chips">
         <span class="chip"><b>5</b> 科</span>
         <span class="chip"><b>${oldest}${oldest&&newest?'–':''}${newest}</b> 歷屆</span>
-        <span class="chip"><b>${ALL.length}</b> 題</span>
+        <span class="chip"><b>${questionTotal()}</b> 題</span>
       </div>
     </div>
 
