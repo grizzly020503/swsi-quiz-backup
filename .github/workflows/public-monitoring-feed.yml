@@ -27,10 +27,13 @@ on:
       - '.github/workflows/public-monitoring-feed.yml'
       - 'scripts/current_affairs_watch.py'
       - 'scripts/build_current_affairs_snapshot.py'
+      - 'scripts/analyze_current_affairs_signals.py'
+      - 'scripts/build_current_affairs_signals_snapshot.py'
       - 'scripts/build_public_legal_watch_snapshot.py'
       - 'scripts/public_monitoring_v2_smoke.py'
       - 'monthly_patch_parts/89.public-branding-info.part'
       - 'auto/current_affairs.json'
+      - 'auto/current_affairs_signals.json'
       - 'auto/legal_watch.json'
       - 'auto/health.json'
       - 'auto/sync_state.json'
@@ -79,6 +82,7 @@ jobs:
 
           mkdir -p cdn/auto
           cp auto/current_affairs.json cdn/auto/current_affairs.json
+          cp auto/current_affairs_signals.json cdn/auto/current_affairs_signals.json
           cp auto/legal_watch.json cdn/auto/legal_watch.json
           cp auto/health.json cdn/auto/health.json
           cp auto/sync_state.json cdn/auto/sync_state.json
