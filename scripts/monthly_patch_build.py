@@ -45,10 +45,10 @@ MK_GRADE_OLD = '''    var correct=0, answered=0, bySubj={}, wrong=[];
       if(!ok) wrong.push({q:q,picked:picked});
     });'''
 
-MK_GRADE_NEW = '''    var correct=0, answered=0, bySubj={}, wrong=[];
+MK_GRADE_NEW = ''' var correct=0, answered=0, bySubj={}, wrong=[];
     Q.forEach(function(q,i){
       var picked=ans[i]!=null?ans[i]:null;
-      var ok=(typeof isCorrectAnswer==='function')?isCorrectAnswer(q,picked):(picked!=null&&picked===q.answer);
+      var ok=isCorrectAnswer(q,picked);
       if(ok) correct++;
       if(picked!=null){
         answered++;
