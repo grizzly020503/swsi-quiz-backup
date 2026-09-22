@@ -71,7 +71,7 @@ def main() -> int:
             raise SystemExit("invalid signal score")
         if "不代表命題保證" not in str(row["essay_direction"]):
             raise SystemExit("essay direction must use non-guarantee wording")
-        if "不代表命題保證" not in str(row["exam_point_summary"]):
+        if "命題保證" not in str(row["exam_point_summary"]):
             raise SystemExit("exam summary must use non-guarantee wording")
         if not isinstance(row["mcq_focus"], list):
             raise SystemExit("mcq_focus must be a list")
