@@ -390,10 +390,42 @@ window.ESSAY_GUIDES = {"社會工作-107-1-申論1": {"kao": "考社工面對倫
 /* ============================================================
    設定：把下面兩行換成你的 Supabase 專案資訊（看部署教學）
    ============================================================ */
-/* ===== 送分題判對輔助 START ===== */
-function isGiveAll(a){ a=(a==null?"":String(a)); return a.indexOf("一律給分")>=0||a.indexOf("送分")>=0; }
-function ansCorrect(p,a){ return p===a||isGiveAll(a); }
-/* ===== 送分題判對輔助 END ===== */
+/* ===== 官方 grading contract START ===== */
+const GRADING_MODES=new Set(['standard','all_credit','any_answer']);
+function gradingMode(item){
+  const m=item&&String(item.grading_mode||'');
+  if(GRADING_MODES.has(m)) return m;
+  if(item&&item.answer!=='一律給分'&&!isGiveAll(item.answer)) return 'standard';
+  return 'unknown';
+}
+function acceptedAnswers(item){
+  const mode=gradingMode(item);
+  if(mode==='all_credit'||mode==='any_answer') return new Set(['A','B','C','D']);
+  if(Array.isArray(item&&item.accepted_answers)){
+    const xs=item.accepted_answers.filter(x=>['A','B','C','D'].includes(String(x)));
+    if(xs.length) return new Set(xs);
+  }
+  return item&&['A','B','C','D'].includes(String(item.answer)) ? new Set([String(item.answer)]) : new Set();
+}
+function isCorrectAnswer(item,picked){
+  const mode=gradingMode(item);
+  if(mode==='unknown') return false;
+  if(mode==='all_credit') return picked==null || acceptedAnswers(item).has(String(picked));
+  return picked!=null && acceptedAnswers(item).has(String(picked));
+}
+function isGiveAll(a){
+  const item=(a&&typeof a==='object')?a:{answer:a};
+  return gradingMode(item)==='all_credit';
+}
+function ansCorrect(p,item){ return isCorrectAnswer(item,p); }
+function answerLabel(item){
+  const mode=gradingMode(item);
+  if(mode==='all_credit') return '官方一律給分';
+  if(mode==='any_answer') return '除未作答外均給分';
+  const xs=[...acceptedAnswers(item)];
+  return xs.length?xs.join('、'):'未知';
+}
+/* ===== 官方 grading contract END ===== */
 
 /* ===== 時事預測題注入 START（14 題，可整段刪除還原） ===== */
 /* ===== 時事預測題（共 14 題）＋ AI 批改骨架 — 由 品澄 平台擴充 ===== */
@@ -1355,10 +1387,10 @@ function updateReviewSchedule(item,correct){
   saveReviewState(st);
 }
 function reviewSummary(){
-  const st=bootstrapReviewState(), now=Date.now(), exists=new Set(ALL.filter(q=>!lawConfirmedChanged(q)).map(q=>q.id));
+  const st=bootstrapReviewState(), now=Date.now(), exists=QB.allComplete?new Set(ALL.filter(q=>!lawConfirmedChanged(q)).map(q=>q.id)):null;
   const activeIds=[], dueIds=[], maintenanceDueIds=[]; let masteredCount=0, nextDueAt=0;
   Object.values(st.items).forEach(r=>{
-    if(!r||!r.id||!exists.has(r.id)) return;
+    if(!r||!r.id||(exists&&!exists.has(r.id))) return;
     const due=Number(r.dueAt||0);
     if(r.mastered){
       masteredCount++;
@@ -1381,9 +1413,10 @@ function reviewDueLabel(ts){
   if(d===1) return '明天';
   return `${d} 天後`;
 }
-function startDueReview(){
+async function startDueReview(){
+  await ensureAllQuestionsLoadedWithUI();
   const rv=reviewSummary();
-  if(!rv.dueIds.length){ alert((rv.activeCount||rv.masteredCount)?`目前沒有到期題，下一批 ${reviewDueLabel(rv.nextDueAt)}。`:'目前沒有待複習錯題。'); return; }
+  if(!rv.dueIds.length){ alert((rv.activeCount||rv.masteredCount)?`目前沒有到期題，下一批 ${reviewDueLabel(rv.nextDueAt)}。`:'目前沒有待複習錯題。'); go('review'); return; }
   const set=new Set(rv.dueIds); startQuiz(q=>set.has(q.id),0);
 }
 /* ===== 間隔複習 2.0 END ===== */
@@ -1411,7 +1444,9 @@ function normalize(r){
   } else if(r.exp_raw){ exp={raw:r.exp_raw}; }
   return {id:r.id,subject:r.subject,year:r.year,round:r.round,qno:r.qno,major:r.major||'（未分類）',
     topic:r.topic||'',keywords:r.keywords||'',q:r.question,
-    options:{A:r.opt_a,B:r.opt_b,C:r.opt_c,D:r.opt_d},answer:r.answer,exp,
+    options:{A:r.opt_a,B:r.opt_b,C:r.opt_c,D:r.opt_d},answer:r.answer,
+    accepted_answers:Array.isArray(r.accepted_answers)?r.accepted_answers.filter(x=>['A','B','C','D'].includes(String(x))):null,
+    grading_mode:GRADING_MODES.has(String(r.grading_mode))?String(r.grading_mode):(r.answer==='一律給分'||isGiveAll(r.answer)?'unknown':'standard'),exp,
     mnemonic:r.mnemonic||'',extension:r.extension||'',law:r.law||'',mistake:r.mistake||'',legal_status:r.legal_status||'unreviewed',legal_checked_at:r.legal_checked_at||'',legal_note:r.legal_note||'',legal_source_url:r.legal_source_url||''};
 }
 
@@ -1454,6 +1489,175 @@ const OFFLINE_DB_NAME='swsi-quiz-offline';
 const OFFLINE_DB_VERSION=1;
 const OFFLINE_STORE='cache';
 const OFFLINE_KEY='questions';
+const OFFLINE_MANIFEST_KEY='question-manifest';
+const QUESTION_CDN_BASE='https://wandering-wave-4418.c022050333.workers.dev/question-shards';
+const CORE_SUBJECTS=['社會工作','社會工作直接服務','社會政策與社會立法','人類行為與社會環境','社會工作研究方法'];
+const QB={manifest:null,loadedFiles:new Set(),loading:new Map(),allComplete:false,usingOffline:false,loadingAll:null};
+
+/* ===== QUESTION CDN LAZY LOADER START ===== */
+function questionTotal(){ return QB.manifest&&Number.isFinite(QB.manifest.total_questions)?QB.manifest.total_questions:ALL.length; }
+function manifestYears(){
+  if(!QB.manifest||!Array.isArray(QB.manifest.shards)) return [];
+  return [...new Set(QB.manifest.shards.map(x=>parseInt(x.year,10)).filter(Number.isFinite))].sort((a,b)=>b-a);
+}
+function validateManifest(m){
+  if(!m||m.schema_version!==1||!Array.isArray(m.shards)) throw new Error('題庫目錄格式不正確');
+  if(m.shard_count!==m.shards.length) throw new Error('題庫目錄分片數不一致');
+  if(m.total_questions!==m.shards.length*200) throw new Error('題庫目錄總題數不一致');
+  m.shards.forEach(x=>{
+    if(!x||!x.year||!x.round||!x.file||x.question_count!==200||!x.sha256) throw new Error('題庫分片 metadata 不完整');
+  });
+  return m;
+}
+async function sha256Hex(text){
+  if(!window.crypto||!window.crypto.subtle) return null;
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+async function saveOfflineRecord(key,value){
+  const db=await openOfflineDB();
+  await new Promise((resolve,reject)=>{
+    const tx=db.transaction(OFFLINE_STORE,'readwrite');
+    tx.objectStore(OFFLINE_STORE).put(value,key);
+    tx.oncomplete=resolve;
+    tx.onerror=()=>reject(tx.error||new Error('離線資料儲存失敗'));
+    tx.onabort=()=>reject(tx.error||new Error('離線資料儲存中止'));
+  });
+  db.close();
+}
+async function loadOfflineRecord(key){
+  const db=await openOfflineDB();
+  const value=await new Promise((resolve,reject)=>{
+    const tx=db.transaction(OFFLINE_STORE,'readonly');
+    const req=tx.objectStore(OFFLINE_STORE).get(key);
+    req.onsuccess=()=>resolve(req.result||null);
+    req.onerror=()=>reject(req.error||new Error('離線資料讀取失敗'));
+  });
+  db.close();
+  return value;
+}
+async function loadQuestionManifest(){
+  try{
+    const res=await fetch(QUESTION_CDN_BASE+'/manifest.json',{cache:'no-store'});
+    if(!res.ok) throw new Error('題庫目錄 HTTP '+res.status);
+    const m=validateManifest(await res.json());
+    QB.manifest=m; QB.usingOffline=false;
+    try{ await saveOfflineRecord(OFFLINE_MANIFEST_KEY,{manifest:m,savedAt:Date.now()}); }catch(e){}
+    return m;
+  }catch(remoteErr){
+    try{
+      const cached=await loadOfflineRecord(OFFLINE_MANIFEST_KEY);
+      if(cached&&cached.manifest){ QB.manifest=validateManifest(cached.manifest); QB.usingOffline=true; return QB.manifest; }
+    }catch(_e){}
+    throw remoteErr;
+  }
+}
+function validateShardPayload(payload,meta){
+  if(!payload||payload.schema_version!==1||String(payload.year)!==String(meta.year)||canonicalRound(payload.round)!==canonicalRound(meta.round)) throw new Error('題庫分片內容與目錄不一致');
+  if(payload.question_count!==200||!Array.isArray(payload.questions)||payload.questions.length!==200) throw new Error('題庫分片題數不完整');
+  const ids=new Set();
+  payload.questions.forEach(q=>{
+    if(!q||!q.id) throw new Error('題庫分片含無效題目');
+    if(ids.has(q.id)) throw new Error('題庫分片含重複題號');
+    ids.add(q.id);
+    const mode=String(q.grading_mode||'');
+    if(!GRADING_MODES.has(mode)) throw new Error('題庫分片 grading_mode 缺失：'+q.id);
+    if((mode==='all_credit'||mode==='any_answer')&&q.answer!=='一律給分') throw new Error('特殊給分題 metadata 不一致：'+q.id);
+  });
+  return payload;
+}
+async function fetchSupabaseExamSession(meta){
+  const round=meta.round;
+  if(sb&&typeof sb.from==='function'){
+    const {data,error}=await sb.from('questions').select('*').eq('year',String(meta.year)).eq('round',round).order('qno',{ascending:true});
+    if(error) throw error;
+    if(!Array.isArray(data)||data.length!==200) throw new Error('Supabase scoped fallback 題數不完整');
+    return {schema_version:1,year:String(meta.year),round,question_count:data.length,questions:data};
+  }
+  const base=CONFIG.url.replace(/\/$/,'')+'/rest/v1/questions?select=*&year=eq.'+encodeURIComponent(String(meta.year))+'&round=eq.'+encodeURIComponent(round)+'&order=qno.asc';
+  const res=await fetch(base,{headers:{apikey:CONFIG.key,Authorization:'Bearer '+CONFIG.key,Accept:'application/json'},cache:'no-store'});
+  if(!res.ok) throw new Error('Supabase fallback HTTP '+res.status);
+  const data=await res.json();
+  if(!Array.isArray(data)||data.length!==200) throw new Error('Supabase scoped fallback 題數不完整');
+  return {schema_version:1,year:String(meta.year),round,question_count:data.length,questions:data};
+}
+async function loadQuestionShard(meta){
+  if(QB.loadedFiles.has(meta.file)) return true;
+  if(QB.loading.has(meta.file)) return QB.loading.get(meta.file);
+  const promise=(async()=>{
+    let payload=null, lastError=null;
+    try{
+      const res=await fetch(QUESTION_CDN_BASE+'/'+encodeURIComponent(meta.file),{cache:'no-store'});
+      if(!res.ok) throw new Error('題庫分片 HTTP '+res.status);
+      const text=await res.text();
+      if(meta.sha256){
+        const actual=await sha256Hex(text);
+        if(actual&&actual!==meta.sha256) throw new Error('題庫分片 SHA-256 不符：'+meta.file);
+      }
+      payload=validateShardPayload(JSON.parse(text),meta);
+    }catch(e){ lastError=e; }
+    if(!payload){
+      try{
+        const cached=await loadOfflineRecord('question-shard:'+meta.file);
+        if(cached&&cached.raw) payload=validateShardPayload(JSON.parse(cached.raw),meta);
+      }catch(e){ lastError=e; }
+    }
+    if(!payload){
+      try{ payload=validateShardPayload(await fetchSupabaseExamSession(meta),meta); }
+      catch(e){ lastError=e; }
+    }
+    if(!payload) throw lastError||new Error('題庫分片載入失敗：'+meta.file);
+    const raw=payload.questions;
+    const normalized=raw.map(normalize);
+    const byId=new Map(ALL.map(q=>[q.id,q]));
+    normalized.forEach(q=>{ if(q&&q.id&&!byId.has(q.id)){ byId.set(q.id,q); ALL.push(q); } });
+    QB.loadedFiles.add(meta.file);
+    try{ await saveOfflineRecord('question-shard:'+meta.file,{raw:JSON.stringify(payload),file:meta.file,sha256:meta.sha256,savedAt:Date.now()}); }catch(e){}
+    window._maxY=null; window._kpF=null; window._kpFmax=1; window._tmc={}; window._cmc={};
+    return true;
+  })();
+  QB.loading.set(meta.file,promise);
+  try{return await promise;}finally{QB.loading.delete(meta.file);}
+}
+async function ensureShardMetasLoaded(metas){
+  const unique=[...(new Map((metas||[]).map(x=>[x.file,x]))).values()];
+  if(!unique.length) throw new Error('沒有符合條件的題庫分片');
+  for(const meta of unique) await loadQuestionShard(meta);
+  SUBJECTS=CORE_SUBJECTS.slice();
+  return unique.length;
+}
+async function ensureAllQuestionsLoaded(){
+  if(QB.allComplete) return;
+  if(QB.loadingAll) return QB.loadingAll;
+  QB.loadingAll=(async()=>{
+    if(!QB.manifest) await loadQuestionManifest();
+    await ensureShardMetasLoaded(QB.manifest.shards);
+    if(QB.loadedFiles.size===QB.manifest.shards.length){
+      QB.allComplete=true;
+      window._usingOfflineBackup=false;
+      try{ await saveOfflineQuestions(ALL); }catch(e){}
+    }
+  })();
+  try{return await QB.loadingAll;}finally{QB.loadingAll=null;}
+}
+async function ensureAllQuestionsLoadedWithUI(){
+  app.innerHTML='<div class="empty"><div class="spinner"></div><h3>正在準備完整題庫</h3><p>第一次可能需要幾秒；之後會優先使用這台裝置已快取的資料。</p></div>';
+  return ensureAllQuestionsLoaded();
+}
+function shardMetasForHomeScope(){
+  if(!QB.manifest) return [];
+  const shards=QB.manifest.shards||[];
+  const years=manifestYears();
+  const mx=years[0]||0;
+  if(homeQuizScope==='specific'){
+    return shards.filter(m=>String(m.year)===String(homeQuizYear)&&(homeQuizRound==='all'||canonicalRound(m.round)===homeQuizRound));
+  }
+  if(homeQuizScope==='recent3') return shards.filter(m=>parseInt(m.year,10)>=mx-2);
+  if(homeQuizScope==='recent5') return shards.filter(m=>parseInt(m.year,10)>=mx-4);
+  if(homeQuizScope==='all') return shards.slice();
+  return shards.filter(m=>parseInt(m.year,10)>=mx-9);
+}
+/* ===== QUESTION CDN LAZY LOADER END ===== */
 
 /* ===== MOEX AUTO DATA START ===== */
 const AUTO_ESSAY_CACHE_KEY='swsi_auto_essays_v1';
@@ -1595,6 +1799,7 @@ async function loadAll(){
     window._usingOfflineBackup=false;
     window._autoQuestionCount=Math.max(0,out.length-(out.length-autoRows.length));
     saveOfflineQuestions(out);
+    QB.allComplete=true;
     return;
   }catch(remoteErr){
     console.warn('遠端題庫載入失敗，嘗試本機離線備援：',remoteErr);
@@ -1615,18 +1820,28 @@ async function init(){
     return;
   }
   try{
-    if(window.supabase && typeof window.supabase.createClient==='function'){
-      sb=window.supabase.createClient(CONFIG.url,CONFIG.key);
-    }else{
-      sb=null;
-    }
-    await loadAll();
+    if(window.supabase && typeof window.supabase.createClient==='function') sb=window.supabase.createClient(CONFIG.url,CONFIG.key);
+    else sb=null;
+    await loadQuestionManifest();
+    ALL=[]; SUBJECTS=CORE_SUBJECTS.slice(); QB.loadedFiles=new Set(); QB.allComplete=false;
+    window._usingOfflineBackup=false;
     await loadAutoEssays();
     tabbar.style.display='flex';
     applyFocusedTabbar();
     go('home');
-  }catch(e){
-    app.innerHTML=`<div class="empty"><div class="ico">⚠</div><h3>暫時無法載入題庫</h3><p>${e.message||'網路連線失敗'}</p><p style="margin-top:8px">已自動重試 3 次。題庫已另有完整備份，不會因此消失。</p><button id="retry-load-btn" type="button" class="btn" style="margin-top:18px;position:relative;z-index:5;pointer-events:auto" onclick="retryLoad()">重新連線</button></div>`;
+  }catch(manifestErr){
+    console.warn('CDN 題庫目錄無法使用，退回 legacy full-cache：',manifestErr);
+    try{
+      await loadAll();
+      QB.allComplete=true;
+      QB.loadedFiles=new Set((QB.manifest&&QB.manifest.shards||[]).map(x=>x.file));
+      await loadAutoEssays();
+      tabbar.style.display='flex';
+      applyFocusedTabbar();
+      go('home');
+    }catch(e){
+      app.innerHTML=`<div class="empty"><div class="ico">⚠</div><h3>暫時無法載入題庫</h3><p>${e.message||'網路連線失敗'}</p><p style="margin-top:8px">CDN、離線快取與 Supabase 備援都無法使用，請檢查網路後重試。</p><button id="retry-load-btn" type="button" class="btn" style="margin-top:18px;position:relative;z-index:5;pointer-events:auto" onclick="retryLoad()">重新連線</button></div>`;
+    }
   }
 }
 async function retryLoad(){
@@ -1652,15 +1867,20 @@ function applyFocusedTabbar(){
 }
 /* ===== FOCUSED NAV V1 END ===== */
 
-function go(v){ view=v;
+async function go(v){ view=v;
   ['home','topics','essay','review','progress'].forEach(t=>{
     const on=(v===t)||(v==='quiz'&&t==='home')||(v==='summary'&&t==='home')||(v==='theories'&&t==='topics')||(v==='laws'&&t==='topics');
     const el=document.getElementById('t-'+t); if(el) el.classList.toggle('on',on);
   });
-  window.scrollTo(0,0); render();
+  window.scrollTo(0,0);
+  const needsAll=new Set(['search','topics','review','progress','theories','laws']);
+  if(needsAll.has(v)&&!QB.allComplete){
+    try{ await ensureAllQuestionsLoadedWithUI(); }catch(e){ app.innerHTML=`<div class="empty"><div class="ico">⚠</div><h3>完整題庫暫時無法載入</h3><p>${e.message||'請稍後再試'}</p><button class="btn" style="max-width:220px;margin:18px auto 0" onclick="go('home')">回首頁</button></div>`; return; }
+  }
+  render();
 }
 // ===== 出題權重：近年 + 高頻考點優先（不刪舊題，只調整出現機率）=====
-function maxExamYear(){ if(window._maxY==null){ let m=0; for(const q of ALL){ const y=parseInt(q.year)||0; if(y>m)m=y; } window._maxY=m||115; } return window._maxY; }
+function maxExamYear(){ if(QB.manifest){ const ys=manifestYears(); if(ys.length) return ys[0]; } if(window._maxY==null){ let m=0; for(const q of ALL){ const y=parseInt(q.year)||0; if(y>m)m=y; } window._maxY=m||115; } return window._maxY; }
 function yearWeight(q){ const y=parseInt(q.year)||0, mx=maxExamYear(); if(!y) return 1; const d=mx-y; return d<=2?4:(d<=7?2:(d<=10?0.8:0.35)); }
 function kpFreq(){ if(!window._kpF){ const m={}; let mx=1; for(const q of ALL){ const k=q.major||''; if(!k)continue; m[k]=(m[k]||0)+1; if(m[k]>mx)mx=m[k]; } window._kpF=m; window._kpFmax=mx; } return window._kpF; }
 function kpWeight(q){ const m=kpFreq(); const f=m[q.major||'']||1; return 1+0.5*(f/window._kpFmax); }
@@ -1726,9 +1946,7 @@ let homeQuizYear='';
 let homeQuizRound='all';
 let homeQuizCount=20;
 
-function examYears(){
-  return [...new Set(ALL.map(q=>parseInt(q.year,10)).filter(Number.isFinite))].sort((a,b)=>b-a);
-}
+function examYears(){ return QB.manifest?manifestYears():[...new Set(ALL.map(q=>parseInt(q.year,10)).filter(Number.isFinite))].sort((a,b)=>b-a); }
 function setHomeQuizScope(v){
   homeQuizScope=v;
   if(v==='specific'&&!homeQuizYear){ const ys=examYears(); homeQuizYear=ys.length?String(ys[0]):''; }
@@ -1752,10 +1970,14 @@ function focusedQuizFilter(q){
   }
   return true;
 }
-function startFocusedQuiz(){
-  const pool=ALL.filter(focusedQuizFilter);
-  if(!pool.length){ alert('這個條件目前沒有題目，請換一個年份、考次或科目。'); return; }
-  startQuiz(focusedQuizFilter,homeQuizCount);
+async function startFocusedQuiz(){
+  try{
+    const metas=shardMetasForHomeScope();
+    await ensureShardMetasLoaded(metas);
+    const pool=ALL.filter(focusedQuizFilter);
+    if(!pool.length){ alert('這個條件目前沒有題目，請換一個年份、考次或科目。'); return; }
+    startQuiz(focusedQuizFilter,homeQuizCount);
+  }catch(e){ alert('這組題目暫時無法載入：'+(e.message||'網路或題庫資料異常')); }
 }
 function renderHome(){
   const offlineNote=window._usingOfflineBackup?`<div style="margin-bottom:14px;padding:10px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:12px;color:var(--ink-soft)">📦 目前使用這台裝置的離線題庫備援；恢復網路後重新開啟網站即可同步最新題庫。</div>`:'';
@@ -1900,15 +2122,15 @@ function renderQuiz(){
   for(const k of ['A','B','C','D']){
     if(!item.options[k]) continue;
     let cls='opt';
-    if(answered){ if(k===item.answer||(isGiveAll(item.answer)&&k===selected))cls+=' correct'; else if(k===selected)cls+=' wrong'; } else if(k===selected) cls+=' sel';
+    if(answered){ if(acceptedAnswers(item).has(k))cls+=' correct'; else if(k===selected)cls+=' wrong'; } else if(k===selected) cls+=' sel';
     let mk='';
-    if(answered&&(k===item.answer||(isGiveAll(item.answer)&&k===selected))) mk='<span class="mk"><b class="ck ok">✓</b>'+(isGiveAll(item.answer)?'送分':'正解')+'</span>';
+    if(answered&&(acceptedAnswers(item).has(k)||gradingMode(item)==='all_credit')) mk='<span class="mk"><b class="ck ok">✓</b>'+answerLabel(item)+'</span>';
     else if(answered&&k===selected) mk='<span class="mk"><b class="ck no">✗</b>你選的</span>';
     optHTML+=`<div class="${cls}" onclick="pick('${k}')"><span class="lab">${k}</span><span>${item.options[k]}</span>${mk}</div>`;
   }
   let expHTML='';
   if(answered){
-    const wrong=!ansCorrect(selected,item.answer); let body=isGiveAll(item.answer)?'<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 送分題：</b>本題官方一律給分，你的作答都算對。</div>':'';
+    const wrong=!ansCorrect(selected,item); let body=gradingMode(item)==='all_credit'?'<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 官方特殊給分：</b>本題採一律給分規則，不代表四個選項在學理上都正確。</div>':(gradingMode(item)==='any_answer'?'<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 官方特殊給分：</b>本題除未作答外，其餘作答均給分。</div>':'');
     if(item.exp&&(item.exp.why||item.exp.others||item.exp.trap)){
       if(item.exp.why) body+=`<div class="exp-sec"><h4><span class="dot d-green"></span>為什麼對</h4><p>${item.exp.why}</p></div>`;
       if(item.exp.others) body+=`<div class="exp-sec"><h4><span class="dot d-red"></span>其他選項為什麼錯</h4><p>${item.exp.others}</p></div>`;
@@ -1933,7 +2155,7 @@ function renderQuiz(){
     </div>`;
 }
 function pick(k){ if(answered)return; selected=k; render(); }
-function submit(){ if(!selected)return; answered=true; const item=queue[idx], correct=ansCorrect(selected,item.answer);
+function submit(){ if(!selected)return; answered=true; const item=queue[idx], correct=ansCorrect(selected,item);
   sessionStats.done++; if(correct)sessionStats.correct++; else sessionStats.wrongTopics.push(item.topic||item.major);
   record(item,selected,correct); render(); }
 function next(){ if(idx+1<queue.length){idx++;selected=null;answered=false;window.scrollTo(0,0);render();} else {view='summary';window.scrollTo(0,0);render();} }
