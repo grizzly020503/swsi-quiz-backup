@@ -875,7 +875,7 @@ function answerLabel(item){
       var pk=picked!=null?('你選 '+picked):'未作答';
       var tag=picked!=null?'<span class="mk-tag w">'+pk+'</span>':'<span class="mk-tag n">未作答</span>';
       return '<div class="mk-rev"><div class="rq">'+E(q.q||'').slice(0,140)+((q.q||'').length>140?'…':'')+'</div>'
-        +'<div class="ln">'+tag+'<span class="mk-tag n">正解 '+E(q.answer||'')+'</span></div>'+ex+'</div>';
+        +'<div class="ln">'+tag+'<span class="mk-tag n">'+E((typeof answerLabel==='function')?answerLabel(q):('正解 '+(q.answer||'')))+'</span></div>'+ex+'</div>';
     }).join('');
 
     ov.innerHTML=
