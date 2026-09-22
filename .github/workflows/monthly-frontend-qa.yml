@@ -180,7 +180,7 @@ jobs:
         run: |
           grep -q "window.__SWSI_BOOT_DEFERRED__=true" _site/index.html
           grep -q "monthly_patch.js" _site/index.html
-          grep -q "const VERSION = 'v6'" _site/sw.js
+          grep -q "const VERSION = 'v7'" _site/sw.js
           grep -q 'Generated from essay_guides.js by scripts/build_essay_guides_runtime.js' _site/essay_guides.js
           grep -q '三理論整合' _site/essay_guides.js
           grep -q 'SWSI Code Health P0 Runtime Guard 2026-08-26' _site/monthly_patch.js

@@ -6,7 +6,7 @@
    - 圖示等真正靜態資產：快取優先。
    - 跨網域（Cloudflare 題庫 shard、Supabase、AI）：完全不攔截，永遠走網路；題庫離線由 IndexedDB 處理。
 */
-const VERSION = 'v6';
+const VERSION = 'v7';
 const CACHE = 'swsi-shell-' + VERSION;
 const SHELL = [
   './',
@@ -44,7 +44,7 @@ self.addEventListener('install', function (e) {
 });
 
 self.addEventListener('activate', function (e) {
-  // A v5 worker may finish a late cache write during takeover. Clean both
+  // A v6 worker may finish a late cache write during takeover. Clean both
   // before and after claim, but never touch caches owned by another app.
   e.waitUntil(
     cleanupStaleCaches()
