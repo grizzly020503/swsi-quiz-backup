@@ -844,8 +844,10 @@ function answerLabel(item){
     var correct=0, answered=0, bySubj={}, wrong=[];
     Q.forEach(function(q,i){
       var picked=ans[i]!=null?ans[i]:null;
-      var ok=picked!=null&&(picked===q.answer||/一律給分|送分/.test(String(q.answer||'')));
-      if(picked!=null){ answered++; if(ok)correct++;
+      var ok=isCorrectAnswer(q,picked);
+      if(ok) correct++;
+      if(picked!=null){
+        answered++;
         if(!bySubj[q.subject])bySubj[q.subject]={t:0,c:0};
         bySubj[q.subject].t++; if(ok)bySubj[q.subject].c++;
         try{ if(typeof record==='function') record(q,picked,ok); }catch(e){}
@@ -2122,9 +2124,15 @@ function renderQuiz(){
   for(const k of ['A','B','C','D']){
     if(!item.options[k]) continue;
     let cls='opt';
-    if(answered){ if(acceptedAnswers(item).has(k))cls+=' correct'; else if(k===selected)cls+=' wrong'; } else if(k===selected) cls+=' sel';
+    const mode=gradingMode(item);
+    if(answered){
+      if(mode==='standard'&&acceptedAnswers(item).has(k)) cls+=' correct';
+      else if(k===selected && isCorrectAnswer(item,selected)) cls+=' correct';
+      else if(k===selected) cls+=' wrong';
+    } else if(k===selected) cls+=' sel';
     let mk='';
-    if(answered&&(acceptedAnswers(item).has(k)||gradingMode(item)==='all_credit')) mk='<span class="mk"><b class="ck ok">✓</b>'+answerLabel(item)+'</span>';
+    if(answered&&k===selected&&isCorrectAnswer(item,selected)) mk='<span class="mk"><b class="ck ok">✓</b>'+answerLabel(item)+'</span>';
+    else if(answered&&mode==='standard'&&acceptedAnswers(item).has(k)) mk='<span class="mk"><b class="ck ok">✓</b>正解</span>';
     else if(answered&&k===selected) mk='<span class="mk"><b class="ck no">✗</b>你選的</span>';
     optHTML+=`<div class="${cls}" onclick="pick('${k}')"><span class="lab">${k}</span><span>${item.options[k]}</span>${mk}</div>`;
   }
