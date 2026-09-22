@@ -10,6 +10,7 @@ on:
     # 直接監聽成功完成的 MOEX workflow，才能在 legal-watch report 寫回 main 後立即發布公開快照。
     workflows:
       - MOEX Social Worker Exam Sync
+      - Publish Question Shards to Repo
     types:
       - completed
     branches:
@@ -27,10 +28,16 @@ on:
       - '.github/workflows/public-monitoring-feed.yml'
       - 'scripts/current_affairs_watch.py'
       - 'scripts/build_current_affairs_snapshot.py'
+      - 'scripts/analyze_current_affairs_signals.py'
+      - 'scripts/build_current_affairs_signals_snapshot.py'
+      - 'scripts/current_affairs_signals_smoke.py'
+      - 'scripts/install_current_affairs_ui.py'
       - 'scripts/build_public_legal_watch_snapshot.py'
       - 'scripts/public_monitoring_v2_smoke.py'
       - 'monthly_patch_parts/89.public-branding-info.part'
       - 'auto/current_affairs.json'
+      - 'auto/current_affairs_signals.json'
+      - 'cdn/question-shards/**'
       - 'auto/legal_watch.json'
       - 'auto/health.json'
       - 'auto/sync_state.json'
@@ -73,15 +80,42 @@ jobs:
             --input /tmp/current_affairs_payload.json \
             --output auto/current_affairs.json \
             --limit 30
+          python scripts/build_current_affairs_signals_snapshot.py \
+            --input auto/current_affairs.json \
+            --questions-csv data/questions_master_backup_20260824_2220.csv \
+            --output auto/current_affairs_signals.json \
+            --limit 30
           python scripts/build_public_legal_watch_snapshot.py \
             --input data/legal_watch_report.json \
             --output auto/legal_watch.json
 
           mkdir -p cdn/auto
           cp auto/current_affairs.json cdn/auto/current_affairs.json
+          cp auto/current_affairs_signals.json cdn/auto/current_affairs_signals.json
           cp auto/legal_watch.json cdn/auto/legal_watch.json
           cp auto/health.json cdn/auto/health.json
           cp auto/sync_state.json cdn/auto/sync_state.json
+
+      - name: Validate current-affairs UI installer
+        if: github.event_name == 'pull_request'
+        run: |
+          python scripts/install_current_affairs_ui.py
+          python - <<'PY'
+          import re
+          import subprocess
+          from pathlib import Path
+          text = Path('index.html').read_text(encoding='utf-8')
+          marker = '<!-- SWSI CURRENT AFFAIRS RADAR V1 -->'
+          if marker not in text:
+              raise SystemExit('current-affairs UI marker missing')
+          segment = text.split(marker, 1)[1]
+          match = re.search(r'<script>(.*?)</script>', segment, re.S)
+          if not match:
+              raise SystemExit('current-affairs UI script missing')
+          Path('/tmp/current-affairs-ui.js').write_text(match.group(1), encoding='utf-8')
+          subprocess.run(['node', '--check', '/tmp/current-affairs-ui.js'], check=True)
+          print('Current-affairs UI JavaScript syntax OK.')
+          PY
 
       - name: Five-radar contract smoke
         run: |
@@ -91,6 +125,7 @@ jobs:
             scripts/build_public_legal_watch_snapshot.py \
             scripts/public_monitoring_v2_smoke.py
           python scripts/public_monitoring_v2_smoke.py
+          python scripts/current_affairs_signals_smoke.py
           git diff --check
 
       - name: Publish changed monitoring snapshots
