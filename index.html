@@ -2544,7 +2544,7 @@ ${ans}`;
     });
     if(!r.ok){
       const er=await aiErrorResult(r);
-      out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">${esc(er.message)} ${er.retry?'<span onclick="runAIFeedback(\\''+id+'\\')" style="color:var(--pine);cursor:pointer;text-decoration:underline">重試</span>':''}</div>`; return;
+      out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">${esc(er.message)} ${er.retry?'<span onclick="location.reload()" style="color:var(--pine);cursor:pointer;text-decoration:underline">重試</span>':''}</div>`; return;
     }
     const data=await r.json();
     const txt=(data?.choices?.[0]?.message?.content||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
