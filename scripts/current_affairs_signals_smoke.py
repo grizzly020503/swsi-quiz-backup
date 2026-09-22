@@ -6,8 +6,44 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from analyze_current_affairs_signals import analyze_item
+
+
+def matching_contract_smoke() -> None:
+    row = {
+        "id": "fixture-1",
+        "title": "兒少保護制度與通報支持",
+        "summary": "兒童與少年通報、安置及最佳利益。",
+        "category": "兒少保護",
+        "exam_tags": ["兒童", "少年", "政策", "權益"],
+        "subjects": ["社會政策與社會立法"],
+    }
+    questions = [
+        {
+            "id": "Q-CHILD-1",
+            "subject": "社會政策與社會立法",
+            "year": "115", "round": "第一次", "qno": "10",
+            "major": "兒少保護", "topic": "責任通報與兒少保護",
+            "keywords": ["兒童", "通報"], "question": "兒少保護責任通報", "law": "",
+        },
+        {
+            "id": "Q-WEAK-1",
+            "subject": "社會政策與社會立法",
+            "year": "115", "round": "第一次", "qno": "11",
+            "major": "一般政策", "topic": "政策",
+            "keywords": ["政策"], "question": "一般政策問題", "law": "",
+        },
+    ]
+    out = analyze_item(row, questions)
+    ids = {q["id"] for q in out["related_exam_questions"]}
+    if "Q-CHILD-1" not in ids:
+        raise SystemExit("topic-aware historical question matching failed")
+    if "Q-WEAK-1" in ids:
+        raise SystemExit("weak generic keyword caused a false historical-question match")
+
 
 def main() -> int:
+    matching_contract_smoke()
     p = Path("auto/current_affairs_signals.json")
     if not p.exists():
         raise SystemExit("current-affairs signal snapshot missing")
