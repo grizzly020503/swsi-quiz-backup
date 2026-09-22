@@ -252,9 +252,9 @@ if(!/canonicalRound\(q\.round\)!==homeQuizRound/.test(indexSource)){
 // Service worker: mutable scoring/content assets must not be stuck cache-first.
 // -----------------------------------------------------------------------------
 const sw = read('sw.js');
-if(!/const VERSION = 'v6'/.test(sw)) fail('SERVICE_WORKER_VERSION', 'service worker cache version is not v6');
-else pass('SERVICE_WORKER_VERSION', 'service worker cache is bumped to v6');
-if(/const VERSION = 'v5'/.test(sw)) fail('SERVICE_WORKER_VERSION', 'stale v5 compatibility marker remains in service worker source');
+if(!/const VERSION = 'v7'/.test(sw)) fail('SERVICE_WORKER_VERSION', 'service worker cache version is not v7');
+else pass('SERVICE_WORKER_VERSION', 'service worker cache is bumped to v7');
+if(/const VERSION = 'v5'/.test(sw)) fail('SERVICE_WORKER_VERSION', 'stale v6 compatibility marker remains in service worker source');
 for(const asset of ['/monthly_patch.js','/essay_guides.js','/manifest.json']){
   if(!sw.includes(asset)) fail('SERVICE_WORKER_MUTABLE_ASSETS', `missing mutable asset handling for ${asset}`);
 }
@@ -263,13 +263,13 @@ if(!/if \(isMutableStatic\) \{[\s\S]{0,180}networkFirst(?:AfterCleanup)?\(req, n
 }else pass('SERVICE_WORKER_MUTABLE_ASSETS', 'monthly patch, essay guides and manifest are no-store network-first');
 if(!sw.includes("new Request(url, { cache: 'reload' })")) fail('SERVICE_WORKER_UPDATE_FLOW', 'install does not bypass the old HTTP cache');
 if(!sw.includes("k.indexOf('swsi-shell-') === 0 && k !== CACHE")) fail('SERVICE_WORKER_UPDATE_FLOW', 'activate may delete unrelated origin caches');
-if(!failures.some(x => x.code === 'SERVICE_WORKER_UPDATE_FLOW')) pass('SERVICE_WORKER_UPDATE_FLOW', 'v5→v6 install refreshes shell assets and deletes only old SWSI caches');
+if(!failures.some(x => x.code === 'SERVICE_WORKER_UPDATE_FLOW')) pass('SERVICE_WORKER_UPDATE_FLOW', 'v6→v7 install refreshes shell assets and deletes only old SWSI caches');
 
 const swUpgradeSmoke = read('scripts/service_worker_upgrade_smoke.js');
-for(const marker of ['swsi-shell-v5','swsi-shell-v6','requestsBeforeFinalFetch','/monthly_patch.js','/essay_guides.js','/manifest.json']){
+for(const marker of ['swsi-shell-v5','swsi-shell-v7','requestsBeforeFinalFetch','/monthly_patch.js','/essay_guides.js','/manifest.json']){
   if(!swUpgradeSmoke.includes(marker)) fail('SERVICE_WORKER_UPGRADE_SMOKE', `upgrade smoke missing marker: ${marker}`);
 }
-if(!failures.some(x => x.code === 'SERVICE_WORKER_UPGRADE_SMOKE')) pass('SERVICE_WORKER_UPGRADE_SMOKE', 'real-browser upgrade smoke covers v5 cache eviction and all mutable assets');
+if(!failures.some(x => x.code === 'SERVICE_WORKER_UPGRADE_SMOKE')) pass('SERVICE_WORKER_UPGRADE_SMOKE', 'real-browser upgrade smoke covers v6 cache eviction and all mutable assets');
 
 const result = {
   ok: failures.length === 0,
