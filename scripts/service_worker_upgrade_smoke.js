@@ -100,20 +100,20 @@ function closeServer(){return new Promise(resolve=>server.close(()=>resolve()));
 
     await page.waitForFunction(async()=>{
       const keys=await caches.keys();
-      return keys.includes('swsi-shell-v6') && !keys.includes('swsi-shell-v5');
+      return keys.includes('swsi-shell-v7') && !keys.includes('swsi-shell-v5');
     }, null, {timeout:15000});
 
-    // v6 install pre-caches these assets. Snapshot counters only after activation,
+    // v7 install pre-caches these assets. Snapshot counters only after activation,
     // then prove each runtime request independently reaches the network.
     const requestsBeforeFinalFetch = {...mutableRequests};
     const newBodies = await page.evaluate(paths=>Promise.all(paths.map(p=>fetch(p).then(r=>r.text()))), mutablePaths);
     const cacheKeys = await page.evaluate(()=>caches.keys());
     for(let i=0;i<mutablePaths.length;i++){
       const p=mutablePaths[i];
-      if(!newBodies[i].includes('new-v2')) throw new Error(`v6 still served stale ${p}: ${newBodies[i]}`);
-      if(mutableRequests[p] <= requestsBeforeFinalFetch[p]) throw new Error(`v6 runtime fetch for ${p} did not reach network; cache-first regression suspected`);
+      if(!newBodies[i].includes('new-v2')) throw new Error(`v7 still served stale ${p}: ${newBodies[i]}`);
+      if(mutableRequests[p] <= requestsBeforeFinalFetch[p]) throw new Error(`v7 runtime fetch for ${p} did not reach network; cache-first regression suspected`);
     }
-    if(cacheKeys.includes('swsi-shell-v5') || !cacheKeys.includes('swsi-shell-v6')) throw new Error('cache upgrade invariant failed: '+JSON.stringify(cacheKeys));
+    if(cacheKeys.includes('swsi-shell-v5') || !cacheKeys.includes('swsi-shell-v7')) throw new Error('cache upgrade invariant failed: '+JSON.stringify(cacheKeys));
 
     console.log('SERVICE WORKER UPGRADE SMOKE OK', JSON.stringify({oldBodies,newBodies,cacheKeys,requestsBeforeFinalFetch,mutableRequests}));
   } finally {
