@@ -19,7 +19,7 @@ class FakeResponse {
   let skipped = false;
   let fetchInit = null;
   let cachePutFailure = false;
-  const cacheKeys = new Set(['swsi-shell-v4', 'swsi-shell-v5', 'swsi-shell-v6', 'another-app-cache']);
+  const cacheKeys = new Set(['swsi-shell-v4', 'swsi-shell-v5', 'swsi-shell-v6', 'swsi-shell-v7', 'another-app-cache']);
 
   class FakeRequest {
     constructor(url, init = {}) {
@@ -33,7 +33,7 @@ class FakeResponse {
 
   const caches = {
     async open(name) {
-      assert.strictEqual(name, 'swsi-shell-v6');
+      assert.strictEqual(name, 'swsi-shell-v7');
       return {
         async addAll(reqs) { addRequests.push(...reqs); },
         async put(req, response) {
@@ -80,7 +80,7 @@ class FakeResponse {
   let activatePromise;
   handlers.activate({ waitUntil(p) { activatePromise = p; } });
   await activatePromise;
-  assert.deepStrictEqual(deleted.sort(), ['swsi-shell-v4', 'swsi-shell-v5']);
+  assert.deepStrictEqual(deleted.sort(), ['swsi-shell-v4', 'swsi-shell-v5', 'swsi-shell-v6']);
   assert(cacheKeys.has('another-app-cache'), 'activate deleted an unrelated origin cache');
   assert(claimed, 'new service worker did not claim existing clients');
 
