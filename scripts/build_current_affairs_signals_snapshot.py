@@ -20,28 +20,53 @@ def confidence_score(value: str) -> int:
     return {"high": 3, "medium": 2, "low": 1}.get(value, 0)
 
 
+def load_questions_shards(path: Path) -> list[dict]:
+    manifest_path = path / "manifest.json"
+    if not manifest_path.exists():
+        raise SystemExit(f"Question shard manifest not found: {manifest_path}")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    rows: list[dict] = []
+    for shard in manifest.get("shards") or []:
+        name = shard.get("file")
+        if not name:
+            continue
+        shard_path = path / str(name)
+        if not shard_path.exists():
+            raise SystemExit(f"Question shard missing: {shard_path}")
+        payload = json.loads(shard_path.read_text(encoding="utf-8"))
+        for row in payload.get("questions") or []:
+            if isinstance(row, dict) and row.get("id"):
+                rows.append(row)
+    expected = int(manifest.get("total_questions") or 0)
+    if expected and len(rows) != expected:
+        raise SystemExit(f"Question shard count mismatch: manifest={expected}, loaded={len(rows)}")
+    return rows
+
+
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
     ap = argparse.ArgumentParser()
     ap.add_argument("--input", default=str(root / "auto" / "current_affairs.json"))
-    ap.add_argument("--questions-csv", default=str(root / "data" / "questions_master_backup_20260824_2220.csv"))
+    ap.add_argument("--questions-shards-dir", default=str(root / "cdn" / "question-shards"))
+    ap.add_argument("--questions-csv", default="")
     ap.add_argument("--output", default=str(root / "auto" / "current_affairs_signals.json"))
     ap.add_argument("--limit", type=int, default=30)
     args = ap.parse_args()
 
     src_path = Path(args.input)
-    q_path = Path(args.questions_csv)
+    q_path = Path(args.questions_shards_dir)
+    csv_path = Path(args.questions_csv) if args.questions_csv else None
     if not src_path.exists():
         raise SystemExit(f"Input not found: {src_path}")
-    if not q_path.exists():
-        raise SystemExit(f"Questions CSV not found: {q_path}")
+    if not q_path.exists() and (csv_path is None or not csv_path.exists()):
+        raise SystemExit(f"Question source not found: {q_path}")
 
     src = json.loads(src_path.read_text(encoding="utf-8"))
     items = src.get("items") or []
     if not isinstance(items, list):
         raise SystemExit("Input items must be a list")
 
-    questions = load_questions_csv(q_path)
+    questions = load_questions_shards(q_path) if q_path.exists() else load_questions_csv(csv_path)
     analyzed = [
         analyze_item(row, questions, max_related=5)
         for row in items
@@ -99,6 +124,7 @@ def main() -> int:
         "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "item_count": len(public_items),
         "questions_loaded": len(questions),
+        "question_source": "cdn/question-shards" if q_path.exists() else "csv",
         "note": "SWSI 命題訊號快照；用於複習方向，不代表命題保證。",
         "items": public_items,
     }
