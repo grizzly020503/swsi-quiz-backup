@@ -52,7 +52,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     };
   });
   assert(swState.controller, 'service worker did not control the page');
-  assert(swState.caches.includes('swsi-shell-v6'), 'expected swsi-shell-v6 cache missing: ' + JSON.stringify(swState.caches));
+  assert(swState.caches.includes('swsi-shell-v7'), 'expected swsi-shell-v6 cache missing: ' + JSON.stringify(swState.caches));
 
   // Remove the local question-shard interception before going offline. The next
   // reload must rely on the app shell cache plus the app's own persisted data,
