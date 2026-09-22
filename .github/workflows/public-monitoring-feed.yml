@@ -10,6 +10,7 @@ on:
     # 直接監聽成功完成的 MOEX workflow，才能在 legal-watch report 寫回 main 後立即發布公開快照。
     workflows:
       - MOEX Social Worker Exam Sync
+      - Publish Question Shards to Repo
     types:
       - completed
     branches:
@@ -36,6 +37,7 @@ on:
       - 'monthly_patch_parts/89.public-branding-info.part'
       - 'auto/current_affairs.json'
       - 'auto/current_affairs_signals.json'
+      - 'cdn/question-shards/**'
       - 'auto/legal_watch.json'
       - 'auto/health.json'
       - 'auto/sync_state.json'
