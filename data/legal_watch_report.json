@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checked_at": "2026-09-15T13:17:36Z",
+  "checked_at": "2026-09-23T07:56:28Z",
   "baseline": false,
   "official_sources": [
     {
@@ -32,7 +32,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 136,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -47,7 +47,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 58,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -62,7 +62,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 121,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -77,7 +77,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 77,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -92,7 +92,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 59,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -107,7 +107,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 56,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -122,7 +122,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 72,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -137,7 +137,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 59,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -152,7 +152,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 50,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -167,7 +167,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 56,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -182,7 +182,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 20,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -197,7 +197,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 63,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -212,7 +212,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 12,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -227,7 +227,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 26,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -242,7 +242,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 27,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -257,7 +257,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 91,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -272,7 +272,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 10,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -287,7 +287,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 32,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -302,7 +302,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 12,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -317,7 +317,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 19,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -332,7 +332,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 9,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -347,7 +347,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 47,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -362,7 +362,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 10,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -377,7 +377,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 106,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -392,7 +392,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 27,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -407,7 +407,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 1439,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -422,7 +422,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 9,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -437,7 +437,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 26,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -452,7 +452,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 19,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -467,7 +467,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 120,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -482,7 +482,7 @@
       "abandon_note": "廢止",
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 24,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -497,7 +497,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 421,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -512,7 +512,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 24,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -527,7 +527,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 34,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -542,7 +542,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 48,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -557,7 +557,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 47,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -572,7 +572,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 12,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -587,7 +587,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 47,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -602,7 +602,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 67,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -617,7 +617,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 12,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -632,7 +632,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 103,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -647,7 +647,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 11,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -662,7 +662,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 13,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -677,7 +677,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 62,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -692,7 +692,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 200,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -707,7 +707,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 48,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -722,7 +722,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 74,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -737,7 +737,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 16,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -752,7 +752,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 31,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -767,7 +767,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 9,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -782,7 +782,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 8,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     },
     {
@@ -797,7 +797,7 @@
       "abandon_note": null,
       "article_fingerprint_version": "sha256-v2-law-body",
       "article_count": 23,
-      "article_diff_available": false,
+      "article_diff_available": true,
       "changed_articles": []
     }
   ]
