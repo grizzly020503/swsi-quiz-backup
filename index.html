@@ -2775,6 +2775,8 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
 
   var liveItems=[];
   var signalItems=[];
+  var eventItems=[];
+  var trendItems=[];
   var loadPromise=null;
   var currentFilter='全部';
   var oldOpen=null, oldFilter=null;
@@ -2837,6 +2839,44 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     for(var i=0;i<signalItems.length;i++){if(signalItems[i].id===id)return signalItems[i];}
     return null;
   }
+  function trendFor(id){
+    for(var i=0;i<trendItems.length;i++){if(trendItems[i].canonical_event_id===id)return trendItems[i];}
+    return null;
+  }
+  function trendLabel(v){
+    return v==='rising'?'升溫':v==='sustained'?'持續':v==='cooling'?'降溫':'單次觀察';
+  }
+  function safeHref(v){
+    var s=String(v||''); return /^https:\/\//i.test(s)?E(s):'#';
+  }
+  function eventCard(ev){
+    var tr=trendFor(ev.canonical_event_id)||{};
+    var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(x.replace('社會政策與社會立法','社政法').replace('社會工作直接服務','直接服務').replace('人類行為與社會環境','人行'))+'</span>';}).join('');
+    var why=(tr.why||[]).slice(0,5).map(function(x){return '<li>'+E(x)+'</li>';}).join('');
+    var evidence=(ev.evidence||[]).slice(0,4).map(function(x){
+      return '<li><a class="nlr-link" href="'+safeHref(x.source_url)+'" target="_blank" rel="noopener noreferrer">'+E(x.source_name||'來源')+'</a>'
+        +(fmtDate(x.published_at)?' ・ '+E(fmtDate(x.published_at)):'')+'</li>';
+    }).join('');
+    var related=tr.related_exam_questions||ev.related_exam_questions||[];
+    var mcq=tr.mcq_focus||ev.mcq_focus||[];
+    var essay=tr.essay_direction||ev.essay_direction||'';
+    var sourceCount=Number(ev.source_count||0), officialCount=Number(ev.official_source_count||0);
+    var trendScore=tr.trend_score!=null?tr.trend_score:'';
+    return '<div class="nlr-card">'
+      +'<div class="nlr-head"><span class="nlr-cat">'+E(ev.category||'時事')+'</span><span class="nlr-trend nlr-trend-'+E(tr.trend_state||'one-off')+'">'+E(trendLabel(tr.trend_state))+'</span></div>'
+      +'<div class="nlr-title">'+E(ev.title||'')+'</div>'
+      +'<div class="nlr-meta">'+E(sourceCount)+' 個來源'+(officialCount?' ・ '+E(officialCount)+' 官方':'')+(fmtDate(ev.last_seen)?' ・ 更新 '+E(fmtDate(ev.last_seen)):'')+'</div>'
+      +'<div class="nlr-subs">'+subjects+'</div>'
+      +(trendScore!==''?'<div class="nlr-signal"><b>趨勢訊號 '+E(trendScore)+'/10</b> ・ '+E(trendLabel(tr.trend_state))+'</div>':'')
+      +(ev.exam_point_summary?'<div class="nlr-signal-text">'+E(ev.exam_point_summary)+'</div>':'')
+      +(why?'<details class="nlr-detail"><summary>為什麼值得複習？</summary><ul>'+why+'</ul></details>':'')
+      +(essay?'<details class="nlr-detail"><summary>值得練習的申論方向</summary><div class="nlr-exam">'+E(essay)+'</div></details>':'')
+      +(mcq.length?'<details class="nlr-detail"><summary>選擇題可能抓哪些事實？</summary><div class="nlr-chips">'+mcq.slice(0,8).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('')+'</div></details>':'')
+      +(related.length?'<details class="nlr-detail"><summary>歷屆相關題</summary><ul>'+related.slice(0,5).map(function(q){var label=(q.year||'')+'-'+(q.round||'')+'-'+(q.qno||'');return '<li><b>'+E(q.id||label)+'</b> '+E(q.subject||'')+(q.topic?' ・ '+E(q.topic):'')+'</li>';}).join('')+'</ul></details>':'')
+      +(evidence?'<details class="nlr-detail"><summary>多來源證據</summary><ul>'+evidence+'</ul></details>':'')
+      +'<div class="nlr-note">同事件跨來源只計一次；趨勢用來安排複習，不代表命題保證。</div>'
+      +'</div>';
+  }
   function liveCard(ev){
     var t=templateFor(ev.category);
     var sig=signalFor(ev.id)||{};
@@ -2870,33 +2910,44 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       +'.nlr-card{border:1px solid var(--line,#ddd);border-radius:13px;padding:12px;background:var(--bg,#fff)}.nlr-head{display:flex;justify-content:space-between;gap:8px}.nlr-cat{font-size:.75rem;font-weight:700}.nlr-score{font-size:.72rem;color:var(--muted,#777)}'
       +'.nlr-title{font-weight:800;line-height:1.45;margin:6px 0}.nlr-meta,.nlr-summary{font-size:.8rem;color:var(--muted,#666);line-height:1.55}.nlr-summary{margin-top:7px}'
       +'.nlr-subs,.nlr-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.nlr-sub,.nlr-chip{font-size:.7rem;border-radius:999px;padding:3px 7px;background:var(--soft,#f2f2f2)}'
-      +'.nlr-detail{margin-top:9px;font-size:.8rem;line-height:1.55}.nlr-detail summary{cursor:pointer;font-weight:700}.nlr-detail ul{padding-left:20px;margin:7px 0}.nlr-exam{margin-top:6px}.nlr-signal{margin-top:9px;font-size:.8rem}.nlr-signal-text{margin-top:5px;font-size:.78rem;line-height:1.5}.nlr-link{display:inline-block;margin-top:9px;font-size:.78rem;text-decoration:none;font-weight:700}.nlr-empty{font-size:.82rem;color:var(--muted,#777);padding:8px 0}';
+      +'.nlr-detail{margin-top:9px;font-size:.8rem;line-height:1.55}.nlr-detail summary{cursor:pointer;font-weight:700}.nlr-detail ul{padding-left:20px;margin:7px 0}.nlr-exam{margin-top:6px}.nlr-signal{margin-top:9px;font-size:.8rem}.nlr-signal-text{margin-top:5px;font-size:.78rem;line-height:1.5}.nlr-link{display:inline-block;margin-top:9px;font-size:.78rem;text-decoration:none;font-weight:700}.nlr-empty{font-size:.82rem;color:var(--muted,#777);padding:8px 0}'+'.nlr-trend{font-size:.72rem;font-weight:800;padding:3px 7px;border-radius:999px;background:var(--soft,#f2f2f2)}.nlr-trend-rising{font-weight:900}.nlr-trend-sustained{font-weight:800}.nlr-trend-cooling{opacity:.72}.nlr-note{font-size:.72rem;color:var(--muted,#777);line-height:1.45;margin-top:9px}';
     document.head.appendChild(st);
+  }
+  function fetchJson(url){
+    return fetch(url,{cache:'no-store'}).then(function(r){if(!r.ok) throw new Error(url+' HTTP '+r.status);return r.json();});
   }
   function loadLive(){
     if(loadPromise) return loadPromise;
-    loadPromise=fetch('./auto/current_affairs.json',{cache:'no-store'})
-      .then(function(r){if(!r.ok) throw new Error('current affairs HTTP '+r.status);return r.json();})
-      .then(function(d){
-        liveItems=Array.isArray(d.items)?d.items:[];
-        return fetch('./auto/current_affairs_signals.json',{cache:'no-store'})
-          .then(function(r){if(!r.ok) throw new Error('signals HTTP '+r.status);return r.json();})
-          .then(function(s){signalItems=Array.isArray(s.items)?s.items:[];return liveItems;})
-          .catch(function(){signalItems=[];return liveItems;});
-      })
-      .catch(function(){liveItems=[];signalItems=[];return liveItems;});
+    loadPromise=Promise.all([
+      fetchJson('./auto/current_affairs.json').catch(function(){return null;}),
+      fetchJson('./auto/current_affairs_signals.json').catch(function(){return null;}),
+      fetchJson('./auto/current_affairs_events.json').catch(function(){return null;}),
+      fetchJson('./auto/current_affairs_trends.json').catch(function(){return null;})
+    ]).then(function(all){
+      liveItems=all[0]&&Array.isArray(all[0].items)?all[0].items:[];
+      signalItems=all[1]&&Array.isArray(all[1].items)?all[1].items:[];
+      eventItems=all[2]&&Array.isArray(all[2].events)?all[2].events:[];
+      trendItems=all[3]&&Array.isArray(all[3].trends)?all[3].trends:[];
+      return eventItems.length?eventItems:liveItems;
+    });
     return loadPromise;
   }
   function inject(filter){
     currentFilter=filter||currentFilter||'全部';
     var wrap=document.querySelector('.nl-wrap'); if(!wrap) return;
     var old=document.getElementById('nl-live-radar'); if(old) old.remove();
-    var list=liveItems.filter(function(ev){return currentFilter==='全部'||(ev.subjects||[]).indexOf(currentFilter)>=0;}).slice(0,6);
-    if(!liveItems.length) return;
+    var useV2=eventItems.length&&trendItems.length;
+    var source=useV2?eventItems:liveItems;
+    var list=source.filter(function(ev){return currentFilter==='全部'||(ev.subjects||[]).indexOf(currentFilter)>=0;}).slice(0,6);
+    if(!source.length) return;
     var box=document.createElement('section'); box.id='nl-live-radar'; box.className='nlr-box';
-    box.innerHTML='<div class="nlr-top"><div class="nlr-h">⚡ 最新雷達</div><div class="nlr-badge">每日自動篩選</div></div>'
-      +'<div class="nlr-help">台灣優先；只保留和社工師申論較相關的制度、權益、保護與服務體系事件。這裡是「題材雷達」，不是命題保證；事實細節請以原始來源為準。</div>'
-      +(list.length?'<div class="nlr-grid">'+list.map(liveCard).join('')+'</div>':'<div class="nlr-empty">這個科目目前沒有新的高關聯時事。</div>');
+    box.innerHTML=useV2
+      ?'<div class="nlr-top"><div class="nlr-h">📈 命題趨勢雷達</div><div class="nlr-badge">事件聚類・跨來源</div></div>'
+        +'<div class="nlr-help">把同一事件的不同新聞先合併，再綜合官方政策訊號、法規、歷屆題與持續時間判斷複習優先度。這是趨勢訊號，不是命題保證。</div>'
+        +(list.length?'<div class="nlr-grid">'+list.map(eventCard).join('')+'</div>':'<div class="nlr-empty">這個科目目前沒有新的高關聯事件。</div>')
+      :'<div class="nlr-top"><div class="nlr-h">⚡ 最新雷達</div><div class="nlr-badge">V1 備援</div></div>'
+        +'<div class="nlr-help">趨勢資料暫時不可用，先顯示原本的高關聯時事與命題訊號；事實細節請以原始來源為準。</div>'
+        +(list.length?'<div class="nlr-grid">'+list.map(liveCard).join('')+'</div>':'<div class="nlr-empty">這個科目目前沒有新的高關聯時事。</div>');
     var chips=wrap.querySelector('.nl-chips');
     if(chips) wrap.insertBefore(box,chips); else wrap.appendChild(box);
   }
