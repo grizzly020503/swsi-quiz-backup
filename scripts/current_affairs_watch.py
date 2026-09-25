@@ -3,12 +3,13 @@ import argparse
 import calendar
 import hashlib
 import html
+from html.parser import HTMLParser
 import json
 import re
 import socket
 import time
 from types import SimpleNamespace
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -56,7 +57,7 @@ def load_feeds():
                     name
                     and url.startswith("https://")
                     and region in {"taiwan", "international"}
-                    and source_format in {"rss", "who_newsroom_json"}
+                    and source_format in {"rss", "who_newsroom_json", "official_listing_html"}
                 ):
                     valid.append({
                         "name": name,
@@ -64,6 +65,7 @@ def load_feeds():
                         "region": region,
                         "source_type": source_type if source_type in {"official", "news", "international"} else "news",
                         "source_format": source_format,
+                        "link_path_prefix": str(row.get("link_path_prefix") or "").strip(),
                     })
             if valid:
                 return valid
@@ -212,9 +214,95 @@ def parse_who_newsroom_with_retry(feed, attempts=3):
     return None, last_error
 
 
+class _OfficialListingParser(HTMLParser):
+    def __init__(self, base_url: str, path_prefix: str):
+        super().__init__(convert_charrefs=True)
+        self.base_url = base_url
+        self.base_host = urlparse(base_url).netloc.casefold()
+        self.path_prefix = path_prefix
+        self.current_href = None
+        self.current_text = []
+        self.entries = []
+        self.seen = set()
+
+    def handle_starttag(self, tag, attrs):
+        if tag.casefold() != "a":
+            return
+        href = dict(attrs).get("href")
+        if not href:
+            return
+        absolute = urljoin(self.base_url, str(href).strip())
+        parsed = urlparse(absolute)
+        if parsed.scheme != "https" or parsed.netloc.casefold() != self.base_host:
+            return
+        if self.path_prefix and not parsed.path.startswith(self.path_prefix):
+            return
+        if parsed.path.rstrip("/") == urlparse(self.base_url).path.rstrip("/"):
+            return
+        self.current_href = absolute
+        self.current_text = []
+
+    def handle_data(self, data):
+        if self.current_href is not None:
+            value = re.sub(r"\s+", " ", str(data or "")).strip()
+            if value:
+                self.current_text.append(value)
+
+    def handle_endtag(self, tag):
+        if tag.casefold() != "a" or self.current_href is None:
+            return
+        title = clean_html(" ".join(self.current_text))
+        href = self.current_href
+        self.current_href = None
+        self.current_text = []
+        if len(title) < 12 or href in self.seen:
+            return
+        self.seen.add(href)
+        self.entries.append(SimpleNamespace(
+            title=title,
+            link=href,
+            summary="",
+            description="",
+            published_parsed=None,
+        ))
+
+
+def parse_official_listing_html_with_retry(feed, attempts=3):
+    last_error = None
+    path_prefix = str(feed.get("link_path_prefix") or "").strip()
+    if not path_prefix.startswith("/"):
+        return None, ValueError("official listing source requires link_path_prefix")
+    for attempt in range(1, max(1, attempts) + 1):
+        try:
+            request = Request(
+                feed["url"],
+                headers={
+                    "User-Agent": "swsi-current-affairs-radar/1.1",
+                    "Accept": "text/html,application/xhtml+xml",
+                },
+            )
+            with urlopen(request, timeout=12) as response:
+                raw = response.read().decode("utf-8", errors="replace")
+            parser = _OfficialListingParser(feed["url"], path_prefix)
+            parser.feed(raw)
+            entries = parser.entries[:80]
+            if not entries:
+                raise ValueError("official listing returned no usable article links")
+            return SimpleNamespace(entries=entries, bozo=False), None
+        except Exception as exc:
+            last_error = exc
+        if attempt < attempts:
+            print(f"Feed RETRY: {feed['name']} attempt={attempt} error={last_error}")
+            time.sleep(0.5 * attempt)
+    return None, last_error
+
+
 def parse_source_with_retry(feed, attempts=3):
-    if feed.get("source_format", "rss") == "who_newsroom_json":
+    source_format = feed.get("source_format", "rss")
+    if source_format == "who_newsroom_json":
         return parse_who_newsroom_with_retry(feed, attempts=attempts)
+    if source_format == "official_listing_html":
+        return parse_official_listing_html_with_retry(feed, attempts=attempts)
     return parse_feed_with_retry(feed, attempts=attempts)
 
 
