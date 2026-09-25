@@ -64,7 +64,7 @@ def main() -> int:
     source_registry = read_json("data/current_affairs_sources.json")
     assert source_registry.get("schema_version") == 1
     source_rows = source_registry.get("sources") or []
-    assert len(source_rows) >= 12, "current-affairs source registry unexpectedly shrank"
+    assert len(source_rows) >= 13, "current-affairs source registry unexpectedly shrank"
     source_names = [str(x.get("name") or "").strip() for x in source_rows]
     source_urls = [str(x.get("url") or "").strip() for x in source_rows]
     assert all(source_names), "current-affairs source name missing"
@@ -79,6 +79,7 @@ def main() -> int:
         "https://www.edu.tw/Rss_WebArchive.aspx?n=FB01D469347C76A7",
         "https://news.immigration.gov.tw/Rss/Content/8?lang=TW",
         "https://www.mol.gov.tw/1607/1632/1633/RssList",
+        "https://www.moj.gov.tw/2204/2795/2796/rss",
     }
     assert required_official.issubset(set(source_urls)), "new official feeds missing from registry"
 
@@ -90,7 +91,7 @@ def main() -> int:
     sync = read_json("auto/sync_state.json")
 
     assert news.get("schema_version") == 2
-    assert int(news.get("source_feed_count") or 0) >= 12
+    assert int(news.get("source_feed_count") or 0) >= 13
     assert int(news.get("feed_error_count", -1)) == 0
     items = news.get("items") or []
     assert items, "current-affairs snapshot is empty"
