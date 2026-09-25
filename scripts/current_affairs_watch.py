@@ -6,6 +6,7 @@ import html
 import json
 import re
 import socket
+from urllib.parse import urljoin
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -70,7 +71,7 @@ CATEGORIES = [
 
 POLICY_TERMS = ["修法","修正","政策","制度","改革","通報","補助","津貼","權益","福利","保護","安置","服務量能","人力不足","監察","行政院","衛福部","條例","施行細則","法規","草案","預告","指引","要點","給付","保險","保障"]
 INTERNATIONAL_CORE = ["兒童權利","社會福利","社會政策","移民","難民","人權","心理健康","高齡","家暴","性暴力","災害","貧窮","身心障礙"]
-LOW_VALUE_TERMS = ["好禮","選購","愛心捐贈","公益捐贈","徵求","招標","採購","徵件","動漫菸品","疫苗","流感","登革熱","牙醫醫療站","競賽","招生","徵才","表揚","書展","文化幣","科普","論壇","新書發表","急診","熱傷害","頒獎","典禮","成果發表","模擬投票","築夢","博覽會","開講","接見","訪問團","投資環境","評選","涉詐","詐領","起訴","演練","防衛韌性","課桌椅","揭牌","聯展","音樂會"]
+LOW_VALUE_TERMS = ["好禮","選購","愛心捐贈","公益捐贈","徵求","招標","採購","徵件","動漫菸品","疫苗","流感","登革熱","牙醫醫療站","競賽","招生","徵才","表揚","書展","文化幣","科普","論壇","新書發表","急診","熱傷害","頒獎","典禮","成果發表","模擬投票","築夢","博覽會","開講","接見","訪問團","投資環境","評選","涉詐","詐領","起訴","演練","防衛韌性","課桌椅","揭牌","聯展","音樂會","媒體報導","澄清","駁斥","與事實不符"]
 CHILD_WEAK = {"兒少","兒童","少年","保母"}
 CHILD_STRONG = ["兒少保護","兒虐","虐童","兒童權利","性剝削","托嬰","安置","收出養","寄養","責任通報","兒童及少年福利與權益保障法","兒童權利公約","兒少生活狀況","生活狀況調查"]
 FAMILY_POLICY_STRONG = ["托育","育兒","少子化","家庭政策","性別平等","育嬰留職停薪"]
@@ -181,7 +182,8 @@ def main():
         for entry in parsed.entries:
             fetched += 1
             title = clean_html(getattr(entry, "title", ""))
-            link = str(getattr(entry, "link", "") or "").strip()
+            raw_link = str(getattr(entry, "link", "") or "").strip()
+            link = urljoin(feed["url"], raw_link) if raw_link else ""
             summary = clean_html(getattr(entry, "summary", "") or getattr(entry, "description", ""))[:600]
             pub = published_iso(entry)
             if not title or not link:
