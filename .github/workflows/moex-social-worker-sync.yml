@@ -13,9 +13,9 @@ on:
       - 'scripts/build_auto_payload.py'
       - 'scripts/health_check.py'
       - 'scripts/health_check_v2.py'
+      - 'scripts/moex_workflow_ownership_smoke.py'
       - 'scripts/moj_law_watch.py'
       - 'scripts/current_affairs_watch.py'
-      - 'scripts/build_current_affairs_snapshot.py'
       - 'data/legal_watch_names.json'
   schedule:
     # 台灣時間每天 10:35（UTC 02:35）。國考與時事每日檢查；法規成功後 7 天再完整核對，失敗至少隔 3 天再試。
@@ -46,14 +46,13 @@ jobs:
       - name: Unit-test official grading modes
         run: python scripts/test_moex_grading_modes.py
 
+      - name: Verify MOEX workflow ownership
+        run: python scripts/moex_workflow_ownership_smoke.py
+
       - name: Scan social-work current affairs
         id: current_affairs
         continue-on-error: true
         run: python scripts/current_affairs_watch.py --output /tmp/current_affairs_payload.json --days 21
-
-      - name: Build clustered public current-affairs snapshot
-        if: steps.current_affairs.outcome == 'success'
-        run: python scripts/build_current_affairs_snapshot.py --input /tmp/current_affairs_payload.json --output auto/current_affairs.json --limit 30
 
       - name: Sync current-affairs candidates to Supabase
         if: steps.current_affairs.outcome == 'success'
@@ -204,20 +203,23 @@ jobs:
         # 驗證母庫總數、每個自動考次完整性，以及 grading_mode 三態與一律給分語意一致。
         run: python scripts/health_check_v2.py --remote
 
-      - name: Commit verified official payloads and monitoring snapshots
+      - name: Commit verified official payloads and owned state
         run: |
           set -euo pipefail
           git config user.name 'swsi-moex-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add incoming/ auto/
+          git add \
+            incoming/ \
+            auto/questions_auto.json auto/essays_auto.json \
+            auto/sync_state.json auto/health.json
           for file in data/legal_watch_state.json data/legal_watch_report.json data/legal_watch_attempt.json; do
             [ -f "$file" ] && git add "$file"
           done
           if git diff --cached --quiet; then
-            echo 'No official, backup, current-affairs, or legal-watch changes.'
+            echo 'No official exam, backup, health, sync-state, or legal-watch changes.'
             exit 0
           fi
-          git commit -m '更新官方考題、申論時事雷達與健康檢查備援'
+          git commit -m '更新官方考題與健康檢查備援'
           # 其他後端 workflow 可能同時更新 main；rebase 後再 push，避免 non-fast-forward 假失敗。
           for attempt in 1 2 3; do
             git fetch origin main
