@@ -20,6 +20,7 @@ def row(
     essay="medium",
     mcq="medium",
     related=None,
+    history=None,
 ):
     return {
         "id": item_id,
@@ -39,6 +40,7 @@ def row(
         "signal_score": 7,
         "related_laws": laws or [],
         "related_exam_questions": related or [],
+        "historical_exam_stats": history or {},
     }
 
 
@@ -51,6 +53,19 @@ def main() -> int:
             "https://example.test/a",
             "2026-09-24T03:30:00Z",
             source_type="official",
+            history={
+                "matched_question_count": 8,
+                "matched_year_count": 3,
+                "matched_years": [109, 111, 114],
+                "earliest_exam_year": 109,
+                "latest_exam_year": 114,
+                "corpus_latest_year": 115,
+                "years_since_last_exam": 1,
+                "subject_counts": {"社會政策與社會立法": 6, "社會工作": 2},
+                "subject_count": 2,
+                "law_match_count": 3,
+                "high_confidence_match_count": 5,
+            },
         ),
         row(
             "b",
@@ -58,6 +73,19 @@ def main() -> int:
             "中央社生活",
             "https://example.test/b",
             "2026-09-24T05:00:00Z",
+            history={
+                "matched_question_count": 5,
+                "matched_year_count": 2,
+                "matched_years": [110, 115],
+                "earliest_exam_year": 110,
+                "latest_exam_year": 115,
+                "corpus_latest_year": 115,
+                "years_since_last_exam": 0,
+                "subject_counts": {"社會政策與社會立法": 3, "社會工作": 2},
+                "subject_count": 2,
+                "law_match_count": 1,
+                "high_confidence_match_count": 2,
+            },
         ),
         row(
             "c",
@@ -86,6 +114,12 @@ def main() -> int:
     assert merged["official_source_count"] == 2, merged
     assert len(merged["evidence"]) == 3, merged
     assert len({x["source_url"] for x in merged["evidence"]}) == 3
+    history = merged.get("historical_exam_stats") or {}
+    assert history.get("matched_question_count") == 8, history
+    assert history.get("matched_years") == [109, 110, 111, 114, 115], history
+    assert history.get("latest_exam_year") == 115, history
+    assert history.get("years_since_last_exam") == 0, history
+    assert history.get("aggregation_method") == "max-member-count-plus-year-union-v1", history
 
     bilingual_same = [
         {
@@ -176,6 +210,20 @@ def main() -> int:
         "last_seen": "2026-09-25T00:00:00Z",
         "related_laws": ["長期照顧服務法"],
         "related_exam_questions": [{"id": "SP114-1-23"}, {"id": "SP109-2-39"}],
+        "historical_exam_stats": {
+            "matched_question_count": 12,
+            "matched_year_count": 6,
+            "matched_years": [104, 106, 109, 111, 114, 115],
+            "earliest_exam_year": 104,
+            "latest_exam_year": 115,
+            "corpus_latest_year": 115,
+            "years_since_last_exam": 0,
+            "subject_counts": {"社會政策與社會立法": 8, "社會工作": 4},
+            "subject_count": 2,
+            "law_match_count": 4,
+            "high_confidence_match_count": 6,
+            "aggregation_method": "fixture",
+        },
         "policy_signal": "high",
         "essay_value": "high",
         "mcq_fact_density": "high",
@@ -189,6 +237,29 @@ def main() -> int:
         policy_trend,
     )
     assert policy_trend["trend_state"] in {"rising", "sustained"}
+    assert policy_trend["historical_question_count"] == 12
+    assert policy_trend["historical_exam_years"] == [104, 106, 109, 111, 114, 115]
+    assert policy_trend["years_since_last_related_exam"] == 0
+    assert policy_trend["historical_subject_count"] == 2
+    assert policy_trend["factors"]["historical_frequency"] > 0
+    assert policy_trend["factors"]["recent_exam_support"] > 0
+
+    stale_history = {
+        **official_policy,
+        "historical_exam_stats": {
+            **official_policy["historical_exam_stats"],
+            "matched_years": [104, 105, 106],
+            "matched_year_count": 3,
+            "latest_exam_year": 106,
+            "years_since_last_exam": 9,
+        },
+    }
+    stale_trend = trend_for(stale_history, now)
+    assert policy_trend["trend_score"] > stale_trend["trend_score"], (
+        policy_trend,
+        stale_trend,
+    )
+    assert stale_trend["years_since_last_related_exam"] == 9
 
     print(
         "CURRENT AFFAIRS V2 EVENT/TREND SMOKE OK: "

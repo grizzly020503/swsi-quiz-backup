@@ -116,6 +116,7 @@ def main() -> int:
                 "mcq_focus": row.get("mcq_focus") or [],
                 "related_laws": row.get("related_laws") or [],
                 "related_exam_questions": row.get("related_exam_questions") or [],
+                "historical_exam_stats": row.get("historical_exam_stats") or {},
             }
         )
 

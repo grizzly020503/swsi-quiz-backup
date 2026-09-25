@@ -411,6 +411,60 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
     return out
 
 
+def _exam_year_int(value) -> int | None:
+    try:
+        year = int(str(value or "").strip())
+    except (TypeError, ValueError):
+        return None
+    return year if 1 <= year <= 999 else None
+
+
+def historical_exam_stats(matches: list[dict], questions: list[dict]) -> dict:
+    years = sorted({
+        y for y in (_exam_year_int(q.get("year")) for q in matches)
+        if y is not None
+    })
+    corpus_years = [
+        y for y in (_exam_year_int(q.get("year")) for q in questions)
+        if y is not None
+    ]
+    corpus_latest = max(corpus_years) if corpus_years else None
+    latest = max(years) if years else None
+    earliest = min(years) if years else None
+    subject_counts: dict[str, int] = {}
+    law_match_count = 0
+    high_confidence_match_count = 0
+    for q in matches:
+        subject = str(q.get("subject") or "").strip()
+        if subject:
+            subject_counts[subject] = subject_counts.get(subject, 0) + 1
+        if "法規「" in str(q.get("match_reason") or ""):
+            law_match_count += 1
+        try:
+            if float(q.get("match_score") or 0) >= 5.0:
+                high_confidence_match_count += 1
+        except (TypeError, ValueError):
+            pass
+    years_since_last = (
+        max(0, corpus_latest - latest)
+        if corpus_latest is not None and latest is not None
+        else None
+    )
+    return {
+        "matched_question_count": len(matches),
+        "matched_year_count": len(years),
+        "matched_years": years,
+        "earliest_exam_year": earliest,
+        "latest_exam_year": latest,
+        "corpus_latest_year": corpus_latest,
+        "years_since_last_exam": years_since_last,
+        "subject_counts": dict(sorted(subject_counts.items())),
+        "subject_count": len(subject_counts),
+        "law_match_count": law_match_count,
+        "high_confidence_match_count": high_confidence_match_count,
+    }
+
+
 def essay_direction_for(row: dict, laws: list[str]) -> str:
     category = str(row.get("category") or "時事")
     hint = CATEGORY_ESSAY_HINT.get(category, "事件脈絡、社工角色、政策工具與制度改善")
@@ -449,11 +503,18 @@ def analyze_item(row: dict, questions: list[dict], max_related: int = 5) -> dict
     policy = score_policy_signal(text)
     essay = score_essay_value(text, str(row.get("category") or ""))
     mcq = score_mcq_fact_density(text)
-    related = match_questions(row, laws, questions, max_hits=max_related)
+    all_related = match_questions(
+        row,
+        laws,
+        questions,
+        max_hits=max(1, len(questions)) if questions else 1,
+    )
+    related = all_related[: max(1, max_related)]
+    history = historical_exam_stats(all_related, questions)
     summary = build_exam_point_summary(row, laws, policy, essay, mcq)
     essay_direction = essay_direction_for(row, laws)
     mcq_focus = mcq_focus_for(row, text, laws)
-    conf = confidence_for(policy, essay, mcq, laws, len(related))
+    conf = confidence_for(policy, essay, mcq, laws, len(all_related))
 
     out = dict(row)
     out.update(
@@ -466,6 +527,7 @@ def analyze_item(row: dict, questions: list[dict], max_related: int = 5) -> dict
             "mcq_focus": mcq_focus,
             "related_laws": laws,
             "related_exam_questions": related,
+            "historical_exam_stats": history,
             "signal_confidence": conf,
             "analysis_status": "auto",
         }
