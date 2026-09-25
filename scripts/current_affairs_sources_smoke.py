@@ -166,6 +166,11 @@ def main() -> int:
             "犯罪被害人保護協會辦理音樂會活動。",
             "法務部新聞發布",
         ),
+        (
+            "有關媒體報導法務部長下令少關人一文 本部澄清說明",
+            "媒體報導與事實不符，法務部予以澄清。",
+            "法務部新聞發布",
+        ),
     ]
     for title, summary, source in noise_cases:
         result = scored(title, summary, source)
