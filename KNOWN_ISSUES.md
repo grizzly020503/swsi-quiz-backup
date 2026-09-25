@@ -10,7 +10,7 @@
 - **Reuters／AP／BBC 目前刻意不接。** 原因是官方授權／metadata/RSS 使用條件，不是技術 defect。詳見 `docs/CURRENT_AFFAIRS_SOURCE_POLICY.md`。
 - **社家署 live current-affairs feed 尚無驗證通過 endpoint。** 不猜 URL；其 data.gov.tw 開放資料可另作 background evidence，不列為 current-affairs feed bug。
 - **Issue #84 在本輪 source-policy closeout 後可關閉。**
-- **Netlify fallback 仍是獨立維運事項。** Cloudflare primary 的 current-affairs V2／history-v2.2 不以 Netlify 升級為阻塞條件。
+- **Netlify fallback 已獲使用者授權更新，最新正式封包已完成。** 但目前聊天沒有 Netlify 帳號寫入連接器／deploy hook；正式站仍待帳號端手動 drag-and-drop 上傳。最新封包來源 main `752a9b750870022b418fa391933a9c48414a5a17`，SHA-256 `071d1d5c7e7c8faa9b9d7994c62c1d7ac7f0c696a9000a4eb7e09aaa8a2e5e30`。上傳後再重跑 `Verify Netlify Production Release`。
 - 下方舊的 6 feeds、SW v6、8 月 branch/release 敘述均為歷史證據；衝突時以 `PROJECT_HANDOFF.md` 最上方最新節、`docs/CURRENT_AFFAIRS_SOURCE_POLICY.md` 與遠端真實狀態為準。
 
 ## P0（已完成，持續防回歸）
@@ -138,7 +138,7 @@ MOEX Importer Integrity QA #1（33003892890）已成功；Monthly Frontend QA #9
 
 ## 尚未執行的 release operation
 
-- Netlify production deploy 與 `Verify Netlify Production Release` 未執行：本輪沒有部署授權；這是 merge 後的人工 release 步驟，不是未修程式 bug。
+- Netlify production deploy：**使用者已授權，封包已完成，但仍待 Netlify 帳號端手動上傳**。GitHub merge 不會自動做 production deploy；`Verify Netlify Production Release` 目前會因正式站仍是舊 marker 而失敗，這是預期的外部 release blocker，不是程式 bug。
 - `main` 比 branch 多一筆只修改 `cdn/preview/monthly_patch.js` 的 preview artifact commit；合併必須走一般 PR/merge 並保留該 commit，不可 force 覆蓋。
 
 ## P2 / 長期重構
