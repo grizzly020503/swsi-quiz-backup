@@ -25,6 +25,8 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
+from current_affairs_taxonomy import canonical_concepts, concept_tags
+
 ROOT = Path(__file__).resolve().parents[1]
 
 KNOWN_LAWS = [
@@ -119,8 +121,60 @@ CATEGORY_ESSAY_HINT = {
 }
 
 WEAK_TAGS = {
-    "政策", "制度", "福利", "保護", "權益", "服務", "補助", "津貼",
-    "兒童", "少年", "老人", "高齡", "社工", "社會工作", "衛福部",
+    "政策", "制度", "福利", "保護", "權益", "保障", "服務", "補助", "津貼",
+    "法規", "條例", "兒童", "少年", "老人", "高齡", "社工", "社會工作",
+    "身心障礙", "身障", "長照", "移工", "新住民", "移民", "難民",
+    "衛福部", "衛生福利部", "行政院", "內政部", "勞動部", "教育部",
+    "法務部", "考試院", "國民健康署",
+}
+
+HISTORICAL_CONCEPTS = {
+    "minimum_wage": {
+        "label": "最低／基本工資",
+        "aliases": ["最低工資", "基本工資", "minimum wage"],
+        "requires_law": False,
+    },
+    "welfare_survey": {
+        "label": "福利需求調查",
+        "aliases": ["生活狀況調查", "需求調查", "身心發展調查", "調查統計機制"],
+        "requires_law": True,
+    },
+    "childcare": {
+        "label": "托育",
+        "aliases": ["托育", "托嬰", "居家式托育", "居家托育", "childcare", "child care"],
+        "requires_law": False,
+    },
+    "long_term_care": {
+        "label": "長期照顧",
+        "aliases": ["長期照顧", "長照", "long-term care", "long term care"],
+        "requires_law": False,
+    },
+    "residential_support": {
+        "label": "住宿式照顧",
+        "aliases": ["住宿式服務機構", "住宿機構", "住宿費", "住宿補助"],
+        "requires_law": False,
+    },
+    "labor_insurance": {
+        "label": "勞工保險",
+        "aliases": ["勞保", "勞工保險", "labor insurance"],
+        "requires_law": False,
+    },
+    "retirement_pension": {
+        "label": "退休年金",
+        "aliases": ["延後退休", "老年年金", "勞保年金", "退休", "pension"],
+        "requires_law": False,
+    },
+    "disability_employment": {
+        "label": "身障就業",
+        "aliases": ["身障就業", "庇護工場", "定額進用", "職業重建"],
+        "requires_law": False,
+    },
+}
+
+CANONICAL_STANDALONE_HISTORY = {
+    "social_protection", "refugees_migration", "restorative_justice",
+    "juvenile_justice", "mental_health", "suicide_prevention",
+    "gender_violence", "disaster_displacement",
 }
 
 CATEGORY_MATCH_TERMS = {
@@ -338,6 +392,32 @@ def informative_tags(row: dict) -> set[str]:
         if s and s not in WEAK_TAGS and len(s) >= 2:
             tags.add(s)
     return tags
+
+
+def _contains_alias(text: str, alias: str) -> bool:
+    hay = str(text or "").casefold()
+    needle = str(alias or "").casefold().strip()
+    if not needle:
+        return False
+    if re.search(r"[a-z0-9]", needle) and not re.search(r"[一-龥]", needle):
+        pattern = re.escape(needle).replace(r"\ ", r"\s+")
+        return re.search(r"(?<![a-z0-9])" + pattern + r"(?![a-z0-9])", hay) is not None
+    return needle in hay
+
+
+def historical_concepts(text: str) -> set[str]:
+    out = set()
+    for key, spec in HISTORICAL_CONCEPTS.items():
+        if any(_contains_alias(text, alias) for alias in spec["aliases"]):
+            out.add(key)
+    return out
+
+
+def _question_search_text(q: dict) -> str:
+    return (
+        f"{q.get('question') or ''} {q.get('topic') or ''} "
+        f"{q.get('major') or ''} {' '.join(q.get('keywords') or [])}"
+    )
 
 
 def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits: int = 5) -> list[dict]:
