@@ -169,6 +169,11 @@ HISTORICAL_CONCEPTS = {
         "aliases": ["身障就業", "庇護工場", "定額進用", "職業重建"],
         "requires_law": False,
     },
+    "elderly_living_alone": {
+        "label": "獨居高齡者",
+        "aliases": ["獨居老人", "獨居長者", "獨老"],
+        "requires_law": False,
+    },
 }
 
 CANONICAL_STANDALONE_HISTORY = {
@@ -410,6 +415,11 @@ def historical_concepts(text: str) -> set[str]:
     for key, spec in HISTORICAL_CONCEPTS.items():
         if any(_contains_alias(text, alias) for alias in spec["aliases"]):
             out.add(key)
+    # Prefer a specific event concept over its broader parent. A residential
+    # subsidy story should not inherit every long-term-care question merely
+    # because both texts contain 長照.
+    if "residential_support" in out:
+        out.discard("long_term_care")
     return out
 
 
