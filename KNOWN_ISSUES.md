@@ -10,7 +10,7 @@
 - **Reuters／AP／BBC 目前刻意不接。** 原因是官方授權／metadata/RSS 使用條件，不是技術 defect。詳見 `docs/CURRENT_AFFAIRS_SOURCE_POLICY.md`。
 - **社家署 live current-affairs feed 尚無驗證通過 endpoint。** 不猜 URL；其 data.gov.tw 開放資料可另作 background evidence，不列為 current-affairs feed bug。
 - **Issue #84 在本輪 source-policy closeout 後可關閉。**
-- **Netlify fallback 已獲使用者授權更新，最新正式封包已完成。** 但目前聊天沒有 Netlify 帳號寫入連接器／deploy hook；正式站仍待帳號端手動 drag-and-drop 上傳。最新封包來源 main `752a9b750870022b418fa391933a9c48414a5a17`，SHA-256 `071d1d5c7e7c8faa9b9d7994c62c1d7ac7f0c696a9000a4eb7e09aaa8a2e5e30`。上傳後再重跑 `Verify Netlify Production Release`。
+- **Netlify fallback 已獲使用者授權更新，history-v2.2 正式封包已完成；唯一未完成的是帳號端手動 deploy。** 目前聊天沒有 Netlify 帳號寫入連接器／deploy hook；Plugin Directory 也沒有 Netlify connector。#142 main artifact run `36202627219` success，Artifact ID `10892094151`，來源 main `4c55f1c7b1d587307761afa46f19dce51e6757ae`；真正要上傳的是 artifact 內層 `swsi-netlify-manual-deploy.zip`，SHA-256 `79b12ceeae1aaac776488ff2af78134c36bf6fcca85c53ef369c9296856c59ee`。Verifier run `36202022040` attempt 2 在 artifact 完成後仍連續 18 次看不到 `2026-09-26-history-v2.2` marker，已確認 production 仍是舊版。上傳後再重跑 verifier。
 - 下方舊的 6 feeds、SW v6、8 月 branch/release 敘述均為歷史證據；衝突時以 `PROJECT_HANDOFF.md` 最上方最新節、`docs/CURRENT_AFFAIRS_SOURCE_POLICY.md` 與遠端真實狀態為準。
 
 ## P0（已完成，持續防回歸）
