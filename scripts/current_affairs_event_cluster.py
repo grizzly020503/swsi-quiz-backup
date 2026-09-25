@@ -26,6 +26,12 @@ AGENCIES = [
     "國土管理署", "警政署", "消防署",
 ]
 LAW_SUFFIXES = ("法", "條例", "辦法", "施行細則", "公約")
+CROSS_LANGUAGE_STRONG_FACETS = {
+    "child-sexual-abuse", "child-abuse", "gender-based-violence",
+    "domestic-violence", "sexual-violence", "human-trafficking",
+    "restorative-justice", "juvenile-justice", "victims-rights",
+    "minimum-wage", "long-term-care", "dementia", "school-bullying",
+}
 
 
 def parse_dt(value: str | None) -> datetime | None:
@@ -130,12 +136,17 @@ def similarity(a: dict, b: dict, max_days: int = 10) -> tuple[float, list[str]]:
             reasons.append("org=" + ",".join(sorted(shared_orgs)[:2]))
         if shared_numbers:
             reasons.append("number=" + ",".join(sorted(shared_numbers)[:3]))
-        # Fail closed: one shared topic is never enough. Cross-language merge needs
-        # an organization + numeric anchor, or two specific semantic facets + org.
-        if specific_facets and shared_orgs and shared_numbers:
-            return 0.72, ["cross-language"] + reasons
+        # Fail closed: a broad shared topic is never enough. Cross-language merge
+        # needs two specific semantic facets + organization, OR one highly specific
+        # facet + organization + shared numeric anchor.
         if len(specific_facets) >= 2 and shared_orgs:
-            return 0.64, ["cross-language-strong-facets"] + reasons
+            return 0.72, ["cross-language-multi-facet"] + reasons
+        if (
+            specific_facets.intersection(CROSS_LANGUAGE_STRONG_FACETS)
+            and shared_orgs
+            and shared_numbers
+        ):
+            return 0.66, ["cross-language-strong-anchor"] + reasons
         return 0.0, reasons + ["cross-language-below-threshold"]
 
     title_score = jaccard(fa["ngrams"], fb["ngrams"])
@@ -262,6 +273,11 @@ def _previous_as_item(row: dict) -> dict:
         "subjects": row.get("subjects") or [],
         "related_laws": row.get("related_laws") or [],
         "published_at": row.get("last_seen"),
+        "language": "multi" if len(row.get("languages") or []) > 1 else ((row.get("languages") or ["zh"])[0]),
+        "languages": row.get("languages") or [],
+        "event_facets": row.get("event_facets") or [],
+        "org_keys": row.get("org_keys") or [],
+        "numeric_anchors": row.get("numeric_anchors") or [],
         "languages": row.get("languages") or [],
         "event_facets": row.get("event_facets") or [],
         "org_keys": row.get("org_keys") or [],
