@@ -297,6 +297,8 @@ def _merge_historical_stats(members: list[dict]) -> dict:
                 subjects[subject] = subjects.get(subject, 0) + 1
         return {
             "matched_question_count": len(related),
+            "weighted_match_count": float(len(related)),
+            "match_breakdown": {"strong": 0, "medium": 0, "concept": len(related)},
             "matched_year_count": len(years),
             "matched_years": years,
             "earliest_exam_year": min(years) if years else None,
@@ -306,13 +308,17 @@ def _merge_historical_stats(members: list[dict]) -> dict:
             "subject_counts": dict(sorted(subjects.items())),
             "subject_count": len(subjects),
             "law_match_count": 0,
+            "law_match_year_count": 0,
+            "law_match_years": [],
             "high_confidence_match_count": 0,
+            "matching_method": "related-question-fallback",
             "aggregation_method": "related-question-fallback",
         }
 
     richest = max(
         stats,
         key=lambda x: (
+            float(x.get("weighted_match_count") or 0),
             int(x.get("matched_question_count") or 0),
             int(x.get("high_confidence_match_count") or 0),
         ),
@@ -321,6 +327,12 @@ def _merge_historical_stats(members: list[dict]) -> dict:
         int(y)
         for st in stats
         for y in (st.get("matched_years") or [])
+        if str(y).isdigit()
+    })
+    law_years = sorted({
+        int(y)
+        for st in stats
+        for y in (st.get("law_match_years") or [])
         if str(y).isdigit()
     })
     corpus_years = [
@@ -333,6 +345,8 @@ def _merge_historical_stats(members: list[dict]) -> dict:
     earliest = min(years) if years else None
     return {
         "matched_question_count": int(richest.get("matched_question_count") or 0),
+        "weighted_match_count": float(richest.get("weighted_match_count") or 0),
+        "match_breakdown": dict(richest.get("match_breakdown") or {}),
         "matched_year_count": len(years),
         "matched_years": years,
         "earliest_exam_year": earliest,
@@ -345,9 +359,12 @@ def _merge_historical_stats(members: list[dict]) -> dict:
         ),
         "subject_counts": dict(richest.get("subject_counts") or {}),
         "subject_count": int(richest.get("subject_count") or 0),
-        "law_match_count": int(richest.get("law_match_count") or 0),
+        "law_match_count": max(int(st.get("law_match_count") or 0) for st in stats),
+        "law_match_year_count": len(law_years),
+        "law_match_years": law_years,
         "high_confidence_match_count": int(richest.get("high_confidence_match_count") or 0),
-        "aggregation_method": "max-member-count-plus-year-union-v1",
+        "matching_method": richest.get("matching_method") or "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2",
     }
 
 
