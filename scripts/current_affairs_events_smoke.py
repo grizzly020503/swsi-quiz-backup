@@ -55,6 +55,8 @@ def main() -> int:
             source_type="official",
             history={
                 "matched_question_count": 8,
+                "weighted_match_count": 6.25,
+                "match_breakdown": {"strong": 5, "medium": 2, "concept": 1},
                 "matched_year_count": 3,
                 "matched_years": [109, 111, 114],
                 "earliest_exam_year": 109,
@@ -64,6 +66,9 @@ def main() -> int:
                 "subject_counts": {"社會政策與社會立法": 6, "社會工作": 2},
                 "subject_count": 2,
                 "law_match_count": 3,
+                "law_match_year_count": 3,
+                "law_match_years": [109, 111, 114],
+                "matching_method": "event-evidence-v2.2",
                 "high_confidence_match_count": 5,
             },
         ),
@@ -75,6 +80,8 @@ def main() -> int:
             "2026-09-24T05:00:00Z",
             history={
                 "matched_question_count": 5,
+                "weighted_match_count": 2.75,
+                "match_breakdown": {"strong": 2, "medium": 1, "concept": 1},
                 "matched_year_count": 2,
                 "matched_years": [110, 115],
                 "earliest_exam_year": 110,
@@ -84,6 +91,9 @@ def main() -> int:
                 "subject_counts": {"社會政策與社會立法": 3, "社會工作": 2},
                 "subject_count": 2,
                 "law_match_count": 1,
+                "law_match_year_count": 1,
+                "law_match_years": [115],
+                "matching_method": "event-evidence-v2.2",
                 "high_confidence_match_count": 2,
             },
         ),
@@ -119,7 +129,9 @@ def main() -> int:
     assert history.get("matched_years") == [109, 110, 111, 114, 115], history
     assert history.get("latest_exam_year") == 115, history
     assert history.get("years_since_last_exam") == 0, history
-    assert history.get("aggregation_method") == "max-member-count-plus-year-union-v1", history
+    assert history.get("aggregation_method") == "max-quality-member-plus-year-union-v2.2", history
+    assert history.get("weighted_match_count") == 6.25, history
+    assert history.get("match_breakdown") == {"strong": 5, "medium": 2, "concept": 1}, history
 
     bilingual_same = [
         {
@@ -212,6 +224,8 @@ def main() -> int:
         "related_exam_questions": [{"id": "SP114-1-23"}, {"id": "SP109-2-39"}],
         "historical_exam_stats": {
             "matched_question_count": 12,
+            "weighted_match_count": 8.0,
+            "match_breakdown": {"strong": 6, "medium": 3, "concept": 2},
             "matched_year_count": 6,
             "matched_years": [104, 106, 109, 111, 114, 115],
             "earliest_exam_year": 104,
@@ -220,8 +234,11 @@ def main() -> int:
             "years_since_last_exam": 0,
             "subject_counts": {"社會政策與社會立法": 8, "社會工作": 4},
             "subject_count": 2,
-            "law_match_count": 4,
+            "law_match_count": 20,
+            "law_match_year_count": 8,
+            "law_match_years": [104, 105, 106, 107, 109, 111, 114, 115],
             "high_confidence_match_count": 6,
+            "matching_method": "event-evidence-v2.2",
             "aggregation_method": "fixture",
         },
         "policy_signal": "high",
@@ -261,10 +278,50 @@ def main() -> int:
     )
     assert stale_trend["years_since_last_related_exam"] == 9
 
+    quality_base = {
+        **official_policy,
+        "related_laws": [],
+        "historical_exam_stats": {
+            **official_policy["historical_exam_stats"],
+            "matched_question_count": 5,
+            "matched_year_count": 2,
+            "matched_years": [114, 115],
+            "latest_exam_year": 115,
+            "years_since_last_exam": 0,
+            "law_match_count": 0,
+            "law_match_year_count": 0,
+            "law_match_years": [],
+        },
+    }
+    weak_quality = {
+        **quality_base,
+        "historical_exam_stats": {
+            **quality_base["historical_exam_stats"],
+            "weighted_match_count": 1.25,
+            "match_breakdown": {"strong": 0, "medium": 0, "concept": 5},
+            "high_confidence_match_count": 0,
+        },
+    }
+    strong_quality = {
+        **quality_base,
+        "historical_exam_stats": {
+            **quality_base["historical_exam_stats"],
+            "matched_question_count": 2,
+            "weighted_match_count": 2.0,
+            "match_breakdown": {"strong": 2, "medium": 0, "concept": 0},
+            "high_confidence_match_count": 2,
+        },
+    }
+    weak_trend = trend_for(weak_quality, now)
+    strong_trend = trend_for(strong_quality, now)
+    assert strong_trend["trend_score"] > weak_trend["trend_score"], (weak_trend, strong_trend)
+    assert weak_trend["historical_match_breakdown"]["concept"] == 5
+    assert strong_trend["historical_match_breakdown"]["strong"] == 2
+
     print(
         "CURRENT AFFAIRS V2 EVENT/TREND SMOKE OK: "
         "3-source event deduped, bilingual event merged only with independent anchor, "
-        "unrelated event separated, identity persisted, trend score not driven by source count alone"
+        "unrelated event separated, identity persisted, topic/law history separated, match quality weighted"
     )
     return 0
 
