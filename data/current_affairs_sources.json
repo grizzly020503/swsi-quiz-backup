@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {"name":"衛生福利部焦點新聞","url":"https://www.mohw.gov.tw/rss-16-1.html","region":"taiwan","source_type":"official"},
+    {"name":"衛生福利部公告訊息","url":"https://www.mohw.gov.tw/rss-18-1.html","region":"taiwan","source_type":"official"},
+    {"name":"中央社社會","url":"https://feeds.feedburner.com/rsscna/social","region":"taiwan","source_type":"news"},
+    {"name":"中央社生活","url":"https://feeds.feedburner.com/rsscna/lifehealth","region":"taiwan","source_type":"news"},
+    {"name":"中央社政治","url":"https://feeds.feedburner.com/rsscna/politics","region":"taiwan","source_type":"news"},
+    {"name":"中央社國際","url":"https://feeds.feedburner.com/rsscna/intworld","region":"international","source_type":"news"},
+    {"name":"內政部新聞發布","url":"https://www.moi.gov.tw/OpenData.aspx?SN=76F358C679FAD4CF","region":"taiwan","source_type":"official"},
+    {"name":"行政院本院新聞","url":"https://www.ey.gov.tw/RSS_Content.aspx?ModuleType=3","region":"taiwan","source_type":"official"}
+  ]
+}
