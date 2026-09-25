@@ -59,6 +59,12 @@ def jaccard(a: set[str], b: set[str]) -> float:
     return len(a & b) / len(a | b)
 
 
+def overlap_coefficient(a: set[str], b: set[str]) -> float:
+    if not a or not b:
+        return 0.0
+    return len(a & b) / min(len(a), len(b))
+
+
 def extract_agencies(text: str) -> set[str]:
     return {name for name in AGENCIES if name in text}
 
@@ -91,6 +97,7 @@ def similarity(a: dict, b: dict, max_days: int = 10) -> tuple[float, list[str]]:
         return 0.0, ["outside-time-window"]
 
     title_score = jaccard(fa["ngrams"], fb["ngrams"])
+    title_cover = overlap_coefficient(fa["ngrams"], fb["ngrams"])
     tag_score = jaccard(fa["tags"], fb["tags"])
     subject_score = jaccard(fa["subjects"], fb["subjects"])
     shared_laws = fa["laws"] & fb["laws"]
@@ -98,15 +105,15 @@ def similarity(a: dict, b: dict, max_days: int = 10) -> tuple[float, list[str]]:
 
     reasons: list[str] = []
     score = 0.0
-    if title_score >= 0.62:
+    if title_score >= 0.62 or title_cover >= 0.72:
         score += 0.72
-        reasons.append(f"title={title_score:.2f}")
-    elif title_score >= 0.44:
+        reasons.append(f"title={title_score:.2f}/cover={title_cover:.2f}")
+    elif title_score >= 0.44 or title_cover >= 0.48:
         score += 0.50
-        reasons.append(f"title={title_score:.2f}")
-    elif title_score >= 0.30:
+        reasons.append(f"title={title_score:.2f}/cover={title_cover:.2f}")
+    elif title_score >= 0.30 or title_cover >= 0.38:
         score += 0.30
-        reasons.append(f"title={title_score:.2f}")
+        reasons.append(f"title={title_score:.2f}/cover={title_cover:.2f}")
 
     if shared_laws:
         score += 0.28
@@ -123,11 +130,15 @@ def similarity(a: dict, b: dict, max_days: int = 10) -> tuple[float, list[str]]:
     if subject_score >= 0.5:
         score += 0.05
 
-    if title_score >= 0.62:
+    if title_score >= 0.62 or title_cover >= 0.72:
         return min(1.0, score), reasons
-    if title_score >= 0.44 and (shared_laws or shared_agencies):
+    if (title_score >= 0.44 or title_cover >= 0.48) and (
+        shared_laws or shared_agencies or tag_score >= 0.50
+    ):
         return min(1.0, score), reasons
-    if shared_laws and title_score >= 0.30 and (tag_score >= 0.25 or shared_agencies):
+    if shared_laws and (title_score >= 0.30 or title_cover >= 0.38) and (
+        tag_score >= 0.25 or shared_agencies
+    ):
         return min(1.0, score), reasons
     return 0.0, reasons + ["below-fail-closed-threshold"]
 
