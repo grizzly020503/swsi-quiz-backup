@@ -1,13 +1,71 @@
 {
   "schema_version": 1,
   "sources": [
-    {"name":"衛生福利部焦點新聞","url":"https://www.mohw.gov.tw/rss-16-1.html","region":"taiwan","source_type":"official"},
-    {"name":"衛生福利部公告訊息","url":"https://www.mohw.gov.tw/rss-18-1.html","region":"taiwan","source_type":"official"},
-    {"name":"中央社社會","url":"https://feeds.feedburner.com/rsscna/social","region":"taiwan","source_type":"news"},
-    {"name":"中央社生活","url":"https://feeds.feedburner.com/rsscna/lifehealth","region":"taiwan","source_type":"news"},
-    {"name":"中央社政治","url":"https://feeds.feedburner.com/rsscna/politics","region":"taiwan","source_type":"news"},
-    {"name":"中央社國際","url":"https://feeds.feedburner.com/rsscna/intworld","region":"international","source_type":"news"},
-    {"name":"內政部新聞發布","url":"https://www.moi.gov.tw/OpenData.aspx?SN=76F358C679FAD4CF","region":"taiwan","source_type":"official"},
-    {"name":"行政院本院新聞","url":"https://www.ey.gov.tw/RSS_Content.aspx?ModuleType=3","region":"taiwan","source_type":"official"}
+    {
+      "name": "衛生福利部焦點新聞",
+      "url": "https://www.mohw.gov.tw/rss-16-1.html",
+      "region": "taiwan",
+      "source_type": "official"
+    },
+    {
+      "name": "衛生福利部公告訊息",
+      "url": "https://www.mohw.gov.tw/rss-18-1.html",
+      "region": "taiwan",
+      "source_type": "official"
+    },
+    {
+      "name": "中央社社會",
+      "url": "https://feeds.feedburner.com/rsscna/social",
+      "region": "taiwan",
+      "source_type": "news"
+    },
+    {
+      "name": "中央社生活",
+      "url": "https://feeds.feedburner.com/rsscna/lifehealth",
+      "region": "taiwan",
+      "source_type": "news"
+    },
+    {
+      "name": "中央社政治",
+      "url": "https://feeds.feedburner.com/rsscna/politics",
+      "region": "taiwan",
+      "source_type": "news"
+    },
+    {
+      "name": "中央社國際",
+      "url": "https://feeds.feedburner.com/rsscna/intworld",
+      "region": "international",
+      "source_type": "news"
+    },
+    {
+      "name": "內政部新聞發布",
+      "url": "https://www.moi.gov.tw/OpenData.aspx?SN=76F358C679FAD4CF",
+      "region": "taiwan",
+      "source_type": "official"
+    },
+    {
+      "name": "行政院本院新聞",
+      "url": "https://www.ey.gov.tw/RSS_Content.aspx?ModuleType=3",
+      "region": "taiwan",
+      "source_type": "official"
+    },
+    {
+      "name": "教育部即時新聞",
+      "url": "https://www.edu.tw/Rss_News.aspx?n=9E7AC85F1954DDA8",
+      "region": "taiwan",
+      "source_type": "official"
+    },
+    {
+      "name": "教育部重要政策",
+      "url": "https://www.edu.tw/Rss_WebArchive.aspx?n=FB01D469347C76A7",
+      "region": "taiwan",
+      "source_type": "official"
+    },
+    {
+      "name": "移民署新住民政策法規",
+      "url": "https://news.immigration.gov.tw/Rss/Content/8?lang=TW",
+      "region": "taiwan",
+      "source_type": "official"
+    }
   ]
 }
