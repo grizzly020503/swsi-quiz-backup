@@ -55,7 +55,7 @@ jobs:
           grep -q "window.__SWSI_BOOT_DEFERRED__=true" _site/index.html
           grep -q 'monthly_patch.js' _site/index.html
           grep -q '社工師國考免費題庫｜SWSI' _site/index.html
-          grep -q "const VERSION = 'v6'" _site/sw.js
+          grep -q "const VERSION = 'v7'" _site/sw.js
           grep -q 'Generated from essay_guides.js by scripts/build_essay_guides_runtime.js' _site/essay_guides.js
           grep -q '三理論整合' _site/essay_guides.js
 
@@ -130,7 +130,7 @@ jobs:
           unzip -p "release-output/$package" monthly_patch.js | grep -q '2026-08-26.fail-closed.v2'
           unzip -p "release-output/$package" monthly_patch.js | grep -q '2026-08-26.unified-grading.v2'
           unzip -p "release-output/$package" monthly_patch.js | grep -q '2026-08-27.schema-guard.v3'
-          unzip -p "release-output/$package" sw.js | grep -q "const VERSION = 'v6'"
+          unzip -p "release-output/$package" sw.js | grep -q "const VERSION = 'v7'"
 
           sha256sum "release-output/$package" > "release-output/$package.sha256"
           source_sha="$(git rev-parse HEAD)"
