@@ -264,6 +264,7 @@ def _choose_lead(members: list[dict]) -> dict:
 
 
 def _previous_as_item(row: dict) -> dict:
+    languages = [str(x) for x in (row.get("languages") or []) if str(x)]
     return {
         "id": row.get("canonical_event_id"),
         "title": row.get("title"),
@@ -273,12 +274,8 @@ def _previous_as_item(row: dict) -> dict:
         "subjects": row.get("subjects") or [],
         "related_laws": row.get("related_laws") or [],
         "published_at": row.get("last_seen"),
-        "language": "multi" if len(row.get("languages") or []) > 1 else ((row.get("languages") or ["zh"])[0]),
-        "languages": row.get("languages") or [],
-        "event_facets": row.get("event_facets") or [],
-        "org_keys": row.get("org_keys") or [],
-        "numeric_anchors": row.get("numeric_anchors") or [],
-        "languages": row.get("languages") or [],
+        "language": "multi" if len(set(languages)) > 1 else (languages[0] if languages else "zh"),
+        "languages": languages,
         "event_facets": row.get("event_facets") or [],
         "org_keys": row.get("org_keys") or [],
         "numeric_anchors": row.get("numeric_anchors") or [],
