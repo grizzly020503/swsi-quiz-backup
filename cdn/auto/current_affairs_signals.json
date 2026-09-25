@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-25T17:49:23Z",
+  "generated_at": "2026-09-25T18:03:33Z",
   "item_count": 11,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
@@ -97,7 +97,28 @@
           "match_reason": "關鍵詞：性別平等工作法、育嬰留職停薪",
           "match_score": 2.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 10,
+        "matched_year_count": 5,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          111
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 111,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 4,
+        "subject_counts": {
+          "社會政策與社會立法": 10
+        },
+        "subject_count": 1,
+        "law_match_count": 0,
+        "high_confidence_match_count": 0
+      }
     },
     {
       "id": "ed78eb5345a9becfb446a1e8be636a9b",
@@ -145,7 +166,7 @@
           "qno": "22",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 收出養規定",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒少、少年、兒童",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、兒童、兒少",
           "match_score": 8.2
         },
         {
@@ -156,7 +177,7 @@
           "qno": "22",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 收出養規定",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒少、少年、兒童",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、兒童、兒少",
           "match_score": 8.2
         },
         {
@@ -167,7 +188,7 @@
           "qno": "23",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒少、少年、兒童",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、兒童、兒少",
           "match_score": 8.2
         },
         {
@@ -178,7 +199,7 @@
           "qno": "28",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 居家托育消極資格",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒少、少年、兒童",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、兒童、兒少",
           "match_score": 8.2
         },
         {
@@ -189,10 +210,41 @@
           "qno": "29",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 緊急安置",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：安置、兒少、少年、兒童",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、安置、兒童、兒少",
           "match_score": 8.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 167,
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "人類行為與社會環境": 2,
+          "社會工作": 54,
+          "社會工作直接服務": 2,
+          "社會政策與社會立法": 109
+        },
+        "subject_count": 4,
+        "law_match_count": 67,
+        "high_confidence_match_count": 67
+      }
     },
     {
       "id": "85f03325aff5e8c1aabd1020fc9a80a4",
@@ -247,7 +299,7 @@
           "qno": "5",
           "major": "障礙者服務",
           "topic": "身心障礙者權益保障法 > 個人支持及照顧",
-          "match_reason": "關鍵詞：身心障礙、自立生活、障礙",
+          "match_reason": "關鍵詞：身心障礙、障礙、自立生活",
           "match_score": 3.2
         },
         {
@@ -269,7 +321,7 @@
           "qno": "21",
           "major": "身心障礙福利法規",
           "topic": "身權法 > 無障礙設施與停車位",
-          "match_reason": "關鍵詞：身心障礙、無障礙、障礙",
+          "match_reason": "關鍵詞：身心障礙、障礙、無障礙",
           "match_score": 3.2
         },
         {
@@ -283,7 +335,36 @@
           "match_reason": "關鍵詞：身心障礙、CRPD、障礙",
           "match_score": 3.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 111,
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 36,
+          "社會政策與社會立法": 75
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "high_confidence_match_count": 0
+      }
     },
     {
       "id": "b636096cdde2f8c4b70361a92842c862",
@@ -374,10 +455,39 @@
           "qno": "5",
           "major": "障礙者服務",
           "topic": "身心障礙者權益保障法 > 個人支持及照顧",
-          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、自立生活、障礙",
+          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、障礙、自立生活",
           "match_score": 8.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 113,
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 36,
+          "社會政策與社會立法": 77
+        },
+        "subject_count": 2,
+        "law_match_count": 62,
+        "high_confidence_match_count": 62
+      }
     },
     {
       "id": "1f324758779ada31a0fc3e3382971947",
@@ -468,7 +578,28 @@
           "match_reason": "關鍵詞：性別平等工作法、育嬰留職停薪",
           "match_score": 2.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 11,
+        "matched_year_count": 5,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          111
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 111,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 4,
+        "subject_counts": {
+          "社會政策與社會立法": 11
+        },
+        "subject_count": 1,
+        "law_match_count": 0,
+        "high_confidence_match_count": 0
+      }
     },
     {
       "id": "2cc263d201f443e931c4a3a5f75e0312",
@@ -511,7 +642,7 @@
           "qno": "30",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰留職停薪",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         },
         {
@@ -522,7 +653,7 @@
           "qno": "37",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰復職拒絕事由",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         },
         {
@@ -533,7 +664,7 @@
           "qno": "5",
           "major": "婦女與性別法規",
           "topic": "社會立法沿革 > 法案修正",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         },
         {
@@ -555,10 +686,39 @@
           "qno": "5",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰留職停薪",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 26,
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 3,
+          "社會政策與社會立法": 23
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "high_confidence_match_count": 0
+      }
     },
     {
       "id": "beb2115eab32390a360d5fca66b2a43b",
@@ -601,7 +761,7 @@
           "qno": "33",
           "major": "性別與婦女服務",
           "topic": "婦女政策 > 婦女政策綱領",
-          "match_reason": "關鍵詞：行政院、性別、性別平等",
+          "match_reason": "關鍵詞：行政院、性別平等、性別",
           "match_score": 3.2
         },
         {
@@ -612,7 +772,7 @@
           "qno": "9",
           "major": "婦女與性別法規",
           "topic": "性別政策 > 性別平等政策綱領",
-          "match_reason": "關鍵詞：行政院、性別、性別平等",
+          "match_reason": "關鍵詞：行政院、性別平等、性別",
           "match_score": 3.2
         },
         {
@@ -634,7 +794,7 @@
           "qno": "30",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰留職停薪",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         },
         {
@@ -645,10 +805,39 @@
           "qno": "37",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰復職拒絕事由",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 27,
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 3,
+          "社會政策與社會立法": 24
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "high_confidence_match_count": 0
+      }
     },
     {
       "id": "6c3e075258813e8339a40cebd78e2c0c",
@@ -692,7 +881,7 @@
           "qno": "32",
           "major": "老人福利法規",
           "topic": "老人福利法 > 照顧服務規劃原則",
-          "match_reason": "關鍵詞：高齡、老人、在地老化",
+          "match_reason": "關鍵詞：高齡、在地老化、老人",
           "match_score": 3.2
         },
         {
@@ -739,7 +928,31 @@
           "match_reason": "關鍵詞：高齡、老人",
           "match_score": 2.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 9,
+        "matched_year_count": 7,
+        "matched_years": [
+          104,
+          105,
+          107,
+          109,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作直接服務": 1,
+          "社會政策與社會立法": 8
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "high_confidence_match_count": 0
+      }
     },
     {
       "id": "4afd0e8e306fd77bf0f9a30e21e13262",
@@ -782,7 +995,7 @@
           "qno": "32",
           "major": "老人福利法規",
           "topic": "老人福利法 > 照顧服務規劃原則",
-          "match_reason": "關鍵詞：高齡、老人、在地老化",
+          "match_reason": "關鍵詞：高齡、在地老化、老人",
           "match_score": 3.2
         },
         {
@@ -829,7 +1042,31 @@
           "match_reason": "關鍵詞：高齡、老人",
           "match_score": 2.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 9,
+        "matched_year_count": 7,
+        "matched_years": [
+          104,
+          105,
+          107,
+          109,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作直接服務": 1,
+          "社會政策與社會立法": 8
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "high_confidence_match_count": 0
+      }
     },
     {
       "id": "271655e73bb3d63cba25088ce285ad7a",
@@ -868,7 +1105,7 @@
           "qno": "36",
           "major": "多元文化能力",
           "topic": "移民服務 > 移工友善職場",
-          "match_reason": "關鍵詞：移工、移民、文化能力",
+          "match_reason": "關鍵詞：移民、移工、文化能力",
           "match_score": 3.2
         },
         {
@@ -901,7 +1138,7 @@
           "qno": "38",
           "major": "多元文化能力",
           "topic": "反歧視 > 職場歧視預防",
-          "match_reason": "關鍵詞：文化能力、反歧視",
+          "match_reason": "關鍵詞：反歧視、文化能力",
           "match_score": 2.2
         },
         {
@@ -912,10 +1149,32 @@
           "qno": "20",
           "major": "多元文化能力",
           "topic": "多元文化社工 > 多元文化發展史",
-          "match_reason": "關鍵詞：文化能力、反歧視",
+          "match_reason": "關鍵詞：反歧視、文化能力",
           "match_score": 2.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 6,
+        "matched_year_count": 6,
+        "matched_years": [
+          109,
+          110,
+          111,
+          112,
+          113,
+          114
+        ],
+        "earliest_exam_year": 109,
+        "latest_exam_year": 114,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 1,
+        "subject_counts": {
+          "社會工作": 6
+        },
+        "subject_count": 1,
+        "law_match_count": 0,
+        "high_confidence_match_count": 0
+      }
     },
     {
       "id": "235aebbaa6c843dda17565dfb13ebef2",
@@ -954,7 +1213,7 @@
           "qno": "25",
           "major": "社會救助",
           "topic": "社會救助法 > 中低收入戶標準",
-          "match_reason": "關鍵詞：低收入、最低生活、社會救助",
+          "match_reason": "關鍵詞：社會救助、低收入、最低生活",
           "match_score": 3.2
         },
         {
@@ -965,7 +1224,7 @@
           "qno": "9",
           "major": "社會救助",
           "topic": "社會救助法 > 促進就業措施",
-          "match_reason": "關鍵詞：低收入、社會救助、脫貧",
+          "match_reason": "關鍵詞：社會救助、低收入、脫貧",
           "match_score": 3.2
         },
         {
@@ -976,7 +1235,7 @@
           "qno": "13",
           "major": "社會救助",
           "topic": "社會救助法 > 相對貧窮",
-          "match_reason": "關鍵詞：低收入、貧窮、最低生活、社會救助",
+          "match_reason": "關鍵詞：社會救助、低收入、貧窮、最低生活",
           "match_score": 3.2
         },
         {
@@ -987,7 +1246,7 @@
           "qno": "31",
           "major": "社會救助",
           "topic": "社會救助法 > 脫貧措施免計年限",
-          "match_reason": "關鍵詞：低收入、貧窮、社會救助、脫貧",
+          "match_reason": "關鍵詞：社會救助、低收入、脫貧、貧窮",
           "match_score": 3.2
         },
         {
@@ -1001,7 +1260,35 @@
           "match_reason": "關鍵詞：社會救助、脫貧",
           "match_score": 2.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 26,
+        "matched_year_count": 11,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 2,
+          "社會政策與社會立法": 24
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "high_confidence_match_count": 0
+      }
     }
   ]
 }

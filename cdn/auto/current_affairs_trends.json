@@ -1,10 +1,430 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-25T17:49:23Z",
+  "generated_at": "2026-09-25T18:03:33Z",
   "event_count": 11,
-  "method": "deterministic-v1",
+  "method": "deterministic-v2.1",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
   "trends": [
+    {
+      "canonical_event_id": "fe0e43cdce0102ea73421c1b",
+      "title": "敬請支持「115年兒童及少年生活狀況調查」",
+      "category": "兒少保護",
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "trend_state": "cooling",
+      "trend_score": 5.8,
+      "why": [
+        "1 個官方來源",
+        "有政策／制度訊號",
+        "涉及 1 項法規／公約",
+        "歷屆完整匹配 167 題，跨 12 個年度",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 4 個考科",
+        "67 題有法規直接命中"
+      ],
+      "factors": {
+        "cross_source": 0.0,
+        "official_evidence": 0.7,
+        "policy_change": 0.9,
+        "historical_frequency": 1.3,
+        "historical_year_breadth": 0.8,
+        "recent_exam_support": 0.8,
+        "historical_subject_breadth": 0.45,
+        "law_relevance": 1.05,
+        "persistence": 0.0,
+        "essay_value": 1.1,
+        "mcq_density": 0.45,
+        "recency": 0.2
+      },
+      "source_count": 1,
+      "official_source_count": 1,
+      "observation_count": 1,
+      "first_seen": "2026-09-11T01:14:00Z",
+      "last_seen": "2026-09-11T01:14:00Z",
+      "related_laws": [
+        "兒童及少年福利與權益保障法"
+      ],
+      "historical_question_count": 167,
+      "historical_exam_years": [
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "人類行為與社會環境": 2,
+        "社會工作": 54,
+        "社會工作直接服務": 2,
+        "社會政策與社會立法": 109
+      },
+      "historical_subject_count": 4,
+      "historical_law_match_count": 67,
+      "historical_high_confidence_match_count": 67,
+      "historical_stats_method": "max-member-count-plus-year-union-v1",
+      "related_exam_questions": [
+        {
+          "id": "SP104-1-22",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第一次",
+          "qno": "22",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 收出養規定",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、兒童、兒少",
+          "match_score": 8.2
+        },
+        {
+          "id": "SP104-2-22",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第二次",
+          "qno": "22",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 收出養規定",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、兒童、兒少",
+          "match_score": 8.2
+        },
+        {
+          "id": "SP104-2-23",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第二次",
+          "qno": "23",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家式托育服務",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、兒童、兒少",
+          "match_score": 8.2
+        },
+        {
+          "id": "SP104-2-28",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第二次",
+          "qno": "28",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家托育消極資格",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、兒童、兒少",
+          "match_score": 8.2
+        },
+        {
+          "id": "SP104-2-29",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第二次",
+          "qno": "29",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 緊急安置",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、安置、兒童、兒少",
+          "match_score": 8.2
+        }
+      ],
+      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，並結合「兒童及少年福利與權益保障法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "第13條",
+        "衛生福利部",
+        "兒童及少年福利與權益保障法"
+      ],
+      "evidence": [
+        {
+          "source_name": "衛生福利部公告訊息",
+          "source_url": "https://www.mohw.gov.tw/cp-18-87901-1.html",
+          "source_type": "official",
+          "published_at": "2026-09-11T01:14:00Z",
+          "item_id": "ed78eb5345a9becfb446a1e8be636a9b"
+        }
+      ]
+    },
+    {
+      "canonical_event_id": "90aec9230307858d0d8bb662",
+      "title": "敬請支持「115年身心障礙者生活狀況及需求調查」",
+      "category": "身障與人權",
+      "subjects": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "trend_state": "one-off",
+      "trend_score": 5.7,
+      "why": [
+        "1 個官方來源",
+        "有政策／制度訊號",
+        "涉及 1 項法規／公約",
+        "歷屆完整匹配 113 題，跨 12 個年度",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 2 個考科",
+        "62 題有法規直接命中"
+      ],
+      "factors": {
+        "cross_source": 0.0,
+        "official_evidence": 0.7,
+        "policy_change": 0.9,
+        "historical_frequency": 1.3,
+        "historical_year_breadth": 0.8,
+        "recent_exam_support": 0.8,
+        "historical_subject_breadth": 0.25,
+        "law_relevance": 1.05,
+        "persistence": 0.0,
+        "essay_value": 1.1,
+        "mcq_density": 0.45,
+        "recency": 0.2
+      },
+      "source_count": 1,
+      "official_source_count": 1,
+      "observation_count": 1,
+      "first_seen": "2026-09-16T06:00:00Z",
+      "last_seen": "2026-09-16T06:00:00Z",
+      "related_laws": [
+        "身心障礙者權益保障法"
+      ],
+      "historical_question_count": 113,
+      "historical_exam_years": [
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會工作": 36,
+        "社會政策與社會立法": 77
+      },
+      "historical_subject_count": 2,
+      "historical_law_match_count": 62,
+      "historical_high_confidence_match_count": 62,
+      "historical_stats_method": "max-member-count-plus-year-union-v1",
+      "related_exam_questions": [
+        {
+          "id": "SP104-1-23",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第一次",
+          "qno": "23",
+          "major": "身心障礙福利法規",
+          "topic": "身權法 > 身分鑑定與需求評估",
+          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、法規、障礙",
+          "match_score": 8.2
+        },
+        {
+          "id": "SP104-2-30",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第二次",
+          "qno": "30",
+          "major": "身心障礙福利法規",
+          "topic": "身權法 > 導盲犬罰則",
+          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、法規、障礙",
+          "match_score": 8.2
+        },
+        {
+          "id": "SP104-1-33",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第一次",
+          "qno": "33",
+          "major": "身心障礙福利法規",
+          "topic": "身權法 > 緊急保護安置",
+          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、法規、障礙",
+          "match_score": 8.2
+        },
+        {
+          "id": "SP104-2-33",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第二次",
+          "qno": "33",
+          "major": "身心障礙福利法規",
+          "topic": "身權法 > 經濟安全保障",
+          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、法規、障礙",
+          "match_score": 8.2
+        },
+        {
+          "id": "SW-104-1-05",
+          "subject": "社會工作",
+          "year": "104",
+          "round": "第一次",
+          "qno": "5",
+          "major": "障礙者服務",
+          "topic": "身心障礙者權益保障法 > 個人支持及照顧",
+          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、障礙、自立生活",
+          "match_score": 8.2
+        }
+      ],
+      "essay_direction": "可從「CRPD、合理調整、自立生活與去機構化」切入，並結合「身心障礙者權益保障法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "衛生福利部",
+        "身心障礙者權益保障法",
+        "身心障礙",
+        "法規"
+      ],
+      "evidence": [
+        {
+          "source_name": "衛生福利部公告訊息",
+          "source_url": "https://www.mohw.gov.tw/cp-18-87986-1.html",
+          "source_type": "official",
+          "published_at": "2026-09-16T06:00:00Z",
+          "item_id": "b636096cdde2f8c4b70361a92842c862"
+        }
+      ]
+    },
+    {
+      "canonical_event_id": "f57482fbf92468217dec913c",
+      "title": "住宿式服務機構補助加碼 卓揆：中重度失能者每月最高補助1萬5,000元、中度以上身心障礙者每月補助5,000元住宿費",
+      "category": "身障與人權",
+      "subjects": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "trend_state": "cooling",
+      "trend_score": 5.5,
+      "why": [
+        "1 個官方來源",
+        "有政策／制度訊號",
+        "歷屆完整匹配 111 題，跨 12 個年度",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 2 個考科"
+      ],
+      "factors": {
+        "cross_source": 0.0,
+        "official_evidence": 0.7,
+        "policy_change": 1.8,
+        "historical_frequency": 1.3,
+        "historical_year_breadth": 0.8,
+        "recent_exam_support": 0.8,
+        "historical_subject_breadth": 0.25,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
+        "essay_value": 0.55,
+        "mcq_density": 0.9,
+        "recency": 0.2
+      },
+      "source_count": 1,
+      "official_source_count": 1,
+      "observation_count": 1,
+      "first_seen": "2026-09-10T04:58:08Z",
+      "last_seen": "2026-09-10T04:58:08Z",
+      "related_laws": [],
+      "historical_question_count": 111,
+      "historical_exam_years": [
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會工作": 36,
+        "社會政策與社會立法": 75
+      },
+      "historical_subject_count": 2,
+      "historical_law_match_count": 0,
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-member-count-plus-year-union-v1",
+      "related_exam_questions": [
+        {
+          "id": "SP104-1-17",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第一次",
+          "qno": "17",
+          "major": "身心障礙福利法規",
+          "topic": "CRPD施行法 > 國家報告制度",
+          "match_reason": "關鍵詞：身心障礙、CRPD、障礙",
+          "match_score": 3.2
+        },
+        {
+          "id": "SW-104-1-05",
+          "subject": "社會工作",
+          "year": "104",
+          "round": "第一次",
+          "qno": "5",
+          "major": "障礙者服務",
+          "topic": "身心障礙者權益保障法 > 個人支持及照顧",
+          "match_reason": "關鍵詞：身心障礙、障礙、自立生活",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP105-1-21",
+          "subject": "社會政策與社會立法",
+          "year": "105",
+          "round": "第一次",
+          "qno": "21",
+          "major": "身心障礙福利法規",
+          "topic": "CRPD施行法 > 權益推動小組組成",
+          "match_reason": "關鍵詞：身心障礙、CRPD、障礙",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP106-2-21",
+          "subject": "社會政策與社會立法",
+          "year": "106",
+          "round": "第二次",
+          "qno": "21",
+          "major": "身心障礙福利法規",
+          "topic": "身權法 > 無障礙設施與停車位",
+          "match_reason": "關鍵詞：身心障礙、障礙、無障礙",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP106-1-08",
+          "subject": "社會政策與社會立法",
+          "year": "106",
+          "round": "第一次",
+          "qno": "8",
+          "major": "身心障礙福利法規",
+          "topic": "CRPD > 替代性照顧",
+          "match_reason": "關鍵詞：身心障礙、CRPD、障礙",
+          "match_score": 3.2
+        }
+      ],
+      "essay_direction": "可從「CRPD、合理調整、自立生活與去機構化」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "衛生福利部",
+        "行政院",
+        "身心障礙"
+      ],
+      "evidence": [
+        {
+          "source_name": "行政院本院新聞",
+          "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//ccd56110-78a5-408b-8014-45853b78578b",
+          "source_type": "official",
+          "published_at": "2026-09-10T04:58:08Z",
+          "item_id": "85f03325aff5e8c1aabd1020fc9a80a4"
+        }
+      ]
+    },
     {
       "canonical_event_id": "983f8b8a10d96e5caf2b83dc",
       "title": "延後退休續勞保：給付保障不中斷，年金累積年資無上限",
@@ -14,22 +434,26 @@
         "社會政策與社會立法"
       ],
       "trend_state": "one-off",
-      "trend_score": 6.3,
+      "trend_score": 5.3,
       "why": [
         "1 個官方來源",
         "有政策／制度訊號",
-        "關聯 5 題歷屆題"
+        "歷屆完整匹配 10 題，跨 5 個年度",
+        "最近相關題為 111 年（距題庫最新年度 4 年）"
       ],
       "factors": {
         "cross_source": 0.0,
-        "official_evidence": 0.8,
-        "policy_change": 2.5,
-        "historical_questions": 1.6,
+        "official_evidence": 0.7,
+        "policy_change": 1.8,
+        "historical_frequency": 1.0,
+        "historical_year_breadth": 0.6,
+        "recent_exam_support": 0.35,
+        "historical_subject_breadth": 0.0,
         "law_relevance": 0.0,
         "persistence": 0.0,
         "essay_value": 1.1,
         "mcq_density": 0.9,
-        "recency": 0.7
+        "recency": 0.6
       },
       "source_count": 1,
       "official_source_count": 1,
@@ -37,7 +461,24 @@
       "first_seen": "2026-09-22T13:50:55Z",
       "last_seen": "2026-09-22T13:50:55Z",
       "related_laws": [],
-      "historical_question_count": 5,
+      "historical_question_count": 10,
+      "historical_exam_years": [
+        104,
+        105,
+        106,
+        107,
+        111
+      ],
+      "latest_related_exam_year": 111,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 4,
+      "historical_subject_counts": {
+        "社會政策與社會立法": 10
+      },
+      "historical_subject_count": 1,
+      "historical_law_match_count": 0,
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-member-count-plus-year-union-v1",
       "related_exam_questions": [
         {
           "id": "SP104-1-30",
@@ -121,22 +562,26 @@
         "社會政策與社會立法"
       ],
       "trend_state": "one-off",
-      "trend_score": 5.8,
+      "trend_score": 5.0,
       "why": [
         "1 個官方來源",
         "有政策／制度訊號",
-        "關聯 5 題歷屆題"
+        "歷屆完整匹配 11 題，跨 5 個年度",
+        "最近相關題為 111 年（距題庫最新年度 4 年）"
       ],
       "factors": {
         "cross_source": 0.0,
-        "official_evidence": 0.8,
-        "policy_change": 2.5,
-        "historical_questions": 1.6,
+        "official_evidence": 0.7,
+        "policy_change": 1.8,
+        "historical_frequency": 1.3,
+        "historical_year_breadth": 0.6,
+        "recent_exam_support": 0.35,
+        "historical_subject_breadth": 0.0,
         "law_relevance": 0.0,
         "persistence": 0.0,
         "essay_value": 0.0,
         "mcq_density": 0.9,
-        "recency": 1.2
+        "recency": 1.0
       },
       "source_count": 1,
       "official_source_count": 1,
@@ -144,7 +589,24 @@
       "first_seen": "2026-09-24T19:50:25Z",
       "last_seen": "2026-09-24T19:50:25Z",
       "related_laws": [],
-      "historical_question_count": 5,
+      "historical_question_count": 11,
+      "historical_exam_years": [
+        104,
+        105,
+        106,
+        107,
+        111
+      ],
+      "latest_related_exam_year": 111,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 4,
+      "historical_subject_counts": {
+        "社會政策與社會立法": 11
+      },
+      "historical_subject_count": 1,
+      "historical_law_match_count": 0,
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-member-count-plus-year-union-v1",
       "related_exam_questions": [
         {
           "id": "SP104-1-30",
@@ -220,332 +682,6 @@
       ]
     },
     {
-      "canonical_event_id": "f57482fbf92468217dec913c",
-      "title": "住宿式服務機構補助加碼 卓揆：中重度失能者每月最高補助1萬5,000元、中度以上身心障礙者每月補助5,000元住宿費",
-      "category": "身障與人權",
-      "subjects": [
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "trend_state": "cooling",
-      "trend_score": 5.5,
-      "why": [
-        "1 個官方來源",
-        "有政策／制度訊號",
-        "關聯 5 題歷屆題"
-      ],
-      "factors": {
-        "cross_source": 0.0,
-        "official_evidence": 0.8,
-        "policy_change": 2.5,
-        "historical_questions": 1.6,
-        "law_relevance": 0.0,
-        "persistence": 0.0,
-        "essay_value": 0.55,
-        "mcq_density": 0.9,
-        "recency": 0.2
-      },
-      "source_count": 1,
-      "official_source_count": 1,
-      "observation_count": 1,
-      "first_seen": "2026-09-10T04:58:08Z",
-      "last_seen": "2026-09-10T04:58:08Z",
-      "related_laws": [],
-      "historical_question_count": 5,
-      "related_exam_questions": [
-        {
-          "id": "SP104-1-17",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第一次",
-          "qno": "17",
-          "major": "身心障礙福利法規",
-          "topic": "CRPD施行法 > 國家報告制度",
-          "match_reason": "關鍵詞：身心障礙、CRPD、障礙",
-          "match_score": 3.2
-        },
-        {
-          "id": "SW-104-1-05",
-          "subject": "社會工作",
-          "year": "104",
-          "round": "第一次",
-          "qno": "5",
-          "major": "障礙者服務",
-          "topic": "身心障礙者權益保障法 > 個人支持及照顧",
-          "match_reason": "關鍵詞：身心障礙、自立生活、障礙",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP105-1-21",
-          "subject": "社會政策與社會立法",
-          "year": "105",
-          "round": "第一次",
-          "qno": "21",
-          "major": "身心障礙福利法規",
-          "topic": "CRPD施行法 > 權益推動小組組成",
-          "match_reason": "關鍵詞：身心障礙、CRPD、障礙",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP106-2-21",
-          "subject": "社會政策與社會立法",
-          "year": "106",
-          "round": "第二次",
-          "qno": "21",
-          "major": "身心障礙福利法規",
-          "topic": "身權法 > 無障礙設施與停車位",
-          "match_reason": "關鍵詞：身心障礙、無障礙、障礙",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP106-1-08",
-          "subject": "社會政策與社會立法",
-          "year": "106",
-          "round": "第一次",
-          "qno": "8",
-          "major": "身心障礙福利法規",
-          "topic": "CRPD > 替代性照顧",
-          "match_reason": "關鍵詞：身心障礙、CRPD、障礙",
-          "match_score": 3.2
-        }
-      ],
-      "essay_direction": "可從「CRPD、合理調整、自立生活與去機構化」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "衛生福利部",
-        "行政院",
-        "身心障礙"
-      ],
-      "evidence": [
-        {
-          "source_name": "行政院本院新聞",
-          "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//ccd56110-78a5-408b-8014-45853b78578b",
-          "source_type": "official",
-          "published_at": "2026-09-10T04:58:08Z",
-          "item_id": "85f03325aff5e8c1aabd1020fc9a80a4"
-        }
-      ]
-    },
-    {
-      "canonical_event_id": "fe0e43cdce0102ea73421c1b",
-      "title": "敬請支持「115年兒童及少年生活狀況調查」",
-      "category": "兒少保護",
-      "subjects": [
-        "社會工作",
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
-      "trend_state": "cooling",
-      "trend_score": 5.0,
-      "why": [
-        "1 個官方來源",
-        "有政策／制度訊號",
-        "涉及 1 項法規／公約",
-        "關聯 5 題歷屆題"
-      ],
-      "factors": {
-        "cross_source": 0.0,
-        "official_evidence": 0.8,
-        "policy_change": 1.25,
-        "historical_questions": 1.6,
-        "law_relevance": 0.6,
-        "persistence": 0.0,
-        "essay_value": 1.1,
-        "mcq_density": 0.45,
-        "recency": 0.2
-      },
-      "source_count": 1,
-      "official_source_count": 1,
-      "observation_count": 1,
-      "first_seen": "2026-09-11T01:14:00Z",
-      "last_seen": "2026-09-11T01:14:00Z",
-      "related_laws": [
-        "兒童及少年福利與權益保障法"
-      ],
-      "historical_question_count": 5,
-      "related_exam_questions": [
-        {
-          "id": "SP104-1-22",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第一次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 收出養規定",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒少、少年、兒童",
-          "match_score": 8.2
-        },
-        {
-          "id": "SP104-2-22",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 收出養規定",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒少、少年、兒童",
-          "match_score": 8.2
-        },
-        {
-          "id": "SP104-2-23",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "23",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒少、少年、兒童",
-          "match_score": 8.2
-        },
-        {
-          "id": "SP104-2-28",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "28",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家托育消極資格",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒少、少年、兒童",
-          "match_score": 8.2
-        },
-        {
-          "id": "SP104-2-29",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "29",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 緊急安置",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：安置、兒少、少年、兒童",
-          "match_score": 8.2
-        }
-      ],
-      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，並結合「兒童及少年福利與權益保障法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "第13條",
-        "衛生福利部",
-        "兒童及少年福利與權益保障法"
-      ],
-      "evidence": [
-        {
-          "source_name": "衛生福利部公告訊息",
-          "source_url": "https://www.mohw.gov.tw/cp-18-87901-1.html",
-          "source_type": "official",
-          "published_at": "2026-09-11T01:14:00Z",
-          "item_id": "ed78eb5345a9becfb446a1e8be636a9b"
-        }
-      ]
-    },
-    {
-      "canonical_event_id": "90aec9230307858d0d8bb662",
-      "title": "敬請支持「115年身心障礙者生活狀況及需求調查」",
-      "category": "身障與人權",
-      "subjects": [
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "trend_state": "one-off",
-      "trend_score": 5.0,
-      "why": [
-        "1 個官方來源",
-        "有政策／制度訊號",
-        "涉及 1 項法規／公約",
-        "關聯 5 題歷屆題"
-      ],
-      "factors": {
-        "cross_source": 0.0,
-        "official_evidence": 0.8,
-        "policy_change": 1.25,
-        "historical_questions": 1.6,
-        "law_relevance": 0.6,
-        "persistence": 0.0,
-        "essay_value": 1.1,
-        "mcq_density": 0.45,
-        "recency": 0.2
-      },
-      "source_count": 1,
-      "official_source_count": 1,
-      "observation_count": 1,
-      "first_seen": "2026-09-16T06:00:00Z",
-      "last_seen": "2026-09-16T06:00:00Z",
-      "related_laws": [
-        "身心障礙者權益保障法"
-      ],
-      "historical_question_count": 5,
-      "related_exam_questions": [
-        {
-          "id": "SP104-1-23",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第一次",
-          "qno": "23",
-          "major": "身心障礙福利法規",
-          "topic": "身權法 > 身分鑑定與需求評估",
-          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、法規、障礙",
-          "match_score": 8.2
-        },
-        {
-          "id": "SP104-2-30",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "30",
-          "major": "身心障礙福利法規",
-          "topic": "身權法 > 導盲犬罰則",
-          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、法規、障礙",
-          "match_score": 8.2
-        },
-        {
-          "id": "SP104-1-33",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第一次",
-          "qno": "33",
-          "major": "身心障礙福利法規",
-          "topic": "身權法 > 緊急保護安置",
-          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、法規、障礙",
-          "match_score": 8.2
-        },
-        {
-          "id": "SP104-2-33",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "33",
-          "major": "身心障礙福利法規",
-          "topic": "身權法 > 經濟安全保障",
-          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、法規、障礙",
-          "match_score": 8.2
-        },
-        {
-          "id": "SW-104-1-05",
-          "subject": "社會工作",
-          "year": "104",
-          "round": "第一次",
-          "qno": "5",
-          "major": "障礙者服務",
-          "topic": "身心障礙者權益保障法 > 個人支持及照顧",
-          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、自立生活、障礙",
-          "match_score": 8.2
-        }
-      ],
-      "essay_direction": "可從「CRPD、合理調整、自立生活與去機構化」切入，並結合「身心障礙者權益保障法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "衛生福利部",
-        "身心障礙者權益保障法",
-        "身心障礙",
-        "法規"
-      ],
-      "evidence": [
-        {
-          "source_name": "衛生福利部公告訊息",
-          "source_url": "https://www.mohw.gov.tw/cp-18-87986-1.html",
-          "source_type": "official",
-          "published_at": "2026-09-16T06:00:00Z",
-          "item_id": "b636096cdde2f8c4b70361a92842c862"
-        }
-      ]
-    },
-    {
       "canonical_event_id": "338150e268265e0359e5007e",
       "title": "衛福部擴大獨老服務 「二會三不」啟動70萬名長者關懷訪查",
       "category": "長照與高齡",
@@ -554,21 +690,26 @@
         "社會政策與社會立法"
       ],
       "trend_state": "one-off",
-      "trend_score": 4.2,
+      "trend_score": 4.5,
       "why": [
         "1 個官方來源",
-        "關聯 5 題歷屆題"
+        "歷屆完整匹配 9 題，跨 7 個年度",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 2 個考科"
       ],
       "factors": {
         "cross_source": 0.0,
-        "official_evidence": 0.8,
+        "official_evidence": 0.7,
         "policy_change": 0.0,
-        "historical_questions": 1.6,
+        "historical_frequency": 1.0,
+        "historical_year_breadth": 0.8,
+        "recent_exam_support": 0.8,
+        "historical_subject_breadth": 0.25,
         "law_relevance": 0.0,
         "persistence": 0.0,
         "essay_value": 0.55,
         "mcq_density": 0.9,
-        "recency": 1.2
+        "recency": 1.0
       },
       "source_count": 1,
       "official_source_count": 1,
@@ -576,7 +717,27 @@
       "first_seen": "2026-09-24T03:30:00Z",
       "last_seen": "2026-09-24T03:30:00Z",
       "related_laws": [],
-      "historical_question_count": 5,
+      "historical_question_count": 9,
+      "historical_exam_years": [
+        104,
+        105,
+        107,
+        109,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會工作直接服務": 1,
+        "社會政策與社會立法": 8
+      },
+      "historical_subject_count": 2,
+      "historical_law_match_count": 0,
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-member-count-plus-year-union-v1",
       "related_exam_questions": [
         {
           "id": "SP104-2-32",
@@ -586,7 +747,7 @@
           "qno": "32",
           "major": "老人福利法規",
           "topic": "老人福利法 > 照顧服務規劃原則",
-          "match_reason": "關鍵詞：高齡、老人、在地老化",
+          "match_reason": "關鍵詞：高齡、在地老化、老人",
           "match_score": 3.2
         },
         {
@@ -658,16 +819,21 @@
         "社會政策與社會立法"
       ],
       "trend_state": "cooling",
-      "trend_score": 3.4,
+      "trend_score": 4.2,
       "why": [
         "1 個官方來源",
-        "關聯 5 題歷屆題"
+        "歷屆完整匹配 27 題，跨 12 個年度",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 2 個考科"
       ],
       "factors": {
         "cross_source": 0.0,
-        "official_evidence": 0.8,
+        "official_evidence": 0.7,
         "policy_change": 0.0,
-        "historical_questions": 1.6,
+        "historical_frequency": 1.3,
+        "historical_year_breadth": 0.8,
+        "recent_exam_support": 0.8,
+        "historical_subject_breadth": 0.25,
         "law_relevance": 0.0,
         "persistence": 0.0,
         "essay_value": 0.55,
@@ -680,7 +846,32 @@
       "first_seen": "2026-09-09T02:54:00Z",
       "last_seen": "2026-09-09T02:54:00Z",
       "related_laws": [],
-      "historical_question_count": 5,
+      "historical_question_count": 27,
+      "historical_exam_years": [
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會工作": 3,
+        "社會政策與社會立法": 24
+      },
+      "historical_subject_count": 2,
+      "historical_law_match_count": 0,
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-member-count-plus-year-union-v1",
       "related_exam_questions": [
         {
           "id": "SW-110-2-33",
@@ -690,7 +881,7 @@
           "qno": "33",
           "major": "性別與婦女服務",
           "topic": "婦女政策 > 婦女政策綱領",
-          "match_reason": "關鍵詞：行政院、性別、性別平等",
+          "match_reason": "關鍵詞：行政院、性別平等、性別",
           "match_score": 3.2
         },
         {
@@ -701,7 +892,7 @@
           "qno": "9",
           "major": "婦女與性別法規",
           "topic": "性別政策 > 性別平等政策綱領",
-          "match_reason": "關鍵詞：行政院、性別、性別平等",
+          "match_reason": "關鍵詞：行政院、性別平等、性別",
           "match_score": 3.2
         },
         {
@@ -723,7 +914,7 @@
           "qno": "30",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰留職停薪",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         },
         {
@@ -734,7 +925,7 @@
           "qno": "37",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰復職拒絕事由",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         }
       ],
@@ -763,16 +954,21 @@
         "社會政策與社會立法"
       ],
       "trend_state": "one-off",
-      "trend_score": 3.4,
+      "trend_score": 4.2,
       "why": [
         "1 個官方來源",
-        "關聯 5 題歷屆題"
+        "歷屆完整匹配 26 題，跨 12 個年度",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 2 個考科"
       ],
       "factors": {
         "cross_source": 0.0,
-        "official_evidence": 0.8,
+        "official_evidence": 0.7,
         "policy_change": 0.0,
-        "historical_questions": 1.6,
+        "historical_frequency": 1.3,
+        "historical_year_breadth": 0.8,
+        "recent_exam_support": 0.8,
+        "historical_subject_breadth": 0.25,
         "law_relevance": 0.0,
         "persistence": 0.0,
         "essay_value": 0.55,
@@ -785,7 +981,32 @@
       "first_seen": "2026-09-16T10:30:11Z",
       "last_seen": "2026-09-16T10:30:11Z",
       "related_laws": [],
-      "historical_question_count": 5,
+      "historical_question_count": 26,
+      "historical_exam_years": [
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會工作": 3,
+        "社會政策與社會立法": 23
+      },
+      "historical_subject_count": 2,
+      "historical_law_match_count": 0,
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-member-count-plus-year-union-v1",
       "related_exam_questions": [
         {
           "id": "SP104-1-30",
@@ -795,7 +1016,7 @@
           "qno": "30",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰留職停薪",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         },
         {
@@ -806,7 +1027,7 @@
           "qno": "37",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰復職拒絕事由",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         },
         {
@@ -817,7 +1038,7 @@
           "qno": "5",
           "major": "婦女與性別法規",
           "topic": "社會立法沿革 > 法案修正",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         },
         {
@@ -839,7 +1060,7 @@
           "qno": "5",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰留職停薪",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         }
       ],
@@ -860,109 +1081,6 @@
       ]
     },
     {
-      "canonical_event_id": "94d776094431878af848b9a9",
-      "title": "From competencies to action: strengthening refugee and migrant health",
-      "category": "移工與新住民",
-      "subjects": [
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "trend_state": "one-off",
-      "trend_score": 3.0,
-      "why": [
-        "1 個官方來源",
-        "關聯 5 題歷屆題"
-      ],
-      "factors": {
-        "cross_source": 0.0,
-        "official_evidence": 0.8,
-        "policy_change": 0.0,
-        "historical_questions": 1.6,
-        "law_relevance": 0.0,
-        "persistence": 0.0,
-        "essay_value": 0.0,
-        "mcq_density": 0.0,
-        "recency": 1.2
-      },
-      "source_count": 1,
-      "official_source_count": 1,
-      "observation_count": 1,
-      "first_seen": "2026-09-24T14:41:09Z",
-      "last_seen": "2026-09-24T14:41:09Z",
-      "related_laws": [],
-      "historical_question_count": 5,
-      "related_exam_questions": [
-        {
-          "id": "SW-110-2-36",
-          "subject": "社會工作",
-          "year": "110",
-          "round": "第二次",
-          "qno": "36",
-          "major": "多元文化能力",
-          "topic": "移民服務 > 移工友善職場",
-          "match_reason": "關鍵詞：移工、移民、文化能力",
-          "match_score": 3.2
-        },
-        {
-          "id": "SW-111-2-34",
-          "subject": "社會工作",
-          "year": "111",
-          "round": "第二次",
-          "qno": "34",
-          "major": "多元文化能力",
-          "topic": "移民服務 > 新住民服務方案",
-          "match_reason": "關鍵詞：新住民、移民、文化能力",
-          "match_score": 3.2
-        },
-        {
-          "id": "SW-114-2-34",
-          "subject": "社會工作",
-          "year": "114",
-          "round": "第二次",
-          "qno": "34",
-          "major": "多元文化能力",
-          "topic": "移民服務 > 倡導者角色",
-          "match_reason": "關鍵詞：新住民、移民、文化能力",
-          "match_score": 3.2
-        },
-        {
-          "id": "SW-109-2-38",
-          "subject": "社會工作",
-          "year": "109",
-          "round": "第二次",
-          "qno": "38",
-          "major": "多元文化能力",
-          "topic": "反歧視 > 職場歧視預防",
-          "match_reason": "關鍵詞：文化能力、反歧視",
-          "match_score": 2.2
-        },
-        {
-          "id": "SW-112-1-20",
-          "subject": "社會工作",
-          "year": "112",
-          "round": "第一次",
-          "qno": "20",
-          "major": "多元文化能力",
-          "topic": "多元文化社工 > 多元文化發展史",
-          "match_reason": "關鍵詞：文化能力、反歧視",
-          "match_score": 2.2
-        }
-      ],
-      "essay_direction": "可從「文化能力、勞動與社會權益、反歧視」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "移民與難民"
-      ],
-      "evidence": [
-        {
-          "source_name": "WHO Newsroom",
-          "source_url": "https://www.who.int/news/item/24-09-2026-from-competencies-to-action--strengthening-refugee-and-migrant-health",
-          "source_type": "official",
-          "published_at": "2026-09-24T14:41:09Z",
-          "item_id": "271655e73bb3d63cba25088ce285ad7a"
-        }
-      ]
-    },
-    {
       "canonical_event_id": "f09ce8d0010db173dfd12078",
       "title": "ILO project improves social protection coverage for over nine million people",
       "category": "社會救助與居住",
@@ -971,21 +1089,26 @@
         "社會政策與社會立法"
       ],
       "trend_state": "one-off",
-      "trend_score": 3.0,
+      "trend_score": 3.7,
       "why": [
         "1 個官方來源",
-        "關聯 5 題歷屆題"
+        "歷屆完整匹配 26 題，跨 11 個年度",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 2 個考科"
       ],
       "factors": {
         "cross_source": 0.0,
-        "official_evidence": 0.8,
+        "official_evidence": 0.7,
         "policy_change": 0.0,
-        "historical_questions": 1.6,
+        "historical_frequency": 1.3,
+        "historical_year_breadth": 0.8,
+        "recent_exam_support": 0.8,
+        "historical_subject_breadth": 0.25,
         "law_relevance": 0.0,
         "persistence": 0.0,
         "essay_value": 0.0,
         "mcq_density": 0.0,
-        "recency": 1.2
+        "recency": 1.0
       },
       "source_count": 1,
       "official_source_count": 1,
@@ -993,7 +1116,31 @@
       "first_seen": "2026-09-25T00:00:00Z",
       "last_seen": "2026-09-25T00:00:00Z",
       "related_laws": [],
-      "historical_question_count": 5,
+      "historical_question_count": 26,
+      "historical_exam_years": [
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會工作": 2,
+        "社會政策與社會立法": 24
+      },
+      "historical_subject_count": 2,
+      "historical_law_match_count": 0,
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-member-count-plus-year-union-v1",
       "related_exam_questions": [
         {
           "id": "SP104-1-25",
@@ -1003,7 +1150,7 @@
           "qno": "25",
           "major": "社會救助",
           "topic": "社會救助法 > 中低收入戶標準",
-          "match_reason": "關鍵詞：低收入、最低生活、社會救助",
+          "match_reason": "關鍵詞：社會救助、低收入、最低生活",
           "match_score": 3.2
         },
         {
@@ -1014,7 +1161,7 @@
           "qno": "9",
           "major": "社會救助",
           "topic": "社會救助法 > 促進就業措施",
-          "match_reason": "關鍵詞：低收入、社會救助、脫貧",
+          "match_reason": "關鍵詞：社會救助、低收入、脫貧",
           "match_score": 3.2
         },
         {
@@ -1025,7 +1172,7 @@
           "qno": "13",
           "major": "社會救助",
           "topic": "社會救助法 > 相對貧窮",
-          "match_reason": "關鍵詞：低收入、貧窮、最低生活、社會救助",
+          "match_reason": "關鍵詞：社會救助、低收入、貧窮、最低生活",
           "match_score": 3.2
         },
         {
@@ -1036,7 +1183,7 @@
           "qno": "31",
           "major": "社會救助",
           "topic": "社會救助法 > 脫貧措施免計年限",
-          "match_reason": "關鍵詞：低收入、貧窮、社會救助、脫貧",
+          "match_reason": "關鍵詞：社會救助、低收入、脫貧、貧窮",
           "match_score": 3.2
         },
         {
@@ -1074,16 +1221,21 @@
         "社會政策與社會立法"
       ],
       "trend_state": "cooling",
-      "trend_score": 2.5,
+      "trend_score": 3.2,
       "why": [
         "1 個官方來源",
-        "關聯 5 題歷屆題"
+        "歷屆完整匹配 9 題，跨 7 個年度",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 2 個考科"
       ],
       "factors": {
         "cross_source": 0.0,
-        "official_evidence": 0.8,
+        "official_evidence": 0.7,
         "policy_change": 0.0,
-        "historical_questions": 1.6,
+        "historical_frequency": 1.0,
+        "historical_year_breadth": 0.8,
+        "recent_exam_support": 0.8,
+        "historical_subject_breadth": 0.25,
         "law_relevance": 0.0,
         "persistence": 0.0,
         "essay_value": 0.0,
@@ -1096,7 +1248,27 @@
       "first_seen": "2026-09-13T09:08:00Z",
       "last_seen": "2026-09-13T09:08:00Z",
       "related_laws": [],
-      "historical_question_count": 5,
+      "historical_question_count": 9,
+      "historical_exam_years": [
+        104,
+        105,
+        107,
+        109,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會工作直接服務": 1,
+        "社會政策與社會立法": 8
+      },
+      "historical_subject_count": 2,
+      "historical_law_match_count": 0,
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-member-count-plus-year-union-v1",
       "related_exam_questions": [
         {
           "id": "SP104-2-32",
@@ -1106,7 +1278,7 @@
           "qno": "32",
           "major": "老人福利法規",
           "topic": "老人福利法 > 照顧服務規劃原則",
-          "match_reason": "關鍵詞：高齡、老人、在地老化",
+          "match_reason": "關鍵詞：高齡、在地老化、老人",
           "match_score": 3.2
         },
         {
@@ -1166,6 +1338,131 @@
           "source_type": "official",
           "published_at": "2026-09-13T09:08:00Z",
           "item_id": "4afd0e8e306fd77bf0f9a30e21e13262"
+        }
+      ]
+    },
+    {
+      "canonical_event_id": "94d776094431878af848b9a9",
+      "title": "From competencies to action: strengthening refugee and migrant health",
+      "category": "移工與新住民",
+      "subjects": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "trend_state": "one-off",
+      "trend_score": 3.2,
+      "why": [
+        "1 個官方來源",
+        "歷屆完整匹配 6 題，跨 6 個年度",
+        "最近相關題為 114 年（距題庫最新年度 1 年）"
+      ],
+      "factors": {
+        "cross_source": 0.0,
+        "official_evidence": 0.7,
+        "policy_change": 0.0,
+        "historical_frequency": 1.0,
+        "historical_year_breadth": 0.72,
+        "recent_exam_support": 0.8,
+        "historical_subject_breadth": 0.0,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
+        "essay_value": 0.0,
+        "mcq_density": 0.0,
+        "recency": 1.0
+      },
+      "source_count": 1,
+      "official_source_count": 1,
+      "observation_count": 1,
+      "first_seen": "2026-09-24T14:41:09Z",
+      "last_seen": "2026-09-24T14:41:09Z",
+      "related_laws": [],
+      "historical_question_count": 6,
+      "historical_exam_years": [
+        109,
+        110,
+        111,
+        112,
+        113,
+        114
+      ],
+      "latest_related_exam_year": 114,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 1,
+      "historical_subject_counts": {
+        "社會工作": 6
+      },
+      "historical_subject_count": 1,
+      "historical_law_match_count": 0,
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-member-count-plus-year-union-v1",
+      "related_exam_questions": [
+        {
+          "id": "SW-110-2-36",
+          "subject": "社會工作",
+          "year": "110",
+          "round": "第二次",
+          "qno": "36",
+          "major": "多元文化能力",
+          "topic": "移民服務 > 移工友善職場",
+          "match_reason": "關鍵詞：移民、移工、文化能力",
+          "match_score": 3.2
+        },
+        {
+          "id": "SW-111-2-34",
+          "subject": "社會工作",
+          "year": "111",
+          "round": "第二次",
+          "qno": "34",
+          "major": "多元文化能力",
+          "topic": "移民服務 > 新住民服務方案",
+          "match_reason": "關鍵詞：新住民、移民、文化能力",
+          "match_score": 3.2
+        },
+        {
+          "id": "SW-114-2-34",
+          "subject": "社會工作",
+          "year": "114",
+          "round": "第二次",
+          "qno": "34",
+          "major": "多元文化能力",
+          "topic": "移民服務 > 倡導者角色",
+          "match_reason": "關鍵詞：新住民、移民、文化能力",
+          "match_score": 3.2
+        },
+        {
+          "id": "SW-109-2-38",
+          "subject": "社會工作",
+          "year": "109",
+          "round": "第二次",
+          "qno": "38",
+          "major": "多元文化能力",
+          "topic": "反歧視 > 職場歧視預防",
+          "match_reason": "關鍵詞：反歧視、文化能力",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-112-1-20",
+          "subject": "社會工作",
+          "year": "112",
+          "round": "第一次",
+          "qno": "20",
+          "major": "多元文化能力",
+          "topic": "多元文化社工 > 多元文化發展史",
+          "match_reason": "關鍵詞：反歧視、文化能力",
+          "match_score": 2.2
+        }
+      ],
+      "essay_direction": "可從「文化能力、勞動與社會權益、反歧視」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "移民與難民"
+      ],
+      "evidence": [
+        {
+          "source_name": "WHO Newsroom",
+          "source_url": "https://www.who.int/news/item/24-09-2026-from-competencies-to-action--strengthening-refugee-and-migrant-health",
+          "source_type": "official",
+          "published_at": "2026-09-24T14:41:09Z",
+          "item_id": "271655e73bb3d63cba25088ce285ad7a"
         }
       ]
     }
