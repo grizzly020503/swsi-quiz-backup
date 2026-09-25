@@ -170,20 +170,27 @@ BILINGUAL_FACETS = {
 
 
 def _contains(text: str, phrase: str) -> bool:
-    return phrase.casefold() in text.casefold()
+    haystack = str(text or "")
+    needle = str(phrase or "").strip()
+    if not needle:
+        return False
+    if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9 '\-]*", needle):
+        pattern = r"(?<![A-Za-z0-9])" + re.escape(needle) + r"(?![A-Za-z0-9])"
+        return re.search(pattern, haystack, flags=re.IGNORECASE) is not None
+    return needle.casefold() in haystack.casefold()
 
 
 def score_english_item(title: str, summary: str, source_type: str = "official"):
-    title_cf = str(title or "").casefold()
-    text_cf = f"{title or ''} {summary or ''}".casefold()
+    title_text = str(title or "")
+    text = f"{title or ''} {summary or ''}"
     best = None
     best_tags: list[str] = []
     best_facets: list[str] = []
 
-    policy_hits = [p for p in ENGLISH_POLICY_TERMS if p in text_cf]
+    policy_hits = [p for p in ENGLISH_POLICY_TERMS if _contains(text, p)]
     for category, base, terms in ENGLISH_RULES:
-        title_hits = [p for p in terms if p in title_cf]
-        all_hits = [p for p in terms if p in text_cf]
+        title_hits = [p for p in terms if _contains(title_text, p)]
+        all_hits = [p for p in terms if _contains(text, p)]
         if not all_hits:
             continue
         if not title_hits and not (len(all_hits) >= 2 and policy_hits):
@@ -193,7 +200,7 @@ def score_english_item(title: str, summary: str, source_type: str = "official"):
             score += 1
         if source_type == "official":
             score += 1
-        if any(noise in title_cf for noise in ENGLISH_LOW_VALUE):
+        if any(_contains(title_text, noise) for noise in ENGLISH_LOW_VALUE):
             score -= 3
         candidate = (score, len(title_hits), category)
         if best is None or candidate[:2] > best[:2]:
@@ -211,22 +218,20 @@ def score_english_item(title: str, summary: str, source_type: str = "official"):
 
 def event_metadata(title: str, summary: str, category: str, tags: list[str] | None = None) -> dict:
     text = f"{title or ''} {summary or ''}"
-    text_cf = text.casefold()
     facets = {CATEGORY_SLUG.get(category, category)}
     for key, aliases in BILINGUAL_FACETS.items():
-        if any(alias.casefold() in text_cf for alias in aliases):
+        if any(_contains(text, alias) for alias in aliases):
             facets.add(key)
 
     # Chinese exam tags may already encode useful bilingual concepts.
     for tag in tags or []:
-        tag_cf = str(tag).casefold()
         for key, aliases in BILINGUAL_FACETS.items():
-            if any(alias.casefold() in tag_cf or tag_cf in alias.casefold() for alias in aliases):
+            if any(_contains(str(tag), alias) or _contains(alias, str(tag)) for alias in aliases):
                 facets.add(key)
 
     orgs = set()
     for key, aliases in ORG_ALIASES.items():
-        if any(alias.casefold() in text_cf for alias in aliases):
+        if any(_contains(text, alias) for alias in aliases):
             orgs.add(key)
 
     numbers = {
