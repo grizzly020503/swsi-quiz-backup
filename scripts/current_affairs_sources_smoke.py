@@ -113,13 +113,64 @@ def who_api_adapter_contract() -> None:
         watch.time.sleep = original_sleep
 
 
+def official_listing_adapter_contract() -> None:
+    original_urlopen = watch.urlopen
+    original_sleep = watch.time.sleep
+    calls = {"count": 0}
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+        def __exit__(self, exc_type, exc, tb):
+            return False
+        def read(self):
+            return b"""
+            <html><body>
+              <a href="/press-releases/child-protection-policy">UNICEF calls for stronger child protection safeguards</a>
+              <a href="/press-releases/child-protection-policy">UNICEF calls for stronger child protection safeguards</a>
+              <a href="/media/press-releases">Press releases index</a>
+              <a href="https://evil.example/press-releases/not-official">External mirror</a>
+              <a href="/stories/general-story">General story outside allowed path</a>
+            </body></html>
+            """
+
+    def fake_urlopen(request, timeout=12):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise OSError("temporary listing failure")
+        return FakeResponse()
+
+    try:
+        watch.urlopen = fake_urlopen
+        watch.time.sleep = lambda _seconds: None
+        parsed, error = watch.parse_official_listing_html_with_retry(
+            {
+                "name": "UNICEF fixture",
+                "url": "https://www.unicef.org/media/press-releases",
+                "source_format": "official_listing_html",
+                "link_path_prefix": "/press-releases/",
+            },
+            attempts=3,
+        )
+        assert error is None, error
+        assert calls["count"] == 2, calls
+        assert len(parsed.entries) == 1, parsed.entries
+        entry = parsed.entries[0]
+        assert entry.link == "https://www.unicef.org/press-releases/child-protection-policy"
+        assert "child protection" in entry.title.casefold()
+    finally:
+        watch.urlopen = original_urlopen
+        watch.time.sleep = original_sleep
+
+
 def main() -> int:
     retry_contract()
     who_api_adapter_contract()
+    official_listing_adapter_contract()
     payload = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = payload.get("sources") or []
     assert payload.get("schema_version") == 1
-    assert len(rows) >= 15, f"expected at least 15 curated sources, got {len(rows)}"
+    assert len(rows) >= 17, f"expected at least 17 curated sources, got {len(rows)}"
 
     urls = [str(x.get("url") or "") for x in rows]
     names = [str(x.get("name") or "") for x in rows]
@@ -140,6 +191,22 @@ def main() -> int:
     assert who_news.get("region") == "international"
     assert who_news.get("source_type") == "official"
     assert who_news.get("source_format") == "who_newsroom_json"
+
+    unicef = by_name.get("UNICEF Press Releases")
+    assert unicef, "missing source: UNICEF Press Releases"
+    assert unicef.get("url") == "https://www.unicef.org/media/press-releases"
+    assert unicef.get("region") == "international"
+    assert unicef.get("source_type") == "official"
+    assert unicef.get("source_format") == "official_listing_html"
+    assert unicef.get("link_path_prefix") == "/press-releases/"
+
+    ilo = by_name.get("ILO Newsroom")
+    assert ilo, "missing source: ILO Newsroom"
+    assert ilo.get("url") == "https://www.ilo.org/resource/news"
+    assert ilo.get("region") == "international"
+    assert ilo.get("source_type") == "official"
+    assert ilo.get("source_format") == "official_listing_html"
+    assert ilo.get("link_path_prefix") == "/resource/news/"
 
     for name, url in REQUIRED.items():
         row = by_name.get(name)
@@ -220,6 +287,42 @@ def main() -> int:
     )
     assert unicef_child and unicef_child[1] == "兒少保護", unicef_child
     assert {"兒少保護", "兒童權利"}.issubset(set(unicef_child[2])), unicef_child
+
+    unicef_exploitation = score_item(
+        "1 in 5 children have experienced technology-facilitated sexual exploitation and abuse",
+        "UNICEF calls for stronger child protection policy and services.",
+        "international",
+        "UNICEF Press Releases",
+        "official",
+    )
+    assert unicef_exploitation and unicef_exploitation[1] == "兒少保護", unicef_exploitation
+
+    unicef_education = score_item(
+        "Millions of students had their schooling disrupted by climate hazards",
+        "UNICEF says access to education and the right to learn need stronger policy protection.",
+        "international",
+        "UNICEF Press Releases",
+        "official",
+    )
+    assert unicef_education and unicef_education[1] == "教育與學生輔導", unicef_education
+
+    ilo_social = score_item(
+        "ILO initiatives strengthen social protection for informal workers",
+        "The International Labour Organization advances decent work, labour rights and social protection policies.",
+        "international",
+        "ILO Newsroom",
+        "official",
+    )
+    assert ilo_social and ilo_social[1] in {"勞動與社會保障", "社會救助與居住"}, ilo_social
+
+    ilo_equal_pay = score_item(
+        "Equal pay for work of equal value advances social justice",
+        "ILO standards support gender equality, equal remuneration and labour rights.",
+        "international",
+        "ILO Newsroom",
+        "official",
+    )
+    assert ilo_equal_pay and ilo_equal_pay[1] == "性別與家庭政策", ilo_equal_pay
 
     generic_world_news = score_item(
         "Global leaders gather for annual forum",
@@ -313,8 +416,8 @@ def main() -> int:
 
     print(
         "CURRENT AFFAIRS SOURCE SMOKE OK: "
-        f"{len(rows)} unique HTTPS sources; RSS + WHO JSON adapters guarded; "
-        "MOJ policy + bilingual WHO/UNICEF concepts accepted; generic international noise rejected"
+        f"{len(rows)} unique HTTPS sources; RSS + WHO JSON + official HTML adapters guarded; "
+        "UNICEF/ILO bilingual policy concepts accepted; generic international noise rejected"
     )
     return 0
 
