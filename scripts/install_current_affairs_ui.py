@@ -164,7 +164,24 @@ BLOCK = r'''
 def main():
     text = PATH.read_text(encoding='utf-8')
     if MARKER in text:
-        print('Current-affairs live UI already installed.')
+        # Upgrade the existing owner in place. The V1 marker also appears in
+        # older pages that do not yet fetch or render exam signals.
+        if text.count(MARKER) != 1:
+            raise SystemExit('expected one current-affairs UI block')
+        start = text.index(MARKER)
+        script_start = text.find('<script>', start)
+        if script_start < 0 or text[start + len(MARKER):script_start].strip():
+            raise SystemExit('current-affairs UI script boundary is invalid')
+        end = text.find('</script>', script_start)
+        if end < 0:
+            raise SystemExit('current-affairs UI script closing tag is missing')
+        end += len('</script>')
+        updated = text[:start] + BLOCK.strip() + text[end:]
+        if updated != text:
+            PATH.write_text(updated, encoding='utf-8')
+            print('Updated current-affairs live UI with exam signals.')
+        else:
+            print('Current-affairs live UI already current.')
         return
     if '</body>' not in text:
         raise SystemExit('index.html missing </body>')

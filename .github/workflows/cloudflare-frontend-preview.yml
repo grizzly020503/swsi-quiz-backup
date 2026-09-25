@@ -103,7 +103,9 @@ jobs:
           PY
           grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW 20260826' /tmp/swsi-preview/index.html
           grep -q 'monthly_patch.js?v=preview-code-health-p0-20260826-2' /tmp/swsi-preview/index.html
-          grep -q "const VERSION = 'v6'" /tmp/swsi-preview/sw.js
+          # Preflight validates the source cache contract; the preview must
+          # contain those exact bytes, even after the next version bump.
+          cmp sw.js /tmp/swsi-preview/sw.js
 
       - name: Publish preview files into existing Cloudflare static assets
         if: github.ref == 'refs/heads/main'

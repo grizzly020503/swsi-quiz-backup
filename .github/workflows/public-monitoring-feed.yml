@@ -31,6 +31,7 @@ on:
       - 'scripts/analyze_current_affairs_signals.py'
       - 'scripts/build_current_affairs_signals_snapshot.py'
       - 'scripts/current_affairs_signals_smoke.py'
+      - 'scripts/current_affairs_ui_smoke.js'
       - 'scripts/install_current_affairs_ui.py'
       - 'scripts/build_public_legal_watch_snapshot.py'
       - 'scripts/public_monitoring_v2_smoke.py'
@@ -116,6 +117,7 @@ jobs:
           subprocess.run(['node', '--check', '/tmp/current-affairs-ui.js'], check=True)
           print('Current-affairs UI JavaScript syntax OK.')
           PY
+          node scripts/current_affairs_ui_smoke.js
 
       - name: Five-radar contract smoke
         run: |
@@ -139,8 +141,8 @@ jobs:
           git config user.name 'swsi-monitoring-bot'
           git config user.email 'actions@users.noreply.github.com'
           git add \
-            auto/current_affairs.json auto/legal_watch.json \
-            cdn/auto/current_affairs.json cdn/auto/legal_watch.json \
+            auto/current_affairs.json auto/current_affairs_signals.json auto/legal_watch.json \
+            cdn/auto/current_affairs.json cdn/auto/current_affairs_signals.json cdn/auto/legal_watch.json \
             cdn/auto/health.json cdn/auto/sync_state.json
           if git diff --cached --quiet; then
             echo 'Public monitoring snapshots unchanged.'

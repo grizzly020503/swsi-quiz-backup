@@ -1,5 +1,65 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-25 接手與時事功能收尾（READ FIRST）
+
+> 本節取代下方歷史「下一步」；仍須重新核對遠端 main、PR、Actions 與公開資產。
+> **程式合併、產生資料、公開發布是三種不同證據，不可混稱「已上線」。**
+
+### 實際接手基線
+
+- main：`cd422d8e9a193fe286111c1b6622b7eaf636dc6d`（2026-09-25 monitoring bot）；這是本次查核時間點，非永久 HEAD。
+- 接手時 open PR / issue 均為 0。
+- #74 時事命題訊號需求已關閉；#75 已於 2026-09-22 合併分析器、公開快照 builder 與 UI installer。
+- #76 月底學生端 patch 已於 2026-09-22 合併：`0be1a49b4943e93c25b0dd2416c14b15924bb214`。不要重做 CDN loader／grading／安全修補。
+- #76 main 上 Monthly Frontend、Launch Readiness、Storage、Knowledge、Essay Audit 均成功；Cloudflare Frontend Preview run `35744397393` 失敗，尚未被成功 run 取代。
+- 本次修復 branch：`fix/monitoring-preview-closeout-20260925`，從上述最新 main 建立；本節所在修正 commit 為本階段 checkpoint，接手時查遠端 branch HEAD。
+- 8 月 Round 8 分支已屬歷史，勿因 AGENTS.md／RELEASE.md 的舊分支段落而回到 stale branch。
+
+### 真正發現的遺漏與本次修復
+
+1. **命題訊號未發布**：Public Monitoring Feed 已產生／驗證 `auto/current_affairs_signals.json`，但 `git add` 漏列 source 與 `cdn/auto/` 兩份。main tree 沒有這兩個檔；公開 signal URL 實測 HTTP 403。補齊發布清單，加入暫存 git repo 的 staging regression，確保新檔會發布且不夾帶 index／私人檔。
+2. **學生端仍是舊時事區**：root `index.html` 和已提交的 `cdn/index.html` 都沒有 signal loader。installer 一看到 V1 marker 就提早 return，未把 #75 的新內容套到既有區塊。改成精準替換單一既有 script，並將新區塊套回 root source；保留單一時事入口。
+3. **Cloudflare preview 錯誤檢查舊 v6**：source `sw.js` 已為 v7，workflow 的 isolated-preview step 卻仍 grep v6，導致發布前退出。改成比對 preview 與 source 實際 bytes；原 P0 preflight／Service Worker contract 仍保留。
+
+### 驗證與範圍
+
+- 三項問題皆已用原始 main 檔案重現後修正。
+- 本地：Python／Node syntax、Monitoring V2 contract、Service Worker update smoke、`git diff --check` 通過。
+- 發布 regression：漏 source signal、漏 CDN signal、寬泛 `git add .` 均會被拒絕。
+- Preview 比對：正確 v7 通過，錯置 v6 被拒絕。
+- 新 UI smoke：命題訊號／申論方向／選擇題焦點／歷屆題顯示、signal feed 失敗回退、news 失敗保留原頁、科目篩選與動態字串 escape 均通過。
+- Installer 重複執行不改檔，並拒絕重複 marker 或缺失 script 邊界。
+- 遠端 exact-head CI 狀態請讀本 branch／PR 的最新 checks；本段本地結果不可冒充遠端 PASS。
+- 官方題幹／答案／grading、38 runtime parts、Supabase schema、Edge Functions、secrets 均未修改；未 merge main、未部署正式站。
+
+### 時事來源現況
+
+實際 scanner 只有 6 feeds：衛福部焦點新聞／公告，以及中央社社會／生活／政治／國際。
+Reuters、AP、BBC、CNN、UN、WHO 與其他部會仍是 #74 記錄的後續方向，**尚未實作接入**。
+最新監測 run `36131125478`：fetched 120、accepted 6、feed errors 0；signal analyzer 對應 4,800 題。不要因 workflow 保留救援 CSV fallback 參數而誤稱目前只分析 4,600 題；builder 實際優先讀現存 shards。
+
+### 正式站／剩餘 blocker
+
+- Cloudflare 是目前 primary；Netlify 是 fallback（以 `scripts/public_uptime_smoke.py` 為準）。
+- Cloudflare home 與時事 source feed 實測 HTTP 200；signal feed 實測 HTTP 403。最新 Uptime Sentinel run `36096474754` 成功，但既有 sentinel 尚未驗 signal feed，不能據此聲稱訊號發布成功。
+- 2026-09-25 Netlify `/sw.js`（含 no-cache／cache-busting 查核）仍為 **v2**；main source 為 v7。#76 的 merge 不代表 Netlify 已更新。
+- main 的 `cdn/sw.js` 仍為 v6、`cdn/index.html` 仍為舊時事區；正式 root frontend 尚需用目前已驗收 source 重建與驗證。
+- 本次修正完成後仍須本人批准 main merge／正式發布；不得自動重部署 Netlify 或宣稱 UI 已上線。
+- 沒有本輪已確認的新 grading／官方資料 P0；剩餘已確認 blocker 是發布尚未完成、遠端修正 gates 與最終正式驗證。
+
+### 接續順序
+
+1. 核對本修復 PR exact-head 的 Public Monitoring Feed、Cloudflare Preview、Monthly Frontend、Launch Readiness、Storage、Knowledge 等實際觸發 gates；失敗先讀 log。
+2. 檢查 diff／secrets，取得 main merge／正式 Cloudflare 發布授權；未獲授權保持修復 branch。
+3. Merge 後驗監測 workflow 真正提交兩份 signal JSON、Cloudflare signal URL HTTP 200、schema／題數／非命題保證文案正確。
+4. 依既有 release 流程從最新 source 重建正式 Cloudflare frontend，驗證學生端時事區顯示新資料與 feed 缺失回退；preview 成功不能代替 root production smoke。
+5. Netlify fallback 是否升級與部署額度另行確認，避免重複部署。
+6. 更新此節及 KNOWN_ISSUES 的正式驗收證據後，才處理來源擴充；不為了新聞數量添加低相關來源。
+
+Merge 建議：待本修復 PR exact-head gates 通過並取得明確授權後可合併；不可把本段當作授權。
+
+---
+
 ## 2026-09-06 最新營運狀態（READ FIRST）
 
 > **本節是目前最高優先級的接手基線。** 下方 2026-08-27 Round 8 與其他歷史章節保留作稽核紀錄；若 SHA、part 數量、branch、部署狀態或「下一步」與本節衝突，以本節與遠端真實狀態為準。每次接手仍必須先重新讀 `main`、Actions、open PR/issues，不可把任何 SHA 當永久最新。

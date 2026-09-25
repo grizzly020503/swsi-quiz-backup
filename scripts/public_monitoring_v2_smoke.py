@@ -6,6 +6,9 @@ No network, model call, database write, or secrets are required.
 from __future__ import annotations
 
 import json
+import shlex
+import subprocess
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,6 +16,46 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def read_json(rel: str):
     return json.loads((ROOT / rel).read_text(encoding="utf-8"))
+
+
+def snapshot_publish_contract_smoke(workflow: str) -> None:
+    """Exercise the workflow's staging command, including newly created files."""
+    marker = "      - name: Publish changed monitoring snapshots\n"
+    assert marker in workflow, "monitoring snapshot publisher is missing"
+    lines = workflow.split(marker, 1)[1].splitlines()
+    start = next((i for i, line in enumerate(lines)
+                  if line.strip().startswith("git add ")), None)
+    assert start is not None, "monitoring snapshot staging command is missing"
+    command = []
+    for line in lines[start:]:
+        line = line.strip()
+        continued = line.endswith("\\")
+        command.append(line[:-1] if continued else line)
+        if not continued:
+            break
+
+    expected = {
+        "auto/current_affairs.json", "auto/current_affairs_signals.json",
+        "auto/legal_watch.json", "cdn/auto/current_affairs.json",
+        "cdn/auto/current_affairs_signals.json", "cdn/auto/legal_watch.json",
+        "cdn/auto/health.json", "cdn/auto/sync_state.json",
+    }
+    with tempfile.TemporaryDirectory(prefix="swsi-monitoring-stage-") as tmp:
+        root = Path(tmp)
+        subprocess.run(["git", "init", "-q", tmp], check=True)
+        for rel in expected | {"index.html", "private-notes.json"}:
+            path = root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("{}\n", encoding="utf-8")
+        # Run only git add, with no shell, remote, commit or production write.
+        subprocess.run(shlex.split(" ".join(command)), cwd=root, check=True)
+        staged = set(subprocess.check_output(
+            ["git", "diff", "--cached", "--name-only"], cwd=root, text=True
+        ).splitlines())
+        assert staged == expected, (
+            f"snapshot publish staging mismatch: missing={sorted(expected - staged)}, "
+            f"unexpected={sorted(staged - expected)}"
+        )
 
 
 def main() -> int:
@@ -71,6 +114,7 @@ def main() -> int:
     # infinite self-loop. Parse only YAML list entries so explanatory comments
     # cannot create a false positive.
     workflow = (ROOT / ".github/workflows/public-monitoring-feed.yml").read_text(encoding="utf-8")
+    snapshot_publish_contract_smoke(workflow)
     push_start = workflow.find("\n  push:\n")
     pr_start = workflow.find("\n  pull_request:\n")
     assert push_start >= 0 and pr_start > push_start, "public monitoring feed is missing its main push trigger"
