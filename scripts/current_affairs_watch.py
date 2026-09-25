@@ -97,7 +97,7 @@ def published_iso(entry):
     return datetime.fromtimestamp(calendar.timegm(st), tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def score_item(title, summary, region, source_name):
+def score_item(title, summary, region, source_name, source_type="news"):
     text = f"{title} {summary}"
     policy_hits = [w for w in POLICY_TERMS if w in text]
     best = None
@@ -125,7 +125,7 @@ def score_item(title, summary, region, source_name):
     if best is None:
         return None
     score, category = best
-    if source_name.startswith("衛生福利部"):
+    if source_type == "official":
         score += 1
     if any(w in title for w in LOW_VALUE_TERMS):
         score -= 3
@@ -169,7 +169,7 @@ def main():
                         continue
                 except Exception:
                     pass
-            scored = score_item(title, summary, feed["region"], feed["name"])
+            scored = score_item(title, summary, feed["region"], feed["name"], feed.get("source_type", "news"))
             if not scored:
                 continue
             score, category, tags = scored
