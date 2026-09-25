@@ -90,7 +90,7 @@ def main() -> int:
 
     assert news.get("schema_version") == 2
     assert int(news.get("source_feed_count") or 0) >= 11
-    assert int(news.get("feed_error_count") or -1) == 0
+    assert int(news.get("feed_error_count", -1)) == 0
     items = news.get("items") or []
     assert items, "current-affairs snapshot is empty"
     for row in items:
