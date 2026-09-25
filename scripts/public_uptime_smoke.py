@@ -148,6 +148,12 @@ def main() -> int:
                 raise AssertionError("Current-affairs trends: explanation missing")
         checks.append(f"trends-{len(trend_items)}")
 
+        if "命題趨勢雷達" not in html:
+            raise AssertionError("Current-affairs V2 UI: trend radar marker missing from production home")
+        if "current_affairs_events.json" not in html or "current_affairs_trends.json" not in html:
+            raise AssertionError("Current-affairs V2 UI: event/trend feed loader missing from production home")
+        checks.append("trend-ui-v2")
+
         body, _ = require_status("Legal-watch snapshot", PRIMARY + "/auto/legal_watch.json")
         laws = json.loads(body)
         law_watch = int(laws.get("watch_count", -1))
