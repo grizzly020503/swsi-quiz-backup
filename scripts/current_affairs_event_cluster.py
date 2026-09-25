@@ -260,7 +260,15 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
         old_last, new_last = parse_dt(previous.get("last_seen")), parse_dt(current_last)
         if old_last and new_last and old_last > new_last:
             last_seen = previous.get("last_seen")
-    observation_count = int(previous.get("observation_count") or 0) + 1
+    observation_dates = {
+        str(x) for x in (previous.get("observation_dates") or []) if str(x)
+    }
+    for src in evidence:
+        dt = parse_dt(src.get("published_at"))
+        if dt:
+            observation_dates.add(dt.date().isoformat())
+    observation_dates = sorted(observation_dates)
+    observation_count = len(observation_dates) or 1
 
     related = {}
     for row in members:
@@ -284,6 +292,7 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
         "first_seen": first_seen,
         "last_seen": last_seen,
         "observation_count": observation_count,
+        "observation_dates": observation_dates,
         "policy_signal": lead.get("policy_signal"),
         "essay_value": lead.get("essay_value"),
         "mcq_fact_density": lead.get("mcq_fact_density"),
