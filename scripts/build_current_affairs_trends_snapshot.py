@@ -23,7 +23,7 @@ def days_between(a: str | None, b: str | None) -> float:
     return abs((db - da).total_seconds()) / 86400.0
 
 
-def _historical_factor(value: int) -> float:
+def _historical_factor(value: float) -> float:
     if value <= 0:
         return 0.0
     if value <= 2:
@@ -77,12 +77,22 @@ def trend_for(event: dict, generated_at: str) -> dict:
     subject_count = int(history.get("subject_count") or len(subject_counts))
     historical_law_matches = int(history.get("law_match_count") or 0)
     high_confidence_matches = int(history.get("high_confidence_match_count") or 0)
+    medium_confidence_matches = int(history.get("medium_confidence_match_count") or 0)
+    concept_matches = int(history.get("concept_match_count") or 0)
+    weighted_history = float(
+        history.get("weighted_evidence_units")
+        or (
+            high_confidence_matches
+            + medium_confidence_matches * 0.4
+            + concept_matches * 0.1
+        )
+    )
 
     factors = {
         "cross_source": min(1.2, max(0.0, source_count - 1) * 0.55),
         "official_evidence": min(1.4, official_count * 0.7),
         "policy_change": max(0.0, policy - 1) * 0.9,
-        "historical_frequency": _historical_factor(hist_count),
+        "historical_frequency": _historical_factor(weighted_history),
         "historical_year_breadth": min(0.8, matched_year_count * 0.12),
         "recent_exam_support": _exam_recency_support(years_since_last_exam),
         "historical_subject_breadth": (
@@ -121,7 +131,10 @@ def trend_for(event: dict, generated_at: str) -> dict:
         why.append(f"涉及 {laws} 項法規／公約")
     if hist_count:
         year_text = f"，跨 {matched_year_count} 個年度" if matched_year_count else ""
-        why.append(f"歷屆完整匹配 {hist_count} 題{year_text}")
+        quality_text = (
+            f"；強 {high_confidence_matches}／中 {medium_confidence_matches}／概念 {concept_matches}"
+        )
+        why.append(f"歷屆完整匹配 {hist_count} 題{year_text}{quality_text}")
     if latest_exam_year is not None:
         if years_since_last_exam is None:
             why.append(f"最近相關題為 {latest_exam_year} 年")
@@ -163,7 +176,10 @@ def trend_for(event: dict, generated_at: str) -> dict:
         "historical_subject_count": subject_count,
         "historical_law_match_count": historical_law_matches,
         "historical_high_confidence_match_count": high_confidence_matches,
-        "historical_stats_method": history.get("aggregation_method") or "item-full-match-v1",
+        "historical_medium_confidence_match_count": medium_confidence_matches,
+        "historical_concept_match_count": concept_matches,
+        "historical_weighted_evidence_units": round(weighted_history, 2),
+        "historical_stats_method": history.get("aggregation_method") or "item-full-match-v2",
         "related_exam_questions": fallback_related,
         "essay_direction": event.get("essay_direction"),
         "mcq_focus": event.get("mcq_focus") or [],
@@ -194,7 +210,7 @@ def main() -> int:
         "schema_version": 1,
         "generated_at": generated_at,
         "event_count": len(rows),
-        "method": "deterministic-v2.1",
+        "method": "deterministic-v2.2",
         "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
         "trends": rows,
     }
