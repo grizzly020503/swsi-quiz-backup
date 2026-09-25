@@ -5,6 +5,7 @@ import hashlib
 import html
 import json
 import re
+import socket
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -150,11 +151,16 @@ def main():
     feed_errors = []
 
     feeds = load_feeds()
+    socket.setdefaulttimeout(12)
     for feed in feeds:
         parsed = feedparser.parse(feed["url"], request_headers={"User-Agent":"swsi-current-affairs-radar/1.1"})
+        entry_count = len(parsed.entries or [])
         if getattr(parsed, "bozo", False) and not parsed.entries:
-            feed_errors.append(f"{feed['name']}: {getattr(parsed, 'bozo_exception', 'RSS parse failed')}")
+            error = f"{feed['name']}: {getattr(parsed, 'bozo_exception', 'RSS parse failed')}"
+            feed_errors.append(error)
+            print(f"Feed ERROR: {error}")
             continue
+        print(f"Feed OK: {feed['name']} entries={entry_count}")
         for entry in parsed.entries:
             fetched += 1
             title = clean_html(getattr(entry, "title", ""))
