@@ -8,6 +8,7 @@ import re
 import socket
 import time
 from types import SimpleNamespace
+from html.parser import HTMLParser
 from urllib.parse import urljoin
 from urllib.request import Request, urlopen
 from datetime import datetime, timedelta, timezone
@@ -56,7 +57,7 @@ def load_feeds():
                     name
                     and url.startswith("https://")
                     and region in {"taiwan", "international"}
-                    and source_format in {"rss", "who_newsroom_json"}
+                    and source_format in {"rss", "who_newsroom_json", "unicef_press_html"}
                 ):
                     valid.append({
                         "name": name,
@@ -212,9 +213,108 @@ def parse_who_newsroom_with_retry(feed, attempts=3):
     return None, last_error
 
 
+class _UnicefPressParser(HTMLParser):
+    DATE_RE = re.compile(
+        r"\b(\d{1,2})\s+"
+        r"(January|February|March|April|May|June|July|August|September|October|November|December)"
+        r"\s+(20\d{2})\b",
+        re.IGNORECASE,
+    )
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.last_date = None
+        self.active_href = None
+        self.active_text = []
+        self.rows = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag.lower() != "a":
+            return
+        href = dict(attrs).get("href")
+        if href and str(href).startswith("/press-releases/"):
+            self.active_href = str(href)
+            self.active_text = []
+
+    def handle_data(self, data):
+        value = clean_html(data)
+        if not value:
+            return
+        match = self.DATE_RE.search(value)
+        if match:
+            self.last_date = match.group(0)
+        if self.active_href:
+            self.active_text.append(value)
+
+    def handle_endtag(self, tag):
+        if tag.lower() != "a" or not self.active_href:
+            return
+        title = clean_html(" ".join(self.active_text))
+        if title:
+            self.rows.append((self.active_href, title, self.last_date))
+        self.active_href = None
+        self.active_text = []
+
+
+def parse_unicef_press_html(raw_html):
+    parser = _UnicefPressParser()
+    parser.feed(str(raw_html or ""))
+    entries = []
+    seen = set()
+    for href, title, raw_date in parser.rows:
+        link = urljoin("https://www.unicef.org", href)
+        if link in seen:
+            continue
+        seen.add(link)
+        published_parsed = None
+        if raw_date:
+            try:
+                published_parsed = datetime.strptime(raw_date, "%d %B %Y").replace(
+                    tzinfo=timezone.utc
+                ).timetuple()
+            except ValueError:
+                published_parsed = None
+        entries.append(SimpleNamespace(
+            title=title,
+            link=link,
+            summary="",
+            description="",
+            published_parsed=published_parsed,
+        ))
+    return entries
+
+
+def parse_unicef_press_with_retry(feed, attempts=3):
+    last_error = None
+    for attempt in range(1, max(1, attempts) + 1):
+        try:
+            request = Request(
+                feed["url"],
+                headers={
+                    "User-Agent": "swsi-current-affairs-radar/1.1",
+                    "Accept": "text/html,application/xhtml+xml",
+                },
+            )
+            with urlopen(request, timeout=12) as response:
+                raw_html = response.read().decode("utf-8", errors="replace")
+            entries = parse_unicef_press_html(raw_html)
+            if not entries:
+                raise ValueError("UNICEF press page returned no usable press-release links")
+            return SimpleNamespace(entries=entries, bozo=False), None
+        except Exception as exc:
+            last_error = exc
+        if attempt < attempts:
+            print(f"Feed RETRY: {feed['name']} attempt={attempt} error={last_error}")
+            time.sleep(0.5 * attempt)
+    return None, last_error
+
+
 def parse_source_with_retry(feed, attempts=3):
-    if feed.get("source_format", "rss") == "who_newsroom_json":
+    source_format = feed.get("source_format", "rss")
+    if source_format == "who_newsroom_json":
         return parse_who_newsroom_with_retry(feed, attempts=attempts)
+    if source_format == "unicef_press_html":
+        return parse_unicef_press_with_retry(feed, attempts=attempts)
     return parse_feed_with_retry(feed, attempts=attempts)
 
 

@@ -113,13 +113,75 @@ def who_api_adapter_contract() -> None:
         watch.time.sleep = original_sleep
 
 
+def unicef_html_adapter_contract() -> None:
+    calls = {"count": 0}
+    original_urlopen = watch.urlopen
+    original_sleep = watch.time.sleep
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def read(self):
+            return b"""
+            <html><body>
+              <div>25 September 2026</div>
+              <a href="/press-releases/child-protection-policy">
+                UNICEF calls for stronger child protection and child rights safeguards
+              </a>
+              <a href="/press-releases/child-protection-policy">
+                UNICEF calls for stronger child protection and child rights safeguards
+              </a>
+              <div>23 September 2026</div>
+              <a href="/press-releases/mental-health-support">
+                Children affected by floods need urgent mental health and psychosocial support
+              </a>
+              <a href="/donate">Donate</a>
+            </body></html>
+            """
+
+    def fake_urlopen(request, timeout=12):
+        calls["count"] += 1
+        assert request.full_url == "https://www.unicef.org/media/press-releases"
+        if calls["count"] == 1:
+            raise OSError("temporary UNICEF page failure")
+        return FakeResponse()
+
+    try:
+        watch.urlopen = fake_urlopen
+        watch.time.sleep = lambda _seconds: None
+        parsed, error = watch.parse_unicef_press_with_retry(
+            {
+                "name": "UNICEF Press Releases",
+                "url": "https://www.unicef.org/media/press-releases",
+                "source_format": "unicef_press_html",
+            },
+            attempts=3,
+        )
+        assert error is None, error
+        assert calls["count"] == 2, calls
+        assert len(parsed.entries) == 2, parsed.entries
+        first = parsed.entries[0]
+        assert first.link == "https://www.unicef.org/press-releases/child-protection-policy"
+        assert first.title.startswith("UNICEF calls for stronger child protection")
+        assert first.published_parsed is not None
+        assert parsed.entries[1].published_parsed is not None
+    finally:
+        watch.urlopen = original_urlopen
+        watch.time.sleep = original_sleep
+
+
 def main() -> int:
     retry_contract()
     who_api_adapter_contract()
+    unicef_html_adapter_contract()
     payload = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = payload.get("sources") or []
     assert payload.get("schema_version") == 1
-    assert len(rows) >= 15, f"expected at least 15 curated sources, got {len(rows)}"
+    assert len(rows) >= 16, f"expected at least 16 curated sources, got {len(rows)}"
 
     urls = [str(x.get("url") or "") for x in rows]
     names = [str(x.get("name") or "") for x in rows]
@@ -140,6 +202,13 @@ def main() -> int:
     assert who_news.get("region") == "international"
     assert who_news.get("source_type") == "official"
     assert who_news.get("source_format") == "who_newsroom_json"
+
+    unicef_news = by_name.get("UNICEF Press Releases")
+    assert unicef_news, "missing source: UNICEF Press Releases"
+    assert unicef_news.get("url") == "https://www.unicef.org/media/press-releases"
+    assert unicef_news.get("region") == "international"
+    assert unicef_news.get("source_type") == "official"
+    assert unicef_news.get("source_format") == "unicef_press_html"
 
     for name, url in REQUIRED.items():
         row = by_name.get(name)
@@ -313,7 +382,7 @@ def main() -> int:
 
     print(
         "CURRENT AFFAIRS SOURCE SMOKE OK: "
-        f"{len(rows)} unique HTTPS sources; RSS + WHO JSON adapters guarded; "
+        f"{len(rows)} unique HTTPS sources; RSS + WHO JSON + UNICEF HTML adapters guarded; "
         "MOJ policy + bilingual WHO/UNICEF concepts accepted; generic international noise rejected"
     )
     return 0

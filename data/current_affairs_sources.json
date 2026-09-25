@@ -91,6 +91,13 @@
       "region": "international",
       "source_type": "official",
       "source_format": "who_newsroom_json"
+    },
+    {
+      "name": "UNICEF Press Releases",
+      "url": "https://www.unicef.org/media/press-releases",
+      "region": "international",
+      "source_type": "official",
+      "source_format": "unicef_press_html"
     }
   ]
 }
