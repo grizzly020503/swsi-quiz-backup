@@ -16,11 +16,15 @@
   - events / trends
   - `deterministic-v2.2`
 - GitHub→Netlify 並沒有自動 production deploy；#139 後 production verifier 連續 18 次仍讀到舊 release marker，因此已確認 **Netlify 需手動 Deploys / drag-and-drop**，不是自動 Git deploy。
-- #140 已合併：重新用最新 main 觸發官方 `Netlify Manual Deploy Artifact` workflow。
-- main artifact run：`36202409540`，**success**。
-- artifact source main commit：`752a9b750870022b418fa391933a9c48414a5a17`。
-- 真正要上傳的 ZIP：`swsi-netlify-manual-deploy.zip`。
-- SHA-256：`071d1d5c7e7c8faa9b9d7994c62c1d7ac7f0c696a9000a4eb7e09aaa8a2e5e30`。
+- #140 已合併：先重新觸發 main artifact；#141 發現 v2.2 artifact contract 的 `feed_error_count=0` 被 Python truthiness 誤判，未合併。
+- #142 已合併；merge commit：`4c55f1c7b1d587307761afa46f19dce51e6757ae`。已修正 0-value contract，並正式鎖定 history-v2.2 deploy artifact。
+- 最新 main artifact run：`36202627219`，**success**。
+- 最新 Artifact ID：`10892094151`（`swsi-netlify-manual-deploy-history-v22`）。
+- artifact source main commit：`4c55f1c7b1d587307761afa46f19dce51e6757ae`。
+- 真正要上傳的 ZIP：artifact 內層的 `swsi-netlify-manual-deploy.zip`。
+- 內層 ZIP SHA-256：`79b12ceeae1aaac776488ff2af78134c36bf6fcca85c53ef369c9296856c59ee`。
+- artifact workflow contract log：`sources=17 signals=11/4800 events=11 trends=11/history-v2.2`。
+- `Verify Netlify Production Release` run `36202022040` attempt 2 於 artifact 完成後再次執行，仍連續 18 次讀到 HTTP 200 但找不到 `2026-09-26-history-v2.2` marker；因此正式站仍是舊版，已排除「只是部署慢」。
 - ZIP 已驗證：
   - 壓縮檔無錯誤
   - `index.html` release marker = `2026-09-26-history-v2.2`
