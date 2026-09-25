@@ -2,14 +2,16 @@
 
 本檔只列「目前仍需要處理或持續防回歸」的問題。已確認修好的舊問題不要長期留在 Active 區，避免下一個 AI 重做。
 
-## 2026-09-25 現行收尾狀態（優先於下方歷史紀錄）
+## 2026-09-25 現行狀態（優先於下方歷史紀錄）
 
-- 時事命題訊號：builder／QA 會成功，但發布清單漏 signal source/CDN 檔，main 無檔、公開 URL 403。修復在 `fix/monitoring-preview-closeout-20260925`，尚未正式發布。
-- 時事學生端：installer 原本因 V1 marker 提早 return，root source 未套用 signal UI。本分支已原位升級並補行為 smoke；正式 CDN root 尚待 rebuild／release。
-- Cloudflare Frontend Preview：#76 merge 後 source SW v7 與 workflow v6 assertion 不符。本分支改驗 source/preview bytes 一致，保留 preflight。
-- Netlify fallback：2026-09-25 實測 SW v2；不要把 #76 merge 宣稱為 Netlify v7 已部署。
-- 下方 v6、24 多答案、8 月 branch/release 狀態均是歷史證據；source SW 現為 v7，歷史多答案基準已由 #70 升至 25（勿重做官方答案 audit）。
-- 測試與發布邊界、後續順序見 `PROJECT_HANDOFF.md` 最上方 2026-09-25 節。
+- **時事命題訊號發布缺口已完成修復並正式上線。** #77 已合併，兩份 signal snapshot 會進 repo/CDN；production sentinel 已驗 `signals-6/4800`。
+- **學生端時事命題 UI 已正式發布到 Cloudflare primary。** #78 已合併，正式 `cdn/index.html` 為新版，`cdn/sw.js` 為 v7。
+- **Cloudflare preview 舊 v6 assertion 已修正。** #77 後 preview 與 source bytes 對齊；不再把歷史 v6 檢查當 active bug。
+- **公開監測盲點已補。** #79 讓 Public Uptime Sentinel 驗 SW v7、6 筆時事來源、6 筆命題訊號／4,800 題、52/52 法規與其他主要 public contracts；main run `36141787784` PASS。
+- Cloudflare 本輪 release blocker = **0**；本次收尾時 open PR = 0、open issue = 0。
+- **Netlify fallback 仍已知為 SW v2。** 這是非阻塞 release/維運事項，不是 Cloudflare primary bug；沒有明確授權與額度確認不要自行部署。
+- scanner 仍只有衛福部＋中央社共 6 feeds；Reuters/AP/BBC/CNN/UN/WHO 等是產品擴充方向，不列為 active defect。
+- 下方 v6、24 多答案、8 月 branch/release 敘述均為歷史證據；若衝突，以 `PROJECT_HANDOFF.md` 最上方最新節與遠端真實狀態為準。
 
 ## P0（已完成，持續防回歸）
 
