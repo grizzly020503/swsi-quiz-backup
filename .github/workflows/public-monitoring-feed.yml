@@ -40,6 +40,7 @@ on:
       - 'data/current_affairs_sources.json'
       - 'scripts/current_affairs_watch.py'
       - 'scripts/current_affairs_sources_smoke.py'
+      - 'scripts/probe_sfaa_feed.py'
       - 'scripts/build_current_affairs_snapshot.py'
       - 'scripts/current_affairs_event_cluster.py'
       - 'scripts/build_current_affairs_events_snapshot.py'
@@ -89,6 +90,10 @@ jobs:
 
       - name: Install RSS parser
         run: python -m pip install --disable-pip-version-check feedparser
+
+      - name: Probe SFAA candidate feeds
+        if: github.event_name == 'pull_request'
+        run: python scripts/probe_sfaa_feed.py
 
       - name: Scan social-work current affairs
         run: python scripts/current_affairs_watch.py --output /tmp/current_affairs_payload.json --days 21
