@@ -25,6 +25,8 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
+from current_affairs_taxonomy import canonical_concepts, concept_tags
+
 ROOT = Path(__file__).resolve().parents[1]
 
 KNOWN_LAWS = [
@@ -119,8 +121,10 @@ CATEGORY_ESSAY_HINT = {
 }
 
 WEAK_TAGS = {
-    "政策", "制度", "福利", "保護", "權益", "服務", "補助", "津貼",
-    "兒童", "少年", "老人", "高齡", "社工", "社會工作", "衛福部",
+    "政策", "制度", "福利", "保護", "權益", "保障", "服務", "補助", "津貼",
+    "法規", "條例", "兒童", "少年", "老人", "高齡", "社工", "社會工作",
+    "衛福部", "衛生福利部", "行政院", "內政部", "勞動部", "教育部",
+    "法務部", "考試院", "國民健康署",
 }
 
 CATEGORY_MATCH_TERMS = {
@@ -341,24 +345,48 @@ def informative_tags(row: dict) -> set[str]:
 
 
 def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits: int = 5) -> list[dict]:
-    """Return related exam questions with fail-closed thresholds.
+    """Return related exam questions using only event-supported evidence.
 
-    Strong: shared law name
-    Medium: subject overlap + informative tag / topic keyword overlap
+    Strong evidence:
+    - an explicit law shared by the event and the historical question
+
+    Event-specific evidence:
+    - an informative event tag that appears in the question
+    - a category term only when that same term is present in the event itself
+    - a bilingual canonical concept shared by the event and question
+
+    The category dictionary is never allowed to inject unrelated terms merely
+    because two items sit in the same broad category.
     """
     if not questions:
         return []
 
-    subjects = set(str(s) for s in (row.get("subjects") or []) if s)
+    subjects = set(str(x) for x in (row.get("subjects") or []) if x)
     tags = informative_tags(row)
-    category_terms = set(CATEGORY_MATCH_TERMS.get(str(row.get("category") or ""), []))
-    scored: list[tuple[float, dict]] = []
+    event_text = text_of(row)
+    event_concepts = {
+        str(x).strip()
+        for x in (row.get("concept_keys") or [])
+        if str(x).strip()
+    }
+    event_concepts |= canonical_concepts(event_text)
 
+    category_terms = set(CATEGORY_MATCH_TERMS.get(str(row.get("category") or ""), []))
+    active_category_terms = {
+        term for term in category_terms
+        if term in event_text
+        or any(term in tag or tag in term for tag in tags)
+    }
+
+    scored: list[tuple[float, dict]] = []
     for q in questions:
         score = 0.0
         reasons: list[str] = []
         q_law = q.get("law") or ""
-        q_text = f"{q.get('question') or ''} {q.get('topic') or ''} {q.get('major') or ''} {' '.join(q.get('keywords') or [])}"
+        q_text = (
+            f"{q.get('question') or ''} {q.get('topic') or ''} "
+            f"{q.get('major') or ''} {' '.join(q.get('keywords') or [])}"
+        )
 
         law_hit = None
         for law in laws:
@@ -374,17 +402,39 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
         if not law_hit and not subj_ok:
             continue
 
-        tag_hits = [t for t in tags if t in q_text or t in q_law]
-        category_hits = [t for t in category_terms if t in q_text or t in q_law]
-        combined_hits = list(dict.fromkeys(tag_hits + category_hits))
-        if combined_hits:
-            score += min(3.0, 1.0 * len(combined_hits))
-            reasons.append("關鍵詞：" + "、".join(combined_hits[:4]))
+        tag_hits = sorted(t for t in tags if t in q_text or t in q_law)
+        if tag_hits:
+            score += min(4.0, 2.0 * len(tag_hits))
+            reasons.append("事件詞：" + "、".join(tag_hits[:4]))
+
+        category_hits = sorted(
+            t for t in active_category_terms if t in q_text or t in q_law
+        )
+        if category_hits:
+            score += min(2.0, 1.0 * len(category_hits))
+            reasons.append("事件概念詞：" + "、".join(category_hits[:4]))
+
+        q_concepts = canonical_concepts(f"{q_text} {q_law}")
+        shared_concepts = sorted(event_concepts & q_concepts)
+        if shared_concepts:
+            score += min(4.0, 2.0 * len(shared_concepts))
+            labels = concept_tags(shared_concepts)
+            reasons.append(
+                "共同概念：" + "、".join(labels[:4] or shared_concepts[:4])
+            )
 
         if score > 0 and subj_ok:
             score += 0.2
 
-        if law_hit or len(combined_hits) >= 2:
+        # One exact informative event tag or one canonical bilingual concept is
+        # enough; broad category-only matching still requires two active terms.
+        eligible = (
+            bool(law_hit)
+            or bool(tag_hits)
+            or bool(shared_concepts)
+            or len(category_hits) >= 2
+        )
+        if eligible:
             scored.append((score, {
                 "id": q.get("id"),
                 "subject": subj,
@@ -397,7 +447,13 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
                 "match_score": round(score, 2),
             }))
 
-    scored.sort(key=lambda x: (-x[0], str(x[1].get("year") or ""), str(x[1].get("qno") or "")))
+    scored.sort(
+        key=lambda x: (
+            -x[0],
+            str(x[1].get("year") or ""),
+            str(x[1].get("qno") or ""),
+        )
+    )
     seen = set()
     out = []
     for _, item in scored:
@@ -409,7 +465,6 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
         if len(out) >= max_hits:
             break
     return out
-
 
 def essay_direction_for(row: dict, laws: list[str]) -> str:
     category = str(row.get("category") or "時事")
