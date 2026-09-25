@@ -4,6 +4,8 @@
   "main": "cloudflare/wandering-wave-4418/worker.js",
   "compatibility_date": "2026-08-25",
   "assets": {
+    // Production static assets are materialized under ./cdn; touching this
+    // config intentionally forces Cloudflare Git integration to rebuild them.
     "directory": "./cdn"
   },
   "d1_databases": [
