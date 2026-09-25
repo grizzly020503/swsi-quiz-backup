@@ -2,16 +2,16 @@
 
 本檔只列「目前仍需要處理或持續防回歸」的問題。已確認修好的舊問題不要長期留在 Active 區，避免下一個 AI 重做。
 
-## 2026-09-25 現行狀態（優先於下方歷史紀錄）
+## 2026-09-26 現行狀態（優先於下方歷史紀錄）
 
-- **時事命題訊號發布缺口已完成修復並正式上線。** #77 已合併，兩份 signal snapshot 會進 repo/CDN；production sentinel 已驗 `signals-6/4800`。
-- **學生端時事命題 UI 已正式發布到 Cloudflare primary。** #78 已合併，正式 `cdn/index.html` 為新版，`cdn/sw.js` 為 v7。
-- **Cloudflare preview 舊 v6 assertion 已修正。** #77 後 preview 與 source bytes 對齊；不再把歷史 v6 檢查當 active bug。
-- **公開監測盲點已補。** #79 讓 Public Uptime Sentinel 驗 SW v7、6 筆時事來源、6 筆命題訊號／4,800 題、52/52 法規與其他主要 public contracts；main run `36141787784` PASS。
-- Cloudflare 本輪 release blocker = **0**；本次收尾時 open PR = 0、open issue = 0。
-- **Netlify fallback 仍已知為 SW v2。** 這是非阻塞 release/維運事項，不是 Cloudflare primary bug；沒有明確授權與額度確認不要自行部署。
-- scanner 仍只有衛福部＋中央社共 6 feeds；Reuters/AP/BBC/CNN/UN/WHO 等是產品擴充方向，不列為 active defect。
-- 下方 v6、24 多答案、8 月 branch/release 敘述均為歷史證據；若衝突，以 `PROJECT_HANDOFF.md` 最上方最新節與遠端真實狀態為準。
+- **時事 V2 已正式完成並上線。** production 為 17 sources、event clustering、4,800 題歷屆題關聯、history-v2.2 trend 與學生端命題趨勢雷達。
+- **production source health 已鎖定。** Public Uptime Sentinel 驗證 `sources-17/errors-0`；來源數不是 KPI，不能為了擴充而放寬 relevance。
+- **歷屆題／trend quality v2.2 已完成。** same-topic 與 same-law 分離，weighted history 防止 broad concept volume 灌高趨勢。
+- **Reuters／AP／BBC 目前刻意不接。** 原因是官方授權／metadata/RSS 使用條件，不是技術 defect。詳見 `docs/CURRENT_AFFAIRS_SOURCE_POLICY.md`。
+- **社家署 live current-affairs feed 尚無驗證通過 endpoint。** 不猜 URL；其 data.gov.tw 開放資料可另作 background evidence，不列為 current-affairs feed bug。
+- **Issue #84 在本輪 source-policy closeout 後可關閉。**
+- **Netlify fallback 仍是獨立維運事項。** Cloudflare primary 的 current-affairs V2／history-v2.2 不以 Netlify 升級為阻塞條件。
+- 下方舊的 6 feeds、SW v6、8 月 branch/release 敘述均為歷史證據；衝突時以 `PROJECT_HANDOFF.md` 最上方最新節、`docs/CURRENT_AFFAIRS_SOURCE_POLICY.md` 與遠端真實狀態為準。
 
 ## P0（已完成，持續防回歸）
 
