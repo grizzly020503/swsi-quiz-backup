@@ -40,7 +40,7 @@ def merge_source_and_signals(news: dict, signals: dict) -> list[dict]:
             "policy_signal", "essay_value", "mcq_fact_density",
             "signal_confidence", "signal_score", "exam_point_summary",
             "essay_direction", "mcq_focus", "related_laws",
-            "related_exam_questions",
+            "related_exam_questions", "historical_exam_stats",
         ):
             if key in sig:
                 out[key] = sig[key]
