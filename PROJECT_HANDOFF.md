@@ -1,5 +1,75 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 時事來源 17-source 正式上線（READ FIRST）
+
+> 本節優先於下方所有 6／8／11／12／13／14／15／16 sources 的歷史敘述。接手仍先重新讀 main、open PR/issues、Actions 與 production sentinel，不把 SHA 當永久最新。
+
+### 已完成
+
+- #125 已合併：加入 **ILO Newsroom** 作為第 17 個來源。
+- ILO 使用專用 `ilo_news_html` adapter：
+  - 官方 newsroom listing
+  - 只保存必要 metadata／來源連結，不複製全文
+  - bounded retry
+  - 英文來源沿用既有 bilingual taxonomy 與 cross-language event dedupe
+  - source / adapter / relevance regression
+- #125 exact-head／main 驗證後 accepted topics 只從 10 → 11，沒有因來源量增加而灌水。
+- #126 已合併：發布 17-source snapshot，並強制 Cloudflare static assets rebuild。
+- #128 已合併；merge commit：`31fb0a3d725bf51985cfec4889357a0e7dc38c73`，production uptime 永久要求至少 **17 sources** 且 **0 feed errors**。
+- Public Uptime Sentinel run `36169824564`：**success**。
+- production log：
+  `primary-home, pwa-sw-v7, questions-4800-24, sources-17/errors-0, news-11, signals-11/4800, events-11, trends-11, trend-ui-v2, laws-52/52, question-health, ai-preflight, feedback-preflight, netlify-fallback`。
+
+### 目前 17 sources
+
+1. 衛生福利部焦點新聞
+2. 衛生福利部公告訊息
+3. 中央社社會
+4. 中央社生活
+5. 中央社政治
+6. 中央社國際
+7. 內政部新聞發布
+8. 行政院本院新聞
+9. 教育部即時新聞
+10. 教育部重要政策
+11. 移民署新住民政策法規
+12. 勞動部新聞稿
+13. 法務部新聞發布
+14. UN News English
+15. WHO Newsroom
+16. UNICEF Press Releases
+17. ILO Newsroom
+
+### 最新 main snapshot
+
+- `source_feed_count=17`
+- `feed_error_count=0`
+- accepted topics=11
+- signals=11，questions_loaded=4,800
+- events=11、trends=11
+- legal-watch=52/52
+- ILO 新增的高關聯 accepted topic：
+  `ILO project improves social protection coverage for over nine million people`，分類為「社會救助與居住」。
+
+### 現在不要重做
+
+- 不要再把來源現況寫成 16 sources。
+- 不要重做 #125／#126／#128。
+- 不要為了來源數量放寬 relevance；來源數不是 KPI。
+- 不要讓 source_count 單獨提高 trend score；event/trend contract 已鎖定。
+- MOEX 不擁有 public current-affairs snapshots；ownership 邊界以 #116 為準。
+- 官方 4,800 題、答案、grading 仍維持唯讀。
+
+### Issue #84 接下來仍未完成
+
+1. **社家署**：#103 probe 仍未找到可直接上線的穩定官方 RSS/XML endpoint；不要猜 URL。
+2. **Reuters／AP／BBC**：進入「合法／穩定 feed 與 metadata 使用範圍」評估階段。優先挑有清楚官方 feed、可穩定程式化取得、又不需複製全文的來源做 pilot。
+3. **trend quality refinement**：累積跨日 evidence 後再調權重；新 false positive 先加 regression 再修。
+4. 國際新聞來源仍要先走 bilingual taxonomy → event dedupe → 4,800 題關聯 → trend，再 production；不得繞過既有 fail-closed contract。
+
+---
+
+
 ## 2026-09-26 時事來源 16-source 正式上線（READ FIRST）
 
 > 本節優先於下方所有 6／8／11／12／13／14／15 feeds 的歷史敘述。接手仍先重新讀 main、open PR/issues、Actions 與 production sentinel，不把 SHA 當永久最新。
