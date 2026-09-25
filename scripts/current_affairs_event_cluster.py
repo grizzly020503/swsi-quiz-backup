@@ -271,6 +271,86 @@ def _previous_as_item(row: dict) -> dict:
     }
 
 
+def _merge_historical_stats(members: list[dict]) -> dict:
+    stats = [
+        x.get("historical_exam_stats")
+        for x in members
+        if isinstance(x.get("historical_exam_stats"), dict)
+    ]
+    stats = [x for x in stats if x]
+    if not stats:
+        related = {
+            str(q.get("id")): q
+            for row in members
+            for q in (row.get("related_exam_questions") or [])
+            if isinstance(q, dict) and q.get("id")
+        }
+        years = sorted({
+            int(str(q.get("year")))
+            for q in related.values()
+            if str(q.get("year") or "").isdigit()
+        })
+        subjects = {}
+        for q in related.values():
+            subject = str(q.get("subject") or "").strip()
+            if subject:
+                subjects[subject] = subjects.get(subject, 0) + 1
+        return {
+            "matched_question_count": len(related),
+            "matched_year_count": len(years),
+            "matched_years": years,
+            "earliest_exam_year": min(years) if years else None,
+            "latest_exam_year": max(years) if years else None,
+            "corpus_latest_year": max(years) if years else None,
+            "years_since_last_exam": 0 if years else None,
+            "subject_counts": dict(sorted(subjects.items())),
+            "subject_count": len(subjects),
+            "law_match_count": 0,
+            "high_confidence_match_count": 0,
+            "aggregation_method": "related-question-fallback",
+        }
+
+    richest = max(
+        stats,
+        key=lambda x: (
+            int(x.get("matched_question_count") or 0),
+            int(x.get("high_confidence_match_count") or 0),
+        ),
+    )
+    years = sorted({
+        int(y)
+        for st in stats
+        for y in (st.get("matched_years") or [])
+        if str(y).isdigit()
+    })
+    corpus_years = [
+        int(st.get("corpus_latest_year"))
+        for st in stats
+        if str(st.get("corpus_latest_year") or "").isdigit()
+    ]
+    corpus_latest = max(corpus_years) if corpus_years else None
+    latest = max(years) if years else None
+    earliest = min(years) if years else None
+    return {
+        "matched_question_count": int(richest.get("matched_question_count") or 0),
+        "matched_year_count": len(years),
+        "matched_years": years,
+        "earliest_exam_year": earliest,
+        "latest_exam_year": latest,
+        "corpus_latest_year": corpus_latest,
+        "years_since_last_exam": (
+            max(0, corpus_latest - latest)
+            if corpus_latest is not None and latest is not None
+            else None
+        ),
+        "subject_counts": dict(richest.get("subject_counts") or {}),
+        "subject_count": int(richest.get("subject_count") or 0),
+        "law_match_count": int(richest.get("law_match_count") or 0),
+        "high_confidence_match_count": int(richest.get("high_confidence_match_count") or 0),
+        "aggregation_method": "max-member-count-plus-year-union-v1",
+    }
+
+
 def build_event(members: list[dict], previous: dict | None = None) -> dict:
     lead = _choose_lead(members)
     evidence = []
@@ -324,6 +404,7 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
             qid = str(q.get("id") or "")
             if qid:
                 related[qid] = q
+    historical_exam_stats = _merge_historical_stats(members)
 
     return {
         "canonical_event_id": event_id,
@@ -353,6 +434,7 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
         "essay_direction": lead.get("essay_direction"),
         "mcq_focus": lead.get("mcq_focus") or [],
         "related_exam_questions": list(related.values())[:12],
+        "historical_exam_stats": historical_exam_stats,
     }
 
 
