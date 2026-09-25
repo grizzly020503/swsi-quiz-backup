@@ -23,6 +23,11 @@ on:
       # 不監聽 auto/legal_watch.json，避免 monitoring bot 自己的 snapshot commit 再觸發自己。
       - '.github/workflows/public-monitoring-feed.yml'
       - 'data/legal_watch_report.json'
+      - 'data/current_affairs_sources.json'
+      - 'scripts/current_affairs_watch.py'
+      - 'scripts/current_affairs_sources_smoke.py'
+      - 'scripts/current_affairs_sources_smoke.py'
+      - 'scripts/analyze_current_affairs_signals.py'
   pull_request:
     paths:
       - '.github/workflows/public-monitoring-feed.yml'
@@ -141,6 +146,7 @@ jobs:
         run: |
           python -m py_compile \
             scripts/current_affairs_watch.py \
+            scripts/current_affairs_sources_smoke.py \
             scripts/build_current_affairs_snapshot.py \
             scripts/current_affairs_event_cluster.py \
             scripts/build_current_affairs_events_snapshot.py \
@@ -148,6 +154,7 @@ jobs:
             scripts/current_affairs_events_smoke.py \
             scripts/build_public_legal_watch_snapshot.py \
             scripts/public_monitoring_v2_smoke.py
+          python scripts/current_affairs_sources_smoke.py
           python scripts/public_monitoring_v2_smoke.py
           python scripts/current_affairs_signals_smoke.py
           python scripts/current_affairs_events_smoke.py
