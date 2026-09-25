@@ -307,6 +307,9 @@ def _merge_historical_stats(members: list[dict]) -> dict:
             "subject_count": len(subjects),
             "law_match_count": 0,
             "high_confidence_match_count": 0,
+            "medium_confidence_match_count": 0,
+            "concept_match_count": 0,
+            "weighted_evidence_units": 0.0,
             "aggregation_method": "related-question-fallback",
         }
 
@@ -347,7 +350,10 @@ def _merge_historical_stats(members: list[dict]) -> dict:
         "subject_count": int(richest.get("subject_count") or 0),
         "law_match_count": int(richest.get("law_match_count") or 0),
         "high_confidence_match_count": int(richest.get("high_confidence_match_count") or 0),
-        "aggregation_method": "max-member-count-plus-year-union-v1",
+        "medium_confidence_match_count": int(richest.get("medium_confidence_match_count") or 0),
+        "concept_match_count": int(richest.get("concept_match_count") or 0),
+        "weighted_evidence_units": float(richest.get("weighted_evidence_units") or 0.0),
+        "aggregation_method": "max-member-count-plus-year-union-v2",
     }
 
 
