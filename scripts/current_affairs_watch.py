@@ -57,7 +57,7 @@ def load_feeds():
                     name
                     and url.startswith("https://")
                     and region in {"taiwan", "international"}
-                    and source_format in {"rss", "who_newsroom_json", "unicef_press_html"}
+                    and source_format in {"rss", "who_newsroom_json", "unicef_press_html", "ilo_news_html"}
                 ):
                     valid.append({
                         "name": name,
@@ -309,12 +309,192 @@ def parse_unicef_press_with_retry(feed, attempts=3):
     return None, last_error
 
 
+
+class _IloNewsParser(HTMLParser):
+    DATE_RE = re.compile(
+        r"\b(\d{1,2})\s+"
+        r"(January|February|March|April|May|June|July|August|September|October|November|December)"
+        r"\s+(20\d{2})\b",
+        re.IGNORECASE,
+    )
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.active_href = None
+        self.active_text = []
+        self.current = None
+        self.pending_date = None
+        self.rows = []
+
+    @staticmethod
+    def news_link(href):
+        raw = str(href or "").strip()
+        if not raw:
+            return ""
+        link = urljoin("https://www.ilo.org", raw)
+        if not link.startswith("https://www.ilo.org/resource/news/"):
+            return ""
+        if link.rstrip("/") == "https://www.ilo.org/resource/news/all-news-recent":
+            return ""
+        return link
+
+    def _finalize_current(self):
+        if not self.current:
+            return
+        title = clean_html(self.current.get("title") or "")
+        link = str(self.current.get("link") or "")
+        raw_date = self.current.get("date")
+        summary = clean_html(" ".join(self.current.get("summary") or []))[:600]
+        if title and link and raw_date:
+            self.rows.append((link, title, raw_date, summary))
+        self.current = None
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        lower = tag.lower()
+        if lower == "time":
+            raw_date = str(attrs.get("datetime") or "").strip()
+            if raw_date:
+                if self.current:
+                    self.current["date"] = raw_date
+                else:
+                    self.pending_date = raw_date
+            return
+        if lower != "a":
+            return
+        link = self.news_link(attrs.get("href"))
+        if link:
+            self.active_href = link
+            self.active_text = []
+
+    def handle_data(self, data):
+        value = clean_html(data)
+        if not value:
+            return
+        match = self.DATE_RE.search(value)
+        if match:
+            raw_date = match.group(0)
+            if self.current:
+                self.current["date"] = raw_date
+            else:
+                self.pending_date = raw_date
+            return
+        if self.active_href:
+            self.active_text.append(value)
+            return
+        if self.current:
+            if value == self.current.get("title"):
+                return
+            if value.lower().startswith(("image:", "news |", "go to ", "view all")):
+                return
+            existing = " ".join(self.current.get("summary") or [])
+            if len(existing) < 600:
+                self.current["summary"].append(value)
+
+    def handle_endtag(self, tag):
+        if tag.lower() != "a" or not self.active_href:
+            return
+        title = clean_html(" ".join(self.active_text))
+        link = self.active_href
+        self.active_href = None
+        self.active_text = []
+        if not title or len(title) < 12:
+            return
+        if self.current and self.current.get("link") == link:
+            if len(title) > len(str(self.current.get("title") or "")):
+                self.current["title"] = title
+            return
+        self._finalize_current()
+        self.current = {
+            "link": link,
+            "title": title,
+            "date": self.pending_date,
+            "summary": [],
+        }
+        self.pending_date = None
+
+    def close(self):
+        super().close()
+        self._finalize_current()
+
+
+def _ilo_published_parsed(raw_date):
+    raw = str(raw_date or "").strip()
+    if not raw:
+        return None
+    try:
+        dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc).timetuple()
+    except ValueError:
+        pass
+    try:
+        return datetime.strptime(raw, "%d %B %Y").replace(
+            tzinfo=timezone.utc
+        ).timetuple()
+    except ValueError:
+        return None
+
+
+def parse_ilo_news_html(raw_html):
+    parser = _IloNewsParser()
+    parser.feed(str(raw_html or ""))
+    parser.close()
+    entries = []
+    seen = set()
+    for link, title, raw_date, summary in parser.rows:
+        if link in seen:
+            continue
+        published_parsed = _ilo_published_parsed(raw_date)
+        # Fail closed on recency: without a parseable date the 21-day window
+        # cannot be enforced, so the row is not eligible for the radar.
+        if published_parsed is None:
+            continue
+        seen.add(link)
+        entries.append(SimpleNamespace(
+            title=title,
+            link=link,
+            summary=summary,
+            description=summary,
+            published_parsed=published_parsed,
+        ))
+    return entries
+
+
+def parse_ilo_news_with_retry(feed, attempts=3):
+    last_error = None
+    for attempt in range(1, max(1, attempts) + 1):
+        try:
+            request = Request(
+                feed["url"],
+                headers={
+                    "User-Agent": "swsi-current-affairs-radar/1.1",
+                    "Accept": "text/html,application/xhtml+xml",
+                },
+            )
+            with urlopen(request, timeout=12) as response:
+                raw_html = response.read().decode("utf-8", errors="replace")
+            entries = parse_ilo_news_html(raw_html)
+            if not entries:
+                raise ValueError("ILO newsroom page returned no dated news links")
+            return SimpleNamespace(entries=entries, bozo=False), None
+        except Exception as exc:
+            last_error = exc
+        if attempt < attempts:
+            print(f"Feed RETRY: {feed['name']} attempt={attempt} error={last_error}")
+            time.sleep(0.5 * attempt)
+    return None, last_error
+
+
 def parse_source_with_retry(feed, attempts=3):
     source_format = feed.get("source_format", "rss")
     if source_format == "who_newsroom_json":
         return parse_who_newsroom_with_retry(feed, attempts=attempts)
     if source_format == "unicef_press_html":
         return parse_unicef_press_with_retry(feed, attempts=attempts)
+    if source_format == "ilo_news_html":
+        return parse_ilo_news_with_retry(feed, attempts=attempts)
     return parse_feed_with_retry(feed, attempts=attempts)
 
 
