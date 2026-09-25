@@ -110,6 +110,16 @@ def main() -> int:
                 raise AssertionError("Current-affairs signals: mcq_focus must be a list")
             if not isinstance(item.get("related_exam_questions"), list):
                 raise AssertionError("Current-affairs signals: related_exam_questions must be a list")
+            hist = item.get("historical_exam_stats") or {}
+            if hist.get("matching_method") != "event-evidence-v2.2":
+                raise AssertionError("Current-affairs signals: historical matching method != event-evidence-v2.2")
+            raw_count = int(hist.get("matched_question_count") or 0)
+            weighted_count = float(hist.get("weighted_match_count") or 0)
+            if not 0 <= weighted_count <= raw_count:
+                raise AssertionError("Current-affairs signals: invalid weighted historical count")
+            breakdown = hist.get("match_breakdown") or {}
+            if set(breakdown) != {"strong", "medium", "concept"}:
+                raise AssertionError("Current-affairs signals: invalid historical match breakdown")
         checks.append(f"signals-{len(signal_items)}/4800")
 
         body, _ = require_status("Current-affairs events", PRIMARY + "/auto/current_affairs_events.json")
@@ -132,6 +142,15 @@ def main() -> int:
                 raise AssertionError("Current-affairs events: evidence missing")
             if any(not str(x.get("source_url") or "").startswith("https://") for x in evidence):
                 raise AssertionError("Current-affairs events: invalid evidence URL")
+            hist = item.get("historical_exam_stats") or {}
+            if hist.get("matching_method") != "event-evidence-v2.2":
+                raise AssertionError("Current-affairs events: historical matching method != event-evidence-v2.2")
+            if hist.get("aggregation_method") != "max-quality-member-plus-year-union-v2.2":
+                raise AssertionError("Current-affairs events: historical aggregation method != v2.2")
+            raw_count = int(hist.get("matched_question_count") or 0)
+            weighted_count = float(hist.get("weighted_match_count") or 0)
+            if not 0 <= weighted_count <= raw_count:
+                raise AssertionError("Current-affairs events: invalid weighted historical count")
         checks.append(f"events-{len(event_items)}")
 
         body, _ = require_status("Current-affairs trends", PRIMARY + "/auto/current_affairs_trends.json")
@@ -141,6 +160,8 @@ def main() -> int:
             raise AssertionError("Current-affairs trends: schema_version != 1")
         if int(trends.get("event_count", -1)) != len(trend_items) or not trend_items:
             raise AssertionError("Current-affairs trends: event_count mismatch or empty")
+        if trends.get("method") != "deterministic-v2.2":
+            raise AssertionError("Current-affairs trends: method != deterministic-v2.2")
         if "不代表命題保證" not in str(trends.get("note") or ""):
             raise AssertionError("Current-affairs trends: non-guarantee note missing")
         for item in trend_items:
@@ -153,7 +174,16 @@ def main() -> int:
                 raise AssertionError("Current-affairs trends: trend_score out of range")
             if not isinstance(item.get("why"), list) or not item.get("why"):
                 raise AssertionError("Current-affairs trends: explanation missing")
-        checks.append(f"trends-{len(trend_items)}")
+            if item.get("historical_stats_method") != "max-quality-member-plus-year-union-v2.2":
+                raise AssertionError("Current-affairs trends: historical stats method != v2.2")
+            raw_count = int(item.get("historical_question_count") or 0)
+            weighted_count = float(item.get("historical_weighted_match_count") or 0)
+            if not 0 <= weighted_count <= raw_count:
+                raise AssertionError("Current-affairs trends: invalid weighted historical count")
+            breakdown = item.get("historical_match_breakdown") or {}
+            if set(breakdown) != {"strong", "medium", "concept"}:
+                raise AssertionError("Current-affairs trends: invalid historical match breakdown")
+        checks.append(f"trends-{len(trend_items)}/history-v2.2")
 
         if "命題趨勢雷達" not in html:
             raise AssertionError("Current-affairs V2 UI: trend radar marker missing from production home")
