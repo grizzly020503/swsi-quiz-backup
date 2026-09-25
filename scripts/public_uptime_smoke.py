@@ -105,6 +105,49 @@ def main() -> int:
                 raise AssertionError("Current-affairs signals: related_exam_questions must be a list")
         checks.append(f"signals-{len(signal_items)}/4800")
 
+        body, _ = require_status("Current-affairs events", PRIMARY + "/auto/current_affairs_events.json")
+        events = json.loads(body)
+        event_items = events.get("events") or []
+        if int(events.get("schema_version", -1)) != 1:
+            raise AssertionError("Current-affairs events: schema_version != 1")
+        if int(events.get("event_count", -1)) != len(event_items) or not event_items:
+            raise AssertionError("Current-affairs events: event_count mismatch or empty")
+        if "不代表命題保證" not in str(events.get("note") or ""):
+            raise AssertionError("Current-affairs events: non-guarantee note missing")
+        event_ids = set()
+        for item in event_items:
+            event_id = str(item.get("canonical_event_id") or "")
+            if not event_id or event_id in event_ids:
+                raise AssertionError("Current-affairs events: invalid or duplicate canonical_event_id")
+            event_ids.add(event_id)
+            evidence = item.get("evidence") or []
+            if not evidence:
+                raise AssertionError("Current-affairs events: evidence missing")
+            if any(not str(x.get("source_url") or "").startswith("https://") for x in evidence):
+                raise AssertionError("Current-affairs events: invalid evidence URL")
+        checks.append(f"events-{len(event_items)}")
+
+        body, _ = require_status("Current-affairs trends", PRIMARY + "/auto/current_affairs_trends.json")
+        trends = json.loads(body)
+        trend_items = trends.get("trends") or []
+        if int(trends.get("schema_version", -1)) != 1:
+            raise AssertionError("Current-affairs trends: schema_version != 1")
+        if int(trends.get("event_count", -1)) != len(trend_items) or not trend_items:
+            raise AssertionError("Current-affairs trends: event_count mismatch or empty")
+        if "不代表命題保證" not in str(trends.get("note") or ""):
+            raise AssertionError("Current-affairs trends: non-guarantee note missing")
+        for item in trend_items:
+            if str(item.get("canonical_event_id") or "") not in event_ids:
+                raise AssertionError("Current-affairs trends: orphan event reference")
+            if item.get("trend_state") not in {"rising", "sustained", "cooling", "one-off"}:
+                raise AssertionError("Current-affairs trends: invalid trend_state")
+            score = float(item.get("trend_score", -1))
+            if score < 0 or score > 10:
+                raise AssertionError("Current-affairs trends: trend_score out of range")
+            if not isinstance(item.get("why"), list) or not item.get("why"):
+                raise AssertionError("Current-affairs trends: explanation missing")
+        checks.append(f"trends-{len(trend_items)}")
+
         body, _ = require_status("Legal-watch snapshot", PRIMARY + "/auto/legal_watch.json")
         laws = json.loads(body)
         law_watch = int(laws.get("watch_count", -1))
