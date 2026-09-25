@@ -1,5 +1,42 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-25 Cloudflare 正式發布完成（READ FIRST）
+
+> 本節是目前最高優先級的接手基線；下方 2026-09-25「接手與時事功能收尾」保留為歷史稽核紀錄，當中的「尚未 merge／尚未發布／signal 403／cdn SW v6」已被本節取代。
+> 每次接手仍先重新核對遠端 main、open PR/issues、Actions 與公開監測，不把任何 SHA 當永久最新。
+
+### 已完成的正式發布閉環
+
+- #77 `fix: finish current-affairs signals and monthly preview closeout` 已合併；merge commit：`6789c5c502efeec5bcd61277de9da4aaf435bb7b`。
+- #77 合併後 8 類 main QA 全部 PASS：Public Monitoring Feed、Cloudflare Frontend Preview、Monthly Frontend、Launch Readiness、Storage、Knowledge、Official Exam Read-Only、Essay Audit。
+- #78 `release: publish verified current-affairs UI to Cloudflare` 已合併；merge commit：`19a8100bbae6d78530af0c7770826e157ef4e2e3`。
+- #78 只發布 `cdn/index.html` 與 `cdn/sw.js`；Cloudflare production build 成功，Version ID：`12b5178f-ca38-415e-8448-6c900c26fac3`。
+- 正式 `cdn/sw.js` 已是 **v7**；正式首頁包含 signal loader、命題訊號／申論方向／選擇題焦點／歷屆相關題 UI。
+- #79 `ops: close production uptime blind spots` 已合併；merge commit：`eabfdc3bff49bbbc049a6d432261561aa11500b0`。
+- #79 將 uptime sentinel 補成會實際驗證 SW v7 與 `current_affairs_signals.json`，並在 sentinel 自身變更進 main 後自動跑 production monitoring-v2。
+- production Uptime Sentinel run `36141787784`：**success**。實際 log：
+  `primary-home, pwa-sw-v7, questions-4800-24, news-6, signals-6/4800, laws-52/52, question-health, ai-preflight, feedback-preflight, netlify-fallback`。
+- 本次收尾時 open PR = 0、open issue = 0。
+
+### 現在的營運判斷
+
+- **Cloudflare primary 已完成本輪正式發布與線上驗收。**
+- 官方選擇題仍為 4,800 題／24 shards；本輪沒有修改官方題幹、答案、grading、Supabase schema、Edge Functions 或 secrets。
+- 時事命題訊號目前公開快照為 6 items，分析來源為完整 4,800 題 shards；文案持續明示「不代表命題保證」。
+- scanner 目前仍只有 6 feeds：衛福部焦點新聞／公告、中央社社會／生活／政治／國際。Reuters、AP、BBC、CNN、UN、WHO 與其他部會屬後續來源擴充，不是目前 release blocker。
+- Netlify 仍是 fallback；2026-09-25 已知 `/sw.js` 為 v2。這不影響 Cloudflare primary 本輪驗收，**不要未經明確授權自行重部署 Netlify**。
+
+### 下一步
+
+1. 若沒有新的監測紅燈或使用者回報，停止 release cleanup；不要再重做 #74～#79。
+2. 後續優先依真實 feedback、官方資料更新、監測異常處理；有 bug 先重現、加 regression、PR exact-head、merge、production smoke。
+3. 若要擴充時事來源，先維持來源品質、事件去重與命題相關性，不為了增加新聞數量而灌低價值 feed。
+4. Netlify fallback 升級另列獨立 release，需先確認部署額度與使用者授權。
+5. 8 月 Round 8、舊 v6／舊月底 patch 指令皆屬歷史，不得據此回退架構。
+
+---
+
+
 ## 2026-09-25 接手與時事功能收尾（READ FIRST）
 
 > 本節取代下方歷史「下一步」；仍須重新核對遠端 main、PR、Actions 與公開資產。
