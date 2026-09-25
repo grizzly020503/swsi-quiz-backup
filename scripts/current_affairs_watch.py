@@ -13,6 +13,8 @@ from pathlib import Path
 
 import feedparser
 
+from current_affairs_international import event_metadata, score_english_item
+
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_REGISTRY = ROOT / "data" / "current_affairs_sources.json"
 
@@ -39,12 +41,14 @@ def load_feeds():
                 url = str(row.get("url") or "").strip()
                 region = str(row.get("region") or "").strip()
                 source_type = str(row.get("source_type") or "news").strip()
+                language = str(row.get("language") or "zh").strip().lower()
                 if name and url.startswith("https://") and region in {"taiwan", "international"}:
                     valid.append({
                         "name": name,
                         "url": url,
                         "region": region,
                         "source_type": source_type if source_type in {"official", "news", "international"} else "news",
+                        "language": language if language in {"zh", "en"} else "zh",
                     })
             if valid:
                 return valid
@@ -128,7 +132,14 @@ def published_iso(entry):
     return datetime.fromtimestamp(calendar.timegm(st), tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def score_item(title, summary, region, source_name, source_type="news"):
+def score_item(title, summary, region, source_name, source_type="news", language="zh"):
+    if language == "en":
+        scored = score_english_item(title, summary, source_type=source_type)
+        if not scored:
+            return None
+        score, category, tags, _facets = scored
+        return score, category, tags
+
     text = f"{title} {summary}"
     policy_hits = [w for w in POLICY_TERMS if w in text]
     best = None
@@ -215,10 +226,19 @@ def main():
                         continue
                 except Exception:
                     pass
-            scored = score_item(title, summary, feed["region"], feed["name"], feed.get("source_type", "news"))
+            language = feed.get("language", "zh")
+            scored = score_item(
+                title,
+                summary,
+                feed["region"],
+                feed["name"],
+                feed.get("source_type", "news"),
+                language,
+            )
             if not scored:
                 continue
             score, category, tags = scored
+            meta = event_metadata(title, summary, category, tags)
             item_id = hashlib.sha256(link.encode("utf-8")).hexdigest()[:32]
             row = {
                 "id": item_id,
@@ -228,12 +248,16 @@ def main():
                 "source_url": link,
                 "source_feed": feed["url"],
                 "source_type": feed.get("source_type", "news"),
+                "language": language,
                 "published_at": pub,
                 "region": feed["region"],
                 "category": category,
                 "relevance_score": score,
                 "exam_tags": tags,
                 "subjects": SUBJECT_MAP.get(category, ["社會工作"]),
+                "event_facets": meta["event_facets"],
+                "org_keys": meta["org_keys"],
+                "numeric_anchors": meta["numeric_anchors"],
             }
             old = items.get(item_id)
             if old is None or row["relevance_score"] > old["relevance_score"]:
