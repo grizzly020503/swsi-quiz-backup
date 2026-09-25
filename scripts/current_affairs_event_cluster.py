@@ -11,6 +11,13 @@ import re
 from datetime import datetime, timezone
 from typing import Iterable
 
+from current_affairs_taxonomy import (
+    canonical_agencies,
+    canonical_concepts,
+    canonical_fact_keys,
+    has_cjk,
+)
+
 PUNCT_RE = re.compile(r"[\s\u3000，。！？、；：,.!?;:（）()\[\]【】《》〈〉「」『』\-—_／/]+")
 DATEISH_RE = re.compile(r"\b(?:19|20)?\d{2}[./-]\d{1,2}(?:[./-]\d{1,2})?\b")
 NUMBER_RE = re.compile(r"\d+(?:[,.]\d+)*")
@@ -75,13 +82,27 @@ def extract_lawish(text: str) -> set[str]:
 
 
 def item_features(row: dict) -> dict:
-    text = f"{row.get('title') or ''} {row.get('summary') or ''}"
+    title = str(row.get("title") or "")
+    text = f"{title} {row.get('summary') or ''}"
+    concepts = {str(x) for x in (row.get("concept_keys") or []) if str(x)}
+    agency_keys = {str(x) for x in (row.get("agency_keys") or []) if str(x)}
+    facts = {str(x) for x in (row.get("fact_keys") or []) if str(x)}
+    if not concepts:
+        concepts = canonical_concepts(text)
+    if not agency_keys:
+        agency_keys = canonical_agencies(text)
+    if not facts:
+        facts = canonical_fact_keys(text)
     return {
-        "title_norm": normalize_title(str(row.get("title") or "")),
-        "ngrams": cjk_ngrams(str(row.get("title") or "")),
+        "title_norm": normalize_title(title),
+        "ngrams": cjk_ngrams(title),
         "tags": {str(x).strip() for x in (row.get("exam_tags") or []) if str(x).strip()},
         "subjects": {str(x).strip() for x in (row.get("subjects") or []) if str(x).strip()},
         "agencies": extract_agencies(text),
+        "agency_keys": agency_keys,
+        "concepts": concepts,
+        "facts": facts,
+        "language": "cjk" if has_cjk(title) else "latin",
         "laws": set(row.get("related_laws") or []) | extract_lawish(text),
         "published": parse_dt(row.get("published_at") or row.get("last_seen")),
         "category": str(row.get("category") or ""),
@@ -95,6 +116,30 @@ def similarity(a: dict, b: dict, max_days: int = 10) -> tuple[float, list[str]]:
     da, db = fa["published"], fb["published"]
     if da and db and abs((da - db).total_seconds()) > max_days * 86400:
         return 0.0, ["outside-time-window"]
+
+    # Cross-language identity is intentionally stricter than same-language
+    # title matching: same exam category + >=2 shared canonical concepts +
+    # one independent anchor (same institution or same significant fact).
+    if fa["language"] != fb["language"]:
+        shared_concepts = fa["concepts"] & fb["concepts"]
+        shared_agency_keys = fa["agency_keys"] & fb["agency_keys"]
+        shared_facts = fa["facts"] & fb["facts"]
+        if len(shared_concepts) >= 2 and (shared_agency_keys or shared_facts):
+            reasons = ["bilingual-concepts=" + ",".join(sorted(shared_concepts)[:4])]
+            score = 0.72 + min(0.12, 0.04 * (len(shared_concepts) - 2))
+            if shared_agency_keys:
+                score += 0.12
+                reasons.append("agency-key=" + ",".join(sorted(shared_agency_keys)[:2]))
+            if shared_facts:
+                score += 0.10
+                reasons.append("fact=" + ",".join(sorted(shared_facts)[:2]))
+            return min(1.0, score), reasons
+        return 0.0, [
+            "cross-language-below-threshold",
+            f"concepts={len(shared_concepts)}",
+            f"agency={len(shared_agency_keys)}",
+            f"facts={len(shared_facts)}",
+        ]
 
     title_score = jaccard(fa["ngrams"], fb["ngrams"])
     title_cover = overlap_coefficient(fa["ngrams"], fb["ngrams"])
@@ -219,6 +264,9 @@ def _previous_as_item(row: dict) -> dict:
         "exam_tags": row.get("exam_tags") or [],
         "subjects": row.get("subjects") or [],
         "related_laws": row.get("related_laws") or [],
+        "concept_keys": row.get("concept_keys") or [],
+        "agency_keys": row.get("agency_keys") or [],
+        "fact_keys": row.get("fact_keys") or [],
         "published_at": row.get("last_seen"),
     }
 
@@ -285,6 +333,9 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
         "subjects": sorted({str(y) for x in members for y in (x.get("subjects") or []) if y}),
         "exam_tags": sorted({str(y) for x in members for y in (x.get("exam_tags") or []) if y}),
         "related_laws": sorted({str(y) for x in members for y in (x.get("related_laws") or []) if y}),
+        "concept_keys": sorted({str(y) for x in members for y in (x.get("concept_keys") or []) if y}),
+        "agency_keys": sorted({str(y) for x in members for y in (x.get("agency_keys") or []) if y}),
+        "fact_keys": sorted({str(y) for x in members for y in (x.get("fact_keys") or []) if y}),
         "source_count": len(source_names),
         "official_source_count": len(official_names),
         "sources": source_names,
