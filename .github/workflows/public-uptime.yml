@@ -10,10 +10,14 @@ on:
     paths:
       - '.github/workflows/public-uptime.yml'
       - 'scripts/public_uptime_smoke.py'
+      - 'scripts/public_history_contract.py'
+      - 'scripts/public_history_contract_smoke.py'
   pull_request:
     paths:
       - '.github/workflows/public-uptime.yml'
       - 'scripts/public_uptime_smoke.py'
+      - 'scripts/public_history_contract.py'
+      - 'scripts/public_history_contract_smoke.py'
 
 permissions:
   contents: read
@@ -32,7 +36,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Syntax check
-        run: python -m py_compile scripts/public_uptime_smoke.py
+        run: python -m py_compile scripts/public_uptime_smoke.py scripts/public_history_contract.py scripts/public_history_contract_smoke.py
+      - name: History contract corruption regressions
+        run: python scripts/public_history_contract_smoke.py
       - name: Read-only public availability checks
         shell: bash
         run: |
@@ -45,3 +51,4 @@ jobs:
             args='--monitoring-v2'
           fi
           python scripts/public_uptime_smoke.py $args
+

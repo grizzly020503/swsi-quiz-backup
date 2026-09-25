@@ -11,6 +11,8 @@ import sys
 import urllib.error
 import urllib.request
 
+from public_history_contract import validate_history_contract
+
 PRIMARY = "https://wandering-wave-4418.c022050333.workers.dev"
 BACKUP = "https://swsi-quiznetlify.netlify.app"
 FEEDBACK = "https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-feedback"
@@ -154,6 +156,7 @@ def main() -> int:
             if not isinstance(item.get("why"), list) or not item.get("why"):
                 raise AssertionError("Current-affairs trends: explanation missing")
         checks.append(f"trends-{len(trend_items)}")
+        checks.append(validate_history_contract(signals, events, trends))
 
         if "命題趨勢雷達" not in html:
             raise AssertionError("Current-affairs V2 UI: trend radar marker missing from production home")
