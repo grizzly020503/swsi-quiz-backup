@@ -65,8 +65,98 @@ def matching_contract_smoke() -> None:
         raise SystemExit(f"historical subject count mismatch: {stats}")
 
 
+def event_specific_history_smoke() -> None:
+    labor_row = {
+        "id": "fixture-wage",
+        "title": "最低工資調升至新標準",
+        "summary": "最低工資審議後公告新標準。",
+        "category": "勞動與社會保障",
+        "exam_tags": ["最低工資", "行政院", "保障"],
+        "subjects": ["社會政策與社會立法"],
+        "concept_keys": [],
+    }
+    questions = [
+        {
+            "id": "Q-WAGE",
+            "subject": "社會政策與社會立法",
+            "year": "115", "round": "第一次", "qno": "20",
+            "major": "勞動政策", "topic": "最低工資",
+            "keywords": ["最低工資"], "question": "最低工資制度與審議", "law": "",
+        },
+        {
+            "id": "Q-PARENTAL-LEAVE",
+            "subject": "社會政策與社會立法",
+            "year": "115", "round": "第一次", "qno": "21",
+            "major": "性別工作平等法", "topic": "育嬰留職停薪",
+            "keywords": ["性別平等工作法", "育嬰留職停薪"],
+            "question": "育嬰留職停薪規定", "law": "",
+        },
+    ]
+    out = analyze_item(labor_row, questions)
+    ids = {q["id"] for q in out["related_exam_questions"]}
+    if "Q-WAGE" not in ids:
+        raise SystemExit("exact event tag failed to link a historical question")
+    if "Q-PARENTAL-LEAVE" in ids:
+        raise SystemExit("broad category terms caused an unrelated labor-question match")
+    if out["historical_exam_stats"]["matched_question_count"] != 1:
+        raise SystemExit("unsupported category match polluted full historical statistics")
+    polluted = {**labor_row, "exam_tags": [*labor_row["exam_tags"], "育嬰留職停薪"]}
+    if any(q["id"] == "Q-PARENTAL-LEAVE" for q in analyze_item(polluted, questions)["related_exam_questions"]):
+        raise SystemExit("tag absent from event text became historical evidence")
+    zero = analyze_item(labor_row, questions[1:])
+    if zero["related_exam_questions"] or zero["historical_exam_stats"]["matched_question_count"]:
+        raise SystemExit("zero evidence must retain zero related questions")
+    if zero["historical_exam_stats"]["latest_exam_year"] is not None:
+        raise SystemExit("zero evidence must not invent a latest matching exam year")
+    corpus = [{**questions[0], "id": f"Q-WAGE-{i}", "year": str(109 + i)} for i in range(7)]
+    full = analyze_item(labor_row, corpus, max_related=2)
+    if len(full["related_exam_questions"]) != 2 or full["historical_exam_stats"]["matched_question_count"] != 7:
+        raise SystemExit("public top-N limit must not truncate full historical statistics")
+
+    ilo_row = {
+        "id": "fixture-ilo",
+        "title": "ILO project improves social protection coverage",
+        "summary": "Policy reforms strengthen social protection systems.",
+        "category": "社會救助與居住",
+        "exam_tags": ["社會保障"],
+        "subjects": ["社會政策與社會立法"],
+        "concept_keys": ["social_protection"],
+    }
+    cross_language = [
+        {
+            "id": "Q-SOCIAL-ASSISTANCE",
+            "subject": "社會政策與社會立法",
+            "year": "114", "round": "第一次", "qno": "30",
+            "major": "社會救助", "topic": "社會救助制度",
+            "keywords": ["社會救助"], "question": "社會救助制度之保障功能", "law": "",
+        },
+        {
+            "id": "Q-HOUSING-ONLY",
+            "subject": "社會政策與社會立法",
+            "year": "114", "round": "第一次", "qno": "31",
+            "major": "住宅政策", "topic": "社會住宅",
+            "keywords": ["住宅"], "question": "社會住宅政策", "law": "",
+        },
+    ]
+    out = analyze_item(ilo_row, cross_language)
+    related = {q["id"]: q for q in out["related_exam_questions"]}
+    if "Q-SOCIAL-ASSISTANCE" not in related:
+        raise SystemExit("bilingual canonical concept failed to link historical question")
+    if "Q-HOUSING-ONLY" in related:
+        raise SystemExit("same broad category caused an unsupported historical match")
+    reason = related["Q-SOCIAL-ASSISTANCE"].get("match_reason") or ""
+    if "共同概念" not in reason:
+        raise SystemExit("cross-language match must expose its concept evidence")
+    chinese = {**ilo_row, "title": "社會救助制度改革", "summary": "社會救助保障", "exam_tags": ["社會救助"]}
+    same_concept = analyze_item(chinese, cross_language)["related_exam_questions"]
+    if same_concept[0]["match_score"] != related["Q-SOCIAL-ASSISTANCE"]["match_score"]:
+        raise SystemExit("translated concept/tag/category aliases must not inflate match strength")
+
+
+
 def main() -> int:
     matching_contract_smoke()
+    event_specific_history_smoke()
     p = Path("auto/current_affairs_signals.json")
     if not p.exists():
         raise SystemExit("current-affairs signal snapshot missing")
@@ -84,6 +174,10 @@ def main() -> int:
 
     allowed_confidence = {"low", "medium", "high"}
     for row in items:
+        if "最低工資" in row.get("title", "") or "延後退休續勞保" in row.get("title", ""):
+            reasons = " ".join(q.get("match_reason", "") for q in row.get("related_exam_questions", []))
+            if "育嬰留職停薪" in reasons or "性別平等工作法" in reasons:
+                raise SystemExit("live wage/pension event links unrelated parental-leave questions")
         for key in ("id", "title", "source_url", "category", "subjects",
                     "policy_signal", "essay_value", "mcq_fact_density",
                     "signal_confidence", "signal_score", "exam_point_summary",
