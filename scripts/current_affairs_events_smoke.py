@@ -101,7 +101,8 @@ def main() -> int:
     rerun = cluster_items(rerun_items, previous_events=[merged])
     assert len(rerun) == 1
     assert rerun[0]["canonical_event_id"] == old_id
-    assert rerun[0]["observation_count"] == 2
+    assert merged["observation_count"] == 2
+    assert rerun[0]["observation_count"] == 3
 
     chatter_event = {
         **merged,
