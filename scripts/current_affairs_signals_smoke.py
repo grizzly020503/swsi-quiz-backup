@@ -15,7 +15,7 @@ def matching_contract_smoke() -> None:
         "title": "兒少保護制度與通報支持",
         "summary": "兒童與少年通報、安置及最佳利益。",
         "category": "兒少保護",
-        "exam_tags": ["兒童", "少年", "政策", "權益"],
+        "exam_tags": ["責任通報", "安置", "最佳利益"],
         "subjects": ["社會政策與社會立法"],
     }
     questions = [
@@ -65,8 +65,84 @@ def matching_contract_smoke() -> None:
         raise SystemExit(f"historical subject count mismatch: {stats}")
 
 
+def event_specific_history_smoke() -> None:
+    wage = {
+        "id": "fixture-wage",
+        "title": "最低工資調升至新標準",
+        "summary": "最低工資審議後公告新標準。",
+        "category": "勞動與社會保障",
+        "exam_tags": ["最低工資", "保障"],
+        "subjects": ["社會政策與社會立法"],
+        "concept_keys": [],
+    }
+    wage_questions = [
+        {
+            "id": "Q-BASIC-WAGE",
+            "subject": "社會政策與社會立法",
+            "year": "115", "round": "第二次", "qno": "29",
+            "major": "社會救助", "topic": "工作收入認定與基本工資",
+            "keywords": ["基本工資"], "question": "基本工資與工作收入認定", "law": "",
+        },
+        {
+            "id": "Q-PARENTAL-LEAVE",
+            "subject": "社會政策與社會立法",
+            "year": "115", "round": "第一次", "qno": "21",
+            "major": "婦女與性別法規", "topic": "育嬰留職停薪",
+            "keywords": ["性別平等工作法", "育嬰留職停薪"],
+            "question": "育嬰留職停薪規定", "law": "",
+        },
+    ]
+    out = analyze_item(wage, wage_questions)
+    ids = {q["id"] for q in out["related_exam_questions"]}
+    if "Q-BASIC-WAGE" not in ids:
+        raise SystemExit("最低工資 must bridge to historical 基本工資 through synonym evidence")
+    if "Q-PARENTAL-LEAVE" in ids:
+        raise SystemExit("broad labor category leaked parental-leave question into minimum-wage history")
+
+    child_survey = {
+        "id": "fixture-child-survey",
+        "title": "兒童及少年生活狀況調查",
+        "summary": "依兒童及少年福利與權益保障法辦理生活狀況調查。",
+        "category": "兒少保護",
+        "exam_tags": ["兒童", "少年", "政策", "權益"],
+        "subjects": ["社會政策與社會立法"],
+    }
+    child_questions = [
+        {
+            "id": "Q-CHILD-SURVEY",
+            "subject": "社會政策與社會立法",
+            "year": "115", "round": "第二次", "qno": "23",
+            "major": "兒少福利法規", "topic": "調查統計機制",
+            "keywords": ["生活狀況調查"],
+            "question": "兒少生活狀況調查統計機制",
+            "law": "兒童及少年福利與權益保障法",
+        },
+        {
+            "id": "Q-CHILD-ADOPTION",
+            "subject": "社會政策與社會立法",
+            "year": "115", "round": "第二次", "qno": "22",
+            "major": "兒少福利法規", "topic": "收養程序與媒合",
+            "keywords": ["收養", "媒合"],
+            "question": "兒少收養程序",
+            "law": "兒童及少年福利與權益保障法",
+        },
+    ]
+    out = analyze_item(child_survey, child_questions)
+    ids = {q["id"] for q in out["related_exam_questions"]}
+    if ids != {"Q-CHILD-SURVEY"}:
+        raise SystemExit(f"same-law unrelated child questions leaked into survey history: {ids}")
+    stats = out.get("historical_exam_stats") or {}
+    if stats.get("matched_question_count") != 1:
+        raise SystemExit(f"same-topic count mismatch: {stats}")
+    if stats.get("law_match_count") != 2:
+        raise SystemExit(f"law history must remain separate from topic history: {stats}")
+    if stats.get("matching_method") != "event-evidence-v2.2":
+        raise SystemExit(f"unexpected matching method: {stats}")
+
+
 def main() -> int:
     matching_contract_smoke()
+    event_specific_history_smoke()
     p = Path("auto/current_affairs_signals.json")
     if not p.exists():
         raise SystemExit("current-affairs signal snapshot missing")
@@ -110,12 +186,19 @@ def main() -> int:
             "matched_question_count", "matched_year_count", "matched_years",
             "latest_exam_year", "corpus_latest_year", "years_since_last_exam",
             "subject_counts", "subject_count", "law_match_count",
-            "high_confidence_match_count",
+            "law_match_year_count", "law_match_years",
+            "weighted_match_count", "match_breakdown",
+            "high_confidence_match_count", "matching_method",
         ):
             if key not in stats:
                 raise SystemExit(f"historical exam stats missing field: {key}")
         if int(stats.get("matched_question_count") or 0) < len(row["related_exam_questions"]):
             raise SystemExit("historical full count cannot be smaller than public related list")
+        breakdown = stats.get("match_breakdown") or {}
+        if set(breakdown) != {"strong", "medium", "concept"}:
+            raise SystemExit(f"invalid historical match breakdown: {breakdown}")
+        if float(stats.get("weighted_match_count") or 0) > int(stats.get("matched_question_count") or 0):
+            raise SystemExit("weighted historical count cannot exceed raw same-topic count")
         for q in row["related_exam_questions"]:
             for key in ("id", "subject", "year", "round", "qno", "major", "topic", "match_reason", "match_score"):
                 if key not in q:
@@ -123,6 +206,11 @@ def main() -> int:
             if "question" in q or "opt_a" in q or "opt_b" in q or "opt_c" in q or "opt_d" in q:
                 raise SystemExit("public signal snapshot must not expose full question content")
 
+    live_counts = [
+        (str(row.get("title") or "")[:18], int((row.get("historical_exam_stats") or {}).get("matched_question_count") or 0))
+        for row in items
+    ]
+    print("Current-affairs same-topic history: " + ", ".join(f"{title}={count}" for title, count in live_counts))
     print(f"Current-affairs signals smoke PASS: {len(items)} items")
     return 0
 
