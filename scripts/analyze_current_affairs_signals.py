@@ -561,10 +561,13 @@ def historical_exam_stats(matches: list[dict], questions: list[dict], laws: list
         elif match_score >= 2.0:
             breakdown["concept"] += 1
 
+    # Raw topic count remains visible, but low-specificity concept matches
+    # cannot grow trend weight without bound. This prevents a broad theme with
+    # dozens of weak matches from outranking a few precise historical anchors.
     weighted_match_count = round(
-        breakdown["strong"]
-        + breakdown["medium"] * 0.5
-        + breakdown["concept"] * 0.25,
+        min(breakdown["strong"], 8)
+        + min(breakdown["medium"], 6) * 0.5
+        + min(breakdown["concept"], 4) * 0.25,
         2,
     )
 
