@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - '.github/workflows/verify-netlify-production.yml'
+      - 'index.html'
 
 permissions:
   contents: read
@@ -35,13 +36,32 @@ jobs:
             test "$code" = '200'
           }
 
-          fetch_prod / /tmp/prod-index.html
+          expected_marker='2026-09-26-history-v2.2'
+          deployed=0
+          for attempt in $(seq 1 18); do
+            if fetch_prod / /tmp/prod-index.html; then
+              if grep -q "swsi-netlify-release\" content=\"$expected_marker" /tmp/prod-index.html; then
+                deployed=1
+                echo "NETLIFY RELEASE MARKER READY on attempt $attempt"
+                break
+              fi
+            fi
+            echo "Waiting for Netlify production deploy: attempt $attempt/18"
+            sleep 10
+          done
+          test "$deployed" = '1'
+
           fetch_prod /sw.js /tmp/prod-sw.js
           fetch_prod /monthly_patch.js /tmp/prod-monthly-patch.js
           fetch_prod /auto/essays_auto.json /tmp/prod-essays.json
+          fetch_prod /auto/current_affairs.json /tmp/prod-current-affairs.json
+          fetch_prod /auto/current_affairs_signals.json /tmp/prod-current-affairs-signals.json
+          fetch_prod /auto/current_affairs_events.json /tmp/prod-current-affairs-events.json
+          fetch_prod /auto/current_affairs_trends.json /tmp/prod-current-affairs-trends.json
 
           grep -q '社工師國考免費題庫｜SWSI' /tmp/prod-index.html
           grep -q 'monthly_patch.js' /tmp/prod-index.html
+          grep -q '命題趨勢雷達' /tmp/prod-index.html
           grep -q "const VERSION = 'v7'" /tmp/prod-sw.js
           ! grep -q "const VERSION = 'v6'" /tmp/prod-sw.js
           grep -q '2026-08-26.fail-closed.v2' /tmp/prod-monthly-patch.js
@@ -54,6 +74,32 @@ jobs:
           grep -q 'SWSI Theory Trust Final Batch 2026-08-26' /tmp/prod-monthly-patch.js
           grep -q '資產建構／資產累積理論' /tmp/prod-index.html
           grep -q '無條件基本收入 UBI' /tmp/prod-index.html
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          current=json.loads(Path('/tmp/prod-current-affairs.json').read_text(encoding='utf-8'))
+          signals=json.loads(Path('/tmp/prod-current-affairs-signals.json').read_text(encoding='utf-8'))
+          events=json.loads(Path('/tmp/prod-current-affairs-events.json').read_text(encoding='utf-8'))
+          trends=json.loads(Path('/tmp/prod-current-affairs-trends.json').read_text(encoding='utf-8'))
+
+          assert int(current.get('source_feed_count') or 0) >= 17, current.get('source_feed_count')
+          assert int(current.get('feed_error_count') or -1) == 0, current.get('feed_error_count')
+          assert int(signals.get('questions_loaded') or 0) == 4800
+          assert int(signals.get('item_count') or -1) == len(signals.get('items') or [])
+          assert int(events.get('event_count') or -1) == len(events.get('events') or [])
+          assert int(trends.get('event_count') or -1) == len(trends.get('trends') or [])
+          assert trends.get('method') == 'deterministic-v2.2', trends.get('method')
+          print(
+              'NETLIFY CURRENT AFFAIRS RELEASE CHECK OK '
+              f"sources={current['source_feed_count']} "
+              f"news={len(current.get('items') or [])} "
+              f"signals={signals['item_count']}/4800 "
+              f"events={events['event_count']} "
+              f"trends={trends['event_count']}/history-v2.2"
+          )
+          PY
 
           if grep -q 'SWSI CLOUDFLARE FRONTEND PREVIEW' /tmp/prod-index.html; then
             echo 'Preview marker found on production' >&2
