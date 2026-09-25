@@ -68,8 +68,9 @@ CATEGORIES = [
 
 POLICY_TERMS = ["修法","修正","政策","制度","改革","通報","補助","津貼","權益","福利","保護","安置","服務量能","人力不足","監察","行政院","衛福部","條例","施行細則","法規","草案","預告","指引","要點","給付","保險","保障"]
 INTERNATIONAL_CORE = ["兒童權利","社會福利","社會政策","移民","難民","人權","心理健康","高齡","家暴","性暴力","災害","貧窮","身心障礙"]
-LOW_VALUE_TERMS = ["好禮","選購","愛心捐贈","公益捐贈","徵求","招標","採購","徵件","動漫菸品","疫苗","流感","登革熱","牙醫醫療站","競賽","招生","徵才","表揚"]
+LOW_VALUE_TERMS = ["好禮","選購","愛心捐贈","公益捐贈","徵求","招標","採購","徵件","動漫菸品","疫苗","流感","登革熱","牙醫醫療站","競賽","招生","徵才","表揚","書展","文化幣","科普","論壇","新書發表","急診","熱傷害"]
 CHILD_WEAK = {"兒少","兒童","少年","保母"}
+CHILD_STRONG = ["兒少保護","兒虐","虐童","兒童權利","性剝削","托嬰","安置","收出養","寄養","責任通報","兒童及少年福利與權益保障法","兒童權利公約","兒少生活狀況","生活狀況調查"]
 DISASTER_STRONG = ["災害救助","災民","安置","撤離","避難","社區韌性"]
 SUBJECT_MAP = {
     "兒少保護":["社會工作直接服務","社會政策與社會立法","社會工作"],
@@ -114,9 +115,12 @@ def score_item(title, summary, region, source_name, source_type="news"):
         # RSS 摘要偶爾會帶到不相干關鍵字；沒有標題命中時必須至少兩個考點詞且有制度/政策訊號。
         if not title_hits and not (len(all_hits) >= 2 and policy_hits):
             continue
-        # 「兒童／少年」本身太寬，必須同時出現政策或保護訊號。
-        if category == "兒少保護" and title_hits and set(title_hits).issubset(CHILD_WEAK) and not policy_hits:
-            continue
+        # 「兒童／少年」本身太寬；即使官方摘要含「政策」等字，也不能把
+        # 書展、醫療衛教、科普活動誤當成兒少保護。弱標題命中時必須有明確
+        # 保護／權利／法規／生活狀況調查脈絡。
+        if category == "兒少保護" and title_hits and set(title_hits).issubset(CHILD_WEAK):
+            if not any(w in text for w in CHILD_STRONG):
+                continue
         # 單純天災新聞不納入；要與安置、撤離、救助、社區韌性等社工議題相連。
         if category == "災害與社區工作" and not any(w in text for w in DISASTER_STRONG):
             continue
