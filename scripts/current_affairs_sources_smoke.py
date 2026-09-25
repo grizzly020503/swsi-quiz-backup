@@ -66,10 +66,37 @@ def main() -> int:
     )
     assert low_value is None, low_value
 
+    book_fair = score_item(
+        "參觀國際兒童及青少年書展 鼓勵使用文化幣",
+        "推動閱讀政策，邀請兒童與青少年參與文化活動。",
+        "taiwan",
+        "行政院本院新聞",
+        "official",
+    )
+    assert book_fair is None, book_fair
+
+    child_health = score_item(
+        "外出牢記防熱4招 護兒童遠離熱傷害",
+        "衛生單位提供兒童健康宣導與保護資訊。",
+        "taiwan",
+        "衛生福利部焦點新聞",
+        "official",
+    )
+    assert child_health is None, child_health
+
+    child_survey = score_item(
+        "敬請支持115年兒童及少年生活狀況調查",
+        "依兒童及少年福利與權益保障法辦理生活狀況調查，作為社會福利政策與法規修訂依據。",
+        "taiwan",
+        "衛生福利部公告訊息",
+        "official",
+    )
+    assert child_survey and child_survey[1] == "兒少保護", child_survey
+
     print(
         "CURRENT AFFAIRS SOURCE SMOKE OK: "
         "11 unique HTTPS feeds, 3 new official feeds, "
-        "labor/student-support accepted, generic competition rejected"
+        "labor/student-support accepted, observed activity/health false positives rejected"
     )
     return 0
 
