@@ -56,12 +56,70 @@ def retry_contract() -> None:
         watch.time.sleep = original_sleep
 
 
+def who_api_adapter_contract() -> None:
+    calls = {"count": 0}
+    original_urlopen = watch.urlopen
+    original_sleep = watch.time.sleep
+
+    class FakeResponse:
+        def __init__(self, payload):
+            self.payload = payload
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def read(self):
+            return json.dumps(self.payload).encode("utf-8")
+
+    payload = {
+        "value": [{
+            "Title": "WHO issues new guidance on mental health and suicide prevention services",
+            "ItemDefaultUrl": "/24-09-2026-who-mental-health-guidance",
+            "PublicationDateAndTime": "2026-09-24T10:00:00Z",
+            "OpenGraphDescription": "WHO guidance strengthens mental health services and suicide prevention policy.",
+        }]
+    }
+
+    def fake_urlopen(request, timeout=12):
+        calls["count"] += 1
+        assert "%24orderby=PublicationDate%20desc" in request.full_url
+        if calls["count"] == 1:
+            raise OSError("temporary WHO API failure")
+        return FakeResponse(payload)
+
+    try:
+        watch.urlopen = fake_urlopen
+        watch.time.sleep = lambda _seconds: None
+        parsed, error = watch.parse_who_newsroom_with_retry(
+            {
+                "name": "WHO Newsroom",
+                "url": "https://www.who.int/api/newsroom/newsitems",
+                "source_format": "who_newsroom_json",
+            },
+            attempts=3,
+        )
+        assert error is None, error
+        assert calls["count"] == 2, calls
+        assert len(parsed.entries) == 1
+        entry = parsed.entries[0]
+        assert entry.title.startswith("WHO issues new guidance")
+        assert entry.link == "https://www.who.int/news/item/24-09-2026-who-mental-health-guidance"
+        assert entry.published_parsed is not None
+    finally:
+        watch.urlopen = original_urlopen
+        watch.time.sleep = original_sleep
+
+
 def main() -> int:
     retry_contract()
+    who_api_adapter_contract()
     payload = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = payload.get("sources") or []
     assert payload.get("schema_version") == 1
-    assert len(rows) >= 14, f"expected at least 14 curated feeds, got {len(rows)}"
+    assert len(rows) >= 15, f"expected at least 15 curated sources, got {len(rows)}"
 
     urls = [str(x.get("url") or "") for x in rows]
     names = [str(x.get("name") or "") for x in rows]
@@ -75,6 +133,13 @@ def main() -> int:
     assert un_news.get("url") == "https://news.un.org/feed/subscribe/en/news/all/rss.xml"
     assert un_news.get("region") == "international"
     assert un_news.get("source_type") == "official"
+
+    who_news = by_name.get("WHO Newsroom")
+    assert who_news, "missing source: WHO Newsroom"
+    assert who_news.get("url") == "https://www.who.int/api/newsroom/newsitems"
+    assert who_news.get("region") == "international"
+    assert who_news.get("source_type") == "official"
+    assert who_news.get("source_format") == "who_newsroom_json"
 
     for name, url in REQUIRED.items():
         row = by_name.get(name)
@@ -248,7 +313,7 @@ def main() -> int:
 
     print(
         "CURRENT AFFAIRS SOURCE SMOKE OK: "
-        f"{len(rows)} unique HTTPS feeds; labor/student-support policy accepted; "
+        f"{len(rows)} unique HTTPS sources; RSS + WHO JSON adapters guarded; "
         "MOJ policy + bilingual WHO/UNICEF concepts accepted; generic international noise rejected"
     )
     return 0
