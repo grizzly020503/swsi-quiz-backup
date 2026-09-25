@@ -1,5 +1,56 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 Issue #84 時事 V2／來源政策已收尾（READ FIRST）
+
+> 本節優先於下方所有把 #84、Reuters/AP/BBC、社家署或 trend quality 列為未完成的舊敘述。接手仍先重新讀 main、open PR/issues、Actions 與 production sentinel。
+
+### #84 已完成的產品鏈
+
+- 來源 registry／adapter 與 source-health contract。
+- 同事件跨來源 clustering／canonical event。
+- 中英雙語 taxonomy 與 cross-language dedupe。
+- 事件 → 國考考點／法規／申論方向／MCQ facts。
+- 完整 **4,800 題**歷屆題關聯。
+- same-topic 與 same-law 歷史分離。
+- weighted historical evidence。
+- `event-evidence-v2.2` matching。
+- `max-quality-member-plus-year-union-v2.2` event aggregation。
+- `deterministic-v2.2` trend。
+- 學生端單一「命題趨勢雷達」＋ V1 fallback。
+- Public Monitoring／Cloudflare production／Public Uptime 閉環。
+
+### 正式 production baseline
+
+- 17 sources。
+- latest verified snapshot：17/17 sources、feed errors=0、news=11、signals=11/4800、events=11、trends=11、laws=52/52。
+- Production Uptime Sentinel run `36201077702`：**success**。
+- log：
+  `primary-home, pwa-sw-v7, questions-4800-24, sources-17/errors-0, news-11, signals-11/4800, events-11, trends-11/history-v2.2, trend-ui-v2, laws-52/52, question-health, ai-preflight, feedback-preflight, netlify-fallback`。
+
+### Source policy 已定案
+
+正式政策文件：`docs/CURRENT_AFFAIRS_SOURCE_POLICY.md`。
+
+- **Reuters**：目前不接。官方 delivery/RSS/API 屬授權／訂閱內容；沒有適用授權前不得用公開頁面或非官方 mirror 繞過。
+- **AP**：目前不接。AP.org 條款限制 automated crawling/scraping；Media API 依 contract entitlement/licensed content 使用。
+- **BBC**：目前不接。BBC terms 不允許抽取 RSS/content metadata；商業 metadata/RSS 使用需 permission/licence。SWSI 的 event/trend pipeline 屬 metadata transformation，不是單純完整嵌入 feed。
+- **社家署**：目前沒有驗證通過的 live current-affairs RSS/XML/API；不得猜 URL。data.gov.tw 的社家署政府開放資料可作未來 **background evidence layer**，但不當成即時新聞 feed。
+
+### 現在不要重做
+
+- 不要再把 Reuters／AP／BBC 寫成「待接入 production」的普通來源 backlog；除非未來取得相容授權／官方 open API。
+- 不要用第三方 RSS mirror、scraping workaround 或未授權 metadata extraction。
+- 不要把社家署定期統計／名冊資料冒充 current-affairs feed。
+- 不要重做 #84 已完成的 event/trend/history/UI/release contracts。
+- 新來源、新 false positive 或新 trend 問題一律走 evidence-backed、regression-first 的新 issue/PR。
+
+### 下一步
+
+Issue #84 可關閉。後續若要使用社家署開放資料，應另開 **background evidence layer** 的獨立產品需求，不與 current-affairs feed 混在一起。
+
+---
+
+
 ## 2026-09-26 歷屆題 evidence／trend v2.2 已正式上線（READ FIRST）
 
 > 本節優先於下方「trend quality refinement 尚未完成」的舊敘述。接手仍先重新讀 main、open PR/issues、Actions 與 production sentinel。
