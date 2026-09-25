@@ -1,5 +1,64 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-25 時事來源 12-feed 正式上線（READ FIRST）
+
+> 本節優先於下方所有「6 feeds／8 feeds／11 feeds」的歷史敘述。接手時仍先重新讀遠端 main、open PR/issues、Actions 與 production sentinel。
+
+### 正式狀態
+
+- #90 已合併：加入 **教育部即時新聞、教育部重要政策、移民署新住民政策法規**，並新增每個 feed 的健康 log、12 秒 network timeout、公開 snapshot 的 `source_feed_count`／`feed_error_count`。
+- #92 已合併：來源 registry、scanner、event/trend/analyzer 等 pipeline 變更進 main 後，會立即重建 public monitoring snapshots，不必等下一個 6 小時排程。
+- #93 已合併；merge commit：`2a59a38b4d7765e3901b63cf5fefbd2ef5fb18b4`：
+  - 新增 **勞動部新聞稿 RSS**。
+  - 新增「**勞動與社會保障**」「**教育與學生輔導**」考點分類與 exam-signal／歷屆題 mapping。
+  - 依真實 production data 收緊 relevance：排除書展／文化幣、醫療衛教、科普論壇、頒獎典禮、模擬投票、成果活動、接見訪問團、評選、補助詐領刑案、防災演練、公益課桌椅等 false positives。
+  - 保留兒少／身障需求調查、最低工資、勞保、托育政策、長照補助等制度型訊號。
+- monitoring bot 正式 snapshot commit：`ba2282e542bb1c1005ea4f48b3ad3f5557f00499`。
+- #94 已合併；merge commit：`4276b1f4bd3c7ae138d61e30fc2b716f048355ad`，用最小 release patch 將 12-source snapshot 推到 Cloudflare production，並將 source health 加入 public uptime contract。
+
+### 目前 12 feeds
+
+1. 衛生福利部焦點新聞
+2. 衛生福利部公告訊息
+3. 中央社社會
+4. 中央社生活
+5. 中央社政治
+6. 中央社國際
+7. 內政部新聞發布
+8. 行政院本院新聞
+9. 教育部即時新聞
+10. 教育部重要政策
+11. 移民署新住民政策法規
+12. 勞動部新聞稿
+
+### 最新驗證基線
+
+- #93 exact-head 真實掃描：**12/12 Feed OK，fetched=307，accepted=9，feed errors=0**。
+- signals=9，questions_loaded=4,800。
+- events=9、trends=9。
+- legal-watch=52/52。
+- Production Uptime Sentinel run `36151156958`：**success**。
+- production log：
+  `primary-home, pwa-sw-v7, questions-4800-24, sources-12/errors-0, news-9, signals-9/4800, events-9, trends-9, trend-ui-v2, laws-52/52, question-health, ai-preflight, feedback-preflight, netlify-fallback`。
+
+### 現在不要重做
+
+- 不要再把來源現況寫成 6、8 或 11 feeds。
+- 不要重做 #90／#92／#93／#94。
+- 不要為了新聞數量放寬 relevance；目前策略是 **品質優先、false positive regression 優先**。
+- 不要讓同一事件跨來源報導灌高趨勢分數；event clustering 與 trend contract 已存在。
+- 官方 4,800 題、答案與 grading 仍為唯讀邊界。
+
+### Issue #84 接下來仍未完成
+
+1. **台灣官方第二批**：法務部、社家署等來源，先找到並驗證穩定 RSS／公開資料 endpoint，再接入；不得猜 URL。
+2. **國際官方／新聞**：UN、WHO、UNICEF、ILO、Reuters、AP、BBC 等。英文來源要先建立英文→中文社工考點分類與跨語言事件去重，不能直接丟進目前中文 keyword scanner。
+3. **trend quality refinement**：累積跨日 evidence 後再校正權重，避免靠來源數或短期新聞量製造假趨勢。
+4. 依 production feedback 再調 relevance；新 false positive 必須先加 regression 再修。
+
+---
+
+
 ## 2026-09-25 時事命題分析鏈 V2 已正式上線（READ FIRST）
 
 > 本節優先於下方舊的「6 feeds／V1 時事區／尚未發布」敘述。接手仍先讀遠端 main、open PR/issues、Actions 與公開監測，不把 SHA 當永久最新。
