@@ -66,6 +66,12 @@
       "url": "https://news.immigration.gov.tw/Rss/Content/8?lang=TW",
       "region": "taiwan",
       "source_type": "official"
+    },
+    {
+      "name": "勞動部新聞稿",
+      "url": "https://www.mol.gov.tw/1607/1632/1633/RssList",
+      "region": "taiwan",
+      "source_type": "official"
     }
   ]
 }
