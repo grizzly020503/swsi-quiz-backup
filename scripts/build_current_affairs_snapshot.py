@@ -16,7 +16,7 @@ EXPLICIT_TOPICS = [
 ]
 
 ALLOWED = {
-    "id", "title", "summary", "source_name", "source_url", "published_at", "region",
+    "id", "title", "summary", "source_name", "source_url", "source_type", "published_at", "region",
     "category", "relevance_score", "exam_tags", "subjects",
 }
 
@@ -96,6 +96,7 @@ def merge_cluster(cluster):
             sources.append({
                 "source_name": row.get("source_name"),
                 "source_url": url,
+                "source_type": row.get("source_type") or "news",
                 "published_at": row.get("published_at"),
                 "title": row.get("title"),
             })
