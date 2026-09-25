@@ -97,7 +97,7 @@ def trend_for(event: dict, generated_at: str) -> dict:
         "mcq_density": max(0.0, mcq - 1) * 0.45,
         "recency": 1.0 if age_days <= 3 else (0.6 if age_days <= 7 else 0.2),
     }
-    max_raw = 12.25
+    max_raw = 13.25
     raw = sum(factors.values())
     trend_score = round(clamp(raw / max_raw * 10.0, 0.0, 10.0), 1)
 
