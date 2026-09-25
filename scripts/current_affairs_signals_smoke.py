@@ -130,6 +130,28 @@ def main() -> int:
     if int(data.get("questions_loaded") or 0) < 4800:
         raise SystemExit("signal snapshot must match the current official 4800-question baseline")
 
+    related_counts = [len(row.get("related_exam_questions") or []) for row in items]
+    if related_counts and all(count >= 5 for count in related_counts):
+        raise SystemExit("historical-question matcher still saturates every live item at max_hits=5")
+
+    for row in items:
+        if "最低工資" in str(row.get("title") or ""):
+            reasons = " ".join(
+                str(q.get("match_reason") or "")
+                for q in (row.get("related_exam_questions") or [])
+            )
+            forbidden = ("育嬰留職停薪", "性別平等工作法")
+            if any(term in reasons for term in forbidden):
+                raise SystemExit("minimum-wage event still links unrelated parental-leave/gender-law questions")
+
+    print(
+        "Current-affairs historical links: "
+        + ", ".join(
+            f"{str(row.get('title') or '')[:18]}={len(row.get('related_exam_questions') or [])}"
+            for row in items
+        )
+    )
+
     allowed_confidence = {"low", "medium", "high"}
     for row in items:
         for key in ("id", "title", "source_url", "category", "subjects",
