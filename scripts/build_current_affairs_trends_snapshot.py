@@ -26,13 +26,7 @@ def days_between(a: str | None, b: str | None) -> float:
 def _historical_factor(value: float) -> float:
     if value <= 0:
         return 0.0
-    if value <= 2:
-        return 0.35
-    if value <= 5:
-        return 0.70
-    if value <= 10:
-        return 1.00
-    return 1.30
+    return round(min(1.30, float(value) * 0.28), 3)
 
 
 def _exam_recency_support(years_since_last) -> float:
@@ -67,6 +61,13 @@ def trend_for(event: dict, generated_at: str) -> dict:
     hist_count = int(history.get("matched_question_count") or len(fallback_related))
     weighted_hist_count = float(history.get("weighted_match_count") or hist_count)
     match_breakdown = history.get("match_breakdown") or {}
+    strong_matches = int(match_breakdown.get("strong") or 0)
+    medium_matches = int(match_breakdown.get("medium") or 0)
+    concept_matches = int(match_breakdown.get("concept") or 0)
+    match_quality = (
+        1.0 if strong_matches
+        else (0.65 if medium_matches else (0.35 if concept_matches else 0.0))
+    )
     matched_years = [
         int(y) for y in (history.get("matched_years") or [])
         if str(y).isdigit()
@@ -89,8 +90,8 @@ def trend_for(event: dict, generated_at: str) -> dict:
         "official_evidence": min(1.4, official_count * 0.7),
         "policy_change": max(0.0, policy - 1) * 0.9,
         "historical_frequency": _historical_factor(weighted_hist_count),
-        "historical_year_breadth": min(0.8, matched_year_count * 0.12),
-        "recent_exam_support": _exam_recency_support(years_since_last_exam),
+        "historical_year_breadth": min(0.8, matched_year_count * 0.12) * match_quality,
+        "recent_exam_support": _exam_recency_support(years_since_last_exam) * match_quality,
         "historical_subject_breadth": (
             0.45 if subject_count >= 3 else (0.25 if subject_count >= 2 else 0.0)
         ),
