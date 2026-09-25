@@ -72,6 +72,12 @@
       "url": "https://www.mol.gov.tw/1607/1632/1633/RssList",
       "region": "taiwan",
       "source_type": "official"
+    },
+    {
+      "name": "法務部新聞發布",
+      "url": "https://www.moj.gov.tw/2204/2795/2796/rss",
+      "region": "taiwan",
+      "source_type": "official"
     }
   ]
 }
