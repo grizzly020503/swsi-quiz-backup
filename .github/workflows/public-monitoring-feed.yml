@@ -26,8 +26,13 @@ on:
   pull_request:
     paths:
       - '.github/workflows/public-monitoring-feed.yml'
+      - 'data/current_affairs_sources.json'
       - 'scripts/current_affairs_watch.py'
       - 'scripts/build_current_affairs_snapshot.py'
+      - 'scripts/current_affairs_event_cluster.py'
+      - 'scripts/build_current_affairs_events_snapshot.py'
+      - 'scripts/build_current_affairs_trends_snapshot.py'
+      - 'scripts/current_affairs_events_smoke.py'
       - 'scripts/analyze_current_affairs_signals.py'
       - 'scripts/build_current_affairs_signals_snapshot.py'
       - 'scripts/current_affairs_signals_smoke.py'
@@ -38,6 +43,8 @@ on:
       - 'monthly_patch_parts/89.public-branding-info.part'
       - 'auto/current_affairs.json'
       - 'auto/current_affairs_signals.json'
+      - 'auto/current_affairs_events.json'
+      - 'auto/current_affairs_trends.json'
       - 'cdn/question-shards/**'
       - 'auto/legal_watch.json'
       - 'auto/health.json'
@@ -86,6 +93,15 @@ jobs:
             --questions-csv data/questions_master_backup_20260824_2220.csv \
             --output auto/current_affairs_signals.json \
             --limit 30
+          python scripts/build_current_affairs_events_snapshot.py \
+            --news auto/current_affairs.json \
+            --signals auto/current_affairs_signals.json \
+            --output auto/current_affairs_events.json \
+            --limit 30
+          python scripts/build_current_affairs_trends_snapshot.py \
+            --events auto/current_affairs_events.json \
+            --output auto/current_affairs_trends.json \
+            --limit 30
           python scripts/build_public_legal_watch_snapshot.py \
             --input data/legal_watch_report.json \
             --output auto/legal_watch.json
@@ -93,6 +109,8 @@ jobs:
           mkdir -p cdn/auto
           cp auto/current_affairs.json cdn/auto/current_affairs.json
           cp auto/current_affairs_signals.json cdn/auto/current_affairs_signals.json
+          cp auto/current_affairs_events.json cdn/auto/current_affairs_events.json
+          cp auto/current_affairs_trends.json cdn/auto/current_affairs_trends.json
           cp auto/legal_watch.json cdn/auto/legal_watch.json
           cp auto/health.json cdn/auto/health.json
           cp auto/sync_state.json cdn/auto/sync_state.json
@@ -124,10 +142,15 @@ jobs:
           python -m py_compile \
             scripts/current_affairs_watch.py \
             scripts/build_current_affairs_snapshot.py \
+            scripts/current_affairs_event_cluster.py \
+            scripts/build_current_affairs_events_snapshot.py \
+            scripts/build_current_affairs_trends_snapshot.py \
+            scripts/current_affairs_events_smoke.py \
             scripts/build_public_legal_watch_snapshot.py \
             scripts/public_monitoring_v2_smoke.py
           python scripts/public_monitoring_v2_smoke.py
           python scripts/current_affairs_signals_smoke.py
+          python scripts/current_affairs_events_smoke.py
           git diff --check
 
       - name: Publish changed monitoring snapshots
@@ -141,8 +164,10 @@ jobs:
           git config user.name 'swsi-monitoring-bot'
           git config user.email 'actions@users.noreply.github.com'
           git add \
-            auto/current_affairs.json auto/current_affairs_signals.json auto/legal_watch.json \
-            cdn/auto/current_affairs.json cdn/auto/current_affairs_signals.json cdn/auto/legal_watch.json \
+            auto/current_affairs.json auto/current_affairs_signals.json \
+            auto/current_affairs_events.json auto/current_affairs_trends.json auto/legal_watch.json \
+            cdn/auto/current_affairs.json cdn/auto/current_affairs_signals.json \
+            cdn/auto/current_affairs_events.json cdn/auto/current_affairs_trends.json cdn/auto/legal_watch.json \
             cdn/auto/health.json cdn/auto/sync_state.json
           if git diff --cached --quiet; then
             echo 'Public monitoring snapshots unchanged.'
