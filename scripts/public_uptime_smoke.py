@@ -81,8 +81,8 @@ def main() -> int:
             raise AssertionError("Current-affairs snapshot: contract mismatch")
         source_feed_count = int(news.get("source_feed_count", -1))
         feed_error_count = int(news.get("feed_error_count", -1))
-        if source_feed_count < 14:
-            raise AssertionError(f"Current-affairs snapshot: expected at least 14 feeds, got {source_feed_count}")
+        if source_feed_count < 15:
+            raise AssertionError(f"Current-affairs snapshot: expected at least 15 feeds, got {source_feed_count}")
         if feed_error_count != 0:
             raise AssertionError(f"Current-affairs snapshot: expected 0 feed errors, got {feed_error_count}")
         checks.append(f"sources-{source_feed_count}/errors-{feed_error_count}")
