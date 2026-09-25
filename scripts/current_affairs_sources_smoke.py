@@ -19,6 +19,7 @@ REQUIRED = {
     "移民署新住民政策法規": "https://news.immigration.gov.tw/Rss/Content/8?lang=TW",
     "勞動部新聞稿": "https://www.mol.gov.tw/1607/1632/1633/RssList",
     "法務部新聞發布": "https://www.moj.gov.tw/2204/2795/2796/rss",
+    "UN News": "https://news.un.org/feed/subscribe/en/news/all/rss.xml",
 }
 
 
@@ -61,7 +62,7 @@ def main() -> int:
     payload = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = payload.get("sources") or []
     assert payload.get("schema_version") == 1
-    assert len(rows) >= 13, f"expected at least 13 curated feeds, got {len(rows)}"
+    assert len(rows) >= 14, f"expected at least 14 curated feeds, got {len(rows)}"
 
     urls = [str(x.get("url") or "") for x in rows]
     names = [str(x.get("name") or "") for x in rows]
