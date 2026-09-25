@@ -1,5 +1,68 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 時事來源 15-feed 正式上線（READ FIRST）
+
+> 本節優先於下方所有 6／8／11／12／13／14 feeds 歷史敘述。接手仍先重新讀遠端 main、open PR/issues、Actions 與 production sentinel；不要把本節 SHA 當永久最新。
+
+### 正式狀態
+
+- #112 已合併：加入 **WHO Newsroom**，使用獨立 JSON adapter，不把 WHO API 硬塞進 RSS parser。
+- #112 仍沿用 #104 的中英雙語 taxonomy 與跨語言 event dedupe；英文來源先做社工考點分類，再參與事件聚類。
+- WHO pilot 已加入 retry／adapter regression 與 public monitoring contract。
+- #113 已合併：將 verified 15-source snapshot 發布到 Cloudflare production asset root。
+- #113 Cloudflare Workers production build：**success**。
+- #114 已合併；merge commit：`d44b73a5ce14186a8a8fc274e0d391b0305c549a`，production uptime 永久要求至少 **15 feeds** 且 **0 feed errors**。
+- main push Public Uptime Sentinel run `36164946253`：**success**。
+- production log：
+  `primary-home, pwa-sw-v7, questions-4800-24, sources-15/errors-0, news-10, signals-10/4800, events-10, trends-10, trend-ui-v2, laws-52/52, question-health, ai-preflight, feedback-preflight, netlify-fallback`。
+
+### 目前 15 feeds
+
+1. 衛生福利部焦點新聞
+2. 衛生福利部公告訊息
+3. 中央社社會
+4. 中央社生活
+5. 中央社政治
+6. 中央社國際
+7. 內政部新聞發布
+8. 行政院本院新聞
+9. 教育部即時新聞
+10. 教育部重要政策
+11. 移民署新住民政策法規
+12. 勞動部新聞稿
+13. 法務部新聞發布
+14. UN News English
+15. WHO Newsroom
+
+### 最新驗證基線
+
+- main snapshot：**15 feeds / 0 errors / 10 topics**。
+- signals=10，questions_loaded=4,800。
+- events=10、trends=10。
+- legal-watch=52/52。
+- WHO 目前貢獻 1 個高關聯事件：
+  `From competencies to action: strengthening refugee and migrant health`，分類為「移工與新住民」。
+- 新增 WHO 後沒有用來源數灌高 accepted/trend；production 仍只保留 10 個高關聯議題。
+
+### 現在不要重做
+
+- 不要再把來源現況寫成 14 feeds。
+- 不要重做 #104／#107／#109／#110／#112／#113／#114。
+- 不要把 WHO Newsroom 當 RSS；目前使用專用 JSON adapter。
+- 不要因國際來源文章量增加而放寬 relevance 或用 source count 單獨提高 trend score。
+- Cloudflare build success 不是唯一上線證據；仍以 Public Uptime Sentinel 的 `sources-15/errors-0` 為正式 production 證據。
+- 官方 4,800 題、答案與 grading 繼續維持唯讀。
+
+### Issue #84 接下來
+
+1. **國際官方下一批**：UNICEF／ILO。逐一找官方、穩定、可程式化取得的 RSS／API；每個來源先做 entries／錯誤／false positive pilot，再進 production。
+2. **社家署**：#103 probe 未找到穩定可上線的官方 RSS/XML endpoint；仍然不要猜 URL。
+3. **國際新聞媒體**：Reuters／AP／BBC 仍屬後續，優先級低於官方來源；接入前要確認合法／穩定 feed、版權 metadata 範圍與跨來源去重。
+4. **trend quality refinement**：等跨日 evidence 累積後再校正權重；任何新 false positive 先加 regression 再修。
+
+---
+
+
 ## 2026-09-26 時事來源 14-feed 正式上線（READ FIRST）
 
 > 本節優先於下方所有 6／8／11／12／13 feeds 歷史敘述。接手仍先重新讀遠端 main、open PR/issues、Actions 與 production sentinel；不要把本節 SHA 當永久最新。
