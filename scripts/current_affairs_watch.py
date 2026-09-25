@@ -22,6 +22,34 @@ DEFAULT_FEEDS = [
     {"name":"中央社國際","url":"https://feeds.feedburner.com/rsscna/intworld","region":"international"},
 ]
 
+
+def load_feeds():
+    if SOURCE_REGISTRY.exists():
+        try:
+            payload = json.loads(SOURCE_REGISTRY.read_text(encoding="utf-8"))
+            rows = payload.get("sources") or []
+            valid = []
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                name = str(row.get("name") or "").strip()
+                url = str(row.get("url") or "").strip()
+                region = str(row.get("region") or "").strip()
+                source_type = str(row.get("source_type") or "news").strip()
+                if name and url.startswith("https://") and region in {"taiwan", "international"}:
+                    valid.append({
+                        "name": name,
+                        "url": url,
+                        "region": region,
+                        "source_type": source_type if source_type in {"official", "news", "international"} else "news",
+                    })
+            if valid:
+                return valid
+        except Exception as exc:
+            print(f"Source registry fallback: {exc}")
+    return [dict(x, source_type=x.get("source_type", "news")) for x in DEFAULT_FEEDS]
+
+
 CATEGORIES = [
     ("兒少保護", 4, ["兒虐","虐童","兒少保護","兒童權利","性剝削","托嬰","保母","安置","收出養","寄養","兒少","兒童","少年"]),
     ("家暴與性暴力", 4, ["家暴","家庭暴力","性侵","性暴力","性騷擾","跟蹤騷擾","保護令","性影像"]),
