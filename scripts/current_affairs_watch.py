@@ -7,7 +7,9 @@ import json
 import re
 import socket
 import time
+from types import SimpleNamespace
 from urllib.parse import urljoin
+from urllib.request import Request, urlopen
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -49,12 +51,19 @@ def load_feeds():
                 url = str(row.get("url") or "").strip()
                 region = str(row.get("region") or "").strip()
                 source_type = str(row.get("source_type") or "news").strip()
-                if name and url.startswith("https://") and region in {"taiwan", "international"}:
+                source_format = str(row.get("source_format") or "rss").strip()
+                if (
+                    name
+                    and url.startswith("https://")
+                    and region in {"taiwan", "international"}
+                    and source_format in {"rss", "who_newsroom_json"}
+                ):
                     valid.append({
                         "name": name,
                         "url": url,
                         "region": region,
                         "source_type": source_type if source_type in {"official", "news", "international"} else "news",
+                        "source_format": source_format,
                     })
             if valid:
                 return valid
@@ -125,6 +134,88 @@ def parse_feed_with_retry(feed, attempts=3):
             print(f"Feed RETRY: {feed['name']} attempt={attempt} error={last_error}")
             time.sleep(0.5 * attempt)
     return parsed, last_error
+
+
+def _who_item_link(raw_url):
+    raw = str(raw_url or "").strip()
+    if not raw:
+        return ""
+    if raw.startswith("http://") or raw.startswith("https://"):
+        return raw
+    if raw.startswith("/news/"):
+        return urljoin("https://www.who.int", raw)
+    if raw.startswith("/"):
+        return "https://www.who.int/news/item" + raw
+    return urljoin("https://www.who.int/news/item/", raw)
+
+
+def parse_who_newsroom_with_retry(feed, attempts=3):
+    last_error = None
+    ordered_url = feed["url"] + "?%24orderby=PublicationDate%20desc&%24top=100"
+    for attempt in range(1, max(1, attempts) + 1):
+        try:
+            request = Request(
+                ordered_url,
+                headers={
+                    "User-Agent": "swsi-current-affairs-radar/1.1",
+                    "Accept": "application/json",
+                },
+            )
+            with urlopen(request, timeout=12) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+            rows = payload.get("value") if isinstance(payload, dict) else payload
+            if not isinstance(rows, list):
+                raise ValueError("WHO Newsroom API payload missing value list")
+            entries = []
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                title = clean_html(row.get("Title") or row.get("MetaTitle") or "")
+                link = _who_item_link(row.get("ItemDefaultUrl") or "")
+                summary = clean_html(
+                    row.get("OpenGraphDescription")
+                    or row.get("MetaDescription")
+                    or row.get("Summary")
+                    or row.get("Description")
+                    or ""
+                )[:600]
+                raw_pub = (
+                    row.get("PublicationDateAndTime")
+                    or row.get("PublicationDate")
+                    or row.get("DateCreated")
+                )
+                published_parsed = None
+                if raw_pub:
+                    try:
+                        dt = datetime.fromisoformat(str(raw_pub).replace("Z", "+00:00"))
+                        if dt.tzinfo is None:
+                            dt = dt.replace(tzinfo=timezone.utc)
+                        published_parsed = dt.astimezone(timezone.utc).timetuple()
+                    except (TypeError, ValueError):
+                        published_parsed = None
+                if title and link:
+                    entries.append(SimpleNamespace(
+                        title=title,
+                        link=link,
+                        summary=summary,
+                        description=summary,
+                        published_parsed=published_parsed,
+                    ))
+            if not entries:
+                raise ValueError("WHO Newsroom API returned no usable entries")
+            return SimpleNamespace(entries=entries, bozo=False), None
+        except Exception as exc:
+            last_error = exc
+        if attempt < attempts:
+            print(f"Feed RETRY: {feed['name']} attempt={attempt} error={last_error}")
+            time.sleep(0.5 * attempt)
+    return None, last_error
+
+
+def parse_source_with_retry(feed, attempts=3):
+    if feed.get("source_format", "rss") == "who_newsroom_json":
+        return parse_who_newsroom_with_retry(feed, attempts=attempts)
+    return parse_feed_with_retry(feed, attempts=attempts)
 
 
 def clean_html(value):
@@ -243,14 +334,14 @@ def main():
     feeds = load_feeds()
     socket.setdefaulttimeout(12)
     for feed in feeds:
-        parsed, parse_error = parse_feed_with_retry(feed)
+        parsed, parse_error = parse_source_with_retry(feed)
         if parsed is None or parse_error is not None:
             error = f"{feed['name']}: {parse_error or 'RSS parse failed'}"
             feed_errors.append(error)
             print(f"Feed ERROR: {error}")
             continue
         entry_count = len(parsed.entries or [])
-        print(f"Feed OK: {feed['name']} entries={entry_count}")
+        print(f"Feed OK: {feed['name']} entries={entry_count} format={feed.get('source_format', 'rss')}")
         for entry in parsed.entries:
             fetched += 1
             title = clean_html(getattr(entry, "title", ""))
