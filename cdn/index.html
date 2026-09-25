@@ -3,6 +3,7 @@
 <head>
 <!-- SWSI CLOUDFLARE PUBLIC SOFT LAUNCH -->
 <meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="swsi-release-source" content="6789c5c502efeec5bcd61277de9da4aaf435bb7b">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1497,10 +1498,42 @@ window.ESSAY_GUIDES = {"社會工作-107-1-申論1": {"kao": "考社工面對倫
 /* ============================================================
    設定：把下面兩行換成你的 Supabase 專案資訊（看部署教學）
    ============================================================ */
-/* ===== 送分題判對輔助 START ===== */
-function isGiveAll(a){ a=(a==null?"":String(a)); return a.indexOf("一律給分")>=0||a.indexOf("送分")>=0; }
-function ansCorrect(p,a){ return p===a||isGiveAll(a); }
-/* ===== 送分題判對輔助 END ===== */
+/* ===== 官方 grading contract START ===== */
+const GRADING_MODES=new Set(['standard','all_credit','any_answer']);
+function gradingMode(item){
+  const m=item&&String(item.grading_mode||'');
+  if(GRADING_MODES.has(m)) return m;
+  if(item&&item.answer!=='一律給分'&&!isGiveAll(item.answer)) return 'standard';
+  return 'unknown';
+}
+function acceptedAnswers(item){
+  const mode=gradingMode(item);
+  if(mode==='all_credit'||mode==='any_answer') return new Set(['A','B','C','D']);
+  if(Array.isArray(item&&item.accepted_answers)){
+    const xs=item.accepted_answers.filter(x=>['A','B','C','D'].includes(String(x)));
+    if(xs.length) return new Set(xs);
+  }
+  return item&&['A','B','C','D'].includes(String(item.answer)) ? new Set([String(item.answer)]) : new Set();
+}
+function isCorrectAnswer(item,picked){
+  const mode=gradingMode(item);
+  if(mode==='unknown') return false;
+  if(mode==='all_credit') return picked==null || acceptedAnswers(item).has(String(picked));
+  return picked!=null && acceptedAnswers(item).has(String(picked));
+}
+function isGiveAll(a){
+  const item=(a&&typeof a==='object')?a:{answer:a};
+  return gradingMode(item)==='all_credit';
+}
+function ansCorrect(p,item){ return isCorrectAnswer(item,p); }
+function answerLabel(item){
+  const mode=gradingMode(item);
+  if(mode==='all_credit') return '官方一律給分';
+  if(mode==='any_answer') return '除未作答外均給分';
+  const xs=[...acceptedAnswers(item)];
+  return xs.length?xs.join('、'):'未知';
+}
+/* ===== 官方 grading contract END ===== */
 
 /* ===== 時事預測題注入 START（14 題，可整段刪除還原） ===== */
 /* ===== 時事預測題（共 14 題）＋ AI 批改骨架 — 由 品澄 平台擴充 ===== */
@@ -1919,12 +1952,14 @@ function ansCorrect(p,a){ return p===a||isGiveAll(a); }
     var correct=0, answered=0, bySubj={}, wrong=[];
     Q.forEach(function(q,i){
       var picked=ans[i]!=null?ans[i]:null;
-      var ok=(typeof isCorrectAnswer==='function')?isCorrectAnswer(q,picked):(picked!=null&&picked===q.answer);
-      if(picked!=null) answered++;
-      if(!bySubj[q.subject])bySubj[q.subject]={t:0,c:0};
-      bySubj[q.subject].t++;
-      if(ok){ correct++; bySubj[q.subject].c++; }
-      try{ if(typeof record==='function') record(q,picked,ok); }catch(e){}
+      var ok=isCorrectAnswer(q,picked);
+      if(ok) correct++;
+      if(picked!=null){
+        answered++;
+        if(!bySubj[q.subject])bySubj[q.subject]={t:0,c:0};
+        bySubj[q.subject].t++; if(ok)bySubj[q.subject].c++;
+        try{ if(typeof record==='function') record(q,picked,ok); }catch(e){}
+      }
       if(!ok) wrong.push({q:q,picked:picked});
     });
     var used=Math.max(0, Math.floor((Date.now()-t0)/1000));
@@ -2336,7 +2371,15 @@ const tabbar=document.getElementById('tabbar');
 
 /* ---------- localStorage ---------- */
 function loadHist(){ try{return JSON.parse(localStorage.getItem(LS_KEY))||[];}catch(e){return [];} }
-function saveHist(h){ try{localStorage.setItem(LS_KEY,JSON.stringify(h));}catch(e){} }
+function markStorageFailure(){
+  window._storageWarning=true;
+  document.querySelectorAll('[data-storage-status]').forEach(el=>{ el.textContent='⚠ 無法儲存，請立即備份'; el.style.color='var(--wrong)'; });
+}
+function markStorageSaved(){
+  window._storageWarning=false;
+  document.querySelectorAll('[data-storage-status]').forEach(el=>{ el.textContent='✓ 已儲存在這台裝置'; el.style.color='var(--correct)'; });
+}
+function saveHist(h){ try{localStorage.setItem(LS_KEY,JSON.stringify(h)); markStorageSaved(); }catch(e){ markStorageFailure(); } }
 function record(item,picked,correct){ const h=loadHist();
   h.push({id:item.id,subject:item.subject,major:item.major,mistake:item.mistake||'',correct,ts:Date.now()}); saveHist(h);
   updateReviewSchedule(item,correct); }
@@ -2349,7 +2392,7 @@ function loadReviewState(){
   }catch(e){}
   return {version:2,migratedFromHistory:false,items:{}};
 }
-function saveReviewState(st){ try{localStorage.setItem(REVIEW_KEY,JSON.stringify(st));}catch(e){} }
+function saveReviewState(st){ try{localStorage.setItem(REVIEW_KEY,JSON.stringify(st)); markStorageSaved(); }catch(e){ markStorageFailure(); } }
 function bootstrapReviewState(){
   const st=loadReviewState(); let changed=false;
   if(!st.migratedFromHistory){
@@ -2405,10 +2448,10 @@ function updateReviewSchedule(item,correct){
   saveReviewState(st);
 }
 function reviewSummary(){
-  const st=bootstrapReviewState(), now=Date.now(), exists=new Set(ALL.filter(q=>!lawConfirmedChanged(q)).map(q=>q.id));
+  const st=bootstrapReviewState(), now=Date.now(), exists=QB.allComplete?new Set(ALL.filter(q=>!lawConfirmedChanged(q)).map(q=>q.id)):null;
   const activeIds=[], dueIds=[], maintenanceDueIds=[]; let masteredCount=0, nextDueAt=0;
   Object.values(st.items).forEach(r=>{
-    if(!r||!r.id||!exists.has(r.id)) return;
+    if(!r||!r.id||(exists&&!exists.has(r.id))) return;
     const due=Number(r.dueAt||0);
     if(r.mastered){
       masteredCount++;
@@ -2431,9 +2474,10 @@ function reviewDueLabel(ts){
   if(d===1) return '明天';
   return `${d} 天後`;
 }
-function startDueReview(){
+async function startDueReview(){
+  await ensureAllQuestionsLoadedWithUI();
   const rv=reviewSummary();
-  if(!rv.dueIds.length){ alert((rv.activeCount||rv.masteredCount)?`目前沒有到期題，下一批 ${reviewDueLabel(rv.nextDueAt)}。`:'目前沒有待複習錯題。'); return; }
+  if(!rv.dueIds.length){ alert((rv.activeCount||rv.masteredCount)?`目前沒有到期題，下一批 ${reviewDueLabel(rv.nextDueAt)}。`:'目前沒有待複習錯題。'); go('review'); return; }
   const set=new Set(rv.dueIds); startQuiz(q=>set.has(q.id),0);
 }
 /* ===== 間隔複習 2.0 END ===== */
@@ -2461,7 +2505,9 @@ function normalize(r){
   } else if(r.exp_raw){ exp={raw:r.exp_raw}; }
   return {id:r.id,subject:r.subject,year:r.year,round:r.round,qno:r.qno,major:r.major||'（未分類）',
     topic:r.topic||'',keywords:r.keywords||'',q:r.question,
-    options:{A:r.opt_a,B:r.opt_b,C:r.opt_c,D:r.opt_d},answer:r.answer,exp,
+    options:{A:r.opt_a,B:r.opt_b,C:r.opt_c,D:r.opt_d},answer:r.answer,
+    accepted_answers:Array.isArray(r.accepted_answers)?r.accepted_answers.filter(x=>['A','B','C','D'].includes(String(x))):null,
+    grading_mode:GRADING_MODES.has(String(r.grading_mode))?String(r.grading_mode):(r.answer==='一律給分'||isGiveAll(r.answer)?'unknown':'standard'),exp,
     mnemonic:r.mnemonic||'',extension:r.extension||'',law:r.law||'',mistake:r.mistake||'',legal_status:r.legal_status||'unreviewed',legal_checked_at:r.legal_checked_at||'',legal_note:r.legal_note||'',legal_source_url:r.legal_source_url||''};
 }
 
@@ -2504,6 +2550,175 @@ const OFFLINE_DB_NAME='swsi-quiz-offline';
 const OFFLINE_DB_VERSION=1;
 const OFFLINE_STORE='cache';
 const OFFLINE_KEY='questions';
+const OFFLINE_MANIFEST_KEY='question-manifest';
+const QUESTION_CDN_BASE='https://wandering-wave-4418.c022050333.workers.dev/question-shards';
+const CORE_SUBJECTS=['社會工作','社會工作直接服務','社會政策與社會立法','人類行為與社會環境','社會工作研究方法'];
+const QB={manifest:null,loadedFiles:new Set(),loading:new Map(),allComplete:false,usingOffline:false,loadingAll:null};
+
+/* ===== QUESTION CDN LAZY LOADER START ===== */
+function questionTotal(){ return QB.manifest&&Number.isFinite(QB.manifest.total_questions)?QB.manifest.total_questions:ALL.length; }
+function manifestYears(){
+  if(!QB.manifest||!Array.isArray(QB.manifest.shards)) return [];
+  return [...new Set(QB.manifest.shards.map(x=>parseInt(x.year,10)).filter(Number.isFinite))].sort((a,b)=>b-a);
+}
+function validateManifest(m){
+  if(!m||m.schema_version!==1||!Array.isArray(m.shards)) throw new Error('題庫目錄格式不正確');
+  if(m.shard_count!==m.shards.length) throw new Error('題庫目錄分片數不一致');
+  if(m.total_questions!==m.shards.length*200) throw new Error('題庫目錄總題數不一致');
+  m.shards.forEach(x=>{
+    if(!x||!x.year||!x.round||!x.file||x.question_count!==200||!x.sha256) throw new Error('題庫分片 metadata 不完整');
+  });
+  return m;
+}
+async function sha256Hex(text){
+  if(!window.crypto||!window.crypto.subtle) return null;
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+async function saveOfflineRecord(key,value){
+  const db=await openOfflineDB();
+  await new Promise((resolve,reject)=>{
+    const tx=db.transaction(OFFLINE_STORE,'readwrite');
+    tx.objectStore(OFFLINE_STORE).put(value,key);
+    tx.oncomplete=resolve;
+    tx.onerror=()=>reject(tx.error||new Error('離線資料儲存失敗'));
+    tx.onabort=()=>reject(tx.error||new Error('離線資料儲存中止'));
+  });
+  db.close();
+}
+async function loadOfflineRecord(key){
+  const db=await openOfflineDB();
+  const value=await new Promise((resolve,reject)=>{
+    const tx=db.transaction(OFFLINE_STORE,'readonly');
+    const req=tx.objectStore(OFFLINE_STORE).get(key);
+    req.onsuccess=()=>resolve(req.result||null);
+    req.onerror=()=>reject(req.error||new Error('離線資料讀取失敗'));
+  });
+  db.close();
+  return value;
+}
+async function loadQuestionManifest(){
+  try{
+    const res=await fetch(QUESTION_CDN_BASE+'/manifest.json',{cache:'no-store'});
+    if(!res.ok) throw new Error('題庫目錄 HTTP '+res.status);
+    const m=validateManifest(await res.json());
+    QB.manifest=m; QB.usingOffline=false;
+    try{ await saveOfflineRecord(OFFLINE_MANIFEST_KEY,{manifest:m,savedAt:Date.now()}); }catch(e){}
+    return m;
+  }catch(remoteErr){
+    try{
+      const cached=await loadOfflineRecord(OFFLINE_MANIFEST_KEY);
+      if(cached&&cached.manifest){ QB.manifest=validateManifest(cached.manifest); QB.usingOffline=true; return QB.manifest; }
+    }catch(_e){}
+    throw remoteErr;
+  }
+}
+function validateShardPayload(payload,meta){
+  if(!payload||payload.schema_version!==1||String(payload.year)!==String(meta.year)||canonicalRound(payload.round)!==canonicalRound(meta.round)) throw new Error('題庫分片內容與目錄不一致');
+  if(payload.question_count!==200||!Array.isArray(payload.questions)||payload.questions.length!==200) throw new Error('題庫分片題數不完整');
+  const ids=new Set();
+  payload.questions.forEach(q=>{
+    if(!q||!q.id) throw new Error('題庫分片含無效題目');
+    if(ids.has(q.id)) throw new Error('題庫分片含重複題號');
+    ids.add(q.id);
+    const mode=String(q.grading_mode||'');
+    if(!GRADING_MODES.has(mode)) throw new Error('題庫分片 grading_mode 缺失：'+q.id);
+    if((mode==='all_credit'||mode==='any_answer')&&q.answer!=='一律給分') throw new Error('特殊給分題 metadata 不一致：'+q.id);
+  });
+  return payload;
+}
+async function fetchSupabaseExamSession(meta){
+  const round=meta.round;
+  if(sb&&typeof sb.from==='function'){
+    const {data,error}=await sb.from('questions').select('*').eq('year',String(meta.year)).eq('round',round).order('qno',{ascending:true});
+    if(error) throw error;
+    if(!Array.isArray(data)||data.length!==200) throw new Error('Supabase scoped fallback 題數不完整');
+    return {schema_version:1,year:String(meta.year),round,question_count:data.length,questions:data};
+  }
+  const base=CONFIG.url.replace(/\/$/,'')+'/rest/v1/questions?select=*&year=eq.'+encodeURIComponent(String(meta.year))+'&round=eq.'+encodeURIComponent(round)+'&order=qno.asc';
+  const res=await fetch(base,{headers:{apikey:CONFIG.key,Authorization:'Bearer '+CONFIG.key,Accept:'application/json'},cache:'no-store'});
+  if(!res.ok) throw new Error('Supabase fallback HTTP '+res.status);
+  const data=await res.json();
+  if(!Array.isArray(data)||data.length!==200) throw new Error('Supabase scoped fallback 題數不完整');
+  return {schema_version:1,year:String(meta.year),round,question_count:data.length,questions:data};
+}
+async function loadQuestionShard(meta){
+  if(QB.loadedFiles.has(meta.file)) return true;
+  if(QB.loading.has(meta.file)) return QB.loading.get(meta.file);
+  const promise=(async()=>{
+    let payload=null, lastError=null;
+    try{
+      const res=await fetch(QUESTION_CDN_BASE+'/'+encodeURIComponent(meta.file),{cache:'no-store'});
+      if(!res.ok) throw new Error('題庫分片 HTTP '+res.status);
+      const text=await res.text();
+      if(meta.sha256){
+        const actual=await sha256Hex(text);
+        if(actual&&actual!==meta.sha256) throw new Error('題庫分片 SHA-256 不符：'+meta.file);
+      }
+      payload=validateShardPayload(JSON.parse(text),meta);
+    }catch(e){ lastError=e; }
+    if(!payload){
+      try{
+        const cached=await loadOfflineRecord('question-shard:'+meta.file);
+        if(cached&&cached.raw) payload=validateShardPayload(JSON.parse(cached.raw),meta);
+      }catch(e){ lastError=e; }
+    }
+    if(!payload){
+      try{ payload=validateShardPayload(await fetchSupabaseExamSession(meta),meta); }
+      catch(e){ lastError=e; }
+    }
+    if(!payload) throw lastError||new Error('題庫分片載入失敗：'+meta.file);
+    const raw=payload.questions;
+    const normalized=raw.map(normalize);
+    const byId=new Map(ALL.map(q=>[q.id,q]));
+    normalized.forEach(q=>{ if(q&&q.id&&!byId.has(q.id)){ byId.set(q.id,q); ALL.push(q); } });
+    QB.loadedFiles.add(meta.file);
+    try{ await saveOfflineRecord('question-shard:'+meta.file,{raw:JSON.stringify(payload),file:meta.file,sha256:meta.sha256,savedAt:Date.now()}); }catch(e){}
+    window._maxY=null; window._kpF=null; window._kpFmax=1; window._tmc={}; window._cmc={};
+    return true;
+  })();
+  QB.loading.set(meta.file,promise);
+  try{return await promise;}finally{QB.loading.delete(meta.file);}
+}
+async function ensureShardMetasLoaded(metas){
+  const unique=[...(new Map((metas||[]).map(x=>[x.file,x]))).values()];
+  if(!unique.length) throw new Error('沒有符合條件的題庫分片');
+  for(const meta of unique) await loadQuestionShard(meta);
+  SUBJECTS=CORE_SUBJECTS.slice();
+  return unique.length;
+}
+async function ensureAllQuestionsLoaded(){
+  if(QB.allComplete) return;
+  if(QB.loadingAll) return QB.loadingAll;
+  QB.loadingAll=(async()=>{
+    if(!QB.manifest) await loadQuestionManifest();
+    await ensureShardMetasLoaded(QB.manifest.shards);
+    if(QB.loadedFiles.size===QB.manifest.shards.length){
+      QB.allComplete=true;
+      window._usingOfflineBackup=false;
+      try{ await saveOfflineQuestions(ALL); }catch(e){}
+    }
+  })();
+  try{return await QB.loadingAll;}finally{QB.loadingAll=null;}
+}
+async function ensureAllQuestionsLoadedWithUI(){
+  app.innerHTML='<div class="empty"><div class="spinner"></div><h3>正在準備完整題庫</h3><p>第一次可能需要幾秒；之後會優先使用這台裝置已快取的資料。</p></div>';
+  return ensureAllQuestionsLoaded();
+}
+function shardMetasForHomeScope(){
+  if(!QB.manifest) return [];
+  const shards=QB.manifest.shards||[];
+  const years=manifestYears();
+  const mx=years[0]||0;
+  if(homeQuizScope==='specific'){
+    return shards.filter(m=>String(m.year)===String(homeQuizYear)&&(homeQuizRound==='all'||canonicalRound(m.round)===homeQuizRound));
+  }
+  if(homeQuizScope==='recent3') return shards.filter(m=>parseInt(m.year,10)>=mx-2);
+  if(homeQuizScope==='recent5') return shards.filter(m=>parseInt(m.year,10)>=mx-4);
+  if(homeQuizScope==='all') return shards.slice();
+  return shards.filter(m=>parseInt(m.year,10)>=mx-9);
+}
+/* ===== QUESTION CDN LAZY LOADER END ===== */
 
 /* ===== MOEX AUTO DATA START ===== */
 const AUTO_ESSAY_CACHE_KEY='swsi_auto_essays_v1';
@@ -2645,6 +2860,7 @@ async function loadAll(){
     window._usingOfflineBackup=false;
     window._autoQuestionCount=Math.max(0,out.length-(out.length-autoRows.length));
     saveOfflineQuestions(out);
+    QB.allComplete=true;
     return;
   }catch(remoteErr){
     console.warn('遠端題庫載入失敗，嘗試本機離線備援：',remoteErr);
@@ -2665,18 +2881,28 @@ async function init(){
     return;
   }
   try{
-    if(window.supabase && typeof window.supabase.createClient==='function'){
-      sb=window.supabase.createClient(CONFIG.url,CONFIG.key);
-    }else{
-      sb=null;
-    }
-    await loadAll();
+    if(window.supabase && typeof window.supabase.createClient==='function') sb=window.supabase.createClient(CONFIG.url,CONFIG.key);
+    else sb=null;
+    await loadQuestionManifest();
+    ALL=[]; SUBJECTS=CORE_SUBJECTS.slice(); QB.loadedFiles=new Set(); QB.allComplete=false;
+    window._usingOfflineBackup=false;
     await loadAutoEssays();
     tabbar.style.display='flex';
     applyFocusedTabbar();
     go('home');
-  }catch(e){
-    app.innerHTML=`<div class="empty"><div class="ico">⚠</div><h3>暫時無法載入題庫</h3><p>${e.message||'網路連線失敗'}</p><p style="margin-top:8px">已自動重試 3 次。題庫已另有完整備份，不會因此消失。</p><button id="retry-load-btn" type="button" class="btn" style="margin-top:18px;position:relative;z-index:5;pointer-events:auto" onclick="retryLoad()">重新連線</button></div>`;
+  }catch(manifestErr){
+    console.warn('CDN 題庫目錄無法使用，退回 legacy full-cache：',manifestErr);
+    try{
+      await loadAll();
+      QB.allComplete=true;
+      QB.loadedFiles=new Set((QB.manifest&&QB.manifest.shards||[]).map(x=>x.file));
+      await loadAutoEssays();
+      tabbar.style.display='flex';
+      applyFocusedTabbar();
+      go('home');
+    }catch(e){
+      app.innerHTML=`<div class="empty"><div class="ico">⚠</div><h3>暫時無法載入題庫</h3><p>${e.message||'網路連線失敗'}</p><p style="margin-top:8px">CDN、離線快取與 Supabase 備援都無法使用，請檢查網路後重試。</p><button id="retry-load-btn" type="button" class="btn" style="margin-top:18px;position:relative;z-index:5;pointer-events:auto" onclick="retryLoad()">重新連線</button></div>`;
+    }
   }
 }
 async function retryLoad(){
@@ -2702,15 +2928,20 @@ function applyFocusedTabbar(){
 }
 /* ===== FOCUSED NAV V1 END ===== */
 
-function go(v){ view=v;
+async function go(v){ view=v;
   ['home','topics','essay','review','progress'].forEach(t=>{
     const on=(v===t)||(v==='quiz'&&t==='home')||(v==='summary'&&t==='home')||(v==='theories'&&t==='topics')||(v==='laws'&&t==='topics');
     const el=document.getElementById('t-'+t); if(el) el.classList.toggle('on',on);
   });
-  window.scrollTo(0,0); render();
+  window.scrollTo(0,0);
+  const needsAll=new Set(['search','topics','review','progress','theories','laws']);
+  if(needsAll.has(v)&&!QB.allComplete){
+    try{ await ensureAllQuestionsLoadedWithUI(); }catch(e){ app.innerHTML=`<div class="empty"><div class="ico">⚠</div><h3>完整題庫暫時無法載入</h3><p>${e.message||'請稍後再試'}</p><button class="btn" style="max-width:220px;margin:18px auto 0" onclick="go('home')">回首頁</button></div>`; return; }
+  }
+  render();
 }
 // ===== 出題權重：近年 + 高頻考點優先（不刪舊題，只調整出現機率）=====
-function maxExamYear(){ if(window._maxY==null){ let m=0; for(const q of ALL){ const y=parseInt(q.year)||0; if(y>m)m=y; } window._maxY=m||115; } return window._maxY; }
+function maxExamYear(){ if(QB.manifest){ const ys=manifestYears(); if(ys.length) return ys[0]; } if(window._maxY==null){ let m=0; for(const q of ALL){ const y=parseInt(q.year)||0; if(y>m)m=y; } window._maxY=m||115; } return window._maxY; }
 function yearWeight(q){ const y=parseInt(q.year)||0, mx=maxExamYear(); if(!y) return 1; const d=mx-y; return d<=2?4:(d<=7?2:(d<=10?0.8:0.35)); }
 function kpFreq(){ if(!window._kpF){ const m={}; let mx=1; for(const q of ALL){ const k=q.major||''; if(!k)continue; m[k]=(m[k]||0)+1; if(m[k]>mx)mx=m[k]; } window._kpF=m; window._kpFmax=mx; } return window._kpF; }
 function kpWeight(q){ const m=kpFreq(); const f=m[q.major||'']||1; return 1+0.5*(f/window._kpFmax); }
@@ -2753,7 +2984,7 @@ function legalNotice(q){
 function startQuiz(filterFn,n){ let pool=ALL.filter(filterFn).map(q=>({q,k:Math.pow(Math.random(),1/drawWeight(q))})).sort((a,b)=>b.k-a.k).map(x=>x.q);
   if(n) pool=pool.slice(0,n); queue=pool; idx=0; selected=null; answered=false;
   sessionStats={done:0,correct:0,wrongTopics:[]}; view='quiz'; window.scrollTo(0,0); render(); }
-function startBySubject(n){ const f=subjFilter==='全部科目'?(()=>true):(q=>q.subject===subjFilter); startQuiz(f,n); }
+async function startBySubject(n){ await ensureAllQuestionsLoadedWithUI(); const f=subjFilter==='全部科目'?(()=>true):(q=>q.subject===subjFilter); startQuiz(f,n); }
 
 function render(){
   if(view==='home') return renderHome();
@@ -2776,9 +3007,7 @@ let homeQuizYear='';
 let homeQuizRound='all';
 let homeQuizCount=20;
 
-function examYears(){
-  return [...new Set(ALL.map(q=>parseInt(q.year,10)).filter(Number.isFinite))].sort((a,b)=>b-a);
-}
+function examYears(){ return QB.manifest?manifestYears():[...new Set(ALL.map(q=>parseInt(q.year,10)).filter(Number.isFinite))].sort((a,b)=>b-a); }
 function setHomeQuizScope(v){
   homeQuizScope=v;
   if(v==='specific'&&!homeQuizYear){ const ys=examYears(); homeQuizYear=ys.length?String(ys[0]):''; }
@@ -2802,10 +3031,14 @@ function focusedQuizFilter(q){
   }
   return true;
 }
-function startFocusedQuiz(){
-  const pool=ALL.filter(focusedQuizFilter);
-  if(!pool.length){ alert('這個條件目前沒有題目，請換一個年份、考次或科目。'); return; }
-  startQuiz(focusedQuizFilter,homeQuizCount);
+async function startFocusedQuiz(){
+  try{
+    const metas=shardMetasForHomeScope();
+    await ensureShardMetasLoaded(metas);
+    const pool=ALL.filter(focusedQuizFilter);
+    if(!pool.length){ alert('這個條件目前沒有題目，請換一個年份、考次或科目。'); return; }
+    startQuiz(focusedQuizFilter,homeQuizCount);
+  }catch(e){ alert('這組題目暫時無法載入：'+(e.message||'網路或題庫資料異常')); }
 }
 function renderHome(){
   const offlineNote=window._usingOfflineBackup?`<div style="margin-bottom:14px;padding:10px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:12px;color:var(--ink-soft)">📦 目前使用這台裝置的離線題庫備援；恢復網路後重新開啟網站即可同步最新題庫。</div>`:'';
@@ -2828,7 +3061,7 @@ function renderHome(){
       <div class="chips">
         <span class="chip"><b>5</b> 科</span>
         <span class="chip"><b>${oldest}${oldest&&newest?'–':''}${newest}</b> 歷屆</span>
-        <span class="chip"><b>${ALL.length}</b> 題</span>
+        <span class="chip"><b>${questionTotal()}</b> 題</span>
       </div>
     </div>
 
@@ -2900,8 +3133,8 @@ function searchAll(query){
 function snip(s,n){ s=String(s||'').replace(/\s+/g,' ').trim(); return s.length>n?s.slice(0,n)+'…':s; }
 function studyOne(id){ const q=ALL.find(x=>x.id===id); if(!q) return; queue=[q]; idx=0; selected=null; answered=false; sessionStats={done:0,correct:0,wrongTopics:[]}; view='quiz'; window.scrollTo(0,0); render(); }
 function searchQuizMcq(){ const res=searchAll(searchQ); if(!res.mcq.length) return; const ids=new Set(res.mcq.map(q=>q.id)); startQuiz(q=>ids.has(q.id)); }
-function openTheory(name){ theoryQ=name; theoryOpen=name; go('theories'); }
-function openLawCard(name){ lawQ=name; lawOpen=name; go('laws'); }
+function openTheory(name){ theoryQ=''; theoryOpen=THEORIES.findIndex(t=>t.n===name); go('theories'); }
+function openLawCard(name){ lawQ=''; lawOpen=LAWS.findIndex(l=>l.n===name); go('laws'); }
 function openEssayCard(id,subject){ essaySubj=subject||'全部科目'; essayCluster=null; openEssay=id; guideOpen=null; dissectOpen=null; go('essay'); setTimeout(()=>{const el=document.getElementById('es-'+id); if(el) el.scrollIntoView({block:'center'});},70); }
 function renderSearch(){
   app.innerHTML=`<div style="padding-top:6px">
@@ -2950,15 +3183,21 @@ function renderQuiz(){
   for(const k of ['A','B','C','D']){
     if(!item.options[k]) continue;
     let cls='opt';
-    if(answered){ if(k===item.answer||(isGiveAll(item.answer)&&k===selected))cls+=' correct'; else if(k===selected)cls+=' wrong'; } else if(k===selected) cls+=' sel';
+    const mode=gradingMode(item);
+    if(answered){
+      if(mode==='standard'&&acceptedAnswers(item).has(k)) cls+=' correct';
+      else if(k===selected && isCorrectAnswer(item,selected)) cls+=' correct';
+      else if(k===selected) cls+=' wrong';
+    } else if(k===selected) cls+=' sel';
     let mk='';
-    if(answered&&(k===item.answer||(isGiveAll(item.answer)&&k===selected))) mk='<span class="mk"><b class="ck ok">✓</b>'+(isGiveAll(item.answer)?'送分':'正解')+'</span>';
+    if(answered&&k===selected&&isCorrectAnswer(item,selected)) mk='<span class="mk"><b class="ck ok">✓</b>'+answerLabel(item)+'</span>';
+    else if(answered&&mode==='standard'&&acceptedAnswers(item).has(k)) mk='<span class="mk"><b class="ck ok">✓</b>正解</span>';
     else if(answered&&k===selected) mk='<span class="mk"><b class="ck no">✗</b>你選的</span>';
-    optHTML+=`<div class="${cls}" onclick="pick('${k}')"><span class="lab">${k}</span><span>${item.options[k]}</span>${mk}</div>`;
+    optHTML+=`<div class="${cls}" role="radio" aria-checked="${k===selected?'true':'false'}" tabindex="0" onclick="pick('${k}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pick('${k}')}"><span class="lab">${k}</span><span>${esc(item.options[k]).replace(/\n/g,'<br>')}</span>${mk}</div>`;
   }
   let expHTML='';
   if(answered){
-    const wrong=!ansCorrect(selected,item.answer); let body=isGiveAll(item.answer)?'<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 送分題：</b>本題官方一律給分，你的作答都算對。</div>':'';
+    const wrong=!ansCorrect(selected,item); let body=gradingMode(item)==='all_credit'?'<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 官方特殊給分：</b>本題採一律給分規則，不代表四個選項在學理上都正確。</div>':(gradingMode(item)==='any_answer'?'<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 官方特殊給分：</b>本題除未作答外，其餘作答均給分。</div>':'');
     if(item.exp&&(item.exp.why||item.exp.others||item.exp.trap)){
       if(item.exp.why) body+=`<div class="exp-sec"><h4><span class="dot d-green"></span>為什麼對</h4><p>${item.exp.why}</p></div>`;
       if(item.exp.others) body+=`<div class="exp-sec"><h4><span class="dot d-red"></span>其他選項為什麼錯</h4><p>${item.exp.others}</p></div>`;
@@ -2976,14 +3215,14 @@ function renderQuiz(){
     <button class="quit" onclick="go('home')">← 結束這次練習</button>
     <div class="pstrip"><div class="pbar"><i style="width:${pct}%"></i></div><span class="pcount">${idx+1} / ${queue.length}</span></div>
     <div class="qcard">
-      <div class="qmeta"><span class="tag subj">${item.subject}</span><span class="tag year">${item.year}年 ${item.round}</span>${yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':''}${(maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':''}${legalBadge(item)}</div>
+      <div class="qmeta"><span class="tag subj">${esc(item.subject)}</span><span class="tag year">${esc(item.year)}年 ${esc(item.round)}</span>${yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':''}${(maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':''}${legalBadge(item)}</div>
       ${legalNotice(item)}
-      <div class="qtext">${item.q}</div>${optHTML}
+      <div class="qtext">${esc(item.q).replace(/\n/g,'<br>')}</div>${optHTML}
       ${!answered?`<button class="btn" ${selected?'':'disabled'} onclick="submit()">送出答案</button>`:''}${expHTML}
     </div>`;
 }
 function pick(k){ if(answered)return; selected=k; render(); }
-function submit(){ if(!selected)return; answered=true; const item=queue[idx], correct=ansCorrect(selected,item.answer);
+function submit(){ if(!selected)return; answered=true; const item=queue[idx], correct=ansCorrect(selected,item);
   sessionStats.done++; if(correct)sessionStats.correct++; else sessionStats.wrongTopics.push(item.topic||item.major);
   record(item,selected,correct); render(); }
 function next(){ if(idx+1<queue.length){idx++;selected=null;answered=false;window.scrollTo(0,0);render();} else {view='summary';window.scrollTo(0,0);render();} }
@@ -3237,7 +3476,7 @@ function dissectHTML(id){
 function writeBoxHTML(id){
   const saved = getDraft(id);
   return `<div class="wbox">
-    <div class="wlabel">✍ 我的作答（自動儲存在這台裝置）</div>
+    <div class="wlabel">✍ 我的作答 <span data-storage-status style="font-size:11px;color:var(--correct);font-weight:500">✓ 已儲存在這台裝置</span></div>
     <div class="fmtbar">
       ${[['cn','一、'],['cnp','（一）'],['num','1、'],['lat','a.'],['rom','(i)']].map(p=>`<button class="fbtn" onclick="insertFmt('${id}','${p[0]}')">${p[1]}</button>`).join('')}
       <button class="fbtn clear" onclick="clearDraft('${id}')">清空</button>
@@ -3249,7 +3488,7 @@ function writeBoxHTML(id){
 }
 function saveDraft(id){
   const ta=document.getElementById('ta_'+id); if(!ta) return;
-  try{ localStorage.setItem(essayDraftKey(id), ta.value); }catch(e){}
+  try{ localStorage.setItem(essayDraftKey(id), ta.value); markStorageSaved(); }catch(e){ markStorageFailure(); }
   const wc=document.getElementById('wc_'+id); if(wc) wc.textContent=ta.value.length;
   const gb=document.getElementById('gbtn_'+id); if(gb) gb.style.display = ta.value.trim() ? '' : 'none';
 }
@@ -3284,9 +3523,31 @@ function insertFmt(id, level){
   ta.focus(); saveDraft(id);
 }
 
-/* ---------- AI 申論練習回饋（透過 Cloudflare 中間人呼叫 Groq、餵校過骨架、非官方評分）---------- */
+/* ---------- AI 申論練習回饋（透過 Cloudflare 中間人呼叫 Groq、使用平台參考骨架、非官方評分）---------- */
 /* ====== 管理員設定：下面是你的 Cloudflare 中間人網址；換中間人才需要改這行 ====== */
 const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev/api/ai";
+const AI_CLIENT_ID_KEY='swsi_ai_client_id_v1';
+function getAIClientId(){
+  try{
+    let id=localStorage.getItem(AI_CLIENT_ID_KEY)||'';
+    if(!/^[A-Za-z0-9_-]{16,128}$/.test(id)){
+      id=(crypto.randomUUID?crypto.randomUUID():('swsi_'+Date.now()+'_'+Math.random().toString(36).slice(2)));
+      localStorage.setItem(AI_CLIENT_ID_KEY,id);
+    }
+    return id;
+  }catch(_e){ return 'swsi_'+Date.now()+'_'+Math.random().toString(36).slice(2); }
+}
+async function aiErrorResult(res){
+  let payload=null; try{ payload=await res.clone().json(); }catch(_e){}
+  const code=String(payload?.error?.code||payload?.code||'');
+  const raw=String(payload?.error?.message||payload?.message||'');
+  if(code.includes('CLIENT_DAILY_QUOTA')) return {message:'今天這台裝置的免費 AI 額度已用完，請明天再試。',retry:false};
+  if(code.includes('GLOBAL_DAILY_QUOTA')) return {message:'平台今天的免費 AI 額度已用完，請明天再試。',retry:false};
+  if(res.status===429) return {message:raw||'目前 AI 使用量較高或已達限制，請稍後再試。',retry:false};
+  if(res.status===413) return {message:'照片太大了，請縮小或裁切後再試。',retry:true};
+  if(res.status===502||res.status===503) return {message:'AI 服務目前暫時無法使用，請稍後再試。',retry:true};
+  return {message:raw||'AI 批改暫時無法使用，請稍後再試。',retry:true};
+}
 const GROQ_MODEL = 'qwen/qwen3.6-27b'; /* Qwen 多模態：同時支援「打字批改」與「手寫照片辨識」，中文最強的免費選項。日後想換模型只改這行 */
 function aiFeedbackHTML(id){
   return `<div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">
@@ -3295,7 +3556,7 @@ function aiFeedbackHTML(id){
     <button class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600" onclick="runAIFeedback('${id}')">🤖 我用打字的 · 請 AI 批改上面的作答</button>
     <input type="file" id="photo_${id}" accept="image/*" multiple style="display:none" onchange="gradePhoto('${id}',this)">
     <button class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600;margin-top:8px" onclick="document.getElementById('photo_${id}').click()">📷 我用手寫的 · 拍照上傳給 AI 批改</button>
-    <div class="aihelp" style="color:var(--ink-soft);margin-top:7px">手寫的同學直接拍紙本上傳就好。寫兩面／多頁可以一次選多張（建議 1–3 張）。光線充足、字跡清楚、整頁入鏡會讀得更準；AI 會先把「讀到的字」秀出來，萬一讀錯可以重拍。</div>
+    <div class="aihelp" style="color:var(--ink-soft);margin-top:7px">手寫的同學直接拍紙本上傳就好。寫兩面／多頁可以一次選多張（一次最多 3 張）。光線充足、字跡清楚、整頁入鏡會讀得更準；AI 會先把「讀到的字」秀出來，萬一讀錯可以重拍。</div>
     <div id="airesult_${id}"></div>
   </div>`;
 }
@@ -3309,7 +3570,7 @@ async function runAIFeedback(id){
   const g=(window.ESSAY_GUIDES||{})[id]||{};
   const skel=`考點：${g.kao||'（無）'}\n破題心法：${g.dati||'（無）'}\n必踩大標：${(g.biaoti||[]).join('；')}\n搶分關鍵字：${(g.kw||[]).join('、')}`;
   const sys=`【最重要規則：整份回饋務必用「繁體中文」書寫，禁止使用英文句子或英文段落。】
-你是台灣「社工師」國家考試的申論練習教練。會提供題目、這題的「校過骨架」（已人工核對的正確考點／破題／必踩大標／關鍵字），以及學生作答。請依骨架與你的社工專業知識，給「練習回饋」。
+你是台灣「社工師」國家考試的申論練習教練。會提供題目、這題的「平台提供的參考骨架與關鍵字」（非官方評分標準），以及學生作答。請依骨架與你的社工專業知識，給「練習回饋」。
 
 嚴格規則：
 - 這是練習回饋、不是官方評分：不要給分數、不要自稱評分標準或官方細則。
@@ -3322,27 +3583,25 @@ async function runAIFeedback(id){
 二、可以補強：漏了哪些『必踩大標』或關鍵概念、可補哪個理論／法源（只從骨架與正確社工知識出發）。
 三、一句鼓勵。`;
   const user=`【題目】${e.q||''}（${e.points||20}分）
-【校過骨架】
+【平台參考骨架與關鍵字】
 ${skel}
 【學生作答】
 ${ans}`;
   out.innerHTML=`<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 批改中…（約 10 秒，請別關頁面）</div>`;
   try{
     const r=await fetch(AI_PROXY_URL,{
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json','X-SWSI-Client-ID':getAIClientId()},
       body:JSON.stringify({ model:GROQ_MODEL, reasoning_effort:'none', temperature:0.5, max_tokens:1200, messages:[{role:'user',content:sys+'\n\n'+user}] })
     });
     if(!r.ok){
-      let msg='AI 批改暫時無法使用。';
-      if(r.status===429) msg='現在用的人比較多、或今天的免費額度用完了，等一下再試。';
-      else if(r.status===401||r.status===403) msg='AI 批改設定有誤（金鑰問題），請聯絡管理員。';
-      out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">${msg} <span onclick="runAIFeedback('${id}')" style="color:var(--pine);cursor:pointer;text-decoration:underline">重試</span></div>`; return;
+      const er=await aiErrorResult(r);
+      out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">${esc(er.message)} ${er.retry?'<span onclick="location.reload()" style="color:var(--pine);cursor:pointer;text-decoration:underline">重試</span>':''}</div>`; return;
     }
     const data=await r.json();
     const txt=(data?.choices?.[0]?.message?.content||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
     if(!txt){ out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong)">AI 沒有回傳內容，請再試一次。</div>`; return; }
     out.innerHTML=`<div style="margin-top:12px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--pine);border-radius:10px;padding:14px;font-size:14px;line-height:1.8;color:var(--ink);white-space:pre-wrap">${esc(txt)}</div>
-      <div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 練習回饋僅供參考、非官方評分；正式標準以老師與考選部為準。手寫一次完整版才是真正的練習。</div>
+      <div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 練習回饋僅供參考、非官方評分；照片／文字會送至外部 AI 服務處理，請勿輸入或上傳可識別真實個案或個人的資料。正式標準以老師與考選部為準。</div>
       <button class="fbtn" style="margin-top:8px;padding:8px 14px;font-size:13px" onclick="runAIFeedback('${id}')">再批一次</button>`;
   }catch(err){
     out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">連線失敗，可能是網路問題或中間人未啟用。請檢查網路後再試一次。</div>`;
@@ -3375,7 +3634,7 @@ async function gradePhoto(id, inputEl){
   if(!AI_PROXY_URL || AI_PROXY_URL.indexOf('http')!==0){ out.innerHTML=`<div style="margin-top:10px;font-size:13px;color:var(--ink-soft);line-height:1.7">AI 批改尚未啟用（管理員還沒設定中間人網址）。</div>`; return; }
   let files=(inputEl&&inputEl.files)?Array.from(inputEl.files):[];
   if(!files.length){ return; }
-  if(files.length>4){ files=files.slice(0,4); }
+  if(files.length>3){ out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">一次最多 3 張照片。請刪除多出的照片後再送出。</div>'; if(inputEl) inputEl.value=''; return; }
   out.innerHTML=`<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">📷 照片處理中…（${files.length} 張）</div>`;
   let imgs=[];
   try{ for(const f of files){ imgs.push(await shrinkImage(f,1200,0.8)); } }
@@ -3389,7 +3648,7 @@ async function gradePhoto(id, inputEl){
 
 第一步：辨識所有照片中的手寫文字，依頁面順序盡量逐字呈現在【我讀到的作答】底下；看不清楚的字用「◌」代替，不要自己補字或改寫成別的意思。
 第二步：若照片模糊、空白、不是申論作答、或幾乎讀不出字，就「只」回這一句：「這張照片我讀不太出來，請在光線充足的地方、把整頁字跡清楚地重拍一張。」其他都不要寫。
-第三步：依提供的「校過骨架」（已人工核對的正確考點／破題／必踩大標／關鍵字）與你的社工專業，給練習回饋。
+第三步：依提供的「平台參考骨架與關鍵字」（非官方評分標準）與你的社工專業，給練習回饋。
 
 嚴格規則：
 - 這是練習回饋、不是官方評分：不要給分數、不要自稱評分標準或官方細則。
@@ -3404,7 +3663,7 @@ async function gradePhoto(id, inputEl){
 一、方向與架構：有沒有抓到核心考點？大標對不對？
 二、可以補強：漏了哪些必踩大標或關鍵概念、可補哪個理論／法源（只從骨架與正確社工知識出發）。
 三、鼓勵：一句話。`;
-  const userText=`【題目】${e.q||''}（${e.points||20}分）\n【校過骨架】\n${skel}\n\n下面是學生手寫作答的照片（可能多張，是同一份作答的正反面或多頁），請依上面步驟辨識並批改。`;
+  const userText=`【題目】${e.q||''}（${e.points||20}分）\n【校過骨架】\n${skel}\n\n下面是學生手寫作答的照片（最多 3 張，可能是同一份作答的正反面或多頁），請依上面步驟辨識並批改。`;
   const content=[{type:'text',text:sys+'\n\n'+userText}];
   for(const u of imgs){ content.push({type:'image_url',image_url:{url:u}}); }
   out.innerHTML=`<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 正在讀 ${imgs.length} 張照片並批改…（手寫辨識較久，約 15–20 秒，請別關頁面）</div>`;
@@ -3424,7 +3683,7 @@ async function gradePhoto(id, inputEl){
     const txt=(data?.choices?.[0]?.message?.content||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
     if(!txt){ out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong)">AI 沒有回傳內容，請再試一次。</div>`; return; }
     out.innerHTML=`<div style="margin-top:12px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--pine);border-radius:10px;padding:14px;font-size:14px;line-height:1.8;color:var(--ink);white-space:pre-wrap">${esc(txt)}</div>
-      <div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 練習回饋僅供參考、非官方評分；手寫辨識可能有誤，請對照「我讀到的作答」確認。正式標準以老師與考選部為準。</div>
+      <div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 練習回饋僅供參考、非官方評分；照片／文字會送至外部 AI 服務處理，請勿輸入或上傳可識別真實個案或個人的資料。手寫辨識可能有誤，請對照「我讀到的作答」確認。正式標準以老師與考選部為準。</div>
       <button class="fbtn" style="margin-top:8px;padding:8px 14px;font-size:13px" onclick="document.getElementById('photo_${id}').click()">重拍／換照片再批</button>`;
   }catch(err){
     out.innerHTML=`<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">連線失敗，可能是網路問題或照片太大。請檢查網路後再試一次。</div>`;
@@ -3565,6 +3824,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
   window.__SWSI_CURRENT_AFFAIRS_UI__=true;
 
   var liveItems=[];
+  var signalItems=[];
   var loadPromise=null;
   var currentFilter='全部';
   var oldOpen=null, oldFilter=null;
@@ -3623,8 +3883,13 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     return d.toLocaleDateString('zh-TW',{year:'numeric',month:'numeric',day:'numeric'});
   }
   function templateFor(cat){return TEMPLATES[cat]||{points:['事件脈絡與問題界定','相關社會工作理論／政策','社工角色與服務體系','制度改善與權益保障'],exam:'先從事件轉成社工問題，再用理論、政策、實務與制度四層次作答。'};}
+  function signalFor(id){
+    for(var i=0;i<signalItems.length;i++){if(signalItems[i].id===id)return signalItems[i];}
+    return null;
+  }
   function liveCard(ev){
     var t=templateFor(ev.category);
+    var sig=signalFor(ev.id)||{};
     var pts=t.points.map(function(x){return '<li>'+E(x)+'</li>';}).join('');
     var tags=(ev.exam_tags||[]).slice(0,6).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('');
     var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(x.replace('社會政策與社會立法','社政法').replace('社會工作直接服務','直接服務').replace('人類行為與社會環境','人行'))+'</span>';}).join('');
@@ -3636,6 +3901,11 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       +(summary?'<div class="nlr-summary">'+E(summary)+'</div>':'')
       +'<div class="nlr-subs">'+subjects+'</div>'
       +(tags?'<div class="nlr-chips">'+tags+'</div>':'')
+      +(sig.signal_confidence?'<div class="nlr-signal"><b>命題訊號：'+E(sig.signal_confidence==='high'?'高':sig.signal_confidence==='medium'?'中':'低')+'</b>'+(sig.signal_score!=null?' ・ '+E(sig.signal_score)+'/10':'')+'</div>':'')
+      +(sig.exam_point_summary?'<div class="nlr-signal-text">'+E(sig.exam_point_summary)+'</div>':'')
+      +(sig.essay_direction?'<details class="nlr-detail"><summary>值得練習的申論方向</summary><div class="nlr-exam">'+E(sig.essay_direction)+'</div></details>':'')
+      +(sig.mcq_focus&&sig.mcq_focus.length?'<details class="nlr-detail"><summary>選擇題可能抓哪些事實？</summary><div class="nlr-chips">'+sig.mcq_focus.slice(0,8).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('')+'</div></details>':'')
+      +(sig.related_exam_questions&&sig.related_exam_questions.length?'<details class="nlr-detail"><summary>歷屆相關題</summary><ul>'+sig.related_exam_questions.slice(0,4).map(function(q){var label=(q.year||'')+'-'+(q.round||'')+'-'+(q.qno||'');return '<li><b>'+E(q.id||label)+'</b> '+E(q.subject||'')+(q.topic?' ・ '+E(q.topic):'')+'</li>';}).join('')+'</ul></details>':'')
       +'<details class="nlr-detail"><summary>此類事件常見的申論思考方向</summary><ul>'+pts+'</ul><div class="nlr-exam">'+E(t.exam)+'</div></details>'
       +'<a class="nlr-link" href="'+E(ev.source_url)+'" target="_blank" rel="noopener noreferrer">查看原始來源 ↗</a>'
       +'</div>';
@@ -3650,15 +3920,21 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       +'.nlr-card{border:1px solid var(--line,#ddd);border-radius:13px;padding:12px;background:var(--bg,#fff)}.nlr-head{display:flex;justify-content:space-between;gap:8px}.nlr-cat{font-size:.75rem;font-weight:700}.nlr-score{font-size:.72rem;color:var(--muted,#777)}'
       +'.nlr-title{font-weight:800;line-height:1.45;margin:6px 0}.nlr-meta,.nlr-summary{font-size:.8rem;color:var(--muted,#666);line-height:1.55}.nlr-summary{margin-top:7px}'
       +'.nlr-subs,.nlr-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.nlr-sub,.nlr-chip{font-size:.7rem;border-radius:999px;padding:3px 7px;background:var(--soft,#f2f2f2)}'
-      +'.nlr-detail{margin-top:9px;font-size:.8rem;line-height:1.55}.nlr-detail summary{cursor:pointer;font-weight:700}.nlr-detail ul{padding-left:20px;margin:7px 0}.nlr-exam{margin-top:6px}.nlr-link{display:inline-block;margin-top:9px;font-size:.78rem;text-decoration:none;font-weight:700}.nlr-empty{font-size:.82rem;color:var(--muted,#777);padding:8px 0}';
+      +'.nlr-detail{margin-top:9px;font-size:.8rem;line-height:1.55}.nlr-detail summary{cursor:pointer;font-weight:700}.nlr-detail ul{padding-left:20px;margin:7px 0}.nlr-exam{margin-top:6px}.nlr-signal{margin-top:9px;font-size:.8rem}.nlr-signal-text{margin-top:5px;font-size:.78rem;line-height:1.5}.nlr-link{display:inline-block;margin-top:9px;font-size:.78rem;text-decoration:none;font-weight:700}.nlr-empty{font-size:.82rem;color:var(--muted,#777);padding:8px 0}';
     document.head.appendChild(st);
   }
   function loadLive(){
     if(loadPromise) return loadPromise;
     loadPromise=fetch('./auto/current_affairs.json',{cache:'no-store'})
-      .then(function(r){if(!r.ok) throw new Error('HTTP '+r.status);return r.json();})
-      .then(function(d){liveItems=Array.isArray(d.items)?d.items:[];return liveItems;})
-      .catch(function(){liveItems=[];return liveItems;});
+      .then(function(r){if(!r.ok) throw new Error('current affairs HTTP '+r.status);return r.json();})
+      .then(function(d){
+        liveItems=Array.isArray(d.items)?d.items:[];
+        return fetch('./auto/current_affairs_signals.json',{cache:'no-store'})
+          .then(function(r){if(!r.ok) throw new Error('signals HTTP '+r.status);return r.json();})
+          .then(function(s){signalItems=Array.isArray(s.items)?s.items:[];return liveItems;})
+          .catch(function(){signalItems=[];return liveItems;});
+      })
+      .catch(function(){liveItems=[];signalItems=[];return liveItems;});
     return loadPromise;
   }
   function inject(filter){
@@ -3862,6 +4138,6 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
 </script>
 <!-- SWSI UIUX V1 END -->
 <script>window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP={"version":"2026-08-27.canonical-build.v1","laws":{"count":24,"sha256":"bb946b67af633ea371550dc1b074dbca530ccb50f47e561c7590ff0e5ea89dfc"},"theories":{"count":39,"sha256":"1a74d39a9611caf002383527390dd3d7e5cc0b6665b6b7f89494f2a0d58ead4d"}};</script>
-<script src="monthly_patch.js?v=ddd4caa1f50459f4"></script>
+<script src="monthly_patch.js?v=7eeab7cac8c07eae"></script>
 </body>
 </html>
