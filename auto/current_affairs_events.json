@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-25T16:06:12Z",
+  "generated_at": "2026-09-25T16:06:47Z",
   "source_item_count": 9,
   "event_count": 9,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
@@ -86,7 +86,7 @@
           "qno": "2",
           "major": "社會保險",
           "topic": "就業保險法 > 失業保險特性",
-          "match_reason": "關鍵詞：失業、就業保險",
+          "match_reason": "關鍵詞：就業保險、失業",
           "match_score": 2.2
         },
         {
@@ -170,7 +170,7 @@
           "qno": "17",
           "major": "身心障礙福利法規",
           "topic": "CRPD施行法 > 國家報告制度",
-          "match_reason": "關鍵詞：身心障礙、障礙、CRPD",
+          "match_reason": "關鍵詞：身心障礙、CRPD、障礙",
           "match_score": 3.2
         },
         {
@@ -192,7 +192,7 @@
           "qno": "21",
           "major": "身心障礙福利法規",
           "topic": "CRPD施行法 > 權益推動小組組成",
-          "match_reason": "關鍵詞：身心障礙、障礙、CRPD",
+          "match_reason": "關鍵詞：身心障礙、CRPD、障礙",
           "match_score": 3.2
         },
         {
@@ -214,7 +214,7 @@
           "qno": "8",
           "major": "身心障礙福利法規",
           "topic": "CRPD > 替代性照顧",
-          "match_reason": "關鍵詞：身心障礙、障礙、CRPD",
+          "match_reason": "關鍵詞：身心障礙、CRPD、障礙",
           "match_score": 3.2
         }
       ]
@@ -324,7 +324,7 @@
           "qno": "29",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 緊急安置",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：安置、兒童、少年、兒少",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、少年、兒少、安置",
           "match_score": 8.2
         }
       ]
@@ -528,7 +528,7 @@
           "qno": "2",
           "major": "社會保險",
           "topic": "就業保險法 > 失業保險特性",
-          "match_reason": "關鍵詞：失業、就業保險",
+          "match_reason": "關鍵詞：就業保險、失業",
           "match_score": 2.2
         },
         {
@@ -600,7 +600,7 @@
           "qno": "33",
           "major": "性別與婦女服務",
           "topic": "婦女政策 > 婦女政策綱領",
-          "match_reason": "關鍵詞：行政院、性別、性別平等",
+          "match_reason": "關鍵詞：行政院、性別平等、性別",
           "match_score": 3.2
         },
         {
@@ -611,7 +611,7 @@
           "qno": "9",
           "major": "婦女與性別法規",
           "topic": "性別政策 > 性別平等政策綱領",
-          "match_reason": "關鍵詞：行政院、性別、性別平等",
+          "match_reason": "關鍵詞：行政院、性別平等、性別",
           "match_score": 3.2
         },
         {
@@ -633,7 +633,7 @@
           "qno": "30",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰留職停薪",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         },
         {
@@ -644,7 +644,7 @@
           "qno": "37",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰復職拒絕事由",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         }
       ]
@@ -705,7 +705,7 @@
           "qno": "30",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰留職停薪",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         },
         {
@@ -716,7 +716,7 @@
           "qno": "37",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰復職拒絕事由",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         },
         {
@@ -727,7 +727,7 @@
           "qno": "5",
           "major": "婦女與性別法規",
           "topic": "社會立法沿革 > 法案修正",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         },
         {
@@ -738,7 +738,7 @@
           "qno": "35",
           "major": "婦女與性別法規",
           "topic": "性別政策 > 性別主流化",
-          "match_reason": "關鍵詞：性別、性別主流化",
+          "match_reason": "關鍵詞：性別主流化、性別",
           "match_score": 2.2
         },
         {
@@ -749,7 +749,7 @@
           "qno": "5",
           "major": "婦女與性別法規",
           "topic": "性別工作平等法 > 育嬰留職停薪",
-          "match_reason": "關鍵詞：性別、性別平等",
+          "match_reason": "關鍵詞：性別平等、性別",
           "match_score": 2.2
         }
       ]
@@ -811,7 +811,7 @@
           "qno": "32",
           "major": "老人福利法規",
           "topic": "老人福利法 > 照顧服務規劃原則",
-          "match_reason": "關鍵詞：在地老化、老人、高齡",
+          "match_reason": "關鍵詞：在地老化、高齡、老人",
           "match_score": 3.2
         },
         {
@@ -822,7 +822,7 @@
           "qno": "33",
           "major": "其他社會立法與人權公約",
           "topic": "長照服務法 > 家庭照顧者支持服務",
-          "match_reason": "關鍵詞：長照、照顧者、家庭照顧者",
+          "match_reason": "關鍵詞：長照、家庭照顧者、照顧者",
           "match_score": 3.2
         },
         {
@@ -833,7 +833,7 @@
           "qno": "39",
           "major": "其他社會立法與人權公約",
           "topic": "長照服務法 > 家庭照顧者支持服務",
-          "match_reason": "關鍵詞：長照、照顧者、家庭照顧者",
+          "match_reason": "關鍵詞：長照、家庭照顧者、照顧者",
           "match_score": 3.2
         },
         {
@@ -844,7 +844,7 @@
           "qno": "23",
           "major": "老人福利法規",
           "topic": "老人福利法 > 家庭照顧者服務",
-          "match_reason": "關鍵詞：照顧者、老人、家庭照顧者",
+          "match_reason": "關鍵詞：家庭照顧者、照顧者、老人",
           "match_score": 3.2
         },
         {
@@ -855,7 +855,7 @@
           "qno": "20",
           "major": "老人福利法規",
           "topic": "老人福利方案 > 高齡友善城市",
-          "match_reason": "關鍵詞：老人、高齡",
+          "match_reason": "關鍵詞：高齡、老人",
           "match_score": 2.2
         }
       ]
@@ -916,7 +916,7 @@
           "qno": "32",
           "major": "老人福利法規",
           "topic": "老人福利法 > 照顧服務規劃原則",
-          "match_reason": "關鍵詞：在地老化、老人、高齡",
+          "match_reason": "關鍵詞：在地老化、高齡、老人",
           "match_score": 3.2
         },
         {
@@ -927,7 +927,7 @@
           "qno": "33",
           "major": "其他社會立法與人權公約",
           "topic": "長照服務法 > 家庭照顧者支持服務",
-          "match_reason": "關鍵詞：長照、照顧者、家庭照顧者",
+          "match_reason": "關鍵詞：長照、家庭照顧者、照顧者",
           "match_score": 3.2
         },
         {
@@ -938,7 +938,7 @@
           "qno": "39",
           "major": "其他社會立法與人權公約",
           "topic": "長照服務法 > 家庭照顧者支持服務",
-          "match_reason": "關鍵詞：長照、照顧者、家庭照顧者",
+          "match_reason": "關鍵詞：長照、家庭照顧者、照顧者",
           "match_score": 3.2
         },
         {
@@ -949,7 +949,7 @@
           "qno": "23",
           "major": "老人福利法規",
           "topic": "老人福利法 > 家庭照顧者服務",
-          "match_reason": "關鍵詞：照顧者、老人、家庭照顧者",
+          "match_reason": "關鍵詞：家庭照顧者、照顧者、老人",
           "match_score": 3.2
         },
         {
@@ -960,7 +960,7 @@
           "qno": "20",
           "major": "老人福利法規",
           "topic": "老人福利方案 > 高齡友善城市",
-          "match_reason": "關鍵詞：老人、高齡",
+          "match_reason": "關鍵詞：高齡、老人",
           "match_score": 2.2
         }
       ]
