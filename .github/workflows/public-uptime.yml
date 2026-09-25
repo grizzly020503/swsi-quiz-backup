@@ -41,8 +41,7 @@ jobs:
           # A pull request still points at the old production deployment, so it
           # validates the existing public baseline. Push/scheduled/manual runs happen
           # on main after deployment and must also require Monitoring V2 snapshots.
-          # Temporary PR-head production verification after #100 forced the static-asset rebuild.
-          if true; then
+          if [ "$GITHUB_EVENT_NAME" != 'pull_request' ]; then
             args='--monitoring-v2'
           fi
           python scripts/public_uptime_smoke.py $args
