@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-25T17:32:46Z",
-  "source_item_count": 10,
-  "event_count": 10,
+  "generated_at": "2026-09-25T17:45:11Z",
+  "source_item_count": 11,
+  "event_count": 11,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
   "events": [
     {
@@ -190,7 +190,7 @@
           "qno": "17",
           "major": "身心障礙福利法規",
           "topic": "CRPD施行法 > 國家報告制度",
-          "match_reason": "關鍵詞：身心障礙、CRPD、障礙",
+          "match_reason": "關鍵詞：身心障礙、障礙、CRPD",
           "match_score": 3.2
         },
         {
@@ -201,7 +201,7 @@
           "qno": "5",
           "major": "障礙者服務",
           "topic": "身心障礙者權益保障法 > 個人支持及照顧",
-          "match_reason": "關鍵詞：身心障礙、自立生活、障礙",
+          "match_reason": "關鍵詞：身心障礙、障礙、自立生活",
           "match_score": 3.2
         },
         {
@@ -212,7 +212,7 @@
           "qno": "21",
           "major": "身心障礙福利法規",
           "topic": "CRPD施行法 > 權益推動小組組成",
-          "match_reason": "關鍵詞：身心障礙、CRPD、障礙",
+          "match_reason": "關鍵詞：身心障礙、障礙、CRPD",
           "match_score": 3.2
         },
         {
@@ -234,7 +234,7 @@
           "qno": "8",
           "major": "身心障礙福利法規",
           "topic": "CRPD > 替代性照顧",
-          "match_reason": "關鍵詞：身心障礙、CRPD、障礙",
+          "match_reason": "關鍵詞：身心障礙、障礙、CRPD",
           "match_score": 3.2
         }
       ]
@@ -303,7 +303,7 @@
           "qno": "22",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 收出養規定",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、兒少、少年",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、少年、兒少",
           "match_score": 8.2
         },
         {
@@ -314,7 +314,7 @@
           "qno": "22",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 收出養規定",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、兒少、少年",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、少年、兒少",
           "match_score": 8.2
         },
         {
@@ -325,7 +325,7 @@
           "qno": "23",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、兒少、少年",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、少年、兒少",
           "match_score": 8.2
         },
         {
@@ -336,7 +336,7 @@
           "qno": "28",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 居家托育消極資格",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、兒少、少年",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、少年、兒少",
           "match_score": 8.2
         },
         {
@@ -347,7 +347,7 @@
           "qno": "29",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 緊急安置",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、兒少、少年、安置",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：安置、兒童、少年、兒少",
           "match_score": 8.2
         }
       ]
@@ -461,7 +461,7 @@
           "qno": "5",
           "major": "障礙者服務",
           "topic": "身心障礙者權益保障法 > 個人支持及照顧",
-          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、自立生活、障礙",
+          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、障礙、自立生活",
           "match_score": 8.2
         }
       ]
@@ -879,7 +879,7 @@
           "qno": "33",
           "major": "其他社會立法與人權公約",
           "topic": "長照服務法 > 家庭照顧者支持服務",
-          "match_reason": "關鍵詞：長照、家庭照顧者、照顧者",
+          "match_reason": "關鍵詞：家庭照顧者、照顧者、長照",
           "match_score": 3.2
         },
         {
@@ -890,7 +890,7 @@
           "qno": "39",
           "major": "其他社會立法與人權公約",
           "topic": "長照服務法 > 家庭照顧者支持服務",
-          "match_reason": "關鍵詞：長照、家庭照顧者、照顧者",
+          "match_reason": "關鍵詞：家庭照顧者、照顧者、長照",
           "match_score": 3.2
         },
         {
@@ -901,7 +901,7 @@
           "qno": "23",
           "major": "老人福利法規",
           "topic": "老人福利法 > 家庭照顧者服務",
-          "match_reason": "關鍵詞：老人、家庭照顧者、照顧者",
+          "match_reason": "關鍵詞：家庭照顧者、老人、照顧者",
           "match_score": 3.2
         },
         {
@@ -1017,7 +1017,7 @@
           "qno": "23",
           "major": "老人福利法規",
           "topic": "老人福利法 > 家庭照顧者服務",
-          "match_reason": "關鍵詞：老人、家庭照顧者、照顧者",
+          "match_reason": "關鍵詞：家庭照顧者、老人、照顧者",
           "match_score": 3.2
         },
         {
@@ -1092,7 +1092,7 @@
           "qno": "36",
           "major": "多元文化能力",
           "topic": "移民服務 > 移工友善職場",
-          "match_reason": "關鍵詞：移民、移工、文化能力",
+          "match_reason": "關鍵詞：移工、文化能力、移民",
           "match_score": 3.2
         },
         {
@@ -1103,7 +1103,7 @@
           "qno": "34",
           "major": "多元文化能力",
           "topic": "移民服務 > 新住民服務方案",
-          "match_reason": "關鍵詞：移民、新住民、文化能力",
+          "match_reason": "關鍵詞：新住民、文化能力、移民",
           "match_score": 3.2
         },
         {
@@ -1114,7 +1114,7 @@
           "qno": "34",
           "major": "多元文化能力",
           "topic": "移民服務 > 倡導者角色",
-          "match_reason": "關鍵詞：移民、新住民、文化能力",
+          "match_reason": "關鍵詞：新住民、文化能力、移民",
           "match_score": 3.2
         },
         {
@@ -1137,6 +1137,114 @@
           "major": "多元文化能力",
           "topic": "多元文化社工 > 多元文化發展史",
           "match_reason": "關鍵詞：反歧視、文化能力",
+          "match_score": 2.2
+        }
+      ]
+    },
+    {
+      "canonical_event_id": "f09ce8d0010db173dfd12078",
+      "title": "ILO project improves social protection coverage for over nine million people",
+      "summary": "The Multi-donor project in support of the ILO Global Flagship Programme on Building Social Protection Floors for All concludes after five years of supporting countries to strengthen social protection systems and make progress towards universal...",
+      "category": "社會救助與居住",
+      "subjects": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "exam_tags": [
+        "社會保障"
+      ],
+      "related_laws": [],
+      "concept_keys": [
+        "social_protection"
+      ],
+      "agency_keys": [
+        "ilo"
+      ],
+      "fact_keys": [],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "ILO Newsroom"
+      ],
+      "evidence": [
+        {
+          "source_name": "ILO Newsroom",
+          "source_url": "https://www.ilo.org/resource/news/ilo-project-improves-social-protection-coverage-over-nine-million-people",
+          "source_type": "official",
+          "published_at": "2026-09-25T00:00:00Z",
+          "item_id": "235aebbaa6c843dda17565dfb13ebef2"
+        }
+      ],
+      "first_seen": "2026-09-25T00:00:00Z",
+      "last_seen": "2026-09-25T00:00:00Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-09-25"
+      ],
+      "policy_signal": "low",
+      "essay_value": "low",
+      "mcq_fact_density": "low",
+      "signal_confidence": "low",
+      "signal_score": 4,
+      "exam_point_summary": "ILO project improves social protection coverage …。偏宣導或活動訊息。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「最低生活保障、貧窮結構因素與居住權」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "社會保障"
+      ],
+      "related_exam_questions": [
+        {
+          "id": "SP104-1-25",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第一次",
+          "qno": "25",
+          "major": "社會救助",
+          "topic": "社會救助法 > 中低收入戶標準",
+          "match_reason": "關鍵詞：社會救助、最低生活、低收入",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP106-2-09",
+          "subject": "社會政策與社會立法",
+          "year": "106",
+          "round": "第二次",
+          "qno": "9",
+          "major": "社會救助",
+          "topic": "社會救助法 > 促進就業措施",
+          "match_reason": "關鍵詞：社會救助、低收入、脫貧",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP107-1-13",
+          "subject": "社會政策與社會立法",
+          "year": "107",
+          "round": "第一次",
+          "qno": "13",
+          "major": "社會救助",
+          "topic": "社會救助法 > 相對貧窮",
+          "match_reason": "關鍵詞：社會救助、最低生活、低收入、貧窮",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP113-2-31",
+          "subject": "社會政策與社會立法",
+          "year": "113",
+          "round": "第二次",
+          "qno": "31",
+          "major": "社會救助",
+          "topic": "社會救助法 > 脫貧措施免計年限",
+          "match_reason": "關鍵詞：社會救助、低收入、貧窮、脫貧",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP104-2-19",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第二次",
+          "qno": "19",
+          "major": "社會救助",
+          "topic": "脫貧方案 > 財產累積策略",
+          "match_reason": "關鍵詞：社會救助、脫貧",
           "match_score": 2.2
         }
       ]

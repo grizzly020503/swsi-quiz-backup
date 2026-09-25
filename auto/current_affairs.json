@@ -1,11 +1,16 @@
 {
   "schema_version": 2,
-  "source_feed_count": 16,
+  "source_feed_count": 17,
   "feed_error_count": 0,
   "items": [
     {
-      "region": "taiwan",
-      "published_at": "2026-09-11T01:14:00Z",
+      "source_type": "official",
+      "source_url": "https://www.mohw.gov.tw/cp-18-87901-1.html",
+      "subjects": [
+        "社會工作直接服務",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
       "exam_tags": [
         "兒童",
         "少年",
@@ -13,22 +18,17 @@
         "權益",
         "福利"
       ],
+      "published_at": "2026-09-11T01:14:00Z",
+      "agency_keys": [],
+      "region": "taiwan",
+      "concept_keys": [],
+      "relevance_score": 7,
       "fact_keys": [],
+      "category": "兒少保護",
+      "id": "ed78eb5345a9becfb446a1e8be636a9b",
+      "summary": "敬請支持 115年兒童及少年生活狀況調查 衛生福利部訂於115年9月至11月辦理115年「兒童及少年生活狀況調查」，懇請受訪民眾及學校支持與配合 本調查係依據兒童及少年福利與權益保障法第13條規定，每4年辦理一次，目的在於了解兒童與少年之生活狀況及需求，以作為政府研訂社會福利政策、修訂相關法規之參考依據。 本調查由衛生福利部委託典通股份有限公司辦理，學齡前兒童調查方式採實地訪查兒童父母或主要照顧者，國小兒童調查方式係由兒童將問卷攜回請父母或主要照顧者填寫，國中、高中(職)及五專前三年少年調查方式係請學生自行填寫問卷，調查期間為115年9月至11月，懇請受",
       "source_name": "衛生福利部公告訊息",
       "title": "敬請支持「115年兒童及少年生活狀況調查」",
-      "relevance_score": 7,
-      "subjects": [
-        "社會工作直接服務",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "category": "兒少保護",
-      "agency_keys": [],
-      "id": "ed78eb5345a9becfb446a1e8be636a9b",
-      "source_url": "https://www.mohw.gov.tw/cp-18-87901-1.html",
-      "source_type": "official",
-      "summary": "敬請支持 115年兒童及少年生活狀況調查 衛生福利部訂於115年9月至11月辦理115年「兒童及少年生活狀況調查」，懇請受訪民眾及學校支持與配合 本調查係依據兒童及少年福利與權益保障法第13條規定，每4年辦理一次，目的在於了解兒童與少年之生活狀況及需求，以作為政府研訂社會福利政策、修訂相關法規之參考依據。 本調查由衛生福利部委託典通股份有限公司辦理，學齡前兒童調查方式採實地訪查兒童父母或主要照顧者，國小兒童調查方式係由兒童將問卷攜回請父母或主要照顧者填寫，國中、高中(職)及五專前三年少年調查方式係請學生自行填寫問卷，調查期間為115年9月至11月，懇請受",
-      "concept_keys": [],
       "source_count": 1,
       "sources": [
         {
@@ -42,13 +42,24 @@
       "clustered": false
     },
     {
-      "region": "taiwan",
-      "published_at": "2026-09-16T10:30:11Z",
+      "source_type": "official",
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99061/",
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
       "exam_tags": [
         "育兒",
         "托育",
         "補助"
       ],
+      "published_at": "2026-09-16T10:30:11Z",
+      "agency_keys": [],
+      "region": "taiwan",
+      "concept_keys": [
+        "family_policy"
+      ],
+      "relevance_score": 6,
       "fact_keys": [
         "num:10000",
         "num:1000000",
@@ -57,22 +68,11 @@
         "pct:60",
         "pct:70"
       ],
+      "category": "性別與家庭政策",
+      "id": "2cc263d201f443e931c4a3a5f75e0312",
+      "summary": "勞動部為鼓勵雇主營造友善育兒職場環境，持續推動企業托育補助，115年度第2期(115年5月1日起計)補助迄今已有800餘家企業提出申請，相當踴躍。勞動部提醒，本年度申請即將於9月30日截止，目前已進入最後2週倒數，有意願設置托兒設施、提供育兒補貼或其他托兒措施的企業，請把握最後申請時間，儘速備妥相關資料提出申請，共同支持員工育兒。 勞動部表示，今年企業托育補助新制自5月1日上路，大幅提高企業辦理托育的支持力道。雇主新興建托兒設施，最高可補助500萬元；已設置托兒設施者，每年最高補助100萬元，並新增營運費、教保及托育人員人事費，以及減免員工收托費用等補助",
       "source_name": "勞動部新聞稿",
       "title": "企業托育補助新制創造企業留才與員工兼顧育兒需求正面效益！申請倒數2週，請雇主把握時間，於9月底前提出申請！",
-      "relevance_score": 6,
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "category": "性別與家庭政策",
-      "agency_keys": [],
-      "id": "2cc263d201f443e931c4a3a5f75e0312",
-      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99061/",
-      "source_type": "official",
-      "summary": "勞動部為鼓勵雇主營造友善育兒職場環境，持續推動企業托育補助，115年度第2期(115年5月1日起計)補助迄今已有800餘家企業提出申請，相當踴躍。勞動部提醒，本年度申請即將於9月30日截止，目前已進入最後2週倒數，有意願設置托兒設施、提供育兒補貼或其他托兒措施的企業，請把握最後申請時間，儘速備妥相關資料提出申請，共同支持員工育兒。 勞動部表示，今年企業托育補助新制自5月1日上路，大幅提高企業辦理托育的支持力道。雇主新興建托兒設施，最高可補助500萬元；已設置托兒設施者，每年最高補助100萬元，並新增營運費、教保及托育人員人事費，以及減免員工收托費用等補助",
-      "concept_keys": [
-        "family_policy"
-      ],
       "source_count": 1,
       "sources": [
         {
@@ -86,28 +86,65 @@
       "clustered": false
     },
     {
-      "region": "taiwan",
-      "published_at": "2026-09-24T19:50:25Z",
+      "source_type": "official",
+      "source_url": "https://www.ilo.org/resource/news/ilo-project-improves-social-protection-coverage-over-nine-million-people",
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "exam_tags": [
+        "社會保障"
+      ],
+      "published_at": "2026-09-25T00:00:00Z",
+      "agency_keys": [
+        "ilo"
+      ],
+      "region": "international",
+      "concept_keys": [
+        "social_protection"
+      ],
+      "relevance_score": 5,
+      "fact_keys": [],
+      "category": "社會救助與居住",
+      "id": "235aebbaa6c843dda17565dfb13ebef2",
+      "summary": "The Multi-donor project in support of the ILO Global Flagship Programme on Building Social Protection Floors for All concludes after five years of supporting countries to strengthen social protection systems and make progress towards universal...",
+      "source_name": "ILO Newsroom",
+      "title": "ILO project improves social protection coverage for over nine million people",
+      "source_count": 1,
+      "sources": [
+        {
+          "source_name": "ILO Newsroom",
+          "source_url": "https://www.ilo.org/resource/news/ilo-project-improves-social-protection-coverage-over-nine-million-people",
+          "source_type": "official",
+          "published_at": "2026-09-25T00:00:00Z",
+          "title": "ILO project improves social protection coverage for over nine million people"
+        }
+      ],
+      "clustered": false
+    },
+    {
+      "source_type": "official",
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99195/",
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
       "exam_tags": [
         "最低工資",
         "行政院",
         "保障"
       ],
+      "published_at": "2026-09-24T19:50:25Z",
+      "agency_keys": [],
+      "region": "taiwan",
+      "concept_keys": [],
+      "relevance_score": 5,
       "fact_keys": [],
+      "category": "勞動與社會保障",
+      "id": "1f324758779ada31a0fc3e3382971947",
+      "summary": "最低工資審議會於今（24）日召開會議，經勞、資、學、政四方委員討論，決定自116年1月1日起，每月最低工資由29,500元調整至30,900元，調升1,400元，調幅4.745％；每小時最低工資則比照每月最低工資之調幅，由196元調整至205元。調整案將由勞動部陳報行政院核定。若經行政院核定，最低工資將連11年調漲，持續提升基層勞工薪資，保障勞工基本生活。 本次會議，勞資雙方委員於上午進行意見交換，雙方就消費者物價指數年增率、經濟成長情勢、產業發展及勞工生活所需等面向充分討論，全數委員均認同消費者物價指數年增率CPI應全數反映，經濟成長率GDP應合理分享",
       "source_name": "勞動部新聞稿",
       "title": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工資調升至205元。",
-      "relevance_score": 5,
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "category": "勞動與社會保障",
-      "agency_keys": [],
-      "id": "1f324758779ada31a0fc3e3382971947",
-      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99195/",
-      "source_type": "official",
-      "summary": "最低工資審議會於今（24）日召開會議，經勞、資、學、政四方委員討論，決定自116年1月1日起，每月最低工資由29,500元調整至30,900元，調升1,400元，調幅4.745％；每小時最低工資則比照每月最低工資之調幅，由196元調整至205元。調整案將由勞動部陳報行政院核定。若經行政院核定，最低工資將連11年調漲，持續提升基層勞工薪資，保障勞工基本生活。 本次會議，勞資雙方委員於上午進行意見交換，雙方就消費者物價指數年增率、經濟成長情勢、產業發展及勞工生活所需等面向充分討論，全數委員均認同消費者物價指數年增率CPI應全數反映，經濟成長率GDP應合理分享",
-      "concept_keys": [],
       "source_count": 1,
       "sources": [
         {
@@ -121,30 +158,30 @@
       "clustered": false
     },
     {
-      "region": "international",
-      "published_at": "2026-09-24T14:41:09Z",
-      "exam_tags": [
-        "移民與難民"
-      ],
-      "fact_keys": [],
-      "source_name": "WHO Newsroom",
-      "title": "From competencies to action: strengthening refugee and migrant health",
-      "relevance_score": 5,
+      "source_type": "official",
+      "source_url": "https://www.who.int/news/item/24-09-2026-from-competencies-to-action--strengthening-refugee-and-migrant-health",
       "subjects": [
         "社會工作",
         "社會政策與社會立法"
       ],
-      "category": "移工與新住民",
+      "exam_tags": [
+        "移民與難民"
+      ],
+      "published_at": "2026-09-24T14:41:09Z",
       "agency_keys": [
         "who"
       ],
-      "id": "271655e73bb3d63cba25088ce285ad7a",
-      "source_url": "https://www.who.int/news/item/24-09-2026-from-competencies-to-action--strengthening-refugee-and-migrant-health",
-      "source_type": "official",
-      "summary": "From 21 to 24 September 2026, policy-makers, health managers and technical experts from seven countries and territories gathered in Rome for the second Global Orientation Course for Policy-makers on Refugee and Migrant Health. Jointly organized by WHO Health and Migration Program",
+      "region": "international",
       "concept_keys": [
         "refugees_migration"
       ],
+      "relevance_score": 5,
+      "fact_keys": [],
+      "category": "移工與新住民",
+      "id": "271655e73bb3d63cba25088ce285ad7a",
+      "summary": "From 21 to 24 September 2026, policy-makers, health managers and technical experts from seven countries and territories gathered in Rome for the second Global Orientation Course for Policy-makers on Refugee and Migrant Health. Jointly organized by WHO Health and Migration Program",
+      "source_name": "WHO Newsroom",
+      "title": "From competencies to action: strengthening refugee and migrant health",
       "source_count": 1,
       "sources": [
         {
@@ -158,8 +195,12 @@
       "clustered": false
     },
     {
-      "region": "taiwan",
-      "published_at": "2026-09-24T03:30:00Z",
+      "source_type": "official",
+      "source_url": "https://www.mohw.gov.tw/cp-16-88069-1.html",
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
       "exam_tags": [
         "高齡",
         "老人",
@@ -167,27 +208,23 @@
         "補助",
         "衛福部"
       ],
+      "published_at": "2026-09-24T03:30:00Z",
+      "agency_keys": [],
+      "region": "taiwan",
+      "concept_keys": [
+        "ageing_care"
+      ],
+      "relevance_score": 5,
       "fact_keys": [
         "num:10000",
         "num:6250000000",
         "num:700000"
       ],
+      "category": "長照與高齡",
+      "id": "6c3e075258813e8339a40cebd78e2c0c",
+      "summary": "因應超高齡社會來臨，為了建構完整的長者社區安全網，衛福部於115年至116年投入62.5億元推動「擴大獨居老人服務」，預計動員逾1萬2千名訪員，地毯式走訪全國約70萬名獨居長者，掌握其身心狀況，並分級連結適切服務；訪員將秉持「二會三不」原則，包含會佩戴識別證件、會出示公務證明公文，以及不會索取存摺、印章、帳號，不會洩漏個人資料，也不會詢問與訪查無關的資料，請受訪長輩放心。 衛福部石崇良部長表示，「擴大獨居老人服務」先透過跨部會共同合作、公私部門總動員，進行獨居長者訪查。由內政部戶政司提供單一戶籍資料造冊，比對串聯社福身分資料，動員公所、村里長與里幹事等基",
       "source_name": "衛生福利部焦點新聞",
       "title": "衛福部擴大獨老服務 「二會三不」啟動70萬名長者關懷訪查",
-      "relevance_score": 5,
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
-      "category": "長照與高齡",
-      "agency_keys": [],
-      "id": "6c3e075258813e8339a40cebd78e2c0c",
-      "source_url": "https://www.mohw.gov.tw/cp-16-88069-1.html",
-      "source_type": "official",
-      "summary": "因應超高齡社會來臨，為了建構完整的長者社區安全網，衛福部於115年至116年投入62.5億元推動「擴大獨居老人服務」，預計動員逾1萬2千名訪員，地毯式走訪全國約70萬名獨居長者，掌握其身心狀況，並分級連結適切服務；訪員將秉持「二會三不」原則，包含會佩戴識別證件、會出示公務證明公文，以及不會索取存摺、印章、帳號，不會洩漏個人資料，也不會詢問與訪查無關的資料，請受訪長輩放心。 衛福部石崇良部長表示，「擴大獨居老人服務」先透過跨部會共同合作、公私部門總動員，進行獨居長者訪查。由內政部戶政司提供單一戶籍資料造冊，比對串聯社福身分資料，動員公所、村里長與里幹事等基",
-      "concept_keys": [
-        "ageing_care"
-      ],
       "source_count": 1,
       "sources": [
         {
@@ -201,8 +238,12 @@
       "clustered": false
     },
     {
-      "region": "taiwan",
-      "published_at": "2026-09-22T13:50:55Z",
+      "source_type": "official",
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99146/",
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
       "exam_tags": [
         "勞保",
         "職業災害",
@@ -210,25 +251,21 @@
         "保護",
         "條例"
       ],
-      "fact_keys": [
-        "pct:20"
-      ],
-      "source_name": "勞動部新聞稿",
-      "title": "延後退休續勞保：給付保障不中斷，年金累積年資無上限",
-      "relevance_score": 5,
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "category": "勞動與社會保障",
+      "published_at": "2026-09-22T13:50:55Z",
       "agency_keys": [],
-      "id": "6e74f0ff091a45ad72d6686c1b463121",
-      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99146/",
-      "source_type": "official",
-      "summary": "為保障高齡勞工的保險權益，勞動部表示，年滿65歲以上仍持續工作的勞工，可依勞工保險條例規定繼續參加勞保，在職涯延續的同時持續享有勞工保險的保障。 勞動部表示，勞工繼續加勞保期間，享有勞保提供的各項保險給付權益，例如傷病給付、失能給付等，讓工作期間更安心；持續加保期間可繼續累積年資，年金累積年資無上限，工作越久，未來每月可領取的老年年金給付金額越高；此外，若選擇延後請領老年年金給付，還可享有展延加給，最高可加給20%，提升退休後的經濟保障。 勞動部進一步提醒，勞工申請老年給付除須符合一定的年齡與年資規定外，並應辦理離職退保；如果是已經領取勞保老年給付再投入",
+      "region": "taiwan",
       "concept_keys": [
         "ageing_care"
       ],
+      "relevance_score": 5,
+      "fact_keys": [
+        "pct:20"
+      ],
+      "category": "勞動與社會保障",
+      "id": "6e74f0ff091a45ad72d6686c1b463121",
+      "summary": "為保障高齡勞工的保險權益，勞動部表示，年滿65歲以上仍持續工作的勞工，可依勞工保險條例規定繼續參加勞保，在職涯延續的同時持續享有勞工保險的保障。 勞動部表示，勞工繼續加勞保期間，享有勞保提供的各項保險給付權益，例如傷病給付、失能給付等，讓工作期間更安心；持續加保期間可繼續累積年資，年金累積年資無上限，工作越久，未來每月可領取的老年年金給付金額越高；此外，若選擇延後請領老年年金給付，還可享有展延加給，最高可加給20%，提升退休後的經濟保障。 勞動部進一步提醒，勞工申請老年給付除須符合一定的年齡與年資規定外，並應辦理離職退保；如果是已經領取勞保老年給付再投入",
+      "source_name": "勞動部新聞稿",
+      "title": "延後退休續勞保：給付保障不中斷，年金累積年資無上限",
       "source_count": 1,
       "sources": [
         {
@@ -242,31 +279,31 @@
       "clustered": false
     },
     {
-      "region": "taiwan",
-      "published_at": "2026-09-16T06:00:00Z",
+      "source_type": "official",
+      "source_url": "https://www.mohw.gov.tw/cp-18-87986-1.html",
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
       "exam_tags": [
         "身心障礙",
         "權益",
         "福利",
         "法規"
       ],
-      "fact_keys": [],
-      "source_name": "衛生福利部公告訊息",
-      "title": "敬請支持「115年身心障礙者生活狀況及需求調查」",
-      "relevance_score": 5,
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "category": "身障與人權",
+      "published_at": "2026-09-16T06:00:00Z",
       "agency_keys": [],
-      "id": "b636096cdde2f8c4b70361a92842c862",
-      "source_url": "https://www.mohw.gov.tw/cp-18-87986-1.html",
-      "source_type": "official",
-      "summary": "敬請支持 115年身心障礙者生活狀況及需求調查 衛生福利部訂於115年9月至116年1月辦理「115年身心障礙者生活狀況及需求調查」，懇請受訪民眾支持與配合 本調查係依據身心障礙者權益保障法規定，每5年辦理一次之指定統計調查。調查主要目的為蒐集我國身心障礙者之基本資料、居住狀況、外出及交通狀況、起居生活狀況、經濟狀況、工作現況、健康及醫療照顧、休閒、社會參與及自我決定，以及家庭主要照護者等資料。 本調查係由衛生福利部委託典通股份有限公司辦理，調查方式採實地訪查，調查期間為115年9月至116年1月，懇請受訪民眾惠予支持與配合。 受訪者如有任何疑問，可隨時",
+      "region": "taiwan",
       "concept_keys": [
         "disability_rights"
       ],
+      "relevance_score": 5,
+      "fact_keys": [],
+      "category": "身障與人權",
+      "id": "b636096cdde2f8c4b70361a92842c862",
+      "summary": "敬請支持 115年身心障礙者生活狀況及需求調查 衛生福利部訂於115年9月至116年1月辦理「115年身心障礙者生活狀況及需求調查」，懇請受訪民眾支持與配合 本調查係依據身心障礙者權益保障法規定，每5年辦理一次之指定統計調查。調查主要目的為蒐集我國身心障礙者之基本資料、居住狀況、外出及交通狀況、起居生活狀況、經濟狀況、工作現況、健康及醫療照顧、休閒、社會參與及自我決定，以及家庭主要照護者等資料。 本調查係由衛生福利部委託典通股份有限公司辦理，調查方式採實地訪查，調查期間為115年9月至116年1月，懇請受訪民眾惠予支持與配合。 受訪者如有任何疑問，可隨時",
+      "source_name": "衛生福利部公告訊息",
+      "title": "敬請支持「115年身心障礙者生活狀況及需求調查」",
       "source_count": 1,
       "sources": [
         {
@@ -280,14 +317,25 @@
       "clustered": false
     },
     {
-      "region": "taiwan",
-      "published_at": "2026-09-13T09:08:00Z",
+      "source_type": "official",
+      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//1793b929-1e90-4114-97fc-e23d8cfc7e50",
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
       "exam_tags": [
         "長照",
         "政策",
         "補助",
         "福利"
       ],
+      "published_at": "2026-09-13T09:08:00Z",
+      "agency_keys": [],
+      "region": "taiwan",
+      "concept_keys": [
+        "ageing_care"
+      ],
+      "relevance_score": 5,
       "fact_keys": [
         "num:15300000000",
         "num:180000",
@@ -295,22 +343,11 @@
         "pct:20.62",
         "pct:21.29"
       ],
+      "category": "長照與高齡",
+      "id": "4afd0e8e306fd77bf0f9a30e21e13262",
+      "summary": "行政院長卓榮泰今（13）日前往宜蘭縣參訪「廣慈長照社團法人附設宜蘭縣私立大安綜合長照機構」時表示，該機構從109年籌設興建、113年完工啟用，短短5年間，雖歷經COVID-19疫情影響，但卻展現效率完工，且建物周圍種植臺灣欒樹，與大自然融為一體，頗有度假飯店的風格，相當別緻；同時，一進門就看到「奉茶」兩個大字，令人倍感親切，機構內部設施和整體服務水準更樹立成功典範，為長者們成功打造一處彰顯「不老精神」的照顧環境。卓院長提及這兩年多來他時常前往各縣市參訪各類型照服機構，例如113年12月21日他曾前往宜蘭縣參加冬至送暖關懷長者活動，看到許多長者在當地一間美",
       "source_name": "行政院本院新聞",
       "title": "參訪宜蘭大安綜合長照機構 卓揆：明起開放申請住宿式服務機構加碼補助 每年最高補助18萬元",
-      "relevance_score": 5,
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
-      "category": "長照與高齡",
-      "agency_keys": [],
-      "id": "4afd0e8e306fd77bf0f9a30e21e13262",
-      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//1793b929-1e90-4114-97fc-e23d8cfc7e50",
-      "source_type": "official",
-      "summary": "行政院長卓榮泰今（13）日前往宜蘭縣參訪「廣慈長照社團法人附設宜蘭縣私立大安綜合長照機構」時表示，該機構從109年籌設興建、113年完工啟用，短短5年間，雖歷經COVID-19疫情影響，但卻展現效率完工，且建物周圍種植臺灣欒樹，與大自然融為一體，頗有度假飯店的風格，相當別緻；同時，一進門就看到「奉茶」兩個大字，令人倍感親切，機構內部設施和整體服務水準更樹立成功典範，為長者們成功打造一處彰顯「不老精神」的照顧環境。卓院長提及這兩年多來他時常前往各縣市參訪各類型照服機構，例如113年12月21日他曾前往宜蘭縣參加冬至送暖關懷長者活動，看到許多長者在當地一間美",
-      "concept_keys": [
-        "ageing_care"
-      ],
       "source_count": 1,
       "sources": [
         {
@@ -324,14 +361,26 @@
       "clustered": false
     },
     {
-      "region": "taiwan",
-      "published_at": "2026-09-10T04:58:08Z",
+      "source_type": "official",
+      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//ccd56110-78a5-408b-8014-45853b78578b",
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
       "exam_tags": [
         "身心障礙",
         "政策",
         "補助",
         "福利"
       ],
+      "published_at": "2026-09-10T04:58:08Z",
+      "agency_keys": [],
+      "region": "taiwan",
+      "concept_keys": [
+        "ageing_care",
+        "disability_rights"
+      ],
+      "relevance_score": 5,
       "fact_keys": [
         "num:10000",
         "num:120000",
@@ -340,23 +389,11 @@
         "num:4770000",
         "pct:20.5"
       ],
+      "category": "身障與人權",
+      "id": "85f03325aff5e8c1aabd1020fc9a80a4",
+      "summary": "行政院長卓榮泰今（10）日於行政院會聽取衛生福利部「住宿式服務機構使用者補助方案-115年調增規劃」報告後表示，為持續強化長期照顧服務，以及對中重度失能者及其家庭的支持，今（2026）年起調增住宿式服務機構使用者補助，中重度失能者入住長照住宿式機構，每人每月最高補助提高至1萬5,000元，並同步加碼補助入住身心障礙機構的中度以上身心障礙者每月5,000元住宿費用，補助額度溯自今年1月1日起適用，同時簡化申請、審查及核發流程，讓民眾享有多元、近便及質優的服務。卓院長表示，我國已邁入超高齡社會，老年人口數至今年7月底達477萬餘人，占總人口20.5%；為因應",
       "source_name": "行政院本院新聞",
       "title": "住宿式服務機構補助加碼 卓揆：中重度失能者每月最高補助1萬5,000元、中度以上身心障礙者每月補助5,000元住宿費",
-      "relevance_score": 5,
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "category": "身障與人權",
-      "agency_keys": [],
-      "id": "85f03325aff5e8c1aabd1020fc9a80a4",
-      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//ccd56110-78a5-408b-8014-45853b78578b",
-      "source_type": "official",
-      "summary": "行政院長卓榮泰今（10）日於行政院會聽取衛生福利部「住宿式服務機構使用者補助方案-115年調增規劃」報告後表示，為持續強化長期照顧服務，以及對中重度失能者及其家庭的支持，今（2026）年起調增住宿式服務機構使用者補助，中重度失能者入住長照住宿式機構，每人每月最高補助提高至1萬5,000元，並同步加碼補助入住身心障礙機構的中度以上身心障礙者每月5,000元住宿費用，補助額度溯自今年1月1日起適用，同時簡化申請、審查及核發流程，讓民眾享有多元、近便及質優的服務。卓院長表示，我國已邁入超高齡社會，老年人口數至今年7月底達477萬餘人，占總人口20.5%；為因應",
-      "concept_keys": [
-        "ageing_care",
-        "disability_rights"
-      ],
       "source_count": 1,
       "sources": [
         {
@@ -370,30 +407,30 @@
       "clustered": false
     },
     {
-      "region": "taiwan",
-      "published_at": "2026-09-09T02:54:00Z",
+      "source_type": "official",
+      "source_url": "https://www.edu.tw/News_Content.aspx?n=9E7AC85F1954DDA8&s=B5146C9A2897E8E9",
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
       "exam_tags": [
         "托育",
         "政策",
         "行政院"
       ],
-      "fact_keys": [],
-      "source_name": "教育部即時新聞",
-      "title": "響應0-6歲國家一起養！中央部會落實員工子女托育",
-      "relevance_score": 5,
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "category": "性別與家庭政策",
+      "published_at": "2026-09-09T02:54:00Z",
       "agency_keys": [],
-      "id": "beb2115eab32390a360d5fca66b2a43b",
-      "source_url": "https://www.edu.tw/News_Content.aspx?n=9E7AC85F1954DDA8&s=B5146C9A2897E8E9",
-      "source_type": "official",
-      "summary": "為落實行政院「0-6歲國家一起養」政策，教育部積極推動職場互助教保服務中心（以下稱作職場中心），善用職場周遭與辦公空間，縮短家長接送距離，提供平價、優質的托育服務，打造讓員工安心工作的友善職場環境。截至115年8月，教育部積極協助15個部會，累計設置166處員工子女非營利幼兒園或職場中心，提供約9,700個教保服務名額。家長每月最高繳費2,000元，第3胎、低收及中低收入戶免繳費，其餘營運成本與家長繳費之差額，由教育部負擔。經濟部及農業部亦響應國家政策，於所屬機關設置多處職場中心，提供員工安心托育的支持。 經濟部新竹產業園區服務中心職場中心秉持「生活即教",
+      "region": "taiwan",
       "concept_keys": [
         "family_policy"
       ],
+      "relevance_score": 5,
+      "fact_keys": [],
+      "category": "性別與家庭政策",
+      "id": "beb2115eab32390a360d5fca66b2a43b",
+      "summary": "為落實行政院「0-6歲國家一起養」政策，教育部積極推動職場互助教保服務中心（以下稱作職場中心），善用職場周遭與辦公空間，縮短家長接送距離，提供平價、優質的托育服務，打造讓員工安心工作的友善職場環境。截至115年8月，教育部積極協助15個部會，累計設置166處員工子女非營利幼兒園或職場中心，提供約9,700個教保服務名額。家長每月最高繳費2,000元，第3胎、低收及中低收入戶免繳費，其餘營運成本與家長繳費之差額，由教育部負擔。經濟部及農業部亦響應國家政策，於所屬機關設置多處職場中心，提供員工安心托育的支持。 經濟部新竹產業園區服務中心職場中心秉持「生活即教",
+      "source_name": "教育部即時新聞",
+      "title": "響應0-6歲國家一起養！中央部會落實員工子女托育",
       "source_count": 1,
       "sources": [
         {
