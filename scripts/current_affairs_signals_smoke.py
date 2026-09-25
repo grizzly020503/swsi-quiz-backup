@@ -206,11 +206,31 @@ def main() -> int:
             if "question" in q or "opt_a" in q or "opt_b" in q or "opt_c" in q or "opt_d" in q:
                 raise SystemExit("public signal snapshot must not expose full question content")
 
-    live_counts = [
-        (str(row.get("title") or "")[:18], int((row.get("historical_exam_stats") or {}).get("matched_question_count") or 0))
-        for row in items
-    ]
-    print("Current-affairs same-topic history: " + ", ".join(f"{title}={count}" for title, count in live_counts))
+    live_counts = []
+    for row in items:
+        stats = row.get("historical_exam_stats") or {}
+        breakdown = stats.get("match_breakdown") or {}
+        reasons = [
+            str(q.get("match_reason") or "")
+            for q in (row.get("related_exam_questions") or [])[:2]
+        ]
+        live_counts.append(
+            (
+                str(row.get("title") or "")[:18],
+                int(stats.get("matched_question_count") or 0),
+                float(stats.get("weighted_match_count") or 0),
+                int(stats.get("law_match_count") or 0),
+                breakdown,
+                reasons,
+            )
+        )
+    print(
+        "Current-affairs same-topic history: "
+        + " | ".join(
+            f"{title}=raw{count}/weighted{weighted}/law{law_count}/{breakdown}/top={reasons}"
+            for title, count, weighted, law_count, breakdown, reasons in live_counts
+        )
+    )
     print(f"Current-affairs signals smoke PASS: {len(items)} items")
     return 0
 
