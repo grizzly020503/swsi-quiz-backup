@@ -1,8 +1,79 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 時事來源 16-source 正式上線（READ FIRST）
+
+> 本節優先於下方所有 6／8／11／12／13／14／15 feeds 的歷史敘述。接手仍先重新讀 main、open PR/issues、Actions 與 production sentinel，不把 SHA 當永久最新。
+
+### 已完成
+
+- #118 已合併：加入 **UNICEF Press Releases** 作為第 16 個來源。
+- UNICEF 不是 RSS；目前使用專用 `unicef_press_html` adapter：
+  - 抓官方 press-release 頁面
+  - 只接受 `/press-releases/` 連結
+  - 相對 URL 正規化
+  - 英文日期解析
+  - bounded retry
+  - adapter／retry regression
+- #118 exact-head 真實監測：
+  - UNICEF entries=12
+  - sources=16/16
+  - fetched=713
+  - accepted=10
+  - feed errors=0
+  - signals=10 / questions=4,800
+  - events=10 / trends=10
+  - laws=52/52
+- 新增 UNICEF 後 accepted 仍維持 10，沒有因來源增加而灌水；雙語 taxonomy 與跨語言 event dedupe regression 均 PASS。
+- #119 已合併：發布 16-source snapshot，並以 `wrangler.jsonc` rebuild marker 強制 Cloudflare static assets 重建。
+- #119 Cloudflare Workers production build：**success**。
+- 部署完成後重跑 Public Uptime Sentinel attempt 2：**success**，實際 production 已回 `sources-16/errors-0`。
+- #122 已合併；merge commit：`4f601ab080cb7356074199fcb54598984f2b119c`，production uptime 永久要求至少 **16 sources** 且 **0 feed errors**。
+- #122 main push Public Uptime Sentinel run `36167992640`：**success**。
+- production log：
+  `primary-home, pwa-sw-v7, questions-4800-24, sources-16/errors-0, news-10, signals-10/4800, events-10, trends-10, trend-ui-v2, laws-52/52, question-health, ai-preflight, feedback-preflight, netlify-fallback`。
+
+### 目前 16 sources
+
+1. 衛生福利部焦點新聞
+2. 衛生福利部公告訊息
+3. 中央社社會
+4. 中央社生活
+5. 中央社政治
+6. 中央社國際
+7. 內政部新聞發布
+8. 行政院本院新聞
+9. 教育部即時新聞
+10. 教育部重要政策
+11. 移民署新住民政策法規
+12. 勞動部新聞稿
+13. 法務部新聞發布
+14. UN News English
+15. WHO Newsroom
+16. UNICEF Press Releases
+
+### 現在不要重做
+
+- 不要再把現況寫成 15 sources。
+- 不要重做 #118／#119／#122。
+- 不要把 UNICEF Press Releases 當 RSS；目前是專用 HTML adapter。
+- 不要因國際來源增加而放寬 relevance 或讓 source count 單獨提高 trend score。
+- Cloudflare build success 仍不是唯一 production 證據；正式基線是 Public Uptime Sentinel 的 `sources-16/errors-0`。
+- MOEX 不擁有 public current-affairs snapshots；ownership 邊界以 #116 為準。
+- 官方 4,800 題、答案、grading 仍維持唯讀。
+
+### Issue #84 下一步
+
+1. **ILO**：下一個國際官方來源。先找官方、穩定、可程式化取得的 RSS／API／頁面 endpoint，逐一做 entries／errors／false-positive pilot；通過後才 production。
+2. **社家署**：#103 probe 仍未找到可直接上線的穩定官方 RSS/XML endpoint；不要猜 URL。
+3. **Reuters／AP／BBC**：優先級低於官方來源；接入前確認合法／穩定 feed、版權 metadata 範圍與跨來源去重。
+4. **trend quality refinement**：累積跨日 evidence 後再校正權重；新 false positive 先加 regression 再修。
+
+---
+
+
 ## 2026-09-26 MOEX／Public Monitoring ownership 衝突已修復（READ FIRST）
 
-> 本節是營運穩定性補充；時事來源數仍以緊接下方最新的 **15-feed** 章節為準。接手先重新讀 main 與 Actions，不把 SHA 當永久最新。
+> 本節是營運穩定性補充；時事來源數以文件最上方最新的 **16-feed** 章節為準。接手先重新讀 main 與 Actions，不把 SHA 當永久最新。
 
 ### 問題根因
 
