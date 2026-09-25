@@ -1,5 +1,59 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 歷屆題 evidence／trend v2.2 已正式上線（READ FIRST）
+
+> 本節優先於下方「trend quality refinement 尚未完成」的舊敘述。接手仍先重新讀 main、open PR/issues、Actions 與 production sentinel。
+
+### 已完成
+
+- #131 已合併：歷屆題關聯從 public top-N 延伸成完整 4,800 題歷史統計，加入頻率、年份、最近出題年度與考科分布。
+- #134 已合併；merge commit：`cf6ead3ad071e5aa491c429a4b42666c378b73b1`：
+  - same-topic 歷屆題必須有 **事件本身支持的 evidence**。
+  - 同一法規題目改成獨立 `law_match_count / law_match_years`，不再灌入 same-topic count。
+  - unsupported exam tag 不得變成事件 evidence。
+  - literal tag + synonym/canonical concept 不得重複加分。
+  - `weighted_match_count=0` 必須保留，不得 fallback 到 raw count。
+  - full-corpus count 不受 public top-N 題目列表限制。
+  - matching method：`event-evidence-v2.2`。
+- #135 已合併；merge commit：`110c9ce48c21d491547ae12369d7976b23fbb6a1`，強制 Cloudflare 從最新 `cdn/auto/` 重建 v2.2 snapshots。
+- #136 已合併；merge commit：`1e5f09de00dd31d041893c0131f537fae47ecb37`，production uptime 永久鎖：
+  - signal matching = `event-evidence-v2.2`
+  - event aggregation = `max-quality-member-plus-year-union-v2.2`
+  - trend method = `deterministic-v2.2`
+  - weighted historical count 必須介於 0 與 raw same-topic count 之間
+  - strong / medium / concept breakdown contract。
+
+### 真實資料驗證
+
+- 17/17 sources，fetched=733，accepted=11，feed errors=0。
+- questions_loaded=4,800。
+- events=11、trends=11、legal-watch=52/52。
+- live same-topic／same-law 例：
+  - 兒少生活狀況調查：raw=4 / weighted=4.0 / same-law=67。
+  - 身障生活狀況調查：raw=4 / weighted=4.0 / same-law=62。
+  - 最低工資：raw=2 / weighted=1.0。
+  - ILO social protection：raw=90 / weighted=1.0，廣義概念量不再直接灌高趨勢。
+- Production Uptime Sentinel run `36201077702`：**success**。
+- production log：
+  `primary-home, pwa-sw-v7, questions-4800-24, sources-17/errors-0, news-11, signals-11/4800, events-11, trends-11/history-v2.2, trend-ui-v2, laws-52/52, question-health, ai-preflight, feedback-preflight, netlify-fallback`。
+
+### 現在不要重做
+
+- 不要再把「同一法規」當「同一主題」歷屆題。
+- 不要重做 #131／#134／#135／#136。
+- 不要用大分類或 unsupported tag 擴大歷屆題匹配。
+- 不要把 raw historical count 直接當 trend 權重；production 已鎖 weighted evidence。
+- 官方題幹／答案／grading 仍維持唯讀。
+
+### Issue #84 剩餘工作
+
+1. **社家署**：仍沒有通過驗證的穩定官方 RSS/XML/API endpoint；不得猜 URL。
+2. **Reuters／AP／BBC**：評估官方／合法、穩定、可程式化的 feed/API/metadata 範圍；只有通過版權與穩定性條件才做 pilot。
+3. 後續 trend 調整只依 production false positive / false negative，以 regression-first 方式進行；目前 v2.2 baseline 不再列為未完成。
+
+---
+
+
 ## 2026-09-26 時事來源 17-source 正式上線（READ FIRST）
 
 > 本節優先於下方所有 6／8／11／12／13／14／15／16 sources 的歷史敘述。接手仍先重新讀 main、open PR/issues、Actions 與 production sentinel，不把 SHA 當永久最新。
