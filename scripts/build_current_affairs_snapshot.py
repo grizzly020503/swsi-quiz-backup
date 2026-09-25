@@ -16,8 +16,9 @@ EXPLICIT_TOPICS = [
 ]
 
 ALLOWED = {
-    "id", "title", "summary", "source_name", "source_url", "source_type", "published_at", "region",
+    "id", "title", "summary", "source_name", "source_url", "source_type", "language", "published_at", "region",
     "category", "relevance_score", "exam_tags", "subjects",
+    "event_facets", "org_keys", "numeric_anchors",
 }
 
 
@@ -26,6 +27,10 @@ def clean_row(row):
     out["summary"] = str(out.get("summary") or "")[:280]
     out["exam_tags"] = list(dict.fromkeys(out.get("exam_tags") or []))[:10]
     out["subjects"] = list(dict.fromkeys(out.get("subjects") or []))
+    out["event_facets"] = list(dict.fromkeys(out.get("event_facets") or []))
+    out["org_keys"] = list(dict.fromkeys(out.get("org_keys") or []))
+    out["numeric_anchors"] = list(dict.fromkeys(str(x) for x in (out.get("numeric_anchors") or [])))
+    out["language"] = str(out.get("language") or "zh")
     return out
 
 
@@ -53,6 +58,10 @@ def informative_tags(row):
 def should_merge(row, cluster):
     first = cluster[0]
     if row.get("category") != first.get("category"):
+        return False
+    # V1 stays language-local. Cross-language dedupe belongs to V2 where
+    # organization/numeric/facet evidence can be checked fail-closed.
+    if str(row.get("language") or "zh") != str(first.get("language") or "zh"):
         return False
 
     a_exp = explicit_topic(row)
@@ -89,6 +98,10 @@ def merge_cluster(cluster):
     sources = []
     all_tags = []
     all_subjects = []
+    all_facets = []
+    all_orgs = []
+    all_numbers = []
+    all_languages = []
     for row in sorted(members, key=lambda x: x.get("published_at") or "", reverse=True):
         url = row.get("source_url") or ""
         if url and url not in urls:
@@ -102,6 +115,10 @@ def merge_cluster(cluster):
             })
         all_tags.extend(row.get("exam_tags") or [])
         all_subjects.extend(row.get("subjects") or [])
+        all_facets.extend(row.get("event_facets") or [])
+        all_orgs.extend(row.get("org_keys") or [])
+        all_numbers.extend(row.get("numeric_anchors") or [])
+        all_languages.append(str(row.get("language") or "zh"))
 
     count = len(urls) or len(members)
     base_score = max(int(x.get("relevance_score") or 0) for x in members)
@@ -125,6 +142,10 @@ def merge_cluster(cluster):
         "relevance_score": score,
         "exam_tags": list(dict.fromkeys(all_tags))[:10],
         "subjects": list(dict.fromkeys(all_subjects)),
+        "language": all_languages[0] if len(set(all_languages)) == 1 else "multi",
+        "event_facets": list(dict.fromkeys(all_facets)),
+        "org_keys": list(dict.fromkeys(all_orgs)),
+        "numeric_anchors": list(dict.fromkeys(str(x) for x in all_numbers)),
         "source_count": count,
         "sources": sources,
         "clustered": count > 1,
