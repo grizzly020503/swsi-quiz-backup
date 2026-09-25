@@ -122,11 +122,22 @@ def main() -> int:
         assert int(row.get("source_count") or 0) >= 1
         assert int(row.get("official_source_count") or 0) >= 0
         assert int(row.get("observation_count") or 0) >= 1
+        stats = row.get("historical_exam_stats")
+        assert isinstance(stats, dict) and stats, event_id
+        assert int(stats.get("matched_question_count") or 0) >= len(row.get("related_exam_questions") or [])
+        years = stats.get("matched_years") or []
+        assert isinstance(years, list), stats
+        assert int(stats.get("matched_year_count") or 0) == len(years), stats
+        latest_year = stats.get("latest_exam_year")
+        corpus_year = stats.get("corpus_latest_year")
+        if latest_year is not None and corpus_year is not None:
+            assert int(latest_year) <= int(corpus_year), stats
 
     assert trends.get("schema_version") == 1
     trend_rows = trends.get("trends") or []
     assert trend_rows, "current-affairs trend snapshot is empty"
     assert int(trends.get("event_count") or 0) == len(trend_rows)
+    assert trends.get("method") == "deterministic-v2.1"
     assert "不代表命題保證" in str(trends.get("note") or "")
     allowed_states = {"rising", "sustained", "cooling", "one-off"}
     for row in trend_rows:
@@ -134,8 +145,25 @@ def main() -> int:
         assert row.get("trend_state") in allowed_states
         score = float(row.get("trend_score"))
         assert 0.0 <= score <= 10.0
-        assert isinstance(row.get("factors"), dict) and row.get("factors")
+        factors = row.get("factors")
+        assert isinstance(factors, dict) and factors
+        for key in (
+            "historical_frequency", "historical_year_breadth",
+            "recent_exam_support", "historical_subject_breadth",
+        ):
+            assert key in factors, (key, factors)
         assert isinstance(row.get("why"), list) and row.get("why")
+        hist_count = int(row.get("historical_question_count") or 0)
+        assert hist_count >= len(row.get("related_exam_questions") or [])
+        assert isinstance(row.get("historical_exam_years"), list)
+        assert isinstance(row.get("historical_subject_counts"), dict)
+        assert int(row.get("historical_subject_count") or 0) == len(row.get("historical_subject_counts") or {})
+        latest_exam = row.get("latest_related_exam_year")
+        corpus_exam = row.get("corpus_latest_exam_year")
+        gap = row.get("years_since_last_related_exam")
+        if latest_exam is not None and corpus_exam is not None and gap is not None:
+            assert int(corpus_exam) - int(latest_exam) == int(gap)
+            assert int(gap) >= 0
 
     assert laws.get("schema_version") == 1
     assert int(laws.get("watch_count") or 0) >= 20
