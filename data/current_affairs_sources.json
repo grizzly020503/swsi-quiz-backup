@@ -78,6 +78,12 @@
       "url": "https://www.moj.gov.tw/2204/2795/2796/rss",
       "region": "taiwan",
       "source_type": "official"
+    },
+    {
+      "name": "UN News English",
+      "url": "https://news.un.org/feed/subscribe/en/news/all/rss.xml",
+      "region": "international",
+      "source_type": "official"
     }
   ]
 }
