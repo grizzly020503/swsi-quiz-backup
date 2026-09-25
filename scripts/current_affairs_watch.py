@@ -69,7 +69,7 @@ CATEGORIES = [
 
 POLICY_TERMS = ["修法","修正","政策","制度","改革","通報","補助","津貼","權益","福利","保護","安置","服務量能","人力不足","監察","行政院","衛福部","條例","施行細則","法規","草案","預告","指引","要點","給付","保險","保障"]
 INTERNATIONAL_CORE = ["兒童權利","社會福利","社會政策","移民","難民","人權","心理健康","高齡","家暴","性暴力","災害","貧窮","身心障礙"]
-LOW_VALUE_TERMS = ["好禮","選購","愛心捐贈","公益捐贈","徵求","招標","採購","徵件","動漫菸品","疫苗","流感","登革熱","牙醫醫療站","競賽","招生","徵才","表揚","書展","文化幣","科普","論壇","新書發表","急診","熱傷害","頒獎","典禮","成果發表","模擬投票","築夢","博覽會","開講","接見","訪問團","投資環境","評選"]
+LOW_VALUE_TERMS = ["好禮","選購","愛心捐贈","公益捐贈","徵求","招標","採購","徵件","動漫菸品","疫苗","流感","登革熱","牙醫醫療站","競賽","招生","徵才","表揚","書展","文化幣","科普","論壇","新書發表","急診","熱傷害","頒獎","典禮","成果發表","模擬投票","築夢","博覽會","開講","接見","訪問團","投資環境","評選","涉詐","詐領","起訴","演練","防衛韌性","課桌椅"]
 CHILD_WEAK = {"兒少","兒童","少年","保母"}
 CHILD_STRONG = ["兒少保護","兒虐","虐童","兒童權利","性剝削","托嬰","安置","收出養","寄養","責任通報","兒童及少年福利與權益保障法","兒童權利公約","兒少生活狀況","生活狀況調查"]
 DISASTER_STRONG = ["災害救助","災民","安置","撤離","避難","社區韌性"]
@@ -126,17 +126,18 @@ def score_item(title, summary, region, source_name, source_type="news"):
         if category == "災害與社區工作" and not any(w in text for w in DISASTER_STRONG):
             continue
         score = base + min(2, max(0, len(title_hits)-1))
-        # 標題直接命中比 RSS 摘要帶到的旁支詞更可信；summary-only 雖可作
-        # 補充召回，但不得反過來壓過標題明確考點。
-        score += 1 if title_hits else -1
         if policy_hits:
             score += 1
-        if best is None or score > best[0]:
-            best = (score, category)
+        # 標題直接命中只作同分時的分類優先依據，不直接灌 relevance 分數。
+        # 這可避免「特殊教育＋公益活動」「長照＋刑案」只靠單一主題詞過門檻。
+        title_evidence = len(title_hits)
+        candidate = (score, title_evidence, category)
+        if best is None or candidate[:2] > best[:2]:
+            best = candidate
             best_hits = all_hits
     if best is None:
         return None
-    score, category = best
+    score, _title_evidence, category = best
     if source_type == "official":
         score += 1
     if any(w in title for w in LOW_VALUE_TERMS):
