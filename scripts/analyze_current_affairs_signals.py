@@ -25,6 +25,8 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
+from current_affairs_taxonomy import canonical_concepts, concept_tags
+
 ROOT = Path(__file__).resolve().parents[1]
 
 KNOWN_LAWS = [
@@ -119,8 +121,65 @@ CATEGORY_ESSAY_HINT = {
 }
 
 WEAK_TAGS = {
-    "政策", "制度", "福利", "保護", "權益", "服務", "補助", "津貼",
-    "兒童", "少年", "老人", "高齡", "社工", "社會工作", "衛福部",
+    "政策", "制度", "福利", "保護", "權益", "保障", "服務", "補助", "津貼",
+    "法規", "條例", "兒童", "少年", "老人", "高齡", "社工", "社會工作",
+    "身心障礙", "身障", "長照", "移工", "新住民", "移民", "難民",
+    "衛福部", "衛生福利部", "行政院", "內政部", "勞動部", "教育部",
+    "法務部", "考試院", "國民健康署",
+}
+
+HISTORICAL_CONCEPTS = {
+    "minimum_wage": {
+        "label": "最低／基本工資",
+        "aliases": ["最低工資", "基本工資", "minimum wage"],
+        "requires_law": False,
+    },
+    "welfare_survey": {
+        "label": "福利需求調查",
+        "aliases": ["生活狀況調查", "需求調查", "身心發展調查", "調查統計機制"],
+        "requires_law": True,
+    },
+    "childcare": {
+        "label": "托育",
+        "aliases": ["托育", "托嬰", "居家式托育", "居家托育", "childcare", "child care"],
+        "requires_law": False,
+    },
+    "long_term_care": {
+        "label": "長期照顧",
+        "aliases": ["長期照顧", "長照", "long-term care", "long term care"],
+        "requires_law": False,
+    },
+    "residential_support": {
+        "label": "住宿式照顧",
+        "aliases": ["住宿式服務機構", "住宿機構", "住宿費", "住宿補助"],
+        "requires_law": False,
+    },
+    "labor_insurance": {
+        "label": "勞工保險",
+        "aliases": ["勞保", "勞工保險", "labor insurance"],
+        "requires_law": False,
+    },
+    "retirement_pension": {
+        "label": "退休年金",
+        "aliases": ["延後退休", "老年年金", "勞保年金", "退休", "pension"],
+        "requires_law": False,
+    },
+    "disability_employment": {
+        "label": "身障就業",
+        "aliases": ["身障就業", "庇護工場", "定額進用", "職業重建"],
+        "requires_law": False,
+    },
+    "elderly_living_alone": {
+        "label": "獨居高齡者",
+        "aliases": ["獨居老人", "獨居長者", "獨老"],
+        "requires_law": False,
+    },
+}
+
+CANONICAL_STANDALONE_HISTORY = {
+    "social_protection", "refugees_migration", "restorative_justice",
+    "juvenile_justice", "mental_health", "suicide_prevention",
+    "gender_violence", "disaster_displacement",
 }
 
 CATEGORY_MATCH_TERMS = {
@@ -340,64 +399,135 @@ def informative_tags(row: dict) -> set[str]:
     return tags
 
 
-def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits: int = 5) -> list[dict]:
-    """Return related exam questions with fail-closed thresholds.
+def _contains_alias(text: str, alias: str) -> bool:
+    hay = str(text or "").casefold()
+    needle = str(alias or "").casefold().strip()
+    if not needle:
+        return False
+    if re.search(r"[a-z0-9]", needle) and not re.search(r"[一-龥]", needle):
+        pattern = re.escape(needle).replace(r"\ ", r"\s+")
+        return re.search(r"(?<![a-z0-9])" + pattern + r"(?![a-z0-9])", hay) is not None
+    return needle in hay
 
-    Strong: shared law name
-    Medium: subject overlap + informative tag / topic keyword overlap
+
+def historical_concepts(text: str) -> set[str]:
+    out = set()
+    for key, spec in HISTORICAL_CONCEPTS.items():
+        if any(_contains_alias(text, alias) for alias in spec["aliases"]):
+            out.add(key)
+    # Prefer a specific event concept over its broader parent. A residential
+    # subsidy story should not inherit every long-term-care question merely
+    # because both texts contain 長照.
+    if "residential_support" in out:
+        out.discard("long_term_care")
+    return out
+
+
+def _question_search_text(q: dict) -> str:
+    return (
+        f"{q.get('question') or ''} {q.get('topic') or ''} "
+        f"{q.get('major') or ''} {' '.join(q.get('keywords') or [])}"
+    )
+
+
+def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits: int = 5) -> list[dict]:
+    """Return related exam questions using event-supported evidence only.
+
+    A shared law by itself is recorded as law history, not as a same-topic
+    question match. Topic matching requires an informative event term, a
+    specific synonym concept, or an allowed bilingual canonical concept.
     """
     if not questions:
         return []
 
-    subjects = set(str(s) for s in (row.get("subjects") or []) if s)
-    tags = informative_tags(row)
-    category_terms = set(CATEGORY_MATCH_TERMS.get(str(row.get("category") or ""), []))
+    subjects = set(str(x) for x in (row.get("subjects") or []) if x)
+    event_text = text_of(row)
+    tags = {tag for tag in informative_tags(row) if _contains_alias(event_text, tag)}
+    event_specific = historical_concepts(event_text)
+    event_canonical = {
+        str(x).strip() for x in (row.get("concept_keys") or []) if str(x).strip()
+    }
+    event_canonical |= canonical_concepts(event_text)
     scored: list[tuple[float, dict]] = []
 
     for q in questions:
-        score = 0.0
-        reasons: list[str] = []
-        q_law = q.get("law") or ""
-        q_text = f"{q.get('question') or ''} {q.get('topic') or ''} {q.get('major') or ''} {' '.join(q.get('keywords') or [])}"
-
-        law_hit = None
-        for law in laws:
-            if law and (law in q_law or law in q_text):
-                law_hit = law
-                break
-        if law_hit:
-            score += 5.0
-            reasons.append(f"法規「{law_hit}」")
-
-        subj = q.get("subject") or ""
-        subj_ok = (not subjects) or (subj in subjects)
-        if not law_hit and not subj_ok:
+        subj = str(q.get("subject") or "")
+        if subjects and subj not in subjects:
             continue
 
-        tag_hits = [t for t in tags if t in q_text or t in q_law]
-        category_hits = [t for t in category_terms if t in q_text or t in q_law]
-        combined_hits = list(dict.fromkeys(tag_hits + category_hits))
-        if combined_hits:
-            score += min(3.0, 1.0 * len(combined_hits))
-            reasons.append("關鍵詞：" + "、".join(combined_hits[:4]))
+        q_law = str(q.get("law") or "")
+        q_text = _question_search_text(q)
+        law_hit = next(
+            (law for law in laws if law and (law in q_law or law in q_text)),
+            None,
+        )
+        tag_hits = sorted(t for t in tags if t in q_text or t in q_law)
 
-        if score > 0 and subj_ok:
-            score += 0.2
+        q_specific = historical_concepts(f"{q_text} {q_law}")
+        shared_specific = sorted(event_specific & q_specific)
+        eligible_specific = [
+            key for key in shared_specific
+            if not HISTORICAL_CONCEPTS[key].get("requires_law") or law_hit
+        ]
 
-        if law_hit or len(combined_hits) >= 2:
-            scored.append((score, {
-                "id": q.get("id"),
-                "subject": subj,
-                "year": q.get("year"),
-                "round": q.get("round"),
-                "qno": q.get("qno"),
-                "major": q.get("major"),
-                "topic": q.get("topic"),
-                "match_reason": "；".join(reasons) if reasons else "相關",
-                "match_score": round(score, 2),
-            }))
+        q_canonical = canonical_concepts(f"{q_text} {q_law}")
+        shared_canonical = sorted(event_canonical & q_canonical)
+        standalone_canonical = [
+            key for key in shared_canonical if key in CANONICAL_STANDALONE_HISTORY
+        ]
 
-    scored.sort(key=lambda x: (-x[0], str(x[1].get("year") or ""), str(x[1].get("qno") or "")))
+        if not (tag_hits or eligible_specific or standalone_canonical):
+            continue
+
+        score = 0.0
+        reasons: list[str] = []
+        if tag_hits:
+            # A synonym/canonical label and its literal tag are the same
+            # evidence. Nested tags also contribute only their longest anchor.
+            independent_tags = [
+                tag for tag in tag_hits
+                if not (historical_concepts(tag) & set(eligible_specific))
+                and not (canonical_concepts(tag) & set(standalone_canonical))
+                and not any(tag != other and tag in other for other in tag_hits)
+            ]
+            score += min(4.0, 2.0 * len(independent_tags))
+            reasons.append("事件詞：" + "、".join(tag_hits[:4]))
+        if eligible_specific:
+            score += min(4.0, 3.0 * len(eligible_specific))
+            reasons.append(
+                "同義考點：" + "、".join(
+                    HISTORICAL_CONCEPTS[key]["label"] for key in eligible_specific[:4]
+                )
+            )
+        if standalone_canonical:
+            score += min(3.0, 2.0 * len(standalone_canonical))
+            labels = concept_tags(standalone_canonical)
+            reasons.append("共同概念：" + "、".join(labels[:4] or standalone_canonical[:4]))
+        if law_hit:
+            score += 3.0
+            reasons.append(f"同法規「{law_hit}」")
+        score += 0.2
+
+        scored.append((score, {
+            "id": q.get("id"),
+            "subject": subj,
+            "year": q.get("year"),
+            "round": q.get("round"),
+            "qno": q.get("qno"),
+            "major": q.get("major"),
+            "topic": q.get("topic"),
+            "match_reason": "；".join(reasons),
+            "match_score": round(score, 2),
+        }))
+
+    scored.sort(
+        key=lambda x: (
+            -x[0],
+            -int(str(x[1].get("year") or "0"))
+            if str(x[1].get("year") or "").isdigit() else 0,
+            str(x[1].get("qno") or ""),
+        )
+    )
     seen = set()
     out = []
     for _, item in scored:
@@ -419,7 +549,7 @@ def _exam_year_int(value) -> int | None:
     return year if 1 <= year <= 999 else None
 
 
-def historical_exam_stats(matches: list[dict], questions: list[dict]) -> dict:
+def historical_exam_stats(matches: list[dict], questions: list[dict], laws: list[str]) -> dict:
     years = sorted({
         y for y in (_exam_year_int(q.get("year")) for q in matches)
         if y is not None
@@ -431,20 +561,47 @@ def historical_exam_stats(matches: list[dict], questions: list[dict]) -> dict:
     corpus_latest = max(corpus_years) if corpus_years else None
     latest = max(years) if years else None
     earliest = min(years) if years else None
+
     subject_counts: dict[str, int] = {}
-    law_match_count = 0
-    high_confidence_match_count = 0
+    breakdown = {"strong": 0, "medium": 0, "concept": 0}
     for q in matches:
         subject = str(q.get("subject") or "").strip()
         if subject:
             subject_counts[subject] = subject_counts.get(subject, 0) + 1
-        if "法規「" in str(q.get("match_reason") or ""):
-            law_match_count += 1
         try:
-            if float(q.get("match_score") or 0) >= 5.0:
-                high_confidence_match_count += 1
+            match_score = float(q.get("match_score") or 0)
         except (TypeError, ValueError):
-            pass
+            match_score = 0.0
+        if match_score >= 5.0:
+            breakdown["strong"] += 1
+        elif match_score >= 3.0:
+            breakdown["medium"] += 1
+        elif match_score >= 2.0:
+            breakdown["concept"] += 1
+
+    # Raw topic count remains visible, but low-specificity concept matches
+    # cannot grow trend weight without bound. This prevents a broad theme with
+    # dozens of weak matches from outranking a few precise historical anchors.
+    weighted_match_count = round(
+        min(breakdown["strong"], 8)
+        + min(breakdown["medium"], 6) * 0.5
+        + min(breakdown["concept"], 4) * 0.25,
+        2,
+    )
+
+    law_rows = {}
+    for q in questions:
+        q_law = str(q.get("law") or "")
+        q_text = _question_search_text(q)
+        if any(law and (law in q_law or law in q_text) for law in laws):
+            qid = str(q.get("id") or "")
+            if qid:
+                law_rows[qid] = q
+    law_years = sorted({
+        y for y in (_exam_year_int(q.get("year")) for q in law_rows.values())
+        if y is not None
+    })
+
     years_since_last = (
         max(0, corpus_latest - latest)
         if corpus_latest is not None and latest is not None
@@ -452,6 +609,8 @@ def historical_exam_stats(matches: list[dict], questions: list[dict]) -> dict:
     )
     return {
         "matched_question_count": len(matches),
+        "weighted_match_count": weighted_match_count,
+        "match_breakdown": breakdown,
         "matched_year_count": len(years),
         "matched_years": years,
         "earliest_exam_year": earliest,
@@ -460,8 +619,11 @@ def historical_exam_stats(matches: list[dict], questions: list[dict]) -> dict:
         "years_since_last_exam": years_since_last,
         "subject_counts": dict(sorted(subject_counts.items())),
         "subject_count": len(subject_counts),
-        "law_match_count": law_match_count,
-        "high_confidence_match_count": high_confidence_match_count,
+        "law_match_count": len(law_rows),
+        "law_match_year_count": len(law_years),
+        "law_match_years": law_years,
+        "high_confidence_match_count": breakdown["strong"],
+        "matching_method": "event-evidence-v2.2",
     }
 
 
@@ -510,7 +672,7 @@ def analyze_item(row: dict, questions: list[dict], max_related: int = 5) -> dict
         max_hits=max(1, len(questions)) if questions else 1,
     )
     related = all_related[: max(1, max_related)]
-    history = historical_exam_stats(all_related, questions)
+    history = historical_exam_stats(all_related, questions, laws)
     summary = build_exam_point_summary(row, laws, policy, essay, mcq)
     essay_direction = essay_direction_for(row, laws)
     mcq_focus = mcq_focus_for(row, text, laws)

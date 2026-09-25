@@ -128,6 +128,13 @@ def main() -> int:
         years = stats.get("matched_years") or []
         assert isinstance(years, list), stats
         assert int(stats.get("matched_year_count") or 0) == len(years), stats
+        assert stats.get("matching_method") in {"event-evidence-v2.2", "related-question-fallback"}
+        breakdown = stats.get("match_breakdown") or {}
+        assert set(breakdown) == {"strong", "medium", "concept"}, stats
+        assert float(stats.get("weighted_match_count") or 0) <= int(stats.get("matched_question_count") or 0)
+        law_years = stats.get("law_match_years") or []
+        assert isinstance(law_years, list), stats
+        assert int(stats.get("law_match_year_count") or 0) == len(law_years), stats
         latest_year = stats.get("latest_exam_year")
         corpus_year = stats.get("corpus_latest_year")
         if latest_year is not None and corpus_year is not None:
@@ -137,7 +144,7 @@ def main() -> int:
     trend_rows = trends.get("trends") or []
     assert trend_rows, "current-affairs trend snapshot is empty"
     assert int(trends.get("event_count") or 0) == len(trend_rows)
-    assert trends.get("method") == "deterministic-v2.1"
+    assert trends.get("method") == "deterministic-v2.2"
     assert "不代表命題保證" in str(trends.get("note") or "")
     allowed_states = {"rising", "sustained", "cooling", "one-off"}
     for row in trend_rows:
@@ -155,6 +162,11 @@ def main() -> int:
         assert isinstance(row.get("why"), list) and row.get("why")
         hist_count = int(row.get("historical_question_count") or 0)
         assert hist_count >= len(row.get("related_exam_questions") or [])
+        weighted_count = float(row.get("historical_weighted_match_count") or 0)
+        assert 0 <= weighted_count <= hist_count
+        breakdown = row.get("historical_match_breakdown") or {}
+        assert set(breakdown) == {"strong", "medium", "concept"}, breakdown
+        assert isinstance(row.get("historical_law_match_years"), list)
         assert isinstance(row.get("historical_exam_years"), list)
         assert isinstance(row.get("historical_subject_counts"), dict)
         assert int(row.get("historical_subject_count") or 0) == len(row.get("historical_subject_counts") or {})
@@ -253,3 +265,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
