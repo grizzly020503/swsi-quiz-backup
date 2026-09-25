@@ -57,8 +57,11 @@ def main() -> int:
     pwa = json.loads(body)
     if pwa.get("display") != "standalone" or not pwa.get("start_url"):
         raise AssertionError("PWA manifest: contract mismatch")
-    require_status("Service Worker", PRIMARY + "/sw.js")
-    checks.append("pwa")
+    body, _ = require_status("Service Worker", PRIMARY + "/sw.js")
+    sw = body.decode("utf-8", "replace")
+    if "const VERSION = 'v7';" not in sw:
+        raise AssertionError("Service Worker: expected VERSION v7")
+    checks.append("pwa-sw-v7")
 
     body, _ = require_status("Question manifest", PRIMARY + "/question-shards/manifest.json")
     questions = json.loads(body)
@@ -77,6 +80,30 @@ def main() -> int:
         if int(news.get("schema_version", -1)) != 2 or not news_items:
             raise AssertionError("Current-affairs snapshot: contract mismatch")
         checks.append(f"news-{len(news_items)}")
+
+        body, _ = require_status("Current-affairs signals", PRIMARY + "/auto/current_affairs_signals.json")
+        signals = json.loads(body)
+        signal_items = signals.get("items") or []
+        if int(signals.get("schema_version", -1)) != 1:
+            raise AssertionError("Current-affairs signals: schema_version != 1")
+        if int(signals.get("item_count", -1)) != len(signal_items) or not signal_items:
+            raise AssertionError("Current-affairs signals: item_count mismatch or empty")
+        if int(signals.get("questions_loaded", -1)) != 4800:
+            raise AssertionError("Current-affairs signals: questions_loaded != 4800")
+        if signals.get("question_source") != "cdn/question-shards":
+            raise AssertionError("Current-affairs signals: unexpected question_source")
+        if "不代表命題保證" not in str(signals.get("note") or ""):
+            raise AssertionError("Current-affairs signals: non-guarantee note missing")
+        for item in signal_items:
+            if item.get("signal_confidence") not in {"low", "medium", "high"}:
+                raise AssertionError("Current-affairs signals: invalid signal_confidence")
+            if not str(item.get("essay_direction") or "").strip():
+                raise AssertionError("Current-affairs signals: essay_direction missing")
+            if not isinstance(item.get("mcq_focus"), list):
+                raise AssertionError("Current-affairs signals: mcq_focus must be a list")
+            if not isinstance(item.get("related_exam_questions"), list):
+                raise AssertionError("Current-affairs signals: related_exam_questions must be a list")
+        checks.append(f"signals-{len(signal_items)}/4800")
 
         body, _ = require_status("Legal-watch snapshot", PRIMARY + "/auto/legal_watch.json")
         laws = json.loads(body)
