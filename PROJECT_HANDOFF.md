@@ -1,5 +1,68 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 時事來源 13-feed 正式上線（READ FIRST）
+
+> 本節優先於下方所有 6／8／11／12 feeds 歷史敘述。接手時仍先重新讀遠端 main、open PR/issues、Actions 與 production sentinel。
+
+### 正式狀態
+
+- #97 已合併；merge commit：`f949e3e23494eff4a49ff63c5835e3c70de77761`：
+  - 新增 **法務部新聞發布 RSS** `https://www.moj.gov.tw/2204/2795/2796/rss`。
+  - 新增「**司法保護與修復式司法**」分類與 exam-signal／歷屆題 mapping。
+  - 新增 `犯罪被害人權益保障法` 法規抽取。
+  - RSS 相對連結使用 `urljoin` 正規化。
+  - 外部 feed 瞬斷最多重試 3 次；最終 public contract 仍要求 `feed_error_count=0`。
+  - 依真實資料排除揭牌、聯展、音樂會、媒體澄清等法務部 activity/press noise。
+- monitoring bot 13-source snapshot commit：`ecde4df3042542379383884b452352cc24fff000`。
+- #98／#100 已完成 Cloudflare 13-source 靜態資產發布與強制 rebuild。
+- #101 已合併；merge commit：`09ccdab35d4ae8ad6871f397cf89add99ad85a8b`，production uptime 永久要求至少 **13 feeds** 且 **0 feed errors**。
+
+### 目前 13 feeds
+
+1. 衛生福利部焦點新聞
+2. 衛生福利部公告訊息
+3. 中央社社會
+4. 中央社生活
+5. 中央社政治
+6. 中央社國際
+7. 內政部新聞發布
+8. 行政院本院新聞
+9. 教育部即時新聞
+10. 教育部重要政策
+11. 移民署新住民政策法規
+12. 勞動部新聞稿
+13. 法務部新聞發布
+
+### 最新 production 基線
+
+- 法務部 RSS：**264 entries**。
+- 13/13 sources。
+- fetched=571，accepted=9，feed errors=0。
+- signals=9，questions_loaded=4,800。
+- events=9、trends=9。
+- legal-watch=52/52。
+- Production Uptime Sentinel run `36159777534`：**success**。
+- production log：
+  `primary-home, pwa-sw-v7, questions-4800-24, sources-13/errors-0, news-9, signals-9/4800, events-9, trends-9, trend-ui-v2, laws-52/52, question-health, ai-preflight, feedback-preflight, netlify-fallback`。
+
+### 現在不要重做
+
+- 不要再把來源現況寫成 6／8／11／12 feeds。
+- 不要重做 #90／#92／#93／#94／#97／#98／#100／#101。
+- 不要因單一大型 feed（如法務部 264 entries）就提高 accepted 數；目前正式結果仍是 9 個高關聯議題。
+- 不要放寬 `feed_error_count=0`；瞬斷用 bounded retry，最終失敗仍應紅燈。
+- 官方 4,800 題、答案與 grading 維持唯讀。
+
+### Issue #84 接下來
+
+1. **社家署**：先找到並驗證官方穩定 RSS/XML/公開資料 endpoint，找不到就不猜 URL。
+2. **國際官方／新聞**：UN、WHO、UNICEF、ILO、Reuters、AP、BBC 等；先建立英文→中文社工考點分類與跨語言事件去重，再接 production。
+3. **trend quality refinement**：持續累積跨日 evidence 後調權重；來源數不能單獨決定趨勢。
+4. 任何新 false positive 先加 regression 再修。
+
+---
+
+
 ## 2026-09-25 時事來源 12-feed 正式上線（READ FIRST）
 
 > 本節優先於下方所有「6 feeds／8 feeds／11 feeds」的歷史敘述。接手時仍先重新讀遠端 main、open PR/issues、Actions 與 production sentinel。
