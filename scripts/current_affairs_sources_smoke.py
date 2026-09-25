@@ -93,6 +93,33 @@ def main() -> int:
     )
     assert child_survey and child_survey[1] == "兒少保護", child_survey
 
+    ceremony = score_item(
+        "燈塔引航 守護學子 大專校院專業輔導人員頒獎典禮",
+        "表揚學生輔導與校園支持服務人員。",
+        "taiwan",
+        "教育部即時新聞",
+        "official",
+    )
+    assert ceremony is None, ceremony
+
+    mock_vote = score_item(
+        "新住民模擬投票扎根民主",
+        "新住民參與公民教育活動，推動政策宣導。",
+        "taiwan",
+        "移民署新住民政策法規",
+        "official",
+    )
+    assert mock_vote is None, mock_vote
+
+    dream_event = score_item(
+        "內政部伴新住民築夢 49組團隊創意發光",
+        "新住民團隊成果發表與活動。",
+        "taiwan",
+        "內政部新聞發布",
+        "official",
+    )
+    assert dream_event is None, dream_event
+
     print(
         "CURRENT AFFAIRS SOURCE SMOKE OK: "
         "11 unique HTTPS feeds, 3 new official feeds, "
