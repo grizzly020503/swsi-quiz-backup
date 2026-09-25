@@ -64,7 +64,7 @@ def main() -> int:
     source_registry = read_json("data/current_affairs_sources.json")
     assert source_registry.get("schema_version") == 1
     source_rows = source_registry.get("sources") or []
-    assert len(source_rows) >= 15, "current-affairs source registry unexpectedly shrank"
+    assert len(source_rows) >= 17, "current-affairs source registry unexpectedly shrank"
     source_names = [str(x.get("name") or "").strip() for x in source_rows]
     source_urls = [str(x.get("url") or "").strip() for x in source_rows]
     assert all(source_names), "current-affairs source name missing"
@@ -74,7 +74,7 @@ def main() -> int:
     for row in source_rows:
         assert row.get("region") in {"taiwan", "international"}, row
         assert row.get("source_type") in {"official", "news", "international"}, row
-        assert row.get("source_format", "rss") in {"rss", "who_newsroom_json"}, row
+        assert row.get("source_format", "rss") in {"rss", "who_newsroom_json", "official_listing_html"}, row
     required_official = {
         "https://www.edu.tw/Rss_News.aspx?n=9E7AC85F1954DDA8",
         "https://www.edu.tw/Rss_WebArchive.aspx?n=FB01D469347C76A7",
@@ -83,6 +83,8 @@ def main() -> int:
         "https://www.moj.gov.tw/2204/2795/2796/rss",
         "https://news.un.org/feed/subscribe/en/news/all/rss.xml",
         "https://www.who.int/api/newsroom/newsitems",
+        "https://www.unicef.org/media/press-releases",
+        "https://www.ilo.org/resource/news",
     }
     assert required_official.issubset(set(source_urls)), "new official feeds missing from registry"
 
@@ -94,7 +96,7 @@ def main() -> int:
     sync = read_json("auto/sync_state.json")
 
     assert news.get("schema_version") == 2
-    assert int(news.get("source_feed_count") or 0) >= 15
+    assert int(news.get("source_feed_count") or 0) >= 17
     assert int(news.get("feed_error_count", -1)) == 0
     items = news.get("items") or []
     assert items, "current-affairs snapshot is empty"
