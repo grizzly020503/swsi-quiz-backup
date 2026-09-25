@@ -126,6 +126,9 @@ def score_item(title, summary, region, source_name, source_type="news"):
         if category == "災害與社區工作" and not any(w in text for w in DISASTER_STRONG):
             continue
         score = base + min(2, max(0, len(title_hits)-1))
+        # 標題直接命中比 RSS 摘要帶到的旁支詞更可信；summary-only 雖可作
+        # 補充召回，但不得反過來壓過標題明確考點。
+        score += 1 if title_hits else -1
         if policy_hits:
             score += 1
         if best is None or score > best[0]:
