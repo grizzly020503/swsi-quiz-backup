@@ -13,6 +13,16 @@ from pathlib import Path
 
 import feedparser
 
+from current_affairs_taxonomy import (
+    canonical_agencies,
+    canonical_concepts,
+    canonical_fact_keys,
+    concept_category_counts,
+    concept_tags,
+    english_policy_hits,
+    is_english_dominant,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_REGISTRY = ROOT / "data" / "current_affairs_sources.json"
 
@@ -69,6 +79,8 @@ CATEGORIES = [
     ("災害與社區工作", 2, ["災害救助","災民","安置中心","撤離","避難","社區韌性","震災","颱風","洪水","土石流"]),
     ("社工專業與社福制度", 4, ["社工","社會工作","社福","社會福利","社安網","保護服務","責任通報","通報制度","脆弱家庭"]),
 ]
+
+CATEGORY_BASE = {category: base for category, base, _words in CATEGORIES}
 
 POLICY_TERMS = ["修法","修正","政策","制度","改革","通報","補助","津貼","權益","福利","保護","安置","服務量能","人力不足","監察","行政院","衛福部","條例","施行細則","法規","草案","預告","指引","要點","給付","保險","保障"]
 INTERNATIONAL_CORE = ["兒童權利","社會福利","社會政策","移民","難民","人權","心理健康","高齡","家暴","性暴力","災害","貧窮","身心障礙"]
@@ -128,8 +140,47 @@ def published_iso(entry):
     return datetime.fromtimestamp(calendar.timegm(st), tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+def score_english_international(title, summary, source_type="news"):
+    text = f"{title} {summary}"
+    concepts = canonical_concepts(text)
+    if not concepts:
+        return None
+    category_counts = concept_category_counts(concepts)
+    if not category_counts:
+        return None
+
+    title_concepts = canonical_concepts(title)
+    policy_hits = english_policy_hits(text)
+    if not title_concepts and not (len(concepts) >= 2 and policy_hits):
+        return None
+
+    category = max(
+        category_counts,
+        key=lambda name: (category_counts[name], CATEGORY_BASE.get(name, 0), name),
+    )
+    category_concepts = {
+        key for key in concepts
+        if concept_category_counts([key]).get(category)
+    }
+    base = max(4, CATEGORY_BASE.get(category, 3))
+    score = base + min(2, max(0, len(category_concepts) - 1))
+    if policy_hits:
+        score += 1
+    if source_type in {"official", "international"}:
+        score += 1
+    # International stories need stronger evidence than Taiwan-source stories.
+    score -= 1
+    if score < 5:
+        return None
+
+    tags = concept_tags(concepts)[:8]
+    return min(10, score), category, tags
+
+
 def score_item(title, summary, region, source_name, source_type="news"):
     text = f"{title} {summary}"
+    if region == "international" and is_english_dominant(text):
+        return score_english_international(title, summary, source_type)
     policy_hits = [w for w in POLICY_TERMS if w in text]
     best = None
     best_hits = []
@@ -220,6 +271,9 @@ def main():
                 continue
             score, category, tags = scored
             item_id = hashlib.sha256(link.encode("utf-8")).hexdigest()[:32]
+            concept_keys = sorted(canonical_concepts(f"{title} {summary}"))
+            agency_keys = sorted(canonical_agencies(f"{title} {summary}"))
+            fact_keys = sorted(canonical_fact_keys(f"{title} {summary}"))
             row = {
                 "id": item_id,
                 "title": title[:500],
@@ -234,6 +288,9 @@ def main():
                 "relevance_score": score,
                 "exam_tags": tags,
                 "subjects": SUBJECT_MAP.get(category, ["社會工作"]),
+                "concept_keys": concept_keys,
+                "agency_keys": agency_keys,
+                "fact_keys": fact_keys,
             }
             old = items.get(item_id)
             if old is None or row["relevance_score"] > old["relevance_score"]:
