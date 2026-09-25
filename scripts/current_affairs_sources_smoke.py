@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
-from current_affairs_watch import score_item
+import current_affairs_watch as watch
+
+score_item = watch.score_item
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "data" / "current_affairs_sources.json"
@@ -15,6 +18,7 @@ REQUIRED = {
     "教育部重要政策": "https://www.edu.tw/Rss_WebArchive.aspx?n=FB01D469347C76A7",
     "移民署新住民政策法規": "https://news.immigration.gov.tw/Rss/Content/8?lang=TW",
     "勞動部新聞稿": "https://www.mol.gov.tw/1607/1632/1633/RssList",
+    "法務部新聞發布": "https://www.moj.gov.tw/2204/2795/2796/rss",
 }
 
 
@@ -22,11 +26,42 @@ def scored(title: str, summary: str, source: str):
     return score_item(title, summary, "taiwan", source, "official")
 
 
+def retry_contract() -> None:
+    calls = {"count": 0}
+    original_parse = watch.feedparser.parse
+    original_sleep = watch.time.sleep
+
+    def fake_parse(url, request_headers=None):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            return SimpleNamespace(
+                entries=[],
+                bozo=True,
+                bozo_exception=OSError("temporary network failure"),
+            )
+        return SimpleNamespace(entries=[{"title": "ok"}], bozo=False)
+
+    try:
+        watch.feedparser.parse = fake_parse
+        watch.time.sleep = lambda _seconds: None
+        parsed, error = watch.parse_feed_with_retry(
+            {"name": "fixture", "url": "https://example.test/rss"},
+            attempts=3,
+        )
+        assert error is None, error
+        assert len(parsed.entries) == 1
+        assert calls["count"] == 2, calls
+    finally:
+        watch.feedparser.parse = original_parse
+        watch.time.sleep = original_sleep
+
+
 def main() -> int:
+    retry_contract()
     payload = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = payload.get("sources") or []
     assert payload.get("schema_version") == 1
-    assert len(rows) >= 12, f"expected at least 12 curated feeds, got {len(rows)}"
+    assert len(rows) >= 13, f"expected at least 13 curated feeds, got {len(rows)}"
 
     urls = [str(x.get("url") or "") for x in rows]
     names = [str(x.get("name") or "") for x in rows]
@@ -78,6 +113,21 @@ def main() -> int:
         "教育部即時新聞",
     )
     assert childcare_activity is None, childcare_activity
+
+    victim_policy = scored(
+        "犯罪被害人權益保障法保護服務新制上路 強化家庭支持與修復式司法",
+        "法務部推動以家庭為中心的保護服務、被害補償與跨網絡合作。",
+        "法務部新聞發布",
+    )
+    assert victim_policy and victim_policy[1] == "司法保護與修復式司法", victim_policy
+    assert victim_policy[0] >= 5, victim_policy
+
+    restorative = scored(
+        "精進修復式司法與犯罪被害人保護服務",
+        "制度強化修復式司法轉介、被害人權益及社區支持。",
+        "法務部新聞發布",
+    )
+    assert restorative and restorative[1] == "司法保護與修復式司法", restorative
 
     noise_cases = [
         (
@@ -135,6 +185,26 @@ def main() -> int:
             "支持特殊教育學生校園生活。",
             "教育部即時新聞",
         ),
+        (
+            "鄭部長出席榮譽觀護人聯合會辦公室揭牌儀式",
+            "勉勵榮觀與更生保護單位攜手。",
+            "法務部新聞發布",
+        ),
+        (
+            "矯正聯展首度跨國交流 作業成品齊聚臺中",
+            "法務部辦理矯正機關聯展活動。",
+            "法務部新聞發布",
+        ),
+        (
+            "犯保協會中秋感恩音樂會登場",
+            "犯罪被害人保護協會辦理音樂會活動。",
+            "法務部新聞發布",
+        ),
+        (
+            "有關媒體報導法務部長下令少關人一文 本部澄清說明",
+            "媒體報導與事實不符，法務部予以澄清。",
+            "法務部新聞發布",
+        ),
     ]
     for title, summary, source in noise_cases:
         result = scored(title, summary, source)
@@ -143,7 +213,7 @@ def main() -> int:
     print(
         "CURRENT AFFAIRS SOURCE SMOKE OK: "
         f"{len(rows)} unique HTTPS feeds; labor/student-support policy accepted; "
-        "observed activity, ceremony and child-health noise rejected"
+        "observed activity/ceremony noise rejected; MOJ protection policy accepted"
     )
     return 0
 
