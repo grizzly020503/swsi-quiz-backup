@@ -61,7 +61,7 @@ def main() -> int:
     payload = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = payload.get("sources") or []
     assert payload.get("schema_version") == 1
-    assert len(rows) >= 13, f"expected at least 13 curated feeds, got {len(rows)}"
+    assert len(rows) >= 14, f"expected at least 14 curated feeds, got {len(rows)}"
 
     urls = [str(x.get("url") or "") for x in rows]
     names = [str(x.get("name") or "") for x in rows]
@@ -70,6 +70,12 @@ def main() -> int:
     assert all(url.startswith("https://") for url in urls), "all feeds must use HTTPS"
 
     by_name = {str(x.get("name")): x for x in rows}
+    un_news = by_name.get("UN News English")
+    assert un_news, "missing source: UN News English"
+    assert un_news.get("url") == "https://news.un.org/feed/subscribe/en/news/all/rss.xml"
+    assert un_news.get("region") == "international"
+    assert un_news.get("source_type") == "official"
+
     for name, url in REQUIRED.items():
         row = by_name.get(name)
         assert row, f"missing source: {name}"
