@@ -16,7 +16,9 @@ CONCEPTS = {
         "tag": "兒少保護",
         "aliases": [
             "兒少保護", "兒童保護", "兒虐", "虐童", "child protection",
-            "child safeguarding", "protect children",
+            "child safeguarding", "protect children", "child labour", "child labor",
+            "child sexual exploitation", "child sexual abuse", "sexual exploitation and abuse",
+            "violence against children",
         ],
     },
     "child_rights": {
@@ -54,6 +56,7 @@ CONCEPTS = {
         "aliases": [
             "移民", "難民", "移工", "refugee", "refugees", "migrant",
             "migrants", "migration", "asylum seeker", "asylum seekers",
+            "displaced children", "forced displacement",
         ],
     },
     "gender_violence": {
@@ -78,6 +81,9 @@ CONCEPTS = {
         "aliases": [
             "勞工權益", "勞動權益", "社會保險", "labour rights", "labor rights",
             "social security", "employment protection", "occupational safety",
+            "decent work", "living wage", "wage-setting", "wage setting",
+            "labour standards", "labor standards", "social dialogue",
+            "informal workers", "informal economy", "forced labour", "forced labor",
         ],
     },
     "ageing_care": {
@@ -110,6 +116,23 @@ CONCEPTS = {
         "aliases": [
             "修復式司法", "犯罪被害人", "被害人保護", "restorative justice",
             "victim support", "victim protection", "crime victims",
+        ],
+    },
+    "gender_equality": {
+        "category": "性別與家庭政策",
+        "tag": "性別平等",
+        "aliases": [
+            "性別平等", "gender equality", "equal pay", "gender pay gap",
+            "equal remuneration", "women workers",
+        ],
+    },
+    "education_access": {
+        "category": "教育與學生輔導",
+        "tag": "教育權與就學支持",
+        "aliases": [
+            "教育權", "受教權", "right to education", "right to learn",
+            "access to education", "school disruption", "schooling disrupted",
+            "education access",
         ],
     },
     "family_policy": {
