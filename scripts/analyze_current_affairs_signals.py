@@ -531,7 +531,7 @@ def _exam_year_int(value) -> int | None:
     return year if 1 <= year <= 999 else None
 
 
-def historical_exam_stats(matches: list[dict], questions: list[dict]) -> dict:
+def historical_exam_stats(matches: list[dict], questions: list[dict], laws: list[str]) -> dict:
     years = sorted({
         y for y in (_exam_year_int(q.get("year")) for q in matches)
         if y is not None
@@ -543,20 +543,44 @@ def historical_exam_stats(matches: list[dict], questions: list[dict]) -> dict:
     corpus_latest = max(corpus_years) if corpus_years else None
     latest = max(years) if years else None
     earliest = min(years) if years else None
+
     subject_counts: dict[str, int] = {}
-    law_match_count = 0
-    high_confidence_match_count = 0
+    breakdown = {"strong": 0, "medium": 0, "concept": 0}
     for q in matches:
         subject = str(q.get("subject") or "").strip()
         if subject:
             subject_counts[subject] = subject_counts.get(subject, 0) + 1
-        if "法規「" in str(q.get("match_reason") or ""):
-            law_match_count += 1
         try:
-            if float(q.get("match_score") or 0) >= 5.0:
-                high_confidence_match_count += 1
+            match_score = float(q.get("match_score") or 0)
         except (TypeError, ValueError):
-            pass
+            match_score = 0.0
+        if match_score >= 5.0:
+            breakdown["strong"] += 1
+        elif match_score >= 3.0:
+            breakdown["medium"] += 1
+        elif match_score >= 2.0:
+            breakdown["concept"] += 1
+
+    weighted_match_count = round(
+        breakdown["strong"]
+        + breakdown["medium"] * 0.5
+        + breakdown["concept"] * 0.25,
+        2,
+    )
+
+    law_rows = {}
+    for q in questions:
+        q_law = str(q.get("law") or "")
+        q_text = _question_search_text(q)
+        if any(law and (law in q_law or law in q_text) for law in laws):
+            qid = str(q.get("id") or "")
+            if qid:
+                law_rows[qid] = q
+    law_years = sorted({
+        y for y in (_exam_year_int(q.get("year")) for q in law_rows.values())
+        if y is not None
+    })
+
     years_since_last = (
         max(0, corpus_latest - latest)
         if corpus_latest is not None and latest is not None
@@ -564,6 +588,8 @@ def historical_exam_stats(matches: list[dict], questions: list[dict]) -> dict:
     )
     return {
         "matched_question_count": len(matches),
+        "weighted_match_count": weighted_match_count,
+        "match_breakdown": breakdown,
         "matched_year_count": len(years),
         "matched_years": years,
         "earliest_exam_year": earliest,
@@ -572,8 +598,11 @@ def historical_exam_stats(matches: list[dict], questions: list[dict]) -> dict:
         "years_since_last_exam": years_since_last,
         "subject_counts": dict(sorted(subject_counts.items())),
         "subject_count": len(subject_counts),
-        "law_match_count": law_match_count,
-        "high_confidence_match_count": high_confidence_match_count,
+        "law_match_count": len(law_rows),
+        "law_match_year_count": len(law_years),
+        "law_match_years": law_years,
+        "high_confidence_match_count": breakdown["strong"],
+        "matching_method": "event-evidence-v2.2",
     }
 
 
@@ -622,7 +651,7 @@ def analyze_item(row: dict, questions: list[dict], max_related: int = 5) -> dict
         max_hits=max(1, len(questions)) if questions else 1,
     )
     related = all_related[: max(1, max_related)]
-    history = historical_exam_stats(all_related, questions)
+    history = historical_exam_stats(all_related, questions, laws)
     summary = build_exam_point_summary(row, laws, policy, essay, mcq)
     essay_direction = essay_direction_for(row, laws)
     mcq_focus = mcq_focus_for(row, text, laws)
