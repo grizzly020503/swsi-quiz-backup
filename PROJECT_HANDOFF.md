@@ -1,5 +1,65 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 MOEX／Public Monitoring ownership 衝突已修復（READ FIRST）
+
+> 本節是營運穩定性補充；時事來源數仍以緊接下方最新的 **15-feed** 章節為準。接手先重新讀 main 與 Actions，不把 SHA 當永久最新。
+
+### 問題根因
+
+- 先前 `MOEX Social Worker Exam Sync` 與 `Public Monitoring Feed` 同時修改／提交 `auto/current_affairs.json`。
+- MOEX 本身的官方考題抓取、法規同步、Supabase、4,800 題健康檢查都成功，最後才在 `git rebase origin/main` 與 monitoring bot 的 snapshot commit 發生衝突。
+- 這不是官方題庫內容錯誤，也不是 Supabase/grading 故障，而是 workflow 檔案 ownership 重疊。
+
+### #116 已完成
+
+- #116 `fix: separate MOEX and monitoring snapshot ownership` 已合併；merge commit：
+  `cf366a0ce56f0e25c0d3746ce374281426ff4189`。
+- 新增 `scripts/moex_workflow_ownership_smoke.py`，fail-closed 禁止：
+  - `git add incoming/ auto/`
+  - MOEX 生成／stage `auto/current_affairs*.json`
+  - MOEX stage Public Monitoring 的 CDN current-affairs snapshots。
+- MOEX 現在只 stage 自己擁有的：
+  - `incoming/`
+  - `auto/questions_auto.json`
+  - `auto/essays_auto.json`
+  - `auto/sync_state.json`
+  - `auto/health.json`
+  - `data/legal_watch_state.json`
+  - `data/legal_watch_report.json`
+  - `data/legal_watch_attempt.json`
+- MOEX 仍會掃 current affairs 並把候選資料送 Supabase，但只使用 `/tmp/current_affairs_payload.json`；**public current-affairs snapshots exclusively 由 Public Monitoring Feed 產生／提交**。
+
+### 正式驗收
+
+- MOEX Importer Integrity QA（main）：**success**。
+- MOEX Social Worker Exam Sync run `36165725787`：**success**。
+- 該 run 實際證據：
+  - `MOEX WORKFLOW OWNERSHIP OK`
+  - official 115030／115100 內容未變
+  - local health OK
+  - remote Supabase：questions=4,800、essays=10
+  - grading modes：all_credit=12 / any_answer=4 / standard=4,784
+  - 最後 `Commit verified official payloads and owned state`：**success**
+  - bot commit：`be9e42f556b1abfeadbe6d4b2c0dd8054aa011ab`
+  - push main：**success，無 current_affairs rebase conflict**
+- 後續 Public Monitoring Feed run `36166135020`：**success**：
+  - sources=15/15
+  - fetched=701、accepted=10、errors=0
+  - events=10 / trends=10
+  - laws=52/52
+  - questions=4,800
+  - snapshot push main 成功。
+
+### 現在不要重做
+
+- 不要讓 MOEX 再生成／提交 public `auto/current_affairs*.json`。
+- 不要改回 broad `git add incoming/ auto/`。
+- 不要用 conflict resolver 掩蓋 ownership；現在已有明確 owner 與 regression。
+- 官方題目、答案與 grading 語意未因本修補變更。
+
+---
+
+
 ## 2026-09-26 時事來源 15-feed 正式上線（READ FIRST）
 
 > 本節優先於下方所有 6／8／11／12／13／14 feeds 歷史敘述。接手仍先重新讀遠端 main、open PR/issues、Actions 與 production sentinel；不要把本節 SHA 當永久最新。
