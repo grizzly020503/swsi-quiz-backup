@@ -84,6 +84,13 @@
       "url": "https://news.un.org/feed/subscribe/en/news/all/rss.xml",
       "region": "international",
       "source_type": "official"
+    },
+    {
+      "name": "WHO Newsroom",
+      "url": "https://www.who.int/api/newsroom/newsitems",
+      "region": "international",
+      "source_type": "official",
+      "source_format": "who_newsroom_json"
     }
   ]
 }
