@@ -10,7 +10,10 @@ from pathlib import Path
 
 import feedparser
 
-FEEDS = [
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE_REGISTRY = ROOT / "data" / "current_affairs_sources.json"
+
+DEFAULT_FEEDS = [
     {"name":"衛生福利部焦點新聞","url":"https://www.mohw.gov.tw/rss-16-1.html","region":"taiwan"},
     {"name":"衛生福利部公告訊息","url":"https://www.mohw.gov.tw/rss-18-1.html","region":"taiwan"},
     {"name":"中央社社會","url":"https://feeds.feedburner.com/rsscna/social","region":"taiwan"},
@@ -118,7 +121,8 @@ def main():
     fetched = 0
     feed_errors = []
 
-    for feed in FEEDS:
+    feeds = load_feeds()
+    for feed in feeds:
         parsed = feedparser.parse(feed["url"], request_headers={"User-Agent":"swsi-current-affairs-radar/1.1"})
         if getattr(parsed, "bozo", False) and not parsed.entries:
             feed_errors.append(f"{feed['name']}: {getattr(parsed, 'bozo_exception', 'RSS parse failed')}")
@@ -149,6 +153,7 @@ def main():
                 "source_name": feed["name"],
                 "source_url": link,
                 "source_feed": feed["url"],
+                "source_type": feed.get("source_type", "news"),
                 "published_at": pub,
                 "region": feed["region"],
                 "category": category,
@@ -166,6 +171,7 @@ def main():
         "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "fetched_count": fetched,
         "accepted_count": len(accepted),
+        "feed_count": len(feeds),
         "feed_errors": feed_errors,
         "items": accepted[:100],
     }
