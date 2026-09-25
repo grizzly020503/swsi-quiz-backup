@@ -215,9 +215,9 @@ def parse_who_newsroom_with_retry(feed, attempts=3):
 
 class _UnicefPressParser(HTMLParser):
     DATE_RE = re.compile(
-        r"\\b(\\d{1,2})\\s+"
+        r"\b(\d{1,2})\s+"
         r"(January|February|March|April|May|June|July|August|September|October|November|December)"
-        r"\\s+(20\\d{2})\\b",
+        r"\s+(20\d{2})\b",
         re.IGNORECASE,
     )
 
