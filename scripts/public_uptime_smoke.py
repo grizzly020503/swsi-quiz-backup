@@ -79,6 +79,13 @@ def main() -> int:
         news_items = news.get("items") or []
         if int(news.get("schema_version", -1)) != 2 or not news_items:
             raise AssertionError("Current-affairs snapshot: contract mismatch")
+        source_feed_count = int(news.get("source_feed_count", -1))
+        feed_error_count = int(news.get("feed_error_count", -1))
+        if source_feed_count < 11:
+            raise AssertionError("Current-affairs snapshot: source_feed_count < 11")
+        if feed_error_count != 0:
+            raise AssertionError("Current-affairs snapshot: feed_error_count != 0")
+        checks.append(f"sources-{source_feed_count}/errors-{feed_error_count}")
         checks.append(f"news-{len(news_items)}")
 
         body, _ = require_status("Current-affairs signals", PRIMARY + "/auto/current_affairs_signals.json")
