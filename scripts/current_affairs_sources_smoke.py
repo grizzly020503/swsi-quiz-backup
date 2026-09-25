@@ -72,6 +72,13 @@ def main() -> int:
     )
     assert childcare and childcare[1] == "性別與家庭政策", childcare
 
+    childcare_activity = scored(
+        "親子托育同樂活動週末登場",
+        "邀請家庭參加親子遊戲與活動。",
+        "教育部即時新聞",
+    )
+    assert childcare_activity is None, childcare_activity
+
     noise_cases = [
         (
             "教育部舉辦全國學生競賽",
