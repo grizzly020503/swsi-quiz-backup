@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-25T16:40:33Z",
-  "item_count": 9,
+  "generated_at": "2026-09-25T16:59:24Z",
+  "item_count": 10,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
   "note": "SWSI 命題訊號快照；用於複習方向，不代表命題保證。",
@@ -72,7 +72,7 @@
           "qno": "2",
           "major": "社會保險",
           "topic": "就業保險法 > 失業保險特性",
-          "match_reason": "關鍵詞：失業、就業保險",
+          "match_reason": "關鍵詞：就業保險、失業",
           "match_score": 2.2
         },
         {
@@ -145,7 +145,7 @@
           "qno": "22",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 收出養規定",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、兒童、兒少",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、少年、兒少",
           "match_score": 8.2
         },
         {
@@ -156,7 +156,7 @@
           "qno": "22",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 收出養規定",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、兒童、兒少",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、少年、兒少",
           "match_score": 8.2
         },
         {
@@ -167,7 +167,7 @@
           "qno": "23",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、兒童、兒少",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、少年、兒少",
           "match_score": 8.2
         },
         {
@@ -178,7 +178,7 @@
           "qno": "28",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 居家托育消極資格",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：少年、兒童、兒少",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、少年、兒少",
           "match_score": 8.2
         },
         {
@@ -189,7 +189,7 @@
           "qno": "29",
           "major": "兒少福利法規",
           "topic": "兒少權法 > 緊急安置",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：安置、少年、兒童、兒少",
+          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：安置、兒童、少年、兒少",
           "match_score": 8.2
         }
       ]
@@ -247,7 +247,7 @@
           "qno": "5",
           "major": "障礙者服務",
           "topic": "身心障礙者權益保障法 > 個人支持及照顧",
-          "match_reason": "關鍵詞：身心障礙、障礙、自立生活",
+          "match_reason": "關鍵詞：身心障礙、自立生活、障礙",
           "match_score": 3.2
         },
         {
@@ -269,7 +269,7 @@
           "qno": "21",
           "major": "身心障礙福利法規",
           "topic": "身權法 > 無障礙設施與停車位",
-          "match_reason": "關鍵詞：身心障礙、無障礙、障礙",
+          "match_reason": "關鍵詞：身心障礙、障礙、無障礙",
           "match_score": 3.2
         },
         {
@@ -374,7 +374,7 @@
           "qno": "5",
           "major": "障礙者服務",
           "topic": "身心障礙者權益保障法 > 個人支持及照顧",
-          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、障礙、自立生活",
+          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、自立生活、障礙",
           "match_score": 8.2
         }
       ]
@@ -454,7 +454,7 @@
           "qno": "2",
           "major": "社會保險",
           "topic": "就業保險法 > 失業保險特性",
-          "match_reason": "關鍵詞：失業、就業保險",
+          "match_reason": "關鍵詞：就業保險、失業",
           "match_score": 2.2
         },
         {
@@ -692,7 +692,7 @@
           "qno": "32",
           "major": "老人福利法規",
           "topic": "老人福利法 > 照顧服務規劃原則",
-          "match_reason": "關鍵詞：高齡、在地老化、老人",
+          "match_reason": "關鍵詞：老人、在地老化、高齡",
           "match_score": 3.2
         },
         {
@@ -703,7 +703,7 @@
           "qno": "33",
           "major": "其他社會立法與人權公約",
           "topic": "長照服務法 > 家庭照顧者支持服務",
-          "match_reason": "關鍵詞：照顧者、家庭照顧者、長照",
+          "match_reason": "關鍵詞：家庭照顧者、長照、照顧者",
           "match_score": 3.2
         },
         {
@@ -714,7 +714,7 @@
           "qno": "39",
           "major": "其他社會立法與人權公約",
           "topic": "長照服務法 > 家庭照顧者支持服務",
-          "match_reason": "關鍵詞：照顧者、家庭照顧者、長照",
+          "match_reason": "關鍵詞：家庭照顧者、長照、照顧者",
           "match_score": 3.2
         },
         {
@@ -725,7 +725,7 @@
           "qno": "23",
           "major": "老人福利法規",
           "topic": "老人福利法 > 家庭照顧者服務",
-          "match_reason": "關鍵詞：照顧者、老人、家庭照顧者",
+          "match_reason": "關鍵詞：家庭照顧者、照顧者、老人",
           "match_score": 3.2
         },
         {
@@ -736,7 +736,7 @@
           "qno": "20",
           "major": "老人福利法規",
           "topic": "老人福利方案 > 高齡友善城市",
-          "match_reason": "關鍵詞：高齡、老人",
+          "match_reason": "關鍵詞：老人、高齡",
           "match_score": 2.2
         }
       ]
@@ -782,7 +782,7 @@
           "qno": "32",
           "major": "老人福利法規",
           "topic": "老人福利法 > 照顧服務規劃原則",
-          "match_reason": "關鍵詞：高齡、在地老化、老人",
+          "match_reason": "關鍵詞：老人、在地老化、高齡",
           "match_score": 3.2
         },
         {
@@ -793,7 +793,7 @@
           "qno": "33",
           "major": "其他社會立法與人權公約",
           "topic": "長照服務法 > 家庭照顧者支持服務",
-          "match_reason": "關鍵詞：長照、照顧者、家庭照顧者",
+          "match_reason": "關鍵詞：長照、家庭照顧者、照顧者",
           "match_score": 3.2
         },
         {
@@ -804,7 +804,7 @@
           "qno": "39",
           "major": "其他社會立法與人權公約",
           "topic": "長照服務法 > 家庭照顧者支持服務",
-          "match_reason": "關鍵詞：長照、照顧者、家庭照顧者",
+          "match_reason": "關鍵詞：長照、家庭照顧者、照顧者",
           "match_score": 3.2
         },
         {
@@ -815,7 +815,7 @@
           "qno": "23",
           "major": "老人福利法規",
           "topic": "老人福利法 > 家庭照顧者服務",
-          "match_reason": "關鍵詞：照顧者、老人、家庭照顧者",
+          "match_reason": "關鍵詞：家庭照顧者、照顧者、老人",
           "match_score": 3.2
         },
         {
@@ -826,7 +826,93 @@
           "qno": "20",
           "major": "老人福利法規",
           "topic": "老人福利方案 > 高齡友善城市",
-          "match_reason": "關鍵詞：高齡、老人",
+          "match_reason": "關鍵詞：老人、高齡",
+          "match_score": 2.2
+        }
+      ]
+    },
+    {
+      "id": "271655e73bb3d63cba25088ce285ad7a",
+      "title": "From competencies to action: strengthening refugee and migrant health",
+      "summary": "From 21 to 24 September 2026, policy-makers, health managers and technical experts from seven countries and territories gathered in Rome for the second Global Orientation Course for Policy-makers on Refugee and Migrant Health. Jointly organized by WHO Health and Migration Program",
+      "source_name": "WHO Newsroom",
+      "source_url": "https://www.who.int/news/item/24-09-2026-from-competencies-to-action--strengthening-refugee-and-migrant-health",
+      "published_at": "2026-09-24T14:41:09Z",
+      "region": "international",
+      "category": "移工與新住民",
+      "relevance_score": 5,
+      "exam_tags": [
+        "移民與難民"
+      ],
+      "subjects": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "policy_signal": "low",
+      "essay_value": "low",
+      "mcq_fact_density": "low",
+      "signal_confidence": "low",
+      "signal_score": 4,
+      "exam_point_summary": "From competencies to action: strengthening refug…。偏宣導或活動訊息。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「文化能力、勞動與社會權益、反歧視」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "移民與難民"
+      ],
+      "related_laws": [],
+      "related_exam_questions": [
+        {
+          "id": "SW-110-2-36",
+          "subject": "社會工作",
+          "year": "110",
+          "round": "第二次",
+          "qno": "36",
+          "major": "多元文化能力",
+          "topic": "移民服務 > 移工友善職場",
+          "match_reason": "關鍵詞：文化能力、移工、移民",
+          "match_score": 3.2
+        },
+        {
+          "id": "SW-111-2-34",
+          "subject": "社會工作",
+          "year": "111",
+          "round": "第二次",
+          "qno": "34",
+          "major": "多元文化能力",
+          "topic": "移民服務 > 新住民服務方案",
+          "match_reason": "關鍵詞：文化能力、新住民、移民",
+          "match_score": 3.2
+        },
+        {
+          "id": "SW-114-2-34",
+          "subject": "社會工作",
+          "year": "114",
+          "round": "第二次",
+          "qno": "34",
+          "major": "多元文化能力",
+          "topic": "移民服務 > 倡導者角色",
+          "match_reason": "關鍵詞：文化能力、新住民、移民",
+          "match_score": 3.2
+        },
+        {
+          "id": "SW-109-2-38",
+          "subject": "社會工作",
+          "year": "109",
+          "round": "第二次",
+          "qno": "38",
+          "major": "多元文化能力",
+          "topic": "反歧視 > 職場歧視預防",
+          "match_reason": "關鍵詞：反歧視、文化能力",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-112-1-20",
+          "subject": "社會工作",
+          "year": "112",
+          "round": "第一次",
+          "qno": "20",
+          "major": "多元文化能力",
+          "topic": "多元文化社工 > 多元文化發展史",
+          "match_reason": "關鍵詞：反歧視、文化能力",
           "match_score": 2.2
         }
       ]
