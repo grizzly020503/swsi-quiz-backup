@@ -6,7 +6,7 @@
   "assets": {
     // Production static assets are materialized under ./cdn; touching this
     // config intentionally forces Cloudflare Git integration to rebuild them.
-    // 2026-09-26: refresh assets for the verified 14-source UN News snapshot.
+    // 2026-09-26: refresh assets for the verified 16-source UNICEF snapshot.
     "directory": "./cdn"
   },
   "d1_databases": [
