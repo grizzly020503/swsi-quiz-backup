@@ -1,21 +1,20 @@
 {
   "schema_version": 1,
   "generated_at": "2026-09-25T14:10:56Z",
-  "item_count": 7,
-  "questions_loaded": 4800,
-  "question_source": "cdn/question-shards",
-  "note": "SWSI 命題訊號快照；用於複習方向，不代表命題保證。",
-  "items": [
+  "source_item_count": 7,
+  "event_count": 7,
+  "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
+  "events": [
     {
-      "id": "ed78eb5345a9becfb446a1e8be636a9b",
+      "canonical_event_id": "fe0e43cdce0102ea73421c1b",
       "title": "敬請支持「115年兒童及少年生活狀況調查」",
       "summary": "敬請支持 115年兒童及少年生活狀況調查 衛生福利部訂於115年9月至11月辦理115年「兒童及少年生活狀況調查」，懇請受訪民眾及學校支持與配合 本調查係依據兒童及少年福利與權益保障法第13條規定，每4年辦理一次，目的在於了解兒童與少年之生活狀況及需求，以作為政府研訂社會福利政策、修訂相關法規之參考依據。 本調查由衛生福利部委託典通股份有限公司辦理，學齡前兒童調查方式採實地訪查兒童父母或主要照顧者，國小兒童調查方式係由兒童將問卷攜回請父母或主要照顧者填寫，國中、高中(職)及五專前三年少年調查方式係請學生自行填寫問卷，調查期間為115年9月至11月，懇請受",
-      "source_name": "衛生福利部公告訊息",
-      "source_url": "https://www.mohw.gov.tw/cp-18-87901-1.html",
-      "published_at": "2026-09-11T01:14:00Z",
-      "region": "taiwan",
       "category": "兒少保護",
-      "relevance_score": 7,
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
       "exam_tags": [
         "兒童",
         "少年",
@@ -23,10 +22,28 @@
         "權益",
         "福利"
       ],
-      "subjects": [
-        "社會工作直接服務",
-        "社會政策與社會立法",
-        "社會工作"
+      "related_laws": [
+        "兒童及少年福利與權益保障法"
+      ],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "衛生福利部公告訊息"
+      ],
+      "evidence": [
+        {
+          "source_name": "衛生福利部公告訊息",
+          "source_url": "https://www.mohw.gov.tw/cp-18-87901-1.html",
+          "source_type": "official",
+          "published_at": "2026-09-11T01:14:00Z",
+          "item_id": "ed78eb5345a9becfb446a1e8be636a9b"
+        }
+      ],
+      "first_seen": "2026-09-11T01:14:00Z",
+      "last_seen": "2026-09-11T01:14:00Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-09-11"
       ],
       "policy_signal": "medium",
       "essay_value": "high",
@@ -38,9 +55,6 @@
       "mcq_focus": [
         "第13條",
         "衛生福利部",
-        "兒童及少年福利與權益保障法"
-      ],
-      "related_laws": [
         "兒童及少年福利與權益保障法"
       ],
       "related_exam_questions": [
@@ -102,23 +116,41 @@
       ]
     },
     {
-      "id": "b636096cdde2f8c4b70361a92842c862",
+      "canonical_event_id": "90aec9230307858d0d8bb662",
       "title": "敬請支持「115年身心障礙者生活狀況及需求調查」",
       "summary": "敬請支持 115年身心障礙者生活狀況及需求調查 衛生福利部訂於115年9月至116年1月辦理「115年身心障礙者生活狀況及需求調查」，懇請受訪民眾支持與配合 本調查係依據身心障礙者權益保障法規定，每5年辦理一次之指定統計調查。調查主要目的為蒐集我國身心障礙者之基本資料、居住狀況、外出及交通狀況、起居生活狀況、經濟狀況、工作現況、健康及醫療照顧、休閒、社會參與及自我決定，以及家庭主要照護者等資料。 本調查係由衛生福利部委託典通股份有限公司辦理，調查方式採實地訪查，調查期間為115年9月至116年1月，懇請受訪民眾惠予支持與配合。 受訪者如有任何疑問，可隨時",
-      "source_name": "衛生福利部公告訊息",
-      "source_url": "https://www.mohw.gov.tw/cp-18-87986-1.html",
-      "published_at": "2026-09-16T06:00:00Z",
-      "region": "taiwan",
       "category": "身障與人權",
-      "relevance_score": 5,
-      "exam_tags": [
-        "身心障礙",
-        "權益",
-        "福利"
-      ],
       "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "exam_tags": [
+        "權益",
+        "福利",
+        "身心障礙"
+      ],
+      "related_laws": [
+        "身心障礙者權益保障法"
+      ],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "衛生福利部公告訊息"
+      ],
+      "evidence": [
+        {
+          "source_name": "衛生福利部公告訊息",
+          "source_url": "https://www.mohw.gov.tw/cp-18-87986-1.html",
+          "source_type": "official",
+          "published_at": "2026-09-16T06:00:00Z",
+          "item_id": "b636096cdde2f8c4b70361a92842c862"
+        }
+      ],
+      "first_seen": "2026-09-16T06:00:00Z",
+      "last_seen": "2026-09-16T06:00:00Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-09-16"
       ],
       "policy_signal": "medium",
       "essay_value": "high",
@@ -131,9 +163,6 @@
         "衛生福利部",
         "身心障礙者權益保障法",
         "身心障礙"
-      ],
-      "related_laws": [
-        "身心障礙者權益保障法"
       ],
       "related_exam_questions": [
         {
@@ -194,26 +223,44 @@
       ]
     },
     {
-      "id": "f4a1286ac83b80f760593de79a66f3d8",
+      "canonical_event_id": "170734ea9be8f691c8d7b1a6",
       "title": "衛生福利部《守望馬太鞍 泥濘中的微光》 新書發表紀錄救災七大創新",
       "summary": "衛生福利部於今（21）日下午舉辦「守望馬太鞍 泥濘中的微光：馬太鞍洪災救援與守護紀實」新書發表暨感恩茶會。副總統蕭美琴特別親自蒞臨現場，與衛福部次長林靜儀、參與救援的部醫聯盟、各司署第一線英雄、地方政府、國軍及民間團體齊聚一堂，共同見證並完整呈現2025年9月「樺加沙」颱風引發馬太鞍溪洪災後的跨部會救援與復原歷程。 林靜儀次長表示，中央於災後成立「中央前進協調所」，秉持「團結合作、共同救災」與「從寬、從速、從簡」原則，將行政資源精準交付災區，展現極致行政動能，更創下多項台灣公衛與社福史上的新里程碑。 專書提及衛福體系七大創新，如下說明： 一、科技送藥（資",
-      "source_name": "衛生福利部焦點新聞",
-      "source_url": "https://www.mohw.gov.tw/cp-16-88044-1.html",
-      "published_at": "2026-09-21T06:36:00Z",
-      "region": "taiwan",
       "category": "社工專業與社福制度",
-      "relevance_score": 6,
-      "exam_tags": [
-        "社工",
-        "社福",
-        "補助",
-        "福利",
-        "衛福部"
-      ],
       "subjects": [
         "社會工作",
         "社會工作直接服務",
         "社會政策與社會立法"
+      ],
+      "exam_tags": [
+        "社工",
+        "社福",
+        "福利",
+        "衛福部",
+        "補助"
+      ],
+      "related_laws": [
+        "守望馬太鞍 泥濘中的微光"
+      ],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "衛生福利部焦點新聞"
+      ],
+      "evidence": [
+        {
+          "source_name": "衛生福利部焦點新聞",
+          "source_url": "https://www.mohw.gov.tw/cp-16-88044-1.html",
+          "source_type": "official",
+          "published_at": "2026-09-21T06:36:00Z",
+          "item_id": "f4a1286ac83b80f760593de79a66f3d8"
+        }
+      ],
+      "first_seen": "2026-09-21T06:36:00Z",
+      "last_seen": "2026-09-21T06:36:00Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-09-21"
       ],
       "policy_signal": "low",
       "essay_value": "medium",
@@ -227,9 +274,6 @@
         "衛生福利部",
         "守望馬太鞍 泥濘中的微光",
         "社福"
-      ],
-      "related_laws": [
-        "守望馬太鞍 泥濘中的微光"
       ],
       "related_exam_questions": [
         {
@@ -290,25 +334,41 @@
       ]
     },
     {
-      "id": "ec440be22afb5ab2245455013a2d8db2",
+      "canonical_event_id": "54ec7d0a80e5cc62d4b98f38",
       "title": "參觀台灣國際兒童及青少年嘉年華未來世代書展 卓揆：鼓勵踴躍使用文化幣 讓閱讀成為一生無形財富",
       "summary": "行政院長卓榮泰今（23）日前往高雄展覽館參觀「2026年台灣國際兒童及青少年嘉年華未來世代書展」。本次展覽活動結合書展、劇場與影展三大主軸，卓院長鼓勵參觀民眾依據自身喜好多方接觸與體驗，並選購自己喜愛的書籍，透過閱讀拓展視野，逐漸累積成為一生無形的財富。卓院長致詞時表示，為讓學生族群能夠及早接觸文學作品，並與文化場域產生更多連結，文化部自今（2026）年起全面擴大文化幣發放年齡，13歲至22歲每人每年可領取1,200點，買書、看電影都可適用，部分獨立書店更推出優惠活動，享有「消費2點加送1點」的回饋。卓院長鼓勵大家踴躍使用文化幣，只要需求愈多、使用更快速",
-      "source_name": "行政院本院新聞",
-      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//e28c1a2e-6243-4903-a550-f9ce11bfbe55",
-      "published_at": "2026-09-23T10:15:04Z",
-      "region": "taiwan",
       "category": "兒少保護",
-      "relevance_score": 6,
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
       "exam_tags": [
         "兒少",
         "兒童",
         "少年",
         "行政院"
       ],
-      "subjects": [
-        "社會工作直接服務",
-        "社會政策與社會立法",
-        "社會工作"
+      "related_laws": [],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "行政院本院新聞"
+      ],
+      "evidence": [
+        {
+          "source_name": "行政院本院新聞",
+          "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//e28c1a2e-6243-4903-a550-f9ce11bfbe55",
+          "source_type": "official",
+          "published_at": "2026-09-23T10:15:04Z",
+          "item_id": "ec440be22afb5ab2245455013a2d8db2"
+        }
+      ],
+      "first_seen": "2026-09-23T10:15:04Z",
+      "last_seen": "2026-09-23T10:15:04Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-09-23"
       ],
       "policy_signal": "low",
       "essay_value": "medium",
@@ -322,7 +382,6 @@
         "行政院",
         "兒少"
       ],
-      "related_laws": [],
       "related_exam_questions": [
         {
           "id": "SP104-2-21",
@@ -382,25 +441,41 @@
       ]
     },
     {
-      "id": "6c3e075258813e8339a40cebd78e2c0c",
+      "canonical_event_id": "338150e268265e0359e5007e",
       "title": "衛福部擴大獨老服務 「二會三不」啟動70萬名長者關懷訪查",
       "summary": "因應超高齡社會來臨，為了建構完整的長者社區安全網，衛福部於115年至116年投入62.5億元推動「擴大獨居老人服務」，預計動員逾1萬2千名訪員，地毯式走訪全國約70萬名獨居長者，掌握其身心狀況，並分級連結適切服務；訪員將秉持「二會三不」原則，包含會佩戴識別證件、會出示公務證明公文，以及不會索取存摺、印章、帳號，不會洩漏個人資料，也不會詢問與訪查無關的資料，請受訪長輩放心。 衛福部石崇良部長表示，「擴大獨居老人服務」先透過跨部會共同合作、公私部門總動員，進行獨居長者訪查。由內政部戶政司提供單一戶籍資料造冊，比對串聯社福身分資料，動員公所、村里長與里幹事等基",
-      "source_name": "衛生福利部焦點新聞",
-      "source_url": "https://www.mohw.gov.tw/cp-16-88069-1.html",
-      "published_at": "2026-09-24T03:30:00Z",
-      "region": "taiwan",
       "category": "長照與高齡",
-      "relevance_score": 5,
-      "exam_tags": [
-        "高齡",
-        "老人",
-        "政策",
-        "補助",
-        "衛福部"
-      ],
       "subjects": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "exam_tags": [
+        "政策",
+        "老人",
+        "衛福部",
+        "補助",
+        "高齡"
+      ],
+      "related_laws": [],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "衛生福利部焦點新聞"
+      ],
+      "evidence": [
+        {
+          "source_name": "衛生福利部焦點新聞",
+          "source_url": "https://www.mohw.gov.tw/cp-16-88069-1.html",
+          "source_type": "official",
+          "published_at": "2026-09-24T03:30:00Z",
+          "item_id": "6c3e075258813e8339a40cebd78e2c0c"
+        }
+      ],
+      "first_seen": "2026-09-24T03:30:00Z",
+      "last_seen": "2026-09-24T03:30:00Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-09-24"
       ],
       "policy_signal": "low",
       "essay_value": "medium",
@@ -413,7 +488,6 @@
         "衛福部",
         "內政部"
       ],
-      "related_laws": [],
       "related_exam_questions": [
         {
           "id": "SP104-2-32",
@@ -473,24 +547,40 @@
       ]
     },
     {
-      "id": "10ba933cd7a0a266624b7dbc7afe7cf9",
+      "canonical_event_id": "d7f581bcef3b133d407d611d",
       "title": "衛福部說明：全國205家醫院提供全天候兒童急診服務",
       "summary": "針對媒體報導「僅5家醫院有兒科全天候急診」，衛生福利部說明，該5家醫院均為兒童醫院，但目前提供24小時兒童急診服務，並不限於這5家兒童醫院，全國合計205家急救責任醫院提供24小時急診服務，兒童有緊急醫療需求時，皆可接受檢傷、評估及必要醫療處置。政府持續透過建構兒童急重症照護救網絡，及調整健保給付，強化兒童急重症照護。 衛福部表示，我國已建構分級分區的兒童急重症照護體系。205家急救責任醫院提供全天候急診服務，其中82家具高危險妊娠孕產婦及新生兒醫療能力醫院，配合8家兒童醫療網絡之核心醫院及27家重點醫院，共同強化兒科急診、住院、加護病房、新生兒及重難症",
-      "source_name": "衛生福利部焦點新聞",
-      "source_url": "https://www.mohw.gov.tw/cp-16-88036-1.html",
-      "published_at": "2026-09-20T05:55:00Z",
-      "region": "taiwan",
       "category": "兒少保護",
-      "relevance_score": 6,
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
       "exam_tags": [
         "兒童",
         "福利",
         "衛福部"
       ],
-      "subjects": [
-        "社會工作直接服務",
-        "社會政策與社會立法",
-        "社會工作"
+      "related_laws": [],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "衛生福利部焦點新聞"
+      ],
+      "evidence": [
+        {
+          "source_name": "衛生福利部焦點新聞",
+          "source_url": "https://www.mohw.gov.tw/cp-16-88036-1.html",
+          "source_type": "official",
+          "published_at": "2026-09-20T05:55:00Z",
+          "item_id": "10ba933cd7a0a266624b7dbc7afe7cf9"
+        }
+      ],
+      "first_seen": "2026-09-20T05:55:00Z",
+      "last_seen": "2026-09-20T05:55:00Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-09-20"
       ],
       "policy_signal": "low",
       "essay_value": "medium",
@@ -503,7 +593,6 @@
         "衛福部",
         "衛生福利部"
       ],
-      "related_laws": [],
       "related_exam_questions": [
         {
           "id": "SP104-2-21",
@@ -563,24 +652,40 @@
       ]
     },
     {
-      "id": "77bb3f695f62d439439a949e3450ebe3",
+      "canonical_event_id": "6f6a18196e7305d15274bb7e",
       "title": "不怕秋老虎咬人 外出牢記「防熱4招」護兒童遠離熱傷害",
       "summary": "國民健康署提醒家長及照顧者，秋季高溫仍可能帶來熱傷害風險，帶孩子外出活動時，應掌握「防熱4招」：穿著舒適、透氣排汗；遮陽通風、遠離悶熱；時時喝水、避免含糖飲料；避開高溫、隨時留心，以降低熱傷害發生風險。 根據衛生福利部疾病管制署「即時疫情監測及預警系統」通報急診就醫資料，截至今年9月23日，18歲以下族群因熱傷害就診達144人次，可見「秋老虎」的威力不容小覷。國民健康署表示，時序雖已進入秋季，但部分縣市仍可能出現高溫情形，適逢中秋連假將至，許多家長把握假期帶孩子出遊，若長時間處於高溫環境，又未適時補充水分及休息，仍可能增加熱傷害風險。兒童因為新陳代謝速度",
-      "source_name": "衛生福利部焦點新聞",
-      "source_url": "https://www.mohw.gov.tw/cp-16-88070-1.html",
-      "published_at": "2026-09-24T02:40:00Z",
-      "region": "taiwan",
       "category": "兒少保護",
-      "relevance_score": 6,
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
       "exam_tags": [
         "兒童",
-        "通報",
-        "福利"
+        "福利",
+        "通報"
       ],
-      "subjects": [
-        "社會工作直接服務",
-        "社會政策與社會立法",
-        "社會工作"
+      "related_laws": [],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "衛生福利部焦點新聞"
+      ],
+      "evidence": [
+        {
+          "source_name": "衛生福利部焦點新聞",
+          "source_url": "https://www.mohw.gov.tw/cp-16-88070-1.html",
+          "source_type": "official",
+          "published_at": "2026-09-24T02:40:00Z",
+          "item_id": "77bb3f695f62d439439a949e3450ebe3"
+        }
+      ],
+      "first_seen": "2026-09-24T02:40:00Z",
+      "last_seen": "2026-09-24T02:40:00Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-09-24"
       ],
       "policy_signal": "low",
       "essay_value": "medium",
@@ -594,7 +699,6 @@
         "國民健康署",
         "通報"
       ],
-      "related_laws": [],
       "related_exam_questions": [
         {
           "id": "SP104-2-21",
