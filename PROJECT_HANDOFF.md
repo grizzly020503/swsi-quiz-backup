@@ -1,5 +1,50 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-25 時事命題分析鏈 V2 已正式上線（READ FIRST）
+
+> 本節優先於下方舊的「6 feeds／V1 時事區／尚未發布」敘述。接手仍先讀遠端 main、open PR/issues、Actions 與公開監測，不把 SHA 當永久最新。
+
+### 已完成
+
+- Issue #84 V2 第一階段資料鏈已完成：**來源 registry → event clustering → canonical event → 4,800 題歷屆題關聯 → trend snapshot**。
+- #85 已合併：新增 `current_affairs_events.json`、`current_affairs_trends.json`、事件 identity／證據日期持續性、趨勢分級與 regression。
+- 目前來源 registry 為 **8 feeds**：
+  - 衛福部焦點新聞
+  - 衛福部公告訊息
+  - 中央社社會／生活／政治／國際
+  - 內政部新聞發布
+  - 行政院本院新聞
+- main 真實監測曾抓取 **190 則、接受 7 則、feed errors 0**；events=7、trends=7、signals=7、歷屆題來源=4,800。
+- #86 已合併：production uptime 驗證 events/trends contract。
+- #87 已合併：學生端單一時事入口升級成 **命題趨勢雷達**，顯示升溫／持續／降溫／單次觀察、trend score、來源數、官方來源、why、申論方向、MCQ focus、歷屆題、多來源 evidence；V2 失敗時保留 V1 fallback。
+- #88 已合併並正式發布 Cloudflare production；merge commit：`54b073f4ac115a6fd01f0878b112afb1be53f588`。
+- #88 首次 uptime 比 Cloudflare deployment 早約 50 秒而失敗；**Cloudflare Workers Build 完成 success 後重跑 attempt 2 成功**。
+- production sentinel 最終 log：
+  `primary-home, pwa-sw-v7, questions-4800-24, news-7, signals-7/4800, events-7, trends-7, trend-ui-v2, laws-52/52, question-health, ai-preflight, feedback-preflight, netlify-fallback`。
+
+### 現在不要重做
+
+- 不要再做第二個時事 portal。
+- 不要再把 V1 單篇 signal 當目前最高層資料模型；V1 只保留 fallback。
+- 不要把同一事件的多家報導直接當成多倍熱度。
+- 不要重做 #85～#88 的 event/trend/UI/release closeout。
+- 官方 4,800 題、答案、grading 仍是唯讀邊界。
+
+### Issue #84 尚未完成的部分
+
+1. **來源擴充**：台灣官方再加入勞動部、教育部、法務部、社家署、移民署等高相關來源。
+2. **國際來源**：UN／WHO／UNICEF／ILO 與 Reuters／AP／BBC 等；接入前需處理英文內容與中文考點分類，不能只把英文 RSS 塞進目前中文 keyword scanner。
+3. **trend quality refinement**：累積更多跨日 evidence 後再調權重，不以來源數當 KPI。
+4. 學生 UI 已上線，後續只依真實 feedback 與監測結果迭代。
+
+### Netlify
+
+- Netlify 仍是 fallback，與本次 Cloudflare V2 release 分開。
+- 已有驗證過的 v7 manual deploy artifact，但目前聊天沒有 Netlify 帳號寫入連接器；不要把「artifact 已產生」誤稱「Netlify production 已更新」。
+
+---
+
+
 ## 2026-09-25 Cloudflare 正式發布完成（READ FIRST）
 
 > 本節是目前最高優先級的接手基線；下方 2026-09-25「接手與時事功能收尾」保留為歷史稽核紀錄，當中的「尚未 merge／尚未發布／signal 403／cdn SW v6」已被本節取代。
