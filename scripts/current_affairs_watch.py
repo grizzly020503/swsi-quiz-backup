@@ -6,6 +6,8 @@ import html
 import json
 import re
 import socket
+import time
+from urllib.parse import urljoin
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -61,6 +63,7 @@ CATEGORIES = [
     ("移工與新住民", 3, ["移工","外籍勞工","新住民","移民","難民","人口販運"]),
     ("勞動與社會保障", 3, ["勞保","就業保險","職業災害","職災","育嬰留職停薪","性別平等工作法","就業歧視","職場霸凌","勞工權益","失業給付","就業服務","身障就業","庇護工場","最低工資","勞退"]),
     ("教育與學生輔導", 3, ["學生輔導","校園霸凌","中途輟學","中輟","特殊教育","身心障礙學生","校園性別事件","學校社工","青少年輔導","弱勢學生"]),
+    ("司法保護與修復式司法", 4, ["犯罪被害人","被害人保護","犯罪被害人權益保障","修復式司法","更生保護","保護管束","榮譽觀護人","觀護人","社區矯治","社區處遇","社會勞動","戒癮處遇","被害補償金"]),
     ("少年司法與犯罪防治", 3, ["少年事件","少年司法","少年犯罪","少年觀護","觸法少年"]),
     ("性別與家庭政策", 2, ["性別平等","婦女","育兒","托育","家庭政策","少子化","生育","婚姻平權"]),
     ("災害與社區工作", 2, ["災害救助","災民","安置中心","撤離","避難","社區韌性","震災","颱風","洪水","土石流"]),
@@ -69,7 +72,7 @@ CATEGORIES = [
 
 POLICY_TERMS = ["修法","修正","政策","制度","改革","通報","補助","津貼","權益","福利","保護","安置","服務量能","人力不足","監察","行政院","衛福部","條例","施行細則","法規","草案","預告","指引","要點","給付","保險","保障"]
 INTERNATIONAL_CORE = ["兒童權利","社會福利","社會政策","移民","難民","人權","心理健康","高齡","家暴","性暴力","災害","貧窮","身心障礙"]
-LOW_VALUE_TERMS = ["好禮","選購","愛心捐贈","公益捐贈","徵求","招標","採購","徵件","動漫菸品","疫苗","流感","登革熱","牙醫醫療站","競賽","招生","徵才","表揚","書展","文化幣","科普","論壇","新書發表","急診","熱傷害","頒獎","典禮","成果發表","模擬投票","築夢","博覽會","開講","接見","訪問團","投資環境","評選","涉詐","詐領","起訴","演練","防衛韌性","課桌椅"]
+LOW_VALUE_TERMS = ["好禮","選購","愛心捐贈","公益捐贈","徵求","招標","採購","徵件","動漫菸品","疫苗","流感","登革熱","牙醫醫療站","競賽","招生","徵才","表揚","書展","文化幣","科普","論壇","新書發表","急診","熱傷害","頒獎","典禮","成果發表","模擬投票","築夢","博覽會","開講","接見","訪問團","投資環境","評選","涉詐","詐領","起訴","演練","防衛韌性","課桌椅","揭牌","聯展","音樂會","媒體報導","澄清","駁斥","與事實不符"]
 CHILD_WEAK = {"兒少","兒童","少年","保母"}
 CHILD_STRONG = ["兒少保護","兒虐","虐童","兒童權利","性剝削","托嬰","安置","收出養","寄養","責任通報","兒童及少年福利與權益保障法","兒童權利公約","兒少生活狀況","生活狀況調查"]
 FAMILY_POLICY_STRONG = ["托育","育兒","少子化","家庭政策","性別平等","育嬰留職停薪"]
@@ -84,11 +87,32 @@ SUBJECT_MAP = {
     "移工與新住民":["社會工作","社會政策與社會立法"],
     "勞動與社會保障":["社會政策與社會立法","社會工作"],
     "教育與學生輔導":["社會工作直接服務","社會政策與社會立法","社會工作"],
+    "司法保護與修復式司法":["社會工作直接服務","社會政策與社會立法","社會工作"],
     "少年司法與犯罪防治":["社會工作直接服務","社會政策與社會立法"],
     "性別與家庭政策":["社會政策與社會立法","社會工作"],
     "災害與社區工作":["社會工作","社會工作直接服務"],
     "社工專業與社福制度":["社會工作","社會工作直接服務","社會政策與社會立法"],
 }
+
+
+def parse_feed_with_retry(feed, attempts=3):
+    last_error = None
+    for attempt in range(1, max(1, attempts) + 1):
+        try:
+            parsed = feedparser.parse(
+                feed["url"],
+                request_headers={"User-Agent":"swsi-current-affairs-radar/1.1"},
+            )
+            if not (getattr(parsed, "bozo", False) and not parsed.entries):
+                return parsed, None
+            last_error = getattr(parsed, "bozo_exception", "RSS parse failed")
+        except Exception as exc:
+            parsed = None
+            last_error = exc
+        if attempt < attempts:
+            print(f"Feed RETRY: {feed['name']} attempt={attempt} error={last_error}")
+            time.sleep(0.5 * attempt)
+    return parsed, last_error
 
 
 def clean_html(value):
@@ -168,18 +192,19 @@ def main():
     feeds = load_feeds()
     socket.setdefaulttimeout(12)
     for feed in feeds:
-        parsed = feedparser.parse(feed["url"], request_headers={"User-Agent":"swsi-current-affairs-radar/1.1"})
-        entry_count = len(parsed.entries or [])
-        if getattr(parsed, "bozo", False) and not parsed.entries:
-            error = f"{feed['name']}: {getattr(parsed, 'bozo_exception', 'RSS parse failed')}"
+        parsed, parse_error = parse_feed_with_retry(feed)
+        if parsed is None or parse_error is not None:
+            error = f"{feed['name']}: {parse_error or 'RSS parse failed'}"
             feed_errors.append(error)
             print(f"Feed ERROR: {error}")
             continue
+        entry_count = len(parsed.entries or [])
         print(f"Feed OK: {feed['name']} entries={entry_count}")
         for entry in parsed.entries:
             fetched += 1
             title = clean_html(getattr(entry, "title", ""))
-            link = str(getattr(entry, "link", "") or "").strip()
+            raw_link = str(getattr(entry, "link", "") or "").strip()
+            link = urljoin(feed["url"], raw_link) if raw_link else ""
             summary = clean_html(getattr(entry, "summary", "") or getattr(entry, "description", ""))[:600]
             pub = published_iso(entry)
             if not title or not link:
