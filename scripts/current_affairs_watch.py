@@ -6,6 +6,7 @@ import html
 import json
 import re
 import socket
+import time
 from urllib.parse import urljoin
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -94,6 +95,26 @@ SUBJECT_MAP = {
 }
 
 
+def parse_feed_with_retry(feed, attempts=3):
+    last_error = None
+    for attempt in range(1, max(1, attempts) + 1):
+        try:
+            parsed = feedparser.parse(
+                feed["url"],
+                request_headers={"User-Agent":"swsi-current-affairs-radar/1.1"},
+            )
+            if not (getattr(parsed, "bozo", False) and not parsed.entries):
+                return parsed, None
+            last_error = getattr(parsed, "bozo_exception", "RSS parse failed")
+        except Exception as exc:
+            parsed = None
+            last_error = exc
+        if attempt < attempts:
+            print(f"Feed RETRY: {feed['name']} attempt={attempt} error={last_error}")
+            time.sleep(0.5 * attempt)
+    return parsed, last_error
+
+
 def clean_html(value):
     s = html.unescape(str(value or ""))
     s = re.sub(r"<[^>]+>", " ", s)
@@ -171,13 +192,13 @@ def main():
     feeds = load_feeds()
     socket.setdefaulttimeout(12)
     for feed in feeds:
-        parsed = feedparser.parse(feed["url"], request_headers={"User-Agent":"swsi-current-affairs-radar/1.1"})
-        entry_count = len(parsed.entries or [])
-        if getattr(parsed, "bozo", False) and not parsed.entries:
-            error = f"{feed['name']}: {getattr(parsed, 'bozo_exception', 'RSS parse failed')}"
+        parsed, parse_error = parse_feed_with_retry(feed)
+        if parsed is None or parse_error is not None:
+            error = f"{feed['name']}: {parse_error or 'RSS parse failed'}"
             feed_errors.append(error)
             print(f"Feed ERROR: {error}")
             continue
+        entry_count = len(parsed.entries or [])
         print(f"Feed OK: {feed['name']} entries={entry_count}")
         for entry in parsed.entries:
             fetched += 1
