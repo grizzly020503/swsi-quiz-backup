@@ -11,6 +11,8 @@ import re
 from datetime import datetime, timezone
 from typing import Iterable
 
+from current_affairs_international import CATEGORY_SLUG, event_metadata
+
 PUNCT_RE = re.compile(r"[\s\u3000，。！？、；：,.!?;:（）()\[\]【】《》〈〉「」『』\-—_／/]+")
 DATEISH_RE = re.compile(r"\b(?:19|20)?\d{2}[./-]\d{1,2}(?:[./-]\d{1,2})?\b")
 NUMBER_RE = re.compile(r"\d+(?:[,.]\d+)*")
@@ -76,6 +78,18 @@ def extract_lawish(text: str) -> set[str]:
 
 def item_features(row: dict) -> dict:
     text = f"{row.get('title') or ''} {row.get('summary') or ''}"
+    category = str(row.get("category") or "")
+    derived = event_metadata(
+        str(row.get("title") or ""),
+        str(row.get("summary") or ""),
+        category,
+        row.get("exam_tags") or [],
+    )
+    languages = {
+        str(x).strip().lower()
+        for x in (row.get("languages") or [row.get("language") or "zh"])
+        if str(x).strip()
+    }
     return {
         "title_norm": normalize_title(str(row.get("title") or "")),
         "ngrams": cjk_ngrams(str(row.get("title") or "")),
@@ -84,7 +98,11 @@ def item_features(row: dict) -> dict:
         "agencies": extract_agencies(text),
         "laws": set(row.get("related_laws") or []) | extract_lawish(text),
         "published": parse_dt(row.get("published_at") or row.get("last_seen")),
-        "category": str(row.get("category") or ""),
+        "category": category,
+        "languages": languages or {"zh"},
+        "facets": {str(x) for x in (row.get("event_facets") or derived["event_facets"]) if str(x)},
+        "org_keys": {str(x) for x in (row.get("org_keys") or derived["org_keys"]) if str(x)},
+        "numeric_anchors": {str(x) for x in (row.get("numeric_anchors") or derived["numeric_anchors"]) if str(x)},
     }
 
 
@@ -95,6 +113,30 @@ def similarity(a: dict, b: dict, max_days: int = 10) -> tuple[float, list[str]]:
     da, db = fa["published"], fb["published"]
     if da and db and abs((da - db).total_seconds()) > max_days * 86400:
         return 0.0, ["outside-time-window"]
+
+    cross_language = fa["languages"].isdisjoint(fb["languages"])
+    if cross_language:
+        if da and db and abs((da - db).total_seconds()) > 4 * 86400:
+            return 0.0, ["cross-language-outside-4d"]
+        shared_facets = fa["facets"] & fb["facets"]
+        category_facet = CATEGORY_SLUG.get(fa["category"], fa["category"])
+        specific_facets = {x for x in shared_facets if x != category_facet}
+        shared_orgs = fa["org_keys"] & fb["org_keys"]
+        shared_numbers = fa["numeric_anchors"] & fb["numeric_anchors"]
+        reasons = []
+        if specific_facets:
+            reasons.append("facet=" + ",".join(sorted(specific_facets)[:3]))
+        if shared_orgs:
+            reasons.append("org=" + ",".join(sorted(shared_orgs)[:2]))
+        if shared_numbers:
+            reasons.append("number=" + ",".join(sorted(shared_numbers)[:3]))
+        # Fail closed: one shared topic is never enough. Cross-language merge needs
+        # an organization + numeric anchor, or two specific semantic facets + org.
+        if specific_facets and shared_orgs and shared_numbers:
+            return 0.72, ["cross-language"] + reasons
+        if len(specific_facets) >= 2 and shared_orgs:
+            return 0.64, ["cross-language-strong-facets"] + reasons
+        return 0.0, reasons + ["cross-language-below-threshold"]
 
     title_score = jaccard(fa["ngrams"], fb["ngrams"])
     title_cover = overlap_coefficient(fa["ngrams"], fb["ngrams"])
@@ -220,6 +262,10 @@ def _previous_as_item(row: dict) -> dict:
         "subjects": row.get("subjects") or [],
         "related_laws": row.get("related_laws") or [],
         "published_at": row.get("last_seen"),
+        "languages": row.get("languages") or [],
+        "event_facets": row.get("event_facets") or [],
+        "org_keys": row.get("org_keys") or [],
+        "numeric_anchors": row.get("numeric_anchors") or [],
     }
 
 
@@ -285,6 +331,10 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
         "subjects": sorted({str(y) for x in members for y in (x.get("subjects") or []) if y}),
         "exam_tags": sorted({str(y) for x in members for y in (x.get("exam_tags") or []) if y}),
         "related_laws": sorted({str(y) for x in members for y in (x.get("related_laws") or []) if y}),
+        "languages": sorted({str(x.get("language") or "zh") for x in members}),
+        "event_facets": sorted({str(y) for x in members for y in (x.get("event_facets") or []) if y}),
+        "org_keys": sorted({str(y) for x in members for y in (x.get("org_keys") or []) if y}),
+        "numeric_anchors": sorted({str(y) for x in members for y in (x.get("numeric_anchors") or []) if y}),
         "source_count": len(source_names),
         "official_source_count": len(official_names),
         "sources": source_names,
