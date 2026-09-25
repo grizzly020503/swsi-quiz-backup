@@ -131,11 +131,17 @@ def trend_for(event: dict, generated_at: str) -> dict:
         strong = int(match_breakdown.get("strong") or 0)
         medium = int(match_breakdown.get("medium") or 0)
         concept = int(match_breakdown.get("concept") or 0)
-        quality_text = (
-            f"；強 {strong}／中 {medium}／概念 {concept}"
-            if strong or medium or concept else ""
-        )
-        why.append(f"歷屆同主題匹配 {hist_count} 題{year_text}{quality_text}")
+        quality_text = f"；強 {strong}／中 {medium}／概念 {concept}"
+        if strong:
+            label = "歷屆同主題精準匹配"
+            suffix = ""
+        elif medium:
+            label = "歷屆同概念／事件詞關聯"
+            suffix = ""
+        else:
+            label = "歷屆廣義概念關聯"
+            suffix = "（僅作低權重背景）"
+        why.append(f"{label} {hist_count} 題{year_text}{quality_text}{suffix}")
     if latest_exam_year is not None:
         if years_since_last_exam is None:
             why.append(f"最近相關題為 {latest_exam_year} 年")
