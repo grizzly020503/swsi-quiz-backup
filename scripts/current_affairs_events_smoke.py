@@ -20,6 +20,11 @@ def row(
     essay="medium",
     mcq="medium",
     related=None,
+    category="長照與高齡",
+    language="zh",
+    facets=None,
+    orgs=None,
+    numbers=None,
 ):
     return {
         "id": item_id,
@@ -29,7 +34,8 @@ def row(
         "source_url": source_url,
         "source_type": source_type,
         "published_at": published_at,
-        "category": "長照與高齡",
+        "category": category,
+        "language": language,
         "exam_tags": tags or ["老人", "高齡", "政策"],
         "subjects": ["社會政策與社會立法"],
         "policy_signal": policy,
@@ -39,6 +45,9 @@ def row(
         "signal_score": 7,
         "related_laws": laws or [],
         "related_exam_questions": related or [],
+        "event_facets": facets or [],
+        "org_keys": orgs or [],
+        "numeric_anchors": numbers or [],
     }
 
 
@@ -139,10 +148,59 @@ def main() -> int:
     )
     assert policy_trend["trend_state"] in {"rising", "sustained"}
 
+    bilingual = [
+        row(
+            "en-unicef",
+            "UNICEF: 1 in 5 children across 21 countries experienced child sexual abuse",
+            "UNICEF",
+            "https://example.test/unicef-en",
+            "2026-09-25T02:00:00Z",
+            source_type="official",
+            category="兒少保護",
+            language="en",
+            tags=["兒童權利", "性剝削"],
+            facets=["child-protection", "child-sexual-abuse"],
+            orgs=["unicef"],
+            numbers=["1", "5", "21"],
+        ),
+        row(
+            "zh-unicef",
+            "UNICEF：21國每5名兒少就1人遭科技促成性剝削",
+            "中央社國際",
+            "https://example.test/unicef-zh",
+            "2026-09-25T05:00:00Z",
+            category="兒少保護",
+            language="zh",
+            tags=["兒童權利", "性剝削"],
+            facets=["child-protection", "child-sexual-abuse"],
+            orgs=["unicef"],
+            numbers=["1", "5", "21"],
+        ),
+        row(
+            "zh-other",
+            "UNICEF：15國推動兒童權利教育新報告",
+            "中央社國際",
+            "https://example.test/unicef-other",
+            "2026-09-25T06:00:00Z",
+            category="兒少保護",
+            language="zh",
+            tags=["兒童權利"],
+            facets=["child-protection", "child-rights"],
+            orgs=["unicef"],
+            numbers=["15"],
+        ),
+    ]
+    bilingual_events = cluster_items(bilingual)
+    assert len(bilingual_events) == 2, bilingual_events
+    cross = next(x for x in bilingual_events if x["source_count"] == 2)
+    assert set(cross["languages"]) == {"en", "zh"}, cross
+    assert set(cross["numeric_anchors"]) >= {"1", "5", "21"}, cross
+    assert "child-sexual-abuse" in cross["event_facets"], cross
+
     print(
         "CURRENT AFFAIRS V2 EVENT/TREND SMOKE OK: "
         "3-source event deduped, unrelated event separated, identity persisted, "
-        "trend score not driven by source count alone"
+        "trend score not driven by source count alone, cross-language dedupe fail-closed"
     )
     return 0
 
