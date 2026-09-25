@@ -2773,6 +2773,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
   window.__SWSI_CURRENT_AFFAIRS_UI__=true;
 
   var liveItems=[];
+  var signalItems=[];
   var loadPromise=null;
   var currentFilter='全部';
   var oldOpen=null, oldFilter=null;
@@ -2831,8 +2832,13 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     return d.toLocaleDateString('zh-TW',{year:'numeric',month:'numeric',day:'numeric'});
   }
   function templateFor(cat){return TEMPLATES[cat]||{points:['事件脈絡與問題界定','相關社會工作理論／政策','社工角色與服務體系','制度改善與權益保障'],exam:'先從事件轉成社工問題，再用理論、政策、實務與制度四層次作答。'};}
+  function signalFor(id){
+    for(var i=0;i<signalItems.length;i++){if(signalItems[i].id===id)return signalItems[i];}
+    return null;
+  }
   function liveCard(ev){
     var t=templateFor(ev.category);
+    var sig=signalFor(ev.id)||{};
     var pts=t.points.map(function(x){return '<li>'+E(x)+'</li>';}).join('');
     var tags=(ev.exam_tags||[]).slice(0,6).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('');
     var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(x.replace('社會政策與社會立法','社政法').replace('社會工作直接服務','直接服務').replace('人類行為與社會環境','人行'))+'</span>';}).join('');
@@ -2844,6 +2850,11 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       +(summary?'<div class="nlr-summary">'+E(summary)+'</div>':'')
       +'<div class="nlr-subs">'+subjects+'</div>'
       +(tags?'<div class="nlr-chips">'+tags+'</div>':'')
+      +(sig.signal_confidence?'<div class="nlr-signal"><b>命題訊號：'+E(sig.signal_confidence==='high'?'高':sig.signal_confidence==='medium'?'中':'低')+'</b>'+(sig.signal_score!=null?' ・ '+E(sig.signal_score)+'/10':'')+'</div>':'')
+      +(sig.exam_point_summary?'<div class="nlr-signal-text">'+E(sig.exam_point_summary)+'</div>':'')
+      +(sig.essay_direction?'<details class="nlr-detail"><summary>值得練習的申論方向</summary><div class="nlr-exam">'+E(sig.essay_direction)+'</div></details>':'')
+      +(sig.mcq_focus&&sig.mcq_focus.length?'<details class="nlr-detail"><summary>選擇題可能抓哪些事實？</summary><div class="nlr-chips">'+sig.mcq_focus.slice(0,8).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('')+'</div></details>':'')
+      +(sig.related_exam_questions&&sig.related_exam_questions.length?'<details class="nlr-detail"><summary>歷屆相關題</summary><ul>'+sig.related_exam_questions.slice(0,4).map(function(q){var label=(q.year||'')+'-'+(q.round||'')+'-'+(q.qno||'');return '<li><b>'+E(q.id||label)+'</b> '+E(q.subject||'')+(q.topic?' ・ '+E(q.topic):'')+'</li>';}).join('')+'</ul></details>':'')
       +'<details class="nlr-detail"><summary>此類事件常見的申論思考方向</summary><ul>'+pts+'</ul><div class="nlr-exam">'+E(t.exam)+'</div></details>'
       +'<a class="nlr-link" href="'+E(ev.source_url)+'" target="_blank" rel="noopener noreferrer">查看原始來源 ↗</a>'
       +'</div>';
@@ -2858,15 +2869,21 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       +'.nlr-card{border:1px solid var(--line,#ddd);border-radius:13px;padding:12px;background:var(--bg,#fff)}.nlr-head{display:flex;justify-content:space-between;gap:8px}.nlr-cat{font-size:.75rem;font-weight:700}.nlr-score{font-size:.72rem;color:var(--muted,#777)}'
       +'.nlr-title{font-weight:800;line-height:1.45;margin:6px 0}.nlr-meta,.nlr-summary{font-size:.8rem;color:var(--muted,#666);line-height:1.55}.nlr-summary{margin-top:7px}'
       +'.nlr-subs,.nlr-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.nlr-sub,.nlr-chip{font-size:.7rem;border-radius:999px;padding:3px 7px;background:var(--soft,#f2f2f2)}'
-      +'.nlr-detail{margin-top:9px;font-size:.8rem;line-height:1.55}.nlr-detail summary{cursor:pointer;font-weight:700}.nlr-detail ul{padding-left:20px;margin:7px 0}.nlr-exam{margin-top:6px}.nlr-link{display:inline-block;margin-top:9px;font-size:.78rem;text-decoration:none;font-weight:700}.nlr-empty{font-size:.82rem;color:var(--muted,#777);padding:8px 0}';
+      +'.nlr-detail{margin-top:9px;font-size:.8rem;line-height:1.55}.nlr-detail summary{cursor:pointer;font-weight:700}.nlr-detail ul{padding-left:20px;margin:7px 0}.nlr-exam{margin-top:6px}.nlr-signal{margin-top:9px;font-size:.8rem}.nlr-signal-text{margin-top:5px;font-size:.78rem;line-height:1.5}.nlr-link{display:inline-block;margin-top:9px;font-size:.78rem;text-decoration:none;font-weight:700}.nlr-empty{font-size:.82rem;color:var(--muted,#777);padding:8px 0}';
     document.head.appendChild(st);
   }
   function loadLive(){
     if(loadPromise) return loadPromise;
     loadPromise=fetch('./auto/current_affairs.json',{cache:'no-store'})
-      .then(function(r){if(!r.ok) throw new Error('HTTP '+r.status);return r.json();})
-      .then(function(d){liveItems=Array.isArray(d.items)?d.items:[];return liveItems;})
-      .catch(function(){liveItems=[];return liveItems;});
+      .then(function(r){if(!r.ok) throw new Error('current affairs HTTP '+r.status);return r.json();})
+      .then(function(d){
+        liveItems=Array.isArray(d.items)?d.items:[];
+        return fetch('./auto/current_affairs_signals.json',{cache:'no-store'})
+          .then(function(r){if(!r.ok) throw new Error('signals HTTP '+r.status);return r.json();})
+          .then(function(s){signalItems=Array.isArray(s.items)?s.items:[];return liveItems;})
+          .catch(function(){signalItems=[];return liveItems;});
+      })
+      .catch(function(){liveItems=[];signalItems=[];return liveItems;});
     return loadPromise;
   }
   function inject(filter){

@@ -2,6 +2,15 @@
 
 本檔只列「目前仍需要處理或持續防回歸」的問題。已確認修好的舊問題不要長期留在 Active 區，避免下一個 AI 重做。
 
+## 2026-09-25 現行收尾狀態（優先於下方歷史紀錄）
+
+- 時事命題訊號：builder／QA 會成功，但發布清單漏 signal source/CDN 檔，main 無檔、公開 URL 403。修復在 `fix/monitoring-preview-closeout-20260925`，尚未正式發布。
+- 時事學生端：installer 原本因 V1 marker 提早 return，root source 未套用 signal UI。本分支已原位升級並補行為 smoke；正式 CDN root 尚待 rebuild／release。
+- Cloudflare Frontend Preview：#76 merge 後 source SW v7 與 workflow v6 assertion 不符。本分支改驗 source/preview bytes 一致，保留 preflight。
+- Netlify fallback：2026-09-25 實測 SW v2；不要把 #76 merge 宣稱為 Netlify v7 已部署。
+- 下方 v6、24 多答案、8 月 branch/release 狀態均是歷史證據；source SW 現為 v7，歷史多答案基準已由 #70 升至 25（勿重做官方答案 audit）。
+- 測試與發布邊界、後續順序見 `PROJECT_HANDOFF.md` 最上方 2026-09-25 節。
+
 ## P0（已完成，持續防回歸）
 
 ### P0-1 Grading contract 必須持續統一
