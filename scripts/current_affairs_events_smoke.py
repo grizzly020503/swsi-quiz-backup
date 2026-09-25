@@ -297,7 +297,7 @@ def main() -> int:
         **quality_base,
         "historical_exam_stats": {
             **quality_base["historical_exam_stats"],
-            "weighted_match_count": 1.25,
+            "weighted_match_count": 1.0,
             "match_breakdown": {"strong": 0, "medium": 0, "concept": 5},
             "high_confidence_match_count": 0,
         },
