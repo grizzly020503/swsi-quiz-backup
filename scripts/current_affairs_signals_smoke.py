@@ -27,6 +27,20 @@ def matching_contract_smoke() -> None:
             "keywords": ["兒童", "通報"], "question": "兒少保護責任通報", "law": "",
         },
         {
+            "id": "Q-CHILD-2",
+            "subject": "社會政策與社會立法",
+            "year": "112", "round": "第二次", "qno": "21",
+            "major": "兒少保護", "topic": "兒少最佳利益與安置",
+            "keywords": ["兒少", "安置", "最佳利益"], "question": "兒少安置與最佳利益", "law": "",
+        },
+        {
+            "id": "Q-CHILD-3",
+            "subject": "社會政策與社會立法",
+            "year": "109", "round": "第一次", "qno": "18",
+            "major": "兒少保護", "topic": "責任通報",
+            "keywords": ["兒童", "通報", "保護"], "question": "兒童保護責任通報", "law": "",
+        },
+        {
             "id": "Q-WEAK-1",
             "subject": "社會政策與社會立法",
             "year": "115", "round": "第一次", "qno": "11",
@@ -40,6 +54,15 @@ def matching_contract_smoke() -> None:
         raise SystemExit("topic-aware historical question matching failed")
     if "Q-WEAK-1" in ids:
         raise SystemExit("weak generic keyword caused a false historical-question match")
+    stats = out.get("historical_exam_stats") or {}
+    if int(stats.get("matched_question_count") or 0) != 3:
+        raise SystemExit(f"historical exam full-count mismatch: {stats}")
+    if stats.get("matched_years") != [109, 112, 115]:
+        raise SystemExit(f"historical exam year coverage mismatch: {stats}")
+    if stats.get("latest_exam_year") != 115 or stats.get("years_since_last_exam") != 0:
+        raise SystemExit(f"historical exam recency mismatch: {stats}")
+    if stats.get("subject_count") != 1:
+        raise SystemExit(f"historical subject count mismatch: {stats}")
 
 
 def main() -> int:
@@ -64,7 +87,8 @@ def main() -> int:
         for key in ("id", "title", "source_url", "category", "subjects",
                     "policy_signal", "essay_value", "mcq_fact_density",
                     "signal_confidence", "signal_score", "exam_point_summary",
-                    "essay_direction", "mcq_focus", "related_exam_questions"):
+                    "essay_direction", "mcq_focus", "related_exam_questions",
+                    "historical_exam_stats"):
             if key not in row:
                 raise SystemExit(f"missing field: {key}")
         if row["signal_confidence"] not in allowed_confidence:
@@ -79,6 +103,19 @@ def main() -> int:
             raise SystemExit("mcq_focus must be a list")
         if not isinstance(row["related_exam_questions"], list):
             raise SystemExit("related_exam_questions must be a list")
+        stats = row.get("historical_exam_stats")
+        if not isinstance(stats, dict):
+            raise SystemExit("historical_exam_stats must be an object")
+        for key in (
+            "matched_question_count", "matched_year_count", "matched_years",
+            "latest_exam_year", "corpus_latest_year", "years_since_last_exam",
+            "subject_counts", "subject_count", "law_match_count",
+            "high_confidence_match_count",
+        ):
+            if key not in stats:
+                raise SystemExit(f"historical exam stats missing field: {key}")
+        if int(stats.get("matched_question_count") or 0) < len(row["related_exam_questions"]):
+            raise SystemExit("historical full count cannot be smaller than public related list")
         for q in row["related_exam_questions"]:
             for key in ("id", "subject", "year", "round", "qno", "major", "topic", "match_reason", "match_score"):
                 if key not in q:
