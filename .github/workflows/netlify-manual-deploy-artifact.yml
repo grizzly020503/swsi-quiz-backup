@@ -11,6 +11,7 @@ on:
       - main
     paths:
       - '.github/workflows/netlify-manual-deploy-artifact.yml'
+      - 'index.html'
 
 permissions:
   contents: read
@@ -60,10 +61,38 @@ jobs:
           test -f _site/monthly_patch.js
           test -f _site/manifest.json
           test -f _site/sw.js
+          test -f _site/auto/current_affairs.json
           test -f _site/auto/current_affairs_signals.json
+          test -f _site/auto/current_affairs_events.json
+          test -f _site/auto/current_affairs_trends.json
           test -d _site/icons
+          grep -q 'swsi-netlify-release" content="2026-09-26-history-v2.2' _site/index.html
+          grep -q '命題趨勢雷達' _site/index.html
           grep -q "const VERSION = 'v7'" _site/sw.js
           node --check _site/monthly_patch.js
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          current=json.loads(Path('_site/auto/current_affairs.json').read_text(encoding='utf-8'))
+          signals=json.loads(Path('_site/auto/current_affairs_signals.json').read_text(encoding='utf-8'))
+          events=json.loads(Path('_site/auto/current_affairs_events.json').read_text(encoding='utf-8'))
+          trends=json.loads(Path('_site/auto/current_affairs_trends.json').read_text(encoding='utf-8'))
+          assert int(current.get('source_feed_count') or 0) >= 17, current.get('source_feed_count')
+          assert int(current.get('feed_error_count') or -1) == 0, current.get('feed_error_count')
+          assert int(signals.get('questions_loaded') or 0) == 4800
+          assert int(signals.get('item_count') or -1) == len(signals.get('items') or [])
+          assert int(events.get('event_count') or -1) == len(events.get('events') or [])
+          assert int(trends.get('event_count') or -1) == len(trends.get('trends') or [])
+          assert trends.get('method') == 'deterministic-v2.2', trends.get('method')
+          print(
+              'NETLIFY MANUAL ARTIFACT V2.2 CONTRACT OK '
+              f"sources={current['source_feed_count']} "
+              f"signals={signals['item_count']}/4800 "
+              f"events={events['event_count']} "
+              f"trends={trends['event_count']}/history-v2.2"
+          )
+          PY
 
       - name: Package Netlify manual deploy ZIP
         shell: bash
@@ -77,8 +106,10 @@ jobs:
           sha256sum swsi-netlify-manual-deploy.zip > swsi-netlify-manual-deploy.sha256
           {
             echo 'SWSI Netlify manual deploy package'
+            echo 'Release contract: 2026-09-26-history-v2.2'
             echo "Commit: ${GITHUB_SHA}"
             echo "Built from: ${GITHUB_REF_NAME}"
+            echo 'Required: SW v7, >=17 current-affairs sources, 0 feed errors, 4,800-question signals, deterministic-v2.2 trends.'
             echo 'Publish root: contents of _site at ZIP root'
             echo 'Upload swsi-netlify-manual-deploy.zip to the existing Netlify site manual deploy UI.'
             echo 'This package updates the static frontend only. It does not deploy Supabase migrations/Edge Functions or Cloudflare Worker code.'
@@ -88,7 +119,7 @@ jobs:
       - name: Upload manual deploy artifact
         uses: actions/upload-artifact@v4
         with:
-          name: swsi-netlify-manual-deploy
+          name: swsi-netlify-manual-deploy-history-v22
           path: |
             swsi-netlify-manual-deploy.zip
             swsi-netlify-manual-deploy.sha256
