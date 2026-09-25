@@ -25,6 +25,7 @@ on:
       - 'data/current_affairs_sources.json'
       - 'data/legal_watch_report.json'
       - 'scripts/current_affairs_watch.py'
+      - 'scripts/current_affairs_taxonomy.py'
       - 'scripts/current_affairs_sources_smoke.py'
       - 'scripts/build_current_affairs_snapshot.py'
       - 'scripts/current_affairs_event_cluster.py'
@@ -39,6 +40,7 @@ on:
       - '.github/workflows/public-monitoring-feed.yml'
       - 'data/current_affairs_sources.json'
       - 'scripts/current_affairs_watch.py'
+      - 'scripts/current_affairs_taxonomy.py'
       - 'scripts/current_affairs_sources_smoke.py'
       - 'scripts/build_current_affairs_snapshot.py'
       - 'scripts/current_affairs_event_cluster.py'
@@ -153,6 +155,7 @@ jobs:
         run: |
           python -m py_compile \
             scripts/current_affairs_watch.py \
+            scripts/current_affairs_taxonomy.py \
             scripts/current_affairs_sources_smoke.py \
             scripts/build_current_affairs_snapshot.py \
             scripts/current_affairs_event_cluster.py \
