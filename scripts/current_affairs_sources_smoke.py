@@ -65,6 +65,13 @@ def main() -> int:
     )
     assert child_survey and child_survey[1] == "兒少保護", child_survey
 
+    childcare = scored(
+        "響應0-6歲國家一起養 中央部會落實員工子女托育",
+        "政策同時提到弱勢家庭、社會福利與托育支持。",
+        "教育部即時新聞",
+    )
+    assert childcare and childcare[1] == "性別與家庭政策", childcare
+
     noise_cases = [
         (
             "教育部舉辦全國學生競賽",
