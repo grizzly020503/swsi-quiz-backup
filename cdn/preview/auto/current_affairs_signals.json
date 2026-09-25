@@ -1,11 +1,136 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-25T14:10:56Z",
-  "item_count": 7,
+  "generated_at": "2026-09-25T23:23:00Z",
+  "item_count": 11,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
   "note": "SWSI 命題訊號快照；用於複習方向，不代表命題保證。",
   "items": [
+    {
+      "id": "6e74f0ff091a45ad72d6686c1b463121",
+      "title": "延後退休續勞保：給付保障不中斷，年金累積年資無上限",
+      "summary": "為保障高齡勞工的保險權益，勞動部表示，年滿65歲以上仍持續工作的勞工，可依勞工保險條例規定繼續參加勞保，在職涯延續的同時持續享有勞工保險的保障。 勞動部表示，勞工繼續加勞保期間，享有勞保提供的各項保險給付權益，例如傷病給付、失能給付等，讓工作期間更安心；持續加保期間可繼續累積年資，年金累積年資無上限，工作越久，未來每月可領取的老年年金給付金額越高；此外，若選擇延後請領老年年金給付，還可享有展延加給，最高可加給20%，提升退休後的經濟保障。 勞動部進一步提醒，勞工申請老年給付除須符合一定的年齡與年資規定外，並應辦理離職退保；如果是已經領取勞保老年給付再投入",
+      "source_name": "勞動部新聞稿",
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99146/",
+      "published_at": "2026-09-22T13:50:55Z",
+      "region": "taiwan",
+      "category": "勞動與社會保障",
+      "relevance_score": 5,
+      "exam_tags": [
+        "勞保",
+        "職業災害",
+        "權益",
+        "保護",
+        "條例"
+      ],
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "policy_signal": "high",
+      "essay_value": "high",
+      "mcq_fact_density": "high",
+      "signal_confidence": "high",
+      "signal_score": 10,
+      "exam_point_summary": "延後退休續勞保：給付保障不中斷，年金累積年資無上限。制度或給付已有明確變動；申論可從社會保險、就業安全、勞動權益與弱勢就業支持切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "勞動部",
+        "勞保",
+        "職業災害"
+      ],
+      "related_laws": [],
+      "related_exam_questions": [
+        {
+          "id": "SP105-2-28",
+          "subject": "社會政策與社會立法",
+          "year": "105",
+          "round": "第二次",
+          "qno": "28",
+          "major": "社會保險",
+          "topic": "年金制度 > 勞保與國保老年年金",
+          "match_reason": "事件詞：勞保；同義考點：勞工保險、退休年金",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP-115-2-019",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "19",
+          "major": "社會保險",
+          "topic": "年金制度與財源籌措",
+          "match_reason": "同義考點：退休年金",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP114-1-13",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第一次",
+          "qno": "13",
+          "major": "社會保險",
+          "topic": "國民年金法 > 保險人",
+          "match_reason": "事件詞：勞保；同義考點：勞工保險",
+          "match_score": 3.2
+        },
+        {
+          "id": "SW-113-2-12",
+          "subject": "社會工作",
+          "year": "113",
+          "round": "第二次",
+          "qno": "12",
+          "major": "工作技巧",
+          "topic": "評估與預估 > 社會支持網絡評量",
+          "match_reason": "同義考點：退休年金",
+          "match_score": 3.2
+        },
+        {
+          "id": "SW-113-2-27",
+          "subject": "社會工作",
+          "year": "113",
+          "round": "第二次",
+          "qno": "27",
+          "major": "社會工作倫理",
+          "topic": "Reamer倫理抉擇 > 自由權優先",
+          "match_reason": "同義考點：退休年金",
+          "match_score": 3.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 11,
+        "weighted_match_count": 3.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 11,
+          "concept": 0
+        },
+        "matched_year_count": 7,
+        "matched_years": [
+          104,
+          105,
+          106,
+          108,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 2,
+          "社會政策與社會立法": 9
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
     {
       "id": "ed78eb5345a9becfb446a1e8be636a9b",
       "title": "敬請支持「115年兒童及少年生活狀況調查」",
@@ -45,61 +170,92 @@
       ],
       "related_exam_questions": [
         {
-          "id": "SP104-1-22",
+          "id": "SP-115-2-023",
           "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第一次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 收出養規定",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、少年、兒少",
-          "match_score": 8.2
-        },
-        {
-          "id": "SP104-2-22",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 收出養規定",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、少年、兒少",
-          "match_score": 8.2
-        },
-        {
-          "id": "SP104-2-23",
-          "subject": "社會政策與社會立法",
-          "year": "104",
+          "year": "115",
           "round": "第二次",
           "qno": "23",
           "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、少年、兒少",
-          "match_score": 8.2
+          "topic": "兒童及少年福利與權益保障法 > 調查統計機制",
+          "match_reason": "同義考點：福利需求調查；同法規「兒童及少年福利與權益保障法」",
+          "match_score": 6.2
         },
         {
-          "id": "SP104-2-28",
+          "id": "SP110-2-23",
           "subject": "社會政策與社會立法",
-          "year": "104",
+          "year": "110",
           "round": "第二次",
-          "qno": "28",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家托育消極資格",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、少年、兒少",
-          "match_score": 8.2
+          "qno": "23",
+          "major": "社會政策概念與原則",
+          "topic": "福利調查 > 兒少身心發展調查",
+          "match_reason": "同義考點：福利需求調查；同法規「兒童及少年福利與權益保障法」",
+          "match_score": 6.2
         },
         {
-          "id": "SP104-2-29",
+          "id": "SP106-2-20",
           "subject": "社會政策與社會立法",
-          "year": "104",
+          "year": "106",
           "round": "第二次",
-          "qno": "29",
+          "qno": "20",
+          "major": "社會政策概念與原則",
+          "topic": "福利調查 > 生活狀況調查年限",
+          "match_reason": "同義考點：福利需求調查；同法規「兒童及少年福利與權益保障法」",
+          "match_score": 6.2
+        },
+        {
+          "id": "SP105-2-20",
+          "subject": "社會政策與社會立法",
+          "year": "105",
+          "round": "第二次",
+          "qno": "20",
           "major": "兒少福利法規",
-          "topic": "兒少權法 > 緊急安置",
-          "match_reason": "法規「兒童及少年福利與權益保障法」；關鍵詞：兒童、安置、少年、兒少",
-          "match_score": 8.2
+          "topic": "兒少權法 > 兒少身心發展調查",
+          "match_reason": "同義考點：福利需求調查；同法規「兒童及少年福利與權益保障法」",
+          "match_score": 6.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 4,
+        "weighted_match_count": 4.0,
+        "match_breakdown": {
+          "strong": 4,
+          "medium": 0,
+          "concept": 0
+        },
+        "matched_year_count": 4,
+        "matched_years": [
+          105,
+          106,
+          110,
+          115
+        ],
+        "earliest_exam_year": 105,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會政策與社會立法": 4
+        },
+        "subject_count": 1,
+        "law_match_count": 67,
+        "law_match_year_count": 12,
+        "law_match_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "high_confidence_match_count": 4,
+        "matching_method": "event-evidence-v2.2"
+      }
     },
     {
       "id": "b636096cdde2f8c4b70361a92842c862",
@@ -114,7 +270,8 @@
       "exam_tags": [
         "身心障礙",
         "權益",
-        "福利"
+        "福利",
+        "法規"
       ],
       "subjects": [
         "社會政策與社會立法",
@@ -129,184 +286,256 @@
       "essay_direction": "可從「CRPD、合理調整、自立生活與去機構化」切入，並結合「身心障礙者權益保障法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
       "mcq_focus": [
         "衛生福利部",
-        "身心障礙者權益保障法",
-        "身心障礙"
+        "身心障礙者權益保障法"
       ],
       "related_laws": [
         "身心障礙者權益保障法"
       ],
       "related_exam_questions": [
         {
-          "id": "SW-104-1-05",
-          "subject": "社會工作",
-          "year": "104",
-          "round": "第一次",
-          "qno": "5",
-          "major": "障礙者服務",
-          "topic": "身心障礙者權益保障法 > 個人支持及照顧",
-          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、自立生活、障礙",
-          "match_score": 8.2
+          "id": "SP113-2-27",
+          "subject": "社會政策與社會立法",
+          "year": "113",
+          "round": "第二次",
+          "qno": "27",
+          "major": "身心障礙福利法規",
+          "topic": "身權法 > 需求調查年限",
+          "match_reason": "同義考點：福利需求調查；同法規「身心障礙者權益保障法」",
+          "match_score": 6.2
         },
         {
-          "id": "SP106-2-21",
+          "id": "SP108-2-27",
+          "subject": "社會政策與社會立法",
+          "year": "108",
+          "round": "第二次",
+          "qno": "27",
+          "major": "身心障礙福利法規",
+          "topic": "身權法 > 需求調查年限",
+          "match_reason": "同義考點：福利需求調查；同法規「身心障礙者權益保障法」",
+          "match_score": 6.2
+        },
+        {
+          "id": "SP107-2-17",
+          "subject": "社會政策與社會立法",
+          "year": "107",
+          "round": "第二次",
+          "qno": "17",
+          "major": "社會政策概念與原則",
+          "topic": "福利調查 > 生活狀況調查年限",
+          "match_reason": "同義考點：福利需求調查；同法規「身心障礙者權益保障法」",
+          "match_score": 6.2
+        },
+        {
+          "id": "SP106-2-20",
           "subject": "社會政策與社會立法",
           "year": "106",
           "round": "第二次",
-          "qno": "21",
-          "major": "身心障礙福利法規",
-          "topic": "身權法 > 無障礙設施與停車位",
-          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、無障礙、障礙",
-          "match_score": 8.2
-        },
-        {
-          "id": "SP111-1-25",
-          "subject": "社會政策與社會立法",
-          "year": "111",
-          "round": "第一次",
-          "qno": "25",
-          "major": "身心障礙福利法規",
-          "topic": "身權法 > 無障礙環境權責機關",
-          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、無障礙、障礙",
-          "match_score": 8.2
-        },
-        {
-          "id": "SP112-1-27",
-          "subject": "社會政策與社會立法",
-          "year": "112",
-          "round": "第一次",
-          "qno": "27",
-          "major": "身心障礙福利法規",
-          "topic": "身權法 > 無障礙服務措施",
-          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、無障礙、障礙",
-          "match_score": 8.2
-        },
-        {
-          "id": "SP115-1-23",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "23",
-          "major": "身心障礙福利法規",
-          "topic": "身權法 > 無障礙服務措施",
-          "match_reason": "法規「身心障礙者權益保障法」；關鍵詞：身心障礙、無障礙、障礙",
-          "match_score": 8.2
+          "qno": "20",
+          "major": "社會政策概念與原則",
+          "topic": "福利調查 > 生活狀況調查年限",
+          "match_reason": "同義考點：福利需求調查；同法規「身心障礙者權益保障法」",
+          "match_score": 6.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 4,
+        "weighted_match_count": 4.0,
+        "match_breakdown": {
+          "strong": 4,
+          "medium": 0,
+          "concept": 0
+        },
+        "matched_year_count": 4,
+        "matched_years": [
+          106,
+          107,
+          108,
+          113
+        ],
+        "earliest_exam_year": 106,
+        "latest_exam_year": 113,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 2,
+        "subject_counts": {
+          "社會政策與社會立法": 4
+        },
+        "subject_count": 1,
+        "law_match_count": 62,
+        "law_match_year_count": 12,
+        "law_match_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "high_confidence_match_count": 4,
+        "matching_method": "event-evidence-v2.2"
+      }
     },
     {
-      "id": "f4a1286ac83b80f760593de79a66f3d8",
-      "title": "衛生福利部《守望馬太鞍 泥濘中的微光》 新書發表紀錄救災七大創新",
-      "summary": "衛生福利部於今（21）日下午舉辦「守望馬太鞍 泥濘中的微光：馬太鞍洪災救援與守護紀實」新書發表暨感恩茶會。副總統蕭美琴特別親自蒞臨現場，與衛福部次長林靜儀、參與救援的部醫聯盟、各司署第一線英雄、地方政府、國軍及民間團體齊聚一堂，共同見證並完整呈現2025年9月「樺加沙」颱風引發馬太鞍溪洪災後的跨部會救援與復原歷程。 林靜儀次長表示，中央於災後成立「中央前進協調所」，秉持「團結合作、共同救災」與「從寬、從速、從簡」原則，將行政資源精準交付災區，展現極致行政動能，更創下多項台灣公衛與社福史上的新里程碑。 專書提及衛福體系七大創新，如下說明： 一、科技送藥（資",
-      "source_name": "衛生福利部焦點新聞",
-      "source_url": "https://www.mohw.gov.tw/cp-16-88044-1.html",
-      "published_at": "2026-09-21T06:36:00Z",
+      "id": "85f03325aff5e8c1aabd1020fc9a80a4",
+      "title": "住宿式服務機構補助加碼 卓揆：中重度失能者每月最高補助1萬5,000元、中度以上身心障礙者每月補助5,000元住宿費",
+      "summary": "行政院長卓榮泰今（10）日於行政院會聽取衛生福利部「住宿式服務機構使用者補助方案-115年調增規劃」報告後表示，為持續強化長期照顧服務，以及對中重度失能者及其家庭的支持，今（2026）年起調增住宿式服務機構使用者補助，中重度失能者入住長照住宿式機構，每人每月最高補助提高至1萬5,000元，並同步加碼補助入住身心障礙機構的中度以上身心障礙者每月5,000元住宿費用，補助額度溯自今年1月1日起適用，同時簡化申請、審查及核發流程，讓民眾享有多元、近便及質優的服務。卓院長表示，我國已邁入超高齡社會，老年人口數至今年7月底達477萬餘人，占總人口20.5%；為因應",
+      "source_name": "行政院本院新聞",
+      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//ccd56110-78a5-408b-8014-45853b78578b",
+      "published_at": "2026-09-10T04:58:08Z",
       "region": "taiwan",
-      "category": "社工專業與社福制度",
-      "relevance_score": 6,
+      "category": "身障與人權",
+      "relevance_score": 5,
       "exam_tags": [
-        "社工",
-        "社福",
+        "身心障礙",
+        "政策",
         "補助",
-        "福利",
-        "衛福部"
+        "福利"
       ],
       "subjects": [
-        "社會工作",
-        "社會工作直接服務",
-        "社會政策與社會立法"
+        "社會政策與社會立法",
+        "社會工作"
       ],
-      "policy_signal": "low",
+      "policy_signal": "high",
       "essay_value": "medium",
-      "mcq_fact_density": "medium",
-      "signal_confidence": "medium",
-      "signal_score": 7,
-      "exam_point_summary": "衛生福利部《守望馬太鞍 泥濘中的微光》 新書發表紀錄救災七大創新。涉及「守望馬太鞍 泥濘中的微光」。偏宣導或活動訊息；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，並結合「守望馬太鞍 泥濘中的微光」的制度與實務影響分析；此為練習方向，不代表命題保證。",
+      "mcq_fact_density": "high",
+      "signal_confidence": "high",
+      "signal_score": 8,
+      "exam_point_summary": "住宿式服務機構補助加碼 卓揆：中重度失能者每月最高補助1萬5,000元、中度以上身心障礙者每月補…。制度或給付已有明確變動；申論可從CRPD、合理調整、自立生活與去機構化切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「CRPD、合理調整、自立生活與去機構化」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
-        "衛福部",
         "衛生福利部",
-        "守望馬太鞍 泥濘中的微光",
-        "社福"
-      ],
-      "related_laws": [
-        "守望馬太鞍 泥濘中的微光"
-      ],
-      "related_exam_questions": [
-        {
-          "id": "SW-104-1-01",
-          "subject": "社會工作",
-          "year": "104",
-          "round": "第一次",
-          "qno": "1",
-          "major": "社會工作專業",
-          "topic": "歷史發展 > 臺灣社工歷史",
-          "match_reason": "關鍵詞：專業、社工、社會工作",
-          "match_score": 3.2
-        },
-        {
-          "id": "SW-104-2-01",
-          "subject": "社會工作",
-          "year": "104",
-          "round": "第二次",
-          "qno": "1",
-          "major": "社會工作專業",
-          "topic": "專業價值 > 社工本質特性",
-          "match_reason": "關鍵詞：專業、社工、社會工作",
-          "match_score": 3.2
-        },
-        {
-          "id": "SW-104-2-02",
-          "subject": "社會工作",
-          "year": "104",
-          "round": "第二次",
-          "qno": "2",
-          "major": "社會工作專業",
-          "topic": "學校社工 > 學校社工服務內涵",
-          "match_reason": "關鍵詞：專業、社工、社會工作",
-          "match_score": 3.2
-        },
-        {
-          "id": "SW-104-2-23",
-          "subject": "社會工作",
-          "year": "104",
-          "round": "第二次",
-          "qno": "23",
-          "major": "社會工作倫理",
-          "topic": "倫理學基礎 > 義務論",
-          "match_reason": "關鍵詞：倫理、專業、社會工作",
-          "match_score": 3.2
-        },
-        {
-          "id": "SW-104-1-24",
-          "subject": "社會工作",
-          "year": "104",
-          "round": "第一次",
-          "qno": "24",
-          "major": "社會工作專業",
-          "topic": "專業制度 > 專科社工師資格",
-          "match_reason": "關鍵詞：執業、專業、社工、社會工作",
-          "match_score": 3.2
-        }
-      ]
-    },
-    {
-      "id": "ec440be22afb5ab2245455013a2d8db2",
-      "title": "參觀台灣國際兒童及青少年嘉年華未來世代書展 卓揆：鼓勵踴躍使用文化幣 讓閱讀成為一生無形財富",
-      "summary": "行政院長卓榮泰今（23）日前往高雄展覽館參觀「2026年台灣國際兒童及青少年嘉年華未來世代書展」。本次展覽活動結合書展、劇場與影展三大主軸，卓院長鼓勵參觀民眾依據自身喜好多方接觸與體驗，並選購自己喜愛的書籍，透過閱讀拓展視野，逐漸累積成為一生無形的財富。卓院長致詞時表示，為讓學生族群能夠及早接觸文學作品，並與文化場域產生更多連結，文化部自今（2026）年起全面擴大文化幣發放年齡，13歲至22歲每人每年可領取1,200點，買書、看電影都可適用，部分獨立書店更推出優惠活動，享有「消費2點加送1點」的回饋。卓院長鼓勵大家踴躍使用文化幣，只要需求愈多、使用更快速",
-      "source_name": "行政院本院新聞",
-      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//e28c1a2e-6243-4903-a550-f9ce11bfbe55",
-      "published_at": "2026-09-23T10:15:04Z",
-      "region": "taiwan",
-      "category": "兒少保護",
-      "relevance_score": 6,
-      "exam_tags": [
-        "兒少",
-        "兒童",
-        "少年",
         "行政院"
       ],
+      "related_laws": [],
+      "related_exam_questions": [],
+      "historical_exam_stats": {
+        "matched_question_count": 0,
+        "weighted_match_count": 0.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 0
+        },
+        "matched_year_count": 0,
+        "matched_years": [],
+        "earliest_exam_year": null,
+        "latest_exam_year": null,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": null,
+        "subject_counts": {},
+        "subject_count": 0,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
+      "id": "1f324758779ada31a0fc3e3382971947",
+      "title": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工資調升至205元。",
+      "summary": "最低工資審議會於今（24）日召開會議，經勞、資、學、政四方委員討論，決定自116年1月1日起，每月最低工資由29,500元調整至30,900元，調升1,400元，調幅4.745％；每小時最低工資則比照每月最低工資之調幅，由196元調整至205元。調整案將由勞動部陳報行政院核定。若經行政院核定，最低工資將連11年調漲，持續提升基層勞工薪資，保障勞工基本生活。 本次會議，勞資雙方委員於上午進行意見交換，雙方就消費者物價指數年增率、經濟成長情勢、產業發展及勞工生活所需等面向充分討論，全數委員均認同消費者物價指數年增率CPI應全數反映，經濟成長率GDP應合理分享",
+      "source_name": "勞動部新聞稿",
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99195/",
+      "published_at": "2026-09-24T19:50:25Z",
+      "region": "taiwan",
+      "category": "勞動與社會保障",
+      "relevance_score": 5,
+      "exam_tags": [
+        "最低工資",
+        "行政院",
+        "保障"
+      ],
       "subjects": [
-        "社會工作直接服務",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "policy_signal": "high",
+      "essay_value": "low",
+      "mcq_fact_density": "high",
+      "signal_confidence": "high",
+      "signal_score": 8,
+      "exam_point_summary": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工…。制度或給付已有明確變動；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "勞動部",
+        "行政院",
+        "最低工資"
+      ],
+      "related_laws": [],
+      "related_exam_questions": [
+        {
+          "id": "SP105-2-18",
+          "subject": "社會政策與社會立法",
+          "year": "105",
+          "round": "第二次",
+          "qno": "18",
+          "major": "社會救助",
+          "topic": "社會救助法 > 工作收入計算",
+          "match_reason": "同義考點：最低／基本工資",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP104-2-24",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第二次",
+          "qno": "24",
+          "major": null,
+          "topic": null,
+          "match_reason": "同義考點：最低／基本工資",
+          "match_score": 3.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 2,
+        "weighted_match_count": 1.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 2,
+          "concept": 0
+        },
+        "matched_year_count": 2,
+        "matched_years": [
+          104,
+          105
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 105,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 10,
+        "subject_counts": {
+          "社會政策與社會立法": 2
+        },
+        "subject_count": 1,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
+      "id": "2cc263d201f443e931c4a3a5f75e0312",
+      "title": "企業托育補助新制創造企業留才與員工兼顧育兒需求正面效益！申請倒數2週，請雇主把握時間，於9月底前提出申請！",
+      "summary": "勞動部為鼓勵雇主營造友善育兒職場環境，持續推動企業托育補助，115年度第2期(115年5月1日起計)補助迄今已有800餘家企業提出申請，相當踴躍。勞動部提醒，本年度申請即將於9月30日截止，目前已進入最後2週倒數，有意願設置托兒設施、提供育兒補貼或其他托兒措施的企業，請把握最後申請時間，儘速備妥相關資料提出申請，共同支持員工育兒。 勞動部表示，今年企業托育補助新制自5月1日上路，大幅提高企業辦理托育的支持力道。雇主新興建托兒設施，最高可補助500萬元；已設置托兒設施者，每年最高補助100萬元，並新增營運費、教保及托育人員人事費，以及減免員工收托費用等補助",
+      "source_name": "勞動部新聞稿",
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99061/",
+      "published_at": "2026-09-16T10:30:11Z",
+      "region": "taiwan",
+      "category": "性別與家庭政策",
+      "relevance_score": 6,
+      "exam_tags": [
+        "育兒",
+        "托育",
+        "補助"
+      ],
+      "subjects": [
         "社會政策與社會立法",
         "社會工作"
       ],
@@ -315,71 +544,235 @@
       "mcq_fact_density": "high",
       "signal_confidence": "medium",
       "signal_score": 7,
-      "exam_point_summary": "參觀台灣國際兒童及青少年嘉年華未來世代書展 卓揆：鼓勵踴躍使用文化幣 讓閱讀成為一生無形財富。偏宣導或活動訊息；申論可從兒少最佳利益、責任通報、跨網絡合作與制度漏洞切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "exam_point_summary": "企業托育補助新制創造企業留才與員工兼顧育兒需求正面效益！申請倒數2週，請雇主把握時間，於9月底前…。偏宣導或活動訊息；申論可從性別權力、照顧負荷與家庭政策切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「性別權力、照顧負荷與家庭政策」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
-        "2026年",
-        "行政院",
-        "兒少"
+        "勞動部",
+        "育兒",
+        "托育"
       ],
       "related_laws": [],
       "related_exam_questions": [
         {
-          "id": "SP104-2-21",
+          "id": "SP115-1-21",
           "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
+          "year": "115",
+          "round": "第一次",
           "qno": "21",
           "major": "兒少福利法規",
-          "topic": "兒少性剝削防制條例 > 被害人處理程序",
-          "match_reason": "關鍵詞：兒少、兒童、少年",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP104-1-22",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第一次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 收出養規定",
-          "match_reason": "關鍵詞：兒少、兒童、少年",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP104-2-22",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 收出養規定",
-          "match_reason": "關鍵詞：兒少、兒童、少年",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP104-2-23",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "23",
-          "major": "兒少福利法規",
           "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "關鍵詞：兒少、兒童、少年",
+          "match_reason": "事件詞：托育；同義考點：托育",
           "match_score": 3.2
         },
         {
-          "id": "SP104-2-28",
-          "subject": "社會政策與社會立法",
-          "year": "104",
+          "id": "SW-115-2-031",
+          "subject": "社會工作",
+          "year": "115",
           "round": "第二次",
-          "qno": "28",
+          "qno": "31",
+          "major": "兒少服務",
+          "topic": "兒童福利服務 > 服務功能分類",
+          "match_reason": "事件詞：托育；同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SW-114-1-17",
+          "subject": "社會工作",
+          "year": "114",
+          "round": "第一次",
+          "qno": "17",
+          "major": "社會工作理論",
+          "topic": "系統理論 > 家庭系統處遇目標",
+          "match_reason": "事件詞：托育；同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP113-1-24",
+          "subject": "社會政策與社會立法",
+          "year": "113",
+          "round": "第一次",
+          "qno": "24",
+          "major": null,
+          "topic": null,
+          "match_reason": "事件詞：托育；同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP113-1-25",
+          "subject": "社會政策與社會立法",
+          "year": "113",
+          "round": "第一次",
+          "qno": "25",
           "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家托育消極資格",
-          "match_reason": "關鍵詞：兒少、兒童、少年",
+          "topic": "兒少權法 > 兒少福利機構類別",
+          "match_reason": "同義考點：托育",
           "match_score": 3.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 20,
+        "weighted_match_count": 3.5,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 18,
+          "concept": 2
+        },
+        "matched_year_count": 11,
+        "matched_years": [
+          104,
+          105,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 7,
+          "社會政策與社會立法": 13
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
+      "id": "beb2115eab32390a360d5fca66b2a43b",
+      "title": "響應0-6歲國家一起養！中央部會落實員工子女托育",
+      "summary": "為落實行政院「0-6歲國家一起養」政策，教育部積極推動職場互助教保服務中心（以下稱作職場中心），善用職場周遭與辦公空間，縮短家長接送距離，提供平價、優質的托育服務，打造讓員工安心工作的友善職場環境。截至115年8月，教育部積極協助15個部會，累計設置166處員工子女非營利幼兒園或職場中心，提供約9,700個教保服務名額。家長每月最高繳費2,000元，第3胎、低收及中低收入戶免繳費，其餘營運成本與家長繳費之差額，由教育部負擔。經濟部及農業部亦響應國家政策，於所屬機關設置多處職場中心，提供員工安心托育的支持。 經濟部新竹產業園區服務中心職場中心秉持「生活即教",
+      "source_name": "教育部即時新聞",
+      "source_url": "https://www.edu.tw/News_Content.aspx?n=9E7AC85F1954DDA8&s=B5146C9A2897E8E9",
+      "published_at": "2026-09-09T02:54:00Z",
+      "region": "taiwan",
+      "category": "性別與家庭政策",
+      "relevance_score": 5,
+      "exam_tags": [
+        "托育",
+        "政策",
+        "行政院"
+      ],
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "policy_signal": "low",
+      "essay_value": "medium",
+      "mcq_fact_density": "high",
+      "signal_confidence": "medium",
+      "signal_score": 7,
+      "exam_point_summary": "響應0-6歲國家一起養！中央部會落實員工子女托育。偏宣導或活動訊息；申論可從性別權力、照顧負荷與家庭政策切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「性別權力、照顧負荷與家庭政策」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "教育部",
+        "行政院",
+        "托育"
+      ],
+      "related_laws": [],
+      "related_exam_questions": [
+        {
+          "id": "SP115-1-21",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "21",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家式托育服務",
+          "match_reason": "事件詞：托育；同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SW-115-2-031",
+          "subject": "社會工作",
+          "year": "115",
+          "round": "第二次",
+          "qno": "31",
+          "major": "兒少服務",
+          "topic": "兒童福利服務 > 服務功能分類",
+          "match_reason": "事件詞：托育；同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SW-114-1-17",
+          "subject": "社會工作",
+          "year": "114",
+          "round": "第一次",
+          "qno": "17",
+          "major": "社會工作理論",
+          "topic": "系統理論 > 家庭系統處遇目標",
+          "match_reason": "事件詞：托育；同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP113-1-24",
+          "subject": "社會政策與社會立法",
+          "year": "113",
+          "round": "第一次",
+          "qno": "24",
+          "major": null,
+          "topic": null,
+          "match_reason": "事件詞：托育；同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP113-1-25",
+          "subject": "社會政策與社會立法",
+          "year": "113",
+          "round": "第一次",
+          "qno": "25",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 兒少福利機構類別",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 18,
+        "weighted_match_count": 3.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 18,
+          "concept": 0
+        },
+        "matched_year_count": 11,
+        "matched_years": [
+          104,
+          105,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 7,
+          "社會政策與社會立法": 11
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
     },
     {
       "id": "6c3e075258813e8339a40cebd78e2c0c",
@@ -416,242 +809,352 @@
       "related_laws": [],
       "related_exam_questions": [
         {
-          "id": "SP104-2-32",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "32",
-          "major": "老人福利法規",
-          "topic": "老人福利法 > 照顧服務規劃原則",
-          "match_reason": "關鍵詞：高齡、老人、在地老化",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP105-2-33",
-          "subject": "社會政策與社會立法",
-          "year": "105",
-          "round": "第二次",
-          "qno": "33",
-          "major": "其他社會立法與人權公約",
-          "topic": "長照服務法 > 家庭照顧者支持服務",
-          "match_reason": "關鍵詞：長照、家庭照顧者、照顧者",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP109-2-39",
-          "subject": "社會政策與社會立法",
+          "id": "DS-109-2-40",
+          "subject": "社會工作直接服務",
           "year": "109",
           "round": "第二次",
-          "qno": "39",
-          "major": "其他社會立法與人權公約",
-          "topic": "長照服務法 > 家庭照顧者支持服務",
-          "match_reason": "關鍵詞：長照、家庭照顧者、照顧者",
+          "qno": "40",
+          "major": "社區工作",
+          "topic": "社區照顧 > 健康社區六星計畫",
+          "match_reason": "同義考點：獨居高齡者",
           "match_score": 3.2
         },
         {
-          "id": "SP114-1-23",
-          "subject": "社會政策與社會立法",
-          "year": "114",
+          "id": "DS-106-1-28",
+          "subject": "社會工作直接服務",
+          "year": "106",
           "round": "第一次",
-          "qno": "23",
-          "major": "老人福利法規",
-          "topic": "老人福利法 > 家庭照顧者服務",
-          "match_reason": "關鍵詞：家庭照顧者、老人、照顧者",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP104-1-20",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第一次",
-          "qno": "20",
-          "major": "老人福利法規",
-          "topic": "老人福利方案 > 高齡友善城市",
-          "match_reason": "關鍵詞：高齡、老人",
-          "match_score": 2.2
-        }
-      ]
-    },
-    {
-      "id": "10ba933cd7a0a266624b7dbc7afe7cf9",
-      "title": "衛福部說明：全國205家醫院提供全天候兒童急診服務",
-      "summary": "針對媒體報導「僅5家醫院有兒科全天候急診」，衛生福利部說明，該5家醫院均為兒童醫院，但目前提供24小時兒童急診服務，並不限於這5家兒童醫院，全國合計205家急救責任醫院提供24小時急診服務，兒童有緊急醫療需求時，皆可接受檢傷、評估及必要醫療處置。政府持續透過建構兒童急重症照護救網絡，及調整健保給付，強化兒童急重症照護。 衛福部表示，我國已建構分級分區的兒童急重症照護體系。205家急救責任醫院提供全天候急診服務，其中82家具高危險妊娠孕產婦及新生兒醫療能力醫院，配合8家兒童醫療網絡之核心醫院及27家重點醫院，共同強化兒科急診、住院、加護病房、新生兒及重難症",
-      "source_name": "衛生福利部焦點新聞",
-      "source_url": "https://www.mohw.gov.tw/cp-16-88036-1.html",
-      "published_at": "2026-09-20T05:55:00Z",
-      "region": "taiwan",
-      "category": "兒少保護",
-      "relevance_score": 6,
-      "exam_tags": [
-        "兒童",
-        "福利",
-        "衛福部"
-      ],
-      "subjects": [
-        "社會工作直接服務",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "policy_signal": "low",
-      "essay_value": "medium",
-      "mcq_fact_density": "medium",
-      "signal_confidence": "medium",
-      "signal_score": 6,
-      "exam_point_summary": "衛福部說明：全國205家醫院提供全天候兒童急診服務。偏宣導或活動訊息；申論可從兒少最佳利益、責任通報、跨網絡合作與制度漏洞切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "衛福部",
-        "衛生福利部"
-      ],
-      "related_laws": [],
-      "related_exam_questions": [
-        {
-          "id": "SP104-2-21",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "21",
-          "major": "兒少福利法規",
-          "topic": "兒少性剝削防制條例 > 被害人處理程序",
-          "match_reason": "關鍵詞：兒童、少年、兒少",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP104-1-22",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第一次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 收出養規定",
-          "match_reason": "關鍵詞：兒童、少年、兒少",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP104-2-22",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 收出養規定",
-          "match_reason": "關鍵詞：兒童、少年、兒少",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP104-2-23",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "23",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "關鍵詞：兒童、少年、兒少",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP104-2-28",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
           "qno": "28",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家托育消極資格",
-          "match_reason": "關鍵詞：兒童、少年、兒少",
+          "major": "會談與溝通技巧",
+          "topic": "同理 > 同理層次排序",
+          "match_reason": "同義考點：獨居高齡者",
           "match_score": 3.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 2,
+        "weighted_match_count": 1.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 2,
+          "concept": 0
+        },
+        "matched_year_count": 2,
+        "matched_years": [
+          106,
+          109
+        ],
+        "earliest_exam_year": 106,
+        "latest_exam_year": 109,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 6,
+        "subject_counts": {
+          "社會工作直接服務": 2
+        },
+        "subject_count": 1,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
     },
     {
-      "id": "77bb3f695f62d439439a949e3450ebe3",
-      "title": "不怕秋老虎咬人 外出牢記「防熱4招」護兒童遠離熱傷害",
-      "summary": "國民健康署提醒家長及照顧者，秋季高溫仍可能帶來熱傷害風險，帶孩子外出活動時，應掌握「防熱4招」：穿著舒適、透氣排汗；遮陽通風、遠離悶熱；時時喝水、避免含糖飲料；避開高溫、隨時留心，以降低熱傷害發生風險。 根據衛生福利部疾病管制署「即時疫情監測及預警系統」通報急診就醫資料，截至今年9月23日，18歲以下族群因熱傷害就診達144人次，可見「秋老虎」的威力不容小覷。國民健康署表示，時序雖已進入秋季，但部分縣市仍可能出現高溫情形，適逢中秋連假將至，許多家長把握假期帶孩子出遊，若長時間處於高溫環境，又未適時補充水分及休息，仍可能增加熱傷害風險。兒童因為新陳代謝速度",
-      "source_name": "衛生福利部焦點新聞",
-      "source_url": "https://www.mohw.gov.tw/cp-16-88070-1.html",
-      "published_at": "2026-09-24T02:40:00Z",
+      "id": "4afd0e8e306fd77bf0f9a30e21e13262",
+      "title": "參訪宜蘭大安綜合長照機構 卓揆：明起開放申請住宿式服務機構加碼補助 每年最高補助18萬元",
+      "summary": "行政院長卓榮泰今（13）日前往宜蘭縣參訪「廣慈長照社團法人附設宜蘭縣私立大安綜合長照機構」時表示，該機構從109年籌設興建、113年完工啟用，短短5年間，雖歷經COVID-19疫情影響，但卻展現效率完工，且建物周圍種植臺灣欒樹，與大自然融為一體，頗有度假飯店的風格，相當別緻；同時，一進門就看到「奉茶」兩個大字，令人倍感親切，機構內部設施和整體服務水準更樹立成功典範，為長者們成功打造一處彰顯「不老精神」的照顧環境。卓院長提及這兩年多來他時常前往各縣市參訪各類型照服機構，例如113年12月21日他曾前往宜蘭縣參加冬至送暖關懷長者活動，看到許多長者在當地一間美",
+      "source_name": "行政院本院新聞",
+      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//1793b929-1e90-4114-97fc-e23d8cfc7e50",
+      "published_at": "2026-09-13T09:08:00Z",
       "region": "taiwan",
-      "category": "兒少保護",
-      "relevance_score": 6,
+      "category": "長照與高齡",
+      "relevance_score": 5,
       "exam_tags": [
-        "兒童",
-        "通報",
+        "長照",
+        "政策",
+        "補助",
         "福利"
       ],
       "subjects": [
-        "社會工作直接服務",
         "社會政策與社會立法",
-        "社會工作"
+        "社會工作直接服務"
       ],
       "policy_signal": "low",
-      "essay_value": "medium",
+      "essay_value": "low",
+      "mcq_fact_density": "medium",
+      "signal_confidence": "low",
+      "signal_score": 4,
+      "exam_point_summary": "參訪宜蘭大安綜合長照機構 卓揆：明起開放申請住宿式服務機構加碼補助 每年最高補助18萬元。偏宣導或活動訊息；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「在地老化、長照給付、家庭照顧者支持與服務輸送」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "行政院"
+      ],
+      "related_laws": [],
+      "related_exam_questions": [],
+      "historical_exam_stats": {
+        "matched_question_count": 0,
+        "weighted_match_count": 0.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 0
+        },
+        "matched_year_count": 0,
+        "matched_years": [],
+        "earliest_exam_year": null,
+        "latest_exam_year": null,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": null,
+        "subject_counts": {},
+        "subject_count": 0,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
+      "id": "271655e73bb3d63cba25088ce285ad7a",
+      "title": "From competencies to action: strengthening refugee and migrant health",
+      "summary": "From 21 to 24 September 2026, policy-makers, health managers and technical experts from seven countries and territories gathered in Rome for the second Global Orientation Course for Policy-makers on Refugee and Migrant Health. Jointly organized by WHO Health and Migration Program",
+      "source_name": "WHO Newsroom",
+      "source_url": "https://www.who.int/news/item/24-09-2026-from-competencies-to-action--strengthening-refugee-and-migrant-health",
+      "published_at": "2026-09-24T14:41:09Z",
+      "region": "international",
+      "category": "移工與新住民",
+      "relevance_score": 5,
+      "exam_tags": [
+        "移民與難民"
+      ],
+      "subjects": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "policy_signal": "low",
+      "essay_value": "low",
       "mcq_fact_density": "low",
       "signal_confidence": "low",
-      "signal_score": 5,
-      "exam_point_summary": "不怕秋老虎咬人 外出牢記「防熱4招」護兒童遠離熱傷害。偏宣導或活動訊息；申論可從兒少最佳利益、責任通報、跨網絡合作與制度漏洞切入。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "signal_score": 4,
+      "exam_point_summary": "From competencies to action: strengthening refug…。偏宣導或活動訊息。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「文化能力、勞動與社會權益、反歧視」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
-        "衛生福利部",
-        "國民健康署",
-        "通報"
+        "移民與難民"
       ],
       "related_laws": [],
       "related_exam_questions": [
         {
-          "id": "SP104-2-21",
+          "id": "SW-115-2-017",
+          "subject": "社會工作",
+          "year": "115",
+          "round": "第二次",
+          "qno": "17",
+          "major": "社會工作理論",
+          "topic": "優勢觀點 > 優勢分類",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP114-2-32",
           "subject": "社會政策與社會立法",
-          "year": "104",
+          "year": "114",
+          "round": "第二次",
+          "qno": "32",
+          "major": "社會救助",
+          "topic": "社會救助法 > 責任通報人員",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-114-2-34",
+          "subject": "社會工作",
+          "year": "114",
+          "round": "第二次",
+          "qno": "34",
+          "major": "多元文化能力",
+          "topic": "移民服務 > 倡導者角色",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP113-1-29",
+          "subject": "社會政策與社會立法",
+          "year": "113",
+          "round": "第一次",
+          "qno": "29",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 責任通報時限",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-113-2-32",
+          "subject": "社會工作",
+          "year": "113",
+          "round": "第二次",
+          "qno": "32",
+          "major": "多元文化能力",
+          "topic": "移民服務 > 移民適應方式",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 8,
+        "weighted_match_count": 1.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 8
+        },
+        "matched_year_count": 6,
+        "matched_years": [
+          108,
+          110,
+          111,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 108,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 5,
+          "社會政策與社會立法": 3
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
+      "id": "235aebbaa6c843dda17565dfb13ebef2",
+      "title": "ILO project improves social protection coverage for over nine million people",
+      "summary": "The Multi-donor project in support of the ILO Global Flagship Programme on Building Social Protection Floors for All concludes after five years of supporting countries to strengthen social protection systems and make progress towards universal...",
+      "source_name": "ILO Newsroom",
+      "source_url": "https://www.ilo.org/resource/news/ilo-project-improves-social-protection-coverage-over-nine-million-people",
+      "published_at": "2026-09-25T00:00:00Z",
+      "region": "international",
+      "category": "社會救助與居住",
+      "relevance_score": 5,
+      "exam_tags": [
+        "社會保障"
+      ],
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "policy_signal": "low",
+      "essay_value": "low",
+      "mcq_fact_density": "low",
+      "signal_confidence": "low",
+      "signal_score": 4,
+      "exam_point_summary": "ILO project improves social protection coverage …。偏宣導或活動訊息。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「最低生活保障、貧窮結構因素與居住權」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "社會保障"
+      ],
+      "related_laws": [],
+      "related_exam_questions": [
+        {
+          "id": "SP-115-2-021",
+          "subject": "社會政策與社會立法",
+          "year": "115",
           "round": "第二次",
           "qno": "21",
-          "major": "兒少福利法規",
-          "topic": "兒少性剝削防制條例 > 被害人處理程序",
-          "match_reason": "關鍵詞：兒童、少年、兒少",
-          "match_score": 3.2
+          "major": "社會救助",
+          "topic": "社會救助 > 中低收入老人生活津貼性質",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
         },
         {
-          "id": "SP104-1-22",
+          "id": "SP115-1-26",
           "subject": "社會政策與社會立法",
-          "year": "104",
+          "year": "115",
           "round": "第一次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 收出養規定",
-          "match_reason": "關鍵詞：兒童、少年、兒少",
-          "match_score": 3.2
+          "qno": "26",
+          "major": "社會救助",
+          "topic": "社會救助法 > 有工作能力者服務",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
         },
         {
-          "id": "SP104-2-22",
+          "id": "SP115-1-27",
           "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 收出養規定",
-          "match_reason": "關鍵詞：兒童、少年、兒少",
-          "match_score": 3.2
+          "year": "115",
+          "round": "第一次",
+          "qno": "27",
+          "major": "社會救助",
+          "topic": "社會救助法 > 低收入戶福利",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
         },
         {
-          "id": "SP104-2-23",
+          "id": "SP-115-2-028",
           "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "23",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "關鍵詞：兒童、少年、兒少",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP104-2-28",
-          "subject": "社會政策與社會立法",
-          "year": "104",
+          "year": "115",
           "round": "第二次",
           "qno": "28",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家托育消極資格",
-          "match_reason": "關鍵詞：兒童、少年、兒少",
-          "match_score": 3.2
+          "major": "社會救助",
+          "topic": "社會救助法 > 救助種類與適用對象",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP-115-2-029",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "29",
+          "major": "社會救助",
+          "topic": "社會救助法 > 工作收入認定",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
         }
-      ]
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 90,
+        "weighted_match_count": 1.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 90
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 13,
+          "社會政策與社會立法": 77
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
     }
   ]
 }
