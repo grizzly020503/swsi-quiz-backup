@@ -83,7 +83,7 @@ def item_features(row: dict) -> dict:
         "subjects": {str(x).strip() for x in (row.get("subjects") or []) if str(x).strip()},
         "agencies": extract_agencies(text),
         "laws": set(row.get("related_laws") or []) | extract_lawish(text),
-        "published": parse_dt(row.get("published_at")),
+        "published": parse_dt(row.get("published_at") or row.get("last_seen")),
         "category": str(row.get("category") or ""),
     }
 
@@ -157,11 +157,50 @@ def _stable_event_key(members: list[dict]) -> str:
     return hashlib.sha256(basis.encode("utf-8")).hexdigest()[:24]
 
 
+def _is_official(source_name: str, source_type: str | None = None) -> bool:
+    if source_type == "official":
+        return True
+    name = str(source_name or "")
+    return any(k in name for k in (
+        "衛生福利部", "衛福部", "內政部", "勞動部", "教育部", "法務部",
+        "行政院", "考試院", "署",
+    ))
+
+
+def _source_rows(row: dict) -> list[dict]:
+    nested = row.get("sources")
+    if isinstance(nested, list) and nested:
+        out = []
+        for src in nested:
+            if not isinstance(src, dict):
+                continue
+            url = str(src.get("source_url") or "")
+            if not url:
+                continue
+            out.append({
+                "source_name": src.get("source_name") or row.get("source_name"),
+                "source_url": url,
+                "source_type": src.get("source_type") or row.get("source_type") or "news",
+                "published_at": src.get("published_at") or row.get("published_at"),
+                "item_id": row.get("id"),
+            })
+        if out:
+            return out
+    url = str(row.get("source_url") or "")
+    return [{
+        "source_name": row.get("source_name"),
+        "source_url": url,
+        "source_type": row.get("source_type") or "news",
+        "published_at": row.get("published_at"),
+        "item_id": row.get("id"),
+    }] if url else []
+
+
 def _choose_lead(members: list[dict]) -> dict:
     def rank(row: dict):
-        official = 1 if row.get("source_type") == "official" or any(
-            x in str(row.get("source_name") or "") for x in ("部", "院", "署")
-        ) else 0
+        official = 1 if any(_is_official(
+            str(src.get("source_name") or ""), str(src.get("source_type") or "")
+        ) for src in _source_rows(row)) else 0
         return (
             official,
             int(row.get("signal_score") or 0),
@@ -171,41 +210,56 @@ def _choose_lead(members: list[dict]) -> dict:
     return max(members, key=rank)
 
 
+def _previous_as_item(row: dict) -> dict:
+    return {
+        "id": row.get("canonical_event_id"),
+        "title": row.get("title"),
+        "summary": row.get("summary"),
+        "category": row.get("category"),
+        "exam_tags": row.get("exam_tags") or [],
+        "subjects": row.get("subjects") or [],
+        "related_laws": row.get("related_laws") or [],
+        "published_at": row.get("last_seen"),
+    }
+
+
 def build_event(members: list[dict], previous: dict | None = None) -> dict:
     lead = _choose_lead(members)
-    dts = [parse_dt(x.get("published_at")) for x in members]
-    dts = [x for x in dts if x]
-    sources = sorted({str(x.get("source_name") or "") for x in members if x.get("source_name")})
-    official_sources = sorted({
-        str(x.get("source_name") or "") for x in members
-        if x.get("source_name") and (
-            x.get("source_type") == "official"
-            or any(k in str(x.get("source_name") or "") for k in ("部", "院", "署"))
-        )
-    })
     evidence = []
     seen_urls = set()
-    for row in sorted(members, key=lambda x: str(x.get("published_at") or ""), reverse=True):
-        url = str(row.get("source_url") or "")
-        if not url or url in seen_urls:
-            continue
-        seen_urls.add(url)
-        evidence.append({
-            "source_name": row.get("source_name"),
-            "source_url": url,
-            "published_at": row.get("published_at"),
-            "item_id": row.get("id"),
-        })
+    for row in members:
+        for src in _source_rows(row):
+            url = str(src.get("source_url") or "")
+            if not url or url in seen_urls:
+                continue
+            seen_urls.add(url)
+            evidence.append(src)
+    evidence.sort(key=lambda x: str(x.get("published_at") or ""), reverse=True)
 
-    event_id = _stable_event_key(members)
+    dts = [parse_dt(x.get("published_at")) for x in evidence]
+    dts = [x for x in dts if x]
+    source_names = sorted({str(x.get("source_name") or "") for x in evidence if x.get("source_name")})
+    official_names = sorted({
+        str(x.get("source_name") or "") for x in evidence
+        if x.get("source_name") and _is_official(
+            str(x.get("source_name") or ""), str(x.get("source_type") or "")
+        )
+    })
+
+    previous = previous or {}
+    event_id = str(previous.get("canonical_event_id") or _stable_event_key(members))
     current_first = min(dts).isoformat().replace("+00:00", "Z") if dts else None
     current_last = max(dts).isoformat().replace("+00:00", "Z") if dts else None
-    previous = previous or {}
     first_seen = previous.get("first_seen") or current_first
     if previous.get("first_seen") and current_first:
         old_dt, new_dt = parse_dt(previous.get("first_seen")), parse_dt(current_first)
         if old_dt and new_dt and new_dt < old_dt:
             first_seen = current_first
+    last_seen = current_last or previous.get("last_seen")
+    if previous.get("last_seen") and current_last:
+        old_last, new_last = parse_dt(previous.get("last_seen")), parse_dt(current_last)
+        if old_last and new_last and old_last > new_last:
+            last_seen = previous.get("last_seen")
     observation_count = int(previous.get("observation_count") or 0) + 1
 
     related = {}
@@ -223,12 +277,12 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
         "subjects": sorted({str(y) for x in members for y in (x.get("subjects") or []) if y}),
         "exam_tags": sorted({str(y) for x in members for y in (x.get("exam_tags") or []) if y}),
         "related_laws": sorted({str(y) for x in members for y in (x.get("related_laws") or []) if y}),
-        "source_count": len(sources),
-        "official_source_count": len(official_sources),
-        "sources": sources,
+        "source_count": len(source_names),
+        "official_source_count": len(official_names),
+        "sources": source_names,
         "evidence": evidence,
         "first_seen": first_seen,
-        "last_seen": current_last,
+        "last_seen": last_seen,
         "observation_count": observation_count,
         "policy_signal": lead.get("policy_signal"),
         "essay_value": lead.get("essay_value"),
@@ -260,15 +314,33 @@ def cluster_items(items: Iterable[dict], previous_events: Iterable[dict] | None 
         else:
             groups.append([row])
 
-    previous_map = {
-        str(x.get("canonical_event_id")): x
-        for x in (previous_events or [])
+    previous = [
+        x for x in (previous_events or [])
         if isinstance(x, dict) and x.get("canonical_event_id")
-    }
+    ]
+    previous_by_id = {str(x.get("canonical_event_id")): x for x in previous}
+    used_previous: set[str] = set()
     events = []
     for group in groups:
         probe = build_event(group)
-        events.append(build_event(group, previous_map.get(probe["canonical_event_id"])))
+        matched = previous_by_id.get(probe["canonical_event_id"])
+        if not matched:
+            lead = _choose_lead(group)
+            best_prev = None
+            best_score = 0.0
+            for old in previous:
+                old_id = str(old.get("canonical_event_id"))
+                if old_id in used_previous:
+                    continue
+                score, _ = similarity(lead, _previous_as_item(old), max_days=45)
+                if score > best_score:
+                    best_prev, best_score = old, score
+            if best_prev is not None and best_score >= 0.58:
+                matched = best_prev
+        if matched:
+            used_previous.add(str(matched.get("canonical_event_id")))
+        events.append(build_event(group, matched))
+
     events.sort(key=lambda x: (
         -int(x.get("signal_score") or 0),
         -int(x.get("source_count") or 0),
