@@ -1,5 +1,73 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 時事來源 14-feed 正式上線（READ FIRST）
+
+> 本節優先於下方所有 6／8／11／12／13 feeds 歷史敘述。接手仍先重新讀遠端 main、open PR/issues、Actions 與 production sentinel；不要把本節 SHA 當永久最新。
+
+### 正式狀態
+
+- #104 已合併：建立 **中英雙語 current-affairs taxonomy** 與 **跨語言 event dedupe**；英文來源不再只是塞進中文 keyword scanner。
+- #107 已合併：加入 **UN News English** 官方 RSS：
+  `https://news.un.org/feed/subscribe/en/news/all/rss.xml`
+- #107 exact-head 真實監測：
+  - UN News English entries=30
+  - 14/14 sources
+  - fetched=601
+  - accepted=9
+  - feed errors=0
+  - questions=4,800
+  - events=9 / trends=9
+  - bilingual source regression PASS
+  - cross-language event dedupe regression PASS
+- #109 已合併：發布 14-source snapshot 到 Cloudflare production。
+- Cloudflare Workers Build（#109 head）已 **success**。
+- #110 已合併；merge commit：`b3775b11b27262be1aca9011b33b2fba906f0143`，production uptime 永久要求至少 **14 feeds** 且 **0 feed errors**。
+- #110 production verification attempt 3：**success**。
+- main push Public Uptime Sentinel run `36163347909`：**success**。
+- production log：
+  `primary-home, pwa-sw-v7, questions-4800-24, sources-14/errors-0, news-9, signals-9/4800, events-9, trends-9, trend-ui-v2, laws-52/52, question-health, ai-preflight, feedback-preflight, netlify-fallback`。
+
+### 目前 14 feeds
+
+1. 衛生福利部焦點新聞
+2. 衛生福利部公告訊息
+3. 中央社社會
+4. 中央社生活
+5. 中央社政治
+6. 中央社國際
+7. 內政部新聞發布
+8. 行政院本院新聞
+9. 教育部即時新聞
+10. 教育部重要政策
+11. 移民署新住民政策法規
+12. 勞動部新聞稿
+13. 法務部新聞發布
+14. UN News English
+
+### 重要品質結論
+
+- 新增 UN News 30 entries 後，accepted 仍維持 9，**沒有因來源擴充而灌水**。
+- 跨語言事件必須有獨立 anchor 才能合併；相似度不足時仍 fail-closed。
+- source count 不能單獨提高 trend score。
+- 4,800 題官方題庫、答案、grading 仍維持唯讀。
+
+### Issue #84 接下來
+
+1. **國際官方第二批**：WHO／UNICEF／ILO。沿用 #104 雙語 taxonomy + cross-language dedupe，逐一做真實 feed pilot；每一個來源都要先驗 entries、feed errors、false positives，再進 production。
+2. **社家署**：#103 probe 未得到可直接上線的穩定官方 RSS/XML endpoint；不要猜 URL。
+3. **國際新聞媒體**：Reuters／AP／BBC 等仍屬後續；優先級低於官方來源，而且需處理授權／feed 穩定性與同事件去重。
+4. **trend quality refinement**：等跨日 evidence 累積後再調權重；任何新 false positive 先加 regression 再修。
+
+### 現在不要重做
+
+- 不要再把來源現況寫成 13 feeds。
+- 不要重做 #104／#107／#109／#110。
+- 不要因國際 feed 文章量增加就提高 accepted 數或 trend 分數。
+- 不要把「Cloudflare build success」單獨當 production 上線；仍以 Public Uptime Sentinel 的 `sources-14/errors-0` 為正式證據。
+
+---
+
+
 ## 2026-09-26 時事來源 13-feed 正式上線（READ FIRST）
 
 > 本節優先於下方所有 6／8／11／12 feeds 歷史敘述。接手時仍先重新讀遠端 main、open PR/issues、Actions 與 production sentinel。
