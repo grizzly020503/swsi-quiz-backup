@@ -60,7 +60,9 @@ jobs:
           test -f _site/monthly_patch.js
           test -f _site/manifest.json
           test -f _site/sw.js
+          test -f _site/auto/current_affairs_signals.json
           test -d _site/icons
+          grep -q "const VERSION = 'v7'" _site/sw.js
           node --check _site/monthly_patch.js
 
       - name: Package Netlify manual deploy ZIP
