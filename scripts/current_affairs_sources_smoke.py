@@ -129,6 +129,36 @@ def main() -> int:
     )
     assert restorative and restorative[1] == "司法保護與修復式司法", restorative
 
+    who_mental = score_item(
+        "WHO issues new guidance on mental health and suicide prevention services",
+        "World Health Organization recommendations strengthen mental health services and suicide prevention policy.",
+        "international",
+        "WHO News",
+        "international",
+    )
+    assert who_mental and who_mental[1] == "心理健康與成癮", who_mental
+    assert who_mental[0] >= 5, who_mental
+    assert "心理健康" in who_mental[2], who_mental
+
+    unicef_child = score_item(
+        "UNICEF calls for stronger child protection and child rights safeguards",
+        "UNICEF policy guidance focuses on child protection services and the rights of the child.",
+        "international",
+        "UNICEF",
+        "international",
+    )
+    assert unicef_child and unicef_child[1] == "兒少保護", unicef_child
+    assert {"兒少保護", "兒童權利"}.issubset(set(unicef_child[2])), unicef_child
+
+    generic_world_news = score_item(
+        "Global leaders gather for annual forum",
+        "Officials discussed the economy and international cooperation.",
+        "international",
+        "International News",
+        "news",
+    )
+    assert generic_world_news is None, generic_world_news
+
     noise_cases = [
         (
             "教育部舉辦全國學生競賽",
@@ -213,7 +243,7 @@ def main() -> int:
     print(
         "CURRENT AFFAIRS SOURCE SMOKE OK: "
         f"{len(rows)} unique HTTPS feeds; labor/student-support policy accepted; "
-        "observed activity/ceremony noise rejected; MOJ protection policy accepted"
+        "MOJ policy + bilingual WHO/UNICEF concepts accepted; generic international noise rejected"
     )
     return 0
 

@@ -18,6 +18,7 @@ EXPLICIT_TOPICS = [
 ALLOWED = {
     "id", "title", "summary", "source_name", "source_url", "source_type", "published_at", "region",
     "category", "relevance_score", "exam_tags", "subjects",
+    "concept_keys", "agency_keys", "fact_keys",
 }
 
 
@@ -26,6 +27,9 @@ def clean_row(row):
     out["summary"] = str(out.get("summary") or "")[:280]
     out["exam_tags"] = list(dict.fromkeys(out.get("exam_tags") or []))[:10]
     out["subjects"] = list(dict.fromkeys(out.get("subjects") or []))
+    out["concept_keys"] = list(dict.fromkeys(out.get("concept_keys") or []))
+    out["agency_keys"] = list(dict.fromkeys(out.get("agency_keys") or []))
+    out["fact_keys"] = list(dict.fromkeys(out.get("fact_keys") or []))
     return out
 
 
@@ -89,6 +93,9 @@ def merge_cluster(cluster):
     sources = []
     all_tags = []
     all_subjects = []
+    all_concepts = []
+    all_agencies = []
+    all_facts = []
     for row in sorted(members, key=lambda x: x.get("published_at") or "", reverse=True):
         url = row.get("source_url") or ""
         if url and url not in urls:
@@ -102,6 +109,9 @@ def merge_cluster(cluster):
             })
         all_tags.extend(row.get("exam_tags") or [])
         all_subjects.extend(row.get("subjects") or [])
+        all_concepts.extend(row.get("concept_keys") or [])
+        all_agencies.extend(row.get("agency_keys") or [])
+        all_facts.extend(row.get("fact_keys") or [])
 
     count = len(urls) or len(members)
     base_score = max(int(x.get("relevance_score") or 0) for x in members)
@@ -125,6 +135,9 @@ def merge_cluster(cluster):
         "relevance_score": score,
         "exam_tags": list(dict.fromkeys(all_tags))[:10],
         "subjects": list(dict.fromkeys(all_subjects)),
+        "concept_keys": list(dict.fromkeys(all_concepts)),
+        "agency_keys": list(dict.fromkeys(all_agencies)),
+        "fact_keys": list(dict.fromkeys(all_facts)),
         "source_count": count,
         "sources": sources,
         "clustered": count > 1,

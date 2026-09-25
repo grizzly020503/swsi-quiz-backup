@@ -87,6 +87,57 @@ def main() -> int:
     assert len(merged["evidence"]) == 3, merged
     assert len({x["source_url"] for x in merged["evidence"]}) == 3
 
+    bilingual_same = [
+        {
+            "id": "bi-zh",
+            "title": "聯合國兒童基金會呼籲強化兒少保護與兒童權利保障",
+            "summary": "UNICEF 推動兒少保護服務與兒童權利政策，影響100萬名兒童。",
+            "source_name": "中央社國際",
+            "source_url": "https://example.test/bi-zh",
+            "source_type": "news",
+            "published_at": "2026-09-25T02:00:00Z",
+            "category": "兒少保護",
+            "exam_tags": ["兒少保護", "兒童權利"],
+            "subjects": ["社會政策與社會立法"],
+            "concept_keys": ["child_protection", "child_rights"],
+            "agency_keys": ["unicef"],
+            "fact_keys": ["num:1000000"],
+            "signal_score": 7,
+        },
+        {
+            "id": "bi-en",
+            "title": "UNICEF calls for stronger child protection and child rights safeguards",
+            "summary": "UNICEF says the policy could strengthen services for 1 million children.",
+            "source_name": "UNICEF",
+            "source_url": "https://example.test/bi-en",
+            "source_type": "international",
+            "published_at": "2026-09-25T03:00:00Z",
+            "category": "兒少保護",
+            "exam_tags": ["兒少保護", "兒童權利"],
+            "subjects": ["社會政策與社會立法"],
+            "concept_keys": ["child_protection", "child_rights"],
+            "agency_keys": ["unicef"],
+            "fact_keys": ["num:1000000"],
+            "signal_score": 7,
+        },
+    ]
+    bilingual_events = cluster_items(bilingual_same)
+    assert len(bilingual_events) == 1, bilingual_events
+    assert bilingual_events[0]["source_count"] == 2, bilingual_events[0]
+    assert set(bilingual_events[0]["concept_keys"]) == {"child_protection", "child_rights"}
+
+    bilingual_unrelated = {
+        **bilingual_same[1],
+        "id": "bi-other",
+        "title": "WHO expands child protection and child rights training guidance",
+        "source_name": "WHO",
+        "source_url": "https://example.test/bi-other",
+        "agency_keys": ["who"],
+        "fact_keys": ["num:2000000"],
+    }
+    separated = cluster_items([bilingual_same[0], bilingual_unrelated])
+    assert len(separated) == 2, separated
+
     old_id = merged["canonical_event_id"]
     rerun_items = [
         row(
@@ -141,8 +192,8 @@ def main() -> int:
 
     print(
         "CURRENT AFFAIRS V2 EVENT/TREND SMOKE OK: "
-        "3-source event deduped, unrelated event separated, identity persisted, "
-        "trend score not driven by source count alone"
+        "3-source event deduped, bilingual event merged only with independent anchor, "
+        "unrelated event separated, identity persisted, trend score not driven by source count alone"
     )
     return 0
 
