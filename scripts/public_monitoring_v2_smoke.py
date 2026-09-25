@@ -36,8 +36,10 @@ def snapshot_publish_contract_smoke(workflow: str) -> None:
 
     expected = {
         "auto/current_affairs.json", "auto/current_affairs_signals.json",
+        "auto/current_affairs_events.json", "auto/current_affairs_trends.json",
         "auto/legal_watch.json", "cdn/auto/current_affairs.json",
-        "cdn/auto/current_affairs_signals.json", "cdn/auto/legal_watch.json",
+        "cdn/auto/current_affairs_signals.json", "cdn/auto/current_affairs_events.json",
+        "cdn/auto/current_affairs_trends.json", "cdn/auto/legal_watch.json",
         "cdn/auto/health.json", "cdn/auto/sync_state.json",
     }
     with tempfile.TemporaryDirectory(prefix="swsi-monitoring-stage-") as tmp:
@@ -60,6 +62,8 @@ def snapshot_publish_contract_smoke(workflow: str) -> None:
 
 def main() -> int:
     news = read_json("auto/current_affairs.json")
+    events = read_json("auto/current_affairs_events.json")
+    trends = read_json("auto/current_affairs_trends.json")
     laws = read_json("auto/legal_watch.json")
     health = read_json("auto/health.json")
     sync = read_json("auto/sync_state.json")
@@ -71,6 +75,38 @@ def main() -> int:
         assert str(row.get("title") or "").strip()
         assert str(row.get("source_url") or "").startswith("https://")
         assert row.get("category")
+
+    assert events.get("schema_version") == 1
+    event_rows = events.get("events") or []
+    assert event_rows, "current-affairs event snapshot is empty"
+    assert int(events.get("event_count") or 0) == len(event_rows)
+    assert "不代表命題保證" in str(events.get("note") or "")
+    event_ids = set()
+    for row in event_rows:
+        event_id = str(row.get("canonical_event_id") or "")
+        assert event_id and event_id not in event_ids, event_id
+        event_ids.add(event_id)
+        evidence = row.get("evidence") or []
+        assert evidence, event_id
+        urls = {str(x.get("source_url") or "") for x in evidence}
+        assert all(url.startswith("https://") for url in urls), (event_id, urls)
+        assert int(row.get("source_count") or 0) >= 1
+        assert int(row.get("official_source_count") or 0) >= 0
+        assert int(row.get("observation_count") or 0) >= 1
+
+    assert trends.get("schema_version") == 1
+    trend_rows = trends.get("trends") or []
+    assert trend_rows, "current-affairs trend snapshot is empty"
+    assert int(trends.get("event_count") or 0) == len(trend_rows)
+    assert "不代表命題保證" in str(trends.get("note") or "")
+    allowed_states = {"rising", "sustained", "cooling", "one-off"}
+    for row in trend_rows:
+        assert str(row.get("canonical_event_id") or "") in event_ids
+        assert row.get("trend_state") in allowed_states
+        score = float(row.get("trend_score"))
+        assert 0.0 <= score <= 10.0
+        assert isinstance(row.get("factors"), dict) and row.get("factors")
+        assert isinstance(row.get("why"), list) and row.get("why")
 
     assert laws.get("schema_version") == 1
     assert int(laws.get("watch_count") or 0) >= 20
@@ -103,7 +139,11 @@ def main() -> int:
     assert "/auto/sync_state.json" in owner
     assert "不自動改答案" in owner
 
-    for rel in ("current_affairs.json", "legal_watch.json", "health.json", "sync_state.json"):
+    for rel in (
+        "current_affairs.json", "current_affairs_signals.json",
+        "current_affairs_events.json", "current_affairs_trends.json",
+        "legal_watch.json", "health.json", "sync_state.json",
+    ):
         public = ROOT / "cdn/auto" / rel
         if public.exists():
             assert json.loads(public.read_text(encoding="utf-8")) == read_json("auto/" + rel), rel
@@ -145,7 +185,8 @@ def main() -> int:
 
     print(
         "PUBLIC MONITORING V2 CONTRACT OK: "
-        f"news={len(items)}, laws={laws['matched_count']}/{laws['watch_count']}, questions=4800, five-radar-ui=yes"
+        f"news={len(items)}, events={len(event_rows)}, trends={len(trend_rows)}, "
+        f"laws={laws['matched_count']}/{laws['watch_count']}, questions=4800, five-radar-ui=yes"
     )
     return 0
 
