@@ -174,14 +174,81 @@ def unicef_html_adapter_contract() -> None:
         watch.time.sleep = original_sleep
 
 
+def ilo_html_adapter_contract() -> None:
+    calls = {"count": 0}
+    original_urlopen = watch.urlopen
+    original_sleep = watch.time.sleep
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def read(self):
+            return b"""
+            <html><body>
+              <article>
+                <a href="/resource/news/social-protection-expansion">
+                  ILO project improves social protection coverage for over nine million people
+                </a>
+                <p>Policy reforms strengthen social protection systems and universal coverage.</p>
+                <time datetime="2026-09-25">25 September 2026</time>
+              </article>
+              <article>
+                <a href="/resource/news/refugee-decent-work">
+                  ILO and UNHCR strengthen decent work for refugees and host communities
+                </a>
+                <p>Partnership expands employment protection and services for refugees.</p>
+                <div>24 September 2026</div>
+              </article>
+              <a href="https://www.etf.europa.eu/external-story">External story</a>
+              <a href="/resource/news/all-news-recent">All news</a>
+            </body></html>
+            """
+
+    def fake_urlopen(request, timeout=12):
+        calls["count"] += 1
+        assert request.full_url == "https://www.ilo.org/resource/news/all-news-recent"
+        if calls["count"] == 1:
+            raise OSError("temporary ILO page failure")
+        return FakeResponse()
+
+    try:
+        watch.urlopen = fake_urlopen
+        watch.time.sleep = lambda _seconds: None
+        parsed, error = watch.parse_ilo_news_with_retry(
+            {
+                "name": "ILO Newsroom",
+                "url": "https://www.ilo.org/resource/news/all-news-recent",
+                "source_format": "ilo_news_html",
+            },
+            attempts=3,
+        )
+        assert error is None, error
+        assert calls["count"] == 2, calls
+        assert len(parsed.entries) == 2, parsed.entries
+        first = parsed.entries[0]
+        assert first.link == "https://www.ilo.org/resource/news/social-protection-expansion"
+        assert first.title.startswith("ILO project improves social protection")
+        assert "universal coverage" in first.summary
+        assert first.published_parsed is not None
+        assert parsed.entries[1].published_parsed is not None
+    finally:
+        watch.urlopen = original_urlopen
+        watch.time.sleep = original_sleep
+
+
 def main() -> int:
     retry_contract()
     who_api_adapter_contract()
     unicef_html_adapter_contract()
+    ilo_html_adapter_contract()
     payload = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = payload.get("sources") or []
     assert payload.get("schema_version") == 1
-    assert len(rows) >= 16, f"expected at least 16 curated sources, got {len(rows)}"
+    assert len(rows) >= 17, f"expected at least 17 curated sources, got {len(rows)}"
 
     urls = [str(x.get("url") or "") for x in rows]
     names = [str(x.get("name") or "") for x in rows]
@@ -209,6 +276,13 @@ def main() -> int:
     assert unicef_news.get("region") == "international"
     assert unicef_news.get("source_type") == "official"
     assert unicef_news.get("source_format") == "unicef_press_html"
+
+    ilo_news = by_name.get("ILO Newsroom")
+    assert ilo_news, "missing source: ILO Newsroom"
+    assert ilo_news.get("url") == "https://www.ilo.org/resource/news/all-news-recent"
+    assert ilo_news.get("region") == "international"
+    assert ilo_news.get("source_type") == "official"
+    assert ilo_news.get("source_format") == "ilo_news_html"
 
     for name, url in REQUIRED.items():
         row = by_name.get(name)
@@ -289,6 +363,16 @@ def main() -> int:
     )
     assert unicef_child and unicef_child[1] == "兒少保護", unicef_child
     assert {"兒少保護", "兒童權利"}.issubset(set(unicef_child[2])), unicef_child
+
+    ilo_social_protection = score_item(
+        "ILO project improves social protection coverage for over nine million people",
+        "Policy reforms strengthen social protection systems and universal coverage.",
+        "international",
+        "ILO Newsroom",
+        "official",
+    )
+    assert ilo_social_protection and ilo_social_protection[1] == "社會救助與居住", ilo_social_protection
+    assert "社會保障" in ilo_social_protection[2], ilo_social_protection
 
     generic_world_news = score_item(
         "Global leaders gather for annual forum",
@@ -382,8 +466,8 @@ def main() -> int:
 
     print(
         "CURRENT AFFAIRS SOURCE SMOKE OK: "
-        f"{len(rows)} unique HTTPS sources; RSS + WHO JSON + UNICEF HTML adapters guarded; "
-        "MOJ policy + bilingual WHO/UNICEF concepts accepted; generic international noise rejected"
+        f"{len(rows)} unique HTTPS sources; RSS + WHO JSON + UNICEF/ILO HTML adapters guarded; "
+        "MOJ policy + bilingual WHO/UNICEF/ILO concepts accepted; generic international noise rejected"
     )
     return 0
 

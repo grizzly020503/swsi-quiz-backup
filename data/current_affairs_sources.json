@@ -98,6 +98,13 @@
       "region": "international",
       "source_type": "official",
       "source_format": "unicef_press_html"
+    },
+    {
+      "name": "ILO Newsroom",
+      "url": "https://www.ilo.org/resource/news/all-news-recent",
+      "region": "international",
+      "source_type": "official",
+      "source_format": "ilo_news_html"
     }
   ]
 }
