@@ -190,10 +190,49 @@ def main() -> int:
     )
     assert policy_trend["trend_state"] in {"rising", "sustained"}
 
+    history_base = {
+        **different,
+        "canonical_event_id": "history-quality",
+        "title": "歷屆題匹配品質測試",
+        "source_count": 1,
+        "official_source_count": 1,
+        "observation_count": 1,
+        "first_seen": "2026-09-25T00:00:00Z",
+        "last_seen": "2026-09-25T00:00:00Z",
+        "related_laws": [],
+        "policy_signal": "low",
+        "essay_value": "low",
+        "mcq_fact_density": "low",
+        "evidence": [{"source_url": "https://example.test/history"}],
+    }
+    weak_history = {
+        **history_base,
+        "related_exam_questions": [
+            {"id": f"W-{i}", "match_score": 2.2} for i in range(5)
+        ],
+    }
+    strong_history = {
+        **history_base,
+        "related_exam_questions": [
+            {"id": "S-1", "match_score": 8.2},
+            {"id": "S-2", "match_score": 8.2},
+        ],
+    }
+    weak_trend = trend_for(weak_history, now)
+    strong_trend = trend_for(strong_history, now)
+    assert weak_trend["historical_question_count"] == 5
+    assert strong_trend["historical_question_count"] == 2
+    assert weak_trend["historical_match_strength"] == 0.5, weak_trend
+    assert strong_trend["historical_match_strength"] == 1.0, strong_trend
+    assert strong_trend["trend_score"] > weak_trend["trend_score"], (
+        weak_trend,
+        strong_trend,
+    )
+
     print(
         "CURRENT AFFAIRS V2 EVENT/TREND SMOKE OK: "
         "3-source event deduped, bilingual event merged only with independent anchor, "
-        "unrelated event separated, identity persisted, trend score not driven by source count alone"
+        "unrelated event separated, identity persisted, trend score uses historical match strength"
     )
     return 0
 
