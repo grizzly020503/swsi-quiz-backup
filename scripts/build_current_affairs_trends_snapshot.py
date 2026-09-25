@@ -23,6 +23,25 @@ def days_between(a: str | None, b: str | None) -> float:
     return abs((db - da).total_seconds()) / 86400.0
 
 
+def historical_question_evidence(rows) -> tuple[float, dict[str, int]]:
+    strong = 0
+    medium = 0
+    concept = 0
+    for row in rows or []:
+        try:
+            score = float(row.get("match_score") or 0)
+        except (TypeError, ValueError, AttributeError):
+            score = 0.0
+        if score >= 5.0:
+            strong += 1
+        elif score >= 3.0:
+            medium += 1
+        elif score >= 2.0:
+            concept += 1
+    factor = min(1.6, strong * 0.50 + medium * 0.25 + concept * 0.10)
+    return factor, {"strong": strong, "medium": medium, "concept": concept}
+
+
 def trend_for(event: dict, generated_at: str) -> dict:
     source_count = int(event.get("source_count") or 0)
     official_count = int(event.get("official_source_count") or 0)
@@ -30,7 +49,9 @@ def trend_for(event: dict, generated_at: str) -> dict:
     policy = LEVEL.get(str(event.get("policy_signal") or "low"), 1)
     essay = LEVEL.get(str(event.get("essay_value") or "low"), 1)
     mcq = LEVEL.get(str(event.get("mcq_fact_density") or "low"), 1)
-    related_q = len(event.get("related_exam_questions") or [])
+    related_rows = event.get("related_exam_questions") or []
+    related_q = len(related_rows)
+    historical_factor, historical_breakdown = historical_question_evidence(related_rows)
     laws = len(event.get("related_laws") or [])
     age_days = days_between(event.get("last_seen"), generated_at)
     span_days = days_between(event.get("first_seen"), event.get("last_seen"))
@@ -39,7 +60,7 @@ def trend_for(event: dict, generated_at: str) -> dict:
         "cross_source": min(2.0, max(0.0, source_count - 1) * 0.8),
         "official_evidence": min(1.6, official_count * 0.8),
         "policy_change": max(0.0, policy - 1) * 1.25,
-        "historical_questions": min(1.6, related_q * 0.35),
+        "historical_questions": historical_factor,
         "law_relevance": min(1.2, laws * 0.6),
         "persistence": min(1.4, max(0, observation_count - 1) * 0.45 + min(span_days, 10) * 0.05),
         "essay_value": max(0.0, essay - 1) * 0.55,
@@ -68,7 +89,16 @@ def trend_for(event: dict, generated_at: str) -> dict:
     if laws:
         why.append(f"涉及 {laws} 項法規／公約")
     if related_q:
-        why.append(f"關聯 {related_q} 題歷屆題")
+        if historical_breakdown["strong"]:
+            why.append(
+                f"關聯 {related_q} 題歷屆題（{historical_breakdown['strong']} 題強匹配）"
+            )
+        elif historical_breakdown["medium"]:
+            why.append(
+                f"關聯 {related_q} 題歷屆題（{historical_breakdown['medium']} 題中度匹配）"
+            )
+        else:
+            why.append(f"關聯 {related_q} 題歷屆題（概念級）")
     if observation_count >= 2:
         why.append(f"已連續觀察 {observation_count} 次")
     if not why:
@@ -90,7 +120,9 @@ def trend_for(event: dict, generated_at: str) -> dict:
         "last_seen": event.get("last_seen"),
         "related_laws": event.get("related_laws") or [],
         "historical_question_count": related_q,
-        "related_exam_questions": event.get("related_exam_questions") or [],
+        "historical_match_strength": round(historical_factor, 2),
+        "historical_match_breakdown": historical_breakdown,
+        "related_exam_questions": related_rows,
         "essay_direction": event.get("essay_direction"),
         "mcq_focus": event.get("mcq_focus") or [],
         "evidence": event.get("evidence") or [],
@@ -121,7 +153,7 @@ def main() -> int:
         "schema_version": 1,
         "generated_at": generated_at,
         "event_count": len(rows),
-        "method": "deterministic-v1",
+        "method": "deterministic-v2",
         "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
         "trends": rows,
     }
