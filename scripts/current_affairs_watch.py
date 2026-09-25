@@ -5,6 +5,7 @@ import hashlib
 import html
 import json
 import re
+import socket
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -97,7 +98,7 @@ def published_iso(entry):
     return datetime.fromtimestamp(calendar.timegm(st), tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def score_item(title, summary, region, source_name):
+def score_item(title, summary, region, source_name, source_type="news"):
     text = f"{title} {summary}"
     policy_hits = [w for w in POLICY_TERMS if w in text]
     best = None
@@ -125,7 +126,7 @@ def score_item(title, summary, region, source_name):
     if best is None:
         return None
     score, category = best
-    if source_name.startswith("衛生福利部"):
+    if source_type == "official":
         score += 1
     if any(w in title for w in LOW_VALUE_TERMS):
         score -= 3
@@ -150,11 +151,16 @@ def main():
     feed_errors = []
 
     feeds = load_feeds()
+    socket.setdefaulttimeout(12)
     for feed in feeds:
         parsed = feedparser.parse(feed["url"], request_headers={"User-Agent":"swsi-current-affairs-radar/1.1"})
+        entry_count = len(parsed.entries or [])
         if getattr(parsed, "bozo", False) and not parsed.entries:
-            feed_errors.append(f"{feed['name']}: {getattr(parsed, 'bozo_exception', 'RSS parse failed')}")
+            error = f"{feed['name']}: {getattr(parsed, 'bozo_exception', 'RSS parse failed')}"
+            feed_errors.append(error)
+            print(f"Feed ERROR: {error}")
             continue
+        print(f"Feed OK: {feed['name']} entries={entry_count}")
         for entry in parsed.entries:
             fetched += 1
             title = clean_html(getattr(entry, "title", ""))
@@ -169,7 +175,7 @@ def main():
                         continue
                 except Exception:
                     pass
-            scored = score_item(title, summary, feed["region"], feed["name"])
+            scored = score_item(title, summary, feed["region"], feed["name"], feed.get("source_type", "news"))
             if not scored:
                 continue
             score, category, tags = scored

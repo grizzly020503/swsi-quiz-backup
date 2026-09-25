@@ -161,7 +161,12 @@ def main():
 
     src = json.loads(Path(args.input).read_text(encoding="utf-8"))
     topics = build(src.get("items", []))[: max(1, args.limit)]
-    public = {"schema_version": 2, "items": topics}
+    public = {
+        "schema_version": 2,
+        "source_feed_count": int(src.get("feed_count") or 0),
+        "feed_error_count": len(src.get("feed_errors") or []),
+        "items": topics,
+    }
 
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)

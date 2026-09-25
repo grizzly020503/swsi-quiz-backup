@@ -61,6 +61,26 @@ def snapshot_publish_contract_smoke(workflow: str) -> None:
 
 
 def main() -> int:
+    source_registry = read_json("data/current_affairs_sources.json")
+    assert source_registry.get("schema_version") == 1
+    source_rows = source_registry.get("sources") or []
+    assert len(source_rows) >= 11, "current-affairs source registry unexpectedly shrank"
+    source_names = [str(x.get("name") or "").strip() for x in source_rows]
+    source_urls = [str(x.get("url") or "").strip() for x in source_rows]
+    assert all(source_names), "current-affairs source name missing"
+    assert all(url.startswith("https://") for url in source_urls), source_urls
+    assert len(source_names) == len(set(source_names)), "duplicate current-affairs source name"
+    assert len(source_urls) == len(set(source_urls)), "duplicate current-affairs source URL"
+    for row in source_rows:
+        assert row.get("region") in {"taiwan", "international"}, row
+        assert row.get("source_type") in {"official", "news", "international"}, row
+    required_official = {
+        "https://www.edu.tw/Rss_News.aspx?n=9E7AC85F1954DDA8",
+        "https://www.edu.tw/Rss_WebArchive.aspx?n=FB01D469347C76A7",
+        "https://news.immigration.gov.tw/Rss/Content/8?lang=TW",
+    }
+    assert required_official.issubset(set(source_urls)), "new official feeds missing from registry"
+
     news = read_json("auto/current_affairs.json")
     events = read_json("auto/current_affairs_events.json")
     trends = read_json("auto/current_affairs_trends.json")
@@ -69,6 +89,8 @@ def main() -> int:
     sync = read_json("auto/sync_state.json")
 
     assert news.get("schema_version") == 2
+    assert int(news.get("source_feed_count") or 0) >= 11
+    assert int(news.get("feed_error_count", -1)) == 0
     items = news.get("items") or []
     assert items, "current-affairs snapshot is empty"
     for row in items:
@@ -185,7 +207,7 @@ def main() -> int:
 
     print(
         "PUBLIC MONITORING V2 CONTRACT OK: "
-        f"news={len(items)}, events={len(event_rows)}, trends={len(trend_rows)}, "
+        f"sources={len(source_rows)}/{news['source_feed_count']}, news={len(items)}, events={len(event_rows)}, trends={len(trend_rows)}, "
         f"laws={laws['matched_count']}/{laws['watch_count']}, questions=4800, five-radar-ui=yes"
     )
     return 0
