@@ -1,5 +1,52 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 Netlify fallback 最新封包已完成，待帳號端手動上傳（READ FIRST）
+
+> Cloudflare primary 已正常 production。此節只處理 Netlify fallback；不要把 Netlify 未上傳誤判成 Cloudflare release blocker。
+
+### 已完成
+
+- 使用者已明確授權 Netlify fallback 可以上架。
+- #139 已合併：root Netlify release marker 更新為 `2026-09-26-history-v2.2`，`Verify Netlify Production Release` 也升級為驗：
+  - SW v7
+  - monthly runtime / grading guards
+  - 命題趨勢雷達
+  - current-affairs 17 sources / 0 feed errors
+  - 4,800 題 signal baseline
+  - events / trends
+  - `deterministic-v2.2`
+- GitHub→Netlify 並沒有自動 production deploy；#139 後 production verifier 連續 18 次仍讀到舊 release marker，因此已確認 **Netlify 需手動 Deploys / drag-and-drop**，不是自動 Git deploy。
+- #140 已合併：重新用最新 main 觸發官方 `Netlify Manual Deploy Artifact` workflow。
+- main artifact run：`36202409540`，**success**。
+- artifact source main commit：`752a9b750870022b418fa391933a9c48414a5a17`。
+- 真正要上傳的 ZIP：`swsi-netlify-manual-deploy.zip`。
+- SHA-256：`071d1d5c7e7c8faa9b9d7994c62c1d7ac7f0c696a9000a4eb7e09aaa8a2e5e30`。
+- ZIP 已驗證：
+  - 壓縮檔無錯誤
+  - `index.html` release marker = `2026-09-26-history-v2.2`
+  - `sw.js` = v7
+  - 包含 `monthly_patch.js`
+  - 包含 `auto/current_affairs.json` / signals / events / trends
+  - 包含 `admin/index.html`
+
+### 唯一剩餘步驟
+
+1. 登入既有 Netlify SWSI site。
+2. 進入 **Deploys**。
+3. 用 manual deploy / drag-and-drop 上傳 `swsi-netlify-manual-deploy.zip`。
+4. 部署成功後重跑 `Verify Netlify Production Release`。
+5. 只有 production HTTP + browser smoke 都綠，才能把 Netlify release 標成正式完成。
+
+### 現在不要重做
+
+- 不要再期待 GitHub merge 自動觸發 Netlify production；已由 #139 實測證明正式站 marker 不會自動切換。
+- 不要使用舊的 2026-08-26／2026-09-25 Netlify ZIP。
+- 不要上傳整個 GitHub artifact 外層 ZIP；**要上傳的是裡面的 `swsi-netlify-manual-deploy.zip`**。
+- Netlify 未上傳不影響 Cloudflare primary；Cloudflare current-affairs/history-v2.2 已是 verified production。
+
+---
+
+
 ## 2026-09-26 Issue #84 時事 V2／來源政策已收尾（READ FIRST）
 
 > 本節優先於下方所有把 #84、Reuters/AP/BBC、社家署或 trend quality 列為未完成的舊敘述。接手仍先重新讀 main、open PR/issues、Actions 與 production sentinel。
