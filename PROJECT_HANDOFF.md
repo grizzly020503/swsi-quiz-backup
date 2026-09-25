@@ -1,8 +1,81 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 時事來源 16-feed 正式上線（READ FIRST）
+
+> 本節是目前最高優先的時事來源基線，優先於下方所有 6／8／11／12／13／14／15 feeds 歷史敘述。接手仍先重新讀遠端 main、open PR/issues、Actions 與 production sentinel。
+
+### 正式狀態
+
+- #118 已合併：新增 **UNICEF Press Releases**，作為第 16 個 current-affairs source。
+- UNICEF 不是 RSS：使用獨立 `unicef_press_html` adapter，不把 HTML 頁面硬塞進 RSS parser。
+- UNICEF adapter 已有：
+  - press release list parsing
+  - 日期解析 regression
+  - bounded retry
+  - source contract
+  - relevance/noise regression
+- #119 已合併：發布 16-source snapshot 到 Cloudflare production。
+- #119 merge commit：`3179393dfd2e5c5f71b8b87fc9c352aa0ece91af`。
+- Cloudflare Workers production build：**success**。
+- production 已有獨立驗證證據：
+  `sources-16/errors-0, news-10, signals-10/4800, events-10, trends-10, trend-ui-v2, laws-52/52`。
+- #120 完成 production verification 後關閉未合併；#121 也因 main 繼續前進而關閉未合併。這不是功能回退，16-source production 已驗證成功。
+- 本輪新增 permanent uptime contract：main 的 `scripts/public_uptime_smoke.py` 永久要求 **至少 16 feeds 且 feed errors=0**。
+
+### 目前 16 feeds
+
+1. 衛生福利部焦點新聞
+2. 衛生福利部公告訊息
+3. 中央社社會
+4. 中央社生活
+5. 中央社政治
+6. 中央社國際
+7. 內政部新聞發布
+8. 行政院本院新聞
+9. 教育部即時新聞
+10. 教育部重要政策
+11. 移民署新住民政策法規
+12. 勞動部新聞稿
+13. 法務部新聞發布
+14. UN News English
+15. WHO Newsroom
+16. UNICEF Press Releases
+
+### 最新正式驗證
+
+- production source health：**16 sources / 0 errors**。
+- news=10。
+- signals=10 / questions_loaded=4,800。
+- events=10。
+- trends=10。
+- legal-watch=52/52。
+- trend UI V2：PASS。
+- question health / AI preflight / feedback preflight / Netlify fallback：PASS。
+- Cloudflare Workers Build for #119：**success**。
+
+### 現在不要重做
+
+- 不要再把來源現況寫成 15 feeds。
+- 不要重做 #118／#119 的 UNICEF adapter／release。
+- 不要把 UNICEF press page 當 RSS；它是獨立 HTML adapter。
+- 不要因國際來源文章量增加而放寬 relevance；目前 16 sources 仍只保留 10 個高關聯議題。
+- 不要讓 source count 單獨灌高 trend score。
+- MOEX／Public Monitoring ownership 分離仍維持；不要讓 MOEX 再提交 public current-affairs snapshots。
+- 官方 4,800 題、答案與 grading 仍為唯讀邊界。
+
+### Issue #84 接下來仍未完成
+
+1. **ILO**：目前是下一個優先國際官方來源；先找官方、穩定、可程式化取得的 feed/API/page，再做 isolated pilot。
+2. **社家署**：仍未找到穩定可上線的官方 RSS/XML endpoint；不得猜 URL。
+3. **Reuters／AP／BBC**：優先級低於官方來源；接入前確認合法／穩定 feed、只保留必要 metadata，並沿用跨語言 event dedupe。
+4. **trend quality refinement**：累積跨日 evidence 後再校正權重；新 false positive 先加 regression 再修。
+
+---
+
+
 ## 2026-09-26 MOEX／Public Monitoring ownership 衝突已修復（READ FIRST）
 
-> 本節是營運穩定性補充；時事來源數仍以緊接下方最新的 **15-feed** 章節為準。接手先重新讀 main 與 Actions，不把 SHA 當永久最新。
+> 本節是營運穩定性補充；時事來源數以文件最上方最新的 **16-feed** 章節為準。接手先重新讀 main 與 Actions，不把 SHA 當永久最新。
 
 ### 問題根因
 
