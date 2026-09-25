@@ -41,7 +41,8 @@ jobs:
           # A pull request still points at the old production deployment, so it
           # validates the existing public baseline. Push/scheduled/manual runs happen
           # on main after deployment and must also require Monitoring V2 snapshots.
-          if [ "$GITHUB_EVENT_NAME" != 'pull_request' ]; then
+          # Temporary PR-head production verification after the 14-source release.
+          if true; then
             args='--monitoring-v2'
           fi
           python scripts/public_uptime_smoke.py $args
