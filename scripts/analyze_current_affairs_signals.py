@@ -421,63 +421,95 @@ def _question_search_text(q: dict) -> str:
 
 
 def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits: int = 5) -> list[dict]:
-    """Return related exam questions with fail-closed thresholds.
+    """Return related exam questions using event-supported evidence only.
 
-    Strong: shared law name
-    Medium: subject overlap + informative tag / topic keyword overlap
+    A shared law by itself is recorded as law history, not as a same-topic
+    question match. Topic matching requires an informative event term, a
+    specific synonym concept, or an allowed bilingual canonical concept.
     """
     if not questions:
         return []
 
-    subjects = set(str(s) for s in (row.get("subjects") or []) if s)
+    subjects = set(str(x) for x in (row.get("subjects") or []) if x)
     tags = informative_tags(row)
-    category_terms = set(CATEGORY_MATCH_TERMS.get(str(row.get("category") or ""), []))
+    event_text = text_of(row)
+    event_specific = historical_concepts(event_text)
+    event_canonical = {
+        str(x).strip() for x in (row.get("concept_keys") or []) if str(x).strip()
+    }
+    event_canonical |= canonical_concepts(event_text)
     scored: list[tuple[float, dict]] = []
 
     for q in questions:
-        score = 0.0
-        reasons: list[str] = []
-        q_law = q.get("law") or ""
-        q_text = f"{q.get('question') or ''} {q.get('topic') or ''} {q.get('major') or ''} {' '.join(q.get('keywords') or [])}"
-
-        law_hit = None
-        for law in laws:
-            if law and (law in q_law or law in q_text):
-                law_hit = law
-                break
-        if law_hit:
-            score += 5.0
-            reasons.append(f"法規「{law_hit}」")
-
-        subj = q.get("subject") or ""
-        subj_ok = (not subjects) or (subj in subjects)
-        if not law_hit and not subj_ok:
+        subj = str(q.get("subject") or "")
+        if subjects and subj not in subjects:
             continue
 
-        tag_hits = [t for t in tags if t in q_text or t in q_law]
-        category_hits = [t for t in category_terms if t in q_text or t in q_law]
-        combined_hits = list(dict.fromkeys(tag_hits + category_hits))
-        if combined_hits:
-            score += min(3.0, 1.0 * len(combined_hits))
-            reasons.append("關鍵詞：" + "、".join(combined_hits[:4]))
+        q_law = str(q.get("law") or "")
+        q_text = _question_search_text(q)
+        law_hit = next(
+            (law for law in laws if law and (law in q_law or law in q_text)),
+            None,
+        )
+        tag_hits = sorted(t for t in tags if t in q_text or t in q_law)
 
-        if score > 0 and subj_ok:
-            score += 0.2
+        q_specific = historical_concepts(f"{q_text} {q_law}")
+        shared_specific = sorted(event_specific & q_specific)
+        eligible_specific = [
+            key for key in shared_specific
+            if not HISTORICAL_CONCEPTS[key].get("requires_law") or law_hit
+        ]
 
-        if law_hit or len(combined_hits) >= 2:
-            scored.append((score, {
-                "id": q.get("id"),
-                "subject": subj,
-                "year": q.get("year"),
-                "round": q.get("round"),
-                "qno": q.get("qno"),
-                "major": q.get("major"),
-                "topic": q.get("topic"),
-                "match_reason": "；".join(reasons) if reasons else "相關",
-                "match_score": round(score, 2),
-            }))
+        q_canonical = canonical_concepts(f"{q_text} {q_law}")
+        shared_canonical = sorted(event_canonical & q_canonical)
+        standalone_canonical = [
+            key for key in shared_canonical if key in CANONICAL_STANDALONE_HISTORY
+        ]
 
-    scored.sort(key=lambda x: (-x[0], str(x[1].get("year") or ""), str(x[1].get("qno") or "")))
+        if not (tag_hits or eligible_specific or standalone_canonical):
+            continue
+
+        score = 0.0
+        reasons: list[str] = []
+        if tag_hits:
+            score += min(4.0, 2.0 * len(tag_hits))
+            reasons.append("事件詞：" + "、".join(tag_hits[:4]))
+        if eligible_specific:
+            score += min(4.0, 3.0 * len(eligible_specific))
+            reasons.append(
+                "同義考點：" + "、".join(
+                    HISTORICAL_CONCEPTS[key]["label"] for key in eligible_specific[:4]
+                )
+            )
+        if standalone_canonical:
+            score += min(3.0, 2.0 * len(standalone_canonical))
+            labels = concept_tags(standalone_canonical)
+            reasons.append("共同概念：" + "、".join(labels[:4] or standalone_canonical[:4]))
+        if law_hit:
+            score += 3.0
+            reasons.append(f"同法規「{law_hit}」")
+        score += 0.2
+
+        scored.append((score, {
+            "id": q.get("id"),
+            "subject": subj,
+            "year": q.get("year"),
+            "round": q.get("round"),
+            "qno": q.get("qno"),
+            "major": q.get("major"),
+            "topic": q.get("topic"),
+            "match_reason": "；".join(reasons),
+            "match_score": round(score, 2),
+        }))
+
+    scored.sort(
+        key=lambda x: (
+            -x[0],
+            -int(str(x[1].get("year") or "0"))
+            if str(x[1].get("year") or "").isdigit() else 0,
+            str(x[1].get("qno") or ""),
+        )
+    )
     seen = set()
     out = []
     for _, item in scored:
