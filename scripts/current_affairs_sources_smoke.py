@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
-from current_affairs_watch import score_item
+import current_affairs_watch as watch
+
+score_item = watch.score_item
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "data" / "current_affairs_sources.json"
@@ -23,7 +26,38 @@ def scored(title: str, summary: str, source: str):
     return score_item(title, summary, "taiwan", source, "official")
 
 
+def retry_contract() -> None:
+    calls = {"count": 0}
+    original_parse = watch.feedparser.parse
+    original_sleep = watch.time.sleep
+
+    def fake_parse(url, request_headers=None):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            return SimpleNamespace(
+                entries=[],
+                bozo=True,
+                bozo_exception=OSError("temporary network failure"),
+            )
+        return SimpleNamespace(entries=[{"title": "ok"}], bozo=False)
+
+    try:
+        watch.feedparser.parse = fake_parse
+        watch.time.sleep = lambda _seconds: None
+        parsed, error = watch.parse_feed_with_retry(
+            {"name": "fixture", "url": "https://example.test/rss"},
+            attempts=3,
+        )
+        assert error is None, error
+        assert len(parsed.entries) == 1
+        assert calls["count"] == 2, calls
+    finally:
+        watch.feedparser.parse = original_parse
+        watch.time.sleep = original_sleep
+
+
 def main() -> int:
+    retry_contract()
     payload = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = payload.get("sources") or []
     assert payload.get("schema_version") == 1
