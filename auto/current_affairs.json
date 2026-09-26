@@ -93,7 +93,15 @@
           "title": "企業托育補助新制創造企業留才與員工兼顧育兒需求正面效益！申請倒數2週，請雇主把握時間，於9月底前提出申請！"
         }
       ],
-      "clustered": false
+      "clustered": false,
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "人類行為與社會環境"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務"
+      ]
     },
     {
       "fact_keys": [],
@@ -161,7 +169,13 @@
           "title": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工資調升至205元。"
         }
       ],
-      "clustered": false
+      "clustered": false,
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作"
+      ]
     },
     {
       "fact_keys": [
@@ -256,81 +270,15 @@
           "title": "衛福部擴大獨老服務 「二會三不」啟動70萬名長者關懷訪查"
         }
       ],
-      "clustered": false
-    },
-    {
-      "fact_keys": [
-        "num:12000000"
+      "clustered": false,
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
       ],
-      "summary": "台北市政府社會局一名女社工盜領5名個案老人存款高達1200萬元，檢警昨（22）日執行搜索拘提，檢方複訊後向法院聲請羈押禁見今下午獲准，稍早查扣的精品畫面曝光。",
-      "source_type": "news",
-      "title": "北市女社工盜領個案千萬老本遭羈押 15名牌包、精品曝光",
-      "published_at": "2026-09-23T11:58:41Z",
-      "category": "社工專業與社福制度",
-      "relevance_score": 5,
-      "exam_subject_axes": [
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "management_domains": [
-        "組織治理與責信",
-        "倫理與權利保障"
-      ],
-      "subjects": [
-        "社會工作",
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
-      "concept_keys": [],
-      "id": "topic:5d82c1d8ed9b7d8bec2a31a68173fd6f",
-      "subject_topics": {
-        "社會工作": [
-          "專業倫理、專業責任與社會工作價值"
-        ],
-        "社會政策與社會立法": [
-          "社福服務體系、專業規範與制度責信"
-        ]
-      },
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "knowledge_topics": [
-        "社工專業與社福制度",
-        "社工"
-      ],
-      "knowledge_root": "社會工作管理",
-      "source_name": "中天新聞社會",
-      "exam_tags": [
-        "社工"
-      ],
-      "agency_keys": [],
-      "knowledge_paths": [
-        "社會工作管理 > 組織治理與責信",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 組織治理與責信 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 組織治理與責信 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信"
-      ],
-      "source_url": "https://ctinews.com/news/items/BexXVRVpWb",
-      "region": "taiwan",
-      "source_count": 1,
-      "article_count": 2,
-      "sources": [
-        {
-          "source_name": "中天新聞社會",
-          "source_url": "https://ctinews.com/news/items/BexXVRVpWb",
-          "source_type": "news",
-          "published_at": "2026-09-23T11:58:41Z",
-          "title": "北市女社工盜領個案千萬老本遭羈押 15名牌包、精品曝光"
-        },
-        {
-          "source_name": "中天新聞社會",
-          "source_url": "https://ctinews.com/news/items/M9n6mrrqxR",
-          "source_type": "news",
-          "published_at": "2026-09-23T07:45:25Z",
-          "title": "北市女社工盜領個案老人1200萬買愛馬仕 法官裁定羈押禁見"
-        }
-      ],
-      "clustered": true
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作"
+      ]
     },
     {
       "fact_keys": [
@@ -425,7 +373,15 @@
           "title": "參訪宜蘭大安綜合長照機構 卓揆：明起開放申請住宿式服務機構加碼補助 每年最高補助18萬元"
         }
       ],
-      "clustered": false
+      "clustered": false,
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作"
+      ]
     },
     {
       "fact_keys": [
@@ -524,7 +480,15 @@
           "title": "住宿式服務機構補助加碼 卓揆：中重度失能者每月最高補助1萬5,000元、中度以上身心障礙者每月補助5,000元住宿費"
         }
       ],
-      "clustered": false
+      "clustered": false,
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境"
+      ]
     }
   ]
 }
