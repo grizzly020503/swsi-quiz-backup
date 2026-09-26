@@ -1369,10 +1369,10 @@ main [style*="font-size:15px"]{
       .swsi-focus-primary{background:#fff;border:1px solid rgba(79,126,118,.44);border-radius:17px;padding:17px;margin-bottom:9px;box-shadow:0 2px 10px rgba(43,42,38,.025)}
       .swsi-focus-primary .label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--pine);letter-spacing:.8px;margin-bottom:3px}
       .swsi-focus-primary h2{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-title,16px);line-height:1.4;margin:0;font-weight:900}
-      .swsi-focus-primary p{font-size:var(--swsi-ui-small,11.5px);line-height:1.65;color:var(--ink-soft);margin:4px 0 0}
+      .swsi-focus-primary p{font-size:var(--swsi-ui-small,11.5px);line-height:1.65;color:#6E746E;margin:4px 0 0}
       .swsi-focus-actions{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:8px;margin-top:13px}
       .swsi-focus-actions button{min-height:48px;border-radius:12px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,14px);font-weight:800;cursor:pointer}
-      .swsi-focus-actions .go{border:none;background:var(--pine-deep);color:#fff}.swsi-focus-actions .choose{border:1px solid var(--line);background:var(--paper2);color:var(--pine)}
+      .swsi-focus-actions .go{border:none;background:var(--pine-deep);color:#fff}.swsi-focus-actions .choose{border:1px solid var(--line);background:var(--paper2);color:var(--pine-deep)}
       .swsi-focus-custom{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px;margin:-1px 0 10px}
       .swsi-focus-custom .field-label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--ink-soft);margin:0 0 5px}.swsi-focus-custom .hint{font-size:var(--swsi-ui-small,11px);line-height:1.6;color:var(--ink-soft);margin:1px 0 9px}
       .swsi-study-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px 16px;margin:0 0 8px;cursor:pointer;color:var(--ink);font-family:inherit}
@@ -2175,9 +2175,9 @@ html[data-fs="2"]{
     var st=document.createElement('style');st.id=STYLE_ID;
     st.textContent=`
       .swsi-launch-guide{margin:-2px 0 10px;border:1px solid #D7E2DC;background:#FBFCFB;border-radius:12px;padding:9px 10px;display:flex;align-items:flex-start;gap:8px;font-family:'Noto Sans TC',sans-serif;color:var(--ink)}
-      .swsi-launch-guide .copy{min-width:0;flex:1}.swsi-launch-guide b{display:block;font-size:11.5px;line-height:1.45;color:var(--ink)}.swsi-launch-guide span{display:block;font-size:10.5px;line-height:1.55;color:var(--ink-soft);margin-top:1px}.swsi-launch-guide-close{flex:0 0 auto;border:0;background:transparent;color:#7C8781;width:28px;height:28px;border-radius:50%;font-size:17px;cursor:pointer}
+      .swsi-launch-guide .copy{min-width:0;flex:1}.swsi-launch-guide b{display:block;font-size:11.5px;line-height:1.45;color:var(--ink)}.swsi-launch-guide span{display:block;font-size:10.5px;line-height:1.55;color:#6E746E;margin-top:1px}.swsi-launch-guide-close{flex:0 0 auto;border:0;background:transparent;color:#7C8781;width:28px;height:28px;border-radius:50%;font-size:17px;cursor:pointer}
       .swsi-exam-reminder{margin-top:10px;border:1px solid var(--line);background:#F8FAF9;border-radius:11px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-family:'Noto Sans TC',sans-serif}.swsi-exam-reminder-copy{min-width:0;flex:1;font-size:10.7px;line-height:1.5;color:var(--ink-soft)}.swsi-exam-reminder-copy b{color:var(--ink);font-weight:800}.swsi-exam-reminder-btn{flex:0 0 auto;border:1px solid #CBD8D1;background:#fff;color:var(--pine-deep);border-radius:9px;min-height:34px;padding:6px 9px;font:750 10.5px/1.2 'Noto Sans TC',sans-serif;cursor:pointer}
-      .swsi-exam-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(25,31,28,.38);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px);overflow:auto}.swsi-exam-dialog{width:min(100%,480px);max-height:calc(100dvh - 28px - env(safe-area-inset-bottom));overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:19px;padding:17px 16px 16px;box-shadow:0 22px 60px rgba(25,31,28,.22);font-family:'Noto Sans TC',sans-serif;color:var(--ink)}.swsi-exam-dialog h2{font-family:'Noto Serif TC',serif;font-size:19px;margin:0 0 5px}.swsi-exam-dialog p{font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin:0 0 13px}.swsi-exam-dialog input{width:100%;box-sizing:border-box;min-height:46px;border:1px solid #CCD7D1;border-radius:11px;background:#fff;color:var(--ink);font:700 14px 'Noto Sans TC',sans-serif;padding:10px 11px}.swsi-exam-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px;margin-top:12px}.swsi-exam-actions button{min-height:43px;border-radius:10px;font:800 12.5px 'Noto Sans TC',sans-serif;cursor:pointer}.swsi-exam-clear{background:#fff;border:1px solid var(--line);color:var(--ink-soft)}.swsi-exam-save{background:var(--pine-deep);border:0;color:#fff}body.swsi-modal-open{overflow:hidden}
+      .swsi-exam-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(25,31,28,.38);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px);overflow:auto}.swsi-exam-dialog{width:min(100%,480px);max-height:calc(100dvh - 28px - env(safe-area-inset-bottom));overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:19px;padding:17px 16px 16px;box-shadow:0 22px 60px rgba(25,31,28,.22);font-family:'Noto Sans TC',sans-serif;color:var(--ink)}.swsi-exam-dialog h2{font-family:'Noto Serif TC',serif;font-size:19px;margin:0 0 5px}.swsi-exam-dialog p{font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin:0 0 13px}.swsi-exam-date-label{display:block;font-size:11.5px;line-height:1.45;font-weight:800;color:var(--ink);margin:0 0 5px}.swsi-exam-dialog input{width:100%;box-sizing:border-box;min-height:46px;border:1px solid #CCD7D1;border-radius:11px;background:#fff;color:var(--ink);font:700 14px 'Noto Sans TC',sans-serif;padding:10px 11px}.swsi-exam-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px;margin-top:12px}.swsi-exam-actions button{min-height:43px;border-radius:10px;font:800 12.5px 'Noto Sans TC',sans-serif;cursor:pointer}.swsi-exam-clear{background:#fff;border:1px solid var(--line);color:#6E746E}.swsi-exam-save{background:var(--pine-deep);border:0;color:#fff}body.swsi-modal-open{overflow:hidden}
       @media(min-width:620px){.swsi-exam-backdrop{align-items:center}}@media(max-width:390px){.swsi-exam-actions{grid-template-columns:1fr}}
     `;
     document.head.appendChild(st);
@@ -2198,7 +2198,7 @@ html[data-fs="2"]{
     var old=document.getElementById('swsi-exam-backdrop');if(old)old.remove();
     lastExamOpener=document.activeElement&&document.activeElement.classList&&document.activeElement.classList.contains('swsi-exam-reminder-btn')?document.activeElement:null;
     var ov=document.createElement('div');ov.id='swsi-exam-backdrop';ov.className='swsi-exam-backdrop';
-    ov.innerHTML='<div class="swsi-exam-dialog" role="dialog" aria-modal="true" aria-labelledby="swsi-exam-title" onclick="event.stopPropagation()"><h2 id="swsi-exam-title">設定考試日期</h2><p>日期只儲存在這台裝置，用來顯示倒數。這個預覽版不會要求通知權限，也不會把日期上傳。</p><input id="swsi-exam-date-input" type="date" value="'+getExamDate()+'"><div class="swsi-exam-actions"><button type="button" class="swsi-exam-clear" onclick="swsiClearExamDate()">清除日期</button><button type="button" class="swsi-exam-save" onclick="swsiSaveExamDate()">儲存日期</button></div></div>';
+    ov.innerHTML='<div class="swsi-exam-dialog" role="dialog" aria-modal="true" aria-labelledby="swsi-exam-title" onclick="event.stopPropagation()"><h2 id="swsi-exam-title">設定考試日期</h2><p>日期只儲存在這台裝置，用來顯示倒數。這個預覽版不會要求通知權限，也不會把日期上傳。</p><label class="swsi-exam-date-label" for="swsi-exam-date-input">考試日期</label><input id="swsi-exam-date-input" type="date" value="'+getExamDate()+'"><div class="swsi-exam-actions"><button type="button" class="swsi-exam-clear" onclick="swsiClearExamDate()">清除日期</button><button type="button" class="swsi-exam-save" onclick="swsiSaveExamDate()">儲存日期</button></div></div>';
     ov.addEventListener('click',window.swsiCloseExamDate);document.body.appendChild(ov);document.body.classList.add('swsi-modal-open');document.addEventListener('keydown',onExamKeydown);
     var input=ov.querySelector('#swsi-exam-date-input');if(input)setTimeout(function(){try{input.focus();}catch(_e){}},0);
   };
@@ -2929,7 +2929,7 @@ html[data-fs="2"]{
       .swsi-public-info-dialog{width:min(100%,540px);max-height:min(86vh,760px);max-height:min(86dvh,760px);overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:20px;box-shadow:0 22px 60px rgba(25,31,28,.22);padding:19px 18px;color:var(--ink);font-family:'Noto Sans TC',sans-serif;overscroll-behavior:contain}
       .swsi-public-info-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
       .swsi-public-info-head h2{font-family:'Noto Serif TC',serif;font-size:21px;line-height:1.35;margin:0}
-      .swsi-public-info-head p{font-size:11.5px;line-height:1.6;color:var(--ink-soft);margin:3px 0 0}
+      .swsi-public-info-head p{font-size:11.5px;line-height:1.6;color:#6E746E;margin:3px 0 0}
       .swsi-public-info-close{margin-left:auto;flex:0 0 auto;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--ink-soft);font-size:19px;cursor:pointer}
       .swsi-public-info-body{font-size:13px;line-height:1.85;color:#414743}
       .swsi-public-info-body h3{font-family:'Noto Serif TC',serif;color:var(--pine-deep);font-size:15px;margin:17px 0 5px}
@@ -2939,7 +2939,7 @@ html[data-fs="2"]{
       .swsi-public-info-body li{margin:3px 0}
       .swsi-public-info-note{background:#F3F7F5;border-left:3px solid #91A9A0;border-radius:0 10px 10px 0;padding:10px 11px;margin:10px 0;color:#5D6762}
       .swsi-public-info-nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px;margin:0 0 14px}
-      .swsi-public-info-nav button{border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:9px;min-height:36px;font:700 11px/1.3 'Noto Sans TC',sans-serif;cursor:pointer;padding:6px 3px}
+      .swsi-public-info-nav button{border:1px solid var(--line);background:#fff;color:#6E746E;border-radius:9px;min-height:36px;font:700 11px/1.3 'Noto Sans TC',sans-serif;cursor:pointer;padding:6px 3px}
       .swsi-public-info-nav button.on{background:var(--pine);border-color:var(--pine);color:#fff}
       .swsi-monitor-summary{border:1px solid #D7E0DB;border-radius:14px;padding:12px 13px;background:#F7FAF8;margin-bottom:12px}
       .swsi-monitor-summary strong{display:block;font-size:15px;color:var(--pine-deep);margin-bottom:3px}
@@ -3284,7 +3284,7 @@ html[data-fs="2"]{
       .swsi-report-dialog{width:min(100%,520px);max-height:min(86vh,720px);overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:20px;box-shadow:0 22px 60px rgba(25,31,28,.22);padding:18px 17px 17px;color:var(--ink);font-family:'Noto Sans TC',sans-serif}
       .swsi-report-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:11px}
       .swsi-report-head h2{font-family:'Noto Serif TC',serif;font-size:20px;line-height:1.35;margin:0;color:var(--ink)}
-      .swsi-report-head p{font-size:11.5px;color:var(--ink-soft);line-height:1.55;margin:3px 0 0}
+      .swsi-report-head p{font-size:11.5px;color:#6E746E;line-height:1.55;margin:3px 0 0}
       .swsi-report-close{margin-left:auto;flex:0 0 auto;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--ink-soft);font-size:19px;line-height:1;cursor:pointer}
       .swsi-report-context{background:#F3F7F5;border:1px solid #DDE8E2;border-radius:12px;padding:10px 11px;margin-bottom:11px;font-size:11.5px;line-height:1.6;color:#5F6964;word-break:break-word}
       .swsi-report-context b{color:var(--pine-deep)}
@@ -3296,10 +3296,10 @@ html[data-fs="2"]{
       .swsi-report-field select,.swsi-report-field input{min-height:45px;padding:10px 11px}
       .swsi-report-field textarea{min-height:126px;resize:vertical;padding:11px 12px;line-height:1.65}
       .swsi-report-field select:focus,.swsi-report-field textarea:focus,.swsi-report-field input:focus{border-color:var(--pine);box-shadow:0 0 0 3px rgba(79,126,118,.08)}
-      .swsi-report-help{display:flex;justify-content:space-between;gap:8px;margin-top:4px;color:var(--ink-soft);font-size:10.5px;line-height:1.45}
+      .swsi-report-help{display:flex;justify-content:space-between;gap:8px;margin-top:4px;color:#6E746E;font-size:10.5px;line-height:1.45}
       .swsi-report-actions{display:grid;grid-template-columns:1fr 1.45fr;gap:8px;margin-top:2px}
       .swsi-report-actions button{min-height:45px;border-radius:11px;font-family:'Noto Sans TC',sans-serif;font-size:13.5px;font-weight:800;cursor:pointer}
-      .swsi-report-cancel{background:#fff;color:var(--ink-soft);border:1px solid var(--line)}
+      .swsi-report-cancel{background:#fff;color:#6E746E;border:1px solid var(--line)}
       .swsi-report-submit{background:var(--pine-deep);color:#fff;border:0}
       .swsi-report-submit:disabled{opacity:.55;cursor:wait}
       .swsi-report-status{min-height:20px;margin-top:9px;font-size:11.5px;line-height:1.55;color:var(--ink-soft)}
