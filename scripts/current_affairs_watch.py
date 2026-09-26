@@ -137,6 +137,12 @@ MEDIA_SYSTEM_CONTEXT_TERMS = [
     "安置", "機構", "照顧", "保護", "輔導", "福利", "社會安全網",
     "跨網絡", "教育局",
 ]
+MEDIA_SOCIAL_WORK_ROLE_TERMS = ["社工", "社會工作"]
+MEDIA_SOCIAL_WORK_SYSTEM_TERMS = [
+    "督導", "倫理", "懲戒", "社工師法", "專業責任", "案量", "工作負荷",
+    "職場安全", "制度檢討", "管理缺失", "內控", "稽核", "風險管理",
+    "服務品質", "組織治理", "機構責任",
+]
 PROCEDURAL_NOISE_TITLE_TERMS = [
     "敬請支持", "請支持", "歡迎", "踴躍", "申請倒數", "把握時間", "提醒",
     "宣導", "競賽", "徵件", "徵才", "參訪", "拜會", "揭牌", "典禮",
@@ -706,15 +712,28 @@ def media_exam_event_signal(title, summary) -> bool:
     text = f"{title_text} {summary or ''}"
 
     harm = any(term in title_text for term in MEDIA_HARM_TERMS)
-    direct_role = any(term in title_text for term in MEDIA_DIRECT_ROLE_TERMS)
+    social_work_role = any(term in title_text for term in MEDIA_SOCIAL_WORK_ROLE_TERMS)
+    service_setting = any(
+        term in title_text
+        for term in MEDIA_DIRECT_ROLE_TERMS
+        if term not in MEDIA_SOCIAL_WORK_ROLE_TERMS
+    )
     vulnerable = any(term in title_text for term in MEDIA_VULNERABLE_TERMS)
     system_context = any(term in text for term in MEDIA_SYSTEM_CONTEXT_TERMS)
+    professional_system = any(term in text for term in MEDIA_SOCIAL_WORK_SYSTEM_TERMS)
 
     school_risk = (
         ("校園" in title_text or "學生" in title_text)
         and any(term in title_text for term in ("毒品", "霸凌", "自殺", "自傷", "性侵", "性騷擾"))
     )
-    return school_risk or (harm and direct_role) or (harm and vulnerable and system_context)
+    # A person's occupation being "social worker" is not itself an exam event.
+    # Require a professional/systemic anchor for social-worker incidents.
+    return (
+        school_risk
+        or (harm and service_setting)
+        or (harm and vulnerable and system_context)
+        or (harm and social_work_role and professional_system)
+    )
 
 
 def has_exam_event_value(title, summary, region, source_type="news") -> bool:
