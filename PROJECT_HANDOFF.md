@@ -39,16 +39,45 @@
   - artifact ID = `10895527467`
   - artifact ZIP SHA256 = `60ce5dc7cfc560d681babc3a01d38dc047138f1adb37a4a6228d7888aba4d4b9`
 
-### 仍待處理：私有可變 production data 的 off-site backup
+### 私有可變 production data：備份工具／runbook 已完成，第一次真實 restore proof 仍待執行
 
 這和「repo/source 可重建 DR」是不同層。
+
+本輪新增：
+- `docs/SUPABASE_FREE_TIER_PRIVATE_BACKUP.md`
+- `scripts/supabase_private_backup_local.sh`
+- `scripts/verify_supabase_private_backup_local.sh`
+- `Private Backup Policy QA`
+- policy QA 已實際輸出：
+  - `SWSI PRIVATE BACKUP POLICY SMOKE OK`
+  - `PRIVATE BACKUP CI REFUSAL OK`
+- production private-data helper **明確拒絕在 CI / GitHub Actions 執行**。
+- plaintext dump 只能暫存在本機 temp；bundle 必須先經 age 加密，且輸出位置必須在 Git worktree 外。
+- `.gitignore` 已加入 private backup bundle / age identity 防誤 commit guard。
 
 Supabase 官方文件目前說明：
 - Pro / Team / Enterprise 才有平台每日自動 database backups。
 - Free tier 應定期用 `supabase db dump` 並保存 off-site backup。
-- database dump 可涵蓋 database schema / data / roles，並可包含 `auth.users`；Edge Functions、secret 值、Auth provider 設定、Storage objects 仍需另行保存／重建。
+- 標準 migration backup 為 roles / schema / data 三檔；Edge Functions、secret 值、Auth provider / SMTP / DNS 設定、Storage object bytes 仍需另行保存／重建。
+- Supabase 文件對 managed `auth` / `storage` schema 的 dump 行為依情境有不同說明，因此 **SWSI 不預設宣稱 Auth 已被備份**；必須在 isolated target restore 後，以 source-counts 與 target count 比對實證。
 
-目前 #157 **暫不關閉**，因為真正 hosted mutable data（Auth、feedback、usage、AI telemetry）的加密 off-site backup / restore 與該資料層 RPO 尚未實證。同時不得為了測試而把真實學生／匿名資料複製到一般 CI。
+2026-09-26 只讀 count baseline（未讀內容）：
+- auth users = 1
+- feedback reports = 2
+- usage daily rows = 215
+- AI telemetry client daily rows = 3
+- AI telemetry 5m rows = 3
+- Storage buckets = 0
+- Storage objects = 0
+
+目前 #157 **暫不關閉**。現在缺的不是備份腳本，而是：
+1. 維護者在受控本機產生第一份真實加密 backup bundle。
+2. bundle 複製到至少一個額外 off-site 位置。
+3. 在全新 isolated target restore。
+4. source/target count-only baseline 驗證，尤其 `auth.users`。
+5. 記錄 hosted-data RTO / RPO。
+
+不得為了關 Issue 而把真實學生／匿名資料複製到一般 CI 或 GitHub artifact。
 
 ### 目前 production 狀態注意
 
