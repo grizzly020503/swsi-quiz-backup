@@ -37,12 +37,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          args=''
-          # A pull request still points at the old production deployment, so it
-          # validates the existing public baseline. Push/scheduled/manual runs happen
-          # on main after deployment and must require Monitoring V2 plus exact
-          # Netlify fallback release parity.
+          args='--monitoring-v2'
+          # Monitoring V2 is now the established live production baseline, so PRs
+          # validate it too. Exact fallback release parity is checked only from
+          # main/scheduled/manual runs because a feature branch may intentionally
+          # contain an unreleased marker.
           if [ "$GITHUB_EVENT_NAME" != 'pull_request' ]; then
-            args='--monitoring-v2 --fallback-parity'
+            args="$args --fallback-parity"
           fi
           python scripts/public_uptime_smoke.py $args
