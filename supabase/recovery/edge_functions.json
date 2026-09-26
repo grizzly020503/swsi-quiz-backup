@@ -1,0 +1,15 @@
+{
+  "source": "Production inventory verified 2026-09-26; secret values excluded",
+  "functions": [
+    {"slug":"import-moex-social-worker","verify_jwt":false},
+    {"slug":"update-question-analysis","verify_jwt":false},
+    {"slug":"analyze-pending-questions","verify_jwt":false},
+    {"slug":"sync-legal-watch","verify_jwt":false},
+    {"slug":"check-official-laws","verify_jwt":true,"status":"deprecated-410-stub"},
+    {"slug":"sync-current-affairs","verify_jwt":false},
+    {"slug":"swsi-feedback","verify_jwt":false},
+    {"slug":"swsi-admin","verify_jwt":true},
+    {"slug":"swsi-usage","verify_jwt":false},
+    {"slug":"swsi-ai-telemetry","verify_jwt":false}
+  ]
+}
