@@ -33,6 +33,19 @@ def row(
         "category": "長照與高齡",
         "exam_tags": tags or ["老人", "高齡", "政策"],
         "subjects": ["社會政策與社會立法"],
+        "knowledge_root": "社會工作管理",
+        "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+        "management_domains": ["服務輸送與跨網絡", "方案與資源管理"],
+        "exam_subject_axes": ["社會政策與社會立法", "社會工作直接服務"],
+        "subject_topics": {
+            "社會政策與社會立法": ["長照制度、老人福利與社會保障"],
+            "社會工作直接服務": ["長照個案管理與家庭照顧者支持"],
+        },
+        "knowledge_topics": ["長照與高齡", "高齡"],
+        "knowledge_paths": [
+            "社會工作管理 > 服務輸送與跨網絡",
+            "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
+        ],
         "policy_signal": policy,
         "essay_value": essay,
         "mcq_fact_density": mcq,
@@ -124,6 +137,19 @@ def main() -> int:
     assert merged["official_source_count"] == 2, merged
     assert len(merged["evidence"]) == 3, merged
     assert len({x["source_url"] for x in merged["evidence"]}) == 3
+    assert merged["knowledge_root"] == "社會工作管理", merged
+    assert merged["knowledge_model"] == "management-hierarchy-over-five-exam-subjects-v3", merged
+    assert "服務輸送與跨網絡" in merged["management_domains"], merged
+    assert "社會政策與社會立法" in merged["exam_subject_axes"], merged
+    assert merged["subject_topics"]["社會政策與社會立法"] == ["長照制度、老人福利與社會保障"], merged
+    assert any(path.startswith("社會工作管理 >") for path in merged["knowledge_paths"]), merged
+    merged_trend = trend_for(merged, "2026-09-25T12:00:00Z")
+    assert merged_trend["knowledge_root"] == "社會工作管理", merged_trend
+    assert merged_trend["knowledge_model"] == "management-hierarchy-over-five-exam-subjects-v3", merged_trend
+    assert merged_trend["management_domains"] == merged["management_domains"], merged_trend
+    assert merged_trend["exam_subject_axes"] == merged["exam_subject_axes"], merged_trend
+    assert merged_trend["subject_topics"] == merged["subject_topics"], merged_trend
+    assert merged_trend["knowledge_paths"] == merged["knowledge_paths"], merged_trend
     history = merged.get("historical_exam_stats") or {}
     assert history.get("matched_question_count") == 8, history
     assert history.get("matched_years") == [109, 110, 111, 114, 115], history

@@ -368,6 +368,36 @@ def _merge_historical_stats(members: list[dict]) -> dict:
     }
 
 
+def _ordered_union(members: list[dict], key: str) -> list[str]:
+    out = []
+    seen = set()
+    for row in members:
+        for raw in row.get(key) or []:
+            value = str(raw or "").strip()
+            if value and value not in seen:
+                seen.add(value)
+                out.append(value)
+    return out
+
+
+def _merged_subject_topics(members: list[dict]) -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
+    for row in members:
+        raw = row.get("subject_topics") or {}
+        if not isinstance(raw, dict):
+            continue
+        for subject, topics in raw.items():
+            subject = str(subject or "").strip()
+            if not subject or not isinstance(topics, list):
+                continue
+            bucket = out.setdefault(subject, [])
+            for topic in topics:
+                value = str(topic or "").strip()
+                if value and value not in bucket:
+                    bucket.append(value)
+    return {subject: topics[:6] for subject, topics in out.items()}
+
+
 def build_event(members: list[dict], previous: dict | None = None) -> dict:
     lead = _choose_lead(members)
     evidence = []
@@ -423,12 +453,27 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
                 related[qid] = q
     historical_exam_stats = _merge_historical_stats(members)
 
+    knowledge_root = next((str(x.get("knowledge_root")) for x in members if x.get("knowledge_root")), "")
+    knowledge_model = next((str(x.get("knowledge_model")) for x in members if x.get("knowledge_model")), "")
+    management_domains = _ordered_union(members, "management_domains")
+    exam_subject_axes = _ordered_union(members, "exam_subject_axes")
+    subject_topics = _merged_subject_topics(members)
+    knowledge_topics = _ordered_union(members, "knowledge_topics")
+    knowledge_paths = _ordered_union(members, "knowledge_paths")
+
     return {
         "canonical_event_id": event_id,
         "title": lead.get("title"),
         "summary": str(lead.get("summary") or "")[:320],
         "category": lead.get("category"),
         "subjects": sorted({str(y) for x in members for y in (x.get("subjects") or []) if y}),
+        "knowledge_root": knowledge_root,
+        "knowledge_model": knowledge_model,
+        "management_domains": management_domains,
+        "exam_subject_axes": exam_subject_axes,
+        "subject_topics": subject_topics,
+        "knowledge_topics": knowledge_topics,
+        "knowledge_paths": knowledge_paths,
         "exam_tags": sorted({str(y) for x in members for y in (x.get("exam_tags") or []) if y}),
         "related_laws": sorted({str(y) for x in members for y in (x.get("related_laws") or []) if y}),
         "concept_keys": sorted({str(y) for x in members for y in (x.get("concept_keys") or []) if y}),
