@@ -18,8 +18,11 @@ on:
       - 'scripts/current_affairs_watch.py'
       - 'data/legal_watch_names.json'
   schedule:
-    # 台灣時間每天 10:35（UTC 02:35）。國考與時事每日檢查；法規成功後 7 天再完整核對，失敗至少隔 3 天再試。
-    - cron: '35 2 * * *'
+    # 零成本正常模式：台灣時間每週一 10:35（UTC 02:35）。
+    # 國考資料平時低頻檢查；接近已知考試放榜／更正窗口時，用 workflow_dispatch
+    # 手動加跑即可。時事另由 Public Monitoring Feed 每 6 小時掃描；法規本身仍有
+    # min-days fail-soft 節流。
+    - cron: '35 2 * * 1'
 
 permissions:
   contents: write
@@ -119,7 +122,7 @@ jobs:
           fi
 
       - name: Fetch official Social Worker exams
-        # 每天重新抓當年度第一次/第二次官方 PDF，以便自動偵測後續更正答案與給分模式。
+        # 正常排程每週重新抓當年度第一次/第二次官方 PDF；已知發布／更正窗口可手動加跑。
         run: python scripts/moex_sync_v2.py --output-dir incoming
 
       - name: Remove timestamp-only rewrites
