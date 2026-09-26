@@ -11,3 +11,9 @@ Thumbs.db
 # Local environment files
 .env
 .env.*
+
+# Private disaster-recovery backups / encryption identities
+/private-backups/
+swsi-supabase-private-*.tar.age
+swsi-supabase-private-*.tar.age.sha256
+*.agekey
