@@ -70,7 +70,7 @@ KNOWN_LAWS = [
 
 POLICY_HIGH = [
     "修法", "修正", "施行細則", "正式上路", "核定", "公告實施",
-    "補助調增", "每月補助", "追溯自", "條例", "辦法修正",
+    "補助調增", "每月補助", "追溯自", "辦法修正",
     "制度上路", "正式實施", "院會通過", "通過修正",
 ]
 POLICY_MEDIUM = [
@@ -161,7 +161,10 @@ HISTORICAL_CONCEPTS = {
     },
     "retirement_pension": {
         "label": "退休年金",
-        "aliases": ["延後退休", "老年年金", "勞保年金", "退休", "pension"],
+        "aliases": [
+            "延後退休", "老年年金", "勞保年金", "退休年金",
+            "retirement pension", "old-age pension",
+        ],
         "requires_law": False,
     },
     "disability_employment": {
@@ -275,7 +278,7 @@ def build_exam_point_summary(
     elif policy == "medium":
         parts.append("政策／制度動向值得追蹤")
     else:
-        parts.append("偏宣導或活動訊息")
+        parts.append("目前未見明確制度變動，先作事件與專業議題觀察")
 
     if essay in {"high", "medium"}:
         parts.append(f"申論可從{hint}切入")
