@@ -64,7 +64,7 @@ def main() -> int:
     source_registry = read_json("data/current_affairs_sources.json")
     assert source_registry.get("schema_version") == 1
     source_rows = source_registry.get("sources") or []
-    assert len(source_rows) >= 17, "current-affairs source registry unexpectedly shrank"
+    assert len(source_rows) >= 23, "current-affairs source registry unexpectedly shrank"
     source_names = [str(x.get("name") or "").strip() for x in source_rows]
     source_urls = [str(x.get("url") or "").strip() for x in source_rows]
     assert all(source_names), "current-affairs source name missing"
@@ -75,6 +75,8 @@ def main() -> int:
         assert row.get("region") in {"taiwan", "international"}, row
         assert row.get("source_type") in {"official", "news", "international"}, row
         assert row.get("source_format", "rss") in {"rss", "who_newsroom_json", "unicef_press_html", "ilo_news_html"}, row
+        if "optional" in row:
+            assert isinstance(row.get("optional"), bool), row
     required_official = {
         "https://www.edu.tw/Rss_News.aspx?n=9E7AC85F1954DDA8",
         "https://www.edu.tw/Rss_WebArchive.aspx?n=FB01D469347C76A7",
@@ -96,8 +98,14 @@ def main() -> int:
     sync = read_json("auto/sync_state.json")
 
     assert news.get("schema_version") == 2
-    assert int(news.get("source_feed_count") or 0) >= 17
+    snapshot_source_count = int(news.get("source_feed_count") or 0)
+    # PR runs do not perform live network scans, so the tracked snapshot may
+    # legitimately predate a registry expansion. The post-merge monitoring run
+    # will rebuild it from the full registry.
+    assert snapshot_source_count >= 17
+    assert snapshot_source_count <= len(source_rows)
     assert int(news.get("feed_error_count", -1)) == 0
+    assert int(news.get("optional_feed_error_count", 0)) >= 0
     items = news.get("items") or []
     assert items, "current-affairs snapshot is empty"
     for row in items:

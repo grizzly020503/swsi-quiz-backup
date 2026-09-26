@@ -53,6 +53,7 @@ def load_feeds():
                 region = str(row.get("region") or "").strip()
                 source_type = str(row.get("source_type") or "news").strip()
                 source_format = str(row.get("source_format") or "rss").strip()
+                optional = bool(row.get("optional", False))
                 if (
                     name
                     and url.startswith("https://")
@@ -65,6 +66,7 @@ def load_feeds():
                         "region": region,
                         "source_type": source_type if source_type in {"official", "news", "international"} else "news",
                         "source_format": source_format,
+                        "optional": optional,
                     })
             if valid:
                 return valid
@@ -111,7 +113,8 @@ REPORT_EVENT_TITLE_TERMS = [
 ]
 JUDICIAL_EVENT_TITLE_TERMS = ["判決", "裁定", "釋憲", "憲法法庭"]
 SERIOUS_SOCIAL_EVENT_TITLE_TERMS = [
-    "兒虐", "虐童", "家庭暴力", "家暴", "性侵", "性暴力", "人口販運",
+    "兒虐", "虐童", "虐嬰", "虐死", "保母虐", "兒童遭虐", "幼童遭虐",
+    "家庭暴力", "家暴", "性侵", "性暴力", "人口販運",
     "校園霸凌", "重大職災", "犯罪被害人", "災害救助", "大規模撤離",
 ]
 PROCEDURAL_NOISE_TITLE_TERMS = [
@@ -689,6 +692,7 @@ def main():
     items = {}
     fetched = 0
     feed_errors = []
+    optional_feed_errors = []
 
     feeds = load_feeds()
     socket.setdefaulttimeout(12)
@@ -696,8 +700,12 @@ def main():
         parsed, parse_error = parse_source_with_retry(feed)
         if parsed is None or parse_error is not None:
             error = f"{feed['name']}: {parse_error or 'RSS parse failed'}"
-            feed_errors.append(error)
-            print(f"Feed ERROR: {error}")
+            if feed.get("optional"):
+                optional_feed_errors.append(error)
+                print(f"Feed OPTIONAL ERROR: {error}")
+            else:
+                feed_errors.append(error)
+                print(f"Feed ERROR: {error}")
             continue
         entry_count = len(parsed.entries or [])
         print(f"Feed OK: {feed['name']} entries={entry_count} format={feed.get('source_format', 'rss')}")
@@ -754,12 +762,16 @@ def main():
         "accepted_count": len(accepted),
         "feed_count": len(feeds),
         "feed_errors": feed_errors,
+        "optional_feed_errors": optional_feed_errors,
         "items": accepted[:100],
     }
     p = Path(args.output)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Current affairs radar: fetched={fetched}, accepted={len(accepted)}, errors={len(feed_errors)}")
+    print(
+        f"Current affairs radar: fetched={fetched}, accepted={len(accepted)}, "
+        f"errors={len(feed_errors)}, optional_errors={len(optional_feed_errors)}"
+    )
     for row in accepted[:20]:
         print(f"[{row['relevance_score']}] {row['category']} | {row['title']}")
     return 0

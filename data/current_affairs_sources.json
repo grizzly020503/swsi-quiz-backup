@@ -105,6 +105,48 @@
       "region": "international",
       "source_type": "official",
       "source_format": "ilo_news_html"
+    },
+    {
+      "name": "TVBS新聞",
+      "url": "https://news.tvbs.com.tw/rss",
+      "region": "taiwan",
+      "source_type": "news",
+      "optional": true
+    },
+    {
+      "name": "中天新聞社會",
+      "url": "https://ctinews.com/rss/google-society.xml",
+      "region": "taiwan",
+      "source_type": "news",
+      "optional": true
+    },
+    {
+      "name": "中天新聞生活",
+      "url": "https://ctinews.com/rss/google-life.xml",
+      "region": "taiwan",
+      "source_type": "news",
+      "optional": true
+    },
+    {
+      "name": "自由時報社會",
+      "url": "https://news.ltn.com.tw/rss/society.xml",
+      "region": "taiwan",
+      "source_type": "news",
+      "optional": true
+    },
+    {
+      "name": "自由時報生活",
+      "url": "https://news.ltn.com.tw/rss/life.xml",
+      "region": "taiwan",
+      "source_type": "news",
+      "optional": true
+    },
+    {
+      "name": "聯合新聞網社會",
+      "url": "https://udn.com/rssfeed/news/2/6639?ch=news",
+      "region": "taiwan",
+      "source_type": "news",
+      "optional": true
     }
   ]
 }
