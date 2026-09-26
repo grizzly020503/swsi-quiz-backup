@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_at": "2026-09-26T05:50:39Z",
   "source_item_count": 6,
-  "event_count": 6,
+  "event_count": 5,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
   "events": [
     {
@@ -120,7 +120,7 @@
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
-        "weighted_match_count": 0.0,
+        "weighted_match_count": 0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
@@ -140,7 +140,15 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境"
+      ]
     },
     {
       "canonical_event_id": "b95a076030a701cfb405d86c",
@@ -250,7 +258,7 @@
       ],
       "historical_exam_stats": {
         "matched_question_count": 2,
-        "weighted_match_count": 1.0,
+        "weighted_match_count": 1,
         "match_breakdown": {
           "strong": 0,
           "medium": 2,
@@ -275,7 +283,13 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作"
+      ]
     },
     {
       "canonical_event_id": "c588f188519ce6341a040d77",
@@ -476,7 +490,15 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "人類行為與社會環境"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務"
+      ]
     },
     {
       "canonical_event_id": "338150e268265e0359e5007e",
@@ -612,7 +634,7 @@
       ],
       "historical_exam_stats": {
         "matched_question_count": 2,
-        "weighted_match_count": 1.0,
+        "weighted_match_count": 1,
         "match_breakdown": {
           "strong": 0,
           "medium": 2,
@@ -637,116 +659,15 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
-    },
-    {
-      "canonical_event_id": "336f586340c6af43a5b2960d",
-      "title": "北市女社工盜領個案千萬老本遭羈押 15名牌包、精品曝光",
-      "summary": "台北市政府社會局一名女社工盜領5名個案老人存款高達1200萬元，檢警昨（22）日執行搜索拘提，檢方複訊後向法院聲請羈押禁見今下午獲准，稍早查扣的精品畫面曝光。",
-      "category": "社工專業與社福制度",
-      "subjects": [
-        "社會工作",
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "組織治理與責信",
-        "倫理與權利保障"
-      ],
-      "exam_subject_axes": [
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "subject_topics": {
-        "社會工作": [
-          "專業倫理、專業責任與社會工作價值"
-        ],
-        "社會政策與社會立法": [
-          "社福服務體系、專業規範與制度責信"
-        ]
       },
-      "knowledge_topics": [
-        "社工專業與社福制度",
-        "社工"
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
       ],
-      "knowledge_paths": [
-        "社會工作管理 > 組織治理與責信",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 組織治理與責信 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 組織治理與責信 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信"
-      ],
-      "exam_tags": [
-        "社工"
-      ],
-      "related_laws": [],
-      "concept_keys": [],
-      "agency_keys": [],
-      "fact_keys": [
-        "num:12000000"
-      ],
-      "source_count": 1,
-      "official_source_count": 0,
-      "sources": [
-        "中天新聞社會"
-      ],
-      "evidence": [
-        {
-          "source_name": "中天新聞社會",
-          "source_url": "https://ctinews.com/news/items/BexXVRVpWb",
-          "source_type": "news",
-          "published_at": "2026-09-23T11:58:41Z",
-          "item_id": "topic:5d82c1d8ed9b7d8bec2a31a68173fd6f"
-        },
-        {
-          "source_name": "中天新聞社會",
-          "source_url": "https://ctinews.com/news/items/M9n6mrrqxR",
-          "source_type": "news",
-          "published_at": "2026-09-23T07:45:25Z",
-          "item_id": "topic:5d82c1d8ed9b7d8bec2a31a68173fd6f"
-        }
-      ],
-      "first_seen": "2026-09-23T07:45:25Z",
-      "last_seen": "2026-09-23T11:58:41Z",
-      "observation_count": 1,
-      "observation_dates": [
-        "2026-09-23"
-      ],
-      "policy_signal": "low",
-      "essay_value": "high",
-      "mcq_fact_density": "low",
-      "signal_confidence": "low",
-      "signal_score": 5,
-      "exam_point_summary": "北市女社工盜領個案千萬老本遭羈押 15名牌包、精品曝光。偏宣導或活動訊息；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [],
-      "related_exam_questions": [],
-      "historical_exam_stats": {
-        "matched_question_count": 0,
-        "weighted_match_count": 0.0,
-        "match_breakdown": {
-          "strong": 0,
-          "medium": 0,
-          "concept": 0
-        },
-        "matched_year_count": 0,
-        "matched_years": [],
-        "earliest_exam_year": null,
-        "latest_exam_year": null,
-        "corpus_latest_year": 115,
-        "years_since_last_exam": null,
-        "subject_counts": {},
-        "subject_count": 0,
-        "law_match_count": 0,
-        "law_match_year_count": 0,
-        "law_match_years": [],
-        "high_confidence_match_count": 0,
-        "matching_method": "event-evidence-v2.2",
-        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作"
+      ]
     },
     {
       "canonical_event_id": "93e3c7bbef37d27356dcd435",
@@ -858,7 +779,7 @@
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
-        "weighted_match_count": 0.0,
+        "weighted_match_count": 0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
@@ -878,7 +799,15 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作"
+      ]
     }
   ]
 }
