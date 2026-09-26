@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-26T05:42:36Z",
+  "generated_at": "2026-09-26T05:46:34Z",
   "event_count": 6,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -22,18 +22,18 @@
         "最近相關題為 105 年（距題庫最新年度 10 年）"
       ],
       "factors": {
-        "cross_source": 0,
+        "cross_source": 0.0,
         "official_evidence": 0.7,
         "policy_change": 1.8,
         "historical_frequency": 0.28,
         "historical_year_breadth": 0.16,
         "recent_exam_support": 0.1,
-        "historical_subject_breadth": 0,
-        "law_relevance": 0,
-        "persistence": 0,
-        "essay_value": 0,
+        "historical_subject_breadth": 0.0,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
+        "essay_value": 0.0,
         "mcq_density": 0.9,
-        "recency": 1
+        "recency": 1.0
       },
       "source_count": 1,
       "official_source_count": 1,
@@ -42,7 +42,7 @@
       "last_seen": "2026-09-24T19:50:25Z",
       "related_laws": [],
       "historical_question_count": 2,
-      "historical_weighted_match_count": 1,
+      "historical_weighted_match_count": 1.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 2,
@@ -101,39 +101,7 @@
           "published_at": "2026-09-24T19:50:25Z",
           "item_id": "1f324758779ada31a0fc3e3382971947"
         }
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "knowledge_topics": [
-        "勞動與社會保障",
-        "最低工資",
-        "行政院",
-        "保障"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "社會保險、就業安全與勞動政策"
-        ],
-        "社會工作": [
-          "勞動權益、社會正義與弱勢支持"
-        ]
-      }
+      ]
     },
     {
       "canonical_event_id": "c588f188519ce6341a040d77",
@@ -152,15 +120,15 @@
         "歷屆分布 2 個考科"
       ],
       "factors": {
-        "cross_source": 0,
+        "cross_source": 0.0,
         "official_evidence": 0.7,
-        "policy_change": 0,
+        "policy_change": 0.0,
         "historical_frequency": 0.98,
         "historical_year_breadth": 0.52,
         "recent_exam_support": 0.52,
         "historical_subject_breadth": 0.25,
-        "law_relevance": 0,
-        "persistence": 0,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
         "essay_value": 0.55,
         "mcq_density": 0.9,
         "recency": 0.2
@@ -274,53 +242,7 @@
           "published_at": "2026-09-16T10:30:11Z",
           "item_id": "2cc263d201f443e931c4a3a5f75e0312"
         }
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障",
-        "方案與資源管理"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "人類行為與社會環境",
-        "社會工作",
-        "社會工作直接服務"
-      ],
-      "knowledge_topics": [
-        "性別與家庭政策",
-        "育兒",
-        "托育",
-        "補助"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 家庭政策、托育與性別制度",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 性別平等、照顧正義與家庭支持",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 性別平等、照顧正義與家庭支持",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭工作與照顧支持",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 家庭政策、托育與性別制度",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 家庭系統、性別角色與生命歷程",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 性別平等、照顧正義與家庭支持",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 家庭政策、托育與性別制度"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "家庭政策、托育與性別制度"
-        ],
-        "人類行為與社會環境": [
-          "家庭系統、性別角色與生命歷程"
-        ],
-        "社會工作": [
-          "性別平等、照顧正義與家庭支持"
-        ],
-        "社會工作直接服務": [
-          "家庭工作與照顧支持"
-        ]
-      }
+      ]
     },
     {
       "canonical_event_id": "f57482fbf92468217dec913c",
@@ -337,15 +259,15 @@
         "有政策／制度訊號"
       ],
       "factors": {
-        "cross_source": 0,
+        "cross_source": 0.0,
         "official_evidence": 0.7,
         "policy_change": 1.8,
-        "historical_frequency": 0,
-        "historical_year_breadth": 0,
-        "recent_exam_support": 0,
-        "historical_subject_breadth": 0,
-        "law_relevance": 0,
-        "persistence": 0,
+        "historical_frequency": 0.0,
+        "historical_year_breadth": 0.0,
+        "recent_exam_support": 0.0,
+        "historical_subject_breadth": 0.0,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
         "essay_value": 0.55,
         "mcq_density": 0.9,
         "recency": 0.2
@@ -357,7 +279,7 @@
       "last_seen": "2026-09-10T04:58:08Z",
       "related_laws": [],
       "historical_question_count": 0,
-      "historical_weighted_match_count": 0,
+      "historical_weighted_match_count": 0.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 0,
@@ -387,59 +309,7 @@
           "published_at": "2026-09-10T04:58:08Z",
           "item_id": "85f03325aff5e8c1aabd1020fc9a80a4"
         }
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "倫理與權利保障",
-        "服務輸送與跨網絡",
-        "規劃與政策執行",
-        "方案與資源管理"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作",
-        "社會工作直接服務",
-        "人類行為與社會環境"
-      ],
-      "knowledge_topics": [
-        "身障與人權",
-        "身心障礙",
-        "政策",
-        "補助",
-        "福利"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 增權、自立生活與障礙者權利",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估、個案管理與社區支持",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > CRPD、合理調整與身障福利制度",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 障礙與環境互動",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 需求評估、個案管理與社區支持",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 增權、自立生活與障礙者權利",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > CRPD、合理調整與身障福利制度",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > CRPD、合理調整與身障福利制度",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 增權、自立生活與障礙者權利",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 增權、自立生活與障礙者權利",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > CRPD、合理調整與身障福利制度"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "CRPD、合理調整與身障福利制度"
-        ],
-        "社會工作": [
-          "增權、自立生活與障礙者權利"
-        ],
-        "社會工作直接服務": [
-          "需求評估、個案管理與社區支持"
-        ],
-        "人類行為與社會環境": [
-          "障礙與環境互動"
-        ]
-      }
+      ]
     },
     {
       "canonical_event_id": "338150e268265e0359e5007e",
@@ -457,18 +327,18 @@
         "最近相關題為 109 年（距題庫最新年度 6 年）"
       ],
       "factors": {
-        "cross_source": 0,
+        "cross_source": 0.0,
         "official_evidence": 0.7,
-        "policy_change": 0,
+        "policy_change": 0.0,
         "historical_frequency": 0.28,
         "historical_year_breadth": 0.16,
         "recent_exam_support": 0.1,
-        "historical_subject_breadth": 0,
-        "law_relevance": 0,
-        "persistence": 0,
+        "historical_subject_breadth": 0.0,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
         "essay_value": 0.55,
         "mcq_density": 0.9,
-        "recency": 1
+        "recency": 1.0
       },
       "source_count": 1,
       "official_source_count": 1,
@@ -477,7 +347,7 @@
       "last_seen": "2026-09-24T03:30:00Z",
       "related_laws": [],
       "historical_question_count": 2,
-      "historical_weighted_match_count": 1,
+      "historical_weighted_match_count": 1.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 2,
@@ -535,58 +405,7 @@
           "published_at": "2026-09-24T03:30:00Z",
           "item_id": "6c3e075258813e8339a40cebd78e2c0c"
         }
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "服務輸送與跨網絡",
-        "方案與資源管理",
-        "規劃與政策執行",
-        "品質與風險管理"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作直接服務",
-        "人類行為與社會環境",
-        "社會工作"
-      ],
-      "knowledge_topics": [
-        "長照與高齡",
-        "高齡",
-        "老人",
-        "政策",
-        "補助",
-        "衛福部"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 高齡者權益與社區支持",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 高齡者權益與社區支持",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 高齡者權益與社區支持",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 高齡者權益與社區支持"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "長照制度、老人福利與社會保障"
-        ],
-        "社會工作直接服務": [
-          "長照個案管理與家庭照顧者支持"
-        ],
-        "人類行為與社會環境": [
-          "老化、失智與生命歷程"
-        ],
-        "社會工作": [
-          "高齡者權益與社區支持"
-        ]
-      }
+      ]
     },
     {
       "canonical_event_id": "336f586340c6af43a5b2960d",
@@ -603,18 +422,18 @@
         "目前證據仍偏單次事件"
       ],
       "factors": {
-        "cross_source": 0,
-        "official_evidence": 0,
-        "policy_change": 0,
-        "historical_frequency": 0,
-        "historical_year_breadth": 0,
-        "recent_exam_support": 0,
-        "historical_subject_breadth": 0,
-        "law_relevance": 0,
+        "cross_source": 0.0,
+        "official_evidence": 0.0,
+        "policy_change": 0.0,
+        "historical_frequency": 0.0,
+        "historical_year_breadth": 0.0,
+        "recent_exam_support": 0.0,
+        "historical_subject_breadth": 0.0,
+        "law_relevance": 0.0,
         "persistence": 0.01,
         "essay_value": 1.1,
-        "mcq_density": 0,
-        "recency": 1
+        "mcq_density": 0.0,
+        "recency": 1.0
       },
       "source_count": 1,
       "official_source_count": 0,
@@ -623,7 +442,7 @@
       "last_seen": "2026-09-23T11:58:41Z",
       "related_laws": [],
       "historical_question_count": 0,
-      "historical_weighted_match_count": 0,
+      "historical_weighted_match_count": 0.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 0,
@@ -657,37 +476,7 @@
           "published_at": "2026-09-23T07:45:25Z",
           "item_id": "topic:5d82c1d8ed9b7d8bec2a31a68173fd6f"
         }
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "組織治理與責信",
-        "倫理與權利保障"
-      ],
-      "exam_subject_axes": [
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "knowledge_topics": [
-        "社工專業與社福制度",
-        "社工"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 組織治理與責信",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 組織治理與責信 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 組織治理與責信 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信"
-      ],
-      "subject_topics": {
-        "社會工作": [
-          "專業倫理、專業責任與社會工作價值"
-        ],
-        "社會政策與社會立法": [
-          "社福服務體系、專業規範與制度責信"
-        ]
-      }
+      ]
     },
     {
       "canonical_event_id": "93e3c7bbef37d27356dcd435",
@@ -698,21 +487,21 @@
         "社會政策與社會立法"
       ],
       "trend_state": "cooling",
-      "trend_score": 1,
+      "trend_score": 1.0,
       "why": [
         "1 個官方來源"
       ],
       "factors": {
-        "cross_source": 0,
+        "cross_source": 0.0,
         "official_evidence": 0.7,
-        "policy_change": 0,
-        "historical_frequency": 0,
-        "historical_year_breadth": 0,
-        "recent_exam_support": 0,
-        "historical_subject_breadth": 0,
-        "law_relevance": 0,
-        "persistence": 0,
-        "essay_value": 0,
+        "policy_change": 0.0,
+        "historical_frequency": 0.0,
+        "historical_year_breadth": 0.0,
+        "recent_exam_support": 0.0,
+        "historical_subject_breadth": 0.0,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
+        "essay_value": 0.0,
         "mcq_density": 0.45,
         "recency": 0.2
       },
@@ -723,7 +512,7 @@
       "last_seen": "2026-09-13T09:08:00Z",
       "related_laws": [],
       "historical_question_count": 0,
-      "historical_weighted_match_count": 0,
+      "historical_weighted_match_count": 0.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 0,
@@ -752,57 +541,7 @@
           "published_at": "2026-09-13T09:08:00Z",
           "item_id": "4afd0e8e306fd77bf0f9a30e21e13262"
         }
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "服務輸送與跨網絡",
-        "方案與資源管理",
-        "規劃與政策執行",
-        "品質與風險管理"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作直接服務",
-        "人類行為與社會環境",
-        "社會工作"
-      ],
-      "knowledge_topics": [
-        "長照與高齡",
-        "長照",
-        "政策",
-        "補助",
-        "福利"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 高齡者權益與社區支持",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 高齡者權益與社區支持",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 高齡者權益與社區支持",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 高齡者權益與社區支持"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "長照制度、老人福利與社會保障"
-        ],
-        "社會工作直接服務": [
-          "長照個案管理與家庭照顧者支持"
-        ],
-        "人類行為與社會環境": [
-          "老化、失智與生命歷程"
-        ],
-        "社會工作": [
-          "高齡者權益與社區支持"
-        ]
-      }
+      ]
     }
   ]
 }
