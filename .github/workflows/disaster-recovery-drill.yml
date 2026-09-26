@@ -1,0 +1,154 @@
+name: Disaster Recovery Restore Drill
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/disaster-recovery-drill.yml'
+      - 'supabase/recovery/**'
+      - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - 'cloudflare/wandering-wave-4418/d1/**'
+      - 'cloudflare/wandering-wave-4418/worker.js'
+      - 'scripts/supabase_recovery_dry_run.py'
+      - 'scripts/cloudflare_d1_recovery_smoke.py'
+      - 'cdn/question-shards/**'
+      - 'netlify.toml'
+      - 'index.html'
+      - 'monthly_patch_parts/**'
+      - 'scripts/monthly_patch_build.py'
+      - 'scripts/public_content_sanitize.py'
+      - 'scripts/cache_bust_runtime.py'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/disaster-recovery-drill.yml'
+      - 'supabase/recovery/**'
+      - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - 'cloudflare/wandering-wave-4418/d1/**'
+      - 'cloudflare/wandering-wave-4418/worker.js'
+      - 'scripts/supabase_recovery_dry_run.py'
+      - 'scripts/cloudflare_d1_recovery_smoke.py'
+      - 'cdn/question-shards/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-disaster-recovery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolated-restore-drill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: swsi_recovery
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d swsi_recovery"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: swsi_recovery
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.13.0'
+          package-manager-cache: false
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Syntax and manifest checks
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/supabase_recovery_dry_run.py
+          python -m py_compile scripts/cloudflare_d1_recovery_smoke.py
+          python -m json.tool supabase/recovery/recovery_manifest.json >/dev/null
+          node --check cloudflare/wandering-wave-4418/worker.js
+
+      - name: Wait for disposable PostgreSQL
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 30); do
+            if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE"; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo 'Disposable PostgreSQL did not become ready.' >&2
+          exit 1
+
+      - name: Rebuild Supabase schema and restore official question dataset
+        run: |
+          set -euo pipefail
+          python scripts/supabase_recovery_dry_run.py
+
+      - name: Rebuild Cloudflare D1 contract from empty SQLite
+        run: |
+          set -euo pipefail
+          python scripts/cloudflare_d1_recovery_smoke.py
+
+      - name: Compile every Supabase Edge Function
+        run: |
+          set -euo pipefail
+          while IFS= read -r fn; do
+            echo "DENO CHECK $fn"
+            deno check "$fn"
+          done < <(find supabase/functions -name index.ts -type f | sort)
+
+      - name: Rebuild static frontend from repository source
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/swsi-dr-static-build.sh
+          import tomllib
+          from pathlib import Path
+          cfg=tomllib.loads(Path('netlify.toml').read_text(encoding='utf-8'))
+          assert cfg['build']['publish']=='_site'
+          print('set -euo pipefail')
+          print(cfg['build']['command'])
+          PY
+          bash /tmp/swsi-dr-static-build.sh
+
+          test -f _site/index.html
+          test -f _site/monthly_patch.js
+          test -f _site/sw.js
+          grep -q "const VERSION = 'v7'" _site/sw.js
+          grep -q 'swsi-exam-date-label' _site/monthly_patch.js
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          m=json.loads(Path('cdn/question-shards/manifest.json').read_text(encoding='utf-8'))
+          assert m['total_questions']==4800
+          assert m['shard_count']==24
+          print('STATIC RECOVERY BUILD OK questions=4800 shards=24 sw=v7')
+          PY
+
+      - name: Recovery drill summary
+        run: |
+          echo 'SWSI DISASTER RECOVERY DRILL OK'
+          echo 'Production writes: none'
+          echo 'Production secrets: none'
+          echo 'Private production data copied: none'
