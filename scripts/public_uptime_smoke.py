@@ -7,9 +7,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 PRIMARY = "https://wandering-wave-4418.c022050333.workers.dev"
 BACKUP = "https://swsi-quiznetlify.netlify.app"
@@ -37,12 +39,30 @@ def require_status(label: str, url: str, expected: int = 200, *, method: str = "
         return res.read(), res.headers
 
 
+
+def expected_netlify_release_marker() -> str:
+    source = Path(__file__).resolve().parents[1] / "index.html"
+    html = source.read_text(encoding="utf-8")
+    match = re.search(
+        r'<meta\s+name=["\']swsi-netlify-release["\']\s+content=["\']([^"\']+)["\']',
+        html,
+        flags=re.IGNORECASE,
+    )
+    if not match or not match.group(1).strip():
+        raise AssertionError("Local release source: swsi-netlify-release marker missing")
+    return match.group(1).strip()
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--monitoring-v2",
         action="store_true",
         help="Require Monitoring V2 public snapshots. Use after V2 is deployed, not while a PR still targets old production.",
+    )
+    ap.add_argument(
+        "--fallback-parity",
+        action="store_true",
+        help="Require Netlify fallback to match the checked-out release marker and critical runtime contracts.",
     )
     args = ap.parse_args()
     checks: list[str] = []
@@ -226,6 +246,37 @@ def main() -> int:
     if "SWSI" not in fallback_html and "社工師" not in fallback_html:
         raise AssertionError("Netlify fallback: expected social-work-study marker missing")
     checks.append("netlify-fallback")
+
+    if args.fallback_parity:
+        expected_marker = expected_netlify_release_marker()
+        marker_match = re.search(
+            r'<meta\s+name=["\']swsi-netlify-release["\']\s+content=["\']([^"\']+)["\']',
+            fallback_html,
+            flags=re.IGNORECASE,
+        )
+        actual_marker = marker_match.group(1).strip() if marker_match else ""
+        if actual_marker != expected_marker:
+            raise AssertionError(
+                f"Netlify fallback: release marker mismatch (expected {expected_marker!r}, got {actual_marker!r})"
+            )
+
+        body, _ = require_status("Netlify fallback Service Worker", BACKUP + "/sw.js")
+        fallback_sw = body.decode("utf-8", "replace")
+        if "const VERSION = 'v7';" not in fallback_sw:
+            raise AssertionError("Netlify fallback: expected Service Worker VERSION v7")
+
+        body, _ = require_status("Netlify fallback current-affairs", BACKUP + "/auto/current_affairs.json")
+        fallback_news = json.loads(body)
+        fallback_items = fallback_news.get("items") or []
+        fallback_sources = int(fallback_news.get("source_feed_count", -1))
+        fallback_errors = int(fallback_news.get("feed_error_count", -1))
+        if int(fallback_news.get("schema_version", -1)) != 2 or not fallback_items:
+            raise AssertionError("Netlify fallback current-affairs: contract mismatch")
+        if fallback_sources < 17 or fallback_errors != 0:
+            raise AssertionError(
+                f"Netlify fallback current-affairs: expected >=17 sources / 0 errors, got {fallback_sources}/{fallback_errors}"
+            )
+        checks.append(f"netlify-parity-{expected_marker}")
 
     mode = "monitoring-v2" if args.monitoring_v2 else "baseline"
     print(f"SWSI PUBLIC UPTIME SENTINEL OK [{mode}]: " + ", ".join(checks))

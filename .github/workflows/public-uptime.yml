@@ -40,8 +40,9 @@ jobs:
           args=''
           # A pull request still points at the old production deployment, so it
           # validates the existing public baseline. Push/scheduled/manual runs happen
-          # on main after deployment and must also require Monitoring V2 snapshots.
+          # on main after deployment and must require Monitoring V2 plus exact
+          # Netlify fallback release parity.
           if [ "$GITHUB_EVENT_NAME" != 'pull_request' ]; then
-            args='--monitoring-v2'
+            args='--monitoring-v2 --fallback-parity'
           fi
           python scripts/public_uptime_smoke.py $args
