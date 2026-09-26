@@ -19,7 +19,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 
 KNOWLEDGE_ROOT = "社會工作管理"
-KNOWLEDGE_MODEL = "management-hierarchy-over-five-exam-subjects-v3"
+KNOWLEDGE_MODEL = "management-hierarchy-primary-support-v4"
 
 EXAM_SUBJECTS = (
     "社會工作",
@@ -70,6 +70,23 @@ CATEGORY_SUBJECT_DEFAULTS = {
     "少年司法與犯罪防治": ("社會工作直接服務", "人類行為與社會環境", "社會政策與社會立法", "社會工作"),
     "性別與家庭政策": ("社會政策與社會立法", "人類行為與社會環境", "社會工作", "社會工作直接服務"),
     "災害與社區工作": ("社會工作", "社會工作直接服務", "人類行為與社會環境", "社會政策與社會立法"),
+    "社工專業與社福制度": ("社會工作", "社會政策與社會立法"),
+}
+
+CATEGORY_PRIMARY_SUBJECTS = {
+    "兒少保護": ("社會工作直接服務", "社會政策與社會立法"),
+    "家暴與性暴力": ("社會工作直接服務", "社會政策與社會立法"),
+    "心理健康與成癮": ("人類行為與社會環境", "社會工作直接服務"),
+    "長照與高齡": ("社會政策與社會立法", "社會工作直接服務"),
+    "社會救助與居住": ("社會政策與社會立法", "社會工作"),
+    "身障與人權": ("社會政策與社會立法", "社會工作"),
+    "移工與新住民": ("社會工作", "社會政策與社會立法"),
+    "勞動與社會保障": ("社會政策與社會立法",),
+    "教育與學生輔導": ("社會工作直接服務", "社會政策與社會立法"),
+    "司法保護與修復式司法": ("社會工作直接服務", "社會政策與社會立法"),
+    "少年司法與犯罪防治": ("社會工作直接服務", "人類行為與社會環境"),
+    "性別與家庭政策": ("社會政策與社會立法", "人類行為與社會環境"),
+    "災害與社區工作": ("社會工作", "社會工作直接服務"),
     "社工專業與社福制度": ("社會工作", "社會政策與社會立法"),
 }
 
@@ -293,10 +310,23 @@ def classify_event_knowledge(
     management = _ordered_unique(management, MANAGEMENT_DOMAINS)[:5]
 
     subjects = list(CATEGORY_SUBJECT_DEFAULTS.get(category, ("社會工作",)))
+    explicit_subjects = []
     for subject in EXAM_SUBJECTS:
         if _hits(body, SUBJECT_TERM_RULES.get(subject, ())):
             subjects.append(subject)
+            explicit_subjects.append(subject)
     subjects = _ordered_unique(subjects, EXAM_SUBJECTS)
+
+    primary_subjects = list(CATEGORY_PRIMARY_SUBJECTS.get(category, ()))
+    # Research methods becomes a primary axis only when the event itself carries
+    # explicit research/evaluation evidence; otherwise it remains absent rather
+    # than being attached to every policy story.
+    if "社會工作研究方法" in explicit_subjects:
+        primary_subjects.append("社會工作研究方法")
+    primary_subjects = _ordered_unique(primary_subjects, EXAM_SUBJECTS)[:3]
+    if not primary_subjects and subjects:
+        primary_subjects = subjects[:1]
+    supporting_subjects = [subject for subject in subjects if subject not in primary_subjects]
 
     subject_topics: dict[str, list[str]] = {}
     defaults = CATEGORY_SUBJECT_TOPICS.get(category, {})
@@ -335,6 +365,8 @@ def classify_event_knowledge(
         "knowledge_model": KNOWLEDGE_MODEL,
         "management_domains": management,
         "exam_subject_axes": subjects,
+        "primary_exam_subject_axes": primary_subjects,
+        "supporting_exam_subject_axes": supporting_subjects,
         "subject_topics": subject_topics,
         "knowledge_topics": topics,
         "knowledge_paths": _ordered_unique(paths)[:30],
