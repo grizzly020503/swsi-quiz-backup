@@ -21,6 +21,15 @@ REQUIRED = {
     "法務部新聞發布": "https://www.moj.gov.tw/2204/2795/2796/rss",
 }
 
+REQUIRED_MEDIA = {
+    "TVBS新聞": "https://news.tvbs.com.tw/rss",
+    "中天新聞社會": "https://ctinews.com/rss/google-society.xml",
+    "中天新聞生活": "https://ctinews.com/rss/google-life.xml",
+    "自由時報社會": "https://news.ltn.com.tw/rss/society.xml",
+    "自由時報生活": "https://news.ltn.com.tw/rss/life.xml",
+    "聯合新聞網社會": "https://udn.com/rssfeed/news/2/6639?ch=news",
+}
+
 
 def scored(title: str, summary: str, source: str):
     return score_item(title, summary, "taiwan", source, "official")
@@ -248,7 +257,7 @@ def main() -> int:
     payload = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = payload.get("sources") or []
     assert payload.get("schema_version") == 1
-    assert len(rows) >= 17, f"expected at least 17 curated sources, got {len(rows)}"
+    assert len(rows) >= 23, f"expected at least 23 curated sources, got {len(rows)}"
 
     urls = [str(x.get("url") or "") for x in rows]
     names = [str(x.get("name") or "") for x in rows]
@@ -290,6 +299,33 @@ def main() -> int:
         assert row.get("url") == url, (name, row.get("url"))
         assert row.get("region") == "taiwan", name
         assert row.get("source_type") == "official", name
+
+    for name, url in REQUIRED_MEDIA.items():
+        row = by_name.get(name)
+        assert row, f"missing media source: {name}"
+        assert row.get("url") == url, (name, row.get("url"))
+        assert row.get("region") == "taiwan", name
+        assert row.get("source_type") == "news", name
+        assert row.get("optional") is True, name
+
+    media_child_abuse = score_item(
+        "兒童遭保母虐死 社工訪視與通報流程受檢視",
+        "兒少保護事件引發責任通報、訪視與跨網絡制度檢討。",
+        "taiwan",
+        "TVBS新聞",
+        "news",
+    )
+    assert media_child_abuse and media_child_abuse[1] == "兒少保護", media_child_abuse
+    assert media_child_abuse[0] >= 5, media_child_abuse
+
+    generic_crime = score_item(
+        "男子酒後持刀傷人 警方到場逮捕",
+        "一般刑案，未涉及社福制度或社會工作考點。",
+        "taiwan",
+        "中天新聞社會",
+        "news",
+    )
+    assert generic_crime is None, generic_crime
 
     labor = scored(
         "勞動部修正就業保險給付規定 強化失業勞工權益",
@@ -509,7 +545,7 @@ def main() -> int:
 
     print(
         "CURRENT AFFAIRS SOURCE SMOKE OK: "
-        f"{len(rows)} unique HTTPS sources; RSS + WHO JSON + UNICEF/ILO HTML adapters guarded; "
+        f"{len(rows)} unique HTTPS sources; optional media RSS + WHO JSON + UNICEF/ILO HTML adapters guarded; "
         "high-precision exam-event gate enforced; policy changes/guidance accepted; surveys, reminders, courses and generic projects rejected"
     )
     return 0
