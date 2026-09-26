@@ -27,28 +27,32 @@ def main() -> int:
     assert "社會工作直接服務" in child["exam_subject_axes"], child
     assert "人類行為與社會環境" in child["exam_subject_axes"], child
     assert "社會政策與社會立法" in child["exam_subject_axes"], child
-    assert "社會工作研究方法" not in child["exam_subject_axes"], child
+    assert "兒少保護" in child["knowledge_topics"], child
     assert "兒少保護風險評估" in child["subject_topics"]["社會工作直接服務"], child
+    assert any("社會工作直接服務" in path for path in child["knowledge_paths"]), child
 
     wage = classify_event_knowledge(
-        "最低工資連11漲，審議會決定自116年起每月最低工資調升至30,900元，每小時調升至205元。",
+        "最低工資審議會決定自116年起調升月薪與時薪，並討論消費者物價指數與產業發展，調整案陳報行政院核定。",
         category="勞動與社會保障",
         exam_tags=["最低工資", "社會保障"],
     )
-    assert wage["exam_subject_axes"] == ["社會政策與社會立法", "社會工作"], wage
-    assert "社會工作研究方法" not in wage["exam_subject_axes"], wage
+    assert "規劃與政策執行" in wage["management_domains"], wage
+    assert "倫理與權利保障" in wage["management_domains"], wage
+    assert "社會政策與社會立法" in wage["exam_subject_axes"], wage
     assert "人類行為與社會環境" not in wage["exam_subject_axes"], wage
+    assert "社會工作研究方法" not in wage["exam_subject_axes"], wage
+    assert "人力與督導" not in wage["management_domains"], wage
     assert "成效評估與證據" not in wage["management_domains"], wage
+    assert "方案與資源管理" not in wage["management_domains"], wage
 
     survey = classify_event_knowledge(
-        "政府公布身心障礙者生活需求調查結果與統計資料，作為後續方案成效評估依據。",
+        "政府公布身心障礙者生活需求調查結果與統計資料，作為後續政策成效評估依據。",
         category="身障與人權",
         exam_tags=["身障權利"],
     )
     assert "成效評估與證據" in survey["management_domains"], survey
     assert "社會工作研究方法" in survey["exam_subject_axes"], survey
-    assert "統計與資料解讀" in survey["subject_topics"]["社會工作研究方法"], survey
-    assert "方案與成效評估" in survey["subject_topics"]["社會工作研究方法"], survey
+    assert "倫理與權利保障" in survey["management_domains"], survey
 
     workforce = classify_event_knowledge(
         "社工人力不足與高案量造成留任困難，機構提出督導與職場安全改善。",
@@ -69,6 +73,9 @@ def main() -> int:
     assert "人力與督導" not in misconduct["management_domains"], misconduct
     assert "社會工作直接服務" not in misconduct["exam_subject_axes"], misconduct
 
+    assert "統計與資料解讀" in survey["subject_topics"]["社會工作研究方法"], survey
+    assert "方案與成效評估" in survey["subject_topics"]["社會工作研究方法"], survey
+
     for payload in (child, wage, survey, workforce, misconduct):
         assert payload["knowledge_root"] == "社會工作管理"
         assert set(payload["management_domains"]).issubset(set(MANAGEMENT_DOMAINS))
@@ -79,9 +86,8 @@ def main() -> int:
         assert isinstance(payload["knowledge_paths"], list) and payload["knowledge_paths"]
 
     print(
-        "SOCIAL WORK KNOWLEDGE TREE V2 SMOKE OK: "
-        "management-root=yes, exact-five-subjects=yes, research-fail-closed=yes, "
-        "subject-topics=yes, misconduct-vs-workforce distinction=yes"
+        "SOCIAL WORK KNOWLEDGE TREE SMOKE OK: "
+        "management-root=yes, five-subject axes=yes, subject-topics=yes, child/wage/research/workforce/misconduct fixtures=yes"
     )
     return 0
 

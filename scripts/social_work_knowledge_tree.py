@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""SWSI social-work knowledge tree for accepted current-affairs events.
+"""SWSI social-work knowledge tree for current-affairs classification.
 
-This module is deterministic and model-free. It does NOT decide whether a news
-item is allowed into the current-affairs database. Admission/relevance happens
-upstream. This module only answers the learning question after an event has
-already been accepted:
+This module is deterministic and model-free. It treats 社會工作管理 as the
+cross-subject top layer used to organize current affairs. It is NOT an
+additional national-exam subject.
 
-    社會工作管理（跨科整合層）
+Structure:
+    社會工作管理
       -> management domains
       -> the five existing exam subjects
-      -> subject-specific study topics
+      -> event/topic tags
 
-社會工作管理 is a platform organization lens, NOT a sixth national-exam
-subject. The five subject names remain exactly aligned with the question bank.
+The classifier is intentionally additive. Existing current-affairs relevance,
+event clustering and trend scoring remain separate contracts.
 """
 from __future__ import annotations
 
@@ -40,22 +40,20 @@ MANAGEMENT_DOMAINS = (
     "倫理與權利保障",
 )
 
-# Defaults come from the already-accepted event category. They are intentionally
-# narrower than a "everything is related to everything" knowledge graph.
 CATEGORY_SUBJECT_DEFAULTS = {
     "兒少保護": ("社會工作直接服務", "人類行為與社會環境", "社會政策與社會立法", "社會工作"),
     "家暴與性暴力": ("社會工作直接服務", "人類行為與社會環境", "社會政策與社會立法", "社會工作"),
-    "心理健康與成癮": ("人類行為與社會環境", "社會工作直接服務", "社會工作"),
-    "長照與高齡": ("社會政策與社會立法", "人類行為與社會環境", "社會工作直接服務"),
-    "社會救助與居住": ("社會政策與社會立法", "社會工作"),
-    "身障與人權": ("社會政策與社會立法", "社會工作", "人類行為與社會環境"),
-    "移工與新住民": ("社會工作", "社會政策與社會立法", "人類行為與社會環境"),
+    "心理健康與成癮": ("人類行為與社會環境", "社會工作直接服務", "社會工作", "社會政策與社會立法"),
+    "長照與高齡": ("社會政策與社會立法", "社會工作直接服務", "人類行為與社會環境", "社會工作"),
+    "社會救助與居住": ("社會政策與社會立法", "社會工作", "社會工作直接服務"),
+    "身障與人權": ("社會政策與社會立法", "社會工作", "社會工作直接服務", "人類行為與社會環境"),
+    "移工與新住民": ("社會工作", "社會政策與社會立法", "社會工作直接服務", "人類行為與社會環境"),
     "勞動與社會保障": ("社會政策與社會立法", "社會工作"),
-    "教育與學生輔導": ("社會工作直接服務", "人類行為與社會環境", "社會政策與社會立法", "社會工作"),
+    "教育與學生輔導": ("社會工作直接服務", "人類行為與社會環境", "社會工作", "社會政策與社會立法"),
     "司法保護與修復式司法": ("社會工作直接服務", "社會政策與社會立法", "社會工作"),
     "少年司法與犯罪防治": ("社會工作直接服務", "人類行為與社會環境", "社會政策與社會立法", "社會工作"),
-    "性別與家庭政策": ("社會政策與社會立法", "社會工作"),
-    "災害與社區工作": ("社會工作", "社會工作直接服務", "人類行為與社會環境"),
+    "性別與家庭政策": ("社會政策與社會立法", "人類行為與社會環境", "社會工作", "社會工作直接服務"),
+    "災害與社區工作": ("社會工作", "社會工作直接服務", "人類行為與社會環境", "社會政策與社會立法"),
     "社工專業與社福制度": ("社會工作", "社會政策與社會立法"),
 }
 
@@ -67,14 +65,12 @@ CATEGORY_MANAGEMENT_DEFAULTS = {
     "社會救助與居住": ("規劃與政策執行", "方案與資源管理", "倫理與權利保障"),
     "身障與人權": ("倫理與權利保障", "服務輸送與跨網絡", "規劃與政策執行"),
     "移工與新住民": ("倫理與權利保障", "服務輸送與跨網絡", "規劃與政策執行"),
-    "勞動與社會保障": ("規劃與政策執行", "倫理與權利保障", "方案與資源管理"),
+    "勞動與社會保障": ("規劃與政策執行", "倫理與權利保障"),
     "教育與學生輔導": ("服務輸送與跨網絡", "品質與風險管理", "倫理與權利保障"),
     "司法保護與修復式司法": ("服務輸送與跨網絡", "倫理與權利保障", "規劃與政策執行"),
     "少年司法與犯罪防治": ("服務輸送與跨網絡", "倫理與權利保障", "品質與風險管理"),
     "性別與家庭政策": ("規劃與政策執行", "倫理與權利保障", "方案與資源管理"),
     "災害與社區工作": ("品質與風險管理", "服務輸送與跨網絡", "方案與資源管理"),
-    # Do not assume every story about a social worker is a staffing/supervision
-    # story. Misconduct, for example, is primarily governance/accountability.
     "社工專業與社福制度": ("組織治理與責信", "倫理與權利保障"),
 }
 
@@ -159,85 +155,86 @@ CATEGORY_SUBJECT_TOPICS = {
     },
 }
 
-# These rules only REFINE an already-accepted event. They never make a news
-# item eligible for admission to the radar.
+RESEARCH_TOPIC_RULES = {
+    "研究設計與資料蒐集": ("抽樣", "問卷調查", "訪談研究", "sampling"),
+    "統計與資料解讀": ("統計結果", "調查結果", "研究報告", "調查報告", "study finds", "survey results"),
+    "方案與成效評估": ("成效評估", "評估研究", "evaluation study"),
+    "測量品質與研究判讀": ("信度", "效度", "validity", "reliability"),
+}
+
+
 MANAGEMENT_TERM_RULES = {
     "規劃與政策執行": (
-        "修法", "修正", "施行", "上路", "新制", "法規", "條例", "核定",
-        "預告", "給付調整", "補助加碼", "資格放寬", "政策調整", "制度調整",
-        "policy change", "implementation",
+        "政策", "制度", "修法", "修正", "施行", "上路", "新制", "法規",
+        "條例", "給付", "津貼", "補助", "資格", "計畫", "方案", "policy",
+        "legislation", "reform", "implementation",
     ),
     "組織治理與責信": (
-        "治理", "責信", "權責", "透明", "監督", "稽核", "法遵", "委外",
-        "委託管理", "內控", "侵占", "挪用", "accountability", "governance",
+        "組織治理", "治理機制", "責信", "權責", "透明", "監督", "稽核",
+        "法遵", "內控", "內部控制", "機構管理", "委外管理",
+        "accountability", "governance",
     ),
     "人力與督導": (
-        "社工人力", "專業人力", "照顧人力", "人力不足", "督導", "案量",
-        "工作負荷", "留任", "離職", "執業環境", "職場安全",
-        "supervision", "social work workforce",
+        "社工人力", "人力不足", "專業人力", "照服人力", "照顧人力",
+        "督導", "案量", "工作負荷", "招募", "留任", "離職", "執業環境",
+        "職場安全", "supervision", "social work workforce", "care workforce",
     ),
     "服務輸送與跨網絡": (
-        "服務輸送", "跨網絡", "跨專業", "跨局處", "轉介", "個案管理",
-        "訪視", "資源連結", "整合服務", "責任通報", "case management",
-        "referral", "service coordination",
+        "服務輸送", "跨網絡", "跨專業", "轉介", "協作", "合作", "通報",
+        "個案管理", "訪視", "資源連結", "整合服務", "service delivery",
+        "case management", "referral",
     ),
     "方案與資源管理": (
-        "方案管理", "資源配置", "預算", "補助", "委託", "委外", "給付",
-        "服務量能", "服務據點", "名額", "resource allocation", "program funding",
+        "方案", "計畫", "補助", "預算", "資源配置", "資源連結", "委託",
+        "委外", "給付", "服務量能", "resource allocation", "programme",
+        "program",
     ),
     "品質與風險管理": (
-        "風險", "風險評估", "品質管理", "重大事件", "兒虐", "虐童", "家暴",
-        "性暴力", "危機", "安全事件", "疏失", "safeguarding",
-        "risk management", "quality assurance",
+        "風險", "風險評估", "品質", "重大事件", "兒虐", "虐童", "家暴",
+        "性暴力", "危機", "安全", "保護", "安置", "檢討", "risk",
+        "safeguarding", "quality",
     ),
     "成效評估與證據": (
-        "成效評估", "評估研究", "調查結果", "統計資料", "統計顯示", "研究結果",
-        "研究顯示", "實證", "evidence-based", "program evaluation",
-        "survey finds", "research finds", "statistics",
+        "成效評估", "評估結果", "統計結果", "調查結果", "研究報告",
+        "調查報告", "監測結果", "實證研究", "資料分析", "成效指標",
+        "evaluation results", "survey results", "study finds", "report finds",
+        "evidence review",
     ),
     "倫理與權利保障": (
         "倫理", "權益", "人權", "最佳利益", "自決", "保密", "知情同意",
-        "合理調整", "反歧視", "兒童權利", "權利保障", "rights", "ethics",
+        "合理調整", "反歧視", "兒童權利", "rights", "ethics",
+        "reasonable accommodation",
     ),
 }
 
 SUBJECT_TERM_RULES = {
     "社會工作": (
-        "專業倫理", "社會工作價值", "社會正義", "倡導", "增權", "充權",
-        "優勢觀點", "文化能力", "人權", "社區工作", "professional ethics",
+        "社工", "社會工作", "倫理", "專業", "倡導", "增權", "充權", "優勢觀點",
+        "社會正義", "社區", "文化能力", "人權", "社會支持", "social work",
         "advocacy", "empowerment",
     ),
     "社會工作直接服務": (
-        "風險評估", "家庭評估", "需求評估", "處遇", "介入", "責任通報",
-        "安置", "個案管理", "危機介入", "家庭工作", "團體工作", "訪視",
-        "轉介", "保護服務", "接案", "結案", "case management",
-        "intervention", "risk assessment", "referral",
+        "評估", "處遇", "介入", "通報", "安置", "個案管理", "危機介入",
+        "家庭工作", "團體工作", "訪視", "轉介", "輔導", "保護服務",
+        "case management", "intervention", "assessment", "referral",
     ),
     "人類行為與社會環境": (
-        "兒童發展", "青少年發展", "生命週期", "生命歷程", "依附", "創傷",
-        "家庭系統", "生態系統", "心理健康", "精神衛生", "成癮", "失智",
-        "老化", "壓力因應", "韌性", "trauma", "attachment",
-        "mental health", "dementia",
+        "兒童發展", "青少年發展", "生命歷程", "發展階段", "高齡", "老化",
+        "失智", "心理健康", "精神衛生", "創傷", "依附", "家庭系統",
+        "人類行為", "社會環境", "成癮", "trauma", "attachment",
+        "mental health", "dementia", "life course",
     ),
     "社會工作研究方法": (
-        "調查結果", "統計資料", "統計顯示", "研究結果", "研究顯示", "樣本",
-        "抽樣", "問卷", "深度訪談", "焦點團體", "資料分析", "成效評估",
-        "評估研究", "信度", "效度", "evidence-based", "survey finds",
-        "research finds", "statistics", "sampling", "validity", "reliability",
-        "program evaluation",
+        "調查結果", "統計結果", "研究報告", "調查報告", "研究方法",
+        "抽樣設計", "抽樣", "問卷調查", "訪談研究", "資料分析",
+        "成效評估", "評估研究", "信度", "效度", "survey results",
+        "study finds", "evaluation study", "research methods", "data analysis",
     ),
     "社會政策與社會立法": (
-        "修法", "修正", "法律", "法規", "條例", "施行細則", "補助", "津貼",
-        "給付", "社會保險", "最低工資", "資格", "主管機關", "生效",
-        "社會救助", "policy", "law", "legislation", "benefit",
+        "政策", "制度", "修法", "修正", "法律", "法規", "條例", "施行細則",
+        "補助", "津貼", "給付", "保險", "最低工資", "資格", "主管機關",
+        "生效", "policy", "law", "legislation", "benefit", "social insurance",
     ),
-}
-
-RESEARCH_TOPIC_RULES = {
-    "研究設計與資料蒐集": ("樣本", "抽樣", "問卷", "深度訪談", "焦點團體", "sampling"),
-    "統計與資料解讀": ("統計資料", "統計顯示", "調查結果", "研究結果", "research finds", "survey finds", "statistics"),
-    "方案與成效評估": ("成效評估", "評估研究", "program evaluation"),
-    "測量品質與研究判讀": ("信度", "效度", "validity", "reliability"),
 }
 
 
@@ -266,7 +263,7 @@ def classify_event_knowledge(
     category: str = "",
     exam_tags: Iterable[str] | None = None,
 ) -> dict:
-    """Map an accepted event into the management lens and five exam subjects."""
+    """Classify an accepted event into the management root and five-subject axes."""
     body = str(text or "")
     category = str(category or "").strip()
     tags = _ordered_unique(exam_tags or [])
@@ -283,27 +280,20 @@ def classify_event_knowledge(
             subjects.append(subject)
     subjects = _ordered_unique(subjects, EXAM_SUBJECTS)
 
-    # Research methods is evidence-sensitive. Never infer it from generic words
-    # such as 資料、發展、評估 or from another subject's category default.
-    if "社會工作研究方法" in subjects and not _hits(
-        body, SUBJECT_TERM_RULES["社會工作研究方法"]
-    ):
-        subjects = [x for x in subjects if x != "社會工作研究方法"]
-
     subject_topics: dict[str, list[str]] = {}
     defaults = CATEGORY_SUBJECT_TOPICS.get(category, {})
     for subject in subjects:
-        topics = list(defaults.get(subject, ()))
+        topics_for_subject = list(defaults.get(subject, ()))
         if subject == "社會工作研究方法":
             for topic, terms in RESEARCH_TOPIC_RULES.items():
                 if _hits(body, terms):
-                    topics.append(topic)
-            if not topics:
-                topics.append("研究證據判讀")
-        if topics:
-            subject_topics[subject] = _ordered_unique(topics)[:4]
+                    topics_for_subject.append(topic)
+            if not topics_for_subject:
+                topics_for_subject.append("研究證據判讀")
+        if topics_for_subject:
+            subject_topics[subject] = _ordered_unique(topics_for_subject)[:4]
 
-    knowledge_topics = _ordered_unique([category, *tags])[:10]
+    topics = _ordered_unique([category, *tags])[:10]
     paths = [f"{KNOWLEDGE_ROOT} > {domain}" for domain in management]
     for subject in subjects:
         for topic in subject_topics.get(subject, []):
@@ -315,6 +305,6 @@ def classify_event_knowledge(
         "management_domains": management,
         "exam_subject_axes": subjects,
         "subject_topics": subject_topics,
-        "knowledge_topics": knowledge_topics,
+        "knowledge_topics": topics,
         "knowledge_paths": _ordered_unique(paths)[:20],
     }
