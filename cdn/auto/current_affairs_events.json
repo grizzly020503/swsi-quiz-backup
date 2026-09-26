@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-26T05:40:14Z",
+  "generated_at": "2026-09-26T05:42:36Z",
   "source_item_count": 6,
   "event_count": 6,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
@@ -459,9 +459,9 @@
       }
     },
     {
-      "canonical_event_id": "7dbec58b12307c746b091d91",
-      "title": "涉侵占1200萬買名牌包！甜美社工羈押禁見「3大理由曝」",
-      "summary": "前北市社會局甜美社工督導江羿潔，涉嫌盜領5名受監護宣告老人1200萬元存款。北市社會局交接查帳發現異常報案，檢檢搜索在其住處扣得愛馬仕、香奈兒等名牌包。台北地院認定其涉犯貪污重罪且有逃亡勾串之虞，裁定羈押禁見。",
+      "canonical_event_id": "336f586340c6af43a5b2960d",
+      "title": "北市女社工盜領個案千萬老本遭羈押 15名牌包、精品曝光",
+      "summary": "台北市政府社會局一名女社工盜領5名個案老人存款高達1200萬元，檢警昨（22）日執行搜索拘提，檢方複訊後向法院聲請羈押禁見今下午獲准，稍早查扣的精品畫面曝光。",
       "category": "社工專業與社福制度",
       "subjects": [
         "社會工作",
@@ -485,39 +485,31 @@
       "evidence": [
         {
           "source_name": "中天新聞社會",
-          "source_url": "https://ctinews.com/news/items/q6xVpROzW7",
-          "source_type": "news",
-          "published_at": "2026-09-24T00:28:16Z",
-          "item_id": "topic:d0125720d7c1077d1b6e660de56aebfb"
-        },
-        {
-          "source_name": "中天新聞社會",
           "source_url": "https://ctinews.com/news/items/BexXVRVpWb",
           "source_type": "news",
           "published_at": "2026-09-23T11:58:41Z",
-          "item_id": "topic:d0125720d7c1077d1b6e660de56aebfb"
+          "item_id": "topic:5d82c1d8ed9b7d8bec2a31a68173fd6f"
         },
         {
           "source_name": "中天新聞社會",
           "source_url": "https://ctinews.com/news/items/M9n6mrrqxR",
           "source_type": "news",
           "published_at": "2026-09-23T07:45:25Z",
-          "item_id": "topic:d0125720d7c1077d1b6e660de56aebfb"
+          "item_id": "topic:5d82c1d8ed9b7d8bec2a31a68173fd6f"
         }
       ],
       "first_seen": "2026-09-23T07:45:25Z",
-      "last_seen": "2026-09-24T00:28:16Z",
-      "observation_count": 2,
+      "last_seen": "2026-09-23T11:58:41Z",
+      "observation_count": 1,
       "observation_dates": [
-        "2026-09-23",
-        "2026-09-24"
+        "2026-09-23"
       ],
       "policy_signal": "low",
       "essay_value": "high",
       "mcq_fact_density": "low",
       "signal_confidence": "low",
       "signal_score": 5,
-      "exam_point_summary": "涉侵占1200萬買名牌包！甜美社工羈押禁見「3大理由曝」。偏宣導或活動訊息；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入。此為命題訊號，非命題保證。",
+      "exam_point_summary": "北市女社工盜領個案千萬老本遭羈押 15名牌包、精品曝光。偏宣導或活動訊息；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入。此為命題訊號，非命題保證。",
       "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [],
       "related_exam_questions": [],
