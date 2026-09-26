@@ -134,6 +134,10 @@ def main() -> int:
         assert row.get("knowledge_model") == "management-hierarchy-over-five-exam-subjects-v3", row
         assert isinstance(row.get("management_domains"), list) and row.get("management_domains"), row
         assert isinstance(row.get("exam_subject_axes"), list) and row.get("exam_subject_axes"), row
+        assert isinstance(row.get("primary_exam_subject_axes"), list) and row.get("primary_exam_subject_axes"), "event primary exam subjects missing"
+        assert isinstance(row.get("supporting_exam_subject_axes"), list), "event supporting exam subjects missing"
+        assert set(row.get("primary_exam_subject_axes") or []).issubset(set(row.get("exam_subject_axes") or [])), row
+        assert not set(row.get("primary_exam_subject_axes") or []).intersection(row.get("supporting_exam_subject_axes") or []), row
         assert isinstance(row.get("subject_topics"), dict) and row.get("subject_topics"), row
         assert isinstance(row.get("knowledge_paths"), list) and row.get("knowledge_paths"), row
         stats = row.get("historical_exam_stats")
@@ -168,6 +172,10 @@ def main() -> int:
         assert row.get("knowledge_model") == "management-hierarchy-over-five-exam-subjects-v3", row
         assert isinstance(row.get("management_domains"), list) and row.get("management_domains"), row
         assert isinstance(row.get("exam_subject_axes"), list) and row.get("exam_subject_axes"), row
+        assert isinstance(row.get("primary_exam_subject_axes"), list) and row.get("primary_exam_subject_axes"), "trend primary exam subjects missing"
+        assert isinstance(row.get("supporting_exam_subject_axes"), list), "trend supporting exam subjects missing"
+        assert set(row.get("primary_exam_subject_axes") or []).issubset(set(row.get("exam_subject_axes") or [])), row
+        assert not set(row.get("primary_exam_subject_axes") or []).intersection(row.get("supporting_exam_subject_axes") or []), row
         assert isinstance(row.get("subject_topics"), dict) and row.get("subject_topics"), row
         assert isinstance(row.get("knowledge_paths"), list) and row.get("knowledge_paths"), row
         score = float(row.get("trend_score"))
