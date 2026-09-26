@@ -37,6 +37,14 @@ def main() -> int:
     ), child
     assert not any("五科整合" in path for path in child["knowledge_paths"]), child
 
+    family_subsidy = classify_event_knowledge(
+        "企業托育補助新制提高支持力道，調整補助與申請制度。",
+        category="性別與家庭政策",
+        exam_tags=["托育", "補助"],
+    )
+    assert family_subsidy["primary_exam_subject_axes"] == ["社會政策與社會立法"], family_subsidy
+    assert "人類行為與社會環境" in family_subsidy["supporting_exam_subject_axes"], family_subsidy
+
     wage = classify_event_knowledge(
         "最低工資審議會決定自116年起調升月薪與時薪，並討論消費者物價指數與產業發展，調整案陳報行政院核定。",
         category="勞動與社會保障",
@@ -96,7 +104,7 @@ def main() -> int:
         for path in survey["knowledge_paths"]
     ), survey
 
-    for payload in (child, wage, survey, workforce, misconduct, role_title):
+    for payload in (child, family_subsidy, wage, survey, workforce, misconduct, role_title):
         assert payload["knowledge_root"] == "社會工作管理"
         assert set(payload["management_domains"]).issubset(set(MANAGEMENT_DOMAINS))
         assert set(payload["exam_subject_axes"]).issubset(set(EXAM_SUBJECTS))
