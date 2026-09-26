@@ -107,11 +107,12 @@
       "source_format": "ilo_news_html"
     },
     {
-      "name": "TVBS新聞",
-      "url": "https://news.tvbs.com.tw/rss",
+      "name": "TVBS新聞社會",
+      "url": "https://news.tvbs.com.tw/realtime/local",
       "region": "taiwan",
       "source_type": "news",
-      "optional": true
+      "optional": true,
+      "source_format": "tvbs_realtime_html"
     },
     {
       "name": "中天新聞社會",
