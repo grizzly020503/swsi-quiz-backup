@@ -95,10 +95,10 @@
       ],
       "clustered": false,
       "primary_exam_subject_axes": [
-        "社會政策與社會立法",
-        "人類行為與社會環境"
+        "社會政策與社會立法"
       ],
       "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
         "社會工作",
         "社會工作直接服務"
       ]
@@ -375,10 +375,10 @@
       ],
       "clustered": false,
       "primary_exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
+        "社會政策與社會立法"
       ],
       "supporting_exam_subject_axes": [
+        "社會工作直接服務",
         "人類行為與社會環境",
         "社會工作"
       ]
@@ -482,10 +482,10 @@
       ],
       "clustered": false,
       "primary_exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作"
+        "社會政策與社會立法"
       ],
       "supporting_exam_subject_axes": [
+        "社會工作",
         "社會工作直接服務",
         "人類行為與社會環境"
       ]
