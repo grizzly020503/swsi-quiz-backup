@@ -26,6 +26,8 @@ on:
       - 'data/legal_watch_report.json'
       - 'scripts/current_affairs_watch.py'
       - 'scripts/current_affairs_taxonomy.py'
+      - 'scripts/social_work_knowledge_tree.py'
+      - 'scripts/social_work_knowledge_tree_smoke.py'
       - 'scripts/current_affairs_sources_smoke.py'
       - 'scripts/build_current_affairs_snapshot.py'
       - 'scripts/current_affairs_event_cluster.py'
@@ -41,6 +43,8 @@ on:
       - 'data/current_affairs_sources.json'
       - 'scripts/current_affairs_watch.py'
       - 'scripts/current_affairs_taxonomy.py'
+      - 'scripts/social_work_knowledge_tree.py'
+      - 'scripts/social_work_knowledge_tree_smoke.py'
       - 'scripts/current_affairs_sources_smoke.py'
       - 'scripts/build_current_affairs_snapshot.py'
       - 'scripts/current_affairs_event_cluster.py'
@@ -215,6 +219,8 @@ jobs:
           python -m py_compile \
             scripts/current_affairs_watch.py \
             scripts/current_affairs_taxonomy.py \
+            scripts/social_work_knowledge_tree.py \
+            scripts/social_work_knowledge_tree_smoke.py \
             scripts/current_affairs_sources_smoke.py \
             scripts/build_current_affairs_snapshot.py \
             scripts/current_affairs_event_cluster.py \
@@ -223,6 +229,7 @@ jobs:
             scripts/current_affairs_events_smoke.py \
             scripts/build_public_legal_watch_snapshot.py \
             scripts/public_monitoring_v2_smoke.py
+          python scripts/social_work_knowledge_tree_smoke.py
           python scripts/current_affairs_sources_smoke.py
           python scripts/public_monitoring_v2_smoke.py
           python scripts/current_affairs_signals_smoke.py
