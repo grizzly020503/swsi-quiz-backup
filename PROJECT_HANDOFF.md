@@ -1,5 +1,56 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 首頁第二輪減法已完成於 PR #173，待 owner 明確批准 merge（READ FIRST）
+
+> 本節描述尚未合併的工作 branch；production 目前仍是 main `5b945b97f65be7255ed5ecca51cb951367782308`。不得把本節誤讀成已上線。
+
+- PR：**#173 — ux: remove duplicate homepage destinations**
+- branch：`ux/home-no-duplicate-actions-20260926`
+- verified code HEAD：`d6fbb67c239b4aa8bd08f5bf92e90fc18e1e9560`
+- 產品目標：延續「首頁做減法」，不新增新功能、不碰 grading / 題庫 / AI / DB / storage / SW contract。
+- 首頁現在只保留：
+  - 20 題智慧練習（主 CTA）
+  - 錯題複習
+  - 計時模擬考
+  - 一個低干擾的「理論、法規與時事」資源入口
+- 首頁不再重複底部導覽已擁有的「學習中心」與「申論練習」入口。
+- 申論功能沒有被移除：
+  - 底部「申論」仍是 canonical destination。
+  - 完整「選科目 → 選題 → 作答」流程保留。
+  - PR 另外把「直接練一題」移到申論頁本身，避免首頁重複又保留 quick-start 能力。
+- 本輪曾由 gate 抓到兩次真實／測試路徑問題：
+  1. 測試誤以為點底部申論後會直接出現作答框。
+  2. 移除首頁申論入口後，一鍵 quick essay 確實失去可見入口。
+  - 最終不是降低 gate，而是保留完整選題流程，並在申論頁補 quick-start。
+
+### 最終 PR gate
+
+以下皆對 PR 最新功能狀態驗證成功：
+- Monthly Frontend QA：run `36216941860` = **success**
+- Launch Readiness QA：run `36216941811` = **success**
+- Storage Durability QA：run `36216941816` = **success**
+- Knowledge Runtime Snapshot QA：run `36216941833` = **success**
+- Runtime Owner QA：run `36216941850` = **success**
+- Dependent Question Context QA：run `36216941804` = **success**
+- Netlify Controlled Production Deploy PR validation：run `36216941823` = **success**（PR validation only，沒有 production deploy）
+- Disaster Recovery Restore Drill：run `36216941983` = **success**
+- Cloudflare Frontend Preview build（push）：run `36216939477` = **success**
+
+### Merge / release 邊界
+
+- **尚未 merge main。**
+- **尚未發布這一輪到 production。**
+- 下一步需 owner 明確說可以 merge / 上架後才做：
+  1. final PR diff / merge review；
+  2. merge #173；
+  3. 依既有 Cloudflare production release contract 發布；
+  4. 因 canonical student-facing runtime 改變，再由 owner 明確觸發一次 Netlify Controlled Production Deploy；
+  5. 最後確認 Public Uptime Sentinel / Cloudflare–Netlify exact parity。
+- 不要重新接 Netlify Git continuous deployment，不要用 drag-and-drop。
+
+---
+
+
 ## 2026-09-26 Netlify fallback 已同步最新 production runtime（READ FIRST）
 
 > 本節優先於下方任何仍寫「Netlify 待同步／請再 Run workflow」的舊敘述。

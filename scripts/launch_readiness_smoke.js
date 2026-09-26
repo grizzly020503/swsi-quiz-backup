@@ -87,21 +87,20 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   const tabText = visibleTabs.join(' ');
   assert(/練題/.test(tabText) && /學習/.test(tabText) && /申論/.test(tabText), 'simplified bottom navigation labels missing');
 
-  // Homepage subtraction: the bottom navigation already owns Learning/Essay,
-  // so Home must not repeat them as large cards. Keep only primary practice,
-  // two compact high-frequency actions, and one closed advanced-tools disclosure.
+  // Homepage subtraction: Home owns only the dominant practice action,
+  // review/mock shortcuts, and one low-emphasis knowledge-resource link.
+  // Learning and Essay stay in bottom navigation instead of being repeated here.
   assert.strictEqual(await page.locator('#app .swsi-study-card').count(), 0, 'homepage repeated large study cards returned');
+  assert.strictEqual(await page.locator('#app details.swsi-other-tools').count(), 0, 'homepage duplicate advanced-tools disclosure returned');
   const quickActions = page.locator('#app .swsi-home-quick button');
   assert.strictEqual(await quickActions.count(), 2, 'homepage compact quick actions missing');
   const quickText = (await quickActions.allInnerTexts()).join(' ');
   assert(/錯題複習/.test(quickText) && /計時模擬考/.test(quickText), 'homepage quick actions are not focused on review + mock exam');
-
-  const moreTools = page.locator('#app details.swsi-other-tools');
-  assert.strictEqual(await moreTools.count(), 1, 'homepage advanced-tools disclosure missing');
-  assert.strictEqual(await moreTools.getAttribute('open'), null, 'advanced tools should be collapsed by default');
-  assert(/更多學習工具/.test(await moreTools.locator('summary').innerText()), 'advanced-tools summary copy missing');
-  const hiddenToolText = (await moreTools.locator('button').allTextContents()).join(' ');
-  assert(/學習中心/.test(hiddenToolText) && /申論練習/.test(hiddenToolText) && /理論、法規與時事/.test(hiddenToolText), 'collapsed advanced tools lost a study destination');
+  const resourceLink = page.locator('#app .swsi-home-resource');
+  assert.strictEqual(await resourceLink.count(), 1, 'homepage knowledge-resource link missing');
+  assert(/理論、法規與時事/.test(await resourceLink.innerText()), 'homepage knowledge-resource label missing');
+  const homeText = await page.locator('#app').innerText();
+  assert(!/學習中心/.test(homeText) && !/申論練習/.test(homeText), 'homepage repeated bottom-navigation destinations returned');
 
   const learningTab = page.locator('#t-review');
   await learningTab.click();

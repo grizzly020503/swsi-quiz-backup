@@ -12,10 +12,25 @@
     }catch(_e){}
   }
 
+  function ensureEssayQuickAction(){
+    try{
+      var root=document.getElementById('app');
+      if(!root||root.querySelector('.wta')||root.querySelector('.swsi-essay-quick-entry')) return;
+      var card=document.createElement('section');
+      card.className='swsi-essay-action-card swsi-essay-quick-entry';
+      card.setAttribute('aria-label','快速開始申論練習');
+      card.innerHTML='<div class="title">快速開始申論</div><div class="sub">直接抽一題近期歷屆題開始寫；想自己選題，就從下面的題目列表挑選。</div>'+
+        '<div class="actions" style="grid-template-columns:1fr"><button type="button" class="go" onclick="swsiStartEssayNow()">直接練一題</button></div>';
+      var first=root.firstElementChild;
+      if(first) root.insertBefore(card,first); else root.appendChild(card);
+    }catch(err){ console.warn('[SWSI] essay quick entry unavailable',err); }
+  }
+
   function renderEssaySafely(){
     try{
       if(typeof renderEssay!=='function') throw new Error('renderEssay is unavailable');
       renderEssay();
+      ensureEssayQuickAction();
       return true;
     }catch(err){
       console.error('[SWSI] essay render failed; resetting essay state',err);
@@ -26,6 +41,7 @@
         if(typeof guideOpen!=='undefined') guideOpen=null;
         if(typeof dissectOpen!=='undefined') dissectOpen=null;
         renderEssay();
+        ensureEssayQuickAction();
         return true;
       }catch(err2){
         console.error('[SWSI] essay render retry failed',err2);
