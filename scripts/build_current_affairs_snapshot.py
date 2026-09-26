@@ -173,7 +173,7 @@ def merge_cluster(cluster):
 
     out = dict(representative)
     out.update({
-        "id": f"topic:{topic_key}" if count > 1 else representative.get("id"),
+        "id": f"topic:{topic_key}" if article_count > 1 else representative.get("id"),
         "title": title,
         "published_at": latest.get("published_at"),
         "source_name": representative.get("source_name") if source_count == 1 else f"綜合 {source_count} 個來源",
