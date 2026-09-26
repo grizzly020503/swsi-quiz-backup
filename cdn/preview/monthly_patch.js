@@ -1377,9 +1377,9 @@ main [style*="font-size:15px"]{
       .swsi-focus-custom .field-label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--ink-soft);margin:0 0 5px}.swsi-focus-custom .hint{font-size:var(--swsi-ui-small,11px);line-height:1.6;color:var(--ink-soft);margin:1px 0 9px}
       .swsi-study-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px 16px;margin:0 0 8px;cursor:pointer;color:var(--ink);font-family:inherit}
       .swsi-study-card.due{border-color:rgba(158,97,85,.42);background:#FBF6F4}.swsi-study-card .copy{min-width:0}.swsi-study-card .title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:var(--swsi-ui-title,15px);line-height:1.4}.swsi-study-card .sub{font-size:var(--swsi-ui-small,11.5px);color:var(--ink-soft);line-height:1.55;margin-top:3px}.swsi-study-card .aside{flex:0 0 auto;color:var(--ink-3);font-size:21px}.swsi-study-card .count{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--wrong);background:#fff;border-radius:999px;padding:5px 9px;white-space:nowrap}
-      .swsi-other-tools{margin:12px 0 0;border-top:1px solid var(--line);padding-top:3px}.swsi-other-tools summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:var(--swsi-ui-small,11.5px);font-weight:800;color:var(--ink-soft)}.swsi-other-tools summary::-webkit-details-marker{display:none}.swsi-other-tools summary::after{content:'＋';margin-left:7px;color:var(--ink-3)}.swsi-other-tools[open] summary::after{content:'－'}.swsi-other-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-bottom:4px}.swsi-other-grid button{min-height:45px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--pine);font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,13.5px);font-weight:800}
-      .swsi-principle-note{margin:12px 4px 2px;text-align:center;font-size:var(--swsi-ui-small,10.8px);line-height:1.6;color:var(--ink-soft)}
-      @media(max-width:370px){.swsi-focus-actions,.swsi-other-grid{grid-template-columns:1fr}.swsi-focus-hero{padding:17px 16px}}
+      .swsi-home-quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:1px 0 4px}.swsi-home-quick button{min-height:50px;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,13.5px);font-weight:800;cursor:pointer}.swsi-home-quick button.due{border-color:rgba(158,97,85,.42);background:#FBF6F4}.swsi-home-quick .count{display:inline-block;margin-left:5px;font-size:11px;color:var(--wrong)}
+      .swsi-other-tools{margin:9px 0 0;border-top:1px solid var(--line);padding-top:2px}.swsi-other-tools summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:var(--swsi-ui-small,11.5px);font-weight:800;color:var(--ink-soft)}.swsi-other-tools summary::-webkit-details-marker{display:none}.swsi-other-tools summary::after{content:'＋';margin-left:7px;color:var(--ink-3)}.swsi-other-tools[open] summary::after{content:'－'}.swsi-other-grid{display:grid;grid-template-columns:1fr;gap:7px;padding-bottom:4px}.swsi-other-grid button{min-height:45px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--pine-deep);font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,13.5px);font-weight:800}
+      @media(max-width:370px){.swsi-focus-actions,.swsi-home-quick{grid-template-columns:1fr}.swsi-focus-hero{padding:17px 16px}}
     `;
     document.head.appendChild(style);
   }
@@ -1387,6 +1387,12 @@ main [style*="font-size:15px"]{
   window.swsiStartNow=function(){
     try{homeQuizScope='smart';homeQuizCount=20;subjFilter='全部科目';homeQuizOpen=false;}catch(_e){}
     if(typeof startFocusedQuiz==='function') startFocusedQuiz();
+  };
+
+  window.swsiOpenHomeReview=function(){
+    var rv=safeReviewSummary();
+    if(rv.dueCount&&typeof startDueReview==='function') return startDueReview();
+    if(typeof go==='function') return go('review');
   };
 
   function safeReviewSummary(){
@@ -1402,19 +1408,17 @@ main [style*="font-size:15px"]{
     var specific=homeQuizScope==='specific';
     var subjOpts=['全部科目'].concat(SUBJECTS).map(function(x){return '<option value="'+swsiEsc(x)+'" '+(x===subjFilter?'selected':'')+'>'+swsiEsc(x)+'</option>';}).join('');
     var yearOpts=years.map(function(y){return '<option value="'+y+'" '+(String(y)===String(homeQuizYear)?'selected':'')+'>'+y+' 年</option>';}).join('');
-    var learnSub=rv.dueCount?('今天有 '+rv.dueCount+' 題到期，先處理最值得。'):(rv.activeCount?('還有 '+rv.activeCount+' 題尚未熟練。'):'查看錯題、弱點與學習進度。');
+    var reviewLabel=rv.dueCount?('錯題複習 <span class="count">'+rv.dueCount+' 題</span>'):'錯題複習';
     var scopeHint=homeQuizScope==='smart'?'最近 10 年為主，近 3 年與高頻考點優先。':homeQuizScope==='specific'?'只刷你指定的年度與考次。':homeQuizScope==='all'?'從完整歷史題庫抽題。':'只從較新的歷屆題目抽題。';
     var offlineNote='';
     try{if(window.SWSI_QB&&window.SWSI_QB.usingOffline)offlineNote='<div style="margin-bottom:9px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:var(--swsi-ui-small);color:var(--ink-soft)">目前使用這台裝置已儲存的離線題庫。</div>';}catch(_e){}
 
     app.innerHTML=offlineNote+
-      '<section class="swsi-focus-hero"><div class="kicker">SWSI · 免費社工師國考學習平台</div><h1>今天想練什麼？</h1><p>做題、複習、申論。先完成一件就好。</p></section>'+
-      '<section class="swsi-focus-primary"><div class="label">快速練題</div><h2>刷 20 題選擇題</h2><p>直接用智慧推薦開始；需要指定年度、考次或科目時再打開設定。</p><div class="swsi-focus-actions"><button class="go" onclick="swsiStartNow()">直接開始 20 題</button><button class="choose" onclick="toggleHomeQuiz()">'+(homeQuizOpen?'收起設定':'自己選範圍')+'</button></div></section>'+
+      '<section class="swsi-focus-hero"><div class="kicker">SWSI · 免費社工師國考學習平台</div><h1>今天先做一件事</h1><p>先刷一組題；其他工具需要時再打開。</p></section>'+
+      '<section class="swsi-focus-primary"><div class="label">開始練習</div><h2>20 題智慧練習</h2><p>直接開始；要指定年度、考次或科目，再打開範圍設定。</p><div class="swsi-focus-actions"><button class="go" onclick="swsiStartNow()">直接開始 20 題</button><button class="choose" onclick="toggleHomeQuiz()">'+(homeQuizOpen?'收起設定':'自己選範圍')+'</button></div></section>'+
       (homeQuizOpen?('<section class="swsi-focus-custom"><div class="field-label">範圍</div><select class="subj" aria-label="刷題範圍" onchange="setHomeQuizScope(this.value)" style="margin-bottom:9px"><option value="smart" '+(homeQuizScope==='smart'?'selected':'')+'>智慧推薦</option><option value="recent3" '+(homeQuizScope==='recent3'?'selected':'')+'>近 3 年</option><option value="recent5" '+(homeQuizScope==='recent5'?'selected':'')+'>近 5 年</option><option value="specific" '+(homeQuizScope==='specific'?'selected':'')+'>指定歷屆</option><option value="all" '+(homeQuizScope==='all'?'selected':'')+'>全部題庫</option></select>'+(specific?('<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="subj" aria-label="考試年度" onchange="setHomeQuizYear(this.value)" style="margin-bottom:9px">'+yearOpts+'</select><select class="subj" aria-label="考試考次" onchange="setHomeQuizRound(this.value)" style="margin-bottom:9px"><option value="all" '+(homeQuizRound==='all'?'selected':'')+'>全部考次</option><option value="1" '+(homeQuizRound==='1'?'selected':'')+'>第一次</option><option value="2" '+(homeQuizRound==='2'?'selected':'')+'>第二次</option></select></div>'):'')+'<div class="field-label">科目</div><select class="subj" aria-label="科目" onchange="subjFilter=this.value;render()" style="margin-bottom:9px">'+subjOpts+'</select><div class="field-label">題數</div><select class="subj" aria-label="題數" onchange="setHomeQuizCount(this.value)" style="margin-bottom:7px"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="40" '+(homeQuizCount===40?'selected':'')+'>40 題</option></select><div class="hint">'+swsiEsc(scopeHint)+'</div><button class="btn" onclick="startFocusedQuiz()" style="margin-top:2px">開始這組題目</button></section>'):'')+
-      '<button class="swsi-study-card '+(rv.dueCount?'due':'')+'" onclick="go(\'progress\')"><span class="copy"><span class="title">學習中心</span><span class="sub">'+swsiEsc(learnSub)+'</span></span>'+(rv.dueCount?'<span class="count">'+rv.dueCount+' 題</span>':'<span class="aside">›</span>')+'</button>'+
-      '<button class="swsi-study-card" onclick="go(\'essay\')"><span class="copy"><span class="title">申論練習</span><span class="sub">歷屆申論、時事題材、草稿與 AI 練習回饋。</span></span><span class="aside">›</span></button>'+
-      '<details class="swsi-other-tools"><summary>更多練習方式</summary><div class="swsi-other-grid"><button onclick="MK.open()">計時模擬考</button><button onclick="go(\'topics\')">理論、法規與時事</button></div></details>'+
-      '<div class="swsi-principle-note">核心備考功能免費 · 不鎖答案 · 不用點數</div>';
+      '<div class="swsi-home-quick"><button class="'+(rv.dueCount?'due':'')+'" onclick="swsiOpenHomeReview()">'+reviewLabel+'</button><button onclick="MK.open()">計時模擬考</button></div>'+
+      '<details class="swsi-other-tools"><summary>更多學習工具</summary><div class="swsi-other-grid"><button onclick="swsiOpenLearningCenter()">學習中心</button><button onclick="swsiStartEssayNow()">申論練習</button><button onclick="go(\'topics\')">理論、法規與時事</button></div></details>';
 
     if(typeof relabelTabs==='function')try{relabelTabs();}catch(_e){}
   };
