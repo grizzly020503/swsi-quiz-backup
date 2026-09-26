@@ -211,9 +211,12 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.locator('#t-home').click();
   await waitHome();
 
-  // Essay stays in bottom navigation; direct practice starts from the Essay screen.
+  // Essay stays in bottom navigation; choose a subject and a real essay through the visible UI.
   await page.locator('#t-essay').click();
-  await page.getByRole('button', { name: '直接練一題' }).click();
+  await page.waitForSelector('#app .gcard', { timeout: 30000 });
+  await page.locator('#app .gcard').first().click();
+  await page.waitForSelector('#app [onclick^="toggleEssay("]', { timeout: 30000 });
+  await page.locator('#app [onclick^="toggleEssay("]').first().click();
   await page.waitForSelector('.wta', { timeout: 30000 });
   const textarea = page.locator('.wta').first();
   await textarea.fill('一、測試作答\n（一）測試內容');

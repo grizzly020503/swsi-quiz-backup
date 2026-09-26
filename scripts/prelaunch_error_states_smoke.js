@@ -53,9 +53,12 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
   await page.waitForSelector('.swsi-focus-primary',{timeout:10000});
 
   // AI network failure: answer stays saved, busy state clears, and the user
-  // gets plain-language recovery copy. Enter Essay via bottom navigation, then start one practice.
+  // gets plain-language recovery copy. Enter Essay, choose a subject, then choose a real question.
   await page.locator('#t-essay').click();
-  await page.getByRole('button', { name: '直接練一題' }).click();
+  await page.waitForSelector('#app .gcard', { timeout: 30000 });
+  await page.locator('#app .gcard').first().click();
+  await page.waitForSelector('#app [onclick^="toggleEssay("]', { timeout: 30000 });
+  await page.locator('#app [onclick^="toggleEssay("]').first().click();
   await page.waitForSelector('.wta',{timeout:30000});
   let blockedPost='';
   await page.route('**/*',route=>{
