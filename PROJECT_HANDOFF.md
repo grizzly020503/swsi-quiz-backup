@@ -1,5 +1,38 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 Netlify controlled deploy cutover 已完成（READ FIRST）
+
+> 本節優先於下方所有「尚待手動上傳 ZIP」「尚待 secrets」「尚未 unlink Netlify Git repo」的舊敘述。
+
+### 已完成
+
+- PR #145 已合併：新增 `Netlify Controlled Production Deploy`。
+- GitHub repository Actions secrets 已由帳號持有人完成設定：
+  - `NETLIFY_AUTH_TOKEN`
+  - `NETLIFY_SITE_ID`
+- 使用者已完成第一次 `main` controlled production deploy，並確認 workflow 成功。
+- 第一次受控部署完成後，使用者已在 Netlify 將舊 Git repository continuous deployment 解除連結。
+- Netlify 專案／正式 fallback URL 保留；不再由 Netlify 自己針對 Git push 另外 build。
+- Cloudflare 仍是 primary；Netlify 仍是 fallback。
+- Netlify release source 現在以 GitHub Actions controlled deploy 為準。
+- 目前 repo：open PR = 0、open Issue = 0（切換完成前檢查）。
+
+### 現在不要重做
+
+- 不要再要求使用者 drag-and-drop `swsi-netlify-manual-deploy.zip`。
+- 不要重新連回 Netlify Git continuous deployment。
+- 不要建立第二個 Netlify site。
+- 不要把 Netlify fallback 未來部署誤當成 Cloudflare primary blocker。
+- Secret 值不得寫入 repo、issue、PR、handoff 或聊天內容。
+
+### 目前部署原則
+
+`GitHub main → build/contract verification → controlled Netlify production deploy → production HTTP/browser verification`
+
+目前 controlled workflow 保留 `workflow_dispatch`，因此 Netlify fallback 的後續 release 由 GitHub Actions 明確觸發；是否再改成符合學生端變更才自動觸發，應另行評估 Netlify 使用量／credits 與 release cadence 後再做，不要直接打開每次 main push 自動 production deploy。
+
+---
+
 ## 2026-09-26 Netlify controlled deploy bootstrap 已合併（READ FIRST）
 
 > 本節優先於下方「只能手動 drag-and-drop」的舊敘述。Netlify fallback 尚未切換成功，但 GitHub 端已建立受控 production deploy 路徑。
