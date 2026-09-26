@@ -37,6 +37,7 @@ on:
       - 'scripts/supabase_contract_smoke.js'
       - 'scripts/unified_question_qa_selftest.py'
       - 'scripts/official_exam_readonly_guard.py'
+      - 'scripts/prelaunch_axe_accessibility_smoke.js'
 
 permissions:
   contents: read
@@ -131,6 +132,8 @@ jobs:
           grep -q "swsi-netlify-release\" content=\"${EXPECTED_RELEASE_MARKER}" _site/index.html
           grep -q '命題趨勢雷達' _site/index.html
           grep -q "const VERSION = 'v7'" _site/sw.js
+          grep -q 'swsi-exam-date-label' _site/monthly_patch.js
+          grep -q 'for="swsi-exam-date-input">考試日期</label>' _site/monthly_patch.js
           node --check _site/monthly_patch.js
 
           python3 - <<'PY'
@@ -233,6 +236,42 @@ jobs:
           grep -q "const VERSION = 'v7'" /tmp/prod-sw.js
 
           python3 - <<'PY'
+          import hashlib
+          from pathlib import Path
+
+          expected_patch = Path('_site/monthly_patch.js').read_bytes()
+          live_patch = Path('/tmp/prod-monthly-patch.js').read_bytes()
+          assert live_patch == expected_patch, (
+              'Netlify production monthly_patch.js byte mismatch: '
+              f"expected={hashlib.sha256(expected_patch).hexdigest()[:16]} "
+              f"got={hashlib.sha256(live_patch).hexdigest()[:16]}"
+          )
+          patch_digest = hashlib.sha256(expected_patch).hexdigest()[:16]
+          html = Path('/tmp/prod-index.html').read_text(encoding='utf-8')
+          assert f'<script src="monthly_patch.js?v={patch_digest}"></script>' in html, (
+              f'Netlify production cache-bust mismatch: expected {patch_digest}'
+          )
+          patch_text = live_patch.decode('utf-8')
+          assert '.swsi-exam-date-label' in patch_text
+          assert 'for="swsi-exam-date-input">考試日期</label>' in patch_text
+          assert '.swsi-report-help{display:flex' in patch_text
+          assert 'color:#6E746E' in patch_text
+
+          expected_sw = Path('_site/sw.js').read_bytes()
+          live_sw = Path('/tmp/prod-sw.js').read_bytes()
+          assert live_sw == expected_sw, (
+              'Netlify production sw.js byte mismatch: '
+              f"expected={hashlib.sha256(expected_sw).hexdigest()[:16]} "
+              f"got={hashlib.sha256(live_sw).hexdigest()[:16]}"
+          )
+          print(
+              'NETLIFY CONTROLLED RUNTIME PARITY OK '
+              f'patch_sha256={patch_digest} '
+              f"sw_sha256={hashlib.sha256(expected_sw).hexdigest()[:16]}"
+          )
+          PY
+
+          python3 - <<'PY'
           import json
           from pathlib import Path
 
@@ -264,8 +303,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm install --no-save playwright@1.55.0
+          npm install --no-save playwright@1.55.0 axe-core@4.13.0
           npx playwright install --with-deps chromium
           node scripts/grading_contract_smoke.js "${NETLIFY_PRODUCTION_URL}/?release_check=${GITHUB_RUN_ID}"
           node scripts/browser_interaction_smoke.js "${NETLIFY_PRODUCTION_URL}/?release_check=${GITHUB_RUN_ID}"
-          echo "NETLIFY CONTROLLED PRODUCTION BROWSER CHECK OK"
+          node scripts/prelaunch_axe_accessibility_smoke.js "${NETLIFY_PRODUCTION_URL}/?release_check=${GITHUB_RUN_ID}"
+          echo "NETLIFY CONTROLLED PRODUCTION BROWSER + AXE CHECK OK"

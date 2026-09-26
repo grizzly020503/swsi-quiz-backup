@@ -6,6 +6,7 @@ No secrets, browser automation, model calls, database writes, or user data.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -51,6 +52,16 @@ def expected_netlify_release_marker() -> str:
     if not match or not match.group(1).strip():
         raise AssertionError("Local release source: swsi-netlify-release marker missing")
     return match.group(1).strip()
+
+def expected_netlify_runtime() -> tuple[bytes, str, bytes]:
+    root = Path(__file__).resolve().parents[1]
+    parts = sorted((root / "monthly_patch_parts").glob("*.part"))
+    if not parts:
+        raise AssertionError("Local release source: monthly_patch_parts is empty")
+    patch = b"".join(path.read_bytes() for path in parts)
+    patch_sha = hashlib.sha256(patch).hexdigest()
+    sw = (root / "sw.js").read_bytes()
+    return patch, patch_sha, sw
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -260,10 +271,43 @@ def main() -> int:
                 f"Netlify fallback: release marker mismatch (expected {expected_marker!r}, got {actual_marker!r})"
             )
 
+        expected_patch, expected_patch_sha, expected_sw = expected_netlify_runtime()
+        expected_patch_tag = f'<script src="monthly_patch.js?v={expected_patch_sha[:16]}"></script>'
+        if expected_patch_tag not in fallback_html:
+            raise AssertionError(
+                "Netlify fallback: monthly_patch cache-bust does not match current canonical runtime "
+                f"(expected {expected_patch_sha[:16]})"
+            )
+
+        body, _ = require_status("Netlify fallback monthly patch", BACKUP + "/monthly_patch.js")
+        if body != expected_patch:
+            raise AssertionError(
+                "Netlify fallback: monthly_patch.js bytes differ from current canonical runtime "
+                f"(expected sha256={expected_patch_sha[:16]}, got sha256={hashlib.sha256(body).hexdigest()[:16]})"
+            )
+        fallback_patch = body.decode("utf-8", "replace")
+        for runtime_marker in (
+            ".swsi-exam-date-label",
+            'for="swsi-exam-date-input">考試日期</label>',
+            ".swsi-report-help{display:flex",
+            "color:#6E746E",
+        ):
+            if runtime_marker not in fallback_patch:
+                raise AssertionError(
+                    f"Netlify fallback: verified accessibility runtime marker missing: {runtime_marker}"
+                )
+
         body, _ = require_status("Netlify fallback Service Worker", BACKUP + "/sw.js")
+        if body != expected_sw:
+            raise AssertionError(
+                "Netlify fallback: Service Worker bytes differ from current canonical sw.js "
+                f"(expected sha256={hashlib.sha256(expected_sw).hexdigest()[:16]}, "
+                f"got sha256={hashlib.sha256(body).hexdigest()[:16]})"
+            )
         fallback_sw = body.decode("utf-8", "replace")
         if "const VERSION = 'v7';" not in fallback_sw:
             raise AssertionError("Netlify fallback: expected Service Worker VERSION v7")
+        checks.append(f"netlify-runtime-{expected_patch_sha[:16]}/sw-exact")
 
         body, _ = require_status("Netlify fallback current-affairs", BACKUP + "/auto/current_affairs.json")
         fallback_news = json.loads(body)
@@ -310,7 +354,7 @@ def main() -> int:
         if fallback_trends.get("method") != "deterministic-v2.2":
             raise AssertionError("Netlify fallback trends: method != deterministic-v2.2")
 
-        checks.append(f"netlify-parity-{expected_marker}/signals-events-trends")
+        checks.append(f"netlify-parity-{expected_marker}/runtime-signals-events-trends")
 
     mode = "monitoring-v2" if args.monitoring_v2 else "baseline"
     print(f"SWSI PUBLIC UPTIME SENTINEL OK [{mode}]: " + ", ".join(checks))
