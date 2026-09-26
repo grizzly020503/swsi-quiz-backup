@@ -1,5 +1,48 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 Netlify fallback 已同步最新 production runtime（READ FIRST）
+
+> 本節優先於下方任何仍寫「Netlify 待同步／請再 Run workflow」的舊敘述。
+
+- 使用者已手動觸發 **Netlify Controlled Production Deploy**。
+- production run：`36212054921` / run #14。
+- source commit：`7d14d39fc3788f60396ec803b8e71871a55551ad`（當時最新 main）。
+- 結果：**success**。
+- pre-deploy contract：PASS。
+- Netlify production deploy：PASS。
+- production exact runtime parity：
+  - `patch_sha256=c1340176d7061b83`
+  - `sw_sha256=b4f7e51d267c3984`
+  - release marker：`2026-09-26-history-v2.2`
+  - sources = 17 / feed errors = 0
+  - signals = 10 / 4800 baseline
+  - events = 10
+  - trends = 10 / deterministic-v2.2
+- production browser regression：
+  - `GRADING CONTRACT SMOKE OK`
+  - `BROWSER INTERACTION SMOKE OK`
+- Netlify production Axe：
+  - home = 0 violations
+  - public-info = 0 violations
+  - feedback-dialog = 0 violations
+  - exam-date-dialog = 0 violations
+  - `PRELAUNCH AXE ACCESSIBILITY GATE OK`
+  - `NETLIFY CONTROLLED PRODUCTION BROWSER + AXE CHECK OK`
+- 之後重跑原本因 fallback 漂移而失敗的 **Public Uptime Sentinel**：
+  - run `36209293327` latest attempt = **success**
+  - `netlify-runtime-c1340176d7061b83/sw-exact`
+  - `netlify-parity-2026-09-26-history-v2.2/runtime-signals-events-trends`
+  - Cloudflare primary / Netlify fallback / 4,800 題 / 24 shards / 17 sources / laws / AI preflight / feedback preflight 全部 PASS。
+
+### 現在的 production 結論
+
+- Cloudflare primary：最新 accessibility runtime，verified。
+- Netlify fallback：已同步同一 canonical runtime，exact parity verified。
+- **不要再重新 Run Netlify workflow，除非未來 canonical student-facing runtime 又真的變更。**
+- 不要重新接回 Netlify Git continuous deployment，也不要改回 drag-and-drop。
+
+---
+
 ## 2026-09-26 隔離式 Disaster Recovery 可重建演練已完成（READ FIRST）
 
 > 本節優先於下方任何仍寫「完整空環境 restore drill 尚未自動化」或只記 9 個 Edge Functions 的舊敘述。
@@ -83,7 +126,7 @@ Supabase 官方文件目前說明：
 ### 目前 production 狀態注意
 
 - Cloudflare primary accessibility runtime 已 verified。
-- Netlify fallback 若尚未執行最新 controlled deploy，exact parity 仍會正確判定 runtime 落後；DR 完成不等於 Netlify 已同步。
+- Netlify fallback 已完成最新 controlled deploy，與 canonical student runtime exact parity 已驗證；DR 與 fallback 目前均無 production blocker。
 - Cloudflare public frontend 仍刻意保留 `noindex,nofollow,noarchive`，是否解除是產品發布決策。
 
 ---
@@ -127,21 +170,18 @@ Supabase 官方文件目前說明：
 - PR #160 亦已合併；main commit：`3378fa13e4e91f54a9a830f18ac24aa413dfc581`。
   - Monitoring PR check 不再依賴第三方 live feed，改做 deterministic snapshot rebuild；main / schedule / manual 仍維持 live 17 sources / 0 errors 嚴格檢查。
 
-### 目前唯一待同步的 production 項目
+### Netlify fallback 同步狀態
 
-Netlify fallback 是刻意採 `workflow_dispatch` 的 controlled deploy，不會因 main 更新自動發布。
+Netlify fallback 仍刻意採 `workflow_dispatch` 的 controlled deploy，不會因每次 main 更新自動發布。
 
-目前新的 exact parity gate 已正確抓到 fallback 還停在 Axe 修正前的 runtime：
+本次需要的 controlled deploy 已完成：
+- run `36212054921` = success
+- exact runtime parity = `c1340176d7061b83`
+- SW exact parity = `b4f7e51d267c3984`
+- production browser + Axe = PASS
+- Public Uptime rerun = success
 
-`Netlify fallback: monthly_patch cache-bust does not match current canonical runtime (expected c1340176d7061b83)`
-
-這不是 Cloudflare primary 故障；Cloudflare production 已 verified。現在需要帳號持有人做一次：
-
-1. GitHub → Actions → **Netlify Controlled Production Deploy**
-2. 選 `main`
-3. 按 **Run workflow**
-4. 等 build → deploy → HTTP exact runtime parity → browser smoke → Axe 全部綠
-5. 成功後重跑／確認 Public Uptime Sentinel 應恢復綠燈，並出現 `netlify-runtime-c1340176d7061b83/sw-exact`
+目前不需要再手動部署。未來只有 canonical student-facing runtime 真的改變時，才再由帳號持有人明確觸發一次 controlled deploy。
 
 不要重新連回 Netlify Git continuous deployment，也不要改回 drag-and-drop。
 

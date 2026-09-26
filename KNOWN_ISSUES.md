@@ -141,7 +141,7 @@ MOEX Importer Integrity QA #1（33003892890）已成功；Monthly Frontend QA #9
 ## 目前需決策／持續追蹤
 
 - **Cloudflare primary 仍是 public soft-launch / noindex。** `cdn/index.html` 與 release workflow 明確保留 `noindex,nofollow,noarchive`；這不是 runtime defect，但若要讓 Google／搜尋引擎正式收錄，需由產品 owner 明確決定解除 soft-launch noindex，再走 release gate。
-- **Netlify fallback 目前待一次 controlled production deploy 同步最新 runtime。** 新 exact parity gate 已刻意把舊 fallback 判紅，預期 runtime hash 為 `c1340176d7061b83`；完成 GitHub Actions `Netlify Controlled Production Deploy` 後應恢復綠燈。這不影響已驗證正常的 Cloudflare primary。
+- **Netlify fallback 最新 controlled production deploy 已完成。** run `36212054921` = success；production `monthly_patch.js` exact hash = `c1340176d7061b83`、`sw.js` exact hash = `b4f7e51d267c3984`，browser + Axe 全綠；Public Uptime rerun 亦恢復 success，已驗 `netlify-runtime-c1340176d7061b83/sw-exact`。
 - **Admin isolated auth／password recovery browser E2E 已完成。** 使用 fully mocked Supabase SDK/API 驗登入、magic link、password recovery state machine；真實 production 帳號流程仍不適合在一般 CI 反覆執行。
 - **隔離式全平台 restore drill 已完成；私有可變資料 off-site backup 仍待處理。** main DR run `36210975748` 已從 disposable PostgreSQL + local SQLite 重建並驗 13 tables、4,800/24 shards、D1、10 Edge Functions、local PWA/browser、Admin recovery；RTO 60 秒、repo-source RPO 0 commits。Supabase Free tier 的 Auth / feedback / usage / AI telemetry 等 hosted mutable data 仍需要加密 off-site backup / restore 與獨立 RPO 策略，且不得把真實學生／匿名資料複製到一般 CI。
 - **Netlify fallback parity 已升級為 exact runtime parity。** 除 release marker、SW v7、current-affairs 17/0 外，現在會比對 canonical `monthly_patch.js` 完整 bytes / SHA、cache-bust、exact `sw.js` bytes 與 accessibility markers；controlled deploy 後另跑 production Axe gate。
