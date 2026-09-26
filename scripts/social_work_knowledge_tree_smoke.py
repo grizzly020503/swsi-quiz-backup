@@ -11,7 +11,7 @@ from social_work_knowledge_tree import (
 
 def main() -> int:
     assert KNOWLEDGE_ROOT == "社會工作管理"
-    assert KNOWLEDGE_MODEL == "management-lens-over-five-exam-subjects-v2"
+    assert KNOWLEDGE_MODEL == "management-hierarchy-over-five-exam-subjects-v3"
     assert len(EXAM_SUBJECTS) == 5
     assert "社會工作管理" not in EXAM_SUBJECTS
 
@@ -29,7 +29,11 @@ def main() -> int:
     assert "社會政策與社會立法" in child["exam_subject_axes"], child
     assert "兒少保護" in child["knowledge_topics"], child
     assert "兒少保護風險評估" in child["subject_topics"]["社會工作直接服務"], child
-    assert any("社會工作直接服務" in path for path in child["knowledge_paths"]), child
+    assert any(
+        path.startswith("社會工作管理 > 品質與風險管理 > 社會工作直接服務 > ")
+        for path in child["knowledge_paths"]
+    ), child
+    assert not any("五科整合" in path for path in child["knowledge_paths"]), child
 
     wage = classify_event_knowledge(
         "最低工資審議會決定自116年起調升月薪與時薪，並討論消費者物價指數與產業發展，調整案陳報行政院核定。",
@@ -82,6 +86,10 @@ def main() -> int:
 
     assert "統計與資料解讀" in survey["subject_topics"]["社會工作研究方法"], survey
     assert "方案與成效評估" in survey["subject_topics"]["社會工作研究方法"], survey
+    assert any(
+        path.startswith("社會工作管理 > 成效評估與證據 > 社會工作研究方法 > ")
+        for path in survey["knowledge_paths"]
+    ), survey
 
     for payload in (child, wage, survey, workforce, misconduct, role_title):
         assert payload["knowledge_root"] == "社會工作管理"
