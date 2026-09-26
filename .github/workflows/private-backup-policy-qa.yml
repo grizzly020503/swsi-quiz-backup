@@ -1,0 +1,61 @@
+name: Private Backup Policy QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/private-backup-policy-qa.yml'
+      - '.gitignore'
+      - 'scripts/supabase_private_backup_local.sh'
+      - 'scripts/verify_supabase_private_backup_local.sh'
+      - 'scripts/private_backup_policy_smoke.py'
+      - 'docs/SUPABASE_FREE_TIER_PRIVATE_BACKUP.md'
+      - 'ZERO_COST_OPERATIONS.md'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/private-backup-policy-qa.yml'
+      - '.gitignore'
+      - 'scripts/supabase_private_backup_local.sh'
+      - 'scripts/verify_supabase_private_backup_local.sh'
+      - 'scripts/private_backup_policy_smoke.py'
+      - 'docs/SUPABASE_FREE_TIER_PRIVATE_BACKUP.md'
+      - 'ZERO_COST_OPERATIONS.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-private-backup-policy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Shell and policy checks
+        run: |
+          set -euo pipefail
+          bash -n scripts/supabase_private_backup_local.sh
+          bash -n scripts/verify_supabase_private_backup_local.sh
+          python -m py_compile scripts/private_backup_policy_smoke.py
+          python scripts/private_backup_policy_smoke.py
+          git diff --check
+
+      - name: Prove private backup refuses CI execution
+        run: |
+          set -euo pipefail
+          set +e
+          output="$(CI=true bash scripts/supabase_private_backup_local.sh 2>&1)"
+          rc=$?
+          set -e
+          test "$rc" -ne 0
+          printf '%s\n' "$output" | grep -q 'refuses to run in CI'
+          echo 'PRIVATE BACKUP CI REFUSAL OK'
