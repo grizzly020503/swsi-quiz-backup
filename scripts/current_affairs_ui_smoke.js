@@ -18,6 +18,12 @@ const news = {
   id: 'fixture-news', title: '兒少保護制度', source_name: 'Fixture source',
   source_url: 'https://example.test/news', category: '兒少保護',
   subjects: ['社會工作'], exam_tags: ['責任通報'], relevance_score: 8,
+  knowledge_root: '社會工作管理',
+  management_domains: ['品質與風險管理', '服務輸送與跨網絡'],
+  subject_topics: {
+    '社會工作': ['專業倫理與兒童最佳利益'],
+    '社會工作直接服務': ['兒少保護風險評估'],
+  },
 };
 const signal = {
   id: news.id, signal_confidence: 'high', signal_score: 9,
@@ -31,6 +37,15 @@ const event = {
   title: '兒少保護制度跨來源事件',
   category: '兒少保護',
   subjects: ['社會工作'],
+  knowledge_root: '社會工作管理',
+  knowledge_model: 'management-hierarchy-over-five-exam-subjects-v3',
+  management_domains: ['品質與風險管理', '服務輸送與跨網絡'],
+  exam_subject_axes: ['社會工作', '社會工作直接服務'],
+  subject_topics: {
+    '社會工作': ['專業倫理與兒童最佳利益'],
+    '社會工作直接服務': ['兒少保護風險評估'],
+  },
+  knowledge_paths: ['社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估'],
   source_count: 3,
   official_source_count: 2,
   last_seen: '2026-09-25T08:00:00Z',
@@ -149,6 +164,7 @@ async function scenario({
     assert(content.includes(news.title), 'V1 news card disappeared');
     assert(content.includes('命題訊號：高'), 'V1 signal fallback disappeared');
     assert(content.includes('不代表命題保證'));
+    assert(content.includes('社會工作管理 × 國考五科'), 'V1 knowledge tree disappeared');
   } else {
     assert(content.includes('命題趨勢雷達'), 'V2 trend radar heading missing');
     assert(content.includes('事件聚類・證據分級'), 'evidence-grading badge missing');
@@ -171,6 +187,8 @@ async function scenario({
         '升溫', '趨勢訊號 8.4/10', '3 個來源', '2 官方',
         '為什麼值得複習？', '多來源證據', 'SW-115-1-02',
         '同事件跨來源只計一次', '不代表命題保證',
+        '社會工作管理 × 國考五科', '品質與風險管理',
+        '社會工作直接服務', '兒少保護風險評估',
       ]) {
         assert(content.includes(value), `missing V2 student trend content: ${value}`);
       }
