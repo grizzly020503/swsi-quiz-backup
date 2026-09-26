@@ -34,7 +34,7 @@ def row(
         "exam_tags": tags or ["老人", "高齡", "政策"],
         "subjects": ["社會政策與社會立法"],
         "knowledge_root": "社會工作管理",
-        "knowledge_model": "management-lens-over-five-exam-subjects-v2",
+        "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
         "management_domains": ["服務輸送與跨網絡", "規劃與政策執行"],
         "exam_subject_axes": [
             "社會政策與社會立法",
@@ -49,7 +49,7 @@ def row(
         "knowledge_topics": ["長照與高齡", "老人"],
         "knowledge_paths": [
             "社會工作管理 > 服務輸送與跨網絡",
-            "社會工作管理 > 五科整合 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
+            "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
         ],
         "policy_signal": policy,
         "essay_value": essay,
@@ -151,7 +151,7 @@ def main() -> int:
     assert history.get("weighted_match_count") == 6.25, history
     assert history.get("match_breakdown") == {"strong": 5, "medium": 2, "concept": 1}, history
     assert merged.get("knowledge_root") == "社會工作管理", merged
-    assert merged.get("knowledge_model") == "management-lens-over-five-exam-subjects-v2", merged
+    assert merged.get("knowledge_model") == "management-hierarchy-over-five-exam-subjects-v3", merged
     assert "服務輸送與跨網絡" in (merged.get("management_domains") or []), merged
     assert "社會工作直接服務" in (merged.get("exam_subject_axes") or []), merged
     assert "長照個案管理與家庭照顧者支持" in (
@@ -159,7 +159,7 @@ def main() -> int:
     ), merged
     assert "長照與高齡" in (merged.get("knowledge_topics") or []), merged
     assert any(
-        "五科整合 > 社會工作直接服務" in path
+        "服務輸送與跨網絡 > 社會工作直接服務" in path
         for path in (merged.get("knowledge_paths") or [])
     ), merged
 

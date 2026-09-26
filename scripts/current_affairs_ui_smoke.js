@@ -22,7 +22,7 @@ const news = {
   management_domains: ['品質與風險管理', '服務輸送與跨網絡'],
   exam_subject_axes: ['社會工作', '社會工作直接服務', '社會工作研究方法'],
   knowledge_topics: ['兒少保護', '責任通報'],
-  knowledge_model: 'management-lens-over-five-exam-subjects-v2',
+  knowledge_model: 'management-hierarchy-over-five-exam-subjects-v3',
   subject_topics: {
     '社會工作': ['專業倫理與兒童最佳利益'],
     '社會工作直接服務': ['兒少保護風險評估'],
@@ -46,7 +46,7 @@ const event = {
   management_domains: ['品質與風險管理', '服務輸送與跨網絡'],
   exam_subject_axes: ['社會工作', '社會工作直接服務', '社會工作研究方法'],
   knowledge_topics: ['兒少保護', '責任通報'],
-  knowledge_model: 'management-lens-over-five-exam-subjects-v2',
+  knowledge_model: 'management-hierarchy-over-five-exam-subjects-v3',
   subject_topics: {
     '社會工作': ['專業倫理與兒童最佳利益'],
     '社會工作直接服務': ['兒少保護風險評估'],
@@ -86,7 +86,7 @@ const oneOffEvent = {
   management_domains: ['規劃與政策執行', '倫理與權利保障'],
   exam_subject_axes: ['社會工作', '社會政策與社會立法', '社會工作研究方法'],
   knowledge_topics: ['勞動與社會保障'],
-  knowledge_model: 'management-lens-over-five-exam-subjects-v2',
+  knowledge_model: 'management-hierarchy-over-five-exam-subjects-v3',
   subject_topics: {
     '社會工作': ['勞動權益、社會正義與弱勢支持'],
     '社會政策與社會立法': ['社會保險、就業安全與勞動政策'],

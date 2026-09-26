@@ -487,7 +487,7 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
             for x in [lead, *members]
             for y in (x.get("knowledge_paths") or [])
             if str(y).strip()
-        ))[:20],
+        ))[:30],
         "exam_tags": sorted({str(y) for x in members for y in (x.get("exam_tags") or []) if y}),
         "related_laws": sorted({str(y) for x in members for y in (x.get("related_laws") or []) if y}),
         "concept_keys": sorted({str(y) for x in members for y in (x.get("concept_keys") or []) if y}),

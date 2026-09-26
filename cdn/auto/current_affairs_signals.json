@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-26T05:34:16Z",
+  "generated_at": "2026-09-26T05:42:36Z",
   "item_count": 6,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
@@ -41,7 +41,7 @@
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
-        "weighted_match_count": 0,
+        "weighted_match_count": 0.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
@@ -60,51 +60,6 @@
         "law_match_years": [],
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2"
-      },
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-lens-over-five-exam-subjects-v2",
-      "management_domains": [
-        "倫理與權利保障",
-        "服務輸送與跨網絡",
-        "規劃與政策執行",
-        "方案與資源管理"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作",
-        "社會工作直接服務",
-        "人類行為與社會環境"
-      ],
-      "knowledge_topics": [
-        "身障與人權",
-        "身心障礙",
-        "政策",
-        "補助",
-        "福利"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 五科整合 > 社會政策與社會立法 > CRPD、合理調整與身障福利制度",
-        "社會工作管理 > 五科整合 > 社會工作 > 增權、自立生活與障礙者權利",
-        "社會工作管理 > 五科整合 > 社會工作直接服務 > 需求評估、個案管理與社區支持",
-        "社會工作管理 > 五科整合 > 人類行為與社會環境 > 障礙與環境互動"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "CRPD、合理調整與身障福利制度"
-        ],
-        "社會工作": [
-          "增權、自立生活與障礙者權利"
-        ],
-        "社會工作直接服務": [
-          "需求評估、個案管理與社區支持"
-        ],
-        "人類行為與社會環境": [
-          "障礙與環境互動"
-        ]
       }
     },
     {
@@ -165,7 +120,7 @@
       ],
       "historical_exam_stats": {
         "matched_question_count": 2,
-        "weighted_match_count": 1,
+        "weighted_match_count": 1.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 2,
@@ -189,36 +144,6 @@
         "law_match_years": [],
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2"
-      },
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-lens-over-five-exam-subjects-v2",
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "knowledge_topics": [
-        "勞動與社會保障",
-        "最低工資",
-        "行政院",
-        "保障"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 五科整合 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
-        "社會工作管理 > 五科整合 > 社會工作 > 勞動權益、社會正義與弱勢支持"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "社會保險、就業安全與勞動政策"
-        ],
-        "社會工作": [
-          "勞動權益、社會正義與弱勢支持"
-        ]
       }
     },
     {
@@ -346,48 +271,6 @@
         "law_match_years": [],
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2"
-      },
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-lens-over-five-exam-subjects-v2",
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障",
-        "方案與資源管理"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "人類行為與社會環境",
-        "社會工作",
-        "社會工作直接服務"
-      ],
-      "knowledge_topics": [
-        "性別與家庭政策",
-        "育兒",
-        "托育",
-        "補助"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 五科整合 > 社會政策與社會立法 > 家庭政策、托育與性別制度",
-        "社會工作管理 > 五科整合 > 人類行為與社會環境 > 家庭系統、性別角色與生命歷程",
-        "社會工作管理 > 五科整合 > 社會工作 > 性別平等、照顧正義與家庭支持",
-        "社會工作管理 > 五科整合 > 社會工作直接服務 > 家庭工作與照顧支持"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "家庭政策、托育與性別制度"
-        ],
-        "人類行為與社會環境": [
-          "家庭系統、性別角色與生命歷程"
-        ],
-        "社會工作": [
-          "性別平等、照顧正義與家庭支持"
-        ],
-        "社會工作直接服務": [
-          "家庭工作與照顧支持"
-        ]
       }
     },
     {
@@ -449,7 +332,7 @@
       ],
       "historical_exam_stats": {
         "matched_question_count": 2,
-        "weighted_match_count": 1,
+        "weighted_match_count": 1.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 2,
@@ -473,61 +356,15 @@
         "law_match_years": [],
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2"
-      },
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-lens-over-five-exam-subjects-v2",
-      "management_domains": [
-        "服務輸送與跨網絡",
-        "方案與資源管理",
-        "規劃與政策執行",
-        "品質與風險管理"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作直接服務",
-        "人類行為與社會環境",
-        "社會工作"
-      ],
-      "knowledge_topics": [
-        "長照與高齡",
-        "高齡",
-        "老人",
-        "政策",
-        "補助",
-        "衛福部"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 五科整合 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 五科整合 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
-        "社會工作管理 > 五科整合 > 人類行為與社會環境 > 老化、失智與生命歷程",
-        "社會工作管理 > 五科整合 > 社會工作 > 高齡者權益與社區支持"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "長照制度、老人福利與社會保障"
-        ],
-        "社會工作直接服務": [
-          "長照個案管理與家庭照顧者支持"
-        ],
-        "人類行為與社會環境": [
-          "老化、失智與生命歷程"
-        ],
-        "社會工作": [
-          "高齡者權益與社區支持"
-        ]
       }
     },
     {
-      "id": "topic:d0125720d7c1077d1b6e660de56aebfb",
-      "title": "涉侵占1200萬買名牌包！甜美社工羈押禁見「3大理由曝」",
-      "summary": "前北市社會局甜美社工督導江羿潔，涉嫌盜領5名受監護宣告老人1200萬元存款。北市社會局交接查帳發現異常報案，檢檢搜索在其住處扣得愛馬仕、香奈兒等名牌包。台北地院認定其涉犯貪污重罪且有逃亡勾串之虞，裁定羈押禁見。",
+      "id": "topic:5d82c1d8ed9b7d8bec2a31a68173fd6f",
+      "title": "北市女社工盜領個案千萬老本遭羈押 15名牌包、精品曝光",
+      "summary": "台北市政府社會局一名女社工盜領5名個案老人存款高達1200萬元，檢警昨（22）日執行搜索拘提，檢方複訊後向法院聲請羈押禁見今下午獲准，稍早查扣的精品畫面曝光。",
       "source_name": "中天新聞社會",
-      "source_url": "https://ctinews.com/news/items/q6xVpROzW7",
-      "published_at": "2026-09-24T00:28:16Z",
+      "source_url": "https://ctinews.com/news/items/BexXVRVpWb",
+      "published_at": "2026-09-23T11:58:41Z",
       "region": "taiwan",
       "category": "社工專業與社福制度",
       "relevance_score": 5,
@@ -544,14 +381,14 @@
       "mcq_fact_density": "low",
       "signal_confidence": "low",
       "signal_score": 5,
-      "exam_point_summary": "涉侵占1200萬買名牌包！甜美社工羈押禁見「3大理由曝」。偏宣導或活動訊息；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入。此為命題訊號，非命題保證。",
+      "exam_point_summary": "北市女社工盜領個案千萬老本遭羈押 15名牌包、精品曝光。偏宣導或活動訊息；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入。此為命題訊號，非命題保證。",
       "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [],
       "related_laws": [],
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
-        "weighted_match_count": 0,
+        "weighted_match_count": 0.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
@@ -570,36 +407,6 @@
         "law_match_years": [],
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2"
-      },
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-lens-over-five-exam-subjects-v2",
-      "management_domains": [
-        "組織治理與責信",
-        "倫理與權利保障",
-        "人力與督導"
-      ],
-      "exam_subject_axes": [
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "knowledge_topics": [
-        "社工專業與社福制度",
-        "社工"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 組織治理與責信",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 人力與督導",
-        "社會工作管理 > 五科整合 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 五科整合 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信"
-      ],
-      "subject_topics": {
-        "社會工作": [
-          "專業倫理、專業責任與社會工作價值"
-        ],
-        "社會政策與社會立法": [
-          "社福服務體系、專業規範與制度責信"
-        ]
       }
     },
     {
@@ -636,7 +443,7 @@
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
-        "weighted_match_count": 0,
+        "weighted_match_count": 0.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
@@ -655,51 +462,6 @@
         "law_match_years": [],
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2"
-      },
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-lens-over-five-exam-subjects-v2",
-      "management_domains": [
-        "服務輸送與跨網絡",
-        "方案與資源管理",
-        "規劃與政策執行",
-        "品質與風險管理"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作直接服務",
-        "人類行為與社會環境",
-        "社會工作"
-      ],
-      "knowledge_topics": [
-        "長照與高齡",
-        "長照",
-        "政策",
-        "補助",
-        "福利"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 五科整合 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 五科整合 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
-        "社會工作管理 > 五科整合 > 人類行為與社會環境 > 老化、失智與生命歷程",
-        "社會工作管理 > 五科整合 > 社會工作 > 高齡者權益與社區支持"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "長照制度、老人福利與社會保障"
-        ],
-        "社會工作直接服務": [
-          "長照個案管理與家庭照顧者支持"
-        ],
-        "人類行為與社會環境": [
-          "老化、失智與生命歷程"
-        ],
-        "社會工作": [
-          "高齡者權益與社區支持"
-        ]
       }
     }
   ]

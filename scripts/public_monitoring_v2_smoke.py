@@ -120,7 +120,7 @@ def main() -> int:
 
     def assert_knowledge(row):
         assert row.get("knowledge_root") == "社會工作管理", row
-        assert row.get("knowledge_model") == "management-lens-over-five-exam-subjects-v2", row
+        assert row.get("knowledge_model") == "management-hierarchy-over-five-exam-subjects-v3", row
         domains = row.get("management_domains") or []
         axes = row.get("exam_subject_axes") or []
         subject_topics = row.get("subject_topics") or {}
