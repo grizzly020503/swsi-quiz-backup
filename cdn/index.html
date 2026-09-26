@@ -3,9 +3,10 @@
 <head>
 <!-- SWSI CLOUDFLARE PUBLIC SOFT LAUNCH -->
 <meta name="robots" content="noindex,nofollow,noarchive">
-<meta name="swsi-release-source" content="96959fa5474559702c89e799f496ccc38c37bcc5">
+<meta name="swsi-release-source" content="1a97c219f7efdf5e23583b169fafc517df132d72">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="swsi-netlify-release" content="2026-09-26-history-v2.2">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -2226,53 +2227,110 @@ function answerLabel(item){
 /* ===== 時事庫注入 END ===== */
 
 /* ===== 讀書指南注入 START（自包含，可整段刪除還原） ===== */
-/* ===== SWSI 讀書指南（自編公開內容；自包含浮層） =====
-   公開內容由 SWSI 自行整理；正式考試與法規資訊請以主管機關最新公告為準。 */
+/* ===== 讀書指南（資深學長姐應考心得，經更正與更新；自包含浮層）— 由 品澄 平台擴充 =====
+   內容來源：老師提供的學長姐心得（約 107 年）＋平台查證更新。要改內容：改下方 DATA。 */
 (function(){
   var ov=null, style=null, tab='策略';
 
   /* ---- 內容（block 型別：h 標題 / p 段落 / ul 清單 / fix 更正框 / warn 更新提醒 / link 連功能 / quote 引言） ---- */
   var DATA={
     '策略':[
-      {h:'先做題，再決定要補什麼'},
-      {p:'不要一開始就要求自己把所有課本從頭讀完。先用歷屆題目確認考法，再把答錯或猶豫的地方帶回教材與法規，讀完後回到題目驗收。'},
-      {ul:['刷一小組題目，先留下真實作答紀錄。','答錯時標記原因：概念不熟、看錯題目、兩個選項猶豫、法規或數字記錯。','把錯題放進間隔複習，不靠一次背熟。','每週至少安排一次申論，練習把概念寫成完整段落。']},
-      {h:'把官方資料和學習整理分開'},
-      {p:'歷屆試題、答案與法規請以主管機關最新資料為準；平台整理、AI 回饋與讀書建議都只是學習輔助，不取代官方資訊。'},
-      {h:'用弱點決定下一步'},
-      {p:'如果今天有到期錯題，先複習；如果某一科正確率明顯偏低，就集中練那一科；如果選擇題已穩定，就把時間移到申論與法規更新。'},
-      {quote:'每次練習只要回答一個問題：我下一步最值得補的是什麼？'}
+      {h:'三樣東西，不斷循環'},
+      {p:'準備考試不外乎三樣：考古題、課本、筆記，三者來回循環。每寫一輪考古題，把不熟的帶回課本、整理進筆記，下一輪再驗收。'},
+
+      {h:'考古題視為珍寶——熟了就贏一半'},
+      {ul:['考來考去都是那些重點，冷門內容很少出現。','一開始 40 題錯快一半是正常的，別慌——大約寫個幾輪後，錯題數才會明顯下降。','錯的題目＝你還沒熟的內容，也正是考試重點所在。']},
+
+      {h:'錯題的正確用法（最關鍵）'},
+      {p:'錯多錯少不是重點。重點是：把錯題帶回課本，「整面」重新整理，而不是只懂那一題。'},
+      {p:'例如錯了一題 Kohlberg 道德發展，就把整個理論（特點／各階段／後人批評）都整理出來；錯了一題團體催化技巧，就把全部技巧一次整理。拉高到看見整個重點，而不是只理解錯的那一題。'},
+      {link:'你平台的「錯題本」＋「考點網絡」就是在幫你做這件事——錯題會自動收集、並連到相關考點與理論。'},
+
+      {h:'勤寫申論——熟悉手感、習慣手痠'},
+      {ul:['約考前兩個月開始；從考古題挑自己喜歡的，一科挑 4 題、共約 24 題。','初期可一邊參考補習班寫法、一邊配課本，但「不照抄」——是去習慣申論的架構與內容厚度。','之後蓋上課本、不看參考資料，用自己的話寫出來。','寫完幾科後，拿給老師／教授批改，讓他指出你「系統性」的問題。']},
+      {p:'架構與內容並重。閱卷老師要看上百份、不可能逐字讀——用清楚明確的大標，讓他一眼看見你的重點，才是高分關鍵。'},
+      {link:'平台的「申論」模組就是練這個：拆題五步＋核心骨架（必踩大標）＋AI 批改，幫你把架構練起來。'},
+
+      {h:'考場配速（每科 120 分鐘）'},
+      {ul:['前 20 分鐘：寫完選擇題','第 20–70 分鐘：第一題申論（50 分鐘）','第 70–120 分鐘：第二題申論（50 分鐘）','最後留 3–5 分鐘檢查']},
+      {p:'申論要寫到一定份量——學長每科都寫到最後一頁過半，筆幾乎沒停。'},
+
+      {h:'申論，跟著當年的社會時事'},
+      {p:'申論題幾乎跟著當年社會議題走。學長那年「年金改革」吵得沸沸揚揚，他考前篤定會考、自己寫了一份背起來，結果真的考出來。'},
+      {link:'這正是平台「時事庫」＋「時事申論預測題」在做的事——近三年大事件＋可能考法，已經幫你整理好。'},
+
+      {warn:'這份心得是資深學長姐約 107 年寫的，方法歷久彌新、非常受用；但部分「考試趨勢／法規」要用新的看（詳見「各科速查」裡的更新標註）。'}
     ],
 
     '計畫':[
-      {p:'下面是一套 SWSI 自編的備考節奏範例，不是固定課表。請依自己的上班、上課與生活時間調整。'},
-      {h:'基礎期：先建立可持續的節奏'},
-      {ul:['每週安排 4～5 天短時間讀書，比偶爾一次讀很久更穩定。','如果不知道怎麼開始，可以先從一天 20 題左右開始；時間少就做少一點，重點是知道自己錯在哪裡。','每週挑 1 題申論，先限時列架構，再完成一版答案。','建立自己的法規更新清單，只追和考試直接相關的變動。']},
-      {h:'整合期：把科目和題型串起來'},
-      {ul:['每週至少做一次跨科混合題。','把常錯考點整理成自己的短筆記，不重抄整本教材。','申論練習加入理論、法規、實務處遇與結論，避免只寫名詞。','錯題不要只看一次，隔一段時間再回來作答，確認自己是真的會了，而不是只記得答案。']},
-      {h:'衝刺期：模擬與查漏補缺'},
-      {ul:['用計時模擬考熟悉作答節奏。','優先處理反覆答錯的考點，不在最後階段大量開新資料。','確認重要法規是否有最新修正。','考前保留睡眠與休息，避免用熬夜換取低效率時數。']},
-      {warn:'報名日期、考試日期、考科與法規內容都可能變動，請以考選部及主管機關最新公告為準。'}
+      {p:'這是蔡宇庭學姊 2022 年考取社工師的準備方式——時程、一周規劃、選擇與申論怎麼練。當成可參考的範本，照自己的節奏調整就好。'},
+
+      {h:'準備時程（可參考的時間軸）'},
+      {ul:['大四下學期開始進入準備','年初：報名考試','春季：畢業','春末～初夏：上社工師衝刺班，密集回顧各科','上半年第一次考試、夏末第二次考試——兩次都報，等於兩次機會']},
+      {p:'重點不是日期，而是「提早起步＋衝刺班密集複習＋兩次都報」的節奏。'},
+
+      {h:'一周讀書規劃（概念）'},
+      {p:'把各科分散到一週各天輪流讀，避免一科讀到膩；週末或固定幾天，安排「整份歷屆考古題」練習（例如整卷做 110-1、110-2）。'},
+      {link:'整份歷屆考古題，用你平台「計時模擬考 →（指定歷屆）」直接做，會自動算分、回流到弱點分析。'},
+
+      {h:'選擇題這樣練（五步循環）'},
+      {ul:['先寫近五年歷屆考古題','讀參考書補不熟的地方','再練一次綜合題庫／詳解','不會的，先把答案全部找出來（參考書、阿摩詳解）','再回頭重練考古題']},
+      {link:'這套「練 → 補 → 再練」的循環，正是你平台刷題＋四段詳解＋錯題本在做的事。'},
+
+      {h:'申論題這樣練'},
+      {ul:['看補習班／網路詳解，抓題目重點','讀詳解、圈出重點，整理成大綱（先有架構）','蓋起來，自己試寫一遍','睡前讀物：社區發展季刊（補論述與時事養分）']},
+      {link:'「把重點整理成大綱、再自己寫一遍」＝平台申論模組的核心骨架訓練；時事養分可搭配時事庫。'},
+
+      {h:'考試期間'},
+      {ul:['作息正常、飲食清淡','每一科都不要放棄——再不熟也要寫好寫滿','休息時間起來走動，看自己整理的快速筆記']},
+
+      {h:'心態'},
+      {ul:['上課認真聽講，結合考古題抓重點','健康心態備考，適度運動訓練體力','唸書就專心、休息就盡情放鬆，生活規律','記得關心時事、做好時間管理']},
+      {quote:'及格就好。'},
+      {p:'考試是「過關」，不是「滿分」。把心態放穩、撐到最後，你就贏了。'}
     ],
 
     '速查':[
-      {h:'選擇題怎麼查漏'},
-      {ul:['先看自己答錯最多的科目與考點。','同一概念若連續答錯，回到教材確認定義、適用條件與例外。','法規題不要只背數字，要一起記住適用對象、主管機關、程序與例外。']},
-      {h:'申論怎麼準備'},
-      {ul:['先辨認題目要你「說明、比較、評估、處遇」哪一種任務。','開頭先定義核心概念，再依題意分段。','需要時加入相關理論與法規，但不要為了堆名詞而偏離題目。','最後用實務觀點收束，讓答案有判斷與行動。']},
-      {h:'平台內可以怎麼搭配'},
-      {ul:['選擇題：用快速刷題與模擬考累積真實作答資料。','錯題：用學習中心看今天到期與尚未熟練題目。','申論：用歷屆題目先自行作答，再把 AI 回饋當第二意見。','法規與理論：先用平台整理內容定位概念，正式引用前再查官方最新版。']},
-      {warn:'SWSI 的整理內容是讀書輔助，不是補習班講義，也不代表考選部或任何第三方個人的立場。'}
+      {p:'各科必背重點清單，考前快速翻。標「更正／更新」的方塊，是平台幫你補正過的地方。'},
+
+      {h:'① 社會工作'},
+      {ul:['社工倫理：義務論、目的論、德行論','社會工作師專業倫理守則（很重要，必考）','Loewenberg & Dolgoff 倫理抉擇七原則、Reamer 倫理六原則＋倫理難題決策模式','社會工作發展史、專業化歷程','Biestek 七大專業關係建立原則','各學派：心理／社會學派、任務中心、危機介入、生態系統、增權觀點、女性主義（較常考）']},
+      {fix:'更正補充——Dolgoff／Loewenberg 倫理原則篩選表（口訣「保差自最生隱真」）完整七原則，由上而下優先：①保護生命 ②平等與不平等 ③自主與自由 ④最小傷害 ⑤生活品質 ⑥隱私與保密 ⑦真誠與充分揭露。'},
+      {p:'提醒：這科內容最雜，常跨社政立法、社工管理、研究法入題，方向較難抓，盡力掌握鉅視概念。'},
+
+      {h:'② 直接服務'},
+      {ul:['個案：發展史、Biestek 七原則、Dolgoff 七原則、同理心層次、個案工作流程、人在情境中、個案管理','團體：發展史、Tuckman 團體發展階段、團體契約與規範、團體類型/特色/優缺、領導與協同領導、社會團體工作三大模型（社會目標／治療／互惠）','社區：發展史、社區照顧、要素、程序、社區社工專業能力、Rothman 社區三大模式（地區發展／社會計畫／社會行動）']},
+      {p:'提醒：重點明確、熟考古題就抓得到，是很好上手的科目；大學的個案/團體/社區實作經驗都能用在申論。'},
+
+      {h:'③ 社會政策與社會立法'},
+      {ul:['意識形態：社會民主、新右派、第三條路、馬克斯主義、新女性主義','公民權利、社會正義、社會政策制定觀點','普及式／選擇式福利；隨收隨付／完全提存／部分提存','福利國家體制：自由主義、保守統合主義、社會民主','Titmuss 三模式：殘補式、工業成就、制度再分配','社會安全：社會保險、社會救助、社會津貼；貧窮（絕對／相對、貧窮深度）']},
+      {ul:['「14 法」：社會救助法、兒少福利與權益保障法、兒少性剝削防制條例、身心障礙者權益保障法、老人福利法、長期照顧服務法、性侵害犯罪防治法、家庭暴力防治法、特殊境遇家庭扶助條例、性別工作平等法、性騷擾防治法、原住民族工作權保障法、社會工作師法、志願服務法','聯合國 3 公約：CEDAW（消除對婦女歧視）、CRC（兒童權利）、CRPD（身障權利）施行法']},
+      {fix:'更正：學者名 Titmuss（原稿誤拼為 Titumuss）。'},
+      {warn:'更新（學長那年還沒有的，務必補）：① 性平三法 2023 大修、2024/3/8 全面施行（權勢性騷、外部申訴）② 性暴力防制四法 2023 修正（數位性暴力、性影像入罪）③ 長照 3.0 已核定、2026 上路 ④ 兒少權法「剴剴案條款」修法。法規類「比例／數字／期限」越考越細，要背熟。這些在平台「時事庫」都有整理。'},
+      {p:'提醒：這科最難準備，且申論一定跟著當年社會議題，要多留意時事討論。'},
+
+      {h:'④ 人類行為與社會環境'},
+      {ul:['三大始祖：Erikson 心理社會、Piaget 認知發展、Kohlberg 道德發展（很重要，幾乎必考）','Freud 心理動力、Skinner 學習理論、Bandura 社會學習','社會系統四層次、青少年認同發展、愛情三元素理論','老化理論：持續理論、活動理論、撤退理論；失智症、阿茲海默症','生命歷程觀點、家庭生命週期、Levinson 生活架構理論']},
+      {p:'提醒：考的不會超出課本，但理論眾多、要花時間理解吸收；青少年期、成年期、老年期最常考，且有時很細。'},
+
+      {h:'⑤ 社會工作研究法'},
+      {ul:['歸納法／演繹法、研究步驟','測量品質：信度／效度（每次必考）','抽樣：隨機／非隨機（每次必考）','因果分析、研究設計、焦點團體法、內容分析法、紮根理論']},
+      {warn:'更新：學長當年寫「統計題不超過 5 題、可半放棄」——近年統計的題量與難度有上升趨勢，建議不要完全放棄，至少把基礎穩住：描述統計、假設檢定與 p 值、t 檢定、相關與迴歸的概念。研究法整體 CP 值高，肯下工夫就能拿分。'}
     ],
 
     '打氣':[
-      {h:'錯很多不等於沒有進步'},
-      {p:'剛開始刷歷屆題時，錯題多只代表你第一次把弱點看清楚。真正有用的是下一次遇到同類題時，你能不能少犯一次相同錯誤。'},
-      {h:'不要跟別人的讀書時數比'},
-      {p:'能長期維持的 30～60 分鐘，通常比撐幾天就中斷的高強度計畫更有價值。'},
-      {h:'卡住時縮小任務'},
-      {ul:['今天只刷 10 題也可以。','只整理 1 個錯題原因也可以。','申論先寫出三個段落標題也可以。','重要的是讓下一次繼續變得容易。']},
-      {quote:'準備國考不是每天都要很厲害，而是讓自己一直有下一步可以走。'}
+      {h:'寫在最後——給正在熬的你'},
+      {quote:'準備考試真的是相當孤單、難熬的一件事。過程中我其實也有好幾次想放棄的念頭。'},
+      {p:'這段話是學長姐真心話。如果你也有撐不住的時候，那很正常——不是你不夠強，是這條路本來就難。'},
+
+      {h:'學長的做法（當參考，不是規定）'},
+      {ul:['考前一個月回到學校、住宿舍，每天 8 點起床，和幾個朋友一起讀。','刻意離開家裡的電視和冰箱，幫自己創造能專心的環境。']},
+
+      {h:'一些很實際的小撇步'},
+      {ul:['帶兩支 0.5 的黑筆，預防斷水（學長用無印良品按壓式，快乾、手感不錯）。','申論寫到後面手一定會痠，靠意志力撐——他自己帶小的痠痛貼布去貼，滿有效。']},
+
+      {quote:'一開始錯很多，絕對是正常現象。熟悉考古題之後，你就贏一半了。'},
+      {p:'慢慢來，你已經在路上了。加油 🌿'}
     ]
   };
 
@@ -2333,10 +2391,10 @@ function answerLabel(item){
     ov.innerHTML=
       '<div class="sg-wrap">'
       +'<div class="sg-top"><div class="sg-title">📖 讀書指南</div><div style="display:flex;align-items:center;gap:10px">'+fc()+'<button class="sg-x" onclick="SG.close()">✕</button></div></div>'
-      +'<div class="sg-intro">SWSI 自編的國考準備指南。用平台功能安排刷題、複習、申論與法規查核。</div>'
+      +'<div class="sg-intro">資深學長姐的應考心得與各科重點（平台已幫你更正錯字、補上新法規）。讀方法、抓重點、撐住心態。</div>'
       +'<div class="sg-tabs">'+chips+'</div>'
       +'<div class="sg-card">'+renderBlocks(DATA[tab]||[])+'</div>'
-      +'<div class="sg-intro" style="text-align:center;margin-top:16px">本指南由 SWSI 自行整理撰寫；正式考試與法規資訊請以主管機關最新公告為準。</div>'
+      +'<div class="sg-intro" style="text-align:center;margin-top:16px">內容整理自老師提供的學長姐心得，並由平台查證更新。</div>'
       +'</div>';
     window.scrollTo(0,0);
   }
@@ -3270,7 +3328,7 @@ function renderTopics(){
     <div class="gcard" onclick="go('theories')" style="background:var(--pine);border-color:var(--pine)"><div><div class="name" style="color:#fff">📖 核心理論小辭典</div><div class="cnt" style="color:#cfe3da">${THEORIES.length} 個申論必備理論</div></div><span class="arrow" style="color:#fff">›</span></div>
     <div class="gcard" onclick="go('laws')" style="background:var(--gold);border-color:var(--gold)"><div><div class="name" style="color:#fff">📜 重點法規速查</div><div class="cnt" style="color:#f5e9cf">${LAWS.length} 部常用法規 · 含修法動態</div></div><span class="arrow" style="color:#fff">›</span></div>
     <div class="gcard" onclick="NL.open()" style="background:var(--pine-deep);border-color:var(--pine-deep)"><div><div class="name" style="color:#fff">📰 時事庫</div><div class="cnt" style="color:#cfe3da">近三年社會事件 · 考點/理論/法規/可能怎麼考</div></div><span class="arrow" style="color:#fff">›</span></div>
-    <div class="gcard" onclick="SG.open()" style="background:#7E7A66;border-color:#7E7A66"><div><div class="name" style="color:#fff">📖 讀書指南</div><div class="cnt" style="color:#ece9da">SWSI 自編備考策略 · 查漏整理 · 申論練習</div></div><span class="arrow" style="color:#fff">›</span></div>
+    <div class="gcard" onclick="SG.open()" style="background:#7E7A66;border-color:#7E7A66"><div><div class="name" style="color:#fff">📖 讀書指南</div><div class="cnt" style="color:#ece9da">學長姊應考心得 · 各科速查 · 申論策略</div></div><span class="arrow" style="color:#fff">›</span></div>
     <div class="gcard" onclick="go('progress')"><div><div class="name">📊 我的進度</div><div class="cnt">各科正確率、常錯考點與錯因分布</div></div><span class="arrow">›</span></div>
     <div class="gcard" onclick="toggleTopics('essay')" style="margin-top:14px${eOpen?';border-color:var(--pine);border-width:1.5px':''}"><div><div class="name">✍️ 申論題 · 依主題練</div><div class="cnt">${clusters.length} 個主題${eOpen?'　（點我收合）':''}</div></div><span class="arrow">${eOpen?'▾':'›'}</span></div>
     ${eOpen?`<div style="margin-top:8px">${clCards}</div>`:''}
@@ -3902,29 +3960,44 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
   function eventCard(ev){
     var tr=trendFor(ev.canonical_event_id)||{};
     var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(x.replace('社會政策與社會立法','社政法').replace('社會工作直接服務','直接服務').replace('人類行為與社會環境','人行'))+'</span>';}).join('');
-    var why=(tr.why||[]).slice(0,5).map(function(x){return '<li>'+E(x)+'</li>';}).join('');
+    var sourceCount=Number(ev.source_count||0), officialCount=Number(ev.official_source_count||0);
+    var observationCount=Number(tr.observation_count||ev.observation_count||1);
+    var trendReady=sourceCount>=2||observationCount>=2;
+    var strongMatches=Number(tr.historical_high_confidence_match_count||0);
+    var allRelated=tr.related_exam_questions||ev.related_exam_questions||[];
+    var related=strongMatches>0?allRelated.filter(function(q){return Number(q.match_score||0)>=5;}):[];
+    if(strongMatches>0&&!related.length) related=allRelated.slice(0,Math.min(strongMatches,5));
+    var whyItems=trendReady?(tr.why||[]):[
+      officialCount?'目前有官方來源，可作制度／議題複習依據':'目前只有單一來源，先保留觀察',
+      '尚未有第二來源或後續日期支持，不視為趨勢'
+    ];
+    var why=whyItems.slice(0,5).map(function(x){return '<li>'+E(x)+'</li>';}).join('');
     var evidence=(ev.evidence||[]).slice(0,4).map(function(x){
       return '<li><a class="nlr-link" href="'+safeHref(x.source_url)+'" target="_blank" rel="noopener noreferrer">'+E(x.source_name||'來源')+'</a>'
         +(fmtDate(x.published_at)?' ・ '+E(fmtDate(x.published_at)):'')+'</li>';
     }).join('');
-    var related=tr.related_exam_questions||ev.related_exam_questions||[];
     var mcq=tr.mcq_focus||ev.mcq_focus||[];
     var essay=tr.essay_direction||ev.essay_direction||'';
-    var sourceCount=Number(ev.source_count||0), officialCount=Number(ev.official_source_count||0);
     var trendScore=tr.trend_score!=null?tr.trend_score:'';
+    var signalHtml=(trendReady&&trendScore!=='')
+      ?'<div class="nlr-signal"><b>趨勢訊號 '+E(trendScore)+'/10</b> ・ '+E(trendLabel(tr.trend_state))+'</div>'
+      :'<div class="nlr-signal"><b>目前：單次觀察</b> ・ 尚不足以形成趨勢</div>';
+    var summaryText=trendReady?(ev.exam_point_summary||''):'目前證據仍是單一來源／單次觀察，先當作制度或議題複習素材；待跨來源或後續更新後，再判斷是否形成命題趨勢。';
+    var evidenceLabel=sourceCount>=2?'多來源證據':'來源依據';
+    var note=trendReady?'同事件跨來源只計一次；趨勢用來安排複習，不代表命題保證。':'目前只有單一來源或單次觀察；不以分數宣稱趨勢，事實請以原始來源為準。';
     return '<div class="nlr-card">'
       +'<div class="nlr-head"><span class="nlr-cat">'+E(ev.category||'時事')+'</span><span class="nlr-trend nlr-trend-'+E(tr.trend_state||'one-off')+'">'+E(trendLabel(tr.trend_state))+'</span></div>'
       +'<div class="nlr-title">'+E(ev.title||'')+'</div>'
       +'<div class="nlr-meta">'+E(sourceCount)+' 個來源'+(officialCount?' ・ '+E(officialCount)+' 官方':'')+(fmtDate(ev.last_seen)?' ・ 更新 '+E(fmtDate(ev.last_seen)):'')+'</div>'
       +'<div class="nlr-subs">'+subjects+'</div>'
-      +(trendScore!==''?'<div class="nlr-signal"><b>趨勢訊號 '+E(trendScore)+'/10</b> ・ '+E(trendLabel(tr.trend_state))+'</div>':'')
-      +(ev.exam_point_summary?'<div class="nlr-signal-text">'+E(ev.exam_point_summary)+'</div>':'')
+      +signalHtml
+      +(summaryText?'<div class="nlr-signal-text">'+E(summaryText)+'</div>':'')
       +(why?'<details class="nlr-detail"><summary>為什麼值得複習？</summary><ul>'+why+'</ul></details>':'')
       +(essay?'<details class="nlr-detail"><summary>值得練習的申論方向</summary><div class="nlr-exam">'+E(essay)+'</div></details>':'')
       +(mcq.length?'<details class="nlr-detail"><summary>選擇題可能抓哪些事實？</summary><div class="nlr-chips">'+mcq.slice(0,8).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('')+'</div></details>':'')
       +(related.length?'<details class="nlr-detail"><summary>歷屆相關題</summary><ul>'+related.slice(0,5).map(function(q){var label=(q.year||'')+'-'+(q.round||'')+'-'+(q.qno||'');return '<li><b>'+E(q.id||label)+'</b> '+E(q.subject||'')+(q.topic?' ・ '+E(q.topic):'')+'</li>';}).join('')+'</ul></details>':'')
-      +(evidence?'<details class="nlr-detail"><summary>多來源證據</summary><ul>'+evidence+'</ul></details>':'')
-      +'<div class="nlr-note">同事件跨來源只計一次；趨勢用來安排複習，不代表命題保證。</div>'
+      +(evidence?'<details class="nlr-detail"><summary>'+E(evidenceLabel)+'</summary><ul>'+evidence+'</ul></details>':'')
+      +'<div class="nlr-note">'+E(note)+'</div>'
       +'</div>';
   }
   function liveCard(ev){
@@ -3992,8 +4065,8 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     if(!source.length) return;
     var box=document.createElement('section'); box.id='nl-live-radar'; box.className='nlr-box';
     box.innerHTML=useV2
-      ?'<div class="nlr-top"><div class="nlr-h">📈 命題趨勢雷達</div><div class="nlr-badge">事件聚類・跨來源</div></div>'
-        +'<div class="nlr-help">把同一事件的不同新聞先合併，再綜合官方政策訊號、法規、歷屆題與持續時間判斷複習優先度。這是趨勢訊號，不是命題保證。</div>'
+      ?'<div class="nlr-top"><div class="nlr-h">📈 命題趨勢雷達</div><div class="nlr-badge">事件聚類・證據分級</div></div>'
+        +'<div class="nlr-help">同一事件會先合併；只有跨來源或持續觀察時才顯示趨勢分數。單一來源先當作複習素材，不直接宣稱形成趨勢。</div>'
         +(list.length?'<div class="nlr-grid">'+list.map(eventCard).join('')+'</div>':'<div class="nlr-empty">這個科目目前沒有新的高關聯事件。</div>')
       :'<div class="nlr-top"><div class="nlr-h">⚡ 最新雷達</div><div class="nlr-badge">V1 備援</div></div>'
         +'<div class="nlr-help">趨勢資料暫時不可用，先顯示原本的高關聯時事與命題訊號；事實細節請以原始來源為準。</div>'
