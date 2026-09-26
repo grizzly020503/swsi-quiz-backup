@@ -1,5 +1,63 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 隔離式 Disaster Recovery 可重建演練已完成（READ FIRST）
+
+> 本節優先於下方任何仍寫「完整空環境 restore drill 尚未自動化」或只記 9 個 Edge Functions 的舊敘述。
+
+### 已完成
+
+- PR #164 / main commit `8fdde969f42c90617bcd3ef800f491b5d35390e8` 建立第一版 isolated full-stack restore drill。
+- PR #166 / main commit `f1ec9e5fbda9159821b31894242b33a44544b58d` 完成 DR hardening。
+- 主幹 GitHub Actions：**Disaster Recovery Restore Drill run #8 / `36210975748` = success**。
+- 全程使用 disposable PostgreSQL 16、local SQLite、localhost browser；**沒有 production write、沒有 binding/DNS 切換、沒有 production secret 值、沒有複製真實 feedback / analytics / auth user 到 CI**。
+- Supabase clean rebuild：
+  - 13 個 public tables。
+  - 4,800 題從 24 個 SHA-256 pinned shards 還原。
+  - grading baseline = 4,784 standard / 12 all_credit / 4 any_answer。
+  - accepted_answers baseline = 25 題。
+  - RLS / public privilege / SECURITY DEFINER execute boundary / official-change reset trigger 皆有 executable contract。
+- recovery 過程實際抓出一個 repo-only ACL drift：乾淨 PostgreSQL 會讓 `claim_pending_ai_questions(integer)` 繼承預設 PUBLIC EXECUTE；production 本身原已是 service_role-only。
+  - 已新增 recovery-only `supabase/recovery/production_acl_alignment.sql`，不修改 production。
+  - 修正後 `SWSI RESTORED RUNTIME DB CONTRACT OK`。
+- Cloudflare D1：clean SQLite bootstrap、conflict key / quota recovery smoke = PASS。
+- Edge Functions：
+  - recovery inventory 固定 **10 個**。
+  - production 有、repo 原本缺的 deprecated `check-official-laws` 410 stub source 已回存。
+  - 10/10 `deno check` PASS。
+- Static / PWA / browser：
+  - `STATIC RECOVERY BUILD OK questions=4800 shards=24 sw=v7`
+  - `SHARD INTEGRITY BROWSER SMOKE OK`
+  - `BROWSER INTERACTION SMOKE OK`
+  - `PWA RESILIENCE SMOKE OK`
+  - `LOCAL-ONLY STUDENT BROWSER/PWA RESTORE SMOKE OK`
+- Admin：
+  - 完全 mocked Supabase SDK/API 的 auth / password recovery browser gate = PASS。
+  - 不代表真實 production 帳號 recovery 每次 CI 都會執行。
+- 主幹 restore evidence：
+  - measured isolated full-platform RTO = **60 秒**
+  - repo-source RPO = **0 commits**
+  - artifact ID = `10895527467`
+  - artifact ZIP SHA256 = `60ce5dc7cfc560d681babc3a01d38dc047138f1adb37a4a6228d7888aba4d4b9`
+
+### 仍待處理：私有可變 production data 的 off-site backup
+
+這和「repo/source 可重建 DR」是不同層。
+
+Supabase 官方文件目前說明：
+- Pro / Team / Enterprise 才有平台每日自動 database backups。
+- Free tier 應定期用 `supabase db dump` 並保存 off-site backup。
+- database dump 可涵蓋 database schema / data / roles，並可包含 `auth.users`；Edge Functions、secret 值、Auth provider 設定、Storage objects 仍需另行保存／重建。
+
+目前 #157 **暫不關閉**，因為真正 hosted mutable data（Auth、feedback、usage、AI telemetry）的加密 off-site backup / restore 與該資料層 RPO 尚未實證。同時不得為了測試而把真實學生／匿名資料複製到一般 CI。
+
+### 目前 production 狀態注意
+
+- Cloudflare primary accessibility runtime 已 verified。
+- Netlify fallback 若尚未執行最新 controlled deploy，exact parity 仍會正確判定 runtime 落後；DR 完成不等於 Netlify 已同步。
+- Cloudflare public frontend 仍刻意保留 `noindex,nofollow,noarchive`，是否解除是產品發布決策。
+
+---
+
 ## 2026-09-26 Accessibility／Cloudflare production／Netlify runtime parity 收尾（READ FIRST）
 
 > 本節優先於下方任何仍把 axe 自動無障礙 gate 列為未完成、或只用 release marker 判斷 Netlify fallback parity 的舊敘述。
@@ -59,8 +117,8 @@ Netlify fallback 是刻意採 `workflow_dispatch` 的 controlled deploy，不會
 
 ### 仍未完成但不是目前 production P0
 
-- Issue #157：隔離式全平台 Disaster Recovery Restore Drill。
-- Admin 真實登入／password recovery 完整 E2E 仍主要人工。
+- Issue #157：repo/source 的隔離式全平台 Disaster Recovery Restore Drill 已完成；Issue 暫留 open 追蹤 Free-plan 私有可變資料的加密 off-site backup / restore 與 hosted-data RPO。
+- Admin isolated auth/password recovery browser E2E 已自動化；真實 production 帳號 recovery 仍不在一般 CI 反覆執行。
 - Cloudflare public frontend 仍刻意保留 `noindex,nofollow,noarchive`；是否解除是產品發布決策。
 - `index.html + monthly_patch_parts` late override / patch-over-patch 仍是 P2 架構債。
 
@@ -111,8 +169,8 @@ Netlify fallback 是刻意採 `workflow_dispatch` 的 controlled deploy，不會
 
 - Cloudflare public frontend 仍保留 deliberate soft-launch `noindex,nofollow,noarchive`；是否解除是產品發布決策，不要自行移除。
 - accessibility 自動 coverage 可再加 axe/contrast gate；目前不是已確認 WCAG defect。
-- admin 真實登入／recovery 完整 E2E 仍主要人工。
-- disaster-recovery 完整空環境 restore drill 尚未自動化。
+- admin isolated auth／recovery browser E2E 已自動化；真實 production 帳號流程仍維持人工／必要時驗收。
+- disaster-recovery 空環境 restore drill 已自動化並在 main 跑綠；剩餘為私有可變 production data 的 off-site backup / restore 策略與 RPO。
 - `index.html + monthly_patch_parts` 的 late override / patch-over-patch 仍是 P2 架構債；不要為 cosmetic cleanup 大改穩定 runtime。
 - repo 其他舊 workflow 仍可能使用較舊 GitHub Actions majors；critical release/uptime 已先升級，剩餘應分批、以實際 workflow CI 驗證後再升，不做一次性大爆改。
 

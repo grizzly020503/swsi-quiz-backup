@@ -93,7 +93,7 @@
 `temperature: 0` 不得因 `Number(x) || 0.4` 變成 0.4。
 
 ### P1-5 Supabase recovery SQL drift
-狀態：`source 已修；production 契約已只讀驗證一致`
+狀態：`完成；clean restore + production ACL alignment + runtime DB contract 已在 main DR run 驗證`
 
 Production trigger 已包含 `grading_mode`。GitHub 新增 `20260827031000_align_recovery_reset_with_grading_mode.sql`，將 recovery/source-of-truth 的 `reset_ai_analysis_on_official_change()` 與 trigger columns 對齊 production，避免災難復原時 grading-mode change 不清舊解析。
 
@@ -142,8 +142,8 @@ MOEX Importer Integrity QA #1（33003892890）已成功；Monthly Frontend QA #9
 
 - **Cloudflare primary 仍是 public soft-launch / noindex。** `cdn/index.html` 與 release workflow 明確保留 `noindex,nofollow,noarchive`；這不是 runtime defect，但若要讓 Google／搜尋引擎正式收錄，需由產品 owner 明確決定解除 soft-launch noindex，再走 release gate。
 - **Netlify fallback 目前待一次 controlled production deploy 同步最新 runtime。** 新 exact parity gate 已刻意把舊 fallback 判紅，預期 runtime hash 為 `c1340176d7061b83`；完成 GitHub Actions `Netlify Controlled Production Deploy` 後應恢復綠燈。這不影響已驗證正常的 Cloudflare primary。
-- **Admin 真實登入／recovery E2E 目前以人工驗收為主。** build contract 與 auth source guard 已存在；完整真實帳號流程不適合在一般 CI 反覆執行。
-- **災難復原尚無完整 restore drill。** migrations、Edge Function source、question artifacts 與 rebuild policy 都在 repo，但尚未找到一套從空環境完整還原並驗證的自動演練。
+- **Admin isolated auth／password recovery browser E2E 已完成。** 使用 fully mocked Supabase SDK/API 驗登入、magic link、password recovery state machine；真實 production 帳號流程仍不適合在一般 CI 反覆執行。
+- **隔離式全平台 restore drill 已完成；私有可變資料 off-site backup 仍待處理。** main DR run `36210975748` 已從 disposable PostgreSQL + local SQLite 重建並驗 13 tables、4,800/24 shards、D1、10 Edge Functions、local PWA/browser、Admin recovery；RTO 60 秒、repo-source RPO 0 commits。Supabase Free tier 的 Auth / feedback / usage / AI telemetry 等 hosted mutable data 仍需要加密 off-site backup / restore 與獨立 RPO 策略，且不得把真實學生／匿名資料複製到一般 CI。
 - **Netlify fallback parity 已升級為 exact runtime parity。** 除 release marker、SW v7、current-affairs 17/0 外，現在會比對 canonical `monthly_patch.js` 完整 bytes / SHA、cache-bust、exact `sw.js` bytes 與 accessibility markers；controlled deploy 後另跑 production Axe gate。
 - **MOEX 常態 polling 已回到每週。** 接近官方放榜／更正窗口時用 `workflow_dispatch` 加跑；時事另有每 6 小時 Public Monitoring Feed，不需要靠 MOEX workflow 每天掃。
 
