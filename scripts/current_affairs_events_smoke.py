@@ -34,9 +34,20 @@ def row(
         "exam_tags": tags or ["老人", "高齡", "政策"],
         "subjects": ["社會政策與社會立法"],
         "knowledge_root": "社會工作管理",
+        "knowledge_model": "management-lens-over-five-exam-subjects-v2",
         "management_domains": ["規劃與政策執行", "服務輸送與跨網絡"],
         "exam_subject_axes": ["社會工作直接服務", "社會政策與社會立法"],
+        "subject_topics": {
+            "社會工作直接服務": ["長照個案管理與家庭照顧者支持"],
+            "社會政策與社會立法": ["長照制度、老人福利與社會保障"],
+        },
         "knowledge_topics": ["長照與高齡", "高齡與照顧"],
+        "knowledge_paths": [
+            "社會工作管理 > 規劃與政策執行",
+            "社會工作管理 > 服務輸送與跨網絡",
+            "社會工作管理 > 五科整合 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
+            "社會工作管理 > 五科整合 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
+        ],
         "policy_signal": policy,
         "essay_value": essay,
         "mcq_fact_density": mcq,
@@ -127,9 +138,15 @@ def main() -> int:
     merged = next(x for x in events if x["source_count"] == 3)
     assert merged["official_source_count"] == 2, merged
     assert merged["knowledge_root"] == "社會工作管理", merged
+    assert merged["knowledge_model"] == "management-lens-over-five-exam-subjects-v2", merged
     assert merged["management_domains"] == ["規劃與政策執行", "服務輸送與跨網絡"], merged
     assert merged["exam_subject_axes"] == ["社會工作直接服務", "社會政策與社會立法"], merged
+    assert merged["subject_topics"] == {
+        "社會工作直接服務": ["長照個案管理與家庭照顧者支持"],
+        "社會政策與社會立法": ["長照制度、老人福利與社會保障"],
+    }, merged
     assert merged["knowledge_topics"] == ["長照與高齡", "高齡與照顧"], merged
+    assert any("五科整合 > 社會政策與社會立法" in x for x in merged["knowledge_paths"]), merged
     assert len(merged["evidence"]) == 3, merged
     assert len({x["source_url"] for x in merged["evidence"]}) == 3
     history = merged.get("historical_exam_stats") or {}
@@ -263,9 +280,12 @@ def main() -> int:
     )
     assert policy_trend["trend_state"] in {"rising", "sustained"}
     assert policy_trend["knowledge_root"] == "社會工作管理"
+    assert policy_trend["knowledge_model"] == official_policy["knowledge_model"]
     assert policy_trend["management_domains"] == official_policy["management_domains"]
     assert policy_trend["exam_subject_axes"] == official_policy["exam_subject_axes"]
+    assert policy_trend["subject_topics"] == official_policy["subject_topics"]
     assert policy_trend["knowledge_topics"] == official_policy["knowledge_topics"]
+    assert policy_trend["knowledge_paths"] == official_policy["knowledge_paths"]
     assert policy_trend["historical_question_count"] == 12
     assert policy_trend["historical_exam_years"] == [104, 106, 109, 111, 114, 115]
     assert policy_trend["years_since_last_related_exam"] == 0

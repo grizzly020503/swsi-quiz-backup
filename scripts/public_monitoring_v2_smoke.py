@@ -134,13 +134,21 @@ def main() -> int:
         event_ids.add(event_id)
         event_by_id[event_id] = row
         assert row.get("knowledge_root") == "社會工作管理", row
+        assert row.get("knowledge_model") == "management-lens-over-five-exam-subjects-v2", row
         management_domains = row.get("management_domains") or []
         exam_axes = row.get("exam_subject_axes") or []
+        subject_topics = row.get("subject_topics") or {}
         knowledge_topics = row.get("knowledge_topics") or []
+        knowledge_paths = row.get("knowledge_paths") or []
         assert management_domains and set(management_domains).issubset(allowed_management_domains), row
         assert exam_axes and set(exam_axes).issubset(allowed_exam_axes), row
         assert "社會工作管理" not in exam_axes, row
+        assert isinstance(subject_topics, dict) and subject_topics, row
+        assert set(subject_topics).issubset(set(exam_axes)), row
+        assert all(isinstance(v, list) and v for v in subject_topics.values()), row
         assert isinstance(knowledge_topics, list) and knowledge_topics, row
+        assert isinstance(knowledge_paths, list) and knowledge_paths, row
+        assert all(str(path).startswith("社會工作管理 > ") for path in knowledge_paths), row
         evidence = row.get("evidence") or []
         assert evidence, event_id
         urls = {str(x.get("source_url") or "") for x in evidence}
@@ -177,10 +185,11 @@ def main() -> int:
         event_id = str(row.get("canonical_event_id") or "")
         assert event_id in event_ids
         source_event = event_by_id[event_id]
-        assert row.get("knowledge_root") == "社會工作管理", row
-        assert row.get("management_domains") == source_event.get("management_domains"), row
-        assert row.get("exam_subject_axes") == source_event.get("exam_subject_axes"), row
-        assert row.get("knowledge_topics") == source_event.get("knowledge_topics"), row
+        for field in (
+            "knowledge_root", "knowledge_model", "management_domains",
+            "exam_subject_axes", "subject_topics", "knowledge_topics", "knowledge_paths",
+        ):
+            assert row.get(field) == source_event.get(field), (field, row, source_event)
         assert row.get("trend_state") in allowed_states
         score = float(row.get("trend_score"))
         assert 0.0 <= score <= 10.0

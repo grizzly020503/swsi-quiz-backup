@@ -17,7 +17,12 @@ from current_affairs_taxonomy import (
     canonical_fact_keys,
     has_cjk,
 )
-from social_work_knowledge_tree import EXAM_SUBJECTS, KNOWLEDGE_ROOT, MANAGEMENT_DOMAINS
+from social_work_knowledge_tree import (
+    EXAM_SUBJECTS,
+    KNOWLEDGE_MODEL,
+    KNOWLEDGE_ROOT,
+    MANAGEMENT_DOMAINS,
+)
 
 PUNCT_RE = re.compile(r"[\s\u3000，。！？、；：,.!?;:（）()\[\]【】《》〈〉「」『』\-—_／/]+")
 DATEISH_RE = re.compile(r"\b(?:19|20)?\d{2}[./-]\d{1,2}(?:[./-]\d{1,2})?\b")
@@ -269,9 +274,12 @@ def _previous_as_item(row: dict) -> dict:
         "agency_keys": row.get("agency_keys") or [],
         "fact_keys": row.get("fact_keys") or [],
         "knowledge_root": row.get("knowledge_root"),
+        "knowledge_model": row.get("knowledge_model"),
         "management_domains": row.get("management_domains") or [],
         "exam_subject_axes": row.get("exam_subject_axes") or [],
+        "subject_topics": row.get("subject_topics") or {},
         "knowledge_topics": row.get("knowledge_topics") or [],
+        "knowledge_paths": row.get("knowledge_paths") or [],
         "published_at": row.get("last_seen"),
     }
 
@@ -440,6 +448,21 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
         for value in (row.get("exam_subject_axes") or [])
         if str(value) in EXAM_SUBJECTS
     }
+    subject_topic_sets = {subject: set() for subject in EXAM_SUBJECTS}
+    for row in members:
+        raw_subject_topics = row.get("subject_topics") or {}
+        if not isinstance(raw_subject_topics, dict):
+            continue
+        for subject in EXAM_SUBJECTS:
+            for topic in raw_subject_topics.get(subject) or []:
+                value = str(topic).strip()
+                if value:
+                    subject_topic_sets[subject].add(value)
+    subject_topics = {
+        subject: sorted(subject_topic_sets[subject])
+        for subject in EXAM_SUBJECTS
+        if subject in subject_axes_seen and subject_topic_sets[subject]
+    }
     knowledge_topics = sorted({
         str(value).strip()
         for row in members
@@ -451,6 +474,19 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
         if any(str(row.get("knowledge_root") or "") == KNOWLEDGE_ROOT for row in members)
         else str(lead.get("knowledge_root") or "")
     )
+    knowledge_model = (
+        KNOWLEDGE_MODEL
+        if knowledge_root == KNOWLEDGE_ROOT
+        else str(lead.get("knowledge_model") or "")
+    )
+    management_domains = [x for x in MANAGEMENT_DOMAINS if x in management_seen]
+    exam_subject_axes = [x for x in EXAM_SUBJECTS if x in subject_axes_seen]
+    knowledge_paths = [f"{knowledge_root} > {domain}" for domain in management_domains]
+    for subject in exam_subject_axes:
+        for topic in subject_topics.get(subject, []):
+            knowledge_paths.append(
+                f"{knowledge_root} > 五科整合 > {subject} > {topic}"
+            )
 
     return {
         "canonical_event_id": event_id,
@@ -459,9 +495,12 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
         "category": lead.get("category"),
         "subjects": sorted({str(y) for x in members for y in (x.get("subjects") or []) if y}),
         "knowledge_root": knowledge_root,
-        "management_domains": [x for x in MANAGEMENT_DOMAINS if x in management_seen],
-        "exam_subject_axes": [x for x in EXAM_SUBJECTS if x in subject_axes_seen],
+        "knowledge_model": knowledge_model,
+        "management_domains": management_domains,
+        "exam_subject_axes": exam_subject_axes,
+        "subject_topics": subject_topics,
         "knowledge_topics": knowledge_topics,
+        "knowledge_paths": knowledge_paths[:20],
         "exam_tags": sorted({str(y) for x in members for y in (x.get("exam_tags") or []) if y}),
         "related_laws": sorted({str(y) for x in members for y in (x.get("related_laws") or []) if y}),
         "concept_keys": sorted({str(y) for x in members for y in (x.get("concept_keys") or []) if y}),
