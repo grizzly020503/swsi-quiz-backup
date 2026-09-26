@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-26",
+  "purpose": "Isolated disaster-recovery reconstruction contract; never writes production.",
+  "base_schema": "supabase/recovery/base_schema.sql",
+  "portable_ci": {
+    "database": "PostgreSQL 16 clean service",
+    "skip_extensions": [
+      "pg_cron",
+      "pg_net"
+    ],
+    "rationale": "Those Supabase-managed extensions are unavailable in vanilla CI Postgres. CI disables function-body dependency validation but still executes all remaining DDL, constraints, RLS, functions and triggers."
+  },
+  "migration_order": [
+    "supabase/migrations/20260825_ai_analysis_automation.sql",
+    "supabase/migrations/20260825_add_legal_quality_status.sql",
+    "supabase/migrations/20260825_add_canonical_legal_names.sql",
+    "supabase/migrations/20260825_add_official_legal_watch_registry.sql",
+    "supabase/migrations/20260825_add_current_affairs_radar.sql",
+    "supabase/migrations/20260825042630_harden_public_readonly_access.sql",
+    "supabase/migrations/20260825044722_correct_social_worker_continuing_education_law_name.sql",
+    "supabase/migrations/20260825094110_production_qa_consolidation.sql",
+    "supabase/migrations/20260825110853_preserve_official_grading_mode.sql",
+    "supabase/migrations/20260826062000_create_swsi_feedback_reports.sql",
+    "supabase/migrations/20260826062500_explicitly_deny_public_feedback_table.sql",
+    "supabase/migrations/20260826084600_atomic_swsi_feedback_submit.sql",
+    "supabase/migrations/20260827031000_align_recovery_reset_with_grading_mode.sql",
+    "supabase/migrations/20260828011500_create_swsi_admin_users.sql",
+    "supabase/migrations/20260902143000_add_anonymous_usage_analytics.sql",
+    "supabase/migrations/20260915151500_add_ai_telemetry.sql"
+  ],
+  "expected": {
+    "public_tables": [
+      "ai_analysis_job_config",
+      "current_affairs",
+      "current_affairs_sync_runs",
+      "essays",
+      "legal_reference_registry",
+      "legal_watch_hits",
+      "moex_sync_runs",
+      "questions",
+      "swsi_admin_users",
+      "swsi_ai_telemetry_5m",
+      "swsi_ai_telemetry_client_daily",
+      "swsi_feedback_reports",
+      "swsi_usage_daily"
+    ],
+    "question_columns": 36,
+    "essay_columns": 23,
+    "official_questions": 4800,
+    "shard_count": 24,
+    "grading_mode_counts": {
+      "standard": 4784,
+      "all_credit": 12,
+      "any_answer": 4
+    },
+    "accepted_answers_questions": 24
+  }
+}
