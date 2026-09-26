@@ -28,12 +28,18 @@ def main() -> int:
     assert "兒少保護" in child["knowledge_topics"], child
 
     wage = classify_event_knowledge(
-        "最低工資新制自明年生效，調升月薪與時薪並公告相關政策。",
+        "最低工資審議會決定自116年起調升月薪與時薪，並討論消費者物價指數與產業發展，調整案陳報行政院核定。",
         category="勞動與社會保障",
         exam_tags=["最低工資", "社會保障"],
     )
     assert "規劃與政策執行" in wage["management_domains"], wage
+    assert "倫理與權利保障" in wage["management_domains"], wage
     assert "社會政策與社會立法" in wage["exam_subject_axes"], wage
+    assert "人類行為與社會環境" not in wage["exam_subject_axes"], wage
+    assert "社會工作研究方法" not in wage["exam_subject_axes"], wage
+    assert "人力與督導" not in wage["management_domains"], wage
+    assert "成效評估與證據" not in wage["management_domains"], wage
+    assert "方案與資源管理" not in wage["management_domains"], wage
 
     survey = classify_event_knowledge(
         "政府公布身心障礙者生活需求調查結果與統計資料，作為後續政策成效評估依據。",
