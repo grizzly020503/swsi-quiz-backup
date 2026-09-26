@@ -211,7 +211,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.locator('#t-home').click();
   await waitHome();
 
-  // Essay flow remains intact after learning-center simplification.
+  // Essay flow remains intact through its canonical bottom navigation after
+  // homepage subtraction removes the duplicate large Essay card.
+  await page.locator('#t-essay').click();
   await page.getByRole('button', { name: '直接練一題' }).click();
   await page.waitForSelector('.wta', { timeout: 30000 });
   const textarea = page.locator('.wta').first();
