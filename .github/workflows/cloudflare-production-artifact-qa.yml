@@ -7,6 +7,7 @@ on:
       - 'cdn/monthly_patch.js'
       - 'cdn/sw.js'
       - 'scripts/cloudflare_release_artifact_smoke.py'
+      - 'scripts/cloudflare_production_http_smoke.py'
       - '.github/workflows/cloudflare-production-artifact-qa.yml'
   push:
     branches:
@@ -16,6 +17,7 @@ on:
       - 'cdn/monthly_patch.js'
       - 'cdn/sw.js'
       - 'scripts/cloudflare_release_artifact_smoke.py'
+      - 'scripts/cloudflare_production_http_smoke.py'
       - '.github/workflows/cloudflare-production-artifact-qa.yml'
   workflow_dispatch:
 
@@ -32,10 +34,33 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Syntax check
-        run: python -m py_compile scripts/cloudflare_release_artifact_smoke.py
+        run: |
+          python -m py_compile scripts/cloudflare_release_artifact_smoke.py
+          python -m py_compile scripts/cloudflare_production_http_smoke.py
       - name: Verify tracked production artifacts
         run: python scripts/cloudflare_release_artifact_smoke.py
+      - name: Decide live production check
+        id: live
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" != 'pull_request' ]; then
+            echo 'run=true' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch origin "$GITHUB_BASE_REF"
+          if git diff --quiet "origin/$GITHUB_BASE_REF...HEAD" -- cdn/index.html cdn/monthly_patch.js cdn/sw.js; then
+            echo 'run=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+            echo 'Skipping live parity before a production-artifact PR is merged.'
+          fi
+      - name: Verify hosted Cloudflare production parity
+        if: steps.live.outputs.run == 'true'
+        run: python scripts/cloudflare_production_http_smoke.py --check "$GITHUB_RUN_ID"
