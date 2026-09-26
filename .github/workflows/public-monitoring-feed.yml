@@ -169,6 +169,13 @@ jobs:
           for generated, tracked in pairs:
               a = json.loads((tmp / generated).read_text(encoding='utf-8'))
               b = json.loads((root / tracked).read_text(encoding='utf-8'))
+
+              # Snapshot builders stamp the rebuild time. PR verification is about
+              # deterministic content/contract, not reproducing the historical
+              # timestamp of the committed snapshot.
+              a.pop('generated_at', None)
+              b.pop('generated_at', None)
+
               if a != b:
                   raise SystemExit(
                       f'PR deterministic snapshot drift: {generated} != {tracked}. '
