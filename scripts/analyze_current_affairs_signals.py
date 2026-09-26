@@ -278,7 +278,7 @@ def build_exam_point_summary(
     elif policy == "medium":
         parts.append("政策／制度動向值得追蹤")
     else:
-        parts.append("目前未見明確制度變動，先作事件與專業議題觀察")
+        parts.append("尚未見明確制度變動，先作事件與專業議題觀察")
 
     if essay in {"high", "medium"}:
         parts.append(f"申論可從{hint}切入")
