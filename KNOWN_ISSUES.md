@@ -9,9 +9,9 @@
 - **歷屆題／trend quality v2.2 已完成。** same-topic 與 same-law 分離，weighted history 防止 broad concept volume 灌高趨勢。
 - **Reuters／AP／BBC 目前刻意不接。** 原因是官方授權／metadata/RSS 使用條件，不是技術 defect。詳見 `docs/CURRENT_AFFAIRS_SOURCE_POLICY.md`。
 - **社家署 live current-affairs feed 尚無驗證通過 endpoint。** 不猜 URL；其 data.gov.tw 開放資料可另作 background evidence，不列為 current-affairs feed bug。
-- **Issue #84 在本輪 source-policy closeout 後可關閉。**
-- **Netlify fallback 已獲使用者授權更新，history-v2.2 正式封包已完成；唯一未完成的是帳號端手動 deploy。** 目前聊天沒有 Netlify 帳號寫入連接器／deploy hook；Plugin Directory 也沒有 Netlify connector。#142 main artifact run `36202627219` success，Artifact ID `10892094151`，來源 main `4c55f1c7b1d587307761afa46f19dce51e6757ae`；真正要上傳的是 artifact 內層 `swsi-netlify-manual-deploy.zip`，SHA-256 `79b12ceeae1aaac776488ff2af78134c36bf6fcca85c53ef369c9296856c59ee`。Verifier run `36202022040` attempt 2 在 artifact 完成後仍連續 18 次看不到 `2026-09-26-history-v2.2` marker，已確認 production 仍是舊版。上傳後再重跑 verifier。
-- 下方舊的 6 feeds、SW v6、8 月 branch/release 敘述均為歷史證據；衝突時以 `PROJECT_HANDOFF.md` 最上方最新節、`docs/CURRENT_AFFAIRS_SOURCE_POLICY.md` 與遠端真實狀態為準。
+- **Issue #84 已完成並關閉。**
+- **Netlify fallback 已切換成 GitHub Actions controlled deploy。** 第一次 `main` production deploy 已由使用者確認成功，舊 Netlify Git continuous deployment 已解除；後續不得再走 drag-and-drop ZIP 或重新接回 Netlify 自動 Git build。Public Uptime Sentinel 會持續檢查 fallback release parity。
+- 下方舊的 6 feeds、舊 SW 版本、8 月 branch/release 敘述均為歷史證據；衝突時以 `PROJECT_HANDOFF.md` 最上方最新節、`docs/CURRENT_AFFAIRS_SOURCE_POLICY.md` 與遠端真實狀態為準。
 
 ## P0（已完成，持續防回歸）
 
@@ -45,25 +45,25 @@
 - Monthly Frontend QA 先跑 `p0_frontend_preflight.js` 再建 production-shaped site。
 - Netlify release package workflow 先跑 P0 preflight，再產正式 ZIP。
 - `essay_guides.js` / grading / SW / browser interaction 都已納入 relevant QA path。
-- 最新新增 Service Worker v5→v6 真實升級 smoke 也已接進 Monthly Frontend QA。
+- 最新 Service Worker 升級／mutable-asset smoke 已接進 Monthly Frontend QA，production contract 固定為 v7。
 
 ## P1（完成項目與剩餘技術債）
 
 ### P1-1 Service Worker / mutable asset cache
-狀態：`完成；Monthly Frontend QA #91 的真實 Chromium v5→v6 upgrade smoke 全綠`
+狀態：`完成；production contract = v7，Chromium upgrade smoke 持續防回歸`
 
 目前 `sw.js`：
-- cache version = `v6`
+- cache version = `v7`
 - HTML / auto / `monthly_patch.js` / `essay_guides.js` / `manifest.json` 採 no-store network-first
 - 舊 cache 在 activate 時清理
 
 `scripts/service_worker_upgrade_smoke.js` 會模擬：
 1. v5 cache-first 先黏住舊資產
-2. 原 origin 升級成 repo 真實 v6 worker
-3. 驗證 v5 cache 被刪除、v6 cache 建立
+2. 原 origin 升級成 repo 真實 v7 worker
+3. 驗證舊 cache 被刪除、v7 cache 建立
 4. `monthly_patch.js` / `essay_guides.js` / `manifest.json` 三個 runtime fetch 都必須真正重新打網路並拿到新版本
 
-測試特別把 request counter 放在 v6 activation 後，避免被 install pre-cache 造成假陽性。
+測試特別把 request counter 放在新版 activation 後，避免被 install pre-cache 造成假陽性。
 
 ### P1-2 CDN shard / 全題庫完整性
 狀態：`完成；legacy payload-only cache 已 fail closed`
@@ -136,10 +136,14 @@ Production trigger 已包含 `grading_mode`。GitHub 新增 `20260827031000_alig
 MOEX Importer Integrity QA #1（33003892890）已成功；Monthly Frontend QA #91 亦再次執行 importer source contract、Deno check 與 recovery drift smoke。
 
 
-## 尚未執行的 release operation
+## 目前需決策／持續追蹤
 
-- Netlify production deploy：**使用者已授權，封包已完成，但仍待 Netlify 帳號端手動上傳**。GitHub merge 不會自動做 production deploy；`Verify Netlify Production Release` 目前會因正式站仍是舊 marker 而失敗，這是預期的外部 release blocker，不是程式 bug。
-- `main` 比 branch 多一筆只修改 `cdn/preview/monthly_patch.js` 的 preview artifact commit；合併必須走一般 PR/merge 並保留該 commit，不可 force 覆蓋。
+- **Cloudflare primary 仍是 public soft-launch / noindex。** `cdn/index.html` 與 release workflow 明確保留 `noindex,nofollow,noarchive`；這不是 runtime defect，但若要讓 Google／搜尋引擎正式收錄，需由產品 owner 明確決定解除 soft-launch noindex，再走 release gate。
+- **無障礙自動化覆蓋仍可加強。** 現有 runtime 已有 dialog ARIA、aria-live、Escape、Tab focus trap 與多處 label，但目前沒有 axe-core／自動色彩對比 gate。列為 QA coverage debt，不代表已確認存在 WCAG defect。
+- **Admin 真實登入／recovery E2E 目前以人工驗收為主。** build contract 與 auth source guard 已存在；完整真實帳號流程不適合在一般 CI 反覆執行。
+- **災難復原尚無完整 restore drill。** migrations、Edge Function source、question artifacts 與 rebuild policy 都在 repo，但尚未找到一套從空環境完整還原並驗證的自動演練。
+- **Netlify fallback parity 監控已補。** controlled fallback 若未跟上 root release marker、SW v7 或 current-affairs 17/0 contract，main/scheduled Public Uptime Sentinel 應直接失敗。
+- **MOEX 常態 polling 已回到每週。** 接近官方放榜／更正窗口時用 `workflow_dispatch` 加跑；時事另有每 6 小時 Public Monitoring Feed，不需要靠 MOEX workflow 每天掃。
 
 ## P2 / 長期重構
 
