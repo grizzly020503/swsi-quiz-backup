@@ -55,7 +55,7 @@ def main() -> int:
     assert "倫理與權利保障" in survey["management_domains"], survey
 
     workforce = classify_event_knowledge(
-        "社工人力不足與高案量造成留任困難，機構提出督導與職場安全改善。",
+        "社工人力不足與高案量造成留任困難，機構提出專業督導制度與職場安全改善。",
         category="社工專業與社福制度",
         exam_tags=["社工", "督導"],
     )
@@ -68,15 +68,22 @@ def main() -> int:
         category="社工專業與社福制度",
         exam_tags=["社工"],
     )
+
+    role_title = classify_event_knowledge(
+        "前北市社會局社工督導涉嫌盜領受監護宣告老人存款，法院裁定羈押禁見。",
+        category="社工專業與社福制度",
+        exam_tags=["社工"],
+    )
     assert "組織治理與責信" in misconduct["management_domains"], misconduct
     assert "倫理與權利保障" in misconduct["management_domains"], misconduct
     assert "人力與督導" not in misconduct["management_domains"], misconduct
     assert "社會工作直接服務" not in misconduct["exam_subject_axes"], misconduct
+    assert "人力與督導" not in role_title["management_domains"], role_title
 
     assert "統計與資料解讀" in survey["subject_topics"]["社會工作研究方法"], survey
     assert "方案與成效評估" in survey["subject_topics"]["社會工作研究方法"], survey
 
-    for payload in (child, wage, survey, workforce, misconduct):
+    for payload in (child, wage, survey, workforce, misconduct, role_title):
         assert payload["knowledge_root"] == "社會工作管理"
         assert set(payload["management_domains"]).issubset(set(MANAGEMENT_DOMAINS))
         assert set(payload["exam_subject_axes"]).issubset(set(EXAM_SUBJECTS))
