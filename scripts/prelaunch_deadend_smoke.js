@@ -41,7 +41,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.getByRole('button', { name: /結束這次練習/ }).click();
   await waitHome();
 
-  // Essay must also be escapable with an unfinished draft on screen.
+  // Essay must also be escapable with an unfinished draft on screen. Home no
+  // longer repeats the Essay card, so enter through the canonical bottom tab.
+  await page.locator('#t-essay').click();
   await page.getByRole('button', { name: '直接練一題' }).click();
   await page.waitForSelector('.wta', { timeout: 30000 });
   await page.locator('.wta').first().fill('未完成草稿，dead-end smoke');
