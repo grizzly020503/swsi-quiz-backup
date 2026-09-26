@@ -2,6 +2,7 @@
 """Regression smoke for the SWSI social-work knowledge tree."""
 from social_work_knowledge_tree import (
     EXAM_SUBJECTS,
+    KNOWLEDGE_MODEL,
     KNOWLEDGE_ROOT,
     MANAGEMENT_DOMAINS,
     classify_event_knowledge,
@@ -10,6 +11,7 @@ from social_work_knowledge_tree import (
 
 def main() -> int:
     assert KNOWLEDGE_ROOT == "社會工作管理"
+    assert KNOWLEDGE_MODEL == "management-lens-over-five-exam-subjects-v2"
     assert len(EXAM_SUBJECTS) == 5
     assert "社會工作管理" not in EXAM_SUBJECTS
 
@@ -25,24 +27,28 @@ def main() -> int:
     assert "社會工作直接服務" in child["exam_subject_axes"], child
     assert "人類行為與社會環境" in child["exam_subject_axes"], child
     assert "社會政策與社會立法" in child["exam_subject_axes"], child
-    assert "兒少保護" in child["knowledge_topics"], child
+    assert "社會工作研究方法" not in child["exam_subject_axes"], child
+    assert "兒少保護風險評估" in child["subject_topics"]["社會工作直接服務"], child
 
     wage = classify_event_knowledge(
-        "最低工資新制自明年生效，調升月薪與時薪並公告相關政策。",
+        "最低工資連11漲，審議會決定自116年起每月最低工資調升至30,900元，每小時調升至205元。",
         category="勞動與社會保障",
         exam_tags=["最低工資", "社會保障"],
     )
-    assert "規劃與政策執行" in wage["management_domains"], wage
-    assert "社會政策與社會立法" in wage["exam_subject_axes"], wage
+    assert wage["exam_subject_axes"] == ["社會政策與社會立法", "社會工作"], wage
+    assert "社會工作研究方法" not in wage["exam_subject_axes"], wage
+    assert "人類行為與社會環境" not in wage["exam_subject_axes"], wage
+    assert "成效評估與證據" not in wage["management_domains"], wage
 
     survey = classify_event_knowledge(
-        "政府公布身心障礙者生活需求調查結果與統計資料，作為後續政策成效評估依據。",
+        "政府公布身心障礙者生活需求調查結果與統計資料，作為後續方案成效評估依據。",
         category="身障與人權",
         exam_tags=["身障權利"],
     )
     assert "成效評估與證據" in survey["management_domains"], survey
     assert "社會工作研究方法" in survey["exam_subject_axes"], survey
-    assert "倫理與權利保障" in survey["management_domains"], survey
+    assert "統計與資料解讀" in survey["subject_topics"]["社會工作研究方法"], survey
+    assert "方案與成效評估" in survey["subject_topics"]["社會工作研究方法"], survey
 
     workforce = classify_event_knowledge(
         "社工人力不足與高案量造成留任困難，機構提出督導與職場安全改善。",
@@ -53,16 +59,29 @@ def main() -> int:
     assert "組織治理與責信" in workforce["management_domains"], workforce
     assert "社會工作" in workforce["exam_subject_axes"], workforce
 
-    for payload in (child, wage, survey, workforce):
+    misconduct = classify_event_knowledge(
+        "社工涉嫌侵占服務對象財產，司法機關裁定羈押，機構啟動內控與責信檢討。",
+        category="社工專業與社福制度",
+        exam_tags=["社工"],
+    )
+    assert "組織治理與責信" in misconduct["management_domains"], misconduct
+    assert "倫理與權利保障" in misconduct["management_domains"], misconduct
+    assert "人力與督導" not in misconduct["management_domains"], misconduct
+    assert "社會工作直接服務" not in misconduct["exam_subject_axes"], misconduct
+
+    for payload in (child, wage, survey, workforce, misconduct):
         assert payload["knowledge_root"] == "社會工作管理"
         assert set(payload["management_domains"]).issubset(set(MANAGEMENT_DOMAINS))
         assert set(payload["exam_subject_axes"]).issubset(set(EXAM_SUBJECTS))
         assert payload["management_domains"]
         assert payload["exam_subject_axes"]
+        assert isinstance(payload["subject_topics"], dict)
+        assert isinstance(payload["knowledge_paths"], list) and payload["knowledge_paths"]
 
     print(
-        "SOCIAL WORK KNOWLEDGE TREE SMOKE OK: "
-        "management-root=yes, five-subject axes=yes, child/wage/research/workforce fixtures=yes"
+        "SOCIAL WORK KNOWLEDGE TREE V2 SMOKE OK: "
+        "management-root=yes, exact-five-subjects=yes, research-fail-closed=yes, "
+        "subject-topics=yes, misconduct-vs-workforce distinction=yes"
     )
     return 0
 
