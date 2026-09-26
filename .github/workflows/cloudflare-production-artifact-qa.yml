@@ -6,7 +6,6 @@ on:
       - 'cdn/index.html'
       - 'cdn/monthly_patch.js'
       - 'cdn/sw.js'
-      - 'monthly_patch_parts/**'
       - 'scripts/cloudflare_release_artifact_smoke.py'
       - '.github/workflows/cloudflare-production-artifact-qa.yml'
   push:
@@ -16,7 +15,6 @@ on:
       - 'cdn/index.html'
       - 'cdn/monthly_patch.js'
       - 'cdn/sw.js'
-      - 'monthly_patch_parts/**'
       - 'scripts/cloudflare_release_artifact_smoke.py'
       - '.github/workflows/cloudflare-production-artifact-qa.yml'
   workflow_dispatch:
