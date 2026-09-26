@@ -1,5 +1,9 @@
 # SWSI 社工師國考平台 — 公開前 QA
 
+> **2026-09-26 狀態提醒：本檔以下多數「待月底」敘述是 2026-08-25 的歷史施工清單，不再代表目前真實 backlog。**
+> grading、CDN loader、XSS 防護、Client-ID、storage、AI guard、首頁定位、SEO、PWA 等多數項目已在後續 monthly patch / CI 中完成並有 regression。
+> 現況請優先讀 `PROJECT_HANDOFF.md` 最上方、`KNOWN_ISSUES.md` 與 `audit/platform_health_20260926.md`；不要照本檔舊狀態重做功能。
+
 最後更新：2026-08-25（Cloudflare 題庫 CDN、AI guard、官方 grading mode 全鏈路已驗收；學生端仍留月底一次修改）
 
 > 原則：目前 **不修改會觸發 Netlify production deploy 的學生端檔案**。`index.html / manifest.json / sw.js` 等學生端修改留到月底一次套用。Supabase／Cloudflare 後端已完成的項目不要重做。
