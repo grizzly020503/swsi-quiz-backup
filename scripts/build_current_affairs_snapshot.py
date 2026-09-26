@@ -20,7 +20,7 @@ ALLOWED = {
     "id", "title", "summary", "source_name", "source_url", "source_type", "published_at", "region",
     "category", "relevance_score", "exam_tags", "subjects",
     "concept_keys", "agency_keys", "fact_keys",
-    "knowledge_root", "knowledge_model", "management_domains", "exam_subject_axes", "subject_topics", "knowledge_topics", "knowledge_paths",
+    "knowledge_root", "knowledge_model", "management_domains", "exam_subject_axes", "primary_exam_subject_axes", "supporting_exam_subject_axes", "subject_topics", "knowledge_topics", "knowledge_paths",
 }
 
 
@@ -36,6 +36,8 @@ def clean_row(row):
     out["knowledge_model"] = str(out.get("knowledge_model") or "")
     out["management_domains"] = list(dict.fromkeys(out.get("management_domains") or []))
     out["exam_subject_axes"] = list(dict.fromkeys(out.get("exam_subject_axes") or []))
+    out["primary_exam_subject_axes"] = list(dict.fromkeys(out.get("primary_exam_subject_axes") or []))
+    out["supporting_exam_subject_axes"] = list(dict.fromkeys(out.get("supporting_exam_subject_axes") or []))
     raw_subject_topics = out.get("subject_topics") or {}
     out["subject_topics"] = {
         str(subject): list(dict.fromkeys(topics or []))[:6]
