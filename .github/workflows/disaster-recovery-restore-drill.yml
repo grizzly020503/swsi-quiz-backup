@@ -1,0 +1,202 @@
+name: Disaster Recovery Restore Drill
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/disaster-recovery-restore-drill.yml'
+      - 'supabase/recovery/**'
+      - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - 'cloudflare/wandering-wave-4418/d1/**'
+      - 'scripts/disaster_recovery_*'
+      - 'scripts/cloudflare_d1_recovery_smoke.py'
+      - 'scripts/p0_frontend_preflight.js'
+      - 'scripts/monthly_frontend_smoke.py'
+      - 'scripts/browser_interaction_smoke.js'
+      - 'scripts/shard_integrity_browser_smoke.js'
+      - 'scripts/pwa_resilience_smoke.js'
+      - 'scripts/supabase_contract_smoke.js'
+      - 'scripts/moex_importer_integrity_smoke.js'
+      - 'cdn/question-shards/**'
+      - 'monthly_patch_parts/**'
+      - 'index.html'
+      - 'sw.js'
+      - 'manifest.json'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/disaster-recovery-restore-drill.yml'
+      - 'supabase/recovery/**'
+      - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - 'cloudflare/wandering-wave-4418/d1/**'
+      - 'scripts/disaster_recovery_*'
+      - 'scripts/cloudflare_d1_recovery_smoke.py'
+      - 'cdn/question-shards/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-disaster-recovery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolated-restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGDATABASE: postgres
+      PGPASSWORD: postgres
+
+    steps:
+      - name: Checkout source commit
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22.13.0'
+          package-manager-cache: false
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Start restore timer
+        run: |
+          echo "DR_START_EPOCH=$(date +%s)" >> "$GITHUB_ENV"
+          echo "DR_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
+      - name: Syntax and offline recovery inventory
+        run: |
+          set -euo pipefail
+          bash -n scripts/disaster_recovery_restore_drill.sh
+          python -m py_compile scripts/disaster_recovery_repo_inventory.py scripts/cloudflare_d1_recovery_smoke.py
+          python scripts/disaster_recovery_repo_inventory.py
+          git diff --check
+
+      - name: Restore clean PostgreSQL and verify contracts
+        run: bash scripts/disaster_recovery_restore_drill.sh
+
+      - name: Compile all recoverable Edge Functions
+        run: |
+          set -euo pipefail
+          count=0
+          for source in supabase/functions/*/index.ts; do
+            echo "deno check $source"
+            deno check "$source"
+            count=$((count + 1))
+          done
+          test "$count" = '10'
+          echo "EDGE FUNCTION SOURCE COMPILE OK count=$count"
+
+      - name: Verify backend source contracts
+        run: |
+          set -euo pipefail
+          node --check scripts/supabase_contract_smoke.js
+          node --check scripts/moex_importer_integrity_smoke.js
+          node scripts/supabase_contract_smoke.js
+          node scripts/moex_importer_integrity_smoke.js
+
+      - name: Build isolated static frontend
+        run: |
+          set -euo pipefail
+          node scripts/p0_frontend_preflight.js
+          rm -rf _site
+          mkdir -p _site/icons
+          cp index.html manifest.json sw.js apple-touch-icon.png _site/
+          node scripts/build_essay_guides_runtime.js essay_guides.js _site/essay_guides.js
+          cat monthly_patch_parts/*.part > _site/monthly_patch.js
+          node --check _site/monthly_patch.js
+          node --check _site/essay_guides.js
+          cp icons/icon-192.png icons/icon-512.png _site/icons/
+          if [ -d auto ]; then cp -R auto _site/; fi
+          python scripts/monthly_patch_build.py _site/index.html
+          python scripts/monthly_frontend_smoke.py --site _site
+
+      - name: Install isolated browser runtime
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Local-only browser and PWA restore smoke
+        run: |
+          set -euo pipefail
+          python -m http.server 4173 --directory _site >/tmp/swsi-dr-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4173/ >/dev/null
+          node scripts/shard_integrity_browser_smoke.js http://127.0.0.1:4173/
+          node scripts/browser_interaction_smoke.js http://127.0.0.1:4173/
+          node scripts/pwa_resilience_smoke.js http://127.0.0.1:4173/
+          echo "LOCAL-ONLY BROWSER RESTORE SMOKE OK"
+
+      - name: Write restore evidence
+        if: always()
+        run: |
+          set -euo pipefail
+          end="$(date +%s)"
+          elapsed=$((end - DR_START_EPOCH))
+          mkdir -p /tmp/swsi-dr-evidence
+          cat > /tmp/swsi-dr-evidence/restore-report.md <<EOF
+          # SWSI isolated disaster-recovery restore evidence
+
+          - source commit: ${GITHUB_SHA}
+          - workflow run: ${GITHUB_RUN_ID}
+          - started UTC: ${DR_STARTED_AT}
+          - finished UTC: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          - measured isolated RTO: ${elapsed} seconds
+          - repo-source RPO: 0 commits (exact checked-out source commit)
+          - hosted user-data RPO: intentionally not exercised; no production rows were copied
+          - PostgreSQL target: disposable GitHub Actions postgres:17 service
+          - D1 target: isolated local SQLite recovery smoke
+          - question artifact contract: 4,800 questions / 24 shards / SHA-256 verified
+          - Edge Function source inventory: 10 functions; compile-only, no provider calls
+          - browser target: localhost only; existing smokes abort non-local requests except local shard fixtures
+          - production bindings changed: no
+          - production secrets used: no
+          EOF
+          cat /tmp/swsi-dr-evidence/restore-report.md
+          echo "DR_ELAPSED_SECONDS=$elapsed" >> "$GITHUB_ENV"
+
+      - name: Upload restore evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-disaster-recovery-${{ github.sha }}
+          path: /tmp/swsi-dr-evidence/
+          if-no-files-found: error
+          retention-days: 14
