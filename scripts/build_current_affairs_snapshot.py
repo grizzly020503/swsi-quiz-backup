@@ -3,6 +3,7 @@ import argparse
 import json
 import re
 from pathlib import Path
+from datetime import datetime
 
 STOP_TAGS = {
     "政策", "制度", "福利", "保護", "行政院", "衛福部", "修正", "補助", "津貼",
@@ -59,6 +60,31 @@ def informative_tags(row):
     return {str(x).strip() for x in (row.get("exam_tags") or []) if str(x).strip() and str(x).strip() not in STOP_TAGS}
 
 
+def _within_days(a, b, days=3):
+    try:
+        da = datetime.fromisoformat(str(a or "").replace("Z", "+00:00"))
+        db = datetime.fromisoformat(str(b or "").replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return abs((da - db).total_seconds()) <= days * 86400
+
+
+def _same_publisher_fact_duplicate(row, member):
+    if str(row.get("source_name") or "") != str(member.get("source_name") or ""):
+        return False
+    if not _within_days(row.get("published_at"), member.get("published_at"), days=3):
+        return False
+    shared_facts = {
+        str(x) for x in (row.get("fact_keys") or []) if str(x)
+    }.intersection({
+        str(x) for x in (member.get("fact_keys") or []) if str(x)
+    })
+    if not shared_facts:
+        return False
+    shared_tags = informative_tags(row).intersection(informative_tags(member))
+    return bool(shared_tags)
+
+
 def should_merge(row, cluster):
     first = cluster[0]
     if row.get("category") != first.get("category"):
@@ -72,6 +98,14 @@ def should_merge(row, cluster):
     a_laws = law_names(row)
     b_laws = set().union(*(law_names(x) for x in cluster))
     if a_laws and b_laws and a_laws.intersection(b_laws):
+        return True
+
+    # Same publisher may issue multiple headlines for the same case. Merge only
+    # when there are two independent anchors: a shared canonical fact (e.g.
+    # the same significant amount) and a shared informative exam tag, within
+    # a short time window. This prevents repeated articles from inflating a
+    # trend while failing closed on unrelated stories.
+    if any(_same_publisher_fact_duplicate(row, member) for member in cluster):
         return True
 
     a = informative_tags(row)
@@ -118,12 +152,19 @@ def merge_cluster(cluster):
         all_agencies.extend(row.get("agency_keys") or [])
         all_facts.extend(row.get("fact_keys") or [])
 
-    count = len(urls) or len(members)
+    article_count = len(urls) or len(members)
+    source_names = {
+        str(src.get("source_name") or "").strip()
+        for src in sources
+        if str(src.get("source_name") or "").strip()
+    }
+    source_count = len(source_names) or 1
     base_score = max(int(x.get("relevance_score") or 0) for x in members)
-    coverage_bonus = 0 if count <= 1 else (1 if count <= 3 else 2)
+    # Repeated articles from the same publisher do not increase source coverage.
+    coverage_bonus = 0 if source_count <= 1 else (1 if source_count <= 3 else 2)
     score = min(10, base_score + coverage_bonus)
 
-    if explicit and count > 1:
+    if explicit and source_count > 1:
         title = f"{explicit[1]}：近期制度與實務動態"
         topic_key = explicit[0]
     else:
@@ -132,10 +173,10 @@ def merge_cluster(cluster):
 
     out = dict(representative)
     out.update({
-        "id": f"topic:{topic_key}" if count > 1 else representative.get("id"),
+        "id": f"topic:{topic_key}" if article_count > 1 else representative.get("id"),
         "title": title,
         "published_at": latest.get("published_at"),
-        "source_name": representative.get("source_name") if count == 1 else f"綜合 {count} 則來源",
+        "source_name": representative.get("source_name") if source_count == 1 else f"綜合 {source_count} 個來源",
         "source_url": latest.get("source_url") or representative.get("source_url"),
         "relevance_score": score,
         "exam_tags": list(dict.fromkeys(all_tags))[:10],
@@ -143,9 +184,10 @@ def merge_cluster(cluster):
         "concept_keys": list(dict.fromkeys(all_concepts)),
         "agency_keys": list(dict.fromkeys(all_agencies)),
         "fact_keys": list(dict.fromkeys(all_facts)),
-        "source_count": count,
+        "source_count": source_count,
+        "article_count": article_count,
         "sources": sources,
-        "clustered": count > 1,
+        "clustered": len(members) > 1,
     })
     return out
 
@@ -204,7 +246,10 @@ def main():
     merged = sum(1 for x in topics if x.get("clustered"))
     print(f"Public current-affairs snapshot updated: {len(topics)} topics, {merged} merged clusters")
     for row in topics[:10]:
-        print(f"[{row.get('relevance_score')}] {row.get('source_count')} source(s) | {row.get('title')}")
+        print(
+            f"[{row.get('relevance_score')}] {row.get('source_count')} source(s) / "
+            f"{row.get('article_count', row.get('source_count'))} article(s) | {row.get('title')}"
+        )
     return 0
 
 
