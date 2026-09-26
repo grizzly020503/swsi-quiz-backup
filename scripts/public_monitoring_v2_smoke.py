@@ -74,7 +74,7 @@ def main() -> int:
     for row in source_rows:
         assert row.get("region") in {"taiwan", "international"}, row
         assert row.get("source_type") in {"official", "news", "international"}, row
-        assert row.get("source_format", "rss") in {"rss", "who_newsroom_json", "unicef_press_html", "ilo_news_html"}, row
+        assert row.get("source_format", "rss") in {"rss", "who_newsroom_json", "unicef_press_html", "ilo_news_html", "tvbs_realtime_html"}, row
         if "optional" in row:
             assert isinstance(row.get("optional"), bool), row
     required_official = {
