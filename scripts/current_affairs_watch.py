@@ -25,6 +25,7 @@ from current_affairs_taxonomy import (
     english_policy_hits,
     is_english_dominant,
 )
+from social_work_knowledge_tree import classify_event_knowledge
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_REGISTRY = ROOT / "data" / "current_affairs_sources.json"
@@ -896,6 +897,11 @@ def main():
             concept_keys = sorted(canonical_concepts(f"{title} {summary}"))
             agency_keys = sorted(canonical_agencies(f"{title} {summary}"))
             fact_keys = sorted(canonical_fact_keys(f"{title} {summary}"))
+            knowledge = classify_event_knowledge(
+                f"{title} {summary}",
+                category=category,
+                exam_tags=tags,
+            )
             row = {
                 "id": item_id,
                 "title": title[:500],
@@ -913,6 +919,7 @@ def main():
                 "concept_keys": concept_keys,
                 "agency_keys": agency_keys,
                 "fact_keys": fact_keys,
+                **knowledge,
             }
             old = items.get(item_id)
             if old is None or row["relevance_score"] > old["relevance_score"]:
