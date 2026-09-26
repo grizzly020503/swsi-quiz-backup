@@ -2846,12 +2846,24 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
   function trendLabel(v){
     return v==='rising'?'升溫':v==='sustained'?'持續':v==='cooling'?'降溫':'單次觀察';
   }
+  function subjectLabel(v){
+    return String(v||'')
+      .replace('社會工作研究方法','研究方法')
+      .replace('社會政策與社會立法','社政法')
+      .replace('社會工作直接服務','直接服務')
+      .replace('人類行為與社會環境','人行')
+      .replace('社會工作','社工');
+  }
   function safeHref(v){
     var s=String(v||''); return /^https:\/\//i.test(s)?E(s):'#';
   }
   function eventCard(ev){
     var tr=trendFor(ev.canonical_event_id)||{};
-    var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(x.replace('社會政策與社會立法','社政法').replace('社會工作直接服務','直接服務').replace('人類行為與社會環境','人行'))+'</span>';}).join('');
+    var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(subjectLabel(x))+'</span>';}).join('');
+    var management=(ev.management_domains||tr.management_domains||[]).slice(0,3);
+    var axes=(ev.exam_subject_axes||tr.exam_subject_axes||[]);
+    var managementHtml=management.length?'<div class="nlr-signal-text"><b>社會工作管理</b>｜'+management.map(function(x){return E(x);}).join(' ・ ')+'</div>':'';
+    var axesHtml=axes.length?'<details class="nlr-detail"><summary>五科連結</summary><div class="nlr-chips">'+axes.map(function(x){return '<span class="nlr-chip">'+E(subjectLabel(x))+'</span>';}).join('')+'</div></details>':'';
     var sourceCount=Number(ev.source_count||0), officialCount=Number(ev.official_source_count||0);
     var observationCount=Number(tr.observation_count||ev.observation_count||1);
     var trendReady=sourceCount>=2||observationCount>=2;
@@ -2882,6 +2894,8 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       +'<div class="nlr-title">'+E(ev.title||'')+'</div>'
       +'<div class="nlr-meta">'+E(sourceCount)+' 個來源'+(officialCount?' ・ '+E(officialCount)+' 官方':'')+(fmtDate(ev.last_seen)?' ・ 更新 '+E(fmtDate(ev.last_seen)):'')+'</div>'
       +'<div class="nlr-subs">'+subjects+'</div>'
+      +managementHtml
+      +axesHtml
       +signalHtml
       +(summaryText?'<div class="nlr-signal-text">'+E(summaryText)+'</div>':'')
       +(why?'<details class="nlr-detail"><summary>為什麼值得複習？</summary><ul>'+why+'</ul></details>':'')
@@ -2897,7 +2911,11 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     var sig=signalFor(ev.id)||{};
     var pts=t.points.map(function(x){return '<li>'+E(x)+'</li>';}).join('');
     var tags=(ev.exam_tags||[]).slice(0,6).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('');
-    var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(x.replace('社會政策與社會立法','社政法').replace('社會工作直接服務','直接服務').replace('人類行為與社會環境','人行'))+'</span>';}).join('');
+    var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(subjectLabel(x))+'</span>';}).join('');
+    var management=(ev.management_domains||sig.management_domains||[]).slice(0,3);
+    var axes=(ev.exam_subject_axes||sig.exam_subject_axes||[]);
+    var managementHtml=management.length?'<div class="nlr-signal-text"><b>社會工作管理</b>｜'+management.map(function(x){return E(x);}).join(' ・ ')+'</div>':'';
+    var axesHtml=axes.length?'<details class="nlr-detail"><summary>五科連結</summary><div class="nlr-chips">'+axes.map(function(x){return '<span class="nlr-chip">'+E(subjectLabel(x))+'</span>';}).join('')+'</div></details>':'';
     var summary=String(ev.summary||''); if(summary.length>220) summary=summary.slice(0,220)+'…';
     return '<div class="nlr-card">'
       +'<div class="nlr-head"><span class="nlr-cat">'+E(ev.category||'時事')+'</span><span class="nlr-score">關聯 '+E(ev.relevance_score||'')+'/10</span></div>'
@@ -2905,6 +2923,8 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       +'<div class="nlr-meta">'+E(ev.source_name||'')+(fmtDate(ev.published_at)?' ・ '+E(fmtDate(ev.published_at)):'')+'</div>'
       +(summary?'<div class="nlr-summary">'+E(summary)+'</div>':'')
       +'<div class="nlr-subs">'+subjects+'</div>'
+      +managementHtml
+      +axesHtml
       +(tags?'<div class="nlr-chips">'+tags+'</div>':'')
       +(sig.signal_confidence?'<div class="nlr-signal"><b>命題訊號：'+E(sig.signal_confidence==='high'?'高':sig.signal_confidence==='medium'?'中':'低')+'</b>'+(sig.signal_score!=null?' ・ '+E(sig.signal_score)+'/10':'')+'</div>':'')
       +(sig.exam_point_summary?'<div class="nlr-signal-text">'+E(sig.exam_point_summary)+'</div>':'')

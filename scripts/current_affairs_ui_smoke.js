@@ -18,6 +18,10 @@ const news = {
   id: 'fixture-news', title: '兒少保護制度', source_name: 'Fixture source',
   source_url: 'https://example.test/news', category: '兒少保護',
   subjects: ['社會工作'], exam_tags: ['責任通報'], relevance_score: 8,
+  knowledge_root: '社會工作管理',
+  management_domains: ['品質與風險管理', '服務輸送與跨網絡'],
+  exam_subject_axes: ['社會工作', '社會工作直接服務', '社會工作研究方法'],
+  knowledge_topics: ['兒少保護', '責任通報'],
 };
 const signal = {
   id: news.id, signal_confidence: 'high', signal_score: 9,
@@ -31,6 +35,10 @@ const event = {
   title: '兒少保護制度跨來源事件',
   category: '兒少保護',
   subjects: ['社會工作'],
+  knowledge_root: '社會工作管理',
+  management_domains: ['品質與風險管理', '服務輸送與跨網絡'],
+  exam_subject_axes: ['社會工作', '社會工作直接服務', '社會工作研究方法'],
+  knowledge_topics: ['兒少保護', '責任通報'],
   source_count: 3,
   official_source_count: 2,
   last_seen: '2026-09-25T08:00:00Z',
@@ -60,6 +68,10 @@ const oneOffEvent = {
   title: '單一官方來源制度提醒',
   category: '勞動與社會保障',
   subjects: ['社會工作'],
+  knowledge_root: '社會工作管理',
+  management_domains: ['規劃與政策執行', '倫理與權利保障'],
+  exam_subject_axes: ['社會工作', '社會政策與社會立法', '社會工作研究方法'],
+  knowledge_topics: ['勞動與社會保障'],
   source_count: 1,
   official_source_count: 1,
   observation_count: 1,
@@ -148,12 +160,20 @@ async function scenario({
     assert(content.includes('V1 備援'), 'missing V2 must fall back to V1');
     assert(content.includes(news.title), 'V1 news card disappeared');
     assert(content.includes('命題訊號：高'), 'V1 signal fallback disappeared');
+    assert(content.includes('社會工作管理'), 'V1 knowledge root disappeared');
+    assert(content.includes('品質與風險管理'), 'V1 management domain disappeared');
+    assert(content.includes('五科連結'), 'V1 subject-axis disclosure disappeared');
+    assert(content.includes('研究方法'), 'V1 research-method axis disappeared');
     assert(content.includes('不代表命題保證'));
   } else {
     assert(content.includes('命題趨勢雷達'), 'V2 trend radar heading missing');
     assert(content.includes('事件聚類・證據分級'), 'evidence-grading badge missing');
     const expectedEvent = singleSource ? oneOffEvent : event;
     assert(content.includes(expectedEvent.title), 'event card disappeared');
+    assert(content.includes('社會工作管理'), 'V2 knowledge root disappeared');
+    assert(content.includes(expectedEvent.management_domains[0]), 'V2 management domain disappeared');
+    assert(content.includes('五科連結'), 'V2 subject-axis disclosure disappeared');
+    assert(content.includes('研究方法'), 'V2 research-method axis disappeared');
     if (singleSource) {
       for (const value of [
         '單次觀察', '尚不足以形成趨勢', '來源依據',

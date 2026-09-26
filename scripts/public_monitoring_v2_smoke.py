@@ -91,6 +91,7 @@ def main() -> int:
     assert required_official.issubset(set(source_urls)), "new official feeds missing from registry"
 
     news = read_json("auto/current_affairs.json")
+    signals = read_json("auto/current_affairs_signals.json")
     events = read_json("auto/current_affairs_events.json")
     trends = read_json("auto/current_affairs_trends.json")
     laws = read_json("auto/legal_watch.json")
@@ -108,10 +109,35 @@ def main() -> int:
     assert int(news.get("optional_feed_error_count", 0)) >= 0
     items = news.get("items") or []
     assert items, "current-affairs snapshot is empty"
+    exam_subjects = {
+        "社會工作", "社會工作直接服務", "人類行為與社會環境",
+        "社會工作研究方法", "社會政策與社會立法",
+    }
+    management_domains = {
+        "規劃與政策執行", "組織治理與責信", "人力與督導", "服務輸送與跨網絡",
+        "方案與資源管理", "品質與風險管理", "成效評估與證據", "倫理與權利保障",
+    }
+
+    def assert_knowledge(row):
+        assert row.get("knowledge_root") == "社會工作管理", row
+        domains = row.get("management_domains") or []
+        axes = row.get("exam_subject_axes") or []
+        topics = row.get("knowledge_topics") or []
+        assert domains and set(domains).issubset(management_domains), row
+        assert axes and set(axes).issubset(exam_subjects), row
+        assert topics, row
+
     for row in items:
         assert str(row.get("title") or "").strip()
         assert str(row.get("source_url") or "").startswith("https://")
         assert row.get("category")
+        assert_knowledge(row)
+
+    assert signals.get("schema_version") == 1
+    signal_rows = signals.get("items") or []
+    assert signal_rows, "current-affairs signal snapshot is empty"
+    for row in signal_rows:
+        assert_knowledge(row)
 
     assert events.get("schema_version") == 1
     event_rows = events.get("events") or []
@@ -130,6 +156,7 @@ def main() -> int:
         assert int(row.get("source_count") or 0) >= 1
         assert int(row.get("official_source_count") or 0) >= 0
         assert int(row.get("observation_count") or 0) >= 1
+        assert_knowledge(row)
         stats = row.get("historical_exam_stats")
         assert isinstance(stats, dict) and stats, event_id
         assert int(stats.get("matched_question_count") or 0) >= len(row.get("related_exam_questions") or [])
@@ -168,6 +195,7 @@ def main() -> int:
         ):
             assert key in factors, (key, factors)
         assert isinstance(row.get("why"), list) and row.get("why")
+        assert_knowledge(row)
         hist_count = int(row.get("historical_question_count") or 0)
         assert hist_count >= len(row.get("related_exam_questions") or [])
         weighted_count = float(row.get("historical_weighted_match_count") or 0)
