@@ -141,6 +141,10 @@ jobs:
             --questions-csv data/questions_master_backup_20260824_2220.csv \
             --output /tmp/swsi-monitoring-pr/current_affairs_signals.json \
             --limit 30
+          # Event clustering intentionally carries forward observation history
+          # from the previous public snapshot. Seed the isolated output with the
+          # tracked event state so this reproduces the production builder contract.
+          cp auto/current_affairs_events.json /tmp/swsi-monitoring-pr/current_affairs_events.json
           python scripts/build_current_affairs_events_snapshot.py \
             --news auto/current_affairs.json \
             --signals /tmp/swsi-monitoring-pr/current_affairs_signals.json \
