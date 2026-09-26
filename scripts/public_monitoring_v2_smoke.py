@@ -130,6 +130,12 @@ def main() -> int:
         assert int(row.get("source_count") or 0) >= 1
         assert int(row.get("official_source_count") or 0) >= 0
         assert int(row.get("observation_count") or 0) >= 1
+        assert row.get("knowledge_root") == "社會工作管理", row
+        assert row.get("knowledge_model") == "management-hierarchy-over-five-exam-subjects-v3", row
+        assert isinstance(row.get("management_domains"), list) and row.get("management_domains"), row
+        assert isinstance(row.get("exam_subject_axes"), list) and row.get("exam_subject_axes"), row
+        assert isinstance(row.get("subject_topics"), dict) and row.get("subject_topics"), row
+        assert isinstance(row.get("knowledge_paths"), list) and row.get("knowledge_paths"), row
         stats = row.get("historical_exam_stats")
         assert isinstance(stats, dict) and stats, event_id
         assert int(stats.get("matched_question_count") or 0) >= len(row.get("related_exam_questions") or [])
@@ -158,6 +164,12 @@ def main() -> int:
     for row in trend_rows:
         assert str(row.get("canonical_event_id") or "") in event_ids
         assert row.get("trend_state") in allowed_states
+        assert row.get("knowledge_root") == "社會工作管理", row
+        assert row.get("knowledge_model") == "management-hierarchy-over-five-exam-subjects-v3", row
+        assert isinstance(row.get("management_domains"), list) and row.get("management_domains"), row
+        assert isinstance(row.get("exam_subject_axes"), list) and row.get("exam_subject_axes"), row
+        assert isinstance(row.get("subject_topics"), dict) and row.get("subject_topics"), row
+        assert isinstance(row.get("knowledge_paths"), list) and row.get("knowledge_paths"), row
         score = float(row.get("trend_score"))
         assert 0.0 <= score <= 10.0
         factors = row.get("factors")
