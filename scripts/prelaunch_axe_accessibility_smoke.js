@@ -47,7 +47,7 @@ async function injectAndRun(page,label){
   console.log(
     `AXE ${label}: violations=${result.violations.length} blocking=${blocking.length} moderate/minor=${moderate.length} incomplete=${(result.incomplete||[]).length}`
   );
-  assert.strictEqual(blocking.length,0,`${label}: axe found critical/serious WCAG violations`);
+  return blocking.length;
 }
 
 (async()=>{
@@ -61,27 +61,29 @@ async function injectAndRun(page,label){
   await page.waitForSelector('.swsi-focus-primary',{timeout:30000});
   await dismissOnboarding(page);
 
-  await injectAndRun(page,'home');
+  let blockingTotal=0;
+  blockingTotal+=await injectAndRun(page,'home');
 
   assert.strictEqual(await page.evaluate(()=>typeof window.swsiOpenPublicInfo),'function','public info opener missing');
   await page.evaluate(()=>window.swsiOpenPublicInfo('about'));
   await page.waitForSelector('.swsi-public-info-dialog',{timeout:5000});
-  await injectAndRun(page,'public-info');
+  blockingTotal+=await injectAndRun(page,'public-info');
   await page.keyboard.press('Escape');
   await page.waitForFunction(()=>!document.getElementById('swsi-public-info-backdrop'));
 
   assert.strictEqual(await page.evaluate(()=>typeof window.swsiOpenReport),'function','feedback opener missing');
   await page.evaluate(()=>window.swsiOpenReport());
   await page.waitForSelector('.swsi-report-dialog',{timeout:5000});
-  await injectAndRun(page,'feedback-dialog');
+  blockingTotal+=await injectAndRun(page,'feedback-dialog');
   await page.keyboard.press('Escape');
   await page.waitForFunction(()=>!document.getElementById('swsi-report-backdrop'));
 
   assert.strictEqual(await page.evaluate(()=>typeof window.swsiOpenExamDate),'function','exam date opener missing');
   await page.evaluate(()=>window.swsiOpenExamDate());
   await page.waitForSelector('.swsi-exam-dialog',{timeout:5000});
-  await injectAndRun(page,'exam-date-dialog');
+  blockingTotal+=await injectAndRun(page,'exam-date-dialog');
 
+  assert.strictEqual(blockingTotal,0,`axe found ${blockingTotal} critical/serious WCAG violation group(s) across tested UI states`);
   assert.deepStrictEqual(pageErrors,[],`page errors: ${pageErrors.join(' | ')}`);
   await context.close();
   await browser.close();
