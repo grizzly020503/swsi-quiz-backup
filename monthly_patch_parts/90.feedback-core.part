@@ -27,7 +27,7 @@
       .swsi-report-dialog{width:min(100%,520px);max-height:min(86vh,720px);overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:20px;box-shadow:0 22px 60px rgba(25,31,28,.22);padding:18px 17px 17px;color:var(--ink);font-family:'Noto Sans TC',sans-serif}
       .swsi-report-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:11px}
       .swsi-report-head h2{font-family:'Noto Serif TC',serif;font-size:20px;line-height:1.35;margin:0;color:var(--ink)}
-      .swsi-report-head p{font-size:11.5px;color:var(--ink-soft);line-height:1.55;margin:3px 0 0}
+      .swsi-report-head p{font-size:11.5px;color:#6E746E;line-height:1.55;margin:3px 0 0}
       .swsi-report-close{margin-left:auto;flex:0 0 auto;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--ink-soft);font-size:19px;line-height:1;cursor:pointer}
       .swsi-report-context{background:#F3F7F5;border:1px solid #DDE8E2;border-radius:12px;padding:10px 11px;margin-bottom:11px;font-size:11.5px;line-height:1.6;color:#5F6964;word-break:break-word}
       .swsi-report-context b{color:var(--pine-deep)}
@@ -39,10 +39,10 @@
       .swsi-report-field select,.swsi-report-field input{min-height:45px;padding:10px 11px}
       .swsi-report-field textarea{min-height:126px;resize:vertical;padding:11px 12px;line-height:1.65}
       .swsi-report-field select:focus,.swsi-report-field textarea:focus,.swsi-report-field input:focus{border-color:var(--pine);box-shadow:0 0 0 3px rgba(79,126,118,.08)}
-      .swsi-report-help{display:flex;justify-content:space-between;gap:8px;margin-top:4px;color:var(--ink-soft);font-size:10.5px;line-height:1.45}
+      .swsi-report-help{display:flex;justify-content:space-between;gap:8px;margin-top:4px;color:#6E746E;font-size:10.5px;line-height:1.45}
       .swsi-report-actions{display:grid;grid-template-columns:1fr 1.45fr;gap:8px;margin-top:2px}
       .swsi-report-actions button{min-height:45px;border-radius:11px;font-family:'Noto Sans TC',sans-serif;font-size:13.5px;font-weight:800;cursor:pointer}
-      .swsi-report-cancel{background:#fff;color:var(--ink-soft);border:1px solid var(--line)}
+      .swsi-report-cancel{background:#fff;color:#6E746E;border:1px solid var(--line)}
       .swsi-report-submit{background:var(--pine-deep);color:#fff;border:0}
       .swsi-report-submit:disabled{opacity:.55;cursor:wait}
       .swsi-report-status{min-height:20px;margin-top:9px;font-size:11.5px;line-height:1.55;color:var(--ink-soft)}

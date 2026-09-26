@@ -18,10 +18,10 @@
       .swsi-focus-primary{background:#fff;border:1px solid rgba(79,126,118,.44);border-radius:17px;padding:17px;margin-bottom:9px;box-shadow:0 2px 10px rgba(43,42,38,.025)}
       .swsi-focus-primary .label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--pine);letter-spacing:.8px;margin-bottom:3px}
       .swsi-focus-primary h2{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-title,16px);line-height:1.4;margin:0;font-weight:900}
-      .swsi-focus-primary p{font-size:var(--swsi-ui-small,11.5px);line-height:1.65;color:var(--ink-soft);margin:4px 0 0}
+      .swsi-focus-primary p{font-size:var(--swsi-ui-small,11.5px);line-height:1.65;color:#6E746E;margin:4px 0 0}
       .swsi-focus-actions{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:8px;margin-top:13px}
       .swsi-focus-actions button{min-height:48px;border-radius:12px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,14px);font-weight:800;cursor:pointer}
-      .swsi-focus-actions .go{border:none;background:var(--pine-deep);color:#fff}.swsi-focus-actions .choose{border:1px solid var(--line);background:var(--paper2);color:var(--pine)}
+      .swsi-focus-actions .go{border:none;background:var(--pine-deep);color:#fff}.swsi-focus-actions .choose{border:1px solid var(--line);background:var(--paper2);color:var(--pine-deep)}
       .swsi-focus-custom{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px;margin:-1px 0 10px}
       .swsi-focus-custom .field-label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--ink-soft);margin:0 0 5px}.swsi-focus-custom .hint{font-size:var(--swsi-ui-small,11px);line-height:1.6;color:var(--ink-soft);margin:1px 0 9px}
       .swsi-study-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px 16px;margin:0 0 8px;cursor:pointer;color:var(--ink);font-family:inherit}

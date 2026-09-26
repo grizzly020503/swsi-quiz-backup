@@ -20,7 +20,7 @@
       .swsi-public-info-dialog{width:min(100%,540px);max-height:min(86vh,760px);max-height:min(86dvh,760px);overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:20px;box-shadow:0 22px 60px rgba(25,31,28,.22);padding:19px 18px;color:var(--ink);font-family:'Noto Sans TC',sans-serif;overscroll-behavior:contain}
       .swsi-public-info-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
       .swsi-public-info-head h2{font-family:'Noto Serif TC',serif;font-size:21px;line-height:1.35;margin:0}
-      .swsi-public-info-head p{font-size:11.5px;line-height:1.6;color:var(--ink-soft);margin:3px 0 0}
+      .swsi-public-info-head p{font-size:11.5px;line-height:1.6;color:#6E746E;margin:3px 0 0}
       .swsi-public-info-close{margin-left:auto;flex:0 0 auto;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--ink-soft);font-size:19px;cursor:pointer}
       .swsi-public-info-body{font-size:13px;line-height:1.85;color:#414743}
       .swsi-public-info-body h3{font-family:'Noto Serif TC',serif;color:var(--pine-deep);font-size:15px;margin:17px 0 5px}
@@ -30,7 +30,7 @@
       .swsi-public-info-body li{margin:3px 0}
       .swsi-public-info-note{background:#F3F7F5;border-left:3px solid #91A9A0;border-radius:0 10px 10px 0;padding:10px 11px;margin:10px 0;color:#5D6762}
       .swsi-public-info-nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px;margin:0 0 14px}
-      .swsi-public-info-nav button{border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:9px;min-height:36px;font:700 11px/1.3 'Noto Sans TC',sans-serif;cursor:pointer;padding:6px 3px}
+      .swsi-public-info-nav button{border:1px solid var(--line);background:#fff;color:#6E746E;border-radius:9px;min-height:36px;font:700 11px/1.3 'Noto Sans TC',sans-serif;cursor:pointer;padding:6px 3px}
       .swsi-public-info-nav button.on{background:var(--pine);border-color:var(--pine);color:#fff}
       .swsi-monitor-summary{border:1px solid #D7E0DB;border-radius:14px;padding:12px 13px;background:#F7FAF8;margin-bottom:12px}
       .swsi-monitor-summary strong{display:block;font-size:15px;color:var(--pine-deep);margin-bottom:3px}

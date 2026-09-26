@@ -12,6 +12,7 @@ on:
       - 'scripts/prelaunch_deadend_smoke.js'
       - 'scripts/prelaunch_error_states_smoke.js'
       - 'scripts/prelaunch_accessibility_touch_smoke.js'
+      - 'scripts/prelaunch_axe_accessibility_smoke.js'
       - 'scripts/prelaunch_webkit_smoke.js'
       - 'scripts/prelaunch_storage_degradation_smoke.js'
       - 'scripts/prelaunch_slow_network_smoke.js'
@@ -58,10 +59,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
@@ -73,6 +74,7 @@ jobs:
           node --check scripts/prelaunch_deadend_smoke.js
           node --check scripts/prelaunch_error_states_smoke.js
           node --check scripts/prelaunch_accessibility_touch_smoke.js
+          node --check scripts/prelaunch_axe_accessibility_smoke.js
           node --check scripts/prelaunch_webkit_smoke.js
           node --check scripts/prelaunch_storage_degradation_smoke.js
           node --check scripts/prelaunch_slow_network_smoke.js
@@ -92,7 +94,7 @@ jobs:
 
       - name: Install Playwright Chromium and WebKit
         run: |
-          npm install --no-save playwright@1.55.0
+          npm install --no-save playwright@1.55.0 axe-core@4.13.0
           npx playwright install --with-deps chromium webkit
 
       - name: Mobile launch, layout, dead-end, error-state, accessibility, WebKit, storage, slow-network and PWA resilience smoke
@@ -109,6 +111,7 @@ jobs:
           node scripts/prelaunch_deadend_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_error_states_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_accessibility_touch_smoke.js http://127.0.0.1:4173/
+          node scripts/prelaunch_axe_accessibility_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_webkit_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_storage_degradation_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_slow_network_smoke.js http://127.0.0.1:4173/
