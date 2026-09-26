@@ -2,6 +2,7 @@
 """Synthetic regression tests for SWSI current-affairs V2 clustering/trends."""
 from __future__ import annotations
 
+from build_current_affairs_events_snapshot import attach_event_knowledge
 from build_current_affairs_trends_snapshot import trend_for
 from current_affairs_event_cluster import cluster_items
 
@@ -41,6 +42,19 @@ def row(
         "related_laws": laws or [],
         "related_exam_questions": related or [],
         "historical_exam_stats": history or {},
+        "knowledge_root": "社會工作管理",
+        "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+        "management_domains": ["服務輸送與跨網絡", "規劃與政策執行"],
+        "exam_subject_axes": ["社會政策與社會立法", "社會工作直接服務"],
+        "subject_topics": {
+            "社會政策與社會立法": ["長照制度、老人福利與社會保障"],
+            "社會工作直接服務": ["長照個案管理與家庭照顧者支持"],
+        },
+        "knowledge_topics": ["長照與高齡"],
+        "knowledge_paths": [
+            "社會工作管理 > 服務輸送與跨網絡",
+            "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
+        ],
     }
 
 
@@ -118,7 +132,8 @@ def main() -> int:
         policy="high",
         mcq="high",
     )
-    events = cluster_items(same + [different])
+    source_items = same + [different]
+    events = attach_event_knowledge(cluster_items(source_items), source_items)
     assert len(events) == 2, events
     merged = next(x for x in events if x["source_count"] == 3)
     assert merged["official_source_count"] == 2, merged
@@ -132,6 +147,11 @@ def main() -> int:
     assert history.get("aggregation_method") == "max-quality-member-plus-year-union-v2.2", history
     assert history.get("weighted_match_count") == 6.25, history
     assert history.get("match_breakdown") == {"strong": 5, "medium": 2, "concept": 1}, history
+    assert merged["knowledge_root"] == "社會工作管理", merged
+    assert "服務輸送與跨網絡" in merged["management_domains"], merged
+    assert "社會政策與社會立法" in merged["exam_subject_axes"], merged
+    assert merged["subject_topics"]["社會工作直接服務"] == ["長照個案管理與家庭照顧者支持"], merged
+    assert any(path.startswith("社會工作管理 >") for path in merged["knowledge_paths"]), merged
 
     bilingual_same = [
         {
@@ -260,6 +280,9 @@ def main() -> int:
     assert policy_trend["historical_subject_count"] == 2
     assert policy_trend["factors"]["historical_frequency"] > 0
     assert policy_trend["factors"]["recent_exam_support"] > 0
+    assert policy_trend["knowledge_root"] == "社會工作管理"
+    assert "服務輸送與跨網絡" in policy_trend["management_domains"]
+    assert policy_trend["subject_topics"]["社會政策與社會立法"] == ["長照制度、老人福利與社會保障"]
 
     stale_history = {
         **official_policy,
