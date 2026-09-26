@@ -178,6 +178,7 @@ def main():
         "schema_version": 2,
         "source_feed_count": int(src.get("feed_count") or 0),
         "feed_error_count": len(src.get("feed_errors") or []),
+        "optional_feed_error_count": len(src.get("optional_feed_errors") or []),
         "items": topics,
     }
 
