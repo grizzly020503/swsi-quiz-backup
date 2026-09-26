@@ -17,3 +17,5 @@ Thumbs.db
 swsi-supabase-private-*.tar.age
 swsi-supabase-private-*.tar.age.sha256
 *.agekey
+/restore-reports/
+swsi-private-restore-*.json
