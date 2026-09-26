@@ -19,7 +19,7 @@ ALLOWED = {
     "id", "title", "summary", "source_name", "source_url", "source_type", "published_at", "region",
     "category", "relevance_score", "exam_tags", "subjects",
     "concept_keys", "agency_keys", "fact_keys",
-    "knowledge_root", "management_domains", "exam_subject_axes", "knowledge_topics",
+    "knowledge_root", "knowledge_model", "management_domains", "exam_subject_axes", "subject_topics", "knowledge_topics", "knowledge_paths",
 }
 
 
@@ -32,9 +32,17 @@ def clean_row(row):
     out["agency_keys"] = list(dict.fromkeys(out.get("agency_keys") or []))
     out["fact_keys"] = list(dict.fromkeys(out.get("fact_keys") or []))
     out["knowledge_root"] = str(out.get("knowledge_root") or "")
+    out["knowledge_model"] = str(out.get("knowledge_model") or "")
     out["management_domains"] = list(dict.fromkeys(out.get("management_domains") or []))
     out["exam_subject_axes"] = list(dict.fromkeys(out.get("exam_subject_axes") or []))
+    raw_subject_topics = out.get("subject_topics") or {}
+    out["subject_topics"] = {
+        str(subject): list(dict.fromkeys(topics or []))[:6]
+        for subject, topics in raw_subject_topics.items()
+        if str(subject).strip() and isinstance(topics, list)
+    } if isinstance(raw_subject_topics, dict) else {}
     out["knowledge_topics"] = list(dict.fromkeys(out.get("knowledge_topics") or []))
+    out["knowledge_paths"] = list(dict.fromkeys(out.get("knowledge_paths") or []))[:20]
     return out
 
 
