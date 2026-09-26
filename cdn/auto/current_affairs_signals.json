@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-25T23:23:00Z",
-  "item_count": 11,
+  "generated_at": "2026-09-26T01:04:15Z",
+  "item_count": 10,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
   "note": "SWSI 命題訊號快照；用於複習方向，不代表命題保證。",
@@ -638,133 +638,6 @@
         "subject_counts": {
           "社會工作": 7,
           "社會政策與社會立法": 13
-        },
-        "subject_count": 2,
-        "law_match_count": 0,
-        "law_match_year_count": 0,
-        "law_match_years": [],
-        "high_confidence_match_count": 0,
-        "matching_method": "event-evidence-v2.2"
-      }
-    },
-    {
-      "id": "beb2115eab32390a360d5fca66b2a43b",
-      "title": "響應0-6歲國家一起養！中央部會落實員工子女托育",
-      "summary": "為落實行政院「0-6歲國家一起養」政策，教育部積極推動職場互助教保服務中心（以下稱作職場中心），善用職場周遭與辦公空間，縮短家長接送距離，提供平價、優質的托育服務，打造讓員工安心工作的友善職場環境。截至115年8月，教育部積極協助15個部會，累計設置166處員工子女非營利幼兒園或職場中心，提供約9,700個教保服務名額。家長每月最高繳費2,000元，第3胎、低收及中低收入戶免繳費，其餘營運成本與家長繳費之差額，由教育部負擔。經濟部及農業部亦響應國家政策，於所屬機關設置多處職場中心，提供員工安心托育的支持。 經濟部新竹產業園區服務中心職場中心秉持「生活即教",
-      "source_name": "教育部即時新聞",
-      "source_url": "https://www.edu.tw/News_Content.aspx?n=9E7AC85F1954DDA8&s=B5146C9A2897E8E9",
-      "published_at": "2026-09-09T02:54:00Z",
-      "region": "taiwan",
-      "category": "性別與家庭政策",
-      "relevance_score": 5,
-      "exam_tags": [
-        "托育",
-        "政策",
-        "行政院"
-      ],
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "policy_signal": "low",
-      "essay_value": "medium",
-      "mcq_fact_density": "high",
-      "signal_confidence": "medium",
-      "signal_score": 7,
-      "exam_point_summary": "響應0-6歲國家一起養！中央部會落實員工子女托育。偏宣導或活動訊息；申論可從性別權力、照顧負荷與家庭政策切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「性別權力、照顧負荷與家庭政策」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "教育部",
-        "行政院",
-        "托育"
-      ],
-      "related_laws": [],
-      "related_exam_questions": [
-        {
-          "id": "SP115-1-21",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "21",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "事件詞：托育；同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SW-115-2-031",
-          "subject": "社會工作",
-          "year": "115",
-          "round": "第二次",
-          "qno": "31",
-          "major": "兒少服務",
-          "topic": "兒童福利服務 > 服務功能分類",
-          "match_reason": "事件詞：托育；同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SW-114-1-17",
-          "subject": "社會工作",
-          "year": "114",
-          "round": "第一次",
-          "qno": "17",
-          "major": "社會工作理論",
-          "topic": "系統理論 > 家庭系統處遇目標",
-          "match_reason": "事件詞：托育；同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP113-1-24",
-          "subject": "社會政策與社會立法",
-          "year": "113",
-          "round": "第一次",
-          "qno": "24",
-          "major": null,
-          "topic": null,
-          "match_reason": "事件詞：托育；同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP113-1-25",
-          "subject": "社會政策與社會立法",
-          "year": "113",
-          "round": "第一次",
-          "qno": "25",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 兒少福利機構類別",
-          "match_reason": "同義考點：托育",
-          "match_score": 3.2
-        }
-      ],
-      "historical_exam_stats": {
-        "matched_question_count": 18,
-        "weighted_match_count": 3.0,
-        "match_breakdown": {
-          "strong": 0,
-          "medium": 18,
-          "concept": 0
-        },
-        "matched_year_count": 11,
-        "matched_years": [
-          104,
-          105,
-          107,
-          108,
-          109,
-          110,
-          111,
-          112,
-          113,
-          114,
-          115
-        ],
-        "earliest_exam_year": 104,
-        "latest_exam_year": 115,
-        "corpus_latest_year": 115,
-        "years_since_last_exam": 0,
-        "subject_counts": {
-          "社會工作": 7,
-          "社會政策與社會立法": 11
         },
         "subject_count": 2,
         "law_match_count": 0,
