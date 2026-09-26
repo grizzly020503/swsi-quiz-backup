@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-26T05:09:08Z",
-  "event_count": 5,
+  "generated_at": "2026-09-26T05:14:23Z",
+  "event_count": 7,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
   "trends": [
@@ -404,6 +404,141 @@
           "source_type": "official",
           "published_at": "2026-09-24T03:30:00Z",
           "item_id": "6c3e075258813e8339a40cebd78e2c0c"
+        }
+      ]
+    },
+    {
+      "canonical_event_id": "336f586340c6af43a5b2960d",
+      "title": "北市女社工盜領個案千萬老本遭羈押 15名牌包、精品曝光",
+      "category": "社工專業與社福制度",
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "trend_state": "one-off",
+      "trend_score": 1.6,
+      "why": [
+        "目前證據仍偏單次事件"
+      ],
+      "factors": {
+        "cross_source": 0.0,
+        "official_evidence": 0.0,
+        "policy_change": 0.0,
+        "historical_frequency": 0.0,
+        "historical_year_breadth": 0.0,
+        "recent_exam_support": 0.0,
+        "historical_subject_breadth": 0.0,
+        "law_relevance": 0.0,
+        "persistence": 0.01,
+        "essay_value": 1.1,
+        "mcq_density": 0.0,
+        "recency": 1.0
+      },
+      "source_count": 1,
+      "official_source_count": 0,
+      "observation_count": 1,
+      "first_seen": "2026-09-23T07:45:25Z",
+      "last_seen": "2026-09-23T11:58:41Z",
+      "related_laws": [],
+      "historical_question_count": 0,
+      "historical_weighted_match_count": 0.0,
+      "historical_match_breakdown": {
+        "strong": 0,
+        "medium": 0,
+        "concept": 0
+      },
+      "historical_exam_years": [],
+      "latest_related_exam_year": null,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": null,
+      "historical_subject_counts": {},
+      "historical_subject_count": 0,
+      "historical_law_match_count": 0,
+      "historical_law_match_years": [],
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
+      "related_exam_questions": [],
+      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [],
+      "evidence": [
+        {
+          "source_name": "中天新聞社會",
+          "source_url": "https://ctinews.com/news/items/BexXVRVpWb",
+          "source_type": "news",
+          "published_at": "2026-09-23T11:58:41Z",
+          "item_id": "5d82c1d8ed9b7d8bec2a31a68173fd6f"
+        },
+        {
+          "source_name": "中天新聞社會",
+          "source_url": "https://ctinews.com/news/items/M9n6mrrqxR",
+          "source_type": "news",
+          "published_at": "2026-09-23T07:45:25Z",
+          "item_id": "b350af6ae1cb731ea724d7803d4290e1"
+        }
+      ]
+    },
+    {
+      "canonical_event_id": "7dbec58b12307c746b091d91",
+      "title": "涉侵占1200萬買名牌包！甜美社工羈押禁見「3大理由曝」",
+      "category": "社工專業與社福制度",
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "trend_state": "one-off",
+      "trend_score": 1.6,
+      "why": [
+        "目前證據仍偏單次事件"
+      ],
+      "factors": {
+        "cross_source": 0.0,
+        "official_evidence": 0.0,
+        "policy_change": 0.0,
+        "historical_frequency": 0.0,
+        "historical_year_breadth": 0.0,
+        "recent_exam_support": 0.0,
+        "historical_subject_breadth": 0.0,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
+        "essay_value": 1.1,
+        "mcq_density": 0.0,
+        "recency": 1.0
+      },
+      "source_count": 1,
+      "official_source_count": 0,
+      "observation_count": 1,
+      "first_seen": "2026-09-24T00:28:16Z",
+      "last_seen": "2026-09-24T00:28:16Z",
+      "related_laws": [],
+      "historical_question_count": 0,
+      "historical_weighted_match_count": 0.0,
+      "historical_match_breakdown": {
+        "strong": 0,
+        "medium": 0,
+        "concept": 0
+      },
+      "historical_exam_years": [],
+      "latest_related_exam_year": null,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": null,
+      "historical_subject_counts": {},
+      "historical_subject_count": 0,
+      "historical_law_match_count": 0,
+      "historical_law_match_years": [],
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
+      "related_exam_questions": [],
+      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [],
+      "evidence": [
+        {
+          "source_name": "中天新聞社會",
+          "source_url": "https://ctinews.com/news/items/q6xVpROzW7",
+          "source_type": "news",
+          "published_at": "2026-09-24T00:28:16Z",
+          "item_id": "d0125720d7c1077d1b6e660de56aebfb"
         }
       ]
     },
