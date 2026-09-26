@@ -34,13 +34,23 @@ def row(
         "exam_tags": tags or ["老人", "高齡", "政策"],
         "subjects": ["社會政策與社會立法"],
         "knowledge_root": "社會工作管理",
+        "knowledge_model": "management-lens-over-five-exam-subjects-v2",
         "management_domains": ["服務輸送與跨網絡", "規劃與政策執行"],
         "exam_subject_axes": [
             "社會政策與社會立法",
             "社會工作直接服務",
             "人類行為與社會環境",
         ],
+        "subject_topics": {
+            "社會政策與社會立法": ["長照制度、老人福利與社會保障"],
+            "社會工作直接服務": ["長照個案管理與家庭照顧者支持"],
+            "人類行為與社會環境": ["老化、失智與生命歷程"],
+        },
         "knowledge_topics": ["長照與高齡", "老人"],
+        "knowledge_paths": [
+            "社會工作管理 > 服務輸送與跨網絡",
+            "社會工作管理 > 五科整合 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
+        ],
         "policy_signal": policy,
         "essay_value": essay,
         "mcq_fact_density": mcq,
@@ -141,15 +151,26 @@ def main() -> int:
     assert history.get("weighted_match_count") == 6.25, history
     assert history.get("match_breakdown") == {"strong": 5, "medium": 2, "concept": 1}, history
     assert merged.get("knowledge_root") == "社會工作管理", merged
+    assert merged.get("knowledge_model") == "management-lens-over-five-exam-subjects-v2", merged
     assert "服務輸送與跨網絡" in (merged.get("management_domains") or []), merged
     assert "社會工作直接服務" in (merged.get("exam_subject_axes") or []), merged
+    assert "長照個案管理與家庭照顧者支持" in (
+        (merged.get("subject_topics") or {}).get("社會工作直接服務") or []
+    ), merged
     assert "長照與高齡" in (merged.get("knowledge_topics") or []), merged
+    assert any(
+        "五科整合 > 社會工作直接服務" in path
+        for path in (merged.get("knowledge_paths") or [])
+    ), merged
 
     merged_trend = trend_for(merged, "2026-09-25T12:00:00Z")
     assert merged_trend.get("knowledge_root") == "社會工作管理", merged_trend
+    assert merged_trend.get("knowledge_model") == merged.get("knowledge_model"), merged_trend
     assert merged_trend.get("management_domains") == merged.get("management_domains"), merged_trend
     assert merged_trend.get("exam_subject_axes") == merged.get("exam_subject_axes"), merged_trend
+    assert merged_trend.get("subject_topics") == merged.get("subject_topics"), merged_trend
     assert merged_trend.get("knowledge_topics") == merged.get("knowledge_topics"), merged_trend
+    assert merged_trend.get("knowledge_paths") == merged.get("knowledge_paths"), merged_trend
 
     bilingual_same = [
         {

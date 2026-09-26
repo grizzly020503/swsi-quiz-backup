@@ -120,12 +120,19 @@ def main() -> int:
 
     def assert_knowledge(row):
         assert row.get("knowledge_root") == "社會工作管理", row
+        assert row.get("knowledge_model") == "management-lens-over-five-exam-subjects-v2", row
         domains = row.get("management_domains") or []
         axes = row.get("exam_subject_axes") or []
+        subject_topics = row.get("subject_topics") or {}
         topics = row.get("knowledge_topics") or []
+        paths = row.get("knowledge_paths") or []
         assert domains and set(domains).issubset(management_domains), row
         assert axes and set(axes).issubset(exam_subjects), row
+        assert isinstance(subject_topics, dict) and subject_topics, row
+        assert set(subject_topics).issubset(set(axes)), row
+        assert all(isinstance(v, list) and v for v in subject_topics.values()), row
         assert topics, row
+        assert paths and all(str(x).startswith("社會工作管理 >") for x in paths), row
 
     for row in items:
         assert str(row.get("title") or "").strip()

@@ -100,8 +100,12 @@ BLOCK = r'''
     var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(subjectLabel(x))+'</span>';}).join('');
     var management=(ev.management_domains||tr.management_domains||[]).slice(0,3);
     var axes=(ev.exam_subject_axes||tr.exam_subject_axes||[]);
+    var subjectTopics=ev.subject_topics||tr.subject_topics||{};
     var managementHtml=management.length?'<div class="nlr-signal-text"><b>社會工作管理</b>｜'+management.map(function(x){return E(x);}).join(' ・ ')+'</div>':'';
-    var axesHtml=axes.length?'<details class="nlr-detail"><summary>五科連結</summary><div class="nlr-chips">'+axes.map(function(x){return '<span class="nlr-chip">'+E(subjectLabel(x))+'</span>';}).join('')+'</div></details>':'';
+    var axesHtml=axes.length?'<details class="nlr-detail"><summary>五科怎麼連？</summary><ul>'+axes.map(function(x){
+      var topics=subjectTopics[x]||[];
+      return '<li><b>'+E(subjectLabel(x))+'</b>'+(topics.length?'：'+topics.slice(0,3).map(function(t){return E(t);}).join('、'):'')+'</li>';
+    }).join('')+'</ul></details>':'';
     var sourceCount=Number(ev.source_count||0), officialCount=Number(ev.official_source_count||0);
     var observationCount=Number(tr.observation_count||ev.observation_count||1);
     var trendReady=sourceCount>=2||observationCount>=2;
@@ -152,8 +156,12 @@ BLOCK = r'''
     var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(subjectLabel(x))+'</span>';}).join('');
     var management=(ev.management_domains||sig.management_domains||[]).slice(0,3);
     var axes=(ev.exam_subject_axes||sig.exam_subject_axes||[]);
+    var subjectTopics=ev.subject_topics||sig.subject_topics||{};
     var managementHtml=management.length?'<div class="nlr-signal-text"><b>社會工作管理</b>｜'+management.map(function(x){return E(x);}).join(' ・ ')+'</div>':'';
-    var axesHtml=axes.length?'<details class="nlr-detail"><summary>五科連結</summary><div class="nlr-chips">'+axes.map(function(x){return '<span class="nlr-chip">'+E(subjectLabel(x))+'</span>';}).join('')+'</div></details>':'';
+    var axesHtml=axes.length?'<details class="nlr-detail"><summary>五科怎麼連？</summary><ul>'+axes.map(function(x){
+      var topics=subjectTopics[x]||[];
+      return '<li><b>'+E(subjectLabel(x))+'</b>'+(topics.length?'：'+topics.slice(0,3).map(function(t){return E(t);}).join('、'):'')+'</li>';
+    }).join('')+'</ul></details>':'';
     var summary=String(ev.summary||''); if(summary.length>220) summary=summary.slice(0,220)+'…';
     return '<div class="nlr-card">'
       +'<div class="nlr-head"><span class="nlr-cat">'+E(ev.category||'時事')+'</span><span class="nlr-score">關聯 '+E(ev.relevance_score||'')+'/10</span></div>'

@@ -22,6 +22,13 @@ const news = {
   management_domains: ['品質與風險管理', '服務輸送與跨網絡'],
   exam_subject_axes: ['社會工作', '社會工作直接服務', '社會工作研究方法'],
   knowledge_topics: ['兒少保護', '責任通報'],
+  knowledge_model: 'management-lens-over-five-exam-subjects-v2',
+  subject_topics: {
+    '社會工作': ['專業倫理與兒童最佳利益'],
+    '社會工作直接服務': ['兒少保護風險評估'],
+    '社會工作研究方法': ['研究證據判讀'],
+  },
+  knowledge_paths: ['社會工作管理 > 五科整合 > 社會工作直接服務 > 兒少保護風險評估'],
 };
 const signal = {
   id: news.id, signal_confidence: 'high', signal_score: 9,
@@ -39,6 +46,13 @@ const event = {
   management_domains: ['品質與風險管理', '服務輸送與跨網絡'],
   exam_subject_axes: ['社會工作', '社會工作直接服務', '社會工作研究方法'],
   knowledge_topics: ['兒少保護', '責任通報'],
+  knowledge_model: 'management-lens-over-five-exam-subjects-v2',
+  subject_topics: {
+    '社會工作': ['專業倫理與兒童最佳利益'],
+    '社會工作直接服務': ['兒少保護風險評估'],
+    '社會工作研究方法': ['研究證據判讀'],
+  },
+  knowledge_paths: ['社會工作管理 > 五科整合 > 社會工作直接服務 > 兒少保護風險評估'],
   source_count: 3,
   official_source_count: 2,
   last_seen: '2026-09-25T08:00:00Z',
@@ -72,6 +86,13 @@ const oneOffEvent = {
   management_domains: ['規劃與政策執行', '倫理與權利保障'],
   exam_subject_axes: ['社會工作', '社會政策與社會立法', '社會工作研究方法'],
   knowledge_topics: ['勞動與社會保障'],
+  knowledge_model: 'management-lens-over-five-exam-subjects-v2',
+  subject_topics: {
+    '社會工作': ['勞動權益、社會正義與弱勢支持'],
+    '社會政策與社會立法': ['社會保險、就業安全與勞動政策'],
+    '社會工作研究方法': ['研究證據判讀'],
+  },
+  knowledge_paths: ['社會工作管理 > 五科整合 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策'],
   source_count: 1,
   official_source_count: 1,
   observation_count: 1,
@@ -162,8 +183,9 @@ async function scenario({
     assert(content.includes('命題訊號：高'), 'V1 signal fallback disappeared');
     assert(content.includes('社會工作管理'), 'V1 knowledge root disappeared');
     assert(content.includes('品質與風險管理'), 'V1 management domain disappeared');
-    assert(content.includes('五科連結'), 'V1 subject-axis disclosure disappeared');
+    assert(content.includes('五科怎麼連？'), 'V1 subject-axis disclosure disappeared');
     assert(content.includes('研究方法'), 'V1 research-method axis disappeared');
+    assert(content.includes('兒少保護風險評估'), 'V1 subject topic disappeared');
     assert(content.includes('不代表命題保證'));
   } else {
     assert(content.includes('命題趨勢雷達'), 'V2 trend radar heading missing');
@@ -172,8 +194,9 @@ async function scenario({
     assert(content.includes(expectedEvent.title), 'event card disappeared');
     assert(content.includes('社會工作管理'), 'V2 knowledge root disappeared');
     assert(content.includes(expectedEvent.management_domains[0]), 'V2 management domain disappeared');
-    assert(content.includes('五科連結'), 'V2 subject-axis disclosure disappeared');
+    assert(content.includes('五科怎麼連？'), 'V2 subject-axis disclosure disappeared');
     assert(content.includes('研究方法'), 'V2 research-method axis disappeared');
+    assert(content.includes(singleSource ? '社會保險、就業安全與勞動政策' : '兒少保護風險評估'), 'V2 subject topic disappeared');
     if (singleSource) {
       for (const value of [
         '單次觀察', '尚不足以形成趨勢', '來源依據',

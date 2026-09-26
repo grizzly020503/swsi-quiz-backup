@@ -368,6 +368,24 @@ def _merge_historical_stats(members: list[dict]) -> dict:
     }
 
 
+def _merge_subject_topics(members: list[dict]) -> dict[str, list[str]]:
+    merged: dict[str, list[str]] = {}
+    for row in members:
+        payload = row.get("subject_topics") or {}
+        if not isinstance(payload, dict):
+            continue
+        for subject, topics in payload.items():
+            subject = str(subject or "").strip()
+            if not subject:
+                continue
+            bucket = merged.setdefault(subject, [])
+            for raw in topics or []:
+                topic = str(raw or "").strip()
+                if topic and topic not in bucket:
+                    bucket.append(topic)
+    return {subject: topics[:4] for subject, topics in merged.items() if topics}
+
+
 def build_event(members: list[dict], previous: dict | None = None) -> dict:
     lead = _choose_lead(members)
     evidence = []
@@ -437,6 +455,14 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
             ),
             None,
         ),
+        "knowledge_model": next(
+            (
+                str(x.get("knowledge_model") or "").strip()
+                for x in [lead, *members]
+                if str(x.get("knowledge_model") or "").strip()
+            ),
+            None,
+        ),
         "management_domains": list(dict.fromkeys(
             str(y).strip()
             for x in [lead, *members]
@@ -449,12 +475,19 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
             for y in (x.get("exam_subject_axes") or [])
             if str(y).strip()
         ))[:5],
+        "subject_topics": _merge_subject_topics(members),
         "knowledge_topics": list(dict.fromkeys(
             str(y).strip()
             for x in [lead, *members]
             for y in (x.get("knowledge_topics") or [])
             if str(y).strip()
         ))[:12],
+        "knowledge_paths": list(dict.fromkeys(
+            str(y).strip()
+            for x in [lead, *members]
+            for y in (x.get("knowledge_paths") or [])
+            if str(y).strip()
+        ))[:20],
         "exam_tags": sorted({str(y) for x in members for y in (x.get("exam_tags") or []) if y}),
         "related_laws": sorted({str(y) for x in members for y in (x.get("related_laws") or []) if y}),
         "concept_keys": sorted({str(y) for x in members for y in (x.get("concept_keys") or []) if y}),
