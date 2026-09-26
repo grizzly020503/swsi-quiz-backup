@@ -22,7 +22,7 @@ REQUIRED = {
 }
 
 REQUIRED_MEDIA = {
-    "TVBS新聞": "https://news.tvbs.com.tw/rss",
+    "TVBS新聞社會": "https://news.tvbs.com.tw/realtime/local",
     "中天新聞社會": "https://ctinews.com/rss/google-society.xml",
     "中天新聞生活": "https://ctinews.com/rss/google-life.xml",
     "自由時報社會": "https://news.ltn.com.tw/rss/society.xml",
@@ -249,11 +249,37 @@ def ilo_html_adapter_contract() -> None:
         watch.time.sleep = original_sleep
 
 
+def tvbs_html_adapter_contract() -> None:
+    now = watch.datetime(2026, 9, 24, 10, 0, tzinfo=watch.timezone.utc)
+    entries = watch.parse_tvbs_realtime_html(
+        """
+        <html><body>
+          <a href="/local/4027033">
+            <h2>北市社工涉侵占長者千萬遭羈押</h2>
+            <p>社工師公會與衛福部回應，案件涉及專業倫理與長者保護。</p>
+            <span>18 分鐘前</span>
+          </a>
+          <a href="/local/4027033">
+            <h2>北市社工涉侵占長者千萬遭羈押</h2>
+          </a>
+        </body></html>
+        """,
+        now=now,
+    )
+    assert len(entries) == 1, entries
+    entry = entries[0]
+    assert entry.link == "https://news.tvbs.com.tw/local/4027033"
+    assert entry.title == "北市社工涉侵占長者千萬遭羈押"
+    assert "專業倫理" in entry.summary
+    assert entry.published_parsed is not None
+
+
 def main() -> int:
     retry_contract()
     who_api_adapter_contract()
     unicef_html_adapter_contract()
     ilo_html_adapter_contract()
+    tvbs_html_adapter_contract()
     payload = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = payload.get("sources") or []
     assert payload.get("schema_version") == 1
@@ -307,16 +333,37 @@ def main() -> int:
         assert row.get("region") == "taiwan", name
         assert row.get("source_type") == "news", name
         assert row.get("optional") is True, name
+    assert by_name["TVBS新聞社會"].get("source_format") == "tvbs_realtime_html"
 
     media_child_abuse = score_item(
         "兒童遭保母虐死 社工訪視與通報流程受檢視",
         "兒少保護事件引發責任通報、訪視與跨網絡制度檢討。",
         "taiwan",
-        "TVBS新聞",
+        "TVBS新聞社會",
         "news",
     )
     assert media_child_abuse and media_child_abuse[1] == "兒少保護", media_child_abuse
     assert media_child_abuse[0] >= 5, media_child_abuse
+
+    media_social_worker_misconduct = score_item(
+        "北市社工涉侵占長者千萬遭羈押",
+        "社工師公會與衛福部回應，案件涉及專業倫理與長者保護。",
+        "taiwan",
+        "TVBS新聞社會",
+        "news",
+    )
+    assert media_social_worker_misconduct, media_social_worker_misconduct
+    assert media_social_worker_misconduct[1] == "社工專業與社福制度", media_social_worker_misconduct
+    assert media_social_worker_misconduct[0] >= 5, media_social_worker_misconduct
+
+    generic_elder_crash = score_item(
+        "83歲翁騎車遭撞身亡",
+        "警方依交通事故程序調查，未涉及社福制度或照顧服務。",
+        "taiwan",
+        "TVBS新聞社會",
+        "news",
+    )
+    assert generic_elder_crash is None, generic_elder_crash
 
     generic_crime = score_item(
         "男子酒後持刀傷人 警方到場逮捕",
