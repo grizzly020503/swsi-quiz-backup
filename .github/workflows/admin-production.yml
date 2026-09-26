@@ -9,7 +9,6 @@ on:
       - 'scripts/admin_identity_privacy_build.py'
       - 'scripts/admin_auth_build.py'
       - 'scripts/admin_auth_recovery_smoke.js'
-      - 'scripts/admin_auth_recovery_smoke.js'
   push:
     branches:
       - main
@@ -18,6 +17,7 @@ on:
       - 'admin/**'
       - 'scripts/admin_identity_privacy_build.py'
       - 'scripts/admin_auth_build.py'
+      - 'scripts/admin_auth_recovery_smoke.js'
 
 permissions:
   contents: write
