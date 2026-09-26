@@ -68,7 +68,7 @@
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
-        "weighted_match_count": 0.0,
+        "weighted_match_count": 0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
@@ -88,7 +88,28 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "倫理與權利保障",
+        "服務輸送與跨網絡",
+        "規劃與政策執行",
+        "組織治理與責信",
+        "方案與資源管理"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作",
+        "社會工作直接服務",
+        "人類行為與社會環境"
+      ],
+      "knowledge_topics": [
+        "身障與人權",
+        "身心障礙",
+        "政策",
+        "補助",
+        "福利"
+      ]
     },
     {
       "canonical_event_id": "b95a076030a701cfb405d86c",
@@ -166,7 +187,7 @@
       ],
       "historical_exam_stats": {
         "matched_question_count": 2,
-        "weighted_match_count": 1.0,
+        "weighted_match_count": 1,
         "match_breakdown": {
           "strong": 0,
           "medium": 2,
@@ -191,7 +212,27 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障",
+        "方案與資源管理",
+        "人力與督導",
+        "成效評估與證據"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作",
+        "人類行為與社會環境",
+        "社會工作研究方法"
+      ],
+      "knowledge_topics": [
+        "勞動與社會保障",
+        "最低工資",
+        "行政院",
+        "保障"
+      ]
     },
     {
       "canonical_event_id": "c588f188519ce6341a040d77",
@@ -346,7 +387,27 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障",
+        "方案與資源管理",
+        "組織治理與責信",
+        "人力與督導"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "人類行為與社會環境",
+        "社會工作",
+        "社會工作直接服務"
+      ],
+      "knowledge_topics": [
+        "性別與家庭政策",
+        "育兒",
+        "托育",
+        "補助"
+      ]
     },
     {
       "canonical_event_id": "338150e268265e0359e5007e",
@@ -431,7 +492,7 @@
       ],
       "historical_exam_stats": {
         "matched_question_count": 2,
-        "weighted_match_count": 1.0,
+        "weighted_match_count": 1,
         "match_breakdown": {
           "strong": 0,
           "medium": 2,
@@ -456,7 +517,29 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "服務輸送與跨網絡",
+        "方案與資源管理",
+        "規劃與政策執行",
+        "組織治理與責信",
+        "品質與風險管理"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會工作"
+      ],
+      "knowledge_topics": [
+        "長照與高齡",
+        "高齡",
+        "老人",
+        "政策",
+        "補助",
+        "衛福部"
+      ]
     },
     {
       "canonical_event_id": "336f586340c6af43a5b2960d",
@@ -515,7 +598,7 @@
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
-        "weighted_match_count": 0.0,
+        "weighted_match_count": 0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
@@ -535,7 +618,22 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "人力與督導",
+        "組織治理與責信",
+        "服務輸送與跨網絡"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "社工專業與社福制度",
+        "社工"
+      ]
     },
     {
       "canonical_event_id": "7dbec58b12307c746b091d91",
@@ -587,7 +685,7 @@
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
-        "weighted_match_count": 0.0,
+        "weighted_match_count": 0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
@@ -607,7 +705,22 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "人力與督導",
+        "組織治理與責信",
+        "服務輸送與跨網絡"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "社工專業與社福制度",
+        "社工"
+      ]
     },
     {
       "canonical_event_id": "93e3c7bbef37d27356dcd435",
@@ -669,7 +782,7 @@
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
-        "weighted_match_count": 0.0,
+        "weighted_match_count": 0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
@@ -689,7 +802,28 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "服務輸送與跨網絡",
+        "方案與資源管理",
+        "規劃與政策執行",
+        "組織治理與責信",
+        "品質與風險管理"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會工作"
+      ],
+      "knowledge_topics": [
+        "長照與高齡",
+        "長照",
+        "政策",
+        "補助",
+        "福利"
+      ]
     }
   ]
 }
