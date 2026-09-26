@@ -11,7 +11,7 @@ from social_work_knowledge_tree import (
 
 def main() -> int:
     assert KNOWLEDGE_ROOT == "社會工作管理"
-    assert KNOWLEDGE_MODEL == "management-hierarchy-primary-support-v4"
+    assert KNOWLEDGE_MODEL == "management-hierarchy-over-five-exam-subjects-v3"
     assert len(EXAM_SUBJECTS) == 5
     assert "社會工作管理" not in EXAM_SUBJECTS
 
