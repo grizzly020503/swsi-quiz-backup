@@ -3,7 +3,7 @@ const {chromium}=require('playwright');
 
 const base=process.argv[2]||'http://127.0.0.1:4174/admin/index.html';
 
-const mockSdk=String.raw\`
+const mockSdk=String.raw`
 (() => {
   const state={
     session:null,
@@ -32,7 +32,7 @@ const mockSdk=String.raw\`
     }
   };
 })();
-\`;
+`;
 
 const adminPayload={
   generated_at:'2026-09-26T00:00:00Z',
@@ -128,7 +128,7 @@ async function calls(page,name){
   assert.strictEqual(new URL(page.url()).hash,'','recovery hash not cleared after successful password update');
   assert(await page.locator('#recoveryView').evaluate(el=>el.classList.contains('hidden')),'recovery view remained visible after success');
 
-  assert.deepStrictEqual(pageErrors,[],\`page errors: \${pageErrors.join(' | ')}\`);
+  assert.deepStrictEqual(pageErrors,[],`page errors: \${pageErrors.join(' | ')}`);
   await browser.close();
   console.log('ADMIN AUTH RECOVERY BROWSER SMOKE OK');
 })().catch(err=>{console.error(err&&err.stack||err);process.exit(1);});
