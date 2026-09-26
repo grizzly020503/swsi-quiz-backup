@@ -115,6 +115,17 @@ Preserve:
 
 Never commit service-role keys, passwords, private tokens, admin sessions, raw private contact information, or other credentials.
 
+
+For Supabase Free-plan hosted mutable data:
+
+- use the local-only encrypted procedure in `docs/SUPABASE_FREE_TIER_PRIVATE_BACKUP.md`;
+- the helper must refuse CI / GitHub Actions execution;
+- plaintext database dumps must never be uploaded as GitHub artifacts;
+- encrypted backups must be stored outside the Git worktree and copied to at least one additional off-site location;
+- target cadence is weekly plus before destructive Auth/schema changes or major releases;
+- a backup is not considered proven until it has been restored into an isolated target and count-only source/target checks pass;
+- database backup does not replace separate recovery of secret values, Auth provider settings, SMTP/DNS settings, Edge Function deployment state, or Storage object bytes.
+
 ## Operating cadence
 ### Routine operation
 The site should require little or no manual intervention. Student-facing core remains available while enhancement services may degrade safely.
@@ -124,6 +135,7 @@ When free capacity permits:
 - cheap MOEX new-source check
 - feedback backlog / high-risk review
 - one concise system-health review when useful
+- create/verify the encrypted Supabase Free-plan private-data backup on a maintainer-controlled local machine; never in CI
 
 ### Monthly
 When free capacity permits:
