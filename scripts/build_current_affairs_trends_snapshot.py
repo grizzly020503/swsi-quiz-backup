@@ -172,6 +172,8 @@ def trend_for(event: dict, generated_at: str) -> dict:
         "knowledge_model": event.get("knowledge_model"),
         "management_domains": event.get("management_domains") or [],
         "exam_subject_axes": event.get("exam_subject_axes") or [],
+        "primary_exam_subject_axes": event.get("primary_exam_subject_axes") or [],
+        "supporting_exam_subject_axes": event.get("supporting_exam_subject_axes") or [],
         "subject_topics": event.get("subject_topics") or {},
         "knowledge_topics": event.get("knowledge_topics") or [],
         "knowledge_paths": event.get("knowledge_paths") or [],
