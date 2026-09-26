@@ -182,9 +182,21 @@ def main() -> int:
                     "policy_signal", "essay_value", "mcq_fact_density",
                     "signal_confidence", "signal_score", "exam_point_summary",
                     "essay_direction", "mcq_focus", "related_exam_questions",
-                    "historical_exam_stats"):
+                    "historical_exam_stats", "knowledge_root", "knowledge_model",
+                    "management_domains", "exam_subject_axes", "subject_topics",
+                    "knowledge_topics", "knowledge_paths"):
             if key not in row:
                 raise SystemExit(f"missing field: {key}")
+        if row["knowledge_root"] != "社會工作管理":
+            raise SystemExit("signal snapshot knowledge root must be 社會工作管理")
+        if not isinstance(row["management_domains"], list) or not row["management_domains"]:
+            raise SystemExit("signal snapshot management domains missing")
+        if not isinstance(row["exam_subject_axes"], list) or not row["exam_subject_axes"]:
+            raise SystemExit("signal snapshot five-subject axes missing")
+        if not isinstance(row["subject_topics"], dict):
+            raise SystemExit("signal snapshot subject_topics must be an object")
+        if not isinstance(row["knowledge_paths"], list) or not row["knowledge_paths"]:
+            raise SystemExit("signal snapshot knowledge paths missing")
         if row["signal_confidence"] not in allowed_confidence:
             raise SystemExit("invalid signal confidence")
         if not isinstance(row["signal_score"], int) or not 0 <= row["signal_score"] <= 10:
