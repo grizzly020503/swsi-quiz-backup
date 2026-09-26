@@ -19,7 +19,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 
 KNOWLEDGE_ROOT = "社會工作管理"
-KNOWLEDGE_MODEL = "management-hierarchy-primary-support-v4"
+KNOWLEDGE_MODEL = "management-hierarchy-over-five-exam-subjects-v3"
 
 EXAM_SUBJECTS = (
     "社會工作",
