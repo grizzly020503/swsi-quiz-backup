@@ -7,6 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import current_affairs_watch as watch
+import build_current_affairs_snapshot as snapshot
 
 score_item = watch.score_item
 
@@ -274,12 +275,68 @@ def tvbs_html_adapter_contract() -> None:
     assert entry.published_parsed is not None
 
 
+def media_event_dedup_contract() -> None:
+    base = {
+        "category": "社工專業與社福制度",
+        "source_type": "news",
+        "region": "taiwan",
+        "relevance_score": 5,
+        "exam_tags": ["社工"],
+        "subjects": ["社會工作"],
+        "concept_keys": [],
+        "agency_keys": [],
+        "fact_keys": ["num:12000000"],
+    }
+    rows = [
+        dict(base, id="cti-a", source_name="中天新聞社會",
+             source_url="https://example.test/cti/a",
+             published_at="2026-09-23T07:45:25Z",
+             title="北市女社工盜領個案老人1200萬買愛馬仕",
+             summary="女社工涉嫌盜領5名個案老人存款1200萬元。"),
+        dict(base, id="cti-b", source_name="中天新聞社會",
+             source_url="https://example.test/cti/b",
+             published_at="2026-09-23T11:58:41Z",
+             title="北市女社工盜領個案千萬老本遭羈押",
+             summary="同案女社工盜領個案老人存款1200萬元。"),
+        dict(base, id="cti-c", source_name="中天新聞社會",
+             source_url="https://example.test/cti/c",
+             published_at="2026-09-24T00:28:16Z",
+             title="涉侵占1200萬買名牌包 社工羈押禁見",
+             summary="同案社工涉嫌侵占老人1200萬元。"),
+        dict(base, id="tvbs-a", source_name="TVBS新聞社會",
+             source_url="https://example.test/tvbs/a",
+             published_at="2026-09-24T01:10:00Z",
+             title="社工涉侵占長者1200萬 社會局回應",
+             summary="同一社工案件涉及長者個案與1200萬元。"),
+        dict(base, id="other", source_name="中天新聞社會",
+             source_url="https://example.test/cti/other",
+             published_at="2026-09-23T09:00:00Z",
+             title="另案社工涉侵占990萬",
+             summary="不同案件，金額990萬元。",
+             fact_keys=["num:9900000"]),
+    ]
+    topics = snapshot.build(rows)
+    assert len(topics) == 2, topics
+    merged = next(x for x in topics if "num:12000000" in (x.get("fact_keys") or []))
+    assert merged.get("clustered") is True, merged
+    assert merged.get("source_count") == 2, merged
+    assert merged.get("evidence_count") == 4, merged
+    assert len(merged.get("sources") or []) == 4, merged
+    assert merged.get("relevance_score") == 6, merged
+    assert merged.get("source_name") == "綜合 2 個來源", merged
+
+    other = next(x for x in topics if "num:9900000" in (x.get("fact_keys") or []))
+    assert other.get("source_count") == 1, other
+    assert other.get("clustered") is False, other
+
+
 def main() -> int:
     retry_contract()
     who_api_adapter_contract()
     unicef_html_adapter_contract()
     ilo_html_adapter_contract()
     tvbs_html_adapter_contract()
+    media_event_dedup_contract()
     payload = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = payload.get("sources") or []
     assert payload.get("schema_version") == 1
