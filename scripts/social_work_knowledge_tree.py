@@ -176,8 +176,10 @@ MANAGEMENT_TERM_RULES = {
     ),
     "人力與督導": (
         "社工人力", "人力不足", "專業人力", "照服人力", "照顧人力",
-        "督導", "案量", "工作負荷", "招募", "留任", "離職", "執業環境",
-        "職場安全", "supervision", "social work workforce", "care workforce",
+        "專業督導", "督導制度", "督導機制", "督導不足", "督導品質", "督導支持",
+        "案量", "工作負荷", "招募", "留任", "離職", "執業環境",
+        "職場安全", "supervision system", "supervision support",
+        "social work workforce", "care workforce",
     ),
     "服務輸送與跨網絡": (
         "服務輸送", "跨網絡", "跨專業", "轉介", "協作", "合作", "通報",
