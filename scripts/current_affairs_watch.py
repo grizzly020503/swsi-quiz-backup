@@ -58,7 +58,7 @@ def load_feeds():
                     name
                     and url.startswith("https://")
                     and region in {"taiwan", "international"}
-                    and source_format in {"rss", "who_newsroom_json", "unicef_press_html", "ilo_news_html"}
+                    and source_format in {"rss", "who_newsroom_json", "unicef_press_html", "ilo_news_html", "tvbs_realtime_html"}
                 ):
                     valid.append({
                         "name": name,
@@ -116,6 +116,25 @@ SERIOUS_SOCIAL_EVENT_TITLE_TERMS = [
     "兒虐", "虐童", "虐嬰", "虐死", "保母虐", "兒童遭虐", "幼童遭虐",
     "家庭暴力", "家暴", "性侵", "性暴力", "人口販運",
     "校園霸凌", "重大職災", "犯罪被害人", "災害救助", "大規模撤離",
+]
+MEDIA_DIRECT_ROLE_TERMS = [
+    "社工", "社會工作", "保母", "托嬰", "托育", "兒少安置", "安置機構",
+    "社福機構", "長照機構", "養護機構", "安養機構", "身障機構",
+    "街友", "無家者", "人口販運",
+]
+MEDIA_VULNERABLE_TERMS = [
+    "兒童", "兒少", "少年", "幼童", "嬰兒", "長者", "老人",
+    "身障", "身心障礙", "移工", "新住民", "學生",
+]
+MEDIA_HARM_TERMS = [
+    "虐", "侵占", "詐", "性侵", "剝削", "疏失", "失職", "死亡", "致死",
+    "停業", "裁罰", "起訴", "羈押", "判刑", "違法", "通報", "霸凌",
+    "自殺", "自傷", "毒品", "成癮", "攻擊",
+]
+MEDIA_SYSTEM_CONTEXT_TERMS = [
+    "社會局", "社工", "社會工作", "社福", "責任通報", "通報", "訪視",
+    "安置", "機構", "照顧", "保護", "輔導", "福利", "社會安全網",
+    "跨網絡", "教育局",
 ]
 PROCEDURAL_NOISE_TITLE_TERMS = [
     "敬請支持", "請支持", "歡迎", "踴躍", "申請倒數", "把握時間", "提醒",
@@ -354,6 +373,125 @@ def parse_unicef_press_with_retry(feed, attempts=3):
 
 
 
+class _TvbsRealtimeParser(HTMLParser):
+    ARTICLE_RE = re.compile(r"^https://news\.tvbs\.com\.tw/(?:local|life)/\d+$")
+    RELATIVE_RE = re.compile(r"(\d+)\s*(分鐘|小時|天)前")
+
+    def __init__(self, now=None):
+        super().__init__(convert_charrefs=True)
+        self.now = now or datetime.now(timezone.utc)
+        self.active_href = None
+        self.active_parts = []
+        self.rows = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag.lower() != "a":
+            return
+        href = str(dict(attrs).get("href") or "").strip()
+        link = urljoin("https://news.tvbs.com.tw", href)
+        if self.ARTICLE_RE.match(link):
+            self.active_href = link
+            self.active_parts = []
+
+    def handle_data(self, data):
+        if not self.active_href:
+            return
+        value = clean_html(data)
+        if value:
+            self.active_parts.append(value)
+
+    def handle_endtag(self, tag):
+        if tag.lower() != "a" or not self.active_href:
+            return
+        parts = []
+        for value in self.active_parts:
+            value = clean_html(value)
+            if value and value not in parts:
+                parts.append(value)
+        joined = " ".join(parts)
+        rel = self.RELATIVE_RE.search(joined)
+        published_parsed = None
+        if rel:
+            amount = int(rel.group(1))
+            unit = rel.group(2)
+            delta = (
+                timedelta(minutes=amount) if unit == "分鐘"
+                else timedelta(hours=amount) if unit == "小時"
+                else timedelta(days=amount)
+            )
+            published_parsed = (self.now - delta).timetuple()
+
+        title = ""
+        for value in parts:
+            if self.RELATIVE_RE.fullmatch(value):
+                continue
+            if value in {"社會", "生活", "即時新聞", "快訊"}:
+                continue
+            if 12 <= len(value) <= 180:
+                title = value
+                break
+
+        summary_parts = []
+        for value in parts:
+            if value == title or self.RELATIVE_RE.fullmatch(value):
+                continue
+            if value in {"社會", "生活", "即時新聞", "快訊"}:
+                continue
+            if len(value) >= 12:
+                summary_parts.append(value)
+        summary = clean_html(" ".join(summary_parts))[:600]
+
+        if title and self.active_href:
+            self.rows.append((self.active_href, title, summary, published_parsed))
+        self.active_href = None
+        self.active_parts = []
+
+
+def parse_tvbs_realtime_html(raw_html, now=None):
+    parser = _TvbsRealtimeParser(now=now)
+    parser.feed(str(raw_html or ""))
+    parser.close()
+    entries = []
+    seen = set()
+    for link, title, summary, published_parsed in parser.rows:
+        if link in seen:
+            continue
+        seen.add(link)
+        entries.append(SimpleNamespace(
+            title=title,
+            link=link,
+            summary=summary,
+            description=summary,
+            published_parsed=published_parsed,
+        ))
+    return entries
+
+
+def parse_tvbs_realtime_with_retry(feed, attempts=3):
+    last_error = None
+    for attempt in range(1, max(1, attempts) + 1):
+        try:
+            request = Request(
+                feed["url"],
+                headers={
+                    "User-Agent": "swsi-current-affairs-radar/1.1",
+                    "Accept": "text/html,application/xhtml+xml",
+                },
+            )
+            with urlopen(request, timeout=12) as response:
+                raw_html = response.read().decode("utf-8", errors="replace")
+            entries = parse_tvbs_realtime_html(raw_html)
+            if not entries:
+                raise ValueError("TVBS realtime page returned no usable article links")
+            return SimpleNamespace(entries=entries, bozo=False), None
+        except Exception as exc:
+            last_error = exc
+        if attempt < attempts:
+            print(f"Feed RETRY: {feed['name']} attempt={attempt} error={last_error}")
+            time.sleep(0.5 * attempt)
+    return None, last_error
+
+
 class _IloNewsParser(HTMLParser):
     DATE_RE = re.compile(
         r"\b(\d{1,2})\s+"
@@ -539,6 +677,8 @@ def parse_source_with_retry(feed, attempts=3):
         return parse_unicef_press_with_retry(feed, attempts=attempts)
     if source_format == "ilo_news_html":
         return parse_ilo_news_with_retry(feed, attempts=attempts)
+    if source_format == "tvbs_realtime_html":
+        return parse_tvbs_realtime_with_retry(feed, attempts=attempts)
     return parse_feed_with_retry(feed, attempts=attempts)
 
 
@@ -555,7 +695,28 @@ def published_iso(entry):
     return datetime.fromtimestamp(calendar.timegm(st), tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def has_exam_event_value(title, summary, region) -> bool:
+def media_exam_event_signal(title, summary) -> bool:
+    """Require two independent signals for a media-first social-work event.
+
+    This is deliberately stricter than keyword matching: an outlet story needs
+    both a social-work/system anchor and a harm/institutional-problem signal.
+    """
+    title_text = str(title or "").strip()
+    text = f"{title_text} {summary or ''}"
+
+    harm = any(term in title_text for term in MEDIA_HARM_TERMS)
+    direct_role = any(term in title_text for term in MEDIA_DIRECT_ROLE_TERMS)
+    vulnerable = any(term in title_text for term in MEDIA_VULNERABLE_TERMS)
+    system_context = any(term in text for term in MEDIA_SYSTEM_CONTEXT_TERMS)
+
+    school_risk = (
+        ("校園" in title_text or "學生" in title_text)
+        and any(term in title_text for term in ("毒品", "霸凌", "自殺", "自傷", "性侵", "性騷擾"))
+    )
+    return school_risk or (harm and direct_role) or (harm and vulnerable and system_context)
+
+
+def has_exam_event_value(title, summary, region, source_type="news") -> bool:
     """High-precision gate for material worth showing in an exam radar.
 
     Keyword relevance is evaluated later. This gate answers a different
@@ -581,8 +742,9 @@ def has_exam_event_value(title, summary, region) -> bool:
     serious = any(term in title_text for term in SERIOUS_SOCIAL_EVENT_TITLE_TERMS)
     weak_structural = any(term in title_text for term in STRUCTURAL_EVENT_WEAK_TITLE_TERMS)
     noise = any(term in title_text for term in PROCEDURAL_NOISE_TITLE_TERMS)
+    media_event = source_type == "news" and media_exam_event_signal(title_text, summary)
 
-    if strong or report or judicial or serious:
+    if strong or report or judicial or serious or media_event:
         return True
     if noise:
         return False
@@ -630,7 +792,7 @@ def score_english_international(title, summary, source_type="news"):
 
 def score_item(title, summary, region, source_name, source_type="news"):
     text = f"{title} {summary}"
-    if not has_exam_event_value(title, summary, region):
+    if not has_exam_event_value(title, summary, region, source_type):
         return None
     if region == "international" and is_english_dominant(text):
         return score_english_international(title, summary, source_type)
@@ -670,6 +832,8 @@ def score_item(title, summary, region, source_name, source_type="news"):
         return None
     score, _title_evidence, category = best
     if source_type == "official":
+        score += 1
+    elif source_type == "news" and media_exam_event_signal(title, summary):
         score += 1
     if any(w in title for w in LOW_VALUE_TERMS):
         score -= 3
