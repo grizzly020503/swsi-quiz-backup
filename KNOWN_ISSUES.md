@@ -11,6 +11,8 @@
 - **社家署 live current-affairs feed 尚無驗證通過 endpoint。** 不猜 URL；其 data.gov.tw 開放資料可另作 background evidence，不列為 current-affairs feed bug。
 - **Issue #84 已完成並關閉。**
 - **Netlify fallback 已切換成 GitHub Actions controlled deploy。** 第一次 `main` production deploy 已由使用者確認成功，舊 Netlify Git continuous deployment 已解除；後續不得再走 drag-and-drop ZIP 或重新接回 Netlify 自動 Git build。Public Uptime Sentinel 會持續檢查 fallback release parity。
+- **自動無障礙 gate 已完成。** Launch Readiness 使用 pinned `axe-core@4.13.0` 掃首頁／公開資訊／回報／考試日期 dialog；已修正 evidence-backed contrast 與日期欄位 label，最終四個狀態皆 `violations=0`，並保留既有 keyboard/focus/WebKit/storage/slow-network/PWA regression。
+- **Cloudflare production 已是 accessibility runtime。** 正式 monthly runtime hash = `c1340176d7061b83`；hosted Cloudflare exact-byte parity 已 PASS。
 - 下方舊的 6 feeds、舊 SW 版本、8 月 branch/release 敘述均為歷史證據；衝突時以 `PROJECT_HANDOFF.md` 最上方最新節、`docs/CURRENT_AFFAIRS_SOURCE_POLICY.md` 與遠端真實狀態為準。
 
 ## P0（已完成，持續防回歸）
@@ -139,10 +141,10 @@ MOEX Importer Integrity QA #1（33003892890）已成功；Monthly Frontend QA #9
 ## 目前需決策／持續追蹤
 
 - **Cloudflare primary 仍是 public soft-launch / noindex。** `cdn/index.html` 與 release workflow 明確保留 `noindex,nofollow,noarchive`；這不是 runtime defect，但若要讓 Google／搜尋引擎正式收錄，需由產品 owner 明確決定解除 soft-launch noindex，再走 release gate。
-- **無障礙自動化覆蓋仍可加強。** 現有 runtime 已有 dialog ARIA、aria-live、Escape、Tab focus trap 與多處 label，但目前沒有 axe-core／自動色彩對比 gate。列為 QA coverage debt，不代表已確認存在 WCAG defect。
+- **Netlify fallback 目前待一次 controlled production deploy 同步最新 runtime。** 新 exact parity gate 已刻意把舊 fallback 判紅，預期 runtime hash 為 `c1340176d7061b83`；完成 GitHub Actions `Netlify Controlled Production Deploy` 後應恢復綠燈。這不影響已驗證正常的 Cloudflare primary。
 - **Admin 真實登入／recovery E2E 目前以人工驗收為主。** build contract 與 auth source guard 已存在；完整真實帳號流程不適合在一般 CI 反覆執行。
 - **災難復原尚無完整 restore drill。** migrations、Edge Function source、question artifacts 與 rebuild policy 都在 repo，但尚未找到一套從空環境完整還原並驗證的自動演練。
-- **Netlify fallback parity 監控已補。** controlled fallback 若未跟上 root release marker、SW v7 或 current-affairs 17/0 contract，main/scheduled Public Uptime Sentinel 應直接失敗。
+- **Netlify fallback parity 已升級為 exact runtime parity。** 除 release marker、SW v7、current-affairs 17/0 外，現在會比對 canonical `monthly_patch.js` 完整 bytes / SHA、cache-bust、exact `sw.js` bytes 與 accessibility markers；controlled deploy 後另跑 production Axe gate。
 - **MOEX 常態 polling 已回到每週。** 接近官方放榜／更正窗口時用 `workflow_dispatch` 加跑；時事另有每 6 小時 Public Monitoring Feed，不需要靠 MOEX workflow 每天掃。
 
 ## P2 / 長期重構
