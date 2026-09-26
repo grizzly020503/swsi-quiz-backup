@@ -1,5 +1,71 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 Accessibility／Cloudflare production／Netlify runtime parity 收尾（READ FIRST）
+
+> 本節優先於下方任何仍把 axe 自動無障礙 gate 列為未完成、或只用 release marker 判斷 Netlify fallback parity 的舊敘述。
+
+### 已完成
+
+- PR #156 已合併：新增 pinned `axe-core@4.13.0` 的 Launch Readiness accessibility gate，覆蓋：
+  - 首頁
+  - 公開資訊 dialog
+  - 回報問題 dialog
+  - 考試日期 dialog
+  - WCAG 2.0 / 2.1 / 2.2 A/AA tags
+  - critical / serious violations 直接 fail CI
+- Axe 實際找出並修正：
+  - 首頁說明文字與次要按鈕對比
+  - launch guidance 文字對比
+  - 公開資訊導覽文字對比
+  - 回報視窗 helper / cancel 文字對比
+  - 考試日期「清除日期」按鈕對比
+  - `#swsi-exam-date-input` 缺少 visible label
+- 最終 Launch Readiness 真實 log：
+  - `AXE home: violations=0`
+  - `AXE public-info: violations=0`
+  - `AXE feedback-dialog: violations=0`
+  - `AXE exam-date-dialog: violations=0`
+  - WebKit / storage degradation / slow network / PWA resilience 亦全部 PASS。
+- Cloudflare production release commit：`1f3aff4b2e793fe4321baeaf3403a05854ff1288`。
+  - 正式 `cdn/monthly_patch.js` cache-bust：`c1340176d7061b83`
+  - production artifact contract 已 fail-closed 驗 canonical 38 parts、SW parity、preview/candidate marker 不可洩入 production。
+- Cloudflare live parity hardening commit：`680b9412dec41f70e4733e85250179689d9357c0`。
+  - Workers production build success，Version ID：`14bd7469-b57f-4366-9e97-f8317233129d`
+  - 真實 hosted check：`CLOUDFLARE PRODUCTION HTTP PARITY OK attempt=1 patch_sha256=c1340176d7061b83 sw_sha256=b4f7e51d267c3984`
+- PR #161 已合併；merge commit：`70aa586ceaf3218f1d996a9185afdfdd92844624`。
+  - Public Uptime 的 Netlify fallback parity 現在會驗 **exact canonical monthly_patch bytes / SHA、cache-bust、exact sw.js bytes、accessibility markers**，不再只看 release marker。
+  - Public Uptime 會在 `Cloudflare Production Artifact QA` 成功後透過 `workflow_run` 接續驗 production，避免 Cloudflare 尚在部署時的假紅燈。
+  - Controlled Netlify production deploy 後會做 exact runtime parity，並在正式 Netlify URL 再跑同一套 Axe gate。
+- PR #160 亦已合併；main commit：`3378fa13e4e91f54a9a830f18ac24aa413dfc581`。
+  - Monitoring PR check 不再依賴第三方 live feed，改做 deterministic snapshot rebuild；main / schedule / manual 仍維持 live 17 sources / 0 errors 嚴格檢查。
+
+### 目前唯一待同步的 production 項目
+
+Netlify fallback 是刻意採 `workflow_dispatch` 的 controlled deploy，不會因 main 更新自動發布。
+
+目前新的 exact parity gate 已正確抓到 fallback 還停在 Axe 修正前的 runtime：
+
+`Netlify fallback: monthly_patch cache-bust does not match current canonical runtime (expected c1340176d7061b83)`
+
+這不是 Cloudflare primary 故障；Cloudflare production 已 verified。現在需要帳號持有人做一次：
+
+1. GitHub → Actions → **Netlify Controlled Production Deploy**
+2. 選 `main`
+3. 按 **Run workflow**
+4. 等 build → deploy → HTTP exact runtime parity → browser smoke → Axe 全部綠
+5. 成功後重跑／確認 Public Uptime Sentinel 應恢復綠燈，並出現 `netlify-runtime-c1340176d7061b83/sw-exact`
+
+不要重新連回 Netlify Git continuous deployment，也不要改回 drag-and-drop。
+
+### 仍未完成但不是目前 production P0
+
+- Issue #157：隔離式全平台 Disaster Recovery Restore Drill。
+- Admin 真實登入／password recovery 完整 E2E 仍主要人工。
+- Cloudflare public frontend 仍刻意保留 `noindex,nofollow,noarchive`；是否解除是產品發布決策。
+- `index.html + monthly_patch_parts` late override / patch-over-patch 仍是 P2 架構債。
+
+---
+
 ## 2026-09-26 全平台健康檢查 follow-up 已完成（READ FIRST）
 
 > 本節優先於下方任何把 Netlify PR validation、Monitoring V2 PR baseline、critical Actions Node 20 warning 列為未完成的敘述。
