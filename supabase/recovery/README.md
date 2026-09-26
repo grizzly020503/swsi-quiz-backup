@@ -29,8 +29,12 @@ service. It:
    distribution;
 7. verifies the official-change reset trigger with a synthetic row.
 
-The workflow also runs the existing clean D1 recovery smoke, Deno-checks every
-Supabase Edge Function, and rebuilds the static site from repo source.
+The workflow also runs the existing clean D1 recovery smoke, verifies the exact
+10-function recovery inventory, Deno-checks every Edge Function, exercises
+synthetic feedback/usage/AI-telemetry RPCs, rebuilds the static site, runs
+local-only student browser/PWA smokes, and runs the fully mocked admin
+auth/recovery browser smoke. A restore-evidence artifact records the source SHA,
+measured full-drill RTO and repo-source RPO.
 
 ## What this does not restore
 
@@ -42,8 +46,12 @@ Private mutable production data is intentionally not stored in Git:
 - AI telemetry aggregates
 - any future private admin-only data
 
-Their RPO/RTO depends on the Supabase backup/export plan. Issue #157 remains open
-until a separate, isolated data-backup restore exercise proves that path.
+Those mutable rows are deliberately excluded because the DR issue forbids copying
+real student/user data into the test environment. The automated drill measures
+repo-source RPO (exact checked-out commit) and full-platform rebuild RTO. A real
+incident that requires restoration of mutable hosted rows still depends on the
+provider backup/export retention policy and remains a separate operational
+backup concern, not permission to copy production data into CI.
 
 ## Production safety
 
