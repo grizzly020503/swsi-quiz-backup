@@ -120,6 +120,49 @@ Do not restore over production.
 
 Use a new isolated Supabase project or a local/self-hosted Supabase target.
 
+### Preferred guarded helper
+
+The repository now includes:
+
+`scripts/restore_supabase_private_backup_isolated.sh`
+
+It refuses CI and requires an explicit write acknowledgement.
+
+For a local target, it only accepts a loopback database host. For a hosted isolated target,
+it requires both the production and target project refs and fails if they are equal or if the
+target URL appears to reference production.
+
+It also requires the target to begin with:
+
+- `auth.users = 0`
+- `storage.objects = 0`
+
+If the source backup contains Storage objects, the helper fails closed because database restore
+cannot prove Storage object bytes.
+
+Example for a hosted isolated target:
+
+```bash
+export SWSI_RESTORE_TARGET_DB_URL='...'
+export SWSI_RESTORE_TARGET_KIND='hosted-isolated'
+export SWSI_PRODUCTION_PROJECT_REF='...'
+export SWSI_TARGET_PROJECT_REF='...'
+export SWSI_RESTORE_ACK='I_UNDERSTAND_THIS_WRITES_THE_ISOLATED_TARGET'
+
+bash scripts/restore_supabase_private_backup_isolated.sh \
+  "$HOME/swsi-private-backups/swsi-supabase-private-....tar.age"
+```
+
+Do not paste any of those database credentials or project-specific secret values into chat or GitHub.
+
+The helper:
+1. verifies the encrypted bundle;
+2. verifies the isolated target is empty enough;
+3. applies roles → schema → data;
+4. captures target count-only baselines;
+5. fails on any source/target count mismatch;
+6. records measured database restore RTO in a local count-only JSON report outside the repository.
+
 ### 1. Record start time
 
 Record UTC restore start time. This is the start of the measured hosted-data RTO.

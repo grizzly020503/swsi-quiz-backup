@@ -47,6 +47,7 @@
 - `docs/SUPABASE_FREE_TIER_PRIVATE_BACKUP.md`
 - `scripts/supabase_private_backup_local.sh`
 - `scripts/verify_supabase_private_backup_local.sh`
+- `scripts/restore_supabase_private_backup_isolated.sh`
 - `Private Backup Policy QA`
 - policy QA 已實際輸出：
   - `SWSI PRIVATE BACKUP POLICY SMOKE OK`
@@ -73,8 +74,8 @@ Supabase 官方文件目前說明：
 目前 #157 **暫不關閉**。現在缺的不是備份腳本，而是：
 1. 維護者在受控本機產生第一份真實加密 backup bundle。
 2. bundle 複製到至少一個額外 off-site 位置。
-3. 在全新 isolated target restore。
-4. source/target count-only baseline 驗證，尤其 `auth.users`。
+3. 用 guarded isolated restore helper 在全新 target restore；helper 會拒絕 CI、拒絕 production ref、要求空 target。
+4. source/target count-only baseline 驗證，尤其 `auth.users`；任一 mismatch 直接 fail。
 5. 記錄 hosted-data RTO / RPO。
 
 不得為了關 Issue 而把真實學生／匿名資料複製到一般 CI 或 GitHub artifact。
