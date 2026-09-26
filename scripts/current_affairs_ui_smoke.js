@@ -37,7 +37,7 @@ const event = {
   exam_point_summary: '事件級考點摘要，不代表命題保證',
   essay_direction: '事件級申論方向',
   mcq_focus: ['第13條 <img src=x onerror=alert(1)>'],
-  related_exam_questions: [{ id: 'SW-115-1-02', subject: '社會工作', topic: '兒少權法' }],
+  related_exam_questions: [{ id: 'SW-115-1-02', subject: '社會工作', topic: '兒少權法', match_score: 6.2 }],
   evidence: [
     { source_name: '衛福部', source_url: 'https://example.test/a', published_at: '2026-09-25T01:00:00Z' },
     { source_name: '中央社', source_url: 'https://example.test/b', published_at: '2026-09-25T02:00:00Z' },
@@ -52,12 +52,39 @@ const trend = {
   essay_direction: event.essay_direction,
   mcq_focus: event.mcq_focus,
   related_exam_questions: event.related_exam_questions,
+  historical_high_confidence_match_count: 1,
+};
+
+const oneOffEvent = {
+  canonical_event_id: 'event-one-off',
+  title: '單一官方來源制度提醒',
+  category: '勞動與社會保障',
+  subjects: ['社會工作'],
+  source_count: 1,
+  official_source_count: 1,
+  observation_count: 1,
+  last_seen: '2026-09-22T13:50:55Z',
+  exam_point_summary: '制度或給付已有明確變動；這段不應在單次觀察直接公開。',
+  essay_direction: '可作制度複習方向。',
+  mcq_focus: ['65歲', '20%'],
+  related_exam_questions: [{ id: 'SW-113-2-27', subject: '社會工作', topic: '倫理抉擇', match_score: 3.2 }],
+  evidence: [{ source_name: '勞動部新聞稿', source_url: 'https://example.test/mol', published_at: '2026-09-22T13:50:55Z' }],
+};
+const oneOffTrend = {
+  canonical_event_id: oneOffEvent.canonical_event_id,
+  trend_state: 'one-off',
+  trend_score: 5.5,
+  observation_count: 1,
+  why: ['1 個官方來源', '有政策／制度訊號', '歷屆同概念關聯 11 題'],
+  related_exam_questions: oneOffEvent.related_exam_questions,
+  historical_high_confidence_match_count: 0,
 };
 
 async function scenario({
   missingV2 = false,
   newsFailure = false,
   allFailure = false,
+  singleSource = false,
 } = {}) {
   const nodes = new Map();
   const calls = [];
@@ -90,11 +117,11 @@ async function scenario({
     }
     if (url === './auto/current_affairs_events.json') {
       return { ok: !missingV2, status: missingV2 ? 404 : 200,
-        json: async () => ({ events: [event] }) };
+        json: async () => ({ events: [singleSource ? oneOffEvent : event] }) };
     }
     if (url === './auto/current_affairs_trends.json') {
       return { ok: !missingV2, status: missingV2 ? 404 : 200,
-        json: async () => ({ trends: [trend] }) };
+        json: async () => ({ trends: [singleSource ? oneOffTrend : trend] }) };
     }
     throw new Error('unexpected URL ' + url);
   };
@@ -124,18 +151,34 @@ async function scenario({
     assert(content.includes('不代表命題保證'));
   } else {
     assert(content.includes('命題趨勢雷達'), 'V2 trend radar heading missing');
-    assert(content.includes(event.title), 'event card disappeared');
-    for (const value of [
-      '升溫', '趨勢訊號 8.4/10', '3 個來源', '2 官方',
-      '為什麼值得複習？', '多來源證據', 'SW-115-1-02',
-      '同事件跨來源只計一次', '不代表命題保證',
-    ]) {
-      assert(content.includes(value), `missing V2 student trend content: ${value}`);
+    assert(content.includes('事件聚類・證據分級'), 'evidence-grading badge missing');
+    const expectedEvent = singleSource ? oneOffEvent : event;
+    assert(content.includes(expectedEvent.title), 'event card disappeared');
+    if (singleSource) {
+      for (const value of [
+        '單次觀察', '尚不足以形成趨勢', '來源依據',
+        '目前只有單一來源或單次觀察', '事實請以原始來源為準',
+      ]) {
+        assert(content.includes(value), `missing fail-closed one-off content: ${value}`);
+      }
+      for (const value of [
+        '趨勢訊號 5.5/10', '多來源證據', 'SW-113-2-27', '制度或給付已有明確變動',
+      ]) {
+        assert(!content.includes(value), `one-off event leaked overclaimed content: ${value}`);
+      }
+    } else {
+      for (const value of [
+        '升溫', '趨勢訊號 8.4/10', '3 個來源', '2 官方',
+        '為什麼值得複習？', '多來源證據', 'SW-115-1-02',
+        '同事件跨來源只計一次', '不代表命題保證',
+      ]) {
+        assert(content.includes(value), `missing V2 student trend content: ${value}`);
+      }
     }
-    assert(content.includes('&lt;img'));
+    assert(content.includes('&lt;img') || singleSource);
     assert(!content.includes('<img'), 'V2 dynamic content must be escaped');
     if (newsFailure) {
-      assert(content.includes(event.title), 'V2 should remain usable when V1 news fails');
+      assert(content.includes(singleSource ? oneOffEvent.title : event.title), 'V2 should remain usable when V1 news fails');
     }
   }
 
@@ -147,7 +190,7 @@ async function scenario({
   ));
   window.NL.filter('全部');
   await new Promise(setImmediate);
-  assert(nodes.get('nl-live-radar').innerHTML.includes(missingV2 ? news.title : event.title));
+  assert(nodes.get('nl-live-radar').innerHTML.includes(missingV2 ? news.title : (singleSource ? oneOffEvent.title : event.title)));
   assert.equal(calls.length, 4, 'filter changes should reuse the loaded feeds');
 }
 
@@ -155,6 +198,7 @@ async function scenario({
   await scenario();
   await scenario({ missingV2: true });
   await scenario({ newsFailure: true });
+  await scenario({ singleSource: true });
   await scenario({ allFailure: true });
-  console.log('CURRENT AFFAIRS UI V2 SMOKE OK: trends, V1 fallback, filtering, escaping');
+  console.log('CURRENT AFFAIRS UI V2 SMOKE OK: evidence grading, one-off fail-closed, trends, V1 fallback, filtering, escaping');
 })().catch(error => { console.error(error); process.exitCode = 1; });
