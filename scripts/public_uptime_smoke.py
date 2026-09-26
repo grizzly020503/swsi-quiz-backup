@@ -276,7 +276,41 @@ def main() -> int:
             raise AssertionError(
                 f"Netlify fallback current-affairs: expected >=17 sources / 0 errors, got {fallback_sources}/{fallback_errors}"
             )
-        checks.append(f"netlify-parity-{expected_marker}")
+        if "命題趨勢雷達" not in fallback_html:
+            raise AssertionError("Netlify fallback: trend radar marker missing")
+
+        body, _ = require_status(
+            "Netlify fallback current-affairs signals",
+            BACKUP + "/auto/current_affairs_signals.json",
+        )
+        fallback_signals = json.loads(body)
+        fallback_signal_items = fallback_signals.get("items") or []
+        if int(fallback_signals.get("questions_loaded", -1)) != 4800:
+            raise AssertionError("Netlify fallback signals: questions_loaded != 4800")
+        if int(fallback_signals.get("item_count", -1)) != len(fallback_signal_items) or not fallback_signal_items:
+            raise AssertionError("Netlify fallback signals: item_count mismatch or empty")
+
+        body, _ = require_status(
+            "Netlify fallback current-affairs events",
+            BACKUP + "/auto/current_affairs_events.json",
+        )
+        fallback_events = json.loads(body)
+        fallback_event_items = fallback_events.get("events") or []
+        if int(fallback_events.get("event_count", -1)) != len(fallback_event_items) or not fallback_event_items:
+            raise AssertionError("Netlify fallback events: event_count mismatch or empty")
+
+        body, _ = require_status(
+            "Netlify fallback current-affairs trends",
+            BACKUP + "/auto/current_affairs_trends.json",
+        )
+        fallback_trends = json.loads(body)
+        fallback_trend_items = fallback_trends.get("trends") or []
+        if int(fallback_trends.get("event_count", -1)) != len(fallback_trend_items) or not fallback_trend_items:
+            raise AssertionError("Netlify fallback trends: event_count mismatch or empty")
+        if fallback_trends.get("method") != "deterministic-v2.2":
+            raise AssertionError("Netlify fallback trends: method != deterministic-v2.2")
+
+        checks.append(f"netlify-parity-{expected_marker}/signals-events-trends")
 
     mode = "monitoring-v2" if args.monitoring_v2 else "baseline"
     print(f"SWSI PUBLIC UPTIME SENTINEL OK [{mode}]: " + ", ".join(checks))
