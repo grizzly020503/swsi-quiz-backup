@@ -77,7 +77,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           # workflow_run 的 GITHUB_SHA 不代表被監聽 workflow 最後 push 的資料 commit；
@@ -85,7 +85,7 @@ jobs:
           ref: ${{ github.event_name == 'workflow_run' && 'main' || github.ref }}
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
@@ -93,9 +93,11 @@ jobs:
         run: python -m pip install --disable-pip-version-check feedparser
 
       - name: Scan social-work current affairs
+        if: github.event_name != 'pull_request'
         run: python scripts/current_affairs_watch.py --output /tmp/current_affairs_payload.json --days 21
 
       - name: Build privacy-safe public snapshots
+        if: github.event_name != 'pull_request'
         run: |
           set -euo pipefail
           python scripts/build_current_affairs_snapshot.py \
@@ -128,6 +130,52 @@ jobs:
           cp auto/legal_watch.json cdn/auto/legal_watch.json
           cp auto/health.json cdn/auto/health.json
           cp auto/sync_state.json cdn/auto/sync_state.json
+
+      - name: Rebuild deterministic monitoring contracts for PR
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/swsi-monitoring-pr
+          python scripts/build_current_affairs_signals_snapshot.py \
+            --input auto/current_affairs.json \
+            --questions-csv data/questions_master_backup_20260824_2220.csv \
+            --output /tmp/swsi-monitoring-pr/current_affairs_signals.json \
+            --limit 30
+          python scripts/build_current_affairs_events_snapshot.py \
+            --news auto/current_affairs.json \
+            --signals /tmp/swsi-monitoring-pr/current_affairs_signals.json \
+            --output /tmp/swsi-monitoring-pr/current_affairs_events.json \
+            --limit 30
+          python scripts/build_current_affairs_trends_snapshot.py \
+            --events /tmp/swsi-monitoring-pr/current_affairs_events.json \
+            --output /tmp/swsi-monitoring-pr/current_affairs_trends.json \
+            --limit 30
+          python scripts/build_public_legal_watch_snapshot.py \
+            --input data/legal_watch_report.json \
+            --output /tmp/swsi-monitoring-pr/legal_watch.json
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('.')
+          tmp = Path('/tmp/swsi-monitoring-pr')
+          pairs = [
+              ('current_affairs_signals.json', 'auto/current_affairs_signals.json'),
+              ('current_affairs_events.json', 'auto/current_affairs_events.json'),
+              ('current_affairs_trends.json', 'auto/current_affairs_trends.json'),
+              ('legal_watch.json', 'auto/legal_watch.json'),
+          ]
+          for generated, tracked in pairs:
+              a = json.loads((tmp / generated).read_text(encoding='utf-8'))
+              b = json.loads((root / tracked).read_text(encoding='utf-8'))
+              if a != b:
+                  raise SystemExit(
+                      f'PR deterministic snapshot drift: {generated} != {tracked}. '
+                      'Update the tracked snapshot in the same PR if the builder change is intentional.'
+                  )
+              print(f'PR DETERMINISTIC SNAPSHOT OK: {tracked}')
+          PY
 
       - name: Validate current-affairs UI installer
         if: github.event_name == 'pull_request'
