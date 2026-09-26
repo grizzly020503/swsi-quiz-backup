@@ -1,0 +1,231 @@
+name: Netlify Controlled Production Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_reason:
+        description: 'Optional release note for the Netlify deploy'
+        required: false
+        default: 'SWSI controlled production release'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-netlify-controlled-production
+  cancel-in-progress: false
+
+jobs:
+  build-deploy-verify:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      NETLIFY_PRODUCTION_URL: https://swsi-quiznetlify.netlify.app
+      EXPECTED_RELEASE_MARKER: 2026-09-26-history-v2.2
+      DEPLOY_REASON: ${{ inputs.deploy_reason }}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Refuse non-main deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF}" = "refs/heads/main"
+          echo "Deploying exact main commit ${GITHUB_SHA}"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Require Netlify GitHub secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${NETLIFY_AUTH_TOKEN}" || {
+            echo "Missing GitHub Actions secret: NETLIFY_AUTH_TOKEN" >&2
+            exit 1
+          }
+          test -n "${NETLIFY_SITE_ID}" || {
+            echo "Missing GitHub Actions secret: NETLIFY_SITE_ID" >&2
+            exit 1
+          }
+          echo "Netlify credentials are configured. Values are not printed."
+
+      - name: Build exactly as Netlify
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/swsi-netlify-build.sh
+          import tomllib
+          from pathlib import Path
+
+          cfg = tomllib.loads(Path('netlify.toml').read_text(encoding='utf-8'))
+          command = cfg['build']['command']
+          publish = cfg['build']['publish']
+          if publish != '_site':
+              raise SystemExit(f'Unexpected Netlify publish directory: {publish!r}')
+          print('set -euo pipefail')
+          print(command)
+          PY
+          bash /tmp/swsi-netlify-build.sh
+
+      - name: Verify pre-deploy release contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+          test -f _site/admin/index.html
+          test -f _site/monthly_patch.js
+          test -f _site/manifest.json
+          test -f _site/sw.js
+          test -f _site/auto/current_affairs.json
+          test -f _site/auto/current_affairs_signals.json
+          test -f _site/auto/current_affairs_events.json
+          test -f _site/auto/current_affairs_trends.json
+          test -d _site/icons
+
+          grep -q "swsi-netlify-release\" content=\"${EXPECTED_RELEASE_MARKER}" _site/index.html
+          grep -q '命題趨勢雷達' _site/index.html
+          grep -q "const VERSION = 'v7'" _site/sw.js
+          node --check _site/monthly_patch.js
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          current = json.loads(Path('_site/auto/current_affairs.json').read_text(encoding='utf-8'))
+          signals = json.loads(Path('_site/auto/current_affairs_signals.json').read_text(encoding='utf-8'))
+          events = json.loads(Path('_site/auto/current_affairs_events.json').read_text(encoding='utf-8'))
+          trends = json.loads(Path('_site/auto/current_affairs_trends.json').read_text(encoding='utf-8'))
+
+          assert int(current.get('source_feed_count') or 0) >= 17, current.get('source_feed_count')
+          feed_error_count = current.get('feed_error_count')
+          assert feed_error_count is not None and int(feed_error_count) == 0, feed_error_count
+          assert int(signals.get('questions_loaded') or 0) == 4800
+          assert int(signals.get('item_count') or -1) == len(signals.get('items') or [])
+          assert int(events.get('event_count') or -1) == len(events.get('events') or [])
+          assert int(trends.get('event_count') or -1) == len(trends.get('trends') or [])
+          assert trends.get('method') == 'deterministic-v2.2', trends.get('method')
+
+          print(
+              'NETLIFY CONTROLLED PREDEPLOY CONTRACT OK '
+              f"sources={current['source_feed_count']} "
+              f"signals={signals['item_count']}/4800 "
+              f"events={events['event_count']} "
+              f"trends={trends['event_count']}/history-v2.2"
+          )
+          PY
+
+      - name: Install pinned Netlify CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/swsi-netlify-cli
+          npm install --prefix /tmp/swsi-netlify-cli --no-save netlify-cli@27.9.0
+          /tmp/swsi-netlify-cli/node_modules/.bin/netlify --version
+
+      - name: Deploy prebuilt site to Netlify production
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/swsi-netlify-cli/node_modules/.bin/netlify deploy             --dir=_site             --prod             --message "SWSI ${GITHUB_SHA} - ${DEPLOY_REASON}"             --json | tee /tmp/netlify-deploy.json
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = json.loads(Path('/tmp/netlify-deploy.json').read_text(encoding='utf-8'))
+          safe = {
+              key: payload.get(key)
+              for key in ('deploy_id', 'deploy_url', 'url', 'site_name')
+              if payload.get(key)
+          }
+          print('NETLIFY DEPLOY RESPONSE', safe)
+          PY
+
+      - name: Verify production HTTP release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          fetch_prod() {
+            path="$1"
+            out="$2"
+            code="$(curl --silent --show-error --location --retry 3 --retry-all-errors               --connect-timeout 10 --max-time 30 -H 'Cache-Control: no-cache'               -o "$out" -w '%{http_code}'               "${NETLIFY_PRODUCTION_URL}${path}?release_check=${GITHUB_RUN_ID}")"
+            echo "PRODUCTION ${path} -> HTTP ${code}"
+            test "${code}" = '200'
+          }
+
+          deployed=0
+          for attempt in $(seq 1 18); do
+            if fetch_prod / /tmp/prod-index.html; then
+              if grep -q "swsi-netlify-release\" content=\"${EXPECTED_RELEASE_MARKER}" /tmp/prod-index.html; then
+                deployed=1
+                echo "NETLIFY RELEASE MARKER READY on attempt ${attempt}"
+                break
+              fi
+            fi
+            echo "Waiting for Netlify production deploy: attempt ${attempt}/18"
+            sleep 10
+          done
+          test "${deployed}" = '1'
+
+          fetch_prod /sw.js /tmp/prod-sw.js
+          fetch_prod /monthly_patch.js /tmp/prod-monthly-patch.js
+          fetch_prod /auto/current_affairs.json /tmp/prod-current-affairs.json
+          fetch_prod /auto/current_affairs_signals.json /tmp/prod-current-affairs-signals.json
+          fetch_prod /auto/current_affairs_events.json /tmp/prod-current-affairs-events.json
+          fetch_prod /auto/current_affairs_trends.json /tmp/prod-current-affairs-trends.json
+
+          grep -q '社工師國考免費題庫｜SWSI' /tmp/prod-index.html
+          grep -q 'monthly_patch.js' /tmp/prod-index.html
+          grep -q '命題趨勢雷達' /tmp/prod-index.html
+          grep -q "const VERSION = 'v7'" /tmp/prod-sw.js
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          current = json.loads(Path('/tmp/prod-current-affairs.json').read_text(encoding='utf-8'))
+          signals = json.loads(Path('/tmp/prod-current-affairs-signals.json').read_text(encoding='utf-8'))
+          events = json.loads(Path('/tmp/prod-current-affairs-events.json').read_text(encoding='utf-8'))
+          trends = json.loads(Path('/tmp/prod-current-affairs-trends.json').read_text(encoding='utf-8'))
+
+          assert int(current.get('source_feed_count') or 0) >= 17
+          feed_error_count = current.get('feed_error_count')
+          assert feed_error_count is not None and int(feed_error_count) == 0
+          assert int(signals.get('questions_loaded') or 0) == 4800
+          assert int(signals.get('item_count') or -1) == len(signals.get('items') or [])
+          assert int(events.get('event_count') or -1) == len(events.get('events') or [])
+          assert int(trends.get('event_count') or -1) == len(trends.get('trends') or [])
+          assert trends.get('method') == 'deterministic-v2.2'
+
+          print(
+              'NETLIFY CONTROLLED PRODUCTION HTTP CHECK OK '
+              f"sources={current['source_feed_count']} "
+              f"signals={signals['item_count']}/4800 "
+              f"events={events['event_count']} "
+              f"trends={trends['event_count']}/history-v2.2"
+          )
+          PY
+
+      - name: Production browser smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+          node scripts/grading_contract_smoke.js "${NETLIFY_PRODUCTION_URL}/?release_check=${GITHUB_RUN_ID}"
+          node scripts/browser_interaction_smoke.js "${NETLIFY_PRODUCTION_URL}/?release_check=${GITHUB_RUN_ID}"
+          echo "NETLIFY CONTROLLED PRODUCTION BROWSER CHECK OK"
