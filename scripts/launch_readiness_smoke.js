@@ -100,7 +100,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert.strictEqual(await moreTools.count(), 1, 'homepage advanced-tools disclosure missing');
   assert.strictEqual(await moreTools.getAttribute('open'), null, 'advanced tools should be collapsed by default');
   assert(/更多學習工具/.test(await moreTools.locator('summary').innerText()), 'advanced-tools summary copy missing');
-  const hiddenToolText = (await moreTools.locator('button').allInnerTexts()).join(' ');
+  const hiddenToolText = (await moreTools.locator('button').allTextContents()).join(' ');
   assert(/學習中心/.test(hiddenToolText) && /申論練習/.test(hiddenToolText) && /理論、法規與時事/.test(hiddenToolText), 'collapsed advanced tools lost a study destination');
 
   const learningTab = page.locator('#t-review');
