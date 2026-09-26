@@ -15,6 +15,10 @@ not start from an empty PostgreSQL database.
 schema is reconstructed by the ordered repo migrations in
 `recovery_manifest.json`.
 
+`production_acl_alignment.sql` also restores an early production-only revoke on
+`claim_pending_ai_questions(integer)` so a clean rebuild does not inherit
+PostgreSQL's default `PUBLIC EXECUTE` on that SECURITY DEFINER function.
+
 ## CI drill
 
 `scripts/supabase_recovery_dry_run.py` runs against a disposable PostgreSQL
