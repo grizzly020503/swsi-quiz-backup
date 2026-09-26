@@ -53,9 +53,10 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
   await page.waitForSelector('.swsi-focus-primary',{timeout:10000});
 
   // AI network failure: answer stays saved, busy state clears, and the user
-  // gets plain-language recovery copy. Enter Essay through the canonical tab.
-  await page.locator('#t-essay').click();
-  await page.getByRole('button',{name:'直接練一題'}).click();
+  // gets plain-language recovery copy. Direct Essay practice is secondary on Home.
+  const homeMoreTools=page.locator('#app details.swsi-other-tools');
+  await homeMoreTools.locator('summary').click();
+  await homeMoreTools.getByRole('button',{name:'申論練習'}).click();
   await page.waitForSelector('.wta',{timeout:30000});
   let blockedPost='';
   await page.route('**/*',route=>{
