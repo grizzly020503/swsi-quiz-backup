@@ -1,0 +1,31 @@
+name: Priority Law Question Links QA
+
+on:
+  pull_request:
+    paths:
+      - 'data/law_question_links_priority10.v1.json'
+      - 'scripts/law_question_links_priority10_smoke.py'
+      - 'cdn/question-shards/**'
+      - '.github/workflows/priority-law-question-links-qa.yml'
+  push:
+    paths:
+      - 'data/law_question_links_priority10.v1.json'
+      - 'scripts/law_question_links_priority10_smoke.py'
+      - 'cdn/question-shards/**'
+      - '.github/workflows/priority-law-question-links-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m py_compile scripts/law_question_links_priority10_smoke.py
+      - run: python scripts/law_question_links_priority10_smoke.py
