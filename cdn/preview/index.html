@@ -3956,6 +3956,24 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
   function safeHref(v){
     var s=String(v||''); return /^https:\/\//i.test(s)?E(s):'#';
   }
+  function knowledgeHtml(item){
+    item=item||{};
+    var root=String(item.knowledge_root||'');
+    var domains=item.management_domains||[];
+    var topics=(item.subject_topics&&typeof item.subject_topics==='object')?item.subject_topics:{};
+    var subjects=Object.keys(topics);
+    if(!root||(!domains.length&&!subjects.length)) return '';
+    var domainHtml=domains.slice(0,8).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('');
+    var subjectHtml=subjects.slice(0,5).map(function(subject){
+      var rows=(topics[subject]||[]).slice(0,4).map(function(topic){return '<li>'+E(topic)+'</li>';}).join('');
+      return '<div class="nlr-knowledge-subject"><b>'+E(subject)+'</b>'+(rows?'<ul>'+rows+'</ul>':'')+'</div>';
+    }).join('');
+    return '<details class="nlr-detail nlr-knowledge"><summary>社會工作管理 × 國考五科</summary>'
+      +'<div class="nlr-knowledge-root"><b>'+E(root)+'</b><span>跨科整合層，不是額外的國考科目</span></div>'
+      +(domainHtml?'<div class="nlr-knowledge-label">管理面向</div><div class="nlr-chips">'+domainHtml+'</div>':'')
+      +(subjectHtml?'<div class="nlr-knowledge-label">對應考科與主題</div>'+subjectHtml:'')
+      +'</details>';
+  }
   function eventCard(ev){
     var tr=trendFor(ev.canonical_event_id)||{};
     var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(x.replace('社會政策與社會立法','社政法').replace('社會工作直接服務','直接服務').replace('人類行為與社會環境','人行'))+'</span>';}).join('');
@@ -3984,6 +4002,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     var summaryText=trendReady?(ev.exam_point_summary||''):'目前證據仍是單一來源／單次觀察，先當作制度或議題複習素材；待跨來源或後續更新後，再判斷是否形成命題趨勢。';
     var evidenceLabel=sourceCount>=2?'多來源證據':'來源依據';
     var note=trendReady?'同事件跨來源只計一次；趨勢用來安排複習，不代表命題保證。':'目前只有單一來源或單次觀察；不以分數宣稱趨勢，事實請以原始來源為準。';
+    var knowledge=knowledgeHtml((tr.knowledge_root||tr.subject_topics)?tr:ev);
     return '<div class="nlr-card">'
       +'<div class="nlr-head"><span class="nlr-cat">'+E(ev.category||'時事')+'</span><span class="nlr-trend nlr-trend-'+E(tr.trend_state||'one-off')+'">'+E(trendLabel(tr.trend_state))+'</span></div>'
       +'<div class="nlr-title">'+E(ev.title||'')+'</div>'
@@ -3991,6 +4010,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       +'<div class="nlr-subs">'+subjects+'</div>'
       +signalHtml
       +(summaryText?'<div class="nlr-signal-text">'+E(summaryText)+'</div>':'')
+      +knowledge
       +(why?'<details class="nlr-detail"><summary>為什麼值得複習？</summary><ul>'+why+'</ul></details>':'')
       +(essay?'<details class="nlr-detail"><summary>值得練習的申論方向</summary><div class="nlr-exam">'+E(essay)+'</div></details>':'')
       +(mcq.length?'<details class="nlr-detail"><summary>選擇題可能抓哪些事實？</summary><div class="nlr-chips">'+mcq.slice(0,8).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('')+'</div></details>':'')
@@ -4006,6 +4026,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     var tags=(ev.exam_tags||[]).slice(0,6).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('');
     var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(x.replace('社會政策與社會立法','社政法').replace('社會工作直接服務','直接服務').replace('人類行為與社會環境','人行'))+'</span>';}).join('');
     var summary=String(ev.summary||''); if(summary.length>220) summary=summary.slice(0,220)+'…';
+    var liveKnowledge=knowledgeHtml(ev);
     return '<div class="nlr-card">'
       +'<div class="nlr-head"><span class="nlr-cat">'+E(ev.category||'時事')+'</span><span class="nlr-score">關聯 '+E(ev.relevance_score||'')+'/10</span></div>'
       +'<div class="nlr-title">'+E(ev.title)+'</div>'
@@ -4013,6 +4034,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       +(summary?'<div class="nlr-summary">'+E(summary)+'</div>':'')
       +'<div class="nlr-subs">'+subjects+'</div>'
       +(tags?'<div class="nlr-chips">'+tags+'</div>':'')
+      +liveKnowledge
       +(sig.signal_confidence?'<div class="nlr-signal"><b>命題訊號：'+E(sig.signal_confidence==='high'?'高':sig.signal_confidence==='medium'?'中':'低')+'</b>'+(sig.signal_score!=null?' ・ '+E(sig.signal_score)+'/10':'')+'</div>':'')
       +(sig.exam_point_summary?'<div class="nlr-signal-text">'+E(sig.exam_point_summary)+'</div>':'')
       +(sig.essay_direction?'<details class="nlr-detail"><summary>值得練習的申論方向</summary><div class="nlr-exam">'+E(sig.essay_direction)+'</div></details>':'')
@@ -4032,7 +4054,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       +'.nlr-card{border:1px solid var(--line,#ddd);border-radius:13px;padding:12px;background:var(--bg,#fff)}.nlr-head{display:flex;justify-content:space-between;gap:8px}.nlr-cat{font-size:.75rem;font-weight:700}.nlr-score{font-size:.72rem;color:var(--muted,#777)}'
       +'.nlr-title{font-weight:800;line-height:1.45;margin:6px 0}.nlr-meta,.nlr-summary{font-size:.8rem;color:var(--muted,#666);line-height:1.55}.nlr-summary{margin-top:7px}'
       +'.nlr-subs,.nlr-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.nlr-sub,.nlr-chip{font-size:.7rem;border-radius:999px;padding:3px 7px;background:var(--soft,#f2f2f2)}'
-      +'.nlr-detail{margin-top:9px;font-size:.8rem;line-height:1.55}.nlr-detail summary{cursor:pointer;font-weight:700}.nlr-detail ul{padding-left:20px;margin:7px 0}.nlr-exam{margin-top:6px}.nlr-signal{margin-top:9px;font-size:.8rem}.nlr-signal-text{margin-top:5px;font-size:.78rem;line-height:1.5}.nlr-link{display:inline-block;margin-top:9px;font-size:.78rem;text-decoration:none;font-weight:700}.nlr-empty{font-size:.82rem;color:var(--muted,#777);padding:8px 0}'+'.nlr-trend{font-size:.72rem;font-weight:800;padding:3px 7px;border-radius:999px;background:var(--soft,#f2f2f2)}.nlr-trend-rising{font-weight:900}.nlr-trend-sustained{font-weight:800}.nlr-trend-cooling{opacity:.72}.nlr-note{font-size:.72rem;color:var(--muted,#777);line-height:1.45;margin-top:9px}';
+      +'.nlr-detail{margin-top:9px;font-size:.8rem;line-height:1.55}.nlr-detail summary{cursor:pointer;font-weight:700}.nlr-detail ul{padding-left:20px;margin:7px 0}.nlr-exam{margin-top:6px}.nlr-signal{margin-top:9px;font-size:.8rem}.nlr-signal-text{margin-top:5px;font-size:.78rem;line-height:1.5}.nlr-link{display:inline-block;margin-top:9px;font-size:.78rem;text-decoration:none;font-weight:700}.nlr-empty{font-size:.82rem;color:var(--muted,#777);padding:8px 0}.nlr-knowledge-root{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;margin-top:8px}.nlr-knowledge-root span,.nlr-knowledge-label{font-size:.72rem;color:var(--muted,#777)}.nlr-knowledge-label{font-weight:700;margin-top:8px}.nlr-knowledge-subject{margin-top:8px}.nlr-knowledge-subject ul{margin:3px 0 0;padding-left:18px}'+'.nlr-trend{font-size:.72rem;font-weight:800;padding:3px 7px;border-radius:999px;background:var(--soft,#f2f2f2)}.nlr-trend-rising{font-weight:900}.nlr-trend-sustained{font-weight:800}.nlr-trend-cooling{opacity:.72}.nlr-note{font-size:.72rem;color:var(--muted,#777);line-height:1.45;margin-top:9px}';
     document.head.appendChild(st);
   }
   function fetchJson(url){
