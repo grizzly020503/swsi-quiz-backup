@@ -412,7 +412,7 @@ def main() -> int:
 
     elder_service_expansion = scored(
         "衛福部擴大獨老服務 啟動70萬名長者關懷訪查",
-        "擴大社區安全網與分級服務連結。",
+        "因應超高齡社會，擴大獨居長者社區安全網、關懷訪查與分級服務連結。",
         "衛生福利部焦點新聞",
     )
     assert elder_service_expansion and elder_service_expansion[1] == "長照與高齡", elder_service_expansion
