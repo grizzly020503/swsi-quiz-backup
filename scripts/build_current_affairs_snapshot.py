@@ -2,6 +2,7 @@
 import argparse
 import json
 import re
+from datetime import datetime
 from pathlib import Path
 
 STOP_TAGS = {
@@ -54,6 +55,42 @@ def informative_tags(row):
     return {str(x).strip() for x in (row.get("exam_tags") or []) if str(x).strip() and str(x).strip() not in STOP_TAGS}
 
 
+def significant_fact_keys(row):
+    out = set()
+    for raw in row.get("fact_keys") or []:
+        value = str(raw or "").strip()
+        if not value.startswith("num:"):
+            continue
+        try:
+            number = abs(int(value.split(":", 1)[1]))
+        except (TypeError, ValueError):
+            continue
+        if number >= 1000:
+            out.add(value)
+    return out
+
+
+def published_dt(row):
+    value = str(row.get("published_at") or "").strip()
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def close_in_time(row, cluster, max_days=3):
+    current = published_dt(row)
+    if current is None:
+        return False
+    for member in cluster:
+        other = published_dt(member)
+        if other is not None and abs((current - other).total_seconds()) <= max_days * 86400:
+            return True
+    return False
+
+
 def should_merge(row, cluster):
     first = cluster[0]
     if row.get("category") != first.get("category"):
@@ -71,6 +108,28 @@ def should_merge(row, cluster):
 
     a = informative_tags(row)
     b = set().union(*(informative_tags(x) for x in cluster))
+    a_facts = significant_fact_keys(row)
+    b_facts = set().union(*(significant_fact_keys(x) for x in cluster))
+    has_news = (
+        str(row.get("source_type") or "") == "news"
+        or any(str(x.get("source_type") or "") == "news" for x in cluster)
+    )
+    # Media follow-ups often use different headlines but retain the same
+    # concrete amount/count and exam-relevant role. Require all independent
+    # anchors plus a short time window so one outlet's follow-up articles do
+    # not inflate topic count or cross-source trend strength.
+    if (
+        has_news
+        and a_facts
+        and b_facts
+        and a_facts.intersection(b_facts)
+        and a
+        and b
+        and a.intersection(b)
+        and close_in_time(row, cluster)
+    ):
+        return True
+
     if not a or not b:
         return False
     shared = a.intersection(b)
@@ -113,12 +172,18 @@ def merge_cluster(cluster):
         all_agencies.extend(row.get("agency_keys") or [])
         all_facts.extend(row.get("fact_keys") or [])
 
-    count = len(urls) or len(members)
+    evidence_count = len(urls) or len(members)
+    source_names = {
+        str(x.get("source_name") or "").strip()
+        for x in members
+        if str(x.get("source_name") or "").strip()
+    }
+    source_count = len(source_names) or (1 if evidence_count else 0)
     base_score = max(int(x.get("relevance_score") or 0) for x in members)
-    coverage_bonus = 0 if count <= 1 else (1 if count <= 3 else 2)
+    coverage_bonus = 0 if source_count <= 1 else (1 if source_count <= 3 else 2)
     score = min(10, base_score + coverage_bonus)
 
-    if explicit and count > 1:
+    if explicit and evidence_count > 1:
         title = f"{explicit[1]}：近期制度與實務動態"
         topic_key = explicit[0]
     else:
@@ -127,10 +192,14 @@ def merge_cluster(cluster):
 
     out = dict(representative)
     out.update({
-        "id": f"topic:{topic_key}" if count > 1 else representative.get("id"),
+        "id": f"topic:{topic_key}" if evidence_count > 1 else representative.get("id"),
         "title": title,
         "published_at": latest.get("published_at"),
-        "source_name": representative.get("source_name") if count == 1 else f"綜合 {count} 則來源",
+        "source_name": (
+            representative.get("source_name")
+            if source_count <= 1
+            else f"綜合 {source_count} 個來源"
+        ),
         "source_url": latest.get("source_url") or representative.get("source_url"),
         "relevance_score": score,
         "exam_tags": list(dict.fromkeys(all_tags))[:10],
@@ -138,9 +207,10 @@ def merge_cluster(cluster):
         "concept_keys": list(dict.fromkeys(all_concepts)),
         "agency_keys": list(dict.fromkeys(all_agencies)),
         "fact_keys": list(dict.fromkeys(all_facts)),
-        "source_count": count,
+        "source_count": source_count,
+        "evidence_count": evidence_count,
         "sources": sources,
-        "clustered": count > 1,
+        "clustered": evidence_count > 1,
     })
     return out
 
