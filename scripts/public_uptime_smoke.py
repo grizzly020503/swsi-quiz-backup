@@ -16,6 +16,7 @@ BACKUP = "https://swsi-quiznetlify.netlify.app"
 FEEDBACK = "https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-feedback"
 UA = "SWSI-Uptime-Sentinel/1.0"
 TIMEOUT = 12
+EXPECTED_NETLIFY_RELEASE = "2026-09-26-history-v2.2"
 
 
 def request(url: str, method: str = "GET", headers: dict[str, str] | None = None):
@@ -42,7 +43,7 @@ def main() -> int:
     ap.add_argument(
         "--monitoring-v2",
         action="store_true",
-        help="Require Monitoring V2 public snapshots. Use after V2 is deployed, not while a PR still targets old production.",
+        help="Require the current Monitoring V2 production baseline on both primary and fallback.",
     )
     args = ap.parse_args()
     checks: list[str] = []
@@ -225,7 +226,53 @@ def main() -> int:
     fallback_html = body.decode("utf-8", "replace")
     if "SWSI" not in fallback_html and "社工師" not in fallback_html:
         raise AssertionError("Netlify fallback: expected social-work-study marker missing")
-    checks.append("netlify-fallback")
+    if args.monitoring_v2:
+        marker = f'swsi-netlify-release" content="{EXPECTED_NETLIFY_RELEASE}'
+        if marker not in fallback_html:
+            raise AssertionError(
+                f"Netlify fallback: expected release marker {EXPECTED_NETLIFY_RELEASE}"
+            )
+        if "命題趨勢雷達" not in fallback_html:
+            raise AssertionError("Netlify fallback: trend radar marker missing")
+
+        body, _ = require_status("Netlify Service Worker", BACKUP + "/sw.js")
+        fallback_sw = body.decode("utf-8", "replace")
+        if "const VERSION = 'v7';" not in fallback_sw:
+            raise AssertionError("Netlify fallback: expected Service Worker VERSION v7")
+
+        body, _ = require_status("Netlify current-affairs snapshot", BACKUP + "/auto/current_affairs.json")
+        fallback_news = json.loads(body)
+        if int(fallback_news.get("source_feed_count", -1)) < 17:
+            raise AssertionError("Netlify fallback: expected at least 17 current-affairs feeds")
+        if int(fallback_news.get("feed_error_count", -1)) != 0:
+            raise AssertionError("Netlify fallback: expected 0 feed errors")
+        if not (fallback_news.get("items") or []):
+            raise AssertionError("Netlify fallback: current-affairs items empty")
+
+        body, _ = require_status("Netlify current-affairs signals", BACKUP + "/auto/current_affairs_signals.json")
+        fallback_signals = json.loads(body)
+        if int(fallback_signals.get("questions_loaded", -1)) != 4800:
+            raise AssertionError("Netlify fallback: signals questions_loaded != 4800")
+        if int(fallback_signals.get("item_count", -1)) != len(fallback_signals.get("items") or []):
+            raise AssertionError("Netlify fallback: signals item_count mismatch")
+
+        body, _ = require_status("Netlify current-affairs events", BACKUP + "/auto/current_affairs_events.json")
+        fallback_events = json.loads(body)
+        if int(fallback_events.get("event_count", -1)) != len(fallback_events.get("events") or []):
+            raise AssertionError("Netlify fallback: events event_count mismatch")
+        if not (fallback_events.get("events") or []):
+            raise AssertionError("Netlify fallback: events empty")
+
+        body, _ = require_status("Netlify current-affairs trends", BACKUP + "/auto/current_affairs_trends.json")
+        fallback_trends = json.loads(body)
+        if int(fallback_trends.get("event_count", -1)) != len(fallback_trends.get("trends") or []):
+            raise AssertionError("Netlify fallback: trends event_count mismatch")
+        if fallback_trends.get("method") != "deterministic-v2.2":
+            raise AssertionError("Netlify fallback: trend method != deterministic-v2.2")
+
+        checks.append("netlify-history-v2.2/sw-v7/monitoring-v2")
+    else:
+        checks.append("netlify-fallback")
 
     mode = "monitoring-v2" if args.monitoring_v2 else "baseline"
     print(f"SWSI PUBLIC UPTIME SENTINEL OK [{mode}]: " + ", ".join(checks))
