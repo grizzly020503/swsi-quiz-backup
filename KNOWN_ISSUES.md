@@ -10,7 +10,7 @@
 - **Reuters／AP／BBC 目前刻意不接。** 原因是官方授權／metadata/RSS 使用條件，不是技術 defect。詳見 `docs/CURRENT_AFFAIRS_SOURCE_POLICY.md`。
 - **社家署 live current-affairs feed 尚無驗證通過 endpoint。** 不猜 URL；其 data.gov.tw 開放資料可另作 background evidence，不列為 current-affairs feed bug。
 - **Issue #84 在本輪 source-policy closeout 後可關閉。**
-- **Netlify fallback 已獲使用者授權更新，history-v2.2 正式封包已完成；唯一未完成的是帳號端手動 deploy。** 目前聊天沒有 Netlify 帳號寫入連接器／deploy hook；Plugin Directory 也沒有 Netlify connector。#142 main artifact run `36202627219` success，Artifact ID `10892094151`，來源 main `4c55f1c7b1d587307761afa46f19dce51e6757ae`；真正要上傳的是 artifact 內層 `swsi-netlify-manual-deploy.zip`，SHA-256 `79b12ceeae1aaac776488ff2af78134c36bf6fcca85c53ef369c9296856c59ee`。Verifier run `36202022040` attempt 2 在 artifact 完成後仍連續 18 次看不到 `2026-09-26-history-v2.2` marker，已確認 production 仍是舊版。上傳後再重跑 verifier。
+- **Netlify fallback 已切換為 GitHub Actions controlled production deploy。** PR #145 已合併；帳號持有人已設定 `NETLIFY_AUTH_TOKEN` / `NETLIFY_SITE_ID`、完成第一次 `main` controlled deploy，並在成功後解除舊 Netlify Git continuous deployment。後續不要再走手動 ZIP 或重新連回 Netlify Git build。
 - 下方舊的 6 feeds、SW v6、8 月 branch/release 敘述均為歷史證據；衝突時以 `PROJECT_HANDOFF.md` 最上方最新節、`docs/CURRENT_AFFAIRS_SOURCE_POLICY.md` 與遠端真實狀態為準。
 
 ## P0（已完成，持續防回歸）
@@ -136,10 +136,10 @@ Production trigger 已包含 `grading_mode`。GitHub 新增 `20260827031000_alig
 MOEX Importer Integrity QA #1（33003892890）已成功；Monthly Frontend QA #91 亦再次執行 importer source contract、Deno check 與 recovery drift smoke。
 
 
-## 尚未執行的 release operation
+## Release operation 現況
 
-- Netlify production deploy：**使用者已授權，封包已完成，但仍待 Netlify 帳號端手動上傳**。GitHub merge 不會自動做 production deploy；`Verify Netlify Production Release` 目前會因正式站仍是舊 marker 而失敗，這是預期的外部 release blocker，不是程式 bug。
-- `main` 比 branch 多一筆只修改 `cdn/preview/monthly_patch.js` 的 preview artifact commit；合併必須走一般 PR/merge 並保留該 commit，不可 force 覆蓋。
+- Netlify production：已改走 `.github/workflows/netlify-controlled-production-deploy.yml`；第一次 controlled production deploy 已由帳號持有人確認成功，舊 Netlify Git continuous deployment 已解除。
+- Cloudflare 仍是 primary，Netlify 為 fallback。後續 Netlify release 目前採 `workflow_dispatch` 明確觸發，避免不必要的 fallback deploy 使用量。
 
 ## P2 / 長期重構
 
