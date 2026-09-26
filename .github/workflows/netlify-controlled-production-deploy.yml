@@ -52,7 +52,7 @@ jobs:
 
     steps:
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Guard production dispatch
         if: github.event_name == 'workflow_dispatch'
@@ -63,14 +63,15 @@ jobs:
           echo "Production dispatch is pinned to exact main commit ${GITHUB_SHA}"
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22.13.0'
+          package-manager-cache: false
 
       - name: Require Netlify GitHub secrets
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
