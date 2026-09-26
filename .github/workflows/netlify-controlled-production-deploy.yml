@@ -7,6 +7,13 @@ on:
         description: 'Optional release note for the Netlify deploy'
         required: false
         default: 'SWSI controlled production release'
+  workflow_run:
+    workflows:
+      - Cloudflare Production Artifact QA
+    types:
+      - completed
+    branches:
+      - main
   pull_request:
     paths:
       - '.github/workflows/netlify-controlled-production-deploy.yml'
@@ -48,16 +55,23 @@ concurrency:
 
 jobs:
   build-deploy-verify:
+    if: >
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       NETLIFY_PRODUCTION_URL: https://swsi-quiznetlify.netlify.app
       EXPECTED_RELEASE_MARKER: 2026-09-26-history-v2.2
-      DEPLOY_REASON: ${{ inputs.deploy_reason || 'SWSI controlled production release' }}
+      DEPLOY_REASON: ${{ inputs.deploy_reason || 'SWSI verified Cloudflare release sync' }}
+      SOURCE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
     steps:
-      - name: Checkout main
+      - name: Checkout release source
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: Guard production dispatch
         if: github.event_name == 'workflow_dispatch'
@@ -78,8 +92,48 @@ jobs:
           node-version: '22.13.0'
           package-manager-cache: false
 
+      - name: Decide whether Netlify production deploy is needed
+        id: release_gate
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "$GITHUB_EVENT_NAME" = 'pull_request' ]; then
+            echo 'deploy=false' >> "$GITHUB_OUTPUT"
+            echo 'PR validation only; Netlify production is never changed from a pull request.'
+            exit 0
+          fi
+
+          if [ "$GITHUB_EVENT_NAME" = 'workflow_dispatch' ]; then
+            echo 'deploy=true' >> "$GITHUB_OUTPUT"
+            echo 'Explicit main dispatch requested; production deploy will run.'
+            exit 0
+          fi
+
+          test "$GITHUB_EVENT_NAME" = 'workflow_run'
+          stale=0
+          for rel in index.html monthly_patch.js sw.js; do
+            code="$(curl --silent --show-error --location --retry 3 --retry-all-errors               --connect-timeout 10 --max-time 30 -H 'Cache-Control: no-cache'               -o "/tmp/netlify-live-${rel//\//_}" -w '%{http_code}'               "${NETLIFY_PRODUCTION_URL}/${rel}?release_check=${GITHUB_RUN_ID}")" || code='000'
+            echo "NETLIFY DRIFT CHECK /${rel} -> HTTP ${code}"
+            if [ "${code}" != '200' ] || ! cmp -s "_site/${rel}" "/tmp/netlify-live-${rel//\//_}"; then
+              stale=1
+            fi
+          done
+
+          if [ "${stale}" = '1' ]; then
+            echo 'deploy=true' >> "$GITHUB_OUTPUT"
+            echo 'Netlify fallback is stale; controlled production deploy is required.'
+          else
+            echo 'deploy=false' >> "$GITHUB_OUTPUT"
+            echo 'Netlify fallback already matches the verified release; skipping deploy and credits.'
+          fi
+
+      - name: Netlify fallback already current
+        if: github.event_name == 'workflow_run' && steps.release_gate.outputs.deploy != 'true'
+        run: echo 'NETLIFY CONTROLLED RELEASE BRIDGE OK — no deploy required.'
+
       - name: Require Netlify GitHub secrets
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        if: steps.release_gate.outputs.deploy == 'true'
         shell: bash
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -164,7 +218,7 @@ jobs:
           PY
 
       - name: Install pinned Netlify CLI
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        if: steps.release_gate.outputs.deploy == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -173,14 +227,14 @@ jobs:
           /tmp/swsi-netlify-cli/node_modules/.bin/netlify --version
 
       - name: Deploy prebuilt site to Netlify production
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        if: steps.release_gate.outputs.deploy == 'true'
         shell: bash
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
           set -euo pipefail
-          /tmp/swsi-netlify-cli/node_modules/.bin/netlify deploy             --dir=_site             --prod             --message "SWSI ${GITHUB_SHA} - ${DEPLOY_REASON}"             --json | tee /tmp/netlify-deploy.json
+          /tmp/swsi-netlify-cli/node_modules/.bin/netlify deploy             --dir=_site             --prod             --message "SWSI ${SOURCE_SHA} - ${DEPLOY_REASON}"             --json | tee /tmp/netlify-deploy.json
 
           python3 - <<'PY'
           import json
@@ -196,7 +250,7 @@ jobs:
           PY
 
       - name: Verify production HTTP release
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        if: steps.release_gate.outputs.deploy == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -299,7 +353,7 @@ jobs:
           PY
 
       - name: Production browser smoke
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        if: steps.release_gate.outputs.deploy == 'true'
         shell: bash
         run: |
           set -euo pipefail
