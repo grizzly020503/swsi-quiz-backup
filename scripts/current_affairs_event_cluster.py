@@ -429,6 +429,32 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
         "summary": str(lead.get("summary") or "")[:320],
         "category": lead.get("category"),
         "subjects": sorted({str(y) for x in members for y in (x.get("subjects") or []) if y}),
+        "knowledge_root": next(
+            (
+                str(x.get("knowledge_root") or "").strip()
+                for x in [lead, *members]
+                if str(x.get("knowledge_root") or "").strip()
+            ),
+            None,
+        ),
+        "management_domains": list(dict.fromkeys(
+            str(y).strip()
+            for x in [lead, *members]
+            for y in (x.get("management_domains") or [])
+            if str(y).strip()
+        ))[:8],
+        "exam_subject_axes": list(dict.fromkeys(
+            str(y).strip()
+            for x in [lead, *members]
+            for y in (x.get("exam_subject_axes") or [])
+            if str(y).strip()
+        ))[:5],
+        "knowledge_topics": list(dict.fromkeys(
+            str(y).strip()
+            for x in [lead, *members]
+            for y in (x.get("knowledge_topics") or [])
+            if str(y).strip()
+        ))[:12],
         "exam_tags": sorted({str(y) for x in members for y in (x.get("exam_tags") or []) if y}),
         "related_laws": sorted({str(y) for x in members for y in (x.get("related_laws") or []) if y}),
         "concept_keys": sorted({str(y) for x in members for y in (x.get("concept_keys") or []) if y}),

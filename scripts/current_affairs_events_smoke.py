@@ -33,6 +33,14 @@ def row(
         "category": "長照與高齡",
         "exam_tags": tags or ["老人", "高齡", "政策"],
         "subjects": ["社會政策與社會立法"],
+        "knowledge_root": "社會工作管理",
+        "management_domains": ["服務輸送與跨網絡", "規劃與政策執行"],
+        "exam_subject_axes": [
+            "社會政策與社會立法",
+            "社會工作直接服務",
+            "人類行為與社會環境",
+        ],
+        "knowledge_topics": ["長照與高齡", "老人"],
         "policy_signal": policy,
         "essay_value": essay,
         "mcq_fact_density": mcq,
@@ -132,6 +140,16 @@ def main() -> int:
     assert history.get("aggregation_method") == "max-quality-member-plus-year-union-v2.2", history
     assert history.get("weighted_match_count") == 6.25, history
     assert history.get("match_breakdown") == {"strong": 5, "medium": 2, "concept": 1}, history
+    assert merged.get("knowledge_root") == "社會工作管理", merged
+    assert "服務輸送與跨網絡" in (merged.get("management_domains") or []), merged
+    assert "社會工作直接服務" in (merged.get("exam_subject_axes") or []), merged
+    assert "長照與高齡" in (merged.get("knowledge_topics") or []), merged
+
+    merged_trend = trend_for(merged, "2026-09-25T12:00:00Z")
+    assert merged_trend.get("knowledge_root") == "社會工作管理", merged_trend
+    assert merged_trend.get("management_domains") == merged.get("management_domains"), merged_trend
+    assert merged_trend.get("exam_subject_axes") == merged.get("exam_subject_axes"), merged_trend
+    assert merged_trend.get("knowledge_topics") == merged.get("knowledge_topics"), merged_trend
 
     bilingual_same = [
         {
