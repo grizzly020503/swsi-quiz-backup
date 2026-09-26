@@ -4,6 +4,13 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '17 0 * * *'
+  workflow_run:
+    workflows:
+      - Cloudflare Production Artifact QA
+    types:
+      - completed
+    branches:
+      - main
   push:
     branches:
       - main
@@ -24,10 +31,20 @@ concurrency:
 
 jobs:
   public-uptime:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout triggering revision
+        if: github.event_name != 'workflow_run'
+        uses: actions/checkout@v7
+
+      - name: Checkout current main after Cloudflare production parity
+        if: github.event_name == 'workflow_run'
+        uses: actions/checkout@v7
+        with:
+          ref: main
+
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
