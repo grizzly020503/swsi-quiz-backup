@@ -211,8 +211,11 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.locator('#t-home').click();
   await waitHome();
 
-  // Essay flow remains intact after learning-center simplification.
-  await page.getByRole('button', { name: '直接練一題' }).click();
+  // Direct Essay practice remains available without repeating a large Home card:
+  // reveal the secondary tools, then start one essay directly.
+  const homeMoreTools = page.locator('#app details.swsi-other-tools');
+  await homeMoreTools.locator('summary').click();
+  await homeMoreTools.getByRole('button', { name: '申論練習' }).click();
   await page.waitForSelector('.wta', { timeout: 30000 });
   const textarea = page.locator('.wta').first();
   await textarea.fill('一、測試作答\n（一）測試內容');

@@ -87,15 +87,21 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   const tabText = visibleTabs.join(' ');
   assert(/練題/.test(tabText) && /學習/.test(tabText) && /申論/.test(tabText), 'simplified bottom navigation labels missing');
 
-  // The homepage Learning Center card and bottom Learning tab must share the
-  // same direct local-state route. Neither may detour through legacy progress.
-  const homeLearning = page.locator('#app .swsi-study-card').filter({ hasText: '學習中心' }).first();
-  assert.strictEqual(await homeLearning.count(), 1, 'homepage Learning Center card missing');
-  await homeLearning.click();
-  await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
-  assert(/學習中心/.test(await page.locator('.swsi-myhub').innerText()), 'homepage Learning Center card did not open the hub');
-  await page.locator('#t-home').click();
-  await waitHome();
+  // Homepage subtraction: the bottom navigation already owns Learning/Essay,
+  // so Home must not repeat them as large cards. Keep only primary practice,
+  // two compact high-frequency actions, and one closed advanced-tools disclosure.
+  assert.strictEqual(await page.locator('#app .swsi-study-card').count(), 0, 'homepage repeated large study cards returned');
+  const quickActions = page.locator('#app .swsi-home-quick button');
+  assert.strictEqual(await quickActions.count(), 2, 'homepage compact quick actions missing');
+  const quickText = (await quickActions.allInnerTexts()).join(' ');
+  assert(/錯題複習/.test(quickText) && /計時模擬考/.test(quickText), 'homepage quick actions are not focused on review + mock exam');
+
+  const moreTools = page.locator('#app details.swsi-other-tools');
+  assert.strictEqual(await moreTools.count(), 1, 'homepage advanced-tools disclosure missing');
+  assert.strictEqual(await moreTools.getAttribute('open'), null, 'advanced tools should be collapsed by default');
+  assert(/更多學習工具/.test(await moreTools.locator('summary').innerText()), 'advanced-tools summary copy missing');
+  const hiddenToolText = (await moreTools.locator('button').allTextContents()).join(' ');
+  assert(/學習中心/.test(hiddenToolText) && /申論練習/.test(hiddenToolText) && /理論、法規與時事/.test(hiddenToolText), 'collapsed advanced tools lost a study destination');
 
   const learningTab = page.locator('#t-review');
   await learningTab.click();
