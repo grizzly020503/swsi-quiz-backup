@@ -500,6 +500,20 @@ def main() -> int:
     )
     assert elder_service_expansion and elder_service_expansion[1] == "長照與高齡", elder_service_expansion
 
+    occupation_only_crime = scored(
+        "涉侵占1200萬買名牌包 甜美社工羈押禁見",
+        "北市一名社工涉嫌個人侵占款項，法院裁定羈押禁見。",
+        "中天新聞社會",
+    )
+    assert occupation_only_crime is None, occupation_only_crime
+
+    social_work_system_event = scored(
+        "社工遭服務對象攻擊 工會籲強化職場安全與督導制度",
+        "社工人力、督導與職場安全制度受到檢討，社福機構提出風險管理改善。",
+        "中央社社會",
+    )
+    assert social_work_system_event and social_work_system_event[1] == "社工專業與社福制度", social_work_system_event
+
     generic_world_news = score_item(
         "Global leaders gather for annual forum",
         "Officials discussed the economy and international cooperation.",
