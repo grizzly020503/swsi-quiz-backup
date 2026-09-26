@@ -7,6 +7,32 @@ on:
         description: 'Optional release note for the Netlify deploy'
         required: false
         default: 'SWSI controlled production release'
+  pull_request:
+    paths:
+      - '.github/workflows/netlify-controlled-production-deploy.yml'
+      - 'netlify.toml'
+      - 'index.html'
+      - 'manifest.json'
+      - 'sw.js'
+      - 'apple-touch-icon.png'
+      - 'icons/**'
+      - 'admin/**'
+      - 'essay_guides.js'
+      - 'monthly_patch_parts/**'
+      - 'auto/**'
+      - 'scripts/admin_identity_privacy_build.py'
+      - 'scripts/admin_auth_build.py'
+      - 'scripts/build_essay_guides_runtime.js'
+      - 'scripts/monthly_patch_build.py'
+      - 'scripts/public_content_sanitize.py'
+      - 'scripts/cache_bust_runtime.py'
+      - 'scripts/monthly_frontend_smoke.py'
+      - 'scripts/first_paint_static_qa.py'
+      - 'scripts/p0_frontend_preflight.js'
+      - 'scripts/runtime_owner_smoke.js'
+      - 'scripts/supabase_contract_smoke.js'
+      - 'scripts/unified_question_qa_selftest.py'
+      - 'scripts/official_exam_readonly_guard.py'
 
 permissions:
   contents: read
@@ -17,26 +43,24 @@ concurrency:
 
 jobs:
   build-deploy-verify:
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
       NETLIFY_PRODUCTION_URL: https://swsi-quiznetlify.netlify.app
       EXPECTED_RELEASE_MARKER: 2026-09-26-history-v2.2
-      DEPLOY_REASON: ${{ inputs.deploy_reason }}
+      DEPLOY_REASON: ${{ inputs.deploy_reason || 'SWSI controlled production release' }}
 
     steps:
       - name: Checkout main
         uses: actions/checkout@v4
 
-      - name: Refuse non-main deployment
+      - name: Guard production dispatch
+        if: github.event_name == 'workflow_dispatch'
         shell: bash
         run: |
           set -euo pipefail
           test "${GITHUB_REF}" = "refs/heads/main"
-          echo "Deploying exact main commit ${GITHUB_SHA}"
+          echo "Production dispatch is pinned to exact main commit ${GITHUB_SHA}"
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -49,7 +73,11 @@ jobs:
           node-version: '22.13.0'
 
       - name: Require Netlify GitHub secrets
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         shell: bash
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
           set -euo pipefail
           test -n "${NETLIFY_AUTH_TOKEN}" || {
@@ -128,6 +156,7 @@ jobs:
           PY
 
       - name: Install pinned Netlify CLI
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         shell: bash
         run: |
           set -euo pipefail
@@ -136,7 +165,11 @@ jobs:
           /tmp/swsi-netlify-cli/node_modules/.bin/netlify --version
 
       - name: Deploy prebuilt site to Netlify production
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         shell: bash
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
           set -euo pipefail
           /tmp/swsi-netlify-cli/node_modules/.bin/netlify deploy             --dir=_site             --prod             --message "SWSI ${GITHUB_SHA} - ${DEPLOY_REASON}"             --json | tee /tmp/netlify-deploy.json
@@ -155,6 +188,7 @@ jobs:
           PY
 
       - name: Verify production HTTP release
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         shell: bash
         run: |
           set -euo pipefail
@@ -221,6 +255,7 @@ jobs:
           PY
 
       - name: Production browser smoke
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         shell: bash
         run: |
           set -euo pipefail
