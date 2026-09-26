@@ -195,6 +195,14 @@ def main() -> int:
             raise SystemExit("signal snapshot management domains missing")
         if not isinstance(row["exam_subject_axes"], list) or not row["exam_subject_axes"]:
             raise SystemExit("signal snapshot five-subject axes missing")
+        if not isinstance(row.get("primary_exam_subject_axes"), list) or not row.get("primary_exam_subject_axes"):
+            raise SystemExit("signal snapshot primary exam subjects missing")
+        if not isinstance(row.get("supporting_exam_subject_axes"), list):
+            raise SystemExit("signal snapshot supporting exam subjects missing")
+        if not set(row["primary_exam_subject_axes"]).issubset(set(row["exam_subject_axes"])):
+            raise SystemExit("signal primary subjects must be part of five-subject axes")
+        if set(row["primary_exam_subject_axes"]).intersection(row["supporting_exam_subject_axes"]):
+            raise SystemExit("signal primary/supporting subjects must be disjoint")
         if not isinstance(row["subject_topics"], dict) or not row["subject_topics"]:
             raise SystemExit("signal snapshot subject topics missing")
         if not isinstance(row["knowledge_paths"], list) or not row["knowledge_paths"]:
