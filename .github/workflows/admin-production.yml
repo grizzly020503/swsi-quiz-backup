@@ -8,6 +8,7 @@ on:
       - 'admin/**'
       - 'scripts/admin_identity_privacy_build.py'
       - 'scripts/admin_auth_build.py'
+      - 'scripts/admin_auth_recovery_smoke.js'
   push:
     branches:
       - main
@@ -16,6 +17,7 @@ on:
       - 'admin/**'
       - 'scripts/admin_identity_privacy_build.py'
       - 'scripts/admin_auth_build.py'
+      - 'scripts/admin_auth_recovery_smoke.js'
 
 permissions:
   contents: write
@@ -30,14 +32,20 @@ jobs:
     timeout-minutes: 8
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22.13.0'
+          package-manager-cache: false
 
       - name: Build hardened admin
         run: |
@@ -57,6 +65,21 @@ jobs:
             echo 'ERROR: secret-like credential reference leaked into admin frontend' >&2
             exit 1
           fi
+
+      - name: Isolated admin auth/recovery browser smoke
+        run: |
+          set -euo pipefail
+          node --check scripts/admin_auth_recovery_smoke.js
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+          python -m http.server 4174 --directory /tmp/swsi-admin >/tmp/swsi-admin-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4174/index.html >/dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/admin_auth_recovery_smoke.js http://127.0.0.1:4174/index.html
 
       - name: Publish hardened admin to Cloudflare assets
         if: github.ref == 'refs/heads/main'
