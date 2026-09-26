@@ -211,8 +211,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.locator('#t-home').click();
   await waitHome();
 
-  // Essay remains a primary bottom-navigation destination without a duplicate Home action.
+  // Essay stays in bottom navigation; direct practice starts from the Essay screen.
   await page.locator('#t-essay').click();
+  await page.getByRole('button', { name: '直接練一題' }).click();
   await page.waitForSelector('.wta', { timeout: 30000 });
   const textarea = page.locator('.wta').first();
   await textarea.fill('一、測試作答\n（一）測試內容');
