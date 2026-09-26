@@ -356,6 +356,15 @@ def main() -> int:
     assert media_social_worker_misconduct[1] == "社工專業與社福制度", media_social_worker_misconduct
     assert media_social_worker_misconduct[0] >= 5, media_social_worker_misconduct
 
+    job_title_only_social_worker_crime = score_item(
+        "北市女社工盜領個案千萬老本遭羈押 15名牌包、精品曝光",
+        "前社工涉嫌盜領受監護老人存款，警方查扣精品並依刑案偵辦。",
+        "taiwan",
+        "中天新聞社會",
+        "news",
+    )
+    assert job_title_only_social_worker_crime is None, job_title_only_social_worker_crime
+
     generic_elder_crash = score_item(
         "83歲翁騎車遭撞身亡",
         "警方依交通事故程序調查，未涉及社福制度或照顧服務。",
