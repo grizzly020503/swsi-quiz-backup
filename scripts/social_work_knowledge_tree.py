@@ -250,7 +250,7 @@ SUBJECT_TERM_RULES = {
     ),
     "社會工作直接服務": (
         "評估", "處遇", "介入", "通報", "安置", "個案管理", "危機介入",
-        "家庭工作", "團體工作", "訪視", "轉介", "輔導", "保護服務",
+        "家庭工作", "團體工作", "訪視", "訪查", "轉介", "輔導", "保護服務",
         "case management", "intervention", "assessment", "referral",
     ),
     "人類行為與社會環境": (
@@ -268,6 +268,7 @@ SUBJECT_TERM_RULES = {
     "社會政策與社會立法": (
         "政策", "制度", "修法", "修正", "法律", "法規", "條例", "施行細則",
         "補助", "津貼", "給付", "保險", "最低工資", "資格", "主管機關",
+        "責任通報", "保護令", "權益保障",
         "生效", "policy", "law", "legislation", "benefit", "social insurance",
     ),
 }
@@ -317,10 +318,20 @@ def classify_event_knowledge(
             explicit_subjects.append(subject)
     subjects = _ordered_unique(subjects, EXAM_SUBJECTS)
 
-    primary_subjects = list(CATEGORY_PRIMARY_SUBJECTS.get(category, ()))
-    # Research methods becomes a primary axis only when the event itself carries
-    # explicit research/evaluation evidence; otherwise it remains absent rather
-    # than being attached to every policy story.
+    category_primary = list(CATEGORY_PRIMARY_SUBJECTS.get(category, ()))
+    primary_subjects = []
+    if category_primary:
+        # The first subject is the category's default lens. Additional subjects
+        # become primary only when this specific event contains real evidence
+        # for that subject, preventing broad category defaults from making every
+        # story look equally relevant to three or four exam subjects.
+        primary_subjects.append(category_primary[0])
+        primary_subjects.extend(
+            subject for subject in category_primary[1:]
+            if subject in explicit_subjects
+        )
+    # Research methods is primary only when the event itself contains explicit
+    # research/evaluation evidence.
     if "社會工作研究方法" in explicit_subjects:
         primary_subjects.append("社會工作研究方法")
     primary_subjects = _ordered_unique(primary_subjects, EXAM_SUBJECTS)[:3]
