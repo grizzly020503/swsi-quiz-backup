@@ -312,14 +312,28 @@ def main() -> int:
         "依兒童及少年福利與權益保障法辦理生活狀況調查，作為社會福利政策與法規修訂依據。",
         "衛生福利部公告訊息",
     )
-    assert child_survey and child_survey[1] == "兒少保護", child_survey
+    assert child_survey is None, child_survey
+
+    disability_survey = scored(
+        "敬請支持115年身心障礙者生活狀況及需求調查",
+        "依身心障礙者權益保障法辦理定期調查，請民眾配合訪查。",
+        "衛生福利部公告訊息",
+    )
+    assert disability_survey is None, disability_survey
 
     childcare = scored(
+        "企業托育補助新制提高支持力道",
+        "新制提高托兒設施、育兒補貼與托育人員支持。",
+        "勞動部新聞稿",
+    )
+    assert childcare and childcare[1] == "性別與家庭政策", childcare
+
+    childcare_generic = scored(
         "響應0-6歲國家一起養 中央部會落實員工子女托育",
         "政策同時提到弱勢家庭、社會福利與托育支持。",
         "教育部即時新聞",
     )
-    assert childcare and childcare[1] == "性別與家庭政策", childcare
+    assert childcare_generic is None, childcare_generic
 
     childcare_activity = scored(
         "親子托育同樂活動週末登場",
@@ -371,8 +385,37 @@ def main() -> int:
         "ILO Newsroom",
         "official",
     )
-    assert ilo_social_protection and ilo_social_protection[1] == "社會救助與居住", ilo_social_protection
-    assert "社會保障" in ilo_social_protection[2], ilo_social_protection
+    assert ilo_social_protection is None, ilo_social_protection
+
+    who_migrant_course = score_item(
+        "From competencies to action: strengthening refugee and migrant health",
+        "Policy-makers attended a Global Orientation Course on Refugee and Migrant Health.",
+        "international",
+        "WHO Newsroom",
+        "official",
+    )
+    assert who_migrant_course is None, who_migrant_course
+
+    retirement_reminder = scored(
+        "延後退休續勞保：給付保障不中斷，年金累積年資無上限",
+        "提醒65歲以上持續工作者可依既有規定續保，並說明展延年金。",
+        "勞動部新聞稿",
+    )
+    assert retirement_reminder is None, retirement_reminder
+
+    minimum_wage_change = scored(
+        "最低工資連11漲 審議會決定自116年起調升至30,900元",
+        "每月最低工資調升，時薪同步提高，待行政院核定。",
+        "勞動部新聞稿",
+    )
+    assert minimum_wage_change and minimum_wage_change[1] == "勞動與社會保障", minimum_wage_change
+
+    elder_service_expansion = scored(
+        "衛福部擴大獨老服務 啟動70萬名長者關懷訪查",
+        "因應超高齡社會，擴大獨居老人服務、長者社區安全網、關懷訪查與分級服務連結。",
+        "衛生福利部焦點新聞",
+    )
+    assert elder_service_expansion and elder_service_expansion[1] == "長照與高齡", elder_service_expansion
 
     generic_world_news = score_item(
         "Global leaders gather for annual forum",
@@ -467,7 +510,7 @@ def main() -> int:
     print(
         "CURRENT AFFAIRS SOURCE SMOKE OK: "
         f"{len(rows)} unique HTTPS sources; RSS + WHO JSON + UNICEF/ILO HTML adapters guarded; "
-        "MOJ policy + bilingual WHO/UNICEF/ILO concepts accepted; generic international noise rejected"
+        "high-precision exam-event gate enforced; policy changes/guidance accepted; surveys, reminders, courses and generic projects rejected"
     )
     return 0
 

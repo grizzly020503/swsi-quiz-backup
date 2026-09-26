@@ -95,6 +95,47 @@ CATEGORY_BASE = {category: base for category, base, _words in CATEGORIES}
 POLICY_TERMS = ["修法","修正","政策","制度","改革","通報","補助","津貼","權益","福利","保護","安置","服務量能","人力不足","監察","行政院","衛福部","條例","施行細則","法規","草案","預告","指引","要點","給付","保險","保障"]
 INTERNATIONAL_CORE = ["兒童權利","社會福利","社會政策","移民","難民","人權","心理健康","高齡","家暴","性暴力","災害","貧窮","身心障礙"]
 LOW_VALUE_TERMS = ["好禮","選購","愛心捐贈","公益捐贈","徵求","招標","採購","徵件","動漫菸品","疫苗","流感","登革熱","牙醫醫療站","競賽","招生","徵才","表揚","書展","文化幣","科普","論壇","新書發表","急診","熱傷害","頒獎","典禮","成果發表","模擬投票","築夢","博覽會","開講","接見","訪問團","投資環境","評選","涉詐","詐領","起訴","演練","防衛韌性","課桌椅","揭牌","聯展","音樂會","媒體報導","澄清","駁斥","與事實不符"]
+# A current-affairs item must first look like an exam-relevant event, not merely
+# contain social-welfare keywords. This is intentionally high-precision: the
+# radar is a study database, not a general news feed.
+STRUCTURAL_EVENT_TITLE_TERMS = [
+    "修法", "修正", "通過", "核定", "生效", "施行", "上路", "新制", "新法",
+    "草案", "預告", "調升", "調降", "提高", "降低", "加碼", "新增", "增訂",
+    "放寬", "改革", "訂定", "廢止", "取消", "整併", "納入", "開放申請",
+    "補助提高", "給付調整",
+]
+STRUCTURAL_EVENT_WEAK_TITLE_TERMS = ["擴大", "啟動", "強化", "精進"]
+REPORT_EVENT_TITLE_TERMS = [
+    "調查結果", "統計結果", "公布調查", "發布調查", "公布統計", "發布統計",
+    "調查顯示", "統計顯示", "報告指出", "年度報告", "白皮書",
+]
+JUDICIAL_EVENT_TITLE_TERMS = ["判決", "裁定", "釋憲", "憲法法庭"]
+SERIOUS_SOCIAL_EVENT_TITLE_TERMS = [
+    "兒虐", "虐童", "家庭暴力", "家暴", "性侵", "性暴力", "人口販運",
+    "校園霸凌", "重大職災", "犯罪被害人", "災害救助", "大規模撤離",
+]
+PROCEDURAL_NOISE_TITLE_TERMS = [
+    "敬請支持", "請支持", "歡迎", "踴躍", "申請倒數", "把握時間", "提醒",
+    "宣導", "競賽", "徵件", "徵才", "參訪", "拜會", "揭牌", "典禮",
+    "成果發表", "研習", "課程", "工作坊", "論壇", "說明會", "專案成果",
+]
+EN_STRUCTURAL_EVENT_TITLE_TERMS = [
+    "guidance", "guideline", "law", "legislation", "reform", "policy change",
+    "new policy", "adopted", "approved", "enters into force", "takes effect",
+    "standards", "recommendation", "recommendations", "calls for",
+]
+EN_REPORT_EVENT_TITLE_TERMS = [
+    "report finds", "report shows", "new report", "data show", "survey finds",
+    "estimates",
+]
+EN_SERIOUS_EVENT_TITLE_TERMS = [
+    "child abuse", "domestic violence", "sexual violence", "human trafficking",
+    "disaster displacement", "refugee crisis",
+]
+EN_PROCEDURAL_NOISE_TERMS = [
+    "orientation course", "course", "workshop", "conference", "webinar",
+    "training", "project improves", "project concludes", "project supports",
+]
 CHILD_WEAK = {"兒少","兒童","少年","保母"}
 CHILD_STRONG = ["兒少保護","兒虐","虐童","兒童權利","性剝削","托嬰","安置","收出養","寄養","責任通報","兒童及少年福利與權益保障法","兒童權利公約","兒少生活狀況","生活狀況調查"]
 FAMILY_POLICY_STRONG = ["托育","育兒","少子化","家庭政策","性別平等","育嬰留職停薪"]
@@ -511,6 +552,42 @@ def published_iso(entry):
     return datetime.fromtimestamp(calendar.timegm(st), tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+def has_exam_event_value(title, summary, region) -> bool:
+    """High-precision gate for material worth showing in an exam radar.
+
+    Keyword relevance is evaluated later. This gate answers a different
+    question first: did something substantive happen that is worth studying?
+    """
+    title_text = str(title or "").strip()
+    text = f"{title_text} {summary or ''}"
+    folded_title = title_text.casefold()
+    folded_text = text.casefold()
+
+    if region == "international" and is_english_dominant(text):
+        strong = any(term in folded_title for term in EN_STRUCTURAL_EVENT_TITLE_TERMS)
+        report = any(term in folded_title for term in EN_REPORT_EVENT_TITLE_TERMS)
+        serious = any(term in folded_title for term in EN_SERIOUS_EVENT_TITLE_TERMS)
+        noise = any(term in folded_text for term in EN_PROCEDURAL_NOISE_TERMS)
+        if noise and not (strong or report or serious):
+            return False
+        return strong or report or serious
+
+    strong = any(term in title_text for term in STRUCTURAL_EVENT_TITLE_TERMS)
+    report = any(term in title_text for term in REPORT_EVENT_TITLE_TERMS)
+    judicial = any(term in title_text for term in JUDICIAL_EVENT_TITLE_TERMS)
+    serious = any(term in title_text for term in SERIOUS_SOCIAL_EVENT_TITLE_TERMS)
+    weak_structural = any(term in title_text for term in STRUCTURAL_EVENT_WEAK_TITLE_TERMS)
+    noise = any(term in title_text for term in PROCEDURAL_NOISE_TITLE_TERMS)
+
+    if strong or report or judicial or serious:
+        return True
+    if noise:
+        return False
+    if weak_structural:
+        return True
+    return False
+
+
 def score_english_international(title, summary, source_type="news"):
     text = f"{title} {summary}"
     concepts = canonical_concepts(text)
@@ -550,6 +627,8 @@ def score_english_international(title, summary, source_type="news"):
 
 def score_item(title, summary, region, source_name, source_type="news"):
     text = f"{title} {summary}"
+    if not has_exam_event_value(title, summary, region):
+        return None
     if region == "international" and is_english_dominant(text):
         return score_english_international(title, summary, source_type)
     policy_hits = [w for w in POLICY_TERMS if w in text]
