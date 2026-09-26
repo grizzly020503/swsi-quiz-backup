@@ -1,5 +1,57 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 全平台健康檢查 follow-up 已完成（READ FIRST）
+
+> 本節優先於下方任何把 Netlify PR validation、Monitoring V2 PR baseline、critical Actions Node 20 warning 列為未完成的敘述。
+
+### 本輪已完成
+
+- 全平台 health audit 已由 main commit `d3ec8a1927bbb3f9e4c6dd09a0cd3f576e7cc973` 建立並記錄於 `audit/platform_health_20260926.md`。
+- Netlify controlled production deploy 已補 PR validation：
+  - relevant PR 會跑與 production 相同的 Netlify build + pre-deploy release contract。
+  - PR 不讀 `NETLIFY_AUTH_TOKEN` / `NETLIFY_SITE_ID`。
+  - PR 不安裝 Netlify CLI、不 deploy、不跑 production post-deploy browser smoke。
+  - 真正 production deploy 仍只允許 `workflow_dispatch` + `main`。
+- Netlify PR path coverage 已補 canonical knowledge source：
+  - `data/laws.canonical.json`
+  - `data/theories.canonical.json`
+  - `data/knowledge_canonical_manifest.json`
+  - `data/knowledge_runtime_baseline.json`
+- Public Uptime PR 現在也要求既有 production 的 Monitoring V2 baseline；main / scheduled / manual 另外驗 exact Netlify fallback parity。
+- Netlify fallback parity 已加深到：
+  - root release marker 一致
+  - SW v7
+  - current-affairs >=17 sources / 0 feed errors
+  - 命題趨勢雷達 marker
+  - signals = 4,800-question baseline
+  - events 非空
+  - trends 非空且 `deterministic-v2.2`
+- Critical workflows 已從舊 Node 20-based actions 升到 current Node 24-based action majors：
+  - `Public Uptime Sentinel`
+  - `Netlify Controlled Production Deploy`
+  - `actions/checkout@v7`
+  - `actions/setup-python@v7`
+  - `actions/setup-node@v7`
+- 上述 critical PR checks 均實際跑綠。
+- Open PR / open Issue 在本節寫入前重新檢查為 0 / 0。
+
+### Production evidence
+
+本輪真實 Public Uptime 曾成功輸出：
+
+`primary-home, pwa-sw-v7, questions-4800-24, sources-17/errors-0, news-11, signals-11/4800, events-11, trends-11/history-v2.2, trend-ui-v2, laws-52/52, question-health, ai-preflight, feedback-preflight, netlify-history-v2.2/sw-v7/monitoring-v2`
+
+### 目前不是 P0 的剩餘事項
+
+- Cloudflare public frontend 仍保留 deliberate soft-launch `noindex,nofollow,noarchive`；是否解除是產品發布決策，不要自行移除。
+- accessibility 自動 coverage 可再加 axe/contrast gate；目前不是已確認 WCAG defect。
+- admin 真實登入／recovery 完整 E2E 仍主要人工。
+- disaster-recovery 完整空環境 restore drill 尚未自動化。
+- `index.html + monthly_patch_parts` 的 late override / patch-over-patch 仍是 P2 架構債；不要為 cosmetic cleanup 大改穩定 runtime。
+- repo 其他舊 workflow 仍可能使用較舊 GitHub Actions majors；critical release/uptime 已先升級，剩餘應分批、以實際 workflow CI 驗證後再升，不做一次性大爆改。
+
+---
+
 ## 2026-09-26 Netlify controlled deploy cutover 已完成（READ FIRST）
 
 > 本節優先於下方所有「尚待手動上傳 ZIP」「尚待 secrets」「尚未 unlink Netlify Git repo」的舊敘述。
