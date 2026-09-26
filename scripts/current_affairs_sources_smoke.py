@@ -425,6 +425,13 @@ def main() -> int:
     )
     assert childcare_activity is None, childcare_activity
 
+    professional_misconduct = scored(
+        "社工涉侵占服務對象財產 機構啟動內控與專業倫理檢討",
+        "案件涉及服務對象財產、專業責任與機構內控，社工師公會要求檢討。",
+        "TVBS新聞",
+    )
+    assert professional_misconduct and professional_misconduct[1] == "社工專業與社福制度", professional_misconduct
+
     victim_policy = scored(
         "犯罪被害人權益保障法保護服務新制上路 強化家庭支持與修復式司法",
         "法務部推動以家庭為中心的保護服務、被害補償與跨網絡合作。",
@@ -510,6 +517,11 @@ def main() -> int:
     assert generic_world_news is None, generic_world_news
 
     noise_cases = [
+        (
+            "涉侵占1200萬買名牌包！甜美社工羈押禁見「3大理由曝」",
+            "前北市社會局社工督導涉嫌盜領受監護宣告老人存款，法院裁定羈押禁見。",
+            "TVBS新聞",
+        ),
         (
             "教育部舉辦全國學生競賽",
             "歡迎學生踴躍參加競賽活動。",

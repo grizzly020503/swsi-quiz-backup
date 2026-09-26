@@ -19,7 +19,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 
 KNOWLEDGE_ROOT = "社會工作管理"
-KNOWLEDGE_MODEL = "management-lens-over-five-exam-subjects-v2"
+KNOWLEDGE_MODEL = "management-hierarchy-over-five-exam-subjects-v3"
 
 EXAM_SUBJECTS = (
     "社會工作",
@@ -39,6 +39,22 @@ MANAGEMENT_DOMAINS = (
     "成效評估與證據",
     "倫理與權利保障",
 )
+
+# The management layer is the organizing lens above the five exam subjects.
+# A management domain only links to subjects that can explain that dimension;
+# this avoids generating every possible domain × subject combination.
+MANAGEMENT_SUBJECT_LINKS = {
+    "規劃與政策執行": ("社會政策與社會立法", "社會工作"),
+    "組織治理與責信": ("社會工作", "社會政策與社會立法", "社會工作研究方法"),
+    "人力與督導": ("社會工作", "社會工作直接服務"),
+    "服務輸送與跨網絡": ("社會工作直接服務", "社會工作", "社會政策與社會立法"),
+    "方案與資源管理": ("社會工作", "社會政策與社會立法", "社會工作研究方法"),
+    "品質與風險管理": ("社會工作直接服務", "社會工作", "社會工作研究方法"),
+    "成效評估與證據": ("社會工作研究方法", "社會工作", "社會政策與社會立法"),
+    "倫理與權利保障": (
+        "社會工作", "社會工作直接服務", "社會政策與社會立法", "人類行為與社會環境",
+    ),
+}
 
 CATEGORY_SUBJECT_DEFAULTS = {
     "兒少保護": ("社會工作直接服務", "人類行為與社會環境", "社會政策與社會立法", "社會工作"),
@@ -297,9 +313,22 @@ def classify_event_knowledge(
 
     topics = _ordered_unique([category, *tags])[:10]
     paths = [f"{KNOWLEDGE_ROOT} > {domain}" for domain in management]
-    for subject in subjects:
-        for topic in subject_topics.get(subject, []):
-            paths.append(f"{KNOWLEDGE_ROOT} > 五科整合 > {subject} > {topic}")
+
+    # True hierarchy: management domain -> relevant exam subject -> concrete topic.
+    # The five subjects remain the official exam axes; management organizes how
+    # an event is understood across them rather than becoming a sixth subject.
+    for domain in management:
+        linked_subjects = [
+            subject for subject in MANAGEMENT_SUBJECT_LINKS.get(domain, ())
+            if subject in subjects
+        ]
+        for subject in linked_subjects:
+            topics_for_subject = subject_topics.get(subject, [])
+            if topics_for_subject:
+                for topic in topics_for_subject:
+                    paths.append(f"{KNOWLEDGE_ROOT} > {domain} > {subject} > {topic}")
+            else:
+                paths.append(f"{KNOWLEDGE_ROOT} > {domain} > {subject}")
 
     return {
         "knowledge_root": KNOWLEDGE_ROOT,
@@ -308,5 +337,5 @@ def classify_event_knowledge(
         "exam_subject_axes": subjects,
         "subject_topics": subject_topics,
         "knowledge_topics": topics,
-        "knowledge_paths": _ordered_unique(paths)[:20],
+        "knowledge_paths": _ordered_unique(paths)[:30],
     }

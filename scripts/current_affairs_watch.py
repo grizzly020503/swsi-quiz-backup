@@ -137,6 +137,12 @@ MEDIA_SYSTEM_CONTEXT_TERMS = [
     "安置", "機構", "照顧", "保護", "輔導", "福利", "社會安全網",
     "跨網絡", "教育局",
 ]
+MEDIA_SOCIAL_WORK_PROFESSIONAL_CONTEXT_TERMS = [
+    "服務對象", "受服務者", "個案", "專業倫理", "專業責任", "利用職務",
+    "執行職務", "業務侵占", "個案管理", "責任通報", "保護服務", "訪視",
+    "機構內控", "內控檢討", "制度檢討", "機構責信", "督導制度",
+    "社工師公會", "兒少保護", "長者保護", "老人保護",
+]
 PROCEDURAL_NOISE_TITLE_TERMS = [
     "敬請支持", "請支持", "歡迎", "踴躍", "申請倒數", "把握時間", "提醒",
     "宣導", "競賽", "徵件", "徵才", "參訪", "拜會", "揭牌", "典禮",
@@ -699,14 +705,24 @@ def published_iso(entry):
 def media_exam_event_signal(title, summary) -> bool:
     """Require two independent signals for a media-first social-work event.
 
-    This is deliberately stricter than keyword matching: an outlet story needs
-    both a social-work/system anchor and a harm/institutional-problem signal.
+    A person's job title alone is not a social-work exam issue. When a crime
+    story merely says the suspect is a social worker, require an additional
+    professional/service-system anchor before treating it as social-work news.
     """
     title_text = str(title or "").strip()
     text = f"{title_text} {summary or ''}"
 
     harm = any(term in title_text for term in MEDIA_HARM_TERMS)
-    direct_role = any(term in title_text for term in MEDIA_DIRECT_ROLE_TERMS)
+    social_worker_title = "社工" in title_text or "社會工作" in title_text
+    professional_context = any(
+        term in text for term in MEDIA_SOCIAL_WORK_PROFESSIONAL_CONTEXT_TERMS
+    )
+    other_direct_role = any(
+        term in title_text
+        for term in MEDIA_DIRECT_ROLE_TERMS
+        if term not in {"社工", "社會工作"}
+    )
+    direct_role = other_direct_role or (social_worker_title and professional_context)
     vulnerable = any(term in title_text for term in MEDIA_VULNERABLE_TERMS)
     system_context = any(term in text for term in MEDIA_SYSTEM_CONTEXT_TERMS)
 
@@ -714,7 +730,11 @@ def media_exam_event_signal(title, summary) -> bool:
         ("校園" in title_text or "學生" in title_text)
         and any(term in title_text for term in ("毒品", "霸凌", "自殺", "自傷", "性侵", "性騷擾"))
     )
-    return school_risk or (harm and direct_role) or (harm and vulnerable and system_context)
+    if social_worker_title and harm and not professional_context:
+        return False
+    return school_risk or (harm and direct_role) or (
+        harm and vulnerable and system_context and not social_worker_title
+    )
 
 
 def has_exam_event_value(title, summary, region, source_type="news") -> bool:
@@ -793,6 +813,13 @@ def score_english_international(title, summary, source_type="news"):
 
 def score_item(title, summary, region, source_name, source_type="news"):
     text = f"{title} {summary}"
+    if (
+        source_type == "news"
+        and ("社工" in str(title or "") or "社會工作" in str(title or ""))
+        and any(term in str(title or "") for term in MEDIA_HARM_TERMS)
+        and not any(term in text for term in MEDIA_SOCIAL_WORK_PROFESSIONAL_CONTEXT_TERMS)
+    ):
+        return None
     if not has_exam_event_value(title, summary, region, source_type):
         return None
     if region == "international" and is_english_dominant(text):
