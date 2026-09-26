@@ -17,6 +17,7 @@ from current_affairs_taxonomy import (
     canonical_fact_keys,
     has_cjk,
 )
+from social_work_knowledge_tree import EXAM_SUBJECTS, KNOWLEDGE_ROOT, MANAGEMENT_DOMAINS
 
 PUNCT_RE = re.compile(r"[\s\u3000，。！？、；：,.!?;:（）()\[\]【】《》〈〉「」『』\-—_／/]+")
 DATEISH_RE = re.compile(r"\b(?:19|20)?\d{2}[./-]\d{1,2}(?:[./-]\d{1,2})?\b")
@@ -267,6 +268,10 @@ def _previous_as_item(row: dict) -> dict:
         "concept_keys": row.get("concept_keys") or [],
         "agency_keys": row.get("agency_keys") or [],
         "fact_keys": row.get("fact_keys") or [],
+        "knowledge_root": row.get("knowledge_root"),
+        "management_domains": row.get("management_domains") or [],
+        "exam_subject_axes": row.get("exam_subject_axes") or [],
+        "knowledge_topics": row.get("knowledge_topics") or [],
         "published_at": row.get("last_seen"),
     }
 
@@ -423,12 +428,40 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
                 related[qid] = q
     historical_exam_stats = _merge_historical_stats(members)
 
+    management_seen = {
+        str(value)
+        for row in members
+        for value in (row.get("management_domains") or [])
+        if str(value) in MANAGEMENT_DOMAINS
+    }
+    subject_axes_seen = {
+        str(value)
+        for row in members
+        for value in (row.get("exam_subject_axes") or [])
+        if str(value) in EXAM_SUBJECTS
+    }
+    knowledge_topics = sorted({
+        str(value).strip()
+        for row in members
+        for value in (row.get("knowledge_topics") or [])
+        if str(value).strip()
+    })
+    knowledge_root = (
+        KNOWLEDGE_ROOT
+        if any(str(row.get("knowledge_root") or "") == KNOWLEDGE_ROOT for row in members)
+        else str(lead.get("knowledge_root") or "")
+    )
+
     return {
         "canonical_event_id": event_id,
         "title": lead.get("title"),
         "summary": str(lead.get("summary") or "")[:320],
         "category": lead.get("category"),
         "subjects": sorted({str(y) for x in members for y in (x.get("subjects") or []) if y}),
+        "knowledge_root": knowledge_root,
+        "management_domains": [x for x in MANAGEMENT_DOMAINS if x in management_seen],
+        "exam_subject_axes": [x for x in EXAM_SUBJECTS if x in subject_axes_seen],
+        "knowledge_topics": knowledge_topics,
         "exam_tags": sorted({str(y) for x in members for y in (x.get("exam_tags") or []) if y}),
         "related_laws": sorted({str(y) for x in members for y in (x.get("related_laws") or []) if y}),
         "concept_keys": sorted({str(y) for x in members for y in (x.get("concept_keys") or []) if y}),

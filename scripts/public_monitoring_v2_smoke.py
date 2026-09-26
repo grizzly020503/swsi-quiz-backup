@@ -118,11 +118,29 @@ def main() -> int:
     assert event_rows, "current-affairs event snapshot is empty"
     assert int(events.get("event_count") or 0) == len(event_rows)
     assert "不代表命題保證" in str(events.get("note") or "")
+    allowed_exam_axes = {
+        "社會工作", "社會工作直接服務", "人類行為與社會環境",
+        "社會工作研究方法", "社會政策與社會立法",
+    }
+    allowed_management_domains = {
+        "規劃與政策執行", "組織治理與責信", "人力與督導", "服務輸送與跨網絡",
+        "方案與資源管理", "品質與風險管理", "成效評估與證據", "倫理與權利保障",
+    }
     event_ids = set()
+    event_by_id = {}
     for row in event_rows:
         event_id = str(row.get("canonical_event_id") or "")
         assert event_id and event_id not in event_ids, event_id
         event_ids.add(event_id)
+        event_by_id[event_id] = row
+        assert row.get("knowledge_root") == "社會工作管理", row
+        management_domains = row.get("management_domains") or []
+        exam_axes = row.get("exam_subject_axes") or []
+        knowledge_topics = row.get("knowledge_topics") or []
+        assert management_domains and set(management_domains).issubset(allowed_management_domains), row
+        assert exam_axes and set(exam_axes).issubset(allowed_exam_axes), row
+        assert "社會工作管理" not in exam_axes, row
+        assert isinstance(knowledge_topics, list) and knowledge_topics, row
         evidence = row.get("evidence") or []
         assert evidence, event_id
         urls = {str(x.get("source_url") or "") for x in evidence}
@@ -156,7 +174,13 @@ def main() -> int:
     assert "不代表命題保證" in str(trends.get("note") or "")
     allowed_states = {"rising", "sustained", "cooling", "one-off"}
     for row in trend_rows:
-        assert str(row.get("canonical_event_id") or "") in event_ids
+        event_id = str(row.get("canonical_event_id") or "")
+        assert event_id in event_ids
+        source_event = event_by_id[event_id]
+        assert row.get("knowledge_root") == "社會工作管理", row
+        assert row.get("management_domains") == source_event.get("management_domains"), row
+        assert row.get("exam_subject_axes") == source_event.get("exam_subject_axes"), row
+        assert row.get("knowledge_topics") == source_event.get("knowledge_topics"), row
         assert row.get("trend_state") in allowed_states
         score = float(row.get("trend_score"))
         assert 0.0 <= score <= 10.0

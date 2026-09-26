@@ -68,7 +68,7 @@
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
-        "weighted_match_count": 0.0,
+        "weighted_match_count": 0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
@@ -88,7 +88,27 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "規劃與政策執行",
+        "服務輸送與跨網絡",
+        "方案與資源管理",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "政策",
+        "福利",
+        "補助",
+        "身心障礙",
+        "身障與人權"
+      ]
     },
     {
       "canonical_event_id": "b95a076030a701cfb405d86c",
@@ -166,7 +186,7 @@
       ],
       "historical_exam_stats": {
         "matched_question_count": 2,
-        "weighted_match_count": 1.0,
+        "weighted_match_count": 1,
         "match_breakdown": {
           "strong": 0,
           "medium": 2,
@@ -191,7 +211,22 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "保障",
+        "勞動與社會保障",
+        "最低工資",
+        "行政院"
+      ]
     },
     {
       "canonical_event_id": "c588f188519ce6341a040d77",
@@ -346,7 +381,25 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "規劃與政策執行",
+        "方案與資源管理",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "性別與家庭政策",
+        "托育",
+        "育兒",
+        "補助"
+      ]
     },
     {
       "canonical_event_id": "338150e268265e0359e5007e",
@@ -431,7 +484,7 @@
       ],
       "historical_exam_stats": {
         "matched_question_count": 2,
-        "weighted_match_count": 1.0,
+        "weighted_match_count": 1,
         "match_breakdown": {
           "strong": 0,
           "medium": 2,
@@ -456,7 +509,28 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "規劃與政策執行",
+        "服務輸送與跨網絡",
+        "方案與資源管理",
+        "品質與風險管理"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "政策",
+        "老人",
+        "衛福部",
+        "補助",
+        "長照與高齡",
+        "高齡"
+      ]
     },
     {
       "canonical_event_id": "7dbec58b12307c746b091d91",
@@ -523,7 +597,7 @@
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
-        "weighted_match_count": 0.0,
+        "weighted_match_count": 0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
@@ -543,7 +617,22 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "組織治理與責信",
+        "人力與督導",
+        "服務輸送與跨網絡"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "社工",
+        "社工專業與社福制度"
+      ]
     },
     {
       "canonical_event_id": "93e3c7bbef37d27356dcd435",
@@ -605,7 +694,7 @@
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
-        "weighted_match_count": 0.0,
+        "weighted_match_count": 0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
@@ -625,7 +714,27 @@
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      }
+      },
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "規劃與政策執行",
+        "服務輸送與跨網絡",
+        "方案與資源管理",
+        "品質與風險管理"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "政策",
+        "福利",
+        "補助",
+        "長照",
+        "長照與高齡"
+      ]
     }
   ]
 }

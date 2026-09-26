@@ -22,18 +22,18 @@
         "最近相關題為 105 年（距題庫最新年度 10 年）"
       ],
       "factors": {
-        "cross_source": 0.0,
+        "cross_source": 0,
         "official_evidence": 0.7,
         "policy_change": 1.8,
         "historical_frequency": 0.28,
         "historical_year_breadth": 0.16,
         "recent_exam_support": 0.1,
-        "historical_subject_breadth": 0.0,
-        "law_relevance": 0.0,
-        "persistence": 0.0,
-        "essay_value": 0.0,
+        "historical_subject_breadth": 0,
+        "law_relevance": 0,
+        "persistence": 0,
+        "essay_value": 0,
         "mcq_density": 0.9,
-        "recency": 1.0
+        "recency": 1
       },
       "source_count": 1,
       "official_source_count": 1,
@@ -42,7 +42,7 @@
       "last_seen": "2026-09-24T19:50:25Z",
       "related_laws": [],
       "historical_question_count": 2,
-      "historical_weighted_match_count": 1.0,
+      "historical_weighted_match_count": 1,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 2,
@@ -101,6 +101,21 @@
           "published_at": "2026-09-24T19:50:25Z",
           "item_id": "1f324758779ada31a0fc3e3382971947"
         }
+      ],
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "保障",
+        "勞動與社會保障",
+        "最低工資",
+        "行政院"
       ]
     },
     {
@@ -120,15 +135,15 @@
         "歷屆分布 2 個考科"
       ],
       "factors": {
-        "cross_source": 0.0,
+        "cross_source": 0,
         "official_evidence": 0.7,
-        "policy_change": 0.0,
+        "policy_change": 0,
         "historical_frequency": 0.98,
         "historical_year_breadth": 0.52,
         "recent_exam_support": 0.52,
         "historical_subject_breadth": 0.25,
-        "law_relevance": 0.0,
-        "persistence": 0.0,
+        "law_relevance": 0,
+        "persistence": 0,
         "essay_value": 0.55,
         "mcq_density": 0.9,
         "recency": 0.2
@@ -242,6 +257,24 @@
           "published_at": "2026-09-16T10:30:11Z",
           "item_id": "2cc263d201f443e931c4a3a5f75e0312"
         }
+      ],
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "規劃與政策執行",
+        "方案與資源管理",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "性別與家庭政策",
+        "托育",
+        "育兒",
+        "補助"
       ]
     },
     {
@@ -259,15 +292,15 @@
         "有政策／制度訊號"
       ],
       "factors": {
-        "cross_source": 0.0,
+        "cross_source": 0,
         "official_evidence": 0.7,
         "policy_change": 1.8,
-        "historical_frequency": 0.0,
-        "historical_year_breadth": 0.0,
-        "recent_exam_support": 0.0,
-        "historical_subject_breadth": 0.0,
-        "law_relevance": 0.0,
-        "persistence": 0.0,
+        "historical_frequency": 0,
+        "historical_year_breadth": 0,
+        "recent_exam_support": 0,
+        "historical_subject_breadth": 0,
+        "law_relevance": 0,
+        "persistence": 0,
         "essay_value": 0.55,
         "mcq_density": 0.9,
         "recency": 0.2
@@ -279,7 +312,7 @@
       "last_seen": "2026-09-10T04:58:08Z",
       "related_laws": [],
       "historical_question_count": 0,
-      "historical_weighted_match_count": 0.0,
+      "historical_weighted_match_count": 0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 0,
@@ -309,6 +342,26 @@
           "published_at": "2026-09-10T04:58:08Z",
           "item_id": "85f03325aff5e8c1aabd1020fc9a80a4"
         }
+      ],
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "規劃與政策執行",
+        "服務輸送與跨網絡",
+        "方案與資源管理",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "政策",
+        "福利",
+        "補助",
+        "身心障礙",
+        "身障與人權"
       ]
     },
     {
@@ -327,18 +380,18 @@
         "最近相關題為 109 年（距題庫最新年度 6 年）"
       ],
       "factors": {
-        "cross_source": 0.0,
+        "cross_source": 0,
         "official_evidence": 0.7,
-        "policy_change": 0.0,
+        "policy_change": 0,
         "historical_frequency": 0.28,
         "historical_year_breadth": 0.16,
         "recent_exam_support": 0.1,
-        "historical_subject_breadth": 0.0,
-        "law_relevance": 0.0,
-        "persistence": 0.0,
+        "historical_subject_breadth": 0,
+        "law_relevance": 0,
+        "persistence": 0,
         "essay_value": 0.55,
         "mcq_density": 0.9,
-        "recency": 1.0
+        "recency": 1
       },
       "source_count": 1,
       "official_source_count": 1,
@@ -347,7 +400,7 @@
       "last_seen": "2026-09-24T03:30:00Z",
       "related_laws": [],
       "historical_question_count": 2,
-      "historical_weighted_match_count": 1.0,
+      "historical_weighted_match_count": 1,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 2,
@@ -405,6 +458,27 @@
           "published_at": "2026-09-24T03:30:00Z",
           "item_id": "6c3e075258813e8339a40cebd78e2c0c"
         }
+      ],
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "規劃與政策執行",
+        "服務輸送與跨網絡",
+        "方案與資源管理",
+        "品質與風險管理"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "政策",
+        "老人",
+        "衛福部",
+        "補助",
+        "長照與高齡",
+        "高齡"
       ]
     },
     {
@@ -417,23 +491,23 @@
         "社會政策與社會立法"
       ],
       "trend_state": "one-off",
-      "trend_score": 2.0,
+      "trend_score": 2,
       "why": [
         "已跨 2 個證據日期持續觀察"
       ],
       "factors": {
-        "cross_source": 0.0,
-        "official_evidence": 0.0,
-        "policy_change": 0.0,
-        "historical_frequency": 0.0,
-        "historical_year_breadth": 0.0,
-        "recent_exam_support": 0.0,
-        "historical_subject_breadth": 0.0,
-        "law_relevance": 0.0,
+        "cross_source": 0,
+        "official_evidence": 0,
+        "policy_change": 0,
+        "historical_frequency": 0,
+        "historical_year_breadth": 0,
+        "recent_exam_support": 0,
+        "historical_subject_breadth": 0,
+        "law_relevance": 0,
         "persistence": 0.48,
         "essay_value": 1.1,
-        "mcq_density": 0.0,
-        "recency": 1.0
+        "mcq_density": 0,
+        "recency": 1
       },
       "source_count": 1,
       "official_source_count": 0,
@@ -442,7 +516,7 @@
       "last_seen": "2026-09-24T00:28:16Z",
       "related_laws": [],
       "historical_question_count": 0,
-      "historical_weighted_match_count": 0.0,
+      "historical_weighted_match_count": 0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 0,
@@ -483,6 +557,21 @@
           "published_at": "2026-09-23T07:45:25Z",
           "item_id": "topic:d0125720d7c1077d1b6e660de56aebfb"
         }
+      ],
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "組織治理與責信",
+        "人力與督導",
+        "服務輸送與跨網絡"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "社工",
+        "社工專業與社福制度"
       ]
     },
     {
@@ -494,21 +583,21 @@
         "社會政策與社會立法"
       ],
       "trend_state": "cooling",
-      "trend_score": 1.0,
+      "trend_score": 1,
       "why": [
         "1 個官方來源"
       ],
       "factors": {
-        "cross_source": 0.0,
+        "cross_source": 0,
         "official_evidence": 0.7,
-        "policy_change": 0.0,
-        "historical_frequency": 0.0,
-        "historical_year_breadth": 0.0,
-        "recent_exam_support": 0.0,
-        "historical_subject_breadth": 0.0,
-        "law_relevance": 0.0,
-        "persistence": 0.0,
-        "essay_value": 0.0,
+        "policy_change": 0,
+        "historical_frequency": 0,
+        "historical_year_breadth": 0,
+        "recent_exam_support": 0,
+        "historical_subject_breadth": 0,
+        "law_relevance": 0,
+        "persistence": 0,
+        "essay_value": 0,
         "mcq_density": 0.45,
         "recency": 0.2
       },
@@ -519,7 +608,7 @@
       "last_seen": "2026-09-13T09:08:00Z",
       "related_laws": [],
       "historical_question_count": 0,
-      "historical_weighted_match_count": 0.0,
+      "historical_weighted_match_count": 0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 0,
@@ -548,6 +637,26 @@
           "published_at": "2026-09-13T09:08:00Z",
           "item_id": "4afd0e8e306fd77bf0f9a30e21e13262"
         }
+      ],
+      "knowledge_root": "社會工作管理",
+      "management_domains": [
+        "規劃與政策執行",
+        "服務輸送與跨網絡",
+        "方案與資源管理",
+        "品質與風險管理"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法"
+      ],
+      "knowledge_topics": [
+        "政策",
+        "福利",
+        "補助",
+        "長照",
+        "長照與高齡"
       ]
     }
   ]
