@@ -27,7 +27,8 @@
     "supabase/migrations/20260827031000_align_recovery_reset_with_grading_mode.sql",
     "supabase/migrations/20260828011500_create_swsi_admin_users.sql",
     "supabase/migrations/20260902143000_add_anonymous_usage_analytics.sql",
-    "supabase/migrations/20260915151500_add_ai_telemetry.sql"
+    "supabase/migrations/20260915151500_add_ai_telemetry.sql",
+    "supabase/recovery/production_acl_alignment.sql"
   ],
   "expected": {
     "public_tables": [
