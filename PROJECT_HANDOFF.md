@@ -1,5 +1,49 @@
 # SWSI 社工師國考平台 — 專案交接／續聊清單
 
+## 2026-09-26 Netlify controlled deploy bootstrap 已合併（READ FIRST）
+
+> 本節優先於下方「只能手動 drag-and-drop」的舊敘述。Netlify fallback 尚未切換成功，但 GitHub 端已建立受控 production deploy 路徑。
+
+### 已完成
+
+- PR #145 已合併；merge/squash commit：`f5d444232188559127037ebb93fc1a85eba2432f` 之後的 `f5d444232188559127037ebb93fc1a85eba2432f`。
+- 新 workflow：`.github/workflows/netlify-controlled-production-deploy.yml`。
+- workflow 目前刻意只開 `workflow_dispatch`，避免 secrets 尚未設定前自動失敗。
+- 只允許從 `main` 部署。
+- 會依 `netlify.toml` 產生同一份 `_site` 成品。
+- 部署前會驗：
+  - release marker = `2026-09-26-history-v2.2`
+  - SW v7
+  - 命題趨勢雷達
+  - >=17 current-affairs sources / 0 feed errors
+  - 4,800 題 signals
+  - events / trends
+  - `deterministic-v2.2`
+- 使用 pinned Netlify CLI `27.9.0` + Node `22.13.0`。
+- 部署後會驗 Netlify production HTTP 與 Chromium browser smoke。
+
+### 現在唯一需要帳號端做的事
+
+在 GitHub repo → Settings → Secrets and variables → Actions 建立：
+
+1. `NETLIFY_AUTH_TOKEN`
+2. `NETLIFY_SITE_ID`
+
+Secret 值不得 commit、不得貼 issue/PR/chat、不得放截圖。
+
+設定完成後：
+
+1. GitHub Actions → **Netlify Controlled Production Deploy**
+2. 在 `main` 執行 **Run workflow**
+3. 只有第一次 controlled deploy + production HTTP + browser smoke 全綠後，才去 Netlify 解除舊 Git repository continuous deployment。
+4. 在第一次 controlled deploy 成功前，**不要先 unlink Netlify Git repo**。
+
+### 目標架構
+
+`GitHub main → build/verify → Cloudflare primary + controlled Netlify fallback → production verification`
+
+---
+
 ## 2026-09-26 Netlify fallback 最新封包已完成，待帳號端手動上傳（READ FIRST）
 
 > Cloudflare primary 已正常 production。此節只處理 Netlify fallback；不要把 Netlify 未上傳誤判成 Cloudflare release blocker。
