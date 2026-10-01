@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
 # Intentionally stdlib-only: live MOJ HTTP dependencies must not be required by CI.
-from historical_law_provenance import (
-    chinese_integer,
-    extract_explicit_articles,
-    parse_history_entries,
-    triage_question,
-)
-
+from historical_law_provenance import chinese_integer, extract_explicit_articles, parse_history_entries, triage_question
 
 def q(year, stem, qid="SP-test"):
     return {"question_id": qid, "year": str(year), "stem": stem, "exam_code": f"{year}-1"}
