@@ -6,6 +6,7 @@ on:
       - 'scripts/historical_law_provenance.py'
       - 'scripts/historical_law_provenance_selftest.py'
       - 'scripts/build_historical_law_provenance_report.py'
+      - 'scripts/historical_law_provenance_report_smoke.py'
       - 'data/law_question_links_priority10.v1.json'
       - 'data/legal_watch_report.json'
       - 'data/historical_law_provenance_priority10.v1.json'
@@ -35,7 +36,11 @@ jobs:
       - name: Syntax and deterministic repository contract
         run: |
           set -euo pipefail
-          python -m py_compile scripts/historical_law_provenance.py scripts/historical_law_provenance_selftest.py scripts/build_historical_law_provenance_report.py
+          python -m py_compile \
+            scripts/historical_law_provenance.py \
+            scripts/historical_law_provenance_selftest.py \
+            scripts/build_historical_law_provenance_report.py \
+            scripts/historical_law_provenance_report_smoke.py
           (cd scripts && python historical_law_provenance_selftest.py)
 
       - name: Offline CLI contract on real 86-question inputs
@@ -61,49 +66,7 @@ jobs:
           PY
 
       - name: Materialized live baseline contract
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-
-          p = Path('data/historical_law_provenance_priority10.v1.json')
-          if not p.exists():
-              raise SystemExit('materialized historical-law baseline missing')
-          d = json.loads(p.read_text(encoding='utf-8'))
-          rows = d.get('questions') or []
-          laws = d.get('laws') or []
-          errors = d.get('law_fetch_errors') or []
-          if d.get('question_count') != 86 or len(rows) != 86:
-              raise SystemExit(f"materialized count mismatch: {d.get('question_count')} / {len(rows)}")
-          if d.get('law_count') != 10 or len(laws) != 10:
-              raise SystemExit(f"law count mismatch: {d.get('law_count')} / {len(laws)}")
-          if sum((d.get('status_counts') or {}).values()) != 86:
-              raise SystemExit('status counts do not sum to 86')
-          if d.get('law_fetch_error_count') != len(errors):
-              raise SystemExit('law fetch error count mismatch')
-          if any(row.get('historical_version_checked') for row in rows):
-              raise SystemExit('materialized baseline must not claim historical verification')
-          if any('official_answer' in row or 'grading_mode' in row or 'accepted_answers' in row for row in rows):
-              raise SystemExit('materialized baseline contains protected official grading fields')
-          if any(not row.get('law_name') or not row.get('question_id') or not row.get('official_history_url') for row in rows):
-              raise SystemExit('materialized row missing law/question/provenance identity')
-          keys = [(row['law_name'], row['question_id']) for row in rows]
-          if len(set(keys)) != 86:
-              raise SystemExit('duplicate law-question mapping in materialized baseline')
-          allowed = {
-              'article_resolution_required', 'official_history_unavailable',
-              'article_origin_review', 'effective_date_review',
-              'historical_text_required', 'exam_date_required',
-              'current_text_equals_exam_year_candidate'
-          }
-          if not set(d.get('status_counts') or {}).issubset(allowed):
-              raise SystemExit(f"unexpected materialized status: {d.get('status_counts')}")
-          for err in errors:
-              if not err.get('law_name') or not err.get('official_history_url') or not err.get('error'):
-                  raise SystemExit(f'incomplete source exception: {err}')
-          print('HISTORICAL LAW MATERIALIZED BASELINE OK:', d.get('status_counts'))
-          print('SOURCE EXCEPTIONS:', d.get('law_fetch_error_count'))
-          PY
+        run: python scripts/historical_law_provenance_report_smoke.py
 
       - name: Protected-core safety contract
         run: |
