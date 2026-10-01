@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Probe official MOJ Open API coverage for the historical-law target set.
+"""Probe and persist official MOJ Open API coverage for the target law set.
 
 The MOJ Open API publishes the current Chinese law/order corpus as ZIP archives
-containing one JSON file. This probe is read-only and is intentionally separate
-from Stage 4 until availability and target coverage are proven in Actions.
+containing one JSON file. This worker downloads each official corpus once,
+validates target PCode/name/URL identity, and writes a compact target-only
+all-article snapshot for Stage 4. No question/grading data is read or mutated.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import io
 import json
 import re
@@ -16,6 +18,7 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
+import historical_law_article_resolver as stage3
 import historical_law_provenance_core as hp
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,7 +26,17 @@ LAW_API = "https://law.moj.gov.tw/api/ch/law/json"
 ORDER_API = "https://law.moj.gov.tw/api/ch/order/json"
 DEFAULT_HISTORY_SNAPSHOT = ROOT / "auto/qa/historical_law_history_snapshot.v1.json"
 DEFAULT_OUTPUT = ROOT / "auto/qa/historical_law_moj_api_probe.v1.json"
-UA = "swsi-historical-law-open-api-probe/1.0 (+private educational question bank)"
+DEFAULT_TARGET_OUTPUT = ROOT / "auto/qa/historical_law_moj_api_targets.v1.json"
+UA = "swsi-historical-law-open-api-probe/1.1 (+private educational question bank)"
+
+
+def _sha256_text(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def _payload_sha256(value: object) -> str:
+    raw = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return _sha256_text(raw)
 
 
 def _download_payload(session: Any, url: str, attempts: int = 3) -> dict:
@@ -65,16 +78,21 @@ def _article_no(value: object) -> str | None:
     return hp.normalize_article_no(text)
 
 
-def _article_summary(law: dict) -> tuple[int, list[str]]:
-    numbers: list[str] = []
+def normalized_articles(law: dict) -> list[dict]:
+    articles: list[dict] = []
     for row in law.get("LawArticles") or []:
         if str(row.get("ArticleType") or "") == "C":
             continue
         no = _article_no(row.get("ArticleNo"))
-        content = str(row.get("ArticleContent") or "").strip()
-        if no and content:
-            numbers.append(no)
-    return len(numbers), numbers
+        text = stage3.normalize_text(row.get("ArticleContent") or "")
+        if not no or not text:
+            continue
+        articles.append({
+            "article_no": no,
+            "text": text,
+            "sha256": _sha256_text(text),
+        })
+    return sorted(articles, key=lambda row: hp.article_key(str(row["article_no"])))
 
 
 def _index(payload: dict) -> dict[str, dict]:
@@ -86,41 +104,64 @@ def _index(payload: dict) -> dict[str, dict]:
     return out
 
 
-def build_report(history_snapshot: dict, law_payload: dict, order_payload: dict) -> dict:
+def build_reports(history_snapshot: dict, law_payload: dict, order_payload: dict) -> tuple[dict, dict]:
     law_index = _index(law_payload)
     order_index = _index(order_payload)
-    records: list[dict] = []
+    probe_records: list[dict] = []
+    target_records: list[dict] = []
+
     for target in history_snapshot.get("records") or []:
         pcode = str(target.get("pcode") or "").upper()
         expected_name = str(target.get("law_name") or "")
         collection = "law" if pcode in law_index else "order" if pcode in order_index else None
         source = law_index.get(pcode) or order_index.get(pcode)
         if source is None:
-            records.append({
-                "law_name": expected_name,
-                "pcode": pcode,
-                "status": "not_found",
-            })
+            probe_records.append({"law_name": expected_name, "pcode": pcode, "status": "not_found"})
             continue
-        count, numbers = _article_summary(source)
+
         api_name = str(source.get("LawName") or "")
         api_url = str(source.get("LawURL") or "")
-        records.append({
+        articles = normalized_articles(source)
+        name_matches = hp.clean_text(api_name) == hp.clean_text(expected_name)
+        url_pcode_matches = (_pcode(source) or "").upper() == pcode
+        ready = bool(articles and api_name and name_matches and url_pcode_matches)
+        endpoint = LAW_API if collection == "law" else ORDER_API
+        update_date = law_payload.get("UpdateDate") if collection == "law" else order_payload.get("UpdateDate")
+
+        probe_records.append({
             "law_name": expected_name,
             "pcode": pcode,
-            "status": "ready" if count > 0 and api_name else "invalid_record",
+            "status": "ready" if ready else "invalid_record",
             "collection": collection,
             "api_law_name": api_name,
-            "name_matches": hp.clean_text(api_name) == hp.clean_text(expected_name),
+            "name_matches": name_matches,
             "api_law_url": api_url,
-            "url_pcode_matches": (_pcode(source) or "").upper() == pcode,
+            "url_pcode_matches": url_pcode_matches,
             "modified_date": source.get("LawModifiedDate"),
-            "article_count": count,
-            "article_numbers_sample": numbers[:12],
+            "article_count": len(articles),
+            "article_numbers_sample": [r["article_no"] for r in articles[:12]],
             "has_histories": bool(source.get("LawHistories")),
         })
-    return {
-        "schema_version": 1,
+        if ready:
+            source_identity = {
+                "endpoint": endpoint,
+                "collection": collection,
+                "update_date": update_date,
+                "pcode": pcode,
+                "law_name": api_name,
+                "law_url": api_url,
+                "modified_date": source.get("LawModifiedDate"),
+                "article_count": len(articles),
+                "articles_sha256": _payload_sha256(articles),
+            }
+            target_records.append({
+                **source_identity,
+                "source_identity_sha256": _payload_sha256(source_identity),
+                "articles": articles,
+            })
+
+    probe = {
+        "schema_version": 2,
         "method": "official MOJ Open API ZIP/JSON current corpus coverage probe; read-only",
         "law_api": LAW_API,
         "order_api": ORDER_API,
@@ -128,13 +169,22 @@ def build_report(history_snapshot: dict, law_payload: dict, order_payload: dict)
         "order_update_date": order_payload.get("UpdateDate"),
         "law_corpus_count": len(law_payload.get("Laws") or []),
         "order_corpus_count": len(order_payload.get("Laws") or []),
-        "target_count": len(records),
-        "ready_count": sum(r.get("status") == "ready" for r in records),
-        "not_found_count": sum(r.get("status") == "not_found" for r in records),
+        "target_count": len(probe_records),
+        "ready_count": sum(r.get("status") == "ready" for r in probe_records),
+        "not_found_count": sum(r.get("status") == "not_found" for r in probe_records),
         "protected_core_mutation_count": 0,
         "historical_version_checked_count": 0,
-        "records": records,
+        "records": probe_records,
     }
+    target_snapshot = {
+        "schema_version": 1,
+        "method": "target-only current-law snapshot from official MOJ Open API ZIP/JSON; URL/name/PCode and article hashes bound; read-only",
+        "record_count": len(target_records),
+        "protected_core_mutation_count": 0,
+        "historical_version_checked_count": 0,
+        "records": target_records,
+    }
+    return probe, target_snapshot
 
 
 def main() -> int:
@@ -143,6 +193,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--history-snapshot", default=str(DEFAULT_HISTORY_SNAPSHOT))
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
+    parser.add_argument("--target-output", default=str(DEFAULT_TARGET_OUTPUT))
     args = parser.parse_args()
 
     history_snapshot = json.loads(Path(args.history_snapshot).read_text(encoding="utf-8"))
@@ -152,10 +203,15 @@ def main() -> int:
         order_payload = _download_payload(session, ORDER_API)
     finally:
         session.close()
-    report = build_report(history_snapshot, law_payload, order_payload)
+    report, target_snapshot = build_reports(history_snapshot, law_payload, order_payload)
+
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    target_out = Path(args.target_output)
+    target_out.parent.mkdir(parents=True, exist_ok=True)
+    target_out.write_text(json.dumps(target_snapshot, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
     print(json.dumps({
         "law_update_date": report.get("law_update_date"),
         "order_update_date": report.get("order_update_date"),
@@ -164,6 +220,7 @@ def main() -> int:
         "target_count": report.get("target_count"),
         "ready_count": report.get("ready_count"),
         "not_found_count": report.get("not_found_count"),
+        "target_snapshot_record_count": target_snapshot.get("record_count"),
         "targets": [
             {
                 "law_name": row.get("law_name"),
