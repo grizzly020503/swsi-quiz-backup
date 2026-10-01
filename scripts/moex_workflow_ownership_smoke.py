@@ -2,8 +2,8 @@
 """Fail-closed ownership contract for the MOEX sync workflow.
 
 MOEX owns official exam payloads, question backup payloads, health/sync state,
-and internal MOJ legal-watch state. Public current-affairs snapshots are owned
-by Public Monitoring Feed and must never be staged by the MOEX bot.
+and internal MOJ legal-watch state. Current-affairs scan/sync/public snapshots
+are owned by Public Monitoring Feed and must never be duplicated here.
 """
 from __future__ import annotations
 
@@ -56,13 +56,18 @@ def main() -> int:
     ):
         assert rel in block, f"MOEX legal-watch state path missing: {rel}"
 
-    assert "python scripts/current_affairs_watch.py --output /tmp/current_affairs_payload.json" in text
-    assert "--data-binary @/tmp/current_affairs_payload.json" in text
-    assert "Sync current-affairs candidates to Supabase" in text
+    for forbidden in (
+        "scripts/current_affairs_watch.py",
+        "Scan social-work current affairs",
+        "Sync current-affairs candidates to Supabase",
+        "--data-binary @/tmp/current_affairs_payload.json",
+        "sync-current-affairs",
+    ):
+        assert forbidden not in text, f"MOEX must not own current-affairs runtime work: {forbidden}"
 
     print(
-        "MOEX WORKFLOW OWNERSHIP OK: official payload/state only; "
-        "public current-affairs snapshots owned by Public Monitoring Feed"
+        "MOEX WORKFLOW OWNERSHIP OK: exam/law payload-state only; "
+        "all current-affairs runtime work owned by Public Monitoring Feed"
     )
     return 0
 
