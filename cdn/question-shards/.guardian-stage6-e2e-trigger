@@ -1,0 +1,1 @@
+Operational QA trigger only. Do not merge. This file exists solely to retrigger the consolidated Historical Law Stage 1-6 workflow after #220 so the Stage 6-aware Guardian workflow can consume fresh evidence end-to-end.
