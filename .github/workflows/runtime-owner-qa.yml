@@ -9,6 +9,9 @@ on:
       - 'config/monthly_patch_structure.json'
       - 'scripts/maintainability_smoke.py'
       - 'scripts/runtime_owner_smoke.js'
+      - 'scripts/frontend_url_safety_smoke.js'
+      - 'scripts/install_current_affairs_ui.py'
+      - 'index.html'
   pull_request:
     paths:
       - '.github/workflows/runtime-owner-qa.yml'
@@ -16,6 +19,9 @@ on:
       - 'config/monthly_patch_structure.json'
       - 'scripts/maintainability_smoke.py'
       - 'scripts/runtime_owner_smoke.js'
+      - 'scripts/frontend_url_safety_smoke.js'
+      - 'scripts/install_current_affairs_ui.py'
+      - 'index.html'
 
 jobs:
   owner-contract:
@@ -28,6 +34,8 @@ jobs:
         run: python3 scripts/maintainability_smoke.py
       - name: Verify runtime owner chain
         run: node scripts/runtime_owner_smoke.js
+      - name: Verify dynamic source URL safety
+        run: node scripts/frontend_url_safety_smoke.js
       - name: Expose remaining late owner chains
         shell: bash
         run: |
