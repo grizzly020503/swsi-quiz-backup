@@ -71,7 +71,6 @@ def _effective_clauses(summary: str) -> list[dict]:
     for match in matches:
         start = previous_end
         prefix = text[start:match.start()]
-        # A semicolon/full stop normally starts a new effective-date clause.
         cut = max(prefix.rfind(";"), prefix.rfind("；"), prefix.rfind("。"))
         if cut >= 0:
             prefix = prefix[cut + 1:]
@@ -95,29 +94,21 @@ def article_effective_date(entry: dict, article: str) -> str | None:
     text = _compact(entry.get("summary") or "")
     clauses = _effective_clauses(text)
 
-    # Explicit article-scoped effective dates win.
     for clause in clauses:
         if article in set(clause["scope_articles"]):
             return str(clause["effective_date"])
 
-    # In an enactment/full rewrite, "依第 X 條規定：自 ... 施行" describes
-    # the whole statute, not merely article X.
     for clause in clauses:
         if entry.get("all_articles") and clause.get("global_by_statute_clause"):
             return str(clause["effective_date"])
 
-    # A single unscoped explicit date applies to the whole amendment.
     unscoped = [c for c in clauses if not c["scope_articles"]]
     if len(clauses) == 1 and len(unscoped) == 1:
         return str(unscoped[0]["effective_date"])
 
-    # Multiple clauses often mean "these named articles on date A; all remaining
-    # articles on date B" (e.g. NHI full rewrite). The last unscoped clause is
-    # the deterministic fallback for a target not captured above.
     if entry.get("all_articles") and unscoped:
         return str(unscoped[-1]["effective_date"])
 
-    # Default promulgation-day rules, including the common "日起" spelling.
     if "自公布日起施行" in text or "自公布日施行" in text:
         return promulgated
 
@@ -163,8 +154,6 @@ def versions_for_article(
 
 
 def select_version(versions: list[dict], on_date: str) -> dict | None:
-    # A retroactive effective date never makes an amendment selectable before it
-    # was promulgated; both conditions must be satisfied.
     eligible = [
         row for row in versions
         if row.get("effective_date")
@@ -241,10 +230,9 @@ def _article_from_page(page_html: str, article_no: str) -> dict | None:
 
 
 def _page_identity_ok(page_html: str) -> bool:
-    """Accept only a recognizable MOJ law page with parseable article text."""
+    """Accept only raw MOJ law HTML that carries the official site marker and articles."""
     raw = str(page_html or "")
-    text = hp.clean_text(hp.html_to_text(raw))
-    return "全國法規資料庫" in text and bool(stage3.parse_law_articles(raw))
+    return "全國法規資料庫" in raw and bool(stage3.parse_law_articles(raw))
 
 
 def build_report(stage3_report: dict, watch: dict, exam_dates: dict, session: Any) -> dict:
