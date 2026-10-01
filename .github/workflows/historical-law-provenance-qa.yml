@@ -1,0 +1,42 @@
+name: Historical Law Provenance QA
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/historical_law_provenance.py'
+      - 'scripts/historical_law_provenance_selftest.py'
+      - 'data/law_question_links_priority10.v1.json'
+      - '.github/workflows/historical-law-provenance-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: historical-law-provenance-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax check
+        run: python -m py_compile scripts/historical_law_provenance.py scripts/historical_law_provenance_selftest.py
+      - name: Pure deterministic regression
+        working-directory: scripts
+        run: python historical_law_provenance_selftest.py
+      - name: Safety contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s = Path('scripts/historical_law_provenance.py').read_text(encoding='utf-8')
+          assert 'historical_version_checked": False' in s
+          assert 'eligible_for_historical_version_checked' in s
+          assert 'official_answer' not in s
+          print('HISTORICAL LAW SAFETY CONTRACT OK')
+          PY
