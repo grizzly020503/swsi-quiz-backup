@@ -1,0 +1,419 @@
+#!/usr/bin/env python3
+"""Stage-2 exact-date refinement for SWSI historical-law provenance.
+
+Read-only evidence worker. Historical social-worker exam dates are resolved from
+an official-source, versioned local registry first; live MOEX is only a fallback
+for unknown/future codes. This prevents an unavailable MOEX website from turning
+10 years of immutable historical dates into source failures on every CI run.
+
+The worker never marks historical_version_checked=true and never changes official
+question/answer/grading data. Network imports stay lazy so deterministic tests
+remain zero-network and need no third-party packages.
+"""
+from __future__ import annotations
+
+import argparse
+import html as html_lib
+import json
+import re
+import time
+from collections import Counter, defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import date
+from pathlib import Path
+from typing import Any
+from urllib.parse import urlparse
+
+import historical_law_provenance_core as hp
+
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_EXAM_DATE_REGISTRY = ROOT / "data/moex_social_worker_exam_dates.v1.json"
+MOEX_DETAIL = "https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c={exam_code}"
+UA = "swsi-historical-law-exam-date/1.3 (+private educational question bank)"
+LIVE_WORKERS = 6
+LIVE_TIMEOUT = 30
+LIVE_ATTEMPTS = 3
+TRUSTED_EXAM_DATE_STATUSES = {"official_pinned", "official_moex"}
+
+# Confirmed by the repository's historical-answer audit mapping, including the
+# corrected 106-2 code.
+EXAM_CODES = {
+    "104-1": "104030", "104-2": "104100", "105-1": "105030", "105-2": "105090",
+    "106-1": "106030", "106-2": "106110", "107-1": "107030", "107-2": "107110",
+    "108-1": "108020", "108-2": "108110", "109-1": "109030", "109-2": "109110",
+    "110-1": "110030", "110-2": "110111", "111-1": "111030", "111-2": "111110",
+    "112-1": "112030", "112-2": "112110", "113-1": "113030", "113-2": "113100",
+    "114-1": "114030", "114-2": "114100", "115-1": "115030", "115-2": "115100",
+}
+MOEX_DATE_RE = re.compile(
+    r"考試日期\s*[:：]\s*(\d{3})/(\d{1,2})/(\d{1,2})\s*"
+    r"(?:[~～至\-]\s*(?:(\d{3})/)?(\d{1,2})/(\d{1,2}))?"
+)
+
+
+def parse_moex_exam_dates(page_text: str) -> tuple[str, str] | None:
+    text = hp.clean_text(html_lib.unescape(re.sub(r"<[^>]+>", " ", str(page_text or ""))))
+    match = MOEX_DATE_RE.search(text)
+    if not match:
+        return None
+    y1, m1, d1, y2, m2, d2 = match.groups()
+    start = date(int(y1) + 1911, int(m1), int(d1))
+    end = date(int(y2 or y1) + 1911, int(m2), int(d2)) if m2 and d2 else start
+    return start.isoformat(), end.isoformat()
+
+
+def official_exam_code(question: dict) -> str | None:
+    source = str(question.get("source_exam_code") or "").strip()
+    if re.fullmatch(r"\d{6}", source):
+        return source
+    human = str(question.get("exam_code") or "").strip()
+    if re.fullmatch(r"\d{6}", human):
+        return human
+    return EXAM_CODES.get(human)
+
+
+def load_exam_date_registry(path: str | Path = DEFAULT_EXAM_DATE_REGISTRY) -> dict[str, dict]:
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    if payload.get("schema_version") != 1:
+        raise ValueError("unsupported exam-date registry schema")
+    rows = payload.get("records") or []
+    if not isinstance(rows, list):
+        raise ValueError("exam-date registry records must be a list")
+    out: dict[str, dict] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("exam-date registry row must be an object")
+        code = str(row.get("source_exam_code") or "").strip()
+        human = str(row.get("exam_code") or "").strip()
+        start = str(row.get("start_date") or "")
+        end = str(row.get("end_date") or "")
+        source_url = str(row.get("source_url") or "")
+        if not re.fullmatch(r"\d{6}", code):
+            raise ValueError(f"invalid source exam code in registry: {code!r}")
+        if code in out:
+            raise ValueError(f"duplicate source exam code in registry: {code}")
+        if EXAM_CODES.get(human) != code:
+            raise ValueError(f"registry exam-code mapping mismatch: {human} -> {code}")
+        try:
+            start_date = date.fromisoformat(start)
+            end_date = date.fromisoformat(end)
+        except ValueError as exc:
+            raise ValueError(f"invalid registry dates for {human}: {start}..{end}") from exc
+        if start_date > end_date:
+            raise ValueError(f"registry start is after end for {human}")
+        parsed = urlparse(source_url)
+        if parsed.scheme != "https" or parsed.hostname not in {"wwwc.moex.gov.tw", "www.moex.gov.tw"}:
+            raise ValueError(f"registry source must be official HTTPS MOEX URL for {human}")
+        if row.get("status") != "official_pinned":
+            raise ValueError(f"registry historical row must be official_pinned: {human}")
+        out[code] = {
+            "status": "official_pinned",
+            "exam_code": human,
+            "source_exam_code": code,
+            "start_date": start,
+            "end_date": end,
+            "source_url": source_url,
+            "provenance": "versioned_official_registry",
+        }
+    return out
+
+
+def _fetch_one_exam_date(session: Any, code: str) -> tuple[str, dict]:
+    url = MOEX_DETAIL.format(exam_code=code)
+    last_error = None
+    for attempt in range(LIVE_ATTEMPTS):
+        try:
+            response = session.get(url, timeout=LIVE_TIMEOUT, headers={"User-Agent": UA})
+            response.raise_for_status()
+            parsed = parse_moex_exam_dates(response.text)
+            if not parsed:
+                raise RuntimeError("date_not_parsed")
+            start, end = parsed
+            return code, {
+                "status": "official_moex",
+                "source_exam_code": code,
+                "start_date": start,
+                "end_date": end,
+                "source_url": url,
+                "provenance": "live_official_moex",
+            }
+        except Exception as exc:
+            last_error = exc
+            if attempt + 1 < LIVE_ATTEMPTS:
+                time.sleep(0.5 * (attempt + 1))
+    return code, {
+        "status": "unresolved",
+        "source_exam_code": code,
+        "source_url": url,
+        "error": f"{type(last_error).__name__}: {last_error}",
+        "attempts": LIVE_ATTEMPTS,
+        "provenance": "live_official_moex_failed",
+    }
+
+
+def fetch_exam_dates(session: Any, codes: set[str], registry: dict[str, dict] | None = None) -> dict:
+    """Resolve immutable historical dates locally; live-fetch only missing codes."""
+    ordered = sorted(codes)
+    registry = registry or {}
+    out = {code: dict(registry[code]) for code in ordered if code in registry}
+    missing = [code for code in ordered if code not in registry]
+    if missing:
+        with ThreadPoolExecutor(max_workers=min(LIVE_WORKERS, len(missing))) as pool:
+            futures = [pool.submit(_fetch_one_exam_date, session, code) for code in missing]
+            for future in as_completed(futures):
+                code, record = future.result()
+                out[code] = record
+    return {code: out[code] for code in ordered}
+
+
+def refine_question(question: dict, entries: list[dict], exam_record: dict | None) -> dict:
+    stage1 = hp.triage_question(question, entries)
+    stage1["source_exam_code"] = official_exam_code(question)
+    stage1["historical_version_checked"] = False
+    if not exam_record or exam_record.get("status") not in TRUSTED_EXAM_DATE_STATUSES:
+        return {**stage1, "stage2_status": "exam_date_unresolved"}
+
+    start, end = exam_record["start_date"], exam_record["end_date"]
+    base = {
+        **stage1,
+        "exam_start_date": start,
+        "exam_end_date": end,
+        "exam_date_source_url": exam_record.get("source_url"),
+        "exam_date_provenance": exam_record.get("provenance"),
+    }
+    if stage1["status"] == "current_text_equals_exam_year_candidate":
+        return {
+            **base,
+            "stage2_status": "current_text_equals_exam_date_candidate",
+            "eligible_for_historical_version_checked": True,
+        }
+    if stage1["status"] != "exam_date_required":
+        return {**base, "stage2_status": stage1["status"]}
+
+    articles = stage1["explicit_articles"]
+    same_year = [
+        entry
+        for entry in entries
+        if entry.get("year") == stage1["exam_year"]
+        and any(hp.entry_affects_article(entry, article) for article in articles)
+    ]
+    if any(entry.get("special_effective_date") for entry in same_year):
+        return {
+            **base,
+            "stage2_status": "effective_date_review",
+            "eligible_for_historical_version_checked": False,
+        }
+
+    dates = [entry.get("date") for entry in same_year]
+    if not dates or any(not value for value in dates):
+        return {
+            **base,
+            "stage2_status": "history_date_unresolved",
+            "eligible_for_historical_version_checked": False,
+        }
+    if any(start <= value <= end for value in dates):
+        return {
+            **base,
+            "stage2_status": "exam_day_resolution_required",
+            "same_year_change_dates": sorted(dates),
+            "eligible_for_historical_version_checked": False,
+        }
+    after = sorted(value for value in dates if value > end)
+    if after:
+        return {
+            **base,
+            "stage2_status": "historical_text_required",
+            "post_exam_change_dates": after,
+            "eligible_for_historical_version_checked": False,
+        }
+    return {
+        **base,
+        "stage2_status": "current_text_equals_exam_date_candidate",
+        "latest_pre_exam_change_date": max(dates),
+        "eligible_for_historical_version_checked": True,
+    }
+
+
+def queue_bucket(status: str) -> str | None:
+    if status in {"article_resolution_required", "article_origin_review"}:
+        return "article_resolution"
+    if status == "historical_text_required":
+        return "historical_text"
+    if status in {"effective_date_review", "exam_day_resolution_required"}:
+        return "effective_date"
+    if status in {"exam_date_unresolved", "history_date_unresolved", "official_history_unavailable"}:
+        return "source_failure"
+    return None
+
+
+def _fetch_one_history(law: str, pcode: str) -> tuple[str, list[dict], str | None]:
+    import requests
+
+    worker_session = requests.Session()
+    worker_session.headers.update({"User-Agent": UA})
+    last_error = None
+    try:
+        for attempt in range(LIVE_ATTEMPTS):
+            try:
+                entries = hp.parse_history_entries(hp.fetch_history_text(pcode, worker_session))
+                if not entries:
+                    raise RuntimeError("MOJ history page parsed zero amendment entries")
+                return law, entries, None
+            except Exception as exc:
+                last_error = exc
+                if attempt + 1 < LIVE_ATTEMPTS:
+                    time.sleep(0.5 * (attempt + 1))
+        return law, [], f"{type(last_error).__name__}: {last_error}"
+    finally:
+        worker_session.close()
+
+
+def fetch_histories(watch_map: dict, cards: list[dict]) -> tuple[dict, dict, dict]:
+    histories: dict[str, list[dict]] = {}
+    history_urls: dict[str, str | None] = {}
+    history_errors: dict[str, str | None] = {}
+    jobs = []
+    for card in cards:
+        law = card["law_name"]
+        watch_row = watch_map.get(law) or {}
+        pcode = hp.pcode_from_url(watch_row.get("official_url"))
+        history_urls[law] = hp.MOJ_HISTORY.format(pcode=pcode) if pcode else None
+        if pcode:
+            jobs.append((law, pcode))
+        else:
+            histories[law] = []
+            history_errors[law] = "missing pcode in legal watch official_url"
+    if jobs:
+        with ThreadPoolExecutor(max_workers=min(LIVE_WORKERS, len(jobs))) as pool:
+            futures = [pool.submit(_fetch_one_history, law, pcode) for law, pcode in jobs]
+            for future in as_completed(futures):
+                law, entries, error = future.result()
+                histories[law] = entries
+                history_errors[law] = error
+    return histories, history_urls, history_errors
+
+
+def build_live_report(
+    links: dict,
+    watch: dict,
+    session: Any,
+    exam_date_registry: dict[str, dict] | None = None,
+) -> dict:
+    watch_map = hp.watch_record_map(watch)
+    cards = links.get("cards") or []
+    mappings = [
+        (card["law_name"], question)
+        for card in cards
+        for question in card.get("questions") or []
+    ]
+    questions = [question for _law, question in mappings]
+    codes = {code for question in questions if (code := official_exam_code(question))}
+    exam_dates = fetch_exam_dates(session, codes, exam_date_registry)
+    histories, history_urls, history_errors = fetch_histories(watch_map, cards)
+
+    rows = []
+    for card in cards:
+        law = card["law_name"]
+        for question in card.get("questions") or []:
+            code = official_exam_code(question)
+            row = refine_question(question, histories.get(law, []), exam_dates.get(code) if code else None)
+            row.update({
+                "law_name": law,
+                "official_history_url": history_urls.get(law),
+                "history_fetch_error": history_errors.get(law),
+            })
+            rows.append(row)
+
+    status_counts = Counter(row["stage2_status"] for row in rows)
+    queues = defaultdict(list)
+    for row in rows:
+        bucket = queue_bucket(row["stage2_status"])
+        if bucket:
+            queues[bucket].append({
+                "law_name": row["law_name"],
+                "question_id": row["question_id"],
+                "stage2_status": row["stage2_status"],
+            })
+
+    unique_question_count = len({str(row.get("question_id") or "") for row in rows})
+    law_fetch_errors = [
+        {
+            "law_name": law,
+            "official_history_url": history_urls.get(law),
+            "error": error,
+        }
+        for law, error in sorted(history_errors.items())
+        if error
+    ]
+    exam_date_error_count = sum(
+        record.get("status") not in TRUSTED_EXAM_DATE_STATUSES for record in exam_dates.values()
+    )
+    return {
+        "schema_version": 2,
+        "method": "pinned official social-worker exam dates (live fallback) + official MOJ amendment dates; read-only fail-closed routing",
+        "mapping_count": len(rows),
+        "question_count": len(rows),
+        "unique_question_count": unique_question_count,
+        "cross_law_overlap_count": len(rows) - unique_question_count,
+        "historical_version_checked_count": 0,
+        "candidate_count": sum(
+            row["stage2_status"] == "current_text_equals_exam_date_candidate" for row in rows
+        ),
+        "status_counts": dict(sorted(status_counts.items())),
+        "exception_queue": {key: value for key, value in sorted(queues.items())},
+        "exam_date_error_count": exam_date_error_count,
+        "exam_date_registry_hit_count": sum(
+            record.get("status") == "official_pinned" for record in exam_dates.values()
+        ),
+        "exam_date_live_hit_count": sum(
+            record.get("status") == "official_moex" for record in exam_dates.values()
+        ),
+        "law_fetch_error_count": len(law_fetch_errors),
+        "law_fetch_errors": law_fetch_errors,
+        "exam_dates": exam_dates,
+        "questions": rows,
+    }
+
+
+def main() -> int:
+    import requests
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--links", default=str(hp.DEFAULT_LINKS))
+    parser.add_argument("--legal-watch-report", default=str(hp.DEFAULT_WATCH))
+    parser.add_argument("--exam-date-registry", default=str(DEFAULT_EXAM_DATE_REGISTRY))
+    parser.add_argument("--output", default=str(ROOT / "auto/qa/historical_law_exam_date_stage2.v1.json"))
+    args = parser.parse_args()
+
+    links = json.loads(Path(args.links).read_text(encoding="utf-8"))
+    watch = json.loads(Path(args.legal_watch_report).read_text(encoding="utf-8"))
+    exam_date_registry = load_exam_date_registry(args.exam_date_registry)
+    session = requests.Session()
+    session.headers.update({"User-Agent": UA})
+    try:
+        report = build_live_report(links, watch, session, exam_date_registry)
+    finally:
+        session.close()
+    out = Path(args.output)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({
+        "mapping_count": report["mapping_count"],
+        "unique_question_count": report["unique_question_count"],
+        "cross_law_overlap_count": report["cross_law_overlap_count"],
+        "candidate_count": report["candidate_count"],
+        "historical_version_checked_count": report["historical_version_checked_count"],
+        "exam_date_error_count": report["exam_date_error_count"],
+        "exam_date_registry_hit_count": report["exam_date_registry_hit_count"],
+        "exam_date_live_hit_count": report["exam_date_live_hit_count"],
+        "law_fetch_error_count": report["law_fetch_error_count"],
+        "status_counts": report["status_counts"],
+        "exception_queue_counts": {
+            key: len(value) for key, value in report["exception_queue"].items()
+        },
+    }, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

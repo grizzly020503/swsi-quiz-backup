@@ -4,12 +4,16 @@ on:
   pull_request:
     paths:
       - 'scripts/historical_law_provenance.py'
+      - 'scripts/historical_law_provenance_core.py'
       - 'scripts/historical_law_provenance_selftest.py'
+      - 'scripts/historical_law_exam_date_refiner.py'
+      - 'scripts/historical_law_stage2_selftest.py'
       - 'scripts/build_historical_law_provenance_report.py'
       - 'scripts/historical_law_provenance_report_smoke.py'
       - 'data/law_question_links_priority10.v1.json'
       - 'data/legal_watch_report.json'
       - 'data/historical_law_provenance_priority10.v1.json'
+      - 'data/moex_social_worker_exam_dates.v1.json'
       - '.github/workflows/historical-law-provenance-qa.yml'
   workflow_dispatch:
 
@@ -21,9 +25,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  selftest:
+  deterministic-contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 7
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -33,17 +37,21 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Syntax and deterministic repository contract
+      - name: Syntax and deterministic regressions
         run: |
           set -euo pipefail
           python -m py_compile \
             scripts/historical_law_provenance.py \
+            scripts/historical_law_provenance_core.py \
             scripts/historical_law_provenance_selftest.py \
+            scripts/historical_law_exam_date_refiner.py \
+            scripts/historical_law_stage2_selftest.py \
             scripts/build_historical_law_provenance_report.py \
             scripts/historical_law_provenance_report_smoke.py
           (cd scripts && python historical_law_provenance_selftest.py)
+          (cd scripts && python historical_law_stage2_selftest.py)
 
-      - name: Offline CLI contract on real 86-question inputs
+      - name: Offline V1 CLI contract on real 86 mappings
         run: |
           set -euo pipefail
           python scripts/historical_law_provenance.py --output /tmp/historical_law_provenance.json
@@ -65,22 +73,142 @@ jobs:
           print('HISTORICAL LAW OFFLINE CLI CONTRACT OK:', report.get('status_counts'))
           PY
 
-      - name: Materialized live baseline contract
+      - name: Materialized V1 live baseline contract
         run: python scripts/historical_law_provenance_report_smoke.py
 
-      - name: Protected-core safety contract
+      - name: Protected-core AST safety boundary
         run: |
           python - <<'PY'
+          import ast
           from pathlib import Path
-          sources = [
-              Path('scripts/historical_law_provenance.py').read_text(encoding='utf-8'),
-              Path('scripts/build_historical_law_provenance_report.py').read_text(encoding='utf-8'),
+
+          files = [
+              Path('scripts/historical_law_provenance_core.py'),
+              Path('scripts/historical_law_exam_date_refiner.py'),
+              Path('scripts/build_historical_law_provenance_report.py'),
           ]
-          combined = '\n'.join(sources)
-          assert '"historical_version_checked": True' not in combined
-          assert "'historical_version_checked': True" not in combined
-          for forbidden in ('official_answer =', 'grading_mode =', 'accepted_answers ='):
-              assert forbidden not in combined
-          print('HISTORICAL LAW SAFETY CONTRACT OK')
+          protected = {'stem', 'options', 'official_answer', 'accepted_answers', 'grading_mode'}
+          violations = []
+
+          def const_key(node):
+              if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                  return node.value
+              return None
+
+          def check_target(path, node, lineno):
+              if isinstance(node, (ast.Tuple, ast.List)):
+                  for child in node.elts:
+                      check_target(path, child, lineno)
+                  return
+              if isinstance(node, ast.Subscript):
+                  key = const_key(node.slice)
+                  if key in protected:
+                      violations.append(f'{path}:{lineno}: protected field assignment: {key}')
+
+          for path in files:
+              tree = ast.parse(path.read_text(encoding='utf-8'), filename=str(path))
+              for node in ast.walk(tree):
+                  if isinstance(node, ast.Assign):
+                      for target in node.targets:
+                          check_target(path, target, node.lineno)
+                  elif isinstance(node, ast.AnnAssign):
+                      check_target(path, node.target, node.lineno)
+                  elif isinstance(node, ast.AugAssign):
+                      check_target(path, node.target, node.lineno)
+                  elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+                      method = node.func.attr
+                      if method == 'setdefault' and node.args:
+                          key = const_key(node.args[0])
+                          if key in protected:
+                              violations.append(f'{path}:{node.lineno}: protected setdefault: {key}')
+                      if method in {'update', '__setitem__'}:
+                          for arg in node.args:
+                              if isinstance(arg, ast.Dict):
+                                  for key_node in arg.keys:
+                                      key = const_key(key_node)
+                                      if key in protected:
+                                          violations.append(f'{path}:{node.lineno}: protected update: {key}')
+                          if method == '__setitem__' and node.args:
+                              key = const_key(node.args[0])
+                              if key in protected:
+                                  violations.append(f'{path}:{node.lineno}: protected __setitem__: {key}')
+                  elif isinstance(node, ast.Dict):
+                      for key_node, value_node in zip(node.keys, node.values):
+                          if const_key(key_node) == 'historical_version_checked':
+                              if isinstance(value_node, ast.Constant) and value_node.value is True:
+                                  violations.append(f'{path}:{node.lineno}: historical_version_checked=True is forbidden')
+
+          if violations:
+              raise SystemExit('\n'.join(violations))
+          print('HISTORICAL LAW AST SAFETY BOUNDARY OK')
           PY
           git diff --check
+
+  live-readonly-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install live HTTP dependency
+        run: python -m pip install --disable-pip-version-check requests
+
+      - name: Fetch official MOJ Stage 2 evidence
+        id: live
+        continue-on-error: true
+        run: python scripts/historical_law_exam_date_refiner.py
+
+      - name: Validate produced evidence if available
+        if: always()
+        run: |
+          if [ -f auto/qa/historical_law_exam_date_stage2.v1.json ]; then
+            python - <<'PY'
+          import json
+          from pathlib import Path
+
+          d = json.loads(Path('auto/qa/historical_law_exam_date_stage2.v1.json').read_text(encoding='utf-8'))
+          rows = d.get('questions') or []
+          exam_dates = d.get('exam_dates') or {}
+          assert d.get('mapping_count') == 86 == len(rows)
+          assert d.get('unique_question_count') == 85
+          assert d.get('cross_law_overlap_count') == 1
+          assert d.get('historical_version_checked_count') == 0
+          assert all(row.get('historical_version_checked') is False for row in rows)
+          assert all('official_answer' not in row for row in rows)
+          assert sum((d.get('status_counts') or {}).values()) == 86
+          assert d.get('exam_date_error_count') == 0, d.get('exam_dates')
+          assert d.get('exam_date_registry_hit_count') == len(exam_dates), d.get('exam_dates')
+          assert d.get('exam_date_live_hit_count') == 0, d.get('exam_dates')
+          assert all(v.get('status') == 'official_pinned' for v in exam_dates.values())
+          print(json.dumps({
+              'mapping_count': d.get('mapping_count'),
+              'unique_question_count': d.get('unique_question_count'),
+              'cross_law_overlap_count': d.get('cross_law_overlap_count'),
+              'candidate_count': d.get('candidate_count'),
+              'historical_version_checked_count': d.get('historical_version_checked_count'),
+              'exam_date_error_count': d.get('exam_date_error_count'),
+              'exam_date_registry_hit_count': d.get('exam_date_registry_hit_count'),
+              'exam_date_live_hit_count': d.get('exam_date_live_hit_count'),
+              'law_fetch_error_count': d.get('law_fetch_error_count'),
+              'status_counts': d.get('status_counts'),
+              'exception_queue_counts': {k: len(v) for k, v in (d.get('exception_queue') or {}).items()},
+          }, ensure_ascii=False, indent=2))
+          PY
+          else
+            echo 'No live Stage 2 report produced; external MOJ source failure remains fail-soft.'
+          fi
+
+      - name: Upload read-only Stage 2 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: historical-law-stage2-live-evidence
+          path: auto/qa/historical_law_exam_date_stage2.v1.json
+          if-no-files-found: warn
+          retention-days: 14
