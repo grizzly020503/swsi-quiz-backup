@@ -85,7 +85,7 @@ jobs:
           trends=json.loads(Path('/tmp/prod-current-affairs-trends.json').read_text(encoding='utf-8'))
 
           assert int(current.get('source_feed_count') or 0) >= 17, current.get('source_feed_count')
-          assert int(current.get('feed_error_count') or -1) == 0, current.get('feed_error_count')
+          assert int(current.get('feed_error_count', -1)) == 0, current.get('feed_error_count')
           assert int(signals.get('questions_loaded') or 0) == 4800
           assert int(signals.get('item_count') or -1) == len(signals.get('items') or [])
           assert int(events.get('event_count') or -1) == len(events.get('events') or [])

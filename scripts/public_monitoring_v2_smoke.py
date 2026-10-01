@@ -275,6 +275,11 @@ def main() -> int:
     assert "github.event.workflow_run.head_branch == 'main'" in workflow, "workflow_run publish must be main-only"
     assert "github.event_name == 'workflow_run' && 'main' || github.ref" in workflow, "workflow_run checkout must refresh latest main"
 
+    netlify_verify = (ROOT / ".github/workflows/verify-netlify-production.yml").read_text(encoding="utf-8")
+    assert "current.get('feed_error_count', -1)" in netlify_verify, "Netlify verifier must preserve valid zero feed errors"
+    assert "current.get('feed_error_count') or -1" not in netlify_verify, "zero feed errors must not collapse to -1"
+    print("NETLIFY ZERO-ERROR COUNT GUARD OK")
+
     print(
         "PUBLIC MONITORING V2 CONTRACT OK: "
         f"sources={len(source_rows)}/{news['source_feed_count']}, news={len(items)}, events={len(event_rows)}, trends={len(trend_rows)}, "
