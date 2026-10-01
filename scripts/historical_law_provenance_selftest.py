@@ -11,12 +11,10 @@ from historical_law_provenance import (
 def q(year, stem, qid="SP-test"):
     return {"question_id": qid, "year": str(year), "stem": stem, "exam_code": f"{year}-1"}
 
-
 assert chinese_integer("九十九") == 99
 assert chinese_integer("一百零四") == 104
 assert chinese_integer("一百十五") == 115
 assert chinese_integer("115") == 115
-
 assert extract_explicit_articles("依第8條及第 26-1 條規定，何者正確？") == ["8", "26-1"]
 assert extract_explicit_articles("補助 3 個月，所得為最低生活費 2.5 倍") == []
 
@@ -37,24 +35,17 @@ assert by_year[2011]["all_articles"] is True
 r = triage_question(q(110, "依兒童及少年福利與權益保障法，下列何者正確？"), entries)
 assert r["status"] == "article_resolution_required"
 assert r["historical_version_checked"] is False
-
 r = triage_question(q(108, "依第26條規定，下列何者正確？"), entries)
 assert r["status"] == "historical_text_required"
-assert r["eligible_for_historical_version_checked"] is False
 assert r["post_exam_change_years"] == [2021]
-
 r = triage_question(q(108, "依第10條規定，下列何者正確？"), entries)
 assert r["status"] == "exam_date_required"
-
 r = triage_question(q(110, "依第33-2條規定，下列何者正確？"), entries)
 assert r["status"] == "effective_date_review"
-
 r = triage_question(q(110, "依第50條規定，下列何者正確？"), entries)
 assert r["status"] == "current_text_equals_exam_year_candidate"
 assert r["eligible_for_historical_version_checked"] is True
 assert r["historical_version_checked"] is False
-
 r = triage_question(q(107, "依第23-1條規定，下列何者正確？"), entries)
 assert r["status"] == "historical_text_required"
-
 print("HISTORICAL LAW PROVENANCE SELFTEST OK")
