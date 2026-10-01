@@ -37,6 +37,8 @@ def row(
         "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
         "management_domains": ["服務輸送與跨網絡", "方案與資源管理"],
         "exam_subject_axes": ["社會政策與社會立法", "社會工作直接服務"],
+        "primary_exam_subject_axes": ["社會政策與社會立法"],
+        "supporting_exam_subject_axes": ["社會工作直接服務"],
         "subject_topics": {
             "社會政策與社會立法": ["長照制度、老人福利與社會保障"],
             "社會工作直接服務": ["長照個案管理與家庭照顧者支持"],
@@ -141,6 +143,8 @@ def main() -> int:
     assert merged["knowledge_model"] == "management-hierarchy-over-five-exam-subjects-v3", merged
     assert "服務輸送與跨網絡" in merged["management_domains"], merged
     assert "社會政策與社會立法" in merged["exam_subject_axes"], merged
+    assert merged["primary_exam_subject_axes"] == ["社會政策與社會立法"], merged
+    assert merged["supporting_exam_subject_axes"] == ["社會工作直接服務"], merged
     assert merged["subject_topics"]["社會政策與社會立法"] == ["長照制度、老人福利與社會保障"], merged
     assert any(path.startswith("社會工作管理 >") for path in merged["knowledge_paths"]), merged
     merged_trend = trend_for(merged, "2026-09-25T12:00:00Z")
@@ -148,6 +152,8 @@ def main() -> int:
     assert merged_trend["knowledge_model"] == "management-hierarchy-over-five-exam-subjects-v3", merged_trend
     assert merged_trend["management_domains"] == merged["management_domains"], merged_trend
     assert merged_trend["exam_subject_axes"] == merged["exam_subject_axes"], merged_trend
+    assert merged_trend["primary_exam_subject_axes"] == merged["primary_exam_subject_axes"], merged_trend
+    assert merged_trend["supporting_exam_subject_axes"] == merged["supporting_exam_subject_axes"], merged_trend
     assert merged_trend["subject_topics"] == merged["subject_topics"], merged_trend
     assert merged_trend["knowledge_paths"] == merged["knowledge_paths"], merged_trend
     history = merged.get("historical_exam_stats") or {}

@@ -23,6 +23,8 @@ def row(item_id, title, published, fact, url):
         "knowledge_root": "社會工作管理",
         "management_domains": ["人力與督導", "組織治理與責信"],
         "exam_subject_axes": ["社會工作", "社會工作直接服務"],
+        "primary_exam_subject_axes": ["社會工作"],
+        "supporting_exam_subject_axes": ["社會工作直接服務"],
         "knowledge_topics": ["社工專業與社福制度", "社工"],
     }
 
@@ -43,6 +45,8 @@ def main() -> int:
     assert len(merged["sources"]) == 3, merged
     assert merged["source_name"] == "中天新聞社會", merged
     assert merged["relevance_score"] == 5, merged
+    assert merged["primary_exam_subject_axes"] == ["社會工作"], merged
+    assert merged["supporting_exam_subject_axes"] == ["社會工作直接服務"], merged
 
     separate = next(x for x in topics if not x.get("clustered"))
     assert separate["article_count"] == 1, separate

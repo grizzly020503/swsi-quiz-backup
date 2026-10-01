@@ -457,6 +457,11 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
     knowledge_model = next((str(x.get("knowledge_model")) for x in members if x.get("knowledge_model")), "")
     management_domains = _ordered_union(members, "management_domains")
     exam_subject_axes = _ordered_union(members, "exam_subject_axes")
+    primary_exam_subject_axes = _ordered_union(members, "primary_exam_subject_axes")
+    supporting_exam_subject_axes = [
+        subject for subject in _ordered_union(members, "supporting_exam_subject_axes")
+        if subject not in set(primary_exam_subject_axes)
+    ]
     subject_topics = _merged_subject_topics(members)
     knowledge_topics = _ordered_union(members, "knowledge_topics")
     knowledge_paths = _ordered_union(members, "knowledge_paths")
@@ -471,6 +476,8 @@ def build_event(members: list[dict], previous: dict | None = None) -> dict:
         "knowledge_model": knowledge_model,
         "management_domains": management_domains,
         "exam_subject_axes": exam_subject_axes,
+        "primary_exam_subject_axes": primary_exam_subject_axes,
+        "supporting_exam_subject_axes": supporting_exam_subject_axes,
         "subject_topics": subject_topics,
         "knowledge_topics": knowledge_topics,
         "knowledge_paths": knowledge_paths,

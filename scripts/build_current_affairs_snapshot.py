@@ -20,7 +20,7 @@ ALLOWED = {
     "id", "title", "summary", "source_name", "source_url", "source_type", "published_at", "region",
     "category", "relevance_score", "exam_tags", "subjects",
     "concept_keys", "agency_keys", "fact_keys",
-    "knowledge_root", "knowledge_model", "management_domains", "exam_subject_axes", "subject_topics", "knowledge_topics", "knowledge_paths",
+    "knowledge_root", "knowledge_model", "management_domains", "exam_subject_axes", "primary_exam_subject_axes", "supporting_exam_subject_axes", "subject_topics", "knowledge_topics", "knowledge_paths",
 }
 
 
@@ -36,6 +36,8 @@ def clean_row(row):
     out["knowledge_model"] = str(out.get("knowledge_model") or "")
     out["management_domains"] = list(dict.fromkeys(out.get("management_domains") or []))
     out["exam_subject_axes"] = list(dict.fromkeys(out.get("exam_subject_axes") or []))
+    out["primary_exam_subject_axes"] = list(dict.fromkeys(out.get("primary_exam_subject_axes") or []))
+    out["supporting_exam_subject_axes"] = list(dict.fromkeys(out.get("supporting_exam_subject_axes") or []))
     raw_subject_topics = out.get("subject_topics") or {}
     out["subject_topics"] = {
         str(subject): list(dict.fromkeys(topics or []))[:6]
@@ -140,6 +142,8 @@ def merge_cluster(cluster):
     sources = []
     all_tags = []
     all_subjects = []
+    all_primary_subjects = []
+    all_supporting_subjects = []
     all_concepts = []
     all_agencies = []
     all_facts = []
@@ -156,6 +160,8 @@ def merge_cluster(cluster):
             })
         all_tags.extend(row.get("exam_tags") or [])
         all_subjects.extend(row.get("subjects") or [])
+        all_primary_subjects.extend(row.get("primary_exam_subject_axes") or [])
+        all_supporting_subjects.extend(row.get("supporting_exam_subject_axes") or [])
         all_concepts.extend(row.get("concept_keys") or [])
         all_agencies.extend(row.get("agency_keys") or [])
         all_facts.extend(row.get("fact_keys") or [])
@@ -189,6 +195,11 @@ def merge_cluster(cluster):
         "relevance_score": score,
         "exam_tags": list(dict.fromkeys(all_tags))[:10],
         "subjects": list(dict.fromkeys(all_subjects)),
+        "primary_exam_subject_axes": list(dict.fromkeys(all_primary_subjects)),
+        "supporting_exam_subject_axes": [
+            subject for subject in dict.fromkeys(all_supporting_subjects)
+            if subject not in set(all_primary_subjects)
+        ],
         "concept_keys": list(dict.fromkeys(all_concepts)),
         "agency_keys": list(dict.fromkeys(all_agencies)),
         "fact_keys": list(dict.fromkeys(all_facts)),

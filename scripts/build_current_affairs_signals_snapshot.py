@@ -110,6 +110,8 @@ def main() -> int:
                 "knowledge_model": row.get("knowledge_model"),
                 "management_domains": row.get("management_domains") or [],
                 "exam_subject_axes": row.get("exam_subject_axes") or [],
+                "primary_exam_subject_axes": row.get("primary_exam_subject_axes") or [],
+                "supporting_exam_subject_axes": row.get("supporting_exam_subject_axes") or [],
                 "subject_topics": row.get("subject_topics") or {},
                 "knowledge_topics": row.get("knowledge_topics") or [],
                 "knowledge_paths": row.get("knowledge_paths") or [],
