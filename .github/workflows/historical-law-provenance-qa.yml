@@ -4,8 +4,12 @@ on:
   pull_request:
     paths:
       - 'scripts/historical_law_provenance.py'
+      - 'scripts/historical_law_provenance_core.py'
       - 'scripts/historical_law_provenance_selftest.py'
+      - 'scripts/historical_law_exam_date_refiner.py'
+      - 'scripts/historical_law_stage2_selftest.py'
       - 'data/law_question_links_priority10.v1.json'
+      - 'data/legal_watch_report.json'
       - '.github/workflows/historical-law-provenance-qa.yml'
   workflow_dispatch:
 
@@ -17,26 +21,106 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  selftest:
+  deterministic-contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install runtime dependency
+        run: python -m pip install --disable-pip-version-check requests
       - name: Syntax check
-        run: python -m py_compile scripts/historical_law_provenance.py scripts/historical_law_provenance_selftest.py
-      - name: Pure deterministic regression
+        run: python -m py_compile scripts/historical_law_provenance.py scripts/historical_law_provenance_core.py scripts/historical_law_provenance_selftest.py scripts/historical_law_exam_date_refiner.py scripts/historical_law_stage2_selftest.py
+      - name: Existing V1 compatibility regression
         working-directory: scripts
         run: python historical_law_provenance_selftest.py
-      - name: Safety contract
+      - name: Stage 2 exact-date regression
+        working-directory: scripts
+        run: python historical_law_stage2_selftest.py
+      - name: 86-question repository contract
+        run: |
+          python - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'scripts')
+          import historical_law_provenance_core as hp
+
+          links = json.loads(Path('data/law_question_links_priority10.v1.json').read_text(encoding='utf-8'))
+          watch = json.loads(Path('data/legal_watch_report.json').read_text(encoding='utf-8'))
+          cards = links.get('cards') or []
+          rows = [q for card in cards for q in (card.get('questions') or [])]
+          assert len(cards) == 10, len(cards)
+          assert len(rows) == 86, len(rows)
+          assert len({q.get('question_id') for q in rows}) == 86
+          assert all(q.get('match_strength') == 'metadata_only' for q in rows)
+          assert all(q.get('historical_version_checked') is False for q in rows)
+          indexed = hp.watch_record_map(watch)
+          for card in cards:
+              law = card['law_name']
+              assert law in indexed, law
+              assert hp.pcode_from_url(indexed[law].get('official_url')), law
+          report = hp.build_report(links, watch, live=False)
+          assert report['question_count'] == 86
+          assert sum(report['status_counts'].values()) == 86
+          assert all(q['historical_version_checked'] is False for q in report['questions'])
+          print('HISTORICAL LAW 86-QUESTION CONTRACT OK')
+          PY
+      - name: Safety boundary
         run: |
           python - <<'PY'
           from pathlib import Path
-          s = Path('scripts/historical_law_provenance.py').read_text(encoding='utf-8')
-          assert 'historical_version_checked": False' in s
-          assert 'eligible_for_historical_version_checked' in s
-          assert 'official_answer' not in s
-          print('HISTORICAL LAW SAFETY CONTRACT OK')
+          core = Path('scripts/historical_law_provenance_core.py').read_text(encoding='utf-8')
+          stage2 = Path('scripts/historical_law_exam_date_refiner.py').read_text(encoding='utf-8')
+          combined = core + '\n' + stage2
+          assert 'historical_version_checked": True' not in combined
+          assert "historical_version_checked': True" not in combined
+          assert 'official_answer' not in combined
+          assert 'accepted_answers' not in combined
+          assert 'grading_mode' not in combined
+          print('HISTORICAL LAW SAFETY BOUNDARY OK')
           PY
+
+  live-readonly-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install runtime dependency
+        run: python -m pip install --disable-pip-version-check requests
+      - name: Fetch official MOEX/MOJ evidence
+        id: live
+        continue-on-error: true
+        run: python scripts/historical_law_exam_date_refiner.py
+      - name: Show live evidence summary
+        if: always()
+        run: |
+          if [ -f auto/qa/historical_law_exam_date_stage2.v1.json ]; then
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          d = json.loads(Path('auto/qa/historical_law_exam_date_stage2.v1.json').read_text(encoding='utf-8'))
+          print(json.dumps({
+              'question_count': d.get('question_count'),
+              'candidate_count': d.get('candidate_count'),
+              'historical_version_checked_count': d.get('historical_version_checked_count'),
+              'status_counts': d.get('status_counts'),
+              'exception_queue_counts': {k: len(v) for k, v in (d.get('exception_queue') or {}).items()},
+          }, ensure_ascii=False, indent=2))
+          PY
+          else
+            echo 'No live report produced.'
+          fi
+      - name: Upload read-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: historical-law-stage2-live-evidence
+          path: auto/qa/historical_law_exam_date_stage2.v1.json
+          if-no-files-found: warn
+          retention-days: 14
