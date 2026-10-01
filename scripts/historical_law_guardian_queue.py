@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """Build a compact historical-law work queue for SWSI Data Guardian.
 
-This is a routing layer only. It combines the read-only Stage 2/3/5 reports and
-keeps routine work out of the human queue:
+This is a routing layer only. It combines the read-only Stage 2/3/5/6 reports
+and keeps routine work out of the human queue:
 
-- Stage 5 promotion candidates stay in a machine lane.
-- Stage 3 unresolved article candidates go to AI review.
+- Stage 6 confirmed candidates stay in a machine-promotion lane.
+- Stage 6 semantic support goes to AI semantic review.
+- Stage 6 source failures/identity misses go to source retry.
+- Stage 6 semantic conflicts are the exceptional human-review lane.
+- Stage 3 unresolved article candidates go to AI article review.
 - explicit-article current-text candidates stay in a direct source-check lane.
 - special/delayed effective-date cases stay in a legal-evidence lane.
-- source failures go to retry/source-recovery.
 
 No row is marked historically verified here and no official answer/grading field
 is copied into the queue.
@@ -24,10 +26,12 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_STAGE2 = ROOT / "auto/qa/historical_law_exam_date_stage2.v1.json"
 DEFAULT_STAGE3 = ROOT / "auto/qa/historical_law_article_stage3.v1.json"
 DEFAULT_STAGE5 = ROOT / "auto/qa/historical_law_stage5_promotion.v1.json"
+DEFAULT_STAGE6 = ROOT / "auto/qa/historical_law_stage6_semantic.v1.json"
 DEFAULT_OUTPUT = ROOT / "auto/qa/historical_law_guardian_queue.v1.json"
 
 LANE_MACHINE_PROMOTION = "machine_promotion"
 LANE_AI_ARTICLE = "ai_article_review"
+LANE_AI_SEMANTIC = "ai_semantic_review"
 LANE_DIRECT_SOURCE = "machine_direct_source_check"
 LANE_EFFECTIVE_DATE = "effective_date_resolution"
 LANE_SOURCE_RETRY = "source_retry"
@@ -48,9 +52,10 @@ def _base(row: dict) -> dict:
     }
 
 
-def build_queue(stage2: dict, stage3: dict, stage5: dict) -> dict:
+def build_queue(stage2: dict, stage3: dict, stage5: dict, stage6: dict) -> dict:
     stage3_map = {key(row): row for row in (stage3.get("records") or [])}
     stage5_map = {key(row): row for row in (stage5.get("records") or [])}
+    stage6_map = {key(row): row for row in (stage6.get("records") or [])}
     items: list[dict] = []
 
     for row in (stage2.get("questions") or []):
@@ -81,8 +86,43 @@ def build_queue(stage2: dict, stage3: dict, stage5: dict) -> dict:
                     "historical_article_sha256": s5.get("historical_article_sha256"),
                 })
                 if promotion == "promotion_candidate":
-                    lane = LANE_MACHINE_PROMOTION
-                    reason = "stage5_promotion_candidate"
+                    s6 = stage6_map.get(k) or {}
+                    status6 = str(s6.get("status") or "")
+                    item.update({
+                        "stage6_status": status6 or None,
+                        "stage6_source_identity_method": s6.get("source_identity_method"),
+                        "stage6_source_error": s6.get("source_error"),
+                        "stage6_expected_rank": s6.get("expected_rank"),
+                    })
+                    if status6 == "historical_semantic_confirmed":
+                        lane = LANE_MACHINE_PROMOTION
+                        reason = "stage6_historical_semantic_confirmed"
+                    elif status6 == "historical_semantic_support":
+                        lane = LANE_AI_SEMANTIC
+                        reason = "stage6_historical_semantic_support"
+                    elif status6 in {
+                        "source_failure",
+                        "source_identity_mismatch",
+                        "historical_articles_unavailable",
+                    }:
+                        lane = LANE_SOURCE_RETRY
+                        reason = f"stage6_{status6}"
+                        priority = "high"
+                    elif status6 == "historical_semantic_conflict":
+                        lane = LANE_HUMAN
+                        reason = "stage6_historical_semantic_conflict"
+                        priority = "high"
+                    elif status6 in {
+                        "question_link_missing",
+                        "selected_version_missing",
+                    }:
+                        lane = LANE_EVIDENCE_BLOCKED
+                        reason = f"stage6_{status6}"
+                        priority = "high"
+                    else:
+                        lane = LANE_EVIDENCE_BLOCKED
+                        reason = "stage6_missing_or_unknown_status"
+                        priority = "high"
                 else:
                     lane = LANE_EVIDENCE_BLOCKED
                     reason = "stage5_not_promotion_ready"
@@ -134,8 +174,8 @@ def build_queue(stage2: dict, stage3: dict, stage5: dict) -> dict:
     priority_counts = Counter(str(row["priority"]) for row in items)
     human_items = [row for row in items if row["lane"] == LANE_HUMAN]
     return {
-        "schema_version": 1,
-        "method": "Stage2 provenance -> Stage3 article routing -> Stage5 evidence promotion; routine work remains machine/AI/source lanes before human review",
+        "schema_version": 2,
+        "method": "Stage2 provenance -> Stage3 article routing -> Stage5 evidence promotion -> Stage6 historical semantic/source routing; only confirmed cases remain machine-promotion candidates",
         "mapping_count": len(items),
         "unique_question_count": len({str(row.get('question_id') or '') for row in items}),
         "lane_counts": dict(sorted(lane_counts.items())),
@@ -156,13 +196,15 @@ def main() -> int:
     parser.add_argument("--stage2", default=str(DEFAULT_STAGE2))
     parser.add_argument("--stage3", default=str(DEFAULT_STAGE3))
     parser.add_argument("--stage5", default=str(DEFAULT_STAGE5))
+    parser.add_argument("--stage6", default=str(DEFAULT_STAGE6))
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
     args = parser.parse_args()
 
     stage2 = json.loads(Path(args.stage2).read_text(encoding="utf-8"))
     stage3 = json.loads(Path(args.stage3).read_text(encoding="utf-8"))
     stage5 = json.loads(Path(args.stage5).read_text(encoding="utf-8"))
-    report = build_queue(stage2, stage3, stage5)
+    stage6 = json.loads(Path(args.stage6).read_text(encoding="utf-8"))
+    report = build_queue(stage2, stage3, stage5, stage6)
 
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
