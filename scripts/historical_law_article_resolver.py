@@ -380,6 +380,13 @@ def build_report(links: dict, watch: dict) -> dict:
                 expected_rank = next(
                     (i + 1 for i, row in enumerate(ranked) if row["article_no"] in explicit), None
                 )
+                metadata_articles = extract_metadata_articles(question)
+                shadow_route, shadow_confidence, shadow_reason = classify_candidates(
+                    ranked, metadata_articles
+                )
+                shadow_false_machine = bool(
+                    shadow_route == "machine_candidate" and expected_rank != 1
+                )
                 controls.append({
                     "law_name": law,
                     "question_id": question.get("question_id") or question.get("id"),
@@ -389,6 +396,11 @@ def build_report(links: dict, watch: dict) -> dict:
                     "top1_match": expected_rank == 1,
                     "top3_match": bool(expected_rank and expected_rank <= 3),
                     "used_options": bool(option_texts),
+                    "metadata_articles": metadata_articles,
+                    "shadow_route": shadow_route,
+                    "shadow_confidence": shadow_confidence,
+                    "shadow_decision_reason": shadow_reason,
+                    "shadow_false_machine_candidate": shadow_false_machine,
                 })
                 continue
             if source_error:
@@ -413,6 +425,12 @@ def build_report(links: dict, watch: dict) -> dict:
     decision_reason_counts = Counter(row.get("decision_reason") or row["route"] for row in records)
     control_top1 = sum(bool(row["top1_match"]) for row in controls)
     control_top3 = sum(bool(row["top3_match"]) for row in controls)
+    control_shadow_machine = sum(
+        row.get("shadow_route") == "machine_candidate" for row in controls
+    )
+    control_false_machine = sum(
+        bool(row.get("shadow_false_machine_candidate")) for row in controls
+    )
     source_errors = [
         {"law_name": law, "source_url": urls.get(law), "error": error}
         for law, error in sorted(errors.items()) if error
@@ -425,6 +443,8 @@ def build_report(links: dict, watch: dict) -> dict:
         "explicit_control_count": len(controls),
         "explicit_control_top1_match_count": control_top1,
         "explicit_control_top3_match_count": control_top3,
+        "explicit_control_shadow_machine_candidate_count": control_shadow_machine,
+        "explicit_control_false_machine_candidate_count": control_false_machine,
         "route_counts": dict(sorted(route_counts.items())),
         "confidence_counts": dict(sorted(confidence_counts.items())),
         "decision_reason_counts": dict(sorted(decision_reason_counts.items())),
@@ -457,6 +477,8 @@ def main() -> int:
         "explicit_control_count": report["explicit_control_count"],
         "explicit_control_top1_match_count": report["explicit_control_top1_match_count"],
         "explicit_control_top3_match_count": report["explicit_control_top3_match_count"],
+        "explicit_control_shadow_machine_candidate_count": report["explicit_control_shadow_machine_candidate_count"],
+        "explicit_control_false_machine_candidate_count": report["explicit_control_false_machine_candidate_count"],
         "route_counts": report["route_counts"],
         "confidence_counts": report["confidence_counts"],
         "decision_reason_counts": report["decision_reason_counts"],
