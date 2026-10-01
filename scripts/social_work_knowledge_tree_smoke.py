@@ -71,6 +71,23 @@ def main() -> int:
     assert "社會工作研究方法" in survey["primary_exam_subject_axes"], survey
     assert "倫理與權利保障" in survey["management_domains"], survey
 
+    welfare_budget = classify_event_knowledge(
+        "行政院表示追加預算若未審畢，社福津貼加碼恐將失效；內容並提到軍公教專業與主管加給。",
+        category="社工專業與社福制度",
+        exam_tags=["社福", "津貼", "行政院"],
+    )
+    assert welfare_budget["exam_subject_axes"] == ["社會政策與社會立法"], welfare_budget
+    assert welfare_budget["primary_exam_subject_axes"] == ["社會政策與社會立法"], welfare_budget
+    assert welfare_budget["supporting_exam_subject_axes"] == [], welfare_budget
+    assert "規劃與政策執行" in welfare_budget["management_domains"], welfare_budget
+    assert "方案與資源管理" in welfare_budget["management_domains"], welfare_budget
+    assert "組織治理與責信" not in welfare_budget["management_domains"], welfare_budget
+    assert "倫理與權利保障" not in welfare_budget["management_domains"], welfare_budget
+    assert welfare_budget["subject_topics"] == {
+        "社會政策與社會立法": ["社福服務體系、福利給付與制度責信"]
+    }, welfare_budget
+    assert not any("專業倫理" in path for path in welfare_budget["knowledge_paths"]), welfare_budget
+
     workforce = classify_event_knowledge(
         "社工人力不足與高案量造成留任困難，機構提出專業督導制度與職場安全改善。",
         category="社工專業與社福制度",
@@ -79,6 +96,7 @@ def main() -> int:
     assert "人力與督導" in workforce["management_domains"], workforce
     assert "組織治理與責信" in workforce["management_domains"], workforce
     assert "社會工作" in workforce["exam_subject_axes"], workforce
+    assert "專業倫理、專業責任與社會工作價值" in workforce["subject_topics"]["社會工作"], workforce
 
     misconduct = classify_event_knowledge(
         "社工涉嫌侵占服務對象財產，司法機關裁定羈押，機構啟動內控與責信檢討。",
@@ -104,7 +122,16 @@ def main() -> int:
         for path in survey["knowledge_paths"]
     ), survey
 
-    for payload in (child, family_subsidy, wage, survey, workforce, misconduct, role_title):
+    for payload in (
+        child,
+        family_subsidy,
+        wage,
+        survey,
+        welfare_budget,
+        workforce,
+        misconduct,
+        role_title,
+    ):
         assert payload["knowledge_root"] == "社會工作管理"
         assert set(payload["management_domains"]).issubset(set(MANAGEMENT_DOMAINS))
         assert set(payload["exam_subject_axes"]).issubset(set(EXAM_SUBJECTS))
@@ -118,7 +145,8 @@ def main() -> int:
 
     print(
         "SOCIAL WORK KNOWLEDGE TREE SMOKE OK: "
-        "management-root=yes, primary/support subject axes=yes, subject-topics=yes, child/wage/research/workforce/misconduct fixtures=yes"
+        "management-root=yes, primary/support subject axes=yes, subject-topics=yes, "
+        "child/wage/research/welfare-system/workforce/misconduct fixtures=yes"
     )
     return 0
 
