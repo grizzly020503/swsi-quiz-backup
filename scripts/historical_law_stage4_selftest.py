@@ -88,6 +88,10 @@ assert s4._canonical_oldver_url(P, "20140129") == (
     "pcode=D0050075&lnndate=20140129&lser=001"
 )
 
+# Identity and article parsing are deliberately separate gates.
+assert s4._page_identity_ok("<html><head><title>測試法 歷史法規所有條文-全國法規資料庫</title></head></html>")
+assert not s4._page_identity_ok("<html><head><title>系統訊息</title></head></html>")
+
 entries = [
     enactment,
     {
@@ -105,13 +109,27 @@ entries = [
         "summary": "中華民國一百一十年一月二十日修正第12條",
     },
 ]
-versions = s4.versions_for_article(entries, P, OFFICIAL, "2021-01-20", "13-1")
+
+# The latest row affecting the target article is represented by current LawAll,
+# even if the statute later changed only unrelated articles.
+versions = s4.versions_for_article(entries, P, OFFICIAL, None, "13-1")
 assert [v["version_date"] for v in versions] == ["2000-05-24", "2014-01-29"], versions
+assert versions[0]["kind"] == "oldver" and "lnndate=20000524" in versions[0]["url"]
+assert versions[-1]["kind"] == "current" and versions[-1]["url"] == OFFICIAL
 assert versions[-1]["effective_date"] == "2014-01-29"
-assert "lnndate=20140129" in versions[-1]["url"]
 
 status, a, b = s4.select_exam_window_version(versions, "2015-02-07", "2015-02-08")
 assert status == "ok" and a == b and a["version_date"] == "2014-01-29", (status, a, b)
+assert a["url"] == OFFICIAL
+
+# When the target article itself has a later change, an exam before that change
+# must still route to the prior historical version.
+versions_12 = s4.versions_for_article(entries, P, OFFICIAL, None, "12")
+assert [v["version_date"] for v in versions_12] == ["2000-05-24", "2021-01-20"], versions_12
+assert versions_12[0]["kind"] == "oldver" and "lnndate=20000524" in versions_12[0]["url"]
+assert versions_12[-1]["kind"] == "current" and versions_12[-1]["url"] == OFFICIAL
+status, a, b = s4.select_exam_window_version(versions_12, "2015-02-07", "2015-02-08")
+assert status == "ok" and a == b and a["kind"] == "oldver", (status, a, b)
 
 # Retroactivity never makes an amendment selectable before its promulgation.
 retro = [{
