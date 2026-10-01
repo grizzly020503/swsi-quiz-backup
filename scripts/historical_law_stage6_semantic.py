@@ -12,7 +12,10 @@ Safety boundary:
 - never reads official_answer / accepted_answers / grading_mode;
 - never mutates question data;
 - never sets historical_version_checked=true;
-- a semantic conflict only blocks promotion; it never changes the official key.
+- a semantic conflict only blocks promotion; it never changes the official key;
+- a title-level MOJ identity miss is accepted only when the selected URL is an
+  official law.moj.gov.tw law page and the exact target-article SHA-256 matches
+  the independent Stage 4 fingerprint.
 """
 from __future__ import annotations
 
@@ -23,6 +26,7 @@ import time
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import historical_law_article_resolver as stage3
 import historical_law_oldver_stage4 as stage4
@@ -64,13 +68,60 @@ def all_articles_from_page(page_html: str) -> list[dict]:
     return list(merged.values())
 
 
-def fetch_verified_page(session: Any, url: str, attempts: int = 4) -> tuple[str | None, str | None]:
-    """Retry HTTP-200 identity failures as well as transport failures.
+def _official_moj_law_url(url: str) -> bool:
+    try:
+        parsed = urlparse(str(url or ""))
+    except Exception:
+        return False
+    if parsed.scheme.lower() != "https" or parsed.hostname != "law.moj.gov.tw":
+        return False
+    return parsed.path in {
+        "/LawClass/LawAll.aspx",
+        "/LawClass/LawOldVer.aspx",
+    }
 
-    MOJ may transiently return a non-law page under burst traffic.  The source
-    identity rule remains unchanged; retries only distinguish a transient page
-    from a persistent mismatch.
+
+def _stage4_fingerprint_identity_ok(
+    page_html: str,
+    expected_article: str,
+    expected_fingerprint: str,
+) -> bool:
+    """Fallback identity proof tied to Stage 4's exact target-article evidence."""
+    if not expected_article or not re.fullmatch(r"[0-9a-f]{64}", expected_fingerprint or ""):
+        return False
+    article = next(
+        (row for row in all_articles_from_page(page_html)
+         if row.get("article_no") == expected_article),
+        None,
+    )
+    text = stage3.normalize_text((article or {}).get("text") or "")
+    if not text:
+        return False
+    return stage4.article_fingerprint(text) == expected_fingerprint
+
+
+def fetch_verified_page(
+    session: Any,
+    url: str,
+    expected_article: str = "",
+    expected_fingerprint: str = "",
+    attempts: int = 4,
+) -> tuple[str | None, str | None, str | None]:
+    """Fetch one official MOJ law page with title or Stage-4 fingerprint identity.
+
+    MOJ may transiently return an HTTP-200 page whose title/header differs under
+    burst traffic.  Stage 6 may accept such a response only when:
+    1. the requested URL is an HTTPS law.moj.gov.tw LawAll/LawOldVer page; and
+    2. the exact expected article can be parsed from the response; and
+    3. its SHA-256 equals the independent Stage 4 fingerprint.
+
+    This keeps the source check fail-closed while avoiding title-only false
+    negatives.  A transport failure, non-official URL, missing article, or hash
+    mismatch never becomes semantic evidence.
     """
+    if not _official_moj_law_url(url):
+        return None, "non-official MOJ law URL", None
+
     last_error: str | None = None
     for attempt in range(attempts):
         if attempt:
@@ -80,10 +131,17 @@ def fetch_verified_page(session: Any, url: str, attempts: int = 4) -> tuple[str 
         except Exception as exc:
             last_error = f"{type(exc).__name__}: {exc}"
             continue
+
         if stage4._page_identity_ok(page):
-            return page, None
+            return page, None, "moj_title"
+
+        if _stage4_fingerprint_identity_ok(
+            page, expected_article, expected_fingerprint
+        ):
+            return page, None, "stage4_article_fingerprint"
+
         last_error = "MOJ page identity mismatch after HTTP success"
-    return None, last_error
+    return None, last_error, None
 
 
 def semantic_decision(expected_article: str, ranked: list[dict]) -> tuple[str, dict]:
@@ -124,12 +182,13 @@ def build_report(stage5: dict, links: dict, session: Any) -> dict:
         row for row in (stage5.get("records") or [])
         if row.get("promotion_status") == "promotion_candidate"
     ]
-    page_cache: dict[str, object] = {}
+    page_cache: dict[tuple[str, str, str], object] = {}
     records: list[dict] = []
 
     for row in candidates:
         key = record_key(row)
         expected_article = str(row.get("suggested_article") or "")
+        expected_fingerprint = str(row.get("historical_article_sha256") or "")
         version_url = str((row.get("selected_version") or {}).get("url") or "")
         base = {
             "law_name": key[0],
@@ -137,7 +196,7 @@ def build_report(stage5: dict, links: dict, session: Any) -> dict:
             "exam_code": row.get("exam_code"),
             "suggested_article": expected_article or None,
             "selected_version": row.get("selected_version"),
-            "historical_article_sha256": row.get("historical_article_sha256"),
+            "historical_article_sha256": expected_fingerprint or None,
             "historical_version_checked": False,
         }
         question = questions.get(key)
@@ -148,13 +207,22 @@ def build_report(stage5: dict, links: dict, session: Any) -> dict:
             records.append({**base, "status": "selected_version_missing"})
             continue
 
-        if version_url not in page_cache:
-            page_cache[version_url] = fetch_verified_page(session, version_url)
-        page, page_error = page_cache[version_url]
+        cache_key = (version_url, expected_article, expected_fingerprint)
+        if cache_key not in page_cache:
+            page_cache[cache_key] = fetch_verified_page(
+                session,
+                version_url,
+                expected_article=expected_article,
+                expected_fingerprint=expected_fingerprint,
+            )
+        page, page_error, identity_method = page_cache[cache_key]
         if page is None:
             status = (
                 "source_identity_mismatch"
-                if page_error and "identity mismatch" in page_error
+                if page_error and (
+                    "identity mismatch" in page_error
+                    or "non-official MOJ" in page_error
+                )
                 else "source_failure"
             )
             records.append({
@@ -183,22 +251,30 @@ def build_report(stage5: dict, links: dict, session: Any) -> dict:
         records.append({
             **base,
             "status": status,
+            "source_identity_method": identity_method,
             "historical_article_count": len(articles),
             "used_options": bool(option_texts),
             **evidence,
         })
 
     counts = Counter(row["status"] for row in records)
+    identity_counts = Counter(
+        row.get("source_identity_method")
+        for row in records
+        if row.get("source_identity_method")
+    )
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "method": (
             "Stage5 promotion candidate -> exact selected MOJ exam-date version -> "
-            "all historical articles -> stem + all options semantic rerank; independent "
+            "MOJ title or Stage4 exact-article fingerprint source identity -> all "
+            "historical articles -> stem + all options semantic rerank; independent "
             "cross-check only, never verification write"
         ),
         "stage5_promotion_candidate_count": len(candidates),
         "record_count": len(records),
         "status_counts": dict(sorted(counts.items())),
+        "source_identity_method_counts": dict(sorted(identity_counts.items())),
         "historical_semantic_confirmed_count": counts.get("historical_semantic_confirmed", 0),
         "historical_semantic_support_count": counts.get("historical_semantic_support", 0),
         "historical_semantic_conflict_count": counts.get("historical_semantic_conflict", 0),
@@ -234,6 +310,7 @@ def main() -> int:
         "stage5_promotion_candidate_count": report["stage5_promotion_candidate_count"],
         "record_count": report["record_count"],
         "status_counts": report["status_counts"],
+        "source_identity_method_counts": report["source_identity_method_counts"],
         "question_shard_error_count": report["question_shard_error_count"],
         "historical_version_checked_count": report["historical_version_checked_count"],
     }, ensure_ascii=False))
