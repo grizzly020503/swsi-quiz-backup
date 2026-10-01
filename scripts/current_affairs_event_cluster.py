@@ -32,6 +32,12 @@ AGENCIES = [
 ]
 LAW_SUFFIXES = ("法", "條例", "辦法", "施行細則", "公約")
 
+FACT_ANCHOR_WEAK_TAGS = {
+    "政策", "制度", "福利", "保護", "權益", "保障", "服務", "補助", "津貼",
+    "高齡", "兒少", "兒童", "少年", "社工", "社會工作", "新聞", "事件",
+    "行政院", "衛福部", "衛生福利部",
+}
+
 
 def parse_dt(value: str | None) -> datetime | None:
     if not value:
@@ -109,6 +115,49 @@ def item_features(row: dict) -> dict:
     }
 
 
+def _significant_numeric_facts(features: dict) -> set[str]:
+    out = set()
+    for raw in features.get("facts") or set():
+        value = str(raw or "").strip()
+        if not value.startswith("num:"):
+            continue
+        try:
+            number = abs(int(value.split(":", 1)[1]))
+        except (TypeError, ValueError):
+            continue
+        if number >= 1000:
+            out.add(value)
+    return out
+
+
+def _informative_fact_anchor_tags(features: dict) -> set[str]:
+    return {
+        str(tag).strip()
+        for tag in (features.get("tags") or set())
+        if str(tag).strip() and str(tag).strip() not in FACT_ANCHOR_WEAK_TAGS
+    }
+
+
+def _cross_publisher_fact_anchor(a: dict, b: dict, fa: dict, fb: dict) -> tuple[bool, list[str]]:
+    source_a = str(a.get("source_name") or "").strip()
+    source_b = str(b.get("source_name") or "").strip()
+    if not source_a or not source_b or source_a == source_b:
+        return False, []
+    if str(a.get("source_type") or "") != "news" or str(b.get("source_type") or "") != "news":
+        return False, []
+    da, db = fa.get("published"), fb.get("published")
+    if da is None or db is None or abs((da - db).total_seconds()) > 3 * 86400:
+        return False, []
+    shared_facts = _significant_numeric_facts(fa) & _significant_numeric_facts(fb)
+    shared_tags = _informative_fact_anchor_tags(fa) & _informative_fact_anchor_tags(fb)
+    if not shared_facts or not shared_tags:
+        return False, []
+    return True, [
+        "cross-publisher-fact=" + ",".join(sorted(shared_facts)[:2]),
+        "exam-tag=" + ",".join(sorted(shared_tags)[:2]),
+    ]
+
+
 def similarity(a: dict, b: dict, max_days: int = 10) -> tuple[float, list[str]]:
     fa, fb = item_features(a), item_features(b)
     if fa["category"] and fb["category"] and fa["category"] != fb["category"]:
@@ -116,6 +165,14 @@ def similarity(a: dict, b: dict, max_days: int = 10) -> tuple[float, list[str]]:
     da, db = fa["published"], fb["published"]
     if da and db and abs((da - db).total_seconds()) > max_days * 86400:
         return 0.0, ["outside-time-window"]
+
+    # Cross-publisher media follow-ups can have very different headlines.
+    # Merge only when category (checked above), a 3-day window, one
+    # significant numeric fact and one non-generic exam tag all agree.
+    if fa["language"] == fb["language"]:
+        anchored, anchor_reasons = _cross_publisher_fact_anchor(a, b, fa, fb)
+        if anchored:
+            return 0.72, anchor_reasons
 
     # Cross-language identity is intentionally stricter than same-language
     # title matching: same exam category + >=2 shared canonical concepts +
