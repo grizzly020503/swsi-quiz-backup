@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   semantics:
@@ -28,3 +28,174 @@ jobs:
         run: |
           python -m py_compile scripts/analyze_current_affairs_signals.py scripts/current_affairs_policy_semantics_smoke.py
           python scripts/current_affairs_policy_semantics_smoke.py
+
+  apply-cross-source-dedup:
+    if: github.event_name == 'pull_request' && github.head_ref == 'release/media-cross-source-dedup-20261001'
+    needs: semantics
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v7
+        with:
+          ref: release/media-cross-source-dedup-20261001
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Apply narrow cross-publisher fact-anchor rule
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          cluster = Path('scripts/current_affairs_event_cluster.py')
+          text = cluster.read_text(encoding='utf-8')
+          weak_block = '''FACT_ANCHOR_WEAK_TAGS = {
+              "政策", "制度", "福利", "保護", "權益", "保障", "服務", "補助", "津貼",
+              "高齡", "兒少", "兒童", "少年", "社工", "社會工作", "新聞", "事件",
+              "行政院", "衛福部", "衛生福利部",
+          }
+          '''
+          law_anchor = 'LAW_SUFFIXES = ("法", "條例", "辦法", "施行細則", "公約")\n'
+          if 'FACT_ANCHOR_WEAK_TAGS' not in text:
+              if law_anchor not in text:
+                  raise SystemExit('event-cluster law anchor not found')
+              text = text.replace(law_anchor, law_anchor + '\n' + weak_block, 1)
+
+          helper = '''\ndef _significant_numeric_facts(features: dict) -> set[str]:
+              out = set()
+              for raw in features.get("facts") or set():
+                  value = str(raw or "").strip()
+                  if not value.startswith("num:"):
+                      continue
+                  try:
+                      number = abs(int(value.split(":", 1)[1]))
+                  except (TypeError, ValueError):
+                      continue
+                  if number >= 1000:
+                      out.add(value)
+              return out
+          
+          
+          def _informative_fact_anchor_tags(features: dict) -> set[str]:
+              return {
+                  str(tag).strip()
+                  for tag in (features.get("tags") or set())
+                  if str(tag).strip() and str(tag).strip() not in FACT_ANCHOR_WEAK_TAGS
+              }
+          
+          
+          def _cross_publisher_fact_anchor(a: dict, b: dict, fa: dict, fb: dict) -> tuple[bool, list[str]]:
+              # Narrow fallback for two media outlets describing the same case with
+              # very different headlines. Never use generic role/category words alone.
+              source_a = str(a.get("source_name") or "").strip()
+              source_b = str(b.get("source_name") or "").strip()
+              if not source_a or not source_b or source_a == source_b:
+                  return False, []
+              if str(a.get("source_type") or "") != "news" or str(b.get("source_type") or "") != "news":
+                  return False, []
+              da, db = fa.get("published"), fb.get("published")
+              if da is None or db is None or abs((da - db).total_seconds()) > 3 * 86400:
+                  return False, []
+              shared_facts = _significant_numeric_facts(fa) & _significant_numeric_facts(fb)
+              shared_tags = _informative_fact_anchor_tags(fa) & _informative_fact_anchor_tags(fb)
+              if not shared_facts or not shared_tags:
+                  return False, []
+              return True, [
+                  "cross-publisher-fact=" + ",".join(sorted(shared_facts)[:2]),
+                  "exam-tag=" + ",".join(sorted(shared_tags)[:2]),
+              ]
+          
+          '''
+          similarity_anchor = '\ndef similarity(a: dict, b: dict, max_days: int = 10) -> tuple[float, list[str]]:\n'
+          if '_cross_publisher_fact_anchor' not in text:
+              if similarity_anchor not in text:
+                  raise SystemExit('event-cluster similarity anchor not found')
+              text = text.replace(similarity_anchor, helper + similarity_anchor, 1)
+
+          time_anchor = '''    if da and db and abs((da - db).total_seconds()) > max_days * 86400:
+              return 0.0, ["outside-time-window"]
+          
+          '''
+          rule = '''    # Cross-publisher media follow-ups can have very different headlines.
+              # Treat them as one event only when category (checked above), a short
+              # 3-day window, one significant numeric fact and one non-generic exam
+              # tag all agree. This is deliberately stricter than ordinary similarity.
+              if fa["language"] == fb["language"]:
+                  anchored, anchor_reasons = _cross_publisher_fact_anchor(a, b, fa, fb)
+                  if anchored:
+                      return 0.72, anchor_reasons
+          
+          '''
+          if 'Cross-publisher media follow-ups can have very different headlines.' not in text:
+              if time_anchor not in text:
+                  raise SystemExit('event-cluster time anchor not found')
+              text = text.replace(time_anchor, time_anchor + rule, 1)
+          cluster.write_text(text, encoding='utf-8')
+
+          smoke = Path('scripts/current_affairs_events_smoke.py')
+          s = smoke.read_text(encoding='utf-8')
+          test = '''    cross_a = row(
+                  "cross-a",
+                  "北市府啟動社福帳務全面稽核",
+                  "中天新聞社會",
+                  "https://example.test/cross-a",
+                  "2026-09-23T08:00:00Z",
+                  tags=["專業倫理", "內控"],
+              )
+              cross_a.update({
+                  "category": "社工專業與社福制度",
+                  "fact_keys": ["num:12000000"],
+              })
+              cross_b = row(
+                  "cross-b",
+                  "檢方聲押涉案人並追查長者資金流向",
+                  "TVBS新聞社會",
+                  "https://example.test/cross-b",
+                  "2026-09-24T01:00:00Z",
+                  tags=["專業倫理", "內控"],
+              )
+              cross_b.update({
+                  "category": "社工專業與社福制度",
+                  "fact_keys": ["num:12000000"],
+              })
+              cross_events = cluster_items([cross_a, cross_b])
+              assert len(cross_events) == 1, cross_events
+              assert cross_events[0]["source_count"] == 2, cross_events[0]
+              assert len(cross_events[0]["evidence"]) == 2, cross_events[0]
+          
+              weak_a = {**cross_a, "id": "weak-a", "exam_tags": ["社工"]}
+              weak_b = {**cross_b, "id": "weak-b", "exam_tags": ["社工"]}
+              assert len(cluster_items([weak_a, weak_b])) == 2, "generic 社工 tag must not anchor cross-publisher identity"
+          
+              other_fact = {**cross_b, "id": "cross-other", "fact_keys": ["num:9900000"]}
+              assert len(cluster_items([cross_a, other_fact])) == 2, "different significant facts must stay separate"
+          
+          '''
+          smoke_anchor = '    bilingual_same = [\n'
+          if 'cross-publisher identity' not in s:
+              if smoke_anchor not in s:
+                  raise SystemExit('event smoke bilingual anchor not found')
+              s = s.replace(smoke_anchor, test + smoke_anchor, 1)
+          smoke.write_text(s, encoding='utf-8')
+          PY
+
+          python -m py_compile scripts/current_affairs_event_cluster.py scripts/current_affairs_events_smoke.py
+          python scripts/current_affairs_events_smoke.py
+          git diff --check
+
+      - name: Commit patch to PR branch
+        run: |
+          set -euo pipefail
+          git config user.name 'swsi-release-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add scripts/current_affairs_event_cluster.py scripts/current_affairs_events_smoke.py
+          if git diff --cached --quiet; then
+            echo 'Cross-source dedup patch already applied.'
+            exit 0
+          fi
+          git commit -m 'fix: add cross-publisher fact-anchor event dedup'
+          git push origin HEAD:release/media-cross-source-dedup-20261001
