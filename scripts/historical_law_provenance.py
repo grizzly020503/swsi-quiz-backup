@@ -29,8 +29,6 @@ from pathlib import Path
 from typing import Iterable
 from urllib.parse import parse_qs, urlparse
 
-import requests
-
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_LINKS = ROOT / "data/law_question_links_priority10.v1.json"
 DEFAULT_WATCH = ROOT / "data/legal_watch_report.json"
@@ -111,12 +109,10 @@ def _article_groups(text: str) -> set[str]:
     """Extract changed article numbers from one MOJ history entry."""
     s = unicodedata.normalize("NFKC", str(text or "")).replace("之", "-")
     out: set[str] = set()
-    # Handles: 第 10、13、41、...、62～64 條 / 第 26-1、26-2 條
     for m in re.finditer(r"第\s*([0-9\-、,，～~至\s]+?)\s*條", s):
         group = m.group(1)
         for token in re.split(r"[、,，]", group):
             out.update(expand_article_token(token))
-    # Handles repeated constructs such as 第 7 條第 2 項 ... 第 44 條第 3 項.
     for m in re.finditer(r"第\s*(\d+(?:-\d+)*)\s*條", s):
         n = normalize_article_no(m.group(1))
         if n:
@@ -136,19 +132,13 @@ def has_special_effective_date(text: str) -> bool:
     s = clean_text(text)
     if "施行" not in s:
         return False
-    # Plain "自公布日施行" is immediate and does not need a special effective-date review.
     reduced = s.replace("並自公布日施行", "").replace("其餘自公布日施行", "").replace("自公布日施行", "")
     return "施行" in reduced or "公布後" in s or "另定" in s
 
 
 def parse_history_entries(page_text: str) -> list[dict]:
-    """Parse MOJ history plain text into conservative amendment events.
-
-    Entries are split at numbered history rows (e.g. 15. ... 14. ...). When the
-    source formatting is odd, rows without a resolvable ROC year are ignored.
-    """
+    """Parse MOJ history plain text into conservative amendment events."""
     text = unicodedata.normalize("NFKC", str(page_text or ""))
-    # Normalize line breaks but keep numbered rows identifiable.
     text = re.sub(r"\r\n?", "\n", text)
     chunks = re.split(r"(?m)(?=^\s*\d+\.\s*)", text)
     entries = []
@@ -244,12 +234,13 @@ def pcode_from_url(url: str) -> str | None:
 
 
 def fetch_history_text(pcode: str) -> str:
+    import requests
+
     url = MOJ_HISTORY.format(pcode=pcode)
     r = requests.get(url, timeout=30, headers={"User-Agent": UA})
     r.raise_for_status()
     if "沿革" not in r.text:
         raise RuntimeError(f"MOJ history page not recognized: {url}")
-    # Keep HTML; the regex parser only needs visible text-like content. Remove tags conservatively.
     text = re.sub(r"<script\b[^>]*>.*?</script>", " ", r.text, flags=re.I | re.S)
     text = re.sub(r"<style\b[^>]*>.*?</style>", " ", text, flags=re.I | re.S)
     text = re.sub(r"<[^>]+>", "\n", text)
