@@ -159,4 +159,20 @@ assert status == "effective_date_review" and a is None and b is None
 
 assert s4.article_fingerprint(" 第 1 條 \n 測試 ") == s4.article_fingerprint("第 1 條 測試")
 
+# LawOldVer pages render article numbers and bodies as paired divs rather than
+# standalone text headings. Stage 4 must parse that structure without changing
+# the current-law Stage 3 parser.
+oldver_html = """
+<html><head><title>全國法規資料庫</title></head><body>
+<div class="well law-reg law-content">
+<div class="row"><div class="col-no">第 14 條</div><div class="col-data"><div class="law-article">
+<div class="line-0000">第一項歷史條文。</div><div class="line-0004">第二項歷史條文。</div></div></div></div>
+<div class="row"><div class="col-no">第 22 條</div><div class="col-data"><div class="law-article">
+<div class="line-0000">目標條文內容。</div></div></div></div>
+</div></body></html>
+"""
+assert s4._article_from_page(oldver_html, "14")["text"] == "第一項歷史條文。 第二項歷史條文。"
+assert s4._article_from_page(oldver_html, "22")["text"] == "目標條文內容。"
+assert s4._article_from_page(oldver_html, "99") is None
+
 print("HISTORICAL LAW STAGE4 SELFTEST OK")

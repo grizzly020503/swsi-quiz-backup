@@ -233,10 +233,46 @@ def _history_bundle(session: Any, pcode: str) -> tuple[str, list[dict]]:
     return url, entries
 
 
+def _oldver_articles_from_html(page_html: str) -> list[dict]:
+    """Parse MOJ LawOldVer blocks when text-heading parsing is insufficient.
+
+    Historical pages use paired ``col-no`` / ``law-article`` divs.  Keep this
+    fallback Stage-4-only so current-law Stage 3 ranking remains unchanged.
+    """
+    raw = str(page_html or "")
+    heading_re = re.compile(
+        r'<div\b[^>]*class=["\'][^"\']*\bcol-no\b[^"\']*["\'][^>]*>'
+        r'\s*第\s*([^<]+?)\s*條\s*</div>',
+        flags=re.I | re.S,
+    )
+    matches = list(heading_re.finditer(raw))
+    rows: list[dict] = []
+    for index, match in enumerate(matches):
+        article_no = hp.normalize_article_no(match.group(1).strip().replace("之", "-"))
+        if not article_no:
+            continue
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(raw)
+        segment = raw[match.end():end]
+        body_match = re.search(
+            r'<div\b[^>]*class=["\'][^"\']*\blaw-article\b[^"\']*["\'][^>]*>(.*)',
+            segment, flags=re.I | re.S,
+        )
+        if not body_match:
+            continue
+        body = stage3.normalize_text(hp.html_to_text(body_match.group(1)))
+        if body:
+            rows.append({"article_no": article_no, "text": body})
+    return rows
+
+
 def _article_from_page(page_html: str, article_no: str) -> dict | None:
+    rows = stage3.parse_law_articles(page_html)
+    row = next((item for item in rows if item.get("article_no") == article_no), None)
+    if row is not None:
+        return row
     return next(
-        (row for row in stage3.parse_law_articles(page_html)
-         if row.get("article_no") == article_no), None,
+        (item for item in _oldver_articles_from_html(page_html)
+         if item.get("article_no") == article_no), None,
     )
 
 
