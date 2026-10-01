@@ -23,8 +23,7 @@ jobs:
         run: python -m pip install --disable-pip-version-check requests
       - name: Build live MOJ provenance report
         run: |
-          python scripts/historical_law_provenance.py \
-            --live \
+          python scripts/build_historical_law_provenance_report.py \
             --output data/historical_law_provenance_priority10.v1.json
       - name: Validate report safety contract
         run: |
@@ -34,11 +33,15 @@ jobs:
           p = Path('data/historical_law_provenance_priority10.v1.json')
           d = json.loads(p.read_text(encoding='utf-8'))
           assert d['question_count'] == 86, d['question_count']
+          assert d['law_count'] == 10, d['law_count']
           assert d['live_history_fetch'] is True
           assert all(q['historical_version_checked'] is False for q in d['questions'])
           assert all('official_answer' not in q for q in d['questions'])
           assert sum(d['status_counts'].values()) == 86
-          print(d['status_counts'])
+          assert d['law_fetch_error_count'] <= 10
+          print('status_counts=', d['status_counts'])
+          print('law_fetch_error_count=', d['law_fetch_error_count'])
+          print('law_fetch_errors=', d['law_fetch_errors'])
           PY
       - name: Commit live report to PR branch
         env:
