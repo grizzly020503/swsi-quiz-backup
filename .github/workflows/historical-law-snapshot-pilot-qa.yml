@@ -62,8 +62,16 @@ jobs:
       - name: Validate MOJ Open API coverage
         run: |
           python - <<'PY'
-          import json
+          import hashlib,json,re
           from pathlib import Path
+
+          def sha_text(value):
+              return hashlib.sha256(value.encode('utf-8')).hexdigest()
+
+          def payload_sha(value):
+              raw=json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+              return sha_text(raw)
+
           d=json.loads(Path('auto/qa/historical_law_moj_api_probe.v1.json').read_text(encoding='utf-8'))
           rows=d.get('records') or []
           assert d.get('target_count') == len(rows) == 10, d
@@ -76,12 +84,53 @@ jobs:
           assert all(r.get('url_pcode_matches') is True for r in rows)
           assert all(int(r.get('article_count') or 0) > 0 for r in rows)
           assert all('official_answer' not in r for r in rows)
+
+          targets=json.loads(Path('auto/qa/historical_law_moj_api_targets.v1.json').read_text(encoding='utf-8'))
+          target_rows=targets.get('records') or []
+          assert targets.get('schema_version') == 1
+          assert targets.get('record_count') == len(target_rows) == 10, targets
+          assert targets.get('historical_version_checked_count') == 0
+          assert targets.get('protected_core_mutation_count') == 0
+          for row in target_rows:
+              assert row.get('endpoint') in {
+                  'https://law.moj.gov.tw/api/ch/law/json',
+                  'https://law.moj.gov.tw/api/ch/order/json',
+              }
+              assert row.get('collection') in {'law','order'}
+              pcode=str(row.get('pcode') or '')
+              assert re.fullmatch(r'[A-Z]\d{7}',pcode), pcode
+              assert row.get('law_name')
+              law_url=str(row.get('law_url') or '')
+              assert law_url.startswith('https://law.moj.gov.tw/')
+              assert f'pcode={pcode}' in law_url
+              articles=row.get('articles') or []
+              assert row.get('article_count') == len(articles) and articles
+              assert row.get('articles_sha256') == payload_sha(articles)
+              identity={
+                  'endpoint':row.get('endpoint'),
+                  'collection':row.get('collection'),
+                  'update_date':row.get('update_date'),
+                  'pcode':row.get('pcode'),
+                  'law_name':row.get('law_name'),
+                  'law_url':row.get('law_url'),
+                  'modified_date':row.get('modified_date'),
+                  'article_count':row.get('article_count'),
+                  'articles_sha256':row.get('articles_sha256'),
+              }
+              assert row.get('source_identity_sha256') == payload_sha(identity)
+              assert 'official_answer' not in row
+              for article in articles:
+                  assert article.get('article_no') and article.get('text')
+                  assert article.get('sha256') == sha_text(str(article.get('text')))
+                  assert 'official_answer' not in article
+
           print(json.dumps({
               'law_update_date':d.get('law_update_date'),
               'order_update_date':d.get('order_update_date'),
               'law_corpus_count':d.get('law_corpus_count'),
               'order_corpus_count':d.get('order_corpus_count'),
               'ready_count':d.get('ready_count'),
+              'target_snapshot_record_count':targets.get('record_count'),
               'targets':[
                   {'law_name':r.get('law_name'),'pcode':r.get('pcode'),'collection':r.get('collection'),'article_count':r.get('article_count')}
                   for r in rows
@@ -182,6 +231,7 @@ jobs:
             auto/qa/historical_law_exam_date_stage2.v1.json
             auto/qa/historical_law_history_snapshot.v1.json
             auto/qa/historical_law_moj_api_probe.v1.json
+            auto/qa/historical_law_moj_api_targets.v1.json
             auto/qa/historical_law_oldver_stage4.v1.json
             auto/qa/historical_law_stage5_promotion.v1.json
             auto/qa/historical_law_stage6_semantic.v1.json
