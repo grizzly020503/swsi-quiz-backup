@@ -23,6 +23,29 @@ ALLOWED = {
     "knowledge_root", "knowledge_model", "management_domains", "exam_subject_axes", "primary_exam_subject_axes", "supporting_exam_subject_axes", "subject_topics", "knowledge_topics", "knowledge_paths",
 }
 
+# Some source feeds are broader/noisier than their display label suggests. Keep a
+# final publication-side scope contract so an upstream RSS leak cannot become a
+# student-facing exam signal merely because generic words such as 少年／新制 also
+# happen to match a social-work category.
+SOURCE_TOPIC_SCOPES = {
+    "移民署新住民政策法規": (
+        "新住民", "移民", "移工", "外籍", "外配", "國籍", "居留", "定居", "歸化",
+        "難民", "人口販運", "跨國婚姻", "家庭團聚", "多元文化", "通譯",
+    ),
+}
+
+CHILD_PROTECTION_STRONG = (
+    "兒少保護", "兒虐", "虐童", "虐嬰", "兒童權利", "性剝削", "安置", "收出養",
+    "寄養", "責任通報", "保護服務", "兒童及少年福利與權益保障法", "兒童權利公約",
+)
+CHILD_PROTECTION_HARM = (
+    "虐", "死亡", "致死", "重傷", "性侵", "剝削", "疏失", "失職", "不當對待",
+)
+CHILD_PROTECTION_SYSTEM = (
+    "社會局", "社工", "社會工作", "訪視", "通報", "安置", "保母", "托嬰", "托育",
+    "機構", "保護", "社福", "社會安全網", "跨網絡",
+)
+
 
 def clean_row(row):
     out = {k: row.get(k) for k in ALLOWED if k in row}
@@ -51,6 +74,32 @@ def clean_row(row):
 
 def text_of(row):
     return f"{row.get('title') or ''} {row.get('summary') or ''}"
+
+
+def publishable_row(row):
+    """Final precision gate before an accepted scanner row becomes public.
+
+    Upstream scoring intentionally stays broad enough to discover candidates.
+    This gate is fail-closed on two known contamination classes:
+    1) a narrow source feed leaking off-topic articles; and
+    2) child-protection classification based only on generic age words.
+    """
+    text = text_of(row)
+    source_name = str(row.get("source_name") or "")
+    required_terms = SOURCE_TOPIC_SCOPES.get(source_name)
+    if required_terms and not any(term in text for term in required_terms):
+        return False
+
+    if str(row.get("category") or "") == "兒少保護":
+        strong = any(term in text for term in CHILD_PROTECTION_STRONG)
+        harm_and_system = (
+            any(term in text for term in CHILD_PROTECTION_HARM)
+            and any(term in text for term in CHILD_PROTECTION_SYSTEM)
+        )
+        if not (strong or harm_and_system):
+            return False
+
+    return True
 
 
 def law_names(row):
@@ -212,7 +261,7 @@ def merge_cluster(cluster):
 
 
 def build(items):
-    cleaned = [clean_row(x) for x in items]
+    cleaned = [clean_row(x) for x in items if publishable_row(x)]
     cleaned.sort(key=lambda x: (int(x.get("relevance_score") or 0), x.get("published_at") or ""), reverse=True)
     clusters = []
     for row in cleaned:
