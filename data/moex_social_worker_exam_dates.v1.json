@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "scope": "social_worker_actual_exam_dates",
+  "authority": "official examination authority sources",
+  "verified_at": "2026-10-01",
+  "notes": [
+    "Dates are the actual social-worker written-exam days, not the wider combined multi-profession exam window.",
+    "Historical rows are immutable evidence unless an official correction is documented.",
+    "Unknown future exam codes must remain unresolved until an official source is available."
+  ],
+  "records": [
+    {"exam_code":"104-1","source_exam_code":"104030","start_date":"2015-02-07","end_date":"2015-02-08","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=104030"},
+    {"exam_code":"104-2","source_exam_code":"104100","start_date":"2015-07-25","end_date":"2015-07-26","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=104100"},
+    {"exam_code":"105-1","source_exam_code":"105030","start_date":"2016-01-30","end_date":"2016-01-31","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=105030"},
+    {"exam_code":"105-2","source_exam_code":"105090","start_date":"2016-07-23","end_date":"2016-07-24","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=105090"},
+    {"exam_code":"106-1","source_exam_code":"106030","start_date":"2017-02-18","end_date":"2017-02-19","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=106030"},
+    {"exam_code":"106-2","source_exam_code":"106110","start_date":"2017-07-29","end_date":"2017-07-30","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=106110"},
+    {"exam_code":"107-1","source_exam_code":"107030","start_date":"2018-02-03","end_date":"2018-02-04","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=107030"},
+    {"exam_code":"107-2","source_exam_code":"107110","start_date":"2018-07-28","end_date":"2018-07-29","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=107110"},
+    {"exam_code":"108-1","source_exam_code":"108020","start_date":"2019-01-19","end_date":"2019-01-20","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=108020"},
+    {"exam_code":"108-2","source_exam_code":"108110","start_date":"2019-07-27","end_date":"2019-07-28","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=108110"},
+    {"exam_code":"109-1","source_exam_code":"109030","start_date":"2020-02-15","end_date":"2020-02-16","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=109030"},
+    {"exam_code":"109-2","source_exam_code":"109110","start_date":"2020-08-01","end_date":"2020-08-02","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=109110"},
+    {"exam_code":"110-1","source_exam_code":"110030","start_date":"2021-02-06","end_date":"2021-02-07","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=110030"},
+    {"exam_code":"110-2","source_exam_code":"110111","start_date":"2021-08-21","end_date":"2021-08-22","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=110111"},
+    {"exam_code":"111-1","source_exam_code":"111030","start_date":"2022-02-19","end_date":"2022-02-20","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=111030"},
+    {"exam_code":"111-2","source_exam_code":"111110","start_date":"2022-07-30","end_date":"2022-07-31","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=111110"},
+    {"exam_code":"112-1","source_exam_code":"112030","start_date":"2023-02-18","end_date":"2023-02-19","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=112030"},
+    {"exam_code":"112-2","source_exam_code":"112110","start_date":"2023-07-29","end_date":"2023-07-30","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=112110"},
+    {"exam_code":"113-1","source_exam_code":"113030","start_date":"2024-02-04","end_date":"2024-02-05","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=113030"},
+    {"exam_code":"113-2","source_exam_code":"113100","start_date":"2024-07-27","end_date":"2024-07-28","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=113100"},
+    {"exam_code":"114-1","source_exam_code":"114030","start_date":"2025-02-08","end_date":"2025-02-09","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=114030"},
+    {"exam_code":"114-2","source_exam_code":"114100","start_date":"2025-07-26","end_date":"2025-07-27","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=114100"},
+    {"exam_code":"115-1","source_exam_code":"115030","start_date":"2026-02-07","end_date":"2026-02-08","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=115030"},
+    {"exam_code":"115-2","source_exam_code":"115100","start_date":"2026-07-25","end_date":"2026-07-26","status":"official_pinned","source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=115100"}
+  ]
+}
