@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
 """Stage-3 article candidate resolver for historical-law provenance.
 
-Purpose
--------
 Most priority-law questions name the law but do not print an article number in the
-stem. Stage 2 correctly refuses to guess. This worker narrows those cases by
-comparing the question stem with *official current MOJ article text*.
+stem. Stage 2 correctly refuses to guess. This worker narrows those cases with
+three read-only evidence streams:
+
+1. official current MOJ LawAll article text;
+2. the official question stem + all four answer-option texts (never the answer);
+3. existing law metadata, used only as a corroborating/conflict signal.
 
 Safety boundary
 ---------------
-- This is candidate generation only, not historical verification.
-- It never mutates stem/options/official_answer/accepted_answers/grading_mode.
-- It never sets historical_version_checked=true.
-- Current law text is allowed to suggest an article number, but the suggested
-  article must still pass historical-text/effective-date checks for the exam date.
-- Ambiguous cases route to AI review rather than being silently accepted.
+- Candidate generation only; never historical verification.
+- Never mutates stem/options/official_answer/accepted_answers/grading_mode.
+- Never reads the official answer when resolving an article.
+- Never sets historical_version_checked=true.
+- A high-confidence current-law article candidate must still pass historical
+  article-text/effective-date checks for the exact exam date.
+- Metadata/semantic disagreement is forced to AI review.
 """
 from __future__ import annotations
 
@@ -28,13 +31,13 @@ import unicodedata
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any
 
 import historical_law_provenance_core as hp
 
 ROOT = Path(__file__).resolve().parents[1]
+SHARD_DIR = ROOT / "cdn/question-shards"
 DEFAULT_OUTPUT = ROOT / "auto/qa/historical_law_article_stage3.v1.json"
-UA = "swsi-historical-law-article-resolver/1.0 (+private educational question bank)"
+UA = "swsi-historical-law-article-resolver/1.1 (+private educational question bank)"
 MOJ_ALL = "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode={pcode}"
 LIVE_ATTEMPTS = 3
 LIVE_TIMEOUT = 30
@@ -48,12 +51,12 @@ EXPLICIT_ARTICLE_REF_RE = re.compile(
     rf"第\s*{ARTICLE_NO}(?:(?:\s*之\s*|\s*-\s*){ARTICLE_NO})?\s*條(?:\s*之\s*{ARTICLE_NO})?"
 )
 
-# Only boilerplate is removed. Domain words remain evidence.
 BOILERPLATE = (
     "依據", "依照", "根據", "依", "我國", "規定", "所定", "有關", "關於",
     "下列何者", "下列敘述", "何者正確", "何者錯誤", "何者不正確", "何者不適用",
     "何者符合", "請問", "的敘述", "之敘述", "下列", "敘述", "正確", "錯誤",
 )
+LEGAL_SUFFIXES = ("施行法", "特別條例", "條例", "自治條例", "法")
 
 
 def normalize_text(value: object) -> str:
@@ -62,10 +65,22 @@ def normalize_text(value: object) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def law_core(law_name: str) -> str:
+    value = normalize_text(law_name)
+    for suffix in LEGAL_SUFFIXES:
+        if value.endswith(suffix) and len(value) - len(suffix) >= 4:
+            return value[:-len(suffix)]
+    return value
+
+
 def semantic_text(value: object, law_name: str = "") -> str:
     text = normalize_text(value)
     if law_name:
-        text = text.replace(normalize_text(law_name), "")
+        full = normalize_text(law_name)
+        core = law_core(law_name)
+        text = text.replace(full, "")
+        if core != full and len(core) >= 4:
+            text = text.replace(core, "")
     text = EXPLICIT_ARTICLE_REF_RE.sub("", text)
     for phrase in BOILERPLATE:
         text = text.replace(phrase, "")
@@ -75,9 +90,8 @@ def semantic_text(value: object, law_name: str = "") -> str:
 def ngrams(text: str, sizes: tuple[int, ...] = (2, 3, 4)) -> set[str]:
     out: set[str] = set()
     for n in sizes:
-        if len(text) < n:
-            continue
-        out.update(text[i:i+n] for i in range(len(text)-n+1))
+        if len(text) >= n:
+            out.update(text[i:i+n] for i in range(len(text)-n+1))
     return out
 
 
@@ -95,12 +109,9 @@ def parse_law_articles(page_html: str) -> list[dict]:
         start = match.end()
         end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
         body = normalize_text(text[start:end])
-        # Navigation/footer text can trail the last article. The scorer only uses
-        # local n-gram overlap, but cap pathological pages defensively.
         if len(body) > 12000:
             body = body[:12000]
         rows.append({"article_no": article_no, "text": body})
-    # MOJ pages should not repeat top-level article headings. Fail closed if they do.
     seen: set[str] = set()
     unique: list[dict] = []
     for row in rows:
@@ -123,8 +134,18 @@ def _numbers(text: str) -> set[str]:
     return set(re.findall(r"\d+(?:\.\d+)?%?", unicodedata.normalize("NFKC", text)))
 
 
-def rank_articles(stem: str, law_name: str, articles: list[dict], limit: int = 5) -> list[dict]:
-    query = semantic_text(stem, law_name)
+def rank_articles(
+    stem: str,
+    law_name: str,
+    articles: list[dict],
+    option_texts: list[str] | None = None,
+    limit: int = 5,
+) -> list[dict]:
+    # Options carry much of the legal substance in MCQs. They are deliberately
+    # included without consulting which option is correct.
+    parts = [semantic_text(stem, law_name)]
+    parts.extend(semantic_text(value, law_name) for value in (option_texts or []) if value)
+    query = "".join(part for part in parts if part)
     query_grams = ngrams(query)
     if len(query) < 4 or len(query_grams) < 3 or not articles:
         return []
@@ -137,7 +158,8 @@ def rank_articles(stem: str, law_name: str, articles: list[dict], limit: int = 5
         prepared.append((row, text, grams))
         article_grams.append(grams)
     weights = _idf_weights(article_grams)
-    query_weight = sum(weights.get(g, math.log(len(articles) + 1) + 1.0) for g in query_grams)
+    default_weight = math.log(len(articles) + 1) + 1.0
+    query_weight = sum(weights.get(g, default_weight) for g in query_grams)
     query_nums = _numbers(query)
     scored = []
 
@@ -154,7 +176,6 @@ def rank_articles(stem: str, law_name: str, articles: list[dict], limit: int = 5
         if query_nums:
             overlap = len(query_nums & article_nums) / len(query_nums)
             num_bonus = min(0.08, 0.08 * overlap)
-        # Coverage matters more than article length. Jaccard is a light tie-breaker.
         score = min(1.0, 0.88 * coverage + 0.12 * jaccard + num_bonus)
         evidence = sorted(shared, key=lambda g: (-len(g), -weights.get(g, 1.0), g))[:8]
         scored.append({
@@ -167,22 +188,87 @@ def rank_articles(stem: str, law_name: str, articles: list[dict], limit: int = 5
     return scored[:limit]
 
 
-def classify_candidates(candidates: list[dict]) -> tuple[str, str]:
-    """Return (route, confidence). High confidence is still only a candidate."""
+def extract_metadata_articles(question: dict) -> list[str]:
+    return hp.extract_explicit_articles(str(question.get("law_metadata") or ""))
+
+
+def classify_candidates(candidates: list[dict], metadata_articles: list[str]) -> tuple[str, str, str]:
+    """Return (route, confidence, reason). Machine route requires strong corroboration."""
     if not candidates:
-        return "ai_review", "insufficient"
+        return "ai_review", "insufficient", "no_semantic_candidate"
     top = candidates[0]
     second = candidates[1] if len(candidates) > 1 else None
     margin = top["score"] - (second["score"] if second else 0.0)
     shared = int(top.get("shared_ngram_count") or 0)
-    if top["score"] >= 0.28 and margin >= 0.075 and shared >= 8:
-        return "machine_candidate", "high"
+
+    if metadata_articles:
+        if top["article_no"] not in metadata_articles:
+            return "ai_review", "conflict", "semantic_metadata_disagree"
+        if len(metadata_articles) == 1 and top["score"] >= 0.15 and shared >= 5:
+            return "machine_candidate", "high", "official_text_semantics_and_metadata_agree"
+        return "ai_review", "medium", "metadata_multi_article_or_weak_semantics"
+
+    # No metadata corroboration: require a much stronger semantic separation.
+    if top["score"] >= 0.50 and margin >= 0.15 and shared >= 12:
+        return "machine_candidate", "high", "very_strong_semantic_separation"
     if top["score"] >= 0.16 and margin >= 0.035 and shared >= 5:
-        return "ai_review", "medium"
-    return "ai_review", "low"
+        return "ai_review", "medium", "semantic_candidate_needs_second_signal"
+    return "ai_review", "low", "weak_or_ambiguous_semantics"
 
 
-def resolve_question(question: dict, law_name: str, articles: list[dict], source_url: str) -> dict:
+def question_key(question: dict) -> tuple[str, str, int] | None:
+    code = str(question.get("exam_code") or "").strip()
+    subject = str(question.get("subject") or "").strip()
+    raw = question.get("question_number") or question.get("qno")
+    try:
+        qno = int(str(raw))
+    except (TypeError, ValueError):
+        return None
+    return (code, subject, qno)
+
+
+def shard_options(row: dict) -> list[str]:
+    if isinstance(row.get("options"), dict):
+        values = [row["options"].get(key) for key in ("A", "B", "C", "D")]
+    else:
+        values = [row.get(f"opt_{key}") for key in ("a", "b", "c", "d")]
+    return [str(value) for value in values if str(value or "").strip()]
+
+
+def load_question_options(links: dict) -> tuple[dict[tuple[str, str, int], list[str]], list[dict]]:
+    needed_codes = sorted({
+        str(q.get("exam_code") or "").strip()
+        for card in (links.get("cards") or [])
+        for q in (card.get("questions") or [])
+        if str(q.get("exam_code") or "").strip()
+    })
+    options: dict[tuple[str, str, int], list[str]] = {}
+    errors: list[dict] = []
+    for code in needed_codes:
+        path = SHARD_DIR / f"{code}.json"
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            errors.append({"exam_code": code, "error": f"{type(exc).__name__}: {exc}"})
+            continue
+        for row in payload.get("questions") or []:
+            key = question_key({
+                "exam_code": code,
+                "subject": row.get("subject"),
+                "question_number": row.get("qno") or row.get("question_number"),
+            })
+            if key:
+                options[key] = shard_options(row)
+    return options, errors
+
+
+def resolve_question(
+    question: dict,
+    law_name: str,
+    articles: list[dict],
+    source_url: str,
+    option_texts: list[str] | None = None,
+) -> dict:
     stem = str(question.get("stem") or question.get("question") or "")
     explicit = hp.extract_explicit_articles(stem)
     base = {
@@ -191,6 +277,7 @@ def resolve_question(question: dict, law_name: str, articles: list[dict], source
         "exam_code": question.get("exam_code"),
         "historical_version_checked": False,
         "article_source_url": source_url,
+        "context_fields": ["stem"] + (["options"] if option_texts else []),
     }
     if explicit:
         return {
@@ -200,12 +287,15 @@ def resolve_question(question: dict, law_name: str, articles: list[dict], source
             "explicit_articles": explicit,
             "candidates": [],
         }
-    candidates = rank_articles(stem, law_name, articles)
-    route, confidence = classify_candidates(candidates)
+    metadata_articles = extract_metadata_articles(question)
+    candidates = rank_articles(stem, law_name, articles, option_texts=option_texts)
+    route, confidence, reason = classify_candidates(candidates, metadata_articles)
     return {
         **base,
         "route": route,
         "confidence": confidence,
+        "decision_reason": reason,
+        "metadata_articles": metadata_articles,
         "suggested_article": candidates[0]["article_no"] if candidates else None,
         "candidates": candidates,
     }
@@ -270,6 +360,7 @@ def strip_explicit_article_refs(stem: str) -> str:
 def build_report(links: dict, watch: dict) -> dict:
     cards = links.get("cards") or []
     articles_by_law, urls, errors = fetch_law_articles(watch, cards)
+    option_map, shard_errors = load_question_options(links)
     records = []
     controls = []
     for card in cards:
@@ -280,16 +371,24 @@ def build_report(links: dict, watch: dict) -> dict:
         for question in card.get("questions") or []:
             stem = str(question.get("stem") or question.get("question") or "")
             explicit = hp.extract_explicit_articles(stem)
+            key = question_key(question)
+            option_texts = option_map.get(key, []) if key else []
             if explicit:
-                # Positive control only: hide the printed article number and see
-                # whether semantic ranking would recover it. This never changes data.
-                ranked = rank_articles(strip_explicit_article_refs(stem), law, articles)
+                ranked = rank_articles(
+                    strip_explicit_article_refs(stem), law, articles, option_texts=option_texts
+                )
+                expected_rank = next(
+                    (i + 1 for i, row in enumerate(ranked) if row["article_no"] in explicit), None
+                )
                 controls.append({
                     "law_name": law,
                     "question_id": question.get("question_id") or question.get("id"),
                     "expected_articles": explicit,
                     "top_candidate": ranked[0]["article_no"] if ranked else None,
-                    "top1_match": bool(ranked and ranked[0]["article_no"] in explicit),
+                    "expected_rank": expected_rank,
+                    "top1_match": expected_rank == 1,
+                    "top3_match": bool(expected_rank and expected_rank <= 3),
+                    "used_options": bool(option_texts),
                 })
                 continue
             if source_error:
@@ -305,26 +404,34 @@ def build_report(links: dict, watch: dict) -> dict:
                     "candidates": [],
                 })
             else:
-                records.append(resolve_question(question, law, articles, url))
+                records.append(resolve_question(
+                    question, law, articles, url, option_texts=option_texts
+                ))
 
     route_counts = Counter(row["route"] for row in records)
     confidence_counts = Counter(row["confidence"] for row in records)
-    control_matches = sum(bool(row["top1_match"]) for row in controls)
+    decision_reason_counts = Counter(row.get("decision_reason") or row["route"] for row in records)
+    control_top1 = sum(bool(row["top1_match"]) for row in controls)
+    control_top3 = sum(bool(row["top3_match"]) for row in controls)
     source_errors = [
         {"law_name": law, "source_url": urls.get(law), "error": error}
         for law, error in sorted(errors.items()) if error
     ]
     return {
-        "schema_version": 1,
-        "method": "official current MOJ article text -> IDF-weighted character n-gram candidate ranking; candidate only, never historical verification",
+        "schema_version": 2,
+        "method": "official current MOJ article text + official stem/options + metadata conflict gate; candidate only, never historical verification",
         "mapping_count": sum(len(card.get("questions") or []) for card in cards),
         "target_count": len(records),
         "explicit_control_count": len(controls),
-        "explicit_control_top1_match_count": control_matches,
+        "explicit_control_top1_match_count": control_top1,
+        "explicit_control_top3_match_count": control_top3,
         "route_counts": dict(sorted(route_counts.items())),
         "confidence_counts": dict(sorted(confidence_counts.items())),
+        "decision_reason_counts": dict(sorted(decision_reason_counts.items())),
         "law_source_error_count": len(source_errors),
         "law_source_errors": source_errors,
+        "question_shard_error_count": len(shard_errors),
+        "question_shard_errors": shard_errors,
         "historical_version_checked_count": 0,
         "controls": controls,
         "records": records,
@@ -349,9 +456,12 @@ def main() -> int:
         "target_count": report["target_count"],
         "explicit_control_count": report["explicit_control_count"],
         "explicit_control_top1_match_count": report["explicit_control_top1_match_count"],
+        "explicit_control_top3_match_count": report["explicit_control_top3_match_count"],
         "route_counts": report["route_counts"],
         "confidence_counts": report["confidence_counts"],
+        "decision_reason_counts": report["decision_reason_counts"],
         "law_source_error_count": report["law_source_error_count"],
+        "question_shard_error_count": report["question_shard_error_count"],
         "historical_version_checked_count": report["historical_version_checked_count"],
     }, ensure_ascii=False))
     return 0
