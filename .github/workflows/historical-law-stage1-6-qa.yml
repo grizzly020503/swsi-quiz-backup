@@ -8,14 +8,19 @@ on:
       - 'scripts/historical_law_provenance_selftest.py'
       - 'scripts/historical_law_exam_date_refiner.py'
       - 'scripts/historical_law_stage2_selftest.py'
+      - 'scripts/historical_law_stage2_history_snapshot.py'
+      - 'scripts/historical_law_moj_api_probe.py'
       - 'scripts/historical_law_article_resolver.py'
       - 'scripts/historical_law_article_resolver_selftest.py'
       - 'scripts/historical_law_oldver_stage4.py'
       - 'scripts/historical_law_stage4_selftest.py'
+      - 'scripts/historical_law_stage4_snapshot_runner.py'
+      - 'scripts/historical_law_snapshot_pipeline_selftest.py'
       - 'scripts/historical_law_stage5_promotion.py'
       - 'scripts/historical_law_stage5_selftest.py'
       - 'scripts/historical_law_stage6_semantic.py'
       - 'scripts/historical_law_stage6_selftest.py'
+      - 'scripts/historical_law_stage6_snapshot_semantic.py'
       - 'scripts/build_historical_law_provenance_report.py'
       - 'scripts/historical_law_provenance_report_smoke.py'
       - 'data/law_question_links_priority10.v1.json'
@@ -53,14 +58,19 @@ jobs:
             scripts/historical_law_provenance_selftest.py \
             scripts/historical_law_exam_date_refiner.py \
             scripts/historical_law_stage2_selftest.py \
+            scripts/historical_law_stage2_history_snapshot.py \
+            scripts/historical_law_moj_api_probe.py \
             scripts/historical_law_article_resolver.py \
             scripts/historical_law_article_resolver_selftest.py \
             scripts/historical_law_oldver_stage4.py \
             scripts/historical_law_stage4_selftest.py \
+            scripts/historical_law_stage4_snapshot_runner.py \
+            scripts/historical_law_snapshot_pipeline_selftest.py \
             scripts/historical_law_stage5_promotion.py \
             scripts/historical_law_stage5_selftest.py \
             scripts/historical_law_stage6_semantic.py \
             scripts/historical_law_stage6_selftest.py \
+            scripts/historical_law_stage6_snapshot_semantic.py \
             scripts/build_historical_law_provenance_report.py \
             scripts/historical_law_provenance_report_smoke.py
           (cd scripts && python historical_law_provenance_selftest.py)
@@ -69,6 +79,7 @@ jobs:
           (cd scripts && python historical_law_stage4_selftest.py)
           (cd scripts && python historical_law_stage5_selftest.py)
           (cd scripts && python historical_law_stage6_selftest.py)
+          (cd scripts && python historical_law_snapshot_pipeline_selftest.py)
           git diff --check
       - name: Offline V1 contract on real 86 mappings
         run: |
@@ -95,10 +106,14 @@ jobs:
           files = [
               Path('scripts/historical_law_provenance_core.py'),
               Path('scripts/historical_law_exam_date_refiner.py'),
+              Path('scripts/historical_law_stage2_history_snapshot.py'),
+              Path('scripts/historical_law_moj_api_probe.py'),
               Path('scripts/historical_law_article_resolver.py'),
               Path('scripts/historical_law_oldver_stage4.py'),
+              Path('scripts/historical_law_stage4_snapshot_runner.py'),
               Path('scripts/historical_law_stage5_promotion.py'),
               Path('scripts/historical_law_stage6_semantic.py'),
+              Path('scripts/historical_law_stage6_snapshot_semantic.py'),
               Path('scripts/build_historical_law_provenance_report.py'),
           ]
           protected = {'stem','options','official_answer','accepted_answers','grading_mode'}
@@ -147,16 +162,16 @@ jobs:
       - name: Install live HTTP dependency
         run: python -m pip install --disable-pip-version-check requests
 
-      - name: Stage 2 — exact exam-date evidence
+      - name: Stage 2 — exact exam dates plus MOJ history handoff
         id: stage2
         continue-on-error: true
-        run: python scripts/historical_law_exam_date_refiner.py
-      - name: Validate Stage 2 if available
+        run: python scripts/historical_law_stage2_history_snapshot.py
+      - name: Validate Stage 2 and history handoff if available
         if: always()
         run: |
           if [ -f auto/qa/historical_law_exam_date_stage2.v1.json ]; then
             python - <<'PY'
-          import json
+          import json,re
           from pathlib import Path
           d = json.loads(Path('auto/qa/historical_law_exam_date_stage2.v1.json').read_text(encoding='utf-8'))
           rows = d.get('questions') or []
@@ -172,7 +187,95 @@ jobs:
           assert d.get('exam_date_registry_hit_count') == len(dates), dates
           assert d.get('exam_date_live_hit_count') == 0, dates
           assert all(v.get('status') == 'official_pinned' for v in dates.values())
-          print(json.dumps({'status_counts':d.get('status_counts'),'exception_queue_counts':{k:len(v) for k,v in (d.get('exception_queue') or {}).items()}}, ensure_ascii=False))
+
+          hs = json.loads(Path('auto/qa/historical_law_history_snapshot.v1.json').read_text(encoding='utf-8'))
+          history_rows = hs.get('records') or []
+          assert hs.get('record_count') == len(history_rows) == 10, hs
+          assert hs.get('ready_count') == 10, hs
+          assert hs.get('source_failure_count') == 0, hs
+          assert hs.get('historical_version_checked_count') == 0
+          assert hs.get('protected_core_mutation_count') == 0
+          for r in history_rows:
+              assert r.get('status') == 'official_history_ready', r
+              assert re.fullmatch(r'[0-9a-f]{64}', r.get('entries_sha256') or ''), r
+              assert r.get('entry_count') == len(r.get('entries') or [])
+              assert r.get('entry_count',0) > 0
+              assert 'official_answer' not in r
+          print(json.dumps({
+              'status_counts':d.get('status_counts'),
+              'history_ready_count':hs.get('ready_count'),
+              'exception_queue_counts':{k:len(v) for k,v in (d.get('exception_queue') or {}).items()},
+          }, ensure_ascii=False))
+          PY
+          fi
+
+      - name: MOJ Open API — current target snapshot
+        id: moj_api
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ -f auto/qa/historical_law_history_snapshot.v1.json ]; then
+            python scripts/historical_law_moj_api_probe.py
+          fi
+      - name: Validate MOJ Open API target snapshot if available
+        if: always()
+        run: |
+          if [ -f auto/qa/historical_law_moj_api_targets.v1.json ]; then
+            python - <<'PY'
+          import hashlib,json,re
+          from pathlib import Path
+          def sha_text(value):
+              return hashlib.sha256(value.encode('utf-8')).hexdigest()
+          def payload_sha(value):
+              raw=json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+              return sha_text(raw)
+
+          p = json.loads(Path('auto/qa/historical_law_moj_api_probe.v1.json').read_text(encoding='utf-8'))
+          assert p.get('target_count') == 10, p
+          assert p.get('ready_count') == 10, p
+          assert p.get('not_found_count') == 0, p
+          assert p.get('historical_version_checked_count') == 0
+          assert p.get('protected_core_mutation_count') == 0
+
+          d = json.loads(Path('auto/qa/historical_law_moj_api_targets.v1.json').read_text(encoding='utf-8'))
+          rows = d.get('records') or []
+          assert d.get('schema_version') == 1
+          assert d.get('record_count') == len(rows) == 10, d
+          assert d.get('historical_version_checked_count') == 0
+          assert d.get('protected_core_mutation_count') == 0
+          for r in rows:
+              assert r.get('endpoint') in {
+                  'https://law.moj.gov.tw/api/ch/law/json',
+                  'https://law.moj.gov.tw/api/ch/order/json',
+              }
+              pcode=str(r.get('pcode') or '')
+              assert re.fullmatch(r'[A-Z]\d{7}',pcode), r
+              assert f'pcode={pcode}' in str(r.get('law_url') or ''), r
+              articles=r.get('articles') or []
+              assert r.get('article_count') == len(articles) and articles
+              assert r.get('articles_sha256') == payload_sha(articles)
+              identity={
+                  'endpoint':r.get('endpoint'),
+                  'collection':r.get('collection'),
+                  'update_date':r.get('update_date'),
+                  'pcode':r.get('pcode'),
+                  'law_name':r.get('law_name'),
+                  'law_url':r.get('law_url'),
+                  'modified_date':r.get('modified_date'),
+                  'article_count':r.get('article_count'),
+                  'articles_sha256':r.get('articles_sha256'),
+              }
+              assert r.get('source_identity_sha256') == payload_sha(identity)
+              assert 'official_answer' not in r
+              for a in articles:
+                  assert a.get('article_no') and a.get('text')
+                  assert a.get('sha256') == sha_text(str(a.get('text')))
+                  assert 'official_answer' not in a
+          print(json.dumps({
+              'law_update_date':p.get('law_update_date'),
+              'order_update_date':p.get('order_update_date'),
+              'target_snapshot_record_count':d.get('record_count'),
+          },ensure_ascii=False))
           PY
           fi
 
@@ -207,17 +310,26 @@ jobs:
                   assert r.get('route') == 'ai_review', r
               if r.get('route') == 'machine_candidate':
                   assert r.get('confidence') == 'high', r
-          print(json.dumps({'route_counts':d.get('route_counts'),'top1':d.get('explicit_control_top1_match_count'),'top3':d.get('explicit_control_top3_match_count'),'shadow_machine':d.get('explicit_control_shadow_machine_candidate_count'),'false_machine':d.get('explicit_control_false_machine_candidate_count'),'law_source_error_count':d.get('law_source_error_count')}, ensure_ascii=False))
+          print(json.dumps({
+              'route_counts':d.get('route_counts'),
+              'top1':d.get('explicit_control_top1_match_count'),
+              'top3':d.get('explicit_control_top3_match_count'),
+              'shadow_machine':d.get('explicit_control_shadow_machine_candidate_count'),
+              'false_machine':d.get('explicit_control_false_machine_candidate_count'),
+              'law_source_error_count':d.get('law_source_error_count'),
+          }, ensure_ascii=False))
           PY
           fi
 
-      - name: Stage 4 — official historical text evidence
+      - name: Stage 4 — hybrid official historical text evidence
         id: stage4
         if: always()
         continue-on-error: true
         run: |
-          if [ -f auto/qa/historical_law_article_stage3.v1.json ]; then
-            python scripts/historical_law_oldver_stage4.py
+          if [ -f auto/qa/historical_law_article_stage3.v1.json ] && \
+             [ -f auto/qa/historical_law_history_snapshot.v1.json ] && \
+             [ -f auto/qa/historical_law_moj_api_targets.v1.json ]; then
+            python scripts/historical_law_stage4_snapshot_runner.py
           fi
       - name: Validate Stage 4 if available
         if: always()
@@ -230,19 +342,56 @@ jobs:
           d = json.loads(Path('auto/qa/historical_law_oldver_stage4.v1.json').read_text(encoding='utf-8'))
           rows = d.get('records') or []
           machine = [r for r in (s3.get('records') or []) if r.get('route') == 'machine_candidate']
-          allowed = {'historical_text_evidence_ready','stage3_candidate_missing_article','exam_date_missing','law_source_missing','source_failure','history_version_unavailable','exam_window_version_conflict','effective_date_review','article_missing_in_selected_version'}
-          assert d.get('stage3_machine_candidate_count') == len(machine)
+          allowed = {
+              'historical_text_evidence_ready','stage3_candidate_missing_article','exam_date_missing',
+              'law_source_missing','source_failure','source_identity_mismatch','history_version_unavailable',
+              'exam_window_version_conflict','effective_date_review','article_missing_in_selected_version',
+          }
+          assert d.get('stage3_machine_candidate_count') == len(machine) == 19
           assert d.get('record_count') == len(rows) == len(machine)
+          assert d.get('stage2_history_snapshot_bundle_count') == 10
+          assert d.get('moj_api_target_snapshot_count') == 10
+          assert d.get('current_api_ready_count') == 15, d.get('status_counts')
+          assert d.get('historical_text_evidence_ready_count',0) >= 15, d.get('status_counts')
+          assert d.get('verified_snapshot_count') == d.get('historical_text_evidence_ready_count')
+          assert d.get('fulltext_unique_url_count',0) <= 3, d.get('fulltext_request_counts')
+          assert d.get('fulltext_request_count_total',0) <= 12, d.get('fulltext_request_counts')
           assert d.get('historical_version_checked_count') == 0
           assert d.get('protected_core_mutation_count') == 0
           assert all(r.get('historical_version_checked') is False for r in rows)
           assert all('official_answer' not in r for r in rows)
           assert set(d.get('status_counts') or {}).issubset(allowed), d.get('status_counts')
+          api_ready = 0
+          old_ready = 0
           for r in rows:
-              if r.get('status') == 'historical_text_evidence_ready':
-                  assert re.fullmatch(r'[0-9a-f]{64}', r.get('historical_article_sha256') or '')
-                  assert (r.get('selected_version') or {}).get('url')
-          print(json.dumps({'status_counts':d.get('status_counts'),'ready':d.get('historical_text_evidence_ready_count')}, ensure_ascii=False))
+              if r.get('status') != 'historical_text_evidence_ready':
+                  continue
+              assert re.fullmatch(r'[0-9a-f]{64}', r.get('historical_article_sha256') or ''), r
+              version = r.get('selected_version') or {}
+              assert version.get('url'), r
+              snap = r.get('historical_version_snapshot') or {}
+              assert snap.get('source_url') == version.get('url'), r
+              assert re.fullmatch(r'[0-9a-f]{64}',snap.get('snapshot_id') or ''), r
+              assert re.fullmatch(r'[0-9a-f]{64}',snap.get('evidence_sha256') or ''), r
+              assert snap.get('article_count') == len(snap.get('articles') or [])
+              if snap.get('source_identity_method') == 'moj_open_api_current':
+                  api_ready += 1
+                  assert version.get('kind') == 'current', r
+              elif snap.get('source_identity_method') == 'stage4_moj_title':
+                  old_ready += 1
+                  assert version.get('kind') == 'oldver', r
+                  assert re.fullmatch(r'[0-9a-f]{64}',snap.get('page_sha256') or ''), r
+              else:
+                  raise AssertionError(r)
+          assert api_ready == 15, api_ready
+          assert old_ready == d.get('oldver_html_ready_count'), (old_ready,d.get('oldver_html_ready_count'))
+          print(json.dumps({
+              'status_counts':d.get('status_counts'),
+              'identity_methods':d.get('source_identity_method_counts'),
+              'current_api_ready':api_ready,
+              'oldver_html_ready':old_ready,
+              'oldver_html_requests':d.get('fulltext_request_count_total'),
+          }, ensure_ascii=False))
           PY
           fi
 
@@ -261,6 +410,7 @@ jobs:
             python - <<'PY'
           import json,re
           from pathlib import Path
+          s4 = json.loads(Path('auto/qa/historical_law_oldver_stage4.v1.json').read_text(encoding='utf-8'))
           d = json.loads(Path('auto/qa/historical_law_stage5_promotion.v1.json').read_text(encoding='utf-8'))
           rows = d.get('records') or []
           cal = d.get('calibration') or {}
@@ -268,7 +418,8 @@ jobs:
           assert cal.get('promotion_calibration_safe') is True, cal
           assert d.get('historical_version_checked_count') == 0
           assert d.get('protected_core_mutation_count') == 0
-          assert d.get('record_count') == len(rows) == d.get('stage3_machine_candidate_count')
+          assert d.get('record_count') == len(rows) == d.get('stage3_machine_candidate_count') == 19
+          assert d.get('promotion_candidate_count') == s4.get('historical_text_evidence_ready_count')
           assert all(r.get('historical_version_checked') is False for r in rows)
           assert all('official_answer' not in r for r in rows)
           for r in rows:
@@ -276,17 +427,18 @@ jobs:
                   assert not r.get('blockers'), r
                   assert r.get('stage4_status') == 'historical_text_evidence_ready', r
                   assert re.fullmatch(r'[0-9a-f]{64}', r.get('historical_article_sha256') or ''), r
+                  assert (r.get('selected_version') or {}).get('kind') in {'current','oldver'}, r
           print(json.dumps({'promotion_status_counts':d.get('promotion_status_counts'),'calibration':cal}, ensure_ascii=False))
           PY
           fi
 
-      - name: Stage 6 — historical-text semantic cross-check
+      - name: Stage 6 — network-free historical semantic cross-check
         id: stage6
         if: always()
         continue-on-error: true
         run: |
-          if [ -f auto/qa/historical_law_stage5_promotion.v1.json ]; then
-            python scripts/historical_law_stage6_semantic.py
+          if [ -f auto/qa/historical_law_stage5_promotion.v1.json ] && [ -f auto/qa/historical_law_oldver_stage4.v1.json ]; then
+            python scripts/historical_law_stage6_snapshot_semantic.py
           fi
       - name: Validate Stage 6 if available
         if: always()
@@ -298,16 +450,31 @@ jobs:
           s5 = json.loads(Path('auto/qa/historical_law_stage5_promotion.v1.json').read_text(encoding='utf-8'))
           d = json.loads(Path('auto/qa/historical_law_stage6_semantic.v1.json').read_text(encoding='utf-8'))
           rows = d.get('records') or []
-          allowed = {'historical_semantic_confirmed','historical_semantic_support','historical_semantic_conflict','question_link_missing','selected_version_missing','source_failure','source_identity_mismatch','historical_articles_unavailable'}
+          allowed = {
+              'historical_semantic_confirmed','historical_semantic_support','historical_semantic_conflict',
+              'question_link_missing','source_identity_mismatch',
+          }
           assert d.get('stage5_promotion_candidate_count') == s5.get('promotion_candidate_count')
-          assert d.get('record_count') == len(rows)
+          assert d.get('record_count') == len(rows) == s5.get('promotion_candidate_count')
           assert d.get('question_shard_error_count') == 0, d.get('question_shard_errors')
           assert d.get('historical_version_checked_count') == 0
           assert d.get('protected_core_mutation_count') == 0
           assert all(r.get('historical_version_checked') is False for r in rows)
           assert all('official_answer' not in r for r in rows)
           assert set(d.get('status_counts') or {}).issubset(allowed), d.get('status_counts')
-          print(json.dumps({'status_counts':d.get('status_counts'),'confirmed':d.get('historical_semantic_confirmed_count'),'support':d.get('historical_semantic_support_count'),'conflict':d.get('historical_semantic_conflict_count')}, ensure_ascii=False))
+          identities = d.get('source_identity_method_counts') or {}
+          semantic_count = sum((d.get('status_counts') or {}).get(k,0) for k in (
+              'historical_semantic_confirmed','historical_semantic_support','historical_semantic_conflict'
+          ))
+          assert sum(identities.values()) == semantic_count
+          assert identities.get('moj_open_api_current',0) == 15, identities
+          print(json.dumps({
+              'status_counts':d.get('status_counts'),
+              'identity_methods':identities,
+              'confirmed':d.get('historical_semantic_confirmed_count'),
+              'support':d.get('historical_semantic_support_count'),
+              'conflict':d.get('historical_semantic_conflict_count'),
+          }, ensure_ascii=False))
           PY
           fi
 
@@ -318,6 +485,9 @@ jobs:
           name: historical-law-stage2-6-live-evidence
           path: |
             auto/qa/historical_law_exam_date_stage2.v1.json
+            auto/qa/historical_law_history_snapshot.v1.json
+            auto/qa/historical_law_moj_api_probe.v1.json
+            auto/qa/historical_law_moj_api_targets.v1.json
             auto/qa/historical_law_article_stage3.v1.json
             auto/qa/historical_law_oldver_stage4.v1.json
             auto/qa/historical_law_stage5_promotion.v1.json
