@@ -4054,7 +4054,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       +(sig.mcq_focus&&sig.mcq_focus.length?'<details class="nlr-detail"><summary>選擇題可能抓哪些事實？</summary><div class="nlr-chips">'+sig.mcq_focus.slice(0,8).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('')+'</div></details>':'')
       +(sig.related_exam_questions&&sig.related_exam_questions.length?'<details class="nlr-detail"><summary>歷屆相關題</summary><ul>'+sig.related_exam_questions.slice(0,4).map(function(q){var label=(q.year||'')+'-'+(q.round||'')+'-'+(q.qno||'');return '<li><b>'+E(q.id||label)+'</b> '+E(q.subject||'')+(q.topic?' ・ '+E(q.topic):'')+'</li>';}).join('')+'</ul></details>':'')
       +'<details class="nlr-detail"><summary>此類事件常見的申論思考方向</summary><ul>'+pts+'</ul><div class="nlr-exam">'+E(t.exam)+'</div></details>'
-      +'<a class="nlr-link" href="'+E(ev.source_url)+'" target="_blank" rel="noopener noreferrer">查看原始來源 ↗</a>'
+      +'<a class="nlr-link" href="'+safeHref(ev.source_url)+'" target="_blank" rel="noopener noreferrer">查看原始來源 ↗</a>'
       +'</div>';
   }
   function ensureStyle(){

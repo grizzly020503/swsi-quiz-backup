@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-26T05:50:39Z",
-  "event_count": 5,
+  "generated_at": "2026-10-01T11:04:45Z",
+  "event_count": 6,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
   "trends": [
@@ -21,6 +21,12 @@
       ],
       "exam_subject_axes": [
         "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
         "社會工作"
       ],
       "subject_topics": {
@@ -45,36 +51,37 @@
         "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
         "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
-      "trend_state": "one-off",
-      "trend_score": 3.7,
+      "trend_state": "sustained",
+      "trend_score": 4.2,
       "why": [
         "1 個官方來源",
         "有政策／制度訊號",
         "歷屆同概念／事件詞關聯 2 題，跨 2 個年度；強 0／中 2／概念 0",
-        "最近相關題為 105 年（距題庫最新年度 10 年）"
+        "最近相關題為 105 年（距題庫最新年度 10 年）",
+        "已跨 2 個證據日期持續觀察"
       ],
       "factors": {
-        "cross_source": 0,
+        "cross_source": 0.0,
         "official_evidence": 0.7,
         "policy_change": 1.8,
         "historical_frequency": 0.28,
         "historical_year_breadth": 0.16,
         "recent_exam_support": 0.1,
-        "historical_subject_breadth": 0,
-        "law_relevance": 0,
-        "persistence": 0,
-        "essay_value": 0,
+        "historical_subject_breadth": 0.0,
+        "law_relevance": 0.0,
+        "persistence": 0.69,
+        "essay_value": 0.0,
         "mcq_density": 0.9,
-        "recency": 1
+        "recency": 1.0
       },
       "source_count": 1,
       "official_source_count": 1,
-      "observation_count": 1,
+      "observation_count": 2,
       "first_seen": "2026-09-24T19:50:25Z",
-      "last_seen": "2026-09-24T19:50:25Z",
+      "last_seen": "2026-09-29T16:17:32Z",
       "related_laws": [],
       "historical_question_count": 2,
-      "historical_weighted_match_count": 1,
+      "historical_weighted_match_count": 1.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 2,
@@ -130,15 +137,9 @@
           "source_name": "勞動部新聞稿",
           "source_url": "https://www.mol.gov.tw/1607/1632/1633/99195/",
           "source_type": "official",
-          "published_at": "2026-09-24T19:50:25Z",
+          "published_at": "2026-09-29T16:17:32Z",
           "item_id": "1f324758779ada31a0fc3e3382971947"
         }
-      ],
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會工作"
       ]
     },
     {
@@ -158,6 +159,14 @@
       ],
       "exam_subject_axes": [
         "社會政策與社會立法",
+        "人類行為與社會環境",
+        "社會工作",
+        "社會工作直接服務"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
         "人類行為與社會環境",
         "社會工作",
         "社會工作直接服務"
@@ -195,7 +204,7 @@
         "社會工作管理 > 方案與資源管理 > 社會工作 > 性別平等、照顧正義與家庭支持",
         "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 家庭政策、托育與性別制度"
       ],
-      "trend_state": "one-off",
+      "trend_state": "cooling",
       "trend_score": 3.5,
       "why": [
         "1 個官方來源",
@@ -204,15 +213,15 @@
         "歷屆分布 2 個考科"
       ],
       "factors": {
-        "cross_source": 0,
+        "cross_source": 0.0,
         "official_evidence": 0.7,
-        "policy_change": 0,
+        "policy_change": 0.0,
         "historical_frequency": 0.98,
         "historical_year_breadth": 0.52,
         "recent_exam_support": 0.52,
         "historical_subject_breadth": 0.25,
-        "law_relevance": 0,
-        "persistence": 0,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
         "essay_value": 0.55,
         "mcq_density": 0.9,
         "recency": 0.2
@@ -326,141 +335,398 @@
           "published_at": "2026-09-16T10:30:11Z",
           "item_id": "2cc263d201f443e931c4a3a5f75e0312"
         }
-      ],
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法"
-      ],
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會工作",
-        "社會工作直接服務"
       ]
     },
     {
-      "canonical_event_id": "f57482fbf92468217dec913c",
-      "title": "住宿式服務機構補助加碼 卓揆：中重度失能者每月最高補助1萬5,000元、中度以上身心障礙者每月補助5,000元住宿費",
-      "category": "身障與人權",
+      "canonical_event_id": "0e662e2e10d7d89fb2ef3a24",
+      "title": "重大違規再犯講習3新制9/30上路 估2.8萬人適用",
+      "category": "兒少保護",
       "subjects": [
         "社會工作",
+        "社會工作直接服務",
         "社會政策與社會立法"
       ],
       "knowledge_root": "社會工作管理",
       "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
       "management_domains": [
-        "倫理與權利保障",
+        "品質與風險管理",
         "服務輸送與跨網絡",
+        "倫理與權利保障",
         "規劃與政策執行",
         "方案與資源管理"
       ],
       "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作",
         "社會工作直接服務",
-        "人類行為與社會環境"
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作"
       ],
       "subject_topics": {
-        "社會政策與社會立法": [
-          "CRPD、合理調整與身障福利制度"
-        ],
-        "社會工作": [
-          "增權、自立生活與障礙者權利"
-        ],
         "社會工作直接服務": [
-          "需求評估、個案管理與社區支持"
+          "兒少保護風險評估",
+          "家庭評估與危機介入"
         ],
         "人類行為與社會環境": [
-          "障礙與環境互動"
+          "兒童發展、依附與創傷",
+          "家庭系統與風險保護因子"
+        ],
+        "社會政策與社會立法": [
+          "兒少福利與保護法制",
+          "責任通報與保護體系"
+        ],
+        "社會工作": [
+          "專業倫理與兒童最佳利益",
+          "權利倡導與社會正義"
         ]
       },
       "knowledge_topics": [
-        "身障與人權",
-        "身心障礙",
-        "政策",
-        "補助",
-        "福利"
+        "兒少保護",
+        "兒少",
+        "修法",
+        "改革",
+        "補助"
       ],
       "knowledge_paths": [
-        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 品質與風險管理",
         "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
         "社會工作管理 > 規劃與政策執行",
         "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 增權、自立生活與障礙者權利",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估、個案管理與社區支持",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > CRPD、合理調整與身障福利制度",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 障礙與環境互動",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 需求評估、個案管理與社區支持",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 增權、自立生活與障礙者權利",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > CRPD、合理調整與身障福利制度",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > CRPD、合理調整與身障福利制度",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 增權、自立生活與障礙者權利",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 增權、自立生活與障礙者權利",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > CRPD、合理調整與身障福利制度"
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 兒少福利與保護法制",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 責任通報與保護體系",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制"
       ],
-      "trend_state": "cooling",
-      "trend_score": 3.1,
+      "trend_state": "one-off",
+      "trend_score": 3.2,
       "why": [
         "1 個官方來源",
-        "有政策／制度訊號"
+        "有政策／制度訊號",
+        "歷屆廣義概念關聯 10 題，跨 6 個年度；強 0／中 0／概念 10（僅作低權重背景）",
+        "最近相關題為 114 年（距題庫最新年度 1 年）",
+        "歷屆分布 2 個考科"
       ],
       "factors": {
-        "cross_source": 0,
+        "cross_source": 0.0,
         "official_evidence": 0.7,
-        "policy_change": 1.8,
-        "historical_frequency": 0,
-        "historical_year_breadth": 0,
-        "recent_exam_support": 0,
-        "historical_subject_breadth": 0,
-        "law_relevance": 0,
-        "persistence": 0,
+        "policy_change": 0.9,
+        "historical_frequency": 0.28,
+        "historical_year_breadth": 0.25,
+        "recent_exam_support": 0.28,
+        "historical_subject_breadth": 0.25,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
         "essay_value": 0.55,
-        "mcq_density": 0.9,
-        "recency": 0.2
+        "mcq_density": 0.0,
+        "recency": 1.0
       },
       "source_count": 1,
       "official_source_count": 1,
       "observation_count": 1,
-      "first_seen": "2026-09-10T04:58:08Z",
-      "last_seen": "2026-09-10T04:58:08Z",
+      "first_seen": null,
+      "last_seen": null,
       "related_laws": [],
-      "historical_question_count": 0,
-      "historical_weighted_match_count": 0,
+      "historical_question_count": 10,
+      "historical_weighted_match_count": 1.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 0,
-        "concept": 0
+        "concept": 10
       },
-      "historical_exam_years": [],
-      "latest_related_exam_year": null,
+      "historical_exam_years": [
+        104,
+        106,
+        108,
+        109,
+        110,
+        114
+      ],
+      "latest_related_exam_year": 114,
       "corpus_latest_exam_year": 115,
-      "years_since_last_related_exam": null,
-      "historical_subject_counts": {},
-      "historical_subject_count": 0,
+      "years_since_last_related_exam": 1,
+      "historical_subject_counts": {
+        "社會工作": 5,
+        "社會政策與社會立法": 5
+      },
+      "historical_subject_count": 2,
       "historical_law_match_count": 0,
       "historical_law_match_years": [],
       "historical_high_confidence_match_count": 0,
       "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
-      "related_exam_questions": [],
-      "essay_direction": "可從「CRPD、合理調整、自立生活與去機構化」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "related_exam_questions": [
+        {
+          "id": "SP114-2-10",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第二次",
+          "qno": "10",
+          "major": "社會政策概念與原則",
+          "topic": "福利治理 > Gilbert福利輸送改革策略",
+          "match_reason": "事件詞：改革",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-114-1-06",
+          "subject": "社會工作",
+          "year": "114",
+          "round": "第一次",
+          "qno": "6",
+          "major": "社會工作理論",
+          "topic": "理論類型 > 結構不平等理論",
+          "match_reason": "事件詞：改革",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-110-2-16",
+          "subject": "社會工作",
+          "year": "110",
+          "round": "第二次",
+          "qno": "16",
+          "major": "社會工作理論",
+          "topic": "理論比較 > 理論干預目標",
+          "match_reason": "事件詞：改革",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-110-1-19",
+          "subject": "社會工作",
+          "year": "110",
+          "round": "第一次",
+          "qno": "19",
+          "major": "社會工作倫理",
+          "topic": "倫理發展 > 倫理發展時序",
+          "match_reason": "事件詞：改革",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-109-1-23",
+          "subject": "社會工作",
+          "year": "109",
+          "round": "第一次",
+          "qno": "23",
+          "major": "社會工作倫理",
+          "topic": "倫理守則 > 社會正義價值",
+          "match_reason": "事件詞：改革",
+          "match_score": 2.2
+        }
+      ],
+      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
-        "衛生福利部",
-        "行政院"
+        "兒少保護",
+        "兒少",
+        "修法",
+        "改革"
       ],
       "evidence": [
         {
-          "source_name": "行政院本院新聞",
-          "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//ccd56110-78a5-408b-8014-45853b78578b",
+          "source_name": "移民署新住民政策法規",
+          "source_url": "https://news.immigration.gov.tw/NewsSection/Detail/0b2ca547-34dd-4deb-baa6-595f48ae6c62?category=1&lang=TW",
           "source_type": "official",
-          "published_at": "2026-09-10T04:58:08Z",
-          "item_id": "85f03325aff5e8c1aabd1020fc9a80a4"
+          "published_at": null,
+          "item_id": "d65f416739f8a4ae713c8c8c814acde9"
         }
-      ],
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法"
-      ],
-      "supporting_exam_subject_axes": [
+      ]
+    },
+    {
+      "canonical_event_id": "36f0f025600350c7d59c5da4",
+      "title": "政院：追加預算年底若未審畢 社福津貼加碼恐將失效",
+      "category": "社工專業與社福制度",
+      "subjects": [
         "社會工作",
         "社會工作直接服務",
-        "人類行為與社會環境"
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "組織治理與責信",
+        "倫理與權利保障",
+        "規劃與政策執行",
+        "方案與資源管理"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [],
+      "subject_topics": {
+        "社會工作": [
+          "專業倫理、專業責任與社會工作價值"
+        ],
+        "社會政策與社會立法": [
+          "社福服務體系、專業規範與制度責信"
+        ]
+      },
+      "knowledge_topics": [
+        "社工專業與社福制度",
+        "社福",
+        "津貼",
+        "行政院"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 組織治理與責信",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 組織治理與責信 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 組織治理與責信 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信"
+      ],
+      "trend_state": "one-off",
+      "trend_score": 2.7,
+      "why": [
+        "歷屆廣義概念關聯 15 題，跨 9 個年度；強 0／中 0／概念 15（僅作低權重背景）",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 2 個考科"
+      ],
+      "factors": {
+        "cross_source": 0.0,
+        "official_evidence": 0.0,
+        "policy_change": 0.0,
+        "historical_frequency": 0.28,
+        "historical_year_breadth": 0.28,
+        "recent_exam_support": 0.28,
+        "historical_subject_breadth": 0.25,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
+        "essay_value": 1.1,
+        "mcq_density": 0.45,
+        "recency": 1.0
+      },
+      "source_count": 1,
+      "official_source_count": 0,
+      "observation_count": 1,
+      "first_seen": "2026-10-01T07:05:07Z",
+      "last_seen": "2026-10-01T07:05:07Z",
+      "related_laws": [],
+      "historical_question_count": 15,
+      "historical_weighted_match_count": 1.0,
+      "historical_match_breakdown": {
+        "strong": 0,
+        "medium": 0,
+        "concept": 15
+      },
+      "historical_exam_years": [
+        106,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會工作": 7,
+        "社會工作直接服務": 8
+      },
+      "historical_subject_count": 2,
+      "historical_law_match_count": 0,
+      "historical_law_match_years": [],
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
+      "related_exam_questions": [
+        {
+          "id": "DS-115-2-015",
+          "subject": "社會工作直接服務",
+          "year": "115",
+          "round": "第二次",
+          "qno": "15",
+          "major": "社會工作倫理",
+          "topic": "倫理原則 > 倫理困境與決策",
+          "match_reason": "事件詞：社福",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-115-1-04",
+          "subject": "社會工作",
+          "year": "115",
+          "round": "第一次",
+          "qno": "4",
+          "major": "社會工作專業",
+          "topic": "政策實務 > 經社文公約",
+          "match_reason": "事件詞：社福",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-114-2-23",
+          "subject": "社會工作",
+          "year": "114",
+          "round": "第二次",
+          "qno": "23",
+          "major": "社會工作倫理",
+          "topic": "倫理學基礎 > 義務論",
+          "match_reason": "事件詞：社福",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-113-1-01",
+          "subject": "社會工作",
+          "year": "113",
+          "round": "第一次",
+          "qno": "1",
+          "major": "社會工作專業",
+          "topic": "歷史發展 > 社福發展轉折",
+          "match_reason": "事件詞：社福",
+          "match_score": 2.2
+        },
+        {
+          "id": "DS-113-2-15",
+          "subject": "社會工作直接服務",
+          "year": "113",
+          "round": "第二次",
+          "qno": "15",
+          "major": "社會工作倫理",
+          "topic": "倫理議題 > 服務的價值",
+          "match_reason": "事件詞：社福",
+          "match_score": 2.2
+        }
+      ],
+      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "行政院",
+        "社福"
+      ],
+      "evidence": [
+        {
+          "source_name": "中央社政治",
+          "source_url": "https://www.cna.com.tw/news/aipl/202610010199.aspx",
+          "source_type": "news",
+          "published_at": "2026-10-01T07:05:07Z",
+          "item_id": "3e7cc52af1b25a9177663b6b5b5b6440"
+        }
       ]
     },
     {
@@ -482,6 +748,14 @@
       "exam_subject_axes": [
         "社會政策與社會立法",
         "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
         "人類行為與社會環境",
         "社會工作"
       ],
@@ -523,25 +797,25 @@
         "社會工作管理 > 品質與風險管理 > 社會工作 > 高齡者權益與社區支持"
       ],
       "trend_state": "one-off",
-      "trend_score": 2.8,
+      "trend_score": 2.2,
       "why": [
         "1 個官方來源",
         "歷屆同概念／事件詞關聯 2 題，跨 2 個年度；強 0／中 2／概念 0",
         "最近相關題為 109 年（距題庫最新年度 6 年）"
       ],
       "factors": {
-        "cross_source": 0,
+        "cross_source": 0.0,
         "official_evidence": 0.7,
-        "policy_change": 0,
+        "policy_change": 0.0,
         "historical_frequency": 0.28,
         "historical_year_breadth": 0.16,
         "recent_exam_support": 0.1,
-        "historical_subject_breadth": 0,
-        "law_relevance": 0,
-        "persistence": 0,
+        "historical_subject_breadth": 0.0,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
         "essay_value": 0.55,
         "mcq_density": 0.9,
-        "recency": 1
+        "recency": 0.2
       },
       "source_count": 1,
       "official_source_count": 1,
@@ -550,7 +824,7 @@
       "last_seen": "2026-09-24T03:30:00Z",
       "related_laws": [],
       "historical_question_count": 2,
-      "historical_weighted_match_count": 1,
+      "historical_weighted_match_count": 1.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 2,
@@ -608,14 +882,6 @@
           "published_at": "2026-09-24T03:30:00Z",
           "item_id": "6c3e075258813e8339a40cebd78e2c0c"
         }
-      ],
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會工作"
       ]
     },
     {
@@ -636,6 +902,14 @@
       ],
       "exam_subject_axes": [
         "社會政策與社會立法",
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
         "社會工作直接服務",
         "人類行為與社會環境",
         "社會工作"
@@ -677,21 +951,21 @@
         "社會工作管理 > 品質與風險管理 > 社會工作 > 高齡者權益與社區支持"
       ],
       "trend_state": "cooling",
-      "trend_score": 1,
+      "trend_score": 1.0,
       "why": [
         "1 個官方來源"
       ],
       "factors": {
-        "cross_source": 0,
+        "cross_source": 0.0,
         "official_evidence": 0.7,
-        "policy_change": 0,
-        "historical_frequency": 0,
-        "historical_year_breadth": 0,
-        "recent_exam_support": 0,
-        "historical_subject_breadth": 0,
-        "law_relevance": 0,
-        "persistence": 0,
-        "essay_value": 0,
+        "policy_change": 0.0,
+        "historical_frequency": 0.0,
+        "historical_year_breadth": 0.0,
+        "recent_exam_support": 0.0,
+        "historical_subject_breadth": 0.0,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
+        "essay_value": 0.0,
         "mcq_density": 0.45,
         "recency": 0.2
       },
@@ -702,7 +976,7 @@
       "last_seen": "2026-09-13T09:08:00Z",
       "related_laws": [],
       "historical_question_count": 0,
-      "historical_weighted_match_count": 0,
+      "historical_weighted_match_count": 0.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 0,
@@ -731,14 +1005,6 @@
           "published_at": "2026-09-13T09:08:00Z",
           "item_id": "4afd0e8e306fd77bf0f9a30e21e13262"
         }
-      ],
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會工作直接服務",
-        "人類行為與社會環境",
-        "社會工作"
       ]
     }
   ]
