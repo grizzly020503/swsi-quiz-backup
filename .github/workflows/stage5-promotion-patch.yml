@@ -1,4 +1,4 @@
-name: Stage 5 Promotion Integration Patch
+name: Stage 5 Promotion Resolver Patch
 
 on:
   pull_request:
@@ -18,13 +18,11 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
-      - name: Patch Stage 3 shadow calibration and Stage 4 QA chain
+      - name: Patch Stage 3 shadow calibration
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
-
-          # 1) Stage 3: shadow-route the explicit controls after hiding article refs.
           p = Path('scripts/historical_law_article_resolver.py')
           text = p.read_text(encoding='utf-8')
           old = '''            if explicit:\n                ranked = rank_articles(\n                    strip_explicit_article_refs(stem), law, articles, option_texts=option_texts\n                )\n                expected_rank = next(\n                    (i + 1 for i, row in enumerate(ranked) if row["article_no"] in explicit), None\n                )\n                controls.append({\n                    "law_name": law,\n                    "question_id": question.get("question_id") or question.get("id"),\n                    "expected_articles": explicit,\n                    "top_candidate": ranked[0]["article_no"] if ranked else None,\n                    "expected_rank": expected_rank,\n                    "top1_match": expected_rank == 1,\n                    "top3_match": bool(expected_rank and expected_rank <= 3),\n                    "used_options": bool(option_texts),\n                })\n                continue\n'''
@@ -55,56 +53,16 @@ jobs:
                   raise SystemExit('Stage 3 print-count block not found')
               text = text.replace(old4, new4, 1)
           p.write_text(text, encoding='utf-8')
-
-          # 2) Extend the existing Stage 4 workflow into a Stage 3->4->5 chain.
-          wf = Path('.github/workflows/historical-law-stage4-qa.yml')
-          y = wf.read_text(encoding='utf-8')
-          if "scripts/historical_law_stage5_promotion.py" not in y:
-              y = y.replace(
-                  "      - 'scripts/historical_law_stage4_selftest.py'\n",
-                  "      - 'scripts/historical_law_stage4_selftest.py'\n"
-                  "      - 'scripts/historical_law_stage5_promotion.py'\n"
-                  "      - 'scripts/historical_law_stage5_selftest.py'\n",
-                  1,
-              )
-              y = y.replace(
-                  "            scripts/historical_law_stage4_selftest.py\n"
-                  "          (cd scripts && python historical_law_stage4_selftest.py)\n",
-                  "            scripts/historical_law_stage4_selftest.py \\\n"
-                  "            scripts/historical_law_stage5_promotion.py \\\n"
-                  "            scripts/historical_law_stage5_selftest.py\n"
-                  "          (cd scripts && python historical_law_stage4_selftest.py)\n"
-                  "          (cd scripts && python historical_law_stage5_selftest.py)\n",
-                  1,
-              )
-              y = y.replace(
-                  "          assert d.get('stage3_machine_candidate_count') == len(machine)\n",
-                  "          assert s3.get('explicit_control_false_machine_candidate_count') == 0, s3.get('controls')\n"
-                  "          assert d.get('stage3_machine_candidate_count') == len(machine)\n",
-                  1,
-              )
-              marker = "      - name: Upload read-only Stage 4 evidence\n"
-              stage5 = '''      - name: Build Stage 5 promotion candidates\n        if: always()\n        run: |\n          if [ -f auto/qa/historical_law_article_stage3.v1.json ] && [ -f auto/qa/historical_law_oldver_stage4.v1.json ]; then\n            python scripts/historical_law_stage5_promotion.py\n          else\n            echo 'Stage 3/4 artifact unavailable; Stage 5 remains fail-soft.'\n          fi\n\n      - name: Validate Stage 5 promotion contract if available\n        if: always()\n        run: |\n          if [ -f auto/qa/historical_law_stage5_promotion.v1.json ]; then\n            python - <<'PY5'\n          import json\n          import re\n          from pathlib import Path\n\n          d = json.loads(Path('auto/qa/historical_law_stage5_promotion.v1.json').read_text(encoding='utf-8'))\n          rows = d.get('records') or []\n          calibration = d.get('calibration') or {}\n          assert calibration.get('false_machine_candidate_count') == 0, calibration\n          assert calibration.get('promotion_calibration_safe') is True, calibration\n          assert d.get('historical_version_checked_count') == 0\n          assert d.get('protected_core_mutation_count') == 0\n          assert d.get('record_count') == len(rows) == d.get('stage3_machine_candidate_count')\n          assert sum((d.get('promotion_status_counts') or {}).values()) == len(rows)\n          assert all(r.get('historical_version_checked') is False for r in rows)\n          assert all('official_answer' not in r for r in rows)\n          for row in rows:\n              if row.get('promotion_status') == 'promotion_candidate':\n                  assert not row.get('blockers'), row\n                  assert re.fullmatch(r'[0-9a-f]{64}', row.get('historical_article_sha256') or ''), row\n                  assert (row.get('selected_version') or {}).get('url'), row\n                  assert row.get('official_history_url'), row\n                  assert row.get('exam_date_source_url'), row\n          print(json.dumps({\n              'calibration': calibration,\n              'record_count': d.get('record_count'),\n              'promotion_status_counts': d.get('promotion_status_counts'),\n              'historical_version_checked_count': d.get('historical_version_checked_count'),\n          }, ensure_ascii=False, indent=2))\n          PY5\n          else\n            echo 'No Stage 5 report produced.'\n          fi\n\n'''
-              if marker not in y:
-                  raise SystemExit('Stage 4 upload marker not found')
-              y = y.replace(marker, stage5 + marker, 1)
-              y = y.replace(
-                  "            auto/qa/historical_law_oldver_stage4.v1.json\n",
-                  "            auto/qa/historical_law_oldver_stage4.v1.json\n"
-                  "            auto/qa/historical_law_stage5_promotion.v1.json\n",
-                  1,
-              )
-          wf.write_text(y, encoding='utf-8')
           PY
-      - name: Commit integration patch
+      - name: Commit resolver patch
         shell: bash
         run: |
-          if git diff --quiet -- scripts/historical_law_article_resolver.py .github/workflows/historical-law-stage4-qa.yml; then
-            echo 'No integration patch needed.'
+          if git diff --quiet -- scripts/historical_law_article_resolver.py; then
+            echo 'No resolver patch needed.'
             exit 0
           fi
           git config user.name 'swsi-data-guardian-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add scripts/historical_law_article_resolver.py .github/workflows/historical-law-stage4-qa.yml
-          git commit -m 'feat: add Stage 3 shadow calibration and Stage 5 QA chain'
+          git add scripts/historical_law_article_resolver.py
+          git commit -m 'feat: add Stage 3 shadow calibration'
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
