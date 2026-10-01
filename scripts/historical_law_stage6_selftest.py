@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+# 2026-10-01 live-source recheck marker: no logic change; this PR only retriggers the consolidated Stage 1-6 evidence workflow.
+
 import historical_law_oldver_stage4 as s4
 import historical_law_stage6_semantic as s6
 
