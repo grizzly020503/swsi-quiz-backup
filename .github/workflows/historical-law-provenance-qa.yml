@@ -60,7 +60,7 @@ jobs:
           '''
           text, n = re.subn(
               r'def normalize_article_no\(value: str\) -> str \| None:\n.*?(?=def article_key)',
-              normalize,
+              lambda _m: normalize,
               text,
               count=1,
               flags=re.S,
@@ -89,7 +89,7 @@ jobs:
           '''
           text, n = re.subn(
               r'def extract_explicit_articles\(text: str\) -> list\[str\]:\n.*?(?=def _article_groups)',
-              extract,
+              lambda _m: extract,
               text,
               count=1,
               flags=re.S,
