@@ -25,8 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Install runtime dependency
@@ -56,8 +56,9 @@ jobs:
           assert len(link_rows) == 86, len(link_rows)
           link_keys = [(law, q.get('question_id')) for law, q in link_rows]
           assert all(qid for _, qid in link_keys), 'every law-question link needs a question_id'
-          assert len(set(link_keys)) == 86, 'duplicate link within the same law card'
+          assert len(set(link_keys)) == 86, 'duplicate law-question mapping'
           unique_question_ids = {qid for _, qid in link_keys}
+          assert len(unique_question_ids) == 85, len(unique_question_ids)
           assert all(q.get('match_strength') == 'metadata_only' for _, q in link_rows)
           assert all(q.get('historical_version_checked') is False for _, q in link_rows)
           indexed = hp.watch_record_map(watch)
@@ -69,29 +70,81 @@ jobs:
           assert report['question_count'] == 86
           assert sum(report['status_counts'].values()) == 86
           assert all(q['historical_version_checked'] is False for q in report['questions'])
-          print(f'HISTORICAL LAW 86-LINK CONTRACT OK: 86 law links across {len(unique_question_ids)} unique questions')
+          print('HISTORICAL LAW 86-LINK CONTRACT OK: 86 mappings / 85 unique questions / 1 cross-law overlap')
           PY
-      - name: Safety boundary
+      - name: Protected-core AST safety boundary
         run: |
           python - <<'PY'
+          import ast
           from pathlib import Path
-          core = Path('scripts/historical_law_provenance_core.py').read_text(encoding='utf-8')
-          stage2 = Path('scripts/historical_law_exam_date_refiner.py').read_text(encoding='utf-8')
-          combined = core + '\n' + stage2
-          assert 'historical_version_checked": True' not in combined
-          assert "historical_version_checked': True" not in combined
-          assert 'official_answer' not in combined
-          assert 'accepted_answers' not in combined
-          assert 'grading_mode' not in combined
-          print('HISTORICAL LAW SAFETY BOUNDARY OK')
+
+          files = [
+              Path('scripts/historical_law_provenance_core.py'),
+              Path('scripts/historical_law_exam_date_refiner.py'),
+          ]
+          protected = {'stem', 'options', 'official_answer', 'accepted_answers', 'grading_mode'}
+          violations = []
+
+          def const_key(node):
+              if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                  return node.value
+              return None
+
+          def check_target(path, node, lineno):
+              if isinstance(node, (ast.Tuple, ast.List)):
+                  for child in node.elts:
+                      check_target(path, child, lineno)
+                  return
+              if isinstance(node, ast.Subscript):
+                  key = const_key(node.slice)
+                  if key in protected:
+                      violations.append(f'{path}:{lineno}: protected field assignment: {key}')
+
+          for path in files:
+              tree = ast.parse(path.read_text(encoding='utf-8'), filename=str(path))
+              for node in ast.walk(tree):
+                  if isinstance(node, ast.Assign):
+                      for target in node.targets:
+                          check_target(path, target, node.lineno)
+                  elif isinstance(node, ast.AnnAssign):
+                      check_target(path, node.target, node.lineno)
+                  elif isinstance(node, ast.AugAssign):
+                      check_target(path, node.target, node.lineno)
+                  elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+                      method = node.func.attr
+                      if method == 'setdefault' and node.args:
+                          key = const_key(node.args[0])
+                          if key in protected:
+                              violations.append(f'{path}:{node.lineno}: protected setdefault: {key}')
+                      if method in {'update', '__setitem__'}:
+                          for arg in node.args:
+                              if isinstance(arg, ast.Dict):
+                                  for key_node in arg.keys:
+                                      key = const_key(key_node)
+                                      if key in protected:
+                                          violations.append(f'{path}:{node.lineno}: protected update: {key}')
+                          if method == '__setitem__' and node.args:
+                              key = const_key(node.args[0])
+                              if key in protected:
+                                  violations.append(f'{path}:{node.lineno}: protected __setitem__: {key}')
+                  elif isinstance(node, ast.Dict):
+                      for key_node, value_node in zip(node.keys, node.values):
+                          if const_key(key_node) == 'historical_version_checked':
+                              if isinstance(value_node, ast.Constant) and value_node.value is True:
+                                  violations.append(f'{path}:{node.lineno}: historical_version_checked=True is forbidden')
+
+          if violations:
+              raise SystemExit('\n'.join(violations))
+          print('HISTORICAL LAW AST SAFETY BOUNDARY OK: protected official-core writes absent')
           PY
+          git diff --check
 
   live-readonly-evidence:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Install runtime dependency
@@ -109,7 +162,9 @@ jobs:
           from pathlib import Path
           d = json.loads(Path('auto/qa/historical_law_exam_date_stage2.v1.json').read_text(encoding='utf-8'))
           print(json.dumps({
-              'question_count': d.get('question_count'),
+              'mapping_count': d.get('mapping_count', d.get('question_count')),
+              'unique_question_count': d.get('unique_question_count'),
+              'cross_law_overlap_count': d.get('cross_law_overlap_count'),
               'candidate_count': d.get('candidate_count'),
               'historical_version_checked_count': d.get('historical_version_checked_count'),
               'status_counts': d.get('status_counts'),
