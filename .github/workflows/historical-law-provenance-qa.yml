@@ -8,6 +8,8 @@ on:
       - 'scripts/historical_law_provenance_selftest.py'
       - 'scripts/historical_law_exam_date_refiner.py'
       - 'scripts/historical_law_stage2_selftest.py'
+      - 'scripts/historical_law_article_resolver.py'
+      - 'scripts/historical_law_article_resolver_selftest.py'
       - 'scripts/build_historical_law_provenance_report.py'
       - 'scripts/historical_law_provenance_report_smoke.py'
       - 'data/law_question_links_priority10.v1.json'
@@ -46,10 +48,13 @@ jobs:
             scripts/historical_law_provenance_selftest.py \
             scripts/historical_law_exam_date_refiner.py \
             scripts/historical_law_stage2_selftest.py \
+            scripts/historical_law_article_resolver.py \
+            scripts/historical_law_article_resolver_selftest.py \
             scripts/build_historical_law_provenance_report.py \
             scripts/historical_law_provenance_report_smoke.py
           (cd scripts && python historical_law_provenance_selftest.py)
           (cd scripts && python historical_law_stage2_selftest.py)
+          (cd scripts && python historical_law_article_resolver_selftest.py)
 
       - name: Offline V1 CLI contract on real 86 mappings
         run: |
@@ -85,6 +90,7 @@ jobs:
           files = [
               Path('scripts/historical_law_provenance_core.py'),
               Path('scripts/historical_law_exam_date_refiner.py'),
+              Path('scripts/historical_law_article_resolver.py'),
               Path('scripts/build_historical_law_provenance_report.py'),
           ]
           protected = {'stem', 'options', 'official_answer', 'accepted_answers', 'grading_mode'}
@@ -160,11 +166,11 @@ jobs:
         run: python -m pip install --disable-pip-version-check requests
 
       - name: Fetch official MOJ Stage 2 evidence
-        id: live
+        id: live-stage2
         continue-on-error: true
         run: python scripts/historical_law_exam_date_refiner.py
 
-      - name: Validate produced evidence if available
+      - name: Validate Stage 2 evidence if available
         if: always()
         run: |
           if [ -f auto/qa/historical_law_exam_date_stage2.v1.json ]; then
@@ -204,11 +210,54 @@ jobs:
             echo 'No live Stage 2 report produced; external MOJ source failure remains fail-soft.'
           fi
 
-      - name: Upload read-only Stage 2 evidence
+      - name: Build official-law Stage 3 article candidates
+        id: live-stage3
+        if: always()
+        continue-on-error: true
+        run: python scripts/historical_law_article_resolver.py
+
+      - name: Validate Stage 3 evidence if available
+        if: always()
+        run: |
+          if [ -f auto/qa/historical_law_article_stage3.v1.json ]; then
+            python - <<'PY'
+          import json
+          from pathlib import Path
+
+          d = json.loads(Path('auto/qa/historical_law_article_stage3.v1.json').read_text(encoding='utf-8'))
+          rows = d.get('records') or []
+          controls = d.get('controls') or []
+          assert d.get('mapping_count') == 86
+          assert d.get('target_count') == len(rows)
+          assert d.get('explicit_control_count') == len(controls)
+          assert d.get('target_count') + d.get('explicit_control_count') == 86
+          assert d.get('historical_version_checked_count') == 0
+          assert all(row.get('historical_version_checked') is False for row in rows)
+          assert all(row.get('route') in {'machine_candidate','ai_review','source_failure'} for row in rows)
+          assert sum((d.get('route_counts') or {}).values()) == len(rows)
+          assert all('official_answer' not in row for row in rows)
+          print(json.dumps({
+              'mapping_count': d.get('mapping_count'),
+              'target_count': d.get('target_count'),
+              'explicit_control_count': d.get('explicit_control_count'),
+              'explicit_control_top1_match_count': d.get('explicit_control_top1_match_count'),
+              'route_counts': d.get('route_counts'),
+              'confidence_counts': d.get('confidence_counts'),
+              'law_source_error_count': d.get('law_source_error_count'),
+              'historical_version_checked_count': d.get('historical_version_checked_count'),
+          }, ensure_ascii=False, indent=2))
+          PY
+          else
+            echo 'No Stage 3 report produced; external MOJ source failure remains fail-soft.'
+          fi
+
+      - name: Upload read-only historical-law evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: historical-law-stage2-live-evidence
-          path: auto/qa/historical_law_exam_date_stage2.v1.json
+          name: historical-law-stage2-stage3-live-evidence
+          path: |
+            auto/qa/historical_law_exam_date_stage2.v1.json
+            auto/qa/historical_law_article_stage3.v1.json
           if-no-files-found: warn
           retention-days: 14
