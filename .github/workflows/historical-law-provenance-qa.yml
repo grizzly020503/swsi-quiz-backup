@@ -13,6 +13,7 @@ on:
       - 'data/law_question_links_priority10.v1.json'
       - 'data/legal_watch_report.json'
       - 'data/historical_law_provenance_priority10.v1.json'
+      - 'data/moex_social_worker_exam_dates.v1.json'
       - '.github/workflows/historical-law-provenance-qa.yml'
   workflow_dispatch:
 
@@ -145,7 +146,7 @@ jobs:
 
   live-readonly-evidence:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 8
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -158,7 +159,7 @@ jobs:
       - name: Install live HTTP dependency
         run: python -m pip install --disable-pip-version-check requests
 
-      - name: Fetch official MOEX/MOJ Stage 2 evidence
+      - name: Fetch official MOJ Stage 2 evidence
         id: live
         continue-on-error: true
         run: python scripts/historical_law_exam_date_refiner.py
@@ -173,6 +174,7 @@ jobs:
 
           d = json.loads(Path('auto/qa/historical_law_exam_date_stage2.v1.json').read_text(encoding='utf-8'))
           rows = d.get('questions') or []
+          exam_dates = d.get('exam_dates') or {}
           assert d.get('mapping_count') == 86 == len(rows)
           assert d.get('unique_question_count') == 85
           assert d.get('cross_law_overlap_count') == 1
@@ -180,6 +182,10 @@ jobs:
           assert all(row.get('historical_version_checked') is False for row in rows)
           assert all('official_answer' not in row for row in rows)
           assert sum((d.get('status_counts') or {}).values()) == 86
+          assert d.get('exam_date_error_count') == 0, d.get('exam_dates')
+          assert d.get('exam_date_registry_hit_count') == len(exam_dates), d.get('exam_dates')
+          assert d.get('exam_date_live_hit_count') == 0, d.get('exam_dates')
+          assert all(v.get('status') == 'official_pinned' for v in exam_dates.values())
           print(json.dumps({
               'mapping_count': d.get('mapping_count'),
               'unique_question_count': d.get('unique_question_count'),
@@ -187,13 +193,15 @@ jobs:
               'candidate_count': d.get('candidate_count'),
               'historical_version_checked_count': d.get('historical_version_checked_count'),
               'exam_date_error_count': d.get('exam_date_error_count'),
+              'exam_date_registry_hit_count': d.get('exam_date_registry_hit_count'),
+              'exam_date_live_hit_count': d.get('exam_date_live_hit_count'),
               'law_fetch_error_count': d.get('law_fetch_error_count'),
               'status_counts': d.get('status_counts'),
               'exception_queue_counts': {k: len(v) for k, v in (d.get('exception_queue') or {}).items()},
           }, ensure_ascii=False, indent=2))
           PY
           else
-            echo 'No live Stage 2 report produced; external-source failure remains fail-soft.'
+            echo 'No live Stage 2 report produced; external MOJ source failure remains fail-soft.'
           fi
 
       - name: Upload read-only Stage 2 evidence
