@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import time
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -61,6 +62,28 @@ def all_articles_from_page(page_html: str) -> list[dict]:
         if no not in merged or len(text) > len(str(merged[no].get("text") or "")):
             merged[no] = {"article_no": no, "text": text}
     return list(merged.values())
+
+
+def fetch_verified_page(session: Any, url: str, attempts: int = 4) -> tuple[str | None, str | None]:
+    """Retry HTTP-200 identity failures as well as transport failures.
+
+    MOJ may transiently return a non-law page under burst traffic.  The source
+    identity rule remains unchanged; retries only distinguish a transient page
+    from a persistent mismatch.
+    """
+    last_error: str | None = None
+    for attempt in range(attempts):
+        if attempt:
+            time.sleep(0.8 * attempt)
+        try:
+            page = stage4._get(session, url)
+        except Exception as exc:
+            last_error = f"{type(exc).__name__}: {exc}"
+            continue
+        if stage4._page_identity_ok(page):
+            return page, None
+        last_error = "MOJ page identity mismatch after HTTP success"
+    return None, last_error
 
 
 def semantic_decision(expected_article: str, ranked: list[dict]) -> tuple[str, dict]:
@@ -126,20 +149,19 @@ def build_report(stage5: dict, links: dict, session: Any) -> dict:
             continue
 
         if version_url not in page_cache:
-            try:
-                page_cache[version_url] = stage4._get(session, version_url)
-            except Exception as exc:
-                page_cache[version_url] = exc
-        page = page_cache[version_url]
-        if isinstance(page, Exception):
+            page_cache[version_url] = fetch_verified_page(session, version_url)
+        page, page_error = page_cache[version_url]
+        if page is None:
+            status = (
+                "source_identity_mismatch"
+                if page_error and "identity mismatch" in page_error
+                else "source_failure"
+            )
             records.append({
                 **base,
-                "status": "source_failure",
-                "source_error": f"{type(page).__name__}: {page}",
+                "status": status,
+                "source_error": page_error,
             })
-            continue
-        if not stage4._page_identity_ok(page):
-            records.append({**base, "status": "source_identity_mismatch"})
             continue
 
         articles = all_articles_from_page(page)
