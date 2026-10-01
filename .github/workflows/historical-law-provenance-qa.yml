@@ -39,7 +39,7 @@ jobs:
       - name: Stage 2 exact-date regression
         working-directory: scripts
         run: python historical_law_stage2_selftest.py
-      - name: 86-question repository contract
+      - name: 86-link repository contract
         run: |
           python - <<'PY'
           import json
@@ -51,12 +51,15 @@ jobs:
           links = json.loads(Path('data/law_question_links_priority10.v1.json').read_text(encoding='utf-8'))
           watch = json.loads(Path('data/legal_watch_report.json').read_text(encoding='utf-8'))
           cards = links.get('cards') or []
-          rows = [q for card in cards for q in (card.get('questions') or [])]
+          link_rows = [(card['law_name'], q) for card in cards for q in (card.get('questions') or [])]
           assert len(cards) == 10, len(cards)
-          assert len(rows) == 86, len(rows)
-          assert len({q.get('question_id') for q in rows}) == 86
-          assert all(q.get('match_strength') == 'metadata_only' for q in rows)
-          assert all(q.get('historical_version_checked') is False for q in rows)
+          assert len(link_rows) == 86, len(link_rows)
+          link_keys = [(law, q.get('question_id')) for law, q in link_rows]
+          assert all(qid for _, qid in link_keys), 'every law-question link needs a question_id'
+          assert len(set(link_keys)) == 86, 'duplicate link within the same law card'
+          unique_question_ids = {qid for _, qid in link_keys}
+          assert all(q.get('match_strength') == 'metadata_only' for _, q in link_rows)
+          assert all(q.get('historical_version_checked') is False for _, q in link_rows)
           indexed = hp.watch_record_map(watch)
           for card in cards:
               law = card['law_name']
@@ -66,7 +69,7 @@ jobs:
           assert report['question_count'] == 86
           assert sum(report['status_counts'].values()) == 86
           assert all(q['historical_version_checked'] is False for q in report['questions'])
-          print('HISTORICAL LAW 86-QUESTION CONTRACT OK')
+          print(f'HISTORICAL LAW 86-LINK CONTRACT OK: 86 law links across {len(unique_question_ids)} unique questions')
           PY
       - name: Safety boundary
         run: |
