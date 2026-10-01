@@ -1,0 +1,57 @@
+name: Stage 4 Oldver Parser Patch
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - '.github/workflows/stage4-oldver-parser-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - name: Patch old-version article parser and regression
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          stage4 = Path('scripts/historical_law_oldver_stage4.py')
+          text = stage4.read_text(encoding='utf-8')
+          old = '''def _article_from_page(page_html: str, article_no: str) -> dict | None:\n    return next(\n        (row for row in stage3.parse_law_articles(page_html)\n         if row.get("article_no") == article_no), None,\n    )\n'''
+          new = '''def _oldver_articles_from_html(page_html: str) -> list[dict]:\n    """Parse MOJ LawOldVer blocks when text-heading parsing is insufficient.\n\n    Historical pages use paired ``col-no`` / ``law-article`` divs.  Keep this\n    fallback Stage-4-only so current-law Stage 3 ranking remains unchanged.\n    """\n    raw = str(page_html or "")\n    heading_re = re.compile(\n        r'<div\\b[^>]*class=["\\\'][^"\\\']*\\bcol-no\\b[^"\\\']*["\\\'][^>]*>'\n        r'\\s*第\\s*([^<]+?)\\s*條\\s*</div>',\n        flags=re.I | re.S,\n    )\n    matches = list(heading_re.finditer(raw))\n    rows: list[dict] = []\n    for index, match in enumerate(matches):\n        article_no = hp.normalize_article_no(match.group(1).strip().replace("之", "-"))\n        if not article_no:\n            continue\n        end = matches[index + 1].start() if index + 1 < len(matches) else len(raw)\n        segment = raw[match.end():end]\n        body_match = re.search(\n            r'<div\\b[^>]*class=["\\\'][^"\\\']*\\blaw-article\\b[^"\\\']*["\\\'][^>]*>(.*)',\n            segment, flags=re.I | re.S,\n        )\n        if not body_match:\n            continue\n        body = stage3.normalize_text(hp.html_to_text(body_match.group(1)))\n        if body:\n            rows.append({"article_no": article_no, "text": body})\n    return rows\n\n\ndef _article_from_page(page_html: str, article_no: str) -> dict | None:\n    rows = stage3.parse_law_articles(page_html)\n    row = next((item for item in rows if item.get("article_no") == article_no), None)\n    if row is not None:\n        return row\n    return next(\n        (item for item in _oldver_articles_from_html(page_html)\n         if item.get("article_no") == article_no), None,\n    )\n'''
+          marker = 'def _oldver_articles_from_html(page_html: str) -> list[dict]:'
+          if marker not in text:
+              if old not in text:
+                  raise SystemExit('expected _article_from_page block not found')
+              stage4.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          selftest = Path('scripts/historical_law_stage4_selftest.py')
+          st = selftest.read_text(encoding='utf-8')
+          anchor = 'print("HISTORICAL LAW STAGE4 SELFTEST OK")'
+          regression = '''# LawOldVer pages render article numbers and bodies as paired divs rather than\n# standalone text headings. Stage 4 must parse that structure without changing\n# the current-law Stage 3 parser.\noldver_html = """\n<html><head><title>全國法規資料庫</title></head><body>\n<div class="well law-reg law-content">\n<div class="row"><div class="col-no">第 14 條</div><div class="col-data"><div class="law-article">\n<div class="line-0000">第一項歷史條文。</div><div class="line-0004">第二項歷史條文。</div></div></div></div>\n<div class="row"><div class="col-no">第 22 條</div><div class="col-data"><div class="law-article">\n<div class="line-0000">目標條文內容。</div></div></div></div>\n</div></body></html>\n"""\nassert s4._article_from_page(oldver_html, "14")["text"] == "第一項歷史條文。 第二項歷史條文。"\nassert s4._article_from_page(oldver_html, "22")["text"] == "目標條文內容。"\nassert s4._article_from_page(oldver_html, "99") is None\n\nprint("HISTORICAL LAW STAGE4 SELFTEST OK")'''
+          if 'oldver_html = """' not in st:
+              if anchor not in st:
+                  raise SystemExit('selftest anchor not found')
+              selftest.write_text(st.replace(anchor, regression, 1), encoding='utf-8')
+          PY
+      - name: Commit parser patch
+        shell: bash
+        run: |
+          if git diff --quiet -- scripts/historical_law_oldver_stage4.py scripts/historical_law_stage4_selftest.py; then
+            echo 'No patch needed.'
+            exit 0
+          fi
+          git config user.name 'swsi-data-guardian-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add scripts/historical_law_oldver_stage4.py scripts/historical_law_stage4_selftest.py
+          git commit -m 'fix: parse MOJ historical article blocks'
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
