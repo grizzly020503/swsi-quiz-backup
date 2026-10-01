@@ -79,8 +79,11 @@ jobs:
           from pathlib import Path
 
           q = json.loads(Path('auto/qa/historical_law_guardian_queue.v1.json').read_text(encoding='utf-8'))
+          s2 = json.loads(Path('auto/qa/historical_law_exam_date_stage2.v1.json').read_text(encoding='utf-8'))
           s6 = json.loads(Path('auto/qa/historical_law_stage6_semantic.v1.json').read_text(encoding='utf-8'))
           rows = q.get('items') or []
+          s2_rows = s2.get('questions') or []
+          s2_ids = [str(row.get('question_id') or '') for row in s2_rows]
           lane_counts = q.get('lane_counts') or {}
           status6 = s6.get('status_counts') or {}
           allowed = {
@@ -93,11 +96,15 @@ jobs:
               'machine_evidence_blocked',
               'human_review',
           }
-          assert q.get('mapping_count') == len(rows) == 86
-          assert q.get('unique_question_count') == 85
+
+          assert s2_rows and all(s2_ids)
+          assert s2.get('mapping_count') == len(s2_rows)
+          assert s2.get('unique_question_count') == len(set(s2_ids))
+          assert q.get('mapping_count') == len(rows) == s2.get('mapping_count')
+          assert q.get('unique_question_count') == s2.get('unique_question_count')
           assert q.get('historical_version_checked_count') == 0
           assert q.get('protected_core_mutation_count') == 0
-          assert sum(lane_counts.values()) == 86
+          assert sum(lane_counts.values()) == len(rows)
           assert set(lane_counts).issubset(allowed)
           assert all(row.get('historical_version_checked') is False for row in rows)
           assert all('official_answer' not in row for row in rows)
@@ -110,9 +117,11 @@ jobs:
           source_retry_from_s6 = sum(status6.get(k, 0) for k in (
               'source_failure', 'source_identity_mismatch', 'historical_articles_unavailable'
           ))
-          # Stage 2 may contribute additional source-retry rows, so this is a lower bound.
+          # Stage 2/4/5 may contribute additional source-retry or blocked rows.
           assert lane_counts.get('source_retry', 0) >= source_retry_from_s6
           print(json.dumps({
+              'mapping_count': q.get('mapping_count'),
+              'unique_question_count': q.get('unique_question_count'),
               'stage6_status_counts': status6,
               'lane_counts': lane_counts,
               'priority_counts': q.get('priority_counts'),
