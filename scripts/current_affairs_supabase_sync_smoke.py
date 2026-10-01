@@ -11,6 +11,8 @@ import current_affairs_watch as watch
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "data" / "current_affairs_sources.json"
 EDGE = ROOT / "supabase" / "functions" / "sync-current-affairs" / "index.ts"
+PUBLIC_WORKFLOW = ROOT / ".github" / "workflows" / "public-monitoring-feed.yml"
+MOEX_WORKFLOW = ROOT / ".github" / "workflows" / "moex-social-worker-sync.yml"
 
 
 def extract_raw_json(source: str, constant: str):
@@ -88,10 +90,38 @@ def main() -> int:
     assert '!axes.includes("社會工作")' in source
     assert 'subjects: normalizedSubjects(x)' in source
 
+    # Current affairs has one runtime owner. Public Monitoring Feed owns the scan,
+    # Supabase candidate sync, and public snapshots. MOEX owns exams/law state and
+    # must not grow a second current-affairs scanner/sync path again.
+    public_workflow = PUBLIC_WORKFLOW.read_text(encoding="utf-8")
+    moex_workflow = MOEX_WORKFLOW.read_text(encoding="utf-8")
+    for required in (
+        "Scan social-work current affairs",
+        "Sync current-affairs candidates to Supabase",
+        "id: current_affairs_supabase",
+        "--data-binary @/tmp/current_affairs_payload.json",
+        "https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-current-affairs",
+        "Fail visibly if current-affairs Supabase sync failed",
+        "steps.current_affairs_supabase.outcome != 'success'",
+    ):
+        assert required in public_workflow, f"Public Monitoring Feed missing sync ownership contract: {required}"
+    assert "continue-on-error: true" in public_workflow, (
+        "Supabase sync must not block public snapshot rebuild/publish before the final visible failure gate"
+    )
+
+    for forbidden in (
+        "Scan social-work current affairs",
+        "Sync current-affairs candidates to Supabase",
+        "scripts/current_affairs_watch.py --output /tmp/current_affairs_payload.json",
+        "sync-current-affairs",
+    ):
+        assert forbidden not in moex_workflow, f"MOEX regained current-affairs ownership: {forbidden}"
+
     print(
         "CURRENT AFFAIRS SUPABASE SYNC POLICY OK: "
         f"sources={len(policy)}, categories={len(categories)}, "
-        "feed/region/type/host binding=yes, custom GitHub auth preserved=yes"
+        "feed/region/type/host binding=yes, custom GitHub auth preserved=yes, "
+        "single-owner=Public Monitoring Feed"
     )
     return 0
 

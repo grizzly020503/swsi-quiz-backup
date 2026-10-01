@@ -29,6 +29,8 @@ on:
       - 'scripts/social_work_knowledge_tree.py'
       - 'scripts/social_work_knowledge_tree_smoke.py'
       - 'scripts/current_affairs_sources_smoke.py'
+      - 'scripts/current_affairs_supabase_sync_smoke.py'
+      - 'supabase/functions/sync-current-affairs/index.ts'
       - 'scripts/build_current_affairs_snapshot.py'
       - 'scripts/current_affairs_snapshot_smoke.py'
       - 'scripts/current_affairs_event_cluster.py'
@@ -41,12 +43,15 @@ on:
   pull_request:
     paths:
       - '.github/workflows/public-monitoring-feed.yml'
+      - '.github/workflows/moex-social-worker-sync.yml'
       - 'data/current_affairs_sources.json'
       - 'scripts/current_affairs_watch.py'
       - 'scripts/current_affairs_taxonomy.py'
       - 'scripts/social_work_knowledge_tree.py'
       - 'scripts/social_work_knowledge_tree_smoke.py'
       - 'scripts/current_affairs_sources_smoke.py'
+      - 'scripts/current_affairs_supabase_sync_smoke.py'
+      - 'supabase/functions/sync-current-affairs/index.ts'
       - 'scripts/build_current_affairs_snapshot.py'
       - 'scripts/current_affairs_snapshot_smoke.py'
       - 'scripts/current_affairs_event_cluster.py'
@@ -101,6 +106,22 @@ jobs:
       - name: Scan social-work current affairs
         if: github.event_name != 'pull_request'
         run: python scripts/current_affairs_watch.py --output /tmp/current_affairs_payload.json --days 21
+
+      - name: Sync current-affairs candidates to Supabase
+        id: current_affairs_supabase
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        env:
+          GH_REPO_TOKEN: ${{ github.token }}
+          CURRENT_AFFAIRS_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-current-affairs
+        run: |
+          set -euo pipefail
+          curl --silent --show-error --fail-with-body \
+            -X POST "$CURRENT_AFFAIRS_URL" \
+            -H "Authorization: Bearer $GH_REPO_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/current_affairs_payload.json
+          echo
 
       - name: Build privacy-safe public snapshots
         if: github.event_name != 'pull_request'
@@ -224,6 +245,7 @@ jobs:
             scripts/social_work_knowledge_tree.py \
             scripts/social_work_knowledge_tree_smoke.py \
             scripts/current_affairs_sources_smoke.py \
+            scripts/current_affairs_supabase_sync_smoke.py \
             scripts/build_current_affairs_snapshot.py \
             scripts/current_affairs_snapshot_smoke.py \
             scripts/current_affairs_event_cluster.py \
@@ -235,6 +257,7 @@ jobs:
           python scripts/social_work_knowledge_tree_smoke.py
           python scripts/current_affairs_snapshot_smoke.py
           python scripts/current_affairs_sources_smoke.py
+          python scripts/current_affairs_supabase_sync_smoke.py
           python scripts/public_monitoring_v2_smoke.py
           python scripts/current_affairs_signals_smoke.py
           python scripts/current_affairs_events_smoke.py
@@ -270,4 +293,10 @@ jobs:
             echo "monitoring snapshot push race on attempt $attempt; retrying..."
           done
           echo 'Unable to publish monitoring snapshots after 3 attempts.' >&2
+          exit 1
+
+      - name: Fail visibly if current-affairs Supabase sync failed
+        if: github.event_name != 'pull_request' && steps.current_affairs_supabase.outcome != 'success'
+        run: |
+          echo '::error::Current-affairs public snapshots were allowed to rebuild/publish, but the Supabase candidate sync failed.'
           exit 1

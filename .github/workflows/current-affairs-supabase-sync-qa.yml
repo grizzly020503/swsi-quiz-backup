@@ -6,7 +6,10 @@ on:
       - 'data/current_affairs_sources.json'
       - 'scripts/current_affairs_watch.py'
       - 'scripts/current_affairs_supabase_sync_smoke.py'
+      - 'scripts/moex_workflow_ownership_smoke.py'
       - 'supabase/functions/sync-current-affairs/index.ts'
+      - '.github/workflows/public-monitoring-feed.yml'
+      - '.github/workflows/moex-social-worker-sync.yml'
       - '.github/workflows/current-affairs-supabase-sync-qa.yml'
   workflow_dispatch:
 
@@ -26,11 +29,13 @@ jobs:
           python-version: '3.12'
       - name: Install scanner parser dependency
         run: python -m pip install --disable-pip-version-check feedparser
-      - name: Verify source/category/auth policy contract
+      - name: Verify source/category/auth/owner policy contract
         run: |
           set -euo pipefail
           python -m py_compile \
             scripts/current_affairs_watch.py \
-            scripts/current_affairs_supabase_sync_smoke.py
+            scripts/current_affairs_supabase_sync_smoke.py \
+            scripts/moex_workflow_ownership_smoke.py
           python scripts/current_affairs_supabase_sync_smoke.py
+          python scripts/moex_workflow_ownership_smoke.py
           git diff --check
