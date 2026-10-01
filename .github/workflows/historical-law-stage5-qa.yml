@@ -3,10 +3,13 @@ name: Historical Law Stage 5 QA
 on:
   pull_request:
     paths:
+      - 'scripts/historical_law_exam_date_refiner.py'
       - 'scripts/historical_law_article_resolver.py'
       - 'scripts/historical_law_oldver_stage4.py'
       - 'scripts/historical_law_stage5_promotion.py'
       - 'scripts/historical_law_stage5_selftest.py'
+      - 'scripts/historical_law_guardian_queue.py'
+      - 'scripts/historical_law_guardian_queue_selftest.py'
       - 'data/law_question_links_priority10.v1.json'
       - 'data/legal_watch_report.json'
       - 'data/moex_social_worker_exam_dates.v1.json'
@@ -36,8 +39,11 @@ jobs:
           python -m py_compile \
             scripts/historical_law_article_resolver.py \
             scripts/historical_law_stage5_promotion.py \
-            scripts/historical_law_stage5_selftest.py
+            scripts/historical_law_stage5_selftest.py \
+            scripts/historical_law_guardian_queue.py \
+            scripts/historical_law_guardian_queue_selftest.py
           (cd scripts && python historical_law_stage5_selftest.py)
+          (cd scripts && python historical_law_guardian_queue_selftest.py)
           git diff --check
       - name: Protected-core / trust-boundary AST guard
         run: |
@@ -48,6 +54,7 @@ jobs:
           paths = [
               Path('scripts/historical_law_article_resolver.py'),
               Path('scripts/historical_law_stage5_promotion.py'),
+              Path('scripts/historical_law_guardian_queue.py'),
           ]
           protected = {'stem', 'options', 'official_answer', 'accepted_answers', 'grading_mode'}
           violations = []
@@ -62,15 +69,15 @@ jobs:
                       for key_node, value_node in zip(node.keys, node.values):
                           key = key_node.value if isinstance(key_node, ast.Constant) else None
                           if key == 'historical_version_checked' and isinstance(value_node, ast.Constant) and value_node.value is True:
-                              violations.append(f'{path}:{node.lineno}: historical_version_checked=True forbidden in Stage 5')
+                              violations.append(f'{path}:{node.lineno}: historical_version_checked=True forbidden in Stage 5 / Guardian routing')
           if violations:
               raise SystemExit('\n'.join(violations))
-          print('HISTORICAL LAW STAGE5 TRUST BOUNDARY OK')
+          print('HISTORICAL LAW STAGE5 / GUARDIAN TRUST BOUNDARY OK')
           PY
 
   live-readonly-promotion:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 14
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -78,25 +85,31 @@ jobs:
           python-version: '3.12'
       - name: Install live HTTP dependency
         run: python -m pip install --disable-pip-version-check requests
+      - name: Rebuild Stage 2 exact-date evidence
+        run: python scripts/historical_law_exam_date_refiner.py
       - name: Rebuild Stage 3 shadow-calibrated candidates
         run: python scripts/historical_law_article_resolver.py
       - name: Rebuild Stage 4 official historical-text evidence
         run: python scripts/historical_law_oldver_stage4.py
       - name: Build Stage 5 promotion-candidate report
         run: python scripts/historical_law_stage5_promotion.py
-      - name: Validate read-only promotion contract
+      - name: Build Historical Law Guardian queue
+        run: python scripts/historical_law_guardian_queue.py
+      - name: Validate read-only promotion and routing contract
         run: |
           python - <<'PY'
           import json
           import re
           from pathlib import Path
 
+          s2 = json.loads(Path('auto/qa/historical_law_exam_date_stage2.v1.json').read_text(encoding='utf-8'))
           s3 = json.loads(Path('auto/qa/historical_law_article_stage3.v1.json').read_text(encoding='utf-8'))
           s4 = json.loads(Path('auto/qa/historical_law_oldver_stage4.v1.json').read_text(encoding='utf-8'))
           s5 = json.loads(Path('auto/qa/historical_law_stage5_promotion.v1.json').read_text(encoding='utf-8'))
+          q = json.loads(Path('auto/qa/historical_law_guardian_queue.v1.json').read_text(encoding='utf-8'))
+
           rows = s5.get('records') or []
           calibration = s5.get('calibration') or {}
-
           assert s5.get('record_count') == len(rows)
           assert s5.get('historical_version_checked_count') == 0
           assert s5.get('protected_core_mutation_count') == 0
@@ -105,7 +118,6 @@ jobs:
           assert calibration.get('explicit_control_count', 0) >= 10
           assert calibration.get('top1_match_count', 0) >= 9
           assert calibration.get('top3_match_count', 0) >= 9
-
           if calibration.get('false_machine_candidate_count') != 0:
               assert s5.get('promotion_candidate_count') == 0
 
@@ -123,22 +135,45 @@ jobs:
                   assert row.get('exam_date_source_url')
                   assert not row.get('blockers')
 
-          assert sum((s5.get('promotion_status_counts') or {}).values()) == len(rows)
+          qrows = q.get('items') or []
+          assert q.get('mapping_count') == len(qrows) == 86
+          assert q.get('unique_question_count') == 85
+          assert q.get('historical_version_checked_count') == 0
+          assert q.get('protected_core_mutation_count') == 0
+          assert q.get('human_queue_count') == 0
+          assert all(row.get('historical_version_checked') is False for row in qrows)
+          assert all('official_answer' not in row for row in qrows)
+          assert sum((q.get('lane_counts') or {}).values()) == 86
+          assert set(q.get('lane_counts') or {}).issubset({
+              'machine_promotion',
+              'ai_article_review',
+              'machine_direct_source_check',
+              'effective_date_resolution',
+              'source_retry',
+              'machine_evidence_blocked',
+              'human_review',
+          })
+
           print(json.dumps({
+              'stage2_status_counts': s2.get('status_counts'),
               'stage3_shadow_machine_candidate_count': s3.get('explicit_control_shadow_machine_candidate_count'),
               'stage3_false_machine_candidate_count': s3.get('explicit_control_false_machine_candidate_count'),
               'stage4_status_counts': s4.get('status_counts'),
               'stage5_promotion_status_counts': s5.get('promotion_status_counts'),
-              'promotion_calibration_safe': calibration.get('promotion_calibration_safe'),
-              'historical_version_checked_count': s5.get('historical_version_checked_count'),
+              'guardian_lane_counts': q.get('lane_counts'),
+              'guardian_priority_counts': q.get('priority_counts'),
+              'human_queue_count': q.get('human_queue_count'),
+              'historical_version_checked_count': q.get('historical_version_checked_count'),
           }, ensure_ascii=False, indent=2))
           PY
       - uses: actions/upload-artifact@v4
         with:
           name: historical-law-stage5-live-evidence
           path: |
+            auto/qa/historical_law_exam_date_stage2.v1.json
             auto/qa/historical_law_article_stage3.v1.json
             auto/qa/historical_law_oldver_stage4.v1.json
             auto/qa/historical_law_stage5_promotion.v1.json
+            auto/qa/historical_law_guardian_queue.v1.json
           if-no-files-found: error
           retention-days: 14
