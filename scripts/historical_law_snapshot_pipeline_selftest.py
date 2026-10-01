@@ -53,7 +53,7 @@ articles, error = snap6.verified_snapshot_articles(old_row4, old_row5)
 assert error is None, error
 assert articles and {a["article_no"] for a in articles} == {"1", "8"}
 
-# Tampering with one old-version article invalidates both per-article and aggregate evidence.
+# Tampering with one old-version article invalidates aggregate evidence.
 tampered_old = dict(old_row4)
 tampered_old_snapshot = dict(old_snapshot)
 tampered_old_articles = [dict(a) for a in old_snapshot["articles"]]
@@ -111,11 +111,11 @@ articles, error = snap6.verified_snapshot_articles(api_row4, api_row5)
 assert error is None, error
 assert articles and {a["article_no"] for a in articles} == {"1", "8"}
 
-# Open API evidence may only represent a current selected version.
+# Stage4 and Stage5 must agree on current/oldver kind as well as URL.
 wrong_kind = dict(api_row5)
 wrong_kind["selected_version"] = {"kind": "oldver", "url": CURRENT_URL}
 articles, error = snap6.verified_snapshot_articles(api_row4, wrong_kind)
-assert articles is None and "non-current" in (error or "")
+assert articles is None and "kind mismatch" in (error or "")
 
 # A non-official/unknown API endpoint is rejected at Stage 4 snapshot validation.
 bad_api_payload = {
