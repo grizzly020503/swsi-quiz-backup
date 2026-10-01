@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "purpose": "Grandfathered direct window.* assignments. New globals or new owners require explicit review.",
+  "owners": {}
+}
