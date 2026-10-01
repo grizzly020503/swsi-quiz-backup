@@ -229,21 +229,40 @@ jobs:
           controls = d.get('controls') or []
           assert d.get('mapping_count') == 86
           assert d.get('target_count') == len(rows)
-          assert d.get('explicit_control_count') == len(controls)
+          assert d.get('explicit_control_count') == len(controls) == 10
           assert d.get('target_count') + d.get('explicit_control_count') == 86
           assert d.get('historical_version_checked_count') == 0
+          assert d.get('law_source_error_count') == 0, d.get('law_source_errors')
+          assert d.get('question_shard_error_count') == 0, d.get('question_shard_errors')
+          assert d.get('explicit_control_top1_match_count', 0) >= 9, d.get('controls')
+          assert d.get('explicit_control_top3_match_count', 0) >= 9, d.get('controls')
           assert all(row.get('historical_version_checked') is False for row in rows)
           assert all(row.get('route') in {'machine_candidate','ai_review','source_failure'} for row in rows)
           assert sum((d.get('route_counts') or {}).values()) == len(rows)
           assert all('official_answer' not in row for row in rows)
+          for row in rows:
+              if row.get('confidence') == 'conflict':
+                  assert row.get('route') == 'ai_review', row
+              if row.get('route') == 'machine_candidate':
+                  assert row.get('confidence') == 'high', row
+                  assert row.get('decision_reason') in {
+                      'official_text_semantics_and_metadata_agree',
+                      'very_strong_semantic_separation',
+                  }, row
+                  metadata = row.get('metadata_articles') or []
+                  if metadata:
+                      assert row.get('suggested_article') in metadata, row
           print(json.dumps({
               'mapping_count': d.get('mapping_count'),
               'target_count': d.get('target_count'),
               'explicit_control_count': d.get('explicit_control_count'),
               'explicit_control_top1_match_count': d.get('explicit_control_top1_match_count'),
+              'explicit_control_top3_match_count': d.get('explicit_control_top3_match_count'),
               'route_counts': d.get('route_counts'),
               'confidence_counts': d.get('confidence_counts'),
+              'decision_reason_counts': d.get('decision_reason_counts'),
               'law_source_error_count': d.get('law_source_error_count'),
+              'question_shard_error_count': d.get('question_shard_error_count'),
               'historical_version_checked_count': d.get('historical_version_checked_count'),
           }, ensure_ascii=False, indent=2))
           PY
