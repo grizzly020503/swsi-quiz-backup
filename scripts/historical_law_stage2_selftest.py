@@ -27,16 +27,35 @@ assert s2.official_exam_code({"exam_code": "105-2"}) == "105090"
 assert s2.official_exam_code({"exam_code": "106-2"}) == "106110"
 assert s2.official_exam_code({"source_exam_code": "115100", "exam_code": "115-2"}) == "115100"
 
+# Historical dates are a pinned official-source registry: 24 sessions, exactly
+# matching the repository's canonical human-code -> MOEX-code mapping.
+registry = s2.load_exam_date_registry()
+assert len(registry) == 24, len(registry)
+assert set(registry) == set(s2.EXAM_CODES.values())
+assert registry["104030"]["start_date"] == "2015-02-07"
+assert registry["104030"]["end_date"] == "2015-02-08"
+assert registry["106110"]["start_date"] == "2017-07-29"
+assert registry["108110"]["end_date"] == "2019-07-28"
+assert registry["113100"]["end_date"] == "2024-07-28"
+assert registry["115100"]["start_date"] == "2026-07-25"
+assert registry["115100"]["end_date"] == "2026-07-26"
+assert all(row["status"] == "official_pinned" for row in registry.values())
+assert all(row["provenance"] == "versioned_official_registry" for row in registry.values())
+
+class NoNetworkSession:
+    def get(self, *_args, **_kwargs):
+        raise AssertionError("pinned historical exam dates must not hit live MOEX")
+
+resolved = s2.fetch_exam_dates(NoNetworkSession(), {"104030", "115100"}, registry)
+assert resolved["104030"]["status"] == "official_pinned"
+assert resolved["115100"]["end_date"] == "2026-07-26"
+
 question = {"question_id": "Q1", "year": "115", "exam_code": "115-2", "stem": "依第10條規定"}
-exam = {
-    "status": "official_moex",
-    "start_date": "2026-07-25",
-    "end_date": "2026-07-27",
-    "source_url": "official",
-}
+exam = registry["115100"]
 result = s2.refine_question(question, entries, exam)
 assert result["stage2_status"] == "current_text_equals_exam_date_candidate", result
 assert result["historical_version_checked"] is False
+assert result["exam_date_provenance"] == "versioned_official_registry"
 
 history_after = """
 2. 中華民國一百十五年八月一日總統令修正公布第 10 條條文
@@ -76,13 +95,8 @@ assert "測試法" in hp.watch_record_map(legacy)
 original_fetch_dates = s2.fetch_exam_dates
 original_fetch_histories = s2.fetch_histories
 try:
-    s2.fetch_exam_dates = lambda _session, _codes: {
-        "115100": {
-            "status": "official_moex",
-            "start_date": "2026-07-25",
-            "end_date": "2026-07-27",
-            "source_url": "official-exam",
-        }
+    s2.fetch_exam_dates = lambda _session, _codes, _registry=None: {
+        "115100": dict(registry["115100"])
     }
     s2.fetch_histories = lambda _watch, cards: (
         {card["law_name"]: [] for card in cards},
@@ -101,11 +115,13 @@ try:
             {"law_name": "乙法", "questions": [dict(shared)]},
         ]
     }
-    report = s2.build_live_report(links, {"records": []}, object())
+    report = s2.build_live_report(links, {"records": []}, object(), registry)
     assert report["mapping_count"] == 2, report
     assert report["unique_question_count"] == 1, report
     assert report["cross_law_overlap_count"] == 1, report
     assert report["historical_version_checked_count"] == 0, report
+    assert report["exam_date_error_count"] == 0, report
+    assert report["exam_date_registry_hit_count"] == 1, report
     queued = report["exception_queue"]["article_resolution"]
     assert {(row["law_name"], row["question_id"]) for row in queued} == {
         ("甲法", "Q-SHARED"),
@@ -119,7 +135,7 @@ finally:
 original_fetch_dates = s2.fetch_exam_dates
 original_fetch_histories = s2.fetch_histories
 try:
-    s2.fetch_exam_dates = lambda _session, _codes: {
+    s2.fetch_exam_dates = lambda _session, _codes, _registry=None: {
         "115100": {"status": "unresolved", "source_url": "official-exam", "error": "timeout"}
     }
     s2.fetch_histories = lambda _watch, cards: (
@@ -128,7 +144,7 @@ try:
         {card["law_name"]: "source unavailable" for card in cards},
     )
     links = {"cards": [{"law_name": "甲法", "questions": [dict(question)]}]}
-    report = s2.build_live_report(links, {"records": []}, object())
+    report = s2.build_live_report(links, {"records": []}, object(), {})
     assert report["historical_version_checked_count"] == 0
     assert report["exam_date_error_count"] == 1
     assert report["law_fetch_error_count"] == 1
@@ -137,4 +153,4 @@ finally:
     s2.fetch_exam_dates = original_fetch_dates
     s2.fetch_histories = original_fetch_histories
 
-print("HISTORICAL LAW STAGE2 SELFTEST OK")
+print("HISTORICAL LAW STAGE2 SELFTEST OK: 24 pinned exam sessions + exact-date routing")
