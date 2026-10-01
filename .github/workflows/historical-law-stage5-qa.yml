@@ -1,0 +1,144 @@
+name: Historical Law Stage 5 QA
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/historical_law_article_resolver.py'
+      - 'scripts/historical_law_oldver_stage4.py'
+      - 'scripts/historical_law_stage5_promotion.py'
+      - 'scripts/historical_law_stage5_selftest.py'
+      - 'data/law_question_links_priority10.v1.json'
+      - 'data/legal_watch_report.json'
+      - 'data/moex_social_worker_exam_dates.v1.json'
+      - 'cdn/question-shards/**'
+      - '.github/workflows/historical-law-stage5-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: historical-law-stage5-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Syntax and deterministic regressions
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/historical_law_article_resolver.py \
+            scripts/historical_law_stage5_promotion.py \
+            scripts/historical_law_stage5_selftest.py
+          (cd scripts && python historical_law_stage5_selftest.py)
+          git diff --check
+      - name: Protected-core / trust-boundary AST guard
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          paths = [
+              Path('scripts/historical_law_article_resolver.py'),
+              Path('scripts/historical_law_stage5_promotion.py'),
+          ]
+          protected = {'stem', 'options', 'official_answer', 'accepted_answers', 'grading_mode'}
+          violations = []
+          for path in paths:
+              tree = ast.parse(path.read_text(encoding='utf-8'), filename=str(path))
+              for node in ast.walk(tree):
+                  if isinstance(node, ast.Subscript) and isinstance(node.ctx, ast.Store):
+                      key = node.slice.value if isinstance(node.slice, ast.Constant) else None
+                      if key in protected:
+                          violations.append(f'{path}:{node.lineno}: protected write {key}')
+                  if isinstance(node, ast.Dict):
+                      for key_node, value_node in zip(node.keys, node.values):
+                          key = key_node.value if isinstance(key_node, ast.Constant) else None
+                          if key == 'historical_version_checked' and isinstance(value_node, ast.Constant) and value_node.value is True:
+                              violations.append(f'{path}:{node.lineno}: historical_version_checked=True forbidden in Stage 5')
+          if violations:
+              raise SystemExit('\n'.join(violations))
+          print('HISTORICAL LAW STAGE5 TRUST BOUNDARY OK')
+          PY
+
+  live-readonly-promotion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install live HTTP dependency
+        run: python -m pip install --disable-pip-version-check requests
+      - name: Rebuild Stage 3 shadow-calibrated candidates
+        run: python scripts/historical_law_article_resolver.py
+      - name: Rebuild Stage 4 official historical-text evidence
+        run: python scripts/historical_law_oldver_stage4.py
+      - name: Build Stage 5 promotion-candidate report
+        run: python scripts/historical_law_stage5_promotion.py
+      - name: Validate read-only promotion contract
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          s3 = json.loads(Path('auto/qa/historical_law_article_stage3.v1.json').read_text(encoding='utf-8'))
+          s4 = json.loads(Path('auto/qa/historical_law_oldver_stage4.v1.json').read_text(encoding='utf-8'))
+          s5 = json.loads(Path('auto/qa/historical_law_stage5_promotion.v1.json').read_text(encoding='utf-8'))
+          rows = s5.get('records') or []
+          calibration = s5.get('calibration') or {}
+
+          assert s5.get('record_count') == len(rows)
+          assert s5.get('historical_version_checked_count') == 0
+          assert s5.get('protected_core_mutation_count') == 0
+          assert all(row.get('historical_version_checked') is False for row in rows)
+          assert all('official_answer' not in row for row in rows)
+          assert calibration.get('explicit_control_count', 0) >= 10
+          assert calibration.get('top1_match_count', 0) >= 9
+          assert calibration.get('top3_match_count', 0) >= 9
+
+          if calibration.get('false_machine_candidate_count') != 0:
+              assert s5.get('promotion_candidate_count') == 0
+
+          for row in rows:
+              if row.get('promotion_status') == 'promotion_candidate':
+                  assert row.get('stage3_confidence') == 'high'
+                  assert row.get('stage3_decision_reason') in {
+                      'official_text_semantics_and_metadata_agree',
+                      'very_strong_semantic_separation',
+                  }
+                  assert row.get('stage4_status') == 'historical_text_evidence_ready'
+                  assert re.fullmatch(r'[0-9a-f]{64}', row.get('historical_article_sha256') or '')
+                  assert (row.get('selected_version') or {}).get('url')
+                  assert row.get('official_history_url')
+                  assert row.get('exam_date_source_url')
+                  assert not row.get('blockers')
+
+          assert sum((s5.get('promotion_status_counts') or {}).values()) == len(rows)
+          print(json.dumps({
+              'stage3_shadow_machine_candidate_count': s3.get('explicit_control_shadow_machine_candidate_count'),
+              'stage3_false_machine_candidate_count': s3.get('explicit_control_false_machine_candidate_count'),
+              'stage4_status_counts': s4.get('status_counts'),
+              'stage5_promotion_status_counts': s5.get('promotion_status_counts'),
+              'promotion_calibration_safe': calibration.get('promotion_calibration_safe'),
+              'historical_version_checked_count': s5.get('historical_version_checked_count'),
+          }, ensure_ascii=False, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: historical-law-stage5-live-evidence
+          path: |
+            auto/qa/historical_law_article_stage3.v1.json
+            auto/qa/historical_law_oldver_stage4.v1.json
+            auto/qa/historical_law_stage5_promotion.v1.json
+          if-no-files-found: error
+          retention-days: 14
