@@ -101,6 +101,49 @@ class CaptureSession:
         self._session.close()
 
 
+def annotate_identity_diagnostics(report: dict, pages: dict[str, str]) -> dict:
+    """Attach non-sensitive diagnostics to rejected MOJ full-text responses.
+
+    This does not change routing. It only records enough structure to tell a
+    genuine MOJ document with a changed title apart from an interstitial/error
+    page. Raw response bodies are deliberately not persisted.
+    """
+    diagnostic_count = 0
+    for row in report.get("records") or []:
+        if row.get("status") != "source_identity_mismatch":
+            continue
+        selected = row.get("selected_version") or {}
+        url = str(selected.get("url") or "")
+        page = pages.get(url, "")
+        raw = str(page or "")
+        title_match = re.search(r"<title[^>]*>(.*?)</title>", raw, flags=re.I | re.S)
+        title_text = stage4.hp.clean_text(title_match.group(1)) if title_match else ""
+        articles = all_articles_from_verified_page(raw) if raw else []
+        target = str(row.get("suggested_article") or "")
+        visible = stage4.hp.clean_text(stage4.hp.html_to_text(raw))[:220] if raw else ""
+        lowered = raw.lower()
+        row["identity_diagnostic"] = {
+            "response_char_count": len(raw),
+            "response_sha256": _sha256_text(raw) if raw else None,
+            "title": title_text[:180],
+            "title_has_moj_brand": "全國法規資料庫" in title_text,
+            "parsed_article_count": len(articles),
+            "target_article_present": any(a.get("article_no") == target for a in articles),
+            "visible_text_prefix": visible,
+            "markers": {
+                "has_moj_brand_anywhere": "全國法規資料庫" in raw,
+                "has_system_message": "系統訊息" in raw,
+                "has_access_denied": "access denied" in lowered,
+                "has_request_blocked": "request blocked" in lowered,
+                "has_captcha": "captcha" in lowered or "驗證碼" in raw,
+                "has_cloudflare_challenge": "cf-chl" in lowered or "cloudflare" in lowered,
+            },
+        }
+        diagnostic_count += 1
+    report["identity_diagnostic_count"] = diagnostic_count
+    return report
+
+
 def attach_verified_snapshots(report: dict, pages: dict[str, str]) -> dict:
     snapshot_count = 0
     snapshot_article_count = 0
@@ -178,6 +221,7 @@ def run(
     finally:
         stage4._history_bundle = original_history_bundle
     report["stage2_history_snapshot_bundle_count"] = len(bundles)
+    report = annotate_identity_diagnostics(report, session.pages)
     return attach_verified_snapshots(report, session.pages)
 
 
@@ -206,11 +250,15 @@ def main() -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     source_errors = []
+    diagnostics = []
     for row in report.get("records") or []:
         error = str(row.get("source_error") or "")
         if error and error not in source_errors:
             source_errors.append(error)
-        if len(source_errors) >= 5:
+        diagnostic = row.get("identity_diagnostic")
+        if diagnostic and diagnostic not in diagnostics:
+            diagnostics.append(diagnostic)
+        if len(source_errors) >= 5 and len(diagnostics) >= 5:
             break
     print(json.dumps({
         "stage3_machine_candidate_count": report.get("stage3_machine_candidate_count"),
@@ -220,6 +268,8 @@ def main() -> int:
         "historical_text_evidence_ready_count": report.get("historical_text_evidence_ready_count"),
         "verified_snapshot_count": report.get("verified_snapshot_count"),
         "verified_snapshot_article_count": report.get("verified_snapshot_article_count"),
+        "identity_diagnostic_count": report.get("identity_diagnostic_count"),
+        "identity_diagnostic_samples": diagnostics[:5],
         "source_error_samples": source_errors,
         "historical_version_checked_count": report.get("historical_version_checked_count"),
     }, ensure_ascii=False))
