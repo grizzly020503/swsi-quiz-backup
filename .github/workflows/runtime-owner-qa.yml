@@ -7,7 +7,9 @@ on:
       - '.github/workflows/runtime-owner-qa.yml'
       - 'monthly_patch_parts/**'
       - 'config/monthly_patch_structure.json'
+      - 'config/window_global_inventory.json'
       - 'scripts/maintainability_smoke.py'
+      - 'scripts/window_global_inventory_smoke.py'
       - 'scripts/runtime_owner_smoke.js'
       - 'scripts/frontend_url_safety_smoke.js'
       - 'scripts/install_current_affairs_ui.py'
@@ -17,7 +19,9 @@ on:
       - '.github/workflows/runtime-owner-qa.yml'
       - 'monthly_patch_parts/**'
       - 'config/monthly_patch_structure.json'
+      - 'config/window_global_inventory.json'
       - 'scripts/maintainability_smoke.py'
+      - 'scripts/window_global_inventory_smoke.py'
       - 'scripts/runtime_owner_smoke.js'
       - 'scripts/frontend_url_safety_smoke.js'
       - 'scripts/install_current_affairs_ui.py'
@@ -32,6 +36,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Verify maintainability structure
         run: python3 scripts/maintainability_smoke.py
+      - name: Verify direct window global inventory
+        run: python3 scripts/window_global_inventory_smoke.py
       - name: Verify runtime owner chain
         run: node scripts/runtime_owner_smoke.js
       - name: Verify dynamic source URL safety
