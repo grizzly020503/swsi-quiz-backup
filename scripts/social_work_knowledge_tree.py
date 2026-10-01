@@ -195,6 +195,25 @@ RESEARCH_TOPIC_RULES = {
     "測量品質與研究判讀": ("信度", "效度", "validity", "reliability"),
 }
 
+# The broad category "社工專業與社福制度" contains two distinct semantic lanes.
+# If an event is about welfare budgets/benefits without real social-work profession
+# evidence, keep it on the policy/system lane instead of inventing professional
+# ethics or direct-practice relevance.
+SOCIAL_WORK_PROFESSION_TERMS = (
+    "社工", "社會工作者", "社工師", "社會工作師", "社會工作專業",
+    "社工專業", "專業倫理", "專業責任", "專業督導", "社工督導",
+    "社工人力", "社工案量", "執業環境", "social worker", "social work profession",
+)
+WELFARE_SYSTEM_TERMS = (
+    "社福", "社會福利", "福利制度", "福利政策", "社福支出", "社福預算",
+    "津貼", "給付", "補助", "福利給付", "追加預算", "社會安全網",
+)
+WELFARE_SYSTEM_MANAGEMENT_DEFAULTS = ("規劃與政策執行",)
+WELFARE_SYSTEM_SUBJECT_DEFAULTS = ("社會政策與社會立法",)
+WELFARE_SYSTEM_PRIMARY_SUBJECTS = ("社會政策與社會立法",)
+WELFARE_SYSTEM_SUBJECT_TOPICS = {
+    "社會政策與社會立法": ("社福服務體系、福利給付與制度責信",),
+}
 
 MANAGEMENT_TERM_RULES = {
     "規劃與政策執行": (
@@ -244,9 +263,9 @@ MANAGEMENT_TERM_RULES = {
 
 SUBJECT_TERM_RULES = {
     "社會工作": (
-        "社工", "社會工作", "倫理", "專業", "倡導", "增權", "充權", "優勢觀點",
-        "社會正義", "社區", "文化能力", "人權", "社會支持", "social work",
-        "advocacy", "empowerment",
+        "社工", "社會工作", "專業倫理", "專業責任", "社工專業", "社會工作專業",
+        "倡導", "增權", "充權", "優勢觀點", "社會正義", "社區", "文化能力",
+        "人權", "社會支持", "social work", "advocacy", "empowerment",
     ),
     "社會工作直接服務": (
         "評估", "處遇", "介入", "通報", "安置", "個案管理", "危機介入",
@@ -304,13 +323,29 @@ def classify_event_knowledge(
     category = str(category or "").strip()
     tags = _ordered_unique(exam_tags or [])
 
-    management = list(CATEGORY_MANAGEMENT_DEFAULTS.get(category, ()))
+    welfare_system_only = (
+        category == "社工專業與社福制度"
+        and _hits(body, WELFARE_SYSTEM_TERMS)
+        and not _hits(body, SOCIAL_WORK_PROFESSION_TERMS)
+    )
+
+    management_defaults = (
+        WELFARE_SYSTEM_MANAGEMENT_DEFAULTS
+        if welfare_system_only
+        else CATEGORY_MANAGEMENT_DEFAULTS.get(category, ())
+    )
+    management = list(management_defaults)
     for domain in MANAGEMENT_DOMAINS:
         if _hits(body, MANAGEMENT_TERM_RULES.get(domain, ())):
             management.append(domain)
     management = _ordered_unique(management, MANAGEMENT_DOMAINS)[:5]
 
-    subjects = list(CATEGORY_SUBJECT_DEFAULTS.get(category, ("社會工作",)))
+    subject_defaults = (
+        WELFARE_SYSTEM_SUBJECT_DEFAULTS
+        if welfare_system_only
+        else CATEGORY_SUBJECT_DEFAULTS.get(category, ("社會工作",))
+    )
+    subjects = list(subject_defaults)
     explicit_subjects = []
     for subject in EXAM_SUBJECTS:
         if _hits(body, SUBJECT_TERM_RULES.get(subject, ())):
@@ -318,7 +353,11 @@ def classify_event_knowledge(
             explicit_subjects.append(subject)
     subjects = _ordered_unique(subjects, EXAM_SUBJECTS)
 
-    category_primary = list(CATEGORY_PRIMARY_SUBJECTS.get(category, ()))
+    category_primary = list(
+        WELFARE_SYSTEM_PRIMARY_SUBJECTS
+        if welfare_system_only
+        else CATEGORY_PRIMARY_SUBJECTS.get(category, ())
+    )
     primary_subjects = []
     if category_primary:
         # The first subject is the category's default lens. Additional subjects
@@ -340,7 +379,11 @@ def classify_event_knowledge(
     supporting_subjects = [subject for subject in subjects if subject not in primary_subjects]
 
     subject_topics: dict[str, list[str]] = {}
-    defaults = CATEGORY_SUBJECT_TOPICS.get(category, {})
+    defaults = (
+        WELFARE_SYSTEM_SUBJECT_TOPICS
+        if welfare_system_only
+        else CATEGORY_SUBJECT_TOPICS.get(category, {})
+    )
     for subject in subjects:
         topics_for_subject = list(defaults.get(subject, ()))
         if subject == "社會工作研究方法":
