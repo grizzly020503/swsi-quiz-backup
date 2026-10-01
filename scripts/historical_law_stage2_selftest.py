@@ -51,4 +51,48 @@ mixed={"schema_version":3,"records":[{"canonical_name":"測試法","official_url
 assert hp.pcode_from_url(hp.watch_record_map(mixed)["測試法"]["official_url"]) == "A0000001"
 legacy={"records":{"測試法":{"official_url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0000001"}}}
 assert "測試法" in hp.watch_record_map(legacy)
+
+# A historical question may legitimately map to more than one explicit law.
+# The Stage-2 report must preserve law context in its exception queue instead of
+# collapsing both mappings to one bare question_id.
+original_fetch_dates = s2.fetch_exam_dates
+original_fetch_histories = s2.fetch_histories
+try:
+    s2.fetch_exam_dates = lambda _session, _codes: {
+        "115100": {
+            "status": "official_moex",
+            "start_date": "2026-07-25",
+            "end_date": "2026-07-27",
+            "source_url": "official-exam",
+        }
+    }
+    s2.fetch_histories = lambda _watch, cards: (
+        {card["law_name"]: [] for card in cards},
+        {card["law_name"]: f"history://{card['law_name']}" for card in cards},
+    )
+    shared = {
+        "question_id": "Q-SHARED",
+        "year": "115",
+        "exam_code": "115-2",
+        "stem": "依本法規定，下列何者正確？",
+    }
+    links = {
+        "cards": [
+            {"law_name": "甲法", "questions": [dict(shared)]},
+            {"law_name": "乙法", "questions": [dict(shared)]},
+        ]
+    }
+    report = s2.build_live_report(links, {"records": []}, object())
+    assert report["mapping_count"] == 2, report
+    assert report["unique_question_count"] == 1, report
+    assert report["cross_law_overlap_count"] == 1, report
+    queued = report["exception_queue"]["article_resolution"]
+    assert {(row["law_name"], row["question_id"]) for row in queued} == {
+        ("甲法", "Q-SHARED"),
+        ("乙法", "Q-SHARED"),
+    }, queued
+finally:
+    s2.fetch_exam_dates = original_fetch_dates
+    s2.fetch_histories = original_fetch_histories
+
 print("HISTORICAL LAW STAGE2 SELFTEST OK")
