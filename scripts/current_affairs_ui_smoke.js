@@ -20,6 +20,8 @@ const news = {
   subjects: ['社會工作'], exam_tags: ['責任通報'], relevance_score: 8,
   knowledge_root: '社會工作管理',
   management_domains: ['品質與風險管理', '服務輸送與跨網絡'],
+  primary_exam_subject_axes: ['社會工作'],
+  supporting_exam_subject_axes: ['社會工作直接服務'],
   subject_topics: {
     '社會工作': ['專業倫理與兒童最佳利益'],
     '社會工作直接服務': ['兒少保護風險評估'],
@@ -41,6 +43,8 @@ const event = {
   knowledge_model: 'management-hierarchy-over-five-exam-subjects-v3',
   management_domains: ['品質與風險管理', '服務輸送與跨網絡'],
   exam_subject_axes: ['社會工作', '社會工作直接服務'],
+  primary_exam_subject_axes: ['社會工作直接服務'],
+  supporting_exam_subject_axes: ['社會工作'],
   subject_topics: {
     '社會工作': ['專業倫理與兒童最佳利益'],
     '社會工作直接服務': ['兒少保護風險評估'],
@@ -188,6 +192,7 @@ async function scenario({
         '為什麼值得複習？', '多來源證據', 'SW-115-1-02',
         '同事件跨來源只計一次', '不代表命題保證',
         '社會工作管理 × 國考五科', '品質與風險管理',
+        '主要考科', '延伸考科',
         '社會工作直接服務', '兒少保護風險評估',
       ]) {
         assert(content.includes(value), `missing V2 student trend content: ${value}`);

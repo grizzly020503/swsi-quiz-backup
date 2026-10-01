@@ -25,6 +25,8 @@ def main() -> int:
     assert "服務輸送與跨網絡" in child["management_domains"], child
     assert "倫理與權利保障" in child["management_domains"], child
     assert "社會工作直接服務" in child["exam_subject_axes"], child
+    assert child["primary_exam_subject_axes"] == ["社會工作直接服務", "社會政策與社會立法"], child
+    assert "人類行為與社會環境" in child["supporting_exam_subject_axes"], child
     assert "人類行為與社會環境" in child["exam_subject_axes"], child
     assert "社會政策與社會立法" in child["exam_subject_axes"], child
     assert "兒少保護" in child["knowledge_topics"], child
@@ -35,6 +37,14 @@ def main() -> int:
     ), child
     assert not any("五科整合" in path for path in child["knowledge_paths"]), child
 
+    family_subsidy = classify_event_knowledge(
+        "企業托育補助新制提高支持力道，調整補助與申請制度。",
+        category="性別與家庭政策",
+        exam_tags=["托育", "補助"],
+    )
+    assert family_subsidy["primary_exam_subject_axes"] == ["社會政策與社會立法"], family_subsidy
+    assert "人類行為與社會環境" in family_subsidy["supporting_exam_subject_axes"], family_subsidy
+
     wage = classify_event_knowledge(
         "最低工資審議會決定自116年起調升月薪與時薪，並討論消費者物價指數與產業發展，調整案陳報行政院核定。",
         category="勞動與社會保障",
@@ -43,6 +53,8 @@ def main() -> int:
     assert "規劃與政策執行" in wage["management_domains"], wage
     assert "倫理與權利保障" in wage["management_domains"], wage
     assert "社會政策與社會立法" in wage["exam_subject_axes"], wage
+    assert wage["primary_exam_subject_axes"] == ["社會政策與社會立法"], wage
+    assert "社會工作" in wage["supporting_exam_subject_axes"], wage
     assert "人類行為與社會環境" not in wage["exam_subject_axes"], wage
     assert "社會工作研究方法" not in wage["exam_subject_axes"], wage
     assert "人力與督導" not in wage["management_domains"], wage
@@ -56,6 +68,7 @@ def main() -> int:
     )
     assert "成效評估與證據" in survey["management_domains"], survey
     assert "社會工作研究方法" in survey["exam_subject_axes"], survey
+    assert "社會工作研究方法" in survey["primary_exam_subject_axes"], survey
     assert "倫理與權利保障" in survey["management_domains"], survey
 
     workforce = classify_event_knowledge(
@@ -91,10 +104,13 @@ def main() -> int:
         for path in survey["knowledge_paths"]
     ), survey
 
-    for payload in (child, wage, survey, workforce, misconduct, role_title):
+    for payload in (child, family_subsidy, wage, survey, workforce, misconduct, role_title):
         assert payload["knowledge_root"] == "社會工作管理"
         assert set(payload["management_domains"]).issubset(set(MANAGEMENT_DOMAINS))
         assert set(payload["exam_subject_axes"]).issubset(set(EXAM_SUBJECTS))
+        assert set(payload["primary_exam_subject_axes"]).issubset(set(payload["exam_subject_axes"]))
+        assert set(payload["supporting_exam_subject_axes"]).issubset(set(payload["exam_subject_axes"]))
+        assert not set(payload["primary_exam_subject_axes"]).intersection(payload["supporting_exam_subject_axes"])
         assert payload["management_domains"]
         assert payload["exam_subject_axes"]
         assert isinstance(payload["subject_topics"], dict)
@@ -102,7 +118,7 @@ def main() -> int:
 
     print(
         "SOCIAL WORK KNOWLEDGE TREE SMOKE OK: "
-        "management-root=yes, five-subject axes=yes, subject-topics=yes, child/wage/research/workforce/misconduct fixtures=yes"
+        "management-root=yes, primary/support subject axes=yes, subject-topics=yes, child/wage/research/workforce/misconduct fixtures=yes"
     )
     return 0
 

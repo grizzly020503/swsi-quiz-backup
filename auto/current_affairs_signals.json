@@ -1,18 +1,134 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T10:03:45Z",
-  "item_count": 6,
+  "generated_at": "2026-09-26T05:50:39Z",
+  "item_count": 5,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
   "note": "SWSI 命題訊號快照；用於複習方向，不代表命題保證。",
   "items": [
+    {
+      "id": "85f03325aff5e8c1aabd1020fc9a80a4",
+      "title": "住宿式服務機構補助加碼 卓揆：中重度失能者每月最高補助1萬5,000元、中度以上身心障礙者每月補助5,000元住宿費",
+      "summary": "行政院長卓榮泰今（10）日於行政院會聽取衛生福利部「住宿式服務機構使用者補助方案-115年調增規劃」報告後表示，為持續強化長期照顧服務，以及對中重度失能者及其家庭的支持，今（2026）年起調增住宿式服務機構使用者補助，中重度失能者入住長照住宿式機構，每人每月最高補助提高至1萬5,000元，並同步加碼補助入住身心障礙機構的中度以上身心障礙者每月5,000元住宿費用，補助額度溯自今年1月1日起適用，同時簡化申請、審查及核發流程，讓民眾享有多元、近便及質優的服務。卓院長表示，我國已邁入超高齡社會，老年人口數至今年7月底達477萬餘人，占總人口20.5%；為因應",
+      "source_name": "行政院本院新聞",
+      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//ccd56110-78a5-408b-8014-45853b78578b",
+      "published_at": "2026-09-10T04:58:08Z",
+      "region": "taiwan",
+      "category": "身障與人權",
+      "relevance_score": 5,
+      "exam_tags": [
+        "身心障礙",
+        "政策",
+        "補助",
+        "福利"
+      ],
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "倫理與權利保障",
+        "服務輸送與跨網絡",
+        "規劃與政策執行",
+        "方案與資源管理"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作",
+        "社會工作直接服務",
+        "人類行為與社會環境"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "CRPD、合理調整與身障福利制度"
+        ],
+        "社會工作": [
+          "增權、自立生活與障礙者權利"
+        ],
+        "社會工作直接服務": [
+          "需求評估、個案管理與社區支持"
+        ],
+        "人類行為與社會環境": [
+          "障礙與環境互動"
+        ]
+      },
+      "knowledge_topics": [
+        "身障與人權",
+        "身心障礙",
+        "政策",
+        "補助",
+        "福利"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 增權、自立生活與障礙者權利",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估、個案管理與社區支持",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > CRPD、合理調整與身障福利制度",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 障礙與環境互動",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 需求評估、個案管理與社區支持",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 增權、自立生活與障礙者權利",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > CRPD、合理調整與身障福利制度",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > CRPD、合理調整與身障福利制度",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 增權、自立生活與障礙者權利",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 增權、自立生活與障礙者權利",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > CRPD、合理調整與身障福利制度"
+      ],
+      "policy_signal": "high",
+      "essay_value": "medium",
+      "mcq_fact_density": "high",
+      "signal_confidence": "high",
+      "signal_score": 8,
+      "exam_point_summary": "住宿式服務機構補助加碼 卓揆：中重度失能者每月最高補助1萬5,000元、中度以上身心障礙者每月補…。制度或給付已有明確變動；申論可從CRPD、合理調整、自立生活與去機構化切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「CRPD、合理調整、自立生活與去機構化」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "衛生福利部",
+        "行政院"
+      ],
+      "related_laws": [],
+      "related_exam_questions": [],
+      "historical_exam_stats": {
+        "matched_question_count": 0,
+        "weighted_match_count": 0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 0
+        },
+        "matched_year_count": 0,
+        "matched_years": [],
+        "earliest_exam_year": null,
+        "latest_exam_year": null,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": null,
+        "subject_counts": {},
+        "subject_count": 0,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      },
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務",
+        "人類行為與社會環境"
+      ]
+    },
     {
       "id": "1f324758779ada31a0fc3e3382971947",
       "title": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工資調升至205元。",
       "summary": "最低工資審議會於今（24）日召開會議，經勞、資、學、政四方委員討論，決定自116年1月1日起，每月最低工資由29,500元調整至30,900元，調升1,400元，調幅4.745％；每小時最低工資則比照每月最低工資之調幅，由196元調整至205元。調整案將由勞動部陳報行政院核定。若經行政院核定，最低工資將連11年調漲，持續提升基層勞工薪資，保障勞工基本生活。 本次會議，勞資雙方委員於上午進行意見交換，雙方就消費者物價指數年增率、經濟成長情勢、產業發展及勞工生活所需等面向充分討論，全數委員均認同消費者物價指數年增率CPI應全數反映，經濟成長率GDP應合理分享",
       "source_name": "勞動部新聞稿",
       "source_url": "https://www.mol.gov.tw/1607/1632/1633/99195/",
-      "published_at": "2026-09-29T16:17:32Z",
+      "published_at": "2026-09-24T19:50:25Z",
       "region": "taiwan",
       "category": "勞動與社會保障",
       "relevance_score": 5,
@@ -96,7 +212,7 @@
       ],
       "historical_exam_stats": {
         "matched_question_count": 2,
-        "weighted_match_count": 1.0,
+        "weighted_match_count": 1,
         "match_breakdown": {
           "strong": 0,
           "medium": 2,
@@ -120,7 +236,13 @@
         "law_match_years": [],
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2"
-      }
+      },
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作"
+      ]
     },
     {
       "id": "2cc263d201f443e931c4a3a5f75e0312",
@@ -293,7 +415,15 @@
         "law_match_years": [],
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2"
-      }
+      },
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作",
+        "社會工作直接服務"
+      ]
     },
     {
       "id": "6c3e075258813e8339a40cebd78e2c0c",
@@ -405,7 +535,7 @@
       ],
       "historical_exam_stats": {
         "matched_question_count": 2,
-        "weighted_match_count": 1.0,
+        "weighted_match_count": 1,
         "match_breakdown": {
           "strong": 0,
           "medium": 2,
@@ -429,360 +559,15 @@
         "law_match_years": [],
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2"
-      }
-    },
-    {
-      "id": "3e7cc52af1b25a9177663b6b5b5b6440",
-      "title": "政院：追加預算年底若未審畢 社福津貼加碼恐將失效",
-      "summary": "（中央社記者賴于榛台北1日電）為穩定油電營運，行政院長卓榮泰今天呼籲立法院11月底前三讀今年度中央政府追加預算案，以利提升能源韌性、有效維持民生物價穩定。行政院也說，若追加預算案無法在今年底前審議完畢，包含回溯至7月1日發放的軍公教專業與主管加給，以及多項社福支出加碼恐都失效。",
-      "source_name": "中央社政治",
-      "source_url": "https://www.cna.com.tw/news/aipl/202610010199.aspx",
-      "published_at": "2026-10-01T07:05:07Z",
-      "region": "taiwan",
-      "category": "社工專業與社福制度",
-      "relevance_score": 5,
-      "exam_tags": [
-        "社福",
-        "津貼",
-        "行政院"
-      ],
-      "subjects": [
-        "社會工作",
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "組織治理與責信",
-        "倫理與權利保障",
-        "規劃與政策執行",
-        "方案與資源管理"
-      ],
-      "exam_subject_axes": [
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "subject_topics": {
-        "社會工作": [
-          "專業倫理、專業責任與社會工作價值"
-        ],
-        "社會政策與社會立法": [
-          "社福服務體系、專業規範與制度責信"
-        ]
       },
-      "knowledge_topics": [
-        "社工專業與社福制度",
-        "社福",
-        "津貼",
-        "行政院"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 組織治理與責信",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 組織治理與責信 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 組織治理與責信 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信"
-      ],
-      "policy_signal": "low",
-      "essay_value": "high",
-      "mcq_fact_density": "medium",
-      "signal_confidence": "medium",
-      "signal_score": 7,
-      "exam_point_summary": "政院：追加預算年底若未審畢 社福津貼加碼恐將失效。偏宣導或活動訊息；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "行政院",
-        "社福"
-      ],
-      "related_laws": [],
-      "related_exam_questions": [
-        {
-          "id": "DS-115-2-015",
-          "subject": "社會工作直接服務",
-          "year": "115",
-          "round": "第二次",
-          "qno": "15",
-          "major": "社會工作倫理",
-          "topic": "倫理原則 > 倫理困境與決策",
-          "match_reason": "事件詞：社福",
-          "match_score": 2.2
-        },
-        {
-          "id": "SW-115-1-04",
-          "subject": "社會工作",
-          "year": "115",
-          "round": "第一次",
-          "qno": "4",
-          "major": "社會工作專業",
-          "topic": "政策實務 > 經社文公約",
-          "match_reason": "事件詞：社福",
-          "match_score": 2.2
-        },
-        {
-          "id": "SW-114-2-23",
-          "subject": "社會工作",
-          "year": "114",
-          "round": "第二次",
-          "qno": "23",
-          "major": "社會工作倫理",
-          "topic": "倫理學基礎 > 義務論",
-          "match_reason": "事件詞：社福",
-          "match_score": 2.2
-        },
-        {
-          "id": "SW-113-1-01",
-          "subject": "社會工作",
-          "year": "113",
-          "round": "第一次",
-          "qno": "1",
-          "major": "社會工作專業",
-          "topic": "歷史發展 > 社福發展轉折",
-          "match_reason": "事件詞：社福",
-          "match_score": 2.2
-        },
-        {
-          "id": "DS-113-2-15",
-          "subject": "社會工作直接服務",
-          "year": "113",
-          "round": "第二次",
-          "qno": "15",
-          "major": "社會工作倫理",
-          "topic": "倫理議題 > 服務的價值",
-          "match_reason": "事件詞：社福",
-          "match_score": 2.2
-        }
-      ],
-      "historical_exam_stats": {
-        "matched_question_count": 15,
-        "weighted_match_count": 1.0,
-        "match_breakdown": {
-          "strong": 0,
-          "medium": 0,
-          "concept": 15
-        },
-        "matched_year_count": 9,
-        "matched_years": [
-          106,
-          108,
-          109,
-          110,
-          111,
-          112,
-          113,
-          114,
-          115
-        ],
-        "earliest_exam_year": 106,
-        "latest_exam_year": 115,
-        "corpus_latest_year": 115,
-        "years_since_last_exam": 0,
-        "subject_counts": {
-          "社會工作": 7,
-          "社會工作直接服務": 8
-        },
-        "subject_count": 2,
-        "law_match_count": 0,
-        "law_match_year_count": 0,
-        "law_match_years": [],
-        "high_confidence_match_count": 0,
-        "matching_method": "event-evidence-v2.2"
-      }
-    },
-    {
-      "id": "d65f416739f8a4ae713c8c8c814acde9",
-      "title": "重大違規再犯講習3新制9/30上路 估2.8萬人適用",
-      "summary": "公路局近日宣布，9/30起實施重大違規再犯講習新制，一年內曾受講習卻再犯，講習再犯班增至6小時，酒駕違規再犯班增至15小時，新增未滿18歲無照駕駛違規再犯班，估2.8萬人適用。 交通部公路局規劃「駕照管理三策略」，今年1月起分階段推動17項改革措施，日前召開記者會宣布，為遏止道路違規再犯行為，9月30日起針對過去一年內曾受講習卻再次違規者，加重並延長講習時數。 其中，「講習再犯班」由4小時延長至6小時，而「酒駕違規再犯班」由12小時延長至15小時。 至於新增「未滿18歲無照駕駛違規再犯班」，公路局監理組組長吳季娟表示，總時數為6小時，課程包含交通法令與相",
-      "source_name": "移民署新住民政策法規",
-      "source_url": "https://news.immigration.gov.tw/NewsSection/Detail/0b2ca547-34dd-4deb-baa6-595f48ae6c62?category=1&lang=TW",
-      "published_at": null,
-      "region": "taiwan",
-      "category": "兒少保護",
-      "relevance_score": 6,
-      "exam_tags": [
-        "兒少保護",
-        "兒少",
-        "修法",
-        "改革",
-        "補助"
-      ],
-      "subjects": [
-        "社會工作直接服務",
+      "primary_exam_subject_axes": [
         "社會政策與社會立法",
-        "社會工作"
+        "社會工作直接服務"
       ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "品質與風險管理",
-        "服務輸送與跨網絡",
-        "倫理與權利保障",
-        "規劃與政策執行",
-        "方案與資源管理"
-      ],
-      "exam_subject_axes": [
-        "社會工作直接服務",
+      "supporting_exam_subject_axes": [
         "人類行為與社會環境",
-        "社會政策與社會立法",
         "社會工作"
-      ],
-      "subject_topics": {
-        "社會工作直接服務": [
-          "兒少保護風險評估",
-          "家庭評估與危機介入"
-        ],
-        "人類行為與社會環境": [
-          "兒童發展、依附與創傷",
-          "家庭系統與風險保護因子"
-        ],
-        "社會政策與社會立法": [
-          "兒少福利與保護法制",
-          "責任通報與保護體系"
-        ],
-        "社會工作": [
-          "專業倫理與兒童最佳利益",
-          "權利倡導與社會正義"
-        ]
-      },
-      "knowledge_topics": [
-        "兒少保護",
-        "兒少",
-        "修法",
-        "改革",
-        "補助"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 兒少福利與保護法制",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 責任通報與保護體系",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制"
-      ],
-      "policy_signal": "medium",
-      "essay_value": "medium",
-      "mcq_fact_density": "low",
-      "signal_confidence": "medium",
-      "signal_score": 6,
-      "exam_point_summary": "重大違規再犯講習3新制9/30上路 估2.8萬人適用。政策／制度動向值得追蹤；申論可從兒少最佳利益、責任通報、跨網絡合作與制度漏洞切入。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "兒少保護",
-        "兒少",
-        "修法",
-        "改革"
-      ],
-      "related_laws": [],
-      "related_exam_questions": [
-        {
-          "id": "SP114-2-10",
-          "subject": "社會政策與社會立法",
-          "year": "114",
-          "round": "第二次",
-          "qno": "10",
-          "major": "社會政策概念與原則",
-          "topic": "福利治理 > Gilbert福利輸送改革策略",
-          "match_reason": "事件詞：改革",
-          "match_score": 2.2
-        },
-        {
-          "id": "SW-114-1-06",
-          "subject": "社會工作",
-          "year": "114",
-          "round": "第一次",
-          "qno": "6",
-          "major": "社會工作理論",
-          "topic": "理論類型 > 結構不平等理論",
-          "match_reason": "事件詞：改革",
-          "match_score": 2.2
-        },
-        {
-          "id": "SW-110-2-16",
-          "subject": "社會工作",
-          "year": "110",
-          "round": "第二次",
-          "qno": "16",
-          "major": "社會工作理論",
-          "topic": "理論比較 > 理論干預目標",
-          "match_reason": "事件詞：改革",
-          "match_score": 2.2
-        },
-        {
-          "id": "SW-110-1-19",
-          "subject": "社會工作",
-          "year": "110",
-          "round": "第一次",
-          "qno": "19",
-          "major": "社會工作倫理",
-          "topic": "倫理發展 > 倫理發展時序",
-          "match_reason": "事件詞：改革",
-          "match_score": 2.2
-        },
-        {
-          "id": "SW-109-1-23",
-          "subject": "社會工作",
-          "year": "109",
-          "round": "第一次",
-          "qno": "23",
-          "major": "社會工作倫理",
-          "topic": "倫理守則 > 社會正義價值",
-          "match_reason": "事件詞：改革",
-          "match_score": 2.2
-        }
-      ],
-      "historical_exam_stats": {
-        "matched_question_count": 10,
-        "weighted_match_count": 1.0,
-        "match_breakdown": {
-          "strong": 0,
-          "medium": 0,
-          "concept": 10
-        },
-        "matched_year_count": 6,
-        "matched_years": [
-          104,
-          106,
-          108,
-          109,
-          110,
-          114
-        ],
-        "earliest_exam_year": 104,
-        "latest_exam_year": 114,
-        "corpus_latest_year": 115,
-        "years_since_last_exam": 1,
-        "subject_counts": {
-          "社會工作": 5,
-          "社會政策與社會立法": 5
-        },
-        "subject_count": 2,
-        "law_match_count": 0,
-        "law_match_year_count": 0,
-        "law_match_years": [],
-        "high_confidence_match_count": 0,
-        "matching_method": "event-evidence-v2.2"
-      }
+      ]
     },
     {
       "id": "4afd0e8e306fd77bf0f9a30e21e13262",
@@ -868,7 +653,7 @@
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
-        "weighted_match_count": 0.0,
+        "weighted_match_count": 0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
@@ -887,7 +672,15 @@
         "law_match_years": [],
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2"
-      }
+      },
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會工作"
+      ]
     }
   ]
 }

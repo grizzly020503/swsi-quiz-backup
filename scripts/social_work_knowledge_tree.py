@@ -73,6 +73,23 @@ CATEGORY_SUBJECT_DEFAULTS = {
     "社工專業與社福制度": ("社會工作", "社會政策與社會立法"),
 }
 
+CATEGORY_PRIMARY_SUBJECTS = {
+    "兒少保護": ("社會工作直接服務", "社會政策與社會立法"),
+    "家暴與性暴力": ("社會工作直接服務", "社會政策與社會立法"),
+    "心理健康與成癮": ("人類行為與社會環境", "社會工作直接服務"),
+    "長照與高齡": ("社會政策與社會立法", "社會工作直接服務"),
+    "社會救助與居住": ("社會政策與社會立法", "社會工作"),
+    "身障與人權": ("社會政策與社會立法", "社會工作"),
+    "移工與新住民": ("社會工作", "社會政策與社會立法"),
+    "勞動與社會保障": ("社會政策與社會立法",),
+    "教育與學生輔導": ("社會工作直接服務", "社會政策與社會立法"),
+    "司法保護與修復式司法": ("社會工作直接服務", "社會政策與社會立法"),
+    "少年司法與犯罪防治": ("社會工作直接服務", "人類行為與社會環境"),
+    "性別與家庭政策": ("社會政策與社會立法", "人類行為與社會環境"),
+    "災害與社區工作": ("社會工作", "社會工作直接服務"),
+    "社工專業與社福制度": ("社會工作", "社會政策與社會立法"),
+}
+
 CATEGORY_MANAGEMENT_DEFAULTS = {
     "兒少保護": ("品質與風險管理", "服務輸送與跨網絡", "倫理與權利保障"),
     "家暴與性暴力": ("品質與風險管理", "服務輸送與跨網絡", "倫理與權利保障"),
@@ -233,7 +250,7 @@ SUBJECT_TERM_RULES = {
     ),
     "社會工作直接服務": (
         "評估", "處遇", "介入", "通報", "安置", "個案管理", "危機介入",
-        "家庭工作", "團體工作", "訪視", "轉介", "輔導", "保護服務",
+        "家庭工作", "團體工作", "訪視", "訪查", "轉介", "輔導", "保護服務",
         "case management", "intervention", "assessment", "referral",
     ),
     "人類行為與社會環境": (
@@ -251,6 +268,7 @@ SUBJECT_TERM_RULES = {
     "社會政策與社會立法": (
         "政策", "制度", "修法", "修正", "法律", "法規", "條例", "施行細則",
         "補助", "津貼", "給付", "保險", "最低工資", "資格", "主管機關",
+        "責任通報", "保護令", "權益保障",
         "生效", "policy", "law", "legislation", "benefit", "social insurance",
     ),
 }
@@ -293,10 +311,33 @@ def classify_event_knowledge(
     management = _ordered_unique(management, MANAGEMENT_DOMAINS)[:5]
 
     subjects = list(CATEGORY_SUBJECT_DEFAULTS.get(category, ("社會工作",)))
+    explicit_subjects = []
     for subject in EXAM_SUBJECTS:
         if _hits(body, SUBJECT_TERM_RULES.get(subject, ())):
             subjects.append(subject)
+            explicit_subjects.append(subject)
     subjects = _ordered_unique(subjects, EXAM_SUBJECTS)
+
+    category_primary = list(CATEGORY_PRIMARY_SUBJECTS.get(category, ()))
+    primary_subjects = []
+    if category_primary:
+        # The first subject is the category's default lens. Additional subjects
+        # become primary only when this specific event contains real evidence
+        # for that subject, preventing broad category defaults from making every
+        # story look equally relevant to three or four exam subjects.
+        primary_subjects.append(category_primary[0])
+        primary_subjects.extend(
+            subject for subject in category_primary[1:]
+            if subject in explicit_subjects
+        )
+    # Research methods is primary only when the event itself contains explicit
+    # research/evaluation evidence.
+    if "社會工作研究方法" in explicit_subjects:
+        primary_subjects.append("社會工作研究方法")
+    primary_subjects = _ordered_unique(primary_subjects, EXAM_SUBJECTS)[:3]
+    if not primary_subjects and subjects:
+        primary_subjects = subjects[:1]
+    supporting_subjects = [subject for subject in subjects if subject not in primary_subjects]
 
     subject_topics: dict[str, list[str]] = {}
     defaults = CATEGORY_SUBJECT_TOPICS.get(category, {})
@@ -335,6 +376,8 @@ def classify_event_knowledge(
         "knowledge_model": KNOWLEDGE_MODEL,
         "management_domains": management,
         "exam_subject_axes": subjects,
+        "primary_exam_subject_axes": primary_subjects,
+        "supporting_exam_subject_axes": supporting_subjects,
         "subject_topics": subject_topics,
         "knowledge_topics": topics,
         "knowledge_paths": _ordered_unique(paths)[:30],
