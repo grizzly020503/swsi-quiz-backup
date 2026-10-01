@@ -165,6 +165,36 @@ def main() -> int:
     assert history.get("weighted_match_count") == 6.25, history
     assert history.get("match_breakdown") == {"strong": 5, "medium": 2, "concept": 1}, history
 
+    cross_a = row(
+        "cross-a",
+        "北市府啟動社福帳務全面稽核",
+        "中天新聞社會",
+        "https://example.test/cross-a",
+        "2026-09-23T08:00:00Z",
+        tags=["專業倫理", "內控"],
+    )
+    cross_a.update({"category": "社工專業與社福制度", "fact_keys": ["num:12000000"]})
+    cross_b = row(
+        "cross-b",
+        "檢方聲押涉案人並追查長者資金流向",
+        "TVBS新聞社會",
+        "https://example.test/cross-b",
+        "2026-09-24T01:00:00Z",
+        tags=["專業倫理", "內控"],
+    )
+    cross_b.update({"category": "社工專業與社福制度", "fact_keys": ["num:12000000"]})
+    cross_events = cluster_items([cross_a, cross_b])
+    assert len(cross_events) == 1, cross_events
+    assert cross_events[0]["source_count"] == 2, cross_events[0]
+    assert len(cross_events[0]["evidence"]) == 2, cross_events[0]
+
+    weak_a = {**cross_a, "id": "weak-a", "exam_tags": ["社工"]}
+    weak_b = {**cross_b, "id": "weak-b", "exam_tags": ["社工"]}
+    assert len(cluster_items([weak_a, weak_b])) == 2, "generic 社工 tag must not anchor cross-publisher identity"
+
+    other_fact = {**cross_b, "id": "cross-other", "fact_keys": ["num:9900000"]}
+    assert len(cluster_items([cross_a, other_fact])) == 2, "different significant facts must stay separate"
+
     bilingual_same = [
         {
             "id": "bi-zh",
