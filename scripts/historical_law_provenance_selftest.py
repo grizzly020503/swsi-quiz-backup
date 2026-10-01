@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # Intentionally stdlib-only: live MOJ HTTP dependencies must not be required by CI.
-from historical_law_provenance import chinese_integer, extract_explicit_articles, parse_history_entries, triage_question
+from historical_law_provenance import (
+    chinese_integer,
+    extract_explicit_articles,
+    normalize_watch_records,
+    parse_history_entries,
+    triage_question,
+)
 
 def q(year, stem, qid="SP-test"):
     return {"question_id": qid, "year": str(year), "stem": stem, "exam_code": f"{year}-1"}
@@ -11,6 +17,20 @@ assert chinese_integer("一百十五") == 115
 assert chinese_integer("115") == 115
 assert extract_explicit_articles("依第8條及第 26-1 條規定，何者正確？") == ["8", "26-1"]
 assert extract_explicit_articles("補助 3 個月，所得為最低生活費 2.5 倍") == []
+
+# legal_watch_report.json v3 stores records as a list. Preserve dict compatibility
+# because older snapshots/tests may still use keyed records.
+watch_list = {
+    "records": [
+        {"canonical_name": "國民年金法", "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050152"},
+        {"canonical_name": "志願服務法", "official_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050131"},
+    ]
+}
+normalized = normalize_watch_records(watch_list)
+assert normalized["國民年金法"]["official_url"].endswith("D0050152")
+assert set(normalized) == {"國民年金法", "志願服務法"}
+watch_dict = {"records": {"國民年金法": {"official_url": "x"}}}
+assert normalize_watch_records(watch_dict)["國民年金法"]["official_url"] == "x"
 
 history_text = """
 15. 中華民國一百十年一月二十日總統令修正公布第 26 條條文
