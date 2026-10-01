@@ -2,13 +2,13 @@
 """Stage 7 materializes verified historical-law metadata into a separate overlay.
 
 This is the first stage allowed to emit ``historical_version_checked=true``, and
-only inside the dedicated derived registry.  It never mutates question shards,
+only inside the dedicated derived registry. It never mutates question shards,
 official answers, accepted answers, grading modes, stems, or options.
 
 Materialization is monotonic: an existing verified record remains present during
-source outages.  If fresh evidence for an existing key changes the historical
-article SHA-256 or article number, the script fails closed with an evidence
-conflict rather than silently overwriting provenance.
+source outages. If fresh evidence for an existing key changes the historical
+article, fingerprint, or selected-version identity, the script fails closed
+rather than silently overwriting provenance.
 """
 from __future__ import annotations
 
@@ -28,6 +28,15 @@ VERIFICATION_BASIS = (
     "Stage3 zero-false-machine shadow calibration + Stage4 official MOJ exam-date "
     "article fingerprint + Stage6 historical-version semantic top1 high confidence"
 )
+VERSION_FIELDS = (
+    "kind",
+    "version_date",
+    "effective_date",
+    "effective_date_scope",
+    "lnndate",
+    "lser",
+    "url",
+)
 
 
 def key(row: dict) -> tuple[str, str]:
@@ -36,6 +45,17 @@ def key(row: dict) -> tuple[str, str]:
 
 def _valid_sha(value: object) -> bool:
     return bool(re.fullmatch(r"[0-9a-f]{64}", str(value or "")))
+
+
+def compact_version(value: object) -> dict:
+    """Keep only stable provenance fields; omit MOJ page/footer/history noise."""
+    source = value if isinstance(value, dict) else {}
+    return {field: source.get(field) for field in VERSION_FIELDS}
+
+
+def _version_identity(value: object) -> tuple[str, ...]:
+    version = compact_version(value)
+    return tuple(str(version.get(field) or "") for field in VERSION_FIELDS)
 
 
 def candidate_records(stage5: dict, stage6: dict) -> list[dict]:
@@ -53,7 +73,7 @@ def candidate_records(stage5: dict, stage6: dict) -> list[dict]:
             continue
         article = str(row.get("suggested_article") or "")
         fingerprint = str(row.get("historical_article_sha256") or "")
-        version = row.get("selected_version") or {}
+        version = compact_version(row.get("selected_version"))
         if not article or not _valid_sha(fingerprint) or not version.get("url"):
             continue
         records.append({
@@ -89,11 +109,13 @@ def build_registry(stage5: dict, stage6: dict, existing: dict | None = None) -> 
     for k, new in fresh.items():
         previous = old.get(k)
         if previous:
-            changed = []
+            changed: list[str] = []
             if str(previous.get("article") or "") != str(new.get("article") or ""):
                 changed.append("article")
             if str(previous.get("historical_article_sha256") or "") != str(new.get("historical_article_sha256") or ""):
                 changed.append("historical_article_sha256")
+            if _version_identity(previous.get("selected_version")) != _version_identity(new.get("selected_version")):
+                changed.append("selected_version")
             if changed:
                 conflicts.append({
                     "law_name": k[0],
@@ -103,6 +125,8 @@ def build_registry(stage5: dict, stage6: dict, existing: dict | None = None) -> 
                     "fresh_article": new.get("article"),
                     "previous_sha256": previous.get("historical_article_sha256"),
                     "fresh_sha256": new.get("historical_article_sha256"),
+                    "previous_selected_version": compact_version(previous.get("selected_version")),
+                    "fresh_selected_version": compact_version(new.get("selected_version")),
                 })
                 continue
         old[k] = new
