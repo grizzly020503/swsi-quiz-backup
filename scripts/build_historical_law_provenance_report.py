@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import time
 from collections import Counter
 from pathlib import Path
 
@@ -23,6 +24,23 @@ from historical_law_provenance import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
+LIVE_ATTEMPTS = 3
+
+
+def fetch_history_entries_with_retry(pcode: str) -> list[dict]:
+    """Retry transient MOJ history-page/recognition failures, then fail closed."""
+    last = None
+    for attempt in range(LIVE_ATTEMPTS):
+        try:
+            entries = parse_history_entries(fetch_history_text(pcode))
+            if not entries:
+                raise RuntimeError("MOJ history page parsed zero amendment entries")
+            return entries
+        except Exception as exc:
+            last = exc
+            if attempt + 1 < LIVE_ATTEMPTS:
+                time.sleep(0.6 * (attempt + 1))
+    raise RuntimeError(f"MOJ history unavailable after {LIVE_ATTEMPTS} attempts: {last}")
 
 
 def build_report(links: dict, watch: dict, live: bool = True) -> dict:
@@ -41,9 +59,7 @@ def build_report(links: dict, watch: dict, live: bool = True) -> dict:
 
         if live and pcode:
             try:
-                entries = parse_history_entries(fetch_history_text(pcode))
-                if not entries:
-                    raise RuntimeError("MOJ history page parsed zero amendment entries")
+                entries = fetch_history_entries_with_retry(pcode)
             except Exception as exc:  # source failure stays visible and fail-closed
                 error = f"{type(exc).__name__}: {exc}"
                 fetch_errors.append({
@@ -84,7 +100,7 @@ def build_report(links: dict, watch: dict, live: bool = True) -> dict:
 
     return {
         "schema_version": 1,
-        "method": "explicit article + official MOJ history; per-law fail-closed; no answer mutation; no keyword-only article inference",
+        "method": "explicit article + official MOJ history; retry + per-law fail-closed; no answer mutation; no keyword-only article inference",
         "live_history_fetch": live,
         "question_count": len(rows),
         "law_count": len(law_summaries),
