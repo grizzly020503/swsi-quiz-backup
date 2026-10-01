@@ -1,4 +1,5 @@
 name: Historical Law Provenance QA
+# Temporary write-enabled patch runner; restored to read-only before merge.
 
 on:
   pull_request:
