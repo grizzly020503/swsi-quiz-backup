@@ -1,0 +1,112 @@
+name: Historical Law Guardian Routing QA
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/historical_law_guardian_queue.py'
+      - 'scripts/historical_law_guardian_queue_selftest.py'
+      - '.github/workflows/historical-law-guardian-routing-qa.yml'
+  workflow_run:
+    workflows: ['Historical Law Stage 1-6 QA']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: historical-law-guardian-${{ github.event.workflow_run.id || github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-contract:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Syntax and deterministic routing regression
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/historical_law_guardian_queue.py \
+            scripts/historical_law_guardian_queue_selftest.py
+          (cd scripts && python historical_law_guardian_queue_selftest.py)
+          git diff --check
+
+  route-stage1-6-evidence:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Checkout exact Stage 1-6 source commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Download Stage 2-6 read-only evidence artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/stage2-6 auto/qa
+          gh run download "${{ github.event.workflow_run.id }}" \
+            --repo "${{ github.repository }}" \
+            --name historical-law-stage2-6-live-evidence \
+            --dir /tmp/stage2-6
+          find /tmp/stage2-6 -type f -name '*.json' -maxdepth 2 -print -exec cp {} auto/qa/ \;
+      - name: Build Data Guardian routing queue
+        run: |
+          set -euo pipefail
+          test -f auto/qa/historical_law_exam_date_stage2.v1.json
+          test -f auto/qa/historical_law_article_stage3.v1.json
+          test -f auto/qa/historical_law_stage5_promotion.v1.json
+          python scripts/historical_law_guardian_queue.py
+      - name: Validate read-only routing contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          q = json.loads(Path('auto/qa/historical_law_guardian_queue.v1.json').read_text(encoding='utf-8'))
+          rows = q.get('items') or []
+          allowed = {
+              'machine_promotion',
+              'ai_article_review',
+              'machine_direct_source_check',
+              'effective_date_resolution',
+              'source_retry',
+              'machine_evidence_blocked',
+              'human_review',
+          }
+          assert q.get('mapping_count') == len(rows) == 86
+          assert q.get('unique_question_count') == 85
+          assert q.get('historical_version_checked_count') == 0
+          assert q.get('protected_core_mutation_count') == 0
+          assert q.get('human_queue_count') == 0
+          assert sum((q.get('lane_counts') or {}).values()) == 86
+          assert set(q.get('lane_counts') or {}).issubset(allowed)
+          assert all(row.get('historical_version_checked') is False for row in rows)
+          assert all('official_answer' not in row for row in rows)
+          print(json.dumps({
+              'lane_counts': q.get('lane_counts'),
+              'priority_counts': q.get('priority_counts'),
+              'human_queue_count': q.get('human_queue_count'),
+          }, ensure_ascii=False, indent=2))
+          PY
+      - name: Upload Guardian routing artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: historical-law-guardian-routing
+          path: auto/qa/historical_law_guardian_queue.v1.json
+          if-no-files-found: error
+          retention-days: 14
