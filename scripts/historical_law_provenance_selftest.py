@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from copy import deepcopy
 from pathlib import Path
 
@@ -110,12 +111,26 @@ def repository_contract() -> None:
 
     cards = links.get("cards") or []
     assert len(cards) == 10, len(cards)
-    questions = [q for card in cards for q in (card.get("questions") or [])]
-    assert len(questions) == 86, len(questions)
 
-    ids = [str(row.get("question_id") or "") for row in questions]
-    assert all(ids) and len(set(ids)) == 86, "priority-law question IDs must be unique"
-    for row in questions:
+    mappings: list[tuple[str, dict]] = []
+    for card in cards:
+        law = str(card.get("law_name") or "")
+        card_questions = card.get("questions") or []
+        card_ids = [str(row.get("question_id") or "") for row in card_questions]
+        assert all(card_ids), f"missing question ID in {law}"
+        assert len(card_ids) == len(set(card_ids)), f"duplicate question inside law card: {law}"
+        mappings.extend((law, row) for row in card_questions)
+
+    assert len(mappings) == 86, len(mappings)
+    mapping_keys = [(law, str(row.get("question_id") or "")) for law, row in mappings]
+    assert len(set(mapping_keys)) == 86, "duplicate law/question mapping"
+
+    question_ids = [qid for _law, qid in mapping_keys]
+    unique_question_count = len(set(question_ids))
+    overlap_count = len(question_ids) - unique_question_count
+    assert 0 < unique_question_count <= 86
+
+    for _law, row in mappings:
         assert row.get("match_strength") == "metadata_only", row
         assert row.get("historical_version_checked") is False, row
 
@@ -135,12 +150,19 @@ def repository_contract() -> None:
         {"article_resolution_required", "official_history_unavailable"}
     ), report["status_counts"]
 
+    repeated = {qid: count for qid, count in Counter(question_ids).items() if count > 1}
+    print(
+        "PRIORITY LAW REAL-DATA CONTRACT:",
+        f"mappings=86 unique_questions={unique_question_count} cross_law_overlap={overlap_count}",
+        f"repeated_question_ids={repeated}",
+    )
+
 
 def main() -> int:
     parser_contract()
     triage_contract()
     repository_contract()
-    print("HISTORICAL LAW PROVENANCE SELFTEST OK: parsers + fail-closed triage + 86-question repository contract")
+    print("HISTORICAL LAW PROVENANCE SELFTEST OK: parsers + fail-closed triage + 86-mapping repository contract")
     return 0
 
 
