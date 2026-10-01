@@ -1,0 +1,57 @@
+name: TEMP Frontend URL Safety Apply
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/tmp-frontend-url-safety-apply.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Patch canonical installer and regenerate root runtime
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/install_current_affairs_ui.py')
+          text = p.read_text(encoding='utf-8')
+          old = 'href="\'+E(ev.source_url)+\'"'
+          new = 'href="\'+safeHref(ev.source_url)+\'"'
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f'expected exactly one unsafe event source href, found {count}')
+          p.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+          python scripts/install_current_affairs_ui.py
+          node scripts/frontend_url_safety_smoke.js
+          node scripts/current_affairs_ui_smoke.js
+          git diff --check
+      - name: Commit generated canonical fix to PR branch
+        env:
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          git config user.name 'swsi-frontend-safety-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add scripts/install_current_affairs_ui.py index.html
+          if git diff --cached --quiet; then
+            echo 'No generated change'
+            exit 0
+          fi
+          git commit -m 'fix: sanitize current-affairs source href'
+          git fetch origin "${BRANCH}"
+          git rebase "origin/${BRANCH}"
+          git push origin "HEAD:${BRANCH}"
