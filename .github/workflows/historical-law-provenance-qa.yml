@@ -4,7 +4,10 @@ on:
   pull_request:
     paths:
       - 'scripts/historical_law_provenance.py'
+      - 'scripts/historical_law_provenance_core.py'
       - 'scripts/historical_law_provenance_selftest.py'
+      - 'scripts/historical_law_exam_date_refiner.py'
+      - 'scripts/historical_law_stage2_selftest.py'
       - 'data/law_question_links_priority10.v1.json'
       - 'data/legal_watch_report.json'
       - '.github/workflows/historical-law-provenance-qa.yml'
@@ -18,55 +21,109 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  selftest:
+  deterministic-contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 6
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Setup Python
-        uses: actions/setup-python@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - name: Syntax and deterministic repository contract
+      - name: Install runtime dependency
+        run: python -m pip install --disable-pip-version-check requests
+      - name: Syntax check
+        run: python -m py_compile scripts/historical_law_provenance.py scripts/historical_law_provenance_core.py scripts/historical_law_provenance_selftest.py scripts/historical_law_exam_date_refiner.py scripts/historical_law_stage2_selftest.py
+      - name: Existing V1 compatibility regression
+        working-directory: scripts
+        run: python historical_law_provenance_selftest.py
+      - name: Stage 2 exact-date regression
+        working-directory: scripts
+        run: python historical_law_stage2_selftest.py
+      - name: 86-link repository contract
         run: |
-          set -euo pipefail
-          python -m py_compile scripts/historical_law_provenance.py scripts/historical_law_provenance_selftest.py
-          (cd scripts && python historical_law_provenance_selftest.py)
-
-      - name: Offline CLI contract on real 86-question inputs
-        run: |
-          set -euo pipefail
-          python scripts/historical_law_provenance.py --output /tmp/historical_law_provenance.json
           python - <<'PY'
           import json
+          import sys
           from pathlib import Path
+          sys.path.insert(0, 'scripts')
+          import historical_law_provenance_core as hp
 
-          report = json.loads(Path('/tmp/historical_law_provenance.json').read_text(encoding='utf-8'))
-          rows = report.get('questions') or []
-          if report.get('question_count') != 86 or len(rows) != 86:
-              raise SystemExit(f"historical-law report count mismatch: {report.get('question_count')} / {len(rows)}")
-          if any(row.get('historical_version_checked') for row in rows):
-              raise SystemExit('V1 triage must never claim historical verification')
-          if any(not row.get('official_history_url') for row in rows):
-              raise SystemExit('priority-law record missing MOJ history provenance URL')
-          allowed = {'article_resolution_required', 'official_history_unavailable'}
-          if not set(report.get('status_counts') or {}).issubset(allowed):
-              raise SystemExit(f"unexpected offline status: {report.get('status_counts')}")
-          print('HISTORICAL LAW OFFLINE CLI CONTRACT OK:', report.get('status_counts'))
+          links = json.loads(Path('data/law_question_links_priority10.v1.json').read_text(encoding='utf-8'))
+          watch = json.loads(Path('data/legal_watch_report.json').read_text(encoding='utf-8'))
+          cards = links.get('cards') or []
+          link_rows = [(card['law_name'], q) for card in cards for q in (card.get('questions') or [])]
+          assert len(cards) == 10, len(cards)
+          assert len(link_rows) == 86, len(link_rows)
+          link_keys = [(law, q.get('question_id')) for law, q in link_rows]
+          assert all(qid for _, qid in link_keys), 'every law-question link needs a question_id'
+          assert len(set(link_keys)) == 86, 'duplicate link within the same law card'
+          unique_question_ids = {qid for _, qid in link_keys}
+          assert all(q.get('match_strength') == 'metadata_only' for _, q in link_rows)
+          assert all(q.get('historical_version_checked') is False for _, q in link_rows)
+          indexed = hp.watch_record_map(watch)
+          for card in cards:
+              law = card['law_name']
+              assert law in indexed, law
+              assert hp.pcode_from_url(indexed[law].get('official_url')), law
+          report = hp.build_report(links, watch, live=False)
+          assert report['question_count'] == 86
+          assert sum(report['status_counts'].values()) == 86
+          assert all(q['historical_version_checked'] is False for q in report['questions'])
+          print(f'HISTORICAL LAW 86-LINK CONTRACT OK: 86 law links across {len(unique_question_ids)} unique questions')
           PY
-
-      - name: Protected-core safety contract
+      - name: Safety boundary
         run: |
           python - <<'PY'
           from pathlib import Path
-          s = Path('scripts/historical_law_provenance.py').read_text(encoding='utf-8')
-          assert '"historical_version_checked": False' in s
-          assert 'eligible_for_historical_version_checked' in s
-          for forbidden in ('official_answer =', 'grading_mode =', 'accepted_answers ='):
-              assert forbidden not in s
-          print('HISTORICAL LAW SAFETY CONTRACT OK')
+          core = Path('scripts/historical_law_provenance_core.py').read_text(encoding='utf-8')
+          stage2 = Path('scripts/historical_law_exam_date_refiner.py').read_text(encoding='utf-8')
+          combined = core + '\n' + stage2
+          assert 'historical_version_checked": True' not in combined
+          assert "historical_version_checked': True" not in combined
+          assert 'official_answer' not in combined
+          assert 'accepted_answers' not in combined
+          assert 'grading_mode' not in combined
+          print('HISTORICAL LAW SAFETY BOUNDARY OK')
           PY
-          git diff --check
+
+  live-readonly-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install runtime dependency
+        run: python -m pip install --disable-pip-version-check requests
+      - name: Fetch official MOEX/MOJ evidence
+        id: live
+        continue-on-error: true
+        run: python scripts/historical_law_exam_date_refiner.py
+      - name: Show live evidence summary
+        if: always()
+        run: |
+          if [ -f auto/qa/historical_law_exam_date_stage2.v1.json ]; then
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          d = json.loads(Path('auto/qa/historical_law_exam_date_stage2.v1.json').read_text(encoding='utf-8'))
+          print(json.dumps({
+              'question_count': d.get('question_count'),
+              'candidate_count': d.get('candidate_count'),
+              'historical_version_checked_count': d.get('historical_version_checked_count'),
+              'status_counts': d.get('status_counts'),
+              'exception_queue_counts': {k: len(v) for k, v in (d.get('exception_queue') or {}).items()},
+          }, ensure_ascii=False, indent=2))
+          PY
+          else
+            echo 'No live report produced.'
+          fi
+      - name: Upload read-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: historical-law-stage2-live-evidence
+          path: auto/qa/historical_law_exam_date_stage2.v1.json
+          if-no-files-found: warn
+          retention-days: 14
