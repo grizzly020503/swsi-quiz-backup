@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -43,6 +44,26 @@ def _exam_recency_support(years_since_last) -> float:
     if gap <= 5:
         return 0.35
     return 0.15
+
+
+def _generated_at_for_run(root: Path) -> str:
+    """Use wall-clock time in production, but freeze PR rebuilds to tracked snapshot time.
+
+    PR validation compares rebuilt trend content with a committed snapshot. Trend score/state
+    intentionally depend on age in days, so using datetime.now() makes that comparison change
+    merely because the PR is re-run later. GitHub PR runs therefore reuse the tracked snapshot's
+    generated_at; scheduled/main production builds continue to age trends using the current time.
+    """
+    if os.environ.get("GITHUB_EVENT_NAME") == "pull_request":
+        tracked = root / "auto" / "current_affairs_trends.json"
+        if tracked.exists():
+            try:
+                value = str(json.loads(tracked.read_text(encoding="utf-8")).get("generated_at") or "").strip()
+            except (OSError, json.JSONDecodeError):
+                value = ""
+            if value and parse_dt(value):
+                return value
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def trend_for(event: dict, generated_at: str) -> dict:
@@ -210,6 +231,7 @@ def trend_for(event: dict, generated_at: str) -> dict:
         "evidence": event.get("evidence") or [],
     }
 
+
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
     ap = argparse.ArgumentParser()
@@ -225,7 +247,7 @@ def main() -> int:
     if src.get("schema_version") != 1:
         raise SystemExit("Unsupported current_affairs_events schema")
 
-    generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    generated_at = _generated_at_for_run(root)
     rows = [trend_for(x, generated_at) for x in (src.get("events") or []) if isinstance(x, dict)]
     rows.sort(key=lambda x: (-float(x.get("trend_score") or 0), str(x.get("last_seen") or "")))
     rows = rows[: max(1, args.limit)]
