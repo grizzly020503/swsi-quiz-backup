@@ -124,9 +124,15 @@ def versions_for_article(
     entries: list[dict], pcode: str, official_url: str,
     official_modified_date: str | None, article: str,
 ) -> list[dict]:
-    """Return only promulgation rows that actually establish/change this article."""
-    modified = str(official_modified_date or "").strip()
-    versions: list[dict] = []
+    """Return the version chain for one article.
+
+    The last history row that affects the target article is represented by the
+    current MOJ LawAll page. Earlier target-article rows use LawOldVer. This is
+    article-scoped: later amendments to unrelated articles do not force the
+    target article back onto an old-version URL.
+    """
+    del official_modified_date  # retained for API compatibility with Stage 4 callers
+    relevant: list[dict] = []
     seen: set[str] = set()
     for entry in sorted(entries, key=lambda row: str(row.get("date") or "")):
         promulgated = str(entry.get("date") or "")
@@ -135,16 +141,21 @@ def versions_for_article(
         if promulgated in seen or not hp.entry_affects_article(entry, article):
             continue
         seen.add(promulgated)
-        current = bool(modified and promulgated == modified)
+        relevant.append(entry)
+
+    versions: list[dict] = []
+    for index, entry in enumerate(relevant):
+        promulgated = str(entry.get("date") or "")
+        is_current_article_version = index == len(relevant) - 1
         lnndate = promulgated.replace("-", "")
         versions.append({
-            "kind": "current" if current else "oldver",
+            "kind": "current" if is_current_article_version else "oldver",
             "version_date": promulgated,
             "effective_date": article_effective_date(entry, article),
             "effective_date_scope": "target_article",
             "lnndate": lnndate,
-            "lser": None if current else "001",
-            "url": official_url if current else _canonical_oldver_url(pcode, lnndate),
+            "lser": None if is_current_article_version else "001",
+            "url": official_url if is_current_article_version else _canonical_oldver_url(pcode, lnndate),
             "articles_changed": entry.get("articles") or [],
             "all_articles": bool(entry.get("all_articles")),
             "special_effective_date": bool(entry.get("special_effective_date")),
