@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T05:45:35Z",
-  "item_count": 5,
+  "generated_at": "2026-10-01T10:03:45Z",
+  "item_count": 6,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
   "note": "SWSI 命題訊號快照；用於複習方向，不代表命題保證。",
@@ -424,6 +424,171 @@
           "社會工作直接服務": 2
         },
         "subject_count": 1,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
+      "id": "3e7cc52af1b25a9177663b6b5b5b6440",
+      "title": "政院：追加預算年底若未審畢 社福津貼加碼恐將失效",
+      "summary": "（中央社記者賴于榛台北1日電）為穩定油電營運，行政院長卓榮泰今天呼籲立法院11月底前三讀今年度中央政府追加預算案，以利提升能源韌性、有效維持民生物價穩定。行政院也說，若追加預算案無法在今年底前審議完畢，包含回溯至7月1日發放的軍公教專業與主管加給，以及多項社福支出加碼恐都失效。",
+      "source_name": "中央社政治",
+      "source_url": "https://www.cna.com.tw/news/aipl/202610010199.aspx",
+      "published_at": "2026-10-01T07:05:07Z",
+      "region": "taiwan",
+      "category": "社工專業與社福制度",
+      "relevance_score": 5,
+      "exam_tags": [
+        "社福",
+        "津貼",
+        "行政院"
+      ],
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "組織治理與責信",
+        "倫理與權利保障",
+        "規劃與政策執行",
+        "方案與資源管理"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "subject_topics": {
+        "社會工作": [
+          "專業倫理、專業責任與社會工作價值"
+        ],
+        "社會政策與社會立法": [
+          "社福服務體系、專業規範與制度責信"
+        ]
+      },
+      "knowledge_topics": [
+        "社工專業與社福制度",
+        "社福",
+        "津貼",
+        "行政院"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 組織治理與責信",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 組織治理與責信 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 組織治理與責信 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信"
+      ],
+      "policy_signal": "low",
+      "essay_value": "high",
+      "mcq_fact_density": "medium",
+      "signal_confidence": "medium",
+      "signal_score": 7,
+      "exam_point_summary": "政院：追加預算年底若未審畢 社福津貼加碼恐將失效。偏宣導或活動訊息；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "行政院",
+        "社福"
+      ],
+      "related_laws": [],
+      "related_exam_questions": [
+        {
+          "id": "DS-115-2-015",
+          "subject": "社會工作直接服務",
+          "year": "115",
+          "round": "第二次",
+          "qno": "15",
+          "major": "社會工作倫理",
+          "topic": "倫理原則 > 倫理困境與決策",
+          "match_reason": "事件詞：社福",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-115-1-04",
+          "subject": "社會工作",
+          "year": "115",
+          "round": "第一次",
+          "qno": "4",
+          "major": "社會工作專業",
+          "topic": "政策實務 > 經社文公約",
+          "match_reason": "事件詞：社福",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-114-2-23",
+          "subject": "社會工作",
+          "year": "114",
+          "round": "第二次",
+          "qno": "23",
+          "major": "社會工作倫理",
+          "topic": "倫理學基礎 > 義務論",
+          "match_reason": "事件詞：社福",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-113-1-01",
+          "subject": "社會工作",
+          "year": "113",
+          "round": "第一次",
+          "qno": "1",
+          "major": "社會工作專業",
+          "topic": "歷史發展 > 社福發展轉折",
+          "match_reason": "事件詞：社福",
+          "match_score": 2.2
+        },
+        {
+          "id": "DS-113-2-15",
+          "subject": "社會工作直接服務",
+          "year": "113",
+          "round": "第二次",
+          "qno": "15",
+          "major": "社會工作倫理",
+          "topic": "倫理議題 > 服務的價值",
+          "match_reason": "事件詞：社福",
+          "match_score": 2.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 15,
+        "weighted_match_count": 1.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 15
+        },
+        "matched_year_count": 9,
+        "matched_years": [
+          106,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 106,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 7,
+          "社會工作直接服務": 8
+        },
+        "subject_count": 2,
         "law_match_count": 0,
         "law_match_year_count": 0,
         "law_match_years": [],
