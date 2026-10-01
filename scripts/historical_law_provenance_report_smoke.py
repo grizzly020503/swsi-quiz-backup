@@ -27,17 +27,25 @@ report = json.loads(REPORT.read_text(encoding="utf-8"))
 links = json.loads(LINKS.read_text(encoding="utf-8"))
 rows = report.get("questions") or []
 
+# Identity is law + question, not question_id alone: one historical question is
+# intentionally linked to two laws, so 86 mappings represent 85 unique questions.
+expected_pairs = []
 expected_ids = []
 for card in links.get("cards") or []:
+    law = card["law_name"]
     for row in card.get("questions") or []:
+        expected_pairs.append((law, row["question_id"]))
         expected_ids.append(row["question_id"])
+actual_pairs = [(r.get("law_name"), r.get("question_id")) for r in rows]
 
 assert report.get("schema_version") == 1
 assert report.get("question_count") == 86 == len(rows)
 assert report.get("law_count") == 10
-assert len(expected_ids) == 86
-assert len(set(expected_ids)) == 86
-assert {r.get("question_id") for r in rows} == set(expected_ids)
+assert len(expected_pairs) == 86
+assert len(set(expected_pairs)) == 86
+assert Counter(actual_pairs) == Counter(expected_pairs)
+assert len(set(expected_ids)) == 85
+assert Counter(expected_ids)["SP104-2-10"] == 2
 assert sum((report.get("status_counts") or {}).values()) == 86
 assert set(report.get("status_counts") or {}) <= allowed_statuses
 assert all(r.get("status") in allowed_statuses for r in rows)
@@ -70,5 +78,6 @@ for row in rows:
 print(
     "HISTORICAL LAW PROVENANCE REPORT CONTRACT OK:",
     report.get("status_counts"),
-    "source_errors=", report.get("law_fetch_error_count"),
+    "mappings=86 unique_questions=85 source_errors=",
+    report.get("law_fetch_error_count"),
 )
