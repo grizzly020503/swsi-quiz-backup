@@ -1,5 +1,402 @@
 {
   "schema_version": 1,
   "purpose": "Grandfathered direct window.* assignments. New globals or new owners require explicit review.",
-  "owners": {}
+  "owners": {
+    "ESSAY_GUIDES": [
+      "monthly_patch_parts/zzzzzzzzzz_essay_review_batch01.part",
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzz_essay_audit_batch1.part"
+    ],
+    "MK": [
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part"
+    ],
+    "SWSI_ESSAY_AUDIT_BATCH1": [
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzz_essay_audit_batch1.part"
+    ],
+    "SWSI_ESSAY_METADATA_LABELS_VERSION": [
+      "monthly_patch_parts/zzzzzzzzzz_essay_metadata_labels.part"
+    ],
+    "SWSI_ESSAY_REVIEW_BATCH01": [
+      "monthly_patch_parts/zzzzzzzzzz_essay_review_batch01.part"
+    ],
+    "SWSI_ESSAY_TRUST_VERSION": [
+      "monthly_patch_parts/99z.essay-trust-layer.part"
+    ],
+    "SWSI_FEEDBACK": [
+      "monthly_patch_parts/90.feedback-core.part"
+    ],
+    "SWSI_FEEDBACK_COMPACT": [
+      "monthly_patch_parts/92.feedback-ui.part"
+    ],
+    "SWSI_FEEDBACK_SAFARI_GUARD": [
+      "monthly_patch_parts/91.feedback-context.part"
+    ],
+    "SWSI_LAW_TRUST": [
+      "monthly_patch_parts/86.law-trust-ui.part"
+    ],
+    "SWSI_LAW_TRUST_FINAL": [
+      "monthly_patch_parts/86.law-trust-ui.part"
+    ],
+    "SWSI_MODAL_FOCUS_TRAP": [
+      "monthly_patch_parts/74.accessibility-touch.part"
+    ],
+    "SWSI_NEW_RESIDENT_STATUS": [
+      "monthly_patch_parts/86.law-trust-ui.part"
+    ],
+    "SWSI_PUBLIC_INFO": [
+      "monthly_patch_parts/89.public-branding-info.part"
+    ],
+    "SWSI_QB": [
+      "monthly_patch_parts/00.part"
+    ],
+    "SWSI_THEORY_TRUST": [
+      "monthly_patch_parts/88.theory-trust-ui.part"
+    ],
+    "SWSI_THEORY_TRUST_FINAL": [
+      "monthly_patch_parts/88.theory-trust-ui.part"
+    ],
+    "__SWSI_BOOT_DEFERRED__": [
+      "monthly_patch_parts/00.part"
+    ],
+    "__SWSI_CURRENT_AFFAIRS_UI__": [
+      "scripts/install_current_affairs_ui.py"
+    ],
+    "__SWSI_LEARNING_CENTER_OPEN__": [
+      "monthly_patch_parts/71.my-learning-center.part",
+      "monthly_patch_parts/zzz_fix_essay_navigation.part",
+      "monthly_patch_parts/zzzzzz_learning-center-direct-route.part"
+    ],
+    "__swsiQuestionBankIntegrity": [
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_question_bank_invariant.part"
+    ],
+    "__swsiSearchResults": [
+      "monthly_patch_parts/00.part"
+    ],
+    "__swsiStorageWarning": [
+      "monthly_patch_parts/00.part",
+      "monthly_patch_parts/60.storage-durability.part"
+    ],
+    "__swsiTopicClusters": [
+      "monthly_patch_parts/00.part"
+    ],
+    "_cmc": [
+      "monthly_patch_parts/00.part"
+    ],
+    "_kpF": [
+      "monthly_patch_parts/00.part"
+    ],
+    "_kpFmax": [
+      "monthly_patch_parts/00.part"
+    ],
+    "_maxY": [
+      "monthly_patch_parts/00.part"
+    ],
+    "_rs": [
+      "monthly_patch_parts/00.part"
+    ],
+    "_swsiReviewSets": [
+      "monthly_patch_parts/70.learning-loop.part"
+    ],
+    "_tg": [
+      "monthly_patch_parts/00.part"
+    ],
+    "_tmc": [
+      "monthly_patch_parts/00.part"
+    ],
+    "_usingOfflineBackup": [
+      "monthly_patch_parts/00.part"
+    ],
+    "acceptedAnswers": [
+      "monthly_patch_parts/00.part",
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part"
+    ],
+    "aiFeedbackHTML": [
+      "monthly_patch_parts/99z.essay-trust-layer.part"
+    ],
+    "answerLabel": [
+      "monthly_patch_parts/00.part"
+    ],
+    "effectiveEssayLength": [
+      "monthly_patch_parts/99_p0_mobile_ai_guardrails.part"
+    ],
+    "effectiveEssayText": [
+      "monthly_patch_parts/99_p0_mobile_ai_guardrails.part"
+    ],
+    "ensureAllQuestionsLoaded": [
+      "monthly_patch_parts/00.part",
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_question_bank_invariant.part"
+    ],
+    "ensureShardMetasLoaded": [
+      "monthly_patch_parts/00.part",
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_question_bank_invariant.part"
+    ],
+    "esc": [
+      "monthly_patch_parts/00.part"
+    ],
+    "getAIClientId": [
+      "monthly_patch_parts/00.part"
+    ],
+    "go": [
+      "monthly_patch_parts/zzzzzz_learning-center-direct-route.part"
+    ],
+    "gradePhoto": [
+      "monthly_patch_parts/99z.essay-trust-layer.part"
+    ],
+    "gradingMode": [
+      "monthly_patch_parts/00.part"
+    ],
+    "guideHTML": [
+      "monthly_patch_parts/99z.essay-trust-layer.part"
+    ],
+    "isCorrectAnswer": [
+      "monthly_patch_parts/00.part"
+    ],
+    "loadHist": [
+      "monthly_patch_parts/60.storage-durability.part"
+    ],
+    "loadQuestionManifest": [
+      "monthly_patch_parts/00.part"
+    ],
+    "loadQuestionShard": [
+      "monthly_patch_parts/00.part"
+    ],
+    "loadReviewState": [
+      "monthly_patch_parts/60.storage-durability.part"
+    ],
+    "questionTotal": [
+      "monthly_patch_parts/00.part"
+    ],
+    "render": [
+      "monthly_patch_parts/99z.essay-trust-layer.part"
+    ],
+    "renderHome": [
+      "monthly_patch_parts/zzzzzz_learning-center-direct-route.part"
+    ],
+    "renderTheories": [
+      "monthly_patch_parts/88.theory-trust-ui.part"
+    ],
+    "runAIFeedback": [
+      "monthly_patch_parts/99z.essay-trust-layer.part"
+    ],
+    "saveDraft": [
+      "monthly_patch_parts/99_p0_mobile_ai_guardrails.part"
+    ],
+    "saveHist": [
+      "monthly_patch_parts/60.storage-durability.part"
+    ],
+    "saveReviewState": [
+      "monthly_patch_parts/60.storage-durability.part"
+    ],
+    "searchQ": [
+      "monthly_patch_parts/80.knowledge-path.part"
+    ],
+    "shardMetasForHomeScope": [
+      "monthly_patch_parts/00.part"
+    ],
+    "swsiAICacheKey": [
+      "monthly_patch_parts/99_p0_mobile_ai_guardrails.part",
+      "monthly_patch_parts/99z.essay-trust-layer.part"
+    ],
+    "swsiAIErrorContractVersion": [
+      "monthly_patch_parts/99z.essay-trust-layer.part"
+    ],
+    "swsiAssertCompleteQuestionBank": [
+      "monthly_patch_parts/00.part",
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_question_bank_invariant.part"
+    ],
+    "swsiChooseEssay": [
+      "monthly_patch_parts/zzzz_product_v1_lock.part"
+    ],
+    "swsiClearExamDate": [
+      "monthly_patch_parts/73.launch-guidance-countdown.part"
+    ],
+    "swsiCloseAdminCenter": [
+      "monthly_patch_parts/71.my-learning-center.part"
+    ],
+    "swsiCloseExamDate": [
+      "monthly_patch_parts/73.launch-guidance-countdown.part",
+      "monthly_patch_parts/74.prelaunch-resilience.part"
+    ],
+    "swsiClosePublicInfo": [
+      "monthly_patch_parts/89.public-branding-info.part"
+    ],
+    "swsiCloseReport": [
+      "monthly_patch_parts/90.feedback-core.part"
+    ],
+    "swsiDependentQuestionContext": [
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part"
+    ],
+    "swsiDismissLaunchGuide": [
+      "monthly_patch_parts/73.launch-guidance-countdown.part"
+    ],
+    "swsiEsc": [
+      "monthly_patch_parts/00.part"
+    ],
+    "swsiEssayDifficultyLabel": [
+      "monthly_patch_parts/zzzzzzzzzz_essay_metadata_labels.part"
+    ],
+    "swsiEssayFrequencyLabel": [
+      "monthly_patch_parts/zzzzzzzzzz_essay_metadata_labels.part"
+    ],
+    "swsiEssayGuideIsVerified": [
+      "monthly_patch_parts/99z.essay-trust-layer.part"
+    ],
+    "swsiEssayGuideStatus": [
+      "monthly_patch_parts/99z.essay-trust-layer.part"
+    ],
+    "swsiEvaluateMockAnswers": [
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part"
+    ],
+    "swsiFetchWithTimeout": [
+      "monthly_patch_parts/99_p0_mobile_ai_guardrails.part"
+    ],
+    "swsiFillKnowledgeSearch": [
+      "monthly_patch_parts/80.knowledge-path.part"
+    ],
+    "swsiGetAICache": [
+      "monthly_patch_parts/99_p0_mobile_ai_guardrails.part"
+    ],
+    "swsiGetClientId": [
+      "monthly_patch_parts/99_p0_mobile_ai_guardrails.part"
+    ],
+    "swsiGradingContractVersion": [
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part"
+    ],
+    "swsiKnowledgeSearch": [
+      "monthly_patch_parts/80.knowledge-path.part"
+    ],
+    "swsiLearningAction": [
+      "monthly_patch_parts/71.my-learning-center.part"
+    ],
+    "swsiMockRecordPolicyVersion": [
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzz_mk_record_policy.part"
+    ],
+    "swsiOpenAdminCenter": [
+      "monthly_patch_parts/71.my-learning-center.part"
+    ],
+    "swsiOpenClusterEssay": [
+      "monthly_patch_parts/00.part"
+    ],
+    "swsiOpenEssay": [
+      "monthly_patch_parts/zzz_fix_essay_navigation.part"
+    ],
+    "swsiOpenEssayEncoded": [
+      "monthly_patch_parts/80.knowledge-path.part"
+    ],
+    "swsiOpenExamDate": [
+      "monthly_patch_parts/73.launch-guidance-countdown.part",
+      "monthly_patch_parts/74.prelaunch-resilience.part"
+    ],
+    "swsiOpenHomeReview": [
+      "monthly_patch_parts/20.product-philosophy.part"
+    ],
+    "swsiOpenLawEncoded": [
+      "monthly_patch_parts/80.knowledge-path.part"
+    ],
+    "swsiOpenLearningCenter": [
+      "monthly_patch_parts/71.my-learning-center.part",
+      "monthly_patch_parts/zzzz_product_v1_lock.part",
+      "monthly_patch_parts/zzzzzz_learning-center-direct-route.part"
+    ],
+    "swsiOpenPublicInfo": [
+      "monthly_patch_parts/89.public-branding-info.part"
+    ],
+    "swsiOpenReport": [
+      "monthly_patch_parts/90.feedback-core.part",
+      "monthly_patch_parts/91.feedback-context.part"
+    ],
+    "swsiOpenTheoryEncoded": [
+      "monthly_patch_parts/80.knowledge-path.part"
+    ],
+    "swsiPolishEssayMetadataUI": [
+      "monthly_patch_parts/zzzzzzzzzz_essay_metadata_labels.part"
+    ],
+    "swsiPracticeReviewSet": [
+      "monthly_patch_parts/70.learning-loop.part"
+    ],
+    "swsiPracticeSubject": [
+      "monthly_patch_parts/70.learning-loop.part"
+    ],
+    "swsiPracticeTopic": [
+      "monthly_patch_parts/70.learning-loop.part"
+    ],
+    "swsiQuestionBankIntegrityVersion": [
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_question_bank_invariant.part"
+    ],
+    "swsiQuizCluster": [
+      "monthly_patch_parts/00.part"
+    ],
+    "swsiQuizLaw": [
+      "monthly_patch_parts/80.knowledge-path.part"
+    ],
+    "swsiReadAIError": [
+      "monthly_patch_parts/99z.essay-trust-layer.part"
+    ],
+    "swsiRecordAITelemetry": [
+      "monthly_patch_parts/99_p0_mobile_ai_guardrails.part"
+    ],
+    "swsiRenderLearningCenter": [
+      "monthly_patch_parts/71.my-learning-center.part"
+    ],
+    "swsiRunPublicMonitor": [
+      "monthly_patch_parts/89.public-branding-info.part"
+    ],
+    "swsiSaveExamDate": [
+      "monthly_patch_parts/73.launch-guidance-countdown.part"
+    ],
+    "swsiSearchOpenEssay": [
+      "monthly_patch_parts/00.part"
+    ],
+    "swsiSearchOpenLaw": [
+      "monthly_patch_parts/00.part"
+    ],
+    "swsiSearchOpenMCQ": [
+      "monthly_patch_parts/00.part"
+    ],
+    "swsiSearchOpenTheory": [
+      "monthly_patch_parts/00.part"
+    ],
+    "swsiSetAIBusy": [
+      "monthly_patch_parts/99_p0_mobile_ai_guardrails.part"
+    ],
+    "swsiSetAICache": [
+      "monthly_patch_parts/99_p0_mobile_ai_guardrails.part"
+    ],
+    "swsiSetWrongCause": [
+      "monthly_patch_parts/70.learning-loop.part"
+    ],
+    "swsiShardIntegrityVersion": [
+      "monthly_patch_parts/00.part"
+    ],
+    "swsiSharePlatform": [
+      "monthly_patch_parts/71.my-learning-center.part"
+    ],
+    "swsiShouldRecordMockAnswer": [
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzz_mk_record_policy.part"
+    ],
+    "swsiStartEssayNow": [
+      "monthly_patch_parts/zzzzz_quick_essay_scope_fix.part"
+    ],
+    "swsiStartNow": [
+      "monthly_patch_parts/20.product-philosophy.part"
+    ],
+    "swsiStartRecommended20": [
+      "monthly_patch_parts/70.learning-loop.part"
+    ],
+    "swsiStorageDurability": [
+      "monthly_patch_parts/60.storage-durability.part"
+    ],
+    "swsiStorageDurabilityVersion": [
+      "monthly_patch_parts/60.storage-durability.part"
+    ],
+    "swsiStudyOneEncoded": [
+      "monthly_patch_parts/80.knowledge-path.part"
+    ],
+    "view": [
+      "monthly_patch_parts/zzz_fix_essay_navigation.part",
+      "monthly_patch_parts/zzzzz_quick_essay_scope_fix.part"
+    ],
+    "writeBoxHTML": [
+      "monthly_patch_parts/99_p0_mobile_ai_guardrails.part"
+    ]
+  }
 }
