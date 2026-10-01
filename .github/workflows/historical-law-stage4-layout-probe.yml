@@ -1,0 +1,50 @@
+name: Historical Law Stage 4 Layout Probe
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/historical-law-stage4-layout-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  moj-layout-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check requests
+      - name: Fetch failing MOJ old-version layouts
+        run: |
+          mkdir -p auto/qa/stage4-layout-probe
+          python - <<'PY'
+          import re
+          import requests
+          from pathlib import Path
+          cases = {
+              'D0050205_20180606': 'https://law.moj.gov.tw/LawClass/LawOldVer.aspx?pcode=D0050205&lnndate=20180606&lser=001',
+              'D0050194_20140820': 'https://law.moj.gov.tw/LawClass/LawOldVer.aspx?pcode=D0050194&lnndate=20140820&lser=001',
+              'I0020028_20090422': 'https://law.moj.gov.tw/LawClass/LawOldVer.aspx?pcode=I0020028&lnndate=20090422&lser=001',
+          }
+          headers={'User-Agent':'swsi-stage4-layout-probe/1.0'}
+          for name,url in cases.items():
+              r=requests.get(url,timeout=30,headers=headers)
+              r.raise_for_status()
+              text=r.text
+              Path(f'auto/qa/stage4-layout-probe/{name}.html').write_text(text,encoding='utf-8')
+              title=re.search(r'<title[^>]*>(.*?)</title>',text,re.I|re.S)
+              print(name,'bytes',len(text),'title',title.group(1).strip() if title else None)
+              for token in ['law-reg-content','row','col-no','law-article','第 1 條','第 6 條','第 8 條','第 14 條','第 22 條']:
+                  print(' ',token,text.lower().count(token.lower()))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: historical-law-stage4-layout-probe
+          path: auto/qa/stage4-layout-probe/*.html
+          if-no-files-found: error
+          retention-days: 1
