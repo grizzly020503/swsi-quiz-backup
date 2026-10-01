@@ -1,11 +1,14 @@
-name: Historical Law Stage 4 QA
+name: Historical Law Stage 3-5 QA
 
 on:
   pull_request:
     paths:
+      - 'scripts/historical_law_article_resolver.py'
+      - 'scripts/historical_law_article_resolver_selftest.py'
       - 'scripts/historical_law_oldver_stage4.py'
       - 'scripts/historical_law_stage4_selftest.py'
-      - 'scripts/historical_law_article_resolver.py'
+      - 'scripts/historical_law_stage5_promotion.py'
+      - 'scripts/historical_law_stage5_selftest.py'
       - 'scripts/historical_law_provenance_core.py'
       - 'data/law_question_links_priority10.v1.json'
       - 'data/legal_watch_report.json'
@@ -18,102 +21,127 @@ permissions:
   contents: read
 
 concurrency:
-  group: historical-law-stage4-${{ github.event.pull_request.number || github.ref }}
+  group: historical-law-stage3-5-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   deterministic-contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 6
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-
       - name: Setup Python
         uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-
-      - name: Syntax and Stage 4 deterministic regressions
+      - name: Syntax and deterministic regressions
         run: |
           set -euo pipefail
           python -m py_compile \
+            scripts/historical_law_article_resolver.py \
+            scripts/historical_law_article_resolver_selftest.py \
             scripts/historical_law_oldver_stage4.py \
-            scripts/historical_law_stage4_selftest.py
+            scripts/historical_law_stage4_selftest.py \
+            scripts/historical_law_stage5_promotion.py \
+            scripts/historical_law_stage5_selftest.py
+          (cd scripts && python historical_law_article_resolver_selftest.py)
           (cd scripts && python historical_law_stage4_selftest.py)
-
-      - name: Protected-core safety boundary
+          (cd scripts && python historical_law_stage5_selftest.py)
+          git diff --check
+      - name: Protected-core / trust-boundary AST guard
         run: |
           python - <<'PY'
           import ast
           from pathlib import Path
-
-          path = Path('scripts/historical_law_oldver_stage4.py')
-          tree = ast.parse(path.read_text(encoding='utf-8'), filename=str(path))
+          paths = [
+              Path('scripts/historical_law_article_resolver.py'),
+              Path('scripts/historical_law_oldver_stage4.py'),
+              Path('scripts/historical_law_stage5_promotion.py'),
+          ]
           protected = {'stem', 'options', 'official_answer', 'accepted_answers', 'grading_mode'}
           violations = []
-
           def const_key(node):
               if isinstance(node, ast.Constant) and isinstance(node.value, str):
                   return node.value
               return None
-
-          for node in ast.walk(tree):
-              if isinstance(node, ast.Subscript) and isinstance(node.ctx, ast.Store):
-                  key = const_key(node.slice)
-                  if key in protected:
-                      violations.append(f'{path}:{node.lineno}: protected field assignment: {key}')
-              if isinstance(node, ast.Dict):
-                  for key_node, value_node in zip(node.keys, node.values):
-                      if const_key(key_node) == 'historical_version_checked':
-                          if isinstance(value_node, ast.Constant) and value_node.value is True:
-                              violations.append(f'{path}:{node.lineno}: historical_version_checked=True is forbidden')
+          for path in paths:
+              tree = ast.parse(path.read_text(encoding='utf-8'), filename=str(path))
+              for node in ast.walk(tree):
+                  if isinstance(node, ast.Subscript) and isinstance(node.ctx, ast.Store):
+                      key = const_key(node.slice)
+                      if key in protected:
+                          violations.append(f'{path}:{node.lineno}: protected write {key}')
+                  if isinstance(node, ast.Dict):
+                      for key_node, value_node in zip(node.keys, node.values):
+                          key = const_key(key_node)
+                          if key == 'historical_version_checked':
+                              if isinstance(value_node, ast.Constant) and value_node.value is True:
+                                  violations.append(f'{path}:{node.lineno}: historical_version_checked=True forbidden')
           if violations:
               raise SystemExit('\n'.join(violations))
-          print('HISTORICAL LAW STAGE4 SAFETY BOUNDARY OK')
+          print('HISTORICAL LAW STAGE3-5 TRUST BOUNDARY OK')
           PY
-          git diff --check
 
   live-readonly-evidence:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-
       - name: Setup Python
         uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-
       - name: Install live HTTP dependency
         run: python -m pip install --disable-pip-version-check requests
-
-      - name: Rebuild Stage 3 machine candidates
-        id: stage3
-        continue-on-error: true
+      - name: Rebuild Stage 3 shadow-calibrated candidates
         run: python scripts/historical_law_article_resolver.py
-
+      - name: Validate Stage 3 calibration
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d = json.loads(Path('auto/qa/historical_law_article_stage3.v1.json').read_text(encoding='utf-8'))
+          rows = d.get('records') or []
+          controls = d.get('controls') or []
+          assert d.get('mapping_count') == 86
+          assert d.get('target_count') == len(rows)
+          assert d.get('explicit_control_count') == len(controls) == 10
+          assert d.get('target_count') + d.get('explicit_control_count') == 86
+          assert d.get('historical_version_checked_count') == 0
+          assert d.get('law_source_error_count') == 0, d.get('law_source_errors')
+          assert d.get('question_shard_error_count') == 0, d.get('question_shard_errors')
+          assert d.get('explicit_control_top1_match_count', 0) >= 9, controls
+          assert d.get('explicit_control_top3_match_count', 0) >= 9, controls
+          assert d.get('explicit_control_false_machine_candidate_count') == 0, controls
+          assert all(row.get('historical_version_checked') is False for row in rows)
+          assert all('official_answer' not in row for row in rows)
+          for row in rows:
+              if row.get('confidence') == 'conflict':
+                  assert row.get('route') == 'ai_review', row
+              if row.get('route') == 'machine_candidate':
+                  assert row.get('confidence') == 'high', row
+                  assert row.get('decision_reason') in {
+                      'official_text_semantics_and_metadata_agree',
+                      'very_strong_semantic_separation',
+                  }, row
+          print(json.dumps({
+              'route_counts': d.get('route_counts'),
+              'top1': d.get('explicit_control_top1_match_count'),
+              'top3': d.get('explicit_control_top3_match_count'),
+              'shadow_machine': d.get('explicit_control_shadow_machine_candidate_count'),
+              'false_machine': d.get('explicit_control_false_machine_candidate_count'),
+          }, ensure_ascii=False, indent=2))
+          PY
       - name: Build Stage 4 official historical-text evidence
-        id: stage4
-        if: always()
-        continue-on-error: true
+        run: python scripts/historical_law_oldver_stage4.py
+      - name: Validate Stage 4 evidence
         run: |
-          if [ -f auto/qa/historical_law_article_stage3.v1.json ]; then
-            python scripts/historical_law_oldver_stage4.py
-          else
-            echo 'Stage 3 artifact unavailable; Stage 4 remains fail-soft.'
-          fi
-
-      - name: Validate Stage 4 evidence if available
-        if: always()
-        run: |
-          if [ -f auto/qa/historical_law_oldver_stage4.v1.json ]; then
-            python - <<'PY'
+          python - <<'PY'
           import json
           import re
           from pathlib import Path
-
           s3 = json.loads(Path('auto/qa/historical_law_article_stage3.v1.json').read_text(encoding='utf-8'))
           d = json.loads(Path('auto/qa/historical_law_oldver_stage4.v1.json').read_text(encoding='utf-8'))
           rows = d.get('records') or []
@@ -146,25 +174,54 @@ jobs:
                   assert row.get('official_history_url')
                   assert row.get('exam_date_source_url')
           print(json.dumps({
-              'stage3_machine_candidate_count': d.get('stage3_machine_candidate_count'),
               'record_count': d.get('record_count'),
               'status_counts': d.get('status_counts'),
-              'historical_text_evidence_ready_count': d.get('historical_text_evidence_ready_count'),
-              'eligible_for_historical_version_checked_count': d.get('eligible_for_historical_version_checked_count'),
+              'ready': d.get('historical_text_evidence_ready_count'),
               'historical_version_checked_count': d.get('historical_version_checked_count'),
           }, ensure_ascii=False, indent=2))
           PY
-          else
-            echo 'No Stage 4 evidence produced; external MOJ source failure remains fail-soft.'
-          fi
-
-      - name: Upload read-only Stage 4 evidence
+      - name: Build Stage 5 promotion-candidate report
+        run: python scripts/historical_law_stage5_promotion.py
+      - name: Validate Stage 5 promotion contract
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+          d = json.loads(Path('auto/qa/historical_law_stage5_promotion.v1.json').read_text(encoding='utf-8'))
+          rows = d.get('records') or []
+          calibration = d.get('calibration') or {}
+          assert calibration.get('false_machine_candidate_count') == 0, calibration
+          assert calibration.get('promotion_calibration_safe') is True, calibration
+          assert d.get('historical_version_checked_count') == 0
+          assert d.get('protected_core_mutation_count') == 0
+          assert d.get('record_count') == len(rows) == d.get('stage3_machine_candidate_count')
+          assert sum((d.get('promotion_status_counts') or {}).values()) == len(rows)
+          assert all(r.get('historical_version_checked') is False for r in rows)
+          assert all('official_answer' not in r for r in rows)
+          for row in rows:
+              if row.get('promotion_status') == 'promotion_candidate':
+                  assert not row.get('blockers'), row
+                  assert row.get('stage3_confidence') == 'high', row
+                  assert row.get('stage4_status') == 'historical_text_evidence_ready', row
+                  assert re.fullmatch(r'[0-9a-f]{64}', row.get('historical_article_sha256') or ''), row
+                  assert (row.get('selected_version') or {}).get('url'), row
+                  assert row.get('official_history_url'), row
+                  assert row.get('exam_date_source_url'), row
+          print(json.dumps({
+              'calibration': calibration,
+              'promotion_status_counts': d.get('promotion_status_counts'),
+              'historical_version_checked_count': d.get('historical_version_checked_count'),
+          }, ensure_ascii=False, indent=2))
+          PY
+      - name: Upload Stage 3-5 read-only evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: historical-law-stage4-live-evidence
+          name: historical-law-stage3-5-live-evidence
           path: |
             auto/qa/historical_law_article_stage3.v1.json
             auto/qa/historical_law_oldver_stage4.v1.json
+            auto/qa/historical_law_stage5_promotion.v1.json
           if-no-files-found: warn
           retention-days: 14
