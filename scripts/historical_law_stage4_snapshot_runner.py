@@ -78,8 +78,6 @@ def attach_verified_snapshots(report: dict, pages: dict[str, str]) -> dict:
         url = str(selected.get("url") or "")
         page = pages.get(url, "")
         if not page or not stage4._page_identity_ok(page):
-            # A ready Stage 4 row without its exact accepted page is a runner
-            # integrity failure. Fail closed rather than manufacturing evidence.
             row["status"] = "source_snapshot_unavailable"
             row.pop("eligible_for_historical_version_checked", None)
             continue
@@ -106,7 +104,6 @@ def attach_verified_snapshots(report: dict, pages: dict[str, str]) -> dict:
         snapshot_count += 1
         snapshot_article_count += len(articles)
 
-    # Recompute status counts because attaching a snapshot can only fail closed.
     from collections import Counter
     counts = Counter(str(row.get("status") or "") for row in report.get("records") or [])
     report["schema_version"] = 4
@@ -152,6 +149,13 @@ def main() -> int:
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    source_errors = []
+    for row in report.get("records") or []:
+        error = str(row.get("source_error") or "")
+        if error and error not in source_errors:
+            source_errors.append(error)
+        if len(source_errors) >= 5:
+            break
     print(json.dumps({
         "stage3_machine_candidate_count": report.get("stage3_machine_candidate_count"),
         "record_count": report.get("record_count"),
@@ -159,6 +163,7 @@ def main() -> int:
         "historical_text_evidence_ready_count": report.get("historical_text_evidence_ready_count"),
         "verified_snapshot_count": report.get("verified_snapshot_count"),
         "verified_snapshot_article_count": report.get("verified_snapshot_article_count"),
+        "source_error_samples": source_errors,
         "historical_version_checked_count": report.get("historical_version_checked_count"),
     }, ensure_ascii=False))
     return 0
