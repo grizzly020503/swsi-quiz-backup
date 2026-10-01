@@ -230,9 +230,11 @@ def _article_from_page(page_html: str, article_no: str) -> dict | None:
 
 
 def _page_identity_ok(page_html: str) -> bool:
-    """Accept only raw MOJ law HTML that carries the official site marker and articles."""
+    """Verify the fetched page is an official MOJ law document, independent of article parsing."""
     raw = str(page_html or "")
-    return "全國法規資料庫" in raw and bool(stage3.parse_law_articles(raw))
+    title = re.search(r"<title[^>]*>(.*?)</title>", raw, flags=re.I | re.S)
+    title_text = hp.clean_text(title.group(1)) if title else ""
+    return "全國法規資料庫" in title_text
 
 
 def build_report(stage3_report: dict, watch: dict, exam_dates: dict, session: Any) -> dict:
