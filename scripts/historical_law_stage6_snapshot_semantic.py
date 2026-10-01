@@ -11,7 +11,7 @@ Safety boundary:
 - never reads official_answer / accepted_answers / grading_mode;
 - never mutates question data;
 - never sets historical_version_checked=true;
-- selected URL, source identity and every article fingerprint must agree;
+- selected URL/kind, source identity and every article fingerprint must agree;
 - snapshot IDs are re-derived from their bound source evidence;
 - any missing/tampered/mismatched snapshot fails closed.
 """
@@ -70,6 +70,10 @@ def verified_snapshot_articles(stage4_row: dict, stage5_row: dict) -> tuple[list
     url5 = str(selected5.get("url") or "")
     if not url4 or url4 != url5 or not _official_moj_law_url(url4):
         return None, "Stage4/5 selected official source URL mismatch"
+    kind4 = str(selected4.get("kind") or "")
+    kind5 = str(selected5.get("kind") or "")
+    if not kind4 or kind4 != kind5:
+        return None, "Stage4/5 selected version kind mismatch"
 
     expected = str(stage5_row.get("historical_article_sha256") or "")
     if not re.fullmatch(r"[0-9a-f]{64}", expected):
@@ -94,7 +98,7 @@ def verified_snapshot_articles(stage4_row: dict, stage5_row: dict) -> tuple[list
         return None, "Stage4 snapshot evidence fingerprint missing"
 
     if method == "stage4_moj_title":
-        if selected4.get("kind") != "oldver":
+        if kind4 != "oldver":
             return None, "MOJ old-version HTML snapshot used for non-oldver selected version"
         page_sha = str(snapshot.get("page_sha256") or "")
         if not re.fullmatch(r"[0-9a-f]{64}", page_sha):
@@ -103,7 +107,7 @@ def verified_snapshot_articles(stage4_row: dict, stage5_row: dict) -> tuple[list
         if snapshot_id != expected_snapshot_id:
             return None, "Stage4 HTML snapshot id mismatch"
     else:
-        if selected4.get("kind") != "current":
+        if kind4 != "current":
             return None, "MOJ Open API snapshot used for non-current selected version"
         if str(snapshot.get("api_endpoint") or "") not in MOJ_API_ENDPOINTS:
             return None, "MOJ Open API endpoint identity mismatch"
@@ -218,7 +222,7 @@ def build_report(stage5: dict, stage4_report: dict, links: dict) -> dict:
         "schema_version": 4,
         "method": (
             "Stage5 promotion candidate -> exact hash-bound Stage4 all-article snapshot -> "
-            "selected-source identity + re-derived snapshot ID + aggregate/per-article fingerprints -> "
+            "selected-source URL/kind identity + re-derived snapshot ID + aggregate/per-article fingerprints -> "
             "stem + all options semantic rerank; supports official MOJ Open API current snapshots and "
             "identity-verified MOJ old-version HTML snapshots; no second network transport, "
             "semantic cross-check only, never verification write"
