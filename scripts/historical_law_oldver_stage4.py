@@ -1,19 +1,12 @@
 #!/usr/bin/env python3
-"""Stage 4: build read-only historical MOJ article-text evidence.
+"""Stage 4 read-only historical-law text evidence for SWSI.
 
-Consumes Stage 3 ``machine_candidate`` rows only.  MOJ ``LawHistory`` pages do
-not expose links to every historical full-text page, so Stage 4 derives the
-official ``LawOldVer`` URL from each promulgation date listed by MOJ, resolves
-known effective-date rules, selects the version spanning the official exam
-window, and fingerprints the suggested article text from that official version.
-
-Safety boundary
----------------
-- never reads or mutates official answer/grading fields;
-- never sets ``historical_version_checked=true``;
-- unresolved effective dates, exam-window version conflicts, source failures,
-  or a missing suggested article remain fail-closed review states;
-- Stage 4 produces evidence only.  Promotion is a later explicit gate.
+Stage 3 narrows an unresolved law question to an article candidate. Stage 4 then
+uses official MOJ LawHistory dates, deterministic effective-date rules, the
+official exam window, and MOJ LawOldVer/LawAll full text to fingerprint that
+article. This module produces evidence only: it never reads official answers,
+never mutates protected question fields, and never sets
+``historical_version_checked=true``.
 """
 from __future__ import annotations
 
@@ -36,43 +29,31 @@ DEFAULT_STAGE3 = ROOT / "auto/qa/historical_law_article_stage3.v1.json"
 DEFAULT_WATCH = ROOT / "data/legal_watch_report.json"
 DEFAULT_EXAM_DATES = ROOT / "data/moex_social_worker_exam_dates.v1.json"
 DEFAULT_OUTPUT = ROOT / "auto/qa/historical_law_oldver_stage4.v1.json"
-
-UA = "swsi-historical-law-oldver-stage4/2.0 (+private educational question bank)"
+UA = "swsi-historical-law-oldver-stage4/2.1 (+private educational question bank)"
 MOJ_HISTORY = "https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode={pcode}"
 MOJ_OLD = "https://law.moj.gov.tw/LawClass/LawOldVer.aspx"
 LIVE_ATTEMPTS = 3
 LIVE_TIMEOUT = 30
-
 ROC_NUMBER = hp.CN_NUMBER
 
 
 def _canonical_oldver_url(pcode: str, lnndate: str, lser: str = "001") -> str:
-    """Build the official MOJ historical-full-text URL.
-
-    Live probing on MOJ confirmed that a promulgation date listed on LawHistory
-    is accepted by LawOldVer with lser=001 and returns the historical full text.
-    """
     return MOJ_OLD + "?" + urlencode({
-        "pcode": pcode.upper(),
-        "lnndate": lnndate,
-        "lser": lser,
+        "pcode": pcode.upper(), "lnndate": lnndate, "lser": lser,
     })
 
 
 def _iso_from_roc_parts(roc_raw: str, month_raw: str, day_raw: str) -> str | None:
-    roc = hp.chinese_integer(roc_raw)
-    month = hp.chinese_integer(month_raw)
-    day = hp.chinese_integer(day_raw)
-    if None in (roc, month, day):
+    values = [hp.chinese_integer(v) for v in (roc_raw, month_raw, day_raw)]
+    if any(v is None for v in values):
         return None
     try:
-        return date(int(roc) + 1911, int(month), int(day)).isoformat()
+        return date(int(values[0]) + 1911, int(values[1]), int(values[2])).isoformat()
     except ValueError:
         return None
 
 
 def _explicit_effective_dates(summary: str) -> list[str]:
-    """Extract dates explicitly stated as the date the law/amendment takes effect."""
     text = hp.clean_text(summary)
     pattern = re.compile(
         rf"(?:發布定)?自(?:中華民國\s*)?({ROC_NUMBER})\s*年\s*"
@@ -86,11 +67,16 @@ def _explicit_effective_dates(summary: str) -> list[str]:
     return out
 
 
-def effective_date_from_entry(entry: dict) -> str | None:
-    """Resolve a deterministic effective date from one MOJ history entry.
+def _announcement_effective_date(entry: dict) -> str | None:
+    summary = hp.clean_text(entry.get("summary") or "")
+    if "發布定自" not in summary:
+        return None
+    values = _explicit_effective_dates(summary)
+    return values[0] if len(values) == 1 else None
 
-    Unknown or mixed special rules intentionally return None.
-    """
+
+def effective_date_from_entry(entry: dict) -> str | None:
+    """Resolve only deterministic effective-date rules; otherwise return None."""
     promulgated = str(entry.get("date") or "")
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", promulgated):
         return None
@@ -103,104 +89,90 @@ def effective_date_from_entry(entry: dict) -> str | None:
         return None
 
     if re.search(r"自公布後次年(?:之)?一月一日施行", summary):
-        year = int(promulgated[:4]) + 1
-        return f"{year:04d}-01-01"
+        return f"{int(promulgated[:4]) + 1:04d}-01-01"
 
-    # A simple promulgation-day rule is safe only when the same history row does
-    # not also contain another delayed/special clause.
     if "自公布日施行" in summary and not hp.has_special_effective_date(summary):
         return promulgated
-
     if not entry.get("special_effective_date"):
         return promulgated
-
     return None
 
 
-def _announcement_effective_date(entry: dict) -> str | None:
-    """Return an effective date from a later MOJ '發布定自…施行' announcement."""
-    summary = hp.clean_text(entry.get("summary") or "")
-    if "發布定自" not in summary:
-        return None
-    explicit = _explicit_effective_dates(summary)
-    return explicit[0] if len(explicit) == 1 else None
-
-
 def resolve_effective_dates(entries: list[dict]) -> list[dict]:
-    """Attach deterministic effective dates without manufacturing certainty.
+    """Attach effective dates, pairing a later MOJ implementation announcement.
 
-    Some amendments say their effective date will be separately prescribed and
-    a later MOJ history row records that Executive Yuan announcement.  Pair the
-    unresolved promulgation row with the nearest later announcement when the
-    announcement occurs within one year.  Otherwise keep it unresolved.
+    Example: a promulgation says the effective date is set by the Executive Yuan;
+    a later LawHistory row says ``發布定自…施行``. Only the nearest announcement
+    within one year is paired. If no deterministic pairing exists, the row stays
+    unresolved and Stage 4 fails closed when it affects the target article.
     """
     ordered = sorted(
         (dict(row) for row in entries if row.get("date")),
         key=lambda row: str(row.get("date")),
     )
-    announcements: list[tuple[str, str]] = []
+    announcements = [
+        (str(row["date"]), value)
+        for row in ordered
+        if (value := _announcement_effective_date(row))
+    ]
     for row in ordered:
-        effective = _announcement_effective_date(row)
-        if effective:
-            announcements.append((str(row["date"]), effective))
-
-    for row in ordered:
-        resolved = effective_date_from_entry(row)
-        source = "entry_rule" if resolved else None
-        if resolved is None and row.get("special_effective_date"):
+        value = effective_date_from_entry(row)
+        source = "entry_rule" if value else None
+        summary = hp.clean_text(row.get("summary") or "")
+        separately_set = any(token in summary for token in ("另定", "行政院定", "施行日期"))
+        if value is None and row.get("special_effective_date") and separately_set:
             promulgated = date.fromisoformat(str(row["date"]))
-            candidates: list[tuple[str, str]] = []
+            candidates = []
             for announced_at, effective in announcements:
-                announce_day = date.fromisoformat(announced_at)
-                if announce_day < promulgated:
-                    continue
-                if (announce_day - promulgated).days > 366:
-                    continue
-                candidates.append((announced_at, effective))
+                announced = date.fromisoformat(announced_at)
+                days = (announced - promulgated).days
+                if 0 <= days <= 366:
+                    candidates.append((announced_at, effective))
             if candidates:
-                nearest = min(candidates, key=lambda item: item[0])
-                resolved = nearest[1]
+                _, value = min(candidates, key=lambda item: item[0])
                 source = "later_moj_effective_announcement"
-        row["effective_date"] = resolved
+        row["effective_date"] = value
         row["effective_date_source"] = source or "unresolved"
     return ordered
 
 
 def versions_from_history_entries(
-    entries: list[dict],
-    pcode: str,
-    official_url: str,
+    entries: list[dict], pcode: str, official_url: str,
     official_modified_date: str | None,
 ) -> list[dict]:
-    """Build candidate full-law versions from official MOJ history rows."""
+    """Build legal-text versions from MOJ promulgation rows.
+
+    A pure ``發布定自…施行`` row is evidence about the previous amendment's
+    effective date, not a new legal-text version, so it is deliberately skipped.
+    """
     modified = str(official_modified_date or "").strip()
-    resolved_entries = resolve_effective_dates(entries)
     versions: list[dict] = []
     seen: set[str] = set()
-
-    for entry in resolved_entries:
+    for entry in resolve_effective_dates(entries):
         promulgated = str(entry.get("date") or "")
         if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", promulgated):
             continue
-        if promulgated in seen:
+        announcement_only = bool(_announcement_effective_date(entry)) and not (
+            entry.get("all_articles") or entry.get("articles")
+        )
+        if announcement_only or promulgated in seen:
             continue
         seen.add(promulgated)
+        current = bool(modified and promulgated == modified)
         lnndate = promulgated.replace("-", "")
-        is_current = bool(modified and promulgated == modified)
         versions.append({
-            "kind": "current" if is_current else "oldver",
+            "kind": "current" if current else "oldver",
             "version_date": promulgated,
             "effective_date": entry.get("effective_date"),
             "effective_date_source": entry.get("effective_date_source"),
             "lnndate": lnndate,
-            "lser": None if is_current else "001",
-            "url": official_url if is_current else _canonical_oldver_url(pcode, lnndate),
+            "lser": None if current else "001",
+            "url": official_url if current else _canonical_oldver_url(pcode, lnndate),
             "articles_changed": entry.get("articles") or [],
             "all_articles": bool(entry.get("all_articles")),
             "special_effective_date": bool(entry.get("special_effective_date")),
             "history_summary": entry.get("summary"),
         })
-
     return sorted(versions, key=lambda row: row["version_date"])
 
 
@@ -211,29 +183,25 @@ def select_version(versions: list[dict], on_date: str) -> dict | None:
     ]
     if not eligible:
         return None
-    return max(
-        eligible,
-        key=lambda row: (str(row["effective_date"]), str(row["version_date"])),
-    )
+    return max(eligible, key=lambda row: (
+        str(row["effective_date"]), str(row["version_date"])
+    ))
 
 
 def unresolved_effective_date_risk(
     versions: list[dict], article: str, exam_end: str
 ) -> list[dict]:
-    """Return unresolved promulgated versions that could affect this article."""
-    risky = []
-    for row in versions:
-        if row.get("effective_date"):
-            continue
-        if str(row.get("version_date") or "") > exam_end:
-            continue
-        if row.get("all_articles") or article in set(row.get("articles_changed") or []):
-            risky.append(row)
-    return risky
+    return [
+        row for row in versions
+        if not row.get("effective_date")
+        and str(row.get("version_date") or "") <= exam_end
+        and (row.get("all_articles") or article in set(row.get("articles_changed") or []))
+    ]
 
 
 def select_exam_window_version(
-    versions: list[dict], start_date: str, end_date: str, article: str | None = None
+    versions: list[dict], start_date: str, end_date: str,
+    article: str | None = None,
 ) -> tuple[str, dict | None, dict | None]:
     if article and unresolved_effective_date_risk(versions, article, end_date):
         return "effective_date_review", None, None
@@ -252,12 +220,11 @@ def article_fingerprint(text: str) -> str:
 
 
 def exam_date_map(payload: dict) -> dict[str, dict]:
-    out: dict[str, dict] = {}
-    for row in payload.get("records") or []:
-        code = str(row.get("exam_code") or "").strip()
-        if code:
-            out[code] = row
-    return out
+    return {
+        str(row.get("exam_code")): row
+        for row in (payload.get("records") or [])
+        if row.get("exam_code")
+    }
 
 
 def _get(session: Any, url: str) -> str:
@@ -278,24 +245,32 @@ def _get(session: Any, url: str) -> str:
 def _history_bundle(session: Any, pcode: str) -> tuple[str, list[dict]]:
     url = MOJ_HISTORY.format(pcode=pcode)
     raw = _get(session, url)
-    history_text = hp.html_to_text(raw)
-    if "沿革" not in history_text:
+    text = hp.html_to_text(raw)
+    if "沿革" not in text:
         raise RuntimeError(f"MOJ history page not recognized: {url}")
-    entries = hp.parse_history_entries(history_text)
+    entries = hp.parse_history_entries(text)
     if not entries:
         raise RuntimeError(f"MOJ history parsed zero entries: {url}")
     return url, entries
 
 
 def _article_from_page(page_html: str, article_no: str) -> dict | None:
-    articles = stage3.parse_law_articles(page_html)
-    return next((row for row in articles if row.get("article_no") == article_no), None)
+    return next(
+        (row for row in stage3.parse_law_articles(page_html)
+         if row.get("article_no") == article_no),
+        None,
+    )
 
 
-def _page_matches_law(page_html: str, law_name: str) -> bool:
-    text = hp.clean_text(hp.html_to_text(page_html)).replace("臺", "台")
-    needle = hp.clean_text(law_name).replace("臺", "台")
-    return bool(needle and needle in text)
+def _page_identity_ok(page_html: str, pcode: str) -> bool:
+    """Verify this still looks like an MOJ law page for the requested pcode.
+
+    Historical statutes can have an older title, so current law-name equality is
+    intentionally not required. The pcode and a parseable article body are the
+    stable identity signals.
+    """
+    raw = str(page_html or "")
+    return pcode.lower() in raw.lower() and bool(stage3.parse_law_articles(raw))
 
 
 def build_report(stage3_report: dict, watch: dict, exam_dates: dict, session: Any) -> dict:
@@ -305,7 +280,6 @@ def build_report(stage3_report: dict, watch: dict, exam_dates: dict, session: An
         row for row in (stage3_report.get("records") or [])
         if row.get("route") == "machine_candidate"
     ]
-
     history_cache: dict[str, object] = {}
     page_cache: dict[str, object] = {}
     records: list[dict] = []
@@ -333,7 +307,9 @@ def build_report(stage3_report: dict, watch: dict, exam_dates: dict, session: An
             continue
         start_date = str(exam.get("start_date") or "")
         end_date = str(exam.get("end_date") or start_date)
-        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", start_date) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", end_date):
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", start_date) or not re.fullmatch(
+            r"\d{4}-\d{2}-\d{2}", end_date
+        ):
             records.append({**base, "status": "exam_date_missing"})
             continue
 
@@ -349,40 +325,35 @@ def build_report(stage3_report: dict, watch: dict, exam_dates: dict, session: An
                 history_cache[pcode] = _history_bundle(session, pcode)
             except Exception as exc:
                 history_cache[pcode] = exc
-        history_bundle = history_cache[pcode]
-        if isinstance(history_bundle, Exception):
+        bundle = history_cache[pcode]
+        if isinstance(bundle, Exception):
             records.append({
-                **base,
-                "status": "source_failure",
-                "source_error": f"{type(history_bundle).__name__}: {history_bundle}",
+                **base, "status": "source_failure",
+                "source_error": f"{type(bundle).__name__}: {bundle}",
             })
             continue
 
-        history_url, history_entries = history_bundle
+        history_url, entries = bundle
         versions = versions_from_history_entries(
-            history_entries,
-            pcode,
-            official_url,
-            watch_row.get("official_modified_date"),
+            entries, pcode, official_url, watch_row.get("official_modified_date")
         )
-        version_status, start_version, end_version = select_exam_window_version(
+        status, start_version, end_version = select_exam_window_version(
             versions, start_date, end_date, article=article
         )
-        if version_status != "ok":
-            payload = {
-                **base,
-                "status": version_status,
+        if status != "ok":
+            result = {
+                **base, "status": status,
                 "exam_start_date": start_date,
                 "exam_end_date": end_date,
                 "official_history_url": history_url,
                 "start_version": start_version,
                 "end_version": end_version,
             }
-            if version_status == "effective_date_review":
-                payload["unresolved_effective_versions"] = unresolved_effective_date_risk(
+            if status == "effective_date_review":
+                result["unresolved_effective_versions"] = unresolved_effective_date_risk(
                     versions, article, end_date
                 )
-            records.append(payload)
+            records.append(result)
             continue
 
         assert start_version is not None
@@ -395,34 +366,30 @@ def build_report(stage3_report: dict, watch: dict, exam_dates: dict, session: An
         page = page_cache[version_url]
         if isinstance(page, Exception):
             records.append({
-                **base,
-                "status": "source_failure",
+                **base, "status": "source_failure",
                 "official_history_url": history_url,
                 "selected_version": start_version,
                 "source_error": f"{type(page).__name__}: {page}",
             })
             continue
-
-        if not _page_matches_law(page, law_name):
+        if not _page_identity_ok(page, pcode):
             records.append({
-                **base,
-                "status": "source_identity_mismatch",
+                **base, "status": "source_identity_mismatch",
                 "official_history_url": history_url,
                 "selected_version": start_version,
             })
             continue
 
         article_row = _article_from_page(page, article)
-        if not article_row or not stage3.normalize_text(article_row.get("text") or ""):
+        article_text = stage3.normalize_text((article_row or {}).get("text") or "")
+        if not article_text:
             records.append({
-                **base,
-                "status": "article_missing_in_selected_version",
+                **base, "status": "article_missing_in_selected_version",
                 "official_history_url": history_url,
                 "selected_version": start_version,
             })
             continue
 
-        article_text = stage3.normalize_text(article_row["text"])
         records.append({
             **base,
             "status": "historical_text_evidence_ready",
@@ -448,7 +415,9 @@ def build_report(stage3_report: dict, watch: dict, exam_dates: dict, session: An
         "stage3_machine_candidate_count": len(candidates),
         "record_count": len(records),
         "status_counts": dict(sorted(counts.items())),
-        "historical_text_evidence_ready_count": counts.get("historical_text_evidence_ready", 0),
+        "historical_text_evidence_ready_count": counts.get(
+            "historical_text_evidence_ready", 0
+        ),
         "eligible_for_historical_version_checked_count": sum(
             bool(row.get("eligible_for_historical_version_checked")) for row in records
         ),
