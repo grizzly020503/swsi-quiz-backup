@@ -233,6 +233,23 @@ def pcode_from_url(url: str) -> str | None:
     return value.upper() if value else None
 
 
+def normalize_watch_records(watch: dict) -> dict[str, dict]:
+    """Accept both historical dict records and current legal-watch v3 list records."""
+    raw = watch.get("records") or {}
+    if isinstance(raw, dict):
+        return raw
+    if isinstance(raw, list):
+        out = {}
+        for row in raw:
+            if not isinstance(row, dict):
+                continue
+            name = clean_text(row.get("canonical_name") or row.get("name"))
+            if name:
+                out[name] = row
+        return out
+    return {}
+
+
 def fetch_history_text(pcode: str) -> str:
     import requests
 
@@ -249,7 +266,7 @@ def fetch_history_text(pcode: str) -> str:
 
 
 def build_report(links: dict, watch: dict, live: bool) -> dict:
-    watch_records = watch.get("records") or {}
+    watch_records = normalize_watch_records(watch)
     rows = []
     histories: dict[str, list[dict]] = {}
     history_urls = {}
