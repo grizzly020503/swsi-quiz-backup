@@ -1,0 +1,110 @@
+name: Stage 5 Promotion Integration Patch
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - '.github/workflows/stage5-promotion-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - name: Patch Stage 3 shadow calibration and Stage 4 QA chain
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          # 1) Stage 3: shadow-route the explicit controls after hiding article refs.
+          p = Path('scripts/historical_law_article_resolver.py')
+          text = p.read_text(encoding='utf-8')
+          old = '''            if explicit:\n                ranked = rank_articles(\n                    strip_explicit_article_refs(stem), law, articles, option_texts=option_texts\n                )\n                expected_rank = next(\n                    (i + 1 for i, row in enumerate(ranked) if row["article_no"] in explicit), None\n                )\n                controls.append({\n                    "law_name": law,\n                    "question_id": question.get("question_id") or question.get("id"),\n                    "expected_articles": explicit,\n                    "top_candidate": ranked[0]["article_no"] if ranked else None,\n                    "expected_rank": expected_rank,\n                    "top1_match": expected_rank == 1,\n                    "top3_match": bool(expected_rank and expected_rank <= 3),\n                    "used_options": bool(option_texts),\n                })\n                continue\n'''
+          new = '''            if explicit:\n                ranked = rank_articles(\n                    strip_explicit_article_refs(stem), law, articles, option_texts=option_texts\n                )\n                expected_rank = next(\n                    (i + 1 for i, row in enumerate(ranked) if row["article_no"] in explicit), None\n                )\n                metadata_articles = extract_metadata_articles(question)\n                shadow_route, shadow_confidence, shadow_reason = classify_candidates(\n                    ranked, metadata_articles\n                )\n                shadow_false_machine = bool(\n                    shadow_route == "machine_candidate" and expected_rank != 1\n                )\n                controls.append({\n                    "law_name": law,\n                    "question_id": question.get("question_id") or question.get("id"),\n                    "expected_articles": explicit,\n                    "top_candidate": ranked[0]["article_no"] if ranked else None,\n                    "expected_rank": expected_rank,\n                    "top1_match": expected_rank == 1,\n                    "top3_match": bool(expected_rank and expected_rank <= 3),\n                    "used_options": bool(option_texts),\n                    "metadata_articles": metadata_articles,\n                    "shadow_route": shadow_route,\n                    "shadow_confidence": shadow_confidence,\n                    "shadow_decision_reason": shadow_reason,\n                    "shadow_false_machine_candidate": shadow_false_machine,\n                })\n                continue\n'''
+          if 'shadow_false_machine_candidate' not in text:
+              if old not in text:
+                  raise SystemExit('Stage 3 explicit-control block not found')
+              text = text.replace(old, new, 1)
+
+          old2 = '''    control_top1 = sum(bool(row["top1_match"]) for row in controls)\n    control_top3 = sum(bool(row["top3_match"]) for row in controls)\n'''
+          new2 = '''    control_top1 = sum(bool(row["top1_match"]) for row in controls)\n    control_top3 = sum(bool(row["top3_match"]) for row in controls)\n    control_shadow_machine = sum(\n        row.get("shadow_route") == "machine_candidate" for row in controls\n    )\n    control_false_machine = sum(\n        bool(row.get("shadow_false_machine_candidate")) for row in controls\n    )\n'''
+          if 'control_false_machine = sum(' not in text:
+              if old2 not in text:
+                  raise SystemExit('Stage 3 control-count block not found')
+              text = text.replace(old2, new2, 1)
+
+          old3 = '''        "explicit_control_top1_match_count": control_top1,\n        "explicit_control_top3_match_count": control_top3,\n'''
+          new3 = '''        "explicit_control_top1_match_count": control_top1,\n        "explicit_control_top3_match_count": control_top3,\n        "explicit_control_shadow_machine_candidate_count": control_shadow_machine,\n        "explicit_control_false_machine_candidate_count": control_false_machine,\n'''
+          if '"explicit_control_false_machine_candidate_count": control_false_machine' not in text:
+              if old3 not in text:
+                  raise SystemExit('Stage 3 report-count block not found')
+              text = text.replace(old3, new3, 1)
+
+          old4 = '''        "explicit_control_top1_match_count": report["explicit_control_top1_match_count"],\n        "explicit_control_top3_match_count": report["explicit_control_top3_match_count"],\n'''
+          new4 = '''        "explicit_control_top1_match_count": report["explicit_control_top1_match_count"],\n        "explicit_control_top3_match_count": report["explicit_control_top3_match_count"],\n        "explicit_control_shadow_machine_candidate_count": report["explicit_control_shadow_machine_candidate_count"],\n        "explicit_control_false_machine_candidate_count": report["explicit_control_false_machine_candidate_count"],\n'''
+          if 'report["explicit_control_false_machine_candidate_count"]' not in text:
+              if old4 not in text:
+                  raise SystemExit('Stage 3 print-count block not found')
+              text = text.replace(old4, new4, 1)
+          p.write_text(text, encoding='utf-8')
+
+          # 2) Extend the existing Stage 4 workflow into a Stage 3->4->5 chain.
+          wf = Path('.github/workflows/historical-law-stage4-qa.yml')
+          y = wf.read_text(encoding='utf-8')
+          if "scripts/historical_law_stage5_promotion.py" not in y:
+              y = y.replace(
+                  "      - 'scripts/historical_law_stage4_selftest.py'\n",
+                  "      - 'scripts/historical_law_stage4_selftest.py'\n"
+                  "      - 'scripts/historical_law_stage5_promotion.py'\n"
+                  "      - 'scripts/historical_law_stage5_selftest.py'\n",
+                  1,
+              )
+              y = y.replace(
+                  "            scripts/historical_law_stage4_selftest.py\n"
+                  "          (cd scripts && python historical_law_stage4_selftest.py)\n",
+                  "            scripts/historical_law_stage4_selftest.py \\\n"
+                  "            scripts/historical_law_stage5_promotion.py \\\n"
+                  "            scripts/historical_law_stage5_selftest.py\n"
+                  "          (cd scripts && python historical_law_stage4_selftest.py)\n"
+                  "          (cd scripts && python historical_law_stage5_selftest.py)\n",
+                  1,
+              )
+              y = y.replace(
+                  "          assert d.get('stage3_machine_candidate_count') == len(machine)\n",
+                  "          assert s3.get('explicit_control_false_machine_candidate_count') == 0, s3.get('controls')\n"
+                  "          assert d.get('stage3_machine_candidate_count') == len(machine)\n",
+                  1,
+              )
+              marker = "      - name: Upload read-only Stage 4 evidence\n"
+              stage5 = '''      - name: Build Stage 5 promotion candidates\n        if: always()\n        run: |\n          if [ -f auto/qa/historical_law_article_stage3.v1.json ] && [ -f auto/qa/historical_law_oldver_stage4.v1.json ]; then\n            python scripts/historical_law_stage5_promotion.py\n          else\n            echo 'Stage 3/4 artifact unavailable; Stage 5 remains fail-soft.'\n          fi\n\n      - name: Validate Stage 5 promotion contract if available\n        if: always()\n        run: |\n          if [ -f auto/qa/historical_law_stage5_promotion.v1.json ]; then\n            python - <<'PY5'\n          import json\n          import re\n          from pathlib import Path\n\n          d = json.loads(Path('auto/qa/historical_law_stage5_promotion.v1.json').read_text(encoding='utf-8'))\n          rows = d.get('records') or []\n          calibration = d.get('calibration') or {}\n          assert calibration.get('false_machine_candidate_count') == 0, calibration\n          assert calibration.get('promotion_calibration_safe') is True, calibration\n          assert d.get('historical_version_checked_count') == 0\n          assert d.get('protected_core_mutation_count') == 0\n          assert d.get('record_count') == len(rows) == d.get('stage3_machine_candidate_count')\n          assert sum((d.get('promotion_status_counts') or {}).values()) == len(rows)\n          assert all(r.get('historical_version_checked') is False for r in rows)\n          assert all('official_answer' not in r for r in rows)\n          for row in rows:\n              if row.get('promotion_status') == 'promotion_candidate':\n                  assert not row.get('blockers'), row\n                  assert re.fullmatch(r'[0-9a-f]{64}', row.get('historical_article_sha256') or ''), row\n                  assert (row.get('selected_version') or {}).get('url'), row\n                  assert row.get('official_history_url'), row\n                  assert row.get('exam_date_source_url'), row\n          print(json.dumps({\n              'calibration': calibration,\n              'record_count': d.get('record_count'),\n              'promotion_status_counts': d.get('promotion_status_counts'),\n              'historical_version_checked_count': d.get('historical_version_checked_count'),\n          }, ensure_ascii=False, indent=2))\n          PY5\n          else\n            echo 'No Stage 5 report produced.'\n          fi\n\n'''
+              if marker not in y:
+                  raise SystemExit('Stage 4 upload marker not found')
+              y = y.replace(marker, stage5 + marker, 1)
+              y = y.replace(
+                  "            auto/qa/historical_law_oldver_stage4.v1.json\n",
+                  "            auto/qa/historical_law_oldver_stage4.v1.json\n"
+                  "            auto/qa/historical_law_stage5_promotion.v1.json\n",
+                  1,
+              )
+          wf.write_text(y, encoding='utf-8')
+          PY
+      - name: Commit integration patch
+        shell: bash
+        run: |
+          if git diff --quiet -- scripts/historical_law_article_resolver.py .github/workflows/historical-law-stage4-qa.yml; then
+            echo 'No integration patch needed.'
+            exit 0
+          fi
+          git config user.name 'swsi-data-guardian-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add scripts/historical_law_article_resolver.py .github/workflows/historical-law-stage4-qa.yml
+          git commit -m 'feat: add Stage 3 shadow calibration and Stage 5 QA chain'
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
