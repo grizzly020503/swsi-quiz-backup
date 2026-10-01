@@ -1,0 +1,30 @@
+name: Current Affairs Policy Semantics QA
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/analyze_current_affairs_signals.py'
+      - 'scripts/current_affairs_policy_semantics_smoke.py'
+      - '.github/workflows/current-affairs-policy-semantics-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  semantics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Policy/history semantics regression
+        run: |
+          python -m py_compile scripts/analyze_current_affairs_signals.py scripts/current_affairs_policy_semantics_smoke.py
+          python scripts/current_affairs_policy_semantics_smoke.py
