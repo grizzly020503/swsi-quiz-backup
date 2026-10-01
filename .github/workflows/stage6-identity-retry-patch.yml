@@ -1,0 +1,56 @@
+name: Stage 6 Identity Retry Patch
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - '.github/workflows/stage6-identity-retry-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - name: Patch identity-aware retry
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/historical_law_stage6_semantic.py')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace('import re\nfrom collections import Counter', 'import re\nimport time\nfrom collections import Counter', 1)
+
+          marker = '''def semantic_decision(expected_article: str, ranked: list[dict]) -> tuple[str, dict]:\n'''
+          helper = '''def fetch_verified_page(session: Any, url: str, attempts: int = 4) -> tuple[str | None, str | None]:\n    """Retry HTTP-200 identity failures as well as transport failures.\n\n    MOJ may transiently return a non-law page under burst traffic.  The source\n    identity rule remains unchanged; retries only distinguish a transient page\n    from a persistent mismatch.\n    """\n    last_error: str | None = None\n    for attempt in range(attempts):\n        if attempt:\n            time.sleep(0.8 * attempt)\n        try:\n            page = stage4._get(session, url)\n        except Exception as exc:\n            last_error = f"{type(exc).__name__}: {exc}"\n            continue\n        if stage4._page_identity_ok(page):\n            return page, None\n        last_error = "MOJ page identity mismatch after HTTP success"\n    return None, last_error\n\n\n'''
+          if 'def fetch_verified_page(' not in text:
+              if marker not in text:
+                  raise SystemExit('semantic_decision marker not found')
+              text = text.replace(marker, helper + marker, 1)
+
+          old = '''        if version_url not in page_cache:\n            try:\n                page_cache[version_url] = stage4._get(session, version_url)\n            except Exception as exc:\n                page_cache[version_url] = exc\n        page = page_cache[version_url]\n        if isinstance(page, Exception):\n            records.append({\n                **base,\n                "status": "source_failure",\n                "source_error": f"{type(page).__name__}: {page}",\n            })\n            continue\n        if not stage4._page_identity_ok(page):\n            records.append({**base, "status": "source_identity_mismatch"})\n            continue\n'''
+          new = '''        if version_url not in page_cache:\n            page_cache[version_url] = fetch_verified_page(session, version_url)\n        page, page_error = page_cache[version_url]\n        if page is None:\n            status = (\n                "source_identity_mismatch"\n                if page_error and "identity mismatch" in page_error\n                else "source_failure"\n            )\n            records.append({\n                **base,\n                "status": status,\n                "source_error": page_error,\n            })\n            continue\n'''
+          if 'page_cache[version_url] = fetch_verified_page' not in text:
+              if old not in text:
+                  raise SystemExit('Stage 6 page fetch block not found')
+              text = text.replace(old, new, 1)
+          p.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit retry patch
+        shell: bash
+        run: |
+          if git diff --quiet -- scripts/historical_law_stage6_semantic.py; then
+            echo 'No patch needed.'
+            exit 0
+          fi
+          git config user.name 'swsi-data-guardian-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add scripts/historical_law_stage6_semantic.py
+          git commit -m 'fix: retry transient MOJ identity responses in Stage 6'
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
