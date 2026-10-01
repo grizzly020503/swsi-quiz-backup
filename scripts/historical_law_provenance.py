@@ -36,8 +36,21 @@ DEFAULT_OUTPUT = ROOT / "auto/qa/historical_law_provenance_priority10.v1.json"
 UA = "swsi-historical-law-provenance/1.0 (+private educational question bank)"
 MOJ_HISTORY = "https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode={pcode}"
 
-CN_DIGITS = {"零": 0, "〇": 0, "○": 0, "Ｏ": 0, "一": 1, "二": 2, "三": 3, "四": 4,
-             "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+CN_DIGITS = {
+    "零": 0,
+    "〇": 0,
+    "○": 0,
+    "Ｏ": 0,
+    "一": 1,
+    "二": 2,
+    "三": 3,
+    "四": 4,
+    "五": 5,
+    "六": 6,
+    "七": 7,
+    "八": 8,
+    "九": 9,
+}
 
 
 def clean_text(value: object) -> str:
@@ -45,7 +58,7 @@ def clean_text(value: object) -> str:
 
 
 def chinese_integer(value: str) -> int | None:
-    """Parse ROC years such as 九十九、一百零四、一百十五."""
+    """Parse integers such as 九十九、一百零四、一百十五、二十六."""
     s = unicodedata.normalize("NFKC", str(value or "")).strip()
     if not s:
         return None
@@ -68,11 +81,21 @@ def chinese_integer(value: str) -> int | None:
 
 
 def normalize_article_no(value: str) -> str | None:
+    """Normalize Arabic/Chinese article numbers into e.g. 26-1."""
     s = unicodedata.normalize("NFKC", str(value or "")).strip().replace("之", "-")
     s = re.sub(r"\s+", "", s)
-    if not re.fullmatch(r"\d+(?:-\d+)*", s):
+    if not s:
         return None
-    return "-".join(str(int(part)) for part in s.split("-"))
+    parts = s.split("-")
+    out: list[str] = []
+    for part in parts:
+        if not part:
+            return None
+        number = int(part) if part.isdigit() else chinese_integer(part)
+        if number is None:
+            return None
+        out.append(str(number))
+    return "-".join(out)
 
 
 def article_key(value: str) -> tuple[int, ...]:
@@ -95,13 +118,23 @@ def expand_article_token(token: str) -> list[str]:
 
 
 def extract_explicit_articles(text: str) -> list[str]:
-    """Extract only article numbers explicitly written in a question stem."""
-    s = unicodedata.normalize("NFKC", str(text or "")).replace("之", "-")
+    """Extract only article numbers explicitly written in a question stem.
+
+    Accepted forms include 第10條、第十條、第26-1條、第26之1條 and 第26條之1.
+    """
+    s = unicodedata.normalize("NFKC", str(text or ""))
+    number = r"[0-9一二三四五六七八九十百零〇○Ｏ]+"
+    pattern = re.compile(
+        rf"第\s*({number})(?:(?:\s*之\s*|\s*-\s*)({number}))?\s*條(?:\s*之\s*({number}))?"
+    )
     found: set[str] = set()
-    for m in re.finditer(r"第\s*(\d+(?:-\d+)*)\s*條", s):
-        n = normalize_article_no(m.group(1))
-        if n:
-            found.add(n)
+    for match in pattern.finditer(s):
+        main = match.group(1)
+        sub = match.group(2) or match.group(3)
+        raw = main + (f"-{sub}" if sub else "")
+        normalized = normalize_article_no(raw)
+        if normalized:
+            found.add(normalized)
     return sorted(found, key=article_key)
 
 
@@ -150,13 +183,15 @@ def parse_history_entries(page_text: str) -> list[dict]:
         if year is None:
             continue
         all_articles = bool(re.search(r"全文\s*\d+\s*條", chunk))
-        entries.append({
-            "year": year,
-            "articles": sorted(_article_groups(chunk), key=article_key),
-            "all_articles": all_articles,
-            "special_effective_date": has_special_effective_date(chunk),
-            "summary": chunk,
-        })
+        entries.append(
+            {
+                "year": year,
+                "articles": sorted(_article_groups(chunk), key=article_key),
+                "all_articles": all_articles,
+                "special_effective_date": has_special_effective_date(chunk),
+                "summary": chunk,
+            }
+        )
     return entries
 
 
@@ -177,15 +212,27 @@ def triage_question(question: dict, history_entries: Iterable[dict]) -> dict:
         "eligible_for_historical_version_checked": False,
     }
     if not articles:
-        return {**base, "status": "article_resolution_required", "reason": "題幹未明示條號，不以關鍵字猜測條文"}
+        return {
+            **base,
+            "status": "article_resolution_required",
+            "reason": "題幹未明示條號，不以關鍵字猜測條文",
+        }
 
     entries = list(history_entries)
     if not entries:
-        return {**base, "status": "official_history_unavailable", "reason": "未取得可解析的 MOJ 沿革"}
+        return {
+            **base,
+            "status": "official_history_unavailable",
+            "reason": "未取得可解析的 MOJ 沿革",
+        }
 
     relevant = [e for e in entries if any(entry_affects_article(e, a) for a in articles)]
     if not relevant:
-        return {**base, "status": "article_origin_review", "reason": "MOJ 沿革中找不到該條明確建立／異動紀錄"}
+        return {
+            **base,
+            "status": "article_origin_review",
+            "reason": "MOJ 沿革中找不到該條明確建立／異動紀錄",
+        }
 
     special = [e for e in relevant if e.get("special_effective_date")]
     if special:
@@ -215,7 +262,11 @@ def triage_question(question: dict, history_entries: Iterable[dict]) -> dict:
             "same_year_change_years": same,
         }
     if not before:
-        return {**base, "status": "article_origin_review", "reason": "考試年度前找不到該條存在的官方沿革證據"}
+        return {
+            **base,
+            "status": "article_origin_review",
+            "reason": "考試年度前找不到該條存在的官方沿革證據",
+        }
 
     return {
         **base,
@@ -242,20 +293,46 @@ def fetch_history_text(pcode: str) -> str:
     if "沿革" not in r.text:
         raise RuntimeError(f"MOJ history page not recognized: {url}")
     text = re.sub(r"<script\b[^>]*>.*?</script>", " ", r.text, flags=re.I | re.S)
-    text = re.sub(r"<style\b[^>]*>.*?</style>", " ", text, flags=re.I | re.S)
+    text = re.sub(r"<style\b[^>]*>.*?</style>", " ", r.text, flags=re.I | re.S)
     text = re.sub(r"<[^>]+>", "\n", text)
-    text = text.replace("&nbsp;", " ").replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&")
+    text = (
+        text.replace("&nbsp;", " ")
+        .replace("&gt;", ">")
+        .replace("&lt;", "<")
+        .replace("&amp;", "&")
+    )
     return text
 
 
+def watch_record_map(watch: dict) -> dict[str, dict]:
+    """Normalize current list-schema and legacy dict-schema legal-watch records."""
+    raw = watch.get("records") or []
+    if isinstance(raw, dict):
+        return {
+            clean_text(name): row
+            for name, row in raw.items()
+            if clean_text(name) and isinstance(row, dict)
+        }
+
+    out: dict[str, dict] = {}
+    if isinstance(raw, list):
+        for row in raw:
+            if not isinstance(row, dict):
+                continue
+            name = clean_text(row.get("canonical_name") or row.get("law_name") or row.get("name"))
+            if name:
+                out[name] = row
+    return out
+
+
 def build_report(links: dict, watch: dict, live: bool) -> dict:
-    watch_records = watch.get("records") or {}
+    watch_records = watch_record_map(watch)
     rows = []
     histories: dict[str, list[dict]] = {}
     history_urls = {}
     for card in links.get("cards") or []:
         law = card["law_name"]
-        watch_row = watch_records.get(law) or {}
+        watch_row = watch_records.get(clean_text(law)) or {}
         pcode = pcode_from_url(watch_row.get("official_url"))
         history_urls[law] = MOJ_HISTORY.format(pcode=pcode) if pcode else None
         if live and pcode:
