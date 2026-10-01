@@ -3964,14 +3964,27 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     var subjects=Object.keys(topics);
     if(!root||(!domains.length&&!subjects.length)) return '';
     var domainHtml=domains.slice(0,8).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('');
-    var subjectHtml=subjects.slice(0,5).map(function(subject){
-      var rows=(topics[subject]||[]).slice(0,4).map(function(topic){return '<li>'+E(topic)+'</li>';}).join('');
-      return '<div class="nlr-knowledge-subject"><b>'+E(subject)+'</b>'+(rows?'<ul>'+rows+'</ul>':'')+'</div>';
-    }).join('');
+    var primary=(item.primary_exam_subject_axes||[]).filter(function(subject){return subjects.indexOf(subject)>=0;});
+    if(!primary.length) primary=subjects.slice(0,Math.min(2,subjects.length));
+    var supporting=(item.supporting_exam_subject_axes||[]).filter(function(subject){
+      return subjects.indexOf(subject)>=0&&primary.indexOf(subject)<0;
+    });
+    subjects.forEach(function(subject){
+      if(primary.indexOf(subject)<0&&supporting.indexOf(subject)<0) supporting.push(subject);
+    });
+    function subjectGroup(label,list){
+      if(!list.length) return '';
+      var rows=list.slice(0,5).map(function(subject){
+        var topicRows=(topics[subject]||[]).slice(0,4).map(function(topic){return '<li>'+E(topic)+'</li>';}).join('');
+        return '<div class="nlr-knowledge-subject"><b>'+E(subject)+'</b>'+(topicRows?'<ul>'+topicRows+'</ul>':'')+'</div>';
+      }).join('');
+      return '<div class="nlr-knowledge-label">'+E(label)+'</div>'+rows;
+    }
     return '<details class="nlr-detail nlr-knowledge"><summary>社會工作管理 × 國考五科</summary>'
       +'<div class="nlr-knowledge-root"><b>'+E(root)+'</b><span>跨科整合層，不是額外的國考科目</span></div>'
       +(domainHtml?'<div class="nlr-knowledge-label">管理面向</div><div class="nlr-chips">'+domainHtml+'</div>':'')
-      +(subjectHtml?'<div class="nlr-knowledge-label">對應考科與主題</div>'+subjectHtml:'')
+      +subjectGroup('主要考科',primary)
+      +subjectGroup('延伸考科',supporting)
       +'</details>';
   }
   function eventCard(ev){
