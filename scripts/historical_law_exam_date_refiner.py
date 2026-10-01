@@ -12,6 +12,7 @@ import html as html_lib
 import json
 import re
 from collections import Counter, defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 from pathlib import Path
 
@@ -21,7 +22,9 @@ import historical_law_provenance_core as hp
 
 ROOT = Path(__file__).resolve().parents[1]
 MOEX_DETAIL = "https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c={exam_code}"
-UA = "swsi-historical-law-exam-date/1.0 (+private educational question bank)"
+UA = "swsi-historical-law-exam-date/1.1 (+private educational question bank)"
+LIVE_WORKERS = 6
+LIVE_TIMEOUT = 30
 
 # Confirmed by scripts/historical_answer_audit.py + v3 correction for 106-2.
 EXAM_CODES = {
@@ -59,27 +62,36 @@ def official_exam_code(question: dict) -> str | None:
     return EXAM_CODES.get(human)
 
 
+def _fetch_one_exam_date(session: requests.Session, code: str) -> tuple[str, dict]:
+    url = MOEX_DETAIL.format(exam_code=code)
+    try:
+        response = session.get(url, timeout=LIVE_TIMEOUT, headers={"User-Agent": UA})
+        response.raise_for_status()
+        parsed = parse_moex_exam_dates(response.text)
+        if not parsed:
+            return code, {"status": "unresolved", "source_url": url, "error": "date_not_parsed"}
+        start, end = parsed
+        return code, {
+            "status": "official_moex",
+            "start_date": start,
+            "end_date": end,
+            "source_url": url,
+        }
+    except Exception as exc:
+        return code, {"status": "unresolved", "source_url": url, "error": str(exc)}
+
+
 def fetch_exam_dates(session: requests.Session, codes: set[str]) -> dict:
+    ordered = sorted(codes)
+    if not ordered:
+        return {}
     out = {}
-    for code in sorted(codes):
-        url = MOEX_DETAIL.format(exam_code=code)
-        try:
-            response = session.get(url, timeout=30, headers={"User-Agent": UA})
-            response.raise_for_status()
-            parsed = parse_moex_exam_dates(response.text)
-            if not parsed:
-                out[code] = {"status": "unresolved", "source_url": url, "error": "date_not_parsed"}
-                continue
-            start, end = parsed
-            out[code] = {
-                "status": "official_moex",
-                "start_date": start,
-                "end_date": end,
-                "source_url": url,
-            }
-        except Exception as exc:
-            out[code] = {"status": "unresolved", "source_url": url, "error": str(exc)}
-    return out
+    with ThreadPoolExecutor(max_workers=min(LIVE_WORKERS, len(ordered))) as pool:
+        futures = [pool.submit(_fetch_one_exam_date, session, code) for code in ordered]
+        for future in as_completed(futures):
+            code, record = future.result()
+            out[code] = record
+    return {code: out[code] for code in ordered}
 
 
 def refine_question(question: dict, entries: list[dict], exam_record: dict | None) -> dict:
@@ -161,37 +173,59 @@ def queue_bucket(status: str) -> str | None:
     return None
 
 
-def build_live_report(links: dict, watch: dict, session: requests.Session) -> dict:
-    watch_map = hp.watch_record_map(watch)
-    mappings = [
-        (card["law_name"], question)
-        for card in links.get("cards") or []
-        for question in card.get("questions") or []
-    ]
-    questions = [question for _law, question in mappings]
-    codes = {code for question in questions if (code := official_exam_code(question))}
-    exam_dates = fetch_exam_dates(session, codes)
+def _fetch_one_history(law: str, pcode: str) -> tuple[str, list[dict]]:
+    worker_session = requests.Session()
+    worker_session.headers.update({"User-Agent": UA})
+    try:
+        return law, hp.parse_history_entries(hp.fetch_history_text(pcode, worker_session))
+    except Exception:
+        return law, []
+    finally:
+        worker_session.close()
 
-    histories = {}
-    history_urls = {}
-    rows = []
-    for card in links.get("cards") or []:
+
+def fetch_histories(watch_map: dict, cards: list[dict]) -> tuple[dict, dict]:
+    histories: dict[str, list[dict]] = {}
+    history_urls: dict[str, str | None] = {}
+    jobs = []
+    for card in cards:
         law = card["law_name"]
         watch_row = watch_map.get(law) or {}
         pcode = hp.pcode_from_url(watch_row.get("official_url"))
         history_urls[law] = hp.MOJ_HISTORY.format(pcode=pcode) if pcode else None
         if pcode:
-            try:
-                histories[law] = hp.parse_history_entries(hp.fetch_history_text(pcode, session))
-            except Exception:
-                histories[law] = []
+            jobs.append((law, pcode))
         else:
             histories[law] = []
+    if jobs:
+        with ThreadPoolExecutor(max_workers=min(LIVE_WORKERS, len(jobs))) as pool:
+            futures = [pool.submit(_fetch_one_history, law, pcode) for law, pcode in jobs]
+            for future in as_completed(futures):
+                law, entries = future.result()
+                histories[law] = entries
+    return histories, history_urls
 
+
+def build_live_report(links: dict, watch: dict, session: requests.Session) -> dict:
+    watch_map = hp.watch_record_map(watch)
+    cards = links.get("cards") or []
+    mappings = [
+        (card["law_name"], question)
+        for card in cards
+        for question in card.get("questions") or []
+    ]
+    questions = [question for _law, question in mappings]
+    codes = {code for question in questions if (code := official_exam_code(question))}
+    exam_dates = fetch_exam_dates(session, codes)
+    histories, history_urls = fetch_histories(watch_map, cards)
+
+    rows = []
+    for card in cards:
+        law = card["law_name"]
         for question in card.get("questions") or []:
             code = official_exam_code(question)
-            row = refine_question(question, histories[law], exam_dates.get(code) if code else None)
-            row.update({"law_name": law, "official_history_url": history_urls[law]})
+            row = refine_question(question, histories.get(law, []), exam_dates.get(code) if code else None)
+            row.update({"law_name": law, "official_history_url": history_urls.get(law)})
             rows.append(row)
 
     status_counts = Counter(row["stage2_status"] for row in rows)
@@ -236,7 +270,10 @@ def main() -> int:
     watch = json.loads(Path(args.legal_watch_report).read_text(encoding="utf-8"))
     session = requests.Session()
     session.headers.update({"User-Agent": UA})
-    report = build_live_report(links, watch, session)
+    try:
+        report = build_live_report(links, watch, session)
+    finally:
+        session.close()
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
