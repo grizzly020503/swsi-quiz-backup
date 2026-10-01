@@ -3,6 +3,7 @@ name: Historical Law Snapshot Pilot QA
 on:
   pull_request:
     paths:
+      - 'scripts/historical_law_stage2_history_snapshot.py'
       - 'scripts/historical_law_stage4_snapshot_runner.py'
       - 'scripts/historical_law_stage6_snapshot_semantic.py'
       - 'scripts/historical_law_snapshot_pipeline_selftest.py'
@@ -31,6 +32,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m py_compile \
+            scripts/historical_law_stage2_history_snapshot.py \
             scripts/historical_law_stage4_snapshot_runner.py \
             scripts/historical_law_stage6_snapshot_semantic.py \
             scripts/historical_law_snapshot_pipeline_selftest.py
@@ -50,11 +52,11 @@ jobs:
       - name: Install live HTTP dependency
         run: python -m pip install --disable-pip-version-check requests
 
-      - name: Stage 2 — exact exam-date evidence
-        run: python scripts/historical_law_exam_date_refiner.py
+      - name: Stage 2 — exact exam dates plus MOJ history handoff
+        run: python scripts/historical_law_stage2_history_snapshot.py
       - name: Stage 3 — article candidates
         run: python scripts/historical_law_article_resolver.py
-      - name: Stage 4 — verified MOJ snapshot
+      - name: Stage 4 — reuse Stage 2 history and capture verified MOJ full-text snapshot
         run: python scripts/historical_law_stage4_snapshot_runner.py
       - name: Stage 5 — promotion contract
         run: python scripts/historical_law_stage5_promotion.py
@@ -73,15 +75,30 @@ jobs:
           from pathlib import Path
 
           s2=json.loads(Path('auto/qa/historical_law_exam_date_stage2.v1.json').read_text(encoding='utf-8'))
+          hs=json.loads(Path('auto/qa/historical_law_history_snapshot.v1.json').read_text(encoding='utf-8'))
           s3=json.loads(Path('auto/qa/historical_law_article_stage3.v1.json').read_text(encoding='utf-8'))
           s4=json.loads(Path('auto/qa/historical_law_oldver_stage4.v1.json').read_text(encoding='utf-8'))
           s5=json.loads(Path('auto/qa/historical_law_stage5_promotion.v1.json').read_text(encoding='utf-8'))
           s6=json.loads(Path('auto/qa/historical_law_stage6_semantic.v1.json').read_text(encoding='utf-8'))
 
           assert s2.get('mapping_count') == 86
+          assert s2.get('law_fetch_error_count') == 0, s2.get('law_fetch_errors')
+          assert hs.get('record_count',0) > 0
+          assert hs.get('ready_count') == hs.get('record_count'), hs
+          assert hs.get('source_failure_count') == 0, hs
+          assert hs.get('historical_version_checked_count') == 0
+          assert hs.get('protected_core_mutation_count') == 0
+          for row in hs.get('records') or []:
+              assert row.get('status') == 'official_history_ready'
+              assert re.fullmatch(r'[0-9a-f]{64}', row.get('entries_sha256') or '')
+              assert row.get('entry_count') == len(row.get('entries') or [])
+              assert row.get('entry_count',0) > 0
+              assert 'official_answer' not in row
+
           machine=[r for r in (s3.get('records') or []) if r.get('route') == 'machine_candidate']
           assert len(machine) == 19, s3.get('route_counts')
           assert s4.get('record_count') == len(machine) == 19
+          assert s4.get('stage2_history_snapshot_bundle_count') == hs.get('ready_count')
           assert s4.get('historical_text_evidence_ready_count') == 19, s4.get('status_counts')
           assert s4.get('verified_snapshot_count') == 19, s4.get('status_counts')
           assert s4.get('historical_version_checked_count') == 0
@@ -110,6 +127,8 @@ jobs:
           assert all(r.get('historical_version_checked') is False for r in (s6.get('records') or []))
           assert all('official_answer' not in r for r in (s6.get('records') or []))
           print(json.dumps({
+              'stage2_history_ready':hs.get('ready_count'),
+              'stage3_route_counts':s3.get('route_counts'),
               'stage4_status_counts':s4.get('status_counts'),
               'verified_snapshot_count':s4.get('verified_snapshot_count'),
               'verified_snapshot_article_count':s4.get('verified_snapshot_article_count'),
@@ -120,12 +139,15 @@ jobs:
           PY
 
       - name: Upload pilot evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: historical-law-snapshot-pilot-evidence
           path: |
+            auto/qa/historical_law_exam_date_stage2.v1.json
+            auto/qa/historical_law_history_snapshot.v1.json
             auto/qa/historical_law_oldver_stage4.v1.json
             auto/qa/historical_law_stage5_promotion.v1.json
             auto/qa/historical_law_stage6_semantic.v1.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
