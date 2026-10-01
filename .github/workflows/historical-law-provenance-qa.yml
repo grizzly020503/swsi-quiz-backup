@@ -1,0 +1,48 @@
+name: Historical Law Provenance QA
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/historical_law_provenance.py'
+      - 'scripts/historical_law_provenance_selftest.py'
+      - 'data/law_question_links_priority10.v1.json'
+      - 'data/legal_watch_report.json'
+      - '.github/workflows/historical-law-provenance-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  historical-law-provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install runtime dependency
+        run: python -m pip install --disable-pip-version-check requests
+
+      - name: Deterministic parser and repository contract
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/historical_law_provenance.py scripts/historical_law_provenance_selftest.py
+          python scripts/historical_law_provenance_selftest.py
+          python scripts/historical_law_provenance.py --output /tmp/historical_law_provenance.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('/tmp/historical_law_provenance.json').read_text(encoding='utf-8'))
+          if p.get('question_count') != 86:
+              raise SystemExit(f"unexpected priority-law question count: {p.get('question_count')}")
+          if any(row.get('historical_version_checked') for row in p.get('questions') or []):
+              raise SystemExit('offline triage must never claim historical verification')
+          print('Historical-law offline report contract OK:', p.get('status_counts'))
+          PY
+          git diff --check
