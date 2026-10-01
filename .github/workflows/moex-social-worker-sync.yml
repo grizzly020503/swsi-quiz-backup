@@ -15,13 +15,12 @@ on:
       - 'scripts/health_check_v2.py'
       - 'scripts/moex_workflow_ownership_smoke.py'
       - 'scripts/moj_law_watch.py'
-      - 'scripts/current_affairs_watch.py'
       - 'data/legal_watch_names.json'
   schedule:
     # 零成本正常模式：台灣時間每週一 10:35（UTC 02:35）。
     # 國考資料平時低頻檢查；接近已知考試放榜／更正窗口時，用 workflow_dispatch
-    # 手動加跑即可。時事另由 Public Monitoring Feed 每 6 小時掃描；法規本身仍有
-    # min-days fail-soft 節流。
+    # 手動加跑即可。時事掃描／Supabase candidate sync 由 Public Monitoring Feed 每 6 小時單一持有；
+    # 法規本身仍有 min-days fail-soft 節流。
     - cron: '35 2 * * 1'
 
 permissions:
@@ -51,25 +50,6 @@ jobs:
 
       - name: Verify MOEX workflow ownership
         run: python scripts/moex_workflow_ownership_smoke.py
-
-      - name: Scan social-work current affairs
-        id: current_affairs
-        continue-on-error: true
-        run: python scripts/current_affairs_watch.py --output /tmp/current_affairs_payload.json --days 21
-
-      - name: Sync current-affairs candidates to Supabase
-        if: steps.current_affairs.outcome == 'success'
-        continue-on-error: true
-        env:
-          GH_REPO_TOKEN: ${{ github.token }}
-          CURRENT_AFFAIRS_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-current-affairs
-        run: |
-          curl --silent --show-error --fail-with-body \
-            -X POST "$CURRENT_AFFAIRS_URL" \
-            -H "Authorization: Bearer $GH_REPO_TOKEN" \
-            -H 'Content-Type: application/json' \
-            --data-binary @/tmp/current_affairs_payload.json
-          echo
 
       - name: Check official MOJ law changes
         id: law_watch
