@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+# Validation-only trigger for post-merge Stage 1-6 -> Guardian routing verification.
 import historical_law_oldver_stage4 as s4
 import historical_law_stage4_snapshot_runner as snap4
 import historical_law_stage6_snapshot_semantic as snap6
