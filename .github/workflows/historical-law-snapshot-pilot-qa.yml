@@ -7,6 +7,7 @@ on:
       - 'scripts/historical_law_stage4_snapshot_runner.py'
       - 'scripts/historical_law_stage6_snapshot_semantic.py'
       - 'scripts/historical_law_snapshot_pipeline_selftest.py'
+      - 'scripts/historical_law_moj_api_probe.py'
       - '.github/workflows/historical-law-snapshot-pilot-qa.yml'
   workflow_dispatch:
 
@@ -35,7 +36,8 @@ jobs:
             scripts/historical_law_stage2_history_snapshot.py \
             scripts/historical_law_stage4_snapshot_runner.py \
             scripts/historical_law_stage6_snapshot_semantic.py \
-            scripts/historical_law_snapshot_pipeline_selftest.py
+            scripts/historical_law_snapshot_pipeline_selftest.py \
+            scripts/historical_law_moj_api_probe.py
           (cd scripts && python historical_law_snapshot_pipeline_selftest.py)
           git diff --check
 
@@ -54,6 +56,39 @@ jobs:
 
       - name: Stage 2 — exact exam dates plus MOJ history handoff
         run: python scripts/historical_law_stage2_history_snapshot.py
+
+      - name: Probe official MOJ Open API current corpus
+        run: python scripts/historical_law_moj_api_probe.py
+      - name: Validate MOJ Open API coverage
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('auto/qa/historical_law_moj_api_probe.v1.json').read_text(encoding='utf-8'))
+          rows=d.get('records') or []
+          assert d.get('target_count') == len(rows) == 10, d
+          assert d.get('ready_count') == 10, d
+          assert d.get('not_found_count') == 0, d
+          assert d.get('historical_version_checked_count') == 0
+          assert d.get('protected_core_mutation_count') == 0
+          assert all(r.get('status') == 'ready' for r in rows)
+          assert all(r.get('name_matches') is True for r in rows)
+          assert all(r.get('url_pcode_matches') is True for r in rows)
+          assert all(int(r.get('article_count') or 0) > 0 for r in rows)
+          assert all('official_answer' not in r for r in rows)
+          print(json.dumps({
+              'law_update_date':d.get('law_update_date'),
+              'order_update_date':d.get('order_update_date'),
+              'law_corpus_count':d.get('law_corpus_count'),
+              'order_corpus_count':d.get('order_corpus_count'),
+              'ready_count':d.get('ready_count'),
+              'targets':[
+                  {'law_name':r.get('law_name'),'pcode':r.get('pcode'),'collection':r.get('collection'),'article_count':r.get('article_count')}
+                  for r in rows
+              ],
+          },ensure_ascii=False,indent=2))
+          PY
+
       - name: Stage 3 — article candidates
         run: python scripts/historical_law_article_resolver.py
       - name: Stage 4 — reuse Stage 2 history and capture verified MOJ full-text snapshot
@@ -146,6 +181,7 @@ jobs:
           path: |
             auto/qa/historical_law_exam_date_stage2.v1.json
             auto/qa/historical_law_history_snapshot.v1.json
+            auto/qa/historical_law_moj_api_probe.v1.json
             auto/qa/historical_law_oldver_stage4.v1.json
             auto/qa/historical_law_stage5_promotion.v1.json
             auto/qa/historical_law_stage6_semantic.v1.json
