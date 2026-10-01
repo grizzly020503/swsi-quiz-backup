@@ -12,6 +12,7 @@ Safety boundary:
 - never mutates question data;
 - never sets historical_version_checked=true;
 - selected URL, source identity and every article fingerprint must agree;
+- snapshot IDs are re-derived from their bound source evidence;
 - any missing/tampered/mismatched snapshot fails closed.
 """
 from __future__ import annotations
@@ -50,9 +51,13 @@ def _official_moj_law_url(url: str) -> bool:
     return stage6._official_moj_law_url(url)
 
 
+def _sha256_text(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
 def _payload_sha256(value: object) -> str:
     raw = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    return _sha256_text(raw)
 
 
 def verified_snapshot_articles(stage4_row: dict, stage5_row: dict) -> tuple[list[dict] | None, str | None]:
@@ -78,14 +83,25 @@ def verified_snapshot_articles(stage4_row: dict, stage5_row: dict) -> tuple[list
     method = str(snapshot.get("source_identity_method") or "")
     if method not in {"stage4_moj_title", "moj_open_api_current"}:
         return None, "Stage4 snapshot source identity method unsupported"
-    if not re.fullmatch(r"[0-9a-f]{64}", str(snapshot.get("snapshot_id") or "")):
+    if str(stage4_row.get("source_identity_method") or "") != method:
+        return None, "Stage4 row/snapshot source identity method mismatch"
+
+    snapshot_id = str(snapshot.get("snapshot_id") or "")
+    evidence_sha = str(snapshot.get("evidence_sha256") or "")
+    if not re.fullmatch(r"[0-9a-f]{64}", snapshot_id):
         return None, "Stage4 snapshot id missing"
-    if not re.fullmatch(r"[0-9a-f]{64}", str(snapshot.get("evidence_sha256") or "")):
+    if not re.fullmatch(r"[0-9a-f]{64}", evidence_sha):
         return None, "Stage4 snapshot evidence fingerprint missing"
 
     if method == "stage4_moj_title":
-        if not re.fullmatch(r"[0-9a-f]{64}", str(snapshot.get("page_sha256") or "")):
+        if selected4.get("kind") != "oldver":
+            return None, "MOJ old-version HTML snapshot used for non-oldver selected version"
+        page_sha = str(snapshot.get("page_sha256") or "")
+        if not re.fullmatch(r"[0-9a-f]{64}", page_sha):
             return None, "Stage4 HTML page fingerprint missing"
+        expected_snapshot_id = _sha256_text(f"{url4}\n{page_sha}")
+        if snapshot_id != expected_snapshot_id:
+            return None, "Stage4 HTML snapshot id mismatch"
     else:
         if selected4.get("kind") != "current":
             return None, "MOJ Open API snapshot used for non-current selected version"
@@ -98,11 +114,19 @@ def verified_snapshot_articles(stage4_row: dict, stage5_row: dict) -> tuple[list
         pcode_api = stage4.hp.pcode_from_url(api_url)
         if not pcode_selected or pcode_selected != pcode_api:
             return None, "MOJ Open API law URL PCode mismatch"
-        if not re.fullmatch(r"[0-9a-f]{64}", str(snapshot.get("api_source_identity_sha256") or "")):
+        source_identity_sha = str(snapshot.get("api_source_identity_sha256") or "")
+        if not re.fullmatch(r"[0-9a-f]{64}", source_identity_sha):
             return None, "MOJ Open API source identity fingerprint missing"
+        expected_snapshot_id = _payload_sha256({
+            "source_identity_sha256": source_identity_sha,
+            "selected_version_url": url4,
+            "articles_sha256": evidence_sha,
+        })
+        if snapshot_id != expected_snapshot_id:
+            return None, "MOJ Open API snapshot id mismatch"
 
     raw_articles = snapshot.get("articles") or []
-    if _payload_sha256(raw_articles) != str(snapshot.get("evidence_sha256") or ""):
+    if _payload_sha256(raw_articles) != evidence_sha:
         return None, "Stage4 snapshot aggregate evidence fingerprint mismatch"
 
     articles: list[dict] = []
@@ -194,9 +218,10 @@ def build_report(stage5: dict, stage4_report: dict, links: dict) -> dict:
         "schema_version": 4,
         "method": (
             "Stage5 promotion candidate -> exact hash-bound Stage4 all-article snapshot -> "
-            "selected-source identity + aggregate/per-article fingerprints -> stem + all options semantic rerank; "
-            "supports official MOJ Open API current snapshots and identity-verified MOJ old-version HTML snapshots; "
-            "no second network transport, semantic cross-check only, never verification write"
+            "selected-source identity + re-derived snapshot ID + aggregate/per-article fingerprints -> "
+            "stem + all options semantic rerank; supports official MOJ Open API current snapshots and "
+            "identity-verified MOJ old-version HTML snapshots; no second network transport, "
+            "semantic cross-check only, never verification write"
         ),
         "stage5_promotion_candidate_count": len(candidates),
         "record_count": len(records),
