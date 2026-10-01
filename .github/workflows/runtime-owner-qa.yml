@@ -38,6 +38,33 @@ jobs:
         run: python3 scripts/maintainability_smoke.py
       - name: Verify direct window global inventory
         run: python3 scripts/window_global_inventory_smoke.py
+      - name: Bootstrap current window-global inventory artifact
+        if: always()
+        run: |
+          mkdir -p auto/qa
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, 'scripts')
+          import window_global_inventory_smoke as guard
+          Path('auto/qa/window_global_inventory.current.json').write_text(
+              json.dumps({
+                  'schema_version': 1,
+                  'purpose': 'Grandfathered direct window.* assignments. New globals or new owners require explicit review.',
+                  'owners': guard.current_inventory(),
+              }, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          PY
+      - name: Upload bootstrap window-global inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: window-global-inventory-bootstrap
+          path: auto/qa/window_global_inventory.current.json
+          if-no-files-found: error
+          retention-days: 1
       - name: Verify runtime owner chain
         run: node scripts/runtime_owner_smoke.js
       - name: Verify dynamic source URL safety
