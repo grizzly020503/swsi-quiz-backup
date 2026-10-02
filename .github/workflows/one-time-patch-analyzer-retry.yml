@@ -35,11 +35,11 @@ jobs:
           python scripts/analyzer_retry_contract_smoke.py
           deno check supabase/functions/analyze-pending-questions/index.ts
           git diff --check
-      - name: Commit verified patch
+      - name: Commit verified non-workflow patch
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add supabase/functions/analyze-pending-questions/index.ts scripts/analyzer_retry_contract_smoke.py .github/workflows/ai-analyzer-route-qa.yml
+          git add supabase/functions/analyze-pending-questions/index.ts scripts/analyzer_retry_contract_smoke.py
           git commit -m 'fix: retry analyzer structural output failures without relaxing QA'
           git push origin HEAD:fix/analyzer-structural-retry-20261002
