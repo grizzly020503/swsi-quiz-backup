@@ -5,6 +5,10 @@ This adapter intentionally does not modify data/legal_watch_state.json,
 data/legal_watch_report.json, Official Core, or any production store. It reads a
 verified legal-watch report, re-fetches one already-resolved official LawAll URL,
 and emits the shared source_observation_contract plus a separate shadow state.
+
+MOJ LawAll HTML contains request-varying page machinery. Raw response bytes are
+therefore hashed as raw evidence, while the contract's normalized-content input
+uses a deterministic projection of the existing article-fingerprint parser.
 """
 from __future__ import annotations
 
@@ -28,6 +32,7 @@ from source_observation_contract import build_observation, canonical_url, source
 ALLOWED_HOST = "law.moj.gov.tw"
 DEFAULT_TIMEOUT = 30
 TRUSTED_OUTCOMES = {"success_changed", "success_no_change", "correction_detected"}
+NORMALIZED_PAYLOAD_BASIS = "article_fingerprint_projection_v1"
 
 
 def iso_now() -> str:
@@ -80,13 +85,29 @@ def strict_decode(body: bytes, encoding: str | None) -> tuple[str | None, bool, 
         value = str(value or "").strip()
         if value and value.lower() not in {x.lower() for x in candidates}:
             candidates.append(value)
-    last = None
     for value in candidates:
         try:
             return body.decode(value, errors="strict"), False, value
-        except (UnicodeDecodeError, LookupError) as exc:
-            last = exc
+        except (UnicodeDecodeError, LookupError):
+            pass
     return None, True, candidates[0] if candidates else "utf-8"
+
+
+def stable_parser_projection(name: str, fingerprints: dict[str, str]) -> str:
+    """Return stable parser-owned content, excluding dynamic LawAll page chrome.
+
+    The existing legal watcher already defines article SHA-256 fingerprints over
+    the actual law body. This projection makes source-observation no-change
+    semantics follow that parser contract while raw_content_hash still records
+    the exact HTTP response bytes for forensic evidence.
+    """
+    payload = {
+        "projection_schema": 1,
+        "canonical_name": name,
+        "article_fingerprint_version": ARTICLE_FINGERPRINT_VERSION,
+        "articles": {key: fingerprints[key] for key in sorted(fingerprints)},
+    }
+    return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
 def observe_record(*, record: dict, shadow_state: dict, session, fetched_at: str,
@@ -104,7 +125,8 @@ def observe_record(*, record: dict, shadow_state: dict, session, fetched_at: str
     transport = "ok"
     http_status = None
     body = None
-    decoded_text = None
+    decoded_page_text = None
+    contract_text = None
     decode_failed = False
     parser_ok = False
     parser_contract_changed = False
@@ -112,6 +134,7 @@ def observe_record(*, record: dict, shadow_state: dict, session, fetched_at: str
     final_url = None
     redirect_count = 0
     used_encoding = None
+    projection_used = False
 
     try:
         response = session.get(requested_url, timeout=timeout, allow_redirects=True)
@@ -120,16 +143,20 @@ def observe_record(*, record: dict, shadow_state: dict, session, fetched_at: str
         final_url = canonical_url(str(response.url or requested_url))
         redirect_count = len(getattr(response, "history", []) or [])
         final_host_ok = urlsplit(final_url).hostname == ALLOWED_HOST
-        decoded_text, decode_failed, used_encoding = strict_decode(body, getattr(response, "encoding", None))
+        decoded_page_text, decode_failed, used_encoding = strict_decode(body, getattr(response, "encoding", None))
+        contract_text = decoded_page_text
 
-        if 200 <= http_status < 300 and not decode_failed and decoded_text is not None and final_host_ok:
+        if 200 <= http_status < 300 and not decode_failed and decoded_page_text is not None and final_host_ok:
             text_parser = LinkTextParser()
-            text_parser.feed(decoded_text)
+            text_parser.feed(decoded_page_text)
             name_ok = page_matches_name(text_parser.text, name)
-            fingerprints = extract_article_fingerprints(decoded_text) if name_ok else {}
+            fingerprints = extract_article_fingerprints(decoded_page_text) if name_ok else {}
             parser_contract_changed = bool(name_ok and not fingerprints)
             parser_ok = bool(name_ok and fingerprints and not parser_contract_changed)
             item_count = len(fingerprints) if parser_ok else None
+            if parser_ok:
+                contract_text = stable_parser_projection(name, fingerprints)
+                projection_used = True
         elif 200 <= http_status < 300 and not final_host_ok:
             parser_ok = False
             item_count = None
@@ -150,7 +177,7 @@ def observe_record(*, record: dict, shadow_state: dict, session, fetched_at: str
         transport=transport,
         http_status=http_status,
         body=body,
-        decoded_text=decoded_text,
+        decoded_text=contract_text,
         decode_failed=decode_failed,
         parser_ok=parser_ok,
         parser_contract_changed=parser_contract_changed,
@@ -167,6 +194,8 @@ def observe_record(*, record: dict, shadow_state: dict, session, fetched_at: str
         "final_url": final_url,
         "redirect_count": redirect_count,
         "decode_encoding": used_encoding,
+        "normalized_payload_basis": NORMALIZED_PAYLOAD_BASIS if projection_used else "decoded_response_or_none",
+        "raw_hash_basis": "exact_http_response_bytes",
         "official_legal_watch_state_mutation": False,
         "official_legal_watch_report_mutation": False,
         "official_core_mutation": False,
@@ -185,6 +214,7 @@ def observe_record(*, record: dict, shadow_state: dict, session, fetched_at: str
             "last_outcome": observation["observation"]["outcome"],
             "checked_at": fetched_at,
             "parser_version": ARTICLE_FINGERPRINT_VERSION,
+            "normalized_payload_basis": NORMALIZED_PAYLOAD_BASIS,
         }
     elif previous:
         kept = dict(previous)
@@ -220,9 +250,9 @@ class _FakeSession:
         return self.response
 
 
-def _fixture_html(name="社會工作師法") -> bytes:
+def _fixture_html(name="社會工作師法", dynamic="one") -> bytes:
     return (
-        "<html><body><h1>" + name + "</h1>"
+        "<html><body><input value=\"" + dynamic + "\"><h1>" + name + "</h1>"
         "<div id=\"pnLawFla\"><div>第 1 條</div><div>測試條文內容。</div>"
         "<div>第 2 條</div><div>第二條測試內容。</div></div></body></html>"
     ).encode("utf-8")
@@ -236,16 +266,20 @@ def self_test() -> dict:
         "official_modified_date": "2025-01-01",
     }
     state = {"schema_version": 1, "mode": "shadow_read_only", "records": {}}
-    response = _FakeResponse(_fixture_html(), url=record["official_url"])
+    response1 = _FakeResponse(_fixture_html(dynamic="request-a"), url=record["official_url"])
+    response2 = _FakeResponse(_fixture_html(dynamic="request-b"), url=record["official_url"])
 
-    first, state = observe_record(record=record, shadow_state=state, session=_FakeSession(response), fetched_at="2026-10-02T12:00:00Z")
+    first, state = observe_record(record=record, shadow_state=state, session=_FakeSession(response1), fetched_at="2026-10-02T12:00:00Z")
     assert first["observation"]["outcome"] == "success_changed"
     assert first["observation"]["raw_content_hash"]
     assert first["adapter"]["official_core_mutation"] is False
+    assert first["adapter"]["normalized_payload_basis"] == NORMALIZED_PAYLOAD_BASIS
 
-    second, state2 = observe_record(record=record, shadow_state=state, session=_FakeSession(response), fetched_at="2026-10-02T12:01:00Z")
+    second, state2 = observe_record(record=record, shadow_state=state, session=_FakeSession(response2), fetched_at="2026-10-02T12:01:00Z")
     assert second["observation"]["outcome"] == "success_no_change"
     assert second["observation"]["replacement_allowed"] is False
+    assert first["observation"]["raw_content_hash"] != second["observation"]["raw_content_hash"]
+    assert first["observation"]["normalized_content_hash"] == second["observation"]["normalized_content_hash"]
     assert state2["records"]
 
     bad_redirect = _FakeResponse(_fixture_html(), url="https://evil.example.invalid/LawAll.aspx?pcode=D0050077", history=[object()])
@@ -267,6 +301,7 @@ def self_test() -> dict:
         "cases": 5,
         "first_outcome": first["observation"]["outcome"],
         "second_outcome": second["observation"]["outcome"],
+        "dynamic_raw_hash_changed_but_normalized_stable": True,
         "trusted_hash_preserved_on_failure": True,
         "official_state_mutation": False,
     }
@@ -319,6 +354,7 @@ def main() -> int:
         "replacement_allowed": observation["observation"]["replacement_allowed"],
         "raw_hash_present": bool(observation["observation"]["raw_content_hash"]),
         "normalized_hash_present": bool(observation["observation"]["normalized_content_hash"]),
+        "normalized_payload_basis": observation["adapter"]["normalized_payload_basis"],
         "item_count": observation["observation"]["item_count"],
         "redirect_count": observation["adapter"]["redirect_count"],
         "shadow_only": True,
