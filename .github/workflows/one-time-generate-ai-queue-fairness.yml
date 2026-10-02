@@ -1,0 +1,58 @@
+name: One-time generate AI queue fairness migration
+
+on:
+  push:
+    branches:
+      - fix/ai-queue-fairness-20261002
+    paths:
+      - '.github/workflows/one-time-generate-ai-queue-fairness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: fix/ai-queue-fairness-20261002
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.13.0'
+          package-manager-cache: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Validate temporary builder
+        run: python -m py_compile scripts/one_time_build_ai_queue_fairness.py
+      - name: Generate migration with Supabase CLI
+        run: npx --yes supabase@latest migration new ai_queue_fair_retry_rotation
+      - name: Build fairness patch
+        run: python scripts/one_time_build_ai_queue_fairness.py
+      - name: Verify generated patch shape
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/supabase_recovery_dry_run.py
+          python -m json.tool supabase/recovery/recovery_manifest.json >/dev/null
+          migration="$(find supabase/migrations -maxdepth 1 -name '*_ai_queue_fair_retry_rotation.sql' -print -quit)"
+          test -n "$migration"
+          grep -q 'analysis_last_attempt_at' "$migration"
+          grep -q 'analysis_last_attempt_at nulls first' "$migration"
+          grep -q 'limit greatest(1, least(coalesce(p_limit, 1), 1))' "$migration"
+          grep -q "completed_24h >= 25" "$migration"
+          grep -q 'DR-QUEUE-FRESH' supabase/recovery/postgres_runtime_contract.sql
+          git diff --check
+      - name: Commit generated non-workflow patch
+        run: |
+          set -euo pipefail
+          migration="$(find supabase/migrations -maxdepth 1 -name '*_ai_queue_fair_retry_rotation.sql' -print -quit)"
+          test -n "$migration"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$migration" supabase/recovery/recovery_manifest.json scripts/supabase_recovery_dry_run.py supabase/recovery/postgres_runtime_contract.sql
+          git commit -m 'fix: make AI analysis queue retries fair'
+          git push origin HEAD:fix/ai-queue-fairness-20261002
