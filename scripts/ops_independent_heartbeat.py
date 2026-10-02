@@ -115,10 +115,32 @@ def current_incidents(payload: dict[str, Any], now: datetime, max_age_h: float, 
         checked = parse_time(row["checked_at"])
         if checked > now and (checked-now).total_seconds() > skew_min*60:
             rows.append(incident(name,"failed","future_timestamp",row["scope"],"component timestamp is too far in the future")); continue
+        if (now-checked).total_seconds()/3600 > max_age_h:
+            rows.append(incident(name,"failed","component_stale",row["scope"],"component freshness window exceeded")); continue
         if row["status"] != "healthy":
             msg = str(row["detail"].get("message") or f"{name} reported {row['status']}")
             rows.append(incident(name,row["status"],row["failure_class"],row["scope"],msg))
     return list({r["incident_key"]: r for r in rows}.values())
+
+
+def recovery_observed(row: dict[str, Any], hb: dict[str, Any] | None,
+                      now: datetime, max_age_h: float, skew_min: float,
+                      site_ok: bool | None) -> bool:
+    """Absence of an incident is not evidence of recovery."""
+    def fresh(value: str) -> bool:
+        age = (now - parse_time(value)).total_seconds()
+        return -skew_min * 60 <= age <= max_age_h * 3600
+
+    component, scope = row.get("component"), row.get("scope")
+    if component == "site" and scope == "homepage":
+        return site_ok is True
+    if hb is None or not fresh(hb["generated_at"]):
+        return False
+    if component == "task_heartbeat" and scope == "heartbeat":
+        return True  # Valid, fresh envelope recovers an envelope incident only.
+    current = hb["components"].get(component)
+    return bool(current and current["scope"] == scope
+                and current["status"] == "healthy" and fresh(current["checked_at"]))
 
 
 def previous(path: Path|None) -> dict[str, dict[str, Any]]:
@@ -145,7 +167,13 @@ def evaluate(heartbeat: Any, now: datetime, max_age_h: float, skew_min: float, p
         x["first_seen_at"] = prior.get("first_seen_at") if prior else iso(now); x["last_seen_at"] = iso(now); out.append(x)
     for key, row in prev.items():
         if key not in active_map:
-            x = dict(row); x["transition"] = "resolved"; x["resolved_at"] = iso(now); resolved.append(x)
+            x = dict(row)
+            if recovery_observed(row, hb, now, max_age_h, skew_min, site_ok):
+                x["transition"] = "resolved"; x["resolved_at"] = iso(now); resolved.append(x)
+            else:
+                # Keep last_seen_at as the last actual failure observation.
+                x["transition"] = "ongoing"; x["observation_status"] = "recovery_unconfirmed"
+                x["last_evaluated_at"] = iso(now); out.append(x)
     rank = max([RANK.get(x["severity"],1) for x in out] or [0])
     return {
         "schema_version":1, "evaluated_at":iso(now), "independent_monitoring_active":bool(independent),

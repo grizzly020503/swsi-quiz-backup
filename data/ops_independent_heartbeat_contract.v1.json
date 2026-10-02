@@ -49,5 +49,12 @@
     "redirect_policy": "same host unless explicitly allowlisted",
     "response_size_limit_bytes": 2000000
   },
+  "freshness_policy": {
+    "window_argument": "--max-age-hours",
+    "default_hours": 8,
+    "applies_to": ["generated_at", "component.checked_at"],
+    "resolution_requires": "fresh valid envelope and fresh healthy same-component/scope evidence; homepage requires a successful direct probe",
+    "unobserved_incident": "retain ongoing with recovery_unconfirmed; preserve last actual last_seen_at"
+  },
   "state_transitions": ["new", "ongoing", "resolved"]
 }
