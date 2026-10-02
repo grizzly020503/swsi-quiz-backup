@@ -1,0 +1,98 @@
+name: Exam Scheme Versioning QA
+
+on:
+  pull_request:
+    paths:
+      - 'data/exam_scheme_registry.v1.json'
+      - 'scripts/exam_scheme.py'
+      - 'scripts/exam_scheme_gate.py'
+      - 'scripts/exam_scheme_selftest.py'
+      - 'scripts/build_auto_payload.py'
+      - 'incoming/**'
+      - '.github/workflows/exam-scheme-versioning-qa.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/exam_scheme_registry.v1.json'
+      - 'scripts/exam_scheme.py'
+      - 'scripts/exam_scheme_gate.py'
+      - 'scripts/exam_scheme_selftest.py'
+      - 'scripts/build_auto_payload.py'
+      - 'incoming/**'
+      - '.github/workflows/exam-scheme-versioning-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scheme-contract:
+    name: Validate approved scheme and quarantine behavior
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Compile exam-scheme scripts
+        run: |
+          python -m py_compile scripts/exam_scheme.py
+          python -m py_compile scripts/exam_scheme_gate.py
+          python -m py_compile scripts/exam_scheme_selftest.py
+          python -m py_compile scripts/build_auto_payload.py
+
+      - name: Run explicitly synthetic future-regime fixtures
+        run: python scripts/exam_scheme_selftest.py
+
+      - name: Gate every current incoming official payload
+        run: |
+          python scripts/exam_scheme_gate.py incoming \
+            --out /tmp/exam-scheme-gate.json \
+            --fail-on-change
+
+      - name: Rebuild auto payload through the same gate
+        run: python scripts/build_auto_payload.py
+
+      - name: Recheck immutable Official Core after rebuild
+        run: python scripts/official_exam_readonly_guard.py
+
+      - name: Publish compact summary
+        if: always()
+        run: |
+          if [ ! -f /tmp/exam-scheme-gate.json ]; then
+            echo '## Exam scheme versioning QA' >> "$GITHUB_STEP_SUMMARY"
+            echo '' >> "$GITHUB_STEP_SUMMARY"
+            echo '- gate report was not produced' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report=json.loads(Path('/tmp/exam-scheme-gate.json').read_text(encoding='utf-8'))
+          lines=[
+              '## Exam scheme versioning QA',
+              '',
+              f"- payloads checked: **{report['payload_count']}**",
+              f"- all approved: **{report['all_approved']}**",
+              f"- status counts: `{json.dumps(report['status_counts'], ensure_ascii=False)}`",
+              '',
+              '> Synthetic future fixtures are tests only; they are not claims about future examination policy.',
+          ]
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
+              f.write('\n'.join(lines)+'\n')
+          PY
+
+      - name: Upload diagnostic gate report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exam-scheme-gate
+          path: /tmp/exam-scheme-gate.json
+          if-no-files-found: ignore
+          retention-days: 14
