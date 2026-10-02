@@ -2,8 +2,8 @@
 """Audit one manifest exam session using the existing Full Corpus/Unified QA owners.
 
 This is the per-session execution primitive for #274 resume/checkpoint wiring.
-It reuses full_corpus_qa.py for source/hash/essay helpers and
-unified_question_qa.py for the actual QA. It never mutates Official Core.
+It reuses full_corpus_qa.py for source/hash/essay helpers and the scheme-derived
+Unified QA wrapper for the actual QA. It never mutates Official Core.
 """
 from __future__ import annotations
 
@@ -20,8 +20,9 @@ from full_corpus_ops_plan import manifest_units
 from full_corpus_qa import (
     DEFAULT_MANIFEST,
     DEFAULT_POLICY,
+    DEFAULT_SCHEME_REGISTRY,
     ROOT,
-    UNIFIED_QA,
+    UNIFIED_QA_CURRENT,
     collect_full_essays,
     question_count,
     read_json,
@@ -76,6 +77,7 @@ def audit_unit(
     *,
     manifest_path: Path = DEFAULT_MANIFEST,
     policy_path: Path = DEFAULT_POLICY,
+    scheme_registry_path: Path = DEFAULT_SCHEME_REGISTRY,
 ) -> dict[str, Any]:
     manifest = read_json(manifest_path)
     policy = read_json(policy_path)
@@ -123,7 +125,7 @@ def audit_unit(
             session_out = tmp / "session.json"
             command = [
                 sys.executable,
-                str(UNIFIED_QA),
+                str(UNIFIED_QA_CURRENT),
                 "--mcq",
                 str(shard_path),
                 "--essays",
@@ -132,8 +134,10 @@ def audit_unit(
                 selected["year"],
                 "--round",
                 selected["round"],
-                "--policy",
+                "--base-policy",
                 str(policy_path),
+                "--scheme-registry",
+                str(scheme_registry_path),
                 "--out",
                 str(session_out),
                 "--fail-on",
@@ -161,12 +165,15 @@ def audit_unit(
                 overall = report.get("overall") or {}
                 official = overall.get("official_core") or {}
                 enrichment = overall.get("enrichment") or {}
+                scheme = report.get("exam_scheme") or {}
                 key = (selected["year"], selected["round"])
                 session_result = {
                     "year": selected["year"],
                     "round": selected["round"],
                     "unit_id": selected["unit_id"],
                     "file": selected["file"],
+                    "exam_scheme_profile": scheme.get("profile_id"),
+                    "expected_total_items": int(scheme.get("expected_total_items") or 0),
                     "mcq_count": actual_count,
                     "essay_count": essay_counts.get(key, 0),
                     "items": int(overall.get("items") or 0),
@@ -192,6 +199,15 @@ def audit_unit(
                         f"{selected['unit_id']}: item mismatch "
                         f"unified={session_result['items']} source={expected_items}"
                     )
+                if not session_result["exam_scheme_profile"]:
+                    manifest_errors.append(
+                        f"{selected['unit_id']}: scheme-derived QA report missing profile provenance"
+                    )
+                if session_result["expected_total_items"] != expected_items:
+                    manifest_errors.append(
+                        f"{selected['unit_id']}: scheme expected_total_items mismatch "
+                        f"scheme={session_result['expected_total_items']} source={expected_items}"
+                    )
 
     official_blocked = (
         int(session_result["official_core"]["blocked"]) if session_result else 0
@@ -205,6 +221,7 @@ def audit_unit(
         "dataset_revision": manifest.get("dataset_revision"),
         "manifest_shard_count": len(units),
         "unit_id": selected["unit_id"],
+        "exam_scheme_registry": str(scheme_registry_path),
         "manifest_errors": manifest_errors,
         "summary": {
             "session_audited": session_result is not None,
@@ -242,6 +259,7 @@ def main() -> int:
     parser.add_argument("--unit")
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--policy", type=Path, default=DEFAULT_POLICY)
+    parser.add_argument("--scheme-registry", type=Path, default=DEFAULT_SCHEME_REGISTRY)
     parser.add_argument("--out", type=Path)
     parser.add_argument("--fail-on", choices=["never", "blocked", "review"], default="blocked")
     parser.add_argument("--self-test", action="store_true")
@@ -254,7 +272,12 @@ def main() -> int:
         raise SystemExit("--unit is required unless --self-test is used")
 
     try:
-        report = audit_unit(args.unit, manifest_path=args.manifest, policy_path=args.policy)
+        report = audit_unit(
+            args.unit,
+            manifest_path=args.manifest,
+            policy_path=args.policy,
+            scheme_registry_path=args.scheme_registry,
+        )
     except Exception as exc:
         raise SystemExit(f"single-session audit failed closed: {exc}") from exc
 

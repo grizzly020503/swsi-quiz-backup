@@ -5,11 +5,15 @@ on:
     paths:
       - 'UNIFIED_QUESTION_QA_PIPELINE.md'
       - 'data/question_qa_policy_v1.json'
+      - 'data/exam_scheme_registry.v1.json'
       - 'data/legal_watch_report.json'
       - 'cdn/question-shards/**'
       - 'auto/questions_auto.json'
       - 'auto/essays_auto.json'
+      - 'scripts/exam_scheme.py'
+      - 'scripts/exam_scheme_qa_policy.py'
       - 'scripts/unified_question_qa.py'
+      - 'scripts/unified_question_qa_current.py'
       - 'scripts/unified_question_qa_selftest.py'
       - 'scripts/build_question_qa_dashboard.py'
       - '.github/workflows/unified-question-qa.yml'
@@ -17,11 +21,15 @@ on:
     paths:
       - 'UNIFIED_QUESTION_QA_PIPELINE.md'
       - 'data/question_qa_policy_v1.json'
+      - 'data/exam_scheme_registry.v1.json'
       - 'data/legal_watch_report.json'
       - 'cdn/question-shards/**'
       - 'auto/questions_auto.json'
       - 'auto/essays_auto.json'
+      - 'scripts/exam_scheme.py'
+      - 'scripts/exam_scheme_qa_policy.py'
       - 'scripts/unified_question_qa.py'
+      - 'scripts/unified_question_qa_current.py'
       - 'scripts/unified_question_qa_selftest.py'
       - 'scripts/build_question_qa_dashboard.py'
       - '.github/workflows/unified-question-qa.yml'
@@ -46,7 +54,10 @@ jobs:
 
       - name: Compile QA scripts
         run: |
+          python -m py_compile scripts/exam_scheme.py
+          python -m py_compile scripts/exam_scheme_qa_policy.py
           python -m py_compile scripts/unified_question_qa.py
+          python -m py_compile scripts/unified_question_qa_current.py
           python -m py_compile scripts/unified_question_qa_selftest.py
           python -m py_compile scripts/build_question_qa_dashboard.py
 
@@ -78,9 +89,9 @@ jobs:
           print('latest exam:', latest['year'], latest['round'], file)
           PY
 
-      - name: Run latest published snapshot through unified QA
+      - name: Run latest published snapshot through scheme-derived Unified QA
         run: |
-          python scripts/unified_question_qa.py \
+          python scripts/unified_question_qa_current.py \
             --mcq "$LATEST_SHARD" \
             --essays auto/essays_auto.json \
             --year "$LATEST_YEAR" \
@@ -96,19 +107,26 @@ jobs:
             /tmp/question-qa-latest.json \
             --out /tmp/question-qa-dashboard-latest.json > /dev/null
 
-      - name: Assert latest dashboard invariants
+      - name: Assert latest dashboard invariants from approved profile
         run: |
           python - <<'PY'
           import json
+          raw=json.load(open('/tmp/question-qa-latest.json',encoding='utf-8'))
           d=json.load(open('/tmp/question-qa-dashboard-latest.json',encoding='utf-8'))
-          assert d['official_core']['total'] == 210, d['official_core']
+          scheme=raw.get('exam_scheme') or {}
+          expected=int(scheme.get('expected_total_items') or 0)
+          if expected <= 0:
+              raise SystemExit(f'missing scheme-derived expected total: {scheme}')
+          assert d['official_core']['total'] == expected, (d['official_core'], scheme)
           assert d['official_core']['blocked'] == 0, d['official_core']
           assert d['official_core']['release_ready'] is True, d['official_core']
-          assert 0 <= d['generation_backlog']['total'] <= 210, d['generation_backlog']
+          assert 0 <= d['generation_backlog']['total'] <= expected, d['generation_backlog']
           assert d['human_queue']['total'] == len(d['human_queue']['items'])
           print(json.dumps({
               'year': d.get('year'),
               'round': d.get('round'),
+              'exam_scheme_profile': scheme.get('profile_id'),
+              'expected_total_items': expected,
               'health': d.get('health'),
               'official_core': d['official_core'],
               'human_queue_total': d['human_queue']['total'],
