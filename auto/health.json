@@ -23,11 +23,15 @@
     "index.html 歷屆申論固定 230 題、五科各 46 題",
     "歷屆申論不得再次出現已知解析污染、截斷或 OCR 異常",
     "106 年第 2 次人行官方特殊配分固定為 26/24",
+    "current incoming 結構由 data/exam_scheme_registry.v1.json 的 effective-dated approved profile 決定",
     "grading_mode 僅允許 standard/all_credit/any_answer",
     "特殊給分題必須明確標示 all_credit 或 any_answer，不允許缺值猜測",
     "standard 不得搭配 answer=一律給分；特殊模式必須搭配 answer=一律給分"
   ],
   "grading_mode_local_counts": {
     "standard": 400
+  },
+  "exam_scheme_local_counts": {
+    "social-worker-five-subjects-v1": 2
   }
 }
