@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "purpose": "Non-sensitive service responsibility and minimum-survival contract. Contains roles and recovery references only, never credentials or personal account identifiers.",
+  "services": [
+    {
+      "id": "github-source-repository",
+      "purpose": "Source-of-truth code, history, issues and portable rebuild material.",
+      "owner_role": "repository_owner_or_successor",
+      "criticality": "critical",
+      "dependency_type": "core",
+      "recovery_references": ["AGENTS.md", "RELEASE.md"],
+      "renewal_type": "terms_review",
+      "paid_required": false,
+      "fallback": "portable repository export plus the last verified deployed/static artifacts",
+      "credentials_policy": "external_secret_only"
+    },
+    {
+      "id": "github-actions-automation",
+      "purpose": "Scheduled QA, sync and release automation; student-facing core must survive its outage.",
+      "owner_role": "operations_maintainer",
+      "criticality": "high",
+      "dependency_type": "enhancement",
+      "recovery_references": ["ZERO_COST_OPERATIONS.md", "RELEASE.md"],
+      "renewal_type": "terms_review",
+      "paid_required": false,
+      "fallback": "pause automation, preserve last verified state, run approved local/manual checks when needed",
+      "credentials_policy": "external_secret_only"
+    },
+    {
+      "id": "cloudflare-primary",
+      "purpose": "Primary public student delivery path and related worker/CDN runtime.",
+      "owner_role": "deployment_maintainer",
+      "criticality": "critical",
+      "dependency_type": "core",
+      "recovery_references": ["RELEASE.md", "CDN_FRONTEND_MIGRATION_DESIGN.md"],
+      "renewal_type": "terms_review",
+      "paid_required": false,
+      "fallback": "Netlify fallback or a rebuilt static package from repo-owned source",
+      "credentials_policy": "external_secret_only"
+    },
+    {
+      "id": "netlify-fallback",
+      "purpose": "Fallback public student delivery path and controlled static deploy target.",
+      "owner_role": "deployment_maintainer",
+      "criticality": "high",
+      "dependency_type": "core",
+      "recovery_references": ["docs/NETLIFY_CONTROLLED_DEPLOY.md", "RELEASE.md"],
+      "renewal_type": "terms_review",
+      "paid_required": false,
+      "fallback": "Cloudflare primary or a provider-neutral static rebuild from repo-owned source",
+      "credentials_policy": "external_secret_only"
+    },
+    {
+      "id": "supabase-backend",
+      "purpose": "Shared mutable backend, admin/feedback/AI metadata, migrations and Edge Functions.",
+      "owner_role": "backend_maintainer",
+      "criticality": "high",
+      "dependency_type": "enhancement",
+      "recovery_references": ["supabase/recovery/recovery_manifest.json", "docs/SUPABASE_FREE_TIER_PRIVATE_BACKUP.md"],
+      "renewal_type": "terms_review",
+      "paid_required": false,
+      "fallback": "keep the static/local study core usable; recover shared mutable state only through reviewed restore procedures",
+      "credentials_policy": "external_secret_only"
+    },
+    {
+      "id": "moex-official-source",
+      "purpose": "Official examination source used to discover and verify new exam data.",
+      "owner_role": "official_data_maintainer",
+      "criticality": "critical",
+      "dependency_type": "external_source",
+      "recovery_references": ["data/exam_scheme_registry.v1.json", "scripts/moex_sync_v2.py"],
+      "renewal_type": "none",
+      "paid_required": false,
+      "fallback": "serve the last verified official corpus; do not silently switch to an unverified mirror",
+      "credentials_policy": "external_secret_only"
+    },
+    {
+      "id": "ai-enhancement",
+      "purpose": "Optional explanation/analysis assistance; never a prerequisite for core studying.",
+      "owner_role": "ai_quality_maintainer",
+      "criticality": "medium",
+      "dependency_type": "enhancement",
+      "recovery_references": ["ZERO_COST_OPERATIONS.md", "ai_eval/README.md"],
+      "renewal_type": "terms_review",
+      "paid_required": false,
+      "fallback": "disable or degrade AI enhancement while preserving answers, drafts and the core study workflow",
+      "credentials_policy": "external_secret_only"
+    }
+  ],
+  "minimum_survival_mode": {
+    "mode": "last_verified_updates_paused",
+    "updates_paused": true,
+    "freshness_disclosure_required": true,
+    "last_verified_revision_required": true,
+    "auto_payment": false,
+    "auto_account_takeover": false,
+    "review_queue_policy": "preserve_no_delete",
+    "qa_policy": "no_lowering",
+    "core_capabilities": [
+      "home_navigation",
+      "official_mcq",
+      "grading_contract",
+      "practice_sessions",
+      "mock_exams",
+      "wrong_answer_review",
+      "local_learning_progress",
+      "essay_library",
+      "local_essay_drafts"
+    ],
+    "enhancement_behavior": {
+      "ai": "degraded_or_disabled",
+      "sync": "paused_with_last_verified_content",
+      "feedback": "retry_later_or_paused",
+      "admin": "may_be_unavailable_without_blocking_students"
+    }
+  },
+  "human_only_decisions": [
+    "account_succession",
+    "provider_new_terms",
+    "major_security_incident",
+    "new_paid_obligation",
+    "disputed_official_content",
+    "destructive_migration"
+  ],
+  "automation_allowlist": [
+    "read_only_health",
+    "hash_verification",
+    "public_source_check",
+    "diagnostic_export"
+  ],
+  "handoff_rules": [
+    "Never store credentials or personal account identifiers in this registry.",
+    "A successor starts from the recovery references and obtains credentials through a separately controlled human process.",
+    "No-maintainer mode preserves exceptions and review queues; it never deletes them to appear healthy.",
+    "Provider/account changes, payment and disputed official content remain human decisions."
+  ]
+}
