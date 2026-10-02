@@ -1,0 +1,144 @@
+name: One-time current-affairs context match patch v2
+
+on:
+  push:
+    branches:
+      - data/current-affairs-context-match-quality-20261002
+    paths:
+      - '.github/workflows/_one_time_current_affairs_context_match_v2_20261002.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-rebuild:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Apply context-vs-exam-point matcher patch with structured hints
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(text, old, new, label):
+              n = text.count(old)
+              if n != 1:
+                  raise SystemExit(f'{label}: expected exactly one match, got {n}')
+              return text.replace(old, new, 1)
+
+          analyzer = Path('scripts/analyze_current_affairs_signals.py')
+          text = analyzer.read_text(encoding='utf-8')
+
+          marker = '\n\nCANONICAL_STANDALONE_HISTORY = {\n'
+          hints = '''\n\n# A specific concept can be central to an exam point even when the normalized\n# topic uses a broader professional label. These hints are deliberately narrow:\n# they upgrade scenario-text evidence only when structured major/topic metadata\n# independently places the question in the same service/policy domain.\nHISTORICAL_CONCEPT_STRUCTURED_HINTS = {\n    "elderly_living_alone": [\n        "社區照顧", "老人福利", "老人服務", "高齡服務", "長期照顧", "長照",\n    ],\n    "childcare": [\n        "兒少福利", "兒童福利", "家庭政策", "生育率政策",\n    ],\n}\n'''
+          if marker not in text:
+              raise SystemExit('structured-hint insertion marker missing')
+          text = text.replace(marker, hints + marker, 1)
+
+          old = '''def _question_search_text(q: dict) -> str:\n    return (\n        f"{q.get('question') or ''} {q.get('topic') or ''} "\n        f"{q.get('major') or ''} {' '.join(q.get('keywords') or [])}"\n    )\n'''
+          new = '''def _question_structured_text(q: dict) -> str:\n    """Return fields intended to describe the exam point, excluding scenario prose."""\n    return (\n        f"{q.get('topic') or ''} {q.get('major') or ''} "\n        f"{' '.join(q.get('keywords') or [])}"\n    )\n\n\ndef _question_search_text(q: dict) -> str:\n    return f"{q.get('question') or ''} {_question_structured_text(q)}"\n'''
+          text = replace_once(text, old, new, 'question text helper')
+
+          old = '''        q_law = str(q.get("law") or "")\n        q_text = _question_search_text(q)\n        law_hit = next(\n            (law for law in laws if law and (law in q_law or law in q_text)),\n            None,\n        )\n        tag_hits = sorted(t for t in tags if t in q_text or t in q_law)\n\n        q_specific = historical_concepts(f"{q_text} {q_law}")\n        shared_specific = sorted(event_specific & q_specific)\n        eligible_specific = [\n            key for key in shared_specific\n            if not HISTORICAL_CONCEPTS[key].get("requires_law") or law_hit\n        ]\n'''
+          new = '''        q_law = str(q.get("law") or "")\n        q_text = _question_search_text(q)\n        q_structured_text = _question_structured_text(q)\n        q_structured_with_law = f"{q_structured_text} {q_law}"\n        law_hit = next(\n            (law for law in laws if law and (law in q_law or law in q_text)),\n            None,\n        )\n        tag_hits = sorted(t for t in tags if t in q_text or t in q_law)\n\n        q_specific = historical_concepts(f"{q_text} {q_law}")\n        q_structured_specific = historical_concepts(q_structured_with_law)\n        shared_specific = sorted(event_specific & q_specific)\n        eligible_specific = [\n            key for key in shared_specific\n            if not HISTORICAL_CONCEPTS[key].get("requires_law") or law_hit\n        ]\n        exam_point_specific = [\n            key for key in eligible_specific\n            if key in q_structured_specific\n            or any(\n                _contains_alias(q_structured_with_law, hint)\n                for hint in HISTORICAL_CONCEPT_STRUCTURED_HINTS.get(key, [])\n            )\n        ]\n        context_only_specific = [key for key in eligible_specific if key not in exam_point_specific]\n'''
+          text = replace_once(text, old, new, 'specific concept scope')
+
+          old = '''        if eligible_specific:\n            score += min(4.0, 3.0 * len(eligible_specific))\n            reasons.append(\n                "同義考點：" + "、".join(\n                    HISTORICAL_CONCEPTS[key]["label"] for key in eligible_specific[:4]\n                )\n            )\n'''
+          new = '''        if exam_point_specific:\n            score += min(4.0, 3.0 * len(exam_point_specific))\n            reasons.append(\n                "同義考點：" + "、".join(\n                    HISTORICAL_CONCEPTS[key]["label"] for key in exam_point_specific[:4]\n                )\n            )\n        if context_only_specific:\n            # A concept mentioned only in scenario prose can still be useful for\n            # practice, but without structured domain support it must stay below\n            # the medium evidence threshold.\n            score += min(2.0, 2.0 * len(context_only_specific))\n            reasons.append(\n                "情境概念：" + "、".join(\n                    HISTORICAL_CONCEPTS[key]["label"] for key in context_only_specific[:4]\n                )\n            )\n'''
+          text = replace_once(text, old, new, 'specific concept scoring')
+          analyzer.write_text(text, encoding='utf-8')
+
+          smoke = Path('scripts/current_affairs_signals_smoke.py')
+          st = smoke.read_text(encoding='utf-8')
+          marker = '\n\ndef review_regressions() -> None:\n'
+          test = '''\n\ndef context_vs_exam_point_smoke() -> None:\n    row = {\n        "id": "fixture-elderly-context",\n        "title": "啟動獨居長者關懷訪查",\n        "summary": "強化獨居老人社區支持與關懷服務。",\n        "category": "長照與高齡",\n        "exam_tags": [],\n        "subjects": ["社會工作直接服務"],\n    }\n    questions = [\n        {\n            "id": "Q-ELDERLY-SERVICE",\n            "subject": "社會工作直接服務",\n            "year": "115", "round": "第一次", "qno": "40",\n            "major": "社區工作", "topic": "社區照顧 > 健康社區六星計畫",\n            "keywords": ["社區照顧"],\n            "question": "社區巡守隊轉為獨居老人關懷隊，結合健康社區六星計畫哪些面向？", "law": "",\n        },\n        {\n            "id": "Q-ELDERLY-SCENARIO",\n            "subject": "社會工作直接服務",\n            "year": "114", "round": "第一次", "qno": "28",\n            "major": "會談與溝通技巧", "topic": "同理 > 同理層次排序",\n            "keywords": ["同理"],\n            "question": "一位獨居長者抱怨申請進度，請依同理層次排列社工回應。", "law": "",\n        },\n    ]\n    out = analyze_item(row, questions)\n    found = {q["id"]: q for q in out["related_exam_questions"]}\n    direct = found["Q-ELDERLY-SERVICE"]\n    contextual = found["Q-ELDERLY-SCENARIO"]\n    if float(direct["match_score"]) < 3 or "同義考點：獨居高齡者" not in direct["match_reason"]:\n        raise SystemExit(f"structured domain hint did not preserve direct service anchor: {direct}")\n    if not (2 <= float(contextual["match_score"]) < 3) or "情境概念：獨居高齡者" not in contextual["match_reason"]:\n        raise SystemExit(f"scenario-only concept was not downgraded: {contextual}")\n    breakdown = out["historical_exam_stats"]["match_breakdown"]\n    if breakdown != {"strong": 0, "medium": 1, "concept": 1}:\n        raise SystemExit(f"scenario-vs-exam-point breakdown mismatch: {breakdown}")\n'''
+          if marker not in st:
+              raise SystemExit('test insertion marker missing')
+          st = st.replace(marker, test + marker, 1)
+          old_call = '''    matching_contract_smoke()\n    event_specific_history_smoke()\n    review_regressions()\n'''
+          new_call = '''    matching_contract_smoke()\n    event_specific_history_smoke()\n    context_vs_exam_point_smoke()\n    review_regressions()\n'''
+          st = replace_once(st, old_call, new_call, 'smoke main call')
+          smoke.write_text(st, encoding='utf-8')
+          PY
+
+      - name: Rebuild tracked current-affairs snapshots deterministically
+        run: |
+          set -euo pipefail
+          python scripts/build_current_affairs_signals_snapshot.py \
+            --input auto/current_affairs.json \
+            --questions-csv data/questions_master_backup_20260824_2220.csv \
+            --output auto/current_affairs_signals.json \
+            --limit 30
+          python scripts/build_current_affairs_events_snapshot.py \
+            --news auto/current_affairs.json \
+            --signals auto/current_affairs_signals.json \
+            --output auto/current_affairs_events.json \
+            --limit 30
+          python scripts/build_current_affairs_trends_snapshot.py \
+            --events auto/current_affairs_events.json \
+            --output auto/current_affairs_trends.json \
+            --limit 30
+          cp auto/current_affairs_signals.json cdn/auto/current_affairs_signals.json
+          cp auto/current_affairs_events.json cdn/auto/current_affairs_events.json
+          cp auto/current_affairs_trends.json cdn/auto/current_affairs_trends.json
+
+      - name: Verify real corpus behavior and contracts
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('auto/current_affairs_signals.json').read_text(encoding='utf-8'))
+          rows = data.get('items') or []
+          elderly = next((r for r in rows if '獨老' in str(r.get('title') or '')), None)
+          if not elderly:
+              raise SystemExit('real elderly current-affairs fixture missing')
+          rel = {str(q.get('id')): q for q in elderly.get('related_exam_questions') or []}
+          direct = rel.get('DS-109-2-40')
+          context = rel.get('DS-106-1-28')
+          if not direct or float(direct.get('match_score') or 0) < 3 or '同義考點：獨居高齡者' not in str(direct.get('match_reason') or ''):
+              raise SystemExit(f'real direct elderly-service anchor regressed: {direct}')
+          if not context or not (2 <= float(context.get('match_score') or 0) < 3):
+              raise SystemExit(f'real empathy scenario was not downgraded: {context}')
+          if '情境概念：獨居高齡者' not in str(context.get('match_reason') or ''):
+              raise SystemExit(f'real context reason missing: {context}')
+          print(json.dumps({
+              'real_event': elderly.get('title'),
+              'direct_anchor': direct,
+              'scenario_context': context,
+              'history': elderly.get('historical_exam_stats'),
+          }, ensure_ascii=False))
+          PY
+          python scripts/current_affairs_signals_smoke.py
+          python scripts/current_affairs_events_smoke.py
+          python scripts/public_monitoring_v2_smoke.py
+          git diff --check
+
+      - name: Commit final branch data and remove one-time runners
+        run: |
+          set -euo pipefail
+          rm .github/workflows/_one_time_current_affairs_context_match_20261002.yml
+          rm .github/workflows/_one_time_current_affairs_context_match_v2_20261002.yml
+          git config user.name 'swsi-data-quality-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add \
+            scripts/analyze_current_affairs_signals.py \
+            scripts/current_affairs_signals_smoke.py \
+            auto/current_affairs_signals.json \
+            auto/current_affairs_events.json \
+            auto/current_affairs_trends.json \
+            cdn/auto/current_affairs_signals.json \
+            cdn/auto/current_affairs_events.json \
+            cdn/auto/current_affairs_trends.json \
+            .github/workflows/_one_time_current_affairs_context_match_20261002.yml \
+            .github/workflows/_one_time_current_affairs_context_match_v2_20261002.yml
+          git commit -m 'fix: distinguish exam points from scenario context in current affairs'
+          git push origin HEAD:data/current-affairs-context-match-quality-20261002
