@@ -3993,6 +3993,8 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     var sourceCount=Number(ev.source_count||0), officialCount=Number(ev.official_source_count||0);
     var observationCount=Number(tr.observation_count||ev.observation_count||1);
     var trendReady=sourceCount>=2||observationCount>=2;
+    var displayTrendState=trendReady?(tr.trend_state||'one-off'):'one-off';
+    var displayTrendLabel=trendReady?trendLabel(tr.trend_state):'單次觀察';
     var strongMatches=Number(tr.historical_high_confidence_match_count||0);
     var allRelated=tr.related_exam_questions||ev.related_exam_questions||[];
     var related=strongMatches>0?allRelated.filter(function(q){return Number(q.match_score||0)>=5;}):[];
@@ -4017,7 +4019,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     var note=trendReady?'同事件跨來源只計一次；趨勢用來安排複習，不代表命題保證。':'目前只有單一來源或單次觀察；不以分數宣稱趨勢，事實請以原始來源為準。';
     var knowledge=knowledgeHtml((tr.knowledge_root||tr.subject_topics)?tr:ev);
     return '<div class="nlr-card">'
-      +'<div class="nlr-head"><span class="nlr-cat">'+E(ev.category||'時事')+'</span><span class="nlr-trend nlr-trend-'+E(tr.trend_state||'one-off')+'">'+E(trendLabel(tr.trend_state))+'</span></div>'
+      +'<div class="nlr-head"><span class="nlr-cat">'+E(ev.category||'時事')+'</span><span class="nlr-trend nlr-trend-'+E(displayTrendState)+'">'+E(displayTrendLabel)+'</span></div>'
       +'<div class="nlr-title">'+E(ev.title||'')+'</div>'
       +'<div class="nlr-meta">'+E(sourceCount)+' 個來源'+(officialCount?' ・ '+E(officialCount)+' 官方':'')+(fmtDate(ev.last_seen)?' ・ 更新 '+E(fmtDate(ev.last_seen)):'')+'</div>'
       +'<div class="nlr-subs">'+subjects+'</div>'
