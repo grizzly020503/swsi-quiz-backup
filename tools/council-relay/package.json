@@ -1,0 +1,9 @@
+{
+  "name": "swsi-council-relay",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test/selftest.mjs",
+    "check": "node --check relay.mjs && node --check lib/task.mjs && node --check lib/process.mjs && node --check adapters/antigravity.mjs"
+  }
+}
