@@ -11,10 +11,12 @@ on:
       - 'scripts/moex_sync_v2.py'
       - 'scripts/test_moex_grading_modes.py'
       - 'scripts/build_auto_payload.py'
+      - 'scripts/essay_enrichment_overlay_smoke.py'
       - 'scripts/health_check.py'
       - 'scripts/health_check_v2.py'
       - 'scripts/moex_workflow_ownership_smoke.py'
       - 'scripts/moj_law_watch.py'
+      - 'data/essay_enrichment.json'
       - 'data/legal_watch_names.json'
   schedule:
     # 零成本正常模式：台灣時間每週一 10:35（UTC 02:35）。
@@ -147,6 +149,31 @@ jobs:
 
       - name: Build website backup payloads
         run: python scripts/build_auto_payload.py
+
+      - name: Verify essay teaching enrichment overlay
+        run: |
+          python scripts/essay_enrichment_overlay_smoke.py
+          python scripts/official_exam_readonly_guard.py
+          python scripts/unified_question_qa.py \
+            --essays auto/essays_auto.json \
+            --year 115 \
+            --round 第二次 \
+            --fail-on blocked \
+            --out /tmp/essay-115-2-qa.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('/tmp/essay-115-2-qa.json').read_text(encoding='utf-8'))
+          essay=report['sections']['essay']
+          if essay['enrichment']['pending_generation'] != 0:
+              raise SystemExit(f"115-2 essay enrichment still pending: {essay['enrichment']['pending_generation']}")
+          if not essay['official_core']['release_ready']:
+              raise SystemExit('115-2 official essay core is not release-ready')
+          print(
+              '115-2 ESSAY QA OK: pending_generation=0; '
+              f"enrichment_review={essay['enrichment']['needs_review']}; official_core=release-ready"
+          )
+          PY
 
       - name: Local question bank health check
         run: python scripts/health_check_v2.py --local
