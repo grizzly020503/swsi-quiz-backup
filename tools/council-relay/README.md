@@ -49,11 +49,11 @@ Before every review it:
 
 1. refuses a dirty relay workspace;
 2. fetches `origin`;
-3. confirms the task's `base_sha` still matches the requested remote ref;
-4. detaches the dedicated workspace to the exact reviewed SHA;
+3. records whether the task's intake `base_sha` has drifted from the current requested remote ref;
+4. for Phase 1 read-only review, detaches to the **current** remote ref and exposes any intake/current drift in the evidence metadata;
 5. invokes Antigravity in `--mode=plan` headless mode.
 
-If the task base is stale, the relay blocks instead of silently reviewing a different version.
+Because Phase 1 is read-only, a task queued while the laptop is offline is allowed to review the freshest remote state when the machine returns. The original intake SHA is retained as audit evidence and drift is disclosed. Future write/implementation mode must use a stricter stale-base gate before modifying a branch.
 
 ## Antigravity execution
 
@@ -77,7 +77,7 @@ The relay posts hidden machine markers in GitHub comments:
 - `swsi-council-claim`
 - `swsi-council-result`
 
-A completed `task_id + adapter` result is not posted twice. A local lock file also prevents two relay processes from running simultaneously on the same Windows account.
+A completed `task_id + adapter` result is not posted twice. A local lock file also prevents two relay processes from running simultaneously on the same Windows account. If Windows loses power and leaves a stale lock file behind, the next relay start checks the recorded PID and removes the stale lock before continuing.
 
 The MVP assumes one owner relay machine. Multi-machine atomic claiming is a later phase.
 
