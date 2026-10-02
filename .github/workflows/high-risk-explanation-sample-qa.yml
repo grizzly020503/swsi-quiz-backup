@@ -1,0 +1,72 @@
+name: High-Risk Explanation Sample QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/high-risk-explanation-sample-qa.yml'
+      - 'scripts/build_high_risk_explanation_sample.py'
+      - 'scripts/high_risk_explanation_sample_selftest.py'
+      - 'audit/high_risk_explanation_sample_20261003.md'
+      - 'audit/high_risk_explanation_sample.v1.json'
+      - 'cdn/question-shards/**'
+      - 'data/historical_law_verified_priority10.v1.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-high-risk-explanation-sample-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout PR merge ref
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Synthetic sampler contracts
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/build_high_risk_explanation_sample.py scripts/high_risk_explanation_sample_selftest.py
+          python scripts/high_risk_explanation_sample_selftest.py
+
+      - name: Build deterministic real-corpus sample
+        run: |
+          set -euo pipefail
+          python scripts/build_high_risk_explanation_sample.py --output /tmp/high_risk_explanation_sample.v1.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/high_risk_explanation_sample.v1.json')
+          d=json.loads(p.read_text(encoding='utf-8'))
+          assert d['sample_count']==30, d['sample_count']
+          assert d['lane_counts']=={
+              'special_grading':5,
+              'multi_answer':5,
+              'historical_law':5,
+              'legal_ready':5,
+              'negative_ready':5,
+              'numeric_ready':5,
+          }, d['lane_counts']
+          ids=[x['id'] for x in d['sample']]
+          assert len(ids)==len(set(ids))==30
+          assert all(x['review_state']=='pending_source_review' for x in d['sample'])
+          print('REAL CORPUS HIGH-RISK SAMPLE OK', d['candidate_counts'])
+          PY
+          python scripts/official_exam_readonly_guard.py
+          git diff --check
+
+      - name: Upload deterministic sample candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: high-risk-explanation-sample-${{ github.event.pull_request.head.sha }}
+          path: /tmp/high_risk_explanation_sample.v1.json
+          retention-days: 1
+          if-no-files-found: error
