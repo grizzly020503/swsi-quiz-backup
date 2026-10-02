@@ -7,10 +7,9 @@ on:
     - cron: '15 */6 * * *'
   workflow_run:
     # MOEX sync 使用 GITHUB_TOKEN 推資料 commit；GitHub 不會讓該 commit 再觸發一般 push workflow。
-    # 直接監聽成功完成的 MOEX workflow，才能在 legal-watch report 寫回 main 後立即發布公開快照。
+    # 只監聽 MOEX：Question Shards 本身已由 MOEX 完成事件觸發，再監聽 shards 會讓同一輪監測重跑兩次。
     workflows:
       - MOEX Social Worker Exam Sync
-      - Publish Question Shards to Repo
     types:
       - completed
     branches:
@@ -84,6 +83,11 @@ concurrency:
 
 jobs:
   monitoring-feed:
+    # workflow_run 事件若上游失敗，直接略過整個 job；避免仍花分鐘掃 RSS／重建 snapshots。
+    if: >
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -226,11 +230,11 @@ jobs:
           text = Path('index.html').read_text(encoding='utf-8')
           marker = '<!-- SWSI CURRENT AFFAIRS RADAR V1 -->'
           if marker not in text:
-              raise SystemExit('current-affairs UI marker missing')
+            raise SystemExit('current-affairs UI marker missing')
           segment = text.split(marker, 1)[1]
           match = re.search(r'<script>(.*?)</script>', segment, re.S)
           if not match:
-              raise SystemExit('current-affairs UI script missing')
+            raise SystemExit('current-affairs UI script missing')
           Path('/tmp/current-affairs-ui.js').write_text(match.group(1), encoding='utf-8')
           subprocess.run(['node', '--check', '/tmp/current-affairs-ui.js'], check=True)
           print('Current-affairs UI JavaScript syntax OK.')
