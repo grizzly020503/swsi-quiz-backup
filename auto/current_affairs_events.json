@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T05:29:48Z",
-  "source_item_count": 4,
-  "event_count": 4,
+  "generated_at": "2026-10-02T08:36:53Z",
+  "source_item_count": 5,
+  "event_count": 5,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
   "events": [
     {
@@ -517,6 +517,214 @@
           "社會工作直接服務": 2
         },
         "subject_count": 1,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
+      }
+    },
+    {
+      "canonical_event_id": "96e62ada37f9a23898ce7062",
+      "title": "約會女網友偷做1動作 水電工「合意變性侵」判3年10月",
+      "summary": "台北市一名女網友跟吳姓水電工說好，以「戴保險套前提下」可約，未料吳卻利用房間視線昏騙她有戴套，性交中才說實話，女網友得知後立即抗拒，吳仍持續。台北地院認定，吳違反意願，依強制性交罪判處3年10月，全案可上訴。",
+      "category": "家暴與性暴力",
+      "subjects": [
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "品質與風險管理",
+        "服務輸送與跨網絡",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會工作直接服務": [
+          "危險評估與安全計畫",
+          "創傷知情與危機介入"
+        ],
+        "人類行為與社會環境": [
+          "創傷反應與家庭互動"
+        ],
+        "社會政策與社會立法": [
+          "家暴與性暴力防治制度",
+          "保護令與被害人權益"
+        ],
+        "社會工作": [
+          "被害人權利與專業倫理"
+        ]
+      },
+      "knowledge_topics": [
+        "家暴與性暴力",
+        "性侵",
+        "保險"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 創傷反應與家庭互動"
+      ],
+      "exam_tags": [
+        "保險",
+        "性侵"
+      ],
+      "related_laws": [],
+      "concept_keys": [
+        "gender_violence"
+      ],
+      "agency_keys": [],
+      "fact_keys": [],
+      "source_count": 1,
+      "official_source_count": 0,
+      "sources": [
+        "TVBS新聞社會"
+      ],
+      "evidence": [
+        {
+          "source_name": "TVBS新聞社會",
+          "source_url": "https://news.tvbs.com.tw/local/4030715",
+          "source_type": "news",
+          "published_at": "2026-10-02T08:07:40Z",
+          "item_id": "1ea839a371de85e68b79b6d8fccfffd6"
+        }
+      ],
+      "first_seen": "2026-10-02T08:07:40Z",
+      "last_seen": "2026-10-02T08:07:40Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-10-02"
+      ],
+      "policy_signal": "low",
+      "essay_value": "medium",
+      "mcq_fact_density": "low",
+      "signal_confidence": "low",
+      "signal_score": 5,
+      "exam_point_summary": "約會女網友偷做1動作 水電工「合意變性侵」判3年10月。尚未見明確制度變動，先作事件與專業議題觀察；申論可從危險評估、保護令、創傷知情與跨網絡合作切入。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「危險評估、保護令、創傷知情與跨網絡合作」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "性侵",
+        "保險"
+      ],
+      "related_exam_questions": [
+        {
+          "id": "SP115-1-11",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "11",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 保護令聲請",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "DS-115-2-011",
+          "subject": "社會工作直接服務",
+          "year": "115",
+          "round": "第二次",
+          "qno": "11",
+          "major": "專業關係",
+          "topic": "情感反轉移的處理原則",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-13",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "13",
+          "major": "社會保險",
+          "topic": "年金制度 > 確定給付與確定提撥制",
+          "match_reason": "事件詞：保險",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-16",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "16",
+          "major": "社會保險",
+          "topic": "社會保險 > 社會保險特性",
+          "match_reason": "事件詞：保險",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP-115-2-019",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "19",
+          "major": "社會保險",
+          "topic": "年金制度與財源籌措",
+          "match_reason": "事件詞：保險",
+          "match_score": 2.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 164,
+        "weighted_match_count": 1.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 164
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作直接服務": 2,
+          "社會政策與社會立法": 162
+        },
+        "subject_count": 2,
         "law_match_count": 0,
         "law_match_year_count": 0,
         "law_match_years": [],
