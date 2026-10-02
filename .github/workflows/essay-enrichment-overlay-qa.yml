@@ -1,0 +1,70 @@
+name: Essay Enrichment Overlay QA
+
+on:
+  pull_request:
+    paths:
+      - 'data/essay_enrichment.json'
+      - 'scripts/build_auto_payload.py'
+      - 'scripts/essay_enrichment_overlay_smoke.py'
+      - 'scripts/official_exam_readonly_guard.py'
+      - 'scripts/unified_question_qa.py'
+      - '.github/workflows/essay-enrichment-overlay-qa.yml'
+      - '.github/workflows/moex-social-worker-sync.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/essay_enrichment.json'
+      - 'scripts/build_auto_payload.py'
+      - 'scripts/essay_enrichment_overlay_smoke.py'
+      - '.github/workflows/essay-enrichment-overlay-qa.yml'
+      - '.github/workflows/moex-social-worker-sync.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  overlay-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Build and verify 115-2 essay teaching overlay
+        run: |
+          set -euo pipefail
+          python scripts/essay_enrichment_overlay_smoke.py
+          git diff --exit-code -- incoming/
+          python scripts/official_exam_readonly_guard.py
+
+      - name: Verify unified essay QA is no longer pending generation
+        run: |
+          set -euo pipefail
+          python scripts/unified_question_qa.py \
+            --essays auto/essays_auto.json \
+            --year 115 \
+            --round 第二次 \
+            --fail-on blocked \
+            --out /tmp/essay-115-2-qa.json \
+            >/tmp/essay-115-2-qa.stdout.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('/tmp/essay-115-2-qa.json').read_text(encoding='utf-8'))
+          section=report['sections']['essay']
+          assert section['items'] == 10, section
+          assert section['enrichment']['pending_generation'] == 0, section
+          assert section['official_core']['release_ready'] is True, section
+          print(
+              '115-2 ESSAY ENRICHMENT QA OK: items=10, pending_generation=0, '
+              f"needs_review={section['enrichment']['needs_review']}, official_core=release-ready"
+          )
+          PY
+
+      - name: Diff hygiene
+        run: git diff --check
