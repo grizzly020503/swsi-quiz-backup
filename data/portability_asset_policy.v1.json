@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "purpose": "Classify non-secret repo assets for long-term portability without copying private payloads.",
+  "storage_classes": {
+    "long_term_public_knowledge": "Versioned, hashable, non-private knowledge/data needed to preserve educational value.",
+    "rebuild_contract": "Source, schema, migration, build, QA and release material needed to reconstruct the platform.",
+    "short_term_diagnostic": "Diagnostic evidence useful for troubleshooting but not a long-term source of truth.",
+    "private_external": "Private mutable data/backups retained outside Git under separate privacy and encryption policy. Payloads are never included here."
+  },
+  "forbidden_private_patterns": [
+    ".env",
+    ".env.local",
+    ".env.production",
+    "**/.env",
+    "**/.env.local",
+    "**/.env.production",
+    "private-backups/**",
+    "backups/private/**",
+    "**/*.dump",
+    "**/*.dump.gpg",
+    "**/*.sql.gz.gpg",
+    "**/*.age",
+    "**/*.pem",
+    "**/*.p12",
+    "**/*.key"
+  ],
+  "rules": [
+    {
+      "id": "official-question-shards",
+      "storage_class": "long_term_public_knowledge",
+      "retention": "long_term",
+      "provider_independent": true,
+      "required": true,
+      "patterns": [
+        "cdn/question-shards/manifest.json",
+        "cdn/question-shards/[0-9]*.json"
+      ],
+      "note": "Portable official-question artifacts; manifest and shard hashes remain independently verifiable."
+    },
+    {
+      "id": "exam-and-qa-contracts",
+      "storage_class": "long_term_public_knowledge",
+      "retention": "long_term",
+      "provider_independent": true,
+      "required": true,
+      "patterns": [
+        "data/exam_scheme_registry.v1.json",
+        "data/question_qa_policy_v1.json"
+      ],
+      "note": "Exam-structure and QA policy are part of the durable interpretation contract."
+    },
+    {
+      "id": "curated-knowledge-and-source-registry",
+      "storage_class": "long_term_public_knowledge",
+      "retention": "long_term",
+      "provider_independent": true,
+      "required": true,
+      "patterns": [
+        "data/laws.canonical.json",
+        "data/theories.canonical.json",
+        "data/current_affairs_sources.json",
+        "data/legal_watch_names.json"
+      ],
+      "note": "Non-private knowledge and source identity metadata."
+    },
+    {
+      "id": "verified-public-evidence",
+      "storage_class": "long_term_public_knowledge",
+      "retention": "long_term",
+      "provider_independent": true,
+      "required": false,
+      "patterns": [
+        "data/historical_law_verified*.json",
+        "audit/*verified*.md",
+        "audit/*closeout*.md"
+      ],
+      "note": "Reviewed non-private evidence may outlive short CI artifact retention."
+    },
+    {
+      "id": "database-rebuild-contract",
+      "storage_class": "rebuild_contract",
+      "retention": "long_term",
+      "provider_independent": false,
+      "required": true,
+      "patterns": [
+        "supabase/migrations/*.sql",
+        "supabase/recovery/*.sql",
+        "supabase/recovery/*.json"
+      ],
+      "note": "Provider-specific schema/recovery source is retained so the system can be reconstructed or migrated."
+    },
+    {
+      "id": "edge-function-source",
+      "storage_class": "rebuild_contract",
+      "retention": "long_term",
+      "provider_independent": false,
+      "required": true,
+      "patterns": [
+        "supabase/functions/**/*.ts"
+      ],
+      "note": "Source is portable evidence even though execution is provider-specific."
+    },
+    {
+      "id": "automation-and-build-scripts",
+      "storage_class": "rebuild_contract",
+      "retention": "long_term",
+      "provider_independent": true,
+      "required": true,
+      "patterns": [
+        "scripts/*.py",
+        "scripts/*.js",
+        "scripts/*.mjs"
+      ],
+      "note": "Deterministic builders, validators and recovery helpers are part of the rebuild contract."
+    },
+    {
+      "id": "hosted-ci-workflows",
+      "storage_class": "rebuild_contract",
+      "retention": "long_term",
+      "provider_independent": false,
+      "required": true,
+      "patterns": [
+        ".github/workflows/*.yml",
+        ".github/workflows/*.yaml"
+      ],
+      "note": "Workflow source is retained but explicitly marked provider-specific."
+    },
+    {
+      "id": "release-and-operations-guides",
+      "storage_class": "rebuild_contract",
+      "retention": "long_term",
+      "provider_independent": true,
+      "required": true,
+      "patterns": [
+        "RELEASE.md",
+        "ZERO_COST_OPERATIONS.md",
+        "AGENTS.md",
+        "DECISIONS.md",
+        "KNOWN_ISSUES.md"
+      ],
+      "note": "Non-secret operating and release rules needed by a future maintainer."
+    },
+    {
+      "id": "tracked-qa-diagnostics",
+      "storage_class": "short_term_diagnostic",
+      "retention": "short_term",
+      "provider_independent": true,
+      "required": false,
+      "patterns": [
+        "auto/qa/*.json",
+        "tmp/*.json"
+      ],
+      "note": "Diagnostics are useful context but must never become the only long-term source of truth."
+    }
+  ],
+  "private_external_policy": {
+    "payloads_in_repo": false,
+    "examples": [
+      "Supabase mutable private rows",
+      "Auth users/sessions",
+      "feedback contact details",
+      "encrypted database backup payloads",
+      "decryption keys and credentials"
+    ],
+    "retention_rule": "Privacy/data-minimization policy governs retention; a 30-year platform horizon does not imply 30-year personal-data retention."
+  }
+}
