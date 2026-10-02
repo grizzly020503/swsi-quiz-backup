@@ -1,0 +1,99 @@
+name: Essay Guide Overlay QA
+
+on:
+  pull_request:
+    paths:
+      - 'data/essay_guide_overlay.json'
+      - 'essay_guides.js'
+      - 'auto/essays_auto.json'
+      - 'incoming/*.json'
+      - 'scripts/build_essay_guides_runtime.js'
+      - 'scripts/essay_guide_overlay_smoke.js'
+      - 'scripts/essay_guide_overlay_browser_smoke.js'
+      - 'scripts/monthly_patch_build.py'
+      - 'monthly_patch_parts/99z.essay-trust-layer.part'
+      - '.github/workflows/essay-guide-overlay-qa.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/essay_guide_overlay.json'
+      - 'essay_guides.js'
+      - 'auto/essays_auto.json'
+      - 'incoming/*.json'
+      - 'scripts/build_essay_guides_runtime.js'
+      - 'scripts/essay_guide_overlay_smoke.js'
+      - 'scripts/essay_guide_overlay_browser_smoke.js'
+      - 'scripts/monthly_patch_build.py'
+      - 'monthly_patch_parts/99z.essay-trust-layer.part'
+      - '.github/workflows/essay-guide-overlay-qa.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-essay-guide-overlay-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  guide-contract-and-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22.13.0'
+          package-manager-cache: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Verify deterministic overlay contract
+        run: |
+          set -euo pipefail
+          node --check scripts/build_essay_guides_runtime.js
+          node --check scripts/essay_guide_overlay_smoke.js
+          node --check scripts/essay_guide_overlay_browser_smoke.js
+          node scripts/essay_guide_overlay_smoke.js
+          git diff --check
+
+      - name: Build isolated student site
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/swsi-guide-site
+          mkdir -p /tmp/swsi-guide-site/icons
+          cp index.html manifest.json sw.js apple-touch-icon.png /tmp/swsi-guide-site/
+          node scripts/build_essay_guides_runtime.js essay_guides.js /tmp/swsi-guide-site/essay_guides.js data/essay_guide_overlay.json
+          cat monthly_patch_parts/*.part > /tmp/swsi-guide-site/monthly_patch.js
+          cp icons/icon-192.png icons/icon-512.png /tmp/swsi-guide-site/icons/
+          cp -R auto /tmp/swsi-guide-site/
+          python scripts/monthly_patch_build.py /tmp/swsi-guide-site/index.html
+          node --check /tmp/swsi-guide-site/essay_guides.js
+          node --check /tmp/swsi-guide-site/monthly_patch.js
+          python scripts/monthly_frontend_smoke.py --site /tmp/swsi-guide-site
+
+      - name: Install isolated browser runtime
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Verify guides in student browser
+        run: |
+          set -euo pipefail
+          python -m http.server 4173 --directory /tmp/swsi-guide-site >/tmp/swsi-guide-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4173/ >/dev/null
+          node scripts/essay_guide_overlay_browser_smoke.js http://127.0.0.1:4173/
