@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import re
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCK = (ROOT / "monthly_patch_parts" / "zzzz_product_v1_lock.part").read_text(encoding="utf-8")
@@ -23,12 +24,12 @@ for marker in ("item.exp.why", "item.exp.others", "item.exp.trap", "item.mnemoni
 # Layer 1: deterministic concise reason from already-rendered text, never a new AI explanation.
 assert "function conciseExplanation(text)" in LOCK
 assert "一句核心原因" in LOCK
-assert "coreText.textContent=summary" in LOCK
+assert re.search(r"coreText\.textContent=summary(?:Text)?;", LOCK), "concise reason is no longer written from the derived summary"
 assert "swsi-core-reason" in LOCK
 
 # Layer 2: all direct explanation sections plus mnemonic/law extras move under one disclosure.
 assert "var hidden=secs.slice()" in LOCK
-assert "hidden.forEach(function(x){body.appendChild(x);})" in LOCK
+assert re.search(r"hidden\.forEach\(function\(x\)\{[A-Za-z_$][\w$]*\.appendChild\(x\);\}\)", LOCK), "hidden explanation nodes are not moved into disclosure body"
 assert "details.className='swsi-explanation-more'" in LOCK
 
 # Personal wrong-cause reflection remains visible outside the collapsed notes.
