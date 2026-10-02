@@ -12,6 +12,7 @@ const html = fs.readFileSync('index.html', 'utf8');
 assert.equal(html.split(marker).length, 2, 'expected one current-affairs UI owner');
 const match = html.split(marker)[1].match(/<script>([\s\S]*?)<\/script>/);
 assert(match, 'installed current-affairs script is missing');
+assert(match[1].includes('}).slice(0,3);'), 'student current-affairs view must cap the ranked list at three items');
 const script = new vm.Script(match[1], { filename: 'installed-current-affairs-ui.js' });
 
 const news = {
@@ -165,15 +166,16 @@ async function scenario({
     return;
   }
 
+  assert(content.includes('目前 3 個國考重點'), 'focused current-affairs heading missing');
   if (missingV2) {
-    assert(content.includes('V1 備援'), 'missing V2 must fall back to V1');
+    assert(content.includes('備援資料'), 'missing V2 must fall back to V1');
     assert(content.includes(news.title), 'V1 news card disappeared');
     assert(content.includes('命題訊號：高'), 'V1 signal fallback disappeared');
     assert(content.includes('不代表命題保證'));
     assert(content.includes('社會工作管理 × 國考五科'), 'V1 knowledge tree disappeared');
   } else {
-    assert(content.includes('命題趨勢雷達'), 'V2 trend radar heading missing');
-    assert(content.includes('事件聚類・證據分級'), 'evidence-grading badge missing');
+    assert(content.includes('少量精選・證據分級'), 'focused evidence-grading badge missing');
+    assert(!content.includes('命題趨勢雷達'), 'student view should no longer present itself as a trend dashboard');
     const expectedEvent = singleSource ? oneOffEvent : event;
     assert(content.includes(expectedEvent.title), 'event card disappeared');
     if (singleSource) {
@@ -225,5 +227,5 @@ async function scenario({
   await scenario({ newsFailure: true });
   await scenario({ singleSource: true });
   await scenario({ allFailure: true });
-  console.log('CURRENT AFFAIRS UI V2 SMOKE OK: evidence grading, one-off fail-closed, trends, V1 fallback, filtering, escaping');
+  console.log('CURRENT AFFAIRS UI V2 SMOKE OK: focused top-3 review, evidence grading, one-off fail-closed, V1 fallback, filtering, escaping');
 })().catch(error => { console.error(error); process.exitCode = 1; });
