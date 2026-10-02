@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { loadHistoricalVerifiedRegistry } = require('./historical_essay_verified_registry');
 
 const input = process.argv[2] || 'essay_guides.js';
 const output = process.argv[3] || '_site/essay_guides.js';
@@ -29,6 +30,40 @@ vm.runInContext(source, sandbox, { filename: input, timeout: 5000 });
 const guides = sandbox.window.ESSAY_GUIDES;
 if (!guides || typeof guides !== 'object' || Array.isArray(guides)) {
   throw new Error('essay_guides.js did not produce window.ESSAY_GUIDES object');
+}
+
+/*
+ * Historical high-risk essay audits were already re-checked against the
+ * official question and marked verified in repo-owned audit files, but many
+ * remained audit-only. Project them into runtime through a fail-closed
+ * machine-readable registry instead of hand-copying dozens of overrides.
+ *
+ * The loader rejects duplicate IDs, malformed payloads and any regression
+ * below the verified baseline before a student-facing artifact can be built.
+ */
+const historicalRegistry = loadHistoricalVerifiedRegistry(path.resolve(__dirname, '..'));
+let historicalVerifiedCount = 0;
+for (const row of historicalRegistry.records) {
+  if (!guides[row.id]) {
+    throw new Error(`Historical verified guide target is missing from essay_guides.js: ${row.id}`);
+  }
+  guides[row.id] = {
+    ...guides[row.id],
+    kao: row.kao,
+    dati: row.dati,
+    biaoti: row.biaoti,
+    kw: row.kw,
+    review_status: 'verified',
+    reviewed_at: row.reviewed_at,
+    review_batch: row.review_batch,
+    review_sources: [
+      `考選部官方題幹（來源核對詳見 ${row.audit_file}）`,
+      row.audit_file
+    ],
+    is_official: false,
+    guide_source: row.guide_source
+  };
+  historicalVerifiedCount += 1;
 }
 
 /*
@@ -156,7 +191,7 @@ if (fs.existsSync(overlayInput)) {
 const ids = Object.keys(guides);
 if (!ids.length) throw new Error('ESSAY_GUIDES is empty after normalization');
 
-const out = '/* Generated from essay_guides.js by scripts/build_essay_guides_runtime.js. Verified E-ID overlays may be merged from data/essay_guide_overlay.json. */\n' +
+const out = '/* Generated from essay_guides.js by scripts/build_essay_guides_runtime.js. Verified historical audit projections and E-ID overlays are merged fail-closed. */\n' +
   'window.ESSAY_GUIDES = ' + JSON.stringify(guides) + ';\n';
 fs.mkdirSync(path.dirname(output), { recursive: true });
 fs.writeFileSync(output, out, 'utf8');
@@ -170,5 +205,5 @@ for (const id of Object.keys(guides)) {
 
 console.log(
   `ESSAY GUIDES RUNTIME OK: ${ids.length} unique guides -> ${output}; ` +
-  `overlay_verified=${overlayRecordCount}; held=${overlayHoldCount}`
+  `historical_verified=${historicalVerifiedCount}; overlay_verified=${overlayRecordCount}; held=${overlayHoldCount}`
 );
