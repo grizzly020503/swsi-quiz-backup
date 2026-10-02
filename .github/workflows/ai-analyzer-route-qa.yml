@@ -9,6 +9,7 @@ on:
       - 'ai_eval/golden_set.json'
       - '.github/workflows/question-shards-publish.yml'
       - 'scripts/analyzer_proxy_route_smoke.py'
+      - 'scripts/analyzer_retry_contract_smoke.py'
       - '.github/workflows/ai-analyzer-route-qa.yml'
       - '.github/workflows/prepare-cloudflare-soft-launch-artifact.yml'
       - '.github/workflows/cloudflare-public-candidate.yml'
@@ -22,6 +23,7 @@ on:
       - 'ai_eval/golden_set.json'
       - '.github/workflows/question-shards-publish.yml'
       - 'scripts/analyzer_proxy_route_smoke.py'
+      - 'scripts/analyzer_retry_contract_smoke.py'
       - '.github/workflows/ai-analyzer-route-qa.yml'
       - '.github/workflows/prepare-cloudflare-soft-launch-artifact.yml'
       - '.github/workflows/cloudflare-public-candidate.yml'
@@ -40,5 +42,6 @@ jobs:
           python-version: '3.12'
       - name: Verify canonical AI analyzer route and model
         run: |
-          python -m py_compile scripts/analyzer_proxy_route_smoke.py
+          python -m py_compile scripts/analyzer_proxy_route_smoke.py scripts/analyzer_retry_contract_smoke.py
           python scripts/analyzer_proxy_route_smoke.py
+          python scripts/analyzer_retry_contract_smoke.py
