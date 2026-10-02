@@ -2775,6 +2775,24 @@ html[data-fs="2"]{
   var VERIFY_CHECKED='checked';
   var NEW_RESIDENT_BASIC_ACT='新住民基本法';
 
+  /* Generated from data/historical_law_verified_priority10.v1.json.
+     Keep this as metadata only: no historical full-text mirror and no Official Core mutation. */
+  var HISTORICAL_VERIFIED={
+    "SP115-1-40":{"law_name":"兒童及少年未來教育與發展帳戶條例","exam_code":"115-1","article":"14","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2018-06-06","effective_date":"2018-06-06","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050205"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050205","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=115030"},
+    "SP105-2-14":{"law_name":"全民健康保險法","exam_code":"105-2","article":"10","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2011-01-26","effective_date":"2013-01-01","url":"https://law.moj.gov.tw/LawClass/LawOldVer.aspx?pcode=L0060001&lnndate=20110126&lser=001"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=L0060001","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=105090"},
+    "SP104-2-11":{"law_name":"國民年金法","exam_code":"104-2","article":"30","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2011-06-29","effective_date":"2008-10-01","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050152"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050152","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=104100"},
+    "SP114-1-37":{"law_name":"國民年金法","exam_code":"114-1","article":"26","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2007-08-08","effective_date":"2008-10-01","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050152"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050152","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=114030"},
+    "SP108-2-26":{"law_name":"志願服務法","exam_code":"108-2","article":"5-1","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2013-06-11","effective_date":"2013-06-11","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050131"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050131","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=108110"},
+    "SP110-1-36":{"law_name":"志願服務法","exam_code":"110-1","article":"15","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2014-06-18","effective_date":"2014-06-18","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050131"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050131","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=110030"},
+    "SP104-2-31":{"law_name":"特殊境遇家庭扶助條例","exam_code":"104-2","article":"4","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2011-12-07","effective_date":"2011-12-07","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050075","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=104100"},
+    "SP105-1-07":{"law_name":"特殊境遇家庭扶助條例","exam_code":"105-1","article":"4","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2011-12-07","effective_date":"2011-12-07","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050075","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=105030"},
+    "SP107-1-34":{"law_name":"特殊境遇家庭扶助條例","exam_code":"107-1","article":"6","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2006-05-17","effective_date":"2007-01-01","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050075","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=107030"},
+    "SP109-2-35":{"law_name":"特殊境遇家庭扶助條例","exam_code":"109-2","article":"6","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2006-05-17","effective_date":"2007-01-01","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050075","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=109110"},
+    "SP114-2-35":{"law_name":"特殊境遇家庭扶助條例","exam_code":"114-2","article":"4-1","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2006-05-17","effective_date":"2007-01-01","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050075","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=114100"},
+    "SP115-1-31":{"law_name":"特殊境遇家庭扶助條例","exam_code":"115-1","article":"8","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2013-01-02","effective_date":"2013-01-02","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050075","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=115030"},
+    "SP105-1-21":{"law_name":"身心障礙者權利公約施行法","exam_code":"105-1","article":"6","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2014-08-20","effective_date":"2014-12-03","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050194","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=105030"}
+  };
+
   function H(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
@@ -2814,6 +2832,46 @@ html[data-fs="2"]{
     if(sourceUrl)h+='<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><a href="'+sourceUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">開啟'+H(x.source_label||'官方來源')+' ↗</a>'+
       (secondaryUrl?'<a href="'+secondaryUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">'+H(x.secondary_label||'官方補充')+' ↗</a>':'')+'</div>';
     return h+'</div>';
+  }
+
+  function historicalTrustHTML(x){
+    if(!x||x.historical_version_checked!==true||x.verification_level!=='machine_verified_historical_v1')return '';
+    var v=x.selected_version||{};
+    var versionUrl=safeHttpsHref(v.url);
+    var historyUrl=safeHttpsHref(x.official_history_url);
+    var examUrl=safeHttpsHref(x.exam_date_source_url);
+    var meta=H(x.law_name||'法規')+' 第 '+H(x.article||'—')+' 條 · '+H(x.exam_code||'');
+    var dates='版本日期 '+H(v.version_date||'—')+(v.effective_date?' · 施行 '+H(v.effective_date):'');
+    var h='<div class="swsi-historical-law-trust" style="margin:9px 0 0;padding:10px 11px;border:1px solid #D7E2DC;border-radius:10px;background:#F7FAF8;font-family:\'Noto Sans TC\',sans-serif">'+
+      '<div style="font-size:11.5px;font-weight:800;color:#456A61">✓ 考試當時法規版本已核對</div>'+
+      '<div style="font-size:11.5px;line-height:1.65;color:var(--ink);margin-top:4px">'+meta+'</div>'+
+      '<div style="font-size:10.8px;line-height:1.6;color:var(--ink-soft);margin-top:2px">'+dates+'</div>'+
+      '<div style="font-size:10.8px;line-height:1.65;color:var(--ink-soft);margin-top:6px">這是 SWSI 依官方法規沿革與考試日期產生的機器驗證 metadata，不是考選部官方解析。只有 registry 已標記 historical_version_checked=true 的題目會顯示；若現行法已變動，請以上方法規狀態與官方沿革為準，不用 2026 現行法硬證明舊題。</div>';
+    if(versionUrl||historyUrl||examUrl){
+      h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">';
+      if(versionUrl)h+='<a href="'+versionUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">考試時點法規 ↗</a>';
+      if(historyUrl)h+='<a href="'+historyUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">法規沿革 ↗</a>';
+      if(examUrl)h+='<a href="'+examUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">考試日期 ↗</a>';
+      h+='</div>';
+    }
+    return h+'</div>';
+  }
+
+  function decorateHistoricalQuestionTrust(){
+    try{
+      var item=(typeof queue!=='undefined'&&Array.isArray(queue)&&typeof idx!=='undefined')?queue[idx]:null;
+      if(!item)return;
+      var rec=HISTORICAL_VERIFIED[String(item.id||'')];
+      if(!rec||rec.historical_version_checked!==true||rec.verification_level!=='machine_verified_historical_v1')return;
+      var trust=document.querySelector('#app .qcard .exp .swsi-answer-trust');
+      if(!trust)return;
+      var body=trust.querySelector('.swsi-trust-body')||trust;
+      if(body.querySelector('.swsi-historical-law-trust'))return;
+      var holder=document.createElement('div');
+      holder.innerHTML=historicalTrustHTML(rec);
+      var panel=holder.firstElementChild;
+      if(panel)body.appendChild(panel);
+    }catch(e){console.warn('historical law trust render skipped',e);}
   }
 
   function applySpecialLawStatus(x){
@@ -2856,6 +2914,20 @@ html[data-fs="2"]{
     version:'SWSI Law Trust Final Batch 2026-08-26',
     checkedAt:CHECKED_AT
   };
+
+  decorateHistoricalQuestionTrust();
+  try{
+    var historyScheduled=false;
+    var historyObserver=new MutationObserver(function(){
+      if(historyScheduled)return;
+      historyScheduled=true;
+      Promise.resolve().then(function(){
+        historyScheduled=false;
+        decorateHistoricalQuestionTrust();
+      });
+    });
+    historyObserver.observe(document.body,{childList:true,subtree:true});
+  }catch(_e){}
 })();
 /* SWSI Theory Trust UI Contract 2026-08-27
    Theory card data is canonicalized at build time. This module owns presentation and runtime markers only.
