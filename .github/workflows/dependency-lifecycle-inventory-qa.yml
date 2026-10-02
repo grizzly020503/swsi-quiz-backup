@@ -1,0 +1,42 @@
+name: Dependency Lifecycle Inventory QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/dependency-lifecycle-inventory-qa.yml'
+      - 'data/dependency_lifecycle_policy.v1.json'
+      - 'docs/DEPENDENCY_LIFECYCLE_INVENTORY_20261002.md'
+      - 'scripts/dependency_inventory.py'
+      - 'scripts/dependency_inventory_selftest.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-lifecycle-inventory-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Zero-network fixture regression
+        run: python3 scripts/dependency_inventory_selftest.py
+      - name: Build exact-checkout deterministic inventory
+        run: |
+          python3 scripts/dependency_inventory.py --check-determinism --output /tmp/swsi_dependency_inventory.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('/tmp/swsi_dependency_inventory.json').read_text())
+          assert data['schema_version'] == 1
+          assert data['records'], 'inventory must not be empty'
+          assert data['policy']['auto_upgrade'] is False
+          assert data['policy']['auto_merge'] is False
+          print('records=', len(data['records']))
+          print('drift_findings=', len(data['drift_findings']))
+          for row in data['drift_findings']:
+              print(f"{row['severity']} {row['kind']} {row['name']}: {', '.join(row['refs'])}")
+          PY

@@ -1,0 +1,61 @@
+{
+  "global": {
+    "auto_merge": false,
+    "auto_upgrade": false,
+    "major_upgrade_requires": "relevant_contract_tests_and_review",
+    "new_paid_service": false,
+    "provider_unavailable": "follow ZERO_COST_OPERATIONS.md and Issue #279 bounded recovery"
+  },
+  "kind_defaults": {
+    "container_image": {
+      "core_or_enhancement": "core",
+      "criticality": "high",
+      "fallback": "pinned_supported_image",
+      "paid_required": false,
+      "upgrade_gate": "isolated_runtime_contract_tests"
+    },
+    "github_action": {
+      "core_or_enhancement": "core",
+      "criticality": "high",
+      "fallback": "manual_or_local_equivalent_when_documented",
+      "paid_required": false,
+      "upgrade_gate": "relevant_contract_tests_and_pr_review"
+    },
+    "manifest": {
+      "core_or_enhancement": "core",
+      "criticality": "medium",
+      "fallback": "lockfile_or_reproducible_install_contract",
+      "paid_required": false,
+      "upgrade_gate": "package_manager_specific_tests"
+    },
+    "node_runtime": {
+      "core_or_enhancement": "core",
+      "criticality": "high",
+      "fallback": "supported_node_runtime",
+      "paid_required": false,
+      "upgrade_gate": "frontend_build_and_browser_contract_tests"
+    },
+    "npm_cli": {
+      "core_or_enhancement": "enhancement",
+      "criticality": "medium",
+      "fallback": "documented_manual_or_local_path",
+      "paid_required": false,
+      "upgrade_gate": "targeted_cli_or_browser_tests"
+    },
+    "python_runtime": {
+      "core_or_enhancement": "core",
+      "criticality": "high",
+      "fallback": "supported_python_runtime",
+      "paid_required": false,
+      "upgrade_gate": "full_relevant_python_qa"
+    },
+    "remote_import": {
+      "core_or_enhancement": "core",
+      "criticality": "high",
+      "fallback": "provider_adapter_or_pinned_alternative",
+      "paid_required": false,
+      "upgrade_gate": "edge_function_contract_and_security_review"
+    }
+  },
+  "schema_version": 1
+}
