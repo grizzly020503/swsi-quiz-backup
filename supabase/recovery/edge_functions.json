@@ -7,6 +7,7 @@
     {"slug":"sync-legal-watch","verify_jwt":false},
     {"slug":"check-official-laws","verify_jwt":true,"status":"deprecated-410-stub"},
     {"slug":"sync-current-affairs","verify_jwt":false},
+    {"slug":"sync-essay-enrichment","verify_jwt":false},
     {"slug":"swsi-feedback","verify_jwt":false},
     {"slug":"swsi-admin","verify_jwt":true},
     {"slug":"swsi-usage","verify_jwt":false},

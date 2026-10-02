@@ -141,14 +141,21 @@ jobs:
       - name: Compile exact Edge Function recovery inventory
         run: |
           set -euo pipefail
+          expected="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          payload=json.loads(Path('supabase/recovery/edge_functions.json').read_text(encoding='utf-8'))
+          print(len(payload.get('functions') or []))
+          PY
+          )"
           count=0
           while IFS= read -r fn; do
             echo "DENO CHECK $fn"
             deno check "$fn"
             count=$((count + 1))
           done < <(find supabase/functions -name index.ts -type f | sort)
-          test "$count" = '10'
-          echo "EDGE FUNCTION SOURCE COMPILE OK count=$count"
+          test "$count" = "$expected"
+          echo "EDGE FUNCTION SOURCE COMPILE OK count=$count expected=$expected"
 
       - name: Verify backend source contracts
         run: |
@@ -235,6 +242,13 @@ jobs:
           started="${DR_STARTED_AT:-unknown}"
           end="$(date +%s)"
           elapsed=$((end - start))
+          edge_count="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          payload=json.loads(Path('supabase/recovery/edge_functions.json').read_text(encoding='utf-8'))
+          print(len(payload.get('functions') or []))
+          PY
+          )"
           mkdir -p /tmp/swsi-dr-evidence
           cat > /tmp/swsi-dr-evidence/restore-report.md <<EOF
           # SWSI isolated disaster-recovery restore evidence
@@ -249,7 +263,7 @@ jobs:
           - PostgreSQL target: disposable postgres:16 service
           - D1 target: isolated local SQLite recovery smoke
           - official question restore: 4,800 questions / 24 shards / SHA-256 verified
-          - Edge Function source inventory: exact 10 source directories; compile-only, no provider calls
+          - Edge Function source inventory: exact ${edge_count} source directories; compile-only, no provider calls
           - student browser/PWA target: localhost; non-local requests are aborted by the reused smokes
           - admin auth/recovery target: localhost with mocked Supabase SDK/API
           - production writes: none

@@ -1,0 +1,81 @@
+name: Essay Enrichment Supabase Sync QA
+
+on:
+  pull_request:
+    paths:
+      - 'data/essay_enrichment.json'
+      - 'scripts/build_auto_payload.py'
+      - 'scripts/health_check.py'
+      - 'scripts/health_check_v2.py'
+      - 'scripts/essay_enrichment_supabase_sync_smoke.py'
+      - 'supabase/functions/sync-essay-enrichment/index.ts'
+      - 'supabase/recovery/edge_functions.json'
+      - '.github/workflows/moex-social-worker-sync.yml'
+      - '.github/workflows/essay-enrichment-supabase-sync-qa.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/essay_enrichment.json'
+      - 'scripts/build_auto_payload.py'
+      - 'scripts/health_check.py'
+      - 'scripts/health_check_v2.py'
+      - 'scripts/essay_enrichment_supabase_sync_smoke.py'
+      - 'supabase/functions/sync-essay-enrichment/index.ts'
+      - 'supabase/recovery/edge_functions.json'
+      - '.github/workflows/moex-social-worker-sync.yml'
+      - '.github/workflows/essay-enrichment-supabase-sync-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  sync-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install health-check dependency
+        run: python -m pip install --disable-pip-version-check requests
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Verify fail-closed sync contract
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/health_check.py \
+            scripts/health_check_v2.py \
+            scripts/essay_enrichment_supabase_sync_smoke.py
+          python scripts/essay_enrichment_supabase_sync_smoke.py
+          deno check supabase/functions/sync-essay-enrichment/index.ts
+
+      - name: Verify local health understands the enrichment overlay
+        run: |
+          set -euo pipefail
+          python scripts/build_auto_payload.py
+          python scripts/health_check_v2.py --local
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('auto/health.json').read_text(encoding='utf-8'))
+          overlay=json.loads(Path('data/essay_enrichment.json').read_text(encoding='utf-8'))
+          expected=len(overlay.get('records') or [])
+          if report.get('essay_enrichment_count') != expected:
+              raise SystemExit(
+                  f"health report enrichment count mismatch: {report.get('essay_enrichment_count')} != {expected}"
+              )
+          print(f'ESSAY OVERLAY HEALTH CONTRACT OK: enrichment={expected}')
+          PY
+
+      - name: Diff hygiene
+        run: git diff --check

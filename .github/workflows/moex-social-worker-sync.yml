@@ -12,12 +12,14 @@ on:
       - 'scripts/test_moex_grading_modes.py'
       - 'scripts/build_auto_payload.py'
       - 'scripts/essay_enrichment_overlay_smoke.py'
+      - 'scripts/essay_enrichment_supabase_sync_smoke.py'
       - 'scripts/health_check.py'
       - 'scripts/health_check_v2.py'
       - 'scripts/moex_workflow_ownership_smoke.py'
       - 'scripts/moj_law_watch.py'
       - 'data/essay_enrichment.json'
       - 'data/legal_watch_names.json'
+      - 'supabase/functions/sync-essay-enrichment/index.ts'
   schedule:
     # 零成本正常模式：台灣時間每週一 10:35（UTC 02:35）。
     # 國考資料平時低頻檢查；接近已知考試放榜／更正窗口時，用 workflow_dispatch
@@ -173,6 +175,31 @@ jobs:
               '115-2 ESSAY QA OK: pending_generation=0; '
               f"enrichment_review={essay['enrichment']['needs_review']}; official_core=release-ready"
           )
+          PY
+
+      - name: Sync essay teaching enrichment to Supabase
+        env:
+          GH_REPO_TOKEN: ${{ github.token }}
+          ESSAY_ENRICHMENT_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-essay-enrichment
+        run: |
+          set -euo pipefail
+          python scripts/essay_enrichment_supabase_sync_smoke.py
+          response="$(curl --silent --show-error --fail-with-body \
+            -X POST "$ESSAY_ENRICHMENT_URL" \
+            -H "Authorization: Bearer $GH_REPO_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary @data/essay_enrichment.json)"
+          echo "$response"
+          python - "$response" <<'PY'
+          import json, sys
+          from pathlib import Path
+          payload=json.loads(sys.argv[1])
+          expected=len(json.loads(Path('data/essay_enrichment.json').read_text(encoding='utf-8')).get('records') or [])
+          if payload.get('ok') is not True:
+              raise SystemExit(f'essay enrichment sync did not confirm success: {payload}')
+          if int(payload.get('updated') or 0) != expected:
+              raise SystemExit(f'expected {expected} synchronized essay rows, got: {payload}')
+          print(f'Essay enrichment Supabase sync confirmed: updated={expected}')
           PY
 
       - name: Local question bank health check
