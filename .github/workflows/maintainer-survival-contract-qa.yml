@@ -1,0 +1,43 @@
+name: Maintainer Survival Contract QA
+
+on:
+  pull_request:
+    paths:
+      - 'data/service_responsibility_registry.v1.json'
+      - 'data/minimum_survival_contract.v1.json'
+      - 'scripts/maintainer_survival_validate.py'
+      - 'scripts/maintainer_survival_selftest.py'
+      - 'docs/MAINTAINER_SUCCESSION_MINIMUM_SURVIVAL_20261002.md'
+      - '.github/workflows/maintainer-survival-contract-qa.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: maintainer-survival-contract-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v7
+      - name: Synthetic fail-closed regression
+        run: python3 scripts/maintainer_survival_selftest.py
+      - name: Validate exact-checkout service and survival contracts
+        run: |
+          python3 scripts/maintainer_survival_validate.py --json > /tmp/maintainer-survival-result.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('/tmp/maintainer-survival-result.json').read_text())
+          assert data['registry']['service_count'] >= 6
+          assert data['survival']['mode'] == 'last_verified_updates_paused'
+          assert data['survival']['preserved_core_count'] >= 9
+          assert data['survival']['human_only_decision_count'] >= 6
+          print('service_count=', data['registry']['service_count'])
+          print('mode=', data['survival']['mode'])
+          print('preserved_core=', data['survival']['preserved_core_count'])
+          print('human_only_decisions=', data['survival']['human_only_decision_count'])
+          PY
