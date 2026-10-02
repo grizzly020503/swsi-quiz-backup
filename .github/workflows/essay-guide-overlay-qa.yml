@@ -7,7 +7,10 @@ on:
       - 'essay_guides.js'
       - 'auto/essays_auto.json'
       - 'incoming/*.json'
+      - 'audit/essay_guide_audit_batch*_verified_*.md'
       - 'scripts/build_essay_guides_runtime.js'
+      - 'scripts/historical_essay_verified_registry.js'
+      - 'scripts/historical_essay_verified_runtime_smoke.js'
       - 'scripts/essay_guide_overlay_smoke.js'
       - 'scripts/essay_guide_overlay_browser_smoke.js'
       - 'scripts/monthly_patch_build.py'
@@ -21,7 +24,10 @@ on:
       - 'essay_guides.js'
       - 'auto/essays_auto.json'
       - 'incoming/*.json'
+      - 'audit/essay_guide_audit_batch*_verified_*.md'
       - 'scripts/build_essay_guides_runtime.js'
+      - 'scripts/historical_essay_verified_registry.js'
+      - 'scripts/historical_essay_verified_runtime_smoke.js'
       - 'scripts/essay_guide_overlay_smoke.js'
       - 'scripts/essay_guide_overlay_browser_smoke.js'
       - 'scripts/monthly_patch_build.py'
@@ -54,12 +60,15 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Verify deterministic overlay contract
+      - name: Verify deterministic guide contracts
         run: |
           set -euo pipefail
           node --check scripts/build_essay_guides_runtime.js
+          node --check scripts/historical_essay_verified_registry.js
+          node --check scripts/historical_essay_verified_runtime_smoke.js
           node --check scripts/essay_guide_overlay_smoke.js
           node --check scripts/essay_guide_overlay_browser_smoke.js
+          node scripts/historical_essay_verified_registry.js
           node scripts/essay_guide_overlay_smoke.js
           git diff --check
 
@@ -70,6 +79,7 @@ jobs:
           mkdir -p /tmp/swsi-guide-site/icons
           cp index.html manifest.json sw.js apple-touch-icon.png /tmp/swsi-guide-site/
           node scripts/build_essay_guides_runtime.js essay_guides.js /tmp/swsi-guide-site/essay_guides.js data/essay_guide_overlay.json
+          node scripts/historical_essay_verified_runtime_smoke.js /tmp/swsi-guide-site/essay_guides.js
           cat monthly_patch_parts/*.part > /tmp/swsi-guide-site/monthly_patch.js
           cp icons/icon-192.png icons/icon-512.png /tmp/swsi-guide-site/icons/
           cp -R auto /tmp/swsi-guide-site/
