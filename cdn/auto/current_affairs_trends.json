@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T08:37:48Z",
+  "generated_at": "2026-10-02T09:02:40Z",
   "event_count": 5,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -585,7 +585,7 @@
       "source_count": 1,
       "official_source_count": 0,
       "observation_count": 1,
-      "first_seen": "2026-10-02T08:07:40Z",
+      "first_seen": "2026-10-02T08:07:26Z",
       "last_seen": "2026-10-02T08:11:33Z",
       "related_laws": [],
       "historical_question_count": 164,
@@ -688,7 +688,7 @@
           "source_name": "TVBS新聞社會",
           "source_url": "https://news.tvbs.com.tw/local/4030715",
           "source_type": "news",
-          "published_at": "2026-10-02T08:11:33Z",
+          "published_at": "2026-10-02T08:07:26Z",
           "item_id": "1ea839a371de85e68b79b6d8fccfffd6"
         }
       ]
