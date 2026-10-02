@@ -18,6 +18,7 @@ on:
       - 'icons/**'
       - 'admin/**'
       - 'essay_guides.js'
+      - 'data/essay_guide_overlay.json'
       - 'monthly_patch_parts/**'
       - 'auto/**'
       - 'data/laws.canonical.json'
@@ -278,7 +279,7 @@ jobs:
           current = json.loads(Path('/tmp/prod-current-affairs.json').read_text(encoding='utf-8'))
           signals = json.loads(Path('/tmp/prod-current-affairs-signals.json').read_text(encoding='utf-8'))
           events = json.loads(Path('/tmp/prod-current-affairs-events.json').read_text(encoding='utf-8'))
-          trends = json.loads(Path('/tmp/prod-current-affairs-trends.json').read_text(encoding='utf-8'))
+          trends = json.loads(Path('/tmp/prod-current-affairs_trends.json').read_text(encoding='utf-8')) if False else json.loads(Path('/tmp/prod-current-affairs-trends.json').read_text(encoding='utf-8'))
 
           assert int(current.get('source_feed_count') or 0) >= 17
           feed_error_count = current.get('feed_error_count')
