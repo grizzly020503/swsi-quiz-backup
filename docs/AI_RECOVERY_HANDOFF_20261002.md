@@ -76,6 +76,33 @@
 
 `net._http_response` 657–661 顯示另一條受權流程在 12:08–12:10（Asia/Taipei）持續成功處理題目；因此接手者**不要再大量 requeue 或手動搶 claim**。
 
+## 2026-10-02 約 12:30 Asia/Taipei — queue starvation 新發現（READ BEFORE REQUEUE）
+
+- live `claim_pending_ai_questions(integer)` 已重新讀取確認：pending 項目使用 deterministic order（`source_exam_code` → `qno` → `subject` → `id`），**沒有 retry/backoff/last-attempt fairness**。
+- analyzer 對 transient 失敗會把題目放回 `pending`，且不增加 attempts。這兩件事組合後，排序靠前的 transient 題可能每 30 分鐘被重複 claim，讓後面題目 starvation。
+- 12:30 cron 的 function logs 顯示 production v11 正常回 HTTP 200，execution 約 31.7 秒；該次再次 claim `SW-105-2-03`，最後因 `Qwen 3.8 HTTP 502 / AI service temporarily unavailable` 回到 pending。這不是 function hang；`net._http_response` row 當時未即時回填，但 function edge log 已明確完成 200。
+- 為避免 deterministic starvation，`SW-105-2-03` 已做**可逆 queue quarantine**：`pending → review`，保留 `analysis_attempts=1`，並註明先前 strict-validation `exp_others 空白` + transient 502；等 analyzer v12/retry hardening 真正部署後再重試。
+- quarantine 後 snapshot：`ready=4,683`、`pending=12`、`review=105`。接手仍應重查 live counts。
+- 長期根治方向不是提高 cron 頻率，而是給 claim queue 一個真正的 last-attempt/fairness 機制（例如持久化 `analysis_last_attempt_at`，優先 never-attempted / oldest-attempted）。**不要只靠 `analysis_error is null` 排序；那只能暫時延後，不能保證長期 round-robin。**
+- 目前尚未套 production DB migration；CLI migration generator 在本次執行環境未能正常完成，因此沒有自行杜撰 migration timestamp，也沒有直接改 SECURITY DEFINER claim function。
+
+## multi-answer / special grading 分流更新
+
+2026-10-02 live review 再盤點：
+
+- standard + effectively single-answer + old HTTP 405：60 題，可作後續 bounded infra recovery。
+- standard single-answer 格式／內容類 review：`json_format` 2 題、`exp_others_blank` 1 題；另有 `SW-105-2-03` quarantine 1 題。這些不要偽裝成 405 infra recovery。
+- standard multi-answer：25 題（24 題兩答案、1 題三答案）。main 的共同 grading contract 已支援 `accepted_answers`，所以舊的「等待前端 accepted_answers 支援」說明已過時。
+- 這 25 題仍維持 `review`，只更新 `analysis_error` 為 dated hold：**grading 已支援，但必須與 single-answer 405 recovery 分開，以 dedicated multi-answer probe/batch 處理**。
+- special grading：12 題 `all_credit` + 4 題 `any_answer`，共 16 題。這批仍必須隔離；現行 analyzer 不應把「一律給分」當一般學理正解處理。
+
+## analyzer v12 部署邊界
+
+- PR #250 已 merge；source hardening 已在 main，且 AI Analyzer Route QA + Disaster Recovery Drill 都曾 PASS。
+- production Supabase `analyze-pending-questions` 仍為 **v11**；direct connector deploy 曾被平台 safety layer 在部署前阻擋。
+- 不可用 credential obfuscation、改 auth model、猜 GitHub secret name等方式繞過。
+- 另見 `docs/AI_ANALYZER_V12_DEPLOY_BLOCKER_20261002.md`。
+
 ## review queue 分類原則
 
 在 recovery 前的交叉盤點曾看到：
@@ -88,11 +115,13 @@
 ## 接手建議順序
 
 1. 重新查 `analysis_status` counts、24h completed count、pending 清單、review error × grading_mode 分布。
-2. 查最近 `net._http_response`，確認是否仍有其他受權 recovery 正在跑。
+2. 查最近 function logs / `net._http_response`，確認正式 cron 是否正常；若兩者不一致，以 function edge log 的 request/response 作為執行狀態依據。
 3. 若已有 active recovery，**不要再 requeue**；只做觀察與真異常分析。
 4. 若 recovery 停止且 24h 上限有空間，只從 standard/single-answer/old-405 中小批次 requeue。
-5. 格式錯誤先允許既有 retry；重複 3 次後才分析 prompt/validator，不要直接放寬 structural QA。
-6. multi-answer / special grading 另開工作流，不要為了衝 ready 數而降低 precision。
+5. 若 transient 題重複占第一順位，先隔離該題，避免 starvation；不要提高 cron 頻率或繞過 25/day cap。
+6. 格式錯誤先允許既有 retry；重複 3 次後才分析 prompt/validator，不要直接放寬 structural QA。
+7. standard multi-answer 已有 grading support，但仍要用獨立 probe/batch 驗證 analyzer output；special grading 繼續隔離。
+8. analyzer v12 只能透過正式授權 Supabase deploy 路徑上 production；部署後要重新讀 live version/source 再宣稱完成。
 
 ## 禁止事項
 
