@@ -222,7 +222,7 @@ jobs:
           api_status="$(curl --silent --show-error -o /tmp/api-body.json -w '%{http_code}' \
             -X POST "$AI_URL" \
             -H 'Content-Type: application/json' \
-            --data '{"model":"qwen/qwen3.6-27b","messages":[{"role":"user","content":"smoke"}]}')"
+            --data '{"model":"qwen/qwen3.8-27b","messages":[{"role":"user","content":"smoke"}]}')"
           test "$api_status" = '403'
           echo "AI Worker route runtime OK: no-Origin POST -> $api_status"
 
@@ -237,7 +237,7 @@ jobs:
             -H "Origin: $PUBLIC_ORIGIN" \
             -H 'Content-Type: application/json' \
             -H "X-SWSI-Client-ID: $png_client" \
-            --data '{"model":"qwen/qwen3.6-27b","messages":[{"role":"user","content":[{"type":"text","text":"smoke"},{"type":"image_url","image_url":{"url":"data:image/png;base64,AA=="}}]}]}')"
+            --data '{"model":"qwen/qwen3.8-27b","messages":[{"role":"user","content":[{"type":"text","text":"smoke"},{"type":"image_url","image_url":{"url":"data:image/png;base64,AA=="}}]}]}')"
           test "$png_status" = '400'
           tr -d '\r' < /tmp/png.headers.raw > /tmp/png.headers
           grep -qi "^access-control-allow-origin: $PUBLIC_ORIGIN$" /tmp/png.headers
@@ -257,7 +257,7 @@ jobs:
             -H "Origin: $PUBLIC_ORIGIN" \
             -H 'Content-Type: application/json' \
             -H "X-SWSI-Client-ID: $four_client" \
-            --data '{"model":"qwen/qwen3.6-27b","messages":[{"role":"user","content":[{"type":"text","text":"smoke"},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,AA=="}},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,AA=="}},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,AA=="}},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,AA=="}}]}]}')"
+            --data '{"model":"qwen/qwen3.8-27b","messages":[{"role":"user","content":[{"type":"text","text":"smoke"},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,AA=="}},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,AA=="}},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,AA=="}},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,AA=="}}]}]}')"
           test "$four_status" = '400'
           tr -d '\r' < /tmp/four.headers.raw > /tmp/four.headers
           grep -qi "^access-control-allow-origin: $PUBLIC_ORIGIN$" /tmp/four.headers
