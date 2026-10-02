@@ -28,14 +28,14 @@ DEFAULT_MANIFEST = ROOT / "cdn" / "question-shards" / "manifest.json"
 DEFAULT_POLICY = ROOT / "data" / "question_qa_policy_v1.json"
 UNIFIED_QA = ROOT / "scripts" / "unified_question_qa.py"
 
-# This module is the existing immutable Official Core source owner.  Import the
-# loaders instead of creating a second historical-essay corpus for the watchdog.
+# Reuse existing owners instead of creating parallel normalization/source rules.
 from official_exam_readonly_guard import (  # noqa: E402
     ESSAY_FIELDS,
     canonical_row,
     extract_embedded_essays,
     load_auto_essays,
 )
+from unified_question_qa import canon_round  # noqa: E402
 
 
 def read_json(path: Path) -> Any:
@@ -58,21 +58,12 @@ def question_count(payload: Any) -> int:
     raise ValueError("shard must be an object with questions[] or a list")
 
 
-def normalize_round(value: Any) -> str:
-    raw = str(value or "").strip()
-    if raw in {"1", "第一次", "第一試"}:
-        return "第一次"
-    if raw in {"2", "第二次", "第二試"}:
-        return "第二次"
-    return raw
-
-
 def collect_full_essays() -> list[dict]:
     """Merge the existing historical + latest essay sources without mutating them.
 
     Duplicate IDs are allowed only when their immutable Official Core fields are
-    byte-for-byte equivalent.  If a duplicate is equivalent, keep the richer row
-    so QA can retain provenance/enrichment metadata when available.
+    byte-for-byte equivalent. If equivalent, keep the richer row so QA can retain
+    provenance/enrichment metadata when available.
     """
 
     rows: dict[str, dict] = {}
@@ -91,10 +82,10 @@ def collect_full_essays() -> list[dict]:
     return [rows[ident] for ident in sorted(rows)]
 
 
-def session_key(row: dict) -> tuple[str, str]:
+def session_key(row: dict, policy: dict) -> tuple[str, str]:
     return (
         str(row.get("year") or "").strip(),
-        normalize_round(row.get("round")),
+        canon_round(row.get("round"), policy),
     )
 
 
@@ -107,6 +98,7 @@ def main() -> int:
     args = parser.parse_args()
 
     manifest = read_json(args.manifest)
+    policy = read_json(args.policy)
     shards = manifest.get("shards") if isinstance(manifest, dict) else None
     if not isinstance(shards, list) or not shards:
         raise SystemExit("manifest shards[] is empty or invalid")
@@ -116,7 +108,7 @@ def main() -> int:
     except Exception as exc:
         raise SystemExit(f"cannot build canonical essay corpus: {exc}") from exc
 
-    essay_counts = Counter(session_key(row) for row in all_essays)
+    essay_counts = Counter(session_key(row, policy) for row in all_essays)
     unknown_essay_sessions = sorted(
         f"{year}-{round_name}"
         for (year, round_name) in essay_counts
@@ -147,7 +139,7 @@ def main() -> int:
                 manifest_errors.append(f"shards[{index}] is not an object")
                 continue
             year = str(entry.get("year") or "").strip()
-            round_name = normalize_round(entry.get("round"))
+            round_name = canon_round(entry.get("round"), policy)
             filename = str(entry.get("file") or "").strip()
             key = (year, round_name)
             if not year or round_name not in {"第一次", "第二次"}:
