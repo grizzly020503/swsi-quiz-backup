@@ -11,8 +11,11 @@ on:
       - 'monthly_patch_parts/zzzz_product_v1_lock.part'
       - 'scripts/progressive_explanation_contract.py'
       - 'scripts/question_trust_labels_contract.py'
+      - 'scripts/historical_law_student_surface_contract.py'
       - 'audit/progressive_explanation_20261003.md'
       - 'audit/question_trust_labels_20261003.md'
+      - 'audit/historical_law_student_surface_20261003.md'
+      - 'data/historical_law_verified_priority10.v1.json'
       - 'cdn/question-shards/**'
 
 permissions:
@@ -37,9 +40,10 @@ jobs:
 
       - name: Progressive explanation and trust contracts
         run: |
-          python -m py_compile scripts/progressive_explanation_contract.py scripts/question_trust_labels_contract.py
+          python -m py_compile scripts/progressive_explanation_contract.py scripts/question_trust_labels_contract.py scripts/historical_law_student_surface_contract.py
           python scripts/progressive_explanation_contract.py
           python scripts/question_trust_labels_contract.py
+          python scripts/historical_law_student_surface_contract.py
           cat monthly_patch_parts/*.part >/tmp/monthly_patch.js
           node --check /tmp/monthly_patch.js
           git diff --check
