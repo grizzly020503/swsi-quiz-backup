@@ -1385,7 +1385,7 @@ main [style*="font-size:15px"]{
   }
 
   window.swsiStartNow=function(){
-    try{homeQuizScope='smart';homeQuizCount=20;subjFilter='全部科目';homeQuizOpen=false;}catch(_e){}
+    try{homeQuizScope='smart';homeQuizCount=10;subjFilter='全部科目';homeQuizOpen=false;}catch(_e){}
     if(typeof startFocusedQuiz==='function') startFocusedQuiz();
   };
 
@@ -1408,17 +1408,17 @@ main [style*="font-size:15px"]{
     var specific=homeQuizScope==='specific';
     var subjOpts=['全部科目'].concat(SUBJECTS).map(function(x){return '<option value="'+swsiEsc(x)+'" '+(x===subjFilter?'selected':'')+'>'+swsiEsc(x)+'</option>';}).join('');
     var yearOpts=years.map(function(y){return '<option value="'+y+'" '+(String(y)===String(homeQuizYear)?'selected':'')+'>'+y+' 年</option>';}).join('');
-    var reviewLabel=rv.dueCount?('錯題複習 <span class="count">'+rv.dueCount+' 題</span>'):'錯題複習';
+    var reviewLabel=rv.dueCount?('複習錯題 <span class="count">'+rv.dueCount+' 題</span>'):'複習錯題';
     var scopeHint=homeQuizScope==='smart'?'最近 10 年為主，近 3 年與高頻考點優先。':homeQuizScope==='specific'?'只刷你指定的年度與考次。':homeQuizScope==='all'?'從完整歷史題庫抽題。':'只從較新的歷屆題目抽題。';
     var offlineNote='';
     try{if(window.SWSI_QB&&window.SWSI_QB.usingOffline)offlineNote='<div style="margin-bottom:9px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:var(--swsi-ui-small);color:var(--ink-soft)">目前使用這台裝置已儲存的離線題庫。</div>';}catch(_e){}
 
     app.innerHTML=offlineNote+
-      '<section class="swsi-focus-hero"><div class="kicker">SWSI · 免費社工師國考學習平台</div><h1>今天先做一件事</h1><p>先刷一組題；複習和模擬考就在下面。</p></section>'+
-      '<section class="swsi-focus-primary"><div class="label">開始練習</div><h2>20 題智慧練習</h2><p>直接開始；要指定年度、考次或科目，再打開範圍設定。</p><div class="swsi-focus-actions"><button class="go" onclick="swsiStartNow()">直接開始 20 題</button><button class="choose" onclick="toggleHomeQuiz()">'+(homeQuizOpen?'收起設定':'自己選範圍')+'</button></div></section>'+
+      '<section class="swsi-focus-hero"><div class="kicker">SWSI · 免費社工師國考學習平台</div><h1>今天先做一件事</h1><p>先用約 10 分鐘練 10 題；要複習錯題或做完整模擬考，就選下面兩個入口。</p></section>'+
+      '<section class="swsi-focus-primary"><div class="label">現在開始</div><h2>10 題今日練習</h2><p>直接開始；想指定年度、考次、科目或題數，再打開範圍設定。</p><div class="swsi-focus-actions"><button class="go" onclick="swsiStartNow()">直接開始 10 題</button><button class="choose" onclick="toggleHomeQuiz()">'+(homeQuizOpen?'收起設定':'自己選範圍')+'</button></div></section>'+
       (homeQuizOpen?('<section class="swsi-focus-custom"><div class="field-label">範圍</div><select class="subj" aria-label="刷題範圍" onchange="setHomeQuizScope(this.value)" style="margin-bottom:9px"><option value="smart" '+(homeQuizScope==='smart'?'selected':'')+'>智慧推薦</option><option value="recent3" '+(homeQuizScope==='recent3'?'selected':'')+'>近 3 年</option><option value="recent5" '+(homeQuizScope==='recent5'?'selected':'')+'>近 5 年</option><option value="specific" '+(homeQuizScope==='specific'?'selected':'')+'>指定歷屆</option><option value="all" '+(homeQuizScope==='all'?'selected':'')+'>全部題庫</option></select>'+(specific?('<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="subj" aria-label="考試年度" onchange="setHomeQuizYear(this.value)" style="margin-bottom:9px">'+yearOpts+'</select><select class="subj" aria-label="考試考次" onchange="setHomeQuizRound(this.value)" style="margin-bottom:9px"><option value="all" '+(homeQuizRound==='all'?'selected':'')+'>全部考次</option><option value="1" '+(homeQuizRound==='1'?'selected':'')+'>第一次</option><option value="2" '+(homeQuizRound==='2'?'selected':'')+'>第二次</option></select></div>'):'')+'<div class="field-label">科目</div><select class="subj" aria-label="科目" onchange="subjFilter=this.value;render()" style="margin-bottom:9px">'+subjOpts+'</select><div class="field-label">題數</div><select class="subj" aria-label="題數" onchange="setHomeQuizCount(this.value)" style="margin-bottom:7px"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="40" '+(homeQuizCount===40?'selected':'')+'>40 題</option></select><div class="hint">'+swsiEsc(scopeHint)+'</div><button class="btn" onclick="startFocusedQuiz()" style="margin-top:2px">開始這組題目</button></section>'):'')+
-      '<div class="swsi-home-quick"><button class="'+(rv.dueCount?'due':'')+'" onclick="swsiOpenHomeReview()">'+reviewLabel+'</button><button onclick="MK.open()">計時模擬考</button></div>'+
-      '<button type="button" class="swsi-home-resource" onclick="go(\'topics\')">理論、法規與時事 <span aria-hidden="true">›</span></button>';
+      '<div class="swsi-home-quick"><button class="'+(rv.dueCount?'due':'')+'" onclick="swsiOpenHomeReview()">'+reviewLabel+'</button><button onclick="MK.open()">完整模擬考</button></div>'+
+      '<button type="button" class="swsi-home-resource" onclick="go(\'topics\')">更多學習工具 <span aria-hidden="true">›</span></button>';
 
     if(typeof relabelTabs==='function')try{relabelTabs();}catch(_e){}
   };
@@ -1426,7 +1426,6 @@ main [style*="font-size:15px"]{
   installStyle();
   try{if(typeof view!=='undefined'&&view==='home')render();}catch(_e){}
 })();
-
 /* SWSI Focused Quiz UI 2026-08-26
    Presentation-only pass: make practice feel calm, direct, and study-first.
 */
@@ -1957,9 +1956,10 @@ html[data-fs="2"]{
     var allCount=0;try{allCount=ALL.length||0;}catch(_e){}var coverage=allCount?Math.min(100,Math.round(p.unique.size/allCount*100)):0;
     var subjects=Object.entries(p.bySubj).map(function(x){return {name:x[0],t:x[1].t,c:x[1].c,r:pct(x[1].c,x[1].t)};}).sort(function(a,b){return a.r-b.r||b.t-a.t;});
     var weak=subjects.filter(function(x){return x.t>=5;})[0]||subjects[0];
-    var topTopics=Object.entries(p.wrongTopic).sort(function(a,b){return b[1]-a[1];}).slice(0,5),causeRows=Object.entries(p.byCause).sort(function(a,b){return b[1]-a[1];});
+    var topTopics=Object.entries(p.wrongTopic).sort(function(a,b){return b[1]-a[1];}).slice(0,5),focusTopic=topTopics.find(function(x){return x[1]>=2;})||null,causeRows=Object.entries(p.byCause).sort(function(a,b){return b[1]-a[1];});
     var action='';
     if(rv.dueCount)action='<div class="swsi-next-copy"><b>先把今天到期的錯題處理掉。</b><span>間隔複習比再刷一堆新題更值得。</span></div><button class="btn" onclick="startDueReview()">複習 '+rv.dueCount+' 題</button>';
+    else if(focusTopic)action='<div class="swsi-next-copy"><b>這個考點已累計錯 '+focusTopic[1]+' 次：'+H(focusTopic[0])+'</b><span>先看相關法規／理論／歷屆連結，再用 5 題確認。這是依你的錯題紀錄產生，不是黑箱 AI 推薦。</span></div><div class="swsi-next-actions"><button class="btn ghost" onclick="swsiKnowledgeSearch(\''+H(focusTopic[0])+'\')">先看相關教材</button><button class="btn" onclick="swsiPracticeTopic(\''+H(focusTopic[0])+'\',5)">練 5 題確認</button></div>';
     else if(weak)action='<div class="swsi-next-copy"><b>目前最值得補：'+H(weak.name)+'</b><span>你在這科目前 '+weak.r+'%（'+weak.c+'/'+weak.t+'）。先用 20 題再確認一次。</span></div><button class="btn" onclick="swsiPracticeSubject(\''+H(weak.name)+'\',20)">練 '+H(weak.name)+' 20 題</button>';
     else action='<div class="swsi-next-copy"><b>繼續累積一點資料。</b><span>再刷 20 題後，弱點判斷會更有參考價值。</span></div><button class="btn" onclick="swsiStartRecommended20()">繼續刷 20 題</button>';
     var subjHTML=subjects.map(function(s){var col=s.r>=70?'var(--correct)':s.r>=50?'var(--gold)':'var(--wrong)';return '<button class="swsi-progress-subject" onclick="swsiPracticeSubject(\''+H(s.name)+'\',20)"><div class="top"><b>'+H(s.name)+'</b><span>'+s.r+'%　('+s.c+'/'+s.t+')</span></div><div class="accbar"><i style="width:'+s.r+'%;background:'+col+'"></i></div><small>點一下練這科 20 題</small></button>';}).join('');
@@ -1967,7 +1967,7 @@ html[data-fs="2"]{
     h+='<section class="swsi-progress-hero"><div><small>總正確率</small><strong>'+rate+'%</strong></div><div class="swsi-progress-mini"><span><b>'+total+'</b>作答次數</span><span><b>'+p.unique.size+'</b>不同題目</span><span><b>'+coverage+'%</b>題庫覆蓋</span></div></section>';
     h+='<div class="swsi-progress-strip"><div><b>'+(rr==null?'—':rr+'%')+'</b><span>最近 7 天'+(p.recent.length?' · '+p.recent.length+' 題':' · 尚無紀錄')+'</span></div><div><b>'+rv.activeCount+'</b><span>未熟練錯題</span></div><div><b>'+essays+'</b><span>申論草稿</span></div></div>';
     h+='<section class="swsi-next-card"><div class="swsi-learning-h">今天下一步</div>'+action+'</section><section class="swsi-learning-section"><div class="swsi-learning-h">各科狀況</div>'+subjHTML+'</section>';
-    if(topTopics.length)h+='<section class="swsi-learning-section"><div class="swsi-learning-h">最常答錯的考點</div>'+topTopics.map(function(x){return '<button class="swsi-learning-row" onclick="swsiPracticeTopic(\''+H(x[0])+'\',15)"><span><b>'+H(x[0])+'</b><small>累計錯 '+x[1]+' 次</small></span><span>›</span></button>';}).join('')+'</section>';
+    if(topTopics.length)h+='<section class="swsi-learning-section"><div class="swsi-learning-h">最常答錯的考點</div>'+topTopics.map(function(x){return '<button class="swsi-learning-row" onclick="swsiPracticeTopic(\''+H(x[0])+'\',5)"><span><b>'+H(x[0])+'</b><small>累計錯 '+x[1]+' 次 · 練 5 題確認</small></span><span>›</span></button>';}).join('')+'</section>';
     if(causeRows.length)h+='<section class="swsi-learning-section"><div class="swsi-learning-h">你自己標記的錯因</div>'+causeRows.map(function(x){return '<div class="swsi-cause-stat"><span>'+H(x[0])+'</span><b>'+x[1]+' 題</b></div>';}).join('')+'</section>';
     h+='<div class="swsi-progress-foot"><button class="btn ghost" onclick="go(\'review\')">回錯題複習</button><button class="btn ghost" onclick="exportDrafts()">備份申論草稿</button><button class="swsi-danger-link" onclick="if(confirm(\'清除所有刷題、間隔複習與自訂錯因紀錄？無法復原。\')){localStorage.removeItem(LS_KEY);localStorage.removeItem(REVIEW_KEY);localStorage.removeItem(\''+CAUSE_KEY+'\');render();}">清除學習紀錄</button></div>';app.innerHTML=h;
   };
@@ -1986,7 +1986,8 @@ html[data-fs="2"]{
     .swsi-self-cause{margin:15px 0 12px;padding:13px;border:1px solid var(--line);border-radius:13px;background:#F8FAF9}.swsi-cause-title{font-size:var(--fs-b);font-weight:800;color:var(--ink);margin-bottom:3px}.swsi-cause-help{font-size:var(--fs-s);line-height:1.6;color:var(--ink-soft);margin-bottom:9px}.swsi-cause-row{display:flex;flex-wrap:wrap;gap:6px}.swsi-cause-chip{border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:999px;padding:7px 10px;font-family:inherit;font-size:var(--fs-s);font-weight:700;cursor:pointer}.swsi-cause-chip.on{border-color:var(--pine);background:var(--correct-bg);color:var(--pine-deep)}
     .swsi-review-stats{margin:15px 0 16px}.swsi-calm-note{margin:10px 0 0;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink-soft);font-size:13px;line-height:1.6}.swsi-learning-section{margin-top:20px}.swsi-learning-h{font-size:14px;font-weight:900;color:var(--ink);margin:0 0 9px}.swsi-learning-muted{font-size:12px;line-height:1.65;color:var(--ink-soft);padding:2px 2px 8px}.swsi-learning-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px 13px;margin-bottom:7px;color:var(--ink);font-family:inherit;cursor:pointer}.swsi-learning-row b{display:block;font-size:13.5px;line-height:1.45}.swsi-learning-row small{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:2px}
     .swsi-progress-hero{margin-top:13px;border:1px solid var(--line);border-radius:17px;background:#fff;padding:16px}.swsi-progress-hero>div:first-child small{display:block;color:var(--ink-soft);font-size:12px}.swsi-progress-hero strong{display:block;font-size:36px;line-height:1.15;color:var(--pine-deep);margin:3px 0 13px}.swsi-progress-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.swsi-progress-mini span{background:var(--paper2);border-radius:10px;padding:9px 6px;text-align:center;font-size:10.5px;color:var(--ink-soft)}.swsi-progress-mini b{display:block;color:var(--ink);font-size:14px;margin-bottom:1px}.swsi-progress-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}.swsi-progress-strip>div{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 7px;text-align:center}.swsi-progress-strip b{display:block;font-size:17px;color:var(--ink)}.swsi-progress-strip span{display:block;font-size:10.5px;line-height:1.4;color:var(--ink-soft);margin-top:2px}
-    .swsi-next-card{margin-top:18px;padding:15px;border-radius:15px;background:var(--correct-bg);border:1px solid rgba(79,126,118,.22)}.swsi-next-copy b{display:block;font-size:14px;color:var(--pine-deep);line-height:1.45}.swsi-next-copy span{display:block;font-size:12px;line-height:1.65;color:var(--ink-soft);margin:3px 0 11px}.swsi-next-card .btn{margin:0}.swsi-progress-subject{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;padding:11px 2px;text-align:left;font-family:inherit;cursor:pointer}.swsi-progress-subject .top{display:flex;justify-content:space-between;gap:9px;font-size:13px}.swsi-progress-subject .top span{color:var(--ink-soft);white-space:nowrap}.swsi-progress-subject .accbar{margin:7px 0 4px}.swsi-progress-subject small{font-size:10.5px;color:var(--ink-3)}.swsi-cause-stat{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:10px 2px;font-size:13px}.swsi-cause-stat b{color:var(--ink-soft)}.swsi-progress-foot{margin-top:22px}.swsi-progress-foot .btn{margin-top:8px}.swsi-danger-link{display:block;width:100%;border:0;background:transparent;color:var(--wrong);font-family:inherit;font-size:12px;padding:15px 8px;cursor:pointer}
+    .swsi-next-card{margin-top:18px;padding:15px;border-radius:15px;background:var(--correct-bg);border:1px solid rgba(79,126,118,.22)}.swsi-next-copy b{display:block;font-size:14px;color:var(--pine-deep);line-height:1.45}.swsi-next-copy span{display:block;font-size:12px;line-height:1.65;color:var(--ink-soft);margin:3px 0 11px}.swsi-next-card .btn{margin:0}.swsi-next-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.swsi-next-actions .btn{margin:0}.swsi-progress-subject{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;padding:11px 2px;text-align:left;font-family:inherit;cursor:pointer}.swsi-progress-subject .top{display:flex;justify-content:space-between;gap:9px;font-size:13px}.swsi-progress-subject .top span{color:var(--ink-soft);white-space:nowrap}.swsi-progress-subject .accbar{margin:7px 0 4px}.swsi-progress-subject small{font-size:10.5px;color:var(--ink-3)}.swsi-cause-stat{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:10px 2px;font-size:13px}.swsi-cause-stat b{color:var(--ink-soft)}.swsi-progress-foot{margin-top:22px}.swsi-progress-foot .btn{margin-top:8px}.swsi-danger-link{display:block;width:100%;border:0;background:transparent;color:var(--wrong);font-family:inherit;font-size:12px;padding:15px 8px;cursor:pointer}
+    @media(max-width:370px){.swsi-next-actions{grid-template-columns:1fr}}
   `;document.head.appendChild(st);}
 
   decorateWrongCause();
@@ -1994,7 +1995,6 @@ html[data-fs="2"]{
   try{var scheduled=false;var mo=new MutationObserver(function(){if(scheduled)return;scheduled=true;Promise.resolve().then(function(){scheduled=false;decorateWrongCause();decorateHomeProgressEntry();});});mo.observe(document.body,{childList:true,subtree:true});}catch(_e){}
   try{if(typeof view!=='undefined'&&(view==='home'||view==='review'||view==='progress'))render();}catch(_e){}
 })();
-
 /* SWSI Learning Center V3 2026-08-29
    Personal study hub: review, progress, quiz and essay in one place.
    The hub renders immediately from local learning state and never requires a full
@@ -2060,19 +2060,21 @@ html[data-fs="2"]{
     if(rv.due>0)return {title:'先複習今天到期的 '+rv.due+' 題',sub:'到期錯題比再刷一批新題更值得。',onclick:"swsiLearningAction('due')"};
     if(rv.active>0)return {title:'整理還沒熟的錯題',sub:'目前還有 '+rv.active+' 題在複習循環裡。',onclick:"swsiLearningAction('review')"};
     if(drafts>0)return {title:'繼續一份申論草稿',sub:'這台裝置還有 '+drafts+' 份草稿可以接著寫。',onclick:"swsiLearningAction('essay')"};
-    return {title:'完成一組 20 題',sub:'先累積一點作答資料，平台才更知道你的弱點。',onclick:"swsiLearningAction('quiz')"};
+    return {title:'先花 10 分鐘練 10 題',sub:'不用先研究功能，直接完成一小組題目。',onclick:"swsiLearningAction('short')"};
   }
 
   function buildHub(){
     var rv=reviewMeta(),drafts=draftCount(),rec=recommendation(rv,drafts);
     return '<section class="swsi-myhub" aria-label="學習中心">'
-      +'<div class="swsi-myhub-card"><div class="swsi-myhub-kicker">學習中心</div><h2 class="swsi-myhub-title">今天先做一件就好</h2><div class="swsi-myhub-sub">這裡只放和你自己的學習進度有關的東西。</div>'
+      +'<div class="swsi-myhub-card"><div class="swsi-myhub-kicker">學習中心</div><h2 class="swsi-myhub-title">你現在想做什麼？</h2><div class="swsi-myhub-sub">直接照你現在的時間和需求選一個，不用先理解平台功能名稱。</div>'
       +'<button type="button" class="swsi-myhub-primary" onclick="'+rec.onclick+'"><span><b>'+rec.title+'</b><small>'+rec.sub+'</small></span><span class="arrow">›</span></button>'
       +'<div class="swsi-myhub-stats"><div class="swsi-myhub-stat"><b>'+rv.due+'</b><span>今天到期</span></div><div class="swsi-myhub-stat"><b>'+rv.active+'</b><span>還沒熟</span></div><div class="swsi-myhub-stat"><b>'+rv.mastered+'</b><span>已掌握</span></div></div>'
-      +'<div class="swsi-myhub-list">'
-      +row('↻','錯題複習',rv.due?('今天 '+rv.due+' 題到期'):(rv.active?('尚有 '+rv.active+' 題未熟練'):'目前沒有待複習題'),"swsiLearningAction('review')")
-      +row('◎','快速刷題','智慧推薦 20 題',"swsiLearningAction('quiz')")
-      +row('✎','申論練習',drafts?('這台裝置有 '+drafts+' 份草稿'):'歷屆申論與 AI 練習回饋',"swsiLearningAction('essay')")
+      +'<div class="swsi-myhub-list" data-swsi-learning-scenarios>'
+      +row('10','我只有 10 分鐘','快速刷題：直接做 10 題今日練習',"swsiLearningAction('short')",'', 'data-swsi-scenario="short"')
+      +row('弱','我要補最弱科','先看各科表現，再練目前最需要補的科目',"swsiLearningAction('weak')",'', 'data-swsi-scenario="weak"')
+      +row('卷','我要做完整考卷','進入計時模擬考，完成後再看結果',"swsiLearningAction('mock')",'', 'data-swsi-scenario="mock"')
+      +row('✎','我要練申論',drafts?('申論練習：這台裝置有 '+drafts+' 份草稿可接著寫'):'申論練習：歷屆申論與 AI 回饋',"swsiLearningAction('essay')",'', 'data-swsi-scenario="essay"')
+      +row('↻','我要複習錯題',rv.due?('錯題複習：今天 '+rv.due+' 題到期'):(rv.active?('錯題複習：尚有 '+rv.active+' 題未熟練'):'錯題複習：目前沒有待複習題'),"swsiLearningAction('review')",'', 'data-swsi-scenario="review"')
       +'</div></div>'
       +'<details class="swsi-myhub-more"><summary>更多與平台資訊</summary><div class="swsi-myhub-list">'
       +'<button type="button" class="swsi-myhub-row admin" data-swsi-admin-entry hidden onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理中心</span><span class="meta">管理者專用</span></span><span class="arrow">›</span></button>'
@@ -2096,6 +2098,9 @@ html[data-fs="2"]{
     window.__SWSI_LEARNING_CENTER_OPEN__=false;
     if(kind==='due'){if(typeof startDueReview==='function')startDueReview();return;}
     if(kind==='review'){if(typeof go==='function')go('review');return;}
+    if(kind==='short'){if(typeof window.swsiStartNow==='function')window.swsiStartNow();else if(typeof go==='function')go('home');return;}
+    if(kind==='weak'){if(typeof go==='function')go('progress');return;}
+    if(kind==='mock'){if(window.MK&&typeof window.MK.open==='function')window.MK.open();else if(typeof go==='function')go('home');return;}
     if(kind==='progress'){if(typeof go==='function')go('progress');return;}
     if(kind==='essay'){if(typeof window.swsiOpenEssay==='function')window.swsiOpenEssay();else if(typeof go==='function')go('essay');return;}
     if(typeof window.swsiStartRecommended20==='function')window.swsiStartRecommended20();
@@ -2181,7 +2186,7 @@ html[data-fs="2"]{
       .swsi-launch-guide{margin:-2px 0 10px;border:1px solid #D7E2DC;background:#FBFCFB;border-radius:12px;padding:9px 10px;display:flex;align-items:flex-start;gap:8px;font-family:'Noto Sans TC',sans-serif;color:var(--ink)}
       .swsi-launch-guide .copy{min-width:0;flex:1}.swsi-launch-guide b{display:block;font-size:11.5px;line-height:1.45;color:var(--ink)}.swsi-launch-guide span{display:block;font-size:10.5px;line-height:1.55;color:#6E746E;margin-top:1px}.swsi-launch-guide-close{flex:0 0 auto;border:0;background:transparent;color:#7C8781;width:28px;height:28px;border-radius:50%;font-size:17px;cursor:pointer}
       .swsi-exam-reminder{margin-top:10px;border:1px solid var(--line);background:#F8FAF9;border-radius:11px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-family:'Noto Sans TC',sans-serif}.swsi-exam-reminder-copy{min-width:0;flex:1;font-size:10.7px;line-height:1.5;color:var(--ink-soft)}.swsi-exam-reminder-copy b{color:var(--ink);font-weight:800}.swsi-exam-reminder-btn{flex:0 0 auto;border:1px solid #CBD8D1;background:#fff;color:var(--pine-deep);border-radius:9px;min-height:34px;padding:6px 9px;font:750 10.5px/1.2 'Noto Sans TC',sans-serif;cursor:pointer}
-      .swsi-exam-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(25,31,28,.38);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px);overflow:auto}.swsi-exam-dialog{width:min(100%,480px);max-height:calc(100dvh - 28px - env(safe-area-inset-bottom));overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:19px;padding:17px 16px 16px;box-shadow:0 22px 60px rgba(25,31,28,.22);font-family:'Noto Sans TC',sans-serif;color:var(--ink)}.swsi-exam-dialog h2{font-family:'Noto Serif TC',serif;font-size:19px;margin:0 0 5px}.swsi-exam-dialog p{font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin:0 0 13px}.swsi-exam-date-label{display:block;font-size:11.5px;line-height:1.45;font-weight:800;color:var(--ink);margin:0 0 5px}.swsi-exam-dialog input{width:100%;box-sizing:border-box;min-height:46px;border:1px solid #CCD7D1;border-radius:11px;background:#fff;color:var(--ink);font:700 14px 'Noto Sans TC',sans-serif;padding:10px 11px}.swsi-exam-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px;margin-top:12px}.swsi-exam-actions button{min-height:43px;border-radius:10px;font:800 12.5px 'Noto Sans TC',sans-serif;cursor:pointer}.swsi-exam-clear{background:#fff;border:1px solid var(--line);color:#6E746E}.swsi-exam-save{background:var(--pine-deep);border:0;color:#fff}body.swsi-modal-open{overflow:hidden}
+      .swsi-exam-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(25,31,28,.38);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px);overflow:auto}.swsi-exam-dialog{width:min(100%,480px);max-height:calc(100dvh - 28px - env(safe-area-inset-bottom));overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:19px;padding:17px 16px 16px;box-shadow:0 22px 60px rgba(25,31,28,.22);font-family:'Noto Sans TC',sans-serif;color:var(--ink)}.swsi-exam-dialog h2{font-family:'Noto Serif TC',serif;font-size:19px;margin:0 0 5px}.swsi-exam-dialog p{font-size:11.5px;line-height:1.65;color:#6E746E;margin:0 0 13px}.swsi-exam-date-label{display:block;font-size:11.5px;line-height:1.45;font-weight:800;color:var(--ink);margin:0 0 5px}.swsi-exam-dialog input{width:100%;box-sizing:border-box;min-height:46px;border:1px solid #CCD7D1;border-radius:11px;background:#fff;color:var(--ink);font:700 14px 'Noto Sans TC',sans-serif;padding:10px 11px}.swsi-exam-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px;margin-top:12px}.swsi-exam-actions button{min-height:43px;border-radius:10px;font:800 12.5px 'Noto Sans TC',sans-serif;cursor:pointer}.swsi-exam-clear{background:#fff;border:1px solid var(--line);color:#6E746E}.swsi-exam-save{background:var(--pine-deep);border:0;color:#fff}body.swsi-modal-open{overflow:hidden}
       @media(min-width:620px){.swsi-exam-backdrop{align-items:center}}@media(max-width:390px){.swsi-exam-actions{grid-template-columns:1fr}}
     `;
     document.head.appendChild(st);
@@ -2771,6 +2776,24 @@ html[data-fs="2"]{
   var VERIFY_CHECKED='checked';
   var NEW_RESIDENT_BASIC_ACT='新住民基本法';
 
+  /* Generated from data/historical_law_verified_priority10.v1.json.
+     Keep this as metadata only: no historical full-text mirror and no Official Core mutation. */
+  var HISTORICAL_VERIFIED={
+    "SP115-1-40":{"law_name":"兒童及少年未來教育與發展帳戶條例","exam_code":"115-1","article":"14","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2018-06-06","effective_date":"2018-06-06","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050205"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050205","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=115030"},
+    "SP105-2-14":{"law_name":"全民健康保險法","exam_code":"105-2","article":"10","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2011-01-26","effective_date":"2013-01-01","url":"https://law.moj.gov.tw/LawClass/LawOldVer.aspx?pcode=L0060001&lnndate=20110126&lser=001"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=L0060001","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=105090"},
+    "SP104-2-11":{"law_name":"國民年金法","exam_code":"104-2","article":"30","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2011-06-29","effective_date":"2008-10-01","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050152"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050152","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=104100"},
+    "SP114-1-37":{"law_name":"國民年金法","exam_code":"114-1","article":"26","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2007-08-08","effective_date":"2008-10-01","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050152"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050152","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=114030"},
+    "SP108-2-26":{"law_name":"志願服務法","exam_code":"108-2","article":"5-1","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2013-06-11","effective_date":"2013-06-11","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050131"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050131","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=108110"},
+    "SP110-1-36":{"law_name":"志願服務法","exam_code":"110-1","article":"15","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2014-06-18","effective_date":"2014-06-18","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050131"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050131","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=110030"},
+    "SP104-2-31":{"law_name":"特殊境遇家庭扶助條例","exam_code":"104-2","article":"4","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2011-12-07","effective_date":"2011-12-07","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050075","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=104100"},
+    "SP105-1-07":{"law_name":"特殊境遇家庭扶助條例","exam_code":"105-1","article":"4","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2011-12-07","effective_date":"2011-12-07","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050075","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=105030"},
+    "SP107-1-34":{"law_name":"特殊境遇家庭扶助條例","exam_code":"107-1","article":"6","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2006-05-17","effective_date":"2007-01-01","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050075","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=107030"},
+    "SP109-2-35":{"law_name":"特殊境遇家庭扶助條例","exam_code":"109-2","article":"6","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2006-05-17","effective_date":"2007-01-01","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050075","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=109110"},
+    "SP114-2-35":{"law_name":"特殊境遇家庭扶助條例","exam_code":"114-2","article":"4-1","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2006-05-17","effective_date":"2007-01-01","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050075","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=114100"},
+    "SP115-1-31":{"law_name":"特殊境遇家庭扶助條例","exam_code":"115-1","article":"8","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2013-01-02","effective_date":"2013-01-02","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050075"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050075","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=115030"},
+    "SP105-1-21":{"law_name":"身心障礙者權利公約施行法","exam_code":"105-1","article":"6","historical_version_checked":true,"verification_level":"machine_verified_historical_v1","selected_version":{"version_date":"2014-08-20","effective_date":"2014-12-03","url":"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194"},"official_history_url":"https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050194","exam_date_source_url":"https://wwwc.moex.gov.tw/main/Exam/wFrmExamDetail.aspx?c=105030"}
+  };
+
   function H(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
@@ -2810,6 +2833,46 @@ html[data-fs="2"]{
     if(sourceUrl)h+='<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><a href="'+sourceUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">開啟'+H(x.source_label||'官方來源')+' ↗</a>'+
       (secondaryUrl?'<a href="'+secondaryUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">'+H(x.secondary_label||'官方補充')+' ↗</a>':'')+'</div>';
     return h+'</div>';
+  }
+
+  function historicalTrustHTML(x){
+    if(!x||x.historical_version_checked!==true||x.verification_level!=='machine_verified_historical_v1')return '';
+    var v=x.selected_version||{};
+    var versionUrl=safeHttpsHref(v.url);
+    var historyUrl=safeHttpsHref(x.official_history_url);
+    var examUrl=safeHttpsHref(x.exam_date_source_url);
+    var meta=H(x.law_name||'法規')+' 第 '+H(x.article||'—')+' 條 · '+H(x.exam_code||'');
+    var dates='版本日期 '+H(v.version_date||'—')+(v.effective_date?' · 施行 '+H(v.effective_date):'');
+    var h='<div class="swsi-historical-law-trust" style="margin:9px 0 0;padding:10px 11px;border:1px solid #D7E2DC;border-radius:10px;background:#F7FAF8;font-family:\'Noto Sans TC\',sans-serif">'+
+      '<div style="font-size:11.5px;font-weight:800;color:#456A61">✓ 考試當時法規版本已核對</div>'+
+      '<div style="font-size:11.5px;line-height:1.65;color:var(--ink);margin-top:4px">'+meta+'</div>'+
+      '<div style="font-size:10.8px;line-height:1.6;color:var(--ink-soft);margin-top:2px">'+dates+'</div>'+
+      '<div style="font-size:10.8px;line-height:1.65;color:var(--ink-soft);margin-top:6px">這是 SWSI 依官方法規沿革與考試日期產生的機器驗證 metadata，不是考選部官方解析。只有 registry 已標記 historical_version_checked=true 的題目會顯示；若現行法已變動，請以上方法規狀態與官方沿革為準，不用 2026 現行法硬證明舊題。</div>';
+    if(versionUrl||historyUrl||examUrl){
+      h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">';
+      if(versionUrl)h+='<a href="'+versionUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">考試時點法規 ↗</a>';
+      if(historyUrl)h+='<a href="'+historyUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">法規沿革 ↗</a>';
+      if(examUrl)h+='<a href="'+examUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">考試日期 ↗</a>';
+      h+='</div>';
+    }
+    return h+'</div>';
+  }
+
+  function decorateHistoricalQuestionTrust(){
+    try{
+      var item=(typeof queue!=='undefined'&&Array.isArray(queue)&&typeof idx!=='undefined')?queue[idx]:null;
+      if(!item)return;
+      var rec=HISTORICAL_VERIFIED[String(item.id||'')];
+      if(!rec||rec.historical_version_checked!==true||rec.verification_level!=='machine_verified_historical_v1')return;
+      var trust=document.querySelector('#app .qcard .exp .swsi-answer-trust');
+      if(!trust)return;
+      var body=trust.querySelector('.swsi-trust-body')||trust;
+      if(body.querySelector('.swsi-historical-law-trust'))return;
+      var holder=document.createElement('div');
+      holder.innerHTML=historicalTrustHTML(rec);
+      var panel=holder.firstElementChild;
+      if(panel)body.appendChild(panel);
+    }catch(e){console.warn('historical law trust render skipped',e);}
   }
 
   function applySpecialLawStatus(x){
@@ -2852,6 +2915,20 @@ html[data-fs="2"]{
     version:'SWSI Law Trust Final Batch 2026-08-26',
     checkedAt:CHECKED_AT
   };
+
+  decorateHistoricalQuestionTrust();
+  try{
+    var historyScheduled=false;
+    var historyObserver=new MutationObserver(function(){
+      if(historyScheduled)return;
+      historyScheduled=true;
+      Promise.resolve().then(function(){
+        historyScheduled=false;
+        decorateHistoricalQuestionTrust();
+      });
+    });
+    historyObserver.observe(document.body,{childList:true,subtree:true});
+  }catch(_e){}
 })();
 /* SWSI Theory Trust UI Contract 2026-08-27
    Theory card data is canonicalized at build time. This module owns presentation and runtime markers only.
@@ -4286,6 +4363,21 @@ html[data-fs="2"]{
       .swsi-essay-action-card .choose{border:1px solid var(--line);background:#fff;color:var(--pine-deep);}
 
       .swsi-answer-line{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);line-height:1.55;color:var(--pine-deep);font-weight:800;background:#F1F6F4;border:1px solid #D8E5DF;border-radius:10px;padding:8px 10px;margin:0 0 13px;}
+      .swsi-core-reason{margin:0 0 13px;padding:10px 11px;border-left:3px solid var(--pine);background:#F8FAF9;border-radius:0 10px 10px 0;font-family:'Noto Sans TC',sans-serif;color:#343C38;line-height:1.7;}
+      .swsi-core-reason b{display:block;font-size:10.5px;letter-spacing:.04em;color:var(--pine);margin-bottom:2px;}
+      .swsi-core-reason span{display:block;font-size:13px;font-weight:650;}
+      .swsi-answer-trust{margin:0 0 10px;border:1px solid #E1E7E3;border-radius:10px;background:#FCFDFC;font-family:'Noto Sans TC',sans-serif;overflow:hidden;}
+      .swsi-answer-trust summary{list-style:none;cursor:pointer;min-height:38px;padding:7px 9px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--ink-soft);font-size:11px;font-weight:700;}
+      .swsi-answer-trust summary::-webkit-details-marker{display:none;}
+      .swsi-answer-trust summary:after{content:'＋';margin-left:auto;color:var(--ink-3);font-size:14px;}
+      .swsi-answer-trust[open] summary:after{content:'－';}
+      .swsi-trust-chip{display:inline-flex;align-items:center;min-height:24px;padding:2px 7px;border:1px solid #D7E2DC;border-radius:999px;background:#fff;color:#456A61;font-size:10.5px;font-weight:800;}
+      .swsi-trust-chip.warn{border-color:#E5DCC1;color:#756E57;background:#FFFDF7;}
+      .swsi-trust-body{border-top:1px solid #E7ECE9;padding:9px 10px 10px;color:var(--ink-soft);font-size:11px;line-height:1.65;}
+      .swsi-trust-body p{margin:0 0 6px;}
+      .swsi-trust-body p:last-child{margin-bottom:0;}
+      .swsi-trust-links{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;}
+      .swsi-trust-links a{display:inline-block;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--pine-deep);padding:5px 8px;text-decoration:none;font-size:10.8px;font-weight:700;}
       .swsi-explanation-more{margin:12px 0 3px;border:1px solid var(--line);border-radius:11px;background:#FBFCFB;overflow:hidden;}
       .swsi-explanation-more summary{list-style:none;cursor:pointer;min-height:43px;padding:9px 11px;display:flex;align-items:center;font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:800;color:var(--pine-deep);}
       .swsi-explanation-more summary::-webkit-details-marker{display:none;}
@@ -4407,37 +4499,150 @@ html[data-fs="2"]{
     f.innerHTML='<div>© 2026 SWSI · 免費公開學習工具</div><div class="sub">社工師國考題目以考選部官方資料為準</div>';
   }
 
+  function conciseExplanation(text){
+    var s=String(text||'').replace(/\s+/g,' ').trim();
+    if(!s) return '';
+    var m=s.match(/^(.{1,120}?[。！？!?])(?:\s|$|.)/);
+    if(m&&m[1]) return m[1].trim();
+    return s.length>105?s.slice(0,105).trim()+'…':s;
+  }
+
+  function directChild(exp,selector){
+    for(var i=0;i<exp.children.length;i++){
+      var el=exp.children[i];
+      if(el.matches&&el.matches(selector)) return el;
+    }
+    return null;
+  }
+
+  function safeTrustHref(value){
+    var s=String(value||'').trim();
+    if(!/^https:\/\//i.test(s)) return '';
+    try{var u=new URL(s);return u.protocol==='https:'?u.href:'';}catch(_e){return '';}
+  }
+
+  function officialQuestion(item){
+    if(!item) return false;
+    var kind=String(item.qtype||'')+' '+String(item.id||'');
+    return !!item.source_exam_code && !!safeTrustHref(item.source_url) && !/時事|預測|自製/.test(kind);
+  }
+
+  function analysisTrust(item){
+    var status=String(item&&item.analysis_status||'').toLowerCase();
+    if(status==='ready')return {label:'平台解析・已通過基本檢查',warn:false,detail:'這份解析已通過目前的自動與結構檢查，不等於逐題人工核對，也不是考選部官方解析。'};
+    if(status==='review')return {label:'平台解析・待複核',warn:true,detail:'這份平台解析目前仍在複核／隔離狀態；請優先相信官方題目、答案與特殊給分規則。'};
+    if(status==='pending'||status==='analyzing')return {label:'平台解析・處理中',warn:true,detail:'平台解析尚在生成或檢查流程中；未完成前不視為已核實教材。'};
+    return {label:'平台解析・核對狀態未標示',warn:true,detail:'這是 SWSI 的學習整理，不是官方解析；目前沒有足夠狀態可把它標示為已核對。'};
+  }
+
+  function legalTrust(item){
+    var status=String(item&&item.legal_status||'').toLowerCase();
+    if(status==='not_applicable')return null;
+    if(status==='verified_current')return {label:'法規・現行來源已核對',warn:false,detail:'已核對現行官方法規來源；若是歷史考題，考試當時版本與後續修法仍須依歷史法規證據判讀。'};
+    if(status==='changed')return {label:'法規・已偵測變動',warn:true,detail:'平台已偵測相關法規可能變動，這份法規延伸在重新核對前不應視為完成版。'};
+    if(status==='unreviewed')return {label:'法規・待逐題複核',warn:true,detail:'題目含法規／政策內容，但這一題尚未完成逐題法規核對。'};
+    if(item&&(item.law||item.legal_source_url))return {label:'法規・待確認',warn:true,detail:'這題含法規延伸，但目前沒有可安全宣稱已核對的狀態。'};
+    return null;
+  }
+
+  function appendTrustLink(box,label,url){
+    var href=safeTrustHref(url); if(!href)return;
+    var links=box.querySelector('.swsi-trust-links');
+    if(!links){links=document.createElement('div');links.className='swsi-trust-links';box.appendChild(links);}
+    var a=document.createElement('a');a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.textContent=label+' ↗';links.appendChild(a);
+  }
+
+  function addQuestionTrust(exp,item){
+    if(!item||directChild(exp,'.swsi-answer-trust'))return;
+    var official=officialQuestion(item),analysis=analysisTrust(item),legal=legalTrust(item);
+    var panel=document.createElement('details');panel.className='swsi-answer-trust';
+    var summary=document.createElement('summary');summary.appendChild(document.createTextNode('資料可信度'));
+    function chip(text,warn){var s=document.createElement('span');s.className='swsi-trust-chip'+(warn?' warn':'');s.textContent=text;summary.appendChild(s);}
+    chip(official?'官方題目／答案':'SWSI 練習內容',!official);
+    chip(analysis.label,analysis.warn);
+    if(legal)chip(legal.label,legal.warn);
+    panel.appendChild(summary);
+    var body=document.createElement('div');body.className='swsi-trust-body';
+    var p1=document.createElement('p');p1.textContent=official?'題目、選項、官方答案與特殊給分以考選部資料為準；SWSI 另外整理解析與延伸內容。':'此題不是考選部歷屆題；題目與解析都屬 SWSI 學習內容。';body.appendChild(p1);
+    var p2=document.createElement('p');p2.textContent=analysis.detail;body.appendChild(p2);
+    if(legal){var p3=document.createElement('p');p3.textContent=legal.detail+(item.legal_checked_at?' 核對時間：'+String(item.legal_checked_at).slice(0,10)+'。':'');body.appendChild(p3);}
+    appendTrustLink(body,'開啟官方題目來源',official?item.source_url:'');
+    appendTrustLink(body,'開啟法規來源',legal?item.legal_source_url:'');
+    panel.appendChild(body);
+    var more=directChild(exp,'.swsi-explanation-more'),next=directChild(exp,'.btn');
+    if(more)exp.insertBefore(panel,more);else if(next)exp.insertBefore(panel,next);else exp.appendChild(panel);
+  }
+
   function collapseExplanation(){
     var exp=document.querySelector('#app .qcard .exp');
-    if(!exp||exp.dataset.swsiCompact==='1') return;
-    exp.dataset.swsiCompact='1';
+    if(!exp) return;
 
-    var item=null;
-    try{ item=queue&&queue[idx]; }catch(_e){}
-    var topic=exp.querySelector('.topic');
-    if(item&&!exp.querySelector('.swsi-answer-line')){
-      var line=document.createElement('div');
-      line.className='swsi-answer-line';
-      line.textContent=typeof answerLabel==='function'?answerLabel(item):('答案：'+(item.answer||'—'));
-      if(topic) topic.insertAdjacentElement('afterend',line); else exp.insertBefore(line,exp.firstChild);
+    var currentItem=null;
+    try{ currentItem=queue&&queue[idx]; }catch(_e){}
+
+    if(exp.dataset.swsiCompact!=='1'){
+      exp.dataset.swsiCompact='1';
+
+      var item=currentItem;
+      var topic=exp.querySelector('.topic');
+      if(item&&!exp.querySelector('.swsi-answer-line')){
+        var line=document.createElement('div');
+        line.className='swsi-answer-line';
+        line.textContent=typeof answerLabel==='function'?answerLabel(item):('答案：'+(item.answer||'—'));
+        if(topic) topic.insertAdjacentElement('afterend',line); else exp.insertBefore(line,exp.firstChild);
+      }
+
+      var secs=Array.prototype.filter.call(exp.children,function(el){return el.matches&&el.matches('.exp-sec');});
+      var primary=null;
+      for(var i=0;i<secs.length;i++){
+        var h=secs[i].querySelector('h4');
+        if(h&&/為什麼對/.test((h.textContent||'').trim())){primary=secs[i];break;}
+      }
+      if(!primary){
+        for(var j=0;j<secs.length;j++){
+          if(!secs[j].querySelector('h4')){primary=secs[j];break;}
+        }
+      }
+      var source=primary&&(primary.querySelector('p')||primary);
+      var summaryText=conciseExplanation(source&&source.textContent);
+      if(summaryText&&!exp.querySelector(':scope > .swsi-core-reason')){
+        var core=document.createElement('div');
+        core.className='swsi-core-reason';
+        var coreLabel=document.createElement('b');
+        coreLabel.textContent='一句核心原因';
+        var coreText=document.createElement('span');
+        coreText.textContent=summaryText;
+        core.appendChild(coreLabel); core.appendChild(coreText);
+        var answerLine=directChild(exp,'.swsi-answer-line');
+        if(answerLine&&answerLine.nextSibling) exp.insertBefore(core,answerLine.nextSibling);
+        else if(answerLine) exp.appendChild(core);
+        else exp.insertBefore(core,exp.firstChild);
+      }
+
+      var hidden=secs.slice();
+      exp.querySelectorAll(':scope > .extra').forEach(function(x){hidden.push(x);});
+      if(hidden.length){
+        var details=document.createElement('details');
+        details.className='swsi-explanation-more';
+        details.innerHTML='<summary>看完整解析</summary><div class="body"></div>';
+        var detailsBody=details.querySelector('.body');
+        hidden.forEach(function(x){detailsBody.appendChild(x);});
+        var next=directChild(exp,'.btn');
+        if(next) exp.insertBefore(details,next); else exp.appendChild(details);
+      }
+      addQuestionTrust(exp,item);
+    }else{
+      addQuestionTrust(exp,currentItem);
     }
 
-    var hidden=[];
-    exp.querySelectorAll(':scope > .exp-sec').forEach(function(sec){
-      var h=sec.querySelector('h4');
-      var label=(h&&h.textContent||'').trim();
-      if(/其他選項|考場陷阱/.test(label)) hidden.push(sec);
-    });
-    exp.querySelectorAll(':scope > .extra').forEach(function(x){hidden.push(x);});
-    if(!hidden.length) return;
-
-    var details=document.createElement('details');
-    details.className='swsi-explanation-more';
-    details.innerHTML='<summary>看完整解析</summary><div class="body"></div>';
-    var body=details.querySelector('.body');
-    hidden.forEach(function(x){body.appendChild(x);});
-    var next=exp.querySelector(':scope > .btn');
-    if(next) exp.insertBefore(details,next); else exp.appendChild(details);
+    /* Learning Loop adds the student's own reflection asynchronously. Keep that
+       personal learning signal visible in layer 1, before optional full notes. */
+    var detailsNow=directChild(exp,'.swsi-explanation-more');
+    var cause=directChild(exp,'.swsi-self-cause');
+    if(detailsNow&&cause){
+      var pos=detailsNow.compareDocumentPosition(cause);
+      if(pos&Node.DOCUMENT_POSITION_FOLLOWING) exp.insertBefore(cause,detailsNow);
+    }
   }
 
   function enhance(){
@@ -4461,7 +4666,6 @@ html[data-fs="2"]{
     observer.observe(document.body,{childList:true,subtree:true});
   }catch(_e){}
 })();
-
 /* SWSI quick-essay scope hardening 2026-08-26
    The legacy ESSAYS collection may live in the page's lexical scope rather than window.
 */
