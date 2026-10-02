@@ -48,7 +48,7 @@ function auditPrompt(q: any, draft: any) {
 async function callModel(model: string, prompt: string, reasoning: string, maxTokens: number, internalKey: string) {
   const body: any = { model, temperature: 0, max_tokens: maxTokens, messages: [{ role: "user", content: prompt }] };
   if (reasoning) body.reasoning_effort = reasoning;
-  let last = "";
+  let last = "", formatRetries = 0;
   for (let attempt = 0; attempt < 4; attempt++) {
     const r = await fetch(AI_PROXY_URL, { method: "POST", headers: { "content-type": "application/json", "X-SWSI-Internal-Key": internalKey }, body: JSON.stringify(body) });
     const text = await r.text();
@@ -62,7 +62,18 @@ async function callModel(model: string, prompt: string, reasoning: string, maxTo
     if (!r.ok) throw new Error(`AI ${model} HTTP ${r.status}: ${text.slice(0, 300)}`);
     const data: any = JSON.parse(text), content = data?.choices?.[0]?.message?.content;
     if (typeof content !== "string") throw new Error(`AI ${model} response shape invalid`);
-    return JSON.parse(stripJsonFence(content));
+    try {
+      return JSON.parse(stripJsonFence(content));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      last = `AI ${model} format: ${msg}`;
+      if (formatRetries < 1 && attempt < 3) {
+        formatRetries += 1;
+        await delay(250);
+        continue;
+      }
+      throw new Error(last);
+    }
   }
   throw new Error(last || `AI ${model} failed`);
 }
@@ -110,11 +121,27 @@ function validateFinal(q: any, rows: any) {
     mnemonic: clean(row.mnemonic), extension: clean(row.extension), law: clean(row.law), mistake: clean(row.mistake), analysis_status: "ready", analysis_attempts: 0, analysis_error: null, analysis_started_at: null
   };
 }
+function auditRepairPrompt(q: any, draft: any, failure: string) {
+  return `${auditPrompt(q, draft)}\n上一版未通過結構驗證：${failure}\n請只修正這個問題與必要連帶欄位，仍須遵守全部原規則，重新輸出完整 JSON array。`;
+}
 async function analyzeOne(q: any, internalKey: string) {
   const draftRows = await callModel(DRAFT_MODEL, initialPrompt(q), "none", 1400, internalKey);
   if (!Array.isArray(draftRows) || draftRows.length !== 1) throw new Error("草稿格式異常");
-  const finalRows = await callModel(AUDIT_MODEL, auditPrompt(q, draftRows[0]), "medium", 1500, internalKey);
-  return validateFinal(q, finalRows);
+  let prompt = auditPrompt(q, draftRows[0]), lastValidation = "";
+  for (let auditAttempt = 0; auditAttempt < 2; auditAttempt++) {
+    const finalRows = await callModel(AUDIT_MODEL, prompt, "medium", 1500, internalKey);
+    try {
+      return validateFinal(q, finalRows);
+    } catch (e) {
+      lastValidation = e instanceof Error ? e.message : String(e);
+      if (auditAttempt === 0) {
+        prompt = auditRepairPrompt(q, draftRows[0], lastValidation);
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw new Error(lastValidation || "AI 最終驗證失敗");
 }
 function isTransient(msg: string) { return /HTTP 429|rate limit|fetch failed|network|timed?\s*out|temporar/i.test(msg); }
 
