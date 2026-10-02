@@ -6,9 +6,14 @@ on:
       - '.github/workflows/progressive-explanation-qa.yml'
       - 'monthly_patch_parts/00.part'
       - 'monthly_patch_parts/70.learning-loop.part'
+      - 'monthly_patch_parts/86.law-trust-ui.part'
+      - 'monthly_patch_parts/88.theory-trust-ui.part'
       - 'monthly_patch_parts/zzzz_product_v1_lock.part'
       - 'scripts/progressive_explanation_contract.py'
+      - 'scripts/question_trust_labels_contract.py'
       - 'audit/progressive_explanation_20261003.md'
+      - 'audit/question_trust_labels_20261003.md'
+      - 'cdn/question-shards/**'
 
 permissions:
   contents: read
@@ -30,10 +35,11 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Progressive explanation contract
+      - name: Progressive explanation and trust contracts
         run: |
-          python -m py_compile scripts/progressive_explanation_contract.py
+          python -m py_compile scripts/progressive_explanation_contract.py scripts/question_trust_labels_contract.py
           python scripts/progressive_explanation_contract.py
+          python scripts/question_trust_labels_contract.py
           cat monthly_patch_parts/*.part >/tmp/monthly_patch.js
           node --check /tmp/monthly_patch.js
           git diff --check
