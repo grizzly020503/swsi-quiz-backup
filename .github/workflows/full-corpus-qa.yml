@@ -11,8 +11,11 @@ on:
       - 'scripts/full_corpus_qa.py'
       - 'scripts/unified_question_qa.py'
       - 'scripts/unified_question_qa_selftest.py'
+      - 'scripts/official_exam_readonly_guard.py'
       - 'data/question_qa_policy_v1.json'
+      - 'data/official_exam_readonly.lock.json'
       - 'cdn/question-shards/**'
+      - 'index.html'
       - 'auto/essays_auto.json'
 
 permissions:
@@ -41,9 +44,13 @@ jobs:
           python -m py_compile scripts/full_corpus_qa.py
           python -m py_compile scripts/unified_question_qa.py
           python -m py_compile scripts/unified_question_qa_selftest.py
+          python -m py_compile scripts/official_exam_readonly_guard.py
 
       - name: Run existing unified QA synthetic invariants
         run: python scripts/unified_question_qa_selftest.py
+
+      - name: Verify immutable Official Core baseline
+        run: python scripts/official_exam_readonly_guard.py
 
       - name: Audit all manifest sessions
         run: |
@@ -64,6 +71,8 @@ jobs:
               '',
               f"- dataset revision: `{report.get('dataset_revision')}`",
               f"- audited sessions: **{report['audited_sessions']} / {report['manifest_shard_count']}**",
+              f"- MCQ audited: **{s['total_mcq']}**",
+              f"- essays audited: **{s['total_essays']}** (canonical source: {report['canonical_essay_source_count']})",
               f"- total audited items: **{s['total_items']}**",
               f"- official blocked: **{s['official_blocked']}**",
               f"- manual/enrichment review queue signals: **{s['manual_review_queue_count']}**",
