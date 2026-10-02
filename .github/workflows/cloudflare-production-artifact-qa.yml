@@ -6,6 +6,10 @@ on:
       - 'cdn/index.html'
       - 'cdn/monthly_patch.js'
       - 'cdn/sw.js'
+      - 'cdn/_headers'
+      - 'cdn/question-shards/**'
+      - 'cloudflare/wandering-wave-4418/worker.js'
+      - 'wrangler.jsonc'
       - 'scripts/cloudflare_release_artifact_smoke.py'
       - 'scripts/cloudflare_production_http_smoke.py'
       - '.github/workflows/cloudflare-production-artifact-qa.yml'
@@ -16,6 +20,10 @@ on:
       - 'cdn/index.html'
       - 'cdn/monthly_patch.js'
       - 'cdn/sw.js'
+      - 'cdn/_headers'
+      - 'cdn/question-shards/**'
+      - 'cloudflare/wandering-wave-4418/worker.js'
+      - 'wrangler.jsonc'
       - 'scripts/cloudflare_release_artifact_smoke.py'
       - 'scripts/cloudflare_production_http_smoke.py'
       - '.github/workflows/cloudflare-production-artifact-qa.yml'
@@ -55,11 +63,18 @@ jobs:
             exit 0
           fi
           git fetch origin "$GITHUB_BASE_REF"
-          if git diff --quiet "origin/$GITHUB_BASE_REF...HEAD" -- cdn/index.html cdn/monthly_patch.js cdn/sw.js; then
+          if git diff --quiet "origin/$GITHUB_BASE_REF...HEAD" -- \
+            cdn/index.html \
+            cdn/monthly_patch.js \
+            cdn/sw.js \
+            cdn/_headers \
+            cdn/question-shards \
+            cloudflare/wandering-wave-4418/worker.js \
+            wrangler.jsonc; then
             echo 'run=true' >> "$GITHUB_OUTPUT"
           else
             echo 'run=false' >> "$GITHUB_OUTPUT"
-            echo 'Skipping live parity before a production-artifact PR is merged.'
+            echo 'Skipping live parity before deployment-sensitive Cloudflare changes are merged.'
           fi
       - name: Verify hosted Cloudflare production parity
         if: steps.live.outputs.run == 'true'
