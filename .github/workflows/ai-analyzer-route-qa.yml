@@ -1,0 +1,36 @@
+name: AI Analyzer Route QA
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/analyze-pending-questions/index.ts'
+      - 'scripts/analyzer_proxy_route_smoke.py'
+      - '.github/workflows/ai-analyzer-route-qa.yml'
+      - '.github/workflows/prepare-cloudflare-soft-launch-artifact.yml'
+      - '.github/workflows/cloudflare-public-candidate.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/functions/analyze-pending-questions/index.ts'
+      - 'scripts/analyzer_proxy_route_smoke.py'
+      - '.github/workflows/ai-analyzer-route-qa.yml'
+      - '.github/workflows/prepare-cloudflare-soft-launch-artifact.yml'
+      - '.github/workflows/cloudflare-public-candidate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  route-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Verify canonical AI analyzer route
+        run: |
+          python -m py_compile scripts/analyzer_proxy_route_smoke.py
+          python scripts/analyzer_proxy_route_smoke.py
