@@ -1,0 +1,76 @@
+name: Source Provenance MOJ Shadow QA
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/moj_law_watch_shadow_observation.py'
+      - 'scripts/source_observation_contract.py'
+      - 'scripts/source_observation_contract_selftest.py'
+      - 'scripts/moj_law_watch.py'
+      - 'data/legal_watch_report.json'
+      - 'docs/SOURCE_PROVENANCE_MOJ_SHADOW_20261002.md'
+      - '.github/workflows/source-provenance-moj-shadow-qa.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: source-provenance-moj-shadow-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  shadow:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install existing legal-watch dependency
+        run: python -m pip install --disable-pip-version-check requests
+
+      - name: Shared source contract regressions
+        run: |
+          python3 scripts/source_observation_contract.py --self-test
+          python3 scripts/source_observation_contract_selftest.py
+          python3 scripts/moj_law_watch_shadow_observation.py --self-test
+
+      - name: Live read-only MOJ shadow observation twice
+        run: |
+          rm -f /tmp/swsi_moj_shadow_state.json /tmp/swsi_moj_shadow_observation_1.json /tmp/swsi_moj_shadow_observation_2.json
+          python3 scripts/moj_law_watch_shadow_observation.py \
+            --state /tmp/swsi_moj_shadow_state.json \
+            --output /tmp/swsi_moj_shadow_observation_1.json \
+            --timeout 20
+          python3 scripts/moj_law_watch_shadow_observation.py \
+            --state /tmp/swsi_moj_shadow_state.json \
+            --output /tmp/swsi_moj_shadow_observation_2.json \
+            --timeout 20
+
+      - name: Verify live shadow evidence and no replacement on no-change
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          one = json.loads(Path('/tmp/swsi_moj_shadow_observation_1.json').read_text())
+          two = json.loads(Path('/tmp/swsi_moj_shadow_observation_2.json').read_text())
+          assert one['source']['canonical_url'].startswith('https://law.moj.gov.tw/LawClass/LawAll.aspx?')
+          assert one['observation']['outcome'] == 'success_changed'
+          assert two['observation']['outcome'] == 'success_no_change'
+          assert len(one['observation']['raw_content_hash']) == 64
+          assert len(one['observation']['normalized_content_hash']) == 64
+          assert one['observation']['normalized_content_hash'] == two['observation']['normalized_content_hash']
+          assert two['observation']['replacement_allowed'] is False
+          assert two['adapter']['official_legal_watch_state_mutation'] is False
+          assert two['adapter']['official_legal_watch_report_mutation'] is False
+          assert two['adapter']['official_core_mutation'] is False
+          assert two['adapter']['production_publish_allowed'] is False
+          print('source=', two['source']['name'])
+          print('outcomes=', one['observation']['outcome'], '->', two['observation']['outcome'])
+          print('item_count=', two['observation']['item_count'])
+          print('redirect_count=', two['adapter']['redirect_count'])
+          print('raw_hash=', one['observation']['raw_content_hash'])
+          PY
