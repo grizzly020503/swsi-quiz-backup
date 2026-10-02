@@ -12,17 +12,22 @@ assert "function addQuestionTrust(exp,item)" in LOCK
 assert "swsi-answer-trust" in LOCK
 assert "資料可信度" in LOCK
 
-# Official Core and SWSI enrichment must be visibly distinct.
+# Official exam data and SWSI enrichment must stay visibly distinct in student language.
 assert "官方題目／答案" in LOCK
-assert "平台解析・QA 已通過" in LOCK
-assert "題幹、選項、官方答案與特殊給分屬 Official Core" in LOCK
-assert "SWSI 平台解析與延伸內容另外標示" in LOCK
+assert "平台解析・已通過基本檢查" in LOCK
+assert "題目、選項、官方答案與特殊給分以考選部資料為準" in LOCK
+assert "SWSI 另外整理解析與延伸內容" in LOCK
 
-# `ready` is not human verification. This wording is an explicit trust boundary.
-assert "ready 代表解析已通過目前的自動／結構 QA，不等於逐題人工核驗" in LOCK
+# `ready` is not human verification. Keep the boundary without exposing QA jargon.
+assert "這份解析已通過目前的自動與結構檢查，不等於逐題人工核對" in LOCK
 assert "不是考選部官方解析" in LOCK
 assert "平台解析・待複核" in LOCK
 assert "平台解析・處理中" in LOCK
+
+# Student-visible trust copy must not require understanding maintainer vocabulary.
+assert "平台解析・QA 已通過" not in LOCK
+assert "屬 Official Core" not in LOCK
+assert "歷屆題 Official Core" not in LOCK
 
 # Legal labels reuse the existing database contract and never overclaim historical validity.
 for status in ("verified_current", "changed", "unreviewed", "not_applicable"):
@@ -63,7 +68,7 @@ assert seen_ready, "no ready analysis status found in corpus"
 assert seen_official, "no official source metadata found in corpus"
 assert "not_applicable" in seen_legal, "legal_status contract missing from corpus"
 
-# Never introduce a positive claim that collapses platform QA into official/human verification.
+# Never introduce a positive claim that collapses platform checks into official/human verification.
 # The required negative sentence "不是考選部官方解析" must remain allowed.
 for forbidden in (
     "平台解析・人工已驗證",
@@ -75,4 +80,4 @@ for forbidden in (
 ):
     assert forbidden not in LOCK, f"misleading trust wording found: {forbidden}"
 
-print("QUESTION TRUST LABELS CONTRACT OK: official core, platform QA, and legal review states stay visibly distinct")
+print("QUESTION TRUST LABELS CONTRACT OK: official data, platform checks, and legal review states stay distinct in plain student language")
