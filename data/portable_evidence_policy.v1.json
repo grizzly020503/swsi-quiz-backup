@@ -1,0 +1,74 @@
+{
+  "private_exclude_globs": [
+    ".env",
+    ".env.*",
+    "**/.env",
+    "**/.env.*",
+    "**/*.key",
+    "**/*.pem",
+    "**/private-data/**",
+    "backups/private/**",
+    "exports/private/**",
+    "private/**"
+  ],
+  "private_external": [
+    {
+      "name": "auth_users",
+      "payload_must_not_be_in_repo": true,
+      "retention": "separate_privacy_policy"
+    },
+    {
+      "name": "encrypted_private_backups",
+      "payload_must_not_be_in_repo": true,
+      "retention": "external_backup_policy"
+    },
+    {
+      "name": "feedback_contact_data",
+      "payload_must_not_be_in_repo": true,
+      "retention": "separate_privacy_policy"
+    },
+    {
+      "name": "supabase_private_rows",
+      "payload_must_not_be_in_repo": true,
+      "retention": "separate_privacy_policy"
+    }
+  ],
+  "schema_version": 1,
+  "storage_classes": {
+    "long_term_public_knowledge": {
+      "retention": "versioned_no_arbitrary_expiry",
+      "rules": [
+        {"pattern": "cdn/question-shards/*.json", "provider_independent": true, "required": true},
+        {"pattern": "data/laws.canonical.json", "provider_independent": true, "required": true},
+        {"pattern": "data/theories.canonical.json", "provider_independent": true, "required": true},
+        {"pattern": "data/current_affairs_sources.json", "provider_independent": true, "required": true},
+        {"pattern": "data/historical_law_verified_priority10.v1.json", "provider_independent": true, "required": true},
+        {"pattern": "auto/current_affairs_trends.json", "provider_independent": true, "required": true},
+        {"pattern": "auto/essays_auto.json", "provider_independent": true, "required": true}
+      ]
+    },
+    "rebuild_contract": {
+      "retention": "versioned_no_arbitrary_expiry",
+      "rules": [
+        {"pattern": "supabase/migrations/*.sql", "provider_independent": true, "required": true},
+        {"pattern": "supabase/functions/**/*.ts", "provider_independent": false, "required": true},
+        {"pattern": "cloudflare/wandering-wave-4418/worker.js", "provider_independent": false, "required": true},
+        {"pattern": "wrangler.jsonc", "provider_independent": false, "required": true},
+        {"pattern": ".github/workflows/*.yml", "provider_independent": false, "required": true},
+        {"pattern": "scripts/*.py", "provider_independent": true, "required": true},
+        {"pattern": "AGENTS.md", "provider_independent": true, "required": true},
+        {"pattern": "AI_PROJECT_CONTEXT.md", "provider_independent": true, "required": true},
+        {"pattern": "PROJECT_HANDOFF.md", "provider_independent": true, "required": true},
+        {"pattern": "ZERO_COST_OPERATIONS.md", "provider_independent": true, "required": true}
+      ]
+    },
+    "short_term_diagnostic": {
+      "retention": "explicit_short_retention_not_source_of_truth",
+      "rules": [
+        {"pattern": "tmp/**/*", "provider_independent": true, "required": false},
+        {"pattern": "artifacts/**/*", "provider_independent": true, "required": false},
+        {"pattern": "reports/tmp/**/*", "provider_independent": true, "required": false}
+      ]
+    }
+  }
+}

@@ -1,0 +1,43 @@
+name: Portable Evidence Manifest QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/portable-evidence-manifest-qa.yml'
+      - 'data/portable_evidence_policy.v1.json'
+      - 'docs/PORTABLE_EVIDENCE_MANIFEST_20261002.md'
+      - 'scripts/portable_evidence_manifest.py'
+      - 'scripts/portable_evidence_manifest_selftest.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portable-evidence-manifest-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  manifest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Zero-network policy regression
+        run: python3 scripts/portable_evidence_manifest_selftest.py
+      - name: Build exact-checkout deterministic manifest
+        run: |
+          python3 scripts/portable_evidence_manifest.py --check-determinism --output /tmp/swsi_portable_manifest.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('/tmp/swsi_portable_manifest.json').read_text())
+          assert data['schema_version']==1
+          assert data['entry_count']==len(data['entries'])
+          assert data['class_counts']['long_term_public_knowledge']>0
+          assert data['class_counts']['rebuild_contract']>0
+          assert all(set(row)=={'path','size','sha256','storage_class','required','provider_independent','retention'} for row in data['entries'])
+          assert all(row['payload_must_not_be_in_repo'] is True for row in data['private_external'])
+          print('entry_count=',data['entry_count'])
+          print('class_counts=',data['class_counts'])
+          print('private_external_contracts=',len(data['private_external']))
+          PY
