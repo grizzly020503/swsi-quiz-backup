@@ -23,10 +23,10 @@ due_pos = LOOP.index("if(rv.dueCount)action=")
 focus_pos = LOOP.index("else if(focusTopic)action=")
 assert due_pos < focus_pos, "due review must remain higher priority than repeated-topic recommendation"
 
-# Reuse the existing Knowledge Path rather than creating a parallel curriculum store.
-assert "window.swsiOpenTopicMaterial=function(topic)" in LOOP
-assert "window.swsiKnowledgeSearch" in LOOP
+# Reuse the already-owned Knowledge Path global directly; do not grow another window API.
 assert "window.swsiKnowledgeSearch=function(q)" in KNOW
+assert "swsiKnowledgeSearch(\\''+H(focusTopic[0])+'\\')" in LOOP
+assert "swsiOpenTopicMaterial" not in LOOP
 assert "先看相關教材" in LOOP
 
 # The loop must end in a bounded same-topic retest, not an open-ended adaptive run.
@@ -38,4 +38,4 @@ assert "swsiPracticeTopic(\\''+H(x[0])+'\\',5)" in LOOP
 for forbidden in ("fetch(", "supabase", "service_role", "openai", "anthropic", "gemini"):
     assert forbidden not in LOOP.lower(), f"unexpected authority in local learning loop: {forbidden}"
 
-print("LEARNING LOOP CLOSED CONTRACT OK: repeated-topic evidence -> existing knowledge path -> five-question retest; due review remains first")
+print("LEARNING LOOP CLOSED CONTRACT OK: repeated-topic evidence -> existing knowledge path -> five-question retest; due review remains first; no new window global")
