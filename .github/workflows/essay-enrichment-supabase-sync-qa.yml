@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'data/essay_enrichment.json'
+      - 'scripts/build_auto_payload.py'
+      - 'scripts/health_check.py'
+      - 'scripts/health_check_v2.py'
       - 'scripts/essay_enrichment_supabase_sync_smoke.py'
       - 'supabase/functions/sync-essay-enrichment/index.ts'
       - 'supabase/recovery/edge_functions.json'
@@ -14,6 +17,9 @@ on:
       - main
     paths:
       - 'data/essay_enrichment.json'
+      - 'scripts/build_auto_payload.py'
+      - 'scripts/health_check.py'
+      - 'scripts/health_check_v2.py'
       - 'scripts/essay_enrichment_supabase_sync_smoke.py'
       - 'supabase/functions/sync-essay-enrichment/index.ts'
       - 'supabase/recovery/edge_functions.json'
@@ -43,7 +49,30 @@ jobs:
       - name: Verify fail-closed sync contract
         run: |
           set -euo pipefail
-          python -m py_compile scripts/essay_enrichment_supabase_sync_smoke.py
+          python -m py_compile \
+            scripts/health_check.py \
+            scripts/health_check_v2.py \
+            scripts/essay_enrichment_supabase_sync_smoke.py
           python scripts/essay_enrichment_supabase_sync_smoke.py
           deno check supabase/functions/sync-essay-enrichment/index.ts
-          git diff --check
+
+      - name: Verify local health understands the enrichment overlay
+        run: |
+          set -euo pipefail
+          python scripts/build_auto_payload.py
+          python scripts/health_check_v2.py --local
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('auto/health.json').read_text(encoding='utf-8'))
+          overlay=json.loads(Path('data/essay_enrichment.json').read_text(encoding='utf-8'))
+          expected=len(overlay.get('records') or [])
+          if report.get('essay_enrichment_count') != expected:
+              raise SystemExit(
+                  f"health report enrichment count mismatch: {report.get('essay_enrichment_count')} != {expected}"
+              )
+          print(f'ESSAY OVERLAY HEALTH CONTRACT OK: enrichment={expected}')
+          PY
+
+      - name: Diff hygiene
+        run: git diff --check
