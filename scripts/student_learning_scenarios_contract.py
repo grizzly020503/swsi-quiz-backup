@@ -20,12 +20,12 @@ required = {
 }
 
 for key, (label, action) in required.items():
-    marker = f'data-swsi-scenario=\\"{key}\\"'
+    marker = f'data-swsi-scenario="{key}"'
     assert marker in hub, f"missing scenario marker: {key}"
     assert label in hub, f"missing student-facing scenario label: {label}"
     assert action in hub, f"scenario {key} is not mapped to the expected existing action"
 
-markers = re.findall(r'data-swsi-scenario=\\"([^\\"]+)\\"', hub)
+markers = re.findall(r'data-swsi-scenario="([^"]+)"', hub)
 assert markers == ["short", "weak", "mock", "essay", "review"], (
     f"scenario set/order drifted: {markers}"
 )
