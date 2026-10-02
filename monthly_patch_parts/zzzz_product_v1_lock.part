@@ -26,6 +26,9 @@
       .swsi-essay-action-card .choose{border:1px solid var(--line);background:#fff;color:var(--pine-deep);}
 
       .swsi-answer-line{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);line-height:1.55;color:var(--pine-deep);font-weight:800;background:#F1F6F4;border:1px solid #D8E5DF;border-radius:10px;padding:8px 10px;margin:0 0 13px;}
+      .swsi-core-reason{margin:0 0 13px;padding:10px 11px;border-left:3px solid var(--pine);background:#F8FAF9;border-radius:0 10px 10px 0;font-family:'Noto Sans TC',sans-serif;color:#343C38;line-height:1.7;}
+      .swsi-core-reason b{display:block;font-size:10.5px;letter-spacing:.04em;color:var(--pine);margin-bottom:2px;}
+      .swsi-core-reason span{display:block;font-size:13px;font-weight:650;}
       .swsi-explanation-more{margin:12px 0 3px;border:1px solid var(--line);border-radius:11px;background:#FBFCFB;overflow:hidden;}
       .swsi-explanation-more summary{list-style:none;cursor:pointer;min-height:43px;padding:9px 11px;display:flex;align-items:center;font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:800;color:var(--pine-deep);}
       .swsi-explanation-more summary::-webkit-details-marker{display:none;}
@@ -147,37 +150,87 @@
     f.innerHTML='<div>© 2026 SWSI · 免費公開學習工具</div><div class="sub">社工師國考題目以考選部官方資料為準</div>';
   }
 
+  function conciseExplanation(text){
+    var s=String(text||'').replace(/\s+/g,' ').trim();
+    if(!s) return '';
+    var m=s.match(/^(.{1,120}?[。！？!?])(?:\s|$|.)/);
+    if(m&&m[1]) return m[1].trim();
+    return s.length>105?s.slice(0,105).trim()+'…':s;
+  }
+
+  function directChild(exp,selector){
+    for(var i=0;i<exp.children.length;i++){
+      var el=exp.children[i];
+      if(el.matches&&el.matches(selector)) return el;
+    }
+    return null;
+  }
+
   function collapseExplanation(){
     var exp=document.querySelector('#app .qcard .exp');
-    if(!exp||exp.dataset.swsiCompact==='1') return;
-    exp.dataset.swsiCompact='1';
+    if(!exp) return;
 
-    var item=null;
-    try{ item=queue&&queue[idx]; }catch(_e){}
-    var topic=exp.querySelector('.topic');
-    if(item&&!exp.querySelector('.swsi-answer-line')){
-      var line=document.createElement('div');
-      line.className='swsi-answer-line';
-      line.textContent=typeof answerLabel==='function'?answerLabel(item):('答案：'+(item.answer||'—'));
-      if(topic) topic.insertAdjacentElement('afterend',line); else exp.insertBefore(line,exp.firstChild);
+    if(exp.dataset.swsiCompact!=='1'){
+      exp.dataset.swsiCompact='1';
+
+      var item=null;
+      try{ item=queue&&queue[idx]; }catch(_e){}
+      var topic=exp.querySelector('.topic');
+      if(item&&!exp.querySelector('.swsi-answer-line')){
+        var line=document.createElement('div');
+        line.className='swsi-answer-line';
+        line.textContent=typeof answerLabel==='function'?answerLabel(item):('答案：'+(item.answer||'—'));
+        if(topic) topic.insertAdjacentElement('afterend',line); else exp.insertBefore(line,exp.firstChild);
+      }
+
+      var secs=Array.prototype.filter.call(exp.children,function(el){return el.matches&&el.matches('.exp-sec');});
+      var primary=null;
+      for(var i=0;i<secs.length;i++){
+        var h=secs[i].querySelector('h4');
+        if(h&&/為什麼對/.test((h.textContent||'').trim())){primary=secs[i];break;}
+      }
+      if(!primary){
+        for(var j=0;j<secs.length;j++){
+          if(!secs[j].querySelector('h4')){primary=secs[j];break;}
+        }
+      }
+      var source=primary&&(primary.querySelector('p')||primary);
+      var summary=conciseExplanation(source&&source.textContent);
+      if(summary&&!exp.querySelector(':scope > .swsi-core-reason')){
+        var core=document.createElement('div');
+        core.className='swsi-core-reason';
+        var coreLabel=document.createElement('b');
+        coreLabel.textContent='一句核心原因';
+        var coreText=document.createElement('span');
+        coreText.textContent=summary;
+        core.appendChild(coreLabel); core.appendChild(coreText);
+        var answerLine=directChild(exp,'.swsi-answer-line');
+        if(answerLine&&answerLine.nextSibling) exp.insertBefore(core,answerLine.nextSibling);
+        else if(answerLine) exp.appendChild(core);
+        else exp.insertBefore(core,exp.firstChild);
+      }
+
+      var hidden=secs.slice();
+      exp.querySelectorAll(':scope > .extra').forEach(function(x){hidden.push(x);});
+      if(hidden.length){
+        var details=document.createElement('details');
+        details.className='swsi-explanation-more';
+        details.innerHTML='<summary>看完整解析</summary><div class="body"></div>';
+        var body=details.querySelector('.body');
+        hidden.forEach(function(x){body.appendChild(x);});
+        var next=directChild(exp,'.btn');
+        if(next) exp.insertBefore(details,next); else exp.appendChild(details);
+      }
     }
 
-    var hidden=[];
-    exp.querySelectorAll(':scope > .exp-sec').forEach(function(sec){
-      var h=sec.querySelector('h4');
-      var label=(h&&h.textContent||'').trim();
-      if(/其他選項|考場陷阱/.test(label)) hidden.push(sec);
-    });
-    exp.querySelectorAll(':scope > .extra').forEach(function(x){hidden.push(x);});
-    if(!hidden.length) return;
-
-    var details=document.createElement('details');
-    details.className='swsi-explanation-more';
-    details.innerHTML='<summary>看完整解析</summary><div class="body"></div>';
-    var body=details.querySelector('.body');
-    hidden.forEach(function(x){body.appendChild(x);});
-    var next=exp.querySelector(':scope > .btn');
-    if(next) exp.insertBefore(details,next); else exp.appendChild(details);
+    /* Learning Loop adds the student's own reflection asynchronously. Keep that
+       personal learning signal visible in layer 1, before optional full notes. */
+    var detailsNow=directChild(exp,'.swsi-explanation-more');
+    var cause=directChild(exp,'.swsi-self-cause');
+    if(detailsNow&&cause){
+      var pos=detailsNow.compareDocumentPosition(cause);
+      if(pos&Node.DOCUMENT_POSITION_FOLLOWING) exp.insertBefore(cause,detailsNow);
+    }
   }
 
   function enhance(){
