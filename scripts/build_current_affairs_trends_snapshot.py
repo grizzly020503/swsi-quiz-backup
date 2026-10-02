@@ -208,6 +208,11 @@ def trend_for(event: dict, generated_at: str) -> dict:
         "first_seen": event.get("first_seen"),
         "last_seen": event.get("last_seen"),
         "related_laws": event.get("related_laws") or [],
+        "related_policy_instruments": event.get("related_policy_instruments") or [],
+        "law_link_status": event.get("law_link_status"),
+        "law_link_note": event.get("law_link_note"),
+        "law_link_basis": event.get("law_link_basis") or [],
+        "law_link_rules_schema": event.get("law_link_rules_schema"),
         "historical_question_count": hist_count,
         "historical_weighted_match_count": round(weighted_hist_count, 2),
         "historical_match_breakdown": {

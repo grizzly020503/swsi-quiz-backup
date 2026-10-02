@@ -13,7 +13,18 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from analyze_current_affairs_signals import load_questions_csv, analyze_item
+from analyze_current_affairs_signals import (
+    analyze_item,
+    build_exam_point_summary,
+    confidence_for,
+    essay_direction_for,
+    historical_exam_stats,
+    load_questions_csv,
+    match_questions,
+    mcq_focus_for,
+    text_of,
+)
+from current_affairs_law_links import infer_current_affairs_links
 
 
 def confidence_score(value: str) -> int:
@@ -43,6 +54,46 @@ def load_questions_shards(path: Path) -> list[dict]:
     return rows
 
 
+def analyze_item_with_law_links(row: dict, questions: list[dict], max_related: int = 5) -> dict:
+    """Apply the base analyzer, then the stricter law/policy linkage layer.
+
+    When a high-confidence inferred law is added, recompute historical matching
+    and student-facing summaries with that law. ``match_questions`` still
+    requires event-supported topic evidence, so a shared law alone cannot pull
+    unrelated historical questions into the event.
+    """
+    out = analyze_item(row, questions, max_related=max_related)
+    linkage = infer_current_affairs_links(out)
+    old_laws = [str(x) for x in (out.get("related_laws") or []) if str(x)]
+    laws = [str(x) for x in (linkage.get("related_laws") or []) if str(x)]
+
+    if laws != old_laws:
+        all_related = match_questions(
+            out,
+            laws,
+            questions,
+            max_hits=max(1, len(questions)) if questions else 1,
+        )
+        policy = str(out.get("policy_signal") or "low")
+        essay = str(out.get("essay_value") or "low")
+        mcq = str(out.get("mcq_fact_density") or "low")
+        text = text_of(out)
+        out.update(
+            {
+                "related_laws": laws,
+                "related_exam_questions": all_related[: max(1, max_related)],
+                "historical_exam_stats": historical_exam_stats(all_related, questions, laws),
+                "exam_point_summary": build_exam_point_summary(out, laws, policy, essay, mcq),
+                "essay_direction": essay_direction_for(out, laws),
+                "mcq_focus": mcq_focus_for(out, text, laws),
+                "signal_confidence": confidence_for(policy, essay, mcq, laws, len(all_related)),
+            }
+        )
+
+    out.update(linkage)
+    return out
+
+
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
     ap = argparse.ArgumentParser()
@@ -68,7 +119,7 @@ def main() -> int:
 
     questions = load_questions_shards(q_path) if q_path.exists() else load_questions_csv(csv_path)
     analyzed = [
-        analyze_item(row, questions, max_related=5)
+        analyze_item_with_law_links(row, questions, max_related=5)
         for row in items
         if isinstance(row, dict)
     ]
@@ -124,6 +175,11 @@ def main() -> int:
                 "essay_direction": row.get("essay_direction"),
                 "mcq_focus": row.get("mcq_focus") or [],
                 "related_laws": row.get("related_laws") or [],
+                "related_policy_instruments": row.get("related_policy_instruments") or [],
+                "law_link_status": row.get("law_link_status"),
+                "law_link_note": row.get("law_link_note"),
+                "law_link_basis": row.get("law_link_basis") or [],
+                "law_link_rules_schema": row.get("law_link_rules_schema"),
                 "related_exam_questions": row.get("related_exam_questions") or [],
                 "historical_exam_stats": row.get("historical_exam_stats") or {},
             }
@@ -135,7 +191,11 @@ def main() -> int:
         "item_count": len(public_items),
         "questions_loaded": len(questions),
         "question_source": "cdn/question-shards" if q_path.exists() else "csv",
-        "note": "SWSI 命題訊號快照；用於複習方向，不代表命題保證。",
+        "law_link_rules_schema": 1,
+        "note": (
+            "SWSI 命題訊號快照；用於複習方向，不代表命題保證。"
+            "法規連結可由高精度規則推論；相關法規不等於本事件發生修法。"
+        ),
         "items": public_items,
     }
 
