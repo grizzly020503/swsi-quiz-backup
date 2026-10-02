@@ -11,14 +11,6 @@ on:
       - 'scripts/ops_task_watchdog.py'
       - 'scripts/ops_task_watchdog_selftest.py'
       - 'data/ops_task_registry.v1.json'
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/ops-task-watchdog.yml'
-      - 'scripts/ops_task_watchdog.py'
-      - 'scripts/ops_task_watchdog_selftest.py'
-      - 'data/ops_task_registry.v1.json'
 
 permissions:
   contents: read
