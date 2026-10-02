@@ -102,9 +102,10 @@ jobs:
           PY
 
       - name: Upload diagnostic report
-        if: always() && hashFiles('/tmp/ops-task-health.json') != ''
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ops-task-health
           path: /tmp/ops-task-health.json
+          if-no-files-found: ignore
           retention-days: 14
