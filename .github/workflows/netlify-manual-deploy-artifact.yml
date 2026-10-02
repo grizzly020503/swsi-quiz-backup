@@ -67,7 +67,7 @@ jobs:
           test -f _site/auto/current_affairs_trends.json
           test -d _site/icons
           grep -q 'swsi-netlify-release" content="2026-09-26-history-v2.2' _site/index.html
-          grep -q '命題趨勢雷達' _site/index.html
+          grep -q '目前 3 個國考重點' _site/index.html
           grep -q "const VERSION = 'v7'" _site/sw.js
           node --check _site/monthly_patch.js
 
