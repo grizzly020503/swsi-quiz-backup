@@ -6,8 +6,8 @@ This layer intentionally separates:
 - programmes / subsidy schemes / policy measures (``related_policy_instruments``).
 
 A matched statute means "this event is materially governed by / connected to this
-statutory framework".  It MUST NOT be interpreted as evidence that the statute
-was amended.  Rules live in a versioned JSON file and carry positive + negative
+statutory framework". It MUST NOT be interpreted as evidence that the statute
+was amended. Rules live in a versioned JSON file and carry positive + negative
 regression examples so broad category labels cannot silently create law links.
 """
 from __future__ import annotations
@@ -19,10 +19,37 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RULES = ROOT / "data" / "current_affairs_law_link_rules.v1.json"
+NEGATION_MARKERS = (
+    "未涉及", "不涉及", "並未涉及", "沒有涉及",
+    "未提及", "不提及", "未包含", "不包含", "無關於",
+)
 
 
 def _text_of(row: dict) -> str:
     return f"{row.get('title') or ''} {row.get('summary') or ''}".strip()
+
+
+def _term_is_affirmed(text: str, term: str) -> bool:
+    """Return True only when at least one occurrence is not locally negated.
+
+    This is intentionally small and conservative; it is not a general Chinese
+    parser. It only prevents obvious false positives such as
+    ``未涉及雇主或職場托兒措施`` or ``不涉及補助方案`` from satisfying a
+    deterministic positive rule.
+    """
+    text = str(text or "")
+    term = str(term or "")
+    if not term:
+        return False
+    start = 0
+    while True:
+        pos = text.find(term, start)
+        if pos < 0:
+            return False
+        prefix = text[max(0, pos - 18):pos]
+        if not any(marker in prefix for marker in NEGATION_MARKERS):
+            return True
+        start = pos + max(1, len(term))
 
 
 def _matches(text: str, rule: dict) -> bool:
@@ -32,11 +59,11 @@ def _matches(text: str, rule: dict) -> bool:
     required_all = [str(x) for x in (rule.get("required_all") or []) if str(x)]
     forbidden_any = [str(x) for x in (rule.get("forbidden_any") or []) if str(x)]
 
-    if required_any and not any(term in text for term in required_any):
+    if required_any and not any(_term_is_affirmed(text, term) for term in required_any):
         return False
-    if context_any and not any(term in text for term in context_any):
+    if context_any and not any(_term_is_affirmed(text, term) for term in context_any):
         return False
-    if required_all and not all(term in text for term in required_all):
+    if required_all and not all(_term_is_affirmed(text, term) for term in required_all):
         return False
     if forbidden_any and any(term in text for term in forbidden_any):
         return False
@@ -151,19 +178,13 @@ def infer_current_affairs_links(row: dict, rules_path: Path | None = None) -> di
 
     if laws:
         status = "law_linked"
-        note = (
-            "已連到具體法律；規則僅表示制度關聯，不代表該法律因本事件而修正。"
-        )
+        note = "已連到具體法律；規則僅表示制度關聯，不代表該法律因本事件而修正。"
     elif instruments:
         status = "policy_instrument_only"
-        note = (
-            "已辨識補助方案／政策措施，但未自動推定單一法律法源，避免把政策方案誤寫成修法。"
-        )
+        note = "已辨識補助方案／政策措施，但未自動推定單一法律法源，避免把政策方案誤寫成修法。"
     else:
         status = "unresolved"
-        note = (
-            "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
-        )
+        note = "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
 
     return {
         "related_laws": laws,
@@ -177,8 +198,7 @@ def infer_current_affairs_links(row: dict, rules_path: Path | None = None) -> di
 
 def self_test() -> None:
     rules = load_rules()
-    # Loading already executes every rule's positive + negative examples.
-    # These cross-rule checks guard the most important false-positive boundary.
+
     public_childcare = {
         "title": "地方政府新增公共托育據點",
         "summary": "增加社區托育名額，未涉及雇主或職場托兒措施。",
@@ -205,6 +225,16 @@ def self_test() -> None:
     out = infer_current_affairs_links(wage)
     if "最低工資法" not in out["related_laws"]:
         raise SystemExit("minimum-wage statutory link missing")
+
+    negated_subsidy = {
+        "title": "住宿式機構評鑑結果公布",
+        "summary": "本次內容未涉及補助方案，只討論照顧品質與評鑑。",
+        "related_laws": [],
+    }
+    out = infer_current_affairs_links(negated_subsidy)
+    names = {str(x.get("name") or "") for x in out.get("related_policy_instruments") or []}
+    if "住宿式服務機構使用者補助方案" in names:
+        raise SystemExit("negated residential subsidy falsely linked as policy instrument")
 
     if not rules.get("law_rules") or not rules.get("policy_instrument_rules"):
         raise SystemExit("law-link rule registry unexpectedly empty")
