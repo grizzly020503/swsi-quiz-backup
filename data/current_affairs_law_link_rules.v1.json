@@ -87,6 +87,7 @@
       "confidence": "high",
       "required_any": ["住宿式服務機構", "住宿式機構"],
       "required_context_any": ["補助", "每月最高", "每年最高", "18萬元", "1萬5,000元", "15000元"],
+      "forbidden_any": ["未涉及補助", "不涉及補助"],
       "reason": "事件直接描述住宿式服務機構使用者補助方案的額度、資格或申請。",
       "authoritative_reference": "https://1966.gov.tw/LTC/cp-6457-69925-207.html",
       "positive_examples": [
