@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "purpose": "Deterministic student-facing current-affairs quality audit. Hard errors protect structural/evidence contracts; semantic review flags never auto-attach laws, delete relations, or promote trend claims.",
+  "source_snapshot_schema_version": 1,
+  "hard_requirements": {
+    "primary_subject_min": 1,
+    "primary_subject_max": 2,
+    "primary_subject_requires_topic": true,
+    "primary_supporting_must_be_disjoint": true,
+    "subject_axes_must_cover_primary_and_supporting": true,
+    "official_source_count_must_not_exceed_source_count": true,
+    "evidence_required": true,
+    "evidence_requires_source_name_and_url": true,
+    "related_exam_question_requires_id_and_reason": true,
+    "student_card_requires_why": true,
+    "student_card_requires_practice_direction": true
+  },
+  "review_only_rules": {
+    "single_source": true,
+    "single_source_sustained_or_rising": true,
+    "historical_relation_without_strong_match": true,
+    "broad_relation_without_strong_threshold": 8,
+    "declared_source_count_mismatch": true,
+    "declared_historical_count_mismatch": true,
+    "law_context_without_related_laws": true
+  },
+  "law_context_tokens": [
+    "法 >",
+    "法規",
+    "條例",
+    "公約",
+    "施行法"
+  ],
+  "presentation_tiers": {
+    "strong_historical_support": "At least one strong historical match. This still does not mean exam prediction.",
+    "medium_historical_relation": "No strong match, but at least one medium historical relation. Present as related review evidence, not a strong trend claim.",
+    "concept_observation": "Only concept-level or no historical relation. Present as event/professional observation, not a supported exam trend."
+  },
+  "non_goals": [
+    "Do not infer or attach a law from keywords alone.",
+    "Do not remove a historical relation automatically because it lacks a strong match.",
+    "Do not convert source count or trend score into an exam probability.",
+    "Do not modify Official Core, source allowlists, production data, or student UI from this audit."
+  ]
+}
