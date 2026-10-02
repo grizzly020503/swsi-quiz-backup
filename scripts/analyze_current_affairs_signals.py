@@ -179,6 +179,20 @@ HISTORICAL_CONCEPTS = {
     },
 }
 
+# A specific concept can be central to an exam point even when the normalized
+# topic uses a broader professional label. These hints are deliberately narrow:
+# they upgrade scenario-text evidence only when structured major/topic metadata
+# independently places the question in the same service/policy domain.
+HISTORICAL_CONCEPT_STRUCTURED_HINTS = {
+    "elderly_living_alone": [
+        "社區照顧", "老人福利", "老人服務", "高齡服務", "長期照顧", "長照",
+    ],
+    "childcare": [
+        "兒少福利", "兒童福利", "家庭政策", "生育率政策",
+    ],
+}
+
+
 CANONICAL_STANDALONE_HISTORY = {
     "social_protection", "refugees_migration", "restorative_justice",
     "juvenile_justice", "mental_health", "suicide_prevention",
@@ -426,11 +440,16 @@ def historical_concepts(text: str) -> set[str]:
     return out
 
 
-def _question_search_text(q: dict) -> str:
+def _question_structured_text(q: dict) -> str:
+    """Return fields intended to describe the exam point, excluding scenario prose."""
     return (
-        f"{q.get('question') or ''} {q.get('topic') or ''} "
-        f"{q.get('major') or ''} {' '.join(q.get('keywords') or [])}"
+        f"{q.get('topic') or ''} {q.get('major') or ''} "
+        f"{' '.join(q.get('keywords') or [])}"
     )
+
+
+def _question_search_text(q: dict) -> str:
+    return f"{q.get('question') or ''} {_question_structured_text(q)}"
 
 
 def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits: int = 5) -> list[dict]:
@@ -460,6 +479,8 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
 
         q_law = str(q.get("law") or "")
         q_text = _question_search_text(q)
+        q_structured_text = _question_structured_text(q)
+        q_structured_with_law = f"{q_structured_text} {q_law}"
         law_hit = next(
             (law for law in laws if law and (law in q_law or law in q_text)),
             None,
@@ -467,11 +488,21 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
         tag_hits = sorted(t for t in tags if t in q_text or t in q_law)
 
         q_specific = historical_concepts(f"{q_text} {q_law}")
+        q_structured_specific = historical_concepts(q_structured_with_law)
         shared_specific = sorted(event_specific & q_specific)
         eligible_specific = [
             key for key in shared_specific
             if not HISTORICAL_CONCEPTS[key].get("requires_law") or law_hit
         ]
+        exam_point_specific = [
+            key for key in eligible_specific
+            if key in q_structured_specific
+            or any(
+                _contains_alias(q_structured_with_law, hint)
+                for hint in HISTORICAL_CONCEPT_STRUCTURED_HINTS.get(key, [])
+            )
+        ]
+        context_only_specific = [key for key in eligible_specific if key not in exam_point_specific]
 
         q_canonical = canonical_concepts(f"{q_text} {q_law}")
         shared_canonical = sorted(event_canonical & q_canonical)
@@ -495,11 +526,21 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
             ]
             score += min(4.0, 2.0 * len(independent_tags))
             reasons.append("事件詞：" + "、".join(tag_hits[:4]))
-        if eligible_specific:
-            score += min(4.0, 3.0 * len(eligible_specific))
+        if exam_point_specific:
+            score += min(4.0, 3.0 * len(exam_point_specific))
             reasons.append(
                 "同義考點：" + "、".join(
-                    HISTORICAL_CONCEPTS[key]["label"] for key in eligible_specific[:4]
+                    HISTORICAL_CONCEPTS[key]["label"] for key in exam_point_specific[:4]
+                )
+            )
+        if context_only_specific:
+            # A concept mentioned only in scenario prose can still be useful for
+            # practice, but without structured domain support it must stay below
+            # the medium evidence threshold.
+            score += min(2.0, 2.0 * len(context_only_specific))
+            reasons.append(
+                "情境概念：" + "、".join(
+                    HISTORICAL_CONCEPTS[key]["label"] for key in context_only_specific[:4]
                 )
             )
         if standalone_canonical:

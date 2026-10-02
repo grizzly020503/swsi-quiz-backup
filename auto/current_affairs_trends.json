@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T12:27:11Z",
+  "generated_at": "2026-10-02T12:45:13Z",
   "event_count": 4,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -52,11 +52,11 @@
         "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
       "trend_state": "sustained",
-      "trend_score": 4.2,
+      "trend_score": 4.1,
       "why": [
         "1 個官方來源",
         "有政策／制度訊號",
-        "歷屆同概念／事件詞關聯 2 題，跨 2 個年度；強 0／中 2／概念 0",
+        "歷屆廣義概念關聯 2 題，跨 2 個年度；強 0／中 0／概念 2（僅作低權重背景）",
         "最近相關題為 105 年（距題庫最新年度 10 年）",
         "已跨 2 個證據日期持續觀察"
       ],
@@ -64,9 +64,9 @@
         "cross_source": 0.0,
         "official_evidence": 0.7,
         "policy_change": 1.8,
-        "historical_frequency": 0.28,
-        "historical_year_breadth": 0.16,
-        "recent_exam_support": 0.1,
+        "historical_frequency": 0.14,
+        "historical_year_breadth": 0.08,
+        "recent_exam_support": 0.05,
         "historical_subject_breadth": 0.0,
         "law_relevance": 0.0,
         "persistence": 0.69,
@@ -81,11 +81,11 @@
       "last_seen": "2026-09-29T16:17:32Z",
       "related_laws": [],
       "historical_question_count": 2,
-      "historical_weighted_match_count": 1.0,
+      "historical_weighted_match_count": 0.5,
       "historical_match_breakdown": {
         "strong": 0,
-        "medium": 2,
-        "concept": 0
+        "medium": 0,
+        "concept": 2
       },
       "historical_exam_years": [
         104,
@@ -111,8 +111,8 @@
           "qno": "18",
           "major": "社會救助",
           "topic": "社會救助法 > 工作收入計算",
-          "match_reason": "同義考點：最低／基本工資",
-          "match_score": 3.2
+          "match_reason": "情境概念：最低／基本工資",
+          "match_score": 2.2
         },
         {
           "id": "SP104-2-24",
@@ -122,8 +122,8 @@
           "qno": "24",
           "major": null,
           "topic": null,
-          "match_reason": "同義考點：最低／基本工資",
-          "match_score": 3.2
+          "match_reason": "情境概念：最低／基本工資",
+          "match_score": 2.2
         }
       ],
       "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
@@ -205,10 +205,10 @@
         "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 家庭政策、托育與性別制度"
       ],
       "trend_state": "cooling",
-      "trend_score": 3.5,
+      "trend_score": 3.6,
       "why": [
         "1 個官方來源",
-        "歷屆同概念／事件詞關聯 20 題，跨 11 個年度；強 0／中 18／概念 2",
+        "歷屆同概念／事件詞關聯 20 題，跨 11 個年度；強 0／中 11／概念 9",
         "最近相關題為 115 年（距題庫最新年度 0 年）",
         "歷屆分布 2 個考科"
       ],
@@ -216,7 +216,7 @@
         "cross_source": 0.0,
         "official_evidence": 0.7,
         "policy_change": 0.0,
-        "historical_frequency": 0.98,
+        "historical_frequency": 1.12,
         "historical_year_breadth": 0.52,
         "recent_exam_support": 0.52,
         "historical_subject_breadth": 0.25,
@@ -233,11 +233,11 @@
       "last_seen": "2026-09-16T10:30:11Z",
       "related_laws": [],
       "historical_question_count": 20,
-      "historical_weighted_match_count": 3.5,
+      "historical_weighted_match_count": 4.0,
       "historical_match_breakdown": {
         "strong": 0,
-        "medium": 18,
-        "concept": 2
+        "medium": 11,
+        "concept": 9
       },
       "historical_exam_years": [
         104,
@@ -288,28 +288,6 @@
           "match_score": 3.2
         },
         {
-          "id": "SW-114-1-17",
-          "subject": "社會工作",
-          "year": "114",
-          "round": "第一次",
-          "qno": "17",
-          "major": "社會工作理論",
-          "topic": "系統理論 > 家庭系統處遇目標",
-          "match_reason": "事件詞：托育；同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP113-1-24",
-          "subject": "社會政策與社會立法",
-          "year": "113",
-          "round": "第一次",
-          "qno": "24",
-          "major": null,
-          "topic": null,
-          "match_reason": "事件詞：托育；同義考點：托育",
-          "match_score": 3.2
-        },
-        {
           "id": "SP113-1-25",
           "subject": "社會政策與社會立法",
           "year": "113",
@@ -318,6 +296,28 @@
           "major": "兒少福利法規",
           "topic": "兒少權法 > 兒少福利機構類別",
           "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP112-1-23",
+          "subject": "社會政策與社會立法",
+          "year": "112",
+          "round": "第一次",
+          "qno": "23",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 托嬰中心監視設備",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP110-2-28",
+          "subject": "社會政策與社會立法",
+          "year": "110",
+          "round": "第二次",
+          "qno": "28",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家式托育服務",
+          "match_reason": "事件詞：托育；同義考點：托育",
           "match_score": 3.2
         }
       ],
@@ -405,17 +405,17 @@
         "社會工作管理 > 品質與風險管理 > 社會工作 > 高齡者權益與社區支持"
       ],
       "trend_state": "one-off",
-      "trend_score": 2.2,
+      "trend_score": 2.1,
       "why": [
         "1 個官方來源",
-        "歷屆同概念／事件詞關聯 2 題，跨 2 個年度；強 0／中 2／概念 0",
+        "歷屆同概念／事件詞關聯 2 題，跨 2 個年度；強 0／中 1／概念 1",
         "最近相關題為 109 年（距題庫最新年度 6 年）"
       ],
       "factors": {
         "cross_source": 0.0,
         "official_evidence": 0.7,
         "policy_change": 0.0,
-        "historical_frequency": 0.28,
+        "historical_frequency": 0.21,
         "historical_year_breadth": 0.16,
         "recent_exam_support": 0.1,
         "historical_subject_breadth": 0.0,
@@ -432,11 +432,11 @@
       "last_seen": "2026-09-24T03:30:00Z",
       "related_laws": [],
       "historical_question_count": 2,
-      "historical_weighted_match_count": 1.0,
+      "historical_weighted_match_count": 0.75,
       "historical_match_breakdown": {
         "strong": 0,
-        "medium": 2,
-        "concept": 0
+        "medium": 1,
+        "concept": 1
       },
       "historical_exam_years": [
         106,
@@ -473,8 +473,8 @@
           "qno": "28",
           "major": "會談與溝通技巧",
           "topic": "同理 > 同理層次排序",
-          "match_reason": "同義考點：獨居高齡者",
-          "match_score": 3.2
+          "match_reason": "情境概念：獨居高齡者",
+          "match_score": 2.2
         }
       ],
       "essay_direction": "可從「在地老化、長照給付、家庭照顧者支持與服務輸送」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",

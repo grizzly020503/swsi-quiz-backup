@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T12:27:11Z",
+  "generated_at": "2026-10-02T12:45:13Z",
   "source_item_count": 4,
   "event_count": 4,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
@@ -103,8 +103,8 @@
           "qno": "18",
           "major": "社會救助",
           "topic": "社會救助法 > 工作收入計算",
-          "match_reason": "同義考點：最低／基本工資",
-          "match_score": 3.2
+          "match_reason": "情境概念：最低／基本工資",
+          "match_score": 2.2
         },
         {
           "id": "SP104-2-24",
@@ -114,17 +114,17 @@
           "qno": "24",
           "major": null,
           "topic": null,
-          "match_reason": "同義考點：最低／基本工資",
-          "match_score": 3.2
+          "match_reason": "情境概念：最低／基本工資",
+          "match_score": 2.2
         }
       ],
       "historical_exam_stats": {
         "matched_question_count": 2,
-        "weighted_match_count": 1.0,
+        "weighted_match_count": 0.5,
         "match_breakdown": {
           "strong": 0,
-          "medium": 2,
-          "concept": 0
+          "medium": 0,
+          "concept": 2
         },
         "matched_year_count": 2,
         "matched_years": [
@@ -284,28 +284,6 @@
           "match_score": 3.2
         },
         {
-          "id": "SW-114-1-17",
-          "subject": "社會工作",
-          "year": "114",
-          "round": "第一次",
-          "qno": "17",
-          "major": "社會工作理論",
-          "topic": "系統理論 > 家庭系統處遇目標",
-          "match_reason": "事件詞：托育；同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP113-1-24",
-          "subject": "社會政策與社會立法",
-          "year": "113",
-          "round": "第一次",
-          "qno": "24",
-          "major": null,
-          "topic": null,
-          "match_reason": "事件詞：托育；同義考點：托育",
-          "match_score": 3.2
-        },
-        {
           "id": "SP113-1-25",
           "subject": "社會政策與社會立法",
           "year": "113",
@@ -315,15 +293,37 @@
           "topic": "兒少權法 > 兒少福利機構類別",
           "match_reason": "同義考點：托育",
           "match_score": 3.2
+        },
+        {
+          "id": "SP112-1-23",
+          "subject": "社會政策與社會立法",
+          "year": "112",
+          "round": "第一次",
+          "qno": "23",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 托嬰中心監視設備",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP110-2-28",
+          "subject": "社會政策與社會立法",
+          "year": "110",
+          "round": "第二次",
+          "qno": "28",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家式托育服務",
+          "match_reason": "事件詞：托育；同義考點：托育",
+          "match_score": 3.2
         }
       ],
       "historical_exam_stats": {
         "matched_question_count": 20,
-        "weighted_match_count": 3.5,
+        "weighted_match_count": 4.0,
         "match_breakdown": {
           "strong": 0,
-          "medium": 18,
-          "concept": 2
+          "medium": 11,
+          "concept": 9
         },
         "matched_year_count": 11,
         "matched_years": [
@@ -492,17 +492,17 @@
           "qno": "28",
           "major": "會談與溝通技巧",
           "topic": "同理 > 同理層次排序",
-          "match_reason": "同義考點：獨居高齡者",
-          "match_score": 3.2
+          "match_reason": "情境概念：獨居高齡者",
+          "match_score": 2.2
         }
       ],
       "historical_exam_stats": {
         "matched_question_count": 2,
-        "weighted_match_count": 1.0,
+        "weighted_match_count": 0.75,
         "match_breakdown": {
           "strong": 0,
-          "medium": 2,
-          "concept": 0
+          "medium": 1,
+          "concept": 1
         },
         "matched_year_count": 2,
         "matched_years": [

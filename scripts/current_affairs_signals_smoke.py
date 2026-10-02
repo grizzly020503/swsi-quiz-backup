@@ -140,6 +140,46 @@ def event_specific_history_smoke() -> None:
         raise SystemExit(f"unexpected matching method: {stats}")
 
 
+def context_vs_exam_point_smoke() -> None:
+    row = {
+        "id": "fixture-elderly-context",
+        "title": "啟動獨居長者關懷訪查",
+        "summary": "強化獨居老人社區支持與關懷服務。",
+        "category": "長照與高齡",
+        "exam_tags": [],
+        "subjects": ["社會工作直接服務"],
+    }
+    questions = [
+        {
+            "id": "Q-ELDERLY-SERVICE",
+            "subject": "社會工作直接服務",
+            "year": "115", "round": "第一次", "qno": "40",
+            "major": "社區工作", "topic": "社區照顧 > 健康社區六星計畫",
+            "keywords": ["社區照顧"],
+            "question": "社區巡守隊轉為獨居老人關懷隊，結合健康社區六星計畫哪些面向？", "law": "",
+        },
+        {
+            "id": "Q-ELDERLY-SCENARIO",
+            "subject": "社會工作直接服務",
+            "year": "114", "round": "第一次", "qno": "28",
+            "major": "會談與溝通技巧", "topic": "同理 > 同理層次排序",
+            "keywords": ["同理"],
+            "question": "一位獨居長者抱怨申請進度，請依同理層次排列社工回應。", "law": "",
+        },
+    ]
+    out = analyze_item(row, questions)
+    found = {q["id"]: q for q in out["related_exam_questions"]}
+    direct = found["Q-ELDERLY-SERVICE"]
+    contextual = found["Q-ELDERLY-SCENARIO"]
+    if float(direct["match_score"]) < 3 or "同義考點：獨居高齡者" not in direct["match_reason"]:
+        raise SystemExit(f"structured domain hint did not preserve direct service anchor: {direct}")
+    if not (2 <= float(contextual["match_score"]) < 3) or "情境概念：獨居高齡者" not in contextual["match_reason"]:
+        raise SystemExit(f"scenario-only concept was not downgraded: {contextual}")
+    breakdown = out["historical_exam_stats"]["match_breakdown"]
+    if breakdown != {"strong": 0, "medium": 1, "concept": 1}:
+        raise SystemExit(f"scenario-vs-exam-point breakdown mismatch: {breakdown}")
+
+
 def review_regressions() -> None:
     row = {"title": "最低工資調升", "summary": "最低工資新標準", "category": "勞動與社會保障", "subjects": ["社會政策與社會立法"], "exam_tags": ["最低工資", "育嬰留職停薪"]}
     leave = {"id": "Q-LEAVE", "subject": row["subjects"][0], "year": "115", "question": "育嬰留職停薪規定", "keywords": []}
@@ -160,6 +200,7 @@ def review_regressions() -> None:
 def main() -> int:
     matching_contract_smoke()
     event_specific_history_smoke()
+    context_vs_exam_point_smoke()
     review_regressions()
     p = Path("auto/current_affairs_signals.json")
     if not p.exists():
