@@ -36,6 +36,20 @@ Canonical metadata shape:
 
 `test_only` is reserved for synthetic pipeline verification. Synthetic test reports must never create a persistent GitHub Issue/PR and must be removed after the contract is verified.
 
+### Read-only review-priority fallback
+
+Persisted `metadata.triage` remains authoritative when it exists. If a report has no persisted triage metadata, the admin read path may derive a **non-persistent review priority** from fixed structured fields such as `category` so important reports do not sink below an inactive triage worker.
+
+This fallback is intentionally narrower than full triage:
+
+- it may order/display reports as `high`, `medium`, or `untriaged`;
+- it may label the suggested action `needs_review`;
+- it must not write `metadata.triage`, change feedback status, create a GitHub Issue/PR, or mark anything fixed/no-change;
+- it must not inspect free-form report text to decide authority or execute instructions;
+- unknown categories remain `untriaged` rather than being guessed low-risk.
+
+A read-only fallback does not prove that a scheduled triage worker is active. Scheduled-worker health must be evidenced separately from repo policy or historical handoff text.
+
 ## Deduplication
 
 Prefer deterministic evidence over semantic guesswork.
@@ -119,6 +133,8 @@ Low-risk Draft PRs must use a dedicated branch and existing QA. Medium/high risk
 - `no_change`: only after verified evidence that no product change is needed
 
 Do not mark `fixed` merely because a PR exists.
+
+A derived read-only priority must not change these statuses.
 
 ## Production boundary
 

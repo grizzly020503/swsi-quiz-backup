@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { deriveFeedbackPriority } from "./feedback_priority.mjs";
 
 const STATIC_ALLOWED_ORIGINS = new Set([
   "https://swsi-quiznetlify.netlify.app",
@@ -37,6 +38,8 @@ function normalizeRisk(value: unknown) {
   return risk === "high" || risk === "medium" || risk === "low" ? risk : "untriaged";
 }
 
+const RISK_RANK: Record<string, number> = { high: 0, medium: 1, low: 2, untriaged: 3 };
+
 function fallbackClusterKey(row: any) {
   const context = safeString(row?.context_id, 120);
   if (context) return `untriaged:${safeString(row?.context_type, 40) || "general"}:${context}:${safeString(row?.category, 60) || "other"}`;
@@ -49,7 +52,19 @@ function buildFeedbackClusters(rows: any[]) {
   for (const row of rows) {
     const triage = row?.metadata && typeof row.metadata === "object" ? row.metadata.triage : null;
     const clusterKey = safeString(triage?.cluster_key, 240) || fallbackClusterKey(row);
-    const triageRisk = normalizeRisk(triage?.risk_level);
+    const persistedRisk = normalizeRisk(triage?.risk_level);
+    const derivedPriority = persistedRisk === "untriaged" ? deriveFeedbackPriority(row) : null;
+    const triageRisk = persistedRisk !== "untriaged"
+      ? persistedRisk
+      : normalizeRisk(derivedPriority?.risk_level);
+    const persistedConfidence = Number.isFinite(Number(triage?.confidence)) ? Number(triage.confidence) : null;
+    const triageConfidence = persistedConfidence ?? derivedPriority?.confidence ?? null;
+    const triageAction = safeString(triage?.action, 40) || safeString(derivedPriority?.action, 40) || "pending_triage";
+    const triageSource = triage && persistedRisk !== "untriaged"
+      ? "persisted_v1"
+      : safeString(derivedPriority?.source, 40) || "untriaged";
+    const triageReason = safeString(derivedPriority?.reason, 80) || null;
+
     let cluster = map.get(clusterKey);
     if (!cluster) {
       cluster = {
@@ -62,11 +77,13 @@ function buildFeedbackClusters(rows: any[]) {
         context_title: safeString(row?.context_title, 240) || null,
         subject: safeString(row?.subject, 120) || null,
         risk_level: triageRisk,
-        confidence: Number.isFinite(Number(triage?.confidence)) ? Number(triage.confidence) : null,
-        summary: safeString(triage?.summary, 500) || safeString(row?.message, 240) || "尚待自動分流",
+        confidence: triageConfidence,
+        summary: safeString(triage?.summary, 500) || safeString(row?.message, 240) || "尚待人工確認",
         github_issue: safeString(triage?.github_issue, 240) || null,
         github_pr: safeString(triage?.github_pr, 240) || null,
-        action: safeString(triage?.action, 40) || "pending_triage",
+        action: triageAction,
+        triage_source: triageSource,
+        triage_reason: triageReason,
         latest_at: row?.created_at || null,
         status_counts: { pending: 0, reviewed: 0, fixed: 0, no_change: 0 },
       };
@@ -76,14 +93,20 @@ function buildFeedbackClusters(rows: any[]) {
     if (cluster.report_nos.length < 50) cluster.report_nos.push(Number(row.report_no));
     if (row?.created_at && (!cluster.latest_at || String(row.created_at) > String(cluster.latest_at))) cluster.latest_at = row.created_at;
     if (row?.status && Object.prototype.hasOwnProperty.call(cluster.status_counts, row.status)) cluster.status_counts[row.status] += 1;
-    if (cluster.risk_level === "untriaged" && triageRisk !== "untriaged") cluster.risk_level = triageRisk;
+
+    if ((RISK_RANK[triageRisk] ?? 4) < (RISK_RANK[cluster.risk_level] ?? 4)) {
+      cluster.risk_level = triageRisk;
+      cluster.confidence = triageConfidence;
+      cluster.action = triageAction;
+      cluster.triage_source = triageSource;
+      cluster.triage_reason = triageReason;
+    }
     if (!cluster.github_issue && safeString(triage?.github_issue, 240)) cluster.github_issue = safeString(triage.github_issue, 240);
     if (!cluster.github_pr && safeString(triage?.github_pr, 240)) cluster.github_pr = safeString(triage.github_pr, 240);
   }
-  const riskRank: Record<string, number> = { high: 0, medium: 1, low: 2, untriaged: 3 };
   return Array.from(map.values()).sort((a, b) => {
-    const ar = riskRank[a.risk_level] ?? 4;
-    const br = riskRank[b.risk_level] ?? 4;
+    const ar = RISK_RANK[a.risk_level] ?? 4;
+    const br = RISK_RANK[b.risk_level] ?? 4;
     if (ar !== br) return ar - br;
     if (b.status_counts.pending !== a.status_counts.pending) return b.status_counts.pending - a.status_counts.pending;
     if (b.count !== a.count) return b.count - a.count;
