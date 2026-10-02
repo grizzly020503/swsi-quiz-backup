@@ -54,13 +54,23 @@ jobs:
 
       - name: Audit all manifest sessions
         run: |
+          set +e
           python scripts/full_corpus_qa.py \
             --out /tmp/full-corpus-question-qa.json \
-            --fail-on blocked > /tmp/full-corpus-question-qa.log
+            --fail-on blocked > /tmp/full-corpus-question-qa.log 2>&1
+          rc=$?
           cat /tmp/full-corpus-question-qa.log
+          exit "$rc"
 
       - name: Publish compact job summary
+        if: always()
         run: |
+          if [ ! -f /tmp/full-corpus-question-qa.json ]; then
+            echo '## SWSI full-corpus QA' >> "$GITHUB_STEP_SUMMARY"
+            echo '' >> "$GITHUB_STEP_SUMMARY"
+            echo '- report was not produced' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           python - <<'PY'
           import json, os
           from pathlib import Path
@@ -85,8 +95,10 @@ jobs:
           PY
 
       - name: Upload diagnostic report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: full-corpus-question-qa
           path: /tmp/full-corpus-question-qa.json
+          if-no-files-found: ignore
           retention-days: 14
