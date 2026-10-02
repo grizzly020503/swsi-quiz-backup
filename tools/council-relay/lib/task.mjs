@@ -35,6 +35,16 @@ export function parseCouncilTask(issue) {
   if (!['normal', 'important', 'high_risk'].includes(payload.mode)) throw new Error(`invalid mode: ${payload.mode}`);
   if (payload.action !== 'review') throw new Error(`Phase 1 supports action=review only, got ${payload.action}`);
   if (!/^[0-9a-f]{7,40}$/i.test(String(payload.base_sha))) throw new Error(`invalid base_sha: ${payload.base_sha}`);
+  if (!/^[A-Za-z0-9][A-Za-z0-9._\/-]{0,120}$/.test(String(payload.base_ref))
+      || String(payload.base_ref).includes('..')
+      || String(payload.base_ref).includes('//')
+      || String(payload.base_ref).endsWith('/')
+      || String(payload.base_ref).endsWith('.lock')) {
+    throw new Error(`invalid base_ref: ${payload.base_ref}`);
+  }
+  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,119}$/.test(String(payload.task_id))) {
+    throw new Error(`invalid task_id: ${payload.task_id}`);
+  }
 
   return {
     ...payload,
