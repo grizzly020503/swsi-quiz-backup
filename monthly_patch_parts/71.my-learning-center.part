@@ -74,11 +74,11 @@
       +'<button type="button" class="swsi-myhub-primary" onclick="'+rec.onclick+'"><span><b>'+rec.title+'</b><small>'+rec.sub+'</small></span><span class="arrow">›</span></button>'
       +'<div class="swsi-myhub-stats"><div class="swsi-myhub-stat"><b>'+rv.due+'</b><span>今天到期</span></div><div class="swsi-myhub-stat"><b>'+rv.active+'</b><span>還沒熟</span></div><div class="swsi-myhub-stat"><b>'+rv.mastered+'</b><span>已掌握</span></div></div>'
       +'<div class="swsi-myhub-list" data-swsi-learning-scenarios>'
-      +row('10','我只有 10 分鐘','直接做 10 題今日練習',"swsiLearningAction('short')",'', 'data-swsi-scenario="short"')
+      +row('10','我只有 10 分鐘','快速刷題：直接做 10 題今日練習',"swsiLearningAction('short')",'', 'data-swsi-scenario="short"')
       +row('弱','我要補最弱科','先看各科表現，再練目前最需要補的科目',"swsiLearningAction('weak')",'', 'data-swsi-scenario="weak"')
       +row('卷','我要做完整考卷','進入計時模擬考，完成後再看結果',"swsiLearningAction('mock')",'', 'data-swsi-scenario="mock"')
-      +row('✎','我要練申論',drafts?('這台裝置有 '+drafts+' 份草稿可接著寫'):'歷屆申論與 AI 練習回饋',"swsiLearningAction('essay')",'', 'data-swsi-scenario="essay"')
-      +row('↻','我要複習錯題',rv.due?('今天 '+rv.due+' 題到期'):(rv.active?('尚有 '+rv.active+' 題未熟練'):'目前沒有待複習題'),"swsiLearningAction('review')",'', 'data-swsi-scenario="review"')
+      +row('✎','我要練申論',drafts?('申論練習：這台裝置有 '+drafts+' 份草稿可接著寫'):'申論練習：歷屆申論與 AI 回饋',"swsiLearningAction('essay')",'', 'data-swsi-scenario="essay"')
+      +row('↻','我要複習錯題',rv.due?('錯題複習：今天 '+rv.due+' 題到期'):(rv.active?('錯題複習：尚有 '+rv.active+' 題未熟練'):'錯題複習：目前沒有待複習題'),"swsiLearningAction('review')",'', 'data-swsi-scenario="review"')
       +'</div></div>'
       +'<details class="swsi-myhub-more"><summary>更多與平台資訊</summary><div class="swsi-myhub-list">'
       +'<button type="button" class="swsi-myhub-row admin" data-swsi-admin-entry hidden onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理中心</span><span class="meta">管理者專用</span></span><span class="arrow">›</span></button>'
