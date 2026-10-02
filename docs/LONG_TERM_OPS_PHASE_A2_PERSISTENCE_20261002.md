@@ -16,9 +16,9 @@ Both tables enable RLS, revoke access from `PUBLIC`, `anon`, and `authenticated`
 
 The write RPCs use `SECURITY INVOKER`, not `SECURITY DEFINER`, and execution is revoked from `PUBLIC`, `anon`, and `authenticated` and granted only to `service_role`.
 
-## Why explicit grants are now mandatory design
+## Why explicit grants are mandatory design
 
-Supabase announced in 2026 that public-schema tables are moving to explicit Data API grants, with enforcement for existing projects scheduled for 2026-10-30. Therefore this candidate never relies on historical default privileges. Grants and RLS are treated as one migration unit.
+This candidate never relies on historical default privileges. Grants and RLS are treated as one migration unit so Data API exposure cannot silently expand when schema/platform defaults change.
 
 ## Atomic ownership
 
@@ -39,45 +39,66 @@ This makes the database transaction the single arbiter of ownership instead of t
 
 `swsi_ops_complete_task` preserves `last_success_at` across failures and updates it only for `success` / `no_change`.
 
+The review queue has matching atomic service-role RPCs:
+
+- `swsi_ops_upsert_review_item` preserves original `first_seen_at` and merges only still-open evidence;
+- `swsi_ops_touch_review_item` increments attempts and records retry/error timing;
+- `swsi_ops_resolve_review_item` records a terminal `resolved / superseded / invalid` result, permits exact idempotent replay, and rejects conflicting terminal rewrites.
+
 ## Why this is still a candidate, not a migration
 
-Per the repository and Supabase workflow rules, production DDL is not being improvised from chat. The SQL is stored under `supabase/candidates/` until it has passed review and an isolated PostgreSQL/Supabase test. A real migration file should then be generated through the project migration workflow/CLI and reviewed before any production apply.
+Per the repository and Supabase workflow rules, production DDL is not being improvised from chat. The SQL remains under `supabase/candidates/` even after isolated PostgreSQL validation. A real migration must be generated/reviewed as a separate release step before any production apply.
 
-No Supabase project branch was created because that can incur cost and requires explicit cost confirmation. No production DDL was executed.
+No Supabase development branch was created. The live cost query on 2026-10-02 returned **US$0.01344/hour**, so creating one would violate the no-new-paid-resource rule without owner approval. No production DDL was executed.
 
 ## Adapter boundary
 
-`scripts/ops_task_ledger_supabase.py` maps the backend-neutral contract to the four service-role RPCs. This checkpoint intentionally exposes only `--self-test`; there is no live-write CLI yet. That prevents accidental production mutation before the schema/RLS path is approved.
+`scripts/ops_task_ledger_supabase.py` maps the backend-neutral contract to the task and review service-role RPCs. It intentionally exposes only `--self-test`; there is no live-write CLI yet. That prevents accidental production mutation before the migration/RLS path is separately approved.
 
-## Verification
+## Static/local verification
 
-Run locally:
+The branch runs deterministic checks for:
 
-```bash
-python scripts/ops_task_ledger_supabase.py --self-test
-python scripts/ops_task_ledger_sql_smoke.py supabase/candidates/ops_task_ledger_v1.sql
-python -m py_compile scripts/ops_task_ledger_supabase.py scripts/ops_task_ledger_sql_smoke.py
-```
+- backend-neutral ledger transitions;
+- semantic-file / trigger-run / parent-child identities;
+- Full Corpus session identities;
+- MOEX run/stage identities;
+- Guardian durable-review candidate identities;
+- candidate SQL security invariants;
+- adapter payload contracts;
+- watchdog durable-ledger projection;
+- refusal of non-local PostgreSQL targets.
 
-The static SQL smoke fails if the candidate loses RLS/revokes/service-role-only grants, adds `SECURITY DEFINER`, adds delete/all grants, removes row locking, or stops enforcing monotonic checkpoints.
+## Isolated PostgreSQL behavior verification — completed
 
-## Third checkpoint completed
+PR #273 added a PR-only `Ops Ledger Candidate DB QA` workflow using a disposable PostgreSQL 16 service. It has no schedule and no main-push trigger.
 
-`supabase/candidates/ops_task_ledger_v1_test.sql` now defines transaction-scoped deterministic behavior tests for:
+Run `36995156636` completed **SUCCESS** on head `a1d7e3ebbd57cfce04a91d972bb15745bccdee2b` and verified:
 
+- zero-network Python contract/self-tests;
+- candidate ledger + review RPC SQL execution on PostgreSQL 16;
 - first claim and live-lease duplicate blocking;
 - retry-not-due and later reclaim;
-- lease-expiry reclaim;
-- retry attempt exhaustion;
-- checkpoint preservation and monotonic processed counts;
-- unknown checkpoint version fail-closed;
+- lease-expiry reclaim and retry exhaustion;
+- checkpoint preservation and monotonic `processed_count`;
+- unknown checkpoint versions fail closed;
 - terminal idempotency;
-- `no_change` updating trusted `last_success_at`;
-- review-item history resolving without deletion.
+- `no_change` updates trusted `last_success_at`;
+- review `first_seen_at` survives repeated observations;
+- review attempts/next-check/error state are retained;
+- resolved review history is not silently reopened;
+- conflicting terminal rewrite is rejected;
+- RLS is enabled on both tables;
+- `anon` / `authenticated` have no direct table or RPC access;
+- `service_role` has the intended select/insert/update/execute access but no delete grant.
 
-The test script intentionally ends with `ROLLBACK`; it is designed for an isolated database and has not been run against production.
+The behavior fixture ends with `ROLLBACK`. Production credentials and production data are not used.
 
-`ops_task_watchdog.py` now accepts optional `--ledger-state` input and summarizes:
+The existing `Ops Task Freshness Watchdog` PR validation also passed on run `36995156628`; its live scheduled-freshness job correctly skipped in PR context and is not a test failure.
+
+## Watchdog projection
+
+`ops_task_watchdog.py` accepts optional `--ledger-state` input and summarizes:
 
 - run status counts;
 - most recent successful run per task;
@@ -90,30 +111,35 @@ This remains observation-only. It does not claim, retry, repair, resolve, or mut
 
 ## DR compatibility review
 
-The repository's existing `scripts/supabase_recovery_dry_run.py` already creates the portable Supabase roles `anon`, `authenticated`, and `service_role` before replaying schema/migrations into disposable PostgreSQL. That means the ledger candidate can reuse the existing disaster-recovery harness instead of inventing a parallel database test environment.
+The repository's existing `scripts/supabase_recovery_dry_run.py` already creates the portable Supabase roles `anon`, `authenticated`, and `service_role` before replaying schema/migrations into disposable PostgreSQL. The candidate therefore reuses the repository's existing PostgreSQL assumptions rather than inventing a parallel production-like environment.
 
-When the candidate becomes a real migration, the same change set must also update the recovery contract:
+When the candidate becomes a real migration, that migration work package must also update the recovery contract:
 
 - add the generated migration to `supabase/recovery/recovery_manifest.json` migration order;
 - add `swsi_ops_task_runs` and `swsi_ops_review_items` to the expected public table set;
 - add runtime-contract assertions for RLS and service-role-only privileges;
 - keep the DR workflow's production-write boundary unchanged.
 
-`scripts/ops_task_ledger_candidate_db_test.py` is a candidate-only runner for the disposable PostgreSQL phase. It refuses any `PGHOST` other than `127.0.0.1`, `localhost`, or `::1`, refuses system databases, loads the candidate, runs the rollback-only behavior fixture, and verifies RLS/privilege boundaries. It has no hosted database mode.
+`scripts/ops_task_ledger_candidate_db_test.py` is candidate-only. It refuses any `PGHOST` other than `127.0.0.1`, `localhost`, or `::1`, refuses system databases, loads candidate SQL, runs rollback-only behavior fixtures, and verifies the privilege boundary. It has no hosted database mode.
 
-Local checks completed in the current sandbox:
+## Current release boundary
 
-- adapter self-test: PASS;
-- candidate SQL static security smoke: PASS;
-- Python compile: PASS;
-- watchdog + durable-ledger fixture: PASS;
-- non-local database target guard: PASS.
+PR #273 is the evidence-backed **candidate/contract** PR. A green merge of this PR still does not create the production ledger because there is intentionally no production migration in it.
 
-Actual PostgreSQL execution remains pending because this sandbox does not provide PostgreSQL/Docker and outbound package installation timed out. This is recorded as an environment blocker, not represented as a successful database test.
+### Before merging PR #273
 
-## Remaining before PR
+1. Keep the final diff limited to ops contracts/helpers/candidate SQL/tests/docs; no Official Core or production deployment files.
+2. Require the PR-only PostgreSQL candidate QA and existing watchdog contract validation to be green.
+3. Confirm no unresolved review finding or secret exposure was introduced.
 
-1. Execute the candidate SQL + SQL behavior test in the repository's disposable PostgreSQL 16 DR environment.
-2. Convert the candidate into a real CLI-generated migration and update the DR recovery manifest/runtime contract in the same work package.
-3. Re-run local/static tests, isolated DB behavior tests, secret scan, and final diff review.
-4. Only then open one evidence-backed PR.
+### After this candidate PR is merged
+
+Create a separate migration release work package that:
+
+1. converts the reviewed candidate SQL into a real migration;
+2. updates the DR recovery manifest and runtime contract in the same change;
+3. proves rollback/recovery and permission boundaries again;
+4. wires only approved trusted server-side maintenance flows to the durable adapter;
+5. requires separate owner authorization before production migration/deploy.
+
+The independent external heartbeat required by #262 P1-6 remains a separate later work package.
