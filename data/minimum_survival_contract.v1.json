@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "mode": "last_verified_updates_paused",
+  "purpose": "Keep the last verified student core usable and honest about freshness when normal maintenance cannot safely continue.",
+  "core_capabilities": [
+    "homepage_navigation",
+    "official_question_bank",
+    "grading_contract",
+    "practice",
+    "mock_exam",
+    "wrong_answer_review",
+    "local_progress",
+    "essay_library",
+    "local_drafts"
+  ],
+  "core_condition": "preserve_when_existing_static_or_local_dependencies_remain_usable_and_the_last_verified_core_is_intact",
+  "paused_or_degraded_enhancements": [
+    "ai_generation",
+    "automatic_new_source_intake_when_unverified",
+    "feedback_submission_when_backend_unavailable",
+    "admin_mutation_when_maintainer_control_is_unavailable",
+    "nonessential_sync"
+  ],
+  "freshness_disclosure": {
+    "required": true,
+    "required_fields": [
+      "last_verified_revision",
+      "content_last_verified_at",
+      "updates_paused_since",
+      "pause_reason_class"
+    ],
+    "must_not_claim_active_updates_when_paused": true
+  },
+  "human_only_decisions": [
+    "account_succession",
+    "provider_new_terms_acceptance",
+    "major_security_incident_response",
+    "new_paid_obligation",
+    "disputed_official_content",
+    "destructive_migration",
+    "credential_scope_expansion"
+  ],
+  "allowed_automation": [
+    "read_only_health_checks",
+    "hash_verification",
+    "public_source_availability_checks",
+    "freshness_reporting",
+    "nonmutating_portable_manifest_generation"
+  ],
+  "forbidden_automation": [
+    "auto_payment",
+    "auto_account_takeover",
+    "accept_provider_terms",
+    "delete_review_queue_to_clear_backlog",
+    "lower_qa_thresholds",
+    "mark_unresolved_content_verified",
+    "publish_disputed_official_content",
+    "destructive_schema_migration",
+    "expand_credential_scope"
+  ],
+  "invariants": {
+    "official_core_must_not_be_silently_changed": true,
+    "review_queue_must_be_preserved": true,
+    "unresolved_content_must_not_be_promoted_to_verified": true,
+    "enhancement_failure_must_not_be_reported_as_core_failure_when_core_remains_usable": true,
+    "freshness_must_be_disclosed": true
+  },
+  "scenario_expectations": {
+    "maintainer_absent": "enter_or_remain_last_verified_updates_paused_and_preserve_core",
+    "account_recovery_pending": "preserve_last_verified_state_and_wait_for_human_account_recovery",
+    "ai_unavailable": "pause_ai_enhancement_and_keep_core_usable",
+    "paid_decision_pending": "do_not_purchase_or_accept_new_obligation_automatically",
+    "disputed_update": "quarantine_update_and_keep_last_verified_content"
+  }
+}
