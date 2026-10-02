@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T15:32:59Z",
+  "generated_at": "2026-10-02T16:04:20Z",
   "source_item_count": 4,
   "event_count": 4,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
@@ -57,7 +57,9 @@
         "最低工資",
         "行政院"
       ],
-      "related_laws": [],
+      "related_laws": [
+        "最低工資法"
+      ],
       "concept_keys": [],
       "agency_keys": [],
       "fact_keys": [],
@@ -86,12 +88,13 @@
       "essay_value": "low",
       "mcq_fact_density": "high",
       "signal_confidence": "high",
-      "signal_score": 8,
-      "exam_point_summary": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工…。制度或給付已有明確變動；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "signal_score": 9,
+      "exam_point_summary": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工…。涉及「最低工資法」。制度或給付已有明確變動；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，並結合「最低工資法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
       "mcq_focus": [
         "勞動部",
         "行政院",
+        "最低工資法",
         "最低工資"
       ],
       "related_exam_questions": [
@@ -215,7 +218,9 @@
         "育兒",
         "補助"
       ],
-      "related_laws": [],
+      "related_laws": [
+        "性別平等工作法"
+      ],
       "concept_keys": [
         "family_policy"
       ],
@@ -251,12 +256,13 @@
       "policy_signal": "low",
       "essay_value": "medium",
       "mcq_fact_density": "high",
-      "signal_confidence": "medium",
-      "signal_score": 7,
-      "exam_point_summary": "企業托育補助新制創造企業留才與員工兼顧育兒需求正面效益！申請倒數2週，請雇主把握時間，於9月底前…。尚未見明確制度變動，先作事件與專業議題觀察；申論可從性別權力、照顧負荷與家庭政策切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「性別權力、照顧負荷與家庭政策」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "signal_confidence": "high",
+      "signal_score": 8,
+      "exam_point_summary": "企業托育補助新制創造企業留才與員工兼顧育兒需求正面效益！申請倒數2週，請雇主把握時間，於9月底前…。涉及「性別平等工作法」。尚未見明確制度變動，先作事件與專業議題觀察；申論可從性別權力、照顧負荷與家庭政策切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「性別權力、照顧負荷與家庭政策」切入，並結合「性別平等工作法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
       "mcq_focus": [
         "勞動部",
+        "性別平等工作法",
         "育兒",
         "托育"
       ],
@@ -348,9 +354,22 @@
           "社會政策與社會立法": 13
         },
         "subject_count": 2,
-        "law_match_count": 0,
-        "law_match_year_count": 0,
-        "law_match_years": [],
+        "law_match_count": 21,
+        "law_match_year_count": 12,
+        "law_match_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2",
         "aggregation_method": "max-quality-member-plus-year-union-v2.2"
