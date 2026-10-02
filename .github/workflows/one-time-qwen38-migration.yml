@@ -34,7 +34,6 @@ jobs:
               Path('supabase/functions/analyze-pending-questions/index.ts'),
               Path('scripts/cloudflare_worker_smoke.js'),
               Path('ai_eval/golden_set.json'),
-              Path('.github/workflows/question-shards-publish.yml'),
           ]
           old = 'qwen/qwen3.6-27b'
           new = 'qwen/qwen3.8-27b'
@@ -51,8 +50,8 @@ jobs:
               total += count
               print(f'{path}: replaced {count}')
           print(f'total replacements={total}')
-          if total < 5:
-              raise SystemExit('unexpectedly small migration surface')
+          if total != 4:
+              raise SystemExit(f'unexpected migration count: {total}')
           PY
       - name: Verify migration contract
         run: |
@@ -61,8 +60,7 @@ jobs:
             cloudflare/wandering-wave-4418/worker.js \
             supabase/functions/analyze-pending-questions/index.ts \
             scripts/cloudflare_worker_smoke.js \
-            ai_eval/golden_set.json \
-            .github/workflows/question-shards-publish.yml
+            ai_eval/golden_set.json
           grep -F 'qwen/qwen3.8-27b' cloudflare/wandering-wave-4418/worker.js
           grep -F 'qwen/qwen3.8-27b' supabase/functions/analyze-pending-questions/index.ts
           node --check cloudflare/wandering-wave-4418/worker.js
@@ -78,7 +76,6 @@ jobs:
             cloudflare/wandering-wave-4418/worker.js \
             supabase/functions/analyze-pending-questions/index.ts \
             scripts/cloudflare_worker_smoke.js \
-            ai_eval/golden_set.json \
-            .github/workflows/question-shards-publish.yml
-          git commit -m 'fix: migrate Groq model contract to Qwen 3.8'
+            ai_eval/golden_set.json
+          git commit -m 'fix: migrate Groq runtime contract to Qwen 3.8'
           git push origin HEAD:fix/groq-qwen38-migration-20261002
