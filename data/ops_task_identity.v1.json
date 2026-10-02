@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "purpose": "Deterministic idempotency/checkpoint identity contract for durable maintenance tasks. Static specification only.",
+  "rules": {
+    "semantic_files_v1": "Same semantic input bytes + execution contract => same logical work. Any relevant data/policy/code byte change => new logical work.",
+    "trigger_run_v1": "For live remote fetches, one orchestrator run is one logical check. A rerun of the same provider run resumes the same logical task; a new dispatch/schedule/push is a new logical check.",
+    "parent_child_v1": "A child unit is namespaced by the parent idempotency key and a stable unit type/id; it must never be reused under a different parent fingerprint."
+  },
+  "tasks": {
+    "full-corpus-question-qa": {
+      "strategy": "semantic_files_v1",
+      "components": [
+        ["manifest", "cdn/question-shards/manifest.json"],
+        ["qa_policy", "data/question_qa_policy_v1.json"],
+        ["official_core_lock", "data/official_exam_readonly.lock.json"],
+        ["full_corpus_runner", "scripts/full_corpus_qa.py"],
+        ["unified_qa_contract", "scripts/unified_question_qa.py"],
+        ["official_core_guard", "scripts/official_exam_readonly_guard.py"]
+      ],
+      "checkpoint_unit": "manifest_exam_session",
+      "checkpoint_unit_id": "<year>-<canonical-round>",
+      "notes": [
+        "Do not use manifest dataset_revision alone: QA policy/contract changes must produce a new logical run.",
+        "Unified Question QA is a child unit of this run rather than a second scheduler."
+      ]
+    },
+    "moex-social-worker-sync": {
+      "strategy": "trigger_run_v1",
+      "provider": "github",
+      "provider_run_id": "GITHUB_RUN_ID",
+      "checkpoint_unit": "pipeline_stage_and_exam_code",
+      "notes": [
+        "MOEX is a live fetch: do not suppress a deliberately new manual check merely because the previous fetched bytes were unchanged.",
+        "GitHub rerun keeps the same run identity and may resume; a newly dispatched workflow gets a new logical identity."
+      ]
+    }
+  },
+  "integration_units": {
+    "unified-question-qa": {
+      "strategy": "parent_child_v1",
+      "parent_task": "full-corpus-question-qa",
+      "unit_type": "exam_session",
+      "unit_id": "<year>-<canonical-round>",
+      "side_effect_policy": "read_only"
+    },
+    "historical-law-guardian-queue": {
+      "strategy": "semantic_files_v1",
+      "components": [
+        ["stage2", "auto/qa/historical_law_exam_date_stage2.v1.json"],
+        ["stage3", "auto/qa/historical_law_article_stage3.v1.json"],
+        ["stage5", "auto/qa/historical_law_stage5_promotion.v1.json"],
+        ["stage6", "auto/qa/historical_law_stage6_semantic.v1.json"],
+        ["routing_contract", "scripts/historical_law_guardian_queue.py"]
+      ],
+      "checkpoint_unit": "law_question_pair",
+      "checkpoint_unit_id": "<law_name>|<question_id>",
+      "review_item_id": "historical-law:<lane>:<law_name>:<question_id>",
+      "notes": [
+        "Stage 2/3/5/6 are runtime pipeline outputs and may not be committed on main; absence at integration time is a fail-closed condition, not permission to omit that component from the fingerprint.",
+        "Guardian routing is not automatically promoted to the scheduled ops registry by this contract.",
+        "This only standardizes identity/review-key semantics for later durable integration."
+      ]
+    }
+  }
+}
