@@ -16,6 +16,7 @@ on:
       - 'scripts/prelaunch_webkit_smoke.js'
       - 'scripts/prelaunch_storage_degradation_smoke.js'
       - 'scripts/prelaunch_slow_network_smoke.js'
+      - 'scripts/mobile_priority_p1_7_smoke.js'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/build_essay_guides_runtime.js'
       - 'index.html'
@@ -37,6 +38,7 @@ on:
       - 'scripts/prelaunch_webkit_smoke.js'
       - 'scripts/prelaunch_storage_degradation_smoke.js'
       - 'scripts/prelaunch_slow_network_smoke.js'
+      - 'scripts/mobile_priority_p1_7_smoke.js'
       - 'scripts/monthly_patch_build.py'
       - 'scripts/build_essay_guides_runtime.js'
       - 'index.html'
@@ -78,6 +80,7 @@ jobs:
           node --check scripts/prelaunch_webkit_smoke.js
           node --check scripts/prelaunch_storage_degradation_smoke.js
           node --check scripts/prelaunch_slow_network_smoke.js
+          node --check scripts/mobile_priority_p1_7_smoke.js
           node --check sw.js
 
       - name: Build browser-test site
@@ -115,4 +118,5 @@ jobs:
           node scripts/prelaunch_webkit_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_storage_degradation_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_slow_network_smoke.js http://127.0.0.1:4173/
+          node scripts/mobile_priority_p1_7_smoke.js http://127.0.0.1:4173/
           node scripts/pwa_resilience_smoke.js http://127.0.0.1:4173/
