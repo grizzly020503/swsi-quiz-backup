@@ -61,7 +61,7 @@ jobs:
 
           grep -q '社工師國考免費題庫｜SWSI' /tmp/prod-index.html
           grep -q 'monthly_patch.js' /tmp/prod-index.html
-          grep -q '命題趨勢雷達' /tmp/prod-index.html
+          grep -q '目前 3 個國考重點' /tmp/prod-index.html
           grep -q "const VERSION = 'v7'" /tmp/prod-sw.js
           ! grep -q "const VERSION = 'v6'" /tmp/prod-sw.js
           grep -q '2026-08-26.fail-closed.v2' /tmp/prod-monthly-patch.js
