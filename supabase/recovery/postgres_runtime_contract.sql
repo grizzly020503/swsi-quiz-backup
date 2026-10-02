@@ -177,4 +177,7 @@ end
 $$;
 rollback;
 
+-- #274 extension: validate durable ledger RLS/grants/RPC behavior in the same DR gate.
+\ir ops_ledger_runtime_contract.sql
+
 \echo 'SWSI RESTORED RUNTIME DB CONTRACT OK'
