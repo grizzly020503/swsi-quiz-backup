@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "exam_type": "專門職業及技術人員高等考試社會工作師",
+  "policy": {
+    "future_same_shape": "inherit_latest_approved_profile_until_observed_diff",
+    "observed_diff": "quarantine_and_emit_candidate_only",
+    "auto_approve_candidate": false,
+    "notes": [
+      "This registry is the approved structural intake contract, not a prediction that the examination system will never change.",
+      "A future session that matches the latest approved profile may proceed without a code change.",
+      "A structural mismatch must be quarantined and reported as an unapproved candidate change; automation must not relax counts or subjects by itself."
+    ]
+  },
+  "round_aliases": {
+    "1": "第一次",
+    "第一次": "第一次",
+    "第1次": "第一次",
+    "第一試": "第一次",
+    "2": "第二次",
+    "第二次": "第二次",
+    "第2次": "第二次",
+    "第二試": "第二次"
+  },
+  "profiles": [
+    {
+      "id": "social-worker-five-subjects-v1",
+      "status": "approved",
+      "effective_from": {
+        "roc_year": "104",
+        "round": "第一次"
+      },
+      "effective_to": null,
+      "exam_code_suffixes": {
+        "第一次": "030",
+        "第二次": "100"
+      },
+      "subjects": [
+        {
+          "code": "0301",
+          "name": "社會工作",
+          "prefix": "SW"
+        },
+        {
+          "code": "0302",
+          "name": "社會工作直接服務",
+          "prefix": "DS"
+        },
+        {
+          "code": "0303",
+          "name": "社會政策與社會立法",
+          "prefix": "SP"
+        },
+        {
+          "code": "0304",
+          "name": "人類行為與社會環境",
+          "prefix": "HBSE"
+        },
+        {
+          "code": "0305",
+          "name": "社會工作研究方法",
+          "prefix": "R"
+        }
+      ],
+      "mcq": {
+        "per_subject": 40,
+        "expected_total": 200,
+        "qno_min": 1,
+        "qno_max": 40,
+        "option_letters": ["A", "B", "C", "D"]
+      },
+      "essay": {
+        "required": true,
+        "per_subject": 2,
+        "expected_total": 10,
+        "qno_min": 1,
+        "qno_max": 2
+      },
+      "evidence": [
+        {
+          "type": "repo_verified_historical_corpus",
+          "range": "104-1..115-2",
+          "sessions": 24,
+          "mcq": 4800,
+          "essays": 240,
+          "note": "The corpus proves the historical structure only. Future sessions inherit this profile as an intake assumption until an official structural difference is observed."
+        },
+        {
+          "type": "moex_current_parser_contract",
+          "exam_code_suffixes": ["030", "100"],
+          "subject_codes": ["0301", "0302", "0303", "0304", "0305"]
+        }
+      ]
+    }
+  ]
+}
