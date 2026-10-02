@@ -6,8 +6,8 @@ Reduce post-answer reading load on mobile without deleting SWSI depth or creatin
 
 ## Existing foundation retained
 
-- `zzzz_product_v1_lock.part` already inserts the official/canonical answer line and collapses distractor analysis, exam traps and `.extra` material behind `看完整解析`.
-- `70.learning-loop.part` already asks a wrong-answer student `這題你為什麼會錯？` and stores the selected cause locally.
+- `zzzz_product_v1_lock.part` remains the single late product owner for answer-line and explanation disclosure behavior.
+- `70.learning-loop.part` still asks a wrong-answer student `這題你為什麼會錯？` and stores the selected cause locally.
 - Official question text, official answers, grading rules and explanation source data are untouched.
 
 ## This patch
@@ -29,6 +29,12 @@ Layer 2 (`看完整解析`) contains the full explanation sections, including:
 - law/source detail already rendered as `.extra`.
 
 The concise reason is not AI-regenerated and does not invent facts: it is the first sentence (or a bounded prefix when no sentence boundary exists) of the already-rendered explanation.
+
+## Maintainability correction
+
+The first implementation briefly introduced a separate `zzzzz_progressive_explanation.part`. Runtime Owner QA correctly rejected that because it would increase both the reviewed runtime-part ceiling and the late z-layer count.
+
+The implementation was therefore folded into the existing `zzzz_product_v1_lock.part` owner and the temporary extra part is removed. The QA contract now fails if that separate runtime part reappears. This keeps the product behavior while preserving the repo's long-term owner/part-count discipline.
 
 ## Deliberate boundary
 
