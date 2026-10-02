@@ -5,6 +5,20 @@ on:
   schedule:
     # 長期低成本基線：每月 1 日 03:47 UTC 跑一次完整 manifest。
     - cron: '47 3 1 * *'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/full-corpus-qa.yml'
+      - 'scripts/full_corpus_qa.py'
+      - 'scripts/unified_question_qa.py'
+      - 'scripts/unified_question_qa_selftest.py'
+      - 'scripts/official_exam_readonly_guard.py'
+      - 'data/question_qa_policy_v1.json'
+      - 'data/official_exam_readonly.lock.json'
+      - 'cdn/question-shards/**'
+      - 'index.html'
+      - 'auto/essays_auto.json'
   pull_request:
     paths:
       - '.github/workflows/full-corpus-qa.yml'
