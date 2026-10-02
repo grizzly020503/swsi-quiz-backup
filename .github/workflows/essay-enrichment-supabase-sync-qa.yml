@@ -29,6 +29,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: swsi-essay-enrichment-supabase-sync-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   sync-contract:
     runs-on: ubuntu-latest

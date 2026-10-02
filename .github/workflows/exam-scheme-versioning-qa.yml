@@ -26,6 +26,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: swsi-exam-scheme-versioning-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   scheme-contract:
     name: Validate approved scheme and quarantine behavior

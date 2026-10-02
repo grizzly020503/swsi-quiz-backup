@@ -23,6 +23,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: swsi-essay-enrichment-overlay-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   overlay-contract:
     runs-on: ubuntu-latest
