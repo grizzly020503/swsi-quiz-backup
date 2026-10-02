@@ -2,6 +2,8 @@
 import json
 from pathlib import Path
 
+from exam_scheme import ExamSchemeError, load_registry, require_approved_payload
+
 ROOT = Path(__file__).resolve().parents[1]
 INCOMING = ROOT / 'incoming'
 AUTO = ROOT / 'auto'
@@ -78,16 +80,25 @@ def main():
     exams = []
     overlays = load_essay_enrichment()
     applied = set()
+    registry = load_registry()
 
     for path in sorted(INCOMING.glob('[0-9][0-9][0-9][0-9][0-9][0-9].json')):
         data = json.loads(path.read_text(encoding='utf-8'))
         code = str(data.get('exam_code') or path.stem)
+
+        # This is the authoritative structural intake gate. A future session that
+        # matches the latest approved profile proceeds without a code change. A
+        # different subject/question/essay structure is an unapproved candidate
+        # and must stop here before backup payloads or Supabase import are built.
+        try:
+            scheme = require_approved_payload(data, registry, path.as_posix())
+        except ExamSchemeError as exc:
+            raise SystemExit(str(exc)) from exc
+
         if code in BASELINE_EXAMS:
             continue
         qs = data.get('questions') or []
         es = data.get('essays') or []
-        if len(qs) != 200 or len(es) != 10:
-            raise SystemExit(f'{path}: refusing incomplete payload MC={len(qs)} Essay={len(es)}')
         for q in qs:
             if q.get('id'):
                 questions[str(q['id'])] = q
@@ -107,6 +118,7 @@ def main():
             'source_page': data.get('source_page'),
             'mc_count': len(qs),
             'essay_count': len(es),
+            'exam_scheme_id': scheme['profile_id'],
             'stats': data.get('stats') or {},
         })
 
@@ -123,6 +135,7 @@ def main():
     (AUTO / 'essays_auto.json').write_text(json.dumps(erows, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
     (AUTO / 'sync_state.json').write_text(json.dumps({
         'baseline_exams': sorted(BASELINE_EXAMS),
+        'exam_scheme_registry': 'data/exam_scheme_registry.v1.json',
         'included_exams': exams,
         'mc_count': len(qrows),
         'essay_count': len(erows),
@@ -131,7 +144,7 @@ def main():
 
     print(
         f'auto payload: {len(qrows)} MC + {len(erows)} essays from {len(exams)} exams; '
-        f'essay enrichment={len(applied)}'
+        f'essay enrichment={len(applied)}; schemes={sorted({x["exam_scheme_id"] for x in exams})}'
     )
     return 0
 
