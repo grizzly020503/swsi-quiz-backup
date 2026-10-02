@@ -10,6 +10,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -189,11 +191,23 @@ def transform(text: str, laws_json: str, theories_json: str, knowledge_manifest:
     return text
 
 
+def refresh_current_affairs_ui(path: Path) -> None:
+    """Materialize the maintained current-affairs UI into the build copy.
+
+    The installer intentionally owns the large embedded block. Running it with the
+    build directory as cwd keeps the historical root index untouched while making
+    every production-shaped artifact consume the same maintained UI contract.
+    """
+    installer = ROOT / 'scripts' / 'install_current_affairs_ui.py'
+    subprocess.run([sys.executable, str(installer)], cwd=path.parent, check=True)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('index', nargs='?', default='_site/index.html')
     args = ap.parse_args()
     path = Path(args.index)
+    refresh_current_affairs_ui(path)
     text = path.read_text(encoding='utf-8')
     laws_json, theories_json, knowledge_manifest = load_canonical_knowledge()
     patched = transform(text, laws_json, theories_json, knowledge_manifest)
