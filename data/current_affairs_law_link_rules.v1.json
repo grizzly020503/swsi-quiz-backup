@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "purpose": "High-precision, evidence-bearing law and policy-instrument links for SWSI current-affairs items. Rules fail closed and must not be read as evidence that a law was amended.",
+  "principles": [
+    "Prefer precision over coverage.",
+    "A related law is not the same thing as a law amendment.",
+    "Policy programmes and subsidy schemes stay separate from statutes.",
+    "Every automatic rule carries positive and negative regression examples."
+  ],
+  "law_rules": [
+    {
+      "id": "minimum-wage-statutory-framework-v1",
+      "law": "最低工資法",
+      "kind": "law",
+      "confidence": "high",
+      "required_any": ["最低工資", "基本工資"],
+      "required_context_any": ["審議會", "每月最低工資", "每小時最低工資", "調升", "調整最低工資", "公告實施", "最低工資法"],
+      "article": "第6條、第9條至第13條（審議與公告架構）",
+      "reason": "事件直接涉及最低工資審議、調整或公告，屬《最低工資法》的法定制度範圍。",
+      "authoritative_reference": "https://laws.mol.gov.tw/FLAW/FLAWDAT01.aspx?id=FL102659",
+      "positive_examples": [
+        "最低工資審議會決定調升每月最低工資與每小時最低工資。",
+        "勞動部公告實施新的最低工資標準。"
+      ],
+      "negative_examples": [
+        "最低生活費調升，社會救助資格門檻同步調整。",
+        "本文回顧基本工資歷史，主要討論勞保老年年金請領。"
+      ]
+    },
+    {
+      "id": "employer-childcare-gender-equality-work-act-v1",
+      "law": "性別平等工作法",
+      "kind": "law",
+      "confidence": "high",
+      "required_any": ["企業托育", "托兒設施", "托兒措施", "職場居家式托育", "育兒補貼"],
+      "required_context_any": ["雇主", "企業", "受僱者", "員工", "職場"],
+      "article": "第23條",
+      "reason": "事件涉及雇主提供托兒設施／措施或主管機關補助，直接對應《性別平等工作法》第23條。",
+      "authoritative_reference": "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?flno=23&id=FL015149",
+      "positive_examples": [
+        "勞動部提醒雇主申請企業托育補助，提供員工育兒補貼或托兒措施。",
+        "企業設置托兒設施與職場居家式托育服務，可依規定申請補助。"
+      ],
+      "negative_examples": [
+        "地方政府擴大公共托育與準公共幼兒園名額。",
+        "兒少居家托育服務品質與托育人員訓練受到關注。"
+      ]
+    }
+  ],
+  "policy_instrument_rules": [
+    {
+      "id": "enterprise-childcare-subsidy-program-v1",
+      "name": "企業托育補助",
+      "kind": "subsidy_program",
+      "confidence": "high",
+      "required_any": ["企業托育", "育兒補貼", "托兒設施", "職場居家式托育"],
+      "required_context_any": ["雇主", "企業", "員工", "職場"],
+      "reason": "事件直接描述勞動部企業托育補助或雇主托兒措施。",
+      "authoritative_reference": "https://childcare.mol.gov.tw/PageNew/default.aspx",
+      "positive_examples": [
+        "企業托育補助申請進入倒數，雇主可申請育兒補貼與托兒設施補助。"
+      ],
+      "negative_examples": [
+        "地方政府新增公共托育據點。"
+      ]
+    },
+    {
+      "id": "expanded-elderly-living-alone-service-v1",
+      "name": "擴大獨居老人服務",
+      "kind": "policy_measure",
+      "confidence": "high",
+      "required_any": ["擴大獨居老人服務", "獨老服務"],
+      "required_context_any": ["關懷訪查", "訪員", "獨居長者", "二會三不"],
+      "reason": "事件直接描述衛福部擴大獨居老人訪查與分級連結服務措施。",
+      "authoritative_reference": "https://www.mohw.gov.tw/cp-7403-88069-1.html",
+      "positive_examples": [
+        "衛福部擴大獨居老人服務，啟動獨居長者關懷訪查。"
+      ],
+      "negative_examples": [
+        "研究分析獨居老人孤獨感與社會支持。"
+      ]
+    },
+    {
+      "id": "residential-service-user-subsidy-v1",
+      "name": "住宿式服務機構使用者補助方案",
+      "kind": "subsidy_program",
+      "confidence": "high",
+      "required_any": ["住宿式服務機構", "住宿式機構"],
+      "required_context_any": ["補助", "每月最高", "每年最高", "18萬元", "1萬5,000元", "15000元"],
+      "reason": "事件直接描述住宿式服務機構使用者補助方案的額度、資格或申請。",
+      "authoritative_reference": "https://1966.gov.tw/LTC/cp-6457-69925-207.html",
+      "positive_examples": [
+        "住宿式服務機構使用者補助方案調增，每人每年最高18萬元。"
+      ],
+      "negative_examples": [
+        "住宿式機構評鑑結果公布，未涉及補助方案。"
+      ]
+    }
+  ]
+}
