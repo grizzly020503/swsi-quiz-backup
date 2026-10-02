@@ -50,6 +50,7 @@ EXPECTED_SUBJECTS = {
 VALID_GRADING_MODES = {"standard", "all_credit", "any_answer"}
 BASELINE_GROUPS = {(y, r) for y in BASELINE_YEARS for r in VALID_ROUNDS}
 BASELINE_QUESTIONS = len(BASELINE_GROUPS) * 200
+MOEX_SOURCE_PREFIX = "https://wwwq.moex.gov.tw/"
 
 # ROC 104–115 have already been independently audited against MOEX final answer
 # PDFs. These are immutable release guards, not assumptions for future exams.
@@ -84,7 +85,7 @@ SELECT_FIELDS = [
     "answer", "accepted_answers", "grading_mode",
     "exp_why", "exp_others", "exp_trap", "exp_raw",
     "mnemonic", "extension", "law", "mistake",
-    "source_exam_code",
+    "source_exam_code", "source_url",
     "analysis_status",
     "legal_status", "legal_checked_at", "legal_note", "legal_source_url",
 ]
@@ -157,6 +158,31 @@ def validate_historical_grading_baseline(rows: list[dict]) -> None:
     if len(baseline) != BASELINE_QUESTIONS:
         raise RuntimeError(
             f"Historical grading baseline requires {BASELINE_QUESTIONS} rows, got {len(baseline)}"
+        )
+
+    missing_exam_codes = [
+        str(r.get("id") or "")
+        for r in baseline
+        if not str(r.get("source_exam_code") or "").strip()
+    ]
+    missing_source_urls = [
+        str(r.get("id") or "")
+        for r in baseline
+        if not str(r.get("source_url") or "").strip()
+    ]
+    non_moex_source_urls = [
+        str(r.get("id") or "")
+        for r in baseline
+        if str(r.get("source_url") or "").strip()
+        and not str(r.get("source_url") or "").strip().startswith(MOEX_SOURCE_PREFIX)
+    ]
+    if missing_exam_codes or missing_source_urls or non_moex_source_urls:
+        raise RuntimeError(
+            "Historical official source provenance invalid: "
+            f"missing source_exam_code={len(missing_exam_codes)}, "
+            f"missing source_url={len(missing_source_urls)}, "
+            f"non-MOEX source_url={len(non_moex_source_urls)}; "
+            f"sample ids={sorted(set(missing_exam_codes + missing_source_urls + non_moex_source_urls))[:10]}"
         )
 
     mode_counts = Counter(str(r.get("grading_mode") or "") for r in baseline)
@@ -264,8 +290,8 @@ def validate(rows: list[dict]) -> dict[tuple[str, str], list[dict]]:
         )
 
     # This is intentionally inside the builder validation used by both CI and
-    # the scheduled publisher. A historical grading drift must stop publication,
-    # not merely fail a separate advisory workflow.
+    # the scheduled publisher. Historical grading/provenance drift must stop
+    # publication, not merely fail a separate advisory workflow.
     validate_historical_grading_baseline(rows)
 
     return grouped
@@ -356,6 +382,7 @@ def main() -> int:
                 "multi_answer_rows": multi,
                 "all_credit_rows": all_credit,
                 "any_answer_rows": any_answer,
+                "historical_source_provenance": "pass",
                 "revision": manifest["dataset_revision"],
                 "total_bytes": manifest["total_uncompressed_bytes"],
                 "min_shard_bytes": min(sizes),
