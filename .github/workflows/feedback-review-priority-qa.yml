@@ -7,8 +7,11 @@ on:
       - 'supabase/functions/swsi-admin/index.ts'
       - 'supabase/functions/swsi-admin/feedback_priority.mjs'
       - 'scripts/feedback_review_priority_smoke.mjs'
+      - 'scripts/materialize_cloudflare_runtime.py'
       - 'audit/feedback_review_priority_20261003.md'
       - 'FEEDBACK_TRIAGE_POLICY.md'
+      - 'cdn/monthly_patch.js'
+      - 'cdn/index.html'
 
 permissions:
   contents: read
@@ -20,7 +23,7 @@ concurrency:
 jobs:
   contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 3
     steps:
       - name: Checkout PR merge ref
         uses: actions/checkout@v7
@@ -29,6 +32,7 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/feedback_review_priority_smoke.mjs
+          python -m py_compile scripts/materialize_cloudflare_runtime.py
           grep -q 'deriveFeedbackPriority' supabase/functions/swsi-admin/index.ts
           grep -q 'persisted_v1' supabase/functions/swsi-admin/index.ts
           grep -q 'derived_fallback_v1' supabase/functions/swsi-admin/feedback_priority.mjs
@@ -37,3 +41,21 @@ jobs:
             exit 1
           fi
           git diff --check
+
+      - name: Materialize tracked frontend runtime candidate
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/swsi-runtime-materialized
+          mkdir -p /tmp/swsi-runtime-materialized
+          python scripts/materialize_cloudflare_runtime.py
+          cp cdn/monthly_patch.js /tmp/swsi-runtime-materialized/monthly_patch.js
+          cp cdn/index.html /tmp/swsi-runtime-materialized/index.html
+          python scripts/materialize_cloudflare_runtime.py --check
+
+      - name: Upload deterministic runtime candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracked-cloudflare-runtime-${{ github.event.pull_request.head.sha }}
+          path: /tmp/swsi-runtime-materialized
+          retention-days: 1
+          if-no-files-found: error
