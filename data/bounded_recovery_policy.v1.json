@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "global": {
+    "preserve_last_known_good": true,
+    "production_publish_requires_external_authorization": true,
+    "contract_may_self_authorize_publish": false,
+    "automatic_blind_database_rollback": false,
+    "automatic_paid_service_activation": false,
+    "automatic_qa_lowering": false,
+    "automatic_official_core_mutation": false
+  },
+  "failure_classes": {
+    "transient_timeout": {
+      "retryable": true,
+      "max_attempts": 3,
+      "backoff_class": "exponential_short",
+      "scope": "request_or_job",
+      "cost_class": "low",
+      "exhausted_action": "preserve_last_known_good",
+      "core_status": "unchanged",
+      "enhancement_status": "degraded_if_affected"
+    },
+    "rate_limited_429": {
+      "retryable": true,
+      "max_attempts": 2,
+      "backoff_class": "provider_retry_after_or_long",
+      "scope": "provider_request",
+      "cost_class": "medium",
+      "exhausted_action": "preserve_last_known_good",
+      "core_status": "unchanged",
+      "enhancement_status": "degraded_if_affected"
+    },
+    "upstream_5xx": {
+      "retryable": true,
+      "max_attempts": 3,
+      "backoff_class": "exponential_medium",
+      "scope": "provider_request",
+      "cost_class": "medium",
+      "exhausted_action": "preserve_last_known_good",
+      "core_status": "unchanged",
+      "enhancement_status": "degraded_if_affected"
+    },
+    "source_unavailable": {
+      "retryable": true,
+      "max_attempts": 2,
+      "backoff_class": "source_outage",
+      "scope": "source_intake",
+      "cost_class": "low",
+      "exhausted_action": "preserve_last_known_good",
+      "core_status": "available_last_verified",
+      "enhancement_status": "stale_or_paused"
+    },
+    "stale_job": {
+      "retryable": true,
+      "max_attempts": 1,
+      "backoff_class": "lease_recovery",
+      "scope": "job",
+      "cost_class": "low",
+      "exhausted_action": "manual_required",
+      "core_status": "unchanged",
+      "enhancement_status": "degraded_if_affected"
+    },
+    "candidate_validation_failed": {
+      "retryable": false,
+      "max_attempts": 0,
+      "backoff_class": "none",
+      "scope": "candidate",
+      "cost_class": "low",
+      "exhausted_action": "quarantine",
+      "core_status": "preserve_last_known_good",
+      "enhancement_status": "candidate_blocked"
+    },
+    "preview_failed": {
+      "retryable": false,
+      "max_attempts": 0,
+      "backoff_class": "none",
+      "scope": "release_candidate",
+      "cost_class": "low",
+      "exhausted_action": "quarantine",
+      "core_status": "preserve_last_known_good",
+      "enhancement_status": "publish_blocked"
+    },
+    "post_deploy_smoke_failed": {
+      "retryable": false,
+      "max_attempts": 0,
+      "backoff_class": "none",
+      "scope": "static_release",
+      "cost_class": "low",
+      "exhausted_action": "rollback_required",
+      "core_status": "restore_previous_known_good_static_release",
+      "enhancement_status": "release_failed"
+    },
+    "quota_exhausted": {
+      "retryable": false,
+      "max_attempts": 0,
+      "backoff_class": "none",
+      "scope": "quota_limited_enhancement",
+      "cost_class": "high",
+      "exhausted_action": "preserve_last_known_good",
+      "core_status": "available_if_independent",
+      "enhancement_status": "paused"
+    },
+    "ai_unavailable": {
+      "retryable": false,
+      "max_attempts": 0,
+      "backoff_class": "none",
+      "scope": "ai_enhancement",
+      "cost_class": "medium",
+      "exhausted_action": "degrade_enhancement",
+      "core_status": "available",
+      "enhancement_status": "paused"
+    },
+    "official_core_change": {
+      "retryable": false,
+      "max_attempts": 0,
+      "backoff_class": "none",
+      "scope": "official_core",
+      "cost_class": "high",
+      "exhausted_action": "manual_required",
+      "core_status": "preserve_last_verified_until_official_evidence",
+      "enhancement_status": "unchanged",
+      "owner_required": true
+    },
+    "auth_rls_secret_change": {
+      "retryable": false,
+      "max_attempts": 0,
+      "backoff_class": "none",
+      "scope": "security_boundary",
+      "cost_class": "high",
+      "exhausted_action": "manual_required",
+      "core_status": "preserve_last_known_good",
+      "enhancement_status": "unchanged",
+      "owner_required": true
+    },
+    "destructive_schema_change": {
+      "retryable": false,
+      "max_attempts": 0,
+      "backoff_class": "none",
+      "scope": "database",
+      "cost_class": "high",
+      "exhausted_action": "manual_required",
+      "core_status": "preserve_last_known_good",
+      "enhancement_status": "unchanged",
+      "owner_required": true
+    },
+    "paid_service_change": {
+      "retryable": false,
+      "max_attempts": 0,
+      "backoff_class": "none",
+      "scope": "cost_commitment",
+      "cost_class": "high",
+      "exhausted_action": "manual_required",
+      "core_status": "preserve_last_known_good",
+      "enhancement_status": "paused_if_needed",
+      "owner_required": true
+    },
+    "unknown_migration_state": {
+      "retryable": false,
+      "max_attempts": 0,
+      "backoff_class": "none",
+      "scope": "database",
+      "cost_class": "high",
+      "exhausted_action": "manual_required",
+      "core_status": "preserve_last_known_good",
+      "enhancement_status": "unchanged",
+      "owner_required": true
+    }
+  },
+  "release_state_machine": {
+    "states": [
+      "candidate",
+      "isolated_verified",
+      "preview_verified",
+      "publish_authorized",
+      "published",
+      "postcheck_verified",
+      "quarantine",
+      "preserve_last_known_good",
+      "rollback_required",
+      "manual_required"
+    ],
+    "normal_path": [
+      "candidate",
+      "isolated_verified",
+      "preview_verified",
+      "publish_authorized",
+      "published",
+      "postcheck_verified"
+    ],
+    "publish_authorization_transition": {
+      "from": "preview_verified",
+      "to": "publish_authorized",
+      "requires_external_authorization": true,
+      "authorization_source": "owner_or_existing_release_gate"
+    },
+    "failure_terminals": [
+      "quarantine",
+      "preserve_last_known_good",
+      "rollback_required",
+      "manual_required"
+    ]
+  },
+  "rollback_boundaries": {
+    "static_release": "previous_known_good_static_release_may_be_selected_after_failed_postcheck",
+    "database": "no_blind_automatic_downgrade_use_prevalidated_forward_recovery_restore_or_owner_decision",
+    "official_answer_correction": "official_evidence_and_audit_trail_required_before_publish"
+  }
+}
