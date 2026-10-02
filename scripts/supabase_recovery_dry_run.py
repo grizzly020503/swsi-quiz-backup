@@ -139,6 +139,7 @@ def assert_schema(manifest: dict) -> None:
         "legal_canonical_names",
         "analysis_attempts",
         "analysis_completed_at",
+        "analysis_last_attempt_at",
     ):
         if required not in qcols:
             raise AssertionError(f"questions recovery column missing: {required}")

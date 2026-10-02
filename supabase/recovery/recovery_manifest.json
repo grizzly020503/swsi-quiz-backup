@@ -28,6 +28,7 @@
     "supabase/migrations/20260828011500_create_swsi_admin_users.sql",
     "supabase/migrations/20260902143000_add_anonymous_usage_analytics.sql",
     "supabase/migrations/20260915151500_add_ai_telemetry.sql",
+    "supabase/migrations/20261002045108_ai_queue_fair_retry_rotation.sql",
     "supabase/recovery/production_acl_alignment.sql"
   ],
   "expected": {
@@ -46,7 +47,7 @@
       "swsi_feedback_reports",
       "swsi_usage_daily"
     ],
-    "question_columns": 36,
+    "question_columns": 37,
     "essay_columns": 23,
     "official_questions": 4800,
     "shard_count": 24,
