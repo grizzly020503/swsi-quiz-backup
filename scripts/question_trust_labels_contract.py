@@ -63,8 +63,16 @@ assert seen_ready, "no ready analysis status found in corpus"
 assert seen_official, "no official source metadata found in corpus"
 assert "not_applicable" in seen_legal, "legal_status contract missing from corpus"
 
-# Never introduce misleading shorthand that collapses platform QA into official/human verification.
-for forbidden in ("官方解析", "平台解析・人工已驗證", "ready = verified", "ready=verified"):
+# Never introduce a positive claim that collapses platform QA into official/human verification.
+# The required negative sentence "不是考選部官方解析" must remain allowed.
+for forbidden in (
+    "平台解析・人工已驗證",
+    "平台解析＝官方解析",
+    "平台解析=官方解析",
+    "SWSI 官方解析",
+    "ready = verified",
+    "ready=verified",
+):
     assert forbidden not in LOCK, f"misleading trust wording found: {forbidden}"
 
 print("QUESTION TRUST LABELS CONTRACT OK: official core, platform QA, and legal review states stay visibly distinct")
