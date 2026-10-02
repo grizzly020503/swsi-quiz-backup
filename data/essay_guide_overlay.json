@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "purpose": "SWSI-authored essay learning-guide overlay. Never changes MOEX official question text. Only verified records are emitted into the student runtime; held items remain absent until their subject-matter review is complete.",
+  "coverage_sessions": [
+    "115-2"
+  ],
+  "records": [
+    {
+      "id": "E-115-2-HBSE-1",
+      "kao": "這題不是只要背 NEET 定義。要先掌握成年初顯期的心理社會特徵與轉銜任務，再從個人、家庭／教育、勞動市場與社會結構等層次分析青年成為 NEET 的可能成因及影響。",
+      "dati": "先用成年初顯期定位青年正處於身分探索、工作與關係轉銜較不穩定的階段；接著把 NEET 成因分層，不要把責任全推給個人。最後分個人心理社會與長期教育／就業／社會連結影響作答，形成「發展階段→多層成因→多面影響」的完整鏈條。",
+      "biaoti": [
+        "成年初顯期的心理社會特徵與轉銜任務：身分探索、不穩定、自我聚焦、介於青少年與成人之間、對未來可能性的探索，並逐步面對教育、就業、關係與自主責任的轉銜",
+        "NEET 的多層成因：個人能力與身心狀態、教育與技能／工作經驗、家庭社經資源與支持，以及就業機會、勞動市場與社會不平等等結構條件",
+        "對個人的影響：自我效能與身分發展受挫、心理健康與生活規律風險、技能累積中斷，以及後續就業與經濟自主更困難",
+        "對社會關係與長期發展的影響：社會隔離或排除風險、家庭負擔增加，並可能形成教育與就業劣勢的累積"
+      ],
+      "kw": [
+        "成年初顯期",
+        "身分探索",
+        "不穩定",
+        "介於兩者之間",
+        "可能性",
+        "NEET",
+        "教育與就業轉銜",
+        "家庭社經資源",
+        "勞動市場",
+        "社會排除"
+      ],
+      "review_status": "verified",
+      "reviewed_at": "2026-10-02",
+      "review_batch": "115-2-overlay-batch1",
+      "review_sources": [
+        "考選部 115 年第二次社會工作師官方題幹（incoming/115100.json）",
+        "American Psychological Association: Jeffrey Jensen Arnett / Emerging Adulthood five defining features",
+        "Rahmani & Groot (2023), Risk Factors of Being a Youth Not in Education, Employment or Training (NEET): A Scoping Review, International Journal of Educational Research, doi:10.1016/j.ijer.2023.102198",
+        "Gunnes et al. (2025), Young adults not in education, employment, or training (NEET): a global scoping review, BMC Public Health, doi:10.1186/s12889-025-24781-y"
+      ],
+      "is_official": false,
+      "guide_source": "SWSI 自製複習參考架構；依 115 年第二次官方題幹逐題整理並以發展心理與 NEET 系統性回顧交叉核對，非考選部官方標準答案"
+    },
+    {
+      "id": "E-115-2-HBSE-2",
+      "kao": "要同時回答無家者的成因、形成的社會問題與生活困境，並分別用人權觀點與增強權能觀點重新理解無家處境；重點是避免只用個人缺陷解釋。",
+      "dati": "先說明無家處境是個人生命事件與住房、就業、貧窮、福利可近性、歧視等結構因素交互作用的結果；再寫具體生活困境。最後分兩個理論鏡頭：人權觀點強調尊嚴、權利與制度責任，增強權能觀點強調優勢、自我決定、參與和資源控制。",
+      "biaoti": [
+        "無家處境的多重成因：個人與家庭變故、健康或關係困難，和貧窮、失業、可負擔住宅不足、福利服務門檻及社會歧視等因素交互作用",
+        "主要社會問題與生活困境：居住與人身安全不穩、健康與就醫、工作與收入、身分／福利服務取得、社會關係斷裂，以及污名與排除",
+        "人權觀點：把無家者視為權利主體而非慈善對象，從尊嚴、適足居住、健康、社會保障、工作與平等不歧視等權利檢視制度障礙",
+        "增強權能觀點：辨識生存能力、既有資源與支持網絡，尊重當事人的選擇與目標，增加資訊、資源、參與及決策權，而非替當事人決定人生"
+      ],
+      "kw": [
+        "無家者",
+        "多重成因",
+        "社會排除",
+        "污名",
+        "權利主體",
+        "尊嚴",
+        "適足居住",
+        "增強權能",
+        "自我決定",
+        "參與"
+      ],
+      "review_status": "verified",
+      "reviewed_at": "2026-10-02",
+      "review_batch": "115-2-overlay-batch1",
+      "review_sources": [
+        "考選部 115 年第二次社會工作師官方題幹（incoming/115100.json）",
+        "OHCHR: European Platform on Combating Homelessness — homelessness as systemic discrimination/social exclusion and a human-rights issue",
+        "Bender et al. / Strengths-Based Outreach and Advocacy literature for marginalized homeless youth (PMC5603313)",
+        "Tweed et al. (2012), Self-perceived strengths among people who are homeless (PMC3498836)"
+      ],
+      "is_official": false,
+      "guide_source": "SWSI 自製複習參考架構；依 115 年第二次官方題幹逐題整理並以 OHCHR 人權框架與優勢／增強權能研究交叉核對，非考選部官方標準答案"
+    },
+    {
+      "id": "E-115-2-SW-2",
+      "kao": "先說明外展工作的功能，再把題目已提供的青年特質——地域認同、同儕團體動能、對公共空間的意見——視為優勢與資產，轉化成由青年主導的社區組織行動。",
+      "dati": "不要一開始就替青年設計活動。先寫外展如何主動接近未進入正式服務、較疏離體系的青年並建立關係；再做優勢／資產盤點。行動設計依序寫成「建立信任→共同定義問題→盤點人與地方資產→形成青年核心與分工→行動及公共對話→反思與延續」，並說明社工是促進者、資源連結者與倡議協作者。",
+      "biaoti": [
+        "外展工作的功能：到青年所在場域主動接觸、降低服務門檻、建立可信任關係、理解需求與風險，並連結後續支持與資源",
+        "優勢盤點：把地域認同、同儕網絡、對空間的熟悉、共同不滿與團體動能看成可被動員的能力與社區資產，而非只標記為問題青年",
+        "青年主導的組織歷程：共同界定公共空間議題，讓青年提出目標、盤點利害關係人與資源、形成核心團隊與角色分工，再設計可執行的社區行動",
+        "社工角色與永續：促進討論、媒合資源、協助與居民／公部門對話、處理衝突與安全風險；把決策權留給青年並在行動後反思、培養下一階段領導"
+      ],
+      "kw": [
+        "外展工作",
+        "低門檻",
+        "關係建立",
+        "優勢觀點",
+        "資產盤點",
+        "地域認同",
+        "青年參與",
+        "社區組織",
+        "自我決定",
+        "資源連結"
+      ],
+      "review_status": "verified",
+      "reviewed_at": "2026-10-02",
+      "review_batch": "115-2-overlay-batch1",
+      "review_sources": [
+        "考選部 115 年第二次社會工作師官方題幹（incoming/115100.json）",
+        "Schön & Tranquist (2026), Reaching the margins: a study of outreach practices for youth in a NEET-situation, Frontiers in Sociology, doi:10.3389/fsoc.2026.1755110",
+        "Slesnick et al., Strengths-Based Outreach and Advocacy model for marginalized youth (PMC5603313)",
+        "Street Universities youth engagement model: low-threshold, strengths-based, person-centred and youth-led practice (PMC10194939)"
+      ],
+      "is_official": false,
+      "guide_source": "SWSI 自製複習參考架構；依 115 年第二次官方題幹逐題整理並以青年外展、優勢與 youth-led 實務研究交叉核對，非考選部官方標準答案"
+    },
+    {
+      "id": "E-115-2-DS-1",
+      "kao": "題目有三件事要答：保護因子的意涵、保護因子的分類，以及結案階段如何運用復原力觀點協助案主建立支持系統並舉例。",
+      "dati": "先把復原力寫成逆境中持續調適／恢復的動態歷程，保護因子是能降低風險衝擊、支持正向適應的資源或條件。分類可用生態系統分層整理成個人、家庭／重要關係、社區與社會環境。結案段要回到『把能力與支持帶走』：回顧進展、盤點支持、連結資源、預演未來壓力與求助方式，最後用一個簡短例子串起來。",
+      "biaoti": [
+        "保護因子的意涵：不是保證不出問題，而是在風險／逆境存在時，降低負面影響並促進調適、恢復與持續發展的內外在資源",
+        "保護因子的生態分層：個人層如自我效能、問題解決與情緒調節；家庭／關係層如穩定依附、支持成人與同儕；社區／環境層如學校、社區服務、社會支持與可近資源",
+        "結案階段的復原力工作：共同回顧案主已展現的能力與成功經驗，做正式／非正式支持網絡盤點，補上薄弱連結並把資源使用方式具體化",
+        "維持與預防復發：討論未來可能壓力、早期警訊、可自行採取的策略與求助順序；例如讓即將結案的青年列出可聯絡家人、朋友、學校／就業資源及遇到危機時的求助計畫"
+      ],
+      "kw": [
+        "復原力",
+        "保護因子",
+        "風險因子",
+        "個人層次",
+        "家庭與關係",
+        "社區環境",
+        "自我效能",
+        "支持網絡",
+        "結案",
+        "維持計畫"
+      ],
+      "review_status": "verified",
+      "reviewed_at": "2026-10-02",
+      "review_batch": "115-2-overlay-batch1",
+      "review_sources": [
+        "考選部 115 年第二次社會工作師官方題幹（incoming/115100.json）",
+        "American Psychological Association: resilience protective factors across individual, family and community levels",
+        "Khanlou & Wray / Whole Community Approach review: individual, family and social-environmental resilience factors (PMC3913859)",
+        "Luthar et al., The construct of resilience: community, family and individual protective influences (PMC1903337)"
+      ],
+      "is_official": false,
+      "guide_source": "SWSI 自製複習參考架構；依 115 年第二次官方題幹逐題整理並以復原力多系統研究交叉核對，非考選部官方標準答案"
+    },
+    {
+      "id": "E-115-2-DS-2",
+      "kao": "要自己先選定一種服務對象與團體，再說明『團體開始前』的規劃工作重點，以及你會怎麼把這個團體具體準備好；不能只寫團體開始後的帶領技巧。",
+      "dati": "先選一個自己熟悉的例子，例如『青年照顧者支持團體』，再一路從需求與目的寫到可執行方案：需求／機構脈絡→團體目的與類型→成員組成與招募→結構與場地時間→活動內容與資源→同意、保密與風險→評估方式。每一項都要連回所選對象的需要。",
+      "biaoti": [
+        "需求、目的與機構脈絡：確認潛在成員的需求與期待、機構任務與資源，形成清楚且可評估的團體目的",
+        "團體類型與成員組成：決定支持／教育／成長等團體性質，規劃適合的人數與組成條件，設計招募、篩選、轉介及知情同意流程",
+        "團體結構與實務準備：規劃開放或封閉、次數、每次時間、地點與可近性、帶領者／協同帶領、所需教材活動及預算資源",
+        "契約、倫理與評估：預先說明目的、角色、保密及其限制、基本規範與退出方式；規劃如何追蹤團體過程與目標達成，並準備風險或突發狀況的處理方式"
+      ],
+      "kw": [
+        "團體規劃階段",
+        "需求評估",
+        "團體目的",
+        "團體類型",
+        "成員組成",
+        "招募與篩選",
+        "知情同意",
+        "團體結構",
+        "保密",
+        "成效評估"
+      ],
+      "review_status": "verified",
+      "reviewed_at": "2026-10-02",
+      "review_batch": "115-2-overlay-batch1",
+      "review_sources": [
+        "考選部 115 年第二次社會工作師官方題幹（incoming/115100.json）",
+        "International Association for Social Work with Groups, Standards for Social Work Practice with Groups, Second Edition, Section II: Pre-Group Phase — Planning, Recruitment and New Group Formation, doi:10.1080/01609513.2012.759504"
+      ],
+      "is_official": false,
+      "guide_source": "SWSI 自製複習參考架構；依 115 年第二次官方題幹逐題整理並以 IASWG 團體工作規劃標準交叉核對，非考選部官方標準答案"
+    }
+  ],
+  "held_for_review": [
+    {
+      "id": "E-115-2-SW-1",
+      "reason": "題目含性侵害被害人處遇、責任通報與法律義務；guide 上線前需另做現行法源與實務流程核對。"
+    },
+    {
+      "id": "E-115-2-R-1",
+      "reason": "題目要求概念化／操作化的特定步驟順序與實例；需先核對研究方法教材用語，避免把近義流程寫成唯一標準順序。"
+    },
+    {
+      "id": "E-115-2-R-2",
+      "reason": "縱向分析、橫向分析、理論性分析屬教材特定分類；需先鎖定來源定義後再發布。"
+    },
+    {
+      "id": "E-115-2-SP-1",
+      "reason": "福利給付型態的選擇原則屬社會政策教材框架；需先核對台灣國考常用分類與例子。"
+    },
+    {
+      "id": "E-115-2-SP-2",
+      "reason": "歷史法規版本高風險題；維持人工法源版本審核，禁止以現行法直接回填。"
+    }
+  ]
+}
