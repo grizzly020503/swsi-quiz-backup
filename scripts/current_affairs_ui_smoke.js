@@ -91,7 +91,9 @@ const oneOffEvent = {
 };
 const oneOffTrend = {
   canonical_event_id: oneOffEvent.canonical_event_id,
-  trend_state: 'one-off',
+  // Backend age analysis may call an old single observation "cooling". Student UI
+  // must still fail closed to "單次觀察" until trend evidence is actually ready.
+  trend_state: 'cooling',
   trend_score: 5.5,
   observation_count: 1,
   why: ['1 個官方來源', '有政策／制度訊號', '歷屆同概念關聯 11 題'],
@@ -182,7 +184,7 @@ async function scenario({
         assert(content.includes(value), `missing fail-closed one-off content: ${value}`);
       }
       for (const value of [
-        '趨勢訊號 5.5/10', '多來源證據', 'SW-113-2-27', '制度或給付已有明確變動',
+        '降溫', '趨勢訊號 5.5/10', '多來源證據', 'SW-113-2-27', '制度或給付已有明確變動',
       ]) {
         assert(!content.includes(value), `one-off event leaked overclaimed content: ${value}`);
       }
