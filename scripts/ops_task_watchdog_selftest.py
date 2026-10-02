@@ -122,7 +122,10 @@ def main() -> int:
             "stale": "stale",
             "missing": "missing",
         }, statuses
-        assert report["summary"]["blocking"] == 2, report["summary"]
+        # Only high/critical stale/missing/error tasks block.  The medium
+        # missing fixture stays visible in counts but must not fail the gate.
+        assert report["summary"]["blocking"] == 1, report["summary"]
+        assert report["summary"]["counts"]["missing"] == 1, report["summary"]
         assert report["independent_of_github_actions"] is False
 
         validate = run(["--registry", str(registry_path), "--validate-only"])
