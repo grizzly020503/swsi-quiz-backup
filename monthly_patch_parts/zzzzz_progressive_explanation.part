@@ -1,0 +1,128 @@
+
+/* SWSI Progressive Explanation V1 2026-10-03
+   Keep the answered-question surface short on mobile:
+   answer + one concise reason + personal mistake reflection stay visible.
+   Full reasoning, distractor analysis, traps, mnemonic and law details live behind
+   the existing "看完整解析" disclosure.
+*/
+(function(){
+  'use strict';
+  if(window.__SWSI_PROGRESSIVE_EXPLANATION_V1__) return;
+  window.__SWSI_PROGRESSIVE_EXPLANATION_V1__=true;
+
+  var STYLE_ID='swsi-progressive-explanation-v1-style';
+  if(!document.getElementById(STYLE_ID)){
+    var st=document.createElement('style');
+    st.id=STYLE_ID;
+    st.textContent=`
+      .swsi-core-reason{margin:0 0 13px;padding:10px 11px;border-left:3px solid var(--pine);background:#F8FAF9;border-radius:0 10px 10px 0;font-family:'Noto Sans TC',sans-serif;color:#343C38;line-height:1.7;}
+      .swsi-core-reason b{display:block;font-size:10.5px;letter-spacing:.04em;color:var(--pine);margin-bottom:2px;}
+      .swsi-core-reason span{display:block;font-size:13px;font-weight:650;}
+    `;
+    document.head.appendChild(st);
+  }
+
+  function concise(text){
+    var s=String(text||'').replace(/\s+/g,' ').trim();
+    if(!s) return '';
+    var m=s.match(/^(.{1,120}?[。！？!?])(?:\s|$|.)/);
+    if(m&&m[1]) return m[1].trim();
+    return s.length>105?s.slice(0,105).trim()+'…':s;
+  }
+
+  function directChildren(exp,selector){
+    return Array.prototype.filter.call(exp.children,function(el){return el.matches&&el.matches(selector);});
+  }
+
+  function ensureDetails(exp){
+    var details=directChildren(exp,'.swsi-explanation-more')[0];
+    if(details) return details;
+    details=document.createElement('details');
+    details.className='swsi-explanation-more';
+    details.innerHTML='<summary>看完整解析</summary><div class="body"></div>';
+    var next=directChildren(exp,'.btn')[0];
+    if(next) exp.insertBefore(details,next); else exp.appendChild(details);
+    return details;
+  }
+
+  function sectionLabel(sec){
+    var h=sec&&sec.querySelector&&sec.querySelector('h4');
+    return String(h&&h.textContent||'').trim();
+  }
+
+  function sourceText(sec){
+    if(!sec) return '';
+    var p=sec.querySelector&&sec.querySelector('p');
+    return concise(p?p.textContent:sec.textContent);
+  }
+
+  function keepReflectionOutside(exp){
+    var details=directChildren(exp,'.swsi-explanation-more')[0];
+    var cause=directChildren(exp,'.swsi-self-cause')[0];
+    if(details&&cause&&details.compareDocumentPosition(cause)&Node.DOCUMENT_POSITION_FOLLOWING){
+      exp.insertBefore(cause,details);
+    }
+  }
+
+  function decorate(){
+    var exp=document.querySelector('#app .qcard .exp');
+    if(!exp) return;
+
+    /* Wait for Product V1 Lock to establish the canonical answer line and its
+       disclosure before changing the visible reasoning layer. */
+    if(exp.dataset.swsiCompact!=='1') return;
+
+    if(exp.dataset.swsiProgressive!=='1'){
+      var secs=directChildren(exp,'.exp-sec');
+      var primary=null;
+      secs.some(function(sec){
+        var label=sectionLabel(sec);
+        if(/為什麼對/.test(label)){primary=sec;return true;}
+        return false;
+      });
+      if(!primary){
+        primary=secs.find(function(sec){return !sectionLabel(sec);})||null;
+      }
+
+      var summary=sourceText(primary);
+      if(summary&&!directChildren(exp,'.swsi-core-reason').length){
+        var core=document.createElement('div');
+        core.className='swsi-core-reason';
+        var label=document.createElement('b');
+        label.textContent='一句核心原因';
+        var text=document.createElement('span');
+        text.textContent=summary;
+        core.appendChild(label); core.appendChild(text);
+        var answer=directChildren(exp,'.swsi-answer-line')[0];
+        if(answer&&answer.nextSibling) exp.insertBefore(core,answer.nextSibling);
+        else if(answer) exp.appendChild(core);
+        else exp.insertBefore(core,exp.firstChild);
+      }
+
+      /* All explanatory sections belong to layer 2. Product V1 Lock already
+         moves distractor/trap sections and .extra blocks. Move the remaining
+         why/raw sections into that same disclosure, preserving their order. */
+      secs=directChildren(exp,'.exp-sec');
+      if(secs.length){
+        var details=ensureDetails(exp);
+        var body=details.querySelector('.body');
+        for(var i=secs.length-1;i>=0;i--) body.insertBefore(secs[i],body.firstChild);
+      }
+      exp.dataset.swsiProgressive='1';
+    }
+
+    /* Learning Loop decorates wrong answers asynchronously. Keep the student's
+       own reflection in layer 1, before the optional full explanation. */
+    keepReflectionOutside(exp);
+  }
+
+  decorate();
+  try{
+    var scheduled=false;
+    new MutationObserver(function(){
+      if(scheduled) return;
+      scheduled=true;
+      queueMicrotask(function(){scheduled=false;decorate();});
+    }).observe(document.body,{childList:true,subtree:true});
+  }catch(_e){}
+})();
