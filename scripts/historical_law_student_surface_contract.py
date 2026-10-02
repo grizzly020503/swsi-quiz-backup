@@ -85,10 +85,10 @@ for forbidden in (
 ):
     assert forbidden not in ui, f"unexpected historical-law student-surface payload/side effect: {forbidden}"
 
-# Reuse the existing law-trust runtime owner instead of adding another monthly_patch part.
-assert "window.SWSI_HISTORICAL_LAW_TRUST" in ui
+# Reuse the existing law-trust runtime owner instead of adding another monthly_patch part or global API.
 assert "decorateHistoricalQuestionTrust" in ui
 assert "swsi-answer-trust" in ui
+assert "window.SWSI_HISTORICAL_LAW_TRUST" not in ui
 
 print(
     "HISTORICAL LAW STUDENT SURFACE CONTRACT OK: "
