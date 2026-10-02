@@ -8,10 +8,12 @@
 
 新增 `scripts/full_corpus_qa.py` 與 `.github/workflows/full-corpus-qa.yml`。
 
-- 以 `cdn/question-shards/manifest.json` 為唯一掃描範圍，不硬寫 4,800 題或 24 shard。
+- 以 `cdn/question-shards/manifest.json` 為 MCQ 掃描範圍，不把 4,800 或 24 shard 寫死成永久常數。
 - 逐 shard 驗證檔案存在、SHA-256、question_count、session 唯一性。
-- 每一考次再交給既有 `scripts/unified_question_qa.py` 驗 MCQ + 該考次申論。
-- Official Core blocked、manifest 缺漏或 shard hash/count 錯誤會讓 workflow 失敗。
+- 申論不另建平行資料源；直接沿用既有 `scripts/official_exam_readonly_guard.py` 的 canonical source path：歷史題來自 `index.html` 的 `window.ESSAYS`，最新同步題來自 `auto/essays_auto.json`，以 immutable Official Core fields 偵測同 ID 衝突。
+- 每一考次再交給既有 `scripts/unified_question_qa.py` 驗 MCQ + 該考次申論；先跑 `official_exam_readonly_guard.py` 確保已鎖定官方原文沒有遭修改。
+- 報表分別列出 MCQ、essay 與 total；以 2026-10-02 現有 24 考次資料為基線，完整巡檢應覆蓋 4,800 MCQ + 240 essay = 5,040 official items。這是當下資料基線，不是把未來考制硬編碼成永遠固定 5,040。
+- Official Core blocked、manifest 缺漏、shard hash/count 錯誤、essay session 缺漏／多出，或 aggregate item 對不上來源時會讓 workflow 失敗。
 - enrichment/manual-review 訊號會列入報表，但不因尚待內容審查就把 Official Core 假裝損壞。
 - 每月 1 日跑一次，也保留 `workflow_dispatch` 供首輪 bootstrap／受控重跑。
 - 14 天 artifact 僅為診斷，不當作 10 年證據庫。
@@ -37,6 +39,17 @@ Full Corpus QA 首輪允許 `workflow_dispatch` 作 bootstrap；正常月排程�
 - high / critical 任務 stale、missing、error 時 workflow 失敗。
 - fixture self-test 覆蓋 healthy、stale、missing，以及「push 成功不能冒充 schedule 成功」。
 - 每 6 小時檢查一次，與 Public Monitoring Feed 錯開。
+
+## 首輪 CI 找到並修正的覆蓋缺口
+
+PR #263 第一版雖然 24/24 sessions 綠燈，但報表只有 4,810 items。原因不是 MCQ 漏掃，而是 runner 錯把 `auto/essays_auto.json`（115-2 最新 10 題）當作全部申論來源。
+
+此問題已在 PR 內修正，不以「CI 綠燈」掩蓋錯誤覆蓋：
+
+- 歷史 230 題重新沿用 `index.html` / `window.ESSAYS`；
+- 最新 10 題沿用 `auto/essays_auto.json`；
+- `data/official_exam_readonly.lock.json` 已存在 240 essay immutable hashes；
+- 第二輪驗收必須看到 240 essay 與總數 5,040 才能將本批稱為 full-corpus。
 
 ## 明確沒有完成的項目
 
