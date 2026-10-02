@@ -141,12 +141,6 @@
     verifiedCount:function(){return LAWS.filter(function(x){return x&&x.verify_status===VERIFY_CHECKED;}).length;}
   };
 
-  window.SWSI_HISTORICAL_LAW_TRUST={
-    version:'SWSI Historical Law Student Surface V1 2026-10-03',
-    count:Object.keys(HISTORICAL_VERIFIED).length,
-    get:function(questionId){return HISTORICAL_VERIFIED[String(questionId||'')]||null;}
-  };
-
   window.SWSI_NEW_RESIDENT_STATUS={version:'SWSI New Resident Basic Act Status Fix 2026-08-26'};
 
   window.SWSI_LAW_TRUST_FINAL={
