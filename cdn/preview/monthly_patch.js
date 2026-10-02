@@ -2059,19 +2059,21 @@ html[data-fs="2"]{
     if(rv.due>0)return {title:'先複習今天到期的 '+rv.due+' 題',sub:'到期錯題比再刷一批新題更值得。',onclick:"swsiLearningAction('due')"};
     if(rv.active>0)return {title:'整理還沒熟的錯題',sub:'目前還有 '+rv.active+' 題在複習循環裡。',onclick:"swsiLearningAction('review')"};
     if(drafts>0)return {title:'繼續一份申論草稿',sub:'這台裝置還有 '+drafts+' 份草稿可以接著寫。',onclick:"swsiLearningAction('essay')"};
-    return {title:'完成一組 20 題',sub:'先累積一點作答資料，平台才更知道你的弱點。',onclick:"swsiLearningAction('quiz')"};
+    return {title:'先花 10 分鐘練 10 題',sub:'不用先研究功能，直接完成一小組題目。',onclick:"swsiLearningAction('short')"};
   }
 
   function buildHub(){
     var rv=reviewMeta(),drafts=draftCount(),rec=recommendation(rv,drafts);
     return '<section class="swsi-myhub" aria-label="學習中心">'
-      +'<div class="swsi-myhub-card"><div class="swsi-myhub-kicker">學習中心</div><h2 class="swsi-myhub-title">今天先做一件就好</h2><div class="swsi-myhub-sub">這裡只放和你自己的學習進度有關的東西。</div>'
+      +'<div class="swsi-myhub-card"><div class="swsi-myhub-kicker">學習中心</div><h2 class="swsi-myhub-title">你現在想做什麼？</h2><div class="swsi-myhub-sub">直接照你現在的時間和需求選一個，不用先理解平台功能名稱。</div>'
       +'<button type="button" class="swsi-myhub-primary" onclick="'+rec.onclick+'"><span><b>'+rec.title+'</b><small>'+rec.sub+'</small></span><span class="arrow">›</span></button>'
       +'<div class="swsi-myhub-stats"><div class="swsi-myhub-stat"><b>'+rv.due+'</b><span>今天到期</span></div><div class="swsi-myhub-stat"><b>'+rv.active+'</b><span>還沒熟</span></div><div class="swsi-myhub-stat"><b>'+rv.mastered+'</b><span>已掌握</span></div></div>'
-      +'<div class="swsi-myhub-list">'
-      +row('↻','錯題複習',rv.due?('今天 '+rv.due+' 題到期'):(rv.active?('尚有 '+rv.active+' 題未熟練'):'目前沒有待複習題'),"swsiLearningAction('review')")
-      +row('◎','快速刷題','智慧推薦 20 題',"swsiLearningAction('quiz')")
-      +row('✎','申論練習',drafts?('這台裝置有 '+drafts+' 份草稿'):'歷屆申論與 AI 練習回饋',"swsiLearningAction('essay')")
+      +'<div class="swsi-myhub-list" data-swsi-learning-scenarios>'
+      +row('10','我只有 10 分鐘','快速刷題：直接做 10 題今日練習',"swsiLearningAction('short')",'', 'data-swsi-scenario="short"')
+      +row('弱','我要補最弱科','先看各科表現，再練目前最需要補的科目',"swsiLearningAction('weak')",'', 'data-swsi-scenario="weak"')
+      +row('卷','我要做完整考卷','進入計時模擬考，完成後再看結果',"swsiLearningAction('mock')",'', 'data-swsi-scenario="mock"')
+      +row('✎','我要練申論',drafts?('申論練習：這台裝置有 '+drafts+' 份草稿可接著寫'):'申論練習：歷屆申論與 AI 回饋',"swsiLearningAction('essay')",'', 'data-swsi-scenario="essay"')
+      +row('↻','我要複習錯題',rv.due?('錯題複習：今天 '+rv.due+' 題到期'):(rv.active?('錯題複習：尚有 '+rv.active+' 題未熟練'):'錯題複習：目前沒有待複習題'),"swsiLearningAction('review')",'', 'data-swsi-scenario="review"')
       +'</div></div>'
       +'<details class="swsi-myhub-more"><summary>更多與平台資訊</summary><div class="swsi-myhub-list">'
       +'<button type="button" class="swsi-myhub-row admin" data-swsi-admin-entry hidden onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理中心</span><span class="meta">管理者專用</span></span><span class="arrow">›</span></button>'
@@ -2095,6 +2097,9 @@ html[data-fs="2"]{
     window.__SWSI_LEARNING_CENTER_OPEN__=false;
     if(kind==='due'){if(typeof startDueReview==='function')startDueReview();return;}
     if(kind==='review'){if(typeof go==='function')go('review');return;}
+    if(kind==='short'){if(typeof window.swsiStartNow==='function')window.swsiStartNow();else if(typeof go==='function')go('home');return;}
+    if(kind==='weak'){if(typeof go==='function')go('progress');return;}
+    if(kind==='mock'){if(window.MK&&typeof window.MK.open==='function')window.MK.open();else if(typeof go==='function')go('home');return;}
     if(kind==='progress'){if(typeof go==='function')go('progress');return;}
     if(kind==='essay'){if(typeof window.swsiOpenEssay==='function')window.swsiOpenEssay();else if(typeof go==='function')go('essay');return;}
     if(typeof window.swsiStartRecommended20==='function')window.swsiStartRecommended20();
