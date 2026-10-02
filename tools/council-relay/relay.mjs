@@ -91,14 +91,15 @@ async function prepareWorkspace(cfg, task) {
 
   await git(cfg, ['fetch', '--prune', 'origin']);
   const remoteSha = await git(cfg, ['rev-parse', `origin/${task.base_ref}`]);
-  if (!remoteSha.startsWith(task.base_sha) && !task.base_sha.startsWith(remoteSha)) {
-    throw new Error(`task base_sha ${task.base_sha} no longer matches origin/${task.base_ref} ${remoteSha}`);
-  }
+  const requestedBaseSha = String(task.base_sha);
+  const baseDrift = !(remoteSha.startsWith(requestedBaseSha) || requestedBaseSha.startsWith(remoteSha));
 
-  // Dedicated read-only workspace: safe to detach exactly to the reviewed remote SHA.
+  // Phase 1 is read-only: review the freshest requested remote ref, while preserving
+  // the intake SHA as audit evidence. Future write/implementation mode must use a
+  // stricter stale-base gate before creating or modifying a branch.
   await git(cfg, ['checkout', '--detach', remoteSha]);
   const head = await git(cfg, ['rev-parse', 'HEAD']);
-  return { remoteSha, head };
+  return { remoteSha, head, requestedBaseSha, baseDrift };
 }
 
 async function fetchRelatedIssue(cfg, relatedIssue) {
@@ -150,7 +151,8 @@ Before concluding, read at minimum:
 Evidence freshness:
 - workspace exact HEAD: ${workspaceState.head}
 - origin/${task.base_ref}: ${workspaceState.remoteSha}
-- task requested base_sha: ${task.base_sha}
+- task intake base_sha: ${task.base_sha}
+- intake/current drift: ${workspaceState.baseDrift ? 'YES — current remote advanced after intake' : 'no'}
 - evidence timestamp: ${new Date().toISOString()}
 - Treat docs/handoffs as snapshots when they conflict with current source.
 
@@ -161,6 +163,16 @@ RELATED ISSUE SNAPSHOT (provided by the relay; do not assume it is newer than th
 ${related}
 
 Review the task independently. Do not assume another AI's conclusion is correct. Distinguish facts from suggestions. Return only the structured result required by the JSON schema.`;
+}
+
+function publicErrorMessage(error) {
+  const message = String(error?.message ?? 'unknown error');
+  if (/auth|credential|sign.?in/i.test(message)) return 'Provider or GitHub authentication is required on the relay machine.';
+  if (/timed? out|timeout/i.test(message)) return 'The read-only reviewer timed out.';
+  if (/dirty/i.test(message)) return 'The dedicated relay workspace is not clean; review was blocked.';
+  if (/workspace is not a Git repository/i.test(message)) return 'The dedicated relay workspace is missing or invalid.';
+  if (/invalid base_ref|invalid base_sha|invalid task_id|task schema|missing .*task/i.test(message)) return 'The Council Task machine contract is invalid.';
+  return 'The local relay encountered an error. See the relay machine log for details.';
 }
 
 async function processTask(cfg, issue) {
@@ -228,7 +240,7 @@ async function runOnce(cfg) {
           '',
           'The local read-only relay could not complete this task.',
           '',
-          `Reason: \`${String(error.message).replaceAll('`', "'")}\``,
+          `Reason: ${publicErrorMessage(error)}`,
           '',
           'No implementation/deploy action was attempted.',
         ].join('\n'));
@@ -244,18 +256,64 @@ async function acquireLock() {
   const dir = path.join(base, 'SWSI', 'CouncilRelay');
   fs.mkdirSync(dir, { recursive: true });
   const file = path.join(dir, 'relay.lock');
-  try {
+
+  const processExists = (pid) => {
+    if (!Number.isInteger(pid) || pid <= 0) return false;
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch (error) {
+      return error?.code === 'EPERM';
+    }
+  };
+
+  const clearStaleLock = () => {
+    if (!fs.existsSync(file)) return false;
+    try {
+      const payload = JSON.parse(fs.readFileSync(file, 'utf8'));
+      if (processExists(Number(payload.pid))) return false;
+    } catch {
+      // Malformed lock files are stale by definition.
+    }
+    try {
+      fs.unlinkSync(file);
+      log('removed stale relay lock', { file });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const open = () => {
     const fd = fs.openSync(file, 'wx');
-    fs.writeFileSync(fd, JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() }));
-    const release = () => { try { fs.closeSync(fd); } catch {} try { fs.unlinkSync(file); } catch {} };
-    process.on('exit', release);
-    process.on('SIGINT', () => { release(); process.exit(130); });
-    process.on('SIGTERM', () => { release(); process.exit(143); });
-    return release;
+    fs.writeFileSync(fd, JSON.stringify({
+      pid: process.pid,
+      hostname: os.hostname(),
+      user: os.userInfo().username,
+      startedAt: new Date().toISOString(),
+    }));
+    return fd;
+  };
+
+  let fd;
+  try {
+    fd = open();
   } catch (error) {
-    if (error.code === 'EEXIST') throw new Error(`relay lock already exists: ${file}`);
-    throw error;
+    if (error.code !== 'EEXIST' || !clearStaleLock()) throw new Error(`relay lock already exists: ${file}`);
+    fd = open();
   }
+
+  let released = false;
+  const release = () => {
+    if (released) return;
+    released = true;
+    try { fs.closeSync(fd); } catch {}
+    try { fs.unlinkSync(file); } catch {}
+  };
+  process.on('exit', release);
+  process.on('SIGINT', () => { release(); process.exit(130); });
+  process.on('SIGTERM', () => { release(); process.exit(143); });
+  return release;
 }
 
 async function main() {
