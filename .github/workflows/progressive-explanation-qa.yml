@@ -7,7 +7,6 @@ on:
       - 'monthly_patch_parts/00.part'
       - 'monthly_patch_parts/70.learning-loop.part'
       - 'monthly_patch_parts/zzzz_product_v1_lock.part'
-      - 'monthly_patch_parts/zzzzz_progressive_explanation.part'
       - 'scripts/progressive_explanation_contract.py'
       - 'audit/progressive_explanation_20261003.md'
 
