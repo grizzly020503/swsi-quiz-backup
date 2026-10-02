@@ -4097,15 +4097,21 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     var old=document.getElementById('nl-live-radar'); if(old) old.remove();
     var useV2=eventItems.length&&trendItems.length;
     var source=useV2?eventItems:liveItems;
-    var list=source.filter(function(ev){return currentFilter==='全部'||(ev.subjects||[]).indexOf(currentFilter)>=0;}).slice(0,6);
+    var filtered=source.filter(function(ev){return currentFilter==='全部'||(ev.subjects||[]).indexOf(currentFilter)>=0;});
+    var list=filtered.sort(function(a,b){
+      var scoreA=useV2?Number((trendFor(a.canonical_event_id)||{}).trend_score||0):Number(a.relevance_score||0);
+      var scoreB=useV2?Number((trendFor(b.canonical_event_id)||{}).trend_score||0):Number(b.relevance_score||0);
+      if(scoreB!==scoreA) return scoreB-scoreA;
+      return String(b.last_seen||b.published_at||'').localeCompare(String(a.last_seen||a.published_at||''));
+    }).slice(0,3);
     if(!source.length) return;
     var box=document.createElement('section'); box.id='nl-live-radar'; box.className='nlr-box';
     box.innerHTML=useV2
-      ?'<div class="nlr-top"><div class="nlr-h">📈 命題趨勢雷達</div><div class="nlr-badge">事件聚類・證據分級</div></div>'
-        +'<div class="nlr-help">同一事件會先合併；只有跨來源或持續觀察時才顯示趨勢分數。單一來源先當作複習素材，不直接宣稱形成趨勢。</div>'
+      ?'<div class="nlr-top"><div class="nlr-h">🎯 目前 3 個國考重點</div><div class="nlr-badge">少量精選・證據分級</div></div>'
+        +'<div class="nlr-help">只顯示目前優先度最高的 3 個事件，從考點與證據出發安排複習；單一來源先當作議題素材，不直接宣稱形成趨勢。</div>'
         +(list.length?'<div class="nlr-grid">'+list.map(eventCard).join('')+'</div>':'<div class="nlr-empty">這個科目目前沒有新的高關聯事件。</div>')
-      :'<div class="nlr-top"><div class="nlr-h">⚡ 最新雷達</div><div class="nlr-badge">V1 備援</div></div>'
-        +'<div class="nlr-help">趨勢資料暫時不可用，先顯示原本的高關聯時事與命題訊號；事實細節請以原始來源為準。</div>'
+      :'<div class="nlr-top"><div class="nlr-h">🎯 目前 3 個國考重點</div><div class="nlr-badge">備援資料</div></div>'
+        +'<div class="nlr-help">趨勢資料暫時不可用，先顯示最多 3 個高關聯時事；事實細節請以原始來源為準。</div>'
         +(list.length?'<div class="nlr-grid">'+list.map(liveCard).join('')+'</div>':'<div class="nlr-empty">這個科目目前沒有新的高關聯時事。</div>');
     var chips=wrap.querySelector('.nl-chips');
     if(chips) wrap.insertBefore(box,chips); else wrap.appendChild(box);
