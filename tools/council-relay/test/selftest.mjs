@@ -49,5 +49,15 @@ assert.equal(terminal.status, 'SUCCESS');
 assert.equal(terminal.structured_output.verdict, 'PASS');
 
 assert.throws(() => parseCouncilTask({ ...issue, body: '<!-- swsi-council-task {"schema_version":2} -->' }), /missing task_id|unsupported task schema/);
+const unsafeRefIssue = {
+  ...issue,
+  body: issue.body.replace('"base_ref": "main"', '"base_ref": "main;rm-all"'),
+};
+assert.throws(() => parseCouncilTask(unsafeRefIssue), /invalid base_ref/);
+const unsafeTaskIdIssue = {
+  ...issue,
+  body: issue.body.replace('council-20261002-001', 'bad task id'),
+};
+assert.throws(() => parseCouncilTask(unsafeTaskIdIssue), /invalid task_id/);
 
 console.log('SWSI Council Relay selftest: PASS');
