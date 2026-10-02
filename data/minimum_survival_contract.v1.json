@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "mode": "last_verified_updates_paused",
+  "purpose": "Keep the last verified student study core usable when no maintainer is available, without pretending content remains current.",
+  "must_preserve": [
+    "home_navigation",
+    "official_question_corpus",
+    "grading_contract",
+    "practice_sessions",
+    "mock_exams",
+    "wrong_answer_review",
+    "local_learning_progress",
+    "essay_library",
+    "local_essay_drafts"
+  ],
+  "may_degrade_or_pause": [
+    "ai_analysis",
+    "remote_sync",
+    "feedback",
+    "admin",
+    "moex_sync",
+    "automated_publish"
+  ],
+  "freshness_disclosure": {
+    "required": true,
+    "required_fields": [
+      "last_verified_revision",
+      "last_verified_at",
+      "updates_paused",
+      "freshness_notice"
+    ],
+    "updates_paused_value": true
+  },
+  "automation_allowlist": [
+    "read_only_health",
+    "hash_verification",
+    "public_source_change_detection",
+    "deterministic_local_validation"
+  ],
+  "human_only_decisions": [
+    "account_succession",
+    "provider_new_terms",
+    "major_security_incident",
+    "new_paid_obligation",
+    "disputed_official_content",
+    "destructive_migration"
+  ],
+  "safety": {
+    "auto_payment": false,
+    "auto_account_takeover": false,
+    "delete_review_queue": false,
+    "lower_qa_gate": false,
+    "promote_unverified_content": false,
+    "destructive_migration": false
+  },
+  "scenario_expectations": {
+    "maintainer_absent": "enter_last_verified_updates_paused",
+    "account_recovery_pending": "keep_core_and_wait_for_human",
+    "ai_unavailable": "degrade_ai_only_keep_core",
+    "paid_decision_pending": "do_not_pay_or_accept_terms_automatically",
+    "disputed_update": "hold_unverified_and_require_human_review"
+  }
+}
