@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "credential_policy": "external_secret_only",
+  "services": [
+    {
+      "service_id": "github_source_ci",
+      "purpose": "Repository source of truth, pull requests, CI evidence and durable project coordination.",
+      "owner_role": "source_and_release_maintainer",
+      "criticality": "critical",
+      "core_or_enhancement": "core",
+      "recovery_reference": ["PROJECT_HANDOFF.md", "docs/PORTABLE_EVIDENCE_MANIFEST_20261002.md"],
+      "renewal_type": "provider_terms_and_access_review_human_only",
+      "fallback": "rebuild_from_portable_repo_assets_on_an_approved_git_host",
+      "credential_policy": "external_secret_only"
+    },
+    {
+      "service_id": "cloudflare_primary",
+      "purpose": "Primary public frontend/runtime path and Cloudflare-specific runtime assets.",
+      "owner_role": "runtime_release_maintainer",
+      "criticality": "critical",
+      "core_or_enhancement": "core",
+      "recovery_reference": ["RELEASE.md", "cloudflare/wandering-wave-4418/d1/README.md", "wrangler.jsonc"],
+      "renewal_type": "provider_terms_and_plan_review_human_only",
+      "fallback": "last_verified_static_release_or_documented_fallback_host",
+      "credential_policy": "external_secret_only"
+    },
+    {
+      "service_id": "netlify_fallback",
+      "purpose": "Documented fallback static deployment path when the primary frontend path is unavailable or intentionally paused.",
+      "owner_role": "runtime_release_maintainer",
+      "criticality": "high",
+      "core_or_enhancement": "core",
+      "recovery_reference": ["RELEASE.md", "PROJECT_HANDOFF.md"],
+      "renewal_type": "provider_terms_and_plan_review_human_only",
+      "fallback": "portable_static_assets_on_an_approved_alternative_host",
+      "credential_policy": "external_secret_only"
+    },
+    {
+      "service_id": "supabase_backend",
+      "purpose": "Backend database, Auth boundary and server-side functions used by production features.",
+      "owner_role": "backend_security_maintainer",
+      "criticality": "critical",
+      "core_or_enhancement": "core",
+      "recovery_reference": ["supabase/recovery/README.md", "supabase/recovery/recovery_manifest.json", "RELEASE.md"],
+      "renewal_type": "provider_terms_plan_and_security_review_human_only",
+      "fallback": "repo_owned_schema_and_recovery_contract_plus_controlled_private_restore",
+      "credential_policy": "external_secret_only"
+    },
+    {
+      "service_id": "moex_official_source",
+      "purpose": "Official examination question and answer source used for provenance and new-exam intake.",
+      "owner_role": "official_source_maintainer",
+      "criticality": "critical",
+      "core_or_enhancement": "core",
+      "recovery_reference": ["PROJECT_HANDOFF.md", "docs/LONG_TERM_OPS_PHASE_A_20261002.md"],
+      "renewal_type": "public_source_contract_review_human_when_structure_changes",
+      "fallback": "preserve_last_verified_official_core_and_pause_unknown_intake",
+      "credential_policy": "none_expected_for_public_source"
+    },
+    {
+      "service_id": "ai_enhancement",
+      "purpose": "Non-official analysis, explanations and review assistance that enrich the student experience but must not redefine Official Core.",
+      "owner_role": "ai_quality_maintainer",
+      "criticality": "medium",
+      "core_or_enhancement": "enhancement",
+      "recovery_reference": ["docs/AI_RECOVERY_HANDOFF_20261002.md", "AI_COLLABORATION.md", "ZERO_COST_OPERATIONS.md"],
+      "renewal_type": "model_provider_terms_quality_and_cost_review_human_only",
+      "fallback": "pause_generation_and_keep_last_verified_nonofficial_material_with_freshness_disclosure",
+      "credential_policy": "external_secret_only"
+    }
+  ]
+}
