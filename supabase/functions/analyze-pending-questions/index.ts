@@ -1,8 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev";
-const DRAFT_MODEL = "qwen/qwen3.6-27b";
+const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev/api/ai";
+const DRAFT_MODEL = "qwen/qwen3.8-27b";
 const AUDIT_MODEL = "openai/gpt-oss-120b";
 const FORMAT_ARTIFACT_TOKENS = new Set(["na", "nb", "nc", "nd"]);
 const MISTAKES = new Set(["概念混淆", "法規混淆", "理論人物混淆", "流程順序錯誤", "計算邏輯錯誤", "關鍵字漏看", "題幹誤讀"]);
