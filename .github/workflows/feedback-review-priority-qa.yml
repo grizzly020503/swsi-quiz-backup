@@ -14,7 +14,7 @@ on:
       - 'cdn/index.html'
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: swsi-feedback-review-priority-${{ github.event.pull_request.number }}
@@ -23,16 +23,17 @@ concurrency:
 jobs:
   contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 2
     steps:
       - name: Checkout PR merge ref
         uses: actions/checkout@v7
 
-      - name: Deterministic priority self-test
+      - name: Deterministic priority and tracked-runtime contracts
         run: |
           set -euo pipefail
           node scripts/feedback_review_priority_smoke.mjs
           python -m py_compile scripts/materialize_cloudflare_runtime.py
+          python scripts/materialize_cloudflare_runtime.py --check
           grep -q 'deriveFeedbackPriority' supabase/functions/swsi-admin/index.ts
           grep -q 'persisted_v1' supabase/functions/swsi-admin/index.ts
           grep -q 'derived_fallback_v1' supabase/functions/swsi-admin/feedback_priority.mjs
@@ -41,24 +42,3 @@ jobs:
             exit 1
           fi
           git diff --check
-
-      - name: Checkout PR head for one-time materialization
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 0
-
-      - name: Materialize tracked runtime on PR branch only
-        run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
-          python scripts/materialize_cloudflare_runtime.py
-          git add cdn/monthly_patch.js cdn/index.html
-          if git diff --cached --quiet; then
-            echo 'Tracked runtime already current.'
-            exit 0
-          fi
-          git config user.name 'swsi-runtime-materializer'
-          git config user.email 'actions@users.noreply.github.com'
-          git commit -m 'build: refresh tracked Cloudflare runtime artifact'
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
