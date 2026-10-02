@@ -13,9 +13,15 @@ Canonical machine-readable policy:
 
 - `data/bounded_recovery_policy.v1.json`
 
-Deterministic validator / decision helper:
+There is intentionally **one decision engine**:
 
-- `scripts/bounded_recovery_contract.py`
+- `scripts/bounded_recovery_decision.py` — validates the policy, evaluates failure decisions, and evaluates release-state transitions.
+
+Acceptance validation is separate from the engine:
+
+- `scripts/bounded_recovery_contract.py` — imports the decision engine and runs issue-level invariants plus deterministic self-tests. It does not contain a second copy of recovery decision logic.
+
+This split is deliberate so future maintenance cannot accidentally let two independent decision implementations drift apart.
 
 ## Non-negotiable invariants
 
@@ -29,17 +35,17 @@ The policy is fail-closed and requires all of the following:
 - no automatic QA lowering;
 - no automatic Official Core mutation.
 
-Unknown future failure classes also fail closed to `manual_required`.
+Unknown future failure classes are rejected by the decision engine rather than receiving an invented automatic recovery action. That rejection is the fail-closed path to human review.
 
 ## Bounded retry
 
-Only explicitly retryable transient classes may retry:
+Only explicitly retryable failure classes may retry, including:
 
 - timeout;
 - HTTP 429 / rate limiting;
 - upstream 5xx;
 - source unavailable;
-- stale job, within its single reclaim allowance.
+- stale job, within its bounded reclaim allowance.
 
 Each policy row includes:
 
@@ -49,7 +55,7 @@ Each policy row includes:
 - `cost_class`;
 - exhaustion behavior.
 
-The validator rejects unbounded retry counts. Retry exhaustion never becomes an infinite loop and never expands permissions.
+The validators reject unbounded retry counts. Retry exhaustion never becomes an infinite loop and never expands permissions.
 
 ## Core vs enhancement behavior
 
@@ -75,7 +81,7 @@ The following always require a human decision:
 - paid-service change;
 - unknown migration state.
 
-The helper may report that owner authorization is required, but it cannot manufacture that authorization.
+The engine may report that owner authorization is required, but it cannot manufacture that authorization.
 
 ## Release state machine
 
@@ -90,7 +96,7 @@ candidate
   -> postcheck_verified
 ```
 
-`preview_verified -> publish_authorized` requires explicit external authorization from the owner or the existing release gate. Without that authorization, the state remains `preview_verified`.
+`preview_verified -> publish_authorized` requires explicit external authorization from the owner or the existing release gate. Without that authorization, the transition is denied.
 
 Failure paths include:
 
@@ -98,10 +104,10 @@ Failure paths include:
 candidate validation failed -> quarantine
 preview failed              -> quarantine
 published postcheck failed  -> rollback_required
-unknown/high-risk state     -> manual_required
+unknown/high-risk state     -> manual_required / human review
 ```
 
-The helper **signals** `rollback_required`; it does not execute rollback.
+The engine **signals** `rollback_required`; it does not execute rollback.
 
 ## Rollback boundary
 
@@ -113,9 +119,21 @@ Static release and database recovery are intentionally different:
 
 ## Deterministic validation
 
-`python3 scripts/bounded_recovery_contract.py --self-test`
+Primary engine examples:
 
-covers:
+```sh
+python3 scripts/bounded_recovery_decision.py --failure-class transient_timeout --attempts-used 0 --json
+python3 scripts/bounded_recovery_decision.py --transition preview_verified publish_authorized --json
+```
+
+Issue acceptance regression:
+
+```sh
+python3 scripts/bounded_recovery_contract.py --validate
+python3 scripts/bounded_recovery_contract.py --self-test
+```
+
+The acceptance regression covers:
 
 - timeout / 429 / 5xx retry and exhaustion;
 - source outage preserves trusted state;
@@ -125,7 +143,7 @@ covers:
 - static postcheck failure becomes rollback-required;
 - DB uncertainty is manual-required with no blind downgrade;
 - Auth/RLS/secret, paid-service and Official Core changes remain owner-required;
-- unknown failure fails closed;
+- unknown failure is rejected and therefore fails closed;
 - release state machine cannot create publish authorization by itself;
 - external authorization permits only the explicit publish-authorization transition.
 
