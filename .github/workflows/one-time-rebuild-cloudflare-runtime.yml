@@ -1,0 +1,82 @@
+name: One-time rebuild Cloudflare runtime
+
+on:
+  push:
+    branches:
+      - fix/cloudflare-production-verification-closure-20261002
+    paths:
+      - '.github/workflows/one-time-rebuild-cloudflare-runtime.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: fix/cloudflare-production-verification-closure-20261002
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Rebuild tracked Cloudflare runtime from canonical sources
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import os
+          import re
+          from pathlib import Path
+
+          root = Path('.')
+          parts = sorted((root / 'monthly_patch_parts').glob('*.part'))
+          if not parts:
+              raise SystemExit('monthly_patch_parts is empty')
+          runtime = b''.join(p.read_bytes() for p in parts)
+          patch = root / 'cdn/monthly_patch.js'
+          patch.write_bytes(runtime)
+          digest = hashlib.sha256(runtime).hexdigest()[:16]
+
+          index = root / 'cdn/index.html'
+          html = index.read_text(encoding='utf-8')
+          html, n = re.subn(
+              r'<script src="monthly_patch\.js\?v=[0-9a-f]{16}"></script>',
+              f'<script src="monthly_patch.js?v={digest}"></script>',
+              html,
+              count=1,
+          )
+          if n != 1:
+              raise SystemExit(f'monthly_patch cache-bust marker count={n}')
+
+          source_sha = os.environ['SOURCE_SHA']
+          if not re.fullmatch(r'[0-9a-f]{40}', source_sha):
+              raise SystemExit(f'invalid source sha: {source_sha!r}')
+          html, n = re.subn(
+              r'<meta name="swsi-release-source" content="[0-9a-f]{40}">',
+              f'<meta name="swsi-release-source" content="{source_sha}">',
+              html,
+              count=1,
+          )
+          if n != 1:
+              raise SystemExit(f'release source marker count={n}')
+          index.write_text(html, encoding='utf-8')
+          print(f'cloudflare runtime rebuilt parts={len(parts)} patch_sha16={digest} source={source_sha}')
+          PY
+      - name: Verify reconstructed artifact
+        run: |
+          set -euo pipefail
+          python scripts/cloudflare_release_artifact_smoke.py
+          python -m py_compile scripts/cloudflare_production_http_smoke.py
+          git diff --check
+      - name: Commit reconstructed runtime
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add cdn/monthly_patch.js cdn/index.html
+          git commit -m 'fix: rebuild Cloudflare runtime from canonical monthly parts'
+          git push origin HEAD:fix/cloudflare-production-verification-closure-20261002
