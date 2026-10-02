@@ -15,9 +15,6 @@ on:
     paths:
       - '.github/workflows/question-shards-publish.yml'
       - 'scripts/build_question_shards.py'
-  schedule:
-    # 台灣時間每天 11:10；接在 MOEX 10:35 每日同步之後。
-    - cron: '10 3 * * *'
 
 permissions:
   contents: write
