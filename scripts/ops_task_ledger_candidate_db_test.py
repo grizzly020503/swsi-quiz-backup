@@ -2,8 +2,8 @@
 """Run #269 candidate ledger SQL only against an explicitly local disposable PostgreSQL.
 
 This helper is intentionally incapable of targeting hosted/production databases: PGHOST
-must resolve to a loopback literal/name. It loads the candidate DDL, executes the
-rollback-only behavior fixture, and verifies RLS/privilege boundaries.
+must resolve to a loopback literal/name. It loads candidate DDL, review RPCs, executes
+rollback-only behavior fixtures, and verifies RLS/privilege boundaries.
 """
 from __future__ import annotations
 
@@ -14,7 +14,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CANDIDATE = ROOT / "supabase" / "candidates" / "ops_task_ledger_v1.sql"
+REVIEW_RPC = ROOT / "supabase" / "candidates" / "ops_task_review_rpc_v1.sql"
 BEHAVIOR = ROOT / "supabase" / "candidates" / "ops_task_ledger_v1_test.sql"
+REVIEW_BEHAVIOR = ROOT / "supabase" / "candidates" / "ops_task_review_rpc_v1_test.sql"
 LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
 
 
@@ -27,8 +29,9 @@ def env_guard() -> None:
         )
     if not database or database in {"postgres", "template0", "template1"}:
         raise SystemExit("PGDATABASE must name a disposable non-system test database")
-    if not CANDIDATE.is_file() or not BEHAVIOR.is_file():
-        raise SystemExit("candidate SQL or behavior fixture is missing")
+    for path in (CANDIDATE, REVIEW_RPC, BEHAVIOR, REVIEW_BEHAVIOR):
+        if not path.is_file():
+            raise SystemExit(f"candidate SQL fixture is missing: {path.relative_to(ROOT)}")
     if shutil.which("psql") is None:
         raise SystemExit("psql is required; use the repository disposable PostgreSQL DR harness")
 
@@ -88,13 +91,21 @@ select
   has_table_privilege('service_role','public.swsi_ops_task_runs','SELECT'),
   has_table_privilege('service_role','public.swsi_ops_task_runs','UPDATE'),
   has_table_privilege('service_role','public.swsi_ops_task_runs','DELETE'),
+  has_table_privilege('anon','public.swsi_ops_review_items','SELECT'),
+  has_table_privilege('authenticated','public.swsi_ops_review_items','SELECT'),
+  has_table_privilege('service_role','public.swsi_ops_review_items','SELECT'),
+  has_table_privilege('service_role','public.swsi_ops_review_items','UPDATE'),
+  has_table_privilege('service_role','public.swsi_ops_review_items','DELETE'),
   has_function_privilege('anon','public.swsi_ops_claim_task(text,text,text,timestamptz,integer,integer)','EXECUTE'),
   has_function_privilege('authenticated','public.swsi_ops_claim_task(text,text,text,timestamptz,integer,integer)','EXECUTE'),
-  has_function_privilege('service_role','public.swsi_ops_claim_task(text,text,text,timestamptz,integer,integer)','EXECUTE');
+  has_function_privilege('service_role','public.swsi_ops_claim_task(text,text,text,timestamptz,integer,integer)','EXECUTE'),
+  has_function_privilege('anon','public.swsi_ops_upsert_review_item(text,text,text,text,timestamptz,jsonb)','EXECUTE'),
+  has_function_privilege('authenticated','public.swsi_ops_upsert_review_item(text,text,text,text,timestamptz,jsonb)','EXECUTE'),
+  has_function_privilege('service_role','public.swsi_ops_upsert_review_item(text,text,text,text,timestamptz,jsonb)','EXECUTE');
 """,
         capture=True,
     )
-    expected = "t|t|f|f|t|t|f|f|f|t"
+    expected = "t|t|f|f|t|t|f|f|f|t|t|f|f|f|t|f|f|t"
     if result != expected:
         raise AssertionError(f"ledger RLS/privilege boundary mismatch: expected={expected} actual={result}")
 
@@ -103,7 +114,9 @@ def main() -> int:
     env_guard()
     setup_roles()
     psql(file=CANDIDATE)
+    psql(file=REVIEW_RPC)
     psql(file=BEHAVIOR)
+    psql(file=REVIEW_BEHAVIOR)
     verify_security()
     print("OPS TASK LEDGER CANDIDATE DB TEST OK (local disposable PostgreSQL only)")
     return 0

@@ -76,6 +76,45 @@ class OpsLedgerSupabaseAdapter:
             "p_retry_after_seconds": retry_after_seconds,
         })
 
+    def upsert_review_item(self, *, item_id: str, reason: str, now: str,
+                           task_id: str | None = None, source_ref: str | None = None,
+                           metadata: dict[str, Any] | None = None) -> Any:
+        if not str(item_id or "").strip() or not str(reason or "").strip():
+            raise ValueError("item_id and reason are required")
+        return self.transport.rpc("swsi_ops_upsert_review_item", {
+            "p_item_id": item_id,
+            "p_reason": reason,
+            "p_task_id": task_id,
+            "p_source_ref": source_ref,
+            "p_now": now,
+            "p_metadata": metadata or {},
+        })
+
+    def touch_review_item(self, *, item_id: str, now: str,
+                          error: str | None = None, next_check_at: str | None = None) -> Any:
+        if not str(item_id or "").strip():
+            raise ValueError("item_id is required")
+        return self.transport.rpc("swsi_ops_touch_review_item", {
+            "p_item_id": item_id,
+            "p_now": now,
+            "p_error": error,
+            "p_next_check_at": next_check_at,
+        })
+
+    def resolve_review_item(self, *, item_id: str, final_state: str, resolution: str,
+                            now: str) -> Any:
+        allowed = {"resolved", "superseded", "invalid"}
+        if final_state not in allowed:
+            raise ValueError(f"invalid review terminal state: {final_state}")
+        if not str(item_id or "").strip() or not str(resolution or "").strip():
+            raise ValueError("item_id and resolution are required")
+        return self.transport.rpc("swsi_ops_resolve_review_item", {
+            "p_item_id": item_id,
+            "p_final_state": final_state,
+            "p_resolution": resolution,
+            "p_now": now,
+        })
+
     def recent_runs(self, *, task_id: str, limit: int = 20) -> Any:
         if limit < 1 or limit > 100:
             raise ValueError("limit must be 1..100")
@@ -120,13 +159,25 @@ def self_test() -> dict[str, Any]:
     adapter.heartbeat(task_id="full-corpus-question-qa", idempotency_key="rev-a", worker_id="w1", now=now)
     adapter.complete(task_id="full-corpus-question-qa", idempotency_key="rev-a", worker_id="w1",
                      outcome="no_change", now=now)
+    adapter.upsert_review_item(item_id="historical-law:human_review:LawA:q1",
+                               task_id="historical-law-guardian-queue",
+                               reason="semantic_conflict", source_ref="LawA|q1",
+                               metadata={"lane": "human_review"}, now=now)
+    adapter.touch_review_item(item_id="historical-law:human_review:LawA:q1",
+                              error="source unavailable",
+                              next_check_at="2026-10-02T18:00:00Z", now=now)
+    adapter.resolve_review_item(item_id="historical-law:human_review:LawA:q1",
+                                final_state="resolved", resolution="evidence confirmed", now=now)
     adapter.recent_runs(task_id="full-corpus-question-qa")
     adapter.open_review_items()
-    assert [c[1] for c in fake.calls[:4]] == [
-        "swsi_ops_claim_task", "swsi_ops_checkpoint_task", "swsi_ops_heartbeat_task", "swsi_ops_complete_task"
+    assert [c[1] for c in fake.calls[:7]] == [
+        "swsi_ops_claim_task", "swsi_ops_checkpoint_task", "swsi_ops_heartbeat_task",
+        "swsi_ops_complete_task", "swsi_ops_upsert_review_item",
+        "swsi_ops_touch_review_item", "swsi_ops_resolve_review_item",
     ]
     assert fake.calls[1][2]["p_checkpoint_version"] == 1
     assert fake.calls[3][2]["p_outcome"] == "no_change"
+    assert fake.calls[4][2]["p_metadata"]["lane"] == "human_review"
     try:
         adapter.checkpoint(task_id="x", idempotency_key="y", worker_id="z", checkpoint={},
                            processed_count=0, now=now, checkpoint_version=2)
@@ -134,6 +185,12 @@ def self_test() -> dict[str, Any]:
         pass
     else:
         raise AssertionError("unknown checkpoint version must fail closed")
+    try:
+        adapter.resolve_review_item(item_id="x", final_state="open", resolution="bad", now=now)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("invalid review terminal state must fail closed")
     return {"ok": True, "calls": len(fake.calls)}
 
 
