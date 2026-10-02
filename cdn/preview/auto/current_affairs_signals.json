@@ -1,10 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T12:27:11Z",
+  "generated_at": "2026-10-02T16:45:20Z",
   "item_count": 4,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
-  "note": "SWSI 命題訊號快照；用於複習方向，不代表命題保證。",
+  "law_link_rules_schema": 1,
+  "note": "SWSI 命題訊號快照；用於複習方向，不代表命題保證。法規連結可由高精度規則推論；相關法規不等於本事件發生修法。",
   "items": [
     {
       "id": "1f324758779ada31a0fc3e3382971947",
@@ -67,15 +68,34 @@
       "essay_value": "low",
       "mcq_fact_density": "high",
       "signal_confidence": "high",
-      "signal_score": 8,
-      "exam_point_summary": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工…。制度或給付已有明確變動；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "signal_score": 9,
+      "exam_point_summary": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工…。涉及「最低工資法」。制度或給付已有明確變動；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，並結合「最低工資法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
       "mcq_focus": [
         "勞動部",
         "行政院",
+        "最低工資法",
         "最低工資"
       ],
-      "related_laws": [],
+      "related_laws": [
+        "最低工資法"
+      ],
+      "related_policy_instruments": [],
+      "law_link_status": "law_linked",
+      "law_link_note": "已連到具體法律；規則僅表示制度關聯，不代表該法律因本事件而修正。",
+      "law_link_basis": [
+        {
+          "rule_id": "minimum-wage-statutory-framework-v1",
+          "name": "最低工資法",
+          "kind": "law",
+          "confidence": "high",
+          "reason": "事件直接涉及最低工資審議、調整或公告，屬《最低工資法》的法定制度範圍。",
+          "authoritative_reference": "https://laws.mol.gov.tw/FLAW/FLAWDAT01.aspx?id=FL102659",
+          "inference": "deterministic_rule",
+          "article": "第6條、第9條至第13條（審議與公告架構）"
+        }
+      ],
+      "law_link_rules_schema": 1,
       "related_exam_questions": [
         {
           "id": "SP105-2-18",
@@ -204,16 +224,45 @@
       "policy_signal": "low",
       "essay_value": "medium",
       "mcq_fact_density": "high",
-      "signal_confidence": "medium",
-      "signal_score": 7,
-      "exam_point_summary": "企業托育補助新制創造企業留才與員工兼顧育兒需求正面效益！申請倒數2週，請雇主把握時間，於9月底前…。尚未見明確制度變動，先作事件與專業議題觀察；申論可從性別權力、照顧負荷與家庭政策切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「性別權力、照顧負荷與家庭政策」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "signal_confidence": "high",
+      "signal_score": 8,
+      "exam_point_summary": "企業托育補助新制創造企業留才與員工兼顧育兒需求正面效益！申請倒數2週，請雇主把握時間，於9月底前…。涉及「性別平等工作法」。尚未見明確制度變動，先作事件與專業議題觀察；申論可從性別權力、照顧負荷與家庭政策切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「性別權力、照顧負荷與家庭政策」切入，並結合「性別平等工作法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
       "mcq_focus": [
         "勞動部",
+        "性別平等工作法",
         "育兒",
         "托育"
       ],
-      "related_laws": [],
+      "related_laws": [
+        "性別平等工作法"
+      ],
+      "related_policy_instruments": [
+        {
+          "rule_id": "enterprise-childcare-subsidy-program-v1",
+          "name": "企業托育補助",
+          "kind": "subsidy_program",
+          "confidence": "high",
+          "reason": "事件直接描述勞動部企業托育補助或雇主托兒措施。",
+          "authoritative_reference": "https://childcare.mol.gov.tw/PageNew/default.aspx",
+          "inference": "deterministic_rule"
+        }
+      ],
+      "law_link_status": "law_linked",
+      "law_link_note": "已連到具體法律；規則僅表示制度關聯，不代表該法律因本事件而修正。",
+      "law_link_basis": [
+        {
+          "rule_id": "employer-childcare-gender-equality-work-act-v1",
+          "name": "性別平等工作法",
+          "kind": "law",
+          "confidence": "high",
+          "reason": "事件涉及雇主提供托兒設施／措施或主管機關補助，直接對應《性別平等工作法》第23條。",
+          "authoritative_reference": "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?flno=23&id=FL015149",
+          "inference": "deterministic_rule",
+          "article": "第23條"
+        }
+      ],
+      "law_link_rules_schema": 1,
       "related_exam_questions": [
         {
           "id": "SP115-1-21",
@@ -302,9 +351,22 @@
           "社會政策與社會立法": 13
         },
         "subject_count": 2,
-        "law_match_count": 0,
-        "law_match_year_count": 0,
-        "law_match_years": [],
+        "law_match_count": 21,
+        "law_match_year_count": 12,
+        "law_match_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2"
       }
@@ -401,6 +463,21 @@
         "內政部"
       ],
       "related_laws": [],
+      "related_policy_instruments": [
+        {
+          "rule_id": "expanded-elderly-living-alone-service-v1",
+          "name": "擴大獨居老人服務",
+          "kind": "policy_measure",
+          "confidence": "high",
+          "reason": "事件直接描述衛福部擴大獨居老人訪查與分級連結服務措施。",
+          "authoritative_reference": "https://www.mohw.gov.tw/cp-7403-88069-1.html",
+          "inference": "deterministic_rule"
+        }
+      ],
+      "law_link_status": "policy_instrument_only",
+      "law_link_note": "已辨識補助方案／政策措施，但未自動推定單一法律法源，避免把政策方案誤寫成修法。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
       "related_exam_questions": [
         {
           "id": "DS-109-2-40",
@@ -542,6 +619,21 @@
         "行政院"
       ],
       "related_laws": [],
+      "related_policy_instruments": [
+        {
+          "rule_id": "residential-service-user-subsidy-v1",
+          "name": "住宿式服務機構使用者補助方案",
+          "kind": "subsidy_program",
+          "confidence": "high",
+          "reason": "事件直接描述住宿式服務機構使用者補助方案的額度、資格或申請。",
+          "authoritative_reference": "https://1966.gov.tw/LTC/cp-6457-69925-207.html",
+          "inference": "deterministic_rule"
+        }
+      ],
+      "law_link_status": "policy_instrument_only",
+      "law_link_note": "已辨識補助方案／政策措施，但未自動推定單一法律法源，避免把政策方案誤寫成修法。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
       "related_exam_questions": [],
       "historical_exam_stats": {
         "matched_question_count": 0,
