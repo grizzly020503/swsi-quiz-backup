@@ -1,0 +1,45 @@
+name: Bounded Recovery Contract QA
+
+on:
+  pull_request:
+    paths:
+      - 'data/bounded_recovery_policy.v1.json'
+      - 'scripts/bounded_recovery_contract.py'
+      - 'docs/BOUNDED_RECOVERY_RELEASE_CONTRACT_20261002.md'
+      - '.github/workflows/bounded-recovery-contract-qa.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bounded-recovery-contract-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate exact-checkout policy
+        run: python3 scripts/bounded_recovery_contract.py --validate
+      - name: Zero-network bounded recovery regression
+        run: |
+          python3 scripts/bounded_recovery_contract.py --self-test > /tmp/bounded-recovery-result.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('/tmp/bounded-recovery-result.json').read_text())
+          assert data['status'] == 'pass'
+          assert data['failure_class_count'] >= 15
+          assert data['retryable_count'] >= 5
+          assert data['owner_required_count'] >= 5
+          assert data['cases'] >= 18
+          assert data['invariants']['no_self_publish'] is True
+          assert data['invariants']['bounded_retry'] is True
+          assert data['invariants']['database_no_blind_rollback'] is True
+          print('failure_classes=', data['failure_class_count'])
+          print('retryable=', data['retryable_count'])
+          print('owner_required=', data['owner_required_count'])
+          print('cases=', data['cases'])
+          PY
