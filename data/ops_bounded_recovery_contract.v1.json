@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "purpose": "Provider-neutral bounded recovery/degradation/release decision contract. Does not grant production authorization.",
+  "non_negotiables": {
+    "production_publish_requires_external_owner_authorization": true,
+    "official_core_auto_mutation_forbidden": true,
+    "auth_rls_secret_changes_require_owner": true,
+    "paid_service_changes_require_owner": true,
+    "database_blind_downgrade_forbidden": true,
+    "last_known_good_preserved_on_failure": true,
+    "core_study_separate_from_enhancements": true
+  },
+  "failure_classes": {
+    "timeout": {"action":"retry_bounded","max_attempts":3,"backoff":"exponential_short","cost_class":"low","scope":"network"},
+    "http_429": {"action":"retry_bounded","max_attempts":3,"backoff":"respect_retry_after_then_exponential","cost_class":"low","scope":"network"},
+    "http_5xx": {"action":"retry_bounded","max_attempts":3,"backoff":"exponential_short","cost_class":"low","scope":"network"},
+    "source_unavailable": {"action":"preserve_last_known_good","max_attempts":0,"scope":"data_source"},
+    "sync_unavailable": {"action":"preserve_last_known_good","max_attempts":0,"scope":"automation"},
+    "quota_exhausted": {"action":"preserve_last_known_good","max_attempts":0,"scope":"cost_budget"},
+    "stale_job": {"action":"preserve_last_known_good","max_attempts":0,"scope":"automation"},
+    "ai_unavailable": {"action":"degrade_enhancement","max_attempts":0,"scope":"enhancement"},
+    "feedback_unavailable": {"action":"degrade_enhancement","max_attempts":0,"scope":"enhancement"},
+    "admin_unavailable": {"action":"degrade_enhancement","max_attempts":0,"scope":"enhancement"},
+    "candidate_validation_failed": {"action":"quarantine_candidate","max_attempts":0,"scope":"candidate"},
+    "preview_failed": {"action":"quarantine_candidate","max_attempts":0,"scope":"preview"},
+    "invalid_content": {"action":"quarantine_candidate","max_attempts":0,"scope":"content"},
+    "static_postcheck_failed": {"action":"rollback_required","rollback_mode":"restore_last_known_good_static_release","owner_required":true},
+    "destructive_schema": {"action":"manual_required","owner_required":true,"rollback_mode":"forward_recovery_or_restore_only"},
+    "unknown_migration_state": {"action":"manual_required","owner_required":true,"rollback_mode":"forward_recovery_or_restore_only"},
+    "auth_rls_secret_change": {"action":"manual_required","owner_required":true},
+    "official_core_change": {"action":"manual_required","owner_required":true},
+    "paid_service_required": {"action":"manual_required","owner_required":true}
+  },
+  "release_states": [
+    "candidate",
+    "isolated_verified",
+    "preview_verified",
+    "publish_authorized",
+    "published",
+    "postcheck_verified",
+    "quarantined",
+    "rollback_required",
+    "manual_required"
+  ],
+  "allowed_transitions": [
+    ["candidate","isolated_pass","isolated_verified"],
+    ["isolated_verified","preview_pass","preview_verified"],
+    ["preview_verified","owner_publish_approval","publish_authorized"],
+    ["publish_authorized","publish_success","published"],
+    ["published","postcheck_pass","postcheck_verified"],
+    ["candidate","validation_fail","quarantined"],
+    ["isolated_verified","preview_fail","quarantined"],
+    ["preview_verified","preview_fail","quarantined"],
+    ["published","postcheck_fail","rollback_required"]
+  ]
+}
