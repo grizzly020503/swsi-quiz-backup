@@ -56,6 +56,9 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install health-check dependency
+        run: python -m pip install --disable-pip-version-check requests
+
       - name: Compile exam-scheme and downstream scripts
         run: |
           python -m py_compile scripts/exam_scheme.py
