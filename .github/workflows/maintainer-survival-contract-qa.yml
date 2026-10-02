@@ -1,0 +1,43 @@
+name: Maintainer Survival Contract QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/maintainer-survival-contract-qa.yml'
+      - 'data/service_responsibility_registry.v1.json'
+      - 'data/minimum_survival_contract.v1.json'
+      - 'docs/MAINTAINER_SUCCESSION_MINIMUM_SURVIVAL_20261002.md'
+      - 'scripts/maintainer_survival_contract.py'
+      - 'scripts/maintainer_survival_contract_selftest.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: maintainer-survival-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Zero-network boundary regression
+        run: python3 scripts/maintainer_survival_contract_selftest.py
+      - name: Validate exact-checkout service and survival contracts
+        run: |
+          python3 scripts/maintainer_survival_contract.py --json > /tmp/maintainer_survival_result.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('/tmp/maintainer_survival_result.json').read_text())
+          assert data['status']=='pass'
+          assert data['mode']=='last_verified_updates_paused'
+          assert data['service_count']>=6
+          assert data['core_capability_count']>=9
+          assert data['human_only_decision_count']>=7
+          assert data['forbidden_automation_count']>=9
+          assert data['scenario_count']>=5
+          print(data)
+          PY
