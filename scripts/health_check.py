@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 INCOMING = ROOT / 'incoming'
 AUTO = ROOT / 'auto'
 INDEX = ROOT / 'index.html'
+ESSAY_ENRICHMENT = ROOT / 'data' / 'essay_enrichment.json'
 
 EXAM_TYPE = '專門職業及技術人員高等考試社會工作師'
 SUBJECTS = {
@@ -26,6 +27,10 @@ BASELINE_EXAMS = {'115030'}
 BASELINE_QUESTION_COUNT = 4600
 HISTORICAL_ESSAY_COUNT = 230
 HISTORICAL_ESSAYS_PER_SUBJECT = 46
+ESSAY_ENRICHMENT_FIELDS = {
+    'topic', 'major', 'keywords', 'theories', 'laws', 'difficulty', 'frequency',
+    'qtype', 'related', 'cluster', 'cluster_name', 'analysis_status',
+}
 KNOWN_ESSAY_CORRUPTION = (
     '【分析】',
     'ErikErikson',
@@ -59,6 +64,30 @@ def qno_int(row):
         return int(str(row.get('qno') or '').strip())
     except Exception:
         return None
+
+
+def load_essay_enrichment():
+    if not ESSAY_ENRICHMENT.exists():
+        return {}
+    payload = read_json(ESSAY_ENRICHMENT)
+    if not isinstance(payload, dict) or payload.get('schema_version') != 1:
+        die('data/essay_enrichment.json schema_version 必須為 1')
+    records = payload.get('records')
+    if not isinstance(records, list):
+        die('data/essay_enrichment.json records 必須為陣列')
+    out = {}
+    for index, row in enumerate(records):
+        if not isinstance(row, dict):
+            die(f'data/essay_enrichment.json 第 {index} 筆不是 object')
+        eid = str(row.get('id') or '').strip()
+        if not eid or eid in out:
+            die(f'data/essay_enrichment.json ID 空白或重複：{eid!r}')
+        unknown = set(row) - {'id'} - ESSAY_ENRICHMENT_FIELDS
+        missing = ESSAY_ENRICHMENT_FIELDS - set(row)
+        if unknown or missing:
+            die(f'{eid}: enrichment 欄位契約不符 missing={sorted(missing)} unknown={sorted(unknown)}')
+        out[eid] = {key: row[key] for key in ESSAY_ENRICHMENT_FIELDS}
+    return out
 
 
 def validate_exam(path):
@@ -238,6 +267,7 @@ def incoming_payloads():
 def local_check(write_report=True):
     payloads = incoming_payloads()
     historical_essays = validate_historical_essays()
+    essay_enrichment = load_essay_enrichment()
     expected_q = {}
     expected_e = {}
     included_codes = []
@@ -251,6 +281,12 @@ def local_check(write_report=True):
             expected_q[q['id']] = q
         for e in data['essays']:
             expected_e[e['id']] = e
+
+    orphaned_enrichment = sorted(set(essay_enrichment) - set(expected_e))
+    if orphaned_enrichment:
+        die(f'申論 enrichment 指向非 auto-owned incoming 題目：{orphaned_enrichment[:5]}')
+    for eid, overlay in essay_enrichment.items():
+        expected_e[eid] = {**expected_e[eid], **overlay}
 
     qpath = AUTO / 'questions_auto.json'
     epath = AUTO / 'essays_auto.json'
@@ -280,7 +316,7 @@ def local_check(write_report=True):
         missing = sorted(set(expected_e) - set(actual_e))[:5]
         extra = sorted(set(actual_e) - set(expected_e))[:5]
         changed = sorted(k for k in set(expected_e) & set(actual_e) if expected_e[k] != actual_e[k])[:5]
-        die(f'申論備援檔與 incoming 不一致 missing={missing} extra={extra} changed={changed}')
+        die(f'申論備援檔與 incoming+enrichment 不一致 missing={missing} extra={extra} changed={changed}')
 
     if any(q.get('source_exam_code') in BASELINE_EXAMS for q in actual_q_rows):
         die('auto/questions_auto.json 不應包含 115030 母庫考次')
@@ -291,6 +327,11 @@ def local_check(write_report=True):
     expected_essay = len(expected_e)
     if state.get('mc_count') != expected_mc or state.get('essay_count') != expected_essay:
         die('auto/sync_state.json 題數與實際備援檔不一致')
+    if state.get('essay_enrichment_count') != len(essay_enrichment):
+        die(
+            'auto/sync_state.json essay_enrichment_count 不一致：'
+            f"{state.get('essay_enrichment_count')} != {len(essay_enrichment)}"
+        )
     state_codes = sorted(str(x.get('exam_code')) for x in (state.get('included_exams') or []))
     if state_codes != sorted(included_codes):
         die(f'auto/sync_state.json 考次不一致：{state_codes} != {sorted(included_codes)}')
@@ -304,13 +345,16 @@ def local_check(write_report=True):
         'included_exams': sorted(included_codes),
         'auto_mc_count': expected_mc,
         'auto_essay_count': expected_essay,
+        'essay_enrichment_count': len(essay_enrichment),
         'expected_total_questions': expected_total_questions,
         'checks': [
             '每考次 5 科、各 40 題選擇＋2 題申論',
             '題號完整且 ID 不重複',
             '題幹與 A/B/C/D 選項皆非空白',
             '官方答案僅允許 A/B/C/D/一律給分',
-            'auto 備援檔與 incoming 官方資料完全一致',
+            '選擇題 auto 備援檔與 incoming 官方資料完全一致',
+            '申論 auto 備援檔與 incoming 官方資料＋SWSI teaching enrichment 完全一致',
+            'sync_state 的 essay_enrichment_count 與 overlay 實際筆數一致',
             'index.html 歷屆申論固定 230 題、五科各 46 題',
             '歷屆申論不得再次出現已知解析污染、截斷或 OCR 異常',
             '106 年第 2 次人行官方特殊配分固定為 26/24',
@@ -319,7 +363,10 @@ def local_check(write_report=True):
     if write_report:
         AUTO.mkdir(exist_ok=True)
         (AUTO / 'health.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
-    print(f'LOCAL HEALTH OK: incoming={len(payloads)} exams, auto={expected_mc} MC + {expected_essay} essays, expected DB={expected_total_questions}')
+    print(
+        f'LOCAL HEALTH OK: incoming={len(payloads)} exams, auto={expected_mc} MC + {expected_essay} essays, '
+        f'essay_enrichment={len(essay_enrichment)}, expected DB={expected_total_questions}'
+    )
     return report, payloads
 
 
