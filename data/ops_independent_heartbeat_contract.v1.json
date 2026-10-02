@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "purpose": "Provider-neutral public heartbeat contract for monitoring SWSI outside GitHub Actions.",
+  "independence_rule": {
+    "require_external_scheduler": true,
+    "same_platform_examples": [
+      "GitHub Actions workflow polling another GitHub Actions workflow",
+      "GitHub Actions scheduled job evaluating its own run history"
+    ],
+    "independent_examples": [
+      "Cloudflare scheduled worker",
+      "external uptime/cron provider",
+      "operator-owned cron running outside GitHub Actions"
+    ],
+    "active_by_default": false,
+    "note": "Until an external runtime is actually scheduled, independent_monitoring_active must remain false."
+  },
+  "public_payload": {
+    "required_top_level": ["schema_version", "producer", "generated_at", "components"],
+    "allowed_components": ["site", "data_freshness", "grading", "ai", "review_backlog", "task_heartbeat"],
+    "allowed_statuses": ["healthy", "warning", "degraded", "failed", "unknown"],
+    "component_required_fields": ["status", "checked_at"],
+    "component_optional_fields": ["scope", "failure_class", "detail"],
+    "privacy": {
+      "forbidden": ["credentials", "tokens", "service-role keys", "private user data", "full private error dumps"],
+      "detail_guidance": "Only publish bounded operational metadata needed for health classification."
+    }
+  },
+  "incident_identity": {
+    "version": 1,
+    "inputs": ["component", "failure_class", "scope"],
+    "hash": "sha256-truncated-24-hex",
+    "prefix": "inc1:"
+  },
+  "severity_policy": {
+    "site": {"warning": "high", "degraded": "high", "failed": "critical", "unknown": "warning"},
+    "data_freshness": {"warning": "warning", "degraded": "high", "failed": "high", "unknown": "warning"},
+    "grading": {"warning": "high", "degraded": "high", "failed": "critical", "unknown": "high"},
+    "ai": {"warning": "warning", "degraded": "warning", "failed": "warning", "unknown": "warning"},
+    "review_backlog": {"warning": "warning", "degraded": "high", "failed": "high", "unknown": "warning"},
+    "task_heartbeat": {"warning": "warning", "degraded": "high", "failed": "high", "unknown": "warning"}
+  },
+  "probe_security": {
+    "url_scheme": "https",
+    "credentials_required": false,
+    "default_retries": 1,
+    "maximum_retries": 3,
+    "default_timeout_seconds": 10,
+    "redirect_policy": "same host unless explicitly allowlisted",
+    "response_size_limit_bytes": 2000000
+  },
+  "state_transitions": ["new", "ongoing", "resolved"]
+}
