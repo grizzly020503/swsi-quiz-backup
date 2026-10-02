@@ -4529,7 +4529,7 @@ html[data-fs="2"]{
 
   function analysisTrust(item){
     var status=String(item&&item.analysis_status||'').toLowerCase();
-    if(status==='ready')return {label:'平台解析・QA 已通過',warn:false,detail:'ready 代表解析已通過目前的自動／結構 QA，不等於逐題人工核驗，也不是考選部官方解析。'};
+    if(status==='ready')return {label:'平台解析・已通過基本檢查',warn:false,detail:'這份解析已通過目前的自動與結構檢查，不等於逐題人工核對，也不是考選部官方解析。'};
     if(status==='review')return {label:'平台解析・待複核',warn:true,detail:'這份平台解析目前仍在複核／隔離狀態；請優先相信官方題目、答案與特殊給分規則。'};
     if(status==='pending'||status==='analyzing')return {label:'平台解析・處理中',warn:true,detail:'平台解析尚在生成或檢查流程中；未完成前不視為已核實教材。'};
     return {label:'平台解析・核對狀態未標示',warn:true,detail:'這是 SWSI 的學習整理，不是官方解析；目前沒有足夠狀態可把它標示為已核對。'};
@@ -4563,7 +4563,7 @@ html[data-fs="2"]{
     if(legal)chip(legal.label,legal.warn);
     panel.appendChild(summary);
     var body=document.createElement('div');body.className='swsi-trust-body';
-    var p1=document.createElement('p');p1.textContent=official?'題幹、選項、官方答案與特殊給分屬 Official Core；SWSI 平台解析與延伸內容另外標示。':'此題不是以考選部歷屆題 Official Core 身分呈現；題目與解析均應視為 SWSI 學習內容。';body.appendChild(p1);
+    var p1=document.createElement('p');p1.textContent=official?'題目、選項、官方答案與特殊給分以考選部資料為準；SWSI 另外整理解析與延伸內容。':'此題不是考選部歷屆題；題目與解析都屬 SWSI 學習內容。';body.appendChild(p1);
     var p2=document.createElement('p');p2.textContent=analysis.detail;body.appendChild(p2);
     if(legal){var p3=document.createElement('p');p3.textContent=legal.detail+(item.legal_checked_at?' 核對時間：'+String(item.legal_checked_at).slice(0,10)+'。':'');body.appendChild(p3);}
     appendTrustLink(body,'開啟官方題目來源',official?item.source_url:'');
