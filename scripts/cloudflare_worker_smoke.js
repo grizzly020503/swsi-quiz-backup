@@ -78,7 +78,7 @@ function request(body) {
     };
   }
   const body = {
-    model: 'qwen/qwen3.8-27b',
+    model: 'qwen/qwen3.6-27b',
     messages: [{ role: 'user', content: 'test' }],
     temperature: 0,
     max_tokens: 200
@@ -117,6 +117,7 @@ function request(body) {
 
   response = await worker.fetch(request(body), env());
   assert.strictEqual(response.status, 200);
+  assert.strictEqual(upstreamPayload.model, 'qwen/qwen3.8-27b', 'legacy public model was not mapped to supported upstream model');
   assert.strictEqual(upstreamPayload.temperature, 0, 'explicit temperature=0 was not preserved');
   assert.strictEqual(response.headers.get('cache-control'), 'no-store');
 
@@ -125,6 +126,7 @@ function request(body) {
   const upstreamError = await response.json();
   assert.strictEqual(upstreamError.error.code, 'UPSTREAM_RATE_LIMIT');
   assert.strictEqual(response.headers.get('retry-after'), '17');
+  assert.strictEqual(upstreamPayload.model, 'qwen/qwen3.8-27b');
   assert.strictEqual(upstreamPayload.temperature, 0.4, 'null temperature should use the safe default');
 
   console.log('CLOUDFLARE WORKER SMOKE OK');
