@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T01:00:22Z",
-  "event_count": 5,
+  "generated_at": "2026-10-02T01:19:13Z",
+  "event_count": 4,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
   "trends": [
@@ -489,101 +489,6 @@
           "source_type": "official",
           "published_at": "2026-09-24T03:30:00Z",
           "item_id": "6c3e075258813e8339a40cebd78e2c0c"
-        }
-      ]
-    },
-    {
-      "canonical_event_id": "36f0f025600350c7d59c5da4",
-      "title": "政院：追加預算年底若未審畢 社福津貼加碼恐將失效",
-      "category": "社工專業與社福制度",
-      "subjects": [
-        "社會政策與社會立法"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "規劃與政策執行",
-        "方案與資源管理"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法"
-      ],
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法"
-      ],
-      "supporting_exam_subject_axes": [],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "社福服務體系、福利給付與制度責信"
-        ]
-      },
-      "knowledge_topics": [
-        "社工專業與社福制度",
-        "社福",
-        "津貼",
-        "行政院"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社福服務體系、福利給付與制度責信",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社福服務體系、福利給付與制度責信"
-      ],
-      "trend_state": "one-off",
-      "trend_score": 1.9,
-      "why": [
-        "目前證據仍偏單次事件"
-      ],
-      "factors": {
-        "cross_source": 0.0,
-        "official_evidence": 0.0,
-        "policy_change": 0.0,
-        "historical_frequency": 0.0,
-        "historical_year_breadth": 0.0,
-        "recent_exam_support": 0.0,
-        "historical_subject_breadth": 0.0,
-        "law_relevance": 0.0,
-        "persistence": 0.0,
-        "essay_value": 1.1,
-        "mcq_density": 0.45,
-        "recency": 1.0
-      },
-      "source_count": 1,
-      "official_source_count": 0,
-      "observation_count": 1,
-      "first_seen": "2026-10-01T07:05:07Z",
-      "last_seen": "2026-10-01T07:05:07Z",
-      "related_laws": [],
-      "historical_question_count": 0,
-      "historical_weighted_match_count": 0.0,
-      "historical_match_breakdown": {
-        "strong": 0,
-        "medium": 0,
-        "concept": 0
-      },
-      "historical_exam_years": [],
-      "latest_related_exam_year": null,
-      "corpus_latest_exam_year": 115,
-      "years_since_last_related_exam": null,
-      "historical_subject_counts": {},
-      "historical_subject_count": 0,
-      "historical_law_match_count": 0,
-      "historical_law_match_years": [],
-      "historical_high_confidence_match_count": 0,
-      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
-      "related_exam_questions": [],
-      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "行政院",
-        "社福"
-      ],
-      "evidence": [
-        {
-          "source_name": "中央社政治",
-          "source_url": "https://www.cna.com.tw/news/aipl/202610010199.aspx",
-          "source_type": "news",
-          "published_at": "2026-10-01T07:05:07Z",
-          "item_id": "3e7cc52af1b25a9177663b6b5b5b6440"
         }
       ]
     },
