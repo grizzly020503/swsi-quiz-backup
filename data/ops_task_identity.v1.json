@@ -12,16 +12,20 @@
       "components": [
         ["manifest", "cdn/question-shards/manifest.json"],
         ["qa_policy", "data/question_qa_policy_v1.json"],
+        ["exam_scheme_registry", "data/exam_scheme_registry.v1.json"],
         ["official_core_lock", "data/official_exam_readonly.lock.json"],
         ["full_corpus_runner", "scripts/full_corpus_qa.py"],
+        ["scheme_qa_policy", "scripts/exam_scheme_qa_policy.py"],
+        ["current_unified_qa_wrapper", "scripts/unified_question_qa_current.py"],
         ["unified_qa_contract", "scripts/unified_question_qa.py"],
         ["official_core_guard", "scripts/official_exam_readonly_guard.py"]
       ],
       "checkpoint_unit": "manifest_exam_session",
       "checkpoint_unit_id": "<year>-<canonical-round>",
       "notes": [
-        "Do not use manifest dataset_revision alone: QA policy/contract changes must produce a new logical run.",
-        "Unified Question QA is a child unit of this run rather than a second scheduler."
+        "Do not use manifest dataset_revision alone: QA policy/exam-scheme/contract changes must produce a new logical run.",
+        "Unified Question QA is a child unit of this run rather than a second scheduler.",
+        "Effective-dated exam-scheme changes must invalidate the semantic run identity so a future approved profile is re-audited instead of inheriting stale checkpoints."
       ]
     },
     "moex-social-worker-sync": {
