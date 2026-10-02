@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-26",
+  "generated_at": "2026-10-02",
   "purpose": "Isolated disaster-recovery reconstruction contract; never writes production.",
   "base_schema": "supabase/recovery/base_schema.sql",
   "portable_ci": {
@@ -29,6 +29,8 @@
     "supabase/migrations/20260902143000_add_anonymous_usage_analytics.sql",
     "supabase/migrations/20260915151500_add_ai_telemetry.sql",
     "supabase/migrations/20261002045108_ai_queue_fair_retry_rotation.sql",
+    "supabase/migrations/20261002112000_create_ops_task_ledger.sql",
+    "supabase/migrations/20261002112100_add_ops_review_rpcs.sql",
     "supabase/recovery/production_acl_alignment.sql"
   ],
   "expected": {
@@ -45,6 +47,8 @@
       "swsi_ai_telemetry_5m",
       "swsi_ai_telemetry_client_daily",
       "swsi_feedback_reports",
+      "swsi_ops_review_items",
+      "swsi_ops_task_runs",
       "swsi_usage_daily"
     ],
     "question_columns": 37,
