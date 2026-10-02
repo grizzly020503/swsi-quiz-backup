@@ -1,0 +1,113 @@
+name: Ops Ledger Candidate DB QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ops-ledger-candidate-db-qa.yml'
+      - 'data/ops_task_identity.v1.json'
+      - 'data/ops_task_ledger_contract.v1.json'
+      - 'scripts/ops_task_identity.py'
+      - 'scripts/ops_task_identity_resolver.py'
+      - 'scripts/full_corpus_ops_identity.py'
+      - 'scripts/moex_ops_checkpoint.py'
+      - 'scripts/historical_law_guardian_ops_review.py'
+      - 'scripts/ops_task_ledger.py'
+      - 'scripts/ops_task_ledger_supabase.py'
+      - 'scripts/ops_task_ledger_sql_smoke.py'
+      - 'scripts/ops_task_review_sql_smoke.py'
+      - 'scripts/ops_task_ledger_candidate_db_test.py'
+      - 'supabase/candidates/ops_task_ledger_v1.sql'
+      - 'supabase/candidates/ops_task_ledger_v1_test.sql'
+      - 'supabase/candidates/ops_task_review_rpc_v1.sql'
+      - 'supabase/candidates/ops_task_review_rpc_v1_test.sql'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-ops-ledger-candidate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolated-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: swsi_ops_candidate
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d swsi_ops_candidate"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: swsi_ops_candidate
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Compile and run zero-network contract tests
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/ops_task_identity.py \
+            scripts/ops_task_identity_resolver.py \
+            scripts/full_corpus_ops_identity.py \
+            scripts/moex_ops_checkpoint.py \
+            scripts/historical_law_guardian_ops_review.py \
+            scripts/ops_task_ledger.py \
+            scripts/ops_task_ledger_supabase.py \
+            scripts/ops_task_ledger_sql_smoke.py \
+            scripts/ops_task_review_sql_smoke.py \
+            scripts/ops_task_ledger_candidate_db_test.py
+          python scripts/ops_task_identity.py self-test
+          python scripts/ops_task_identity_resolver.py --self-test
+          python scripts/full_corpus_ops_identity.py --self-test
+          python scripts/moex_ops_checkpoint.py --self-test
+          python scripts/historical_law_guardian_ops_review.py --self-test
+          python scripts/ops_task_ledger.py --self-test
+          python scripts/ops_task_ledger_supabase.py --self-test
+          python scripts/ops_task_ledger_sql_smoke.py supabase/candidates/ops_task_ledger_v1.sql
+          python scripts/ops_task_review_sql_smoke.py supabase/candidates/ops_task_review_rpc_v1.sql
+          git diff --check
+
+      - name: Wait for disposable PostgreSQL
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 30); do
+            if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE"; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo 'Disposable PostgreSQL did not become ready.' >&2
+          exit 1
+
+      - name: Execute candidate ledger and rollback-only behavior fixtures
+        run: |
+          set -euo pipefail
+          python scripts/ops_task_ledger_candidate_db_test.py
+
+      - name: Safety summary
+        if: success()
+        run: |
+          echo 'OPS LEDGER CANDIDATE QA OK'
+          echo 'Database target: disposable postgres:16 service only'
+          echo 'Production writes: none'
+          echo 'Supabase credentials used: none'
+          echo 'Network/API calls from candidate tests: none'
