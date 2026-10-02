@@ -93,8 +93,8 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert.strictEqual(await page.locator('#app .swsi-study-card').count(), 0, 'homepage repeated large study cards returned');
   assert.strictEqual(await page.locator('#app details.swsi-other-tools').count(), 0, 'homepage duplicate advanced-tools disclosure returned');
   const primaryHomeText = await page.locator('#app .swsi-focus-primary').innerText();
-  assert(/今天練 10 題/.test(primaryHomeText), 'homepage primary action is not the 10-question short practice');
-  assert(/開始 10 題/.test(primaryHomeText), 'homepage primary CTA is not the 10-question action');
+  assert(/10 題今日練習/.test(primaryHomeText), 'homepage primary action is not the 10-question short practice');
+  assert(/直接開始 10 題/.test(primaryHomeText), 'homepage primary CTA is not the 10-question action');
   const quickActions = page.locator('#app .swsi-home-quick button');
   assert.strictEqual(await quickActions.count(), 2, 'homepage compact quick actions missing');
   const quickText = (await quickActions.allInnerTexts()).join(' ');
@@ -106,7 +106,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(!/學習中心/.test(homeText) && !/申論練習/.test(homeText), 'homepage repeated bottom-navigation destinations returned');
 
   // The simplified CTA must change behavior as well as copy: it starts 10 questions.
-  await page.getByRole('button', { name: '開始 10 題' }).click();
+  await page.getByRole('button', { name: '直接開始 10 題' }).click();
   await page.waitForSelector('.pcount', { timeout: 30000 });
   assert.strictEqual((await page.locator('.pcount').innerText()).trim(), '1 / 10', '10-question CTA did not start a 10-question queue');
   await page.getByRole('button', { name: /結束這次練習/ }).click();
