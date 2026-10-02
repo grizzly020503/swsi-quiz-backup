@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "credential_policy": "external_secret_only",
+  "services": [
+    {
+      "id": "github_source_ci",
+      "purpose": "Source control, pull-request review, release evidence, and CI orchestration.",
+      "owner_role": "repository_maintainer",
+      "criticality": "high",
+      "core_or_enhancement": "core",
+      "recovery_reference": "RELEASE.md",
+      "renewal_type": "manual_provider_terms",
+      "fallback": "Use a verified local clone plus the last verified static release; pause hosted CI until GitHub access is restored.",
+      "credential_policy": "external_secret_only"
+    },
+    {
+      "id": "cloudflare_primary",
+      "purpose": "Primary public static site and Worker runtime.",
+      "owner_role": "release_maintainer",
+      "criticality": "high",
+      "core_or_enhancement": "core",
+      "recovery_reference": "RELEASE.md",
+      "renewal_type": "manual_provider_terms",
+      "fallback": "Serve the last verified static build from an alternate static host; do not invent a new paid dependency.",
+      "credential_policy": "external_secret_only"
+    },
+    {
+      "id": "netlify_fallback",
+      "purpose": "Fallback preview/static hosting path for release verification and emergency continuity.",
+      "owner_role": "release_maintainer",
+      "criticality": "medium",
+      "core_or_enhancement": "fallback",
+      "recovery_reference": "RELEASE.md",
+      "renewal_type": "manual_provider_terms",
+      "fallback": "Use Cloudflare or another already-approved static host; remain on the last verified release if unavailable.",
+      "credential_policy": "external_secret_only"
+    },
+    {
+      "id": "supabase_backend",
+      "purpose": "Shared backend functions, admin/feedback operations, and mutable hosted data that are not required for local-first study core.",
+      "owner_role": "data_maintainer",
+      "criticality": "medium",
+      "core_or_enhancement": "enhancement",
+      "recovery_reference": "supabase/recovery/README.md",
+      "renewal_type": "manual_provider_terms",
+      "fallback": "Keep student study core local/static; pause backend-dependent enhancement flows until recovery is verified.",
+      "credential_policy": "external_secret_only"
+    },
+    {
+      "id": "moex_official_source",
+      "purpose": "Authoritative public source for official exam questions and answers.",
+      "owner_role": "official_content_maintainer",
+      "criticality": "high",
+      "core_or_enhancement": "core",
+      "recovery_reference": "ZERO_COST_OPERATIONS.md",
+      "renewal_type": "none",
+      "fallback": "Keep serving the last verified official corpus and disclose freshness; never replace it with unverified content.",
+      "credential_policy": "external_secret_only"
+    },
+    {
+      "id": "ai_enhancement",
+      "purpose": "Optional AI explanation and analysis enhancement.",
+      "owner_role": "ai_service_maintainer",
+      "criticality": "low",
+      "core_or_enhancement": "enhancement",
+      "recovery_reference": "docs/AI_RECOVERY_HANDOFF_20261002.md",
+      "renewal_type": "manual_provider_terms",
+      "fallback": "Preserve drafts and core study flows without AI; show retry/paused state rather than blocking study.",
+      "credential_policy": "external_secret_only"
+    }
+  ]
+}
