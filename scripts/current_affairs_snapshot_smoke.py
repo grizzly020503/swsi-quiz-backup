@@ -73,10 +73,48 @@ def main() -> int:
     assert merged["relevance_score"] == 5, merged
     assert merged["primary_exam_subject_axes"] == ["社會工作"], merged
     assert merged["supporting_exam_subject_axes"] == ["社會工作直接服務"], merged
+    assert merged["subjects"] == ["社會工作", "社會工作直接服務"], merged
 
     separate = next(x for x in topics if not x.get("clustered"))
     assert separate["article_count"] == 1, separate
     assert separate["fact_keys"] == ["num:30000000"], separate
+
+    # The broad legacy category map used to re-introduce social-work/direct-
+    # practice subjects after the newer knowledge tree had correctly classified
+    # a welfare-budget item as social-policy only. Public snapshots must keep the
+    # legacy compatibility field aligned with that positive policy-only evidence.
+    welfare_policy = fixture(
+        "welfare-budget",
+        "政院：追加預算年底若未審畢 社福津貼加碼恐將失效",
+        "追加預算涉及多項社福津貼與福利支出，未涉及社工專業人力、督導或倫理。",
+        "中央社政治",
+        "社工專業與社福制度",
+    )
+    welfare_policy["subjects"] = [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法",
+    ]
+    welfare_policy["exam_subject_axes"] = ["社會政策與社會立法"]
+    welfare_policy["primary_exam_subject_axes"] = ["社會政策與社會立法"]
+    welfare_policy["supporting_exam_subject_axes"] = []
+    welfare_topic = build([welfare_policy])[0]
+    assert welfare_topic["subjects"] == ["社會政策與社會立法"], welfare_topic
+    assert welfare_topic["exam_subject_axes"] == ["社會政策與社會立法"], welfare_topic
+
+    # A real social-work profession case in the same broad category must keep its
+    # legacy profession/direct-practice subjects; the normalization is deliberately
+    # narrow and must not collapse genuine professional evidence.
+    professional_topic = build([
+        row(
+            "professional-case",
+            "社工涉侵占服務對象財產 機構啟動專業倫理檢討",
+            "2026-09-24T02:00:00Z",
+            "num:9000000",
+            "https://example.test/professional-case",
+        )
+    ])[0]
+    assert professional_topic["subjects"] == ["社會工作", "社會工作直接服務"], professional_topic
 
     # Real pollution pattern observed in the tracked snapshot: the Immigration
     # Agency feed leaked a road-traffic story that upstream scoring classified
@@ -125,7 +163,7 @@ def main() -> int:
     assert publishable_row(serious_child_system_failure) is True, serious_child_system_failure
     assert build([serious_child_system_failure]), serious_child_system_failure
 
-    print("CURRENT AFFAIRS SNAPSHOT SMOKE OK: dedupe + publication quality gates")
+    print("CURRENT AFFAIRS SNAPSHOT SMOKE OK: dedupe + publication quality + subject compatibility")
     return 0
 
 
