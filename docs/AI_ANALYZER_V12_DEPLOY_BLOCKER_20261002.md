@@ -24,22 +24,41 @@
 - There is no known repository GitHub Actions workflow with a confirmed Supabase function deployment credential. Do not invent a secret name.
 - Safe next action: deploy the exact merged main source only through an authorized Supabase deployment path that can handle the existing server-side authentication architecture without exposing credentials; then re-read the live function and verify the new version/source before calling it deployed.
 
+## Production validation probes after v12 deploy
+
+Do not use random questions as the first proof. The current review queue contains three standard single-answer rows whose failures map directly to the two hardening paths introduced by PR #250:
+
+- `SP-115-2-006` — `AI 回傳找不到 JSON array` (3 attempts)
+- `SP-115-2-009` — `exp_others 空白` (3 attempts)
+- `SP-115-2-037` — `AI 回傳找不到 JSON array` (3 attempts)
+
+After v12 is confirmed live by re-reading the deployed function source/version:
+
+1. requeue these three as a **dedicated bounded validation batch**, not together with the old-405 backlog;
+2. keep Official Core (`question/options/answer/accepted_answers/grading_mode`) unchanged;
+3. verify each reaches `ready` only through the unchanged strict validator;
+4. if any still fails, preserve the exact validation error and return it to `review` rather than weakening QA;
+5. keep the cron cadence, one-row claim limit, and 25 successful completions / rolling 24h cap unchanged.
+
+`SW-105-2-03` is a separate quarantine case (prior `exp_others 空白` plus a later transient Qwen HTTP 502). Do not put it ahead of the three deterministic v12 validation probes until queue fairness/backoff is addressed or the main pending queue is clear.
+
 ## Recovery snapshot
 
-At approximately 2026-10-02 12:28 Asia/Taipei (DB time `2026-10-02 04:28:57+00`):
+At approximately 2026-10-02 12:44 Asia/Taipei:
 
-- pending: 13
+- pending: 12
 - ready: 4,683
-- review: 104
+- review: 105
 - completed in previous 24h: 14 / 25 safety cap
 
-The existing production cron remains every 30 minutes, one claim at a time. Do not increase cadence or bypass the 25/day guard merely to clear backlog faster.
+The existing production cron remains every 30 minutes, one claim at a time. PR #252 extended only the pg_net transport timeout to 120 seconds; live `cron.job.command` was verified to contain `timeout_milliseconds := 120000`. Do not increase cadence or bypass the 25/day guard merely to clear backlog faster.
 
 ## Recovery rules still apply
 
 - Standard + effectively single-answer + old HTTP 405 may be recovered in bounded batches.
+- Current review split: 60 standard-single old-405 rows; 25 standard multi-answer holds; 16 special-grading holds; 3 deterministic format/validator failures above; 1 transient/validator quarantine (`SW-105-2-03`).
 - Do not mix multi-answer or special grading into standard infra recovery.
 - Genuine content/format failures (`AI 回傳找不到 JSON array`, `exp_others 空白`, etc.) are not HTTP-405 infrastructure failures.
 - Existing production v11 can still recover items; #250 is a reliability hardening to absorb common one-off format failures before they consume DB attempts.
 
-See also `docs/AI_RECOVERY_HANDOFF_20261002.md` for the broader recovery history and already-verified production probes.
+See also `docs/AI_RECOVERY_HANDOFF_20261002.md` for the broader recovery history, queue-starvation finding, and already-verified production probes.
