@@ -1,0 +1,49 @@
+name: Essay Enrichment Supabase Sync QA
+
+on:
+  pull_request:
+    paths:
+      - 'data/essay_enrichment.json'
+      - 'scripts/essay_enrichment_supabase_sync_smoke.py'
+      - 'supabase/functions/sync-essay-enrichment/index.ts'
+      - 'supabase/recovery/edge_functions.json'
+      - '.github/workflows/moex-social-worker-sync.yml'
+      - '.github/workflows/essay-enrichment-supabase-sync-qa.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/essay_enrichment.json'
+      - 'scripts/essay_enrichment_supabase_sync_smoke.py'
+      - 'supabase/functions/sync-essay-enrichment/index.ts'
+      - 'supabase/recovery/edge_functions.json'
+      - '.github/workflows/moex-social-worker-sync.yml'
+      - '.github/workflows/essay-enrichment-supabase-sync-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  sync-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Verify fail-closed sync contract
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/essay_enrichment_supabase_sync_smoke.py
+          python scripts/essay_enrichment_supabase_sync_smoke.py
+          deno check supabase/functions/sync-essay-enrichment/index.ts
+          git diff --check
