@@ -113,7 +113,7 @@ Issue #262 是 10／20／30 年低人力維運主追蹤。
 
 必讀：`AGENTS.md` 與 `AI_COLLABORATION.md`
 
-預設低成本模式：
+目前可立即使用的低成本模式：
 
 - 一個 AI 當 Implementer，負責實際寫 branch。
 - 其他 AI 優先當 read-only Reviewer。
@@ -122,7 +122,23 @@ Issue #262 是 10／20／30 年低人力維運主追蹤。
 - 架構、migration、security、grading、法規時點、release readiness 才值得多 AI 獨立 review。
 - 多 AI 一致不等於事實成立；仍要看官方來源、測試與 production evidence。
 
-在舊筆電上使用多 AI 時，電腦只是控制台：repo 在本機，AI 推理仍由雲端模型完成。預設不要安裝本機大型 LLM、Ollama 或其他重型推理環境。
+另有一條**平行、不阻塞 SWSI 本體收尾**的長期基礎設施工作：**Issue #290 — SWSI AI Council Relay**。
+
+其目標是：
+
+- owner 可從手機／平板／其他電腦下任務；
+- private GitHub 作為 durable task/evidence 層；
+- owner 的 Windows 舊筆電在登入後以低資源背景 Relay 自動接任務；
+- 多個 AI 先獨立提出意見，再由 Coordinator 依 evidence 收斂；
+- 僅單一 Implementer 寫 branch；
+- 修改完成後再由其他 AI 驗證 exact diff / tests；
+- owner 不需長期人工複製貼上各 AI 回覆，也不需每次手動開 PowerShell / AI CLI。
+
+Target architecture：`docs/AI_COUNCIL_RELAY_ARCHITECTURE.md`。
+
+在 Relay 尚未正式驗收前，**不要假裝它已能自動運作**；Current mode 仍是有效 fallback。
+
+在舊筆電上使用多 AI 時，電腦只是控制台／中繼站：repo 在本機，AI 推理仍由雲端模型完成。預設不要安裝本機大型 LLM、Ollama 或其他重型推理環境。
 
 ## 9. 開工前必做 live check
 
@@ -160,9 +176,10 @@ Issue #262 是 10／20／30 年低人力維運主追蹤。
 3. `PROJECT_HANDOFF.md`
 4. `AI_COLLABORATION.md`
 5. `ARCHITECTURE.md`
-6. 與當前任務相關的 Issue／audit／docs
-7. 最新 commits / PR / Actions / production evidence
+6. 若任務涉及 Council Relay：`docs/AI_COUNCIL_RELAY_ARCHITECTURE.md`
+7. 與當前任務相關的 Issue／audit／docs
+8. 最新 commits / PR / Actions / production evidence
 
 ## 12. 給任何 AI 的最短接管指令
 
-> 接管 SWSI。先讀 `AGENTS.md`、`AI_PROJECT_CONTEXT.md`、`PROJECT_HANDOFF.md`、`AI_COLLABORATION.md`，再重讀最新 main、open PR、相關 Issue 與 Actions。不要依聊天記憶或舊 SHA 猜現況。你目前若不是明確指定 Implementer，預設只做 reviewer；不要 merge main、不要 production deploy、不要新增付費服務。
+> 接管 SWSI。先讀 `AGENTS.md`、`AI_PROJECT_CONTEXT.md`、`PROJECT_HANDOFF.md`、`AI_COLLABORATION.md`，再重讀最新 main、open PR、相關 Issue 與 Actions。不要依聊天記憶或舊 SHA 猜現況。你目前若不是明確指定 Implementer，預設只做 reviewer；不要 merge main、不要 production deploy、不要新增付費服務。若任務是 #290 Council Relay，再額外讀 `docs/AI_COUNCIL_RELAY_ARCHITECTURE.md`；Council Relay 不得阻塞 SWSI 本體資料與正式營運收尾。
