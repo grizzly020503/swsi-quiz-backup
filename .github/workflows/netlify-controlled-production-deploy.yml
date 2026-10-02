@@ -131,7 +131,7 @@ jobs:
           test -d _site/icons
 
           grep -q "swsi-netlify-release\" content=\"${EXPECTED_RELEASE_MARKER}" _site/index.html
-          grep -q '命題趨勢雷達' _site/index.html
+          grep -q '目前 3 個國考重點' _site/index.html
           grep -q "const VERSION = 'v7'" _site/sw.js
           grep -q 'swsi-exam-date-label' _site/monthly_patch.js
           grep -q 'for="swsi-exam-date-input">考試日期</label>' _site/monthly_patch.js
@@ -233,7 +233,7 @@ jobs:
 
           grep -q '社工師國考免費題庫｜SWSI' /tmp/prod-index.html
           grep -q 'monthly_patch.js' /tmp/prod-index.html
-          grep -q '命題趨勢雷達' /tmp/prod-index.html
+          grep -q '目前 3 個國考重點' /tmp/prod-index.html
           grep -q "const VERSION = 'v7'" /tmp/prod-sw.js
 
           python3 - <<'PY'
