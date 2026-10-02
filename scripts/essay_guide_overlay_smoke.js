@@ -74,12 +74,21 @@ for (const id of recordIds) {
 }
 for (const id of holdIds) assert(!guides[id], `held guide leaked into student runtime: ${id}`);
 
-// Fail-closed mutation test: a held legal-risk item cannot be silently added as an
-// unverified/public record. This checks the builder contract rather than trusting JSON shape alone.
+// Fail-closed mutation test: an unverified record must never enter the student
+// runtime. When held items still exist, promote one illegally; once coverage is
+// fully verified, replace one verified record with an unverified version instead.
 const tampered = JSON.parse(JSON.stringify(overlay));
 const held = tampered.held_for_review.shift();
+let tamperedId;
+if (held) {
+  tamperedId = held.id;
+} else {
+  const verified = tampered.records.shift();
+  assert(verified, 'overlay must contain at least one verified record for fail-closed mutation test');
+  tamperedId = verified.id;
+}
 tampered.records.push({
-  id: held.id,
+  id: tamperedId,
   kao: 'tamper', dati: 'tamper', biaoti: ['a', 'b'], kw: ['a', 'b', 'c'],
   review_status: 'needs_review', reviewed_at: '2026-10-02', review_batch: 'tamper',
   review_sources: ['考選部 tamper', 'tamper source'], is_official: false,
