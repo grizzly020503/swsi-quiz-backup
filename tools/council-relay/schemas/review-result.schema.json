@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["PASS", "FINDINGS", "BLOCKED", "EVIDENCE_MISSING"]
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "severity": { "type": "string", "enum": ["P0", "P1", "P2", "INFO"] },
+          "title": { "type": "string", "minLength": 1 },
+          "evidence": { "type": "string", "minLength": 1 },
+          "rationale": { "type": "string", "minLength": 1 },
+          "recommendation": { "type": "string", "minLength": 1 }
+        },
+        "required": ["severity", "title", "evidence", "rationale", "recommendation"]
+      }
+    },
+    "evidence_freshness": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": { "type": "string", "minLength": 1 },
+          "freshness": { "type": "string", "enum": ["live", "current_remote", "snapshot", "historical"] },
+          "timestamp": { "type": "string" },
+          "sha": { "type": "string" }
+        },
+        "required": ["source", "freshness"]
+      }
+    },
+    "recommended_next_action": { "type": "string", "minLength": 1 }
+  },
+  "required": ["verdict", "summary", "findings", "evidence_freshness", "recommended_next_action"]
+}
