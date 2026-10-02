@@ -56,22 +56,70 @@ for status in ("historical_semantic_support", "historical_semantic_conflict"):
 reg, err = s7.build_registry(S5, {"records": []}, registry)
 assert not err and reg["verified_record_count"] == 1
 
-# Article fingerprint drift fails closed instead of silently replacing provenance.
+# Article fingerprint drift still fails closed by default.
 drift = {"records": [{**S6_CONFIRMED["records"][0], "historical_article_sha256": "b" * 64}]}
 reg, err = s7.build_registry(S5, drift, registry)
 assert len(err) == 1 and "historical_article_sha256" in err[0]["changed_fields"]
 assert reg["records"][0]["historical_article_sha256"] == "a" * 64
 
-# Selected-version identity drift is also provenance drift, even if article text hashes match.
+# An exact evidence-bound old->new SHA migration is the only fingerprint-drift exception.
+migrations = {
+    "schema_version": 1,
+    "migrations": [{
+        "law_name": "測試法",
+        "question_id": "Q1",
+        "article": "8",
+        "from_sha256": "a" * 64,
+        "to_sha256": "b" * 64,
+        "reason": "legacy_parser_included_following_heading",
+        "legacy_parser_suffix": "第 二 章 測試",
+        "legacy_evidence_run_id": 1,
+        "current_evidence_run_id": 2,
+    }],
+}
+reg, err = s7.build_registry(S5, drift, registry, migrations)
+assert not err
+migrated = reg["records"][0]
+assert migrated["historical_article_sha256"] == "b" * 64
+assert migrated["fingerprint_migration"]["from_sha256"] == "a" * 64
+assert migrated["fingerprint_migration"]["to_sha256"] == "b" * 64
+
+# Migration audit metadata persists on later identical fresh evidence.
+reg2, err = s7.build_registry(S5, drift, reg, migrations)
+assert not err
+assert reg2["records"][0]["fingerprint_migration"] == migrated["fingerprint_migration"]
+
+# A migration with the wrong target hash does not weaken fail-closed behavior.
+wrong_drift = {"records": [{**S6_CONFIRMED["records"][0], "historical_article_sha256": "c" * 64}]}
+reg3, err = s7.build_registry(S5, wrong_drift, registry, migrations)
+assert len(err) == 1
+assert reg3["records"][0]["historical_article_sha256"] == "a" * 64
+
+# Selected-version identity drift is provenance drift even if a fingerprint allowlist exists.
 version_drift_row = dict(S6_CONFIRMED["records"][0])
+version_drift_row["historical_article_sha256"] = "b" * 64
 version_drift_row["selected_version"] = {
     **S6_CONFIRMED["records"][0]["selected_version"],
     "version_date": "2020-02-01",
     "lnndate": "20200201",
     "url": "https://law.moj.gov.tw/version-2",
 }
-reg, err = s7.build_registry(S5, {"records": [version_drift_row]}, registry)
+reg, err = s7.build_registry(S5, {"records": [version_drift_row]}, registry, migrations)
 assert len(err) == 1 and "selected_version" in err[0]["changed_fields"]
 assert reg["records"][0]["selected_version"]["version_date"] == "2020-01-01"
+
+# Invalid/duplicate migration records are rejected before they can relax provenance.
+bad = {
+    "schema_version": 1,
+    "migrations": [
+        {**migrations["migrations"][0]},
+        {**migrations["migrations"][0]},
+    ],
+}
+try:
+    s7.migration_map(bad)
+    raise AssertionError("duplicate migration should fail")
+except ValueError:
+    pass
 
 print("HISTORICAL LAW STAGE7 SELFTEST OK")

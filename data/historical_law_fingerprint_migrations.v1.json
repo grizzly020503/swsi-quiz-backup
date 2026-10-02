@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "scope": "Explicit, evidence-bound allowlist for historical-law article fingerprint source-format migrations. Any unlisted provenance drift remains fail-closed.",
+  "migrations": [
+    {
+      "law_name": "志願服務法",
+      "question_id": "SP108-2-26",
+      "article": "5-1",
+      "from_sha256": "33c7c5243de4ed844bd090b79b69bef9408148cc5cf32a4fa7c089e8cddc5775",
+      "to_sha256": "81e9f788666c5510d654ddc3642e008486fccdd0d48fbb0030b43182a8c9421f",
+      "reason": "legacy_lawall_html_parser_included_following_chapter_heading",
+      "legacy_parser_suffix": "第 三 章 志願服務運用單位之職責",
+      "legacy_evidence_run_id": 36880817551,
+      "current_evidence_run_id": 36896323252
+    },
+    {
+      "law_name": "志願服務法",
+      "question_id": "SP110-1-36",
+      "article": "15",
+      "from_sha256": "21c76fe9d271a6862a19822d5a7e8148e92fa5275557a9cb4e9b95e387edde02",
+      "to_sha256": "b38dae9b2a05406a87b2143bbbaa5ee6e4d89f6d99db6cc1f158b21511b86805",
+      "reason": "legacy_lawall_html_parser_included_following_chapter_heading",
+      "legacy_parser_suffix": "第 五 章 促進志願服務之措施",
+      "legacy_evidence_run_id": 36880817551,
+      "current_evidence_run_id": 36896323252
+    }
+  ]
+}
