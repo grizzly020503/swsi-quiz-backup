@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "default_action": "report_only",
+    "auto_upgrade": false,
+    "auto_merge": false,
+    "paid_upgrade_allowed": false,
+    "major_upgrade_requires_review": true,
+    "security_patch_requires_relevant_tests": true,
+    "provider_switch_requires_equivalence_evidence": true
+  },
+  "owners": {
+    "github_action": "ops-ci",
+    "runtime": "ops-ci",
+    "container_image": "ops-ci",
+    "npm_cli": "frontend-ops",
+    "python_package": "data-ops",
+    "remote_import": "backend-runtime",
+    "ai_model": "ai-quality"
+  },
+  "upgrade_gates": {
+    "github_action": ["syntax", "relevant_workflow_contract"],
+    "runtime": ["syntax", "unit_or_smoke", "browser_or_parser_if_affected"],
+    "container_image": ["isolated_runtime_contract"],
+    "npm_cli": ["build_or_browser_contract"],
+    "python_package": ["parser_or_data_contract"],
+    "remote_import": ["edge_function_compile", "auth_rls_contract_if_relevant"],
+    "ai_model": ["golden_set", "held_out_eval", "cost_and_quota_check"]
+  },
+  "risk_classes": {
+    "security_patch": "candidate_pr_only",
+    "patch_minor": "candidate_pr_only",
+    "major_runtime_or_action": "manual_review_required",
+    "provider_switch": "manual_review_required",
+    "model_switch": "manual_review_required",
+    "paid_dependency_or_plan": "owner_required"
+  },
+  "resilience": {
+    "core_must_survive_actions_unavailable": true,
+    "core_must_survive_ai_unavailable": true,
+    "no_content_change_means_no_recompute": true,
+    "quota_exhaustion_must_not_weaken_gates": true,
+    "fallback_requires_same_quality_contract": true
+  }
+}
