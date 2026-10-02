@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 """Run unified question QA across every manifest session.
 
-This is a read-only full-corpus audit. It verifies shard existence/hash/count,
-then delegates each session to the existing unified_question_qa.py contract.
+This is a read-only full-corpus audit. It verifies MCQ shard integrity and
+reuses the existing official-exam source path for essays:
+
+- historical essays: ``index.html`` -> ``window.ESSAYS``
+- latest synced essays: ``auto/essays_auto.json``
+
+The same source path is already protected by ``official_exam_readonly_guard.py``.
 No official question data or enrichment is modified.
 """
 
@@ -14,14 +19,23 @@ import json
 import subprocess
 import sys
 import tempfile
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MANIFEST = ROOT / "cdn" / "question-shards" / "manifest.json"
-DEFAULT_ESSAYS = ROOT / "auto" / "essays_auto.json"
 DEFAULT_POLICY = ROOT / "data" / "question_qa_policy_v1.json"
 UNIFIED_QA = ROOT / "scripts" / "unified_question_qa.py"
+
+# This module is the existing immutable Official Core source owner.  Import the
+# loaders instead of creating a second historical-essay corpus for the watchdog.
+from official_exam_readonly_guard import (  # noqa: E402
+    ESSAY_FIELDS,
+    canonical_row,
+    extract_embedded_essays,
+    load_auto_essays,
+)
 
 
 def read_json(path: Path) -> Any:
@@ -53,10 +67,40 @@ def normalize_round(value: Any) -> str:
     return raw
 
 
+def collect_full_essays() -> list[dict]:
+    """Merge the existing historical + latest essay sources without mutating them.
+
+    Duplicate IDs are allowed only when their immutable Official Core fields are
+    byte-for-byte equivalent.  If a duplicate is equivalent, keep the richer row
+    so QA can retain provenance/enrichment metadata when available.
+    """
+
+    rows: dict[str, dict] = {}
+    canonical: dict[str, dict] = {}
+    for source_row in extract_embedded_essays() + load_auto_essays():
+        ident = str(source_row.get("id") or "").strip()
+        if not ident:
+            raise RuntimeError("Official essay row without id")
+        locked_fields = canonical_row(source_row, ESSAY_FIELDS)
+        if ident in canonical and canonical[ident] != locked_fields:
+            raise RuntimeError(f"Conflicting official essay rows for {ident}")
+        canonical[ident] = locked_fields
+        current = rows.get(ident)
+        if current is None or len(source_row) > len(current):
+            rows[ident] = dict(source_row)
+    return [rows[ident] for ident in sorted(rows)]
+
+
+def session_key(row: dict) -> tuple[str, str]:
+    return (
+        str(row.get("year") or "").strip(),
+        normalize_round(row.get("round")),
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="SWSI manifest-wide unified question QA")
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
-    parser.add_argument("--essays", type=Path, default=DEFAULT_ESSAYS)
     parser.add_argument("--policy", type=Path, default=DEFAULT_POLICY)
     parser.add_argument("--out", type=Path)
     parser.add_argument("--fail-on", choices=["never", "blocked", "review"], default="blocked")
@@ -67,14 +111,37 @@ def main() -> int:
     if not isinstance(shards, list) or not shards:
         raise SystemExit("manifest shards[] is empty or invalid")
 
+    try:
+        all_essays = collect_full_essays()
+    except Exception as exc:
+        raise SystemExit(f"cannot build canonical essay corpus: {exc}") from exc
+
+    essay_counts = Counter(session_key(row) for row in all_essays)
+    unknown_essay_sessions = sorted(
+        f"{year}-{round_name}"
+        for (year, round_name) in essay_counts
+        if not year or round_name not in {"第一次", "第二次"}
+    )
+
     shard_root = args.manifest.parent
     manifest_errors: list[str] = []
+    if unknown_essay_sessions:
+        manifest_errors.append(
+            "essay rows with invalid session metadata: " + ", ".join(unknown_essay_sessions)
+        )
+
     sessions: list[dict] = []
     seen_sessions: set[tuple[str, str]] = set()
     seen_files: set[str] = set()
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp = Path(tmp_dir)
+        full_essays_path = tmp / "official-essays-full.json"
+        full_essays_path.write_text(
+            json.dumps(all_essays, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
         for index, entry in enumerate(shards):
             if not isinstance(entry, dict):
                 manifest_errors.append(f"shards[{index}] is not an object")
@@ -127,7 +194,7 @@ def main() -> int:
                 "--mcq",
                 str(shard_path),
                 "--essays",
-                str(args.essays),
+                str(full_essays_path),
                 "--year",
                 year,
                 "--round",
@@ -158,12 +225,14 @@ def main() -> int:
             overall = report.get("overall") or {}
             official = overall.get("official_core") or {}
             enrichment = overall.get("enrichment") or {}
+            session_essay_count = essay_counts.get(key, 0)
             sessions.append(
                 {
                     "year": year,
                     "round": round_name,
                     "file": filename,
                     "mcq_count": actual_count,
+                    "essay_count": session_essay_count,
                     "items": int(overall.get("items") or 0),
                     "official_core": {
                         "passed": int(official.get("passed") or 0),
@@ -183,16 +252,38 @@ def main() -> int:
                 }
             )
 
+    manifest_session_keys = seen_sessions
+    extra_essay_sessions = sorted(
+        f"{year}-{round_name}"
+        for (year, round_name) in essay_counts
+        if (year, round_name) not in manifest_session_keys
+    )
+    if extra_essay_sessions:
+        manifest_errors.append(
+            "official essays exist outside manifest sessions: " + ", ".join(extra_essay_sessions)
+        )
+
+    total_mcq = sum(row["mcq_count"] for row in sessions)
+    total_essays = sum(row["essay_count"] for row in sessions)
     total_items = sum(row["items"] for row in sessions)
     total_blocked = sum(row["official_core"]["blocked"] for row in sessions)
     total_review = sum(row["manual_review_queue_count"] for row in sessions)
+    expected_items_from_sources = total_mcq + total_essays
+    if total_items != expected_items_from_sources:
+        manifest_errors.append(
+            f"aggregate item mismatch: unified={total_items} source={expected_items_from_sources}"
+        )
+
     report = {
         "schema_version": 1,
         "dataset_revision": manifest.get("dataset_revision"),
         "manifest_shard_count": int(manifest.get("shard_count") or len(shards)),
+        "canonical_essay_source_count": len(all_essays),
         "audited_sessions": len(sessions),
         "manifest_errors": manifest_errors,
         "summary": {
+            "total_mcq": total_mcq,
+            "total_essays": total_essays,
             "total_items": total_items,
             "official_blocked": total_blocked,
             "manual_review_queue_count": total_review,
