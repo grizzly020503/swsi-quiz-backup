@@ -9,6 +9,8 @@ on:
       - 'scripts/ops_task_identity.py'
       - 'scripts/ops_task_identity_resolver.py'
       - 'scripts/full_corpus_ops_identity.py'
+      - 'scripts/full_corpus_ops_plan.py'
+      - 'scripts/full_corpus_ops_session.py'
       - 'scripts/moex_ops_checkpoint.py'
       - 'scripts/historical_law_guardian_ops_review.py'
       - 'scripts/ops_task_ledger.py'
@@ -76,6 +78,8 @@ jobs:
             scripts/ops_task_identity.py \
             scripts/ops_task_identity_resolver.py \
             scripts/full_corpus_ops_identity.py \
+            scripts/full_corpus_ops_plan.py \
+            scripts/full_corpus_ops_session.py \
             scripts/moex_ops_checkpoint.py \
             scripts/historical_law_guardian_ops_review.py \
             scripts/ops_task_ledger.py \
@@ -88,12 +92,25 @@ jobs:
           python scripts/ops_task_identity.py self-test
           python scripts/ops_task_identity_resolver.py --self-test
           python scripts/full_corpus_ops_identity.py --self-test
+          python scripts/full_corpus_ops_plan.py --self-test
+          python scripts/full_corpus_ops_session.py --self-test
           python scripts/moex_ops_checkpoint.py --self-test
           python scripts/historical_law_guardian_ops_review.py --self-test
           python scripts/ops_task_ledger.py --self-test
           python scripts/ops_task_ledger_supabase.py --self-test
           python scripts/ops_task_ledger_transport.py --self-test
           python scripts/ops_task_migration_contract.py
+          python scripts/full_corpus_ops_plan.py > /tmp/full-corpus-ops-plan.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('/tmp/full-corpus-ops-plan.json').read_text(encoding='utf-8'))
+          assert p['manifest_session_count'] > 0
+          assert p['remaining_count'] == p['manifest_session_count']
+          assert p['completed_count'] == 0
+          assert p['done'] is False
+          print(f"FULL CORPUS RESUME PLAN OK sessions={p['manifest_session_count']}")
+          PY
           python scripts/ops_task_ledger_sql_smoke.py supabase/candidates/ops_task_ledger_v1.sql
           python scripts/ops_task_review_sql_smoke.py supabase/candidates/ops_task_review_rpc_v1.sql
           git diff --check
