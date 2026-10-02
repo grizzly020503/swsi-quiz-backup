@@ -88,10 +88,32 @@ The test script intentionally ends with `ROLLBACK`; it is designed for an isolat
 
 This remains observation-only. It does not claim, retry, repair, resolve, or mutate ledger state.
 
+## DR compatibility review
+
+The repository's existing `scripts/supabase_recovery_dry_run.py` already creates the portable Supabase roles `anon`, `authenticated`, and `service_role` before replaying schema/migrations into disposable PostgreSQL. That means the ledger candidate can reuse the existing disaster-recovery harness instead of inventing a parallel database test environment.
+
+When the candidate becomes a real migration, the same change set must also update the recovery contract:
+
+- add the generated migration to `supabase/recovery/recovery_manifest.json` migration order;
+- add `swsi_ops_task_runs` and `swsi_ops_review_items` to the expected public table set;
+- add runtime-contract assertions for RLS and service-role-only privileges;
+- keep the DR workflow's production-write boundary unchanged.
+
+`scripts/ops_task_ledger_candidate_db_test.py` is a candidate-only runner for the disposable PostgreSQL phase. It refuses any `PGHOST` other than `127.0.0.1`, `localhost`, or `::1`, refuses system databases, loads the candidate, runs the rollback-only behavior fixture, and verifies RLS/privilege boundaries. It has no hosted database mode.
+
+Local checks completed in the current sandbox:
+
+- adapter self-test: PASS;
+- candidate SQL static security smoke: PASS;
+- Python compile: PASS;
+- watchdog + durable-ledger fixture: PASS;
+- non-local database target guard: PASS.
+
+Actual PostgreSQL execution remains pending because this sandbox does not provide PostgreSQL/Docker and outbound package installation timed out. This is recorded as an environment blocker, not represented as a successful database test.
+
 ## Remaining before PR
 
-1. Execute the candidate SQL + SQL behavior test in a disposable PostgreSQL/Supabase-compatible database.
-2. Review compatibility with the repository recovery/migration harness and rollback expectations.
-3. Generate the real migration through the project migration workflow/CLI rather than inventing a migration filename.
-4. Re-run local/static tests and secret/diff review.
-5. Only then open one evidence-backed PR.
+1. Execute the candidate SQL + SQL behavior test in the repository's disposable PostgreSQL 16 DR environment.
+2. Convert the candidate into a real CLI-generated migration and update the DR recovery manifest/runtime contract in the same work package.
+3. Re-run local/static tests, isolated DB behavior tests, secret scan, and final diff review.
+4. Only then open one evidence-backed PR.
