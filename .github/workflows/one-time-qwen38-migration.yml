@@ -1,0 +1,84 @@
+name: One-time Qwen 3.8 migration
+
+on:
+  push:
+    branches:
+      - fix/groq-qwen38-migration-20261002
+    paths:
+      - '.github/workflows/one-time-qwen38-migration.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: fix/groq-qwen38-migration-20261002
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Replace deprecated Groq model contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          files = [
+              Path('cloudflare/wandering-wave-4418/worker.js'),
+              Path('supabase/functions/analyze-pending-questions/index.ts'),
+              Path('scripts/cloudflare_worker_smoke.js'),
+              Path('ai_eval/golden_set.json'),
+              Path('.github/workflows/question-shards-publish.yml'),
+          ]
+          old = 'qwen/qwen3.6-27b'
+          new = 'qwen/qwen3.8-27b'
+          total = 0
+          for path in files:
+              text = path.read_text(encoding='utf-8')
+              count = text.count(old)
+              if count == 0:
+                  raise SystemExit(f'{path}: expected deprecated model reference')
+              text = text.replace(old, new)
+              if path.name == 'worker.js':
+                  text = text.replace('Qwen 3.6 官方模型限制採保守值', 'Qwen 3.8 官方模型限制採保守值')
+              path.write_text(text, encoding='utf-8')
+              total += count
+              print(f'{path}: replaced {count}')
+          print(f'total replacements={total}')
+          if total < 5:
+              raise SystemExit('unexpectedly small migration surface')
+          PY
+      - name: Verify migration contract
+        run: |
+          set -euo pipefail
+          ! grep -R -F 'qwen/qwen3.6-27b' \
+            cloudflare/wandering-wave-4418/worker.js \
+            supabase/functions/analyze-pending-questions/index.ts \
+            scripts/cloudflare_worker_smoke.js \
+            ai_eval/golden_set.json \
+            .github/workflows/question-shards-publish.yml
+          grep -F 'qwen/qwen3.8-27b' cloudflare/wandering-wave-4418/worker.js
+          grep -F 'qwen/qwen3.8-27b' supabase/functions/analyze-pending-questions/index.ts
+          node --check cloudflare/wandering-wave-4418/worker.js
+          node --check scripts/cloudflare_worker_smoke.js
+          python -m json.tool ai_eval/golden_set.json >/dev/null
+          git diff --check
+      - name: Commit migration
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            cloudflare/wandering-wave-4418/worker.js \
+            supabase/functions/analyze-pending-questions/index.ts \
+            scripts/cloudflare_worker_smoke.js \
+            ai_eval/golden_set.json \
+            .github/workflows/question-shards-publish.yml
+          git commit -m 'fix: migrate Groq model contract to Qwen 3.8'
+          git push origin HEAD:fix/groq-qwen38-migration-20261002
