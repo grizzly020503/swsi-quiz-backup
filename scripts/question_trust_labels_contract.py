@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+import json
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+LOCK = (ROOT / "monthly_patch_parts" / "zzzz_product_v1_lock.part").read_text(encoding="utf-8")
+LAW_UI = (ROOT / "monthly_patch_parts" / "86.law-trust-ui.part").read_text(encoding="utf-8")
+THEORY_UI = (ROOT / "monthly_patch_parts" / "88.theory-trust-ui.part").read_text(encoding="utf-8")
+
+# Question trust UI must stay in the existing product owner, not another late runtime layer.
+assert "function addQuestionTrust(exp,item)" in LOCK
+assert "swsi-answer-trust" in LOCK
+assert "資料可信度" in LOCK
+
+# Official Core and SWSI enrichment must be visibly distinct.
+assert "官方題目／答案" in LOCK
+assert "平台解析・QA 已通過" in LOCK
+assert "題幹、選項、官方答案與特殊給分屬 Official Core" in LOCK
+assert "SWSI 平台解析與延伸內容另外標示" in LOCK
+
+# `ready` is not human verification. This wording is an explicit trust boundary.
+assert "ready 代表解析已通過目前的自動／結構 QA，不等於逐題人工核驗" in LOCK
+assert "不是考選部官方解析" in LOCK
+assert "平台解析・待複核" in LOCK
+assert "平台解析・處理中" in LOCK
+
+# Legal labels reuse the existing database contract and never overclaim historical validity.
+for status in ("verified_current", "changed", "unreviewed", "not_applicable"):
+    assert f"status==='{status}'" in LOCK
+assert "法規・現行來源已核對" in LOCK
+assert "歷史考題，考試當時版本與後續修法仍須依歷史法規證據判讀" in LOCK
+assert "法規・已偵測變動" in LOCK
+assert "法規・待逐題複核" in LOCK
+
+# Source links must remain HTTPS-only and external links stay noopener/noreferrer.
+assert "function safeTrustHref(value)" in LOCK
+assert "u.protocol==='https:'" in LOCK
+assert "a.rel='noopener noreferrer'" in LOCK
+
+# Existing law/theory trust semantics remain available; question labels must not replace them.
+assert "✓ 官方來源已逐卡核對" in LAW_UI
+assert "○ 已連結官方來源・摘要待逐卡複核" in LAW_UI
+assert "✓ 理論內容已逐卡核對" in THEORY_UI
+assert "△ 平台整理・待逐卡複核" in THEORY_UI
+assert "理論卡不是考選部官方答案" in THEORY_UI
+
+# Corpus contract must actually carry the statuses used by the UI.
+seen_ready = False
+seen_official = False
+seen_legal = set()
+for path in sorted((ROOT / "cdn" / "question-shards").glob("*.json")):
+    if path.name == "manifest.json":
+        continue
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    for row in payload.get("questions", []):
+        if row.get("analysis_status") == "ready":
+            seen_ready = True
+        if row.get("source_exam_code") and str(row.get("source_url") or "").startswith("https://"):
+            seen_official = True
+        if row.get("legal_status"):
+            seen_legal.add(str(row["legal_status"]))
+assert seen_ready, "no ready analysis status found in corpus"
+assert seen_official, "no official source metadata found in corpus"
+assert "not_applicable" in seen_legal, "legal_status contract missing from corpus"
+
+# Never introduce a positive claim that collapses platform QA into official/human verification.
+# The required negative sentence "不是考選部官方解析" must remain allowed.
+for forbidden in (
+    "平台解析・人工已驗證",
+    "平台解析＝官方解析",
+    "平台解析=官方解析",
+    "SWSI 官方解析",
+    "ready = verified",
+    "ready=verified",
+):
+    assert forbidden not in LOCK, f"misleading trust wording found: {forbidden}"
+
+print("QUESTION TRUST LABELS CONTRACT OK: official core, platform QA, and legal review states stay visibly distinct")

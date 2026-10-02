@@ -29,6 +29,18 @@
       .swsi-core-reason{margin:0 0 13px;padding:10px 11px;border-left:3px solid var(--pine);background:#F8FAF9;border-radius:0 10px 10px 0;font-family:'Noto Sans TC',sans-serif;color:#343C38;line-height:1.7;}
       .swsi-core-reason b{display:block;font-size:10.5px;letter-spacing:.04em;color:var(--pine);margin-bottom:2px;}
       .swsi-core-reason span{display:block;font-size:13px;font-weight:650;}
+      .swsi-answer-trust{margin:0 0 10px;border:1px solid #E1E7E3;border-radius:10px;background:#FCFDFC;font-family:'Noto Sans TC',sans-serif;overflow:hidden;}
+      .swsi-answer-trust summary{list-style:none;cursor:pointer;min-height:38px;padding:7px 9px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--ink-soft);font-size:11px;font-weight:700;}
+      .swsi-answer-trust summary::-webkit-details-marker{display:none;}
+      .swsi-answer-trust summary:after{content:'＋';margin-left:auto;color:var(--ink-3);font-size:14px;}
+      .swsi-answer-trust[open] summary:after{content:'－';}
+      .swsi-trust-chip{display:inline-flex;align-items:center;min-height:24px;padding:2px 7px;border:1px solid #D7E2DC;border-radius:999px;background:#fff;color:#456A61;font-size:10.5px;font-weight:800;}
+      .swsi-trust-chip.warn{border-color:#E5DCC1;color:#756E57;background:#FFFDF7;}
+      .swsi-trust-body{border-top:1px solid #E7ECE9;padding:9px 10px 10px;color:var(--ink-soft);font-size:11px;line-height:1.65;}
+      .swsi-trust-body p{margin:0 0 6px;}
+      .swsi-trust-body p:last-child{margin-bottom:0;}
+      .swsi-trust-links{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;}
+      .swsi-trust-links a{display:inline-block;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--pine-deep);padding:5px 8px;text-decoration:none;font-size:10.8px;font-weight:700;}
       .swsi-explanation-more{margin:12px 0 3px;border:1px solid var(--line);border-radius:11px;background:#FBFCFB;overflow:hidden;}
       .swsi-explanation-more summary{list-style:none;cursor:pointer;min-height:43px;padding:9px 11px;display:flex;align-items:center;font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:800;color:var(--pine-deep);}
       .swsi-explanation-more summary::-webkit-details-marker{display:none;}
@@ -166,15 +178,75 @@
     return null;
   }
 
+  function safeTrustHref(value){
+    var s=String(value||'').trim();
+    if(!/^https:\/\//i.test(s)) return '';
+    try{var u=new URL(s);return u.protocol==='https:'?u.href:'';}catch(_e){return '';}
+  }
+
+  function officialQuestion(item){
+    if(!item) return false;
+    var kind=String(item.qtype||'')+' '+String(item.id||'');
+    return !!item.source_exam_code && !!safeTrustHref(item.source_url) && !/時事|預測|自製/.test(kind);
+  }
+
+  function analysisTrust(item){
+    var status=String(item&&item.analysis_status||'').toLowerCase();
+    if(status==='ready')return {label:'平台解析・QA 已通過',warn:false,detail:'ready 代表解析已通過目前的自動／結構 QA，不等於逐題人工核驗，也不是考選部官方解析。'};
+    if(status==='review')return {label:'平台解析・待複核',warn:true,detail:'這份平台解析目前仍在複核／隔離狀態；請優先相信官方題目、答案與特殊給分規則。'};
+    if(status==='pending'||status==='analyzing')return {label:'平台解析・處理中',warn:true,detail:'平台解析尚在生成或檢查流程中；未完成前不視為已核實教材。'};
+    return {label:'平台解析・核對狀態未標示',warn:true,detail:'這是 SWSI 的學習整理，不是官方解析；目前沒有足夠狀態可把它標示為已核對。'};
+  }
+
+  function legalTrust(item){
+    var status=String(item&&item.legal_status||'').toLowerCase();
+    if(status==='not_applicable')return null;
+    if(status==='verified_current')return {label:'法規・現行來源已核對',warn:false,detail:'已核對現行官方法規來源；若是歷史考題，考試當時版本與後續修法仍須依歷史法規證據判讀。'};
+    if(status==='changed')return {label:'法規・已偵測變動',warn:true,detail:'平台已偵測相關法規可能變動，這份法規延伸在重新核對前不應視為完成版。'};
+    if(status==='unreviewed')return {label:'法規・待逐題複核',warn:true,detail:'題目含法規／政策內容，但這一題尚未完成逐題法規核對。'};
+    if(item&&(item.law||item.legal_source_url))return {label:'法規・待確認',warn:true,detail:'這題含法規延伸，但目前沒有可安全宣稱已核對的狀態。'};
+    return null;
+  }
+
+  function appendTrustLink(box,label,url){
+    var href=safeTrustHref(url); if(!href)return;
+    var links=box.querySelector('.swsi-trust-links');
+    if(!links){links=document.createElement('div');links.className='swsi-trust-links';box.appendChild(links);}
+    var a=document.createElement('a');a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.textContent=label+' ↗';links.appendChild(a);
+  }
+
+  function addQuestionTrust(exp,item){
+    if(!item||directChild(exp,'.swsi-answer-trust'))return;
+    var official=officialQuestion(item),analysis=analysisTrust(item),legal=legalTrust(item);
+    var panel=document.createElement('details');panel.className='swsi-answer-trust';
+    var summary=document.createElement('summary');summary.appendChild(document.createTextNode('資料可信度'));
+    function chip(text,warn){var s=document.createElement('span');s.className='swsi-trust-chip'+(warn?' warn':'');s.textContent=text;summary.appendChild(s);}
+    chip(official?'官方題目／答案':'SWSI 練習內容',!official);
+    chip(analysis.label,analysis.warn);
+    if(legal)chip(legal.label,legal.warn);
+    panel.appendChild(summary);
+    var body=document.createElement('div');body.className='swsi-trust-body';
+    var p1=document.createElement('p');p1.textContent=official?'題幹、選項、官方答案與特殊給分屬 Official Core；SWSI 平台解析與延伸內容另外標示。':'此題不是以考選部歷屆題 Official Core 身分呈現；題目與解析均應視為 SWSI 學習內容。';body.appendChild(p1);
+    var p2=document.createElement('p');p2.textContent=analysis.detail;body.appendChild(p2);
+    if(legal){var p3=document.createElement('p');p3.textContent=legal.detail+(item.legal_checked_at?' 核對時間：'+String(item.legal_checked_at).slice(0,10)+'。':'');body.appendChild(p3);}
+    appendTrustLink(body,'開啟官方題目來源',official?item.source_url:'');
+    appendTrustLink(body,'開啟法規來源',legal?item.legal_source_url:'');
+    panel.appendChild(body);
+    var more=directChild(exp,'.swsi-explanation-more'),next=directChild(exp,'.btn');
+    if(more)exp.insertBefore(panel,more);else if(next)exp.insertBefore(panel,next);else exp.appendChild(panel);
+  }
+
   function collapseExplanation(){
     var exp=document.querySelector('#app .qcard .exp');
     if(!exp) return;
 
+    var currentItem=null;
+    try{ currentItem=queue&&queue[idx]; }catch(_e){}
+
     if(exp.dataset.swsiCompact!=='1'){
       exp.dataset.swsiCompact='1';
 
-      var item=null;
-      try{ item=queue&&queue[idx]; }catch(_e){}
+      var item=currentItem;
       var topic=exp.querySelector('.topic');
       if(item&&!exp.querySelector('.swsi-answer-line')){
         var line=document.createElement('div');
@@ -195,14 +267,14 @@
         }
       }
       var source=primary&&(primary.querySelector('p')||primary);
-      var summary=conciseExplanation(source&&source.textContent);
-      if(summary&&!exp.querySelector(':scope > .swsi-core-reason')){
+      var summaryText=conciseExplanation(source&&source.textContent);
+      if(summaryText&&!exp.querySelector(':scope > .swsi-core-reason')){
         var core=document.createElement('div');
         core.className='swsi-core-reason';
         var coreLabel=document.createElement('b');
         coreLabel.textContent='一句核心原因';
         var coreText=document.createElement('span');
-        coreText.textContent=summary;
+        coreText.textContent=summaryText;
         core.appendChild(coreLabel); core.appendChild(coreText);
         var answerLine=directChild(exp,'.swsi-answer-line');
         if(answerLine&&answerLine.nextSibling) exp.insertBefore(core,answerLine.nextSibling);
@@ -216,11 +288,14 @@
         var details=document.createElement('details');
         details.className='swsi-explanation-more';
         details.innerHTML='<summary>看完整解析</summary><div class="body"></div>';
-        var body=details.querySelector('.body');
-        hidden.forEach(function(x){body.appendChild(x);});
+        var detailsBody=details.querySelector('.body');
+        hidden.forEach(function(x){detailsBody.appendChild(x);});
         var next=directChild(exp,'.btn');
         if(next) exp.insertBefore(details,next); else exp.appendChild(details);
       }
+      addQuestionTrust(exp,item);
+    }else{
+      addQuestionTrust(exp,currentItem);
     }
 
     /* Learning Loop adds the student's own reflection asynchronously. Keep that
