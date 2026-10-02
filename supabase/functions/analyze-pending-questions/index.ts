@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev";
+const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev/api/ai";
 const DRAFT_MODEL = "qwen/qwen3.6-27b";
 const AUDIT_MODEL = "openai/gpt-oss-120b";
 const FORMAT_ARTIFACT_TOKENS = new Set(["na", "nb", "nc", "nd"]);
