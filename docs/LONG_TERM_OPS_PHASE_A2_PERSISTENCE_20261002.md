@@ -61,9 +61,37 @@ python -m py_compile scripts/ops_task_ledger_supabase.py scripts/ops_task_ledger
 
 The static SQL smoke fails if the candidate loses RLS/revokes/service-role-only grants, adds `SECURITY DEFINER`, adds delete/all grants, removes row locking, or stops enforcing monotonic checkpoints.
 
+## Third checkpoint completed
+
+`supabase/candidates/ops_task_ledger_v1_test.sql` now defines transaction-scoped deterministic behavior tests for:
+
+- first claim and live-lease duplicate blocking;
+- retry-not-due and later reclaim;
+- lease-expiry reclaim;
+- retry attempt exhaustion;
+- checkpoint preservation and monotonic processed counts;
+- unknown checkpoint version fail-closed;
+- terminal idempotency;
+- `no_change` updating trusted `last_success_at`;
+- review-item history resolving without deletion.
+
+The test script intentionally ends with `ROLLBACK`; it is designed for an isolated database and has not been run against production.
+
+`ops_task_watchdog.py` now accepts optional `--ledger-state` input and summarizes:
+
+- run status counts;
+- most recent successful run per task;
+- active runs and expired leases;
+- open review count;
+- oldest review age;
+- review reasons and oldest open items.
+
+This remains observation-only. It does not claim, retry, repair, resolve, or mutate ledger state.
+
 ## Remaining before PR
 
-1. Add deterministic SQL behavior fixtures for claim / busy / retry-not-due / lease-expiry reclaim / attempt-limit / checkpoint regression / terminal idempotency.
-2. Extend `ops_task_watchdog.py` with an optional durable-ledger projection while keeping it observation-only.
-3. Review the candidate against the repository recovery/migration harness.
-4. Only then create a real generated migration and open one evidence-backed PR.
+1. Execute the candidate SQL + SQL behavior test in a disposable PostgreSQL/Supabase-compatible database.
+2. Review compatibility with the repository recovery/migration harness and rollback expectations.
+3. Generate the real migration through the project migration workflow/CLI rather than inventing a migration filename.
+4. Re-run local/static tests and secret/diff review.
+5. Only then open one evidence-backed PR.
