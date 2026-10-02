@@ -138,8 +138,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   // answering. Navigation must return on the result/home templates afterwards.
   await page.locator('#t-home').click();
   await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
-  await page.getByRole('button', { name: /直接開始 20 題/ }).click();
+  await page.getByRole('button', { name: /開始 10 題/ }).click();
   await page.waitForSelector('.qcard', { timeout: 45000 });
+  assert.strictEqual((await page.locator('.pcount').innerText()).trim(), '1 / 10', 'layout smoke did not start the default 10-question queue');
   await waitPage('quiz', 10000);
   s = await shellSnapshot();
   assertInternal(s, 'quiz', { focusedQuiz: true });
@@ -148,9 +149,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
 
   // Result is a distinct page template even when content is short. Use the same
   // DOM marker as the real result renderer so this assertion does not require
-  // answering all 20 questions just to test shell ownership.
+  // answering all 10 questions just to test shell ownership.
   await page.evaluate(() => {
-    document.getElementById('app').innerHTML = '<section class="sumcard"><div class="big">20 / 20</div><button>再來一輪</button></section>';
+    document.getElementById('app').innerHTML = '<section class="sumcard"><div class="big">10 / 10</div><button>再來一輪</button></section>';
   });
   await waitPage('result', 10000);
   s = await shellSnapshot();
