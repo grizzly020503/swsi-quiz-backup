@@ -36,10 +36,6 @@
   window.swsiPracticeReviewSet=function(i){var sets=window._swsiReviewSets||[];if(sets[i])setFromIds(sets[i].ids);};
   window.swsiPracticeSubject=function(subj,n){startQuiz(function(q){return q.subject===subj;},n||20);};
   window.swsiPracticeTopic=function(topic,n){startQuiz(function(q){return (q.topic||q.major||'')===topic;},n||15);};
-  window.swsiOpenTopicMaterial=function(topic){
-    if(typeof window.swsiKnowledgeSearch==='function'){window.swsiKnowledgeSearch(topic);return;}
-    try{searchQ=String(topic||'');go('search');}catch(_e){try{view='search';render();}catch(_x){}}
-  };
   window.swsiStartRecommended20=function(){startQuiz(function(){return true;},20);};
   function questionMap(ids){return (ids||[]).map(function(id){try{return ALL.find(function(q){return q.id===id;});}catch(_e){return null;}}).filter(Boolean);}
   function groupPush(obj,key,q){key=key||'未分類';(obj[key]=obj[key]||[]).push(q);}
@@ -84,7 +80,7 @@
     var topTopics=Object.entries(p.wrongTopic).sort(function(a,b){return b[1]-a[1];}).slice(0,5),focusTopic=topTopics.find(function(x){return x[1]>=2;})||null,causeRows=Object.entries(p.byCause).sort(function(a,b){return b[1]-a[1];});
     var action='';
     if(rv.dueCount)action='<div class="swsi-next-copy"><b>先把今天到期的錯題處理掉。</b><span>間隔複習比再刷一堆新題更值得。</span></div><button class="btn" onclick="startDueReview()">複習 '+rv.dueCount+' 題</button>';
-    else if(focusTopic)action='<div class="swsi-next-copy"><b>這個考點已累計錯 '+focusTopic[1]+' 次：'+H(focusTopic[0])+'</b><span>先看相關法規／理論／歷屆連結，再用 5 題確認。這是依你的錯題紀錄產生，不是黑箱 AI 推薦。</span></div><div class="swsi-next-actions"><button class="btn ghost" onclick="swsiOpenTopicMaterial(\''+H(focusTopic[0])+'\')">先看相關教材</button><button class="btn" onclick="swsiPracticeTopic(\''+H(focusTopic[0])+'\',5)">練 5 題確認</button></div>';
+    else if(focusTopic)action='<div class="swsi-next-copy"><b>這個考點已累計錯 '+focusTopic[1]+' 次：'+H(focusTopic[0])+'</b><span>先看相關法規／理論／歷屆連結，再用 5 題確認。這是依你的錯題紀錄產生，不是黑箱 AI 推薦。</span></div><div class="swsi-next-actions"><button class="btn ghost" onclick="swsiKnowledgeSearch(\''+H(focusTopic[0])+'\')">先看相關教材</button><button class="btn" onclick="swsiPracticeTopic(\''+H(focusTopic[0])+'\',5)">練 5 題確認</button></div>';
     else if(weak)action='<div class="swsi-next-copy"><b>目前最值得補：'+H(weak.name)+'</b><span>你在這科目前 '+weak.r+'%（'+weak.c+'/'+weak.t+'）。先用 20 題再確認一次。</span></div><button class="btn" onclick="swsiPracticeSubject(\''+H(weak.name)+'\',20)">練 '+H(weak.name)+' 20 題</button>';
     else action='<div class="swsi-next-copy"><b>繼續累積一點資料。</b><span>再刷 20 題後，弱點判斷會更有參考價值。</span></div><button class="btn" onclick="swsiStartRecommended20()">繼續刷 20 題</button>';
     var subjHTML=subjects.map(function(s){var col=s.r>=70?'var(--correct)':s.r>=50?'var(--gold)':'var(--wrong)';return '<button class="swsi-progress-subject" onclick="swsiPracticeSubject(\''+H(s.name)+'\',20)"><div class="top"><b>'+H(s.name)+'</b><span>'+s.r+'%　('+s.c+'/'+s.t+')</span></div><div class="accbar"><i style="width:'+s.r+'%;background:'+col+'"></i></div><small>點一下練這科 20 題</small></button>';}).join('');
