@@ -192,12 +192,14 @@ jobs:
           echo "$response"
           python - "$response" <<'PY'
           import json, sys
+          from pathlib import Path
           payload=json.loads(sys.argv[1])
+          expected=len(json.loads(Path('data/essay_enrichment.json').read_text(encoding='utf-8')).get('records') or [])
           if payload.get('ok') is not True:
               raise SystemExit(f'essay enrichment sync did not confirm success: {payload}')
-          if int(payload.get('updated') or 0) != 10:
-              raise SystemExit(f'expected 10 synchronized 115-2 essay rows, got: {payload}')
-          print('Essay enrichment Supabase sync confirmed: updated=10')
+          if int(payload.get('updated') or 0) != expected:
+              raise SystemExit(f'expected {expected} synchronized essay rows, got: {payload}')
+          print(f'Essay enrichment Supabase sync confirmed: updated={expected}')
           PY
 
       - name: Local question bank health check
