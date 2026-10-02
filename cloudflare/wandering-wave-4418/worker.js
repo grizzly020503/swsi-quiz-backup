@@ -5,7 +5,10 @@ export default {
       "https://wandering-wave-4418.c022050333.workers.dev"
     ]);
 
+    // Keep the browser/API contract stable for cached clients, but route it to
+    // Groq's supported replacement after qwen3.6-27b retirement.
     const PUBLIC_MODEL = "qwen/qwen3.6-27b";
+    const UPSTREAM_PUBLIC_MODEL = "qwen/qwen3.8-27b";
     const INTERNAL_MODELS = new Set([
       PUBLIC_MODEL,
       "openai/gpt-oss-120b"
@@ -170,7 +173,7 @@ export default {
       }
     }
 
-    // Qwen 3.6 官方模型限制採保守值：最多 3 張輸入圖片。
+    // Public compatibility contract keeps the existing 3-image limit.
     if (imageCount > 3) {
       return json({ error: { message: "最多一次上傳 3 張照片。" } }, 400);
     }
@@ -238,7 +241,7 @@ export default {
       ? body.temperature
       : 0.4;
     const safePayload = {
-      model: body.model,
+      model: body.model === PUBLIC_MODEL ? UPSTREAM_PUBLIC_MODEL : body.model,
       messages: body.messages,
       reasoning_effort: isInternal && ["none", "low", "medium", "high"].includes(body.reasoning_effort)
         ? body.reasoning_effort
