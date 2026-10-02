@@ -81,7 +81,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   }
 
   const appText = await page.locator('#app').innerText();
-  assert(/直接開始 20 題|今天的學習|第一次來/.test(appText), 'offline app shell rendered an unexpected/blank state');
+  assert(/今天練 10 題|開始 10 題|今天的學習|第一次來/.test(appText), 'offline app shell rendered an unexpected/blank state');
 
   await context.setOffline(false);
   await page.reload({ waitUntil: 'domcontentloaded', timeout: 20000 });

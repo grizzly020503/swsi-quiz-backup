@@ -54,8 +54,9 @@ async function optionTexts(page) {
   assert((await page.locator('footer .swsi-report-footer-btn').count()) === 1, 'general feedback footer entry missing');
 
   // Official MCQ: compact form, official trust note, and only question-related categories.
-  await page.getByRole('button', { name: /直接開始 20 題/ }).click();
+  await page.getByRole('button', { name: /開始 10 題/ }).click();
   await page.waitForSelector('.qcard .swsi-report-mini', { timeout: 45000 });
+  assert.strictEqual((await page.locator('.pcount').innerText()).trim(), '1 / 10', 'feedback smoke did not start the default 10-question queue');
   await page.locator('.qcard .swsi-report-mini').click();
   await page.waitForSelector('.swsi-report-dialog[data-swsi-compact="2"]');
   let modalText = await page.locator('.swsi-report-dialog').innerText();

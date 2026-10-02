@@ -91,7 +91,7 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
   // Question CDN failure: a failed shard request must not leave a permanent loading/dead screen.
   const cdnHost='wandering-wave-4418.c022050333.workers.dev';
   await page.route(`https://${cdnHost}/question-shards/**`,route=>route.abort('failed'));
-  await page.getByRole('button',{name:/直接開始 20 題/}).click();
+  await page.getByRole('button',{name:/開始 10 題/}).click();
   await page.waitForTimeout(3500);
   const afterFailure=await page.locator('#app').innerText();
   const hasQuiz=await page.locator('.qcard').count();

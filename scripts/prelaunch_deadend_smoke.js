@@ -36,8 +36,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await waitHome();
 
   // Quiz must never trap the user. Start a real set, then leave mid-session.
-  await page.getByRole('button', { name: /直接開始 20 題/ }).click();
+  await page.getByRole('button', { name: /開始 10 題/ }).click();
   await page.waitForSelector('.qcard .opt', { timeout: 45000 });
+  assert.strictEqual((await page.locator('.pcount').innerText()).trim(), '1 / 10', 'dead-end smoke did not start the default 10-question queue');
   await page.getByRole('button', { name: /結束這次練習/ }).click();
   await waitHome();
 
