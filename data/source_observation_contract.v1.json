@@ -48,9 +48,10 @@
   },
   "correction_chain": {
     "field": "supersedes_hash",
-    "rule": "A correction must reference a different predecessor normalized hash; predecessor evidence is retained."
+    "rule": "A correction must reference a lowercase 64-hex SHA-256 equal to previous_trusted_hash and different from the new hash; predecessor evidence is retained. Other historical predecessors require a separately verified registry."
   },
   "trust_rules": [
+    "Only final 2xx responses enter content validation; unresolved redirects and 304 cannot replace trusted content.",
     "Failure outcomes never replace last trusted content.",
     "Empty parse result is not success_no_change.",
     "Parser contract drift is quarantined rather than guessed.",
