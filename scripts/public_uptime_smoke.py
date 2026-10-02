@@ -19,6 +19,7 @@ BACKUP = "https://swsi-quiznetlify.netlify.app"
 FEEDBACK = "https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-feedback"
 UA = "SWSI-Uptime-Sentinel/1.0"
 TIMEOUT = 12
+CURRENT_AFFAIRS_STUDENT_MARKER = "目前 3 個國考重點"
 
 
 def request(url: str, method: str = "GET", headers: dict[str, str] | None = None):
@@ -40,7 +41,6 @@ def require_status(label: str, url: str, expected: int = 200, *, method: str = "
         return res.read(), res.headers
 
 
-
 def expected_netlify_release_marker() -> str:
     source = Path(__file__).resolve().parents[1] / "index.html"
     html = source.read_text(encoding="utf-8")
@@ -53,6 +53,7 @@ def expected_netlify_release_marker() -> str:
         raise AssertionError("Local release source: swsi-netlify-release marker missing")
     return match.group(1).strip()
 
+
 def expected_netlify_runtime() -> tuple[bytes, str, bytes]:
     root = Path(__file__).resolve().parents[1]
     parts = sorted((root / "monthly_patch_parts").glob("*.part"))
@@ -62,6 +63,7 @@ def expected_netlify_runtime() -> tuple[bytes, str, bytes]:
     patch_sha = hashlib.sha256(patch).hexdigest()
     sw = (root / "sw.js").read_bytes()
     return patch, patch_sha, sw
+
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -216,8 +218,8 @@ def main() -> int:
                 raise AssertionError("Current-affairs trends: invalid historical match breakdown")
         checks.append(f"trends-{len(trend_items)}/history-v2.2")
 
-        if "命題趨勢雷達" not in html:
-            raise AssertionError("Current-affairs V2 UI: trend radar marker missing from production home")
+        if CURRENT_AFFAIRS_STUDENT_MARKER not in html:
+            raise AssertionError("Current-affairs V2 UI: focused student marker missing from production home")
         if "current_affairs_events.json" not in html or "current_affairs_trends.json" not in html:
             raise AssertionError("Current-affairs V2 UI: event/trend feed loader missing from production home")
         checks.append("trend-ui-v2")
@@ -320,8 +322,8 @@ def main() -> int:
             raise AssertionError(
                 f"Netlify fallback current-affairs: expected >=17 sources / 0 errors, got {fallback_sources}/{fallback_errors}"
             )
-        if "命題趨勢雷達" not in fallback_html:
-            raise AssertionError("Netlify fallback: trend radar marker missing")
+        if CURRENT_AFFAIRS_STUDENT_MARKER not in fallback_html:
+            raise AssertionError("Netlify fallback: focused current-affairs marker missing")
 
         body, _ = require_status(
             "Netlify fallback current-affairs signals",
