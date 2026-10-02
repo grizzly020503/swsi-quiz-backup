@@ -36,7 +36,11 @@ Incident keys are stable hashes of:
 
 `component + failure_class + scope`
 
-Repeated probes of the same failure therefore remain one ongoing incident. If a previous incident disappears from the next probe, the evaluator emits a resolved transition instead of silently deleting history.
+Repeated probes of the same failure therefore remain one ongoing incident. Absence alone never resolves an incident: resolution requires a valid, fresh envelope and fresh healthy evidence for the same component/scope. Homepage incidents require their own successful homepage probe. Invalid, missing, stale or future-dated evidence preserves the previous incident as ongoing with `observation_status=recovery_unconfirmed`; `last_seen_at` remains the last actual failure observation.
+
+The existing `--max-age-hours` window (default 8 hours) now applies to each component's `checked_at` as well as the envelope. Producers must report actual check times, never stamp old observations with the current time. This is observation freshness, not a requirement for weekly MOEX ingestion to run every eight hours.
+
+Repair verification: original 9-case fixture plus `python3 scripts/ops_independent_heartbeat_selftest.py` (7 regression tests, including all six components and multi-round incident recovery). Independent monitoring remains inactive until the activation prerequisites below are met.
 
 Severity is impact-based:
 
