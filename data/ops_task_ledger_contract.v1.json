@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "purpose": "Static contract for durable SWSI maintenance task state. This file is not runtime state.",
+  "runtime_state_must_not_be_committed_to_repo": true,
+  "run_identity": ["task_id", "idempotency_key"],
+  "run_fields": [
+    "task_id",
+    "idempotency_key",
+    "status",
+    "attempt",
+    "max_attempts",
+    "worker_id",
+    "started_at",
+    "heartbeat_at",
+    "lease_expires_at",
+    "completed_at",
+    "last_success_at",
+    "checkpoint_version",
+    "checkpoint",
+    "processed_count",
+    "error_class",
+    "error_message",
+    "next_retry_at"
+  ],
+  "statuses": {
+    "active": ["running"],
+    "retryable": ["failed_retryable"],
+    "terminal": ["success", "no_change", "failed_terminal", "quarantined"]
+  },
+  "semantics": {
+    "success": "Work completed and produced a valid state transition.",
+    "no_change": "The source was checked successfully and no new work was required.",
+    "failed_retryable": "Transient failure; retry is allowed only after next_retry_at and before max_attempts.",
+    "failed_terminal": "Retry budget exhausted or failure is permanently non-retryable.",
+    "quarantined": "Input or structural change requires review before publication or mutation.",
+    "stale_or_missed": "Derived by watchdog/freshness reporting; not a worker completion outcome."
+  },
+  "checkpoint": {
+    "current_version": 1,
+    "unknown_version_policy": "fail_closed",
+    "restart_rule": "resume_from_persisted_checkpoint_without_repeating_completed_side_effects"
+  },
+  "lease": {
+    "single_effective_owner_per_run": true,
+    "expired_lease_may_be_reclaimed": true,
+    "reclaim_increments_attempt": true
+  },
+  "review_item_fields": [
+    "item_id",
+    "reason",
+    "source_ref",
+    "state",
+    "first_seen_at",
+    "last_attempt_at",
+    "attempt",
+    "last_error",
+    "next_check_at",
+    "resolved_at",
+    "resolution"
+  ],
+  "review_terminal_states": ["resolved", "superseded", "invalid"],
+  "security": {
+    "store_secrets": false,
+    "store_full_private_user_data": false,
+    "production_storage_preference": "private_non_exposed_schema_or_equivalent_least_privilege_backend",
+    "service_role_frontend_allowed": false
+  }
+}
