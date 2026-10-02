@@ -14,7 +14,7 @@
 
 - PR #247 已合併：Cloudflare production sync + legacy AI compatibility。
 - PR #248 已合併：Cloudflare production verification closure + canonical monthly runtime rebuild。
-- main 已知基線：`10ca3815cf3f9032c7b0dcd84be074301eff358f`（接手時重新確認）。
+- main 已知基線：`0f3163bab316959f54502de5c7140c5a4d064406`（接手時重新確認）。
 - live question dataset revision：`5c4acad4299dbae1caee`。
 - live 題庫：4,800 MCQ / 24 shards。
 - `115-2` live shard：200 題，`accepted_answers` contract 正常。
@@ -30,6 +30,7 @@
 - v11 draft model：Qwen 3.8；audit model：`openai/gpt-oss-120b`。
 - Edge Function custom auth：`x-job-key` 對 `ai_analysis_job_config.job_key`；**不要讀出或記錄明文 key**。
 - pg_cron job id 3：`*/30 * * * *`，每次 body `{"limit":1}`。
+- PR #252 已將 pg_net transport timeout 延長為 120,000 ms；live `cron.job.command` 已確認 production 也使用 `timeout_milliseconds := 120000`。這只增加 request transport 容忍時間，沒有提高 cadence、claim size 或 25/day cap。
 - `claim_pending_ai_questions()` 仍硬性每次最多 1 題，24h `analysis_completed_at` >= 25 時停止 claim。
 
 ## 已驗證的 recovery 行為
@@ -84,7 +85,7 @@
 - 為避免 deterministic starvation，`SW-105-2-03` 已做**可逆 queue quarantine**：`pending → review`，保留 `analysis_attempts=1`，並註明先前 strict-validation `exp_others 空白` + transient 502；等 analyzer v12/retry hardening 真正部署後再重試。
 - quarantine 後 snapshot：`ready=4,683`、`pending=12`、`review=105`。接手仍應重查 live counts。
 - 長期根治方向不是提高 cron 頻率，而是給 claim queue 一個真正的 last-attempt/fairness 機制（例如持久化 `analysis_last_attempt_at`，優先 never-attempted / oldest-attempted）。**不要只靠 `analysis_error is null` 排序；那只能暫時延後，不能保證長期 round-robin。**
-- 目前尚未套 production DB migration；CLI migration generator 在本次執行環境未能正常完成，因此沒有自行杜撰 migration timestamp，也沒有直接改 SECURITY DEFINER claim function。
+- 目前尚未套 production DB fairness migration；CLI migration generator 在本次執行環境未能正常完成，因此沒有自行杜撰 migration timestamp，也沒有直接改 SECURITY DEFINER claim function。
 
 ## multi-answer / special grading 分流更新
 
