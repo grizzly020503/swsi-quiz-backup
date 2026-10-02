@@ -6,6 +6,8 @@ export default {
     ]);
 
     const PUBLIC_MODEL = "qwen/qwen3.8-27b";
+    const LEGACY_PUBLIC_MODEL = "qwen/qwen3.6-27b";
+    const PUBLIC_MODELS = new Set([PUBLIC_MODEL, LEGACY_PUBLIC_MODEL]);
     const INTERNAL_MODELS = new Set([
       PUBLIC_MODEL,
       "openai/gpt-oss-120b"
@@ -144,7 +146,7 @@ export default {
       if (!INTERNAL_MODELS.has(body.model)) {
         return json({ error: { message: "Invalid internal model" } }, 400);
       }
-    } else if (body.model !== PUBLIC_MODEL) {
+    } else if (!PUBLIC_MODELS.has(body.model)) {
       return json({ error: { message: "Invalid AI model" } }, 400);
     }
 
@@ -238,7 +240,8 @@ export default {
       ? body.temperature
       : 0.4;
     const safePayload = {
-      model: body.model,
+      // Cached pre-migration clients may still request Qwen 3.6; never forward the retired model upstream.
+      model: isInternal ? body.model : PUBLIC_MODEL,
       messages: body.messages,
       reasoning_effort: isInternal && ["none", "low", "medium", "high"].includes(body.reasoning_effort)
         ? body.reasoning_effort

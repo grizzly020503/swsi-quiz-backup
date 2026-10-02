@@ -120,6 +120,11 @@ function request(body) {
   assert.strictEqual(upstreamPayload.temperature, 0, 'explicit temperature=0 was not preserved');
   assert.strictEqual(response.headers.get('cache-control'), 'no-store');
 
+  const legacyBody = { ...body, model: 'qwen/qwen3.6-27b' };
+  response = await worker.fetch(request(legacyBody), env());
+  assert.strictEqual(response.status, 200, 'legacy cached public client should remain compatible');
+  assert.strictEqual(upstreamPayload.model, 'qwen/qwen3.8-27b', 'legacy public model must be translated to current upstream model');
+
   upstreamStatus = 429;
   response = await worker.fetch(request({ ...body, temperature: null }), env());
   const upstreamError = await response.json();
