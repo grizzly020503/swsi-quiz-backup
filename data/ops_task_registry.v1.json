@@ -41,7 +41,7 @@
       "id": "full-corpus-question-qa",
       "workflow_file": "full-corpus-qa.yml",
       "display_name": "Full Corpus Question QA",
-      "accepted_events": ["schedule"],
+      "accepted_events": ["schedule", "workflow_dispatch"],
       "expected_interval_hours": 744,
       "max_age_hours": 840,
       "criticality": "critical"
