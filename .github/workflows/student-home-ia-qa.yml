@@ -5,8 +5,12 @@ on:
     paths:
       - '.github/workflows/student-home-ia-qa.yml'
       - 'monthly_patch_parts/20.product-philosophy.part'
+      - 'monthly_patch_parts/70.learning-loop.part'
+      - 'monthly_patch_parts/71.my-learning-center.part'
       - 'scripts/student_home_ia_contract.py'
+      - 'scripts/student_learning_scenarios_contract.py'
       - 'audit/student_home_ia_20261003.md'
+      - 'audit/student_learning_scenarios_20261003.md'
 
 permissions:
   contents: read
@@ -32,4 +36,9 @@ jobs:
         run: |
           python -m py_compile scripts/student_home_ia_contract.py
           python scripts/student_home_ia_contract.py
+
+      - name: Student learning scenario contract
+        run: |
+          python -m py_compile scripts/student_learning_scenarios_contract.py
+          python scripts/student_learning_scenarios_contract.py
           git diff --check
