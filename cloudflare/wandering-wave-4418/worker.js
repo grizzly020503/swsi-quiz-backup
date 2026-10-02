@@ -5,7 +5,7 @@ export default {
       "https://wandering-wave-4418.c022050333.workers.dev"
     ]);
 
-    const PUBLIC_MODEL = "qwen/qwen3.6-27b";
+    const PUBLIC_MODEL = "qwen/qwen3.8-27b";
     const INTERNAL_MODELS = new Set([
       PUBLIC_MODEL,
       "openai/gpt-oss-120b"
@@ -170,7 +170,7 @@ export default {
       }
     }
 
-    // Qwen 3.6 官方模型限制採保守值：最多 3 張輸入圖片。
+    // Qwen 3.8 官方模型限制採保守值：最多 3 張輸入圖片。
     if (imageCount > 3) {
       return json({ error: { message: "最多一次上傳 3 張照片。" } }, 400);
     }
