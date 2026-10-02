@@ -2,6 +2,8 @@
 """Read-only freshness watchdog for scheduled SWSI maintenance workflows.
 
 It can query GitHub Actions or consume a fixture for deterministic tests.
+Optionally it can also summarize a durable #269 ledger-state export. The
+watchdog remains observation-only and never claims, retries, or mutates jobs.
 When this script runs inside GitHub Actions it is same-platform observability,
 not an independent external heartbeat.
 """
@@ -84,6 +86,76 @@ def validate_registry(payload: Any) -> list[dict]:
             }
         )
     return normalized
+
+
+def summarize_ledger_state(payload: Any, now: datetime) -> dict[str, Any]:
+    if not isinstance(payload, dict) or payload.get("schema_version") != 1:
+        raise ValueError("ledger state must be schema_version=1")
+    runs = payload.get("runs")
+    reviews = payload.get("review_items")
+    if not isinstance(runs, dict) or not isinstance(reviews, dict):
+        raise ValueError("ledger state requires runs{} and review_items{}")
+
+    status_counts: dict[str, int] = {}
+    last_success: dict[str, str] = {}
+    active: list[dict[str, Any]] = []
+    for key, row in runs.items():
+        if not isinstance(row, dict):
+            raise ValueError(f"ledger run {key!r} must be an object")
+        status = str(row.get("status") or "")
+        status_counts[status] = status_counts.get(status, 0) + 1
+        task_id = str(row.get("task_id") or "")
+        success = row.get("last_success_at")
+        if task_id and success:
+            parsed = parse_time(str(success))
+            existing = last_success.get(task_id)
+            if existing is None or parsed > parse_time(existing):
+                last_success[task_id] = parsed.isoformat().replace("+00:00", "Z")
+        if status == "running":
+            lease = row.get("lease_expires_at")
+            active.append(
+                {
+                    "task_id": task_id,
+                    "idempotency_key": row.get("idempotency_key"),
+                    "worker_id": row.get("worker_id"),
+                    "lease_expires_at": lease,
+                    "lease_expired": bool(lease and parse_time(str(lease)) <= now),
+                }
+            )
+
+    open_reviews = []
+    reason_counts: dict[str, int] = {}
+    for item_id, row in reviews.items():
+        if not isinstance(row, dict):
+            raise ValueError(f"review item {item_id!r} must be an object")
+        if row.get("state") != "open":
+            continue
+        first_seen = parse_time(str(row.get("first_seen_at") or ""))
+        age_hours = max(0.0, (now - first_seen).total_seconds() / 3600.0)
+        reason = str(row.get("reason") or "unknown")
+        reason_counts[reason] = reason_counts.get(reason, 0) + 1
+        open_reviews.append(
+            {
+                "item_id": row.get("item_id") or item_id,
+                "reason": reason,
+                "age_hours": round(age_hours, 2),
+                "next_check_at": row.get("next_check_at"),
+            }
+        )
+    open_reviews.sort(key=lambda row: row["age_hours"], reverse=True)
+
+    return {
+        "available": True,
+        "runs_total": len(runs),
+        "run_status_counts": status_counts,
+        "task_last_success": last_success,
+        "active_runs": active,
+        "expired_active_leases": sum(1 for row in active if row["lease_expired"]),
+        "review_open": len(open_reviews),
+        "review_oldest_age_hours": open_reviews[0]["age_hours"] if open_reviews else None,
+        "review_reason_counts": reason_counts,
+        "oldest_open_reviews": open_reviews[:10],
+    }
 
 
 def github_runs(repository: str, workflow_file: str, token: str) -> list[dict]:
@@ -185,7 +257,8 @@ def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
     }
 
 
-def build_report(tasks: list[dict], fetcher: Callable[[str], list[dict]], now: datetime) -> dict:
+def build_report(tasks: list[dict], fetcher: Callable[[str], list[dict]], now: datetime,
+                 ledger_state: Any | None = None) -> dict:
     results: list[dict] = []
     for task in tasks:
         try:
@@ -214,13 +287,17 @@ def build_report(tasks: list[dict], fetcher: Callable[[str], list[dict]], now: d
         if row["criticality"] in {"high", "critical"}
         and row["status"] in {"stale", "missing", "error"}
     ]
+    ledger = {"available": False}
+    if ledger_state is not None:
+        ledger = summarize_ledger_state(ledger_state, now)
     return {
         "schema_version": 1,
         "checked_at": now.isoformat().replace("+00:00", "Z"),
-        "monitor_scope": "github-actions-task-freshness",
+        "monitor_scope": "github-actions-task-freshness+optional-durable-ledger",
         "independent_of_github_actions": False,
         "summary": {"total": len(results), "counts": counts, "blocking": len(blocking)},
         "tasks": results,
+        "durable_ledger": ledger,
     }
 
 
@@ -228,6 +305,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="SWSI scheduled task freshness watchdog")
     parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
     parser.add_argument("--fixture", type=Path)
+    parser.add_argument("--ledger-state", type=Path,
+                        help="optional exported #269 ledger state; observation only")
     parser.add_argument("--repository", default=os.getenv("GITHUB_REPOSITORY", ""))
     parser.add_argument("--token-env", default="GITHUB_TOKEN")
     parser.add_argument("--now", help="ISO-8601 timestamp for deterministic tests")
@@ -254,7 +333,8 @@ def main() -> int:
             raise SystemExit(f"environment variable {args.token_env} is required")
         fetcher = lambda workflow_file: github_runs(repository, workflow_file, token)
 
-    report = build_report(tasks, fetcher, now)
+    ledger_state = read_json(args.ledger_state) if args.ledger_state else None
+    report = build_report(tasks, fetcher, now, ledger_state=ledger_state)
     rendered = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
