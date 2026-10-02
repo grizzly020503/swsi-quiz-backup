@@ -2,12 +2,20 @@ name: AI Feedback Eval
 
 on:
   workflow_dispatch:
+    inputs:
+      outputs_path:
+        description: 'Optional repo-relative captured output JSON to evaluate deliberately'
+        required: false
+        default: ''
+        type: string
   pull_request:
     paths:
       - '.github/workflows/ai-feedback-eval.yml'
       - 'ai_eval/**'
       - 'scripts/ai_feedback_eval.py'
       - 'scripts/ai_feedback_eval_selftest.py'
+      - 'scripts/ai_feedback_candidate_gate.py'
+      - 'scripts/ai_feedback_candidate_gate_selftest.py'
       - 'monthly_patch_parts/99z.essay-trust-layer.part'
       - 'cloudflare/wandering-wave-4418/worker.js'
 
@@ -21,16 +29,51 @@ concurrency:
 jobs:
   contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Python syntax
-        run: python3 -m py_compile scripts/ai_feedback_eval.py scripts/ai_feedback_eval_selftest.py
+        run: |
+          python3 -m py_compile \
+            scripts/ai_feedback_eval.py \
+            scripts/ai_feedback_eval_selftest.py \
+            scripts/ai_feedback_candidate_gate.py \
+            scripts/ai_feedback_candidate_gate_selftest.py
 
       - name: Verify Golden Set contract
         run: python3 scripts/ai_feedback_eval.py
 
       - name: Self-test evaluator fail-closed behavior
         run: python3 scripts/ai_feedback_eval_selftest.py
+
+      - name: Self-test candidate evidence gate
+        run: python3 scripts/ai_feedback_candidate_gate_selftest.py
+
+      - name: Build PR changed-file list
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          git diff --name-only \
+            "${{ github.event.pull_request.base.sha }}" \
+            "${{ github.event.pull_request.head.sha }}" \
+            > /tmp/swsi-ai-feedback-changed-files.txt
+          cat /tmp/swsi-ai-feedback-changed-files.txt
+
+      - name: Require reviewed candidate outputs for AI contract changes
+        if: github.event_name == 'pull_request'
+        run: |
+          python3 scripts/ai_feedback_candidate_gate.py \
+            --changed-files /tmp/swsi-ai-feedback-changed-files.txt
+
+      - name: Deliberate captured-output evaluation
+        if: github.event_name == 'workflow_dispatch' && inputs.outputs_path != ''
+        env:
+          OUTPUTS_PATH: ${{ inputs.outputs_path }}
+        run: |
+          python3 scripts/ai_feedback_candidate_gate.py \
+            --force \
+            --outputs "$OUTPUTS_PATH"
