@@ -59,6 +59,16 @@ def clean_row(row):
     out["knowledge_model"] = str(out.get("knowledge_model") or "")
     out["management_domains"] = list(dict.fromkeys(out.get("management_domains") or []))
     out["exam_subject_axes"] = list(dict.fromkeys(out.get("exam_subject_axes") or []))
+    if (
+        str(out.get("category") or "") == "社工專業與社福制度"
+        and set(out["exam_subject_axes"]) == {"社會政策與社會立法"}
+    ):
+        # This broad scanner category contains both social-work profession stories
+        # and welfare-system policy stories. When the newer knowledge tree has
+        # positively classified a row as policy-only, keep the legacy compatibility
+        # field aligned so downstream event clustering cannot reintroduce invented
+        # direct-practice/profession relevance.
+        out["subjects"] = list(out["exam_subject_axes"])
     out["primary_exam_subject_axes"] = list(dict.fromkeys(out.get("primary_exam_subject_axes") or []))
     out["supporting_exam_subject_axes"] = list(dict.fromkeys(out.get("supporting_exam_subject_axes") or []))
     raw_subject_topics = out.get("subject_topics") or {}
