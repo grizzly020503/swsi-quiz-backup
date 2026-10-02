@@ -46,13 +46,15 @@ def normalize_text(text: str) -> str:
 def classify(*, transport: str, http_status: int | None, body: bytes | None,
              decoded_text: str | None, decode_failed: bool, parser_ok: bool,
              parser_contract_changed: bool, item_count: int | None,
-             previous_normalized_hash: str | None, correction_from_hash: str | None) -> tuple[str, str | None, str | None]:
+             previous_normalized_hash: str | None, correction_from_hash: str | None,
+             previous_trusted_hash: str | None = None) -> tuple[str, str | None, str | None]:
     if transport in {"timeout", "network_error"}:
         return "source_unavailable", None, None
     if transport != "ok": raise ValueError("unsupported transport status")
     if http_status == 404: return "not_found", None, None
     if http_status is None or http_status >= 500: return "source_unavailable", None, None
-    if http_status < 200 or http_status >= 400: return "invalid_content", None, None
+    # Unresolved redirects and 304 responses are not new validated content.
+    if http_status < 200 or http_status >= 300: return "invalid_content", None, None
     if decode_failed: return "decode_error", sha256_bytes(body or b""), None
     raw_hash = sha256_bytes(body or b"")
     if decoded_text is None or not decoded_text.strip(): return "empty_content", raw_hash, None
@@ -61,7 +63,13 @@ def classify(*, transport: str, http_status: int | None, body: bytes | None,
     if not parser_ok or item_count is None or item_count < 0: return "invalid_content", raw_hash, normalized_hash
     if item_count == 0: return "empty_content", raw_hash, normalized_hash
     if correction_from_hash:
-        if correction_from_hash == normalized_hash: raise ValueError("correction predecessor cannot equal new normalized hash")
+        # Phase A only supports correction of the current trusted predecessor.
+        # Other historical predecessors require a separately verified registry.
+        if (not isinstance(correction_from_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", correction_from_hash)
+                or correction_from_hash != previous_trusted_hash
+                or correction_from_hash == normalized_hash):
+            return "invalid_content", raw_hash, normalized_hash
         return "correction_detected", raw_hash, normalized_hash
     if previous_normalized_hash and previous_normalized_hash == normalized_hash:
         return "success_no_change", raw_hash, normalized_hash
@@ -83,6 +91,7 @@ def build_observation(*, name: str, url: str, source_type: str, region: str,
         decode_failed=decode_failed, parser_ok=parser_ok, parser_contract_changed=parser_contract_changed,
         item_count=item_count, previous_normalized_hash=previous_normalized_hash,
         correction_from_hash=correction_from_hash,
+        previous_trusted_hash=previous_trusted_hash,
     )
     trusted = normalized_hash if outcome in {"success_changed", "success_no_change", "correction_detected"} else previous_trusted_hash
     return {

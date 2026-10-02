@@ -33,6 +33,12 @@ Only a successfully validated changed observation or a validated correction may 
 
 A correction records `supersedes_hash` and keeps the predecessor evidence. Corrections must not silently overwrite history.
 
+Phase A only accepts a correction linked to `previous_trusted_hash`: the predecessor must be a lowercase 64-hex SHA-256, equal that trusted hash, and different from the new content hash. Other historical predecessors require a separately reviewed evidence registry and are not supported here. Invalid links return `invalid_content`, preserve the trusted hash and disallow replacement. The adapter remains responsible for obtaining trusted history from its authoritative store, not from external content.
+
+Only final 2xx responses may enter content validation. Unresolved redirects and HTTP 304 return `invalid_content`; conditional-response reuse requires a separate evidence-aware adapter. Redirect-following adapters must enforce the existing source policy and verify the final response/URL before passing it here.
+
+Repair verification: original 10-case self-test plus `python3 scripts/source_observation_contract_selftest.py` (4 regression tests with redirect, predecessor and failure subcases). No live pipeline is wired by this repair.
+
 The following timestamps are separate concepts and must not be collapsed:
 
 - source publication/promulgation time;
