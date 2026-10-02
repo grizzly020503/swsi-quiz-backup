@@ -26,6 +26,9 @@ begin
   if has_function_privilege('anon', 'public.reset_ai_analysis_on_official_change()', 'EXECUTE') then
     raise exception 'anon can execute official-change reset';
   end if;
+  if has_function_privilege('anon', 'public.claim_pending_ai_questions(integer)', 'EXECUTE') then
+    raise exception 'anon can claim AI queue';
+  end if;
   if has_function_privilege('authenticated', 'public.claim_pending_ai_questions(integer)', 'EXECUTE') then
     raise exception 'authenticated can claim AI queue';
   end if;
@@ -38,6 +41,9 @@ begin
   end if;
   if not has_function_privilege('service_role', 'public.reset_ai_analysis_on_official_change()', 'EXECUTE') then
     raise exception 'service_role lost official-change reset execute';
+  end if;
+  if not has_function_privilege('service_role', 'public.claim_pending_ai_questions(integer)', 'EXECUTE') then
+    raise exception 'service_role lost AI queue claim execute';
   end if;
 end
 $$;
@@ -87,9 +93,13 @@ begin
 end
 $$;
 
-
 -- AI queue fairness: never-attempted rows must run before retries, then the oldest retry.
+-- pg_cron/pg_net are intentionally absent in portable DR, so suppress only the two
+-- cron-management triggers inside this disposable transaction; rollback restores them.
 begin;
+alter table public.questions disable trigger trg_auto_enable_ai_pending;
+alter table public.questions disable trigger trg_auto_stop_ai_queue;
+
 update public.questions
    set analysis_status = 'review', analysis_started_at = null
  where analysis_status in ('pending', 'analyzing');
@@ -141,6 +151,9 @@ rollback;
 
 -- Official Core reset must make the next analysis fresh again.
 begin;
+alter table public.questions disable trigger trg_auto_enable_ai_pending;
+alter table public.questions disable trigger trg_auto_stop_ai_queue;
+
 insert into public.questions(
   id, subject, qno, question, answer, grading_mode, source_exam_code,
   analysis_status, analysis_attempts, analysis_last_attempt_at
