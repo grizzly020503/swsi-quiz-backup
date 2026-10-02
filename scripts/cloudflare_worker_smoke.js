@@ -78,7 +78,7 @@ function request(body) {
     };
   }
   const body = {
-    model: 'qwen/qwen3.6-27b',
+    model: 'qwen/qwen3.8-27b',
     messages: [{ role: 'user', content: 'test' }],
     temperature: 0,
     max_tokens: 200

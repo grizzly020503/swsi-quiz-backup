@@ -26,7 +26,7 @@
   },
   "model_contract": {
     "source": "cloudflare/wandering-wave-4418/worker.js",
-    "public_model": "qwen/qwen3.6-27b"
+    "public_model": "qwen/qwen3.8-27b"
   },
   "global_output_contract": {
     "required_headings": [
