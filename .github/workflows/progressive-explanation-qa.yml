@@ -12,9 +12,11 @@ on:
       - 'scripts/progressive_explanation_contract.py'
       - 'scripts/question_trust_labels_contract.py'
       - 'scripts/historical_law_student_surface_contract.py'
+      - 'scripts/learning_loop_closed_contract.py'
       - 'audit/progressive_explanation_20261003.md'
       - 'audit/question_trust_labels_20261003.md'
       - 'audit/historical_law_student_surface_20261003.md'
+      - 'audit/learning_loop_closed_loop_20261003.md'
       - 'data/historical_law_verified_priority10.v1.json'
       - 'cdn/question-shards/**'
 
@@ -38,12 +40,13 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Progressive explanation and trust contracts
+      - name: Progressive explanation, trust, and learning-loop contracts
         run: |
-          python -m py_compile scripts/progressive_explanation_contract.py scripts/question_trust_labels_contract.py scripts/historical_law_student_surface_contract.py
+          python -m py_compile scripts/progressive_explanation_contract.py scripts/question_trust_labels_contract.py scripts/historical_law_student_surface_contract.py scripts/learning_loop_closed_contract.py
           python scripts/progressive_explanation_contract.py
           python scripts/question_trust_labels_contract.py
           python scripts/historical_law_student_surface_contract.py
+          python scripts/learning_loop_closed_contract.py
           cat monthly_patch_parts/*.part >/tmp/monthly_patch.js
           node --check /tmp/monthly_patch.js
           git diff --check
