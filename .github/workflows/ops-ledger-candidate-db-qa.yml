@@ -12,6 +12,7 @@ on:
       - 'scripts/full_corpus_ops_plan.py'
       - 'scripts/full_corpus_ops_session.py'
       - 'scripts/moex_ops_checkpoint.py'
+      - 'scripts/moex_ops_resume_plan.py'
       - 'scripts/historical_law_guardian_ops_review.py'
       - 'scripts/historical_law_guardian_ops_reconcile.py'
       - 'scripts/ops_task_ledger.py'
@@ -89,6 +90,7 @@ jobs:
             scripts/full_corpus_ops_plan.py \
             scripts/full_corpus_ops_session.py \
             scripts/moex_ops_checkpoint.py \
+            scripts/moex_ops_resume_plan.py \
             scripts/historical_law_guardian_ops_review.py \
             scripts/historical_law_guardian_ops_reconcile.py \
             scripts/ops_task_ledger.py \
@@ -105,6 +107,7 @@ jobs:
           python scripts/full_corpus_ops_plan.py --self-test
           python scripts/full_corpus_ops_session.py --self-test
           python scripts/moex_ops_checkpoint.py --self-test
+          python scripts/moex_ops_resume_plan.py --self-test
           python scripts/historical_law_guardian_ops_review.py --self-test
           python scripts/historical_law_guardian_ops_reconcile.py --self-test
           python scripts/ops_task_ledger.py --self-test
