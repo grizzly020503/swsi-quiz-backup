@@ -6,7 +6,7 @@
   "assets": {
     // Production static assets are materialized under ./cdn; touching this
     // config intentionally forces Cloudflare Git integration to rebuild them.
-    // 2026-09-26: refresh assets for the verified historical-evidence v2.2 snapshot (7bd3117fb7ba683b881e07ab2b7a085a1ed03d84).
+    // 2026-10-02: force production rebuild for shard revision 5c4acad4299dbae1caee + Qwen 3.8 legacy-client compatibility.
     "directory": "./cdn"
   },
   "d1_databases": [
