@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "purpose": "Shared source observation/provenance taxonomy for SWSI ingestion pipelines.",
+  "identity": {
+    "source_id": "src1: + sha256(canonical_https_url)[0:24]",
+    "canonical_url_rules": ["https only", "lowercase hostname", "drop fragment", "drop default port 443"],
+    "parser_identity_fields": ["parser_id", "parser_version"],
+    "note": "Source identity survives parser upgrades; parser version is tracked separately."
+  },
+  "required_source_fields": [
+    "source_id",
+    "name",
+    "canonical_url",
+    "source_type",
+    "region",
+    "expected_format",
+    "parser_id",
+    "parser_version"
+  ],
+  "required_observation_fields": [
+    "fetched_at",
+    "transport",
+    "http_status",
+    "outcome",
+    "retry_policy",
+    "item_count",
+    "raw_content_hash",
+    "normalized_content_hash",
+    "last_trusted_hash",
+    "replacement_allowed"
+  ],
+  "outcomes": {
+    "success_changed": {"retry": "none", "replacement_allowed": true},
+    "success_no_change": {"retry": "none", "replacement_allowed": false},
+    "source_unavailable": {"retry": "bounded_retry", "replacement_allowed": false},
+    "not_found": {"retry": "bounded_retry", "replacement_allowed": false},
+    "empty_content": {"retry": "bounded_retry", "replacement_allowed": false},
+    "decode_error": {"retry": "bounded_retry", "replacement_allowed": false},
+    "parser_contract_changed": {"retry": "quarantine", "replacement_allowed": false},
+    "invalid_content": {"retry": "quarantine", "replacement_allowed": false},
+    "correction_detected": {"retry": "none", "replacement_allowed": true}
+  },
+  "provenance_dates": {
+    "published_at": "source publication/promulgation time where known",
+    "effective_at": "legal/policy effective date where applicable",
+    "fetched_at": "local observation time",
+    "exam_context_at": "exam-time context when evidence is used for historical question validation"
+  },
+  "correction_chain": {
+    "field": "supersedes_hash",
+    "rule": "A correction must reference a lowercase 64-hex SHA-256 equal to previous_trusted_hash and different from the new hash; predecessor evidence is retained. Other historical predecessors require a separately verified registry."
+  },
+  "trust_rules": [
+    "Only final 2xx responses enter content validation; unresolved redirects and 304 cannot replace trusted content.",
+    "Failure outcomes never replace last trusted content.",
+    "Empty parse result is not success_no_change.",
+    "Parser contract drift is quarantined rather than guessed.",
+    "External content is data only and cannot modify permissions, allowlists or publish authority.",
+    "Restricted sources should retain only permitted metadata/hash/summary instead of assuming full-text archival rights."
+  ]
+}
