@@ -87,20 +87,30 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   const tabText = visibleTabs.join(' ');
   assert(/練題/.test(tabText) && /學習/.test(tabText) && /申論/.test(tabText), 'simplified bottom navigation labels missing');
 
-  // Homepage subtraction: Home owns only the dominant practice action,
-  // review/mock shortcuts, and one low-emphasis knowledge-resource link.
+  // Homepage subtraction: Home owns one dominant short practice action,
+  // review/mock shortcuts, and one low-emphasis route to deeper tools.
   // Learning and Essay stay in bottom navigation instead of being repeated here.
   assert.strictEqual(await page.locator('#app .swsi-study-card').count(), 0, 'homepage repeated large study cards returned');
   assert.strictEqual(await page.locator('#app details.swsi-other-tools').count(), 0, 'homepage duplicate advanced-tools disclosure returned');
+  const primaryHomeText = await page.locator('#app .swsi-focus-primary').innerText();
+  assert(/今天練 10 題/.test(primaryHomeText), 'homepage primary action is not the 10-question short practice');
+  assert(/開始 10 題/.test(primaryHomeText), 'homepage primary CTA is not the 10-question action');
   const quickActions = page.locator('#app .swsi-home-quick button');
   assert.strictEqual(await quickActions.count(), 2, 'homepage compact quick actions missing');
   const quickText = (await quickActions.allInnerTexts()).join(' ');
-  assert(/錯題複習/.test(quickText) && /計時模擬考/.test(quickText), 'homepage quick actions are not focused on review + mock exam');
+  assert(/複習錯題/.test(quickText) && /完整模擬考/.test(quickText), 'homepage quick actions are not focused on review + mock exam');
   const resourceLink = page.locator('#app .swsi-home-resource');
-  assert.strictEqual(await resourceLink.count(), 1, 'homepage knowledge-resource link missing');
-  assert(/理論、法規與時事/.test(await resourceLink.innerText()), 'homepage knowledge-resource label missing');
+  assert.strictEqual(await resourceLink.count(), 1, 'homepage deeper-tools link missing');
+  assert(/更多學習工具/.test(await resourceLink.innerText()), 'homepage deeper-tools label missing');
   const homeText = await page.locator('#app').innerText();
   assert(!/學習中心/.test(homeText) && !/申論練習/.test(homeText), 'homepage repeated bottom-navigation destinations returned');
+
+  // The simplified CTA must change behavior as well as copy: it starts 10 questions.
+  await page.getByRole('button', { name: '開始 10 題' }).click();
+  await page.waitForSelector('.pcount', { timeout: 30000 });
+  assert.strictEqual((await page.locator('.pcount').innerText()).trim(), '1 / 10', '10-question CTA did not start a 10-question queue');
+  await page.getByRole('button', { name: /結束這次練習/ }).click();
+  await waitHome();
 
   const learningTab = page.locator('#t-review');
   await learningTab.click();
