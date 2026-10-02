@@ -10,6 +10,7 @@ on:
       - 'sw.js'
       - 'manifest.json'
       - 'essay_guides.js'
+      - 'data/essay_guide_overlay.json'
       - 'scripts/build_essay_guides_runtime.js'
       - 'scripts/p0_frontend_preflight.js'
       - 'scripts/service_worker_update_smoke.js'
