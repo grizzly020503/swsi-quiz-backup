@@ -1,0 +1,103 @@
+name: Ops Task Freshness Watchdog
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 與 Public Monitoring Feed 錯開；每 6 小時檢查重要排程是否漏跑。
+    - cron: '45 */6 * * *'
+  pull_request:
+    paths:
+      - '.github/workflows/ops-task-watchdog.yml'
+      - 'scripts/ops_task_watchdog.py'
+      - 'scripts/ops_task_watchdog_selftest.py'
+      - 'data/ops_task_registry.v1.json'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: swsi-ops-task-freshness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate watchdog contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Compile and self-test
+        run: |
+          python -m py_compile scripts/ops_task_watchdog.py
+          python -m py_compile scripts/ops_task_watchdog_selftest.py
+          python scripts/ops_task_watchdog.py --validate-only
+          python scripts/ops_task_watchdog_selftest.py
+
+  freshness:
+    name: Check scheduled task freshness
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Query scheduled workflow history
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/ops_task_watchdog.py \
+            --out /tmp/ops-task-health.json \
+            --fail-on-stale
+
+      - name: Publish job summary
+        if: always()
+        run: |
+          if [ ! -f /tmp/ops-task-health.json ]; then
+            echo '## SWSI ops task freshness' >> "$GITHUB_STEP_SUMMARY"
+            echo '' >> "$GITHUB_STEP_SUMMARY"
+            echo '- report was not produced' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report=json.loads(Path('/tmp/ops-task-health.json').read_text(encoding='utf-8'))
+          lines=['## SWSI ops task freshness','']
+          for row in report['tasks']:
+              lines.append(
+                  f"- **{row['display_name']}**: `{row['status']}`; "
+                  f"last={row.get('last_success_at')}; age_hours={row.get('age_hours')}"
+              )
+          lines += [
+              '',
+              f"Blocking tasks: **{report['summary']['blocking']}**",
+              '',
+              '> This is GitHub-internal observability, not the independent external heartbeat required by Issue #262 P1-6.',
+          ]
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
+              f.write('\n'.join(lines)+'\n')
+          PY
+
+      - name: Upload diagnostic report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ops-task-health
+          path: /tmp/ops-task-health.json
+          if-no-files-found: ignore
+          retention-days: 14
