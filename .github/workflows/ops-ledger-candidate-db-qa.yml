@@ -17,6 +17,7 @@ on:
       - 'scripts/ops_task_ledger_supabase.py'
       - 'scripts/ops_task_ledger_transport.py'
       - 'scripts/ops_task_migration_contract.py'
+      - 'scripts/ops_ledger_gateway_contract.py'
       - 'scripts/ops_task_ledger_sql_smoke.py'
       - 'scripts/ops_task_review_sql_smoke.py'
       - 'scripts/ops_task_ledger_candidate_db_test.py'
@@ -24,12 +25,14 @@ on:
       - 'supabase/candidates/ops_task_ledger_v1_test.sql'
       - 'supabase/candidates/ops_task_review_rpc_v1.sql'
       - 'supabase/candidates/ops_task_review_rpc_v1_test.sql'
+      - 'supabase/candidates/edge-functions/swsi-ops-ledger/index.ts'
       - 'supabase/migrations/20261002112000_create_ops_task_ledger.sql'
       - 'supabase/migrations/20261002112100_add_ops_review_rpcs.sql'
       - 'supabase/recovery/ops_ledger_runtime_contract.sql'
       - 'supabase/recovery/postgres_runtime_contract.sql'
       - 'supabase/recovery/production_acl_alignment.sql'
       - 'supabase/recovery/recovery_manifest.json'
+      - 'supabase/recovery/edge_functions.json'
 
 permissions:
   contents: read
@@ -71,6 +74,10 @@ jobs:
         with:
           python-version: '3.12'
 
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
       - name: Compile and run zero-network contract tests
         run: |
           set -euo pipefail
@@ -86,6 +93,7 @@ jobs:
             scripts/ops_task_ledger_supabase.py \
             scripts/ops_task_ledger_transport.py \
             scripts/ops_task_migration_contract.py \
+            scripts/ops_ledger_gateway_contract.py \
             scripts/ops_task_ledger_sql_smoke.py \
             scripts/ops_task_review_sql_smoke.py \
             scripts/ops_task_ledger_candidate_db_test.py
@@ -100,6 +108,7 @@ jobs:
           python scripts/ops_task_ledger_supabase.py --self-test
           python scripts/ops_task_ledger_transport.py --self-test
           python scripts/ops_task_migration_contract.py
+          python scripts/ops_ledger_gateway_contract.py
           python scripts/full_corpus_ops_plan.py > /tmp/full-corpus-ops-plan.json
           python - <<'PY'
           import json
@@ -114,6 +123,12 @@ jobs:
           python scripts/ops_task_ledger_sql_smoke.py supabase/candidates/ops_task_ledger_v1.sql
           python scripts/ops_task_review_sql_smoke.py supabase/candidates/ops_task_review_rpc_v1.sql
           git diff --check
+
+      - name: Deno-check undeployed ops ledger gateway candidate
+        run: |
+          set -euo pipefail
+          deno check supabase/candidates/edge-functions/swsi-ops-ledger/index.ts
+          echo 'OPS LEDGER GATEWAY CANDIDATE COMPILE OK (not deployed)'
 
       - name: Wait for disposable PostgreSQL
         run: |
@@ -139,4 +154,5 @@ jobs:
           echo 'Database target: disposable postgres:16 service only'
           echo 'Production writes: none'
           echo 'Supabase credentials used: none'
-          echo 'Network/API calls from contract tests: none'
+          echo 'Gateway deploy: none (candidate compile only)'
+          echo 'Network/API calls from Python contract tests: none'
