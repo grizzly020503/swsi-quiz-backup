@@ -1,0 +1,89 @@
+name: One-time Cloudflare production sync patch
+
+on:
+  push:
+    branches:
+      - fix/cloudflare-prod-sync-legacy-ai-20261002
+    paths:
+      - '.github/workflows/one-time-cloudflare-prod-sync-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: fix/cloudflare-prod-sync-legacy-ai-20261002
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Apply bounded compatibility and rebuild patch
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          worker = Path('cloudflare/wandering-wave-4418/worker.js')
+          s = worker.read_text(encoding='utf-8')
+          old = '''    const PUBLIC_MODEL = "qwen/qwen3.8-27b";\n    const INTERNAL_MODELS = new Set([\n      PUBLIC_MODEL,\n      "openai/gpt-oss-120b"\n    ]);'''
+          new = '''    const PUBLIC_MODEL = "qwen/qwen3.8-27b";\n    const LEGACY_PUBLIC_MODEL = "qwen/qwen3.6-27b";\n    const PUBLIC_MODELS = new Set([PUBLIC_MODEL, LEGACY_PUBLIC_MODEL]);\n    const INTERNAL_MODELS = new Set([\n      PUBLIC_MODEL,\n      "openai/gpt-oss-120b"\n    ]);'''
+          assert s.count(old) == 1, 'worker model declaration contract drifted'
+          s = s.replace(old, new, 1)
+          old = '''    } else if (body.model !== PUBLIC_MODEL) {\n      return json({ error: { message: "Invalid AI model" } }, 400);\n    }'''
+          new = '''    } else if (!PUBLIC_MODELS.has(body.model)) {\n      return json({ error: { message: "Invalid AI model" } }, 400);\n    }'''
+          assert s.count(old) == 1, 'worker public model validation contract drifted'
+          s = s.replace(old, new, 1)
+          old = '''    const safePayload = {\n      model: body.model,'''
+          new = '''    const safePayload = {\n      // Cached pre-migration clients may still request Qwen 3.6; never forward the retired model upstream.\n      model: isInternal ? body.model : PUBLIC_MODEL,'''
+          assert s.count(old) == 1, 'worker upstream model payload contract drifted'
+          s = s.replace(old, new, 1)
+          worker.write_text(s, encoding='utf-8')
+
+          smoke = Path('scripts/cloudflare_worker_smoke.js')
+          s = smoke.read_text(encoding='utf-8')
+          anchor = '''  response = await worker.fetch(request(body), env());\n  assert.strictEqual(response.status, 200);\n  assert.strictEqual(upstreamPayload.temperature, 0, 'explicit temperature=0 was not preserved');\n  assert.strictEqual(response.headers.get('cache-control'), 'no-store');\n'''
+          replacement = anchor + '''\n  const legacyBody = { ...body, model: 'qwen/qwen3.6-27b' };\n  response = await worker.fetch(request(legacyBody), env());\n  assert.strictEqual(response.status, 200, 'legacy cached public client should remain compatible');\n  assert.strictEqual(upstreamPayload.model, 'qwen/qwen3.8-27b', 'legacy public model must be translated to current upstream model');\n'''
+          assert s.count(anchor) == 1, 'worker smoke success anchor drifted'
+          s = s.replace(anchor, replacement, 1)
+          smoke.write_text(s, encoding='utf-8')
+
+          route = Path('scripts/analyzer_proxy_route_smoke.py')
+          s = route.read_text(encoding='utf-8')
+          old = '''for name in ("analyzer", "worker", "worker_smoke", "golden", "shard_workflow"):\n    assert DEPRECATED_MODEL not in texts[name], f"{name} still references deprecated Groq model {DEPRECATED_MODEL}"\n    assert CURRENT_MODEL in texts[name], f"{name} must reference current Groq model {CURRENT_MODEL}"\n\nassert f'const DRAFT_MODEL = "{CURRENT_MODEL}";' in texts["analyzer"], "background analyzer draft model contract drifted"\nassert f'const PUBLIC_MODEL = "{CURRENT_MODEL}";' in texts["worker"], "public Worker model contract drifted"\n'''
+          new = '''for name in ("analyzer", "golden", "shard_workflow"):\n    assert DEPRECATED_MODEL not in texts[name], f"{name} still references deprecated Groq model {DEPRECATED_MODEL}"\nfor name in ("analyzer", "worker", "worker_smoke", "golden", "shard_workflow"):\n    assert CURRENT_MODEL in texts[name], f"{name} must reference current Groq model {CURRENT_MODEL}"\n\nassert f'const DRAFT_MODEL = "{CURRENT_MODEL}";' in texts["analyzer"], "background analyzer draft model contract drifted"\nassert f'const PUBLIC_MODEL = "{CURRENT_MODEL}";' in texts["worker"], "public Worker model contract drifted"\nassert texts["worker"].count(f'const LEGACY_PUBLIC_MODEL = "{DEPRECATED_MODEL}";') == 1, "legacy public alias must be explicit and unique"\nassert texts["worker_smoke"].count(DEPRECATED_MODEL) == 1, "worker smoke must cover exactly one legacy public compatibility request"\nassert 'model: isInternal ? body.model : PUBLIC_MODEL' in texts["worker"], "public requests must always use the current upstream model"\n'''
+          assert s.count(old) == 1, 'analyzer route smoke model gate drifted'
+          s = s.replace(old, new, 1)
+          route.write_text(s, encoding='utf-8')
+
+          wrangler = Path('wrangler.jsonc')
+          s = wrangler.read_text(encoding='utf-8')
+          old = '    // 2026-09-26: refresh assets for the verified historical-evidence v2.2 snapshot (7bd3117fb7ba683b881e07ab2b7a085a1ed03d84).'
+          new = '    // 2026-10-02: force production rebuild for shard revision 5c4acad4299dbae1caee + Qwen 3.8 legacy-client compatibility.'
+          assert s.count(old) == 1, 'wrangler rebuild marker drifted'
+          s = s.replace(old, new, 1)
+          wrangler.write_text(s, encoding='utf-8')
+          PY
+      - name: Verify patch locally
+        run: |
+          set -euo pipefail
+          node --check cloudflare/wandering-wave-4418/worker.js
+          node --check scripts/cloudflare_worker_smoke.js
+          node scripts/cloudflare_worker_smoke.js
+          python -m py_compile scripts/analyzer_proxy_route_smoke.py
+          python scripts/analyzer_proxy_route_smoke.py
+          grep -qF '5c4acad4299dbae1caee' wrangler.jsonc
+          git diff --check
+      - name: Commit bounded patch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add cloudflare/wandering-wave-4418/worker.js scripts/cloudflare_worker_smoke.js scripts/analyzer_proxy_route_smoke.py wrangler.jsonc
+          git commit -m 'fix: restore Cloudflare production sync and legacy AI compatibility'
+          git push origin HEAD:fix/cloudflare-prod-sync-legacy-ai-20261002
