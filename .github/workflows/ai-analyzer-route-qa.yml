@@ -4,6 +4,10 @@ on:
   pull_request:
     paths:
       - 'supabase/functions/analyze-pending-questions/index.ts'
+      - 'cloudflare/wandering-wave-4418/worker.js'
+      - 'scripts/cloudflare_worker_smoke.js'
+      - 'ai_eval/golden_set.json'
+      - '.github/workflows/question-shards-publish.yml'
       - 'scripts/analyzer_proxy_route_smoke.py'
       - '.github/workflows/ai-analyzer-route-qa.yml'
       - '.github/workflows/prepare-cloudflare-soft-launch-artifact.yml'
@@ -13,6 +17,10 @@ on:
       - main
     paths:
       - 'supabase/functions/analyze-pending-questions/index.ts'
+      - 'cloudflare/wandering-wave-4418/worker.js'
+      - 'scripts/cloudflare_worker_smoke.js'
+      - 'ai_eval/golden_set.json'
+      - '.github/workflows/question-shards-publish.yml'
       - 'scripts/analyzer_proxy_route_smoke.py'
       - '.github/workflows/ai-analyzer-route-qa.yml'
       - '.github/workflows/prepare-cloudflare-soft-launch-artifact.yml'
@@ -30,7 +38,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Verify canonical AI analyzer route
+      - name: Verify canonical AI analyzer route and model
         run: |
           python -m py_compile scripts/analyzer_proxy_route_smoke.py
           python scripts/analyzer_proxy_route_smoke.py
