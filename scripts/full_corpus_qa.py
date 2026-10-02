@@ -7,6 +7,10 @@ reuses the existing official-exam source path for essays:
 - historical essays: ``index.html`` -> ``window.ESSAYS``
 - latest synced essays: ``auto/essays_auto.json``
 
+Each session is now audited through the effective-dated approved exam-scheme
+profile. Historical sessions therefore keep their historical profile while a
+future reviewed profile can be added without changing this runner.
+
 The same source path is already protected by ``official_exam_readonly_guard.py``.
 No official question data or enrichment is modified.
 """
@@ -26,7 +30,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MANIFEST = ROOT / "cdn" / "question-shards" / "manifest.json"
 DEFAULT_POLICY = ROOT / "data" / "question_qa_policy_v1.json"
-UNIFIED_QA = ROOT / "scripts" / "unified_question_qa.py"
+DEFAULT_SCHEME_REGISTRY = ROOT / "data" / "exam_scheme_registry.v1.json"
+UNIFIED_QA_CURRENT = ROOT / "scripts" / "unified_question_qa_current.py"
 
 # Reuse existing owners instead of creating parallel normalization/source rules.
 from official_exam_readonly_guard import (  # noqa: E402
@@ -93,6 +98,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="SWSI manifest-wide unified question QA")
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--policy", type=Path, default=DEFAULT_POLICY)
+    parser.add_argument("--scheme-registry", type=Path, default=DEFAULT_SCHEME_REGISTRY)
     parser.add_argument("--out", type=Path)
     parser.add_argument("--fail-on", choices=["never", "blocked", "review"], default="blocked")
     args = parser.parse_args()
@@ -182,7 +188,7 @@ def main() -> int:
             session_out = tmp / f"{year}-{1 if round_name == '第一次' else 2}.json"
             command = [
                 sys.executable,
-                str(UNIFIED_QA),
+                str(UNIFIED_QA_CURRENT),
                 "--mcq",
                 str(shard_path),
                 "--essays",
@@ -191,8 +197,10 @@ def main() -> int:
                 year,
                 "--round",
                 round_name,
-                "--policy",
+                "--base-policy",
                 str(args.policy),
+                "--scheme-registry",
+                str(args.scheme_registry),
                 "--out",
                 str(session_out),
                 "--fail-on",
@@ -217,12 +225,15 @@ def main() -> int:
             overall = report.get("overall") or {}
             official = overall.get("official_core") or {}
             enrichment = overall.get("enrichment") or {}
+            scheme = report.get("exam_scheme") or {}
             session_essay_count = essay_counts.get(key, 0)
             sessions.append(
                 {
                     "year": year,
                     "round": round_name,
                     "file": filename,
+                    "exam_scheme_profile": scheme.get("profile_id"),
+                    "expected_total_items": int(scheme.get("expected_total_items") or 0),
                     "mcq_count": actual_count,
                     "essay_count": session_essay_count,
                     "items": int(overall.get("items") or 0),
@@ -266,11 +277,20 @@ def main() -> int:
             f"aggregate item mismatch: unified={total_items} source={expected_items_from_sources}"
         )
 
+    missing_scheme_profiles = [
+        f"{row['year']}-{row['round']}" for row in sessions if not row.get("exam_scheme_profile")
+    ]
+    if missing_scheme_profiles:
+        manifest_errors.append(
+            "sessions missing approved exam-scheme provenance: " + ", ".join(missing_scheme_profiles)
+        )
+
     report = {
         "schema_version": 1,
         "dataset_revision": manifest.get("dataset_revision"),
         "manifest_shard_count": int(manifest.get("shard_count") or len(shards)),
         "canonical_essay_source_count": len(all_essays),
+        "exam_scheme_registry": str(args.scheme_registry),
         "audited_sessions": len(sessions),
         "manifest_errors": manifest_errors,
         "summary": {
