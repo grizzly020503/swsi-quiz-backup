@@ -118,8 +118,7 @@ grant execute on function public.claim_pending_ai_questions(integer) to service_
 manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
 order = manifest["migration_order"]
 if rel in order:
-    raise SystemExit(f"migration already registered: {rel}
-")
+    raise SystemExit(f"migration already registered: {rel}")
 acl = "supabase/recovery/production_acl_alignment.sql"
 if acl not in order:
     raise SystemExit("production ACL alignment marker missing")
