@@ -4,9 +4,15 @@ on:
   pull_request:
     paths:
       - 'data/exam_scheme_registry.v1.json'
+      - 'data/question_qa_policy_v1.json'
       - 'scripts/exam_scheme.py'
       - 'scripts/exam_scheme_gate.py'
       - 'scripts/exam_scheme_selftest.py'
+      - 'scripts/exam_scheme_qa_policy.py'
+      - 'scripts/exam_scheme_downstream_selftest.py'
+      - 'scripts/unified_question_qa_current.py'
+      - 'scripts/health_check.py'
+      - 'scripts/health_check_v2.py'
       - 'scripts/build_auto_payload.py'
       - 'incoming/**'
       - '.github/workflows/exam-scheme-versioning-qa.yml'
@@ -15,9 +21,15 @@ on:
       - main
     paths:
       - 'data/exam_scheme_registry.v1.json'
+      - 'data/question_qa_policy_v1.json'
       - 'scripts/exam_scheme.py'
       - 'scripts/exam_scheme_gate.py'
       - 'scripts/exam_scheme_selftest.py'
+      - 'scripts/exam_scheme_qa_policy.py'
+      - 'scripts/exam_scheme_downstream_selftest.py'
+      - 'scripts/unified_question_qa_current.py'
+      - 'scripts/health_check.py'
+      - 'scripts/health_check_v2.py'
       - 'scripts/build_auto_payload.py'
       - 'incoming/**'
       - '.github/workflows/exam-scheme-versioning-qa.yml'
@@ -44,21 +56,31 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Compile exam-scheme scripts
+      - name: Compile exam-scheme and downstream scripts
         run: |
           python -m py_compile scripts/exam_scheme.py
           python -m py_compile scripts/exam_scheme_gate.py
           python -m py_compile scripts/exam_scheme_selftest.py
+          python -m py_compile scripts/exam_scheme_qa_policy.py
+          python -m py_compile scripts/exam_scheme_downstream_selftest.py
+          python -m py_compile scripts/unified_question_qa_current.py
+          python -m py_compile scripts/health_check.py
+          python -m py_compile scripts/health_check_v2.py
           python -m py_compile scripts/build_auto_payload.py
 
       - name: Run explicitly synthetic future-regime fixtures
-        run: python scripts/exam_scheme_selftest.py
+        run: |
+          python scripts/exam_scheme_selftest.py
+          python scripts/exam_scheme_downstream_selftest.py
 
       - name: Gate every current incoming official payload
         run: |
           python scripts/exam_scheme_gate.py incoming \
             --out /tmp/exam-scheme-gate.json \
             --fail-on-change
+
+      - name: Validate current incoming health through approved profiles
+        run: python scripts/health_check_v2.py --local
 
       - name: Rebuild auto payload through the same gate
         run: python scripts/build_auto_payload.py
@@ -79,12 +101,14 @@ jobs:
           import json, os
           from pathlib import Path
           report=json.loads(Path('/tmp/exam-scheme-gate.json').read_text(encoding='utf-8'))
+          health=json.loads(Path('auto/health.json').read_text(encoding='utf-8')) if Path('auto/health.json').is_file() else {}
           lines=[
               '## Exam scheme versioning QA',
               '',
               f"- payloads checked: **{report['payload_count']}**",
               f"- all approved: **{report['all_approved']}**",
               f"- status counts: `{json.dumps(report['status_counts'], ensure_ascii=False)}`",
+              f"- health scheme counts: `{json.dumps(health.get('exam_scheme_local_counts', {}), ensure_ascii=False)}`",
               '',
               '> Synthetic future fixtures are tests only; they are not claims about future examination policy.',
           ]
