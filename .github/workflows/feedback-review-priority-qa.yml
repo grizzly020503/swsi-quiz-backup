@@ -14,7 +14,7 @@ on:
       - 'cdn/index.html'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: swsi-feedback-review-priority-${{ github.event.pull_request.number }}
@@ -42,20 +42,23 @@ jobs:
           fi
           git diff --check
 
-      - name: Materialize tracked frontend runtime candidate
+      - name: Checkout PR head for one-time materialization
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Materialize tracked runtime on PR branch only
         run: |
           set -euo pipefail
-          rm -rf /tmp/swsi-runtime-materialized
-          mkdir -p /tmp/swsi-runtime-materialized
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
           python scripts/materialize_cloudflare_runtime.py
-          cp cdn/monthly_patch.js /tmp/swsi-runtime-materialized/monthly_patch.js
-          cp cdn/index.html /tmp/swsi-runtime-materialized/index.html
-          python scripts/materialize_cloudflare_runtime.py --check
-
-      - name: Upload deterministic runtime candidate
-        uses: actions/upload-artifact@v4
-        with:
-          name: tracked-cloudflare-runtime-${{ github.event.pull_request.head.sha }}
-          path: /tmp/swsi-runtime-materialized
-          retention-days: 1
-          if-no-files-found: error
+          git add cdn/monthly_patch.js cdn/index.html
+          if git diff --cached --quiet; then
+            echo 'Tracked runtime already current.'
+            exit 0
+          fi
+          git config user.name 'swsi-runtime-materializer'
+          git config user.email 'actions@users.noreply.github.com'
+          git commit -m 'build: refresh tracked Cloudflare runtime artifact'
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
