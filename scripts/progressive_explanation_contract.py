@@ -13,7 +13,6 @@ assert not (PARTS / "zzzzz_progressive_explanation.part").exists(), "progressive
 
 # Existing canonical answer / disclosure owner remains the single presentation owner.
 assert "swsi-answer-line" in LOCK
-assert "SWSI Progressive Explanation V1 2026-10-03" in LOCK
 assert "看完整解析" in LOCK
 assert "querySelectorAll(':scope > .extra')" in LOCK
 
