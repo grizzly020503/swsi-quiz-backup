@@ -34,6 +34,7 @@
       "confidence": "high",
       "required_any": ["企業托育", "托兒設施", "托兒措施", "職場居家式托育", "育兒補貼"],
       "required_context_any": ["雇主", "企業", "受僱者", "員工", "職場"],
+      "forbidden_any": ["未涉及雇主", "不涉及雇主", "非雇主措施", "非企業措施"],
       "article": "第23條",
       "reason": "事件涉及雇主提供托兒設施／措施或主管機關補助，直接對應《性別平等工作法》第23條。",
       "authoritative_reference": "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?flno=23&id=FL015149",
@@ -43,7 +44,8 @@
       ],
       "negative_examples": [
         "地方政府擴大公共托育與準公共幼兒園名額。",
-        "兒少居家托育服務品質與托育人員訓練受到關注。"
+        "兒少居家托育服務品質與托育人員訓練受到關注。",
+        "地方政府新增公共托育據點，未涉及雇主或職場托兒措施。"
       ]
     }
   ],
@@ -55,13 +57,15 @@
       "confidence": "high",
       "required_any": ["企業托育", "育兒補貼", "托兒設施", "職場居家式托育"],
       "required_context_any": ["雇主", "企業", "員工", "職場"],
+      "forbidden_any": ["未涉及雇主", "不涉及雇主", "非雇主措施", "非企業措施"],
       "reason": "事件直接描述勞動部企業托育補助或雇主托兒措施。",
       "authoritative_reference": "https://childcare.mol.gov.tw/PageNew/default.aspx",
       "positive_examples": [
         "企業托育補助申請進入倒數，雇主可申請育兒補貼與托兒設施補助。"
       ],
       "negative_examples": [
-        "地方政府新增公共托育據點。"
+        "地方政府新增公共托育據點。",
+        "地方政府新增公共托育據點，未涉及雇主或職場托兒措施。"
       ]
     },
     {
@@ -87,7 +91,7 @@
       "confidence": "high",
       "required_any": ["住宿式服務機構", "住宿式機構"],
       "required_context_any": ["補助", "每月最高", "每年最高", "18萬元", "1萬5,000元", "15000元"],
-      "forbidden_any": ["未涉及補助", "不涉及補助"],
+      "forbidden_any": ["未涉及補助", "不涉及補助", "非補助方案"],
       "reason": "事件直接描述住宿式服務機構使用者補助方案的額度、資格或申請。",
       "authoritative_reference": "https://1966.gov.tw/LTC/cp-6457-69925-207.html",
       "positive_examples": [
