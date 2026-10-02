@@ -1,0 +1,83 @@
+name: Full Corpus Question QA
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 長期低成本基線：每月 1 日 03:47 UTC 跑一次完整 manifest。
+    - cron: '47 3 1 * *'
+  pull_request:
+    paths:
+      - '.github/workflows/full-corpus-qa.yml'
+      - 'scripts/full_corpus_qa.py'
+      - 'scripts/unified_question_qa.py'
+      - 'scripts/unified_question_qa_selftest.py'
+      - 'data/question_qa_policy_v1.json'
+      - 'cdn/question-shards/**'
+      - 'auto/essays_auto.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-full-corpus-question-qa-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  full-corpus:
+    name: Audit every manifest exam session
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Compile QA scripts
+        run: |
+          python -m py_compile scripts/full_corpus_qa.py
+          python -m py_compile scripts/unified_question_qa.py
+          python -m py_compile scripts/unified_question_qa_selftest.py
+
+      - name: Run existing unified QA synthetic invariants
+        run: python scripts/unified_question_qa_selftest.py
+
+      - name: Audit all manifest sessions
+        run: |
+          python scripts/full_corpus_qa.py \
+            --out /tmp/full-corpus-question-qa.json \
+            --fail-on blocked > /tmp/full-corpus-question-qa.log
+          cat /tmp/full-corpus-question-qa.log
+
+      - name: Publish compact job summary
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report=json.loads(Path('/tmp/full-corpus-question-qa.json').read_text(encoding='utf-8'))
+          s=report['summary']
+          lines=[
+              '## SWSI full-corpus QA',
+              '',
+              f"- dataset revision: `{report.get('dataset_revision')}`",
+              f"- audited sessions: **{report['audited_sessions']} / {report['manifest_shard_count']}**",
+              f"- total audited items: **{s['total_items']}**",
+              f"- official blocked: **{s['official_blocked']}**",
+              f"- manual/enrichment review queue signals: **{s['manual_review_queue_count']}**",
+              f"- manifest integrity: **{'OK' if s['manifest_integrity_ok'] else 'FAILED'}**",
+              '',
+              '> Artifact is diagnostic evidence only; it is not the long-term evidence store required by Issue #262.',
+          ]
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
+              f.write('\n'.join(lines)+'\n')
+          PY
+
+      - name: Upload diagnostic report
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-corpus-question-qa
+          path: /tmp/full-corpus-question-qa.json
+          retention-days: 14
