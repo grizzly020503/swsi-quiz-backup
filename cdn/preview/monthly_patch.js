@@ -2716,9 +2716,62 @@ html[data-fs="2"]{
     startQuiz(function(q){return ids.has(q.id);},0);
   };
 
+  var LAW_STUDY_PRIORITY_URL='auto/law_study_priority.json';
+  var lawStudyPriorityPromise=null;
+  var lawStudyPriorityCache=null;
+  function validLawStudyPriority(x){
+    if(!x||x.schema_version!==1||!x.scope||!Array.isArray(x.laws))return false;
+    if(Number(x.scope.recent_end_year)-Number(x.scope.recent_start_year)!==4)return false;
+    return x.laws.every(function(l){
+      return l&&typeof l.law_name==='string'&&Number.isFinite(Number(l.all_linked_question_count))&&Number.isFinite(Number(l.recent_five_year_question_count))&&Array.isArray(l.question_ids)&&Number(l.all_linked_question_count)===new Set(l.question_ids).size;
+    });
+  }
+  function loadLawStudyPriority(){
+    if(lawStudyPriorityCache)return Promise.resolve(lawStudyPriorityCache);
+    if(lawStudyPriorityPromise)return lawStudyPriorityPromise;
+    lawStudyPriorityPromise=fetch(LAW_STUDY_PRIORITY_URL,{credentials:'same-origin',cache:'no-cache'}).then(function(r){
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return r.json();
+    }).then(function(x){
+      if(!validLawStudyPriority(x))throw new Error('invalid law study priority snapshot');
+      lawStudyPriorityCache=x;
+      return x;
+    }).catch(function(e){
+      console.warn('law study priority unavailable',e);
+      lawStudyPriorityPromise=null;
+      return null;
+    });
+    return lawStudyPriorityPromise;
+  }
+  function lawStudyPriorityHTML(snapshot,law){
+    var scope=snapshot.scope||{},recent=Number(law.recent_five_year_question_count)||0,all=Number(law.all_linked_question_count)||0;
+    var recentLabel=String(scope.recent_label||('近五年（'+scope.recent_start_year+'–'+scope.recent_end_year+'）'));
+    var allLabel=String(scope.first_exam_year||'')+'–'+String(scope.latest_exam_year||'')+' 全歷屆';
+    var exams=Array.isArray(law.recent_exam_codes)?law.recent_exam_codes:[],ids=Array.isArray(law.question_ids)?law.question_ids:[];
+    var h='<div class="swsi-law-study-priority" style="margin:0 0 14px;padding:12px 13px;border:1px solid var(--line);border-radius:12px;background:var(--paper2,#f7f7f4)"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap"><div><b style="font-size:12.5px;color:var(--ink)">歷屆題目足跡</b><div style="font-size:10.8px;line-height:1.55;color:var(--ink-soft);margin-top:2px">只算題庫中明確連結到這部法規的題目</div></div><span style="font-size:10.5px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 8px;color:var(--pine-deep);font-weight:700">可追溯題號</span></div>'+
+      '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px"><div style="padding:8px 9px;border-radius:9px;background:#fff"><div style="font-size:10.5px;color:var(--ink-soft)">'+H(recentLabel)+'</div><div style="font-size:18px;font-weight:900;color:var(--pine-deep);margin-top:2px">'+recent+' <span style="font-size:11px">題</span></div></div><div style="padding:8px 9px;border-radius:9px;background:#fff"><div style="font-size:10.5px;color:var(--ink-soft)">'+H(allLabel)+'</div><div style="font-size:18px;font-weight:900;color:var(--ink);margin-top:2px">'+all+' <span style="font-size:11px">題</span></div></div></div>'+
+      '<div style="font-size:10.8px;line-height:1.6;color:var(--ink-soft);margin-top:7px">'+(exams.length?'近五年出現考次：'+H(exams.join('、')):'近五年沒有找到明確法規連結題；不代表未來不會考。')+'</div>'+
+      '<details style="margin-top:7px"><summary style="cursor:pointer;font-size:11px;font-weight:800;color:var(--pine-deep)">查看全部可追溯題號（'+all+'）</summary><div style="margin-top:6px;line-height:1.75">'+ids.map(function(id){return '<code style="display:inline-block;margin:2px 4px 2px 0;padding:3px 6px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--pine-deep);font-size:10.5px">'+H(id)+'</code>';}).join('')+'</div></details>'+
+      '<div style="font-size:10.2px;line-height:1.6;color:var(--ink-soft);margin-top:8px">'+H(snapshot.student_boundary||'')+'</div></div>';
+    return h;
+  }
+  function decorateLawStudyPriority(){
+    var slot=document.querySelector('#app .swsi-law-study-priority-slot[data-law-name]');
+    if(!slot)return;
+    var name=slot.getAttribute('data-law-name')||'';
+    loadLawStudyPriority().then(function(snapshot){
+      if(!snapshot)return;
+      var current=document.querySelector('#app .swsi-law-study-priority-slot[data-law-name]');
+      if(!current||current.getAttribute('data-law-name')!==name||current.querySelector('.swsi-law-study-priority'))return;
+      var law=null;
+      for(var i=0;i<snapshot.laws.length;i+=1){if(snapshot.laws[i]&&snapshot.laws[i].law_name===name){law=snapshot.laws[i];break;}}
+      if(law)current.innerHTML=lawStudyPriorityHTML(snapshot,law);
+    });
+  }
+
   function lawKnowledgeNetHTML(l,gi){
     var mc=lawMcqs(l),es=lawEssays(l),ths=lawRelatedTheories(l);
-    var h='<div class="swsi-k-net"><div class="swsi-k-net-title">從法規接到考題</div>'+
+    var h='<div class="swsi-law-study-priority-slot" data-law-name="'+H(l.n)+'"></div><div class="swsi-k-net"><div class="swsi-k-net-title">從法規接到考題</div>'+
       '<button class="swsi-k-search-all" onclick="event.stopPropagation();swsiKnowledgeSearch(\''+H(l.n).replace(/'/g,'&#39;')+'\')">搜尋「'+H(l.n)+'」全部考法</button>';
     if(mc.length)h+='<button class="swsi-k-action" onclick="event.stopPropagation();swsiQuizLaw('+gi+')">練這部法規的選擇題（'+mc.length+' 題）</button>';
     if(ths.length){
@@ -2751,6 +2804,7 @@ html[data-fs="2"]{
       return '<div class="subj-pill" style="margin-top:16px">'+H(d)+'</div>'+cards;
     }).join('');
     app.innerHTML='<div class="swsi-k-pagelead"><button onclick="go(\'topics\')">‹ 回學習工具</button><button onclick="swsiKnowledgeSearch(\'\')">⌕ 全域搜尋</button></div><div class="section-h">重點法規速查</div><div class="section-s">先抓法規重點，再直接看它曾經怎麼出現在選擇題與申論。<br><span style="color:var(--ink-soft);font-size:12px">※ 法規會修正，應試前仍以全國法規資料庫最新版為準。</span></div><input placeholder="搜尋法規或關鍵詞…" value="'+H(lawQ||'')+'" oninput="lawQ=this.value;lawOpen=null;render()" style="width:100%;box-sizing:border-box;padding:11px 14px;border:1px solid var(--line);border-radius:12px;font-family:inherit;font-size:14px;margin-bottom:4px;background:#fff;color:var(--ink)">'+(list.length?groups:'<div class="empty" style="padding:40px 0"><p>找不到符合的法規。</p></div>');
+    decorateLawStudyPriority();
   };
 
   var oldRenderTheories=renderTheories;
