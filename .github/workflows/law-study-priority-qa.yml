@@ -7,7 +7,7 @@ on:
       - 'scripts/build_law_study_priority.py'
       - 'scripts/law_study_priority_smoke.py'
       - 'auto/law_study_priority.json'
-      - 'monthly_patch_parts/86a.law-study-priority.part'
+      - 'monthly_patch_parts/86.law-trust-ui.part'
       - '.github/workflows/law-study-priority-qa.yml'
 
 permissions:
