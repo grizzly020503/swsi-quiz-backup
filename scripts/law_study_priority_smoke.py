@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Fail closed when the student law-priority snapshot drifts from its source."""
+"""Fail closed when the student law-priority data or UI contract drifts."""
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 from build_law_study_priority import DEFAULT_SOURCE, build_snapshot
 
 ROOT = Path(__file__).resolve().parents[1]
 SNAPSHOT = ROOT / "auto" / "law_study_priority.json"
+UI = ROOT / "monthly_patch_parts" / "86a.law-study-priority.part"
 
 
 def fail(message: str) -> None:
@@ -71,6 +73,23 @@ def main() -> int:
     for phrase in ("不是關鍵字命中", "不是命題機率", "不代表每題歷史法規版本已核實"):
         if phrase not in boundary:
             fail("student-facing scope boundary lost: " + phrase)
+
+    if not UI.exists():
+        fail("missing additive law study priority UI")
+    ui = UI.read_text(encoding="utf-8")
+    if re.search(r"\brenderLaws\s*=\s*function\b", ui):
+        fail("UI must remain an additive DOM enhancer and must not own renderLaws")
+    for marker in (
+        "auto/law_study_priority.json",
+        "swsi-law-study-priority",
+        "歷屆題目足跡",
+        "查看全部可追溯題號",
+        "window.SWSI_LAW_STUDY_PRIORITY",
+    ):
+        if marker not in ui:
+            fail("UI contract lost marker: " + marker)
+    if "不代表未來不會考" not in ui:
+        fail("zero-recent-count copy must not imply zero future relevance")
 
     print(
         "LAW STUDY PRIORITY SMOKE OK: "
