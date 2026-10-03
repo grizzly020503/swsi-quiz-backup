@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "source": "data/law_question_links_priority10.v1.json",
+  "source_method": "Exact law metadata name or explicit alias only. No keyword-only stem match. Metadata linkage is not legal or historical verification.",
+  "scope": {
+    "first_exam_year": 104,
+    "latest_exam_year": 115,
+    "recent_start_year": 111,
+    "recent_end_year": 115,
+    "recent_label": "近五年（111–115）",
+    "priority_law_count": 10,
+    "linked_law_question_pairs": 86,
+    "unique_linked_questions": 85
+  },
+  "student_boundary": "題數只計題庫中明確法規 metadata／既有明示 alias 的唯一題目；不是關鍵字命中、不是命題機率，也不代表每題歷史法規版本已核實。",
+  "laws": [
+    {
+      "law_name": "特殊境遇家庭扶助條例",
+      "all_linked_question_count": 17,
+      "recent_five_year_question_count": 7,
+      "question_ids": ["SP115-1-31", "SP114-2-35", "SP114-1-35", "SP113-2-35", "SP112-1-35", "SP111-2-35", "SP111-1-35", "SP110-2-34", "SP110-1-34", "SP109-2-35", "SP108-2-34", "SP108-1-29", "SP107-1-34", "SP106-1-17", "SP105-1-07", "SP104-2-31", "SP104-1-28"],
+      "recent_question_ids": ["SP115-1-31", "SP114-2-35", "SP114-1-35", "SP113-2-35", "SP112-1-35", "SP111-2-35", "SP111-1-35"],
+      "recent_exam_codes": ["115-1", "114-2", "114-1", "113-2", "112-1", "111-2", "111-1"]
+    },
+    {
+      "law_name": "志願服務法",
+      "all_linked_question_count": 13,
+      "recent_five_year_question_count": 5,
+      "question_ids": ["SP-115-2-036", "SP115-1-35", "SP114-2-37", "SP114-1-38", "SP113-2-37", "SP110-2-36", "SP110-1-36", "SP109-1-35", "SP108-2-26", "SP108-1-31", "SP106-1-01", "SP105-2-39", "SP104-2-36"],
+      "recent_question_ids": ["SP-115-2-036", "SP115-1-35", "SP114-2-37", "SP114-1-38", "SP113-2-37"],
+      "recent_exam_codes": ["115-2", "115-1", "114-2", "114-1", "113-2"]
+    },
+    {
+      "law_name": "兒童及少年未來教育與發展帳戶條例",
+      "all_linked_question_count": 12,
+      "recent_five_year_question_count": 5,
+      "question_ids": ["SP115-1-40", "SP115-1-39", "SP112-1-34", "SP112-1-33", "SP111-2-34", "SP110-1-40", "SP109-1-40", "SP108-2-40", "SP108-1-35", "SP108-1-34", "SP106-2-17", "SP106-2-12"],
+      "recent_question_ids": ["SP115-1-40", "SP115-1-39", "SP112-1-34", "SP112-1-33", "SP111-2-34"],
+      "recent_exam_codes": ["115-1", "112-1", "111-2"]
+    },
+    {
+      "law_name": "國民年金法",
+      "all_linked_question_count": 17,
+      "recent_five_year_question_count": 4,
+      "question_ids": ["SP115-1-36", "SP114-1-37", "SP114-1-13", "SP113-2-38", "SP110-2-37", "SP110-1-37", "SP109-2-38", "SP109-1-36", "SP108-1-32", "SP107-1-26", "SP106-2-33", "SP106-2-32", "SP106-2-24", "SP106-2-23", "SP104-2-35", "SP104-2-11", "SP104-1-32"],
+      "recent_question_ids": ["SP115-1-36", "SP114-1-37", "SP114-1-13", "SP113-2-38"],
+      "recent_exam_codes": ["115-1", "114-1", "113-2"]
+    },
+    {
+      "law_name": "就業保險法",
+      "all_linked_question_count": 5,
+      "recent_five_year_question_count": 1,
+      "question_ids": ["SP114-2-09", "SP107-1-15", "SP107-1-05", "SP106-2-08", "SP105-1-02"],
+      "recent_question_ids": ["SP114-2-09"],
+      "recent_exam_codes": ["114-2"]
+    },
+    {
+      "law_name": "學生輔導法",
+      "all_linked_question_count": 4,
+      "recent_five_year_question_count": 1,
+      "question_ids": ["SW-111-2-38", "SW-110-1-34", "SW-109-1-37", "SW-108-2-36"],
+      "recent_question_ids": ["SW-111-2-38"],
+      "recent_exam_codes": ["111-2"]
+    },
+    {
+      "law_name": "身心障礙者權利公約施行法",
+      "all_linked_question_count": 7,
+      "recent_five_year_question_count": 0,
+      "question_ids": ["SP109-1-06", "SW-107-1-16", "SP107-1-23", "SP106-1-21", "SP105-1-21", "SP104-2-10", "SP104-1-17"],
+      "recent_question_ids": [],
+      "recent_exam_codes": []
+    },
+    {
+      "law_name": "兒童權利公約施行法",
+      "all_linked_question_count": 4,
+      "recent_five_year_question_count": 0,
+      "question_ids": ["SP107-1-37", "SP106-2-05", "SW-104-2-36", "SP104-2-10"],
+      "recent_question_ids": [],
+      "recent_exam_codes": []
+    },
+    {
+      "law_name": "全民健康保險法",
+      "all_linked_question_count": 4,
+      "recent_five_year_question_count": 0,
+      "question_ids": ["SP107-1-38", "SP105-2-14", "SP105-1-10", "SP104-1-31"],
+      "recent_question_ids": [],
+      "recent_exam_codes": []
+    },
+    {
+      "law_name": "公民與政治權利國際公約及經濟社會文化權利國際公約施行法",
+      "all_linked_question_count": 3,
+      "recent_five_year_question_count": 0,
+      "question_ids": ["SP110-2-11", "SP109-2-05", "SP107-1-31"],
+      "recent_question_ids": [],
+      "recent_exam_codes": []
+    }
+  ]
+}
