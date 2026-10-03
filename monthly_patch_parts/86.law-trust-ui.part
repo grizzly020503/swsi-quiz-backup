@@ -118,96 +118,6 @@
     badge.style.borderColor='#E5DCC1';
   }
 
-  var STUDY_SNAPSHOT_URL='auto/law_study_priority.json';
-  var studySnapshotPromise=null;
-  var studySnapshotCache=null;
-
-  function validStudySnapshot(x){
-    if(!x||x.schema_version!==1||!x.scope||!Array.isArray(x.laws))return false;
-    if(!Number.isFinite(Number(x.scope.first_exam_year))||!Number.isFinite(Number(x.scope.latest_exam_year)))return false;
-    if(!Number.isFinite(Number(x.scope.recent_start_year))||!Number.isFinite(Number(x.scope.recent_end_year)))return false;
-    if(Number(x.scope.recent_end_year)-Number(x.scope.recent_start_year)!==4)return false;
-    return x.laws.every(function(l){
-      return l&&typeof l.law_name==='string'&&Number.isFinite(Number(l.all_linked_question_count))&&
-        Number.isFinite(Number(l.recent_five_year_question_count))&&Array.isArray(l.question_ids)&&
-        Array.isArray(l.recent_question_ids)&&Number(l.all_linked_question_count)===new Set(l.question_ids).size&&
-        Number(l.recent_five_year_question_count)===new Set(l.recent_question_ids).size;
-    });
-  }
-
-  function loadStudySnapshot(){
-    if(studySnapshotCache)return Promise.resolve(studySnapshotCache);
-    if(studySnapshotPromise)return studySnapshotPromise;
-    studySnapshotPromise=fetch(STUDY_SNAPSHOT_URL,{credentials:'same-origin',cache:'no-cache'})
-      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-      .then(function(x){
-        if(!validStudySnapshot(x))throw new Error('invalid law study priority snapshot');
-        studySnapshotCache=x;
-        return x;
-      })
-      .catch(function(e){
-        console.warn('law study priority unavailable',e);
-        studySnapshotPromise=null;
-        return null;
-      });
-    return studySnapshotPromise;
-  }
-
-  function findStudyLaw(snapshot,name){
-    if(!snapshot||!Array.isArray(snapshot.laws))return null;
-    for(var i=0;i<snapshot.laws.length;i+=1){
-      if(snapshot.laws[i]&&snapshot.laws[i].law_name===name)return snapshot.laws[i];
-    }
-    return null;
-  }
-
-  function studyQuestionIdHTML(ids){
-    if(!ids||!ids.length)return '<span style="color:var(--ink-soft)">目前沒有明確連結題號</span>';
-    return ids.map(function(id){
-      return '<code style="display:inline-block;margin:2px 4px 2px 0;padding:3px 6px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--pine-deep);font-size:10.5px">'+H(id)+'</code>';
-    }).join('');
-  }
-
-  function studyPriorityHTML(snapshot,law){
-    var scope=snapshot.scope||{};
-    var recentLabel=String(scope.recent_label||('近五年（'+scope.recent_start_year+'–'+scope.recent_end_year+'）'));
-    var allLabel=String(scope.first_exam_year||'')+'–'+String(scope.latest_exam_year||'');
-    var recent=Number(law.recent_five_year_question_count)||0;
-    var all=Number(law.all_linked_question_count)||0;
-    var exams=Array.isArray(law.recent_exam_codes)?law.recent_exam_codes:[];
-    var boundary=String(snapshot.student_boundary||'');
-    var h='<div class="swsi-law-study-priority" data-swsi-law-priority="'+H(law.law_name)+'" style="margin:12px 0 3px;padding:12px 13px;border:1px solid var(--line);border-radius:12px;background:var(--paper,#fff);font-family:\'Noto Sans TC\',sans-serif">'+
-      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">'+
-        '<div><div style="font-size:12.5px;font-weight:800;color:var(--ink)">歷屆題目足跡</div><div style="font-size:10.8px;line-height:1.55;color:var(--ink-soft);margin-top:2px">只統計題庫中明確連結到這部法規的題目</div></div>'+
-        '<span style="font-size:10.5px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 8px;color:var(--pine-deep);font-weight:700">可追溯題號</span>'+
-      '</div>'+
-      '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px">'+
-        '<div style="padding:9px 10px;border-radius:10px;background:#F4F8F5"><div style="font-size:10.5px;color:var(--ink-soft)">'+H(recentLabel)+'</div><div style="font-size:19px;font-weight:900;color:var(--pine-deep);margin-top:2px">'+recent+' <span style="font-size:11px;font-weight:700">題</span></div></div>'+
-        '<div style="padding:9px 10px;border-radius:10px;background:#F7F4EA"><div style="font-size:10.5px;color:var(--ink-soft)">'+H(allLabel)+' 全歷屆</div><div style="font-size:19px;font-weight:900;color:var(--ink);margin-top:2px">'+all+' <span style="font-size:11px;font-weight:700">題</span></div></div>'+
-      '</div>';
-    h+='<div style="font-size:10.8px;line-height:1.6;color:var(--ink-soft);margin-top:8px">'+
-      (exams.length?('近五年出現考次：'+H(exams.join('、'))):'近五年沒有找到明確法規連結題；不代表未來不會考。')+'</div>';
-    h+='<details style="margin-top:8px"><summary style="cursor:pointer;font-size:11px;font-weight:800;color:var(--pine-deep)">查看全部可追溯題號（'+all+'）</summary><div style="margin-top:7px;line-height:1.7">'+studyQuestionIdHTML(law.question_ids)+'</div></details>';
-    if(boundary)h+='<div style="font-size:10.3px;line-height:1.6;color:var(--ink-soft);margin-top:9px">'+H(boundary)+'</div>';
-    return h+'</div>';
-  }
-
-  function decorateStudyPriority(item,open){
-    if(!item||!open||open.querySelector('.swsi-law-study-priority'))return;
-    var name=String(item.n||'');
-    if(!name)return;
-    loadStudySnapshot().then(function(snapshot){
-      if(!snapshot||typeof lawOpen!=='number'||lawOpen<0||!LAWS[lawOpen]||String(LAWS[lawOpen].n||'')!==name)return;
-      var current=document.querySelector('#app .ecard.open .ebodywrap');
-      if(!current||current.querySelector('.swsi-law-study-priority'))return;
-      var law=findStudyLaw(snapshot,name);
-      if(!law)return;
-      var trust=current.querySelector('.swsi-law-trust');
-      if(trust)trust.insertAdjacentHTML('beforebegin',studyPriorityHTML(snapshot,law));
-      else current.insertAdjacentHTML('beforeend',studyPriorityHTML(snapshot,law));
-    });
-  }
-
   var oldRenderLaws=renderLaws;
   renderLaws=function(){
     oldRenderLaws();
@@ -221,7 +131,6 @@
         var open=document.querySelector('#app .ecard.open .ebodywrap');
         if(open&&!open.querySelector('.swsi-law-trust'))open.insertAdjacentHTML('beforeend',trustHTML(item));
         applySpecialLawStatus(item);
-        decorateStudyPriority(item,open);
       }
     }catch(e){console.warn('law trust render skipped',e);}
   };
