@@ -232,14 +232,6 @@
     verifiedCount:function(){return LAWS.filter(function(x){return x&&x.verify_status===VERIFY_CHECKED;}).length;}
   };
 
-  window.SWSI_LAW_STUDY_PRIORITY={
-    version:'2026-10-03.v1',
-    source:STUDY_SNAPSHOT_URL,
-    decorate:function(){
-      if(typeof lawOpen==='number'&&lawOpen>=0&&LAWS[lawOpen])decorateStudyPriority(LAWS[lawOpen],document.querySelector('#app .ecard.open .ebodywrap'));
-    }
-  };
-
   window.SWSI_NEW_RESIDENT_STATUS={version:'SWSI New Resident Basic Act Status Fix 2026-08-26'};
 
   window.SWSI_LAW_TRUST_FINAL={
