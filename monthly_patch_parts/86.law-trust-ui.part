@@ -118,52 +118,6 @@
     badge.style.borderColor='#E5DCC1';
   }
 
-  /* LAW_STUDY_PRIORITY_RUNTIME_START */
-  /* Derived from auto/law_study_priority.json. Embedded at build/source-sync time; no runtime fetch. */
-  var STUDY_PRIORITY={"schema_version":1,"scope":{"first_exam_year":104,"latest_exam_year":115,"recent_start_year":111,"recent_end_year":115,"recent_label":"近五年（111–115）"},"student_boundary":"題數只計題庫中明確法規 metadata／既有明示 alias 的唯一題目；不是關鍵字命中、不是命題機率，也不代表每題歷史法規版本已核實。","laws":{"特殊境遇家庭扶助條例":{"all":17,"recent":7,"question_ids":["SP115-1-31","SP114-2-35","SP114-1-35","SP113-2-35","SP112-1-35","SP111-2-35","SP111-1-35","SP110-2-34","SP110-1-34","SP109-2-35","SP108-2-34","SP108-1-29","SP107-1-34","SP106-1-17","SP105-1-07","SP104-2-31","SP104-1-28"],"recent_exam_codes":["115-1","114-2","114-1","113-2","112-1","111-2","111-1"]},"志願服務法":{"all":13,"recent":5,"question_ids":["SP-115-2-036","SP115-1-35","SP114-2-37","SP114-1-38","SP113-2-37","SP110-2-36","SP110-1-36","SP109-1-35","SP108-2-26","SP108-1-31","SP106-1-01","SP105-2-39","SP104-2-36"],"recent_exam_codes":["115-2","115-1","114-2","114-1","113-2"]},"兒童及少年未來教育與發展帳戶條例":{"all":12,"recent":5,"question_ids":["SP115-1-40","SP115-1-39","SP112-1-34","SP112-1-33","SP111-2-34","SP110-1-40","SP109-1-40","SP108-2-40","SP108-1-35","SP108-1-34","SP106-2-17","SP106-2-12"],"recent_exam_codes":["115-1","112-1","111-2"]},"國民年金法":{"all":17,"recent":4,"question_ids":["SP115-1-36","SP114-1-37","SP114-1-13","SP113-2-38","SP110-2-37","SP110-1-37","SP109-2-38","SP109-1-36","SP108-1-32","SP107-1-26","SP106-2-33","SP106-2-32","SP106-2-24","SP106-2-23","SP104-2-35","SP104-2-11","SP104-1-32"],"recent_exam_codes":["115-1","114-1","113-2"]},"就業保險法":{"all":5,"recent":1,"question_ids":["SP114-2-09","SP107-1-15","SP107-1-05","SP106-2-08","SP105-1-02"],"recent_exam_codes":["114-2"]},"學生輔導法":{"all":4,"recent":1,"question_ids":["SW-111-2-38","SW-110-1-34","SW-109-1-37","SW-108-2-36"],"recent_exam_codes":["111-2"]},"身心障礙者權利公約施行法":{"all":7,"recent":0,"question_ids":["SP109-1-06","SW-107-1-16","SP107-1-23","SP106-1-21","SP105-1-21","SP104-2-10","SP104-1-17"],"recent_exam_codes":[]},"兒童權利公約施行法":{"all":4,"recent":0,"question_ids":["SP107-1-37","SP106-2-05","SW-104-2-36","SP104-2-10"],"recent_exam_codes":[]},"全民健康保險法":{"all":4,"recent":0,"question_ids":["SP107-1-38","SP105-2-14","SP105-1-10","SP104-1-31"],"recent_exam_codes":[]},"公民與政治權利國際公約及經濟社會文化權利國際公約施行法":{"all":3,"recent":0,"question_ids":["SP110-2-11","SP109-2-05","SP107-1-31"],"recent_exam_codes":[]}}};
-  /* LAW_STUDY_PRIORITY_RUNTIME_END */
-
-  function studyQuestionIdHTML(ids){
-    if(!ids||!ids.length)return '<span style="color:var(--ink-soft)">目前沒有明確連結題號</span>';
-    return ids.map(function(id){
-      return '<code style="display:inline-block;margin:2px 4px 2px 0;padding:3px 6px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--pine-deep);font-size:10.5px">'+H(id)+'</code>';
-    }).join('');
-  }
-
-  function studyPriorityHTML(law){
-    var scope=STUDY_PRIORITY.scope||{};
-    var recentLabel=String(scope.recent_label||('近五年（'+scope.recent_start_year+'–'+scope.recent_end_year+'）'));
-    var allLabel=String(scope.first_exam_year||'')+'–'+String(scope.latest_exam_year||'');
-    var recent=Number(law.recent)||0;
-    var all=Number(law.all)||0;
-    var exams=Array.isArray(law.recent_exam_codes)?law.recent_exam_codes:[];
-    var boundary=String(STUDY_PRIORITY.student_boundary||'');
-    var h='<div class="swsi-law-study-priority" style="margin:12px 0 3px;padding:12px 13px;border:1px solid var(--line);border-radius:12px;background:var(--paper,#fff);font-family:\'Noto Sans TC\',sans-serif">'+
-      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">'+
-        '<div><div style="font-size:12.5px;font-weight:800;color:var(--ink)">歷屆題目足跡</div><div style="font-size:10.8px;line-height:1.55;color:var(--ink-soft);margin-top:2px">只統計題庫中明確連結到這部法規的題目</div></div>'+
-        '<span style="font-size:10.5px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 8px;color:var(--pine-deep);font-weight:700">可追溯題號</span>'+
-      '</div>'+
-      '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px">'+
-        '<div style="padding:9px 10px;border-radius:10px;background:#F4F8F5"><div style="font-size:10.5px;color:var(--ink-soft)">'+H(recentLabel)+'</div><div style="font-size:19px;font-weight:900;color:var(--pine-deep);margin-top:2px">'+recent+' <span style="font-size:11px;font-weight:700">題</span></div></div>'+
-        '<div style="padding:9px 10px;border-radius:10px;background:#F7F4EA"><div style="font-size:10.5px;color:var(--ink-soft)">'+H(allLabel)+' 全歷屆</div><div style="font-size:19px;font-weight:900;color:var(--ink);margin-top:2px">'+all+' <span style="font-size:11px;font-weight:700">題</span></div></div>'+
-      '</div>';
-    h+='<div style="font-size:10.8px;line-height:1.6;color:var(--ink-soft);margin-top:8px">'+
-      (exams.length?('近五年出現考次：'+H(exams.join('、'))):'近五年沒有找到明確法規連結題；不代表未來不會考。')+'</div>';
-    h+='<details style="margin-top:8px"><summary style="cursor:pointer;font-size:11px;font-weight:800;color:var(--pine-deep)">查看全部可追溯題號（'+all+'）</summary><div style="margin-top:7px;line-height:1.7">'+studyQuestionIdHTML(law.question_ids)+'</div></details>';
-    if(boundary)h+='<div style="font-size:10.3px;line-height:1.6;color:var(--ink-soft);margin-top:9px">'+H(boundary)+'</div>';
-    return h+'</div>';
-  }
-
-  function decorateStudyPriority(item,open){
-    if(!item||!open||open.querySelector('.swsi-law-study-priority'))return;
-    var laws=STUDY_PRIORITY&&STUDY_PRIORITY.laws;
-    var law=laws&&laws[String(item.n||'')];
-    if(!law)return;
-    var trust=open.querySelector('.swsi-law-trust');
-    if(trust)trust.insertAdjacentHTML('beforebegin',studyPriorityHTML(law));
-    else open.insertAdjacentHTML('beforeend',studyPriorityHTML(law));
-  }
-
   var oldRenderLaws=renderLaws;
   renderLaws=function(){
     oldRenderLaws();
@@ -177,7 +131,6 @@
         var open=document.querySelector('#app .ecard.open .ebodywrap');
         if(open&&!open.querySelector('.swsi-law-trust'))open.insertAdjacentHTML('beforeend',trustHTML(item));
         applySpecialLawStatus(item);
-        decorateStudyPriority(item,open);
       }
     }catch(e){console.warn('law trust render skipped',e);}
   };
