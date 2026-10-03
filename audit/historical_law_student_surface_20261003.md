@@ -2,20 +2,19 @@
 
 ## Scope
 
-This change surfaces the repo's existing historical-law verification evidence in the student quiz explanation UI. It does **not** create a second historical-law engine and does **not** claim that the full law-question corpus has been historically verified.
+This surface shows only historical-law verification metadata that has passed one of the repo's two explicit evidence methods. It does **not** create a second historical-law engine and does **not** claim that the full law-question corpus has been historically verified.
 
-Authoritative derived registry for this slice:
+Authoritative verified evidence for this slice is now a deterministic union:
 
-- `data/historical_law_verified_priority10.v1.json`
-- current verified records: **13**
-- required level: `machine_verified_historical_v1`
-- required flag: `historical_version_checked=true`
+- 13 × `machine_verified_historical_v1`
+- 6 × `evidence_adjudicated_historical_v1`
+- **19 verified records total**
 
-Only records satisfying both conditions may receive the student-facing historical-law panel.
+The 13 machine records remain in `data/historical_law_verified_priority10.v1.json`. The six evidence-adjudicated records are replayed from `data/historical_law_evidence_adjudication.v1.json` + the durable minimized evidence snapshot + current tracked question data. Stage 6 thresholds are not lowered.
 
 ## Student wording boundary
 
-For an eligible question the existing quiz trust disclosure may show:
+Both methods may show the shared conclusion:
 
 - `考試當時法規版本已核對`
 - law name and article
@@ -25,7 +24,12 @@ For an eligible question the existing quiz trust disclosure may show:
 - official MOJ law-history link
 - MOEX exam-date source link
 
-The panel explicitly says this is SWSI machine-verified metadata and **not** an MOEX official explanation. It also warns against using the 2026 current law as proof of an older exam answer.
+But the method must stay visible and distinct:
+
+- machine high-confidence record → `核對方式：規則驗證`
+- evidence-adjudicated record → `核對方式：官方證據交叉核對`
+
+The evidence-adjudicated copy explains that the record was held when automatic comparison confidence was insufficient and was only surfaced after the exam-time law text, official answer and selected answer option were cross-checked. It does not call this human/owner review and does not call it an MOEX official explanation.
 
 ## Data minimization
 
@@ -33,33 +37,42 @@ The student runtime map intentionally does **not** embed:
 
 - historical article full text
 - historical article SHA-256
-- semantic similarity scores
+- semantic similarity scores / Stage 6 diagnostics
 - internal verification-basis text
-- Guardian / review diagnostics
+- evidence-adjudication provenance payload
+- question stem/options/official answer or other Official Core fields
 
-Those remain evidence-layer data. The student surface carries only the minimum metadata needed to explain the historical version and link back to official sources.
+Those stay in the evidence layer. The browser receives only the compact metadata needed to explain the historical version and link to official sources.
 
-## Fail-closed behavior
+## Deterministic synchronization
 
-`historical_law_student_surface_contract.py` requires the embedded runtime map to exactly match the compact projection of the verified registry. A registry change without a synchronized student projection therefore fails PR QA rather than silently presenting stale verification status.
+`scripts/historical_law_student_surface_sync.py` rebuilds the compact 19-record projection from the authoritative evidence chain. It owns synchronization of the private `HISTORICAL_VERIFIED` map inside `86.law-trust-ui.part`.
 
-A question not present in the verified registry receives **no** `考試當時法規版本已核對` claim.
+`--check` is part of Progressive Explanation QA. Therefore:
 
-## Existing systems reused
+- a verified-registry/evidence change without a synchronized student map fails CI;
+- an unknown verification level fails closed;
+- duplicate question IDs fail closed;
+- evidence internals cannot silently leak into the browser map.
 
-- historical-law Stage 1–7 / Guardian evidence stays the source of truth;
-- existing `86.law-trust-ui.part` remains the law presentation owner;
-- existing P1-4 `.swsi-answer-trust` disclosure remains the quiz trust container;
-- current `legal_status` continues to describe current-law review state.
+## Runtime trust boundary
 
-No new database, runtime part, AI call, network fetch, storage write, production migration, or production deploy is introduced by this slice.
+The existing `86.law-trust-ui.part` remains the only historical-law student presentation owner. No new runtime part or `window.*` global is added. The existing no-network/no-storage boundary remains:
+
+- no historical-law `fetch()` path;
+- no `localStorage.setItem` / `sessionStorage.setItem` side effect;
+- no historical full-text/hash payload in the browser.
+
+A question outside the 19 verified records receives **no** `考試當時法規版本已核對` claim.
 
 ## Remaining P1-5 boundary
 
-This slice is **not** enough to mark all historical-law work complete. Remaining work includes broader high-risk law-question coverage and student-visible current-vs-exam-time differences where evidence exists. Until a question has the required historical evidence, the UI must keep the lower-confidence/current-law wording and must not invent a historical version.
+19 verified records still do **not** equal full historical-law coverage. Remaining work is broader high-risk law-question verification and, where evidence exists, clearer current-law vs exam-time-law differences. Until a question has one of the two accepted verified evidence methods, the UI must not invent a historical version.
 
 ## Related
 
 - Issue #307 P1-5
 - Issue #261 P1-B
+- PR #313 (initial 13-record student surface)
+- PR #319 (six durable evidence-adjudicated records)
 - `PROJECT_DIARY_2026-10-02_HISTORICAL_LAW_E2E.md`

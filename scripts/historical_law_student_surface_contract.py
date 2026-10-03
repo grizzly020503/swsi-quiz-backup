@@ -1,52 +1,29 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import json
-import re
 from pathlib import Path
+
+from historical_law_student_surface_sync import build_student_map, extract_embedded
 
 ROOT = Path(__file__).resolve().parents[1]
 UI_PATH = ROOT / "monthly_patch_parts" / "86.law-trust-ui.part"
-REGISTRY_PATH = ROOT / "data" / "historical_law_verified_priority10.v1.json"
 
 ui = UI_PATH.read_text(encoding="utf-8")
-registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+embedded = extract_embedded(ui)
+expected = build_student_map()
 
-assert registry.get("schema_version") == 1
-records = registry.get("records") or []
-assert len(records) == registry.get("verified_record_count") == registry.get("historical_version_checked_count")
-assert len(records) >= 1
-
-match = re.search(r"var HISTORICAL_VERIFIED=(\{.*?\});\n\n  function H", ui, flags=re.S)
-assert match, "historical runtime map missing from law trust owner"
-embedded = json.loads(match.group(1))
-
-expected = {}
-for row in records:
-    qid = str(row.get("question_id") or "").strip()
-    assert qid and qid not in expected
-    assert row.get("historical_version_checked") is True
-    assert row.get("verification_level") == "machine_verified_historical_v1"
-    version = row.get("selected_version") or {}
-    expected[qid] = {
-        "law_name": row.get("law_name"),
-        "exam_code": row.get("exam_code"),
-        "article": row.get("article"),
-        "historical_version_checked": True,
-        "verification_level": "machine_verified_historical_v1",
-        "selected_version": {
-            "version_date": version.get("version_date"),
-            "effective_date": version.get("effective_date"),
-            "url": version.get("url"),
-        },
-        "official_history_url": row.get("official_history_url"),
-        "exam_date_source_url": row.get("exam_date_source_url"),
-    }
-
-assert embedded == expected, "student runtime historical-law map drifted from verified registry"
-assert len(embedded) == 13, f"expected current verified registry size 13, got {len(embedded)}"
+assert embedded == expected, "student runtime historical-law map drifted from combined verified evidence"
+assert len(embedded) == 19, f"expected current combined verified size 19, got {len(embedded)}"
+levels = [row.get("verification_level") for row in embedded.values()]
+assert levels.count("machine_verified_historical_v1") == 13
+assert levels.count("evidence_adjudicated_historical_v1") == 6
 
 for qid, row in embedded.items():
+    assert row.get("historical_version_checked") is True, qid
+    assert row.get("verification_level") in {
+        "machine_verified_historical_v1",
+        "evidence_adjudicated_historical_v1",
+    }, qid
     for key in ("law_name", "exam_code", "article", "verification_level"):
         assert str(row.get(key) or "").strip(), (qid, key)
     for url in (
@@ -56,29 +33,35 @@ for qid, row in embedded.items():
     ):
         assert isinstance(url, str) and url.startswith("https://"), (qid, url)
 
-# Student UI must fail closed: only the exact verified level + historical flag may surface.
+# Student UI must fail closed: checked=true plus one of the two reviewed levels.
 assert "x.historical_version_checked!==true" in ui
-assert "x.verification_level!=='machine_verified_historical_v1'" in ui
+assert "historicalVerificationCopy" in ui
+assert "machine_verified_historical_v1" in ui
+assert "evidence_adjudicated_historical_v1" in ui
+assert "return null" in ui
 assert "rec.historical_version_checked!==true" in ui
-assert "rec.verification_level!=='machine_verified_historical_v1'" in ui
+assert "!historicalVerificationCopy(rec)" in ui
 
-# The UI explains the boundary instead of claiming official answer verification.
+# Human wording must distinguish the evidence method without exposing internal level names.
 for marker in (
     "考試當時法規版本已核對",
-    "機器驗證 metadata",
+    "核對方式：規則驗證",
+    "核對方式：官方證據交叉核對",
+    "不是人工審查",
     "不是考選部官方解析",
-    "不用 2026 現行法硬證明舊題",
+    "不用現在的法規硬證明舊題",
     "考試時點法規 ↗",
     "法規沿革 ↗",
     "考試日期 ↗",
 ):
     assert marker in ui, marker
 
-# Keep the derived surface compact and privacy-safe: no historical full text/hash mirror and no new network/storage path.
+# Keep the derived surface compact and privacy-safe: no evidence internals/full text and no new network/storage path.
 for forbidden in (
     "historical_article_sha256",
     "historical_semantic",
     "verification_basis",
+    "evidence_adjudication",
     "fetch(",
     "localStorage.setItem",
     "sessionStorage.setItem",
@@ -92,5 +75,5 @@ assert "window.SWSI_HISTORICAL_LAW_TRUST" not in ui
 
 print(
     "HISTORICAL LAW STUDENT SURFACE CONTRACT OK: "
-    f"{len(embedded)} verified records exactly mirror the registry and fail closed in student UI"
+    "19 verified records (13 rule-verified + 6 evidence-adjudicated) are compact, distinct, and fail closed"
 )
