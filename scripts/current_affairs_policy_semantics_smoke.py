@@ -2,6 +2,7 @@
 """Regression smoke for current-affairs policy/history semantics."""
 
 from analyze_current_affairs_signals import analyze_item
+from build_current_affairs_signals_snapshot import analyze_item_with_law_links
 
 
 def main() -> int:
@@ -100,6 +101,15 @@ def main() -> int:
     )
     if empathy and float(empathy.get("match_score") or 0) >= 3.0:
         raise SystemExit("vignette-only population wording must not become a medium historical match")
+
+    public_elderly = analyze_item_with_law_links(elderly_event, elderly_questions)
+    public_ids = {q["id"] for q in public_elderly["related_exam_questions"]}
+    if "Q-ELDERLY-SERVICE" not in public_ids:
+        raise SystemExit("public snapshot must retain structured elderly-service history")
+    if "Q-EMPATHY-VIGNETTE" in public_ids:
+        raise SystemExit("public snapshot must hide vignette-only population history")
+    if int(public_elderly["historical_exam_stats"].get("matched_question_count") or 0) != 1:
+        raise SystemExit("public historical count must use the same evidence threshold as the related list")
 
     # Serious professional incidents may be important even without policy change.
     incident = analyze_item({
