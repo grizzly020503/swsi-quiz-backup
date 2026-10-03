@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a compact student-facing law study-priority snapshot.
+"""Build evidence-backed law study-priority data.
 
 Counts come only from the existing priority-law linkage registry, whose contract is
 exact law metadata name or explicit alias. They are *linked-question counts*, not
@@ -98,10 +98,39 @@ def build_snapshot(source_path: Path) -> dict:
     }
 
 
+def build_runtime_payload(snapshot: dict) -> dict:
+    """Return only fields needed by the browser UI; no runtime fetch is required."""
+    scope = snapshot.get("scope") or {}
+    runtime_laws: dict[str, dict] = {}
+    for law in snapshot.get("laws") or []:
+        name = str(law.get("law_name") or "").strip()
+        if not name or name in runtime_laws:
+            raise ValueError("runtime payload requires unique non-empty law names")
+        runtime_laws[name] = {
+            "all": int(law.get("all_linked_question_count") or 0),
+            "recent": int(law.get("recent_five_year_question_count") or 0),
+            "question_ids": list(law.get("question_ids") or []),
+            "recent_exam_codes": list(law.get("recent_exam_codes") or []),
+        }
+    return {
+        "schema_version": 1,
+        "scope": {
+            "first_exam_year": int(scope.get("first_exam_year") or 0),
+            "latest_exam_year": int(scope.get("latest_exam_year") or 0),
+            "recent_start_year": int(scope.get("recent_start_year") or 0),
+            "recent_end_year": int(scope.get("recent_end_year") or 0),
+            "recent_label": str(scope.get("recent_label") or ""),
+        },
+        "student_boundary": str(snapshot.get("student_boundary") or ""),
+        "laws": runtime_laws,
+    }
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", type=Path, default=DEFAULT_SOURCE)
     ap.add_argument("--output", type=Path)
+    ap.add_argument("--runtime-output", type=Path)
     ap.add_argument("--print", action="store_true", dest="print_json")
     args = ap.parse_args()
 
@@ -110,7 +139,13 @@ def main() -> int:
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(rendered, encoding="utf-8")
-    if args.print_json or not args.output:
+    if args.runtime_output:
+        args.runtime_output.parent.mkdir(parents=True, exist_ok=True)
+        args.runtime_output.write_text(
+            json.dumps(build_runtime_payload(snapshot), ensure_ascii=False, separators=(",", ":")) + "\n",
+            encoding="utf-8",
+        )
+    if args.print_json or (not args.output and not args.runtime_output):
         print(rendered, end="")
     return 0
 
