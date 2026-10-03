@@ -10,7 +10,7 @@ from build_law_study_priority import DEFAULT_SOURCE, build_snapshot
 
 ROOT = Path(__file__).resolve().parents[1]
 SNAPSHOT = ROOT / "auto" / "law_study_priority.json"
-UI = ROOT / "monthly_patch_parts" / "86a.law-study-priority.part"
+UI = ROOT / "monthly_patch_parts" / "86.law-trust-ui.part"
 
 
 def fail(message: str) -> None:
@@ -75,10 +75,11 @@ def main() -> int:
             fail("student-facing scope boundary lost: " + phrase)
 
     if not UI.exists():
-        fail("missing additive law study priority UI")
+        fail("missing canonical law trust UI")
     ui = UI.read_text(encoding="utf-8")
-    if re.search(r"\brenderLaws\s*=\s*function\b", ui):
-        fail("UI must remain an additive DOM enhancer and must not own renderLaws")
+    owners = re.findall(r"\brenderLaws\s*=\s*function\b", ui)
+    if len(owners) != 1:
+        fail(f"canonical law UI must keep exactly one renderLaws wrapper; found {len(owners)}")
     for marker in (
         "auto/law_study_priority.json",
         "swsi-law-study-priority",
@@ -94,7 +95,7 @@ def main() -> int:
     print(
         "LAW STUDY PRIORITY SMOKE OK: "
         f"laws={len(seen_names)} pairs={pair_count} unique_questions={len(global_ids)} "
-        f"recent={recent_start}-{recent_end}"
+        f"recent={recent_start}-{recent_end} owner_wrappers={len(owners)}"
     )
     return 0
 
