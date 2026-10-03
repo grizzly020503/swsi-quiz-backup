@@ -1,153 +1,12 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-03T01:33:26Z",
+  "generated_at": "2026-10-03T03:52:14Z",
   "item_count": 4,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
   "law_link_rules_schema": 1,
   "note": "SWSI 命題訊號快照；用於複習方向，不代表命題保證。法規連結可由高精度規則推論；相關法規不等於本事件發生修法。",
   "items": [
-    {
-      "id": "1f324758779ada31a0fc3e3382971947",
-      "title": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工資調升至205元。",
-      "summary": "最低工資審議會於今（24）日召開會議，經勞、資、學、政四方委員討論，決定自116年1月1日起，每月最低工資由29,500元調整至30,900元，調升1,400元，調幅4.745％；每小時最低工資則比照每月最低工資之調幅，由196元調整至205元。調整案將由勞動部陳報行政院核定。若經行政院核定，最低工資將連11年調漲，持續提升基層勞工薪資，保障勞工基本生活。 本次會議，勞資雙方委員於上午進行意見交換，雙方就消費者物價指數年增率、經濟成長情勢、產業發展及勞工生活所需等面向充分討論，全數委員均認同消費者物價指數年增率CPI應全數反映，經濟成長率GDP應合理分享",
-      "source_name": "勞動部新聞稿",
-      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99195/",
-      "published_at": "2026-09-29T16:17:32Z",
-      "region": "taiwan",
-      "category": "勞動與社會保障",
-      "relevance_score": 5,
-      "exam_tags": [
-        "最低工資",
-        "行政院",
-        "保障"
-      ],
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會工作"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "社會保險、就業安全與勞動政策"
-        ],
-        "社會工作": [
-          "勞動權益、社會正義與弱勢支持"
-        ]
-      },
-      "knowledge_topics": [
-        "勞動與社會保障",
-        "最低工資",
-        "行政院",
-        "保障"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
-      ],
-      "policy_signal": "high",
-      "essay_value": "low",
-      "mcq_fact_density": "high",
-      "signal_confidence": "high",
-      "signal_score": 9,
-      "exam_point_summary": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工…。涉及「最低工資法」。制度或給付已有明確變動；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，並結合「最低工資法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "勞動部",
-        "行政院",
-        "最低工資法",
-        "最低工資"
-      ],
-      "related_laws": [
-        "最低工資法"
-      ],
-      "related_policy_instruments": [],
-      "law_link_status": "law_linked",
-      "law_link_note": "已連到具體法律；規則僅表示制度關聯，不代表該法律因本事件而修正。",
-      "law_link_basis": [
-        {
-          "rule_id": "minimum-wage-statutory-framework-v1",
-          "name": "最低工資法",
-          "kind": "law",
-          "confidence": "high",
-          "reason": "事件直接涉及最低工資審議、調整或公告，屬《最低工資法》的法定制度範圍。",
-          "authoritative_reference": "https://laws.mol.gov.tw/FLAW/FLAWDAT01.aspx?id=FL102659",
-          "inference": "deterministic_rule",
-          "article": "第6條、第9條至第13條（審議與公告架構）"
-        }
-      ],
-      "law_link_rules_schema": 1,
-      "related_exam_questions": [
-        {
-          "id": "SP105-2-18",
-          "subject": "社會政策與社會立法",
-          "year": "105",
-          "round": "第二次",
-          "qno": "18",
-          "major": "社會救助",
-          "topic": "社會救助法 > 工作收入計算",
-          "match_reason": "同義考點：最低／基本工資",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP104-2-24",
-          "subject": "社會政策與社會立法",
-          "year": "104",
-          "round": "第二次",
-          "qno": "24",
-          "major": null,
-          "topic": null,
-          "match_reason": "同義考點：最低／基本工資",
-          "match_score": 3.2
-        }
-      ],
-      "historical_exam_stats": {
-        "matched_question_count": 2,
-        "weighted_match_count": 1.0,
-        "match_breakdown": {
-          "strong": 0,
-          "medium": 2,
-          "concept": 0
-        },
-        "matched_year_count": 2,
-        "matched_years": [
-          104,
-          105
-        ],
-        "earliest_exam_year": 104,
-        "latest_exam_year": 105,
-        "corpus_latest_year": 115,
-        "years_since_last_exam": 10,
-        "subject_counts": {
-          "社會政策與社會立法": 2
-        },
-        "subject_count": 1,
-        "law_match_count": 0,
-        "law_match_year_count": 0,
-        "law_match_years": [],
-        "high_confidence_match_count": 0,
-        "matching_method": "event-evidence-v2.2"
-      }
-    },
     {
       "id": "2cc263d201f443e931c4a3a5f75e0312",
       "title": "企業托育補助新制創造企業留才與員工兼顧育兒需求正面效益！申請倒數2週，請雇主把握時間，於9月底前提出申請！",
@@ -276,70 +135,65 @@
           "match_score": 3.2
         },
         {
-          "id": "SW-115-2-031",
-          "subject": "社會工作",
-          "year": "115",
-          "round": "第二次",
-          "qno": "31",
-          "major": "兒少服務",
-          "topic": "兒童福利服務 > 服務功能分類",
-          "match_reason": "事件詞：托育；同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SW-114-1-17",
-          "subject": "社會工作",
-          "year": "114",
-          "round": "第一次",
-          "qno": "17",
-          "major": "社會工作理論",
-          "topic": "系統理論 > 家庭系統處遇目標",
-          "match_reason": "事件詞：托育；同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP113-1-24",
+          "id": "SP112-1-23",
           "subject": "社會政策與社會立法",
-          "year": "113",
+          "year": "112",
           "round": "第一次",
-          "qno": "24",
-          "major": null,
-          "topic": null,
-          "match_reason": "事件詞：托育；同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP113-1-25",
-          "subject": "社會政策與社會立法",
-          "year": "113",
-          "round": "第一次",
-          "qno": "25",
+          "qno": "23",
           "major": "兒少福利法規",
-          "topic": "兒少權法 > 兒少福利機構類別",
+          "topic": "兒少權法 > 托嬰中心監視設備",
           "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP110-2-28",
+          "subject": "社會政策與社會立法",
+          "year": "110",
+          "round": "第二次",
+          "qno": "28",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家式托育服務",
+          "match_reason": "事件詞：托育；同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP109-1-22",
+          "subject": "社會政策與社會立法",
+          "year": "109",
+          "round": "第一次",
+          "qno": "22",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家托育服務資格",
+          "match_reason": "事件詞：托育；同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP107-2-40",
+          "subject": "社會政策與社會立法",
+          "year": "107",
+          "round": "第二次",
+          "qno": "40",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家托育消極資格",
+          "match_reason": "事件詞：托育；同義考點：托育",
           "match_score": 3.2
         }
       ],
       "historical_exam_stats": {
-        "matched_question_count": 20,
+        "matched_question_count": 9,
         "weighted_match_count": 3.5,
         "match_breakdown": {
           "strong": 0,
-          "medium": 18,
+          "medium": 7,
           "concept": 2
         },
-        "matched_year_count": 11,
+        "matched_year_count": 6,
         "matched_years": [
           104,
-          105,
           107,
-          108,
           109,
           110,
-          111,
           112,
-          113,
-          114,
           115
         ],
         "earliest_exam_year": 104,
@@ -347,10 +201,9 @@
         "corpus_latest_year": 115,
         "years_since_last_exam": 0,
         "subject_counts": {
-          "社會工作": 7,
-          "社會政策與社會立法": 13
+          "社會政策與社會立法": 9
         },
-        "subject_count": 2,
+        "subject_count": 1,
         "law_match_count": 21,
         "law_match_year_count": 12,
         "law_match_years": [
@@ -367,6 +220,119 @@
           114,
           115
         ],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
+      "id": "1f324758779ada31a0fc3e3382971947",
+      "title": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工資調升至205元。",
+      "summary": "最低工資審議會於今（24）日召開會議，經勞、資、學、政四方委員討論，決定自116年1月1日起，每月最低工資由29,500元調整至30,900元，調升1,400元，調幅4.745％；每小時最低工資則比照每月最低工資之調幅，由196元調整至205元。調整案將由勞動部陳報行政院核定。若經行政院核定，最低工資將連11年調漲，持續提升基層勞工薪資，保障勞工基本生活。 本次會議，勞資雙方委員於上午進行意見交換，雙方就消費者物價指數年增率、經濟成長情勢、產業發展及勞工生活所需等面向充分討論，全數委員均認同消費者物價指數年增率CPI應全數反映，經濟成長率GDP應合理分享",
+      "source_name": "勞動部新聞稿",
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99195/",
+      "published_at": "2026-09-29T16:17:32Z",
+      "region": "taiwan",
+      "category": "勞動與社會保障",
+      "relevance_score": 5,
+      "exam_tags": [
+        "最低工資",
+        "行政院",
+        "保障"
+      ],
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社會保險、就業安全與勞動政策"
+        ],
+        "社會工作": [
+          "勞動權益、社會正義與弱勢支持"
+        ]
+      },
+      "knowledge_topics": [
+        "勞動與社會保障",
+        "最低工資",
+        "行政院",
+        "保障"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
+      ],
+      "policy_signal": "high",
+      "essay_value": "low",
+      "mcq_fact_density": "high",
+      "signal_confidence": "high",
+      "signal_score": 8,
+      "exam_point_summary": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工…。涉及「最低工資法」。制度或給付已有明確變動；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，並結合「最低工資法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "勞動部",
+        "行政院",
+        "最低工資法",
+        "最低工資"
+      ],
+      "related_laws": [
+        "最低工資法"
+      ],
+      "related_policy_instruments": [],
+      "law_link_status": "law_linked",
+      "law_link_note": "已連到具體法律；規則僅表示制度關聯，不代表該法律因本事件而修正。",
+      "law_link_basis": [
+        {
+          "rule_id": "minimum-wage-statutory-framework-v1",
+          "name": "最低工資法",
+          "kind": "law",
+          "confidence": "high",
+          "reason": "事件直接涉及最低工資審議、調整或公告，屬《最低工資法》的法定制度範圍。",
+          "authoritative_reference": "https://laws.mol.gov.tw/FLAW/FLAWDAT01.aspx?id=FL102659",
+          "inference": "deterministic_rule",
+          "article": "第6條、第9條至第13條（審議與公告架構）"
+        }
+      ],
+      "law_link_rules_schema": 1,
+      "related_exam_questions": [],
+      "historical_exam_stats": {
+        "matched_question_count": 0,
+        "weighted_match_count": 0.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 0
+        },
+        "matched_year_count": 0,
+        "matched_years": [],
+        "earliest_exam_year": null,
+        "latest_exam_year": null,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": null,
+        "subject_counts": {},
+        "subject_count": 0,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
         "high_confidence_match_count": 0,
         "matching_method": "event-evidence-v2.2"
       }
@@ -455,7 +421,7 @@
       "essay_value": "medium",
       "mcq_fact_density": "high",
       "signal_confidence": "medium",
-      "signal_score": 7,
+      "signal_score": 6,
       "exam_point_summary": "衛福部擴大獨老服務 「二會三不」啟動70萬名長者關懷訪查。尚未見明確制度變動，先作事件與專業議題觀察；申論可從在地老化、長照給付、家庭照顧者支持與服務輸送切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
       "essay_direction": "可從「在地老化、長照給付、家庭照顧者支持與服務輸送」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
@@ -478,51 +444,23 @@
       "law_link_note": "已辨識補助方案／政策措施，但未自動推定單一法律法源，避免把政策方案誤寫成修法。",
       "law_link_basis": [],
       "law_link_rules_schema": 1,
-      "related_exam_questions": [
-        {
-          "id": "DS-109-2-40",
-          "subject": "社會工作直接服務",
-          "year": "109",
-          "round": "第二次",
-          "qno": "40",
-          "major": "社區工作",
-          "topic": "社區照顧 > 健康社區六星計畫",
-          "match_reason": "同義考點：獨居高齡者",
-          "match_score": 3.2
-        },
-        {
-          "id": "DS-106-1-28",
-          "subject": "社會工作直接服務",
-          "year": "106",
-          "round": "第一次",
-          "qno": "28",
-          "major": "會談與溝通技巧",
-          "topic": "同理 > 同理層次排序",
-          "match_reason": "同義考點：獨居高齡者",
-          "match_score": 3.2
-        }
-      ],
+      "related_exam_questions": [],
       "historical_exam_stats": {
-        "matched_question_count": 2,
-        "weighted_match_count": 1.0,
+        "matched_question_count": 0,
+        "weighted_match_count": 0.0,
         "match_breakdown": {
           "strong": 0,
-          "medium": 2,
+          "medium": 0,
           "concept": 0
         },
-        "matched_year_count": 2,
-        "matched_years": [
-          106,
-          109
-        ],
-        "earliest_exam_year": 106,
-        "latest_exam_year": 109,
+        "matched_year_count": 0,
+        "matched_years": [],
+        "earliest_exam_year": null,
+        "latest_exam_year": null,
         "corpus_latest_year": 115,
-        "years_since_last_exam": 6,
-        "subject_counts": {
-          "社會工作直接服務": 2
-        },
-        "subject_count": 1,
+        "years_since_last_exam": null,
+        "subject_counts": {},
+        "subject_count": 0,
         "law_match_count": 0,
         "law_match_year_count": 0,
         "law_match_years": [],

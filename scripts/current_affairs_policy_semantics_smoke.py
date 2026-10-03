@@ -2,6 +2,7 @@
 """Regression smoke for current-affairs policy/history semantics."""
 
 from analyze_current_affairs_signals import analyze_item
+from build_current_affairs_signals_snapshot import analyze_item_with_law_links
 
 
 def main() -> int:
@@ -58,6 +59,57 @@ def main() -> int:
         raise SystemExit("specific pension concept should still match pension history")
     if "Q-GENERIC-RETIREMENT" in ids:
         raise SystemExit("generic 退休 wording must not create a pension-history match")
+
+    # A population label in the vignette is context, not automatically the
+    # tested concept. This reproduces the false positive where an empathy
+    # question happened to use an older adult living alone as its case.
+    elderly_event = {
+        "id": "fixture-elderly-living-alone",
+        "title": "擴大獨居老人服務",
+        "summary": "強化獨居長者關懷與支持服務。",
+        "category": "長照與高齡",
+        "subjects": ["社會工作直接服務"],
+        "exam_tags": ["獨居老人"],
+    }
+    elderly_questions = [
+        {
+            "id": "Q-EMPATHY-VIGNETTE",
+            "subject": "社會工作直接服務",
+            "year": "106", "round": "第一次", "qno": "28",
+            "major": "會談技巧", "topic": "同理層次排序",
+            "keywords": ["同理", "會談"],
+            "question": "社工面對一位獨居長者時，下列何者最能展現同理？",
+            "law": "",
+        },
+        {
+            "id": "Q-ELDERLY-SERVICE",
+            "subject": "社會工作直接服務",
+            "year": "115", "round": "第一次", "qno": "29",
+            "major": "老人社會工作", "topic": "獨居老人服務",
+            "keywords": ["獨居老人", "支持服務"],
+            "question": "下列何者屬於獨居老人支持服務？",
+            "law": "",
+        },
+    ]
+    elderly_out = analyze_item(elderly_event, elderly_questions)
+    elderly_ids = {q["id"] for q in elderly_out["related_exam_questions"]}
+    if "Q-ELDERLY-SERVICE" not in elderly_ids:
+        raise SystemExit("structured elderly-service concept should remain a historical match")
+    empathy = next(
+        (q for q in elderly_out["related_exam_questions"] if q["id"] == "Q-EMPATHY-VIGNETTE"),
+        None,
+    )
+    if empathy and float(empathy.get("match_score") or 0) >= 3.0:
+        raise SystemExit("vignette-only population wording must not become a medium historical match")
+
+    public_elderly = analyze_item_with_law_links(elderly_event, elderly_questions)
+    public_ids = {q["id"] for q in public_elderly["related_exam_questions"]}
+    if "Q-ELDERLY-SERVICE" not in public_ids:
+        raise SystemExit("public snapshot must retain structured elderly-service history")
+    if "Q-EMPATHY-VIGNETTE" in public_ids:
+        raise SystemExit("public snapshot must hide vignette-only population history")
+    if int(public_elderly["historical_exam_stats"].get("matched_question_count") or 0) != 1:
+        raise SystemExit("public historical count must use the same evidence threshold as the related list")
 
     # Serious professional incidents may be important even without policy change.
     incident = analyze_item({

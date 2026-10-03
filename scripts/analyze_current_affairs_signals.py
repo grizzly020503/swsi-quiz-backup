@@ -433,6 +433,14 @@ def _question_search_text(q: dict) -> str:
     )
 
 
+def _question_structured_text(q: dict) -> str:
+    """Fields that describe the tested concept rather than the case vignette."""
+    return (
+        f"{q.get('topic') or ''} {q.get('major') or ''} "
+        f"{' '.join(q.get('keywords') or [])} {q.get('law') or ''}"
+    )
+
+
 def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits: int = 5) -> list[dict]:
     """Return related exam questions using event-supported evidence only.
 
@@ -460,6 +468,7 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
 
         q_law = str(q.get("law") or "")
         q_text = _question_search_text(q)
+        q_structured = _question_structured_text(q)
         law_hit = next(
             (law for law in laws if law and (law in q_law or law in q_text)),
             None,
@@ -467,10 +476,17 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
         tag_hits = sorted(t for t in tags if t in q_text or t in q_law)
 
         q_specific = historical_concepts(f"{q_text} {q_law}")
+        q_structured_specific = historical_concepts(q_structured)
         shared_specific = sorted(event_specific & q_specific)
         eligible_specific = [
             key for key in shared_specific
             if not HISTORICAL_CONCEPTS[key].get("requires_law") or law_hit
+        ]
+        structured_specific = [
+            key for key in eligible_specific if key in q_structured_specific
+        ]
+        vignette_only_specific = [
+            key for key in eligible_specific if key not in q_structured_specific
         ]
 
         q_canonical = canonical_concepts(f"{q_text} {q_law}")
@@ -495,11 +511,21 @@ def match_questions(row: dict, laws: list[str], questions: list[dict], max_hits:
             ]
             score += min(4.0, 2.0 * len(independent_tags))
             reasons.append("事件詞：" + "、".join(tag_hits[:4]))
-        if eligible_specific:
-            score += min(4.0, 3.0 * len(eligible_specific))
+        if structured_specific:
+            score += min(4.0, 3.0 * len(structured_specific))
             reasons.append(
                 "同義考點：" + "、".join(
-                    HISTORICAL_CONCEPTS[key]["label"] for key in eligible_specific[:4]
+                    HISTORICAL_CONCEPTS[key]["label"] for key in structured_specific[:4]
+                )
+            )
+        if vignette_only_specific:
+            # A concept that appears only in the question stem may merely
+            # describe the client/case population. Keep it as weak context,
+            # but do not let that alone cross the medium-history threshold.
+            score += min(1.0, 0.8 * len(vignette_only_specific))
+            reasons.append(
+                "題幹情境：" + "、".join(
+                    HISTORICAL_CONCEPTS[key]["label"] for key in vignette_only_specific[:4]
                 )
             )
         if standalone_canonical:
