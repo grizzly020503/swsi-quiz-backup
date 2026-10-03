@@ -10,7 +10,8 @@ from build_law_study_priority import DEFAULT_SOURCE, build_snapshot
 
 ROOT = Path(__file__).resolve().parents[1]
 SNAPSHOT = ROOT / "auto" / "law_study_priority.json"
-UI = ROOT / "monthly_patch_parts" / "86.law-trust-ui.part"
+UI = ROOT / "monthly_patch_parts" / "80.knowledge-path.part"
+TRUST_UI = ROOT / "monthly_patch_parts" / "86.law-trust-ui.part"
 
 
 def fail(message: str) -> None:
@@ -74,29 +75,42 @@ def main() -> int:
         if phrase not in boundary:
             fail("student-facing scope boundary lost: " + phrase)
 
-    if not UI.exists():
-        fail("missing canonical law trust UI")
+    if not UI.exists() or not TRUST_UI.exists():
+        fail("missing canonical knowledge-path or law-trust runtime owner")
     ui = UI.read_text(encoding="utf-8")
-    owners = re.findall(r"\brenderLaws\s*=\s*function\b", ui)
-    if len(owners) != 1:
-        fail(f"canonical law UI must keep exactly one renderLaws wrapper; found {len(owners)}")
+    trust_ui = TRUST_UI.read_text(encoding="utf-8")
+
+    knowledge_owners = re.findall(r"\brenderLaws\s*=\s*function\b", ui)
+    trust_owners = re.findall(r"\brenderLaws\s*=\s*function\b", trust_ui)
+    if len(knowledge_owners) != 1:
+        fail(f"knowledge path must keep exactly one renderLaws owner; found {len(knowledge_owners)}")
+    if len(trust_owners) != 1:
+        fail(f"law trust must keep exactly one renderLaws wrapper; found {len(trust_owners)}")
+
     for marker in (
         "auto/law_study_priority.json",
         "swsi-law-study-priority",
         "歷屆題目足跡",
         "查看全部可追溯題號",
+        "decorateLawStudyPriority",
     ):
         if marker not in ui:
-            fail("UI contract lost marker: " + marker)
-    if "window.SWSI_LAW_STUDY_PRIORITY" in ui:
-        fail("law study priority must stay private to the canonical law runtime owner")
+            fail("knowledge-path UI contract lost marker: " + marker)
+    if "fetch(LAW_STUDY_PRIORITY_URL" not in ui:
+        fail("knowledge path must load the traceable snapshot rather than duplicate study counts")
+    if "window.SWSI_LAW_STUDY_PRIORITY" in ui or "window.SWSI_LAW_STUDY_PRIORITY" in trust_ui:
+        fail("law study priority must not add a new direct window global")
+    if "auto/law_study_priority.json" in trust_ui or "swsi-law-study-priority" in trust_ui:
+        fail("law trust owner must remain separate from student study-priority UI")
+    if "fetch(" in trust_ui:
+        fail("law trust owner must preserve historical-law no-network boundary")
     if "不代表未來不會考" not in ui:
         fail("zero-recent-count copy must not imply zero future relevance")
 
     print(
         "LAW STUDY PRIORITY SMOKE OK: "
         f"laws={len(seen_names)} pairs={pair_count} unique_questions={len(global_ids)} "
-        f"recent={recent_start}-{recent_end} owner_wrappers={len(owners)} private_runtime=true"
+        f"recent={recent_start}-{recent_end} owner_chain=80->86 no_new_global=true"
     )
     return 0
 
