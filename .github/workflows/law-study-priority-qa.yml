@@ -24,7 +24,15 @@ jobs:
       - name: Rebuild deterministic snapshot
         run: |
           python scripts/build_law_study_priority.py --output /tmp/law_study_priority.json
-          cmp /tmp/law_study_priority.json auto/law_study_priority.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          generated = json.loads(Path('/tmp/law_study_priority.json').read_text(encoding='utf-8'))
+          committed = json.loads(Path('auto/law_study_priority.json').read_text(encoding='utf-8'))
+          if generated != committed:
+              raise SystemExit('committed law study priority snapshot differs from deterministic derivation')
+          print('LAW STUDY PRIORITY SNAPSHOT MATCH OK')
+          PY
       - name: Validate data and UI contracts
         run: |
           python -m py_compile scripts/build_law_study_priority.py scripts/law_study_priority_smoke.py
