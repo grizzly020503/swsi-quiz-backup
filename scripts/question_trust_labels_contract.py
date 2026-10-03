@@ -4,7 +4,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCK = (ROOT / "monthly_patch_parts" / "zzzz_product_v1_lock.part").read_text(encoding="utf-8")
-META = (ROOT / "monthly_patch_parts" / "05.question-trust-metadata.part").read_text(encoding="utf-8")
+META = (ROOT / "monthly_patch_parts" / "0.question-trust-metadata.part").read_text(encoding="utf-8")
 LAW_UI = (ROOT / "monthly_patch_parts" / "86.law-trust-ui.part").read_text(encoding="utf-8")
 THEORY_UI = (ROOT / "monthly_patch_parts" / "88.theory-trust-ui.part").read_text(encoding="utf-8")
 
@@ -16,7 +16,7 @@ assert "swsi-answer-trust" not in META
 assert "addQuestionTrust" not in META
 
 # Source/trust metadata must survive CDN/Supabase -> normalize -> legacy offline-cache transport.
-# Do not let a missing transport field turn an official historical question into SWSI-only copy.
+# This early passthrough intentionally loads before 00.part; 00.part remains final normalize owner.
 for field in (
     "source_exam_code", "source_url", "analysis_status",
     "legal_status", "legal_checked_at", "legal_note", "legal_source_url",
