@@ -4,7 +4,9 @@ on:
   pull_request:
     paths:
       - 'scripts/analyze_current_affairs_signals.py'
+      - 'scripts/build_current_affairs_signals_snapshot.py'
       - 'scripts/current_affairs_policy_semantics_smoke.py'
+      - 'scripts/current_affairs_history_precision_smoke.py'
       - '.github/workflows/current-affairs-policy-semantics-qa.yml'
   workflow_dispatch:
 
@@ -26,5 +28,10 @@ jobs:
 
       - name: Policy/history semantics regression
         run: |
-          python -m py_compile scripts/analyze_current_affairs_signals.py scripts/current_affairs_policy_semantics_smoke.py
+          python -m py_compile \
+            scripts/analyze_current_affairs_signals.py \
+            scripts/build_current_affairs_signals_snapshot.py \
+            scripts/current_affairs_policy_semantics_smoke.py \
+            scripts/current_affairs_history_precision_smoke.py
           python scripts/current_affairs_policy_semantics_smoke.py
+          python scripts/current_affairs_history_precision_smoke.py

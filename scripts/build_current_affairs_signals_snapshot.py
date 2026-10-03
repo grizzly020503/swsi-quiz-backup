@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from analyze_current_affairs_signals import (
+    HISTORICAL_CONCEPTS,
     analyze_item,
     build_exam_point_summary,
     confidence_for,
@@ -54,39 +55,133 @@ def load_questions_shards(path: Path) -> list[dict]:
     return rows
 
 
-def analyze_item_with_law_links(row: dict, questions: list[dict], max_related: int = 5) -> dict:
-    """Apply the base analyzer, then the stricter law/policy linkage layer.
+def _structured_question_concept_text(question: dict) -> str:
+    """Return only curator/model-authored concept metadata, never scenario prose.
 
-    When a high-confidence inferred law is added, recompute historical matching
-    and student-facing summaries with that law. ``match_questions`` still
-    requires event-supported topic evidence, so a shared law alone cannot pull
-    unrelated historical questions into the event.
+    `match_questions()` intentionally looks at the full official question text so
+    it can discover candidates. For student-facing historical links, however, a
+    population/context word that appears only in a vignette must not be enough
+    to claim that the historical question tested the same concept.
+    """
+    parts: list[str] = []
+    for key in ("major", "topic"):
+        value = question.get(key)
+        if value:
+            parts.append(str(value))
+
+    keywords = question.get("keywords")
+    if isinstance(keywords, list):
+        parts.extend(str(value) for value in keywords if value)
+    elif keywords:
+        parts.append(str(keywords))
+
+    return " ".join(parts).lower()
+
+
+def filter_semantic_history_matches(
+    matches: list[dict], questions: list[dict]
+) -> tuple[list[dict], list[dict]]:
+    """Fail closed on synonym-only matches supported only by scenario wording.
+
+    A bare HISTORICAL_CONCEPT synonym currently contributes 3.2 points, which is
+    enough to cross the medium threshold by itself. That is useful for candidate
+    discovery, but it can mislabel a vignette population as the actual exam
+    point (for example an empathy question whose client happens to be an older
+    adult living alone).
+
+    Precision rule:
+      * non-synonym matches are unchanged;
+      * synonym matches with additional evidence (>3.2) are unchanged;
+      * a synonym-only 3.2 match must also appear in major/topic/keywords;
+      * if the source question cannot be resolved, keep it rather than silently
+        deleting data because of a loader problem.
+    """
+    by_id = {str(row.get("id")): row for row in questions if row.get("id")}
+    concepts_by_label = {
+        str(spec.get("label")): spec
+        for spec in HISTORICAL_CONCEPTS.values()
+        if spec.get("label")
+    }
+    kept: list[dict] = []
+    suppressed: list[dict] = []
+
+    for match in matches:
+        reason = str(match.get("match_reason") or "")
+        if not reason.startswith("同義考點："):
+            kept.append(match)
+            continue
+
+        label = reason.removeprefix("同義考點：").strip()
+        spec = concepts_by_label.get(label)
+        if not spec:
+            kept.append(match)
+            continue
+
+        try:
+            score = float(match.get("match_score") or 0)
+        except (TypeError, ValueError):
+            score = 0.0
+        if score > 3.2:
+            kept.append(match)
+            continue
+
+        question = by_id.get(str(match.get("id") or ""))
+        if not question:
+            kept.append(match)
+            continue
+
+        structured = _structured_question_concept_text(question)
+        aliases = [str(alias).lower() for alias in (spec.get("aliases") or []) if alias]
+        if any(alias in structured for alias in aliases):
+            kept.append(match)
+        else:
+            suppressed.append(match)
+
+    return kept, suppressed
+
+
+def analyze_item_with_law_links(row: dict, questions: list[dict], max_related: int = 5) -> dict:
+    """Apply the base analyzer, stricter law links, then history precision gate.
+
+    `match_questions()` remains the broad candidate generator. Before publishing
+    historical links, synonym-only hits must pass `filter_semantic_history_matches`
+    so vignette/background words cannot masquerade as the tested exam concept.
     """
     out = analyze_item(row, questions, max_related=max_related)
     linkage = infer_current_affairs_links(out)
     old_laws = [str(x) for x in (out.get("related_laws") or []) if str(x)]
     laws = [str(x) for x in (linkage.get("related_laws") or []) if str(x)]
 
+    all_related = match_questions(
+        out,
+        laws,
+        questions,
+        max_hits=max(1, len(questions)) if questions else 1,
+    )
+    all_related, suppressed = filter_semantic_history_matches(all_related, questions)
+
+    policy = str(out.get("policy_signal") or "low")
+    essay = str(out.get("essay_value") or "low")
+    mcq = str(out.get("mcq_fact_density") or "low")
+    text = text_of(out)
+
+    out.update(
+        {
+            "related_exam_questions": all_related[: max(1, max_related)],
+            "historical_exam_stats": historical_exam_stats(all_related, questions, laws),
+            "signal_confidence": confidence_for(policy, essay, mcq, laws, len(all_related)),
+            "history_match_precision_schema": 1,
+            "suppressed_context_only_match_count": len(suppressed),
+        }
+    )
+
     if laws != old_laws:
-        all_related = match_questions(
-            out,
-            laws,
-            questions,
-            max_hits=max(1, len(questions)) if questions else 1,
-        )
-        policy = str(out.get("policy_signal") or "low")
-        essay = str(out.get("essay_value") or "low")
-        mcq = str(out.get("mcq_fact_density") or "low")
-        text = text_of(out)
         out.update(
             {
                 "related_laws": laws,
-                "related_exam_questions": all_related[: max(1, max_related)],
-                "historical_exam_stats": historical_exam_stats(all_related, questions, laws),
                 "exam_point_summary": build_exam_point_summary(out, laws, policy, essay, mcq),
                 "essay_direction": essay_direction_for(out, laws),
                 "mcq_focus": mcq_focus_for(out, text, laws),
-                "signal_confidence": confidence_for(policy, essay, mcq, laws, len(all_related)),
             }
         )
 
@@ -182,6 +277,8 @@ def main() -> int:
                 "law_link_rules_schema": row.get("law_link_rules_schema"),
                 "related_exam_questions": row.get("related_exam_questions") or [],
                 "historical_exam_stats": row.get("historical_exam_stats") or {},
+                "history_match_precision_schema": row.get("history_match_precision_schema"),
+                "suppressed_context_only_match_count": row.get("suppressed_context_only_match_count", 0),
             }
         )
 
@@ -192,9 +289,11 @@ def main() -> int:
         "questions_loaded": len(questions),
         "question_source": "cdn/question-shards" if q_path.exists() else "csv",
         "law_link_rules_schema": 1,
+        "history_match_precision_schema": 1,
         "note": (
             "SWSI 命題訊號快照；用於複習方向，不代表命題保證。"
             "法規連結可由高精度規則推論；相關法規不等於本事件發生修法。"
+            "歷屆題同義考點需有結構化考點 metadata 或額外證據，案例背景詞不單獨成立。"
         ),
         "items": public_items,
     }
