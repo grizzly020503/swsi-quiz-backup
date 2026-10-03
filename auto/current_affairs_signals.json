@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-03T03:58:39Z",
-  "item_count": 4,
+  "generated_at": "2026-10-03T05:12:59Z",
+  "item_count": 3,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
   "law_link_rules_schema": 1,
@@ -312,137 +312,6 @@
           "article": "第6條、第9條至第13條（審議與公告架構）"
         }
       ],
-      "law_link_rules_schema": 1,
-      "related_exam_questions": [],
-      "historical_exam_stats": {
-        "matched_question_count": 0,
-        "weighted_match_count": 0.0,
-        "match_breakdown": {
-          "strong": 0,
-          "medium": 0,
-          "concept": 0
-        },
-        "matched_year_count": 0,
-        "matched_years": [],
-        "earliest_exam_year": null,
-        "latest_exam_year": null,
-        "corpus_latest_year": 115,
-        "years_since_last_exam": null,
-        "subject_counts": {},
-        "subject_count": 0,
-        "law_match_count": 0,
-        "law_match_year_count": 0,
-        "law_match_years": [],
-        "high_confidence_match_count": 0,
-        "matching_method": "event-evidence-v2.2"
-      }
-    },
-    {
-      "id": "6c3e075258813e8339a40cebd78e2c0c",
-      "title": "衛福部擴大獨老服務 「二會三不」啟動70萬名長者關懷訪查",
-      "summary": "因應超高齡社會來臨，為了建構完整的長者社區安全網，衛福部於115年至116年投入62.5億元推動「擴大獨居老人服務」，預計動員逾1萬2千名訪員，地毯式走訪全國約70萬名獨居長者，掌握其身心狀況，並分級連結適切服務；訪員將秉持「二會三不」原則，包含會佩戴識別證件、會出示公務證明公文，以及不會索取存摺、印章、帳號，不會洩漏個人資料，也不會詢問與訪查無關的資料，請受訪長輩放心。 衛福部石崇良部長表示，「擴大獨居老人服務」先透過跨部會共同合作、公私部門總動員，進行獨居長者訪查。由內政部戶政司提供單一戶籍資料造冊，比對串聯社福身分資料，動員公所、村里長與里幹事等基",
-      "source_name": "衛生福利部焦點新聞",
-      "source_url": "https://www.mohw.gov.tw/cp-16-88069-1.html",
-      "published_at": "2026-09-24T03:30:00Z",
-      "region": "taiwan",
-      "category": "長照與高齡",
-      "relevance_score": 5,
-      "exam_tags": [
-        "高齡",
-        "老人",
-        "政策",
-        "補助",
-        "衛福部"
-      ],
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "服務輸送與跨網絡",
-        "方案與資源管理",
-        "規劃與政策執行",
-        "品質與風險管理"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作直接服務",
-        "人類行為與社會環境",
-        "社會工作"
-      ],
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會工作"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "長照制度、老人福利與社會保障"
-        ],
-        "社會工作直接服務": [
-          "長照個案管理與家庭照顧者支持"
-        ],
-        "人類行為與社會環境": [
-          "老化、失智與生命歷程"
-        ],
-        "社會工作": [
-          "高齡者權益與社區支持"
-        ]
-      },
-      "knowledge_topics": [
-        "長照與高齡",
-        "高齡",
-        "老人",
-        "政策",
-        "補助",
-        "衛福部"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 高齡者權益與社區支持",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 高齡者權益與社區支持",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 高齡者權益與社區支持",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 高齡者權益與社區支持"
-      ],
-      "policy_signal": "low",
-      "essay_value": "medium",
-      "mcq_fact_density": "high",
-      "signal_confidence": "medium",
-      "signal_score": 6,
-      "exam_point_summary": "衛福部擴大獨老服務 「二會三不」啟動70萬名長者關懷訪查。尚未見明確制度變動，先作事件與專業議題觀察；申論可從在地老化、長照給付、家庭照顧者支持與服務輸送切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「在地老化、長照給付、家庭照顧者支持與服務輸送」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "衛福部",
-        "內政部"
-      ],
-      "related_laws": [],
-      "related_policy_instruments": [
-        {
-          "rule_id": "expanded-elderly-living-alone-service-v1",
-          "name": "擴大獨居老人服務",
-          "kind": "policy_measure",
-          "confidence": "high",
-          "reason": "事件直接描述衛福部擴大獨居老人訪查與分級連結服務措施。",
-          "authoritative_reference": "https://www.mohw.gov.tw/cp-7403-88069-1.html",
-          "inference": "deterministic_rule"
-        }
-      ],
-      "law_link_status": "policy_instrument_only",
-      "law_link_note": "已辨識補助方案／政策措施，但未自動推定單一法律法源，避免把政策方案誤寫成修法。",
-      "law_link_basis": [],
       "law_link_rules_schema": 1,
       "related_exam_questions": [],
       "historical_exam_stats": {
