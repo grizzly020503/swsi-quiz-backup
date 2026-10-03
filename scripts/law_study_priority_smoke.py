@@ -85,17 +85,18 @@ def main() -> int:
         "swsi-law-study-priority",
         "歷屆題目足跡",
         "查看全部可追溯題號",
-        "window.SWSI_LAW_STUDY_PRIORITY",
     ):
         if marker not in ui:
             fail("UI contract lost marker: " + marker)
+    if "window.SWSI_LAW_STUDY_PRIORITY" in ui:
+        fail("law study priority must stay private to the canonical law runtime owner")
     if "不代表未來不會考" not in ui:
         fail("zero-recent-count copy must not imply zero future relevance")
 
     print(
         "LAW STUDY PRIORITY SMOKE OK: "
         f"laws={len(seen_names)} pairs={pair_count} unique_questions={len(global_ids)} "
-        f"recent={recent_start}-{recent_end} owner_wrappers={len(owners)}"
+        f"recent={recent_start}-{recent_end} owner_wrappers={len(owners)} private_runtime=true"
     )
     return 0
 
