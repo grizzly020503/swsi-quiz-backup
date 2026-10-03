@@ -59,6 +59,48 @@ def main() -> int:
     if "Q-GENERIC-RETIREMENT" in ids:
         raise SystemExit("generic 退休 wording must not create a pension-history match")
 
+    # A population label in the vignette is context, not automatically the
+    # tested concept. This reproduces the false positive where an empathy
+    # question happened to use an older adult living alone as its case.
+    elderly_event = {
+        "id": "fixture-elderly-living-alone",
+        "title": "擴大獨居老人服務",
+        "summary": "強化獨居長者關懷與支持服務。",
+        "category": "長照與高齡",
+        "subjects": ["社會工作直接服務"],
+        "exam_tags": ["獨居老人"],
+    }
+    elderly_questions = [
+        {
+            "id": "Q-EMPATHY-VIGNETTE",
+            "subject": "社會工作直接服務",
+            "year": "106", "round": "第一次", "qno": "28",
+            "major": "會談技巧", "topic": "同理層次排序",
+            "keywords": ["同理", "會談"],
+            "question": "社工面對一位獨居長者時，下列何者最能展現同理？",
+            "law": "",
+        },
+        {
+            "id": "Q-ELDERLY-SERVICE",
+            "subject": "社會工作直接服務",
+            "year": "115", "round": "第一次", "qno": "29",
+            "major": "老人社會工作", "topic": "獨居老人服務",
+            "keywords": ["獨居老人", "支持服務"],
+            "question": "下列何者屬於獨居老人支持服務？",
+            "law": "",
+        },
+    ]
+    elderly_out = analyze_item(elderly_event, elderly_questions)
+    elderly_ids = {q["id"] for q in elderly_out["related_exam_questions"]}
+    if "Q-ELDERLY-SERVICE" not in elderly_ids:
+        raise SystemExit("structured elderly-service concept should remain a historical match")
+    empathy = next(
+        (q for q in elderly_out["related_exam_questions"] if q["id"] == "Q-EMPATHY-VIGNETTE"),
+        None,
+    )
+    if empathy and float(empathy.get("match_score") or 0) >= 3.0:
+        raise SystemExit("vignette-only population wording must not become a medium historical match")
+
     # Serious professional incidents may be important even without policy change.
     incident = analyze_item({
         "title": "社工涉嫌侵占服務對象財產遭羈押",
