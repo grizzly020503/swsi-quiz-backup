@@ -1,0 +1,49 @@
+name: TEMP Current Affairs Snapshot Artifact
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/analyze_current_affairs_signals.py'
+      - 'scripts/current_affairs_policy_semantics_smoke.py'
+      - '.github/workflows/tmp-current-affairs-snapshot-artifact.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-snapshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Build deterministic snapshots
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/swsi-monitoring-pr
+          python scripts/build_current_affairs_signals_snapshot.py \
+            --input auto/current_affairs.json \
+            --questions-csv data/questions_master_backup_20260824_2220.csv \
+            --output /tmp/swsi-monitoring-pr/current_affairs_signals.json \
+            --limit 30
+          cp auto/current_affairs_events.json /tmp/swsi-monitoring-pr/current_affairs_events.json
+          python scripts/build_current_affairs_events_snapshot.py \
+            --news auto/current_affairs.json \
+            --signals /tmp/swsi-monitoring-pr/current_affairs_signals.json \
+            --output /tmp/swsi-monitoring-pr/current_affairs_events.json \
+            --limit 30
+          python scripts/build_current_affairs_trends_snapshot.py \
+            --events /tmp/swsi-monitoring-pr/current_affairs_events.json \
+            --output /tmp/swsi-monitoring-pr/current_affairs_trends.json \
+            --limit 30
+      - name: Upload snapshots
+        uses: actions/upload-artifact@v6
+        with:
+          name: current-affairs-snapshots-pr323
+          path: /tmp/swsi-monitoring-pr/*.json
+          if-no-files-found: error
+          retention-days: 1
