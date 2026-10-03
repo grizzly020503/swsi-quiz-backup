@@ -84,14 +84,24 @@ def rows_by_key(payload: dict, label: str) -> dict[tuple[str, str], dict]:
     return out
 
 
-def question_link_map(payload: dict) -> dict[str, dict]:
-    out: dict[str, dict] = {}
+def question_link_map(payload: dict) -> dict[tuple[str, str], dict]:
+    """Index explicit law-question pairs, not globally unique question IDs.
+
+    One official question may legitimately be linked to more than one law. The
+    invariant is uniqueness of (law_name, question_id), matching the registry's
+    86 link pairs / 85 unique questions shape.
+    """
+    out: dict[tuple[str, str], dict] = {}
     for card in payload.get("cards") or []:
+        law_name = str(card.get("law_name") or "").strip()
+        if not law_name:
+            raise ValueError("law-link card missing law_name")
         for row in card.get("questions") or []:
             qid = str(row.get("question_id") or "").strip()
-            if not qid or qid in out:
-                raise ValueError(f"invalid/duplicate law-link question id: {qid!r}")
-            out[qid] = row
+            pair = (law_name, qid)
+            if not qid or pair in out:
+                raise ValueError(f"invalid/duplicate law-question pair: {pair!r}")
+            out[pair] = row
     return out
 
 
@@ -237,7 +247,7 @@ def adjudicated_records(
         k = key(evidence)
         qid = k[1]
         snap = snapshot.get(k)
-        link = link_map.get(qid)
+        link = link_map.get(k)
         question = questions.get(qid)
         if not snap or not link or not question:
             raise ValueError(f"missing tracked evidence for adjudication: {k}")
