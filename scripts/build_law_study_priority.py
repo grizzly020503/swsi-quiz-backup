@@ -13,6 +13,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE = ROOT / "data" / "law_question_links_priority10.v1.json"
+DEFAULT_UI = ROOT / "monthly_patch_parts" / "86.law-trust-ui.part"
+RUNTIME_START = "  /* LAW_STUDY_PRIORITY_RUNTIME_START */"
+RUNTIME_END = "  /* LAW_STUDY_PRIORITY_RUNTIME_END */"
 
 
 def _year(value: object) -> int:
@@ -126,11 +129,34 @@ def build_runtime_payload(snapshot: dict) -> dict:
     }
 
 
+def render_runtime_block(snapshot: dict) -> str:
+    payload = json.dumps(build_runtime_payload(snapshot), ensure_ascii=False, separators=(",", ":"))
+    return (
+        f"{RUNTIME_START}\n"
+        "  /* Derived from auto/law_study_priority.json. Embedded at build/source-sync time; no runtime fetch. */\n"
+        f"  var STUDY_PRIORITY={payload};\n"
+        f"{RUNTIME_END}"
+    )
+
+
+def sync_ui_runtime(ui_path: Path, snapshot: dict) -> None:
+    text = ui_path.read_text(encoding="utf-8")
+    start = text.find(RUNTIME_START)
+    end = text.find(RUNTIME_END)
+    if start < 0 or end < 0 or end < start:
+        raise ValueError("law trust UI is missing law study-priority runtime markers")
+    end += len(RUNTIME_END)
+    updated = text[:start] + render_runtime_block(snapshot) + text[end:]
+    ui_path.write_text(updated, encoding="utf-8")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", type=Path, default=DEFAULT_SOURCE)
     ap.add_argument("--output", type=Path)
     ap.add_argument("--runtime-output", type=Path)
+    ap.add_argument("--sync-ui", action="store_true")
+    ap.add_argument("--ui", type=Path, default=DEFAULT_UI)
     ap.add_argument("--print", action="store_true", dest="print_json")
     args = ap.parse_args()
 
@@ -145,7 +171,9 @@ def main() -> int:
             json.dumps(build_runtime_payload(snapshot), ensure_ascii=False, separators=(",", ":")) + "\n",
             encoding="utf-8",
         )
-    if args.print_json or (not args.output and not args.runtime_output):
+    if args.sync_ui:
+        sync_ui_runtime(args.ui, snapshot)
+    if args.print_json or (not args.output and not args.runtime_output and not args.sync_ui):
         print(rendered, end="")
     return 0
 
