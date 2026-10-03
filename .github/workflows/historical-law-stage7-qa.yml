@@ -6,8 +6,14 @@ on:
       - 'scripts/historical_law_stage7_materialize.py'
       - 'scripts/historical_law_stage7_selftest.py'
       - 'scripts/historical_law_verified_registry_smoke.py'
+      - 'scripts/historical_law_evidence_adjudication.py'
+      - 'scripts/historical_law_evidence_adjudication_selftest.py'
       - 'data/historical_law_verified_priority10.v1.json'
+      - 'data/historical_law_evidence_adjudication.v1.json'
+      - 'data/historical_law_evidence_snapshot.v1.json'
       - 'data/law_question_links_priority10.v1.json'
+      - 'cdn/question-shards/**'
+      - 'audit/historical_law_evidence_adjudication_20261003.md'
       - '.github/workflows/historical-law-stage7-qa.yml'
   workflow_dispatch:
 
@@ -33,9 +39,29 @@ jobs:
           python -m py_compile \
             scripts/historical_law_stage7_materialize.py \
             scripts/historical_law_stage7_selftest.py \
-            scripts/historical_law_verified_registry_smoke.py
+            scripts/historical_law_verified_registry_smoke.py \
+            scripts/historical_law_evidence_adjudication.py \
+            scripts/historical_law_evidence_adjudication_selftest.py
           (cd scripts && python historical_law_stage7_selftest.py)
           python scripts/historical_law_verified_registry_smoke.py
+          (cd scripts && python historical_law_evidence_adjudication_selftest.py)
+          python scripts/historical_law_evidence_adjudication.py --output /tmp/historical_law_verified_combined.v1.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('/tmp/historical_law_verified_combined.v1.json').read_text(encoding='utf-8'))
+          assert d['verified_record_count'] == 19, d['verified_record_count']
+          assert d['historical_version_checked_count'] == 19
+          assert d['verification_level_counts'] == {
+              'machine_verified_historical_v1': 13,
+              'evidence_adjudicated_historical_v1': 6,
+          }
+          protected={'stem','question','options','official_answer','answer','accepted_answers','grading_mode'}
+          for row in d.get('records') or []:
+              overlap=protected & set(row)
+              assert not overlap, (row.get('question_id'), sorted(overlap))
+          print('HISTORICAL LAW COMBINED VERIFIED REGISTRY OK: 13 machine + 6 evidence adjudicated = 19')
+          PY
           git diff --check
       - name: Stage 7 trust-boundary AST guard
         run: |
