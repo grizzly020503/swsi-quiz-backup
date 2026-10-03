@@ -4,19 +4,23 @@ on:
   pull_request:
     paths:
       - 'scripts/analyze_current_affairs_signals.py'
+      - 'scripts/build_current_affairs_signals_snapshot.py'
       - 'scripts/current_affairs_policy_semantics_smoke.py'
       - '.github/workflows/tmp-current-affairs-snapshot-artifact.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-snapshots:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Checkout
+      - name: Checkout PR head
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
       - name: Setup Python
         uses: actions/setup-python@v7
         with:
@@ -24,26 +28,34 @@ jobs:
       - name: Build deterministic snapshots
         run: |
           set -euo pipefail
-          mkdir -p /tmp/swsi-monitoring-pr
           python scripts/build_current_affairs_signals_snapshot.py \
             --input auto/current_affairs.json \
             --questions-csv data/questions_master_backup_20260824_2220.csv \
-            --output /tmp/swsi-monitoring-pr/current_affairs_signals.json \
+            --output auto/current_affairs_signals.json \
             --limit 30
-          cp auto/current_affairs_events.json /tmp/swsi-monitoring-pr/current_affairs_events.json
           python scripts/build_current_affairs_events_snapshot.py \
             --news auto/current_affairs.json \
-            --signals /tmp/swsi-monitoring-pr/current_affairs_signals.json \
-            --output /tmp/swsi-monitoring-pr/current_affairs_events.json \
+            --signals auto/current_affairs_signals.json \
+            --output auto/current_affairs_events.json \
             --limit 30
           python scripts/build_current_affairs_trends_snapshot.py \
-            --events /tmp/swsi-monitoring-pr/current_affairs_events.json \
-            --output /tmp/swsi-monitoring-pr/current_affairs_trends.json \
+            --events auto/current_affairs_events.json \
+            --output auto/current_affairs_trends.json \
             --limit 30
-      - name: Upload snapshots
-        uses: actions/upload-artifact@v6
-        with:
-          name: current-affairs-snapshots-pr323
-          path: /tmp/swsi-monitoring-pr/*.json
-          if-no-files-found: error
-          retention-days: 1
+      - name: Commit deterministic snapshots to PR branch
+        env:
+          HEAD_BRANCH: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          git config user.name 'swsi-preview-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add \
+            auto/current_affairs_signals.json \
+            auto/current_affairs_events.json \
+            auto/current_affairs_trends.json
+          if git diff --cached --quiet; then
+            echo 'Deterministic snapshots already current.'
+            exit 0
+          fi
+          git commit -m 'chore: sync current-affairs deterministic snapshots'
+          git push origin HEAD:"${HEAD_BRANCH}"
