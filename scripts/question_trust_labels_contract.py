@@ -4,6 +4,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCK = (ROOT / "monthly_patch_parts" / "zzzz_product_v1_lock.part").read_text(encoding="utf-8")
+META = (ROOT / "monthly_patch_parts" / "05.question-trust-metadata.part").read_text(encoding="utf-8")
 LAW_UI = (ROOT / "monthly_patch_parts" / "86.law-trust-ui.part").read_text(encoding="utf-8")
 THEORY_UI = (ROOT / "monthly_patch_parts" / "88.theory-trust-ui.part").read_text(encoding="utf-8")
 
@@ -11,6 +12,21 @@ THEORY_UI = (ROOT / "monthly_patch_parts" / "88.theory-trust-ui.part").read_text
 assert "function addQuestionTrust(exp,item)" in LOCK
 assert "swsi-answer-trust" in LOCK
 assert "資料可信度" in LOCK
+assert "swsi-answer-trust" not in META
+assert "addQuestionTrust" not in META
+
+# Source/trust metadata must survive CDN/Supabase -> normalize -> legacy offline-cache transport.
+# Do not let a missing transport field turn an official historical question into SWSI-only copy.
+for field in (
+    "source_exam_code", "source_url", "analysis_status",
+    "legal_status", "legal_checked_at", "legal_note", "legal_source_url",
+):
+    assert repr(field) in META, f"trust metadata passthrough missing field: {field}"
+assert "previousNormalize=normalize" in META
+assert "copyTrustMetadata(previousNormalize(r),r)" in META
+assert "previousSaveOfflineQuestions=saveOfflineQuestions" in META
+assert "copyTrustMetadata(out,current)" in META
+assert "It never invents source provenance" in META
 
 # Official exam data and SWSI enrichment must stay visibly distinct in student language.
 assert "官方題目／答案" in LOCK
@@ -80,4 +96,4 @@ for forbidden in (
 ):
     assert forbidden not in LOCK, f"misleading trust wording found: {forbidden}"
 
-print("QUESTION TRUST LABELS CONTRACT OK: official data, platform checks, and legal review states stay distinct in plain student language")
+print("QUESTION TRUST LABELS CONTRACT OK: official data, platform checks, metadata transport, and legal review states stay distinct in plain student language")

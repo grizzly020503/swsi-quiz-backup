@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/progressive-explanation-qa.yml'
       - 'monthly_patch_parts/00.part'
+      - 'monthly_patch_parts/05.question-trust-metadata.part'
       - 'monthly_patch_parts/70.learning-loop.part'
       - 'monthly_patch_parts/86.law-trust-ui.part'
       - 'monthly_patch_parts/88.theory-trust-ui.part'
