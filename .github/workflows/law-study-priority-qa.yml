@@ -7,7 +7,6 @@ on:
       - 'scripts/build_law_study_priority.py'
       - 'scripts/law_study_priority_smoke.py'
       - 'auto/law_study_priority.json'
-      - 'cdn/auto/law_study_priority.json'
       - 'monthly_patch_parts/86a.law-study-priority.part'
       - '.github/workflows/law-study-priority-qa.yml'
 
@@ -22,12 +21,15 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Build deterministic snapshot
+      - name: Rebuild deterministic snapshot
         run: |
           python scripts/build_law_study_priority.py --output /tmp/law_study_priority.json
-          cat /tmp/law_study_priority.json
-      - name: Validate contract
+          cmp /tmp/law_study_priority.json auto/law_study_priority.json
+      - name: Validate data and UI contracts
         run: |
-          python -m py_compile scripts/build_law_study_priority.py
-          if [ -f scripts/law_study_priority_smoke.py ]; then python scripts/law_study_priority_smoke.py; fi
+          python -m py_compile scripts/build_law_study_priority.py scripts/law_study_priority_smoke.py
+          python scripts/law_study_priority_smoke.py
+          cat monthly_patch_parts/*.part > /tmp/monthly_patch.js
+          node --check /tmp/monthly_patch.js
+          node scripts/runtime_owner_smoke.js
           git diff --check
