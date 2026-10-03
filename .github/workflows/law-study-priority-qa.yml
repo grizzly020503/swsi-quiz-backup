@@ -1,0 +1,44 @@
+name: Law Study Priority QA
+
+on:
+  pull_request:
+    paths:
+      - 'data/law_question_links_priority10.v1.json'
+      - 'scripts/build_law_study_priority.py'
+      - 'scripts/law_study_priority_smoke.py'
+      - 'auto/law_study_priority.json'
+      - 'monthly_patch_parts/80.knowledge-path.part'
+      - 'monthly_patch_parts/86.law-trust-ui.part'
+      - '.github/workflows/law-study-priority-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  law-study-priority:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Rebuild deterministic snapshot
+        run: |
+          python scripts/build_law_study_priority.py --output /tmp/law_study_priority.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          generated = json.loads(Path('/tmp/law_study_priority.json').read_text(encoding='utf-8'))
+          committed = json.loads(Path('auto/law_study_priority.json').read_text(encoding='utf-8'))
+          if generated != committed:
+              raise SystemExit('committed law study priority snapshot differs from deterministic derivation')
+          print('LAW STUDY PRIORITY SNAPSHOT MATCH OK')
+          PY
+      - name: Validate data and UI contracts
+        run: |
+          python -m py_compile scripts/build_law_study_priority.py scripts/law_study_priority_smoke.py
+          python scripts/law_study_priority_smoke.py
+          cat monthly_patch_parts/*.part > /tmp/monthly_patch.js
+          node --check /tmp/monthly_patch.js
+          node scripts/runtime_owner_smoke.js
+          git diff --check
