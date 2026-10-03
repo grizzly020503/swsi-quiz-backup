@@ -3,6 +3,8 @@ name: Knowledge Runtime Snapshot QA
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/knowledge-runtime-snapshot.yml'
       - 'scripts/knowledge_runtime_snapshot.js'

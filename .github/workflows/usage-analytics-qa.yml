@@ -3,6 +3,8 @@ name: Usage Analytics QA
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/usage-analytics-qa.yml'
       - 'supabase/migrations/20260902143000_add_anonymous_usage_analytics.sql'

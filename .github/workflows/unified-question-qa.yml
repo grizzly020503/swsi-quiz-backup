@@ -2,6 +2,8 @@ name: Unified Question QA
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'UNIFIED_QUESTION_QA_PIPELINE.md'
       - 'data/question_qa_policy_v1.json'
@@ -37,6 +39,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: swsi-unified-question-qa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   selftest:

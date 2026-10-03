@@ -8,6 +8,8 @@ on:
       - 'cdn/question-shards/**'
       - '.github/workflows/priority-law-question-links-qa.yml'
   push:
+    branches:
+      - main
     paths:
       - 'data/law_question_links_priority10.v1.json'
       - 'scripts/law_question_links_priority10_smoke.py'
@@ -17,6 +19,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: swsi-priority-law-question-links-qa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verify:

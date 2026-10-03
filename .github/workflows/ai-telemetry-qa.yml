@@ -3,6 +3,8 @@ name: AI Telemetry QA
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/ai-telemetry-qa.yml'
       - 'supabase/migrations/20260915151500_add_ai_telemetry.sql'

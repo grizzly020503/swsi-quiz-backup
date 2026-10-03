@@ -3,6 +3,8 @@ name: Runtime Owner QA
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/runtime-owner-qa.yml'
       - 'monthly_patch_parts/**'
@@ -26,6 +28,10 @@ on:
       - 'scripts/frontend_url_safety_smoke.js'
       - 'scripts/install_current_affairs_ui.py'
       - 'index.html'
+
+concurrency:
+  group: swsi-runtime-owner-qa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   owner-contract:

@@ -3,6 +3,8 @@ name: Launch Readiness QA
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/launch-readiness-qa.yml'
       - 'monthly_patch_parts/**'
@@ -34,6 +36,7 @@ on:
       - 'scripts/prelaunch_deadend_smoke.js'
       - 'scripts/prelaunch_error_states_smoke.js'
       - 'scripts/prelaunch_accessibility_touch_smoke.js'
+      - 'scripts/prelaunch_axe_accessibility_smoke.js'
       - 'scripts/prelaunch_webkit_smoke.js'
       - 'scripts/prelaunch_storage_degradation_smoke.js'
       - 'scripts/prelaunch_slow_network_smoke.js'

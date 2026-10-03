@@ -3,6 +3,8 @@ name: MOEX Importer Integrity QA
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/moex-importer-integrity-qa.yml'
       - '.github/workflows/moex-social-worker-sync.yml'
