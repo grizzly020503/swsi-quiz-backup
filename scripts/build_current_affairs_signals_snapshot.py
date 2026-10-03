@@ -27,8 +27,28 @@ from analyze_current_affairs_signals import (
 from current_affairs_law_links import infer_current_affairs_links
 
 
+PUBLIC_RELATED_MATCH_MIN_SCORE = 2.0
+
+
 def confidence_score(value: str) -> int:
     return {"high": 3, "medium": 2, "low": 1}.get(value, 0)
+
+
+def _student_visible_related(matches: list[dict]) -> list[dict]:
+    """Keep only concept-or-stronger historical evidence for public output.
+
+    Vignette-only/background matches remain available inside the analyzer for
+    audit, but they must not inflate student-facing historical counts or lists.
+    """
+    visible = []
+    for match in matches:
+        try:
+            score = float(match.get("match_score") or 0)
+        except (TypeError, ValueError):
+            score = 0.0
+        if score >= PUBLIC_RELATED_MATCH_MIN_SCORE:
+            visible.append(match)
+    return visible
 
 
 def load_questions_shards(path: Path) -> list[dict]:
@@ -61,6 +81,9 @@ def analyze_item_with_law_links(row: dict, questions: list[dict], max_related: i
     and student-facing summaries with that law. ``match_questions`` still
     requires event-supported topic evidence, so a shared law alone cannot pull
     unrelated historical questions into the event.
+
+    Low-score vignette/background matches are kept by the base analyzer for
+    internal audit, but are filtered out of the public snapshot here.
     """
     out = analyze_item(row, questions, max_related=max_related)
     linkage = infer_current_affairs_links(out)
@@ -91,6 +114,34 @@ def analyze_item_with_law_links(row: dict, questions: list[dict], max_related: i
         )
 
     out.update(linkage)
+
+    # Recompute the final historical surface after linkage. Internal matcher
+    # results below concept-level remain useful for audits, but student-facing
+    # related questions and counts must use the same evidence threshold.
+    final_laws = [str(x) for x in (out.get("related_laws") or []) if str(x)]
+    all_related = match_questions(
+        out,
+        final_laws,
+        questions,
+        max_hits=max(1, len(questions)) if questions else 1,
+    )
+    public_related = _student_visible_related(all_related)
+    policy = str(out.get("policy_signal") or "low")
+    essay = str(out.get("essay_value") or "low")
+    mcq = str(out.get("mcq_fact_density") or "low")
+    out.update(
+        {
+            "related_exam_questions": public_related[: max(1, max_related)],
+            "historical_exam_stats": historical_exam_stats(public_related, questions, final_laws),
+            "signal_confidence": confidence_for(
+                policy,
+                essay,
+                mcq,
+                final_laws,
+                len(public_related),
+            ),
+        }
+    )
     return out
 
 
