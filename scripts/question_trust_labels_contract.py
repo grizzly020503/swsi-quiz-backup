@@ -3,30 +3,30 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+CORE = (ROOT / "monthly_patch_parts" / "00.part").read_text(encoding="utf-8")
 LOCK = (ROOT / "monthly_patch_parts" / "zzzz_product_v1_lock.part").read_text(encoding="utf-8")
-META = (ROOT / "monthly_patch_parts" / "0.question-trust-metadata.part").read_text(encoding="utf-8")
 LAW_UI = (ROOT / "monthly_patch_parts" / "86.law-trust-ui.part").read_text(encoding="utf-8")
 THEORY_UI = (ROOT / "monthly_patch_parts" / "88.theory-trust-ui.part").read_text(encoding="utf-8")
 
-# Question trust UI must stay in the existing product owner, not another late runtime layer.
+# Question trust UI must stay in the existing product owner.
 assert "function addQuestionTrust(exp,item)" in LOCK
 assert "swsi-answer-trust" in LOCK
 assert "資料可信度" in LOCK
-assert "swsi-answer-trust" not in META
-assert "addQuestionTrust" not in META
 
-# Source/trust metadata must survive CDN/Supabase -> normalize -> legacy offline-cache transport.
-# This early passthrough intentionally loads before 00.part; 00.part remains final normalize owner.
-for field in (
-    "source_exam_code", "source_url", "analysis_status",
-    "legal_status", "legal_checked_at", "legal_note", "legal_source_url",
-):
-    assert repr(field) in META, f"trust metadata passthrough missing field: {field}"
-assert "previousNormalize=normalize" in META
-assert "copyTrustMetadata(previousNormalize(r),r)" in META
-assert "previousSaveOfflineQuestions=saveOfflineQuestions" in META
-assert "copyTrustMetadata(out,current)" in META
-assert "It never invents source provenance" in META
+# 00.part is the canonical question normalization/cache owner. Official source and
+# analysis trust metadata must survive CDN/Supabase -> normalize -> legacy cache.
+required_assignments = (
+    "q.source_exam_code = (r && r.source_exam_code) || '';",
+    "q.source_url = (r && r.source_url) || '';",
+    "q.analysis_status = (r && r.analysis_status) || '';",
+    "q.legal_status = (r && r.legal_status) || '';",
+    "q.legal_checked_at = (r && r.legal_checked_at) || null;",
+    "q.legal_note = (r && r.legal_note) || '';",
+    "q.legal_source_url = (r && r.legal_source_url) || '';",
+)
+for line in required_assignments:
+    assert line in CORE, f"normalize trust metadata passthrough missing: {line}"
+assert "source_exam_code:q.source_exam_code,source_url:q.source_url,analysis_status:q.analysis_status" in CORE
 
 # Official exam data and SWSI enrichment must stay visibly distinct in student language.
 assert "官方題目／答案" in LOCK

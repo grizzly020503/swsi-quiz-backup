@@ -279,7 +279,7 @@ window.swsiEsc = swsiEsc;
     return [...new Set(QB.manifest.shards.map(x=>parseInt(x.year,10)).filter(Number.isFinite))].sort((a,b)=>b-a);
   }
 
-  // normalize must retain official grading metadata from Supabase/CDN.
+  // normalize must retain official grading + trust metadata from Supabase/CDN.
   const legacyNormalize = normalize;
   normalize = function(r){
     const q = legacyNormalize(r);
@@ -289,6 +289,12 @@ window.swsiEsc = swsiEsc;
     q.accepted_answers = accepted && accepted.length ? accepted : null;
     q.grading_mode = gradingMode(r);
     q.source_exam_code = (r && r.source_exam_code) || '';
+    q.source_url = (r && r.source_url) || '';
+    q.analysis_status = (r && r.analysis_status) || '';
+    q.legal_status = (r && r.legal_status) || '';
+    q.legal_checked_at = (r && r.legal_checked_at) || null;
+    q.legal_note = (r && r.legal_note) || '';
+    q.legal_source_url = (r && r.legal_source_url) || '';
     q.q = swsiCleanPUA(q.q);
     for(const k of ['A','B','C','D']) q.options[k] = swsiCleanPUA(q.options[k]);
     if(q.exp){
@@ -442,7 +448,7 @@ window.swsiEsc = swsiEsc;
         accepted_answers:q.accepted_answers,grading_mode:q.grading_mode,exp_why:q.exp&&q.exp.why,exp_others:q.exp&&q.exp.others,
         exp_trap:q.exp&&q.exp.trap,exp_raw:q.exp&&q.exp.raw,mnemonic:q.mnemonic,extension:q.extension,law:q.law,mistake:q.mistake,
         legal_status:q.legal_status,legal_checked_at:q.legal_checked_at,legal_note:q.legal_note,legal_source_url:q.legal_source_url,
-        source_exam_code:q.source_exam_code
+        source_exam_code:q.source_exam_code,source_url:q.source_url,analysis_status:q.analysis_status
       }));
       saveOfflineQuestions(raw);
     }catch(_e){}
@@ -811,7 +817,7 @@ window.swsiEsc = swsiEsc;
   renderReview=function(){
     const rv=reviewSummary(), ids=rv.activeIds;
     if(!ids.length&&!rv.dueCount&&!rv.nextDueAt){
-      app.innerHTML='<div class="empty"><div class="ico">✓</div><h3>'+(rv.masteredCount?'今天沒有待複習題':'還沒有錯題')+'</h3><p>'+(rv.masteredCount?('已有 '+rv.masteredCount+' 題完成學習與長期確認。'):'刷題答錯後，系統會自動安排之後的複習。')+'</p><button class="btn" style="max-width:200px;margin:22px auto 0" onclick="go(\'home\')">回首頁刷題</button></div>';
+      app.innerHTML='<div class="empty"><div class="ico">✓</div><h3>'+(rv.masteredCount?'今天沒有待複習題':'還沒有錯題')+'</h3><p>'+(rv.masteredCount?('已有 '+rv.masteredCount+' 題完成學習與長期確認。'):'刷題答錯後，系統會自動安排之後的複習。')+'</p><button class="btn" style="max-width:200px;margin:22px auto 0" onclick="go(\'home\')">回首頁刷題</button>'+(hasDrafts()?'<button class="btn ghost" style="max-width:280px;margin:12px auto 0" onclick="exportDrafts()">匯出申論草稿（TXT）</button>':'')+'</div>';
       return;
     }
     const wrongQs=ids.map(id=>ALL.find(q=>q.id===id)).filter(Boolean);
