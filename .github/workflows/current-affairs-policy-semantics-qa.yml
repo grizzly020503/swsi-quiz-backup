@@ -35,3 +35,31 @@ jobs:
             scripts/current_affairs_history_precision_smoke.py
           python scripts/current_affairs_policy_semantics_smoke.py
           python scripts/current_affairs_history_precision_smoke.py
+
+      - name: Build semantic preview snapshots
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current-affairs-semantic-preview
+          python scripts/build_current_affairs_signals_snapshot.py \
+            --input auto/current_affairs.json \
+            --questions-csv data/questions_master_backup_20260824_2220.csv \
+            --output /tmp/current-affairs-semantic-preview/current_affairs_signals.json \
+            --limit 30
+          cp auto/current_affairs_events.json /tmp/current-affairs-semantic-preview/current_affairs_events.json
+          python scripts/build_current_affairs_events_snapshot.py \
+            --news auto/current_affairs.json \
+            --signals /tmp/current-affairs-semantic-preview/current_affairs_signals.json \
+            --output /tmp/current-affairs-semantic-preview/current_affairs_events.json \
+            --limit 30
+          python scripts/build_current_affairs_trends_snapshot.py \
+            --events /tmp/current-affairs-semantic-preview/current_affairs_events.json \
+            --output /tmp/current-affairs-semantic-preview/current_affairs_trends.json \
+            --limit 30
+
+      - name: Upload semantic preview snapshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: current-affairs-semantic-preview-${{ github.sha }}
+          path: /tmp/current-affairs-semantic-preview/
+          if-no-files-found: error
+          retention-days: 3
