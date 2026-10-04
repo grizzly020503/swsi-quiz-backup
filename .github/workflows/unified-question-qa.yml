@@ -19,6 +19,8 @@ on:
       - 'scripts/unified_question_qa_selftest.py'
       - 'scripts/enrichment_decision.py'
       - 'scripts/enrichment_decision_selftest.py'
+      - 'scripts/enrichment_decision_current.py'
+      - 'scripts/enrichment_decision_current_selftest.py'
       - 'scripts/build_question_qa_dashboard.py'
       - '.github/workflows/unified-question-qa.yml'
   pull_request:
@@ -39,6 +41,8 @@ on:
       - 'scripts/unified_question_qa_selftest.py'
       - 'scripts/enrichment_decision.py'
       - 'scripts/enrichment_decision_selftest.py'
+      - 'scripts/enrichment_decision_current.py'
+      - 'scripts/enrichment_decision_current_selftest.py'
       - 'scripts/build_question_qa_dashboard.py'
       - '.github/workflows/unified-question-qa.yml'
   workflow_dispatch:
@@ -69,12 +73,15 @@ jobs:
           python -m py_compile scripts/unified_question_qa_selftest.py
           python -m py_compile scripts/enrichment_decision.py
           python -m py_compile scripts/enrichment_decision_selftest.py
+          python -m py_compile scripts/enrichment_decision_current.py
+          python -m py_compile scripts/enrichment_decision_current_selftest.py
           python -m py_compile scripts/build_question_qa_dashboard.py
 
       - name: Run synthetic QA invariants
         run: |
           python scripts/unified_question_qa_selftest.py
           python scripts/enrichment_decision_selftest.py
+          python scripts/enrichment_decision_current_selftest.py
 
       - name: Resolve latest published exam from manifest
         run: |
@@ -117,17 +124,33 @@ jobs:
         run: |
           python scripts/enrichment_decision.py \
             --input "$LATEST_SHARD" \
-            --out /tmp/enrichment-decision-latest.json \
+            --out /tmp/enrichment-decision-base.json \
+            --fail-on never > /dev/null
+          python scripts/enrichment_decision_current.py \
+            --input "$LATEST_SHARD" \
+            --legal-watch data/legal_watch_report.json \
+            --trust-current-legal-watch \
+            --out /tmp/enrichment-decision-current.json \
             --fail-on never > /dev/null
           python - <<'PY'
           import json
-          report=json.load(open('/tmp/enrichment-decision-latest.json',encoding='utf-8'))
-          assert report['contract'] == 'swsi_enrichment_decision_v1', report.get('contract')
-          assert report['mode'] == 'advisory_dry_run', report.get('mode')
-          assert report['summary']['items'] == 200, report['summary']
-          assert report['safety']['official_core_modified'] is False
-          assert report['safety']['production_write_performed'] is False
-          print(json.dumps(report['summary'],ensure_ascii=False,indent=2))
+          base=json.load(open('/tmp/enrichment-decision-base.json',encoding='utf-8'))
+          current=json.load(open('/tmp/enrichment-decision-current.json',encoding='utf-8'))
+          for report in (base,current):
+              assert report['contract'] == 'swsi_enrichment_decision_v1', report.get('contract')
+              assert report['mode'] == 'advisory_dry_run', report.get('mode')
+              assert report['summary']['items'] == 200, report['summary']
+              assert report['safety']['official_core_modified'] is False
+              assert report['safety']['production_write_performed'] is False
+          current_watch=current.get('current_legal_watch') or {}
+          assert current_watch.get('trusted_for_current_intake') is True, current_watch
+          assert current_watch.get('historical_version_proof') is False, current_watch
+          print(json.dumps({
+              'base': base['summary'],
+              'trusted_current_legal_watch': current['summary'],
+              'legal_review_cleared': current_watch.get('cleared_review_count'),
+              'legal_watch_checked_at': current_watch.get('checked_at'),
+          },ensure_ascii=False,indent=2))
           PY
 
       - name: Build compact admin dashboard payload
