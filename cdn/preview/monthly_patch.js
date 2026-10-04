@@ -4599,7 +4599,7 @@ html[data-fs="2"]{
   function officialQuestion(item){
     if(!item) return false;
     var kind=String(item.qtype||'')+' '+String(item.id||'');
-    return !!item.source_exam_code && !!safeTrustHref(item.source_url) && !/時事|預測|自製/.test(kind);
+    return !!item.source_exam_code && !/時事|預測|自製/.test(kind);
   }
 
   function analysisTrust(item){
@@ -4607,7 +4607,7 @@ html[data-fs="2"]{
     if(status==='ready')return {label:'平台解析・已通過基本檢查',warn:false,detail:'這份解析已通過目前的自動與結構檢查，不等於逐題人工核對，也不是考選部官方解析。'};
     if(status==='review')return {label:'平台解析・待複核',warn:true,detail:'這份平台解析目前仍在複核／隔離狀態；請優先相信官方題目、答案與特殊給分規則。'};
     if(status==='pending'||status==='analyzing')return {label:'平台解析・處理中',warn:true,detail:'平台解析尚在生成或檢查流程中；未完成前不視為已核實教材。'};
-    return {label:'平台解析・核對狀態未標示',warn:true,detail:'這是 SWSI 的學習整理，不是官方解析；目前沒有足夠狀態可把它標示為已核對。'};
+    return {label:'平台解析・SWSI 整理',warn:false,detail:'這是 SWSI 的學習整理，不是考選部官方解析；目前未顯示進一步核對狀態。'};
   }
 
   function legalTrust(item){
