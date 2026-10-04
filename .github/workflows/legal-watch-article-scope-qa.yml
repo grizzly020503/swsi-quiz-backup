@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/moj_law_watch.py'
       - 'scripts/moj_law_watch_selftest.py'
+      - 'scripts/legal_watch_run_health_contract_smoke.py'
       - 'supabase/functions/sync-legal-watch/**'
       - 'supabase/migrations/20261005033000_legal_watch_run_health.sql'
       - '.github/workflows/legal-watch-article-scope-qa.yml'
@@ -30,8 +31,9 @@ jobs:
 
       - name: Python syntax and watcher regression
         run: |
-          python -m py_compile scripts/moj_law_watch.py scripts/moj_law_watch_selftest.py
+          python -m py_compile scripts/moj_law_watch.py scripts/moj_law_watch_selftest.py scripts/legal_watch_run_health_contract_smoke.py
           python scripts/moj_law_watch_selftest.py
+          python scripts/legal_watch_run_health_contract_smoke.py
 
       - name: Setup Deno
         uses: denoland/setup-deno@v2
