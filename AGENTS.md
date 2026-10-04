@@ -49,9 +49,17 @@
 
 ## Git / CI
 
-優先採：
+預設開發流程：
 
 `branch -> focused change -> local/deterministic checks -> PR -> review -> CI -> merge`
+
+- AI / coding agent **預設不得直接 push `main`**。
+- 一般程式、資料、文件與 workflow 修改都應先在 branch 完成，再經 PR review 後 merge。
+- 只有兩類例外可以直接寫 `main`：
+  1. maintainer 在**當前任務明確授權**直接寫 `main`；或
+  2. 已存在於 `main`、權限最小化且用途明確的 trusted automation，依既有 contract 更新 generated / operational output。
+- 「幫我做完」「繼續」「修好它」等一般授權，不應自行解讀成 direct-main push 權限。
+- direct-main 例外也不得繞過 Official Core、secret、security、production 或 evidence gate；完成後仍需留下可追溯 commit / Issue / audit evidence。
 
 避免為每個小改動製造不必要的 workflow run。失敗 workflow 應先分類為 code、data、quota、runner、permission 或 configuration 問題，再決定是否改程式。
 
