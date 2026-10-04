@@ -92,12 +92,17 @@ def assert_production_boundary() -> None:
     assert fields == ANALYZER_CANDIDATE_FIELDS, (fields, ANALYZER_CANDIDATE_FIELDS)
     text = ANALYZER_SOURCE.read_text(encoding="utf-8")
     # Production activation candidate must no longer write analyzeOne() output
-    # directly. It must pass through deterministic preflight + final routing.
+    # directly. It must pass through current-law + Stage7 exam-time historical
+    # preflight before the deterministic final publication route.
     assert 'const candidate = await analyzeOne(q, internalKey);' in text
     assert 'finalizeValidatedCandidate(q, candidate, preflight)' in text
     assert 'updateClaimedQuestion(sb, q, finalRoute.patch)' in text
     assert 'preflightQuestion(q, null, false)' in text
-    assert 'preflightQuestion(q, trust.decision, false)' in text
+    assert 'preflightQuestion(q, currentTrust.decision, false)' in text
+    assert 'loadHistoricalLegalTrust(sb, q)' in text
+    assert 'preflightQuestion(q, currentTrust.decision, true)' in text
+    assert 'historical_law_runtime_evidence_snapshot' in text
+    assert 'historical_law_runtime_evidence' in text
     assert "analyzer_enrichment_route_plan" not in text
     assert "enrichment_decision" not in text
 
