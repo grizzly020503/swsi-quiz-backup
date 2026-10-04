@@ -115,7 +115,17 @@ Repository 根目錄只保留真正的專案入口與長期文件。
 
 若某份歷史 audit 有保留價值，放在 `docs/` 或 `audit/` 並清楚標示日期與 snapshot 性質。
 
-## 10. Merge / release
+## 10. Git branch / PR / merge / release
+
+Public repository 的預設開發流程為：
+
+`branch -> focused change -> local/deterministic checks -> PR -> review -> CI -> merge`
+
+- AI / coding agent 預設不得直接 push `main`。
+- 一般程式、資料、文件與 workflow 修改都應先在 branch 完成，再透過 PR review 合併。
+- 只有在 maintainer 對**當前任務明確授權** direct-main，或既有 trusted automation 依已審核 contract 寫入 generated / operational output 時，才允許例外直接寫 `main`。
+- trusted automation 的例外必須維持最小權限、固定 scope、可追溯 evidence，且不得藉此修改 Official Core、降低 security gate 或寫入 secret / private payload。
+- 一般性的「繼續」「做完」「幫我修」不應被 AI 自行解讀為 direct-main push、merge 或 production deploy 授權。
 
 高風險變更（grading、schema、auth、security、production data、release）需要比一般 UI 修改更強的 evidence。
 
