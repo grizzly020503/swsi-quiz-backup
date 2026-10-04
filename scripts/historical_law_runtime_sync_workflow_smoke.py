@@ -14,8 +14,6 @@ def require(condition: bool, message: str) -> None:
 def main() -> int:
     text = WORKFLOW.read_text(encoding="utf-8")
 
-    # Release gate: this workflow must never become an automatic production
-    # writer merely because a PR is opened or main receives a push.
     require("workflow_dispatch:" in text, "manual workflow_dispatch gate missing")
     require("pull_request:" not in text, "production sync must not run on pull_request")
     require("schedule:" not in text, "production sync must not be scheduled yet")
@@ -25,17 +23,19 @@ def main() -> int:
     require("github.ref == 'refs/heads/main'" in text, "production sync must be main-only")
     require("inputs.confirm_production_sync == true" in text, "confirmation boolean gate missing")
 
-    # The custom Edge Function auth checks GitHub repo write capability, so the
-    # workflow token must explicitly carry contents:write. No service-role secret
-    # may be copied into GitHub Actions.
-    require("contents: write" in text, "GitHub token write capability missing")
-    require("GH_REPO_TOKEN: ${{ github.token }}" in text, "sync must use ephemeral github.token")
+    require("contents: read" in text, "manual sync only needs repository read access")
+    require("id-token: write" in text, "GitHub OIDC permission missing")
+    require("contents: write" not in text, "manual sync must not require repository write permission")
+    require("ACTIONS_ID_TOKEN_REQUEST_TOKEN" in text, "OIDC request token wiring missing")
+    require("ACTIONS_ID_TOKEN_REQUEST_URL" in text, "OIDC request URL wiring missing")
+    require("audience=swsi-supabase-sync" in text, "OIDC audience binding missing")
+    require("GH_REPO_TOKEN" not in text, "legacy GitHub repository token auth must be removed")
     require("SUPABASE_SERVICE_ROLE_KEY" not in text, "service-role secret must not enter workflow")
     require("sync-historical-law-evidence" in text, "historical sync endpoint missing")
 
-    # Source-of-truth must be regenerated from the durable Stage7 evidence chain,
-    # then fingerprinted by the same runtime module used by the Edge Function.
     for marker in (
+        "github_actions_oidc_test.ts",
+        "github_actions_oidc.ts",
         "scripts/historical_law_evidence_adjudication.py",
         "scripts/historical_law_runtime_evidence_contract_smoke.py",
         "runtime_evidence_test.ts",
@@ -49,7 +49,7 @@ def main() -> int:
     ):
         require(marker in text, f"historical sync verification marker missing: {marker}")
 
-    print("HISTORICAL LAW MANUAL PRODUCTION SYNC WORKFLOW CONTRACT OK")
+    print("HISTORICAL LAW MANUAL PRODUCTION SYNC OIDC CONTRACT OK")
     return 0
 
 
