@@ -37,7 +37,7 @@ const SOURCE_POLICY_JSON = String.raw`{
   "中天新聞生活":{"feed":"https://ctinews.com/rss/google-life.xml","region":"taiwan","source_type":"news","article_hosts":["ctinews.com"]},
   "自由時報社會":{"feed":"https://news.ltn.com.tw/rss/society.xml","region":"taiwan","source_type":"news","article_hosts":["ltn.com.tw"]},
   "自由時報生活":{"feed":"https://news.ltn.com.tw/rss/life.xml","region":"taiwan","source_type":"news","article_hosts":["ltn.com.tw"]},
-  "聯合新聞網社會":{"feed":"https://udn.com/rssfeed/news/2/6639?ch=news","region":"taiwan","source_type":"news","article_hosts":["udn.com.tw"]}
+  "聯合新聞網社會":{"feed":"https://udn.com/rssfeed/news/2/6639?ch=news","region":"taiwan","source_type":"news","article_hosts":["udn.com"]}
 }`;
 
 const CATEGORIES_JSON = String.raw`[
