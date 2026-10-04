@@ -2511,6 +2511,7 @@ html[data-fs="2"]{
   installLearningTab();
   try{if(new URLSearchParams(location.search).get('admin')==='1')setTimeout(window.swsiOpenAdminCenter,0);}catch(_e){}
 })();
+
 /* SWSI Prelaunch Mobile Polish V4 2026-08-29
    Layer 3 only: visual polish inside Learning Center.
    Global shell/footer/nav geometry is owned exclusively by 15.layout-foundation.part.
