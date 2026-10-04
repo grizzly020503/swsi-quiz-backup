@@ -14,6 +14,10 @@ on:
       - 'scripts/health_check.py'
       - 'scripts/health_check_v2.py'
       - 'scripts/build_auto_payload.py'
+      - 'scripts/moex_structure_probe.py'
+      - 'scripts/moex_structure_probe_selftest.py'
+      - 'scripts/moex_sync_guarded.py'
+      - 'scripts/moex_sync_guarded_selftest.py'
       - 'incoming/**'
       - '.github/workflows/exam-scheme-versioning-qa.yml'
   push:
@@ -31,6 +35,10 @@ on:
       - 'scripts/health_check.py'
       - 'scripts/health_check_v2.py'
       - 'scripts/build_auto_payload.py'
+      - 'scripts/moex_structure_probe.py'
+      - 'scripts/moex_structure_probe_selftest.py'
+      - 'scripts/moex_sync_guarded.py'
+      - 'scripts/moex_sync_guarded_selftest.py'
       - 'incoming/**'
       - '.github/workflows/exam-scheme-versioning-qa.yml'
   workflow_dispatch:
@@ -70,11 +78,20 @@ jobs:
           python -m py_compile scripts/health_check.py
           python -m py_compile scripts/health_check_v2.py
           python -m py_compile scripts/build_auto_payload.py
+          python -m py_compile scripts/moex_structure_probe.py
+          python -m py_compile scripts/moex_structure_probe_selftest.py
+          python -m py_compile scripts/moex_sync_guarded.py
+          python -m py_compile scripts/moex_sync_guarded_selftest.py
 
       - name: Run explicitly synthetic future-regime fixtures
         run: |
           python scripts/exam_scheme_selftest.py
           python scripts/exam_scheme_downstream_selftest.py
+
+      - name: Run MOEX pre-parser discovery fixtures
+        run: |
+          python scripts/moex_structure_probe_selftest.py
+          python scripts/moex_sync_guarded_selftest.py
 
       - name: Gate every current incoming official payload
         run: |
