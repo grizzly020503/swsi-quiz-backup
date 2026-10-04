@@ -42,7 +42,11 @@ def main() -> int:
     assert OFFICIAL_FIELDS.isdisjoint(ts_array(edge, "ANALYSIS_FIELDS"))
     for token in (
         'const REPO = "grizzly020503/swsi-quiz-backup"',
-        "verifyGitHubRepoToken",
+        'const REPO_ID = 1345053575',
+        "verifyGitHubRepoWriteToken",
+        'Number(repo?.id) === REPO_ID',
+        'repo?.permissions?.push === true',
+        'GitHub token lacks write access to the SWSI repository',
         '.from("essays")',
         '.select("id")',
         '.update(record.update)',
@@ -52,6 +56,7 @@ def main() -> int:
         "record ${index}.id has invalid essay identity",
     ):
         assert token in edge, f"missing fail-closed Edge contract: {token}"
+    assert 'repo?.private === true' not in edge, "private-repo readability must not be used as auth"
     for forbidden in ('.insert(', '.upsert(', '.delete('):
         assert forbidden not in edge, f"analysis sync must never use {forbidden}"
 
@@ -72,7 +77,7 @@ def main() -> int:
     print(
         "ESSAY ENRICHMENT SUPABASE SYNC CONTRACT OK: "
         f"records={len(records)}, analysis_fields={len(FIELDS)}, official_fields_writeable=0, "
-        "repo-token-auth=yes, preflight-existing-ids=yes, recovery-inventory=yes"
+        "repo-write-token-auth=yes, preflight-existing-ids=yes, recovery-inventory=yes"
     )
     return 0
 
