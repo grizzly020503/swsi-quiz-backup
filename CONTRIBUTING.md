@@ -4,7 +4,7 @@ Thanks for helping improve SWSI. The project exists to make social-worker nation
 
 ## Before changing code
 
-1. Read `README.md`, `PROJECT_HANDOFF.md`, `AGENTS.md`, and the documents relevant to the area you are changing.
+1. Read `README.md`, `AGENTS.md`, `docs/MAINTENANCE.md`, and the documents relevant to the area you are changing.
 2. Re-check the current `main`, open Pull Requests, open Issues, and relevant CI/release status. Do not assume an old SHA or chat summary is still current.
 3. Search for an existing runtime owner, script, data model, or test before adding a parallel implementation.
 4. Keep the change scoped. Do not combine a bug fix with unrelated cleanup or cosmetic refactoring.
@@ -24,9 +24,9 @@ Do not silently alter:
 
 When official-source evidence and repository data disagree, fail closed and create a reviewable finding instead of guessing.
 
-## AI and explanations
+## Generated explanations and enrichment
 
-SWSI-authored explanations, classifications, theory links, legal links, and AI feedback are learning layers. They must not be presented as official examination authority.
+SWSI-authored explanations, classifications, theory links, legal links, and automated feedback are learning layers. They must not be presented as official examination authority.
 
 If confidence is insufficient, prefer an explicit review state over fabricated completeness.
 
@@ -88,6 +88,6 @@ Avoid adding a dependency when the standard library or an existing project depen
 
 ## Public repository operations
 
-A public repository is not permission to expose internal operations. Credentials, private backups, incident-sensitive details, user reports, and provider-account recovery material remain private even when source code is public.
+A public repository is not permission to expose credentials, private backups, incident-sensitive details, user reports, or provider-account recovery material.
 
 License selection for SWSI-authored source code is a maintainer decision. Do not assume that public visibility automatically grants reuse rights beyond the license actually committed to the repository.

@@ -1,53 +1,43 @@
-# Public / Private Documentation Classification — 2026-10-04
+# Public Documentation Classification — 2026-10-04
 
-Purpose: classify repository documentation by **content sensitivity**, not by whether the filename sounds operational.
+This document records the public-facing documentation policy for SWSI.
 
-This is a review aid, not a claim that historical Git blobs / Issues / PR comments / Actions logs are already clean.
+## Keep in the repository root
 
-## A. Keep public by default
-
-These files are useful for reproducibility, contributor safety, architecture understanding, or long-term maintenance and do not currently appear to require secrecy merely because they discuss operations:
+Root should contain only durable entry points and high-value project documents, such as:
 
 - `README.md`
 - `ARCHITECTURE.md`
+- `CONTRIBUTING.md`
+- `SECURITY.md`
 - `TESTING.md`
 - `AGENTS.md`
-- `AI_COLLABORATION.md`
-- `AI_PROJECT_CONTEXT.md`
-- `ZERO_COST_OPERATIONS.md`
-- `BACKUP_INVENTORY.txt`
-- `docs/PORTABLE_EVIDENCE_MANIFEST_20261002.md`
-- `docs/MAINTAINER_SUCCESSION_MINIMUM_SURVIVAL_20261002.md`
-- `docs/AI_COUNCIL_RELAY_ARCHITECTURE.md`
-- `docs/SUPABASE_FREE_TIER_PRIVATE_BACKUP.md`
-- local-only backup / restore helper source code, provided it contains no real credential values, private payloads, personal identifiers, or account recovery secrets
+- stable release / maintenance policies that are genuinely useful to contributors
 
-Rationale: security should rely on authentication, authorization, secret isolation, and least privilege—not on hiding ordinary architecture or recovery concepts.
+`AGENTS.md` must stay vendor-neutral and contain only minimum operating boundaries.
 
-## B. Keep public, but review for freshness / unnecessary operational detail
+## Do not keep as current root documentation
 
-These categories are not automatically secret, but should receive a final public-readiness review because they can accumulate live operational state or outdated instructions:
+The following are unsuitable as public project entry points and should not continue accumulating in the root:
 
-- `PROJECT_HANDOFF.md`
-- `ADMIN_MONITORING_PLAN.md`
-- release validation / audit documents
-- current production / fallback deployment documents
-- project diaries
-- GitHub setup / migration instructions
+- vendor-specific prompts such as `CLAUDE.md` or `GEMINI.md`;
+- chat-session takeover instructions;
+- long AI coordination prompts;
+- daily project diaries;
+- old release-candidate handoff snapshots;
+- multiple files that repeat which model should read which other model's instructions.
 
-Review questions:
+Current work status belongs primarily in GitHub Issues / Pull Requests. Historical audits that remain useful should live under `docs/` or `audit/` and be clearly marked as snapshots.
 
-1. Does the file contain a credential **value**, recovery code, private account identifier, or personal contact detail?
-2. Does it expose raw private user/admin records or a private backup payload?
-3. Does it contain an unremediated exploit path whose publication materially increases risk?
-4. Is it merely an architecture / operational description that is already safely enforced server-side?
-5. Is the content stale enough to mislead a contributor or future AI?
+## Compatibility pointer
 
-If answers 1–3 are no, the file usually does not need to be private solely because it is operational documentation.
+`PROJECT_HANDOFF.md` is retained only as a short compatibility pointer because older documentation and tooling may still reference the path. It must not grow back into a chat transcript or rolling AI diary.
 
-## C. Must remain private / external-only
+## Public but never secret
 
-Never make the following payloads public through Git history, Actions artifacts, Issues, PRs, release assets, screenshots, or logs:
+Architecture, deterministic QA concepts, maintenance rules and general recovery design can be public when they contain no sensitive values.
+
+Never publish through Git history, Issues, PRs, Actions artifacts, logs or screenshots:
 
 - real `.env` values;
 - Supabase service-role credentials;
@@ -56,37 +46,13 @@ Never make the following payloads public through Git history, Actions artifacts,
 - MFA / recovery codes;
 - private backup encryption identities;
 - plaintext private database dumps;
-- encrypted private backup archives when the repository is not intended as their storage location;
-- raw Auth user data;
-- raw contact / feedback data that identifies users;
-- provider account takeover / recovery material;
-- incident details that expose an active, unremediated exploit path.
+- raw private user or admin payloads;
+- provider account takeover / recovery material.
 
-Existing `.gitignore` and private-backup policy are intended to keep these payloads outside Git, but historical verification is still required.
+## Historical Git boundary
 
-## D. Finding from this audit: commit metadata privacy
+Removing a file from the current tree does **not** erase older Git history. Historical identity/privacy and credential review remains a separate Public-readiness task. Do not rewrite repository history casually.
 
-Current file-content search did not find a personal Gmail address in the default-branch source files checked during this audit.
+## Decision
 
-However, historical Git commit metadata includes at least one non-`noreply` personal author Email. A Public repository can expose commit author/committer metadata even when that Email does not appear in any tracked file.
-
-Therefore Public readiness must include a separate decision:
-
-- **accept** historical author Email exposure; or
-- perform a carefully planned history rewrite / branch cleanup before publication.
-
-This is a privacy decision, not a secret-rotation issue. Do not rewrite `main` casually: it can invalidate SHAs, open PR ancestry, release references, signatures, links, and downstream automation.
-
-## E. Current recommendation
-
-Do **not** create a separate private ops repository just because the codebase contains architecture and recovery documents.
-
-First keep non-sensitive operational knowledge public for transparency and survivability. Move only evidence-backed sensitive payloads or unnecessarily exploitable incident/account-recovery details.
-
-The highest remaining Public blockers are historical traces:
-
-1. reachable Git blobs;
-2. Actions logs / artifacts;
-3. commit Email metadata;
-4. explicit license decision;
-5. post-Public repository protections.
+SWSI should present itself as a normal public software/data project, not as a transcript of which AI worked on it. Long-term knowledge belongs in stable project documentation; current task state belongs in Issues / PRs.
