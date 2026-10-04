@@ -11,6 +11,9 @@ A future structure change is quarantined before PDF parsing. A normal future
 session that has not been published by MOEX yet keeps the legacy sync behavior:
 scheduled discovery skips it instead of misclassifying it as a scheme change.
 No new scheme is auto-approved here.
+
+Diagnostic reports may include normalized durable-ops decisions, but this module
+does not write to the durable ledger or Supabase.
 """
 
 from __future__ import annotations
@@ -23,7 +26,8 @@ from pathlib import Path
 from typing import Any, Callable
 
 from exam_scheme import compare_payload
-from moex_structure_probe import probe_live
+from moex_ops_event_contract import classify_payload, classify_probe
+from moex_structure_probe import exam_url, probe_live
 
 
 class GuardedIntakeBlocked(RuntimeError):
@@ -67,6 +71,24 @@ def _default_candidates() -> list[str]:
 def write_report(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def probe_ops_event(probe: dict[str, Any], *, retry_exhausted: bool = False) -> dict[str, Any]:
+    """Return the durable-ops decision for a pre-parser probe without persisting it."""
+    return classify_probe(probe, retry_exhausted=retry_exhausted)
+
+
+def payload_ops_event(exam_code: str, scheme: dict[str, Any], *, source_ref: str) -> dict[str, Any]:
+    """Return the durable-ops decision for the post-parser scheme result."""
+    return classify_payload({
+        "schema_version": 1,
+        "exam_code": exam_code,
+        "status": scheme.get("status"),
+        "approved": scheme.get("approved") is True,
+        "profile_id": scheme.get("profile_id"),
+        "diffs": scheme.get("diffs") or [],
+        "source_ref": source_ref,
+    })
 
 
 def guarded_build(
@@ -118,11 +140,24 @@ def main() -> int:
         except Exception as exc:
             # A transport exception is not the same as "not published". Keep it
             # visible/fail-closed instead of silently treating an outage as no exam.
+            availability_report = {
+                "schema_version": 1,
+                "probe": "moex_exam_page_availability_v1",
+                "exam_code": code,
+                "status": "source_error",
+                "source_url": exam_url(code),
+                "error_class": type(exc).__name__,
+                "error_message": str(exc),
+                "safe_to_parse_pdfs": False,
+            }
+            write_report(probe_dir / f"{code}.availability.json", availability_report)
+            write_report(probe_dir / f"{code}.availability.ops-event.json", probe_ops_event(availability_report))
             print(f"{code}: official page availability check failed: {exc}", file=sys.stderr)
             if args.exam:
                 raise
             blocked += 1
             continue
+
         if not published:
             print(f"{code}: official exam page not published yet; skip")
             if args.exam:
@@ -131,6 +166,7 @@ def main() -> int:
 
         probe = probe_live(code)
         write_report(probe_dir / f"{code}.json", probe)
+        write_report(probe_dir / f"{code}.ops-event.json", probe_ops_event(probe))
         if probe.get("status") != "match" or probe.get("safe_to_parse_pdfs") is not True:
             blocked += 1
             print(
@@ -156,11 +192,17 @@ def main() -> int:
             "exam_code": code,
             "page_probe_status": probe.get("status"),
             "payload_scheme_status": scheme.get("status"),
+            "status": scheme.get("status"),
             "profile_id": scheme.get("profile_id"),
             "approved": scheme.get("approved") is True,
             "diffs": scheme.get("diffs") or [],
+            "source_ref": out.as_posix(),
         }
         write_report(probe_dir / f"{code}.post-parse.json", post_report)
+        write_report(
+            probe_dir / f"{code}.post-parse.ops-event.json",
+            payload_ops_event(code, scheme, source_ref=out.as_posix()),
+        )
         if scheme.get("status") != "match" or scheme.get("approved") is not True:
             blocked += 1
             print(f"{code}: parsed payload quarantined: {scheme.get('status')}", file=sys.stderr)
