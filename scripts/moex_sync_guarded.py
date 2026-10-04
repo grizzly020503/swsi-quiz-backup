@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Fail-closed MOEX sync entrypoint with official-page structure discovery.
 
-This is intentionally a wrapper around the existing, reviewed ``moex_sync``
-parser. It adds two gates without changing Official Core parsing logic:
+This wrapper adds two gates around the existing reviewed MOEX parser while
+preserving the v2 grading/text-normalization extensions used in production:
 
 1. official exam-page subject discovery must match an approved exam profile;
 2. the fully parsed payload must still pass the existing exam-scheme gate.
@@ -28,17 +28,31 @@ class GuardedIntakeBlocked(RuntimeError):
     pass
 
 
+def _production_base_module():
+    """Return the parser after production v2 extensions have been installed.
+
+    ``moex_sync_v2`` intentionally patches narrow extension points on its
+    imported ``moex_sync`` base module. Importing it here (lazily) guarantees the
+    guarded path keeps all_credit / any_answer semantics and MOEX Unicode
+    normalization instead of accidentally falling back to raw v1 behavior.
+    """
+    import moex_sync_v2 as v2
+
+    base = v2.base
+    if base.parse_mc is not v2.parse_mc_with_grading:
+        raise RuntimeError("MOEX v2 parse_mc grading patch is not active")
+    if base._parse_correction_rules is not v2.parse_correction_rules_with_grading:
+        raise RuntimeError("MOEX v2 correction/grading patch is not active")
+    return base
+
+
 def _default_build_exam(exam_code: str) -> dict[str, Any]:
     # Lazy import keeps deterministic guard tests independent of PDF libraries.
-    from moex_sync import build_exam
-
-    return build_exam(exam_code)
+    return _production_base_module().build_exam(exam_code)
 
 
 def _default_candidates() -> list[str]:
-    from moex_sync import default_candidates
-
-    return list(default_candidates())
+    return list(_production_base_module().default_candidates())
 
 
 def write_report(path: Path, payload: dict[str, Any]) -> None:
