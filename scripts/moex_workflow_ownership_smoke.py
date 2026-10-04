@@ -4,6 +4,10 @@
 MOEX owns official exam payloads, question backup payloads, health/sync state,
 and internal MOJ legal-watch state. Current-affairs scan/sync/public snapshots
 are owned by Public Monitoring Feed and must never be duplicated here.
+
+The production workflow must also enter official-exam ingestion through the
+pre-parser structure guard. A release must not silently fall back to the raw v2
+entrypoint, because that would bypass future exam-format quarantine.
 """
 from __future__ import annotations
 
@@ -65,8 +69,38 @@ def main() -> int:
     ):
         assert forbidden not in text, f"MOEX must not own current-affairs runtime work: {forbidden}"
 
+    fetch_marker = "      - name: Fetch official Social Worker exams\n"
+    assert fetch_marker in text, "MOEX official-exam fetch step missing"
+    fetch_block = text.split(fetch_marker, 1)[1].split("\n      - name:", 1)[0]
+    assert "id: guarded_fetch" in fetch_block, "MOEX fetch step must expose guarded_fetch outcome"
+    assert "continue-on-error: true" in fetch_block, (
+        "MOEX guarded fetch must preserve diagnostics before final enforcement"
+    )
+    assert "python scripts/moex_sync_guarded.py" in fetch_block, (
+        "MOEX production ingestion must use the guarded entrypoint"
+    )
+    assert "--probe-output-dir /tmp/moex-structure-probe" in fetch_block, (
+        "structure diagnostics must stay outside incoming/ to avoid timestamp-only commits"
+    )
+    assert "python scripts/moex_sync_v2.py --output-dir incoming" not in fetch_block, (
+        "raw v2 entrypoint would bypass the pre-parser scheme guard"
+    )
+
+    assert "- name: Upload MOEX structure diagnostics" in text, (
+        "guarded fetch must publish diagnostics even when intake blocks"
+    )
+    assert "path: /tmp/moex-structure-probe" in text, (
+        "diagnostic artifact must use the temporary probe directory"
+    )
+    assert "- name: Enforce guarded MOEX intake" in text, (
+        "workflow must fail after uploading diagnostics when guarded intake fails"
+    )
+    assert "steps.guarded_fetch.outcome != 'success'" in text, (
+        "guard enforcement must depend on the guarded fetch outcome"
+    )
+
     print(
-        "MOEX WORKFLOW OWNERSHIP OK: exam/law payload-state only; "
+        "MOEX WORKFLOW OWNERSHIP OK: guarded official-exam intake + exam/law payload-state only; "
         "all current-affairs runtime work owned by Public Monitoring Feed"
     )
     return 0
