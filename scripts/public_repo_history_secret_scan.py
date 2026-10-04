@@ -188,15 +188,17 @@ def read_blob_batch(rows: list[tuple[str, str, int, str]]) -> dict[str, bytes]:
 
 
 def looks_textual(path: str, data: bytes) -> bool:
-    suffix = Path(path).suffix.lower()
-    if suffix in TEXT_EXTENSIONS or Path(path).name.lower().startswith(".env"):
-        return True
-    sample = data[:4096]
-    if b"\x00" in sample:
+    # Extensions do not prove content is text. Invalid UTF-8 and controls must
+    # not let an opaque payload masquerade as a .txt/.json/.env file.
+    if re.search(rb"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", data):
+        return False
+    try:
+        sample = data.decode("utf-8-sig")[:4096]
+    except UnicodeDecodeError:
         return False
     if not sample:
         return True
-    printable = sum((32 <= b <= 126) or b in (9, 10, 13) or b >= 0x80 for b in sample)
+    printable = sum(char.isprintable() or char in "\t\n\r" for char in sample)
     return printable / len(sample) >= 0.85
 
 

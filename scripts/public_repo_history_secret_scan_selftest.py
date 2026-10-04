@@ -51,6 +51,9 @@ def main() -> None:
     assert any(f.kind == "opaque-history-container" for f in blocked)
     binary_findings = scan.scan_one_blob("synthetic-object", 3, "unknown.bin", b"\x00\x01\x02", scan.compile_secret_patterns(), [])[0]
     assert any(f.kind == "unreviewed-binary-blob" for f in binary_findings)
+    disguised = b"A" * 4096 + b"\x00"
+    assert not scan.looks_textual("disguised.txt", disguised)
+    assert not scan.looks_textual("disguised.json", b"hello\xff")
 
     sample = scan.reachable_objects()[:2]
     for oid, contents in scan.read_blob_batch(sample).items():
