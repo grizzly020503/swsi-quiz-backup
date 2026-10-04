@@ -10,6 +10,7 @@ closed if attribution/name markers survive into the built artifact.
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
 
 
@@ -57,8 +58,13 @@ NEW_DATA = r"""  var DATA={
     ]
   };"""
 
-COMMENT_HEADER_OLD = """/* ===== 讀書指南（資深學長姐應考心得，經更正與更新；自包含浮層）— 由 品澄 平台擴充 =====
-   內容來源：老師提供的學長姐心得（約 107 年）＋平台查證更新。要改內容：改下方 DATA。 */"""
+# Match the legacy header structurally instead of embedding any person's name in
+# public source. This also catches future variants that repeat the same personal
+# attribution shape with a different name.
+COMMENT_HEADER_OLD_RE = re.compile(
+    r"/\* ===== 讀書指南（資深學長姐應考心得，經更正與更新；自包含浮層）— 由 [^\n]{1,40} 平台擴充 =====\n"
+    r"\s*內容來源：老師提供的學長姐心得（約 107 年）＋平台查證更新。要改內容：改下方 DATA。 \*/"
+)
 COMMENT_HEADER_NEW = """/* ===== SWSI 讀書指南（自編公開內容；自包含浮層） =====
    公開內容由 SWSI 自行整理；正式考試與法規資訊請以主管機關最新公告為準。 */"""
 INTRO_OLD = '資深學長姐的應考心得與各科重點（平台已幫你更正錯字、補上新法規）。讀方法、抓重點、撐住心態。'
@@ -69,12 +75,23 @@ TOPICS_GUIDE_OLD = '學長姊應考心得 · 各科速查 · 申論策略'
 TOPICS_GUIDE_NEW = 'SWSI 自編備考策略 · 查漏整理 · 申論練習'
 
 FORBIDDEN_PUBLIC_MARKERS = (
-    '蔡宇庭',
     '老師提供的學長姐心得',
     '資深學長姐的應考心得',
     '這份心得是資深學長姐',
     '學長姊應考心得',
 )
+FORBIDDEN_PUBLIC_PATTERNS = (
+    re.compile(r'由\s*[^<>\n]{1,40}\s*平台擴充'),
+    re.compile(r'內容來源：[^<>\n]{1,120}學長姐心得'),
+)
+
+
+def assert_no_legacy_attribution(text: str) -> None:
+    leftovers = [marker for marker in FORBIDDEN_PUBLIC_MARKERS if marker in text]
+    pattern_hits = [pattern.pattern for pattern in FORBIDDEN_PUBLIC_PATTERNS if pattern.search(text)]
+    if leftovers or pattern_hits:
+        details = leftovers + [f'pattern:{p}' for p in pattern_hits]
+        raise RuntimeError('public build still contains third-party study-guide attribution marker(s): ' + ', '.join(details))
 
 
 def main() -> int:
@@ -91,9 +108,9 @@ def main() -> int:
 
     text = text[:start] + NEW_DATA + text[end:]
 
-    if text.count(COMMENT_HEADER_OLD) != 1:
+    text, header_count = COMMENT_HEADER_OLD_RE.subn(COMMENT_HEADER_NEW, text, count=1)
+    if header_count != 1:
         raise RuntimeError('public content sanitizer expected legacy study-guide source comment exactly once')
-    text = text.replace(COMMENT_HEADER_OLD, COMMENT_HEADER_NEW, 1)
 
     if INTRO_OLD not in text:
         raise RuntimeError('public content sanitizer expected legacy study-guide intro exactly once')
@@ -107,9 +124,7 @@ def main() -> int:
         raise RuntimeError('public content sanitizer expected at least one legacy Topics study-guide label')
     text = text.replace(TOPICS_GUIDE_OLD, TOPICS_GUIDE_NEW)
 
-    leftovers = [marker for marker in FORBIDDEN_PUBLIC_MARKERS if marker in text]
-    if leftovers:
-        raise RuntimeError('public build still contains third-party study-guide marker(s): ' + ', '.join(leftovers))
+    assert_no_legacy_attribution(text)
 
     for required in (
         'SWSI 讀書指南（自編公開內容；自包含浮層）',

@@ -2,6 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const REPO = "grizzly020503/swsi-quiz-backup";
+const REPO_ID = 1345053575;
 const EXAM_TYPE = "專門職業及技術人員高等考試社會工作師";
 const ALLOWED_SUBJECTS = ["社會工作","社會工作直接服務","社會政策與社會立法","人類行為與社會環境","社會工作研究方法"];
 const ALLOWED_ANSWERS = new Set(["A","B","C","D"]);
@@ -13,11 +14,13 @@ function json(body: unknown, status = 200) { return new Response(JSON.stringify(
 function assert(cond: unknown, message: string): asserts cond { if (!cond) throw new Error(message); }
 function isMoexUrl(value: unknown) { if (typeof value !== "string") return false; try { const u = new URL(value); return u.protocol === "https:" && u.hostname === "wwwq.moex.gov.tw" && u.pathname.startsWith("/exam/"); } catch { return false; } }
 
-async function verifyGitHubRepoToken(token: string) {
-  const r = await fetch(`https://api.github.com/repos/${REPO}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "swsi-supabase-moex-importer/1.4" } });
+async function verifyGitHubRepoWriteToken(token: string) {
+  const r = await fetch(`https://api.github.com/repos/${REPO}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "swsi-supabase-moex-importer/1.5" } });
   if (!r.ok) return false;
   const repo = await r.json();
-  return repo?.full_name === REPO && repo?.private === true;
+  // Public visibility makes repository readability useless as an auth proof.
+  // Require write capability on the immutable SWSI repository id instead.
+  return Number(repo?.id) === REPO_ID && repo?.permissions?.push === true;
 }
 
 function validateAnswerMetadata(q: any) {
@@ -107,7 +110,7 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
   const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
   if (!token) return json({ error: "缺少 GitHub Actions token" }, 401);
-  if (!(await verifyGitHubRepoToken(token))) return json({ error: "GitHub token 無法證明來自指定私人 repo" }, 403);
+  if (!(await verifyGitHubRepoWriteToken(token))) return json({ error: "GitHub token lacks write access to the SWSI repository" }, 403);
 
   let data: any; try { data = await req.json(); } catch { return json({ error: "無效 JSON" }, 400); }
   try { validatePayload(data); } catch (e) { return json({ error: e instanceof Error ? e.message : String(e) }, 400); }

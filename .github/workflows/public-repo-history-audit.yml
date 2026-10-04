@@ -1,0 +1,44 @@
+name: Public Repository History Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - chore/public-readiness-20261004
+    paths:
+      - '.github/workflows/public-repo-history-audit.yml'
+      - 'scripts/public_repo_history_secret_scan.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-public-repo-history-audit
+  cancel-in-progress: true
+
+jobs:
+  history-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout full current history
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch all branch and tag refs read-only
+        run: |
+          set -euo pipefail
+          git fetch origin \
+            '+refs/heads/*:refs/remotes/origin/*' \
+            '+refs/tags/*:refs/tags/*' \
+            --prune
+          git rev-parse --is-shallow-repository
+          test "$(git rev-parse --is-shallow-repository)" = 'false'
+          echo "refs=$(git for-each-ref --format='%(refname)' | wc -l)"
+
+      - name: Run fail-closed public history audit
+        run: |
+          set -euo pipefail
+          python3 scripts/public_repo_history_secret_scan.py

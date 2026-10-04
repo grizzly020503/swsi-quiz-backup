@@ -2,6 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const REPO = "grizzly020503/swsi-quiz-backup";
+const REPO_ID = 1345053575;
 
 type SourcePolicy = {
   feed: string;
@@ -57,18 +58,20 @@ function json(body: unknown, status = 200) {
   });
 }
 
-async function verifyRepoToken(token: string) {
+async function verifyRepoWriteToken(token: string) {
   const r = await fetch(`https://api.github.com/repos/${REPO}`, {
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
       "X-GitHub-Api-Version": "2022-11-28",
-      "User-Agent": "swsi-current-affairs-sync/1.1",
+      "User-Agent": "swsi-current-affairs-sync/1.2",
     },
   });
   if (!r.ok) return false;
   const repo = await r.json();
-  return repo?.full_name === REPO && repo?.private === true;
+  // Public visibility makes repo readability meaningless as an auth proof.
+  // Require write capability on the immutable SWSI repository id instead.
+  return Number(repo?.id) === REPO_ID && repo?.permissions?.push === true;
 }
 
 function safeArticleUrl(value: unknown, allowedHosts: string[]) {
@@ -109,8 +112,8 @@ Deno.serve(async (req: Request) => {
   const token = (req.headers.get("authorization") || "")
     .replace(/^Bearer\s+/i, "")
     .trim();
-  if (!token || !(await verifyRepoToken(token))) {
-    return json({ error: "unauthorized GitHub workflow" }, 403);
+  if (!token || !(await verifyRepoWriteToken(token))) {
+    return json({ error: "GitHub token lacks write access to the SWSI repository" }, 403);
   }
 
   let body: any;
