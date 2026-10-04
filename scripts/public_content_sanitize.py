@@ -73,6 +73,7 @@ FOOT_OLD = '內容整理自老師提供的學長姐心得，並由平台查證�
 FOOT_NEW = '本指南由 SWSI 自行整理撰寫；正式考試與法規資訊請以主管機關最新公告為準。'
 TOPICS_GUIDE_OLD = '學長姊應考心得 · 各科速查 · 申論策略'
 TOPICS_GUIDE_NEW = 'SWSI 自編備考策略 · 查漏整理 · 申論練習'
+LEGACY_PLATFORM_ATTRIBUTION_RE = re.compile(r'由\s*[^<>\n]{1,40}\s*平台擴充')
 
 FORBIDDEN_PUBLIC_MARKERS = (
     '老師提供的學長姐心得',
@@ -81,7 +82,7 @@ FORBIDDEN_PUBLIC_MARKERS = (
     '學長姊應考心得',
 )
 FORBIDDEN_PUBLIC_PATTERNS = (
-    re.compile(r'由\s*[^<>\n]{1,40}\s*平台擴充'),
+    LEGACY_PLATFORM_ATTRIBUTION_RE,
     re.compile(r'內容來源：[^<>\n]{1,120}學長姐心得'),
 )
 
@@ -123,6 +124,10 @@ def main() -> int:
     if TOPICS_GUIDE_OLD not in text:
         raise RuntimeError('public content sanitizer expected at least one legacy Topics study-guide label')
     text = text.replace(TOPICS_GUIDE_OLD, TOPICS_GUIDE_NEW)
+
+    # Public builds must not retain personal attribution comments on older
+    # SWSI-added modules. Keep the module comments, but make ownership neutral.
+    text = LEGACY_PLATFORM_ATTRIBUTION_RE.sub('SWSI 擴充', text)
 
     assert_no_legacy_attribution(text)
 
