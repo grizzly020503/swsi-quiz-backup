@@ -7,9 +7,16 @@ on:
       - 'cloudflare/wandering-wave-4418/worker.js'
       - 'scripts/cloudflare_worker_smoke.js'
       - 'ai_eval/golden_set.json'
+      - 'data/enrichment_decision_policy.v1.json'
+      - 'data/question_qa_policy_v1.json'
+      - 'data/legal_watch_names.json'
       - '.github/workflows/question-shards-publish.yml'
       - 'scripts/analyzer_proxy_route_smoke.py'
       - 'scripts/analyzer_retry_contract_smoke.py'
+      - 'scripts/enrichment_decision.py'
+      - 'scripts/enrichment_decision_current.py'
+      - 'scripts/analyzer_enrichment_route_plan.py'
+      - 'scripts/analyzer_enrichment_route_plan_selftest.py'
       - '.github/workflows/ai-analyzer-route-qa.yml'
       - '.github/workflows/prepare-cloudflare-soft-launch-artifact.yml'
       - '.github/workflows/cloudflare-public-candidate.yml'
@@ -21,9 +28,16 @@ on:
       - 'cloudflare/wandering-wave-4418/worker.js'
       - 'scripts/cloudflare_worker_smoke.js'
       - 'ai_eval/golden_set.json'
+      - 'data/enrichment_decision_policy.v1.json'
+      - 'data/question_qa_policy_v1.json'
+      - 'data/legal_watch_names.json'
       - '.github/workflows/question-shards-publish.yml'
       - 'scripts/analyzer_proxy_route_smoke.py'
       - 'scripts/analyzer_retry_contract_smoke.py'
+      - 'scripts/enrichment_decision.py'
+      - 'scripts/enrichment_decision_current.py'
+      - 'scripts/analyzer_enrichment_route_plan.py'
+      - 'scripts/analyzer_enrichment_route_plan_selftest.py'
       - '.github/workflows/ai-analyzer-route-qa.yml'
       - '.github/workflows/prepare-cloudflare-soft-launch-artifact.yml'
       - '.github/workflows/cloudflare-public-candidate.yml'
@@ -40,8 +54,15 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Verify canonical AI analyzer route and model
+      - name: Verify canonical AI analyzer route, model, and enrichment decision boundary
         run: |
-          python -m py_compile scripts/analyzer_proxy_route_smoke.py scripts/analyzer_retry_contract_smoke.py
+          python -m py_compile \
+            scripts/analyzer_proxy_route_smoke.py \
+            scripts/analyzer_retry_contract_smoke.py \
+            scripts/enrichment_decision.py \
+            scripts/enrichment_decision_current.py \
+            scripts/analyzer_enrichment_route_plan.py \
+            scripts/analyzer_enrichment_route_plan_selftest.py
           python scripts/analyzer_proxy_route_smoke.py
           python scripts/analyzer_retry_contract_smoke.py
+          python scripts/analyzer_enrichment_route_plan_selftest.py
