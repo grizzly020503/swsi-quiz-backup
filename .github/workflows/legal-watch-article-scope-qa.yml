@@ -6,8 +6,13 @@ on:
       - 'scripts/moj_law_watch.py'
       - 'scripts/moj_law_watch_selftest.py'
       - 'scripts/legal_watch_run_health_contract_smoke.py'
+      - 'scripts/legal_watch_oidc_contract_smoke.py'
+      - 'supabase/functions/_shared/github_actions_oidc.ts'
+      - 'supabase/functions/_shared/github_actions_oidc_test.ts'
       - 'supabase/functions/sync-legal-watch/**'
       - 'supabase/migrations/20261005033000_legal_watch_run_health.sql'
+      - 'supabase/migrations/20261005061000_legal_watch_run_health_least_privilege.sql'
+      - '.github/workflows/moex-social-worker-sync.yml'
       - '.github/workflows/legal-watch-article-scope-qa.yml'
   workflow_dispatch:
 
@@ -31,19 +36,23 @@ jobs:
 
       - name: Python syntax and watcher regression
         run: |
-          python -m py_compile scripts/moj_law_watch.py scripts/moj_law_watch_selftest.py scripts/legal_watch_run_health_contract_smoke.py
+          python -m py_compile scripts/moj_law_watch.py scripts/moj_law_watch_selftest.py scripts/legal_watch_run_health_contract_smoke.py scripts/legal_watch_oidc_contract_smoke.py
           python scripts/moj_law_watch_selftest.py
           python scripts/legal_watch_run_health_contract_smoke.py
+          python scripts/legal_watch_oidc_contract_smoke.py
 
       - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
 
-      - name: Article scope and run-health unit tests
+      - name: Article scope, run-health and OIDC unit tests
         run: |
           deno test supabase/functions/sync-legal-watch/article_scope_test.ts
           deno test supabase/functions/sync-legal-watch/run_health_test.ts
+          deno test supabase/functions/_shared/github_actions_oidc_test.ts
 
-      - name: Edge function type check
-        run: deno check supabase/functions/sync-legal-watch/index.ts
+      - name: Edge function and OIDC type check
+        run: |
+          deno check supabase/functions/_shared/github_actions_oidc.ts
+          deno check supabase/functions/sync-legal-watch/index.ts

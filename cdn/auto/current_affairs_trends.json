@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-04T12:16:48Z",
-  "event_count": 3,
+  "generated_at": "2026-10-04T22:07:28Z",
+  "event_count": 2,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
   "trends": [
@@ -361,130 +361,6 @@
           "source_type": "official",
           "published_at": "2026-09-29T16:17:32Z",
           "item_id": "1f324758779ada31a0fc3e3382971947"
-        }
-      ]
-    },
-    {
-      "canonical_event_id": "3e8b84a5a919fab15820bd9c",
-      "title": "雲林地檢強化觀護服務！榮譽觀護人培訓聚焦反毒、戒癮與輔導技巧",
-      "category": "司法保護與修復式司法",
-      "subjects": [
-        "社會工作",
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "服務輸送與跨網絡",
-        "倫理與權利保障",
-        "規劃與政策執行",
-        "品質與風險管理"
-      ],
-      "exam_subject_axes": [
-        "社會工作直接服務",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "primary_exam_subject_axes": [
-        "社會工作直接服務"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "subject_topics": {
-        "社會工作直接服務": [
-          "被害人支持、修復式處遇與個案服務"
-        ],
-        "社會政策與社會立法": [
-          "犯罪被害人權益與社區處遇制度"
-        ],
-        "社會工作": [
-          "人權、修復與社區復歸"
-        ]
-      },
-      "knowledge_topics": [
-        "司法保護與修復式司法",
-        "榮譽觀護人",
-        "觀護人"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 被害人支持、修復式處遇與個案服務",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 人權、修復與社區復歸",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 犯罪被害人權益與社區處遇制度",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 人權、修復與社區復歸",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 被害人支持、修復式處遇與個案服務",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 犯罪被害人權益與社區處遇制度",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 犯罪被害人權益與社區處遇制度",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 人權、修復與社區復歸",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 被害人支持、修復式處遇與個案服務",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 人權、修復與社區復歸"
-      ],
-      "trend_state": "one-off",
-      "trend_score": 1.9,
-      "why": [
-        "目前證據仍偏單次事件"
-      ],
-      "factors": {
-        "cross_source": 0.0,
-        "official_evidence": 0.0,
-        "policy_change": 0.0,
-        "historical_frequency": 0.0,
-        "historical_year_breadth": 0.0,
-        "recent_exam_support": 0.0,
-        "historical_subject_breadth": 0.0,
-        "law_relevance": 0.0,
-        "persistence": 0.0,
-        "essay_value": 1.1,
-        "mcq_density": 0.45,
-        "recency": 1.0
-      },
-      "source_count": 1,
-      "official_source_count": 0,
-      "observation_count": 1,
-      "first_seen": "2026-10-04T03:48:38Z",
-      "last_seen": "2026-10-04T03:48:38Z",
-      "related_laws": [],
-      "related_policy_instruments": [],
-      "law_link_status": "unresolved",
-      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
-      "law_link_basis": [],
-      "law_link_rules_schema": 1,
-      "historical_question_count": 0,
-      "historical_weighted_match_count": 0.0,
-      "historical_match_breakdown": {
-        "strong": 0,
-        "medium": 0,
-        "concept": 0
-      },
-      "historical_exam_years": [],
-      "latest_related_exam_year": null,
-      "corpus_latest_exam_year": 115,
-      "years_since_last_related_exam": null,
-      "historical_subject_counts": {},
-      "historical_subject_count": 0,
-      "historical_law_match_count": 0,
-      "historical_law_match_years": [],
-      "historical_high_confidence_match_count": 0,
-      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
-      "related_exam_questions": [],
-      "essay_direction": "可從「犯罪被害人權益、以家庭為中心的保護服務、修復式司法與社區處遇」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "榮譽觀護人",
-        "觀護人"
-      ],
-      "evidence": [
-        {
-          "source_name": "自由時報社會",
-          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5594853",
-          "source_type": "news",
-          "published_at": "2026-10-04T03:48:38Z",
-          "item_id": "28c9c4e40c5c91a92045d8f3e419c210"
         }
       ]
     }

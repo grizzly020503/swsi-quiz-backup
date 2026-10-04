@@ -8,12 +8,21 @@ on:
       - 'scripts/historical_law_verified_registry_smoke.py'
       - 'scripts/historical_law_evidence_adjudication.py'
       - 'scripts/historical_law_evidence_adjudication_selftest.py'
+      - 'scripts/historical_law_runtime_evidence_contract_smoke.py'
+      - 'scripts/historical_law_runtime_sync_workflow_smoke.py'
       - 'data/historical_law_verified_priority10.v1.json'
       - 'data/historical_law_evidence_adjudication.v1.json'
       - 'data/historical_law_evidence_snapshot.v1.json'
       - 'data/law_question_links_priority10.v1.json'
       - 'cdn/question-shards/**'
       - 'audit/historical_law_evidence_adjudication_20261003.md'
+      - 'supabase/functions/_shared/github_actions_oidc.ts'
+      - 'supabase/functions/_shared/github_actions_oidc_test.ts'
+      - 'supabase/functions/sync-historical-law-evidence/**'
+      - 'supabase/migrations/20261005050000_historical_law_runtime_evidence.sql'
+      - 'supabase/migrations/20261005062000_historical_law_runtime_evidence_least_privilege.sql'
+      - 'supabase/recovery/edge_functions.json'
+      - '.github/workflows/historical-law-runtime-sync.yml'
       - '.github/workflows/historical-law-stage7-qa.yml'
   workflow_dispatch:
 
@@ -33,6 +42,9 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
       - name: Syntax and deterministic materializer regressions
         run: |
           set -euo pipefail
@@ -41,10 +53,14 @@ jobs:
             scripts/historical_law_stage7_selftest.py \
             scripts/historical_law_verified_registry_smoke.py \
             scripts/historical_law_evidence_adjudication.py \
-            scripts/historical_law_evidence_adjudication_selftest.py
+            scripts/historical_law_evidence_adjudication_selftest.py \
+            scripts/historical_law_runtime_evidence_contract_smoke.py \
+            scripts/historical_law_runtime_sync_workflow_smoke.py
           (cd scripts && python historical_law_stage7_selftest.py)
           python scripts/historical_law_verified_registry_smoke.py
           (cd scripts && python historical_law_evidence_adjudication_selftest.py)
+          python scripts/historical_law_runtime_evidence_contract_smoke.py
+          python scripts/historical_law_runtime_sync_workflow_smoke.py
           python scripts/historical_law_evidence_adjudication.py --output /tmp/historical_law_verified_combined.v1.json
           python - <<'PY'
           import json
@@ -63,6 +79,25 @@ jobs:
           print('HISTORICAL LAW COMBINED VERIFIED REGISTRY OK: 13 machine + 6 evidence adjudicated = 19')
           PY
           git diff --check
+      - name: Runtime evidence projection and sync production contract
+        run: |
+          set -euo pipefail
+          deno test supabase/functions/_shared/github_actions_oidc_test.ts
+          deno test supabase/functions/sync-historical-law-evidence/runtime_evidence_test.ts
+          deno check supabase/functions/_shared/github_actions_oidc.ts
+          deno check supabase/functions/sync-historical-law-evidence/runtime_evidence.ts
+          deno check supabase/functions/sync-historical-law-evidence/index.ts
+          deno eval --allow-read=/tmp/historical_law_verified_combined.v1.json '
+            import { normalizeRegistry, materializeRegistry } from "./supabase/functions/sync-historical-law-evidence/runtime_evidence.ts";
+            const payload = JSON.parse(await Deno.readTextFile("/tmp/historical_law_verified_combined.v1.json"));
+            const normalized = normalizeRegistry(payload);
+            if (normalized.record_count !== 19) throw new Error(`expected 19 runtime records, got ${normalized.record_count}`);
+            if (normalized.machine_verified_count !== 13 || normalized.evidence_adjudicated_count !== 6) throw new Error("verification-level counts drift");
+            const materialized = await materializeRegistry(normalized);
+            if (!/^[0-9a-f]{64}$/.test(materialized.registry_sha256)) throw new Error("registry fingerprint invalid");
+            if (materialized.rows.some((row) => !/^[0-9a-f]{64}$/.test(row.evidence_sha256))) throw new Error("record fingerprint invalid");
+            console.log(`HISTORICAL LAW RUNTIME EVIDENCE OK records=${normalized.record_count} registry_sha256=${materialized.registry_sha256}`);
+          '
       - name: Stage 7 trust-boundary AST guard
         run: |
           python - <<'PY'

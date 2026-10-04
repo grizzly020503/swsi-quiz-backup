@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/moex-importer-integrity-qa.yml'
       - '.github/workflows/moex-social-worker-sync.yml'
+      - 'supabase/functions/_shared/github_actions_oidc.ts'
+      - 'supabase/functions/_shared/github_actions_oidc_test.ts'
       - 'supabase/functions/import-moex-social-worker/index.ts'
       - 'scripts/moex_importer_integrity_smoke.js'
       - 'scripts/moex_workflow_ownership_smoke.py'
@@ -13,6 +15,8 @@ on:
     paths:
       - '.github/workflows/moex-importer-integrity-qa.yml'
       - '.github/workflows/moex-social-worker-sync.yml'
+      - 'supabase/functions/_shared/github_actions_oidc.ts'
+      - 'supabase/functions/_shared/github_actions_oidc_test.ts'
       - 'supabase/functions/import-moex-social-worker/index.ts'
       - 'scripts/moex_importer_integrity_smoke.js'
       - 'scripts/moex_workflow_ownership_smoke.py'
@@ -35,8 +39,20 @@ jobs:
       - name: JavaScript smoke syntax
         run: node --check scripts/moex_importer_integrity_smoke.js
 
-      - name: Verify importer fail-closed identity contract
+      - name: Verify importer fail-closed identity and OIDC contract
         run: node scripts/moex_importer_integrity_smoke.js
 
       - name: Verify MOEX workflow ownership contract
         run: python3 scripts/moex_workflow_ownership_smoke.py
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Verify shared OIDC claims and importer typecheck
+        run: |
+          set -euo pipefail
+          deno test supabase/functions/_shared/github_actions_oidc_test.ts
+          deno check supabase/functions/_shared/github_actions_oidc.ts
+          deno check supabase/functions/import-moex-social-worker/index.ts

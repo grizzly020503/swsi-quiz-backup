@@ -20,6 +20,7 @@ on:
       - 'data/essay_enrichment.json'
       - 'data/legal_watch_names.json'
       - 'supabase/functions/sync-essay-enrichment/index.ts'
+      - 'supabase/functions/import-moex-social-worker/index.ts'
   schedule:
     # 零成本正常模式：台灣時間每週一 10:35（UTC 02:35）。
     # 國考資料平時低頻檢查；接近已知考試放榜／更正窗口時，用 workflow_dispatch
@@ -29,6 +30,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 concurrency:
   group: moex-social-worker-sync
@@ -78,22 +80,34 @@ jobs:
             echo 'updated=false' >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Send legal watch snapshot to Supabase
+      - name: Send legal watch snapshot to Supabase with GitHub OIDC
         if: steps.law_watch.outputs.updated == 'true'
         continue-on-error: true
         env:
-          GH_REPO_TOKEN: ${{ github.token }}
           LEGAL_WATCH_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-legal-watch
         shell: bash
         run: |
           set -euo pipefail
+          oidc_response="$(curl --silent --show-error --fail-with-body \
+            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=swsi-supabase-sync")"
+          oidc_token="$(python - "$oidc_response" <<'PY'
+          import json, sys
+          token = str(json.loads(sys.argv[1]).get('value') or '')
+          if token.count('.') != 2:
+              raise SystemExit('GitHub OIDC provider did not return a JWT')
+          print(token)
+          PY
+          )"
+          echo "::add-mask::$oidc_token"
+
           if curl --silent --show-error --fail-with-body \
             -X POST "$LEGAL_WATCH_URL" \
-            -H "Authorization: Bearer $GH_REPO_TOKEN" \
+            -H "Authorization: Bearer $oidc_token" \
             -H 'Content-Type: application/json' \
             --data-binary @data/legal_watch_report.json; then
             echo
-            echo 'Official legal watch synced to Supabase.'
+            echo 'Official legal watch synced to Supabase with GitHub OIDC.'
           else
             echo '::warning::Legal watch sync failed; restore monitoring files so a future run retries it.'
             for file in data/legal_watch_state.json data/legal_watch_report.json data/legal_watch_attempt.json; do
@@ -177,16 +191,27 @@ jobs:
           )
           PY
 
-      - name: Sync essay teaching enrichment to Supabase
+      - name: Sync essay teaching enrichment to Supabase with GitHub OIDC
         env:
-          GH_REPO_TOKEN: ${{ github.token }}
           ESSAY_ENRICHMENT_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-essay-enrichment
         run: |
           set -euo pipefail
           python scripts/essay_enrichment_supabase_sync_smoke.py
+          oidc_response="$(curl --silent --show-error --fail-with-body \
+            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=swsi-supabase-sync")"
+          oidc_token="$(python - "$oidc_response" <<'PY'
+          import json, sys
+          token = str(json.loads(sys.argv[1]).get('value') or '')
+          if token.count('.') != 2:
+              raise SystemExit('GitHub OIDC provider did not return a JWT')
+          print(token)
+          PY
+          )"
+          echo "::add-mask::$oidc_token"
           response="$(curl --silent --show-error --fail-with-body \
             -X POST "$ESSAY_ENRICHMENT_URL" \
-            -H "Authorization: Bearer $GH_REPO_TOKEN" \
+            -H "Authorization: Bearer $oidc_token" \
             -H 'Content-Type: application/json' \
             --data-binary @data/essay_enrichment.json)"
           echo "$response"
@@ -205,12 +230,24 @@ jobs:
       - name: Local question bank health check
         run: python scripts/health_check_v2.py --local
 
-      - name: Import only changed verified exams to Supabase
+      - name: Import only changed verified exams to Supabase with GitHub OIDC
         env:
-          GH_REPO_TOKEN: ${{ github.token }}
           IMPORT_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/import-moex-social-worker
         run: |
           set -euo pipefail
+          oidc_response="$(curl --silent --show-error --fail-with-body \
+            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=swsi-supabase-sync")"
+          oidc_token="$(python - "$oidc_response" <<'PY'
+          import json, sys
+          token = str(json.loads(sys.argv[1]).get('value') or '')
+          if token.count('.') != 2:
+              raise SystemExit('GitHub OIDC provider did not return a JWT')
+          print(token)
+          PY
+          )"
+          echo "::add-mask::$oidc_token"
+
           for file in incoming/[0-9][0-9][0-9][0-9][0-9][0-9].json; do
             [ -e "$file" ] || continue
             code="$(basename "$file" .json)"
@@ -230,7 +267,7 @@ jobs:
             echo "Importing verified Social Worker exam $code"
             response="$(curl --silent --show-error --fail-with-body \
               -X POST "$IMPORT_URL" \
-              -H "Authorization: Bearer $GH_REPO_TOKEN" \
+              -H "Authorization: Bearer $oidc_token" \
               -H 'Content-Type: application/json' \
               --data-binary "@$file")"
             echo "$response"

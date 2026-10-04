@@ -5,77 +5,18 @@
   "optional_feed_error_count": 0,
   "items": [
     {
-      "fact_keys": [
-        "num:10000",
-        "num:1000000",
-        "num:5000000",
-        "pct:50",
-        "pct:60",
-        "pct:70"
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
       ],
-      "region": "taiwan",
       "source_name": "勞動部新聞稿",
-      "knowledge_root": "社會工作管理",
+      "relevance_score": 6,
       "summary": "勞動部為鼓勵雇主營造友善育兒職場環境，持續推動企業托育補助，115年度第2期(115年5月1日起計)補助迄今已有800餘家企業提出申請，相當踴躍。勞動部提醒，本年度申請即將於9月30日截止，目前已進入最後2週倒數，有意願設置托兒設施、提供育兒補貼或其他托兒措施的企業，請把握最後申請時間，儘速備妥相關資料提出申請，共同支持員工育兒。 勞動部表示，今年企業托育補助新制自5月1日上路，大幅提高企業辦理托育的支持力道。雇主新興建托兒設施，最高可補助500萬元；已設置托兒設施者，每年最高補助100萬元，並新增營運費、教保及托育人員人事費，以及減免員工收托費用等補助",
-      "agency_keys": [],
-      "title": "企業托育補助新制創造企業留才與員工兼顧育兒需求正面效益！申請倒數2週，請雇主把握時間，於9月底前提出申請！",
       "exam_subject_axes": [
         "社會政策與社會立法",
         "人類行為與社會環境",
         "社會工作",
         "社會工作直接服務"
-      ],
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法"
-      ],
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99061/",
-      "relevance_score": 6,
-      "id": "2cc263d201f443e931c4a3a5f75e0312",
-      "concept_keys": [
-        "family_policy"
-      ],
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障",
-        "方案與資源管理"
-      ],
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會工作",
-        "社會工作直接服務"
-      ],
-      "published_at": "2026-09-16T10:30:11Z",
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "家庭政策、托育與性別制度"
-        ],
-        "人類行為與社會環境": [
-          "家庭系統、性別角色與生命歷程"
-        ],
-        "社會工作": [
-          "性別平等、照顧正義與家庭支持"
-        ],
-        "社會工作直接服務": [
-          "家庭工作與照顧支持"
-        ]
-      },
-      "source_type": "official",
-      "category": "性別與家庭政策",
-      "knowledge_topics": [
-        "性別與家庭政策",
-        "育兒",
-        "托育",
-        "補助"
-      ],
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "exam_tags": [
-        "育兒",
-        "托育",
-        "補助"
       ],
       "knowledge_paths": [
         "社會工作管理 > 規劃與政策執行",
@@ -90,6 +31,65 @@
         "社會工作管理 > 方案與資源管理 > 社會工作 > 性別平等、照顧正義與家庭支持",
         "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 家庭政策、托育與性別制度"
       ],
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99061/",
+      "agency_keys": [],
+      "fact_keys": [
+        "num:10000",
+        "num:1000000",
+        "num:5000000",
+        "pct:50",
+        "pct:60",
+        "pct:70"
+      ],
+      "concept_keys": [
+        "family_policy"
+      ],
+      "source_type": "official",
+      "published_at": "2026-09-16T10:30:11Z",
+      "region": "taiwan",
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障",
+        "方案與資源管理"
+      ],
+      "category": "性別與家庭政策",
+      "id": "2cc263d201f443e931c4a3a5f75e0312",
+      "title": "企業托育補助新制創造企業留才與員工兼顧育兒需求正面效益！申請倒數2週，請雇主把握時間，於9月底前提出申請！",
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "exam_tags": [
+        "育兒",
+        "托育",
+        "補助"
+      ],
+      "knowledge_root": "社會工作管理",
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作",
+        "社會工作直接服務"
+      ],
+      "knowledge_topics": [
+        "性別與家庭政策",
+        "育兒",
+        "托育",
+        "補助"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "家庭政策、托育與性別制度"
+        ],
+        "人類行為與社會環境": [
+          "家庭系統、性別角色與生命歷程"
+        ],
+        "社會工作": [
+          "性別平等、照顧正義與家庭支持"
+        ],
+        "社會工作直接服務": [
+          "家庭工作與照顧支持"
+        ]
+      },
       "source_count": 1,
       "article_count": 1,
       "sources": [
@@ -104,145 +104,16 @@
       "clustered": false
     },
     {
-      "fact_keys": [],
-      "region": "taiwan",
-      "source_name": "自由時報社會",
-      "knowledge_root": "社會工作管理",
-      "summary": "為持續提升成年觀護工作服務品質，雲林地方檢察署與雲林縣榮譽觀護人協進會共同辦理「榮譽觀護人專業成長訓練」，邀請榮譽觀護人、觀護人，透過教育訓練及實務交流，持續深化觀護服務的專業...…",
-      "agency_keys": [],
-      "title": "雲林地檢強化觀護服務！榮譽觀護人培訓聚焦反毒、戒癮與輔導技巧",
-      "exam_subject_axes": [
-        "社會工作直接服務",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "primary_exam_subject_axes": [
-        "社會工作直接服務"
-      ],
       "subjects": [
-        "社會工作直接服務",
         "社會政策與社會立法",
         "社會工作"
       ],
-      "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5594853",
-      "relevance_score": 5,
-      "id": "28c9c4e40c5c91a92045d8f3e419c210",
-      "concept_keys": [],
-      "management_domains": [
-        "服務輸送與跨網絡",
-        "倫理與權利保障",
-        "規劃與政策執行",
-        "品質與風險管理"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "published_at": "2026-10-04T03:48:38Z",
-      "subject_topics": {
-        "社會工作直接服務": [
-          "被害人支持、修復式處遇與個案服務"
-        ],
-        "社會政策與社會立法": [
-          "犯罪被害人權益與社區處遇制度"
-        ],
-        "社會工作": [
-          "人權、修復與社區復歸"
-        ]
-      },
-      "source_type": "news",
-      "category": "司法保護與修復式司法",
-      "knowledge_topics": [
-        "司法保護與修復式司法",
-        "榮譽觀護人",
-        "觀護人"
-      ],
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "exam_tags": [
-        "榮譽觀護人",
-        "觀護人"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 被害人支持、修復式處遇與個案服務",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 人權、修復與社區復歸",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 犯罪被害人權益與社區處遇制度",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 人權、修復與社區復歸",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 被害人支持、修復式處遇與個案服務",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 犯罪被害人權益與社區處遇制度",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 犯罪被害人權益與社區處遇制度",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 人權、修復與社區復歸",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 被害人支持、修復式處遇與個案服務",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 人權、修復與社區復歸"
-      ],
-      "source_count": 1,
-      "article_count": 1,
-      "sources": [
-        {
-          "source_name": "自由時報社會",
-          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5594853",
-          "source_type": "news",
-          "published_at": "2026-10-04T03:48:38Z",
-          "title": "雲林地檢強化觀護服務！榮譽觀護人培訓聚焦反毒、戒癮與輔導技巧"
-        }
-      ],
-      "clustered": false
-    },
-    {
-      "fact_keys": [],
-      "region": "taiwan",
       "source_name": "勞動部新聞稿",
-      "knowledge_root": "社會工作管理",
+      "relevance_score": 5,
       "summary": "最低工資審議會於今（24）日召開會議，經勞、資、學、政四方委員討論，決定自116年1月1日起，每月最低工資由29,500元調整至30,900元，調升1,400元，調幅4.745％；每小時最低工資則比照每月最低工資之調幅，由196元調整至205元。調整案將由勞動部陳報行政院核定。若經行政院核定，最低工資將連11年調漲，持續提升基層勞工薪資，保障勞工基本生活。 本次會議，勞資雙方委員於上午進行意見交換，雙方就消費者物價指數年增率、經濟成長情勢、產業發展及勞工生活所需等面向充分討論，全數委員均認同消費者物價指數年增率CPI應全數反映，經濟成長率GDP應合理分享",
-      "agency_keys": [],
-      "title": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工資調升至205元。",
       "exam_subject_axes": [
         "社會政策與社會立法",
         "社會工作"
-      ],
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法"
-      ],
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99195/",
-      "relevance_score": 5,
-      "id": "1f324758779ada31a0fc3e3382971947",
-      "concept_keys": [],
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會工作"
-      ],
-      "published_at": "2026-09-29T16:17:32Z",
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "社會保險、就業安全與勞動政策"
-        ],
-        "社會工作": [
-          "勞動權益、社會正義與弱勢支持"
-        ]
-      },
-      "source_type": "official",
-      "category": "勞動與社會保障",
-      "knowledge_topics": [
-        "勞動與社會保障",
-        "最低工資",
-        "行政院",
-        "保障"
-      ],
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "exam_tags": [
-        "最低工資",
-        "行政院",
-        "保障"
       ],
       "knowledge_paths": [
         "社會工作管理 > 規劃與政策執行",
@@ -252,6 +123,47 @@
         "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
         "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99195/",
+      "agency_keys": [],
+      "fact_keys": [],
+      "concept_keys": [],
+      "source_type": "official",
+      "published_at": "2026-09-29T16:17:32Z",
+      "region": "taiwan",
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障"
+      ],
+      "category": "勞動與社會保障",
+      "id": "1f324758779ada31a0fc3e3382971947",
+      "title": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工資調升至205元。",
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "exam_tags": [
+        "最低工資",
+        "行政院",
+        "保障"
+      ],
+      "knowledge_root": "社會工作管理",
+      "supporting_exam_subject_axes": [
+        "社會工作"
+      ],
+      "knowledge_topics": [
+        "勞動與社會保障",
+        "最低工資",
+        "行政院",
+        "保障"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社會保險、就業安全與勞動政策"
+        ],
+        "社會工作": [
+          "勞動權益、社會正義與弱勢支持"
+        ]
+      },
       "source_count": 1,
       "article_count": 1,
       "sources": [
