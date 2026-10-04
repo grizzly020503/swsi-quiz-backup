@@ -1,8 +1,16 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import {
+  verifyGitHubActionsOidcToken,
+  type GitHubActionsOidcPolicy,
+} from "../_shared/github_actions_oidc.ts";
 
-const REPO = "grizzly020503/swsi-quiz-backup";
-const REPO_ID = 1345053575;
+const CURRENT_AFFAIRS_SYNC_POLICY: GitHubActionsOidcPolicy = {
+  allowedWorkflowRefs: new Set([
+    "grizzly020503/swsi-quiz-backup/.github/workflows/public-monitoring-feed.yml@refs/heads/main",
+  ]),
+  allowedEvents: new Set(["schedule", "workflow_dispatch", "workflow_run", "push"]),
+};
 
 type SourcePolicy = {
   feed: string;
@@ -58,22 +66,6 @@ function json(body: unknown, status = 200) {
   });
 }
 
-async function verifyRepoWriteToken(token: string) {
-  const r = await fetch(`https://api.github.com/repos/${REPO}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-      "User-Agent": "swsi-current-affairs-sync/1.2",
-    },
-  });
-  if (!r.ok) return false;
-  const repo = await r.json();
-  // Public visibility makes repo readability meaningless as an auth proof.
-  // Require write capability on the immutable SWSI repository id instead.
-  return Number(repo?.id) === REPO_ID && repo?.permissions?.push === true;
-}
-
 function safeArticleUrl(value: unknown, allowedHosts: string[]) {
   try {
     const u = new URL(String(value || ""));
@@ -112,8 +104,12 @@ Deno.serve(async (req: Request) => {
   const token = (req.headers.get("authorization") || "")
     .replace(/^Bearer\s+/i, "")
     .trim();
-  if (!token || !(await verifyRepoWriteToken(token))) {
-    return json({ error: "GitHub token lacks write access to the SWSI repository" }, 403);
+  if (!token) return json({ error: "missing GitHub Actions OIDC token" }, 401);
+  try {
+    await verifyGitHubActionsOidcToken(token, CURRENT_AFFAIRS_SYNC_POLICY);
+  } catch (error) {
+    console.warn("current-affairs OIDC auth rejected", error instanceof Error ? error.message : String(error));
+    return json({ error: "GitHub Actions OIDC authorization rejected" }, 403);
   }
 
   let body: any;
