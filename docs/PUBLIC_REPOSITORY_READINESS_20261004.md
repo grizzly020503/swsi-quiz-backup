@@ -2,146 +2,217 @@
 
 ## Current decision
 
-Status: **YELLOW — close to public-ready, but do not switch visibility yet.**
+Status: **YELLOW — engineering blockers are substantially remediated, but do not switch visibility yet.**
 
-The owner has explicitly accepted historical non-`noreply` commit email visibility as a known privacy trade-off. **Do not rewrite Git history solely to hide those email addresses.** Future commits should prefer a GitHub `noreply` address when practical.
+Current baseline main: `dd1d73107ae14a9233e2c4558497ca10c495282f`.
 
-The remaining release blockers are security-history checks, not commit-email privacy.
+Current readiness branch: `chore/public-readiness-20261004`.
 
-## What is already true
+Latest compare at this update: **ahead 23 / behind 0**. Changes remain confined to public-governance docs, security/workflow hardening, QA contracts, the history scanner, five GitHub→Supabase sync function sources, and an undeployed ops-ledger candidate. Official Core question/answer/grading data and production snapshots are not part of this branch diff.
 
-- Current default-branch code search did not reveal an obvious committed GitHub PAT, Supabase secret, OpenAI-style key, or private key value.
-- Existing source already uses environment-variable names such as `SUPABASE_SERVICE_ROLE_KEY` rather than embedding the production value.
+The owner has explicitly accepted historical non-`noreply` **commit metadata Email** visibility. Do not rewrite Git history solely for commit metadata Email exposure. This does **not** automatically settle separate historical findings where source content explicitly identified a personal Email as an administrator identity or contained personal-name attribution.
+
+## What is already verified
+
+### Current source / credentials
+
+- Current default-branch scans did not reveal an obvious committed GitHub PAT, Supabase secret, OpenAI/Groq-style key, AWS access key, or private key value.
+- Source uses secret/environment variable names such as `SUPABASE_SERVICE_ROLE_KEY`; no evidence of a committed production value was found in the risk-based review.
 - `.gitignore` excludes `.env*`, private backup bundles, age identities, and restore reports.
-- Admin Edge Functions enforce authenticated sessions plus membership checks; admin access is not merely a hidden frontend route.
-- No `pull_request_target` use was found in current main during the 2026-10-04 audit.
-- The public-readiness branch adds `SECURITY.md`, `CONTRIBUTING.md`, document-classification guidance, and a local full-history scanner.
-- The readiness-only commits do not touch Official Core, production data, deploy configuration, #326, or #328.
-- The readiness-only commits have not triggered GitHub Actions runs.
+- No current `pull_request_target` use was found.
 
-## Public-before-go P0
+### Supabase authorization
 
-### 1. Full Git history scan
+- RLS is enabled on relevant tables.
+- `questions` / `essays` expose read-only student data to public roles; write access is not granted to anon/authenticated roles.
+- Sensitive/admin/current-affairs/legal-watch/telemetry tables are not directly public-readable/writeable.
+- No public-schema view was found that bypasses this boundary.
+- `SECURITY DEFINER` functions do not expose direct EXECUTE to anon/authenticated/PUBLIC.
+- `swsi-admin` requires a valid Supabase session and membership in `swsi_admin_users` before returning private admin data.
 
-Run from a complete local clone:
+### Actions / retained artifacts
+
+Risk-based retained-evidence review found no token, service-role key, provider credential, private backup, or private user/admin dump in the high-risk retained runs inspected.
+
+Verified examples include:
+
+- Netlify production deploy: secrets masked, no retained artifact.
+- DR artifact: isolated restore evidence only; no hosted mutable data or production secret payload.
+- Knowledge runtime artifact: laws/theories/manifest only; secret-like scan 0 hits.
+- Historical Law Stage 1–6 evidence: 8 JSON files; secret-like / Email / credential-key scans 0 hits.
+- Historical Law Guardian artifact: one queue JSON; secret-like / Email / credential-key scans 0 hits.
+
+This is **risk-based + retained-evidence** coverage, not a claim that every expired/deleted Actions run in repository history has been exhaustively enumerated.
+
+## Public-before remediation already prepared on readiness branch
+
+### 1. GitHub→Supabase auth now survives Private → Public safely
+
+The following production Edge Function sources no longer require `repo.private === true`:
+
+- `import-moex-social-worker`
+- `update-question-analysis`
+- `sync-legal-watch`
+- `sync-current-affairs`
+- `sync-essay-enrichment`
+
+Instead, the short-lived GitHub token must prove write capability on immutable repository id `1345053575`:
+
+```text
+repo.id == 1345053575
+AND
+repo.permissions.push == true
+```
+
+Public repository readability is therefore not treated as authentication. External/fork read-only tokens must not pass this gate.
+
+The undeployed `swsi-ops-ledger` candidate uses the same rule so the old Private-only assumption cannot be deployed later.
+
+Corresponding QA contracts now explicitly require this public-safe gate and reject reintroduction of `repo.private === true`.
+
+**Important:** these are source changes only. The five production functions have **not** been redeployed yet.
+
+### 2. Privileged workflow trust boundaries are narrowed
+
+- Historical Law Guardian downstream `workflow_run` evidence routing only accepts a successful `workflow_dispatch` Stage 1–6 run from this repository's `main`; PR/fork heads are not executed in the privileged downstream lane.
+- Admin Production defaults to `contents: read`; PR validation is read-only. Only the non-PR production job requests `contents: write`.
+- Public Monitoring Feed defaults to `contents: read`; PR deterministic/UI/five-radar validation is a read-only job. Only trusted non-PR monitoring/publish events request `contents: write`.
+
+### 3. Current-source personal-name literals removed
+
+The readiness branch removes the plaintext identity marker previously used by privacy denylist checks in:
+
+- `scripts/public_content_sanitize.py`
+- `.github/workflows/cloudflare-public-candidate.yml`
+- `.github/workflows/prepare-cloudflare-soft-launch-artifact.yml`
+
+The replacement is stronger and identity-neutral: structural patterns reject legacy personal attribution shapes and third-party study-guide source language without committing any person's name.
+
+### 4. History scanner v2
+
+`scripts/public_repo_history_secret_scan.py` now:
+
+- checks blob size before loading content;
+- scans high-confidence credential/token/private-key/JWT patterns;
+- detects sensitive variable names assigned literal values;
+- explicitly ignores safe runtime references such as `${{ secrets.* }}`, `github.token`, `Deno.env.get(...)`, `process.env`, and `os.environ`;
+- scans historical text blobs for Email-like values without printing the Email;
+- flags archive/database/credential-container history paths for manual review;
+- supports a local-only identity regex file located outside the Git working tree via `SWSI_IDENTITY_REVIEW_PATTERNS_FILE`;
+- separates `credential_blocking_findings`, `identity_review_findings`, and accepted commit-metadata Email information.
+
+## Remaining Public-before P0
+
+### 1. Run the full all-refs history scanner on a complete clone
+
+Required sequence:
 
 ```bash
 git fetch --all --tags --prune
 python3 scripts/public_repo_history_secret_scan.py
 ```
 
-The scan must cover reachable historical blobs and report only redacted metadata, never raw secret values.
+For owner-specific historical name review, optionally provide a local file outside the repository:
 
-Any finding must be classified. If a real credential was ever committed:
+```bash
+SWSI_IDENTITY_REVIEW_PATTERNS_FILE=/private/path/patterns.txt \
+python3 scripts/public_repo_history_secret_scan.py
+```
 
-1. revoke / rotate the credential first;
+The current connector/container cannot provide the complete local `.git` object database, so this gate is **not yet PASS**.
+
+If credential findings are real:
+
+1. revoke/rotate first;
 2. determine exposure scope;
-3. clean history only where necessary;
+3. clean only what is necessary;
 4. re-scan;
-5. check related logs/artifacts.
+5. inspect related Actions logs/artifacts.
 
-Do not treat a clean current branch as proof that history is clean.
+### 2. Historical identity/privacy owner decision
 
-### 2. GitHub Actions log / artifact audit
+Two findings remain distinct from accepted commit metadata Email:
 
-Audit retained workflow history, especially workflows that consume production or deployment secrets. Check for:
+- an ancestor commit historically placed a personal Email into an admin login identity field;
+- main history contains past personal-name attribution evidence.
 
-- GitHub PATs / tokens;
-- Supabase service-role or secret keys;
-- Netlify tokens/site identifiers if confidential;
-- Cloudflare API tokens;
-- AI-provider keys;
-- JWT/private-key material;
-- private backup payloads;
-- private user/admin/contact data;
-- commands that accidentally echo environment variables.
+These are not known password/token leaks. They are identity/privacy exposure decisions. Before Public, record whether the owner accepts these historical associations or chooses targeted de-identification / history rewrite.
 
-Secret masking in GitHub Actions is helpful but is not sufficient evidence by itself.
+Do not rewrite history merely because current source is now clean.
 
-### 3. Ops-document final review
+### 3. Exact-head CI / static validation
 
-Use `docs/PUBLIC_DOC_CLASSIFICATION_20261004.md`.
+The readiness branch needs real exact-head validation before merge. At minimum verify:
 
-Architecture, tests, safety boundaries, recovery principles, and provider-neutral operations can stay public when they contain no sensitive payload. Do not hide a file merely because it is operational.
+- YAML/workflow syntax and permissions;
+- current-affairs deterministic contract;
+- MOEX importer integrity contract;
+- essay enrichment contract;
+- ops-ledger candidate contract;
+- privacy/public-content sanitizer;
+- historical-law Guardian routing contract;
+- no unexpected Official Core or generated-data drift.
 
-Move or redact only evidence-backed sensitive material such as:
+No merge should occur merely because the security design looks correct by inspection.
 
-- credential values;
-- account recovery codes;
-- private user/contact data;
-- raw private backups;
-- provider account identifiers where exposure creates risk;
-- incident details that expose exploitable secrets.
+### 4. Merge + production function compatibility deployment
 
-## Privacy decision: commit email metadata
+Only after exact-head validation:
 
-Historical commits already contain non-`noreply` email metadata. The owner has decided this is **acceptable and not a blocker** for repository publication.
+1. merge the reviewed readiness changes;
+2. deploy the five changed production Edge Functions with their existing `verify_jwt=false` custom GitHub-token authentication model;
+3. run compatibility smoke tests from the trusted workflows;
+4. verify MOEX/current-affairs/legal-watch/essay/analysis update lanes still authorize correctly;
+5. only then consider visibility change.
 
-Therefore:
+Do **not** switch the repository Public first: the currently deployed functions still contain the old Private-only repository check until redeployed.
 
-- do **not** rewrite history solely for email privacy;
-- do **not** invalidate hundreds of commit SHAs / PR references / audit evidence for this reason;
-- prefer GitHub `noreply` email for future commits where convenient;
-- revisit only if the owner later changes this privacy preference.
+## Public-before P1 / owner decisions
 
-## Public-before-go P1
+### License
 
-### License decision
+Visibility and licensing are separate.
 
-Repository visibility and software licensing are separate decisions.
+No SWSI source-code license is currently committed. Public visibility may be used without automatically granting MIT/Apache/GPL-style reuse rights, but the owner should explicitly choose the intended policy.
 
-Before publication, explicitly choose how SWSI-authored source code may be reused. Do not automatically apply MIT/Apache/GPL without owner approval.
+Any license/notice must avoid claiming ownership over official exam content, statutory text, third-party material, news content, or other externally owned sources.
 
-The license/notice must not claim ownership over official exam content, statutory text, third-party material, news content, or other material whose rights belong elsewhere.
+### Stale branch cleanup
 
-### Main protection after publication
+There are 300+ current branch refs. Risk-based review of high-risk branch names did not reveal a new credential/private-payload blocker, but Public will expose current branch tips.
 
-Current `main` was observed as unprotected while the repository is private. After publication, configure the strongest available free ruleset/branch protection that fits the real automation model, including at minimum:
+After full-history audit, produce a retention list:
 
-- prevent accidental force-push;
-- prevent branch deletion;
-- prefer PR-based human/AI changes over direct interactive pushes;
-- require only genuinely stable, necessary CI gates;
-- preserve intentionally authorized automation that updates monitored snapshots.
+- keep;
+- safe to delete;
+- retain as evidence.
 
-Do not invent required checks that deadlock the existing bot workflows.
+Deleting a stale branch is hygiene; it does not erase content already present in main ancestry.
 
-### Public security features
+## Immediately after switching Public
 
-After switching to Public, inspect and enable where available:
+Configure available repository protection/security features promptly:
 
-- secret scanning;
-- push protection;
-- Dependabot alerts/updates;
-- private vulnerability reporting;
-- code scanning only if it adds signal without creating a high-noise maintenance burden.
+- protect `main` from force-push and deletion;
+- require only stable, necessary checks that do not deadlock authorized snapshot bots;
+- ensure write-capable automations cannot be triggered by untrusted PR code;
+- enable available secret scanning / push protection;
+- review Dependabot and private vulnerability reporting availability;
+- perform a logged-out anonymous-view audit of code, Issues/PRs, Actions, artifacts, releases, metadata, README, and deployment links.
 
-### Anonymous-view audit
-
-After publication, review the repository as a logged-out stranger and inspect:
-
-- source code;
-- Issues / PRs;
-- Actions history;
-- retained artifacts;
-- releases;
-- commit metadata;
-- deployment URLs;
-- README and documentation;
-- repository metadata.
-
-Record the public revision and date only after this check passes.
-
-## Go-public sequence
+## Updated go-public sequence
 
 ```text
-full Git history scan
-→ classify / rotate any real findings
-→ Actions logs + artifacts audit
-→ ops document final review
-→ owner license decision
+complete clone + all-refs history scanner v2
+→ classify credential / identity findings
+→ record owner historical identity/privacy decision
+→ exact-head CI / static validation of readiness branch
+→ review diff and merge
+→ deploy 5 public-safe GitHub→Supabase Edge Functions
+→ trusted compatibility smoke
+→ owner license decision (or explicitly choose no license yet)
 → switch repository visibility to Public
-→ configure branch/ruleset protections
+→ immediately configure main protection / ruleset
 → enable available public security features
 → anonymous-view audit
 → record public revision/date
@@ -151,16 +222,16 @@ full Git history scan
 
 Public-readiness work does **not** authorize:
 
-- production deployment;
-- Official Core changes;
+- changing Official Core questions/options/answers/grading;
 - unreviewed history rewrite;
 - automatic license selection;
+- deleting hundreds of stale branches without owner authorization;
 - lowering QA to make publication easier;
-- treating infrastructure/quota failures as code failures;
-- exposing private backups or production credentials.
+- exposing private backups or production credentials;
+- switching visibility before the currently deployed Private-only Edge Function auth has been replaced and smoke-tested.
 
 ## Readiness summary
 
-Email metadata is now an accepted privacy trade-off and is no longer a release blocker.
+Engineering design risk is now materially lower than at the start of this audit. Current source no longer needs to expose a personal-name denylist, privileged PR workflow permissions have been narrowed, and the Private-only GitHub→Supabase authentication assumption has a Public-safe source replacement prepared.
 
-The repository remains **YELLOW** until the full Git-history secret scan and retained Actions log/artifact audit are completed. Once those are clean (or all findings are remediated), the repository can move to the final license/visibility/ruleset steps.
+The repository remains **YELLOW** because the full all-refs scan has not actually run in a complete clone, historical identity/privacy acceptance is not fully recorded, exact-head CI is still pending, and the five production Edge Functions still run their old deployed versions.
