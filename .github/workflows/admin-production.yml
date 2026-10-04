@@ -19,15 +19,77 @@ on:
       - 'scripts/admin_auth_build.py'
       - 'scripts/admin_auth_recovery_smoke.js'
 
+# Fail closed at the workflow level. PR validation explicitly remains read-only;
+# only the trusted production job is allowed to request repository write access.
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: swsi-admin-production-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  admin-pr-validation:
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22.13.0'
+          package-manager-cache: false
+
+      - name: Build hardened admin
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/swsi-admin
+          mkdir -p /tmp/swsi-admin
+          cp -a admin/. /tmp/swsi-admin/
+          python scripts/admin_identity_privacy_build.py /tmp/swsi-admin/index.html
+          python scripts/admin_auth_build.py /tmp/swsi-admin/index.html
+
+          grep -q '<title>SWSI 管理中心</title>' /tmp/swsi-admin/index.html
+          grep -q 'noindex,nofollow,noarchive' /tmp/swsi-admin/index.html
+          grep -q 'id="aiDot"' /tmp/swsi-admin/index.html
+          grep -q 'function renderAITelemetry()' /tmp/swsi-admin/index.html
+          grep -q './feedback_clusters.js' /tmp/swsi-admin/index.html
+          if grep -Eqi 'service[_-]?role|SUPABASE_SERVICE_ROLE_KEY|NETLIFY_AUTH_TOKEN|CLOUDFLARE_API_TOKEN|GROQ_API_KEY' /tmp/swsi-admin/index.html; then
+            echo 'ERROR: secret-like credential reference leaked into admin frontend' >&2
+            exit 1
+          fi
+
+      - name: Isolated admin auth/recovery browser smoke
+        run: |
+          set -euo pipefail
+          node --check scripts/admin_auth_recovery_smoke.js
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+          python -m http.server 4174 --directory /tmp/swsi-admin >/tmp/swsi-admin-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4174/index.html >/dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/admin_auth_recovery_smoke.js http://127.0.0.1:4174/index.html
+
   admin-production:
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -121,7 +183,10 @@ jobs:
           URL='https://wandering-wave-4418.c022050333.workers.dev/admin/index.html'
           for i in $(seq 1 36); do
             code="$(curl --silent --show-error --location -o /tmp/live-admin.html -w '%{http_code}' "$URL?check=$GITHUB_RUN_ID-$i" || true)"
-            if [ "$code" = '200' ]                && grep -q '<title>SWSI 管理中心</title>' /tmp/live-admin.html                && grep -q 'id="aiDot"' /tmp/live-admin.html                && grep -q 'function renderAITelemetry()' /tmp/live-admin.html; then
+            if [ "$code" = '200' ] \
+               && grep -q '<title>SWSI 管理中心</title>' /tmp/live-admin.html \
+               && grep -q 'id="aiDot"' /tmp/live-admin.html \
+               && grep -q 'function renderAITelemetry()' /tmp/live-admin.html; then
               echo "SWSI ADMIN PRODUCTION OK: $URL"
               exit 0
             fi
