@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
-"""Offline behavior contract for moex_sync_guarded.guarded_build."""
+"""Offline behavior contract for moex_sync_guarded guarded intake."""
 
 from __future__ import annotations
 
 import sys
 from types import SimpleNamespace
 
-from moex_sync_guarded import GuardedIntakeBlocked, _production_base_module, guarded_build
+from moex_sync_guarded import (
+    GuardedIntakeBlocked,
+    _default_exam_exists,
+    _production_base_module,
+    guarded_build,
+)
 
 
 def good_payload() -> dict:
@@ -21,14 +26,15 @@ def good_payload() -> dict:
 
 
 def assert_v2_contract() -> None:
-    """Verify the production loader requires the exact v2 patched base.
-
-    A fake module keeps this deterministic and dependency-light; production CI
-    separately exercises the real v2 grading parser in test_moex_grading_modes.
-    """
+    """Verify production loading requires v2 patches and keeps exam_exists."""
     token_mc = object()
     token_rules = object()
-    fake_base = SimpleNamespace(parse_mc=token_mc, _parse_correction_rules=token_rules)
+    availability = {"116030": True, "116100": False}
+    fake_base = SimpleNamespace(
+        parse_mc=token_mc,
+        _parse_correction_rules=token_rules,
+        exam_exists=lambda code: availability.get(code, False),
+    )
     fake_v2 = SimpleNamespace(
         base=fake_base,
         parse_mc_with_grading=token_mc,
@@ -38,6 +44,8 @@ def assert_v2_contract() -> None:
     sys.modules["moex_sync_v2"] = fake_v2
     try:
         assert _production_base_module() is fake_base
+        assert _default_exam_exists("116030") is True
+        assert _default_exam_exists("116100") is False
 
         fake_base.parse_mc = object()
         try:
@@ -112,7 +120,7 @@ def main() -> int:
         pass
     assert calls["build"] == 2, "post-parse gate runs only after one parser/build attempt"
 
-    print("Guarded MOEX intake self-test: PASS (v2 contract + fail-closed gates)")
+    print("Guarded MOEX intake self-test: PASS (v2 + availability + fail-closed gates)")
     return 0
 
 
