@@ -6,6 +6,7 @@ on:
       - '.github/workflows/ops-ledger-candidate-db-qa.yml'
       - 'data/ops_task_identity.v1.json'
       - 'data/ops_task_ledger_contract.v1.json'
+      - 'data/ops_review_namespace.v1.json'
       - 'scripts/ops_task_identity.py'
       - 'scripts/ops_task_identity_resolver.py'
       - 'scripts/full_corpus_ops_identity.py'
