@@ -11,7 +11,7 @@ const recoveryAlignment = fs.readFileSync(
 );
 
 for (const marker of [
-  'swsi-supabase-moex-importer/1.4',
+  'swsi-supabase-moex-importer/1.5',
   'function assertSameIdentity',
   '["source_exam_code", incoming.source_exam_code, existing.source_exam_code]',
   '["year", String(incoming.year ?? ""), String(existing.year ?? "")]',
