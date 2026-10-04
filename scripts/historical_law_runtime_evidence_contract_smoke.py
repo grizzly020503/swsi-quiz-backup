@@ -57,9 +57,12 @@ def main() -> None:
         'sync_status: "failed"',
         'sync_status: "complete"',
         'onConflict: "question_id,law_name"',
+        "verifyGitHubActionsOidcToken",
+        "historical-law-runtime-sync.yml@refs/heads/main",
     ):
-        require(marker in index, f"sync candidate contract missing: {marker}")
-    require(".delete(" not in index, "sync candidate must not delete verified evidence")
+        require(marker in index, f"sync runtime contract missing: {marker}")
+    require("historical-law-runtime-bootstrap-once.yml" not in index, "one-shot bootstrap authorization must be retired")
+    require(".delete(" not in index, "sync runtime must not delete verified evidence")
 
     for marker in (
         "PROTECTED_CORE_FIELDS",
@@ -75,13 +78,13 @@ def main() -> None:
         row for row in inventory.get("functions") or []
         if row.get("slug") == "sync-historical-law-evidence"
     ]
-    require(len(candidates) == 1, "recovery inventory must include exactly one historical-law sync candidate")
+    require(len(candidates) == 1, "recovery inventory must include exactly one historical-law sync function")
     require(
-        candidates[0].get("status") == "source-only-candidate-not-deployed",
-        "historical-law sync must remain explicitly not deployed",
+        candidates[0].get("status") == "production-oidc-auth",
+        "historical-law sync recovery inventory must reflect production OIDC deployment",
     )
 
-    print("HISTORICAL LAW RUNTIME EVIDENCE CONTRACT OK")
+    print("HISTORICAL LAW RUNTIME EVIDENCE PRODUCTION CONTRACT OK")
 
 
 if __name__ == "__main__":
