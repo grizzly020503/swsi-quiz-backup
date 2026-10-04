@@ -11,6 +11,7 @@ import current_affairs_watch as watch
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "data" / "current_affairs_sources.json"
 EDGE = ROOT / "supabase" / "functions" / "sync-current-affairs" / "index.ts"
+OIDC = ROOT / "supabase" / "functions" / "_shared" / "github_actions_oidc.ts"
 PUBLIC_WORKFLOW = ROOT / ".github" / "workflows" / "public-monitoring-feed.yml"
 MOEX_WORKFLOW = ROOT / ".github" / "workflows" / "moex-social-worker-sync.yml"
 
@@ -29,6 +30,7 @@ def main() -> int:
     assert registry_rows
 
     source = EDGE.read_text(encoding="utf-8")
+    oidc = OIDC.read_text(encoding="utf-8")
     policy = extract_raw_json(source, "SOURCE_POLICY_JSON")
     categories = set(extract_raw_json(source, "CATEGORIES_JSON"))
 
@@ -76,20 +78,35 @@ def main() -> int:
     for guard in required_guards:
         assert guard in source, f"missing fail-closed source guard: {guard}"
 
-    # The endpoint intentionally keeps verify_jwt=false in Supabase because the
-    # GitHub workflow sends its short-lived repository GITHUB_TOKEN. Public repo
-    # readability is NOT authentication: the token must have push permission on
-    # the immutable SWSI repository id before any service-role database write.
+    # Production auth must use signed GitHub Actions OIDC. The policy is scoped to
+    # the single Public Monitoring Feed workflow on main and only the trusted event
+    # types that can run its writer job. Public-repo readability/GITHUB_TOKEN repo
+    # permission probing must never be accepted as authentication.
     for guard in (
-        'const REPO_ID = 1345053575',
-        'https://api.github.com/repos/${REPO}',
-        'verifyRepoWriteToken',
-        'Number(repo?.id) === REPO_ID',
-        'repo?.permissions?.push === true',
-        'GitHub token lacks write access to the SWSI repository',
+        'verifyGitHubActionsOidcToken',
+        'CURRENT_AFFAIRS_SYNC_POLICY',
+        'public-monitoring-feed.yml@refs/heads/main',
+        'new Set(["schedule", "workflow_dispatch", "workflow_run", "push"])',
+        'GitHub Actions OIDC authorization rejected',
     ):
-        assert guard in source, f"missing public-safe GitHub auth guard: {guard}"
-    assert 'repo?.private === true' not in source, "private-repo readability must not be used as auth"
+        assert guard in source, f"missing current-affairs OIDC guard: {guard}"
+    for forbidden in (
+        'verifyRepoWriteToken',
+        'permissions?.push',
+        'api.github.com/repos/',
+        'GitHub token lacks write access to the SWSI repository',
+        'repo?.private === true',
+    ):
+        assert forbidden not in source, f"legacy current-affairs auth marker remains: {forbidden}"
+    for guard in (
+        'GITHUB_ACTIONS_OIDC_ISSUER = "https://token.actions.githubusercontent.com"',
+        'SWSI_SYNC_AUDIENCE = "swsi-supabase-sync"',
+        'SWSI_REPOSITORY_ID = "1345053575"',
+        'algorithms: ["RS256"]',
+        'claim(payload, "workflow_ref")',
+        'claim(payload, "event_name")',
+    ):
+        assert guard in oidc, f"shared OIDC integrity marker missing: {guard}"
 
     # Preserve the #231 welfare-system fix when storing the legacy DB subjects
     # array: a policy-only knowledge classification must not be expanded back to
@@ -106,10 +123,14 @@ def main() -> int:
     moex_workflow = MOEX_WORKFLOW.read_text(encoding="utf-8")
     for required in (
         "Scan social-work current affairs",
-        "Sync current-affairs candidates to Supabase",
+        "Sync current-affairs candidates to Supabase with GitHub OIDC",
         "id: current_affairs_supabase",
         "--data-binary @/tmp/current_affairs_payload.json",
         "https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-current-affairs",
+        "ACTIONS_ID_TOKEN_REQUEST_TOKEN",
+        "ACTIONS_ID_TOKEN_REQUEST_URL",
+        "audience=swsi-supabase-sync",
+        "id-token: write",
         "Fail visibly if current-affairs Supabase sync failed",
         "steps.current_affairs_supabase.outcome != 'success'",
     ):
@@ -117,6 +138,23 @@ def main() -> int:
     assert "continue-on-error: true" in public_workflow, (
         "Supabase sync must not block public snapshot rebuild/publish before the final visible failure gate"
     )
+    assert "GH_REPO_TOKEN" not in public_workflow, "current-affairs workflow must not send legacy GitHub repo token"
+    assert "SUPABASE_SERVICE_ROLE_KEY" not in public_workflow, "service-role secret must not enter Actions"
+
+    # PR validation must remain read-only. Only the trusted non-PR writer job gets
+    # id-token:write in addition to contents:write.
+    pr_permissions = re.search(
+        r"monitoring-pr-validation:\s*.*?permissions:\s*\n\s*contents:\s*read",
+        public_workflow,
+        flags=re.DOTALL,
+    )
+    writer_permissions = re.search(
+        r"monitoring-feed:\s*.*?permissions:\s*\n\s*contents:\s*write\s*\n\s*id-token:\s*write",
+        public_workflow,
+        flags=re.DOTALL,
+    )
+    assert pr_permissions, "PR monitoring job must remain contents:read only"
+    assert writer_permissions, "trusted monitoring writer must have contents:write + id-token:write"
 
     for forbidden in (
         "Scan social-work current affairs",
@@ -129,7 +167,7 @@ def main() -> int:
     print(
         "CURRENT AFFAIRS SUPABASE SYNC POLICY OK: "
         f"sources={len(policy)}, categories={len(categories)}, "
-        "feed/region/type/host binding=yes, public-safe GitHub write-auth=yes, "
+        "feed/region/type/host binding=yes, github-actions-oidc-auth=yes, "
         "single-owner=Public Monitoring Feed"
     )
     return 0
