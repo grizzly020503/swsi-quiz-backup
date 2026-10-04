@@ -8,6 +8,8 @@ on:
       - 'scripts/health_check.py'
       - 'scripts/health_check_v2.py'
       - 'scripts/essay_enrichment_supabase_sync_smoke.py'
+      - 'supabase/functions/_shared/github_actions_oidc.ts'
+      - 'supabase/functions/_shared/github_actions_oidc_test.ts'
       - 'supabase/functions/sync-essay-enrichment/index.ts'
       - 'supabase/recovery/edge_functions.json'
       - '.github/workflows/moex-social-worker-sync.yml'
@@ -21,6 +23,8 @@ on:
       - 'scripts/health_check.py'
       - 'scripts/health_check_v2.py'
       - 'scripts/essay_enrichment_supabase_sync_smoke.py'
+      - 'supabase/functions/_shared/github_actions_oidc.ts'
+      - 'supabase/functions/_shared/github_actions_oidc_test.ts'
       - 'supabase/functions/sync-essay-enrichment/index.ts'
       - 'supabase/recovery/edge_functions.json'
       - '.github/workflows/moex-social-worker-sync.yml'
@@ -53,7 +57,7 @@ jobs:
         with:
           deno-version: v2.x
 
-      - name: Verify fail-closed sync contract
+      - name: Verify fail-closed sync and OIDC contract
         run: |
           set -euo pipefail
           python -m py_compile \
@@ -61,6 +65,8 @@ jobs:
             scripts/health_check_v2.py \
             scripts/essay_enrichment_supabase_sync_smoke.py
           python scripts/essay_enrichment_supabase_sync_smoke.py
+          deno test supabase/functions/_shared/github_actions_oidc_test.ts
+          deno check supabase/functions/_shared/github_actions_oidc.ts
           deno check supabase/functions/sync-essay-enrichment/index.ts
 
       - name: Verify local health understands the enrichment overlay
