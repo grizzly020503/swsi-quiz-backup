@@ -8,6 +8,21 @@ const ALLOWED_TASKS = new Set([
   "moex-social-worker-sync",
   "historical-law-guardian-queue",
 ]);
+const REVIEW_NAMESPACE_BY_TASK = new Map<string, string>([
+  ["historical-law-guardian-queue", "historical-law:"],
+  ["moex-social-worker-sync", "moex:"],
+]);
+const MOEX_REVIEW_REASONS = new Set([
+  "possible_exam_scheme_change",
+  "target_class_missing",
+  "unapproved_exam_scheme",
+  "source_unavailable_after_retries",
+  "post_parse_scheme_change",
+  "invalid_exam_identity",
+  "unknown_probe_status",
+  "unknown_payload_scheme_status",
+  "unapproved_match_contract",
+]);
 const TERMINAL_REVIEW_STATES = new Set(["resolved", "superseded", "invalid"]);
 const COMPLETION_OUTCOMES = new Set([
   "success",
@@ -74,6 +89,31 @@ function requireTask(body: Record<string, unknown>) {
   return taskId;
 }
 
+function requireReviewTask(body: Record<string, unknown>) {
+  const taskId = requireTask(body);
+  if (!REVIEW_NAMESPACE_BY_TASK.has(taskId)) {
+    throw new Error(`review queue access is not enabled for task_id: ${taskId}`);
+  }
+  return taskId;
+}
+
+function requireReviewItem(body: Record<string, unknown>, taskId: string) {
+  const itemId = requiredText(body, "item_id", 512);
+  const prefix = REVIEW_NAMESPACE_BY_TASK.get(taskId);
+  if (!prefix || !itemId.startsWith(prefix)) {
+    throw new Error(`review item is outside the allowed namespace for task_id: ${taskId}`);
+  }
+  return itemId;
+}
+
+function requireReviewReason(body: Record<string, unknown>, taskId: string) {
+  const reason = requiredText(body, "reason", 512);
+  if (taskId === "moex-social-worker-sync" && !MOEX_REVIEW_REASONS.has(reason)) {
+    throw new Error(`unsupported MOEX review reason: ${reason}`);
+  }
+  return reason;
+}
+
 function checkpointPayload(body: Record<string, unknown>) {
   const raw = body.checkpoint;
   if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
@@ -92,22 +132,6 @@ function metadataPayload(body: Record<string, unknown>) {
   const encoded = JSON.stringify(raw);
   if (encoded.length > 20000) throw new Error("metadata is too large");
   return raw;
-}
-
-function requireReviewItem(body: Record<string, unknown>) {
-  const itemId = requiredText(body, "item_id", 512);
-  if (!itemId.startsWith("historical-law:")) {
-    throw new Error("review item is outside the historical-law namespace");
-  }
-  return itemId;
-}
-
-function requireGuardianTask(body: Record<string, unknown>) {
-  const taskId = requireTask(body);
-  if (taskId !== "historical-law-guardian-queue") {
-    throw new Error("review queue access is limited to historical-law-guardian-queue");
-  }
-  return taskId;
 }
 
 function nextCheckAt(body: Record<string, unknown>, now: Date) {
@@ -230,10 +254,12 @@ Deno.serve(async (req: Request) => {
     }
 
     if (action === "review_upsert") {
-      const taskId = requireGuardianTask(body);
+      const taskId = requireReviewTask(body);
+      const itemId = requireReviewItem(body, taskId);
+      const reason = requireReviewReason(body, taskId);
       const { data, error } = await sb.rpc("swsi_ops_upsert_review_item", {
-        p_item_id: requireReviewItem(body),
-        p_reason: requiredText(body, "reason", 512),
+        p_item_id: itemId,
+        p_reason: reason,
         p_task_id: taskId,
         p_source_ref: optionalText(body, "source_ref", 1000),
         p_now: now.toISOString(),
@@ -244,9 +270,9 @@ Deno.serve(async (req: Request) => {
     }
 
     if (action === "review_touch") {
-      requireGuardianTask(body);
+      const taskId = requireReviewTask(body);
       const { data, error } = await sb.rpc("swsi_ops_touch_review_item", {
-        p_item_id: requireReviewItem(body),
+        p_item_id: requireReviewItem(body, taskId),
         p_now: now.toISOString(),
         p_error: optionalText(body, "error", 2000),
         p_next_check_at: nextCheckAt(body, now),
@@ -256,13 +282,13 @@ Deno.serve(async (req: Request) => {
     }
 
     if (action === "review_resolve") {
-      requireGuardianTask(body);
+      const taskId = requireReviewTask(body);
       const finalState = requiredText(body, "final_state", 64);
       if (!TERMINAL_REVIEW_STATES.has(finalState)) {
         throw new Error("invalid review terminal state");
       }
       const { data, error } = await sb.rpc("swsi_ops_resolve_review_item", {
-        p_item_id: requireReviewItem(body),
+        p_item_id: requireReviewItem(body, taskId),
         p_final_state: finalState,
         p_resolution: requiredText(body, "resolution", 2000),
         p_now: now.toISOString(),
@@ -286,7 +312,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (action === "open_reviews") {
-      requireGuardianTask(body);
+      const taskId = requireReviewTask(body);
       const limit = boundedInt(body, "limit", 100, 1, 200);
       const { data, error } = await sb
         .from("swsi_ops_review_items")
@@ -294,7 +320,7 @@ Deno.serve(async (req: Request) => {
           "item_id,task_id,reason,source_ref,state,first_seen_at,last_attempt_at,attempt,last_error,next_check_at,metadata",
         )
         .eq("state", "open")
-        .eq("task_id", "historical-law-guardian-queue")
+        .eq("task_id", taskId)
         .order("first_seen_at", { ascending: true })
         .limit(limit);
       if (error) return json({ ok: false, error: error.message }, 500);
