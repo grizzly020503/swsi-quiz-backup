@@ -41,7 +41,18 @@ jobs:
           git diff --check
 
   route-stage1-6-evidence:
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    # workflow_run executes with the base repository's token/permissions even when
+    # the upstream run came from pull-request code. Never checkout or execute an
+    # untrusted fork/same-repo PR head in this downstream context. The evidence
+    # routing lane is therefore restricted to an explicit Stage 1-6 dispatch on
+    # this repository's main branch. PRs still receive the deterministic-contract
+    # job above with read-only permissions.
+    if: >
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'workflow_dispatch' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
