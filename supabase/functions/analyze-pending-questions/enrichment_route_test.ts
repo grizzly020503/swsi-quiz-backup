@@ -1,5 +1,10 @@
 import { assertEquals } from "jsr:@std/assert";
-import { finalizeValidatedCandidate, hasLegalRiskSignal, preflightQuestion } from "./enrichment_route.ts";
+import {
+  finalizeValidatedCandidate,
+  hasLegalRiskSignal,
+  preflightQuestion,
+  RUNTIME_LEGAL_HIGH_PATTERNS,
+} from "./enrichment_route.ts";
 
 const trusted = {
   trusted: true,
@@ -52,6 +57,11 @@ function candidate(overrides: Record<string, unknown> = {}) {
     ...overrides,
   };
 }
+
+Deno.test("runtime legal risk patterns stay identical to Unified QA policy", async () => {
+  const policy = JSON.parse(await Deno.readTextFile("data/question_qa_policy_v1.json"));
+  assertEquals(RUNTIME_LEGAL_HIGH_PATTERNS, policy.risk_signals.legal_or_policy_high);
+});
 
 Deno.test("ordinary clean single-answer question proceeds without legal evidence", () => {
   const p = preflightQuestion(q(), null);
