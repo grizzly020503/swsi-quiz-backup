@@ -53,12 +53,12 @@ def main() -> int:
     missing = compare_to_registry("115100", page(SUBJECTS[:-1]), source_url="fixture://missing")
     assert missing["status"] == "possible_scheme_change", missing
     assert missing["safe_to_parse_pdfs"] is False
-    assert missing["diffs"][0]["missing"] == [["0305", "社會工作研究方法"]]
+    assert missing["diffs"][0]["missing"] == [("0305", "社會工作研究方法")]
 
     extra_subjects = SUBJECTS + [("0399", "社會工作新科目")]
     extra = compare_to_registry("115100", page(extra_subjects), source_url="fixture://extra")
     assert extra["status"] == "possible_scheme_change", extra
-    assert extra["diffs"][0]["unexpected"] == [["0399", "社會工作新科目"]]
+    assert extra["diffs"][0]["unexpected"] == [("0399", "社會工作新科目")]
 
     renamed = list(SUBJECTS)
     renamed[2] = ("0303", "社會政策與福利法制")
@@ -79,7 +79,7 @@ def main() -> int:
     assert all("營養" not in x["name"] and "一般醫學" not in x["name"] for x in extracted["subjects"])
     assert all(len(x["links"]) == 2 for x in extracted["subjects"]), extracted
 
-    # External page text is data only.  It must not turn into instructions or
+    # External page text is data only. It must not turn into instructions or
     # broaden the approved subject set.
     malicious = page(SUBJECTS).replace(
         "社會工作研究方法",
