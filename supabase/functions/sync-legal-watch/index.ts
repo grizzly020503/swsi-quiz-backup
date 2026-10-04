@@ -1,14 +1,22 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  verifyGitHubActionsOidcToken,
+  type GitHubActionsOidcPolicy,
+} from "../_shared/github_actions_oidc.ts";
+import {
   questionArticleRefs,
   questionTouchesChangedArticles,
   normalizeArticleNo,
 } from "./article_scope.ts";
 import { normalizeRunHealth, withSyncStatus } from "./run_health.ts";
 
-const REPO = "grizzly020503/swsi-quiz-backup";
-const REPO_ID = 1345053575;
+const LEGAL_WATCH_SYNC_POLICY: GitHubActionsOidcPolicy = {
+  allowedWorkflowRefs: new Set([
+    "grizzly020503/swsi-quiz-backup/.github/workflows/moex-social-worker-sync.yml@refs/heads/main",
+  ]),
+  allowedEvents: new Set(["schedule", "workflow_dispatch", "push"]),
+};
 
 type WatchRecord = {
   canonical_name: string;
@@ -28,22 +36,6 @@ function json(body: unknown, status = 200) {
     status,
     headers: { "content-type": "application/json; charset=utf-8" },
   });
-}
-
-async function verifyGitHubRepoWriteToken(token: string) {
-  const r = await fetch(`https://api.github.com/repos/${REPO}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-      "User-Agent": "swsi-supabase-legal-watch/1.4",
-    },
-  });
-  if (!r.ok) return false;
-  const repo = await r.json();
-  // Public repositories are readable by everyone, so readability is not an
-  // authentication proof. Require write capability on SWSI's immutable repo id.
-  return Number(repo?.id) === REPO_ID && repo?.permissions?.push === true;
 }
 
 function safeOfficialUrl(value: unknown) {
@@ -73,9 +65,12 @@ Deno.serve(async (req: Request) => {
   const token = (req.headers.get("authorization") || "")
     .replace(/^Bearer\s+/i, "")
     .trim();
-  if (!token) return json({ error: "missing GitHub Actions token" }, 401);
-  if (!(await verifyGitHubRepoWriteToken(token))) {
-    return json({ error: "GitHub token lacks write access to the SWSI repository" }, 403);
+  if (!token) return json({ error: "missing GitHub Actions OIDC token" }, 401);
+  try {
+    await verifyGitHubActionsOidcToken(token, LEGAL_WATCH_SYNC_POLICY);
+  } catch (e) {
+    console.warn("legal-watch OIDC auth rejected", e instanceof Error ? e.message : String(e));
+    return json({ error: "GitHub Actions OIDC authorization rejected" }, 403);
   }
 
   let body: any;
@@ -117,9 +112,6 @@ Deno.serve(async (req: Request) => {
   if (!url || !serviceRole) return json({ error: "Supabase server env missing" }, 500);
   const sb = createClient(url, serviceRole, { auth: { persistSession: false } });
 
-  // Mark the batch as in-flight before changing any per-law rows. Runtime trust
-  // must ignore syncing/failed batches; if this function crashes mid-run the
-  // marker intentionally remains syncing and therefore fails closed.
   const { error: healthStartError } = await sb
     .from("legal_watch_run_health")
     .upsert(runHealth, { onConflict: "id" });
