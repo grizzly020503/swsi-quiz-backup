@@ -6,8 +6,8 @@ const BOOTSTRAP = "grizzly020503/swsi-quiz-backup/.github/workflows/historical-l
 const LEGAL = "grizzly020503/swsi-quiz-backup/.github/workflows/moex-social-worker-sync.yml@refs/heads/main";
 
 const historicalPolicy: GitHubActionsOidcPolicy = {
-  allowedWorkflowRefs: new Set([HISTORICAL, BOOTSTRAP]),
-  allowedEvents: new Set(["workflow_dispatch", "push"]),
+  allowedWorkflowRefs: new Set([HISTORICAL]),
+  allowedEvents: new Set(["workflow_dispatch"]),
 };
 
 function payload(overrides: Record<string, unknown> = {}) {
@@ -24,14 +24,13 @@ function payload(overrides: Record<string, unknown> = {}) {
   };
 }
 
-Deno.test("historical OIDC claims accept approved workflow on main", () => {
+Deno.test("historical OIDC claims accept only approved manual workflow on main", () => {
   assertEquals(assertGitHubActionsOidcClaims(payload(), historicalPolicy), undefined);
-});
-
-Deno.test("historical OIDC claims accept one-shot bootstrap push", () => {
-  assertEquals(
-    assertGitHubActionsOidcClaims(payload({ workflow_ref: BOOTSTRAP, event_name: "push" }), historicalPolicy),
-    undefined,
+  assertThrows(() =>
+    assertGitHubActionsOidcClaims(
+      payload({ workflow_ref: BOOTSTRAP, event_name: "push" }),
+      historicalPolicy,
+    )
   );
 });
 
@@ -44,6 +43,7 @@ Deno.test("OIDC claims reject repository, repo id, ref, runner, workflow and eve
     { ref_type: "tag" },
     { runner_environment: "self-hosted" },
     { workflow_ref: LEGAL },
+    { event_name: "push" },
     { event_name: "pull_request" },
   ]) {
     assertThrows(() => assertGitHubActionsOidcClaims(payload(changed), historicalPolicy));
