@@ -1,8 +1,16 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import {
+  verifyGitHubActionsOidcToken,
+  type GitHubActionsOidcPolicy,
+} from "../_shared/github_actions_oidc.ts";
 
-const REPO = "grizzly020503/swsi-quiz-backup";
-const REPO_ID = 1345053575;
+const ESSAY_SYNC_POLICY: GitHubActionsOidcPolicy = {
+  allowedWorkflowRefs: new Set([
+    "grizzly020503/swsi-quiz-backup/.github/workflows/moex-social-worker-sync.yml@refs/heads/main",
+  ]),
+  allowedEvents: new Set(["schedule", "workflow_dispatch", "push"]),
+};
 const ANALYSIS_FIELDS = [
   "topic", "major", "keywords", "theories", "laws", "difficulty", "frequency",
   "qtype", "related", "cluster", "cluster_name", "analysis_status",
@@ -40,21 +48,6 @@ function stringList(value: unknown, label: string) {
     if (!out.includes(text)) out.push(text);
   }
   return out;
-}
-async function verifyGitHubRepoWriteToken(token: string) {
-  const response = await fetch(`https://api.github.com/repos/${REPO}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-      "User-Agent": "swsi-essay-enrichment-sync/1.1",
-    },
-  });
-  if (!response.ok) return false;
-  const repo = await response.json();
-  // Public visibility makes repository readability useless as an auth proof.
-  // Require write capability on the immutable SWSI repository id instead.
-  return Number(repo?.id) === REPO_ID && repo?.permissions?.push === true;
 }
 
 function validatePayload(payload: unknown) {
@@ -95,9 +88,12 @@ function validatePayload(payload: unknown) {
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
   const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
-  if (!token) return json({ error: "missing GitHub Actions token" }, 401);
-  if (!(await verifyGitHubRepoWriteToken(token))) {
-    return json({ error: "GitHub token lacks write access to the SWSI repository" }, 403);
+  if (!token) return json({ error: "missing GitHub Actions OIDC token" }, 401);
+  try {
+    await verifyGitHubActionsOidcToken(token, ESSAY_SYNC_POLICY);
+  } catch (error) {
+    console.warn("essay enrichment OIDC auth rejected", error instanceof Error ? error.message : String(error));
+    return json({ error: "GitHub Actions OIDC authorization rejected" }, 403);
   }
 
   let payload: unknown;
