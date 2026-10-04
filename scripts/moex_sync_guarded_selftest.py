@@ -3,7 +3,10 @@
 
 from __future__ import annotations
 
-from moex_sync_guarded import GuardedIntakeBlocked, guarded_build
+import sys
+from types import SimpleNamespace
+
+from moex_sync_guarded import GuardedIntakeBlocked, _production_base_module, guarded_build
 
 
 def good_payload() -> dict:
@@ -17,7 +20,48 @@ def good_payload() -> dict:
     }
 
 
+def assert_v2_contract() -> None:
+    """Verify the production loader requires the exact v2 patched base.
+
+    A fake module keeps this deterministic and dependency-light; production CI
+    separately exercises the real v2 grading parser in test_moex_grading_modes.
+    """
+    token_mc = object()
+    token_rules = object()
+    fake_base = SimpleNamespace(parse_mc=token_mc, _parse_correction_rules=token_rules)
+    fake_v2 = SimpleNamespace(
+        base=fake_base,
+        parse_mc_with_grading=token_mc,
+        parse_correction_rules_with_grading=token_rules,
+    )
+    old = sys.modules.get("moex_sync_v2")
+    sys.modules["moex_sync_v2"] = fake_v2
+    try:
+        assert _production_base_module() is fake_base
+
+        fake_base.parse_mc = object()
+        try:
+            _production_base_module()
+            raise AssertionError("guard must reject an inactive v2 parse_mc patch")
+        except RuntimeError as exc:
+            assert "parse_mc grading patch" in str(exc)
+        fake_base.parse_mc = token_mc
+
+        fake_base._parse_correction_rules = object()
+        try:
+            _production_base_module()
+            raise AssertionError("guard must reject an inactive v2 correction patch")
+        except RuntimeError as exc:
+            assert "correction/grading patch" in str(exc)
+    finally:
+        if old is None:
+            sys.modules.pop("moex_sync_v2", None)
+        else:
+            sys.modules["moex_sync_v2"] = old
+
+
 def main() -> int:
+    assert_v2_contract()
     calls = {"build": 0}
 
     def build(_code: str) -> dict:
@@ -68,7 +112,7 @@ def main() -> int:
         pass
     assert calls["build"] == 2, "post-parse gate runs only after one parser/build attempt"
 
-    print("Guarded MOEX intake self-test: PASS (pre-parse and post-parse fail-closed)")
+    print("Guarded MOEX intake self-test: PASS (v2 contract + fail-closed gates)")
     return 0
 
 
