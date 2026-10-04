@@ -1,3 +1,17 @@
+/* ===== SWSI MK Record Policy 2026-08-27 ===== */
+(function(){
+  'use strict';
+
+  /* all_credit is a score rule, not an answered choice. An unanswered
+     all-credit row must not be written into learner wrong-answer history. */
+  window.swsiShouldRecordMockAnswer=function(gm,picked){
+    if(gm==='all_credit'&&picked==null)return false;
+    return true;
+  };
+
+  window.swsiMockRecordPolicyVersion='2026-08-27.v1';
+})();
+/* ===== SWSI MK Record Policy END ===== */
 /* ===== SWSI MK Unified Grading Contract 2026-08-26 ===== */
 (function(){
   'use strict';

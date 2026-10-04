@@ -53,13 +53,13 @@ assert(lawTrustUI.includes("window.SWSI_NEW_RESIDENT_STATUS={version:'SWSI New R
 assert(lawTrustUI.includes("badge.textContent='已制定公布・施行日另定'"), 'law trust UI lost the new resident not-yet-effective badge');
 const lawRenderOwners = ownersFor(/\brenderLaws\s*=\s*function\b/g);
 assert(!lawRenderOwners.includes(newResidentStatusShimPath), 'new resident status wrapper unexpectedly owns renderLaws again');
-const mockPolicyPath = 'zzzzzzzzzzzzzzzzzzzzzzzzzz_mk_record_policy.part';
-assert(files.includes(mockPolicyPath), 'mock record policy owner is missing');
-const mockPolicy = sourceOf(mockPolicyPath);
-assert(mockPolicy.includes('window.swsiShouldRecordMockAnswer=function'), 'mock record policy function is missing');
-assert(mockPolicy.includes("window.swsiMockRecordPolicyVersion='2026-08-27.v1'"), 'mock record policy version is missing');
+const mockContractPath = 'zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part';
+assert(files.includes(mockContractPath), 'mock grading contract owner is missing');
+const mockContract = sourceOf(mockContractPath);
+assert(mockContract.includes('window.swsiShouldRecordMockAnswer=function'), 'mock record policy function is missing');
+assert(mockContract.includes("window.swsiMockRecordPolicyVersion='2026-08-27.v1'"), 'mock record policy version is missing');
 const recordPolicyOwners = ownersFor(/(?:window\.)?swsiShouldRecordMockAnswer\s*=\s*function\b/g);
-assert.deepStrictEqual(recordPolicyOwners, [mockPolicyPath], `unexpected mock record policy owners: ${recordPolicyOwners.join(' -> ')}`);
+assert.deepStrictEqual(recordPolicyOwners, [mockContractPath], `unexpected mock record policy owners: ${recordPolicyOwners.join(' -> ')}`);
 
 const reviewOwners = ownersFor(/\brenderReview\s*=\s*function\b/g);
 assert.deepStrictEqual(reviewOwners.slice(-2), ['00.part', '70.learning-loop.part'], `unexpected final renderReview ownership chain: ${reviewOwners.join(' -> ')}`);
