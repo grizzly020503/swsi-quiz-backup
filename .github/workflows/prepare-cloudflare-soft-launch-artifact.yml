@@ -21,6 +21,7 @@ jobs:
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
+          import re
 
           candidate='https://swsi-public-candidate-wandering-wave-4418.c022050333.workers.dev'
           final='https://wandering-wave-4418.c022050333.workers.dev'
@@ -38,15 +39,24 @@ jobs:
           s=s.replace(candidate + '/api/ai', final + '/api/ai', 1)
           s=s.replace(candidate + '/', final + '/')
 
-          import re
           s,n=re.subn(r'\n<meta name="swsi-candidate-source" content="[0-9a-f]+">','',s,count=1)
           if n != 1:
               raise SystemExit(f'candidate source marker count={n}; refusing release transform')
 
-          forbidden=('蔡宇庭','老師提供的學長姐心得','資深學長姐的應考心得','這份心得是資深學長姐','學長姊應考心得')
+          forbidden=(
+              '老師提供的學長姐心得',
+              '資深學長姐的應考心得',
+              '這份心得是資深學長姐',
+              '學長姊應考心得',
+          )
           leaked=[x for x in forbidden if x in s]
-          if leaked:
-              raise SystemExit('third-party content leak: '+', '.join(leaked))
+          attribution_patterns=(
+              r'由\s*[^<>\n]{1,40}\s*平台擴充',
+              r'內容來源：[^<>\n]{1,120}學長姐心得',
+          )
+          leaked_patterns=[pattern for pattern in attribution_patterns if re.search(pattern,s)]
+          if leaked or leaked_patterns:
+              raise SystemExit('third-party content/attribution leak: '+', '.join(leaked+leaked_patterns))
           if '<meta name="robots" content="noindex,nofollow,noarchive">' not in s:
               raise SystemExit('soft-launch noindex guard missing')
           if final not in s:

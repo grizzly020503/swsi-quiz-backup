@@ -1,0 +1,139 @@
+name: Public Readiness Validation
+
+on:
+  push:
+    branches:
+      - chore/public-readiness-20261004
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  public-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22.13.0'
+          package-manager-cache: false
+
+      - name: Install read-only validation dependencies
+        run: python -m pip install --disable-pip-version-check feedparser pyyaml
+
+      - name: Fetch all refs for history audit
+        run: git fetch --all --tags --prune
+
+      - name: Syntax check changed Python and JavaScript
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/public_repo_history_secret_scan.py \
+            scripts/public_repo_history_secret_scan_selftest.py \
+            scripts/public_content_sanitize.py \
+            scripts/current_affairs_supabase_sync_smoke.py \
+            scripts/essay_enrichment_supabase_sync_smoke.py \
+            scripts/ops_ledger_gateway_contract.py
+          node --check scripts/moex_importer_integrity_smoke.js
+
+      - name: Parse changed workflow YAML
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          paths = [
+              '.github/workflows/admin-production.yml',
+              '.github/workflows/cloudflare-public-candidate.yml',
+              '.github/workflows/historical-law-guardian-routing-qa.yml',
+              '.github/workflows/prepare-cloudflare-soft-launch-artifact.yml',
+              '.github/workflows/public-monitoring-feed.yml',
+              '.github/workflows/public-readiness-validation.yml',
+          ]
+          for raw in paths:
+              path = Path(raw)
+              data = yaml.safe_load(path.read_text(encoding='utf-8'))
+              if not isinstance(data, dict):
+                  raise SystemExit(f'workflow YAML did not parse to mapping: {raw}')
+              print('YAML OK:', raw)
+          PY
+
+      - name: Public-safe GitHub auth regression
+        run: |
+          set -euo pipefail
+          files=(
+            supabase/functions/import-moex-social-worker/index.ts
+            supabase/functions/update-question-analysis/index.ts
+            supabase/functions/sync-legal-watch/index.ts
+            supabase/functions/sync-current-affairs/index.ts
+            supabase/functions/sync-essay-enrichment/index.ts
+            supabase/candidates/edge-functions/swsi-ops-ledger/index.ts
+          )
+          for file in "${files[@]}"; do
+            grep -q 'REPO_ID = 1345053575' "$file"
+            grep -q 'permissions?.push === true' "$file"
+            if grep -q 'repo?.private === true' "$file"; then
+              echo "ERROR: Private-only GitHub auth returned in $file" >&2
+              exit 1
+            fi
+            echo "PUBLIC-SAFE AUTH OK: $file"
+          done
+
+      - name: Run updated static contracts
+        run: |
+          set -euo pipefail
+          python scripts/current_affairs_supabase_sync_smoke.py
+          python scripts/essay_enrichment_supabase_sync_smoke.py
+          python scripts/ops_ledger_gateway_contract.py
+          node scripts/moex_importer_integrity_smoke.js
+
+      - name: Public content sanitizer regression
+        run: |
+          set -euo pipefail
+          cp index.html /tmp/swsi-public-readiness-index.html
+          python scripts/public_content_sanitize.py /tmp/swsi-public-readiness-index.html
+          grep -q 'SWSI 讀書指南（自編公開內容' /tmp/swsi-public-readiness-index.html
+          ! grep -q '老師提供的學長姐心得' /tmp/swsi-public-readiness-index.html
+          ! grep -q '平台擴充' /tmp/swsi-public-readiness-index.html
+
+      - name: Full all-refs history audit
+        id: history
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/public_repo_history_secret_scan_selftest.py
+          set +e
+          python scripts/public_repo_history_secret_scan.py 2>&1 | tee /tmp/public-history-audit.txt
+          rc=${PIPESTATUS[0]}
+          set -e
+          if [ "$rc" -eq 0 ]; then
+            echo 'HISTORY AUDIT: PASS'
+            exit 0
+          fi
+          if [ "$rc" -eq 2 ]; then
+            echo '::warning::History scanner found identity/privacy review items. Values are redacted; owner classification remains required.'
+            exit 0
+          fi
+          echo '::error::History scanner found credential/security blockers or could not complete.'
+          exit "$rc"
+
+      - name: Diff hygiene
+        run: |
+          set -euo pipefail
+          git diff --check origin/main...HEAD
+          echo 'PUBLIC READINESS STATIC VALIDATION OK'

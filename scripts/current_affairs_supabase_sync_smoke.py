@@ -77,10 +77,19 @@ def main() -> int:
         assert guard in source, f"missing fail-closed source guard: {guard}"
 
     # The endpoint intentionally keeps verify_jwt=false in Supabase because the
-    # GitHub workflow uses a repository-scoped GITHUB_TOKEN and the function
-    # performs its own repository-access verification before any DB write.
-    assert 'https://api.github.com/repos/${REPO}' in source
-    assert 'unauthorized GitHub workflow' in source
+    # GitHub workflow sends its short-lived repository GITHUB_TOKEN. Public repo
+    # readability is NOT authentication: the token must have push permission on
+    # the immutable SWSI repository id before any service-role database write.
+    for guard in (
+        'const REPO_ID = 1345053575',
+        'https://api.github.com/repos/${REPO}',
+        'verifyRepoWriteToken',
+        'Number(repo?.id) === REPO_ID',
+        'repo?.permissions?.push === true',
+        'GitHub token lacks write access to the SWSI repository',
+    ):
+        assert guard in source, f"missing public-safe GitHub auth guard: {guard}"
+    assert 'repo?.private === true' not in source, "private-repo readability must not be used as auth"
 
     # Preserve the #231 welfare-system fix when storing the legacy DB subjects
     # array: a policy-only knowledge classification must not be expanded back to
@@ -120,7 +129,7 @@ def main() -> int:
     print(
         "CURRENT AFFAIRS SUPABASE SYNC POLICY OK: "
         f"sources={len(policy)}, categories={len(categories)}, "
-        "feed/region/type/host binding=yes, custom GitHub auth preserved=yes, "
+        "feed/region/type/host binding=yes, public-safe GitHub write-auth=yes, "
         "single-owner=Public Monitoring Feed"
     )
     return 0

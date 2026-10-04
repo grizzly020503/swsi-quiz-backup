@@ -7,6 +7,7 @@ import {
 } from "./article_scope.ts";
 
 const REPO = "grizzly020503/swsi-quiz-backup";
+const REPO_ID = 1345053575;
 
 type WatchRecord = {
   canonical_name: string;
@@ -28,18 +29,20 @@ function json(body: unknown, status = 200) {
   });
 }
 
-async function verifyGitHubRepoToken(token: string) {
+async function verifyGitHubRepoWriteToken(token: string) {
   const r = await fetch(`https://api.github.com/repos/${REPO}`, {
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
       "X-GitHub-Api-Version": "2022-11-28",
-      "User-Agent": "swsi-supabase-legal-watch/1.2",
+      "User-Agent": "swsi-supabase-legal-watch/1.3",
     },
   });
   if (!r.ok) return false;
   const repo = await r.json();
-  return repo?.full_name === REPO && repo?.private === true;
+  // Public repositories are readable by everyone, so readability is not an
+  // authentication proof. Require write capability on SWSI's immutable repo id.
+  return Number(repo?.id) === REPO_ID && repo?.permissions?.push === true;
 }
 
 function safeOfficialUrl(value: unknown) {
@@ -70,8 +73,8 @@ Deno.serve(async (req: Request) => {
     .replace(/^Bearer\s+/i, "")
     .trim();
   if (!token) return json({ error: "missing GitHub Actions token" }, 401);
-  if (!(await verifyGitHubRepoToken(token))) {
-    return json({ error: "GitHub token cannot prove access to expected private repo" }, 403);
+  if (!(await verifyGitHubRepoWriteToken(token))) {
+    return json({ error: "GitHub token lacks write access to the SWSI repository" }, 403);
   }
 
   let body: any;
