@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "purpose": "Static least-privilege policy for durable ops review namespaces. Runtime state must not be stored here.",
+  "unknown_task_policy": "deny",
+  "task_namespaces": [
+    {
+      "task_id": "historical-law-guardian-queue",
+      "item_prefix": "historical-law:",
+      "reason_policy": "existing_guardian_contract"
+    },
+    {
+      "task_id": "moex-social-worker-sync",
+      "item_prefix": "moex:",
+      "reason_policy": "explicit_allowlist",
+      "allowed_reasons": [
+        "possible_exam_scheme_change",
+        "target_class_missing",
+        "unapproved_exam_scheme",
+        "source_unavailable_after_retries",
+        "post_parse_scheme_change",
+        "invalid_exam_identity",
+        "unknown_probe_status",
+        "unknown_payload_scheme_status",
+        "unapproved_match_contract"
+      ]
+    }
+  ],
+  "explicitly_denied_review_tasks": [
+    "full-corpus-question-qa"
+  ],
+  "security": {
+    "cross_namespace_item_ids_allowed": false,
+    "unknown_reasons_for_moex_allowed": false,
+    "production_write_enabled_by_this_file": false
+  }
+}
