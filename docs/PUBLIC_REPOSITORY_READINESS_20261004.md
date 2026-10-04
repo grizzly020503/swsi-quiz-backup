@@ -2,7 +2,7 @@
 
 Status: **YELLOW — prepare for public visibility, but do not flip the repository to Public yet.**
 
-This document records the public-readiness work that can be completed safely without changing production, redeploying the site, or pretending that an incomplete secret-history audit has passed.
+This document records the public-readiness work that can be completed safely without changing production, redeploying the site, or pretending that an incomplete historical audit has passed.
 
 ## Baseline checked
 
@@ -23,6 +23,8 @@ The repository already has several useful safety boundaries:
 - Admin data access is enforced server-side through a valid Supabase user session plus membership in `swsi_admin_users`; the admin page is not the security boundary by itself.
 - The controlled Netlify production workflow uses GitHub Secrets for Netlify credentials and explicitly avoids printing their values.
 - No `pull_request_target` workflow was found in the current default-branch code search during this audit.
+- No `write-all` workflow permission was found in the current default-branch code search during this audit.
+- Current default-branch file-content search did not find a personal Gmail address.
 
 These are good signals, but they do **not** prove that every historical commit, deleted file, Action log, artifact, Issue, PR comment, or external provider configuration is clean.
 
@@ -34,6 +36,7 @@ Required evidence:
 
 - scan every blob reachable from every local ref, not only the current working tree;
 - detect high-confidence credential formats and historically committed sensitive filenames;
+- fail closed if a text blob is skipped because of a scan-size limit;
 - do not print discovered secret values to console/logs;
 - any real credential finding must be revoked/rotated before history cleanup is considered complete.
 
@@ -56,21 +59,30 @@ Do not paste suspected values into Issues or audit documents. Record only run/jo
 
 If a historical secret was printed, rotate/revoke it even if the log is later deleted.
 
-### P0-3 — Public/private operations boundary
+### P0-3 — Git commit metadata privacy
 
-The current repository contains extensive operational documentation. Public visibility should not automatically mean that every operational runbook belongs in the public repo.
+Tracked files are not the only data exposed by a Public repository. Git commits contain author and committer names / Emails.
 
-Keep public when it improves reproducibility, contribution quality, architecture understanding, or trust without exposing sensitive operational leverage, for example:
+This audit confirmed that repository history includes at least one non-`noreply` personal author Email in commit metadata.
 
-- architecture overview;
-- data contracts;
-- testing rules;
-- non-sensitive recovery design;
-- contribution rules;
-- public monitoring contracts;
-- official-source provenance rules.
+Before Public, the maintainer must explicitly choose one of these paths:
 
-Move to an explicitly private operational location when the material would expose unnecessary recovery/account detail, incident-sensitive context, private backup handling, private user data, or provider-account takeover information.
+1. accept that historical commit Email metadata can become public; or
+2. plan a controlled history rewrite / branch cleanup to replace private author metadata.
+
+Do not rewrite `main` casually. Rewriting history changes SHAs and can invalidate open PR ancestry, signed commits, release references, audit evidence, external links, and automation assumptions.
+
+The history scanner should report non-`noreply` commit Email metadata **without printing the Email value**.
+
+### P0-4 — Public/private operations boundary
+
+The repository contains extensive operational documentation. Public visibility should not automatically mean that every operational payload belongs in Git, but ordinary architecture / recovery knowledge does not need to be hidden by default.
+
+Use `docs/PUBLIC_DOC_CLASSIFICATION_20261004.md` as the initial classification.
+
+Keep public when a file improves reproducibility, contribution quality, architecture understanding, or trust without exposing sensitive operational leverage.
+
+Keep private / external when it contains credential values, account-recovery secrets, private backup payloads, private user/admin data, or evidence-backed incident detail whose disclosure materially increases active exploitability.
 
 Do not move files mechanically: several AI handoff / test contracts reference existing document paths. Classify first, then update references deliberately.
 
@@ -134,16 +146,18 @@ Must remain private / external-secret-only:
 ## Exact go-public sequence
 
 1. Freeze the target public-candidate revision.
-2. Run `scripts/public_repo_history_secret_scan.py` locally against a complete clone with all relevant refs fetched.
-3. Resolve every history-scan finding: false positive with evidence, or rotate/revoke + history/log cleanup for real secrets.
-4. Audit historical GitHub Actions logs and downloadable artifacts.
-5. Classify operational documents; move only genuinely private operational material and repair references/tests.
-6. Make the explicit code-license decision and add the chosen license/notice boundary.
-7. Re-run current-tree safety / deterministic QA without bypassing release gates.
-8. Change repository visibility to Public through GitHub repository settings.
-9. Immediately configure the intended `main` ruleset/branch protection and repository security features.
-10. Re-check public anonymous access: source, Issues/PRs, Actions history, releases/artifacts, Pages/deployment links, and exposed metadata.
-11. Record the final public revision and date in this document / project handoff.
+2. Run `git fetch --all --tags --prune` in a complete local clone.
+3. Run `python3 scripts/public_repo_history_secret_scan.py`.
+4. Resolve every history finding: false positive with evidence, or rotate/revoke + history/log cleanup for real secrets.
+5. Decide whether historical non-`noreply` commit Email metadata is acceptable. If not, design and review a history-rewrite migration before executing it.
+6. Audit historical GitHub Actions logs and downloadable artifacts.
+7. Review `docs/PUBLIC_DOC_CLASSIFICATION_20261004.md`; move only genuinely sensitive operational material and repair references/tests.
+8. Make the explicit code-license decision and add the chosen license/notice boundary.
+9. Re-run current-tree safety / deterministic QA without bypassing release gates.
+10. Change repository visibility to Public through GitHub repository settings.
+11. Immediately configure the intended `main` ruleset/branch protection and repository security features.
+12. Re-check public anonymous access: source, Issues/PRs, Actions history, releases/artifacts, Pages/deployment links, and exposed metadata.
+13. Record the final public revision and date in this document / project handoff.
 
 ## Non-goals of this branch
 
@@ -162,4 +176,4 @@ This readiness branch does not:
 
 **Do not switch visibility yet.**
 
-The codebase is structurally close to public-ready, but the remaining high-value checks are historical-secret/log review and repository-governance setup, not more product features.
+The codebase is structurally close to public-ready, but the remaining high-value checks are historical-secret/log/metadata review and repository-governance setup, not more product features.

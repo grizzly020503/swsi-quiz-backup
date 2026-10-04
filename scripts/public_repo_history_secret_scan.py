@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Scan every reachable Git blob for high-confidence secret material.
+"""Scan reachable Git history for public-repository privacy/security blockers.
 
-Zero network. No third-party packages. Secret values are never printed.
+Zero network. No third-party packages. Secret values and Email values are never
+printed.
 
 Run this from a complete local clone after fetching all refs that should be
 considered before making the repository public.
@@ -26,7 +27,7 @@ from dataclasses import dataclass
 from pathlib import PurePosixPath
 
 
-DEFAULT_MAX_BLOB_BYTES = 2 * 1024 * 1024
+DEFAULT_MAX_BLOB_BYTES = 8 * 1024 * 1024
 
 SECRET_PATTERNS: dict[str, re.Pattern[str]] = {
     "private-key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
@@ -50,17 +51,19 @@ SENSITIVE_ENV_NAMES = (
     "GH_TOKEN",
 )
 
-# Detect a known sensitive variable being assigned a literal-looking value.
-# Values are deliberately not captured or printed.
 LITERAL_ASSIGNMENT = re.compile(
     r"(?im)^\s*(?:export\s+)?(" + "|".join(map(re.escape, SENSITIVE_ENV_NAMES)) +
     r")\s*[:=]\s*['\"]?(?!\$\{|\$[A-Za-z_(])[^'\"\s#]{16,}"
 )
 
+NOREPLY_EMAILS = {
+    "noreply@github.com",
+}
+
 
 @dataclass(frozen=True)
 class Finding:
-    oid: str
+    object_id: str
     path: str
     kind: str
     line: int | None = None
@@ -140,46 +143,54 @@ def suspicious_path(path: str) -> str | None:
 
 
 def likely_binary(data: bytes) -> bool:
-    sample = data[:8192]
-    return b"\x00" in sample
+    return b"\x00" in data[:8192]
 
 
 def line_number(text: str, offset: int) -> int:
     return text.count("\n", 0, offset) + 1
 
 
-def scan_blob(oid: str, path: str, max_bytes: int) -> list[Finding]:
+def is_noreply_email(value: str) -> bool:
+    email = value.strip().lower()
+    if not email:
+        return True
+    if email in NOREPLY_EMAILS:
+        return True
+    return email.endswith("@users.noreply.github.com")
+
+
+def scan_commit_metadata() -> list[Finding]:
+    raw = str(git("log", "--all", "--format=%H%x09%ae%x09%ce"))
     findings: list[Finding] = []
-    path_kind = suspicious_path(path)
-    if path_kind:
-        findings.append(Finding(oid=oid, path=path or "<unknown>", kind=path_kind))
+    seen: set[tuple[str, str]] = set()
 
-    data = git("cat-file", "blob", oid, binary=True)
-    assert isinstance(data, bytes)
-    if len(data) > max_bytes or likely_binary(data):
-        return findings
-
-    text = data.decode("utf-8", errors="replace")
-    for kind, pattern in SECRET_PATTERNS.items():
-        for match in pattern.finditer(text):
-            findings.append(
-                Finding(
-                    oid=oid,
-                    path=path or "<unknown>",
-                    kind=kind,
-                    line=line_number(text, match.start()),
+    for line in raw.splitlines():
+        parts = line.split("\t")
+        if len(parts) != 3:
+            continue
+        commit, author_email, committer_email = parts
+        if author_email and not is_noreply_email(author_email):
+            key = (commit, "author")
+            if key not in seen:
+                seen.add(key)
+                findings.append(
+                    Finding(
+                        object_id=commit,
+                        path="<commit-metadata>",
+                        kind="non-noreply-author-email",
+                    )
                 )
-            )
-
-    for match in LITERAL_ASSIGNMENT.finditer(text):
-        findings.append(
-            Finding(
-                oid=oid,
-                path=path or "<unknown>",
-                kind=f"literal-sensitive-assignment:{match.group(1)}",
-                line=line_number(text, match.start()),
-            )
-        )
+        if committer_email and not is_noreply_email(committer_email):
+            key = (commit, "committer")
+            if key not in seen:
+                seen.add(key)
+                findings.append(
+                    Finding(
+                        object_id=commit,
+                        path="<commit-metadata>",
+                        kind="non-noreply-committer-email",
+                    )
+                )
 
     return findings
 
@@ -190,55 +201,60 @@ def main() -> int:
         "--max-blob-bytes",
         type=int,
         default=DEFAULT_MAX_BLOB_BYTES,
-        help="maximum blob size to decode and regex-scan (default: 2 MiB)",
+        help="maximum text blob size to regex-scan (default: 8 MiB); skipped text blobs fail closed",
     )
     args = ap.parse_args()
 
     try:
         ensure_repo()
         rows = object_inventory()
+        findings = scan_commit_metadata()
     except RuntimeError as exc:
-        print(f"PUBLIC HISTORY SECRET SCAN ERROR: {exc}", file=sys.stderr)
+        print(f"PUBLIC HISTORY SCAN ERROR: {exc}", file=sys.stderr)
         return 3
 
-    # Same blob can appear under different historical paths. Keep one scan per
-    # oid, but preserve every sensitive historical path finding.
     blob_rows = [(oid, size, path) for oid, typ, size, path in rows if typ == "blob"]
     scanned_oids: set[str] = set()
-    findings: list[Finding] = []
-    skipped_large = 0
+    large_text_oids: set[str] = set()
 
     for oid, size, path in blob_rows:
         path_kind = suspicious_path(path)
         if path_kind:
-            findings.append(Finding(oid=oid, path=path or "<unknown>", kind=path_kind))
+            findings.append(Finding(object_id=oid, path=path or "<unknown>", kind=path_kind))
 
         if oid in scanned_oids:
             continue
         scanned_oids.add(oid)
 
-        if size > args.max_blob_bytes:
-            skipped_large += 1
-            continue
-
         try:
             data = git("cat-file", "blob", oid, binary=True)
             assert isinstance(data, bytes)
         except RuntimeError as exc:
-            print(f"PUBLIC HISTORY SECRET SCAN ERROR: {exc}", file=sys.stderr)
+            print(f"PUBLIC HISTORY SCAN ERROR: {exc}", file=sys.stderr)
             return 3
 
         if likely_binary(data):
             continue
 
-        text = data.decode("utf-8", errors="replace")
         canonical_path = path or "<unknown>"
+        if size > args.max_blob_bytes:
+            large_text_oids.add(oid)
+            findings.append(
+                Finding(
+                    object_id=oid,
+                    path=canonical_path,
+                    kind="large-text-blob-not-regex-scanned",
+                )
+            )
+            continue
+
+        text = data.decode("utf-8", errors="replace")
 
         for kind, pattern in SECRET_PATTERNS.items():
             for match in pattern.finditer(text):
                 findings.append(
                     Finding(
-                        oid=oid,
+                        object_id=oid,
                         path=canonical_path,
                         kind=kind,
                         line=line_number(text, match.start()),
@@ -248,35 +264,58 @@ def main() -> int:
         for match in LITERAL_ASSIGNMENT.finditer(text):
             findings.append(
                 Finding(
-                    oid=oid,
+                    object_id=oid,
                     path=canonical_path,
                     kind=f"literal-sensitive-assignment:{match.group(1)}",
                     line=line_number(text, match.start()),
                 )
             )
 
-    unique = sorted(set(findings), key=lambda f: (f.path, f.kind, f.oid, f.line or 0))
+    unique = sorted(
+        set(findings),
+        key=lambda f: (f.path, f.kind, f.object_id, f.line or 0),
+    )
+
+    email_findings = sum(1 for f in unique if "email" in f.kind)
+    secret_findings = sum(
+        1
+        for f in unique
+        if f.kind not in {
+            "non-noreply-author-email",
+            "non-noreply-committer-email",
+            "large-text-blob-not-regex-scanned",
+        }
+    )
 
     print(
-        "PUBLIC HISTORY SECRET SCAN SUMMARY "
+        "PUBLIC HISTORY SCAN SUMMARY "
         f"reachable_objects={len(rows)} "
         f"unique_blobs={len(scanned_oids)} "
-        f"large_blobs_skipped={skipped_large} "
-        f"findings={len(unique)}"
+        f"large_text_blobs_unscanned={len(large_text_oids)} "
+        f"secret_or_sensitive_path_findings={secret_findings} "
+        f"non_noreply_email_findings={email_findings} "
+        f"total_findings={len(unique)}"
     )
 
     if unique:
-        print("FINDINGS (values intentionally redacted/not printed):")
+        print("FINDINGS (secret and Email values intentionally redacted/not printed):")
         for finding in unique:
             location = f":{finding.line}" if finding.line is not None else ""
-            print(f"- {finding.kind} {finding.path}{location} blob={finding.oid}")
+            print(
+                f"- {finding.kind} {finding.path}{location} "
+                f"object={finding.object_id}"
+            )
         print(
             "REVIEW REQUIRED: rotate/revoke real credentials before history/log cleanup; "
-            "document false positives without copying secret values."
+            "decide whether non-noreply commit Email exposure is acceptable; "
+            "re-scan any skipped large text blob with a higher limit."
         )
         return 2
 
-    print("PUBLIC HISTORY SECRET SCAN OK: no high-confidence findings in scanned reachable text blobs")
+    print(
+        "PUBLIC HISTORY SCAN OK: no high-confidence secret/sensitive-path findings, "
+        "no non-noreply commit Email metadata, and no large text blobs were skipped"
+    )
     return 0
 
 
