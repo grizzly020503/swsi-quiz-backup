@@ -39,15 +39,19 @@ def validate() -> dict[str, object]:
     text = CANDIDATE.read_text(encoding="utf-8")
     for token in [
         'const REPO = "grizzly020503/swsi-quiz-backup"',
-        "verifyGitHubRepoToken",
+        'const REPO_ID = 1345053575',
+        "verifyGitHubRepoWriteToken",
+        'Number(repo?.id) === REPO_ID',
+        'repo?.permissions?.push === true',
         'Deno.env.get("SUPABASE_URL")',
         'Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")',
-        'repo?.private === true',
         "requireGuardianTask",
         "requireReviewItem",
     ]:
         if token not in text:
             raise AssertionError(f"gateway contract missing: {token}")
+    if 'repo?.private === true' in text:
+        raise AssertionError("private-repo readability must not be used as gateway authentication")
 
     for task in REQUIRED_TASKS:
         if f'"{task}"' not in text:
@@ -105,7 +109,7 @@ def validate() -> dict[str, object]:
     return {
         "ok": True,
         "candidate_only": True,
-        "github_repo_token_gate": True,
+        "github_repo_write_token_gate": True,
         "task_allowlist": sorted(REQUIRED_TASKS),
         "action_count": len(REQUIRED_ACTIONS),
         "rpc_count": len(rpc_markers),
