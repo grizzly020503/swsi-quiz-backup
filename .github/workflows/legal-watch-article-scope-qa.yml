@@ -8,6 +8,7 @@ on:
       - 'scripts/legal_watch_run_health_contract_smoke.py'
       - 'supabase/functions/sync-legal-watch/**'
       - 'supabase/migrations/20261005033000_legal_watch_run_health.sql'
+      - 'supabase/migrations/20261005061000_legal_watch_run_health_least_privilege.sql'
       - '.github/workflows/legal-watch-article-scope-qa.yml'
   workflow_dispatch:
 
