@@ -1,8 +1,16 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import {
+  verifyGitHubActionsOidcToken,
+  type GitHubActionsOidcPolicy,
+} from "../_shared/github_actions_oidc.ts";
 
-const REPO = "grizzly020503/swsi-quiz-backup";
-const REPO_ID = 1345053575;
+const IMPORT_SYNC_POLICY: GitHubActionsOidcPolicy = {
+  allowedWorkflowRefs: new Set([
+    "grizzly020503/swsi-quiz-backup/.github/workflows/moex-social-worker-sync.yml@refs/heads/main",
+  ]),
+  allowedEvents: new Set(["schedule", "workflow_dispatch", "push"]),
+};
 const EXAM_TYPE = "專門職業及技術人員高等考試社會工作師";
 const ALLOWED_SUBJECTS = ["社會工作","社會工作直接服務","社會政策與社會立法","人類行為與社會環境","社會工作研究方法"];
 const ALLOWED_ANSWERS = new Set(["A","B","C","D"]);
@@ -13,15 +21,6 @@ const ESSAY_ANALYSIS_FIELDS = ["topic","major","keywords","theories","laws","dif
 function json(body: unknown, status = 200) { return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json; charset=utf-8" } }); }
 function assert(cond: unknown, message: string): asserts cond { if (!cond) throw new Error(message); }
 function isMoexUrl(value: unknown) { if (typeof value !== "string") return false; try { const u = new URL(value); return u.protocol === "https:" && u.hostname === "wwwq.moex.gov.tw" && u.pathname.startsWith("/exam/"); } catch { return false; } }
-
-async function verifyGitHubRepoWriteToken(token: string) {
-  const r = await fetch(`https://api.github.com/repos/${REPO}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "swsi-supabase-moex-importer/1.5" } });
-  if (!r.ok) return false;
-  const repo = await r.json();
-  // Public visibility makes repository readability useless as an auth proof.
-  // Require write capability on the immutable SWSI repository id instead.
-  return Number(repo?.id) === REPO_ID && repo?.permissions?.push === true;
-}
 
 function validateAnswerMetadata(q: any) {
   const mode = String(q?.grading_mode || "").trim();
@@ -109,8 +108,13 @@ function assertSameIdentity(kind: "選擇題" | "申論題", incoming: any, exis
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
   const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
-  if (!token) return json({ error: "缺少 GitHub Actions token" }, 401);
-  if (!(await verifyGitHubRepoWriteToken(token))) return json({ error: "GitHub token lacks write access to the SWSI repository" }, 403);
+  if (!token) return json({ error: "缺少 GitHub Actions OIDC token" }, 401);
+  try {
+    await verifyGitHubActionsOidcToken(token, IMPORT_SYNC_POLICY);
+  } catch (error) {
+    console.warn("MOEX importer OIDC auth rejected", error instanceof Error ? error.message : String(error));
+    return json({ error: "GitHub Actions OIDC authorization rejected" }, 403);
+  }
 
   let data: any; try { data = await req.json(); } catch { return json({ error: "無效 JSON" }, 400); }
   try { validatePayload(data); } catch (e) { return json({ error: e instanceof Error ? e.message : String(e) }, 400); }
@@ -146,7 +150,7 @@ Deno.serve(async (req: Request) => {
     const { error: essayError } = await sb.from("essays").upsert(mergedEssays, { onConflict: "id" });
     if (essayError) throw new Error(`essays upsert: ${essayError.message}`);
 
-    const { error: runError } = await sb.from("moex_sync_runs").upsert({ exam_code: data.exam_code, roc_year: data.roc_year, round: data.round, status: "imported", mc_count: data.questions.length, essay_count: 10, imported_at: new Date().toISOString(), source_page: data.source_page, note: "Official MOEX PDF; GitHub Actions verified; multi-answer, grading-mode and existing-ID identity rules validated; analysis fields preserved" }, { onConflict: "exam_code" });
+    const { error: runError } = await sb.from("moex_sync_runs").upsert({ exam_code: data.exam_code, roc_year: data.roc_year, round: data.round, status: "imported", mc_count: data.questions.length, essay_count: 10, imported_at: new Date().toISOString(), source_page: data.source_page, note: "Official MOEX PDF; GitHub Actions OIDC verified; multi-answer, grading-mode and existing-ID identity rules validated; analysis fields preserved" }, { onConflict: "exam_code" });
     if (runError) throw new Error(`moex_sync_runs upsert: ${runError.message}`);
     return json({ ok: true, exam_code: data.exam_code, mc_count: 200, essay_count: 10 });
   } catch (e) { return json({ error: e instanceof Error ? e.message : String(e) }, 500); }
