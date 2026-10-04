@@ -22,11 +22,23 @@ from typing import Any, Callable
 
 from exam_scheme import compare_payload
 from moex_structure_probe import probe_live
-from moex_sync import build_exam, default_candidates
 
 
 class GuardedIntakeBlocked(RuntimeError):
     pass
+
+
+def _default_build_exam(exam_code: str) -> dict[str, Any]:
+    # Lazy import keeps deterministic guard tests independent of PDF libraries.
+    from moex_sync import build_exam
+
+    return build_exam(exam_code)
+
+
+def _default_candidates() -> list[str]:
+    from moex_sync import default_candidates
+
+    return list(default_candidates())
 
 
 def write_report(path: Path, payload: dict[str, Any]) -> None:
@@ -38,7 +50,7 @@ def guarded_build(
     exam_code: str,
     *,
     probe_fn: Callable[[str], dict[str, Any]] = probe_live,
-    build_fn: Callable[[str], dict[str, Any]] = build_exam,
+    build_fn: Callable[[str], dict[str, Any]] | None = None,
     compare_fn: Callable[[dict[str, Any]], dict[str, Any]] = compare_payload,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     probe = probe_fn(exam_code)
@@ -47,7 +59,7 @@ def guarded_build(
             f"{exam_code}: official-page structure gate blocked intake: {probe.get('status')}"
         )
 
-    payload = build_fn(exam_code)
+    payload = (build_fn or _default_build_exam)(exam_code)
     scheme = compare_fn(payload)
     if scheme.get("status") != "match" or scheme.get("approved") is not True:
         raise GuardedIntakeBlocked(
@@ -67,7 +79,7 @@ def main() -> int:
     outdir = Path(args.output_dir)
     outdir.mkdir(parents=True, exist_ok=True)
     probe_dir = Path(args.probe_output_dir) if args.probe_output_dir else outdir / "_structure_probe"
-    candidates = args.exam or default_candidates()
+    candidates = args.exam or _default_candidates()
     blocked = 0
 
     for code in candidates:
@@ -91,7 +103,7 @@ def main() -> int:
             continue
 
         try:
-            data = build_exam(code)
+            data = _default_build_exam(code)
             scheme = compare_payload(data)
         except Exception as exc:
             print(f"{code}: {exc}", file=sys.stderr)
