@@ -1,0 +1,95 @@
+name: Historical Law Runtime Evidence Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_production_sync:
+        description: 'Confirm production historical-law runtime evidence sync'
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: historical-law-runtime-production-sync
+  cancel-in-progress: false
+
+jobs:
+  sync-production:
+    if: github.ref == 'refs/heads/main' && inputs.confirm_production_sync == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Build and verify combined Stage7 registry
+        run: |
+          set -euo pipefail
+          python scripts/historical_law_evidence_adjudication.py \
+            --output /tmp/historical_law_verified_combined.v1.json
+          python scripts/historical_law_runtime_evidence_contract_smoke.py
+          deno test supabase/functions/sync-historical-law-evidence/runtime_evidence_test.ts
+          deno check supabase/functions/sync-historical-law-evidence/runtime_evidence.ts
+          deno check supabase/functions/sync-historical-law-evidence/index.ts
+          deno eval \
+            --allow-read=/tmp/historical_law_verified_combined.v1.json \
+            --allow-write=/tmp/historical_law_runtime_expected.json \
+            '
+            import { normalizeRegistry, materializeRegistry } from "./supabase/functions/sync-historical-law-evidence/runtime_evidence.ts";
+            const source = JSON.parse(await Deno.readTextFile("/tmp/historical_law_verified_combined.v1.json"));
+            const normalized = normalizeRegistry(source);
+            const materialized = await materializeRegistry(normalized);
+            await Deno.writeTextFile(
+              "/tmp/historical_law_runtime_expected.json",
+              JSON.stringify({
+                registry_sha256: materialized.registry_sha256,
+                record_count: normalized.record_count,
+                machine_verified_count: normalized.machine_verified_count,
+                evidence_adjudicated_count: normalized.evidence_adjudicated_count,
+              }),
+            );
+            console.log(`Prepared historical-law runtime sync records=${normalized.record_count} sha=${materialized.registry_sha256}`);
+            '
+
+      - name: Sync verified historical-law evidence to production
+        env:
+          GH_REPO_TOKEN: ${{ github.token }}
+          HISTORICAL_LAW_SYNC_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-historical-law-evidence
+        run: |
+          set -euo pipefail
+          response="$(curl --silent --show-error --fail-with-body \
+            -X POST "$HISTORICAL_LAW_SYNC_URL" \
+            -H "Authorization: Bearer $GH_REPO_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/historical_law_verified_combined.v1.json)"
+          echo "$response"
+          python - "$response" <<'PY'
+          import json
+          import re
+          import sys
+          from pathlib import Path
+
+          response = json.loads(sys.argv[1])
+          expected = json.loads(Path('/tmp/historical_law_runtime_expected.json').read_text(encoding='utf-8'))
+          if response.get('ok') is not True or response.get('sync_status') != 'complete':
+              raise SystemExit(f'historical-law runtime sync did not complete: {response}')
+          for key in ('record_count', 'machine_verified_count', 'evidence_adjudicated_count'):
+              if int(response.get(key) or -1) != int(expected[key]):
+                  raise SystemExit(f'{key} mismatch: response={response.get(key)} expected={expected[key]}')
+          if response.get('registry_sha256') != expected['registry_sha256']:
+              raise SystemExit('registry SHA mismatch after production sync')
+          if not re.fullmatch(r'[0-9a-f]{64}', str(response.get('registry_sha256') or '')):
+              raise SystemExit('production sync returned an invalid registry SHA')
+          print(
+              'HISTORICAL LAW PRODUCTION SYNC CONFIRMED '
+              f"records={expected['record_count']} sha={expected['registry_sha256']}"
+          )
+          PY
