@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "policy_name": "SWSI MCQ Enrichment Decision V1",
+  "purpose": "Deterministic post-generation advisory gate. It never modifies Official Core or writes production state.",
+  "ready_analysis_states": ["ready", "done", "reviewed", "verified", "complete"],
+  "pending_analysis_states": ["pending", "analyzing", ""],
+  "manual_analysis_states": ["review"],
+  "required_enrichment_fields": [
+    "major",
+    "topic",
+    "keywords",
+    "exp_why",
+    "exp_others",
+    "exp_trap",
+    "mnemonic",
+    "extension",
+    "mistake"
+  ],
+  "optional_enrichment_fields": ["law"],
+  "source_bound_text_fields": [
+    "topic",
+    "keywords",
+    "exp_why",
+    "exp_others",
+    "exp_trap",
+    "mnemonic",
+    "extension",
+    "law"
+  ],
+  "format_artifact_ascii_tokens": ["na", "nb", "nc", "nd"],
+  "checked_legal_states": ["current", "checked", "verified", "verified_current", "historical_checked"],
+  "changed_legal_states": ["changed"],
+  "grading": {
+    "single_answer_standard_auto_pass": true,
+    "multi_answer_standard_requires_review": true,
+    "special_grading_blocks_generic_enrichment": true
+  },
+  "law": {
+    "canonical_names_path": "data/legal_watch_names.json",
+    "nfkc_normalize_for_matching": true,
+    "aliases": {
+      "性別工作平等法": "性別平等工作法",
+      "兩公約施行法": "公民與政治權利國際公約及經濟社會文化權利國際公約施行法",
+      "人權公約施行法": "公民與政治權利國際公約及經濟社會文化權利國際公約施行法",
+      "社會工作師執業登記及繼續教育辦法": "社會工作師接受繼續教育及執業執照更新辦法"
+    },
+    "unsupported_unverified_law_action": "drop_field",
+    "explicit_law_name_alone_is_not_answer_basis_proof": true
+  },
+  "decisions": {
+    "passed": {
+      "risk": "low",
+      "automation_confidence": "high",
+      "publish_action": "publish"
+    },
+    "passed_sanitized": {
+      "risk": "medium",
+      "automation_confidence": "medium",
+      "publish_action": "publish_sanitized"
+    },
+    "needs_review": {
+      "risk": "high",
+      "automation_confidence": "low",
+      "publish_action": "hold_for_review"
+    },
+    "blocked": {
+      "risk": "critical",
+      "automation_confidence": "blocked",
+      "publish_action": "block_enrichment"
+    },
+    "pending_generation": {
+      "risk": "low",
+      "automation_confidence": "not_applicable",
+      "publish_action": "hold_generation"
+    }
+  },
+  "safety": {
+    "official_core_mutation_allowed": false,
+    "production_write_enabled": false,
+    "numeric_confidence_score_used": false,
+    "unknown_analysis_state_policy": "needs_review",
+    "unknown_grading_mode_policy": "blocked"
+  }
+}
