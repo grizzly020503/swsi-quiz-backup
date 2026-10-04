@@ -11,6 +11,8 @@ from moex_sync_guarded import (
     _default_exam_exists,
     _production_base_module,
     guarded_build,
+    payload_ops_event,
+    probe_ops_event,
 )
 
 
@@ -68,8 +70,47 @@ def assert_v2_contract() -> None:
             sys.modules["moex_sync_v2"] = old
 
 
+def assert_ops_event_contract() -> None:
+    structure = probe_ops_event({
+        "schema_version": 1,
+        "exam_code": "116030",
+        "status": "possible_scheme_change",
+        "source_url": "fixture://scheme-change",
+        "content_sha256": "b" * 64,
+        "safe_to_parse_pdfs": False,
+        "diffs": [{"field": "subjects"}],
+    })
+    assert structure["ledger_outcome"] == "quarantined"
+    assert structure["review_required"] is True
+    assert structure["review_item"]["reason"] == "possible_exam_scheme_change"
+
+    source = probe_ops_event({
+        "schema_version": 1,
+        "exam_code": "116030",
+        "status": "source_error",
+        "source_url": "fixture://source-error",
+        "safe_to_parse_pdfs": False,
+    })
+    assert source["ledger_outcome"] == "failed_retryable"
+    assert source["review_item"] is None
+
+    post = payload_ops_event(
+        "116030",
+        {
+            "status": "candidate_change",
+            "approved": False,
+            "profile_id": "current",
+            "diffs": [{"field": "essay_per_subject"}],
+        },
+        source_ref="incoming/116030.json",
+    )
+    assert post["ledger_outcome"] == "quarantined"
+    assert post["review_item"]["reason"] == "post_parse_scheme_change"
+
+
 def main() -> int:
     assert_v2_contract()
+    assert_ops_event_contract()
     calls = {"build": 0}
 
     def build(_code: str) -> dict:
@@ -120,7 +161,7 @@ def main() -> int:
         pass
     assert calls["build"] == 2, "post-parse gate runs only after one parser/build attempt"
 
-    print("Guarded MOEX intake self-test: PASS (v2 + availability + fail-closed gates)")
+    print("Guarded MOEX intake self-test: PASS (v2 + availability + ops-event diagnostics + fail-closed gates)")
     return 0
 
 
