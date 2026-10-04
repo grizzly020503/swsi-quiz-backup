@@ -67,7 +67,7 @@ def main() -> int:
 
         constrained = {
             '50.home-spacing-essay-entry.part': ['.wrap{', 'main{', 'footer{', '.tabbar{'],
-            '72.prelaunch-mobile-polish.part': ['.wrap{', 'main{', 'footer{', '.tabbar{'],
+            '71.my-learning-center.part': ['.wrap{', 'main{', 'footer{', '.tabbar{'],
             '99_p0_mobile_ai_guardrails.part': ['.wrap{', 'main{', 'header{', 'footer{', '.tabbar{'],
             'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_preview_layout_polish.part': ['.wrap{', 'main{', 'footer{', '.tabbar{'],
         }

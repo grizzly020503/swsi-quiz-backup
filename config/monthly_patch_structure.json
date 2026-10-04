@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "purpose": "Freeze current historical late-layer debt and prevent routine growth of monthly runtime parts.",
-  "part_count_ceiling": 33,
+  "part_count_ceiling": 32,
   "late_layer_count_ceiling": 10,
   "preferred_new_part_pattern": "^[0-9]{2}\\.[a-z0-9]+(?:-[a-z0-9]+)*\\.part$",
   "grandfathered_noncanonical_parts": [
