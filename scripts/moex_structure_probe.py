@@ -16,7 +16,6 @@ import argparse
 import hashlib
 import json
 import re
-import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from html.parser import HTMLParser
@@ -72,7 +71,7 @@ class TableRow:
 class ExamPageParser(HTMLParser):
     """Collect row-level visible text, input values and links.
 
-    MOEX currently renders each class/subject entry in table rows.  Keeping the
+    MOEX currently renders each class/subject entry in table rows. Keeping the
     parser row-oriented makes unrelated professions before/after 社會工作師 unable
     to leak into the observed subject set.
     """
@@ -127,7 +126,7 @@ class ExamPageParser(HTMLParser):
             self.current = None
         if self.fallback.texts or self.fallback.inputs or self.fallback.links:
             # Fallback preserves compatibility if MOEX changes markup but keeps
-            # all content outside <tr>.  Such a case will normally become
+            # all content outside <tr>. Such a case will normally become
             # ambiguous/possible_scheme_change rather than silently accepted.
             self.rows.append(self.fallback)
 
@@ -153,8 +152,11 @@ def _looks_like_class_header(row: TableRow) -> bool:
 
 
 def _subject_name(row: TableRow) -> str:
+    # Input values are useful for locating class headers, but subject rows also
+    # contain checkbox/input values that are not part of the visible subject
+    # name. Derive the subject only from visible text.
     pieces = []
-    for value in row.inputs + row.texts:
+    for value in row.texts:
         value = _clean_text(value)
         if not value or value in {"試題", "答案"}:
             continue
