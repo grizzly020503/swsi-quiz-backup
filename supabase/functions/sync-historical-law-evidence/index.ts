@@ -13,9 +13,8 @@ import {
 const HISTORICAL_SYNC_POLICY: GitHubActionsOidcPolicy = {
   allowedWorkflowRefs: new Set([
     "grizzly020503/swsi-quiz-backup/.github/workflows/historical-law-runtime-sync.yml@refs/heads/main",
-    "grizzly020503/swsi-quiz-backup/.github/workflows/historical-law-runtime-bootstrap-once.yml@refs/heads/main",
   ]),
-  allowedEvents: new Set(["workflow_dispatch", "push"]),
+  allowedEvents: new Set(["workflow_dispatch"]),
 };
 
 function json(body: unknown, status = 200) {
