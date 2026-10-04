@@ -2,6 +2,12 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { evaluateCurrentLegalTrust, type CurrentLegalTrustDecision } from "./current_legal_trust.ts";
 import {
+  canonicalExamCode,
+  evaluateHistoricalLawTrust,
+  historicalReasonIsOperationalRetry,
+  type HistoricalLawTrustDecision,
+} from "./historical_law_trust.ts";
+import {
   canonicalLegalNames,
   finalizeValidatedCandidate,
   hasLegalRiskSignal,
@@ -188,6 +194,43 @@ async function loadCurrentLegalTrust(
   };
 }
 
+async function loadHistoricalLegalTrust(
+  sb: any,
+  q: any,
+): Promise<{ decision: HistoricalLawTrustDecision; queryError: string | null }> {
+  const names = canonicalLegalNames(q);
+  const examCode = canonicalExamCode(q);
+
+  const { data: snapshot, error: snapshotError } = await sb
+    .from("historical_law_runtime_evidence_snapshot")
+    .select("schema_version,registry_sha256,record_count,historical_version_checked_count,sync_status,source")
+    .eq("id", true)
+    .maybeSingle();
+  if (snapshotError) {
+    return {
+      decision: evaluateHistoricalLawTrust(String(q.id || ""), examCode, names, null, []),
+      queryError: `historical_snapshot_query:${snapshotError.message}`,
+    };
+  }
+
+  const { data: evidenceRows, error: evidenceError } = await sb
+    .from("historical_law_runtime_evidence")
+    .select("question_id,law_name,exam_code,historical_version_checked,verification_level,evidence_sha256,source_registry_sha256")
+    .eq("question_id", q.id)
+    .in("law_name", names);
+  if (evidenceError) {
+    return {
+      decision: evaluateHistoricalLawTrust(String(q.id || ""), examCode, names, snapshot, []),
+      queryError: `historical_evidence_query:${evidenceError.message}`,
+    };
+  }
+
+  return {
+    decision: evaluateHistoricalLawTrust(String(q.id || ""), examCode, names, snapshot, evidenceRows || []),
+    queryError: null,
+  };
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
   const url = Deno.env.get("SUPABASE_URL"), serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -208,23 +251,72 @@ Deno.serve(async (req: Request) => {
     try {
       let preflight = preflightQuestion(q, null, false);
 
-      // Only mapped legal questions need the current official-law health query.
       // Special grading, multi-answer, missing answers, and unmapped legal rows
-      // fail closed before spending any AI tokens.
+      // fail closed before spending any AI tokens. A mapped legal question needs
+      // BOTH a healthy current-law batch and verified exam-time Stage7 evidence.
       if (preflight.action === "review" && preflight.reason === "legal_trust_unavailable") {
-        const trust = await loadCurrentLegalTrust(sb, q);
-        if (trust.queryError) {
+        const currentTrust = await loadCurrentLegalTrust(sb, q);
+        if (currentTrust.queryError) {
           await updateClaimedQuestion(sb, q, {
             analysis_status: "pending",
-            analysis_error: `route_hold:${trust.queryError}`.slice(0, 1000),
+            analysis_error: `route_hold:${currentTrust.queryError}`.slice(0, 1000),
             analysis_started_at: null,
           });
-          results.push({ id: q.id, status: "pending", route: "hold_retry", reason: trust.queryError, model_called: false });
+          results.push({ id: q.id, status: "pending", route: "hold_retry", reason: currentTrust.queryError, model_called: false });
           continue;
         }
-        // Current-law evidence is necessary but never sufficient for historical
-        // exam questions. Stage-7 exam-time evidence is wired in a later gate.
-        preflight = preflightQuestion(q, trust.decision, false);
+
+        // First apply the current-law gate. Operational watcher problems are
+        // retried; changed/missing/untrusted law evidence is content review.
+        preflight = preflightQuestion(q, currentTrust.decision, false);
+        if (preflight.action === "hold_retry") {
+          await updateClaimedQuestion(sb, q, {
+            analysis_status: "pending",
+            analysis_error: `route_hold:${preflight.reason}`.slice(0, 1000),
+            analysis_started_at: null,
+          });
+          results.push({ id: q.id, status: "pending", route: "hold_retry", reason: preflight.reason, model_called: false });
+          continue;
+        }
+        if (preflight.action === "review" && preflight.reason !== "historical_law_evidence_required") {
+          await updateClaimedQuestion(sb, q, {
+            analysis_status: "review",
+            analysis_error: `route_review:${preflight.reason}`.slice(0, 1000),
+            analysis_started_at: null,
+          });
+          results.push({ id: q.id, status: "review", route: "preflight_review", reason: preflight.reason, model_called: false });
+          continue;
+        }
+
+        const historicalTrust = await loadHistoricalLegalTrust(sb, q);
+        if (historicalTrust.queryError) {
+          await updateClaimedQuestion(sb, q, {
+            analysis_status: "pending",
+            analysis_error: `route_hold:${historicalTrust.queryError}`.slice(0, 1000),
+            analysis_started_at: null,
+          });
+          results.push({ id: q.id, status: "pending", route: "hold_retry", reason: historicalTrust.queryError, model_called: false });
+          continue;
+        }
+        if (!historicalTrust.decision.trusted) {
+          const reason = historicalTrust.decision.reason;
+          const operationalRetry = historicalReasonIsOperationalRetry(reason);
+          await updateClaimedQuestion(sb, q, {
+            analysis_status: operationalRetry ? "pending" : "review",
+            analysis_error: `${operationalRetry ? "route_hold" : "route_review"}:historical:${reason}`.slice(0, 1000),
+            analysis_started_at: null,
+          });
+          results.push({
+            id: q.id,
+            status: operationalRetry ? "pending" : "review",
+            route: operationalRetry ? "hold_retry" : "historical_review",
+            reason: `historical:${reason}`,
+            model_called: false,
+          });
+          continue;
+        }
+
+        preflight = preflightQuestion(q, currentTrust.decision, true);
       }
 
       if (preflight.action === "hold_retry") {
