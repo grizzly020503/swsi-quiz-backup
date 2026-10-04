@@ -5,6 +5,7 @@ import {
   questionTouchesChangedArticles,
   normalizeArticleNo,
 } from "./article_scope.ts";
+import { normalizeRunHealth, withSyncStatus } from "./run_health.ts";
 
 const REPO = "grizzly020503/swsi-quiz-backup";
 const REPO_ID = 1345053575;
@@ -35,7 +36,7 @@ async function verifyGitHubRepoWriteToken(token: string) {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
       "X-GitHub-Api-Version": "2022-11-28",
-      "User-Agent": "swsi-supabase-legal-watch/1.3",
+      "User-Agent": "swsi-supabase-legal-watch/1.4",
     },
   });
   if (!r.ok) return false;
@@ -85,14 +86,19 @@ Deno.serve(async (req: Request) => {
   }
 
   const records: WatchRecord[] = Array.isArray(body?.records) ? body.records : [];
-  const baseline = body?.baseline === true;
-  const checkedAt = typeof body?.checked_at === "string" && body.checked_at
-    ? body.checked_at
-    : new Date().toISOString();
-
   if (!records.length || records.length > 200) {
     return json({ error: "records must contain 1-200 items" }, 400);
   }
+
+  let runHealth;
+  try {
+    runHealth = normalizeRunHealth(body as Record<string, unknown>, records, "syncing");
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    return json({ error: `invalid legal-watch run health: ${message}` }, 400);
+  }
+  const baseline = runHealth.baseline;
+  const checkedAt = runHealth.checked_at;
 
   for (const r of records) {
     if (!r || typeof r.canonical_name !== "string" || !r.canonical_name.trim()) {
@@ -110,6 +116,16 @@ Deno.serve(async (req: Request) => {
   const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!url || !serviceRole) return json({ error: "Supabase server env missing" }, 500);
   const sb = createClient(url, serviceRole, { auth: { persistSession: false } });
+
+  // Mark the batch as in-flight before changing any per-law rows. Runtime trust
+  // must ignore syncing/failed batches; if this function crashes mid-run the
+  // marker intentionally remains syncing and therefore fails closed.
+  const { error: healthStartError } = await sb
+    .from("legal_watch_run_health")
+    .upsert(runHealth, { onConflict: "id" });
+  if (healthStartError) {
+    return json({ error: `legal watch run health start: ${healthStartError.message}` }, 500);
+  }
 
   let changedLaws = 0;
   let articleScopedLaws = 0;
@@ -238,13 +254,35 @@ Deno.serve(async (req: Request) => {
   }
 
   if (errors.length) {
+    const failedHealth = withSyncStatus(runHealth, "failed");
+    const { error: healthFailError } = await sb
+      .from("legal_watch_run_health")
+      .upsert(failedHealth, { onConflict: "id" });
+    if (healthFailError) errors.push(`run health failed ${healthFailError.message}`);
     return json({
       ok: false,
       changed_laws: changedLaws,
       article_scoped_laws: articleScopedLaws,
       impacted_questions: impactedQuestions,
       canonical_only_references: canonicalOnlyReferences,
+      run_health: "failed",
       errors,
+    }, 500);
+  }
+
+  const completeHealth = withSyncStatus(runHealth, "complete");
+  const { error: healthCompleteError } = await sb
+    .from("legal_watch_run_health")
+    .upsert(completeHealth, { onConflict: "id" });
+  if (healthCompleteError) {
+    return json({
+      ok: false,
+      changed_laws: changedLaws,
+      article_scoped_laws: articleScopedLaws,
+      impacted_questions: impactedQuestions,
+      canonical_only_references: canonicalOnlyReferences,
+      run_health: "syncing",
+      errors: [`run health complete ${healthCompleteError.message}`],
     }, 500);
   }
 
@@ -256,5 +294,7 @@ Deno.serve(async (req: Request) => {
     article_scoped_laws: articleScopedLaws,
     impacted_questions: impactedQuestions,
     canonical_only_references: canonicalOnlyReferences,
+    run_health: "complete",
+    lookup_error_count: runHealth.lookup_error_count,
   });
 });
