@@ -17,6 +17,8 @@ on:
       - 'data/law_question_links_priority10.v1.json'
       - 'cdn/question-shards/**'
       - 'audit/historical_law_evidence_adjudication_20261003.md'
+      - 'supabase/functions/_shared/github_actions_oidc.ts'
+      - 'supabase/functions/_shared/github_actions_oidc_test.ts'
       - 'supabase/functions/sync-historical-law-evidence/**'
       - 'supabase/migrations/20261005050000_historical_law_runtime_evidence.sql'
       - 'supabase/migrations/20261005062000_historical_law_runtime_evidence_least_privilege.sql'
@@ -84,7 +86,9 @@ jobs:
       - name: Runtime evidence projection and sync candidate contract
         run: |
           set -euo pipefail
+          deno test supabase/functions/_shared/github_actions_oidc_test.ts
           deno test supabase/functions/sync-historical-law-evidence/runtime_evidence_test.ts
+          deno check supabase/functions/_shared/github_actions_oidc.ts
           deno check supabase/functions/sync-historical-law-evidence/runtime_evidence.ts
           deno check supabase/functions/sync-historical-law-evidence/index.ts
           deno eval --allow-read=/tmp/historical_law_verified_combined.v1.json '
