@@ -75,7 +75,7 @@ Deno.test("special grading and multi-answer are held before model publication", 
   assertEquals(preflightQuestion(q({ accepted_answers: ["A", "B"] }), null).action, "review");
 });
 
-Deno.test("legal question requires canonical mapping and trusted current evidence", () => {
+Deno.test("legal question requires mapping, current trust, and exam-time evidence", () => {
   const legal = q({
     subject: "社會政策與社會立法",
     question: "依社會救助法規定，下列何者正確？",
@@ -83,16 +83,20 @@ Deno.test("legal question requires canonical mapping and trusted current evidenc
   });
   assertEquals(hasLegalRiskSignal(legal), true);
   assertEquals(preflightQuestion(legal, retryTrust).action, "hold_retry");
-  assertEquals(preflightQuestion(legal, trusted).action, "proceed");
+  const currentOnly = preflightQuestion(legal, trusted);
+  assertEquals(currentOnly.action, "review");
+  if (currentOnly.action === "review") assertEquals(currentOnly.reason, "historical_law_evidence_required");
+  assertEquals(preflightQuestion(legal, trusted, true).action, "proceed");
+
   const unmapped = q({ question: "依第十條規定，下列何者正確？" });
   const p = preflightQuestion(unmapped, null);
   assertEquals(p.action, "review");
   if (p.action === "review") assertEquals(p.reason, "legal_mapping_required");
 });
 
-Deno.test("trusted legal candidate law is replaced by deterministic canonical mapping", () => {
+Deno.test("trusted historical legal candidate law is replaced by deterministic canonical mapping", () => {
   const legal = q({ question: "依社會救助法規定，下列何者正確？", legal_canonical_names: ["社會救助法"] });
-  const p = preflightQuestion(legal, trusted);
+  const p = preflightQuestion(legal, trusted, true);
   const f = finalizeValidatedCandidate(legal, candidate({ law: "其他錯誤法規" }), p);
   assertEquals(f.action, "sanitized_ready");
   if (f.patch) assertEquals(f.patch.law, "社會救助法");
