@@ -7,8 +7,10 @@ preserving the v2 grading/text-normalization extensions used in production:
 1. official exam-page subject discovery must match an approved exam profile;
 2. the fully parsed payload must still pass the existing exam-scheme gate.
 
-A future structure change is quarantined before PDF parsing. No new scheme is
-auto-approved here.
+A future structure change is quarantined before PDF parsing. A normal future
+session that has not been published by MOEX yet keeps the legacy sync behavior:
+scheduled discovery skips it instead of misclassifying it as a scheme change.
+No new scheme is auto-approved here.
 """
 
 from __future__ import annotations
@@ -44,6 +46,13 @@ def _production_base_module():
     if base._parse_correction_rules is not v2.parse_correction_rules_with_grading:
         raise RuntimeError("MOEX v2 correction/grading patch is not active")
     return base
+
+
+def _default_exam_exists(exam_code: str) -> bool:
+    # Preserve the proven sync distinction between "not published yet" and an
+    # already published page whose structure is unexpected. The structure probe
+    # runs only after this availability check succeeds.
+    return bool(_production_base_module().exam_exists(exam_code))
 
 
 def _default_build_exam(exam_code: str) -> dict[str, Any]:
@@ -104,6 +113,22 @@ def main() -> int:
             print(f"skip existing {code}")
             continue
 
+        try:
+            published = _default_exam_exists(code)
+        except Exception as exc:
+            # A transport exception is not the same as "not published". Keep it
+            # visible/fail-closed instead of silently treating an outage as no exam.
+            print(f"{code}: official page availability check failed: {exc}", file=sys.stderr)
+            if args.exam:
+                raise
+            blocked += 1
+            continue
+        if not published:
+            print(f"{code}: official exam page not published yet; skip")
+            if args.exam:
+                return 2
+            continue
+
         probe = probe_live(code)
         write_report(probe_dir / f"{code}.json", probe)
         if probe.get("status") != "match" or probe.get("safe_to_parse_pdfs") is not True:
@@ -123,6 +148,7 @@ def main() -> int:
             print(f"{code}: {exc}", file=sys.stderr)
             if args.exam:
                 raise
+            blocked += 1
             continue
 
         post_report = {
