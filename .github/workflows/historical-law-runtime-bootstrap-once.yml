@@ -8,7 +8,8 @@ on:
       - '.github/workflows/historical-law-runtime-bootstrap-once.yml'
 
 permissions:
-  contents: write
+  contents: read
+  id-token: write
 
 concurrency:
   group: historical-law-runtime-bootstrap-once
@@ -34,7 +35,9 @@ jobs:
           python scripts/historical_law_evidence_adjudication.py \
             --output /tmp/historical_law_verified_combined.v1.json
           python scripts/historical_law_runtime_evidence_contract_smoke.py
+          deno test supabase/functions/_shared/github_actions_oidc_test.ts
           deno test supabase/functions/sync-historical-law-evidence/runtime_evidence_test.ts
+          deno check supabase/functions/_shared/github_actions_oidc.ts
           deno check supabase/functions/sync-historical-law-evidence/runtime_evidence.ts
           deno check supabase/functions/sync-historical-law-evidence/index.ts
           deno eval \
@@ -57,15 +60,27 @@ jobs:
             console.log(`Prepared bootstrap records=${normalized.record_count} sha=${materialized.registry_sha256}`);
             '
 
-      - name: Sync verified historical-law evidence to production
+      - name: Sync verified historical-law evidence to production with GitHub OIDC
         env:
-          GH_REPO_TOKEN: ${{ github.token }}
           HISTORICAL_LAW_SYNC_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-historical-law-evidence
         run: |
           set -euo pipefail
+          oidc_response="$(curl --silent --show-error --fail-with-body \
+            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=swsi-supabase-sync")"
+          oidc_token="$(python - "$oidc_response" <<'PY'
+          import json, sys
+          token = str(json.loads(sys.argv[1]).get('value') or '')
+          if token.count('.') != 2:
+              raise SystemExit('GitHub OIDC provider did not return a JWT')
+          print(token)
+          PY
+          )"
+          echo "::add-mask::$oidc_token"
+
           response="$(curl --silent --show-error --fail-with-body \
             -X POST "$HISTORICAL_LAW_SYNC_URL" \
-            -H "Authorization: Bearer $GH_REPO_TOKEN" \
+            -H "Authorization: Bearer $oidc_token" \
             -H 'Content-Type: application/json' \
             --data-binary @/tmp/historical_law_verified_combined.v1.json)"
           echo "$response"
