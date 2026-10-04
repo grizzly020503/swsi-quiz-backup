@@ -18,9 +18,9 @@
       .swsi-focus-hero p{font-size:var(--swsi-ui-body,13px);line-height:1.75;color:#66716C;opacity:1;margin:8px 0 0;max-width:38em}
 
       .swsi-focus-primary{background:#F8FAF9;border:1px solid #E2E9E5;border-radius:16px;padding:20px 18px;margin:0 0 14px;box-shadow:none}
-      .swsi-focus-primary .label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--pine);letter-spacing:1px;margin-bottom:5px}
+      .swsi-focus-primary .label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:#486F68;letter-spacing:1px;margin-bottom:5px}
       .swsi-focus-primary h2{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-title,16px);line-height:1.4;margin:0;font-weight:900;color:#242B28}
-      .swsi-focus-primary p{font-size:var(--swsi-ui-small,11.5px);line-height:1.7;color:#707974;margin:5px 0 0}
+      .swsi-focus-primary p{font-size:var(--swsi-ui-small,11.5px);line-height:1.7;color:#68716C;margin:5px 0 0}
       .swsi-focus-actions{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:9px;margin-top:16px}
       .swsi-focus-actions button{min-height:49px;border-radius:11px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,14px);font-weight:800;cursor:pointer;box-shadow:none}
       .swsi-focus-actions .go{border:1px solid var(--pine-deep);background:var(--pine-deep);color:#fff}
