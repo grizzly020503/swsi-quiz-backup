@@ -14,7 +14,7 @@ If a change needs to run later, first ask why the existing canonical owner canno
 
 ## 2. Keep the part count flat or lower
 
-Current baseline: **34 runtime `.part` files**.
+Current baseline: **33 runtime `.part` files**.
 
 A normal change should:
 
