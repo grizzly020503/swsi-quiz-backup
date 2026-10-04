@@ -104,6 +104,7 @@ function acceptedOptionLabelsInOthers(text: string): Set<string> {
 export function preflightQuestion(
   q: AnalyzerQuestionLike,
   legalTrust: CurrentLegalTrustDecision | null,
+  historicalVersionChecked = false,
 ): PreflightRoute {
   const names = canonicalLegalNames(q);
   const legalRequired = hasLegalRiskSignal(q);
@@ -132,6 +133,13 @@ export function preflightQuestion(
       return { action: "hold_retry", reason, legal_names: names, legal_required: true };
     }
     return { action: "review", reason, legal_names: names, legal_required: true };
+  }
+  // A fresh current-law watcher proves the current source is healthy, but it is
+  // deliberately NOT exam-time provenance. Historical legal questions may only
+  // auto-publish after the separate historical-law pipeline has verified the
+  // version effective for that exam date.
+  if (!historicalVersionChecked) {
+    return { action: "review", reason: "historical_law_evidence_required", legal_names: names, legal_required: true };
   }
 
   return { action: "proceed", legal_names: names, legal_required: true };
