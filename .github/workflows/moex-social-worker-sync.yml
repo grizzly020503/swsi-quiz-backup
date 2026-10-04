@@ -9,6 +9,10 @@ on:
       - '.github/workflows/moex-social-worker-sync.yml'
       - 'scripts/moex_sync.py'
       - 'scripts/moex_sync_v2.py'
+      - 'scripts/moex_sync_guarded.py'
+      - 'scripts/moex_structure_probe.py'
+      - 'scripts/exam_scheme.py'
+      - 'data/exam_scheme_registry.v1.json'
       - 'scripts/test_moex_grading_modes.py'
       - 'scripts/build_auto_payload.py'
       - 'scripts/essay_enrichment_overlay_smoke.py'
@@ -106,8 +110,29 @@ jobs:
           fi
 
       - name: Fetch official Social Worker exams
-        # 正常排程每週重新抓當年度第一次/第二次官方 PDF；已知發布／更正窗口可手動加跑。
-        run: python scripts/moex_sync_v2.py --output-dir incoming
+        # 正常排程每週重新抓當年度第一次/第二次官方 PDF；未發布考次會正常 skip。
+        # 已發布頁面必須先通過官方頁面結構 discovery，才允許進既有 v2 PDF parser。
+        id: guarded_fetch
+        continue-on-error: true
+        run: |
+          python scripts/moex_sync_guarded.py \
+            --output-dir incoming \
+            --probe-output-dir /tmp/moex-structure-probe
+
+      - name: Upload MOEX structure diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: moex-structure-probe
+          path: /tmp/moex-structure-probe
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Enforce guarded MOEX intake
+        if: steps.guarded_fetch.outcome != 'success'
+        run: |
+          echo 'Guarded MOEX intake blocked. See the moex-structure-probe artifact and workflow logs.' >&2
+          exit 1
 
       - name: Remove timestamp-only rewrites
         # fetched_at 或既有普通題補 grading_mode=standard 不算官方內容更新。
