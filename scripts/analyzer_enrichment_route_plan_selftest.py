@@ -91,10 +91,13 @@ def assert_production_boundary() -> None:
     fields = production_fields()
     assert fields == ANALYZER_CANDIDATE_FIELDS, (fields, ANALYZER_CANDIDATE_FIELDS)
     text = ANALYZER_SOURCE.read_text(encoding="utf-8")
-    # This PR is deliberately contract-only: live v12 still updates the patch
-    # returned by analyzeOne directly. A future activation must be separate.
-    assert 'const patch = await analyzeOne(q, internalKey);' in text
-    assert '.update(patch)' in text
+    # Production activation candidate must no longer write analyzeOne() output
+    # directly. It must pass through deterministic preflight + final routing.
+    assert 'const candidate = await analyzeOne(q, internalKey);' in text
+    assert 'finalizeValidatedCandidate(q, candidate, preflight)' in text
+    assert 'updateClaimedQuestion(sb, q, finalRoute.patch)' in text
+    assert 'preflightQuestion(q, null, false)' in text
+    assert 'preflightQuestion(q, trust.decision, false)' in text
     assert "analyzer_enrichment_route_plan" not in text
     assert "enrichment_decision" not in text
 
@@ -126,7 +129,7 @@ def main() -> int:
     assert q == q_before and c == c_before, "dry-run planner mutated caller input"
 
     # Unsupported unverified law is deterministic field sanitization, not a
-    # whole-question failure.
+    # whole-question failure for a non-legal question.
     sanitize = candidate()
     sanitize["law"] = "社會救助法"
     sanitized = plan(question(), sanitize)
@@ -159,7 +162,7 @@ def main() -> int:
     assert "ENRICHMENT_SPECIAL_GRADING" in special["decision"]["review_reasons"]
     assert_no_official_core_patch(special)
 
-    # Current/new intake can explicitly trust the current official legal watch.
+    # Current-law health alone must NOT prove the version effective on exam day.
     legal_q = question()
     legal_q.update(
         id="SP-116-1-001",
@@ -202,15 +205,32 @@ def main() -> int:
     legal_base = plan(legal_q, legal_c)
     assert legal_base["route"] == "review", legal_base
     assert "ENRICHMENT_LEGAL_EVIDENCE_REQUIRED" in legal_base["decision"]["review_reasons"]
+
     legal_current = plan(
         legal_q,
         legal_c,
         legal_watch=watch,
         trust_current_legal_watch=True,
     )
-    assert legal_current["route"] == "ready", legal_current
+    assert legal_current["route"] == "review", legal_current
+    assert legal_current["publication_allowed"] is False
     assert legal_current["current_legal_watch"]["historical_version_proof"] is False
+    assert legal_current["historical_version_checked"] is False
+    assert "ENRICHMENT_LEGAL_EVIDENCE_REQUIRED" in legal_current["decision"]["review_reasons"]
     assert_no_official_core_patch(legal_current)
+
+    legal_verified = plan(
+        legal_q,
+        legal_c,
+        legal_watch=watch,
+        trust_current_legal_watch=True,
+        historical_version_checked=True,
+    )
+    assert legal_verified["route"] == "ready", legal_verified
+    assert legal_verified["publication_allowed"] is True
+    assert legal_verified["historical_version_checked"] is True
+    assert legal_verified["current_legal_watch"]["historical_version_proof"] is False
+    assert_no_official_core_patch(legal_verified)
 
     changed_watch = copy.deepcopy(watch)
     changed_watch["changed_count"] = 1
@@ -220,6 +240,7 @@ def main() -> int:
         legal_c,
         legal_watch=changed_watch,
         trust_current_legal_watch=True,
+        historical_version_checked=True,
     )
     assert legal_changed["route"] == "review", legal_changed
 
@@ -246,10 +267,11 @@ def main() -> int:
         "unsupported_law_route": "sanitized_ready",
         "accepted_answer_conflict_route": "review",
         "special_grading_route": "review",
-        "trusted_current_named_law_route": "ready",
+        "trusted_current_named_law_route": "review",
+        "historically_verified_named_law_route": "ready",
         "changed_law_route": "review",
         "official_core_tamper_rejected": True,
-        "production_analyzer_modified": False,
+        "production_analyzer_modified": True,
         "production_write": False,
     }, ensure_ascii=False, indent=2))
     return 0
