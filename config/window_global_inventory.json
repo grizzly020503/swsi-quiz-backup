@@ -27,7 +27,7 @@
       "monthly_patch_parts/92.feedback-ui.part"
     ],
     "SWSI_FEEDBACK_SAFARI_GUARD": [
-      "monthly_patch_parts/91.feedback-context.part"
+      "monthly_patch_parts/92.feedback-ui.part"
     ],
     "SWSI_LAW_TRUST": [
       "monthly_patch_parts/86.law-trust-ui.part"
@@ -301,7 +301,7 @@
     ],
     "swsiOpenReport": [
       "monthly_patch_parts/90.feedback-core.part",
-      "monthly_patch_parts/91.feedback-context.part"
+      "monthly_patch_parts/92.feedback-ui.part"
     ],
     "swsiOpenTheoryEncoded": [
       "monthly_patch_parts/80.knowledge-path.part"

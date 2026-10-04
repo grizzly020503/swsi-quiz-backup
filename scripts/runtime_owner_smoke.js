@@ -133,7 +133,7 @@ assert.deepStrictEqual(aiCacheKeyOwners, ['99_p0_mobile_ai_guardrails.part', '99
 assert(sourceOf('99z.essay-trust-layer.part').includes("'essay_ai_cache_v2_'+GUIDE_VERSION+'_'"), 'essay trust layer lost versioned AI cache isolation');
 
 const reportOwners = filesContaining(source => /window\.swsiOpenReport\s*=/.test(source));
-assert.deepStrictEqual(reportOwners, ['90.feedback-core.part', '91.feedback-context.part'], `unexpected feedback report context chain: ${reportOwners.join(' -> ')}`);
+assert.deepStrictEqual(reportOwners, ['90.feedback-core.part', '92.feedback-ui.part'], `unexpected feedback report context chain: ${reportOwners.join(' -> ')}`);
 assert.deepStrictEqual(lawRenderOwners, ['80.knowledge-path.part', '86.law-trust-ui.part'], `unexpected law trust render chain: ${lawRenderOwners.join(' -> ')}`);
 const theoryRenderOwners = ownersFor(/\b(?:window\.)?renderTheories\s*=\s*function\b/g);
 assert.deepStrictEqual(theoryRenderOwners, ['80.knowledge-path.part', '88.theory-trust-ui.part'], `unexpected theory trust render chain: ${theoryRenderOwners.join(' -> ')}`);
