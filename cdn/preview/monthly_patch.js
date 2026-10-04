@@ -1757,11 +1757,214 @@ html[data-fs="2"]{
 }
 #app .swsi-ai-privacy .swsi-ai-privacy-body b{color:var(--wrong);}
 
+/* Knowledge reading surfaces: flatten only law/theory cards that live on the
+   knowledge pages. Essay cards remain owned by the .wbox-scoped rules above. */
+#app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)){
+  margin:0;
+  padding:0;
+  border:0;
+  border-bottom:1px solid #E2E8E4;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+#app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)) .ehead{
+  padding:15px 2px 14px;
+  background:transparent;
+  border:0;
+}
+#app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)) .etopic{
+  font-family:'Noto Serif TC',serif;
+  font-size:15.5px;
+  font-weight:800;
+  line-height:1.58;
+  color:#202724;
+}
+#app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)) .ehint{
+  margin-top:5px;
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:11.5px;
+  font-weight:600;
+  line-height:1.55;
+  color:#6A746F;
+}
+#app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .ehead{padding-bottom:12px;}
+#app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .ebodywrap{
+  margin:0;
+  padding:16px 2px 20px;
+  border-top:1px solid #E5EAE7;
+  background:transparent;
+}
+#app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .kws{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin:14px 0 2px;
+}
+#app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .kw{
+  margin:0;
+  padding:3px 7px;
+  border:1px solid #D9E1DD;
+  border-radius:999px;
+  background:transparent;
+  color:#5B6761;
+  font-size:10.5px;
+  font-weight:700;
+}
+#app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .ecollapse{
+  min-height:38px;
+  margin-top:15px;
+  padding:5px 0;
+  border:0;
+  background:transparent;
+  color:#55766F;
+  font-family:'Noto Sans TC',sans-serif;
+  font-weight:700;
+  box-shadow:none;
+}
+#app:has(> .swsi-k-pagelead) .subj-pill{
+  margin:24px 0 5px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  color:#68736D!important;
+  font-family:'Noto Sans TC',sans-serif!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  letter-spacing:.04em;
+}
+
+/* Current affairs: present event -> exam point -> possible question direction ->
+   evidence as one reading flow instead of a news-card wall. */
+.nlr-box{
+  margin:18px 0 22px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.nlr-top{
+  margin:0 0 8px!important;
+  padding:0 2px 11px;
+  border-bottom:1px solid #E2E8E4;
+}
+.nlr-h{
+  font-family:'Noto Serif TC',serif;
+  font-size:18px!important;
+  font-weight:900!important;
+  color:#202724;
+}
+.nlr-badge{
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:#66716B;
+  font-weight:700;
+}
+.nlr-help{
+  margin:8px 2px 16px!important;
+  color:#626D67!important;
+  line-height:1.7!important;
+}
+.nlr-grid{gap:0!important;}
+.nlr-card{
+  margin:0!important;
+  padding:17px 2px 19px!important;
+  border:0!important;
+  border-bottom:1px solid #E3E8E5!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.nlr-head{align-items:baseline;}
+.nlr-cat{
+  color:#55766F;
+  font-weight:800!important;
+  letter-spacing:.02em;
+}
+.nlr-score,.nlr-trend{
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:#69736E!important;
+}
+.nlr-trend-rising{color:#355A52!important;}
+.nlr-title{
+  margin:7px 0 5px!important;
+  font-family:'Noto Serif TC',serif;
+  font-size:16px;
+  font-weight:850!important;
+  line-height:1.62!important;
+  color:#202724;
+}
+.nlr-meta,.nlr-summary{
+  color:#66716B!important;
+  line-height:1.7!important;
+}
+.nlr-summary{margin-top:8px!important;}
+.nlr-subs{gap:10px!important;margin-top:9px!important;}
+.nlr-sub{
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:#55766F;
+  font-weight:750;
+}
+.nlr-chips{gap:6px!important;}
+.nlr-chip{
+  border:1px solid #D8E1DC;
+  background:transparent!important;
+  color:#5E6A64;
+}
+.nlr-signal{
+  margin-top:12px!important;
+  padding-top:11px;
+  border-top:1px solid #E7ECE9;
+  color:#46534D;
+  line-height:1.65!important;
+}
+.nlr-signal-text{
+  margin-top:6px!important;
+  color:#59645E;
+  line-height:1.7!important;
+}
+.nlr-detail{
+  margin-top:13px!important;
+  padding-top:11px;
+  border-top:1px solid #E8ECEA;
+  line-height:1.72!important;
+}
+.nlr-detail summary{color:#496E66;font-weight:800!important;}
+.nlr-detail ul{margin:8px 0!important;}
+.nlr-exam{margin-top:8px!important;line-height:1.78;}
+.nlr-knowledge-root{
+  margin-top:10px!important;
+  padding:0!important;
+  background:transparent!important;
+}
+.nlr-knowledge-label{margin-top:11px!important;color:#68736D!important;}
+.nlr-knowledge-subject{margin-top:10px!important;}
+.nlr-link{color:#496E66!important;}
+.nlr-note{
+  margin-top:12px!important;
+  color:#707A75!important;
+  line-height:1.6!important;
+}
+.nlr-empty{padding:15px 2px!important;color:#69736E!important;}
+
 @media (max-width:370px){
   #app .fmtbar{gap:5px;}
   #app .fmtbar .fbtn{padding-left:8px;padding-right:8px;}
   #app .ecard.open:has(.wbox){padding-left:0;padding-right:0;}
   #app .ecard.open:has(.wbox) .wta{min-height:210px;}
+  #app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)) .ehead{padding-top:13px;padding-bottom:13px;}
+  #app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .ebodywrap{padding-top:14px;padding-bottom:18px;}
+  .nlr-card{padding-top:15px!important;padding-bottom:17px!important;}
+  .nlr-title{font-size:15.5px;}
 }
 `;
   document.head.appendChild(style);
