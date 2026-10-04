@@ -82,7 +82,7 @@ jobs:
           python scripts/analyzer_trust_routing_activation_smoke.py
           python scripts/analyzer_enrichment_route_plan_selftest.py
           deno test supabase/functions/analyze-pending-questions/current_legal_trust_test.ts
-          deno test supabase/functions/analyze-pending-questions/enrichment_route_test.ts
+          deno test --allow-read=data/question_qa_policy_v1.json supabase/functions/analyze-pending-questions/enrichment_route_test.ts
           deno check supabase/functions/analyze-pending-questions/current_legal_trust.ts
           deno check supabase/functions/analyze-pending-questions/enrichment_route.ts
           deno check supabase/functions/analyze-pending-questions/index.ts
