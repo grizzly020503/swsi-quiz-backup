@@ -18,6 +18,7 @@ on:
       - 'audit/historical_law_evidence_adjudication_20261003.md'
       - 'supabase/functions/sync-historical-law-evidence/**'
       - 'supabase/migrations/20261005050000_historical_law_runtime_evidence.sql'
+      - 'supabase/migrations/20261005062000_historical_law_runtime_evidence_least_privilege.sql'
       - 'supabase/recovery/edge_functions.json'
       - '.github/workflows/historical-law-runtime-sync.yml'
       - '.github/workflows/historical-law-stage7-qa.yml'
