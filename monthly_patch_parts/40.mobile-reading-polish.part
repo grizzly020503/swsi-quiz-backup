@@ -39,6 +39,146 @@ html[data-fs="2"]{
 #app .extra{line-height:1.68;}
 #app .mistake{margin-top:4px;}
 
+/* Essay focus follows the same premium-calm visual language as the focused quiz.
+   Scope this to an opened essay containing its writing box so law/theory ecard UI
+   keeps its existing trust and knowledge presentation. */
+#app:has(.ecard.open .wbox) > .dbtn{
+  width:auto!important;
+  min-height:42px;
+  margin:0 0 9px!important;
+  padding:5px 0!important;
+  text-align:left!important;
+  color:#5F6964!important;
+  font-family:'Noto Sans TC',sans-serif!important;
+  font-weight:700!important;
+  text-decoration:none;
+}
+#app .ecard.open:has(.wbox){
+  background:transparent;
+  border:0;
+  border-radius:0;
+  padding:10px 2px 22px;
+  margin:0!important;
+  box-shadow:none;
+}
+#app .ecard.open:has(.wbox) .ehead{cursor:default;}
+#app .ecard.open:has(.wbox) .emeta{gap:10px;margin-bottom:16px;}
+#app .ecard.open:has(.wbox) .emeta .tag{
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent!important;
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:var(--fs-s);
+  font-weight:700;
+}
+#app .ecard.open:has(.wbox) .emeta .tag.subj{color:var(--pine-deep);}
+#app .ecard.open:has(.wbox) .emeta .tag.year{color:#5F6964;}
+#app .ecard.open:has(.wbox) .etopic{
+  font-family:'Noto Serif TC',serif;
+  font-size:var(--fs-q);
+  font-weight:800;
+  line-height:1.72;
+  letter-spacing:.005em;
+  color:#202522;
+}
+#app .ecard.open:has(.wbox) .ehint{
+  margin-top:8px;
+  font-family:'Noto Sans TC',sans-serif;
+  color:#5F6964!important;
+  font-weight:500!important;
+  line-height:1.65;
+}
+#app .ecard.open:has(.wbox) .ebodywrap{margin-top:19px;}
+#app .ecard.open:has(.wbox) .ebody{
+  margin-top:0;
+  padding:18px 0 2px;
+  border-top:1px solid #E2E8E4;
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:var(--fs-b);
+  line-height:1.88;
+  color:#323936;
+}
+#app .ecard.open:has(.wbox) .dbtn{
+  min-height:42px;
+  margin-top:12px;
+  padding:6px 0;
+  color:#486F68;
+  font-family:'Noto Sans TC',sans-serif;
+  font-weight:700;
+  text-decoration:none;
+}
+#app .ecard.open:has(.wbox) .dsteps{
+  margin-top:8px;
+  padding:14px 0 4px;
+  gap:9px;
+  background:transparent;
+  border-top:1px solid #E5EAE7;
+  border-radius:0;
+}
+#app .ecard.open:has(.wbox) .dstep{line-height:1.75;color:#343B37;}
+#app .ecard.open:has(.wbox) .dstep b{color:#486F68;}
+#app .ecard.open:has(.wbox) .wbox{
+  margin:22px 0 8px;
+  padding-top:20px;
+  border-top:1px solid #E2E8E4;
+}
+#app .ecard.open:has(.wbox) .wlabel{
+  margin-bottom:8px;
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:var(--fs-b);
+  font-weight:800;
+  color:#29312D;
+}
+#app .ecard.open:has(.wbox) .fmtbar{gap:6px;margin-bottom:10px;}
+#app .ecard.open:has(.wbox) .fmtbar .fbtn{
+  min-height:38px;
+  padding:6px 10px;
+  border:1px solid #D6DEDA;
+  border-radius:8px;
+  background:#fff;
+  color:#486F68;
+  box-shadow:none;
+  font-family:'Noto Sans TC',sans-serif;
+  font-weight:750;
+}
+#app .ecard.open:has(.wbox) .fmtbar .fbtn:hover{border-color:#AFC2BA;background:#F8FAF9;}
+#app .ecard.open:has(.wbox) .wta{
+  min-height:220px;
+  padding:15px;
+  border:1px solid #D8E0DC;
+  border-radius:10px;
+  background:#fff;
+  box-shadow:none;
+  font-family:'Noto Sans TC',sans-serif;
+  line-height:1.82;
+}
+#app .ecard.open:has(.wbox) .wta:focus{outline:none;border-color:#7FA398;box-shadow:0 0 0 2px rgba(79,126,118,.08);}
+#app .ecard.open:has(.wbox) .wmeta{margin-top:6px;color:#5F6964;font-family:'Noto Sans TC',sans-serif;}
+#app .ecard.open:has(.wbox) .gbtn{
+  margin-top:14px;
+  min-height:46px;
+  border:1px solid #C9D7D1;
+  border-radius:10px;
+  background:transparent;
+  color:var(--pine-deep);
+  box-shadow:none;
+  font-family:'Noto Sans TC',sans-serif;
+  font-weight:750;
+}
+#app .ecard.open:has(.wbox) .gbtn:hover{background:#F8FAF9;color:var(--pine-deep);border-color:#AFC2BA;}
+#app .ecard.open:has(.wbox) .guide{margin-top:18px;gap:17px;}
+#app .ecard.open:has(.wbox) .glabel{
+  padding:0;
+  border-radius:0;
+  background:transparent;
+  color:#486F68;
+  font-family:'Noto Sans TC',sans-serif;
+  font-weight:800;
+}
+#app .ecard.open:has(.wbox) .gtext,
+#app .ecard.open:has(.wbox) .glist li{color:#343B37;line-height:1.82;}
+
 #app .wbox{margin-bottom:6px;}
 #app .wlabel{margin-bottom:7px;}
 #app .swsi-fmt-help{
@@ -102,6 +242,8 @@ html[data-fs="2"]{
 @media (max-width:370px){
   #app .fmtbar{gap:5px;}
   #app .fmtbar .fbtn{padding-left:8px;padding-right:8px;}
+  #app .ecard.open:has(.wbox){padding-left:0;padding-right:0;}
+  #app .ecard.open:has(.wbox) .wta{min-height:210px;}
 }
 `;
   document.head.appendChild(style);
