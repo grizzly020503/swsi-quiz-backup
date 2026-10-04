@@ -5,13 +5,17 @@ const assert = require('assert');
 const fs = require('fs');
 
 const importer = fs.readFileSync('supabase/functions/import-moex-social-worker/index.ts', 'utf8');
+const oidc = fs.readFileSync('supabase/functions/_shared/github_actions_oidc.ts', 'utf8');
 const recoveryAlignment = fs.readFileSync(
   'supabase/migrations/20260827031000_align_recovery_reset_with_grading_mode.sql',
   'utf8'
 );
 
 for (const marker of [
-  'swsi-supabase-moex-importer/1.5',
+  'verifyGitHubActionsOidcToken',
+  'IMPORT_SYNC_POLICY',
+  'moex-social-worker-sync.yml@refs/heads/main',
+  'GitHub Actions OIDC authorization rejected',
   'function assertSameIdentity',
   '["source_exam_code", incoming.source_exam_code, existing.source_exam_code]',
   '["year", String(incoming.year ?? ""), String(existing.year ?? "")]',
@@ -24,6 +28,25 @@ for (const marker of [
   'ID collision'
 ]) {
   assert(importer.includes(marker), `importer integrity marker missing: ${marker}`);
+}
+
+for (const forbidden of [
+  'verifyGitHubRepoWriteToken',
+  'permissions?.push',
+  'api.github.com/repos/'
+]) {
+  assert(!importer.includes(forbidden), `legacy importer auth marker remains: ${forbidden}`);
+}
+
+for (const marker of [
+  'GITHUB_ACTIONS_OIDC_ISSUER = "https://token.actions.githubusercontent.com"',
+  'SWSI_SYNC_AUDIENCE = "swsi-supabase-sync"',
+  'SWSI_REPOSITORY_ID = "1345053575"',
+  'algorithms: ["RS256"]',
+  'claim(payload, "workflow_ref")',
+  'claim(payload, "event_name")'
+]) {
+  assert(oidc.includes(marker), `shared OIDC integrity marker missing: ${marker}`);
 }
 
 const questionPreflight = importer.indexOf('questions preflight read');
@@ -52,4 +75,4 @@ assert(
   'recovery trigger function must pin an empty search_path'
 );
 
-console.log('SUPABASE IMPORTER / RECOVERY DRIFT CONTRACT OK');
+console.log('SUPABASE IMPORTER OIDC / RECOVERY DRIFT CONTRACT OK');
