@@ -1,5 +1,12 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { evaluateCurrentLegalTrust, type CurrentLegalTrustDecision } from "./current_legal_trust.ts";
+import {
+  canonicalLegalNames,
+  finalizeValidatedCandidate,
+  hasLegalRiskSignal,
+  preflightQuestion,
+} from "./enrichment_route.ts";
 
 const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev/api/ai";
 const DRAFT_MODEL = "qwen/qwen3.8-27b";
@@ -145,6 +152,42 @@ async function analyzeOne(q: any, internalKey: string) {
 }
 function isTransient(msg: string) { return /HTTP 429|rate limit|fetch failed|network|timed?\s*out|temporar/i.test(msg); }
 
+async function updateClaimedQuestion(sb: any, q: any, patch: Record<string, unknown>) {
+  let updateQuery: any = sb.from("questions").update(patch).eq("id", q.id);
+  updateQuery = q.source_exam_code == null
+    ? updateQuery.is("source_exam_code", null)
+    : updateQuery.eq("source_exam_code", q.source_exam_code);
+  const { data: updated, error } = await updateQuery.select("id").maybeSingle();
+  if (error) throw new Error(`update: ${error.message}`);
+  if (!updated?.id) throw new Error("update: target row not found");
+}
+
+async function loadCurrentLegalTrust(
+  sb: any,
+  q: any,
+): Promise<{ decision: CurrentLegalTrustDecision | null; queryError: string | null }> {
+  const names = canonicalLegalNames(q);
+  if (!hasLegalRiskSignal(q) || !names.length) return { decision: null, queryError: null };
+
+  const { data: run, error: runError } = await sb
+    .from("legal_watch_run_health")
+    .select("schema_version,checked_at,baseline,lookup_error_count,sync_status,source")
+    .eq("id", true)
+    .maybeSingle();
+  if (runError) return { decision: null, queryError: `run_health_query:${runError.message}` };
+
+  const { data: registryRows, error: registryError } = await sb
+    .from("legal_reference_registry")
+    .select("canonical_name,watch_status,last_checked_at")
+    .in("canonical_name", names);
+  if (registryError) return { decision: null, queryError: `registry_query:${registryError.message}` };
+
+  return {
+    decision: evaluateCurrentLegalTrust(names, run, registryRows || []),
+    queryError: null,
+  };
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
   const url = Deno.env.get("SUPABASE_URL"), serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -160,25 +203,82 @@ Deno.serve(async (req: Request) => {
   const { data: claimed, error: claimErr } = await sb.rpc("claim_pending_ai_questions", { p_limit: limit });
   if (claimErr) return json({ error: `claim: ${claimErr.message}` }, 500);
   const rows: any[] = claimed || [], results: any[] = [];
+
   for (const q of rows) {
     try {
-      const patch = await analyzeOne(q, internalKey);
-      let updateQuery: any = sb.from("questions").update(patch).eq("id", q.id);
-      updateQuery = q.source_exam_code == null
-        ? updateQuery.is("source_exam_code", null)
-        : updateQuery.eq("source_exam_code", q.source_exam_code);
-      const { data: updated, error } = await updateQuery.select("id").maybeSingle();
-      if (error) throw new Error(`update: ${error.message}`);
-      if (!updated?.id) throw new Error("update: target row not found");
-      results.push({ id: q.id, status: "ready" });
+      let preflight = preflightQuestion(q, null, false);
+
+      // Only mapped legal questions need the current official-law health query.
+      // Special grading, multi-answer, missing answers, and unmapped legal rows
+      // fail closed before spending any AI tokens.
+      if (preflight.action === "review" && preflight.reason === "legal_trust_unavailable") {
+        const trust = await loadCurrentLegalTrust(sb, q);
+        if (trust.queryError) {
+          await updateClaimedQuestion(sb, q, {
+            analysis_status: "pending",
+            analysis_error: `route_hold:${trust.queryError}`.slice(0, 1000),
+            analysis_started_at: null,
+          });
+          results.push({ id: q.id, status: "pending", route: "hold_retry", reason: trust.queryError, model_called: false });
+          continue;
+        }
+        // Current-law evidence is necessary but never sufficient for historical
+        // exam questions. Stage-7 exam-time evidence is wired in a later gate.
+        preflight = preflightQuestion(q, trust.decision, false);
+      }
+
+      if (preflight.action === "hold_retry") {
+        await updateClaimedQuestion(sb, q, {
+          analysis_status: "pending",
+          analysis_error: `route_hold:${preflight.reason}`.slice(0, 1000),
+          analysis_started_at: null,
+        });
+        results.push({ id: q.id, status: "pending", route: "hold_retry", reason: preflight.reason, model_called: false });
+        continue;
+      }
+
+      if (preflight.action === "review") {
+        await updateClaimedQuestion(sb, q, {
+          analysis_status: "review",
+          analysis_error: `route_review:${preflight.reason}`.slice(0, 1000),
+          analysis_started_at: null,
+        });
+        results.push({ id: q.id, status: "review", route: "preflight_review", reason: preflight.reason, model_called: false });
+        continue;
+      }
+
+      const candidate = await analyzeOne(q, internalKey);
+      const finalRoute = finalizeValidatedCandidate(q, candidate, preflight);
+      if (finalRoute.action === "review" || !finalRoute.patch) {
+        await updateClaimedQuestion(sb, q, {
+          analysis_status: "review",
+          analysis_error: `route_review:${finalRoute.reason}`.slice(0, 1000),
+          analysis_started_at: null,
+        });
+        results.push({ id: q.id, status: "review", route: "post_model_review", reason: finalRoute.reason, model_called: true });
+        continue;
+      }
+
+      await updateClaimedQuestion(sb, q, finalRoute.patch);
+      results.push({ id: q.id, status: "ready", route: finalRoute.action, reason: finalRoute.reason, model_called: true });
     } catch (e) {
       const msg = (e instanceof Error ? e.message : String(e)).slice(0, 1000), transient = isTransient(msg);
       const attempts = transient ? Number(q.analysis_attempts || 0) : Number(q.analysis_attempts || 0) + 1;
       const status = transient ? "pending" : attempts >= 3 ? "review" : "pending";
-      await sb.from("questions").update({ analysis_status: status, analysis_attempts: attempts, analysis_error: msg, analysis_started_at: null }).eq("id", q.id);
+      try {
+        await updateClaimedQuestion(sb, q, {
+          analysis_status: status,
+          analysis_attempts: attempts,
+          analysis_error: msg,
+          analysis_started_at: null,
+        });
+      } catch {
+        // Preserve the original error in the response if the status write also fails.
+      }
       results.push({ id: q.id, status, error: msg, attempts, transient });
     }
   }
+
   const { count: pending } = await sb.from("questions").select("id", { count: "exact", head: true }).eq("analysis_status", "pending");
   const { count: review } = await sb.from("questions").select("id", { count: "exact", head: true }).eq("analysis_status", "review");
   return json({ ok: true, claimed: rows.length, results, pending, review });
