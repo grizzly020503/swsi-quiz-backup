@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MIGRATION = ROOT / "supabase/migrations/20261005033000_legal_watch_run_health.sql"
+LEAST_PRIVILEGE_MIGRATION = ROOT / "supabase/migrations/20261005061000_legal_watch_run_health_least_privilege.sql"
 INDEX = ROOT / "supabase/functions/sync-legal-watch/index.ts"
 RUN_HEALTH = ROOT / "supabase/functions/sync-legal-watch/run_health.ts"
 
@@ -18,6 +19,7 @@ def require(condition: bool, message: str) -> None:
 
 def main() -> None:
     migration = MIGRATION.read_text(encoding="utf-8")
+    least_privilege = LEAST_PRIVILEGE_MIGRATION.read_text(encoding="utf-8")
     index = INDEX.read_text(encoding="utf-8")
     health = RUN_HEALTH.read_text(encoding="utf-8")
 
@@ -30,6 +32,16 @@ def main() -> None:
         "grant select, insert, update on table public.legal_watch_run_health to service_role",
     ):
         require(marker in migration, f"migration contract missing: {marker}")
+
+    for marker in (
+        "revoke all on table public.legal_watch_run_health from public, anon, authenticated, service_role",
+        "grant select, insert, update on table public.legal_watch_run_health to service_role",
+        "Only service_role SELECT/INSERT/UPDATE are granted",
+    ):
+        require(marker in least_privilege, f"least-privilege migration missing: {marker}")
+
+    for forbidden in ("grant delete", "grant truncate", "grant references", "grant trigger"):
+        require(forbidden not in least_privilege.lower(), f"forbidden privilege re-grant found: {forbidden}")
 
     require('source: "github_actions"' in health, "run health source must remain explicit")
     require('id: true' in health, "run health must remain singleton")
