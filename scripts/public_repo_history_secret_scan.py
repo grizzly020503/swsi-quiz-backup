@@ -40,6 +40,10 @@ OPAQUE_CONTAINER_EXTENSIONS = {
     ".sqlite", ".sqlite3", ".db", ".dump", ".bak",
 }
 PLACEHOLDER_EMAIL_DOMAINS = {"example.com", "example.org", "example.net", "invalid"}
+PLACEHOLDER_LITERAL_VALUES = {
+    "changeme", "change-me", "replace-me", "replace_me", "placeholder",
+    "redacted", "example", "your-token", "your_token", "your-secret", "your_secret",
+}
 
 
 @dataclass(frozen=True)
@@ -150,6 +154,29 @@ def is_placeholder_email(raw: bytes) -> bool:
     return False
 
 
+def sensitive_literal_assignment_names(data: bytes) -> list[str]:
+    """Return variable names whose assignment looks like an inline literal.
+
+    Explicit runtime references are not literals. This prevents safe forms such
+    as `${{ secrets.X }}`, `$TOKEN`, `Deno.env.get(...)`, `process.env.X`, or
+    `os.environ[...]` from becoming false-positive credential findings.
+    """
+    names: set[str] = set()
+    runtime_prefixes = (
+        "$", "deno.env", "process.env", "os.environ", "os.getenv", "getenv(",
+        "secrets.", "github.", "env.", "vars.",
+    )
+    for match in SENSITIVE_ASSIGNMENT_RE.finditer(data):
+        value = match.group(2).decode("utf-8", "replace").strip()
+        normalized = value.lower()
+        if normalized.startswith(runtime_prefixes):
+            continue
+        if normalized.strip("<>[]{}()\"'") in PLACEHOLDER_LITERAL_VALUES:
+            continue
+        names.add(match.group(1).decode("ascii", "ignore").upper())
+    return sorted(names)
+
+
 def load_external_identity_patterns() -> list[tuple[str, re.Pattern[str]]]:
     configured = os.environ.get("SWSI_IDENTITY_REVIEW_PATTERNS_FILE", "").strip()
     if not configured:
@@ -221,15 +248,14 @@ def scan_blobs() -> tuple[list[Finding], list[Finding], int, int, int]:
             if pattern.search(data):
                 credential_findings.append(Finding("secret-pattern", oid, safe_path, name))
 
-        sensitive_assignments = list(SENSITIVE_ASSIGNMENT_RE.finditer(data))
-        if sensitive_assignments:
-            names = sorted({m.group(1).decode("ascii", "ignore").upper() for m in sensitive_assignments})
+        assignment_names = sensitive_literal_assignment_names(data)
+        if assignment_names:
             credential_findings.append(
                 Finding(
                     "sensitive-literal-assignment",
                     oid,
                     safe_path,
-                    "variables=" + ",".join(names),
+                    "variables=" + ",".join(assignment_names),
                 )
             )
 
