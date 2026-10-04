@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "purpose": "Freeze current historical late-layer debt and prevent routine growth of monthly runtime parts.",
-  "part_count_ceiling": 36,
-  "late_layer_count_ceiling": 11,
+  "part_count_ceiling": 35,
+  "late_layer_count_ceiling": 10,
   "preferred_new_part_pattern": "^[0-9]{2}\\.[a-z0-9]+(?:-[a-z0-9]+)*\\.part$",
   "grandfathered_noncanonical_parts": [
     "00.part",
@@ -15,7 +15,6 @@
     "zzzzz_quick_essay_scope_fix.part",
     "zzzzzz_learning-center-direct-route.part",
     "zzzzzzzzzz_essay_metadata_labels.part",
-    "zzzzzzzzzz_essay_review_batch01.part",
     "zzzzzzzzzzzzzzzzzzzzzz_essay_audit_batch1.part",
     "zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part",
     "zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part",

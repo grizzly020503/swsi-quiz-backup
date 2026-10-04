@@ -3,7 +3,6 @@
   "purpose": "Grandfathered direct window.* assignments. New globals or new owners require explicit review.",
   "owners": {
     "ESSAY_GUIDES": [
-      "monthly_patch_parts/zzzzzzzzzz_essay_review_batch01.part",
       "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzz_essay_audit_batch1.part"
     ],
     "MK": [
@@ -16,7 +15,7 @@
       "monthly_patch_parts/zzzzzzzzzz_essay_metadata_labels.part"
     ],
     "SWSI_ESSAY_REVIEW_BATCH01": [
-      "monthly_patch_parts/zzzzzzzzzz_essay_review_batch01.part"
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzz_essay_audit_batch1.part"
     ],
     "SWSI_ESSAY_TRUST_VERSION": [
       "monthly_patch_parts/99z.essay-trust-layer.part"
