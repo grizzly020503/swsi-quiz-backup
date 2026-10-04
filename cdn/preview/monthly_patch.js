@@ -1362,24 +1362,44 @@ main [style*="font-size:15px"]{
     var style=document.createElement('style');
     style.id='swsi-product-philosophy-style';
     style.textContent=`
-      .swsi-focus-hero{background:linear-gradient(155deg,#426D64,#355A52);color:#fff;border-radius:18px;padding:18px 18px 17px;margin-bottom:11px;box-shadow:0 5px 18px rgba(43,62,57,.11)}
-      .swsi-focus-hero .kicker{font-size:var(--swsi-ui-small,11px);font-weight:800;letter-spacing:1.2px;opacity:.8;margin-bottom:4px}
-      .swsi-focus-hero h1{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-hero,22px);font-weight:900;line-height:1.35;letter-spacing:.1px;margin:0}
-      .swsi-focus-hero p{font-size:var(--swsi-ui-body,13px);line-height:1.65;opacity:.9;margin:6px 0 0}
-      .swsi-focus-primary{background:#fff;border:1px solid rgba(79,126,118,.44);border-radius:17px;padding:17px;margin-bottom:9px;box-shadow:0 2px 10px rgba(43,42,38,.025)}
-      .swsi-focus-primary .label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--pine);letter-spacing:.8px;margin-bottom:3px}
-      .swsi-focus-primary h2{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-title,16px);line-height:1.4;margin:0;font-weight:900}
-      .swsi-focus-primary p{font-size:var(--swsi-ui-small,11.5px);line-height:1.65;color:#6E746E;margin:4px 0 0}
-      .swsi-focus-actions{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:8px;margin-top:13px}
-      .swsi-focus-actions button{min-height:48px;border-radius:12px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,14px);font-weight:800;cursor:pointer}
-      .swsi-focus-actions .go{border:none;background:var(--pine-deep);color:#fff}.swsi-focus-actions .choose{border:1px solid var(--line);background:var(--paper2);color:var(--pine-deep)}
-      .swsi-focus-custom{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px;margin:-1px 0 10px}
-      .swsi-focus-custom .field-label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--ink-soft);margin:0 0 5px}.swsi-focus-custom .hint{font-size:var(--swsi-ui-small,11px);line-height:1.6;color:var(--ink-soft);margin:1px 0 9px}
-      .swsi-study-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px 16px;margin:0 0 8px;cursor:pointer;color:var(--ink);font-family:inherit}
-      .swsi-study-card.due{border-color:rgba(158,97,85,.42);background:#FBF6F4}.swsi-study-card .copy{min-width:0}.swsi-study-card .title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:var(--swsi-ui-title,15px);line-height:1.4}.swsi-study-card .sub{font-size:var(--swsi-ui-small,11.5px);color:var(--ink-soft);line-height:1.55;margin-top:3px}.swsi-study-card .aside{flex:0 0 auto;color:var(--ink-3);font-size:21px}.swsi-study-card .count{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--wrong);background:#fff;border-radius:999px;padding:5px 9px;white-space:nowrap}
-      .swsi-home-quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:1px 0 4px}.swsi-home-quick button{min-height:50px;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,13.5px);font-weight:800;cursor:pointer}.swsi-home-quick button.due{border-color:rgba(158,97,85,.42);background:#FBF6F4}.swsi-home-quick .count{display:inline-block;margin-left:5px;font-size:11px;color:var(--wrong)}
-      .swsi-home-resource{width:100%;min-height:44px;margin:5px 0 0;border:0;background:transparent;color:var(--ink-soft);font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-small,11.5px);font-weight:750;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}.swsi-home-resource span{color:var(--ink-3);font-size:16px}
-      @media(max-width:370px){.swsi-focus-actions,.swsi-home-quick{grid-template-columns:1fr}.swsi-focus-hero{padding:17px 16px}}
+      /* Premium-calm visual foundation: hierarchy and whitespace first, decoration last. */
+      .swsi-focus-hero{background:transparent;color:var(--ink);border:0;border-bottom:1px solid rgba(218,225,221,.9);border-radius:0;padding:10px 2px 22px;margin:0 0 18px;box-shadow:none}
+      .swsi-focus-hero .kicker{font-size:var(--swsi-ui-small,11px);font-weight:800;letter-spacing:1.6px;color:var(--pine);opacity:1;margin-bottom:8px}
+      .swsi-focus-hero h1{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-hero,25px);font-weight:900;line-height:1.34;letter-spacing:-.25px;margin:0;color:#202724}
+      .swsi-focus-hero p{font-size:var(--swsi-ui-body,13px);line-height:1.75;color:#66716C;opacity:1;margin:8px 0 0;max-width:38em}
+
+      .swsi-focus-primary{background:#F8FAF9;border:1px solid #E2E9E5;border-radius:16px;padding:20px 18px;margin:0 0 14px;box-shadow:none}
+      .swsi-focus-primary .label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:#486F68;letter-spacing:1px;margin-bottom:5px}
+      .swsi-focus-primary h2{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-title,16px);line-height:1.4;margin:0;font-weight:900;color:#242B28}
+      .swsi-focus-primary p{font-size:var(--swsi-ui-small,11.5px);line-height:1.7;color:#68716C;margin:5px 0 0}
+      .swsi-focus-actions{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:9px;margin-top:16px}
+      .swsi-focus-actions button{min-height:49px;border-radius:11px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,14px);font-weight:800;cursor:pointer;box-shadow:none}
+      .swsi-focus-actions .go{border:1px solid var(--pine-deep);background:var(--pine-deep);color:#fff}
+      .swsi-focus-actions .choose{border:1px solid #D7E0DB;background:#fff;color:var(--pine-deep)}
+      .swsi-focus-actions .go:hover{filter:brightness(.97)}
+      .swsi-focus-actions .choose:hover{border-color:#BFCFC8;background:#FCFDFC}
+
+      .swsi-focus-custom{background:transparent;border:0;border-bottom:1px solid #E1E7E3;border-radius:0;padding:4px 2px 18px;margin:0 0 14px}
+      .swsi-focus-custom .field-label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--ink-soft);margin:0 0 6px}.swsi-focus-custom .hint{font-size:var(--swsi-ui-small,11px);line-height:1.65;color:var(--ink-soft);margin:3px 0 10px}
+
+      .swsi-study-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:transparent;border:0;border-bottom:1px solid #E5E9E6;border-radius:0;padding:15px 2px;margin:0;cursor:pointer;color:var(--ink);font-family:inherit}
+      .swsi-study-card.due{border-color:#E1D7D3;background:transparent}.swsi-study-card .copy{min-width:0}.swsi-study-card .title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:var(--swsi-ui-title,15px);line-height:1.4}.swsi-study-card .sub{font-size:var(--swsi-ui-small,11.5px);color:var(--ink-soft);line-height:1.6;margin-top:3px}.swsi-study-card .aside{flex:0 0 auto;color:var(--ink-3);font-size:20px}.swsi-study-card .count{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--wrong);background:transparent;border-radius:0;padding:0;white-space:nowrap}
+
+      .swsi-home-quick{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:2px 0 2px;border-top:1px solid #E2E7E4;border-bottom:1px solid #E2E7E4}
+      .swsi-home-quick button{min-height:58px;border:0;border-radius:0;background:transparent;color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,13.5px);font-weight:800;cursor:pointer;padding:10px 12px}
+      .swsi-home-quick button+button{border-left:1px solid #E2E7E4}
+      .swsi-home-quick button:hover{background:#F8FAF9}
+      .swsi-home-quick button.due{border-color:#E2E7E4;background:transparent;color:#5F4B45}
+      .swsi-home-quick .count{display:inline-block;margin-left:5px;font-size:11px;color:var(--wrong)}
+      .swsi-home-resource{width:100%;min-height:48px;margin:6px 0 0;border:0;background:transparent;color:var(--ink-soft);font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-small,11.5px);font-weight:750;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}.swsi-home-resource span{color:var(--ink-3);font-size:16px}
+      .swsi-home-resource:hover{color:var(--pine-deep)}
+
+      @media(max-width:370px){
+        .swsi-focus-actions{grid-template-columns:1fr}
+        .swsi-focus-hero{padding:8px 0 19px;margin-bottom:15px}
+        .swsi-focus-primary{padding:18px 16px}
+        .swsi-home-quick{grid-template-columns:1fr 1fr}
+      }
     `;
     document.head.appendChild(style);
   }
@@ -1437,67 +1457,66 @@ main [style*="font-size:15px"]{
 /* When a quiz is open, remove unrelated navigation noise. */
 body:has(#app .qcard) .tabbar{display:none!important;}
 body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
-body:has(#app .qcard) header{box-shadow:none;border-bottom:1px solid rgba(220,228,223,.75);}
+body:has(#app .qcard) header{box-shadow:none;border-bottom:1px solid rgba(220,228,223,.7);}
 
-/* Progress = orientation, not competition. */
-#app .pstrip{gap:10px;margin:2px 0 13px;}
-#app .pbar{height:3px;background:#E3E9E5;}
+/* Progress = quiet orientation, not competition. */
+#app .pstrip{gap:11px;margin:3px 0 15px;}
+#app .pbar{height:2px;background:#E5EAE7;}
 #app .pbar i{background:var(--pine);box-shadow:none;}
 #app .pcount{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:500;color:var(--ink-soft);}
-#app .quit{font-family:'Noto Sans TC',sans-serif;text-decoration:none;color:var(--ink-soft);opacity:.8;margin-bottom:10px;}
+#app .quit{font-family:'Noto Sans TC',sans-serif;text-decoration:none;color:var(--ink-soft);opacity:.82;margin-bottom:12px;}
 #app .quit:hover{color:var(--ink);}
 
-/* The question itself should own the page. */
-#app .qcard{background:#fff;border:1px solid #E4E9E6;border-radius:18px;padding:22px 18px 20px;box-shadow:0 3px 16px rgba(42,44,42,.035);}
-#app .qmeta{gap:6px;margin-bottom:14px;}
-#app .tag{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:600;line-height:1.25;padding:4px 8px;border-radius:999px;}
-#app .tag.subj{background:#EAF1EE;color:var(--pine-deep);}
-#app .tag.year{background:#F3F4F1;color:var(--ink-soft);}
-#app .qtext{font-family:'Noto Serif TC',serif;font-weight:600;line-height:1.8;margin:0 0 21px;color:#202421;letter-spacing:.01em;}
+/* Let the question live on the page instead of inside another large card. */
+#app .qcard{background:transparent;border:0;border-radius:0;padding:13px 2px 22px;box-shadow:none;}
+#app .qmeta{gap:10px;margin-bottom:15px;}
+#app .tag{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:700;line-height:1.25;padding:0;border-radius:0;background:transparent!important;}
+#app .tag.subj{color:var(--pine-deep);}
+#app .tag.year{color:var(--ink-soft);}
+#app .qtext{font-family:'Noto Serif TC',serif;font-weight:650;line-height:1.9;margin:0 0 24px;color:#202522;letter-spacing:.005em;}
 
-/* Answers should read like four clean choices, not game buttons. */
-#app .opt{position:relative;background:#FBFCFB;border:1px solid #DFE5E1;border-radius:14px;padding:14px 14px 14px 13px;margin-bottom:10px;gap:11px;min-height:54px;align-items:flex-start;line-height:1.65;box-shadow:none;}
-#app .opt:hover{border-color:#BFCFC8;background:#F8FAF9;}
-#app .opt .lab{display:grid;place-items:center;flex:0 0 auto;width:28px;height:28px;margin-top:0;border:1px solid #D6DEDA;border-radius:50%;font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:700;color:#66706B;background:#fff;}
-#app .opt.sel{border-color:var(--pine);background:#F0F6F3;}
+/* Answers are large reading rows with only one visual boundary. */
+#app .opt{position:relative;background:#fff;border:1px solid #E0E6E2;border-radius:12px;padding:15px 15px 15px 13px;margin-bottom:9px;gap:12px;min-height:56px;align-items:flex-start;line-height:1.68;box-shadow:none;transition:border-color .14s ease,background .14s ease;}
+#app .opt:hover{border-color:#BACAC3;background:#FBFCFB;}
+#app .opt .lab{display:grid;place-items:center;flex:0 0 auto;width:27px;height:27px;margin-top:0;border:1px solid #D5DDD9;border-radius:50%;font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:750;color:#68716D;background:#fff;}
+#app .opt.sel{border-color:#7FA398;background:#F4F8F6;}
 #app .opt.sel .lab{border-color:var(--pine);background:var(--pine);color:#fff;}
-#app .opt.correct{border-color:#AFCAC0;background:#EFF6F3;}
+#app .opt.correct{border-color:#AFCAC0;background:#F3F8F6;}
 #app .opt.correct .lab{border-color:var(--correct);background:var(--correct);color:#fff;}
-#app .opt.wrong{border-color:#D8BDB6;background:#FAF2EF;}
+#app .opt.wrong{border-color:#D9C0B9;background:#FBF5F3;}
 #app .opt.wrong .lab{border-color:var(--wrong);background:var(--wrong);color:#fff;}
 #app .opt .mk{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:600;}
 #app .ck{width:18px;height:18px;font-size:10px;}
 
-/* Primary action: plain language, no arcade-style letter spacing. */
-#app .qcard > .btn,#app .qcard .btn{font-family:'Noto Sans TC',sans-serif;letter-spacing:.2px;font-size:var(--fs-b);font-weight:700;border-radius:12px;min-height:48px;margin-top:12px;box-shadow:none;}
+/* Primary action stays strong; secondary action stays quiet. */
+#app .qcard > .btn,#app .qcard .btn{font-family:'Noto Sans TC',sans-serif;letter-spacing:0;font-size:var(--fs-b);font-weight:750;border-radius:11px;min-height:49px;margin-top:13px;box-shadow:none;}
 #app .qcard .btn:not(.ghost){background:var(--pine-deep);}
-#app .qcard .btn.ghost{background:#fff;border:1px solid #C9D7D1;color:var(--pine-deep);}
+#app .qcard .btn.ghost{background:transparent;border:1px solid #C9D7D1;color:var(--pine-deep);}
 
-/* Explanation should feel like study notes, not a result screen. */
-#app .exp{margin-top:22px;padding-top:20px;border-top:1px solid #E5EAE7;animation:none;}
-#app .exp .topic{font-family:'Noto Sans TC',sans-serif;color:var(--ink-soft);margin-bottom:15px;}
-#app .exp-sec{margin:0 0 17px;}
-#app .exp-sec h4{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-h);font-weight:800;color:#34443E;letter-spacing:.1px;margin-bottom:7px;gap:0;}
+/* Explanation reads like notes separated by whitespace and hairlines, not nested cards. */
+#app .exp{margin-top:25px;padding-top:22px;border-top:1px solid #E2E8E4;animation:none;}
+#app .exp .topic{font-family:'Noto Sans TC',sans-serif;color:var(--ink-soft);margin-bottom:16px;}
+#app .exp-sec{margin:0 0 19px;}
+#app .exp-sec h4{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-h);font-weight:800;color:#34443E;letter-spacing:0;margin-bottom:8px;gap:0;}
 #app .exp-sec h4 .dot{display:none;}
-#app .exp-sec p{font-family:'Noto Sans TC',sans-serif;color:#363C38;line-height:1.8;}
-#app .pending{background:#F7F8F6;border:1px solid #E2E6E3;color:var(--ink-soft);border-radius:12px;}
-#app .extra{background:#FAFBFA;border:1px solid #E4E8E5;border-radius:11px;}
-#app .mistake{font-family:'Noto Sans TC',sans-serif;border-radius:8px;padding:5px 8px;background:#F7EEEB;font-weight:600;}
+#app .exp-sec p{font-family:'Noto Sans TC',sans-serif;color:#363D39;line-height:1.86;}
+#app .pending{background:#F8F9F7;border:1px solid #E3E7E4;color:var(--ink-soft);border-radius:10px;}
+#app .extra{background:transparent;border:0;border-top:1px solid #E7EBE8;border-radius:0;padding-left:0;padding-right:0;}
+#app .mistake{font-family:'Noto Sans TC',sans-serif;border-radius:6px;padding:5px 8px;background:#F7EEEB;font-weight:600;}
 
-/* Result page should inform, not rank or celebrate excessively. */
-#app .sumcard{background:#fff;border:1px solid #E3E8E5;box-shadow:none;}
+/* Result page informs without turning into a dashboard. */
+#app .sumcard{background:transparent;border:0;border-radius:0;box-shadow:none;padding-left:0;padding-right:0;}
 #app .sumcard .big{font-size:38px;color:var(--ink);}
-#app .stat{background:#FAFBFA;border-color:#E4E8E5;}
-#app .weak{background:#FAF4F2;}
+#app .stat{background:transparent;border-color:#E4E8E5;}
+#app .weak{background:#FBF6F4;}
 
 @media (max-width:370px){
-  #app .qcard{padding:19px 14px 18px;}
-  #app .opt{padding:13px 12px;gap:9px;}
+  #app .qcard{padding:11px 0 20px;}
+  #app .opt{padding:14px 12px;gap:10px;}
 }
 `;
   document.head.appendChild(style);
 })();
-
 /* SWSI Mobile Reading Polish 2026-08-26
    Feedback pass from real iPhone screenshots:
    - normal size was too large/loose for long explanations and essays
