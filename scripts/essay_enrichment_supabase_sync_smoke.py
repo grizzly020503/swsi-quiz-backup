@@ -10,6 +10,7 @@ OVERLAY = ROOT / "data" / "essay_enrichment.json"
 EDGE = ROOT / "supabase" / "functions" / "sync-essay-enrichment" / "index.ts"
 WORKFLOW = ROOT / ".github" / "workflows" / "moex-social-worker-sync.yml"
 RECOVERY = ROOT / "supabase" / "recovery" / "edge_functions.json"
+OIDC = ROOT / "supabase" / "functions" / "_shared" / "github_actions_oidc.ts"
 
 FIELDS = {
     "topic", "major", "keywords", "theories", "laws", "difficulty", "frequency",
@@ -29,6 +30,7 @@ def main() -> int:
     edge = EDGE.read_text(encoding="utf-8")
     workflow = WORKFLOW.read_text(encoding="utf-8")
     recovery = json.loads(RECOVERY.read_text(encoding="utf-8"))
+    oidc = OIDC.read_text(encoding="utf-8")
 
     assert overlay.get("schema_version") == 1, overlay.get("schema_version")
     records = overlay.get("records") or []
@@ -41,12 +43,11 @@ def main() -> int:
     assert ts_array(edge, "ANALYSIS_FIELDS") == FIELDS
     assert OFFICIAL_FIELDS.isdisjoint(ts_array(edge, "ANALYSIS_FIELDS"))
     for token in (
-        'const REPO = "grizzly020503/swsi-quiz-backup"',
-        'const REPO_ID = 1345053575',
-        "verifyGitHubRepoWriteToken",
-        'Number(repo?.id) === REPO_ID',
-        'repo?.permissions?.push === true',
-        'GitHub token lacks write access to the SWSI repository',
+        "verifyGitHubActionsOidcToken",
+        "ESSAY_SYNC_POLICY",
+        "moex-social-worker-sync.yml@refs/heads/main",
+        'new Set(["schedule", "workflow_dispatch", "push"])',
+        "GitHub Actions OIDC authorization rejected",
         '.from("essays")',
         '.select("id")',
         '.update(record.update)',
@@ -56,18 +57,36 @@ def main() -> int:
         "record ${index}.id has invalid essay identity",
     ):
         assert token in edge, f"missing fail-closed Edge contract: {token}"
-    assert 'repo?.private === true' not in edge, "private-repo readability must not be used as auth"
+    for forbidden in (
+        "verifyGitHubRepoWriteToken",
+        "permissions?.push",
+        "api.github.com/repos/",
+        'repo?.private === true',
+    ):
+        assert forbidden not in edge, f"legacy or weak auth must not remain: {forbidden}"
     for forbidden in ('.insert(', '.upsert(', '.delete('):
         assert forbidden not in edge, f"analysis sync must never use {forbidden}"
 
+    for token in (
+        'GITHUB_ACTIONS_OIDC_ISSUER = "https://token.actions.githubusercontent.com"',
+        'SWSI_SYNC_AUDIENCE = "swsi-supabase-sync"',
+        'SWSI_REPOSITORY_ID = "1345053575"',
+        'algorithms: ["RS256"]',
+    ):
+        assert token in oidc, f"shared OIDC verifier missing: {token}"
+
     endpoint = "https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-essay-enrichment"
     for token in (
-        "Sync essay teaching enrichment to Supabase",
-        "GH_REPO_TOKEN: ${{ github.token }}",
+        "Sync essay teaching enrichment to Supabase with GitHub OIDC",
+        "ACTIONS_ID_TOKEN_REQUEST_TOKEN",
+        "ACTIONS_ID_TOKEN_REQUEST_URL",
+        "audience=swsi-supabase-sync",
         endpoint,
         "--data-binary @data/essay_enrichment.json",
     ):
         assert token in workflow, f"MOEX workflow missing essay enrichment sync contract: {token}"
+    assert "GH_REPO_TOKEN: ${{ github.token }}" not in workflow, "MOEX writer steps must not use legacy GH_REPO_TOKEN auth"
+    assert "SUPABASE_SERVICE_ROLE_KEY" not in workflow, "service-role secret must not enter workflow"
 
     inventory = {str(row.get("slug")): row for row in recovery.get("functions") or []}
     entry = inventory.get("sync-essay-enrichment")
@@ -77,7 +96,7 @@ def main() -> int:
     print(
         "ESSAY ENRICHMENT SUPABASE SYNC CONTRACT OK: "
         f"records={len(records)}, analysis_fields={len(FIELDS)}, official_fields_writeable=0, "
-        "repo-write-token-auth=yes, preflight-existing-ids=yes, recovery-inventory=yes"
+        "github-actions-oidc-auth=yes, preflight-existing-ids=yes, recovery-inventory=yes"
     )
     return 0
 
