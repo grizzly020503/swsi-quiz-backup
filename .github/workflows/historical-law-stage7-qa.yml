@@ -10,6 +10,7 @@ on:
       - 'scripts/historical_law_evidence_adjudication_selftest.py'
       - 'scripts/historical_law_runtime_evidence_contract_smoke.py'
       - 'scripts/historical_law_runtime_sync_workflow_smoke.py'
+      - 'scripts/historical_law_runtime_bootstrap_once_smoke.py'
       - 'data/historical_law_verified_priority10.v1.json'
       - 'data/historical_law_evidence_adjudication.v1.json'
       - 'data/historical_law_evidence_snapshot.v1.json'
@@ -21,6 +22,7 @@ on:
       - 'supabase/migrations/20261005062000_historical_law_runtime_evidence_least_privilege.sql'
       - 'supabase/recovery/edge_functions.json'
       - '.github/workflows/historical-law-runtime-sync.yml'
+      - '.github/workflows/historical-law-runtime-bootstrap-once.yml'
       - '.github/workflows/historical-law-stage7-qa.yml'
   workflow_dispatch:
 
@@ -53,12 +55,14 @@ jobs:
             scripts/historical_law_evidence_adjudication.py \
             scripts/historical_law_evidence_adjudication_selftest.py \
             scripts/historical_law_runtime_evidence_contract_smoke.py \
-            scripts/historical_law_runtime_sync_workflow_smoke.py
+            scripts/historical_law_runtime_sync_workflow_smoke.py \
+            scripts/historical_law_runtime_bootstrap_once_smoke.py
           (cd scripts && python historical_law_stage7_selftest.py)
           python scripts/historical_law_verified_registry_smoke.py
           (cd scripts && python historical_law_evidence_adjudication_selftest.py)
           python scripts/historical_law_runtime_evidence_contract_smoke.py
           python scripts/historical_law_runtime_sync_workflow_smoke.py
+          python scripts/historical_law_runtime_bootstrap_once_smoke.py
           python scripts/historical_law_evidence_adjudication.py --output /tmp/historical_law_verified_combined.v1.json
           python - <<'PY'
           import json
