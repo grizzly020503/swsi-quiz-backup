@@ -268,7 +268,7 @@
       "monthly_patch_parts/71.my-learning-center.part"
     ],
     "swsiMockRecordPolicyVersion": [
-      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzz_mk_record_policy.part"
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part"
     ],
     "swsiOpenAdminCenter": [
       "monthly_patch_parts/71.my-learning-center.part"
@@ -371,7 +371,7 @@
       "monthly_patch_parts/71.my-learning-center.part"
     ],
     "swsiShouldRecordMockAnswer": [
-      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzz_mk_record_policy.part"
+      "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part"
     ],
     "swsiStartEssayNow": [
       "monthly_patch_parts/zzzzz_quick_essay_scope_fix.part"
