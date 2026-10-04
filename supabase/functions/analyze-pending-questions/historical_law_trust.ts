@@ -55,7 +55,9 @@ export function canonicalExamCode(q: { year?: unknown; round?: unknown; id?: unk
     "第二試": "2",
   };
   if (/^\d{3}$/.test(year) && aliases[round]) return `${year}-${aliases[round]}`;
-  const match = clean(q.id).match(/-(\d{3})-([12])-/);
+  // Real SWSI ids are shaped like SP115-1-40 / SW113-2-08, without a
+  // separator between the subject prefix and ROC year.
+  const match = clean(q.id).match(/(\d{3})-([12])-/);
   return match ? `${match[1]}-${match[2]}` : null;
 }
 
