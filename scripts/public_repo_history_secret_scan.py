@@ -19,16 +19,49 @@ identity patterns. Findings report only object/path/category metadata.
 
 from __future__ import annotations
 
+import base64
 import hashlib
+import io
+import json
 import os
 import re
+import stat
 import subprocess
 import sys
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
+from pathlib import PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
 MAX_TEXT_BLOB_BYTES = 8 * 1024 * 1024
+MAX_REVIEWED_ZIP_BYTES = 16 * 1024 * 1024
+SUPABASE_PUBLIC_PROJECT_REF = "yumjtrdctaxyczpspuyo"
+# These exact historical ZIP bytes were inspected (entry paths/types, CRC,
+# extracted text, and identity data). New or changed archives still block.
+REVIEWED_ZIP_SHA256 = {
+    "3518ff591d670f1677531cf0f62e9defbfdde61840bf58a74c3fe06049454d90",
+    "d9f49ec58a61b910c8a6bd850a7833cfaf968967e373d4a70c347e4792c25d99",
+    "9be50e5ecf58eaedcf9025d5bbbf0f000177848cd5e4ea447eb71b31407f370d",
+    "654bdbdc59d7ecb063fc67b0d29240f2025f05b007bea8a9a782b46598ddda2f",
+}
+# The only other binary blobs in the audited refs are three PNG assets. Their
+# chunks are IHDR/IDAT/IEND only (no text metadata), and no credential/email
+# pattern appears in their bytes. Unknown binary content blocks publication.
+REVIEWED_PNG_SHA256 = {
+    "6e741ba47df5f42b3fba1b5ca1b8cefd73003fc230fd3d2e9b86e3f65f75a5f9",
+    "17562e59d94321204b0e7c3596e864072d15dd1f89c7d85626c4ee8da829091d",
+    "9faa01ebb151febb1183ff15379ad92a2fd2ff00cc6e2b2ca883f052f2572726",
+}
+# Issue #330: after the replacement production admin was verified and the
+# legacy personal admin was removed from the allowlist, the owner accepted
+# residual historical identity linkage without rewriting Git history. This
+# exact immutable blob contains the old prefill; any changed/new blob blocks.
+REVIEWED_HISTORICAL_ADMIN_IDENTITY = (
+    "a7a7913afd1f15fc00bdc7372d67e74db01c7842",
+    "cdn/preview/admin/index.html",
+    "e532bab895ca80b7cc31b4f43c40ff940d52268d4093bced48cce2606201678c",
+)
 TEXT_EXTENSIONS = {
     ".txt", ".md", ".json", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx",
     ".py", ".sh", ".ps1", ".sql", ".yml", ".yaml", ".toml", ".ini", ".env",
@@ -127,6 +160,33 @@ def reachable_objects() -> list[tuple[str, str, int, str]]:
     return rows
 
 
+def read_blob_batch(rows: list[tuple[str, str, int, str]]) -> dict[str, bytes]:
+    """Read a bounded group through one Git process instead of one per blob."""
+    requested = [oid for oid, _, size, _ in rows if size <= MAX_TEXT_BLOB_BYTES]
+    if not requested:
+        return {}
+    raw = git("cat-file", "--batch", input_bytes=("\n".join(requested) + "\n").encode())
+    offset = 0
+    found: dict[str, bytes] = {}
+    for expected in requested:
+        line_end = raw.find(b"\n", offset)
+        if line_end < 0:
+            raise RuntimeError("git batch blob header missing")
+        parts = raw[offset:line_end].decode("ascii", "replace").split()
+        if len(parts) != 3 or parts[0] != expected or parts[1] != "blob":
+            raise RuntimeError("git batch blob object mismatch")
+        size = int(parts[2])
+        start = line_end + 1
+        end = start + size
+        if end >= len(raw) or raw[end:end + 1] != b"\n":
+            raise RuntimeError("git batch blob payload truncated")
+        found[expected] = raw[start:end]
+        offset = end + 1
+    if offset != len(raw):
+        raise RuntimeError("git batch blob output has unexpected trailing data")
+    return found
+
+
 def looks_textual(path: str, data: bytes) -> bool:
     suffix = Path(path).suffix.lower()
     if suffix in TEXT_EXTENSIONS or Path(path).name.lower().startswith(".env"):
@@ -147,34 +207,77 @@ def is_placeholder_email(raw: bytes) -> bool:
     local, domain = email.rsplit("@", 1)
     if domain == "users.noreply.github.com" or email == "noreply@github.com":
         return True
-    if domain in PLACEHOLDER_EMAIL_DOMAINS or domain.endswith(".example.com"):
+    if domain in PLACEHOLDER_EMAIL_DOMAINS or domain.endswith((".example.com", ".invalid")):
         return True
     if local in {"user", "username", "name", "email", "test", "example"} and domain.startswith("example"):
         return True
     return False
 
 
-def sensitive_literal_assignment_names(data: bytes) -> list[str]:
-    """Return variable names whose assignment looks like an inline literal.
+def reviewed_test_assignment(name: str, value: bytes, path: str) -> bool:
+    if name == "POSTGRES_PASSWORD" and value == b"postgres":
+        return path in {
+            ".github/workflows/disaster-recovery-drill.yml",
+            ".github/workflows/disaster-recovery-restore-drill.yml",
+            ".github/workflows/ops-ledger-candidate-db-qa.yml",
+        }
+    return name == "SWSI_INTERNAL_KEY" and value == b"internal-secret" and path == "scripts/cloudflare_worker_smoke.js"
 
-    Explicit runtime references are not literals. This prevents safe forms such
-    as `${{ secrets.X }}`, `$TOKEN`, `Deno.env.get(...)`, `process.env.X`, or
-    `os.environ[...]` from becoming false-positive credential findings.
-    """
+
+def sensitive_literal_assignment_names(data: bytes, path: str) -> list[str]:
+    """Return only unreviewed literal assignments, without exposing values."""
     names: set[str] = set()
     runtime_prefixes = (
         "$", "deno.env", "process.env", "os.environ", "os.getenv", "getenv(",
         "secrets.", "github.", "env.", "vars.",
     )
     for match in SENSITIVE_ASSIGNMENT_RE.finditer(data):
-        value = match.group(2).decode("utf-8", "replace").strip()
+        raw_value = match.group(2)
+        value = raw_value.decode("utf-8", "replace").strip()
         normalized = value.lower()
         if normalized.startswith(runtime_prefixes):
             continue
         if normalized.strip("<>[]{}()\"'") in PLACEHOLDER_LITERAL_VALUES:
             continue
-        names.add(match.group(1).decode("ascii", "ignore").upper())
+        name = match.group(1).decode("ascii", "ignore").upper()
+        if reviewed_test_assignment(name, raw_value, path):
+            continue
+        names.add(name)
     return sorted(names)
+
+
+def is_public_supabase_anon_jwt(token: bytes, data: bytes, offset: int, path: str) -> bool:
+    """Accept only legacy browser anon keys for this project; never trust a role label alone."""
+    if path not in {"index.html", "cdn/index.html", "cdn/preview/index.html"} and not path.endswith("/index.html"):
+        return False
+    try:
+        def unique_pairs(pairs: list[tuple[str, object]]) -> dict[str, object]:
+            result: dict[str, object] = {}
+            for key, value in pairs:
+                if key in result:
+                    raise ValueError("duplicate JWT field")
+                result[key] = value
+            return result
+
+        header_b64, payload_b64, _ = token.split(b".")
+        header = json.loads(base64.urlsafe_b64decode(header_b64 + b"=" * (-len(header_b64) % 4)), object_pairs_hook=unique_pairs)
+        payload = json.loads(base64.urlsafe_b64decode(payload_b64 + b"=" * (-len(payload_b64) % 4)), object_pairs_hook=unique_pairs)
+    except (ValueError, UnicodeError):
+        return False
+    if header != {"alg": "HS256", "typ": "JWT"}:
+        return False
+    if set(payload) != {"exp", "iat", "iss", "ref", "role"}:
+        return False
+    if payload["iss"] != "supabase" or payload["ref"] != SUPABASE_PUBLIC_PROJECT_REF or payload["role"] != "anon":
+        return False
+    if type(payload["iat"]) is not int or type(payload["exp"]) is not int or payload["exp"] <= payload["iat"]:
+        return False
+    prefix = data[max(0, offset - 256):offset]
+    return bool(re.search(
+        rb'url\s*:\s*["\']https://' + SUPABASE_PUBLIC_PROJECT_REF.encode() + rb'\.supabase\.co["\']\s*,\s*key\s*:\s*["\']$',
+        prefix,
+        re.I,
+    ))
 
 
 def load_external_identity_patterns() -> list[tuple[str, re.Pattern[str]]]:
@@ -202,87 +305,152 @@ def load_external_identity_patterns() -> list[tuple[str, re.Pattern[str]]]:
     return patterns
 
 
+def scan_text_payload(
+    data: bytes, oid: str, path: str,
+    secret_patterns: dict[str, re.Pattern[bytes]],
+    identity_patterns: list[tuple[str, re.Pattern[str]]],
+) -> tuple[list[Finding], list[Finding]]:
+    credentials: list[Finding] = []
+    identities: list[Finding] = []
+    for name, pattern in secret_patterns.items():
+        if name == "jwt-value":
+            if any(not is_public_supabase_anon_jwt(m.group(0), data, m.start(), path) for m in pattern.finditer(data)):
+                credentials.append(Finding("secret-pattern", oid, path, name))
+        elif pattern.search(data):
+            credentials.append(Finding("secret-pattern", oid, path, name))
+
+    assignment_names = sensitive_literal_assignment_names(data, path)
+    if assignment_names:
+        credentials.append(Finding("sensitive-literal-assignment", oid, path, "variables=" + ",".join(assignment_names)))
+
+    review_emails = [m.group(0) for m in EMAIL_RE.finditer(data) if not is_placeholder_email(m.group(0))]
+    reviewed_identity_blob = (oid, path, hashlib.sha256(data).hexdigest()) == REVIEWED_HISTORICAL_ADMIN_IDENTITY
+    if review_emails and not reviewed_identity_blob:
+        identities.append(Finding("historical-inline-email", oid, path, f"count={len(review_emails)}; values redacted"))
+    if identity_patterns:
+        text = data.decode("utf-8", "replace")
+        matched_ids = [pattern_id for pattern_id, pattern in identity_patterns if pattern.search(text)]
+        if matched_ids:
+            identities.append(Finding("external-identity-pattern", oid, path, "pattern_ids=" + ",".join(sorted(set(matched_ids)))))
+    return credentials, identities
+
+
+def scan_reviewed_zip(
+    data: bytes, oid: str, path: str,
+    secret_patterns: dict[str, re.Pattern[bytes]],
+    identity_patterns: list[tuple[str, re.Pattern[str]]],
+) -> tuple[list[Finding], list[Finding]]:
+    if hashlib.sha256(data).hexdigest() not in REVIEWED_ZIP_SHA256:
+        return [Finding("opaque-history-container", oid, path, "unreviewed ZIP SHA-256")], []
+    credentials: list[Finding] = []
+    identities: list[Finding] = []
+    try:
+        with zipfile.ZipFile(io.BytesIO(data)) as archive:
+            entries = archive.infolist()
+            if not entries or len(entries) > 1000:
+                raise ValueError("invalid entry count")
+            seen: set[str] = set()
+            total_bytes = 0
+            for entry in entries:
+                member = entry.filename
+                parts = PurePosixPath(member).parts
+                if (not member or member.startswith("/") or "\\" in member or ":" in member
+                        or any(part in {".", ".."} for part in parts)
+                        or member.casefold() in seen):
+                    raise ValueError("unsafe or duplicate entry path")
+                seen.add(member.casefold())
+                if entry.flag_bits & 1 or stat.S_ISLNK(entry.external_attr >> 16):
+                    raise ValueError("encrypted or symlink entry")
+                if entry.is_dir():
+                    continue
+                total_bytes += entry.file_size
+                if entry.file_size > MAX_TEXT_BLOB_BYTES or total_bytes > MAX_REVIEWED_ZIP_BYTES:
+                    raise ValueError("entry or archive exceeds review limit")
+                lower = member.lower()
+                if (re.search(r"(^|/)\.env($|\.)", lower)
+                        or re.search(r"(^|/)(private[-_]?backups?|restore[-_]?reports?)(/|$)", lower)
+                        or Path(lower).suffix in OPAQUE_CONTAINER_EXTENSIONS):
+                    raise ValueError("sensitive or nested entry path")
+                contents = archive.read(entry)  # verifies the member CRC
+                member_path = path + "!/" + member
+                if contents.startswith(b"\x89PNG\r\n\x1a\n") and lower.endswith(".png"):
+                    continue  # exact reviewed archive digest pins these image bytes
+                if not looks_textual(member, contents):
+                    raise ValueError("unreviewed binary entry")
+                found_credentials, found_identities = scan_text_payload(
+                    contents, oid, member_path, secret_patterns, identity_patterns,
+                )
+                credentials.extend(found_credentials)
+                identities.extend(found_identities)
+    except (ValueError, RuntimeError, zipfile.BadZipFile, OSError) as exc:
+        credentials.append(Finding("opaque-history-container", oid, path, f"reviewed ZIP validation failed: {type(exc).__name__}"))
+    return credentials, identities
+
+
 def scan_blobs() -> tuple[list[Finding], list[Finding], int, int, int]:
     secret_patterns = compile_secret_patterns()
     identity_patterns = load_external_identity_patterns()
     credential_findings: list[Finding] = []
     identity_findings: list[Finding] = []
-    scanned = 0
-    skipped_large_text = 0
-    binary_blobs = 0
+    scanned = skipped_large_text = binary_blobs = 0
 
-    for oid, _, size, path in reachable_objects():
-        safe_path = path or "<unknown path>"
-
-        # We already know the blob size from batch-check. Do not load a huge blob
-        # merely to discover that it exceeds the fail-closed audit limit.
-        if size > MAX_TEXT_BLOB_BYTES:
-            suffix = Path(path).suffix.lower()
-            if suffix in TEXT_EXTENSIONS or Path(path).name.lower().startswith(".env"):
-                skipped_large_text += 1
-                credential_findings.append(
-                    Finding(
-                        "unscanned-large-text-blob",
-                        oid,
-                        safe_path,
-                        f"size={size} exceeds audit limit={MAX_TEXT_BLOB_BYTES}",
-                    )
-                )
-            elif suffix in OPAQUE_CONTAINER_EXTENSIONS:
-                credential_findings.append(
-                    Finding("opaque-history-container", oid, safe_path, f"size={size}; manual extraction/review required")
-                )
-            continue
-
-        data = git("cat-file", "blob", oid)
-        if not looks_textual(path, data):
-            binary_blobs += 1
-            if Path(path).suffix.lower() in OPAQUE_CONTAINER_EXTENSIONS:
-                credential_findings.append(
-                    Finding("opaque-history-container", oid, safe_path, f"size={size}; binary/container content not text-scannable")
-                )
-            continue
-
-        scanned += 1
-        for name, pattern in secret_patterns.items():
-            if pattern.search(data):
-                credential_findings.append(Finding("secret-pattern", oid, safe_path, name))
-
-        assignment_names = sensitive_literal_assignment_names(data)
-        if assignment_names:
-            credential_findings.append(
-                Finding(
-                    "sensitive-literal-assignment",
-                    oid,
-                    safe_path,
-                    "variables=" + ",".join(assignment_names),
-                )
+    rows = reachable_objects()
+    for group_start in range(0, len(rows), 128):
+        group = rows[group_start:group_start + 128]
+        blobs = read_blob_batch(group)
+        for oid, _, size, path in group:
+            credentials, identities, text_count, large_count, binary_count = scan_one_blob(
+                oid, size, path, blobs.get(oid), secret_patterns, identity_patterns,
             )
+            credential_findings.extend(credentials)
+            identity_findings.extend(identities)
+            scanned += text_count
+            skipped_large_text += large_count
+            binary_blobs += binary_count
 
-        emails = [m.group(0) for m in EMAIL_RE.finditer(data)]
-        review_emails = [email for email in emails if not is_placeholder_email(email)]
-        if review_emails:
-            identity_findings.append(
-                Finding(
-                    "historical-inline-email",
-                    oid,
-                    safe_path,
-                    f"count={len(review_emails)}; values redacted",
-                )
-            )
+    return credential_findings, identity_findings, scanned, skipped_large_text, binary_blobs
 
-        if identity_patterns:
-            text = data.decode("utf-8", "replace")
-            matched_ids = [pattern_id for pattern_id, pattern in identity_patterns if pattern.search(text)]
-            if matched_ids:
-                identity_findings.append(
-                    Finding(
-                        "external-identity-pattern",
-                        oid,
-                        safe_path,
-                        "pattern_ids=" + ",".join(sorted(set(matched_ids))),
-                    )
-                )
+
+def scan_one_blob(
+    oid: str, size: int, path: str, data: bytes | None,
+    secret_patterns: dict[str, re.Pattern[bytes]],
+    identity_patterns: list[tuple[str, re.Pattern[str]]],
+) -> tuple[list[Finding], list[Finding], int, int, int]:
+    credential_findings: list[Finding] = []
+    identity_findings: list[Finding] = []
+    scanned = skipped_large_text = binary_blobs = 0
+    safe_path = path or "<unknown path>"
+    suffix = Path(path).suffix.lower()
+    if size > MAX_TEXT_BLOB_BYTES:
+        if suffix in TEXT_EXTENSIONS or Path(path).name.lower().startswith(".env"):
+            skipped_large_text += 1
+            credential_findings.append(Finding("unscanned-large-text-blob", oid, safe_path, f"size={size} exceeds audit limit={MAX_TEXT_BLOB_BYTES}"))
+        else:
+            credential_findings.append(Finding("unscanned-large-blob", oid, safe_path, f"size={size} exceeds audit limit={MAX_TEXT_BLOB_BYTES}"))
+        return credential_findings, identity_findings, scanned, skipped_large_text, binary_blobs
+
+    if data is None or len(data) != size:
+        raise RuntimeError("blob missing from git batch")
+    if suffix == ".zip" or data.startswith(b"PK\x03\x04"):
+        binary_blobs += 1
+        credentials, identities = scan_reviewed_zip(data, oid, safe_path, secret_patterns, identity_patterns)
+        credential_findings.extend(credentials)
+        identity_findings.extend(identities)
+        return credential_findings, identity_findings, scanned, skipped_large_text, binary_blobs
+    if suffix in OPAQUE_CONTAINER_EXTENSIONS or data.startswith((b"7z\xbc\xaf\x27\x1c", b"Rar!", b"\x1f\x8b")):
+        binary_blobs += 1
+        credential_findings.append(Finding("opaque-history-container", oid, safe_path, "unreviewed container"))
+        return credential_findings, identity_findings, scanned, skipped_large_text, binary_blobs
+    if not looks_textual(path, data):
+        binary_blobs += 1
+        if not (suffix == ".png" and data.startswith(b"\x89PNG\r\n\x1a\n") and hashlib.sha256(data).hexdigest() in REVIEWED_PNG_SHA256):
+            credential_findings.append(Finding("unreviewed-binary-blob", oid, safe_path, f"size={size}"))
+        return credential_findings, identity_findings, scanned, skipped_large_text, binary_blobs
+
+    scanned += 1
+    credentials, identities = scan_text_payload(data, oid, safe_path, secret_patterns, identity_patterns)
+    credential_findings.extend(credentials)
+    identity_findings.extend(identities)
 
     return credential_findings, identity_findings, scanned, skipped_large_text, binary_blobs
 
@@ -293,7 +461,7 @@ SENSITIVE_HISTORY_PATH_PATTERNS = [
     re.compile(r"\.agekey$", re.I),
     re.compile(r"swsi-supabase-private-.*\.tar\.age(?:\.sha256)?$", re.I),
     re.compile(r"\.(?:p12|pfx|jks|keystore|sqlite3?|db|dump)(?:$|\.)", re.I),
-    re.compile(r"\.(?:zip|7z|rar|tgz|tar\.gz|tar\.bz2|tar\.xz)(?:$|\.)", re.I),
+    re.compile(r"\.(?:7z|rar|tgz|tar\.gz|tar\.bz2|tar\.xz)$", re.I),
 ]
 
 
@@ -358,7 +526,7 @@ def main() -> int:
     print(
         "PUBLIC REPO HISTORY AUDIT "
         f"blobs_scanned={blob_count} "
-        f"binary_blobs_skipped={binary_count} "
+        f"binary_blobs_checked={binary_count} "
         f"large_text_unscanned={skipped_large} "
         f"credential_blocking_findings={len(credential_findings)} "
         f"identity_review_findings={len(identity_findings)} "

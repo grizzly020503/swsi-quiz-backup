@@ -8,6 +8,7 @@ on:
     paths:
       - '.github/workflows/public-repo-history-audit.yml'
       - 'scripts/public_repo_history_secret_scan.py'
+      - 'scripts/public_repo_history_secret_scan_selftest.py'
 
 permissions:
   contents: read
@@ -41,4 +42,5 @@ jobs:
       - name: Run fail-closed public history audit
         run: |
           set -euo pipefail
+          python3 scripts/public_repo_history_secret_scan_selftest.py
           python3 scripts/public_repo_history_secret_scan.py

@@ -44,6 +44,7 @@ jobs:
           set -euo pipefail
           python -m py_compile \
             scripts/public_repo_history_secret_scan.py \
+            scripts/public_repo_history_secret_scan_selftest.py \
             scripts/public_content_sanitize.py \
             scripts/current_affairs_supabase_sync_smoke.py \
             scripts/essay_enrichment_supabase_sync_smoke.py \
@@ -114,7 +115,8 @@ jobs:
         id: history
         shell: bash
         run: |
-          set -uo pipefail
+          set -euo pipefail
+          python scripts/public_repo_history_secret_scan_selftest.py
           set +e
           python scripts/public_repo_history_secret_scan.py 2>&1 | tee /tmp/public-history-audit.txt
           rc=${PIPESTATUS[0]}
