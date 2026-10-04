@@ -43,7 +43,7 @@ def main() -> None:
         'historical_law_runtime_evidence',
         'route: "hold_retry"',
         'route: "preflight_review"',
-        'route: "historical_review"',
+        'route: operationalRetry ? "hold_retry" : "historical_review"',
         'route: "post_model_review"',
         'model_called: false',
         'model_called: true',
