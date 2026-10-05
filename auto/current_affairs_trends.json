@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-05T09:36:44Z",
+  "generated_at": "2026-10-05T14:29:11Z",
   "event_count": 3,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -365,207 +365,162 @@
       ]
     },
     {
-      "canonical_event_id": "aea9a820f4bf3b085f9bc9ee",
-      "title": "涉扯破女密友內褲性侵未遂 「醫美教父」常如山延長境管8月",
-      "category": "家暴與性暴力",
+      "canonical_event_id": "87cb9378e4122e8567fee103",
+      "title": "肯定海巡緝獲大宗毒品 卓揆：持續強化海巡人力與裝備 賦予更強大執法能力",
+      "category": "心理健康與成癮",
       "subjects": [
-        "社會工作直接服務",
-        "社會政策與社會立法"
+        "人類行為與社會環境",
+        "社會工作直接服務"
       ],
       "knowledge_root": "社會工作管理",
       "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
       "management_domains": [
-        "品質與風險管理",
         "服務輸送與跨網絡",
-        "倫理與權利保障"
+        "倫理與權利保障",
+        "品質與風險管理",
+        "規劃與政策執行"
       ],
       "exam_subject_axes": [
-        "社會工作直接服務",
         "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作"
+        "社會工作直接服務",
+        "社會工作",
+        "社會政策與社會立法"
       ],
       "primary_exam_subject_axes": [
-        "社會工作直接服務"
+        "人類行為與社會環境"
       ],
       "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作"
+        "社會工作直接服務",
+        "社會工作",
+        "社會政策與社會立法"
       ],
       "subject_topics": {
-        "社會工作直接服務": [
-          "危險評估與安全計畫",
-          "創傷知情與危機介入"
-        ],
         "人類行為與社會環境": [
-          "創傷反應與家庭互動"
+          "心理健康、精神疾病與成癮"
         ],
-        "社會政策與社會立法": [
-          "家暴與性暴力防治制度",
-          "保護令與被害人權益"
+        "社會工作直接服務": [
+          "危機介入、個案管理與資源連結"
         ],
         "社會工作": [
-          "被害人權利與專業倫理"
+          "復元取向、去污名與權利保障"
+        ],
+        "社會政策與社會立法": [
+          "精神衛生與社區支持制度"
         ]
       },
       "knowledge_topics": [
-        "家暴與性暴力",
-        "性侵",
-        "保護"
+        "心理健康與成癮",
+        "毒品",
+        "行政院",
+        "法規"
       ],
       "knowledge_paths": [
-        "社會工作管理 > 品質與風險管理",
         "社會工作管理 > 服務輸送與跨網絡",
         "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 危險評估與安全計畫",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 創傷知情與危機介入",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 被害人權利與專業倫理",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 危險評估與安全計畫",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 創傷知情與危機介入",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 被害人權利與專業倫理",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 家暴與性暴力防治制度",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 保護令與被害人權益",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 被害人權利與專業倫理",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 危險評估與安全計畫",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 創傷知情與危機介入",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 家暴與性暴力防治制度",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 保護令與被害人權益",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 創傷反應與家庭互動"
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 危機介入、個案管理與資源連結",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 復元取向、去污名與權利保障",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 精神衛生與社區支持制度",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 復元取向、去污名與權利保障",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 危機介入、個案管理與資源連結",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 精神衛生與社區支持制度",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 心理健康、精神疾病與成癮",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 危機介入、個案管理與資源連結",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 復元取向、去污名與權利保障",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 精神衛生與社區支持制度",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 復元取向、去污名與權利保障"
       ],
       "trend_state": "one-off",
-      "trend_score": 2.9,
+      "trend_score": 1.7,
       "why": [
-        "歷屆同概念／事件詞關聯 78 題，跨 12 個年度；強 0／中 1／概念 77",
-        "最近相關題為 115 年（距題庫最新年度 0 年）",
-        "歷屆分布 2 個考科"
+        "1 個官方來源",
+        "歷屆廣義概念關聯 2 題，跨 2 個年度；強 0／中 0／概念 2（僅作低權重背景）",
+        "最近相關題為 115 年（距題庫最新年度 0 年）"
       ],
       "factors": {
         "cross_source": 0.0,
-        "official_evidence": 0.0,
+        "official_evidence": 0.7,
         "policy_change": 0.0,
-        "historical_frequency": 0.42,
-        "historical_year_breadth": 0.52,
-        "recent_exam_support": 0.52,
-        "historical_subject_breadth": 0.25,
+        "historical_frequency": 0.14,
+        "historical_year_breadth": 0.08,
+        "recent_exam_support": 0.28,
+        "historical_subject_breadth": 0.0,
         "law_relevance": 0.0,
         "persistence": 0.0,
-        "essay_value": 1.1,
+        "essay_value": 0.0,
         "mcq_density": 0.0,
         "recency": 1.0
       },
       "source_count": 1,
-      "official_source_count": 0,
+      "official_source_count": 1,
       "observation_count": 1,
-      "first_seen": "2026-10-05T08:48:30Z",
-      "last_seen": "2026-10-05T08:48:30Z",
+      "first_seen": "2026-10-05T08:21:30Z",
+      "last_seen": "2026-10-05T08:21:30Z",
       "related_laws": [],
       "related_policy_instruments": [],
       "law_link_status": "unresolved",
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
       "law_link_basis": [],
       "law_link_rules_schema": 1,
-      "historical_question_count": 78,
-      "historical_weighted_match_count": 1.5,
+      "historical_question_count": 2,
+      "historical_weighted_match_count": 0.5,
       "historical_match_breakdown": {
         "strong": 0,
-        "medium": 1,
-        "concept": 77
+        "medium": 0,
+        "concept": 2
       },
       "historical_exam_years": [
-        104,
-        105,
-        106,
-        107,
-        108,
-        109,
         110,
-        111,
-        112,
-        113,
-        114,
         115
       ],
       "latest_related_exam_year": 115,
       "corpus_latest_exam_year": 115,
       "years_since_last_related_exam": 0,
       "historical_subject_counts": {
-        "社會工作直接服務": 2,
-        "社會政策與社會立法": 76
+        "人類行為與社會環境": 2
       },
-      "historical_subject_count": 2,
+      "historical_subject_count": 1,
       "historical_law_match_count": 0,
       "historical_law_match_years": [],
       "historical_high_confidence_match_count": 0,
       "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
       "related_exam_questions": [
         {
-          "id": "SP115-1-32",
-          "subject": "社會政策與社會立法",
+          "id": "HBSE-115-1-022",
+          "subject": "人類行為與社會環境",
           "year": "115",
           "round": "第一次",
-          "qno": "32",
-          "major": "婦女與性別法規",
-          "topic": "性侵害犯罪防治法 > 主管機關權責",
-          "match_reason": "事件詞：性侵；共同概念：性別暴力、修復式司法",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP115-1-11",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "11",
-          "major": "其他社會立法與人權公約",
-          "topic": "家暴防治法 > 保護令聲請",
-          "match_reason": "共同概念：性別暴力",
+          "qno": "22",
+          "major": "心理健康與偏差",
+          "topic": "成癮物質 > 毒品分級",
+          "match_reason": "事件詞：毒品",
           "match_score": 2.2
         },
         {
-          "id": "DS-115-2-011",
-          "subject": "社會工作直接服務",
-          "year": "115",
+          "id": "HBSE-110-2-025",
+          "subject": "人類行為與社會環境",
+          "year": "110",
           "round": "第二次",
-          "qno": "11",
-          "major": "專業關係",
-          "topic": "情感反轉移的處理原則",
-          "match_reason": "共同概念：性別暴力",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP115-1-24",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "24",
-          "major": "其他社會立法與人權公約",
-          "topic": "家暴防治法 > 家暴基金來源",
-          "match_reason": "事件詞：性侵；共同概念：性別暴力",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP115-1-25",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
           "qno": "25",
-          "major": "其他社會立法與人權公約",
-          "topic": "家暴防治法 > 家庭成員定義",
-          "match_reason": "共同概念：性別暴力",
+          "major": "心理健康與偏差",
+          "topic": "成癮物質 > 毒品FM2",
+          "match_reason": "事件詞：毒品",
           "match_score": 2.2
         }
       ],
-      "essay_direction": "可從「危險評估、保護令、創傷知情與跨網絡合作」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "essay_direction": "可從「精神衛生、危機介入、復元取向與去污名」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
-        "性侵"
+        "行政院",
+        "毒品"
       ],
       "evidence": [
         {
-          "source_name": "TVBS新聞社會",
-          "source_url": "https://news.tvbs.com.tw/local/4031810",
-          "source_type": "news",
-          "published_at": "2026-10-05T08:48:30Z",
-          "item_id": "02df7f165326834556a0b28fee58211c"
+          "source_name": "行政院本院新聞",
+          "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//60be1b8a-a984-4067-95b7-80bf11ce5b5e",
+          "source_type": "official",
+          "published_at": "2026-10-05T08:21:30Z",
+          "item_id": "e8cd57e82f8f0a797cb0991bd1c522a6"
         }
       ]
     }
