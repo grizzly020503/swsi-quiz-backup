@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-05T05:31:25Z",
-  "item_count": 2,
+  "generated_at": "2026-10-05T09:36:44Z",
+  "item_count": 3,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
   "law_link_rules_schema": 1,
@@ -330,6 +330,197 @@
         "years_since_last_exam": null,
         "subject_counts": {},
         "subject_count": 0,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
+      "id": "02df7f165326834556a0b28fee58211c",
+      "title": "涉扯破女密友內褲性侵未遂 「醫美教父」常如山延長境管8月",
+      "summary": "「醫美教父」愛爾麗醫美集團總裁常如山因旗下診所涉嫌偷拍，遭羈押禁見迄今，但他另案被控尾隨闖入女密友住處、扯破對方內褲，涉犯強制性交未遂及違反犯罪被害人保護命令遭起訴。台北地院認為，常如山雖否認犯行，但卷證顯示其犯罪嫌疑重大，裁定自10月5日起延長限制出境、出海8月。",
+      "source_name": "TVBS新聞社會",
+      "source_url": "https://news.tvbs.com.tw/local/4031810",
+      "published_at": "2026-10-05T08:48:30Z",
+      "region": "taiwan",
+      "category": "家暴與性暴力",
+      "relevance_score": 5,
+      "exam_tags": [
+        "性侵",
+        "保護"
+      ],
+      "subjects": [
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "品質與風險管理",
+        "服務輸送與跨網絡",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會工作直接服務": [
+          "危險評估與安全計畫",
+          "創傷知情與危機介入"
+        ],
+        "人類行為與社會環境": [
+          "創傷反應與家庭互動"
+        ],
+        "社會政策與社會立法": [
+          "家暴與性暴力防治制度",
+          "保護令與被害人權益"
+        ],
+        "社會工作": [
+          "被害人權利與專業倫理"
+        ]
+      },
+      "knowledge_topics": [
+        "家暴與性暴力",
+        "性侵",
+        "保護"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 創傷反應與家庭互動"
+      ],
+      "policy_signal": "low",
+      "essay_value": "high",
+      "mcq_fact_density": "low",
+      "signal_confidence": "medium",
+      "signal_score": 6,
+      "exam_point_summary": "涉扯破女密友內褲性侵未遂 「醫美教父」常如山延長境管8月。尚未見明確制度變動，先作事件與專業議題觀察；申論可從危險評估、保護令、創傷知情與跨網絡合作切入。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「危險評估、保護令、創傷知情與跨網絡合作」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "性侵"
+      ],
+      "related_laws": [],
+      "related_policy_instruments": [],
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "related_exam_questions": [
+        {
+          "id": "SP115-1-32",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "32",
+          "major": "婦女與性別法規",
+          "topic": "性侵害犯罪防治法 > 主管機關權責",
+          "match_reason": "事件詞：性侵；共同概念：性別暴力、修復式司法",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP115-1-11",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "11",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 保護令聲請",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "DS-115-2-011",
+          "subject": "社會工作直接服務",
+          "year": "115",
+          "round": "第二次",
+          "qno": "11",
+          "major": "專業關係",
+          "topic": "情感反轉移的處理原則",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-24",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "24",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 家暴基金來源",
+          "match_reason": "事件詞：性侵；共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-25",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "25",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 家庭成員定義",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 78,
+        "weighted_match_count": 1.5,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 1,
+          "concept": 77
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作直接服務": 2,
+          "社會政策與社會立法": 76
+        },
+        "subject_count": 2,
         "law_match_count": 0,
         "law_match_year_count": 0,
         "law_match_years": [],
