@@ -6,6 +6,10 @@ on:
       - 'supabase/functions/analyze-pending-questions/index.ts'
       - 'supabase/functions/analyze-pending-questions/current_legal_trust.ts'
       - 'supabase/functions/analyze-pending-questions/current_legal_trust_test.ts'
+      - 'supabase/functions/analyze-pending-questions/historical_law_trust.ts'
+      - 'supabase/functions/analyze-pending-questions/historical_law_trust_test.ts'
+      - 'supabase/functions/analyze-pending-questions/enrichment_route.ts'
+      - 'supabase/functions/analyze-pending-questions/enrichment_route_test.ts'
       - 'cloudflare/wandering-wave-4418/worker.js'
       - 'scripts/cloudflare_worker_smoke.js'
       - 'ai_eval/golden_set.json'
@@ -15,10 +19,12 @@ on:
       - '.github/workflows/question-shards-publish.yml'
       - 'scripts/analyzer_proxy_route_smoke.py'
       - 'scripts/analyzer_retry_contract_smoke.py'
+      - 'scripts/analyzer_trust_routing_activation_smoke.py'
       - 'scripts/enrichment_decision.py'
       - 'scripts/enrichment_decision_current.py'
       - 'scripts/analyzer_enrichment_route_plan.py'
       - 'scripts/analyzer_enrichment_route_plan_selftest.py'
+      - 'docs/ANALYZER_TRUST_ROUTING_ACTIVATION_20261005.md'
       - '.github/workflows/ai-analyzer-route-qa.yml'
       - '.github/workflows/prepare-cloudflare-soft-launch-artifact.yml'
       - '.github/workflows/cloudflare-public-candidate.yml'
@@ -29,6 +35,10 @@ on:
       - 'supabase/functions/analyze-pending-questions/index.ts'
       - 'supabase/functions/analyze-pending-questions/current_legal_trust.ts'
       - 'supabase/functions/analyze-pending-questions/current_legal_trust_test.ts'
+      - 'supabase/functions/analyze-pending-questions/historical_law_trust.ts'
+      - 'supabase/functions/analyze-pending-questions/historical_law_trust_test.ts'
+      - 'supabase/functions/analyze-pending-questions/enrichment_route.ts'
+      - 'supabase/functions/analyze-pending-questions/enrichment_route_test.ts'
       - 'cloudflare/wandering-wave-4418/worker.js'
       - 'scripts/cloudflare_worker_smoke.js'
       - 'ai_eval/golden_set.json'
@@ -38,10 +48,12 @@ on:
       - '.github/workflows/question-shards-publish.yml'
       - 'scripts/analyzer_proxy_route_smoke.py'
       - 'scripts/analyzer_retry_contract_smoke.py'
+      - 'scripts/analyzer_trust_routing_activation_smoke.py'
       - 'scripts/enrichment_decision.py'
       - 'scripts/enrichment_decision_current.py'
       - 'scripts/analyzer_enrichment_route_plan.py'
       - 'scripts/analyzer_enrichment_route_plan_selftest.py'
+      - 'docs/ANALYZER_TRUST_ROUTING_ACTIVATION_20261005.md'
       - '.github/workflows/ai-analyzer-route-qa.yml'
       - '.github/workflows/prepare-cloudflare-soft-launch-artifact.yml'
       - '.github/workflows/cloudflare-public-candidate.yml'
@@ -66,12 +78,19 @@ jobs:
           python -m py_compile \
             scripts/analyzer_proxy_route_smoke.py \
             scripts/analyzer_retry_contract_smoke.py \
+            scripts/analyzer_trust_routing_activation_smoke.py \
             scripts/enrichment_decision.py \
             scripts/enrichment_decision_current.py \
             scripts/analyzer_enrichment_route_plan.py \
             scripts/analyzer_enrichment_route_plan_selftest.py
           python scripts/analyzer_proxy_route_smoke.py
           python scripts/analyzer_retry_contract_smoke.py
+          python scripts/analyzer_trust_routing_activation_smoke.py
           python scripts/analyzer_enrichment_route_plan_selftest.py
           deno test supabase/functions/analyze-pending-questions/current_legal_trust_test.ts
+          deno test supabase/functions/analyze-pending-questions/historical_law_trust_test.ts
+          deno test --allow-read=data/question_qa_policy_v1.json supabase/functions/analyze-pending-questions/enrichment_route_test.ts
           deno check supabase/functions/analyze-pending-questions/current_legal_trust.ts
+          deno check supabase/functions/analyze-pending-questions/historical_law_trust.ts
+          deno check supabase/functions/analyze-pending-questions/enrichment_route.ts
+          deno check supabase/functions/analyze-pending-questions/index.ts
