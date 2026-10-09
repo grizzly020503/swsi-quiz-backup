@@ -289,6 +289,8 @@ window.swsiEsc = swsiEsc;
     q.accepted_answers = accepted && accepted.length ? accepted : null;
     q.grading_mode = gradingMode(r);
     q.source_exam_code = (r && r.source_exam_code) || '';
+    q.source_url = (r && r.source_url) || '';
+    q.analysis_status = (r && r.analysis_status) || '';
     q.q = swsiCleanPUA(q.q);
     for(const k of ['A','B','C','D']) q.options[k] = swsiCleanPUA(q.options[k]);
     if(q.exp){
@@ -442,7 +444,7 @@ window.swsiEsc = swsiEsc;
         accepted_answers:q.accepted_answers,grading_mode:q.grading_mode,exp_why:q.exp&&q.exp.why,exp_others:q.exp&&q.exp.others,
         exp_trap:q.exp&&q.exp.trap,exp_raw:q.exp&&q.exp.raw,mnemonic:q.mnemonic,extension:q.extension,law:q.law,mistake:q.mistake,
         legal_status:q.legal_status,legal_checked_at:q.legal_checked_at,legal_note:q.legal_note,legal_source_url:q.legal_source_url,
-        source_exam_code:q.source_exam_code
+        source_exam_code:q.source_exam_code,source_url:q.source_url,analysis_status:q.analysis_status
       }));
       saveOfflineQuestions(raw);
     }catch(_e){}

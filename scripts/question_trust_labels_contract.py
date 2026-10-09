@@ -11,10 +11,10 @@ THEORY_UI = (ROOT / "monthly_patch_parts" / "88.theory-trust-ui.part").read_text
 # Question trust UI must stay in the existing product owner, not another late runtime layer.
 assert "function addQuestionTrust(exp,item)" in LOCK
 assert "swsi-answer-trust" in LOCK
-assert "資料可信度" in LOCK
+assert "題目來源與解析" in LOCK
 
 # Official exam data and SWSI enrichment must stay visibly distinct in student language.
-assert "官方題目／答案" in LOCK
+assert "考選部歷屆試題" in LOCK
 assert "平台解析・已通過基本檢查" in LOCK
 assert "題目、選項、官方答案與特殊給分以考選部資料為準" in LOCK
 assert "SWSI 另外整理解析與延伸內容" in LOCK
@@ -22,25 +22,30 @@ assert "SWSI 另外整理解析與延伸內容" in LOCK
 # Official identity is determined by durable exam identity metadata, not by whether a
 # clickable URL is currently present. Missing/invalid source_url may hide the link,
 # but must never turn an official historical question into "SWSI 練習內容".
-official_fn = re.search(r"function officialQuestion\(item\)\{(.*?)\n  \}", LOCK, re.S)
-assert official_fn, "officialQuestion() contract missing"
-official_body = official_fn.group(1)
-assert "source_exam_code" in official_body
-assert "safeTrustHref(item.source_url)" not in official_body
-assert "return !!item.source_exam_code && !/時事|預測|自製/.test(kind);" in LOCK
+origin_fn = re.search(r"function questionOrigin\\(item\\)\\{(.*?)\\n  \\}", LOCK, re.S)
+assert origin_fn, "questionOrigin() contract missing"
+origin_body = origin_fn.group(1)
+assert "source_exam_code" in origin_body
+assert "'unknown'" in origin_body and "'practice'" in origin_body
+assert "/^\\d{6}$/" in origin_body
+assert "safeTrustHref(item.source_url)" not in origin_body
 assert "appendTrustLink(body,'開啟官方題目來源',official?item.source_url:'');" in LOCK
+assert "題目來源待確認" in LOCK
+assert "平台自製練習題" in LOCK
+assert "此題不是考選部歷屆題；題目與解析都屬 SWSI 學習內容。" not in LOCK
 
-# Executable contract fixtures mirror the intentionally simple runtime rule.
-def official_contract(source_exam_code="", source_url="", qtype="", item_id=""):
+def question_origin_contract(source_exam_code="", source_url="", qtype="", item_id=""):
     kind = f"{qtype} {item_id}"
-    return bool(source_exam_code) and not any(marker in kind for marker in ("時事", "預測", "自製"))
+    if any(marker in kind for marker in ("時事", "預測", "自製")):
+        return "practice"
+    return "official" if re.fullmatch(r"[0-9]{6}", str(source_exam_code or "").strip()) else "unknown"
 
-assert official_contract("115-2", "", "", "SW-115-2-01"), \
-    "official question with missing source_url must remain official"
-assert not official_contract("", "https://www.moex.gov.tw/example", "", "SWSI-LOCAL-01"), \
-    "source_url alone must not manufacture official identity"
-assert not official_contract("synthetic", "", "時事", "CURRENT-AFFAIRS-01"), \
-    "current-affairs/self-authored content must not be over-labelled official"
+assert question_origin_contract("115100", "", "", "HBSE-115-2-001") == "official"
+assert question_origin_contract("", "https://www.moex.gov.tw/example", "", "HBSE-115-2-001") == "unknown"
+assert question_origin_contract("", "", "時事", "CURRENT-AFFAIRS-01") == "practice"
+assert question_origin_contract("synthetic", "", "", "SWSI-LOCAL-01") == "unknown"
+assert "q.source_url = (r && r.source_url) || '';" in (ROOT / "monthly_patch_parts" / "00.part").read_text(encoding="utf-8")
+assert "q.analysis_status = (r && r.analysis_status) || '';" in (ROOT / "monthly_patch_parts" / "00.part").read_text(encoding="utf-8")
 
 # `ready` is not human verification. Keep the boundary without exposing QA jargon.
 assert "這份解析已通過目前的自動與結構檢查，不等於逐題人工核對" in LOCK
