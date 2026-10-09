@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-09T13:10:28Z",
+  "generated_at": "2026-10-09T22:35:29Z",
   "event_count": 3,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -251,7 +251,7 @@
         "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
         "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
-      "trend_state": "sustained",
+      "trend_state": "cooling",
       "trend_score": 3.5,
       "why": [
         "1 個官方來源",
