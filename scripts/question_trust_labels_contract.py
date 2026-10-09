@@ -22,12 +22,14 @@ assert "SWSI 另外整理解析與延伸內容" in LOCK
 # Official identity is determined by durable exam identity metadata, not by whether a
 # clickable URL is currently present. Missing/invalid source_url may hide the link,
 # but must never turn an official historical question into "SWSI 練習內容".
-origin_fn = re.search(r"function questionOrigin\\(item\\)\\{(.*?)\\n  \\}", LOCK, re.S)
-assert origin_fn, "questionOrigin() contract missing"
-origin_body = origin_fn.group(1)
+origin_start = LOCK.find("  function questionOrigin(item){")
+assert origin_start >= 0, "questionOrigin() contract missing"
+origin_end = LOCK.find("\n  }", origin_start)
+assert origin_end > origin_start, "questionOrigin() closing brace missing"
+origin_body = LOCK[origin_start:origin_end]
 assert "source_exam_code" in origin_body
 assert "'unknown'" in origin_body and "'practice'" in origin_body
-assert "/^\\d{6}$/" in origin_body
+assert "test(code)?'official':'unknown'" in origin_body
 assert "safeTrustHref(item.source_url)" not in origin_body
 assert "appendTrustLink(body,'開啟官方題目來源',official?item.source_url:'');" in LOCK
 assert "題目來源待確認" in LOCK
