@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-08T23:18:19Z",
-  "source_item_count": 3,
-  "event_count": 3,
+  "generated_at": "2026-10-09T06:02:59Z",
+  "source_item_count": 4,
+  "event_count": 4,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
   "events": [
     {
@@ -137,6 +137,216 @@
       "law_link_rules_schema": 1,
       "law_link_status": "law_linked",
       "law_link_note": "事件已連到具體法律；相關法律表示制度關聯，不代表本事件發生修法。"
+    },
+    {
+      "canonical_event_id": "d90a35037a19c9e0df31962b",
+      "title": "臺灣防制人口販運評比連17年獲第1級 持續強化被害人保護及打擊新型態人口販運",
+      "summary": "美國國務院於臺灣今（9）日凌晨公布2026年全球防制人口販運評比結果，我國再次獲評列為「第1級」國家，達成連續17年獲得國際肯定的殊榮。內政部長劉世芳表示，我國政府長期依循「追訴（Prosecution）、保護（Protection）、預防（Prevention）及夥伴（Partnership）」4P策略，持續精進人口販運防制工作，整體防制成效繼續獲得國際肯定，深感光榮。 劉世芳強調，政府高度重視美國國務院每年發布人口販運評比所提的具體建議。今年評比共提出8項建議，包括允許移工於勞動契約有效期間內，無需經雇主同意即可轉換工作；持續加強對易受人口販運脆弱族",
+      "category": "司法保護與修復式司法",
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "服務輸送與跨網絡",
+        "倫理與權利保障",
+        "規劃與政策執行",
+        "方案與資源管理",
+        "品質與風險管理"
+      ],
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會工作直接服務": [
+          "被害人支持、修復式處遇與個案服務"
+        ],
+        "社會政策與社會立法": [
+          "犯罪被害人權益與社區處遇制度"
+        ],
+        "社會工作": [
+          "人權、修復與社區復歸"
+        ]
+      },
+      "knowledge_topics": [
+        "司法保護與修復式司法",
+        "被害人保護",
+        "政策",
+        "權益",
+        "保護"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 被害人支持、修復式處遇與個案服務",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 人權、修復與社區復歸",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 犯罪被害人權益與社區處遇制度",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 人權、修復與社區復歸",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 被害人支持、修復式處遇與個案服務",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 犯罪被害人權益與社區處遇制度",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 犯罪被害人權益與社區處遇制度",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 人權、修復與社區復歸",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 人權、修復與社區復歸",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 犯罪被害人權益與社區處遇制度",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 被害人支持、修復式處遇與個案服務",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 人權、修復與社區復歸"
+      ],
+      "exam_tags": [
+        "保護",
+        "政策",
+        "權益",
+        "被害人保護"
+      ],
+      "related_laws": [],
+      "concept_keys": [
+        "labor_rights",
+        "refugees_migration",
+        "restorative_justice"
+      ],
+      "agency_keys": [],
+      "fact_keys": [],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "內政部新聞發布"
+      ],
+      "evidence": [
+        {
+          "source_name": "內政部新聞發布",
+          "source_url": "https://www.moi.gov.tw/News_Content.aspx?n=4&s=342526",
+          "source_type": "official",
+          "published_at": "2026-10-09T00:30:00Z",
+          "item_id": "f04b8be1b6f19983a785fc079170d27f"
+        }
+      ],
+      "first_seen": "2026-10-09T00:30:00Z",
+      "last_seen": "2026-10-09T00:30:00Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-10-09"
+      ],
+      "policy_signal": "low",
+      "essay_value": "high",
+      "mcq_fact_density": "high",
+      "signal_confidence": "high",
+      "signal_score": 8,
+      "exam_point_summary": "臺灣防制人口販運評比連17年獲第1級 持續強化被害人保護及打擊新型態人口販運。尚未見明確制度變動，先作事件與專業議題觀察；申論可從犯罪被害人權益、以家庭為中心的保護服務、修復式司法與社區處遇切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「犯罪被害人權益、以家庭為中心的保護服務、修復式司法與社區處遇」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "內政部",
+        "被害人保護"
+      ],
+      "related_exam_questions": [
+        {
+          "id": "SW-115-2-017",
+          "subject": "社會工作",
+          "year": "115",
+          "round": "第二次",
+          "qno": "17",
+          "major": "社會工作理論",
+          "topic": "優勢觀點 > 優勢分類",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-32",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "32",
+          "major": "婦女與性別法規",
+          "topic": "性侵害犯罪防治法 > 主管機關權責",
+          "match_reason": "事件詞：被害人保護；共同概念：修復式司法",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-114-2-32",
+          "subject": "社會工作",
+          "year": "114",
+          "round": "第二次",
+          "qno": "32",
+          "major": "心理健康",
+          "topic": "矯正社工 > 修復式司法模式",
+          "match_reason": "共同概念：修復式司法",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP114-2-32",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第二次",
+          "qno": "32",
+          "major": "社會救助",
+          "topic": "社會救助法 > 責任通報人員",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-114-2-34",
+          "subject": "社會工作",
+          "year": "114",
+          "round": "第二次",
+          "qno": "34",
+          "major": "多元文化能力",
+          "topic": "移民服務 > 倡導者角色",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 12,
+        "weighted_match_count": 1.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 12
+        },
+        "matched_year_count": 7,
+        "matched_years": [
+          105,
+          108,
+          110,
+          111,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 105,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 7,
+          "社會政策與社會立法": 5
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
+      },
+      "related_policy_instruments": [],
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
     },
     {
       "canonical_event_id": "3bc777ea1dfebad67c941ac4",
