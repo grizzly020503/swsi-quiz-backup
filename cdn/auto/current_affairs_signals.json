@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-15T21:19:31Z",
-  "item_count": 6,
+  "generated_at": "2026-10-16T04:25:27Z",
+  "item_count": 5,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
   "law_link_rules_schema": 1,
@@ -584,114 +584,6 @@
       "signal_confidence": "medium",
       "signal_score": 7,
       "exam_point_summary": "萱萱案承辦社工虛報訪視 衛福部：廢止證書執照。政策／制度動向值得追蹤；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "衛福部"
-      ],
-      "related_laws": [],
-      "related_policy_instruments": [],
-      "law_link_status": "unresolved",
-      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
-      "law_link_basis": [],
-      "law_link_rules_schema": 1,
-      "related_exam_questions": [],
-      "historical_exam_stats": {
-        "matched_question_count": 0,
-        "weighted_match_count": 0.0,
-        "match_breakdown": {
-          "strong": 0,
-          "medium": 0,
-          "concept": 0
-        },
-        "matched_year_count": 0,
-        "matched_years": [],
-        "earliest_exam_year": null,
-        "latest_exam_year": null,
-        "corpus_latest_year": 115,
-        "years_since_last_exam": null,
-        "subject_counts": {},
-        "subject_count": 0,
-        "law_match_count": 0,
-        "law_match_year_count": 0,
-        "law_match_years": [],
-        "high_confidence_match_count": 0,
-        "matching_method": "event-evidence-v2.2"
-      }
-    },
-    {
-      "id": "4d76e6bb8aa377fea45d7d7a43a508d8",
-      "title": "萱萱案社工長期未訪視還造假 遭廢止社工師證書",
-      "summary": "萱萱案引起各界關注，衛福部在7月底召開重大兒虐事件檢討會議，決定未來以「人在地」縣市處理為原則，因應追蹤案件在不同縣市間移動方面的情況，衛福部社工司近期也公布此案社工的懲戒結果...…",
-      "source_name": "自由時報社會",
-      "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5607440",
-      "published_at": "2026-10-15T09:07:05Z",
-      "region": "taiwan",
-      "category": "社工專業與社福制度",
-      "relevance_score": 5,
-      "exam_tags": [
-        "社工",
-        "衛福部"
-      ],
-      "subjects": [
-        "社會工作",
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "組織治理與責信",
-        "倫理與權利保障",
-        "服務輸送與跨網絡",
-        "品質與風險管理"
-      ],
-      "exam_subject_axes": [
-        "社會工作",
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
-      "primary_exam_subject_axes": [
-        "社會工作"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
-      "subject_topics": {
-        "社會工作": [
-          "專業倫理、專業責任與社會工作價值"
-        ],
-        "社會政策與社會立法": [
-          "社福服務體系、專業規範與制度責信"
-        ]
-      },
-      "knowledge_topics": [
-        "社工專業與社福制度",
-        "社工",
-        "衛福部"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 組織治理與責信",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 組織治理與責信 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 組織治理與責信 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理、專業責任與社會工作價值"
-      ],
-      "policy_signal": "medium",
-      "essay_value": "high",
-      "mcq_fact_density": "medium",
-      "signal_confidence": "medium",
-      "signal_score": 7,
-      "exam_point_summary": "萱萱案社工長期未訪視還造假 遭廢止社工師證書。政策／制度動向值得追蹤；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
       "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
         "衛福部"
