@@ -2,85 +2,10 @@
   "schema_version": 2,
   "source_feed_count": 23,
   "feed_error_count": 0,
-  "optional_feed_error_count": 0,
+  "optional_feed_error_count": 1,
   "items": [
     {
-      "knowledge_topics": [
-        "長照與高齡",
-        "長照",
-        "高齡",
-        "老人",
-        "補助",
-        "津貼",
-        "福利"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "長照制度、老人福利與社會保障"
-        ],
-        "社會工作直接服務": [
-          "長照個案管理與家庭照顧者支持"
-        ],
-        "人類行為與社會環境": [
-          "老化、失智與生命歷程"
-        ],
-        "社會工作": [
-          "高齡者權益與社區支持"
-        ]
-      },
-      "region": "taiwan",
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作直接服務",
-        "人類行為與社會環境",
-        "社會工作"
-      ],
-      "agency_keys": [],
-      "knowledge_root": "社會工作管理",
-      "published_at": "2026-10-15T07:08:00Z",
-      "category": "長照與高齡",
-      "source_name": "綜合 2 個來源",
-      "relevance_score": 6,
-      "exam_tags": [
-        "長照",
-        "高齡",
-        "老人",
-        "補助",
-        "津貼",
-        "福利"
-      ],
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會工作"
-      ],
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "source_url": "https://www.mohw.gov.tw/cp-16-88206-1.html",
-      "source_type": "official",
-      "title": "長照 3.0：近期制度與實務動態",
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
       "id": "topic:longterm-care-3",
-      "concept_keys": [
-        "ageing_care"
-      ],
-      "summary": "行政院長卓榮泰今（15）日在行政院會聽取衛生福利部「政府對高齡者的福利照顧措施」報告後表示，政府從「擴大獨居老人關懷服務」、「扎根社區照顧，擴大服務涵蓋」、「精進長照3.0，深化醫療與照顧整合」及「強化經濟安全，落實健康平權」等方面著手，強化對高齡者的福利照顧，也請立法院能考量高齡者的基本生計與福祉，儘速完成今（2026）年度追加預算案的審議，給予最大支持。 10月18日重陽節將至，卓院長在今日院會中特別向全國長輩獻上誠摯祝福，祝大家平安健康、幸福滿堂。卓院長表示，為提早因應超高齡社會所帶來長照需求增加、獨老比例增加、多元需求增加，政府已前瞻布局，制定「",
-      "management_domains": [
-        "服務輸送與跨網絡",
-        "方案與資源管理",
-        "規劃與政策執行",
-        "品質與風險管理"
-      ],
-      "fact_keys": [
-        "num:70000",
-        "num:700000",
-        "pct:90"
-      ],
       "knowledge_paths": [
         "社會工作管理 > 服務輸送與跨網絡",
         "社會工作管理 > 方案與資源管理",
@@ -95,6 +20,81 @@
         "社會工作管理 > 規劃與政策執行 > 社會工作 > 高齡者權益與社區支持",
         "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
         "社會工作管理 > 品質與風險管理 > 社會工作 > 高齡者權益與社區支持"
+      ],
+      "summary": "行政院長卓榮泰今（15）日在行政院會聽取衛生福利部「政府對高齡者的福利照顧措施」報告後表示，政府從「擴大獨居老人關懷服務」、「扎根社區照顧，擴大服務涵蓋」、「精進長照3.0，深化醫療與照顧整合」及「強化經濟安全，落實健康平權」等方面著手，強化對高齡者的福利照顧，也請立法院能考量高齡者的基本生計與福祉，儘速完成今（2026）年度追加預算案的審議，給予最大支持。 10月18日重陽節將至，卓院長在今日院會中特別向全國長輩獻上誠摯祝福，祝大家平安健康、幸福滿堂。卓院長表示，為提早因應超高齡社會所帶來長照需求增加、獨老比例增加、多元需求增加，政府已前瞻布局，制定「",
+      "source_url": "https://www.mohw.gov.tw/cp-16-88206-1.html",
+      "source_type": "official",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "長照制度、老人福利與社會保障"
+        ],
+        "社會工作直接服務": [
+          "長照個案管理與家庭照顧者支持"
+        ],
+        "人類行為與社會環境": [
+          "老化、失智與生命歷程"
+        ],
+        "社會工作": [
+          "高齡者權益與社區支持"
+        ]
+      },
+      "agency_keys": [],
+      "knowledge_topics": [
+        "長照與高齡",
+        "長照",
+        "高齡",
+        "老人",
+        "補助",
+        "津貼",
+        "福利"
+      ],
+      "relevance_score": 6,
+      "category": "長照與高齡",
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作"
+      ],
+      "source_name": "綜合 2 個來源",
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會工作"
+      ],
+      "exam_tags": [
+        "長照",
+        "高齡",
+        "老人",
+        "補助",
+        "津貼",
+        "福利"
+      ],
+      "concept_keys": [
+        "ageing_care"
+      ],
+      "knowledge_root": "社會工作管理",
+      "fact_keys": [
+        "num:70000",
+        "num:700000",
+        "pct:90"
+      ],
+      "management_domains": [
+        "服務輸送與跨網絡",
+        "方案與資源管理",
+        "規劃與政策執行",
+        "品質與風險管理"
+      ],
+      "title": "長照 3.0：近期制度與實務動態",
+      "region": "taiwan",
+      "published_at": "2026-10-15T07:08:00Z",
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
       ],
       "source_count": 2,
       "article_count": 2,
@@ -117,73 +117,7 @@
       "clustered": true
     },
     {
-      "knowledge_topics": [
-        "司法保護與修復式司法",
-        "被害人保護",
-        "政策",
-        "權益",
-        "保護"
-      ],
-      "subject_topics": {
-        "社會工作直接服務": [
-          "被害人支持、修復式處遇與個案服務"
-        ],
-        "社會政策與社會立法": [
-          "犯罪被害人權益與社區處遇制度"
-        ],
-        "社會工作": [
-          "人權、修復與社區復歸"
-        ]
-      },
-      "region": "taiwan",
-      "exam_subject_axes": [
-        "社會工作直接服務",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "agency_keys": [],
-      "knowledge_root": "社會工作管理",
-      "published_at": "2026-10-09T00:30:00Z",
-      "category": "司法保護與修復式司法",
-      "source_name": "內政部新聞發布",
-      "relevance_score": 6,
-      "exam_tags": [
-        "被害人保護",
-        "政策",
-        "權益",
-        "保護"
-      ],
-      "subjects": [
-        "社會工作直接服務",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會工作"
-      ],
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "source_url": "https://www.moi.gov.tw/News_Content.aspx?n=4&s=342526",
-      "source_type": "official",
-      "title": "臺灣防制人口販運評比連17年獲第1級 持續強化被害人保護及打擊新型態人口販運",
-      "primary_exam_subject_axes": [
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
       "id": "f04b8be1b6f19983a785fc079170d27f",
-      "concept_keys": [
-        "labor_rights",
-        "refugees_migration",
-        "restorative_justice"
-      ],
-      "summary": "美國國務院於臺灣今（9）日凌晨公布2026年全球防制人口販運評比結果，我國再次獲評列為「第1級」國家，達成連續17年獲得國際肯定的殊榮。內政部長劉世芳表示，我國政府長期依循「追訴（Prosecution）、保護（Protection）、預防（Prevention）及夥伴（Partnership）」4P策略，持續精進人口販運防制工作，整體防制成效繼續獲得國際肯定，深感光榮。 劉世芳強調，政府高度重視美國國務院每年發布人口販運評比所提的具體建議。今年評比共提出8項建議，包括允許移工於勞動契約有效期間內，無需經雇主同意即可轉換工作；持續加強對易受人口販運脆弱族",
-      "management_domains": [
-        "服務輸送與跨網絡",
-        "倫理與權利保障",
-        "規劃與政策執行",
-        "方案與資源管理",
-        "品質與風險管理"
-      ],
-      "fact_keys": [],
       "knowledge_paths": [
         "社會工作管理 > 服務輸送與跨網絡",
         "社會工作管理 > 倫理與權利保障",
@@ -203,6 +137,72 @@
         "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 被害人支持、修復式處遇與個案服務",
         "社會工作管理 > 品質與風險管理 > 社會工作 > 人權、修復與社區復歸"
       ],
+      "summary": "美國國務院於臺灣今（9）日凌晨公布2026年全球防制人口販運評比結果，我國再次獲評列為「第1級」國家，達成連續17年獲得國際肯定的殊榮。內政部長劉世芳表示，我國政府長期依循「追訴（Prosecution）、保護（Protection）、預防（Prevention）及夥伴（Partnership）」4P策略，持續精進人口販運防制工作，整體防制成效繼續獲得國際肯定，深感光榮。 劉世芳強調，政府高度重視美國國務院每年發布人口販運評比所提的具體建議。今年評比共提出8項建議，包括允許移工於勞動契約有效期間內，無需經雇主同意即可轉換工作；持續加強對易受人口販運脆弱族",
+      "source_url": "https://www.moi.gov.tw/News_Content.aspx?n=4&s=342526",
+      "source_type": "official",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "subject_topics": {
+        "社會工作直接服務": [
+          "被害人支持、修復式處遇與個案服務"
+        ],
+        "社會政策與社會立法": [
+          "犯罪被害人權益與社區處遇制度"
+        ],
+        "社會工作": [
+          "人權、修復與社區復歸"
+        ]
+      },
+      "agency_keys": [],
+      "knowledge_topics": [
+        "司法保護與修復式司法",
+        "被害人保護",
+        "政策",
+        "權益",
+        "保護"
+      ],
+      "relevance_score": 6,
+      "category": "司法保護與修復式司法",
+      "subjects": [
+        "社會工作直接服務",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作"
+      ],
+      "source_name": "內政部新聞發布",
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "exam_tags": [
+        "被害人保護",
+        "政策",
+        "權益",
+        "保護"
+      ],
+      "concept_keys": [
+        "labor_rights",
+        "refugees_migration",
+        "restorative_justice"
+      ],
+      "knowledge_root": "社會工作管理",
+      "fact_keys": [],
+      "management_domains": [
+        "服務輸送與跨網絡",
+        "倫理與權利保障",
+        "規劃與政策執行",
+        "方案與資源管理",
+        "品質與風險管理"
+      ],
+      "title": "臺灣防制人口販運評比連17年獲第1級 持續強化被害人保護及打擊新型態人口販運",
+      "region": "taiwan",
+      "published_at": "2026-10-09T00:30:00Z",
+      "primary_exam_subject_axes": [
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
       "source_count": 1,
       "article_count": 1,
       "sources": [
@@ -217,68 +217,7 @@
       "clustered": false
     },
     {
-      "knowledge_topics": [
-        "社工專業與社福制度",
-        "社工",
-        "制度",
-        "保護",
-        "衛福部"
-      ],
-      "subject_topics": {
-        "社會工作": [
-          "專業倫理、專業責任與社會工作價值"
-        ],
-        "社會政策與社會立法": [
-          "社福服務體系、專業規範與制度責信"
-        ]
-      },
-      "region": "taiwan",
-      "exam_subject_axes": [
-        "社會工作",
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
-      "agency_keys": [],
-      "knowledge_root": "社會工作管理",
-      "published_at": "2026-10-15T08:25:21Z",
-      "category": "社工專業與社福制度",
-      "source_name": "中天新聞社會",
-      "relevance_score": 5,
-      "exam_tags": [
-        "社工",
-        "制度",
-        "保護",
-        "衛福部"
-      ],
-      "subjects": [
-        "社會工作",
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會工作直接服務"
-      ],
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "source_url": "https://ctinews.com/news/items/4bnbkeD9WP",
-      "source_type": "news",
-      "title": "萱萱案承辦社工虛報訪視 衛福部：廢止證書執照",
-      "primary_exam_subject_axes": [
-        "社會工作",
-        "社會政策與社會立法"
-      ],
       "id": "11b050470049adc8c422e89ecfe59e40",
-      "concept_keys": [
-        "child_protection"
-      ],
-      "summary": "承辦台南女童萱萱兒少保護個案的林姓社工，因長期未依規定訪視、虛報訪視紀錄，且未確實撰寫個案資料，遭台南市府社工師懲戒委員會一致決議廢止社工師證書及執業執照。衛福部並同步公布強化危機敏感度、跨轄轉銜等四項制度面精進措施。",
-      "management_domains": [
-        "組織治理與責信",
-        "倫理與權利保障",
-        "規劃與政策執行",
-        "服務輸送與跨網絡",
-        "品質與風險管理"
-      ],
-      "fact_keys": [],
       "knowledge_paths": [
         "社會工作管理 > 組織治理與責信",
         "社會工作管理 > 倫理與權利保障",
@@ -298,6 +237,67 @@
         "社會工作管理 > 品質與風險管理 > 社會工作直接服務",
         "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理、專業責任與社會工作價值"
       ],
+      "summary": "承辦台南女童萱萱兒少保護個案的林姓社工，因長期未依規定訪視、虛報訪視紀錄，且未確實撰寫個案資料，遭台南市府社工師懲戒委員會一致決議廢止社工師證書及執業執照。衛福部並同步公布強化危機敏感度、跨轄轉銜等四項制度面精進措施。",
+      "source_url": "https://ctinews.com/news/items/4bnbkeD9WP",
+      "source_type": "news",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "subject_topics": {
+        "社會工作": [
+          "專業倫理、專業責任與社會工作價值"
+        ],
+        "社會政策與社會立法": [
+          "社福服務體系、專業規範與制度責信"
+        ]
+      },
+      "agency_keys": [],
+      "knowledge_topics": [
+        "社工專業與社福制度",
+        "社工",
+        "制度",
+        "保護",
+        "衛福部"
+      ],
+      "relevance_score": 5,
+      "category": "社工專業與社福制度",
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作直接服務"
+      ],
+      "source_name": "中天新聞社會",
+      "exam_subject_axes": [
+        "社會工作",
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
+      "exam_tags": [
+        "社工",
+        "制度",
+        "保護",
+        "衛福部"
+      ],
+      "concept_keys": [
+        "child_protection"
+      ],
+      "knowledge_root": "社會工作管理",
+      "fact_keys": [],
+      "management_domains": [
+        "組織治理與責信",
+        "倫理與權利保障",
+        "規劃與政策執行",
+        "服務輸送與跨網絡",
+        "品質與風險管理"
+      ],
+      "title": "萱萱案承辦社工虛報訪視 衛福部：廢止證書執照",
+      "region": "taiwan",
+      "published_at": "2026-10-15T08:25:21Z",
+      "primary_exam_subject_axes": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
       "source_count": 1,
       "article_count": 1,
       "sources": [
@@ -312,70 +312,7 @@
       "clustered": false
     },
     {
-      "knowledge_topics": [
-        "心理健康與成癮",
-        "毒品",
-        "行政院",
-        "法規"
-      ],
-      "subject_topics": {
-        "人類行為與社會環境": [
-          "心理健康、精神疾病與成癮"
-        ],
-        "社會工作直接服務": [
-          "危機介入、個案管理與資源連結"
-        ],
-        "社會工作": [
-          "復元取向、去污名與權利保障"
-        ],
-        "社會政策與社會立法": [
-          "精神衛生與社區支持制度"
-        ]
-      },
-      "region": "taiwan",
-      "exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會工作直接服務",
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "agency_keys": [],
-      "knowledge_root": "社會工作管理",
-      "published_at": "2026-10-05T08:21:30Z",
-      "category": "心理健康與成癮",
-      "source_name": "行政院本院新聞",
-      "relevance_score": 5,
-      "exam_tags": [
-        "毒品",
-        "行政院",
-        "法規"
-      ],
-      "subjects": [
-        "人類行為與社會環境",
-        "社會工作直接服務"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會工作直接服務",
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//60be1b8a-a984-4067-95b7-80bf11ce5b5e",
-      "source_type": "official",
-      "title": "肯定海巡緝獲大宗毒品 卓揆：持續強化海巡人力與裝備 賦予更強大執法能力",
-      "primary_exam_subject_axes": [
-        "人類行為與社會環境"
-      ],
       "id": "e8cd57e82f8f0a797cb0991bd1c522a6",
-      "concept_keys": [],
-      "summary": "行政院長卓榮泰今（5）日出席「海巡署基隆查緝隊緝獲大宗毒品案」記者會，肯定海巡及檢警跨機關合作執行「隆炁專案」成果，及時阻絕毒品流入市面，守護青少年及國人健康。同時，卓院長亦肯定雲林艦堅定捍衛我國海疆，達成「海域執法」、「海上救援」與「國際合作」等多重目標。卓院長強調，政府有能力、有決心，也有各種充分的準備，維護臺海安全、國家主權，以及人民生命、自由、財產與安全，並會持續強化海巡人力與裝備，賦予更強大執法能力。卓院長表示，本次「隆炁專案」由基隆地方檢察署指揮偵辦，海洋委員會海巡署偵防分署基隆查緝隊投入偵辦，透過跨機關及跨單位合作，一舉查獲毒品及大麻814",
-      "management_domains": [
-        "服務輸送與跨網絡",
-        "倫理與權利保障",
-        "品質與風險管理",
-        "規劃與政策執行"
-      ],
-      "fact_keys": [],
       "knowledge_paths": [
         "社會工作管理 > 服務輸送與跨網絡",
         "社會工作管理 > 倫理與權利保障",
@@ -393,6 +330,69 @@
         "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 精神衛生與社區支持制度",
         "社會工作管理 > 規劃與政策執行 > 社會工作 > 復元取向、去污名與權利保障"
       ],
+      "summary": "行政院長卓榮泰今（5）日出席「海巡署基隆查緝隊緝獲大宗毒品案」記者會，肯定海巡及檢警跨機關合作執行「隆炁專案」成果，及時阻絕毒品流入市面，守護青少年及國人健康。同時，卓院長亦肯定雲林艦堅定捍衛我國海疆，達成「海域執法」、「海上救援」與「國際合作」等多重目標。卓院長強調，政府有能力、有決心，也有各種充分的準備，維護臺海安全、國家主權，以及人民生命、自由、財產與安全，並會持續強化海巡人力與裝備，賦予更強大執法能力。卓院長表示，本次「隆炁專案」由基隆地方檢察署指揮偵辦，海洋委員會海巡署偵防分署基隆查緝隊投入偵辦，透過跨機關及跨單位合作，一舉查獲毒品及大麻814",
+      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//60be1b8a-a984-4067-95b7-80bf11ce5b5e",
+      "source_type": "official",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "subject_topics": {
+        "人類行為與社會環境": [
+          "心理健康、精神疾病與成癮"
+        ],
+        "社會工作直接服務": [
+          "危機介入、個案管理與資源連結"
+        ],
+        "社會工作": [
+          "復元取向、去污名與權利保障"
+        ],
+        "社會政策與社會立法": [
+          "精神衛生與社區支持制度"
+        ]
+      },
+      "agency_keys": [],
+      "knowledge_topics": [
+        "心理健康與成癮",
+        "毒品",
+        "行政院",
+        "法規"
+      ],
+      "relevance_score": 5,
+      "category": "心理健康與成癮",
+      "subjects": [
+        "人類行為與社會環境",
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作直接服務",
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "source_name": "行政院本院新聞",
+      "exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作直接服務",
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "exam_tags": [
+        "毒品",
+        "行政院",
+        "法規"
+      ],
+      "concept_keys": [],
+      "knowledge_root": "社會工作管理",
+      "fact_keys": [],
+      "management_domains": [
+        "服務輸送與跨網絡",
+        "倫理與權利保障",
+        "品質與風險管理",
+        "規劃與政策執行"
+      ],
+      "title": "肯定海巡緝獲大宗毒品 卓揆：持續強化海巡人力與裝備 賦予更強大執法能力",
+      "region": "taiwan",
+      "published_at": "2026-10-05T08:21:30Z",
+      "primary_exam_subject_axes": [
+        "人類行為與社會環境"
+      ],
       "source_count": 1,
       "article_count": 1,
       "sources": [
@@ -407,12 +407,19 @@
       "clustered": false
     },
     {
-      "knowledge_topics": [
-        "勞動與社會保障",
-        "最低工資",
-        "行政院",
-        "保障"
+      "id": "1f324758779ada31a0fc3e3382971947",
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
+      "summary": "最低工資審議會於今（24）日召開會議，經勞、資、學、政四方委員討論，決定自116年1月1日起，每月最低工資由29,500元調整至30,900元，調升1,400元，調幅4.745％；每小時最低工資則比照每月最低工資之調幅，由196元調整至205元。調整案將由勞動部陳報行政院核定。若經行政院核定，最低工資將連11年調漲，持續提升基層勞工薪資，保障勞工基本生活。 本次會議，勞資雙方委員於上午進行意見交換，雙方就消費者物價指數年增率、經濟成長情勢、產業發展及勞工生活所需等面向充分討論，全數委員均認同消費者物價指數年增率CPI應全數反映，經濟成長率GDP應合理分享",
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99195/",
+      "source_type": "official",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
       "subject_topics": {
         "社會政策與社會立法": [
           "社會保險、就業安全與勞動政策"
@@ -421,22 +428,15 @@
           "勞動權益、社會正義與弱勢支持"
         ]
       },
-      "region": "taiwan",
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
       "agency_keys": [],
-      "knowledge_root": "社會工作管理",
-      "published_at": "2026-09-29T16:17:32Z",
-      "category": "勞動與社會保障",
-      "source_name": "勞動部新聞稿",
-      "relevance_score": 5,
-      "exam_tags": [
+      "knowledge_topics": [
+        "勞動與社會保障",
         "最低工資",
         "行政院",
         "保障"
       ],
+      "relevance_score": 5,
+      "category": "勞動與社會保障",
       "subjects": [
         "社會政策與社會立法",
         "社會工作"
@@ -444,28 +444,28 @@
       "supporting_exam_subject_axes": [
         "社會工作"
       ],
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "source_url": "https://www.mol.gov.tw/1607/1632/1633/99195/",
-      "source_type": "official",
-      "title": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工資調升至205元。",
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法"
+      "source_name": "勞動部新聞稿",
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作"
       ],
-      "id": "1f324758779ada31a0fc3e3382971947",
+      "exam_tags": [
+        "最低工資",
+        "行政院",
+        "保障"
+      ],
       "concept_keys": [],
-      "summary": "最低工資審議會於今（24）日召開會議，經勞、資、學、政四方委員討論，決定自116年1月1日起，每月最低工資由29,500元調整至30,900元，調升1,400元，調幅4.745％；每小時最低工資則比照每月最低工資之調幅，由196元調整至205元。調整案將由勞動部陳報行政院核定。若經行政院核定，最低工資將連11年調漲，持續提升基層勞工薪資，保障勞工基本生活。 本次會議，勞資雙方委員於上午進行意見交換，雙方就消費者物價指數年增率、經濟成長情勢、產業發展及勞工生活所需等面向充分討論，全數委員均認同消費者物價指數年增率CPI應全數反映，經濟成長率GDP應合理分享",
+      "knowledge_root": "社會工作管理",
+      "fact_keys": [],
       "management_domains": [
         "規劃與政策執行",
         "倫理與權利保障"
       ],
-      "fact_keys": [],
-      "knowledge_paths": [
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
+      "title": "最低工資連11漲!審議會決定自116年1月1日起，每月最低工資調升至30,900元，每小時最低工資調升至205元。",
+      "region": "taiwan",
+      "published_at": "2026-09-29T16:17:32Z",
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
       ],
       "source_count": 1,
       "article_count": 1,
