@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-18T20:36:49Z",
+  "generated_at": "2026-10-19T04:33:54Z",
   "event_count": 5,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -414,7 +414,7 @@
         "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 被害人支持、修復式處遇與個案服務",
         "社會工作管理 > 品質與風險管理 > 社會工作 > 人權、修復與社區復歸"
       ],
-      "trend_state": "one-off",
+      "trend_state": "cooling",
       "trend_score": 3.0,
       "why": [
         "1 個官方來源",
