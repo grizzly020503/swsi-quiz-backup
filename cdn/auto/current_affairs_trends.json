@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-19T04:33:54Z",
-  "event_count": 5,
+  "generated_at": "2026-10-19T08:06:05Z",
+  "event_count": 4,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
   "trends": [
@@ -544,132 +544,6 @@
           "source_type": "official",
           "published_at": "2026-10-09T00:30:00Z",
           "item_id": "f04b8be1b6f19983a785fc079170d27f"
-        }
-      ]
-    },
-    {
-      "canonical_event_id": "a07b01ee0e4c826dd2807f21",
-      "title": "萱萱案承辦社工虛報訪視 衛福部：廢止證書執照",
-      "category": "社工專業與社福制度",
-      "subjects": [
-        "社會工作",
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "組織治理與責信",
-        "倫理與權利保障",
-        "規劃與政策執行",
-        "服務輸送與跨網絡",
-        "品質與風險管理"
-      ],
-      "exam_subject_axes": [
-        "社會工作",
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
-      "primary_exam_subject_axes": [
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會工作直接服務"
-      ],
-      "subject_topics": {
-        "社會工作": [
-          "專業倫理、專業責任與社會工作價值"
-        ],
-        "社會政策與社會立法": [
-          "社福服務體系、專業規範與制度責信"
-        ]
-      },
-      "knowledge_topics": [
-        "社工專業與社福制度",
-        "社工",
-        "制度",
-        "保護",
-        "衛福部"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 組織治理與責信",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 組織治理與責信 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 組織治理與責信 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理、專業責任與社會工作價值"
-      ],
-      "trend_state": "one-off",
-      "trend_score": 2.3,
-      "why": [
-        "有政策／制度訊號"
-      ],
-      "factors": {
-        "cross_source": 0.0,
-        "official_evidence": 0.0,
-        "policy_change": 0.9,
-        "historical_frequency": 0.0,
-        "historical_year_breadth": 0.0,
-        "recent_exam_support": 0.0,
-        "historical_subject_breadth": 0.0,
-        "law_relevance": 0.0,
-        "persistence": 0.0,
-        "essay_value": 1.1,
-        "mcq_density": 0.45,
-        "recency": 0.6
-      },
-      "source_count": 1,
-      "official_source_count": 0,
-      "observation_count": 1,
-      "first_seen": "2026-10-15T08:25:21Z",
-      "last_seen": "2026-10-15T08:25:21Z",
-      "related_laws": [],
-      "related_policy_instruments": [],
-      "law_link_status": "unresolved",
-      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
-      "law_link_basis": [],
-      "law_link_rules_schema": 1,
-      "historical_question_count": 0,
-      "historical_weighted_match_count": 0.0,
-      "historical_match_breakdown": {
-        "strong": 0,
-        "medium": 0,
-        "concept": 0
-      },
-      "historical_exam_years": [],
-      "latest_related_exam_year": null,
-      "corpus_latest_exam_year": 115,
-      "years_since_last_related_exam": null,
-      "historical_subject_counts": {},
-      "historical_subject_count": 0,
-      "historical_law_match_count": 0,
-      "historical_law_match_years": [],
-      "historical_high_confidence_match_count": 0,
-      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
-      "related_exam_questions": [],
-      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "衛福部"
-      ],
-      "evidence": [
-        {
-          "source_name": "中天新聞社會",
-          "source_url": "https://ctinews.com/news/items/4bnbkeD9WP",
-          "source_type": "news",
-          "published_at": "2026-10-15T08:25:21Z",
-          "item_id": "11b050470049adc8c422e89ecfe59e40"
         }
       ]
     },
