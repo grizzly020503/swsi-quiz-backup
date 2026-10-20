@@ -1,10 +1,232 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-20T04:42:58Z",
-  "event_count": 4,
+  "generated_at": "2026-10-20T11:29:57Z",
+  "event_count": 6,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
   "trends": [
+    {
+      "canonical_event_id": "4be9e019b2bbc29f19383cc3",
+      "title": "保母同住者有家暴前科需通報！衛福部預告草案 要求機構每月查核",
+      "category": "兒少保護",
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "品質與風險管理",
+        "服務輸送與跨網絡",
+        "倫理與權利保障",
+        "規劃與政策執行"
+      ],
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會工作直接服務": [
+          "兒少保護風險評估",
+          "家庭評估與危機介入"
+        ],
+        "人類行為與社會環境": [
+          "兒童發展、依附與創傷",
+          "家庭系統與風險保護因子"
+        ],
+        "社會政策與社會立法": [
+          "兒少福利與保護法制",
+          "責任通報與保護體系"
+        ],
+        "社會工作": [
+          "專業倫理與兒童最佳利益",
+          "權利倡導與社會正義"
+        ]
+      },
+      "knowledge_topics": [
+        "兒少保護",
+        "兒虐",
+        "保母",
+        "兒童",
+        "修法",
+        "通報",
+        "衛福部"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 兒少福利與保護法制",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 責任通報與保護體系",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 責任通報與保護體系"
+      ],
+      "trend_state": "one-off",
+      "trend_score": 5.6,
+      "why": [
+        "有政策／制度訊號",
+        "歷屆同概念／事件詞關聯 129 題，跨 12 個年度；強 0／中 19／概念 110",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 3 個考科"
+      ],
+      "factors": {
+        "cross_source": 0.0,
+        "official_evidence": 0.0,
+        "policy_change": 1.8,
+        "historical_frequency": 1.12,
+        "historical_year_breadth": 0.52,
+        "recent_exam_support": 0.52,
+        "historical_subject_breadth": 0.45,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
+        "essay_value": 1.1,
+        "mcq_density": 0.9,
+        "recency": 1.0
+      },
+      "source_count": 1,
+      "official_source_count": 0,
+      "observation_count": 1,
+      "first_seen": "2026-10-20T06:42:32Z",
+      "last_seen": "2026-10-20T06:42:32Z",
+      "related_laws": [],
+      "related_policy_instruments": [],
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "historical_question_count": 129,
+      "historical_weighted_match_count": 4.0,
+      "historical_match_breakdown": {
+        "strong": 0,
+        "medium": 19,
+        "concept": 110
+      },
+      "historical_exam_years": [
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會工作": 30,
+        "社會工作直接服務": 7,
+        "社會政策與社會立法": 92
+      },
+      "historical_subject_count": 3,
+      "historical_law_match_count": 0,
+      "historical_law_match_years": [],
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
+      "related_exam_questions": [
+        {
+          "id": "SW-115-1-37",
+          "subject": "社會工作",
+          "year": "115",
+          "round": "第一次",
+          "qno": "37",
+          "major": "性別與婦女服務",
+          "topic": "家庭暴力防治法 > 責任通報",
+          "match_reason": "事件詞：通報；共同概念：性別暴力",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP114-1-30",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第一次",
+          "qno": "30",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 責任通報人員",
+          "match_reason": "事件詞：通報；共同概念：性別暴力",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP113-1-29",
+          "subject": "社會政策與社會立法",
+          "year": "113",
+          "round": "第一次",
+          "qno": "29",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 責任通報時限",
+          "match_reason": "事件詞：通報；共同概念：性別暴力",
+          "match_score": 4.2
+        },
+        {
+          "id": "SW-113-1-32",
+          "subject": "社會工作",
+          "year": "113",
+          "round": "第一次",
+          "qno": "32",
+          "major": "社會工作倫理",
+          "topic": "倫理兩難 > 自決與通報兩難",
+          "match_reason": "事件詞：通報；共同概念：性別暴力",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP113-1-35",
+          "subject": "社會政策與社會立法",
+          "year": "113",
+          "round": "第一次",
+          "qno": "35",
+          "major": null,
+          "topic": null,
+          "match_reason": "事件詞：通報；共同概念：性別暴力",
+          "match_score": 4.2
+        }
+      ],
+      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "衛福部",
+        "兒虐",
+        "保母",
+        "修法",
+        "通報"
+      ],
+      "evidence": [
+        {
+          "source_name": "自由時報生活",
+          "source_url": "https://news.ltn.com.tw/news/life/breakingnews/5612345",
+          "source_type": "news",
+          "published_at": "2026-10-20T06:42:32Z",
+          "item_id": "63b4113307963863b8e8e389ed331412"
+        }
+      ]
+    },
     {
       "canonical_event_id": "4cc0d86f90b33c21ba3859d6",
       "title": "長照 3.0：近期制度與實務動態",
@@ -217,6 +439,216 @@
           "source_type": "official",
           "published_at": "2026-10-15T05:03:51Z",
           "item_id": "topic:longterm-care-3"
+        }
+      ]
+    },
+    {
+      "canonical_event_id": "71227f86c085a32ad5ab30c8",
+      "title": "保母同住人有家暴前科不能瞞 未主動告知最高罰5萬",
+      "category": "家暴與性暴力",
+      "subjects": [
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "品質與風險管理",
+        "服務輸送與跨網絡",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會工作直接服務": [
+          "危險評估與安全計畫",
+          "創傷知情與危機介入"
+        ],
+        "人類行為與社會環境": [
+          "創傷反應與家庭互動"
+        ],
+        "社會政策與社會立法": [
+          "家暴與性暴力防治制度",
+          "保護令與被害人權益"
+        ],
+        "社會工作": [
+          "被害人權利與專業倫理"
+        ]
+      },
+      "knowledge_topics": [
+        "家暴與性暴力",
+        "家暴",
+        "通報",
+        "衛福部",
+        "草案"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 創傷反應與家庭互動"
+      ],
+      "trend_state": "one-off",
+      "trend_score": 3.7,
+      "why": [
+        "歷屆同概念／事件詞關聯 97 題，跨 12 個年度；強 0／中 14／概念 83",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 2 個考科"
+      ],
+      "factors": {
+        "cross_source": 0.0,
+        "official_evidence": 0.0,
+        "policy_change": 0.0,
+        "historical_frequency": 1.12,
+        "historical_year_breadth": 0.52,
+        "recent_exam_support": 0.52,
+        "historical_subject_breadth": 0.25,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
+        "essay_value": 1.1,
+        "mcq_density": 0.45,
+        "recency": 1.0
+      },
+      "source_count": 1,
+      "official_source_count": 0,
+      "observation_count": 1,
+      "first_seen": "2026-10-20T08:25:10Z",
+      "last_seen": "2026-10-20T08:25:10Z",
+      "related_laws": [],
+      "related_policy_instruments": [],
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "historical_question_count": 97,
+      "historical_weighted_match_count": 4.0,
+      "historical_match_breakdown": {
+        "strong": 0,
+        "medium": 14,
+        "concept": 83
+      },
+      "historical_exam_years": [
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會工作直接服務": 5,
+        "社會政策與社會立法": 92
+      },
+      "historical_subject_count": 2,
+      "historical_law_match_count": 0,
+      "historical_law_match_years": [],
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
+      "related_exam_questions": [
+        {
+          "id": "SP114-1-30",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第一次",
+          "qno": "30",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 責任通報人員",
+          "match_reason": "事件詞：家暴、通報；共同概念：性別暴力",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP113-1-29",
+          "subject": "社會政策與社會立法",
+          "year": "113",
+          "round": "第一次",
+          "qno": "29",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 責任通報時限",
+          "match_reason": "事件詞：家暴、通報；共同概念：性別暴力",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP113-1-35",
+          "subject": "社會政策與社會立法",
+          "year": "113",
+          "round": "第一次",
+          "qno": "35",
+          "major": null,
+          "topic": null,
+          "match_reason": "事件詞：通報；共同概念：性別暴力",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP112-1-36",
+          "subject": "社會政策與社會立法",
+          "year": "112",
+          "round": "第一次",
+          "qno": "36",
+          "major": "婦女與性別法規",
+          "topic": "性侵害犯罪防治法 > 加害人規定通報",
+          "match_reason": "事件詞：通報；共同概念：性別暴力",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP106-1-03",
+          "subject": "社會政策與社會立法",
+          "year": "106",
+          "round": "第一次",
+          "qno": "3",
+          "major": "婦女與性別法規",
+          "topic": "性侵害犯罪防治法 > 通報時限",
+          "match_reason": "事件詞：通報；共同概念：性別暴力",
+          "match_score": 4.2
+        }
+      ],
+      "essay_direction": "可從「危險評估、保護令、創傷知情與跨網絡合作」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "衛福部",
+        "家暴",
+        "通報",
+        "草案"
+      ],
+      "evidence": [
+        {
+          "source_name": "中央社生活",
+          "source_url": "https://www.cna.com.tw/news/ahel/202610200216.aspx",
+          "source_type": "news",
+          "published_at": "2026-10-20T08:25:10Z",
+          "item_id": "700f04edd3c82731394c936cfe0e434a"
         }
       ]
     },
