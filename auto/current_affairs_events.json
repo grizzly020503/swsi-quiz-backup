@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-21T21:36:54Z",
-  "source_item_count": 3,
-  "event_count": 3,
+  "generated_at": "2026-10-22T04:36:37Z",
+  "source_item_count": 4,
+  "event_count": 4,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
   "events": [
     {
@@ -430,6 +430,144 @@
           "社會政策與社會立法": 36
         },
         "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
+      },
+      "related_policy_instruments": [],
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
+    },
+    {
+      "canonical_event_id": "3d5d2e99082666c83c3da34c",
+      "title": "強化租屋安全與權益保障 打造安心就學環境 教育部辦理115年全國大專校院學生賃居輔導服務工作研討會",
+      "summary": "為提升大專校院學生賃居服務品質，教育部於115年10月22日至23日辦理全國大專校院學生賃居輔導服務工作研討會，並邀集全國143位大專校院賃居業務承辦人員參與，透過專業課程、經驗交流及文化參訪，強化賃居輔導與安全維護知能，並表揚115年度「績優賃居服務工作」獲獎學校，促進各校經驗傳承，共同營造安全、友善的學生居住環境。 本次研習規劃五大核心課題，包括「學生賃居輔導服務工作業務分享」、「雲端租屋平臺系統介紹」、「租賃條例法律解析（含相關租賃問題釋疑）」、「消防安全防災觀念宣導」及「學生賃居處所安全宣導」，協助承辦人員精進實務知能、掌握租屋法規及資訊服務資源",
+      "category": "社會救助與居住",
+      "subjects": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "規劃與政策執行",
+        "方案與資源管理",
+        "倫理與權利保障",
+        "服務輸送與跨網絡",
+        "品質與風險管理"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作",
+        "社會工作直接服務"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社會救助、所得保障與居住權"
+        ],
+        "社會工作": [
+          "貧窮、社會排除與社會正義"
+        ],
+        "社會工作直接服務": [
+          "需求評估與資源連結"
+        ]
+      },
+      "knowledge_topics": [
+        "社會救助與居住",
+        "租屋",
+        "政策",
+        "權益",
+        "條例"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估與資源連結",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 需求評估與資源連結",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 需求評估與資源連結",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 貧窮、社會排除與社會正義"
+      ],
+      "exam_tags": [
+        "政策",
+        "條例",
+        "權益",
+        "租屋"
+      ],
+      "related_laws": [],
+      "concept_keys": [],
+      "agency_keys": [],
+      "fact_keys": [],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "教育部即時新聞"
+      ],
+      "evidence": [
+        {
+          "source_name": "教育部即時新聞",
+          "source_url": "https://www.edu.tw/News_Content.aspx?n=9E7AC85F1954DDA8&s=E610F2131F5CDFE2",
+          "source_type": "official",
+          "published_at": "2026-10-22T03:53:00Z",
+          "item_id": "fc0f4b89a911577c58c5b2011ff1a487"
+        }
+      ],
+      "first_seen": "2026-10-22T03:53:00Z",
+      "last_seen": "2026-10-22T03:53:00Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-10-22"
+      ],
+      "policy_signal": "medium",
+      "essay_value": "medium",
+      "mcq_fact_density": "medium",
+      "signal_confidence": "medium",
+      "signal_score": 6,
+      "exam_point_summary": "強化租屋安全與權益保障 打造安心就學環境 教育部辦理115年全國大專校院學生賃居輔導服務工作研討…。政策／制度動向值得追蹤；申論可從最低生活保障、貧窮結構因素與居住權切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「最低生活保障、貧窮結構因素與居住權」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "教育部",
+        "租屋"
+      ],
+      "related_exam_questions": [],
+      "historical_exam_stats": {
+        "matched_question_count": 0,
+        "weighted_match_count": 0.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 0
+        },
+        "matched_year_count": 0,
+        "matched_years": [],
+        "earliest_exam_year": null,
+        "latest_exam_year": null,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": null,
+        "subject_counts": {},
+        "subject_count": 0,
         "law_match_count": 0,
         "law_match_year_count": 0,
         "law_match_years": [],
