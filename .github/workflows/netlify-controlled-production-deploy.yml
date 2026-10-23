@@ -10,6 +10,8 @@ on:
   pull_request:
     paths:
       - '.github/workflows/netlify-controlled-production-deploy.yml'
+      - 'scripts/netlify_auth_preflight.py'
+      - 'scripts/netlify_auth_preflight_selftest.py'
       - 'netlify.toml'
       - 'index.html'
       - 'manifest.json'
@@ -79,6 +81,9 @@ jobs:
           node-version: '22.13.0'
           package-manager-cache: false
 
+      - name: Validate Netlify preflight logic offline
+        run: python3 scripts/netlify_auth_preflight_selftest.py
+
       - name: Require Netlify GitHub secrets
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         shell: bash
@@ -96,6 +101,13 @@ jobs:
             exit 1
           }
           echo "Netlify credentials are configured. Values are not printed."
+
+      - name: Validate Netlify API access and SWSI target (read-only)
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: python3 scripts/netlify_auth_preflight.py
 
       - name: Build exactly as Netlify
         shell: bash
