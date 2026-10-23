@@ -3,6 +3,14 @@ name: Netlify Controlled Production Deploy
 on:
   workflow_dispatch:
     inputs:
+      release_mode:
+        description: 'verify_only checks Netlify access without building or deploying; deploy explicitly authorizes production release'
+        type: choice
+        required: true
+        options:
+          - verify_only
+          - deploy
+        default: verify_only
       deploy_reason:
         description: 'Optional release note for the Netlify deploy'
         required: false
@@ -109,7 +117,15 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: python3 scripts/netlify_auth_preflight.py
 
+      - name: Record read-only preflight result (no deploy)
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.release_mode == 'verify_only'
+        run: |
+          echo 'NETLIFY CREDENTIAL/SITE PREFLIGHT OK. No build, deployment, or production HTTP verification was performed.'
+          echo '## Netlify verify_only: credential and target-site access OK' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No production release was attempted. This is not a backup parity or live website acceptance check.' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Build exactly as Netlify
+        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.release_mode == 'deploy')
         shell: bash
         run: |
           set -euo pipefail
@@ -128,6 +144,7 @@ jobs:
           bash /tmp/swsi-netlify-build.sh
 
       - name: Verify pre-deploy release contract
+        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.release_mode == 'deploy')
         shell: bash
         run: |
           set -euo pipefail
@@ -177,7 +194,7 @@ jobs:
           PY
 
       - name: Install pinned Netlify CLI
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.release_mode == 'deploy'
         shell: bash
         run: |
           set -euo pipefail
@@ -186,7 +203,7 @@ jobs:
           /tmp/swsi-netlify-cli/node_modules/.bin/netlify --version
 
       - name: Deploy prebuilt site to Netlify production
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.release_mode == 'deploy'
         shell: bash
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -209,7 +226,7 @@ jobs:
           PY
 
       - name: Verify production HTTP release
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.release_mode == 'deploy'
         shell: bash
         run: |
           set -euo pipefail
@@ -312,7 +329,7 @@ jobs:
           PY
 
       - name: Production browser smoke
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.release_mode == 'deploy'
         shell: bash
         run: |
           set -euo pipefail
