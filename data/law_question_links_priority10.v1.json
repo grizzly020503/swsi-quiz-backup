@@ -1087,7 +1087,7 @@
           "official_answer": "D",
           "grading_mode": "standard",
           "accepted_answers": null,
-          "law_metadata": "身心障礙者權利公約施行法第7、9條。",
+          "law_metadata": "身心障礙者權利公約施行法第10條。",
           "match_reason": "題目 law metadata 明示法規名稱；尚未逐條核對歷史法規版本",
           "match_strength": "metadata_only",
           "historical_version_checked": false
@@ -1277,7 +1277,7 @@
           "official_answer": "B",
           "grading_mode": "standard",
           "accepted_answers": null,
-          "law_metadata": "兒童權利公約施行法（現行版，2026-06-02查證；條號於解析階段核對）",
+          "law_metadata": "兒童權利公約",
           "match_reason": "題目 law metadata 明示法規名稱；尚未逐條核對歷史法規版本",
           "match_strength": "metadata_only",
           "historical_version_checked": false
