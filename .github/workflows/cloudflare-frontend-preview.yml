@@ -2,9 +2,16 @@ name: Build Cloudflare Frontend Preview
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_preview:
+        description: 'Publish the existing preview only with Owner authorization; false runs build and QA only'
+        type: boolean
+        required: true
+        default: false
   push:
     paths:
       - '.github/workflows/cloudflare-frontend-preview.yml'
+      - 'scripts/cloudflare_preview_publish_policy_smoke.py'
       - 'monthly_patch_parts/**'
       - 'index.html'
       - 'sw.js'
@@ -40,6 +47,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      - name: Verify preview publication requires explicit authorization
+        run: python scripts/cloudflare_preview_publish_policy_smoke.py
 
       - name: Build current monthly frontend
         run: |
@@ -109,7 +119,7 @@ jobs:
           cmp sw.js /tmp/swsi-preview/sw.js
 
       - name: Publish preview files into existing Cloudflare static assets
-        if: github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish_preview == true
         run: |
           set -euo pipefail
           git fetch origin main
@@ -139,7 +149,7 @@ jobs:
           git push origin HEAD:main
 
       - name: Wait for Cloudflare preview deployment
-        if: github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish_preview == true
         run: |
           set -euo pipefail
           URL='https://wandering-wave-4418.c022050333.workers.dev/preview/index.html'

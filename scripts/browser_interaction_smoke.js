@@ -1,20 +1,37 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { chromium } = require('playwright');
+const { chromium, webkit } = require('playwright');
 
 const base = process.argv[2] || 'http://127.0.0.1:4173';
+const engine = process.argv[3] || 'chromium';
+assert(['chromium', 'webkit'].includes(engine), 'unsupported browser engine');
 const QUESTION_CDN_HOST = 'wandering-wave-4418.c022050333.workers.dev';
 const QUESTION_CDN_PREFIX = '/question-shards/';
 const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
 
 (async () => {
-  const browser = await chromium.launch({ headless: true });
+  const browser = await ({ chromium, webkit })[engine].launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   const browserErrors = [];
   const consoleLines = [];
   const failedRequests = [];
   const servedQuestionFiles = [];
+  // WebKit performs cross-origin preflight before Playwright route handling.
+  // Stub the read-only feedback health probe before transport; never contact
+  // production or accept a feedback write from this local UI fixture.
+  await page.addInitScript(() => {
+    const realFetch = window.fetch;
+    window.fetch = function(input, options) {
+      const url = typeof input === 'string' ? input : input.url;
+      if (url === 'https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-feedback') {
+        if (String(options && options.method || 'GET').toUpperCase() === 'OPTIONS') return Promise.resolve(new Response(null, { status: 204 }));
+        window.__swsiUnexpectedFeedbackWrite = true;
+        return Promise.reject(new Error('unexpected feedback operation in local fixture'));
+      }
+      return realFetch.apply(this, arguments);
+    };
+  });
   page.on('pageerror', err => browserErrors.push(String(err && err.message || err)));
   page.on('console', msg => consoleLines.push(msg.type()+': '+msg.text()));
   page.on('requestfailed', req => failedRequests.push(req.url()+' :: '+String(req.failure() && req.failure().errorText || 'failed')));
@@ -149,15 +166,21 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   const quizFooter = page.locator('.wrap > footer');
   assert.strictEqual(await quizFooter.isVisible(), false, 'public footer should stay hidden during an active question');
   const wrongIndex = await page.evaluate(() => {
-    const item = queue && queue[idx];
-    if (!item) return -1;
-    const keys = ['A','B','C','D'].filter(k => item.options && item.options[k]);
-    for (let i=0;i<keys.length;i++) {
-      const k=keys[i];
-      let ok=false;
-      try { ok = typeof isCorrectAnswer==='function' ? !!isCorrectAnswer(item,k) : !!ansCorrect(k,item.answer); }
-      catch (_e) { ok = String(k)===String(item.answer||''); }
-      if (!ok) return i;
+    // Random practice can start with official all_credit/any_answer items,
+    // where every option is correct. Find a real wrong option elsewhere in
+    // the existing queue without changing any question or grading metadata.
+    for (let attempt=0;queue && attempt<queue.length;attempt++) {
+      const item = queue[idx];
+      const keys = ['A','B','C','D'].filter(k => item.options && item.options[k]);
+      for (let i=0;i<keys.length;i++) {
+        const k=keys[i];
+        let ok=false;
+        try { ok = typeof isCorrectAnswer==='function' ? !!isCorrectAnswer(item,k) : !!ansCorrect(k,item.answer); }
+        catch (_e) { ok = String(k)===String(item.answer||''); }
+        if (!ok) return i;
+      }
+      idx=(idx+1)%queue.length;
+      renderQuiz();
     }
     return -1;
   });
@@ -250,6 +273,8 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.waitForSelector('.swsi-myhub', { timeout: 30000 });
   assert(/錯題複習/.test(await page.locator('.swsi-myhub').innerText()), 'learning hub lost its review entry');
 
+  if (browserErrors.length) await dumpDiagnostics('page-errors');
+  assert.strictEqual(await page.evaluate(() => !!window.__swsiUnexpectedFeedbackWrite), false, 'local fixture attempted a feedback write');
   assert.deepStrictEqual(browserErrors, [], 'browser page errors: ' + browserErrors.join(' | '));
   console.log('BROWSER INTERACTION SMOKE OK');
   await browser.close();
