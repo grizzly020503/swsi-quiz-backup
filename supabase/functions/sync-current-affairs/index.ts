@@ -1,8 +1,17 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import {
+  verifyGitHubActionsOidcToken,
+  type GitHubActionsOidcPolicy,
+} from "../_shared/github_actions_oidc.ts";
+import { validateCurrentAffairsPayload } from "./payload_contract.ts";
 
-const REPO = "grizzly020503/swsi-quiz-backup";
-const REPO_ID = 1345053575;
+const CURRENT_AFFAIRS_SYNC_POLICY: GitHubActionsOidcPolicy = {
+  allowedWorkflowRefs: new Set([
+    "grizzly020503/swsi-quiz-backup/.github/workflows/public-monitoring-feed.yml@refs/heads/main",
+  ]),
+  allowedEvents: new Set(["schedule", "workflow_dispatch", "workflow_run", "push"]),
+};
 
 type SourcePolicy = {
   feed: string;
@@ -49,6 +58,8 @@ const CATEGORIES_JSON = String.raw`[
 const SOURCE_POLICY = new Map<string, SourcePolicy>(
   Object.entries(JSON.parse(SOURCE_POLICY_JSON) as Record<string, SourcePolicy>),
 );
+// Kept in lockstep with required (non-optional) curated feeds by policy smoke.
+const REQUIRED_FEED_COUNT = 17;
 const CATEGORIES = new Set<string>(JSON.parse(CATEGORIES_JSON) as string[]);
 
 function json(body: unknown, status = 200) {
@@ -56,22 +67,6 @@ function json(body: unknown, status = 200) {
     status,
     headers: { "content-type": "application/json; charset=utf-8" },
   });
-}
-
-async function verifyRepoWriteToken(token: string) {
-  const r = await fetch(`https://api.github.com/repos/${REPO}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-      "User-Agent": "swsi-current-affairs-sync/1.2",
-    },
-  });
-  if (!r.ok) return false;
-  const repo = await r.json();
-  // Public visibility makes repo readability meaningless as an auth proof.
-  // Require write capability on the immutable SWSI repository id instead.
-  return Number(repo?.id) === REPO_ID && repo?.permissions?.push === true;
 }
 
 function safeArticleUrl(value: unknown, allowedHosts: string[]) {
@@ -112,8 +107,15 @@ Deno.serve(async (req: Request) => {
   const token = (req.headers.get("authorization") || "")
     .replace(/^Bearer\s+/i, "")
     .trim();
-  if (!token || !(await verifyRepoWriteToken(token))) {
-    return json({ error: "GitHub token lacks write access to the SWSI repository" }, 403);
+  if (!token) return json({ error: "missing GitHub Actions OIDC token" }, 401);
+  try {
+    await verifyGitHubActionsOidcToken(token, CURRENT_AFFAIRS_SYNC_POLICY);
+  } catch (error) {
+    console.warn(
+      "current-affairs OIDC auth rejected",
+      error instanceof Error ? error.message : String(error),
+    );
+    return json({ error: "GitHub Actions OIDC authorization rejected" }, 403);
   }
 
   let body: any;
@@ -123,7 +125,12 @@ Deno.serve(async (req: Request) => {
     return json({ error: "invalid JSON" }, 400);
   }
 
-  const items = Array.isArray(body?.items) ? body.items : [];
+  const payloadError = validateCurrentAffairsPayload(body, {
+    total: SOURCE_POLICY.size,
+    required: REQUIRED_FEED_COUNT,
+  });
+  if (payloadError) return json({ error: payloadError }, 400);
+  const items = body.items as Array<Record<string, unknown>>;
   if (items.length > 200) return json({ error: "too many items" }, 400);
 
   for (const x of items) {
@@ -202,15 +209,24 @@ Deno.serve(async (req: Request) => {
   }
 
   const cutoff = new Date(Date.now() - 1000 * 60 * 60 * 24 * 548).toISOString();
-  await sb
+  const { error: archiveError } = await sb
     .from("current_affairs")
     .update({ status: "archived", updated_at: now })
     .eq("status", "candidate")
     .lt("published_at", cutoff);
-  await sb.from("current_affairs_sync_runs").insert({
+  if (archiveError) {
+    // Even if earlier batches were written, never claim full sync success.
+    return json({ error: "current affairs archival failed" }, 500);
+  }
+
+  const { error: auditError } = await sb.from("current_affairs_sync_runs").insert({
     fetched_count: Number(body?.fetched_count || 0),
     accepted_count: items.length,
     note: `feeds=${Array.isArray(body?.feed_errors) ? body.feed_errors.length : 0} errors`,
   });
+  if (auditError) {
+    // The run cannot be counted as successful without a durable audit row.
+    return json({ error: "current affairs sync audit failed" }, 500);
+  }
   return json({ ok: true, upserted, feed_errors: Array.isArray(body?.feed_errors) ? body.feed_errors : [] });
 });

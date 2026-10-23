@@ -30,6 +30,8 @@ on:
       - 'scripts/current_affairs_sources_smoke.py'
       - 'scripts/current_affairs_supabase_sync_smoke.py'
       - 'supabase/functions/sync-current-affairs/index.ts'
+      - 'supabase/functions/sync-current-affairs/payload_contract.ts'
+      - 'supabase/functions/sync-current-affairs/payload_contract_test.ts'
       - 'scripts/build_current_affairs_snapshot.py'
       - 'scripts/current_affairs_snapshot_smoke.py'
       - 'scripts/current_affairs_event_cluster.py'
@@ -51,6 +53,8 @@ on:
       - 'scripts/current_affairs_sources_smoke.py'
       - 'scripts/current_affairs_supabase_sync_smoke.py'
       - 'supabase/functions/sync-current-affairs/index.ts'
+      - 'supabase/functions/sync-current-affairs/payload_contract.ts'
+      - 'supabase/functions/sync-current-affairs/payload_contract_test.ts'
       - 'scripts/build_current_affairs_snapshot.py'
       - 'scripts/current_affairs_snapshot_smoke.py'
       - 'scripts/current_affairs_event_cluster.py'
@@ -217,6 +221,7 @@ jobs:
         github.event.workflow_run.head_branch == 'main'))
     permissions:
       contents: write
+      id-token: write
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -243,13 +248,24 @@ jobs:
         id: current_affairs_supabase
         continue-on-error: true
         env:
-          GH_REPO_TOKEN: ${{ github.token }}
           CURRENT_AFFAIRS_URL: https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-current-affairs
         run: |
           set -euo pipefail
+          oidc_response="$(curl --silent --show-error --fail-with-body \
+            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=swsi-supabase-sync")"
+          oidc_token="$(python - "$oidc_response" <<'PY'
+          import json, sys
+          token = str(json.loads(sys.argv[1]).get('value') or '')
+          if token.count('.') != 2:
+              raise SystemExit('GitHub OIDC provider did not return a JWT')
+          print(token)
+          PY
+          )"
+          echo "::add-mask::$oidc_token"
           curl --silent --show-error --fail-with-body \
             -X POST "$CURRENT_AFFAIRS_URL" \
-            -H "Authorization: Bearer $GH_REPO_TOKEN" \
+            -H "Authorization: Bearer $oidc_token" \
             -H 'Content-Type: application/json' \
             --data-binary @/tmp/current_affairs_payload.json
           echo
