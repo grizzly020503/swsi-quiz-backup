@@ -867,8 +867,8 @@ function answerLabel(item){
       var q=w.q, picked=w.picked;
       // Review-only disclosure gate; if the protective frontend runtime failed
       // to load, suppress nonofficial explanations instead of leaking them.
-      var hideAnalysis=typeof window.swsiShouldMaskAnalysis!=='function'
-        || window.swsiShouldMaskAnalysis(q);
+      var hideAnalysis=!window.SWSI_QB || typeof window.SWSI_QB.shouldMaskAnalysis!=='function'
+        || window.SWSI_QB.shouldMaskAnalysis(q);
       var exp=hideAnalysis?{}:(q.exp||{});
       var ex=hideAnalysis?'<div class="ln">平台解析待複核，暫不顯示。</div>':'';
       if(exp.why) ex+='<div class="ln"><b style="color:var(--pine,#4F7E76)">為什麼答案對：</b>'+E(exp.why)+'</div>';
