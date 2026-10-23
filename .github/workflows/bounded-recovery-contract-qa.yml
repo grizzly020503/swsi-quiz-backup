@@ -5,6 +5,7 @@ on:
     paths:
       - 'data/bounded_recovery_policy.v1.json'
       - 'scripts/bounded_recovery_contract.py'
+      - 'scripts/bounded_recovery_decision.py'
       - 'docs/BOUNDED_RECOVERY_RELEASE_CONTRACT_20261002.md'
       - '.github/workflows/bounded-recovery-contract-qa.yml'
 
