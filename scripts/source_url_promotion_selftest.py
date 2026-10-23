@@ -27,6 +27,32 @@ class PromotionTests(unittest.TestCase):
         self.assertFalse(report['production_db_written'])
         self.assertFalse(report['main_shards_written'])
 
+    def test_latest_exam_shard_tampering_is_rejected(self):
+        from unittest.mock import patch
+        real_read = Path.read_bytes
+
+        def corrupt_latest(path):
+            raw = real_read(path)
+            if path.name == '115-1.json':
+                return raw + b' '\n            return raw
+
+        with patch.object(Path, 'read_bytes', corrupt_latest):
+            with self.assertRaisesRegex(ValueError, '115-1.json: manifest SHA256/bytes mismatch'):
+                stage(ROOT, self.cfg)
+
+    def test_latest_exam_shard_missing_is_rejected(self):
+        from unittest.mock import patch
+        real_read = Path.read_bytes
+
+        def missing_latest(path):
+            if path.name == '115-2.json':
+                raise FileNotFoundError('synthetic missing latest shard')
+            return real_read(path)
+
+        with patch.object(Path, 'read_bytes', missing_latest):
+            with self.assertRaises(FileNotFoundError):
+                stage(ROOT, self.cfg)
+
     def test_changed_answer_is_rejected(self):
         question_doc = json.loads(self.sample)
         question_doc['questions'][0]['answer'] = 'ZZ'
