@@ -128,9 +128,7 @@ The repository now includes:
 
 It refuses CI and requires an explicit write acknowledgement.
 
-For a local target, it only accepts a loopback database host. For a hosted isolated target,
-it requires both the production and target project refs and fails if they are equal or if the
-target URL appears to reference production.
+The updated helper supports only a disposable **local** PostgreSQL target. A loopback URI by itself is insufficient; the actual server address must also be loopback, and the database must have a matching `swsi.disposable_target_id` marker. Hosted targets are deliberately not supported.
 
 It also requires the target to begin with:
 
@@ -140,18 +138,24 @@ It also requires the target to begin with:
 If the source backup contains Storage objects, the helper fails closed because database restore
 cannot prove Storage object bytes.
 
-Example for a hosted isolated target:
+Example for an owner-controlled disposable local PostgreSQL instance:
 
 ```bash
-export SWSI_RESTORE_TARGET_DB_URL='...'
-export SWSI_RESTORE_TARGET_KIND='hosted-isolated'
-export SWSI_PRODUCTION_PROJECT_REF='...'
-export SWSI_TARGET_PROJECT_REF='...'
+# Provision a fresh local DB, then set a unique marker on that database:
+# ALTER DATABASE <disposable_db> SET swsi.disposable_target_id = 'isolated-<32-lowercase-hex>';
+# Reconnect; NEVER set such a marker on production.
+export SWSI_RESTORE_TARGET_DB_URL='postgresql://<local-user>:<local-password>@127.0.0.1:5432/<disposable_db>'
+export SWSI_RESTORE_TARGET_KIND='local'
+export SWSI_RESTORE_TARGET_ID='isolated-<same-32-lowercase-hex>'
 export SWSI_RESTORE_ACK='I_UNDERSTAND_THIS_WRITES_THE_ISOLATED_TARGET'
 
 bash scripts/restore_supabase_private_backup_isolated.sh \
   "$HOME/swsi-private-backups/swsi-supabase-private-....tar.age"
 ```
+
+Count snapshot schema v3 records absent optional Ops tables as null with explicit
+false presence flags, and present tables by actual count. A source/target
+relation-presence mismatch is a restore failure, never an assumed zero.
 
 Do not paste any of those database credentials or project-specific secret values into chat or GitHub.
 

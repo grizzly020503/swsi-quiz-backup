@@ -29,27 +29,17 @@ done
 repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 [[ -n "$repo_root" ]] || fail "run this script from inside the SWSI Git repository"
 
-case "$SWSI_RESTORE_TARGET_KIND" in
-  local)
-    python3 - "$SWSI_RESTORE_TARGET_DB_URL" <<'PY' || fail "local target must use a loopback database host"
-import sys
-from urllib.parse import urlparse
-u = urlparse(sys.argv[1])
-if u.hostname not in {"127.0.0.1", "localhost", "::1"}:
-    raise SystemExit(1)
-PY
-    ;;
-  hosted-isolated)
-    : "${SWSI_PRODUCTION_PROJECT_REF:?Set SWSI_PRODUCTION_PROJECT_REF for hosted target safety comparison.}"
-    : "${SWSI_TARGET_PROJECT_REF:?Set SWSI_TARGET_PROJECT_REF for hosted target safety comparison.}"
-    [[ "$SWSI_PRODUCTION_PROJECT_REF" != "$SWSI_TARGET_PROJECT_REF" ]] ||       fail "target project ref equals production project ref"
-    [[ "$SWSI_RESTORE_TARGET_DB_URL" == *"$SWSI_TARGET_PROJECT_REF"* ]] ||       fail "target database URL does not contain SWSI_TARGET_PROJECT_REF"
-    [[ "$SWSI_RESTORE_TARGET_DB_URL" != *"$SWSI_PRODUCTION_PROJECT_REF"* ]] ||       fail "target database URL appears to reference production"
-    ;;
-  *)
-    fail "SWSI_RESTORE_TARGET_KIND must be local or hosted-isolated"
-    ;;
-esac
+# Restrict to a disposable local PostgreSQL instance and prove actual server identity.
+python3 "$repo_root/scripts/restore_destination_guard.py" || fail "restore routing preflight failed"
+target_identity="$(psql -X -qAt --set=ON_ERROR_STOP=1 --dbname="$SWSI_RESTORE_TARGET_DB_URL" <<'SQL'
+SELECT json_build_object(
+  'database', current_database(),
+  'target_id', current_setting('swsi.disposable_target_id', true),
+  'server_addr', inet_server_addr()::text
+);
+SQL
+)"
+printf '%s\n' "$target_identity" | python3 "$repo_root/scripts/restore_destination_guard.py" --identity-stdin || fail "isolated target identity could not be established"
 
 report_dir="${SWSI_RESTORE_REPORT_DIR:-$HOME/swsi-private-backups/restore-reports}"
 if ! python3 - "$repo_root" "$report_dir" <<'PY'
@@ -72,25 +62,11 @@ chmod 700 "$report_dir" 2>/dev/null || true
 printf '[restore] verifying encrypted bundle integrity locally\n'
 bash "$repo_root/scripts/verify_supabase_private_backup_local.sh" "$bundle"
 
-printf '[restore] checking that isolated target has no Auth users or Storage objects\n'
-preflight="$(psql -X -qAt --set=ON_ERROR_STOP=1 --dbname="$SWSI_RESTORE_TARGET_DB_URL" <<'SQL'
-select json_build_object(
-  'auth_users', (select count(*) from auth.users),
-  'storage_objects', (select count(*) from storage.objects)
-);
-SQL
-)"
+printf '[restore] verifying all isolated-target private table counts\n'
+preflight="$(python3 "$repo_root/scripts/private_backup_count_query.py" --connection-env SWSI_RESTORE_TARGET_DB_URL)" || fail "target count capture failed"
 export SWSI_RESTORE_PREFLIGHT="$preflight"
-python3 - <<'PY'
-import json, os
-d=json.loads(os.environ["SWSI_RESTORE_PREFLIGHT"])
-if d.get("auth_users") != 0 or d.get("storage_objects") != 0:
-    raise SystemExit(
-        "isolated target is not empty enough for this drill: "
-        f"auth_users={d.get('auth_users')} storage_objects={d.get('storage_objects')}"
-    )
-print("ISOLATED TARGET PREFLIGHT OK auth_users=0 storage_objects=0")
-PY
+python3 "$repo_root/scripts/private_restore_target_preflight.py" || fail "isolated target is not empty or schema count is ambiguous"
+unset SWSI_RESTORE_PREFLIGHT preflight target_identity
 
 work_dir="$(mktemp -d "${TMPDIR:-/tmp}/swsi-private-restore.XXXXXX")"
 cleanup() {
@@ -102,6 +78,8 @@ age -d "$bundle" | tar -xf - -C "$work_dir"
 for required in roles.sql schema.sql data.sql source-counts.json metadata.json; do
   [[ -s "$work_dir/$required" ]] || fail "decrypted component is missing or empty: $required"
 done
+
+python3 "$repo_root/scripts/private_backup_counts_guard.py" "$work_dir/source-counts.json" || fail "source count baseline invalid"
 
 source_storage_objects="$(python3 - "$work_dir/source-counts.json" <<'PY'
 import json, sys
@@ -119,19 +97,9 @@ restore_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 printf '[restore] applying roles -> schema -> data to isolated target\n'
 psql -X   --single-transaction   --variable ON_ERROR_STOP=1   --file "$work_dir/roles.sql"   --file "$work_dir/schema.sql"   --command 'SET session_replication_role = replica'   --file "$work_dir/data.sql"   --dbname "$SWSI_RESTORE_TARGET_DB_URL"
 
-printf '[restore] capturing target count-only baseline\n'
-psql -X -qAt --set=ON_ERROR_STOP=1 --dbname="$SWSI_RESTORE_TARGET_DB_URL" > "$work_dir/target-counts.json" <<'SQL'
-select json_build_object(
-  'captured_at_utc', to_char((now() at time zone 'utc'), 'YYYY-MM-DD"T"HH24:MI:SS"Z"'),
-  'auth_users', (select count(*) from auth.users),
-  'feedback_reports', (select count(*) from public.swsi_feedback_reports),
-  'usage_daily_rows', (select count(*) from public.swsi_usage_daily),
-  'ai_telemetry_client_daily_rows', (select count(*) from public.swsi_ai_telemetry_client_daily),
-  'ai_telemetry_5m_rows', (select count(*) from public.swsi_ai_telemetry_5m),
-  'storage_buckets', (select count(*) from storage.buckets),
-  'storage_objects', (select count(*) from storage.objects)
-);
-SQL
+printf '[restore] capturing schema-aware restored target count-only baseline\n'
+python3 "$repo_root/scripts/private_backup_count_query.py" --connection-env SWSI_RESTORE_TARGET_DB_URL > "$work_dir/target-counts.json"
+python3 "$repo_root/scripts/private_backup_counts_guard.py" "$work_dir/source-counts.json" --target "$work_dir/target-counts.json" || fail "restored schema/count mismatch"
 
 restore_end_epoch="$(date +%s)"
 restore_finished_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -164,6 +132,9 @@ keys = (
     "ai_telemetry_5m_rows",
     "storage_buckets",
     "storage_objects",
+    "admin_allowlist_rows",
+    "ops_task_runs", "ops_review_items",
+    "ops_task_runs_present", "ops_review_items_present",
 )
 mismatches = {
     key: {"source": source.get(key), "target": target.get(key)}

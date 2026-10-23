@@ -55,21 +55,9 @@ stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 source_commit="$(git rev-parse HEAD)"
 short_commit="$(git rev-parse --short=12 HEAD)"
 
-printf '[backup] capturing count-only source baseline\n'
-psql -X -qAt --set=ON_ERROR_STOP=1 --dbname="$SWSI_SUPABASE_DB_URL" > "$work_dir/source-counts.json" <<'SQL'
-select json_build_object(
-  'captured_at_utc', to_char((now() at time zone 'utc'), 'YYYY-MM-DD"T"HH24:MI:SS"Z"'),
-  'auth_users', (select count(*) from auth.users),
-  'feedback_reports', (select count(*) from public.swsi_feedback_reports),
-  'usage_daily_rows', (select count(*) from public.swsi_usage_daily),
-  'ai_telemetry_client_daily_rows', (select count(*) from public.swsi_ai_telemetry_client_daily),
-  'ai_telemetry_5m_rows', (select count(*) from public.swsi_ai_telemetry_5m),
-  'storage_buckets', (select count(*) from storage.buckets),
-  'storage_objects', (select count(*) from storage.objects)
-);
-SQL
-
-python3 -m json.tool "$work_dir/source-counts.json" >/dev/null
+printf '[backup] capturing schema-aware count-only source baseline\n'
+python3 "$repo_root/scripts/private_backup_count_query.py" --connection-env SWSI_SUPABASE_DB_URL > "$work_dir/source-counts.json"
+python3 "$repo_root/scripts/private_backup_counts_guard.py" "$work_dir/source-counts.json"
 
 printf '[backup] dumping roles\n'
 supabase db dump --db-url "$SWSI_SUPABASE_DB_URL" -f "$work_dir/roles.sql" --role-only

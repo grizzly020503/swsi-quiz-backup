@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Validate count-only backup/restore coverage, including admin allowlist and both Ops tables.
+"""Fail-closed count-only backup/restore snapshot validation (v3).
 
-No DB or network IO. A legacy/missing/ambiguous count must not produce a green
-restore proof. Count agreement alone still does not prove complete recovery.
+Optional Ops tables have explicit presence flags; absence must not be silently
+represented as zero rows. Does not read individual records or connect to DB.
 """
 from __future__ import annotations
 import argparse
@@ -11,10 +11,11 @@ import json
 from pathlib import Path
 import sys
 
-COUNT_FIELDS = ('auth_users', 'feedback_reports', 'usage_daily_rows',
-                'ai_telemetry_client_daily_rows', 'ai_telemetry_5m_rows',
-                'storage_buckets', 'storage_objects', 'admin_allowlist_rows',
-                'ops_task_runs', 'ops_review_items')
+REQUIRED_COUNTS = ('auth_users','feedback_reports','usage_daily_rows',
+                   'ai_telemetry_client_daily_rows','ai_telemetry_5m_rows',
+                   'storage_buckets','storage_objects','admin_allowlist_rows')
+OPTIONAL_COUNTS = ('ops_task_runs','ops_review_items')
+COUNT_FIELDS = REQUIRED_COUNTS + OPTIONAL_COUNTS
 
 
 def parse_snapshot(raw: str) -> dict:
@@ -31,12 +32,24 @@ def parse_snapshot(raw: str) -> dict:
 
 
 def validate_counts(snapshot: object) -> dict:
-    if not isinstance(snapshot, dict) or type(snapshot.get('count_schema_version')) is not int or snapshot['count_schema_version'] != 2:
-        raise ValueError('count schema v2 required; export a new complete baseline')
-    for key in COUNT_FIELDS:
+    if type(snapshot) is not dict or type(snapshot.get('count_schema_version')) is not int or snapshot['count_schema_version'] != 3:
+        raise ValueError('count schema v3 required; export a new complete baseline')
+    for key in REQUIRED_COUNTS:
         value = snapshot.get(key)
         if type(value) is not int or value < 0:
             raise ValueError('missing or invalid count: '+key)
+    for key in OPTIONAL_COUNTS:
+        present = snapshot.get(key+'_present')
+        if type(present) is not bool:
+            raise ValueError('missing or invalid relation-presence flag: '+key)
+        if key not in snapshot:
+            raise ValueError('missing optional relation count: '+key)
+        count = snapshot[key]
+        if present:
+            if type(count) is not int or count < 0:
+                raise ValueError('present relation requires nonnegative row count: '+key)
+        elif count is not None:
+            raise ValueError('absent relation must use null, never a fabricated zero: '+key)
     stamp = snapshot.get('captured_at_utc')
     try:
         if not isinstance(stamp, str) or len(stamp) > 64:
@@ -52,9 +65,10 @@ def validate_counts(snapshot: object) -> dict:
 def compare_counts(source: object, target: object) -> None:
     source = validate_counts(source)
     target = validate_counts(target)
-    mismatch = [key for key in COUNT_FIELDS if source[key] != target[key]]
-    if mismatch:
-        raise ValueError('restore count mismatch: '+', '.join(mismatch))
+    mismatches = [key for key in COUNT_FIELDS if source[key] != target[key]]
+    mismatches += [key+'_present' for key in OPTIONAL_COUNTS if source[key+'_present'] != target[key+'_present']]
+    if mismatches:
+        raise ValueError('restore count mismatch: '+', '.join(mismatches))
 
 
 def main() -> int:
