@@ -89,7 +89,7 @@ const legacy={...normalize({id:'SP-115-2-037',analysis_status:'ready'}),
  analysis_status:'review',exp:{why:'BAD_AGE_55',others:'BAD_OTHER',trap:'BAD_TRAP'}};
 const displayed=render(legacy);
 assert.ok(displayed.includes('平台解析待複核，暫不顯示'));
-for(const term of ['BAD_AGE_55','BAD_OTHER','BAD_TRAP','考點：']){
+for(const term of ['BAD_AGE_55','BAD_OTHER','BAD_TRAP','BAD_MNEMONIC','BAD_LAW','BAD_MISTAKE','考點：']){
  assert.ok(!displayed.includes(term),'quiz leaked '+term);
 }
 assert.ok(displayed.includes('官方答案'));count++;
