@@ -216,11 +216,11 @@ def main() -> int:
                 raise AssertionError("Current-affairs trends: invalid historical match breakdown")
         checks.append(f"trends-{len(trend_items)}/history-v2.2")
 
-        if "命題趨勢雷達" not in html:
-            raise AssertionError("Current-affairs V2 UI: trend radar marker missing from production home")
+        if "目前 3 個國考重點" not in html:
+            raise AssertionError("Current-affairs focused UI: canonical study priorities missing from production home")
         if "current_affairs_events.json" not in html or "current_affairs_trends.json" not in html:
             raise AssertionError("Current-affairs V2 UI: event/trend feed loader missing from production home")
-        checks.append("trend-ui-v2")
+        checks.append("focused-study-priorities-ui")
 
         body, _ = require_status("Legal-watch snapshot", PRIMARY + "/auto/legal_watch.json")
         laws = json.loads(body)
@@ -320,8 +320,8 @@ def main() -> int:
             raise AssertionError(
                 f"Netlify fallback current-affairs: expected >=17 sources / 0 errors, got {fallback_sources}/{fallback_errors}"
             )
-        if "命題趨勢雷達" not in fallback_html:
-            raise AssertionError("Netlify fallback: trend radar marker missing")
+        if "目前 3 個國考重點" not in fallback_html:
+            raise AssertionError("Netlify fallback: canonical study-priorities UI missing")
 
         body, _ = require_status(
             "Netlify fallback current-affairs signals",
