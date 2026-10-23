@@ -1087,7 +1087,7 @@
           "official_answer": "D",
           "grading_mode": "standard",
           "accepted_answers": null,
-          "law_metadata": "身心障礙者權利公約施行法第7、9條。",
+          "law_metadata": "身心障礙者權利公約施行法第10條。",
           "match_reason": "題目 law metadata 明示法規名稱；尚未逐條核對歷史法規版本",
           "match_strength": "metadata_only",
           "historical_version_checked": false
@@ -1264,24 +1264,8 @@
         "兒童權利公約施行法"
       ],
       "legacy_question_count": 4,
-      "matched_question_count": 4,
+      "matched_question_count": 3,
       "questions": [
-        {
-          "question_id": "SW-104-2-36",
-          "year": "104",
-          "round": "第二次",
-          "exam_code": "104-2",
-          "subject": "社會工作",
-          "question_number": "36",
-          "stem": "1989 年聯合國大會通過的「兒童權利公約」（UN Convention on the Rights of the Child）， 揭示了四項重要的原則，下列那一項敘述正確？①免受歧視權利②兒童最佳利益③自我決 定權利④參與決策權利⑤生存及發展權利⑥隱私權",
-          "official_answer": "B",
-          "grading_mode": "standard",
-          "accepted_answers": null,
-          "law_metadata": "兒童權利公約施行法（現行版，2026-06-02查證；條號於解析階段核對）",
-          "match_reason": "題目 law metadata 明示法規名稱；尚未逐條核對歷史法規版本",
-          "match_strength": "metadata_only",
-          "historical_version_checked": false
-        },
         {
           "question_id": "SP104-2-10",
           "year": "104",
