@@ -3,7 +3,7 @@
 <head>
 <!-- SWSI CLOUDFLARE PUBLIC SOFT LAUNCH -->
 <meta name="robots" content="noindex,nofollow,noarchive">
-<meta name="swsi-release-source" content="474d37fb6a0ac12d51e5d9657a2fd57d21f387fb">
+<meta name="swsi-release-source" content="abb1ac79f314e2dfeddadaa61fa0384c5c8f8a79">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1972,14 +1972,18 @@ function answerLabel(item){
 
     var revHtml=wrong.map(function(w){
       var q=w.q, picked=w.picked;
-      var exp=q.exp||{};
-      var ex='';
+      // Review-only disclosure gate; if the protective frontend runtime failed
+      // to load, suppress nonofficial explanations instead of leaking them.
+      var hideAnalysis=!window.SWSI_QB || typeof window.SWSI_QB.shouldMaskAnalysis!=='function'
+        || window.SWSI_QB.shouldMaskAnalysis(q);
+      var exp=hideAnalysis?{}:(q.exp||{});
+      var ex=hideAnalysis?'<div class="ln">平台解析待複核，暫不顯示。</div>':'';
       if(exp.why) ex+='<div class="ln"><b style="color:var(--pine,#4F7E76)">為什麼答案對：</b>'+E(exp.why)+'</div>';
       if(exp.others) ex+='<div class="ln"><b>其他選項為何錯：</b>'+E(exp.others)+'</div>';
       if(exp.trap) ex+='<div class="ln"><b style="color:var(--wrong,#9E6155)">考場陷阱：</b>'+E(exp.trap)+'</div>';
       if(!ex&&exp.raw) ex+='<div class="ln">'+E(exp.raw)+'</div>';
-      if(q.mnemonic) ex+='<div class="ln"><b>記憶法：</b>'+E(q.mnemonic)+'</div>';
-      if(q.law) ex+='<div class="ln"><b>法源：</b>'+E(q.law)+'</div>';
+      if(!hideAnalysis && q.mnemonic) ex+='<div class="ln"><b>記憶法：</b>'+E(q.mnemonic)+'</div>';
+      if(!hideAnalysis && q.law) ex+='<div class="ln"><b>法源：</b>'+E(q.law)+'</div>';
       var pk=picked!=null?('你選 '+picked):'未作答';
       var tag=picked!=null?'<span class="mk-tag w">'+pk+'</span>':'<span class="mk-tag n">未作答</span>';
       return '<div class="mk-rev"><div class="rq">'+E(q.q||'').slice(0,140)+((q.q||'').length>140?'…':'')+'</div>'
@@ -4204,6 +4208,6 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
 </script>
 <!-- SWSI UIUX V1 END -->
 <script>window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP={"version":"2026-08-27.canonical-build.v1","laws":{"count":24,"sha256":"bb946b67af633ea371550dc1b074dbca530ccb50f47e561c7590ff0e5ea89dfc"},"theories":{"count":39,"sha256":"1a74d39a9611caf002383527390dd3d7e5cc0b6665b6b7f89494f2a0d58ead4d"}};</script>
-<script src="monthly_patch.js?v=5051f14e09ec41ea"></script>
+<script src="monthly_patch.js?v=56e52b89a843484e"></script>
 </body>
 </html>

@@ -865,14 +865,18 @@ function answerLabel(item){
 
     var revHtml=wrong.map(function(w){
       var q=w.q, picked=w.picked;
-      var exp=q.exp||{};
-      var ex='';
+      // Review-only disclosure gate; if the protective frontend runtime failed
+      // to load, suppress nonofficial explanations instead of leaking them.
+      var hideAnalysis=!window.SWSI_QB || typeof window.SWSI_QB.shouldMaskAnalysis!=='function'
+        || window.SWSI_QB.shouldMaskAnalysis(q);
+      var exp=hideAnalysis?{}:(q.exp||{});
+      var ex=hideAnalysis?'<div class="ln">平台解析待複核，暫不顯示。</div>':'';
       if(exp.why) ex+='<div class="ln"><b style="color:var(--pine,#4F7E76)">為什麼答案對：</b>'+E(exp.why)+'</div>';
       if(exp.others) ex+='<div class="ln"><b>其他選項為何錯：</b>'+E(exp.others)+'</div>';
       if(exp.trap) ex+='<div class="ln"><b style="color:var(--wrong,#9E6155)">考場陷阱：</b>'+E(exp.trap)+'</div>';
       if(!ex&&exp.raw) ex+='<div class="ln">'+E(exp.raw)+'</div>';
-      if(q.mnemonic) ex+='<div class="ln"><b>記憶法：</b>'+E(q.mnemonic)+'</div>';
-      if(q.law) ex+='<div class="ln"><b>法源：</b>'+E(q.law)+'</div>';
+      if(!hideAnalysis && q.mnemonic) ex+='<div class="ln"><b>記憶法：</b>'+E(q.mnemonic)+'</div>';
+      if(!hideAnalysis && q.law) ex+='<div class="ln"><b>法源：</b>'+E(q.law)+'</div>';
       var pk=picked!=null?('你選 '+picked):'未作答';
       var tag=picked!=null?'<span class="mk-tag w">'+pk+'</span>':'<span class="mk-tag n">未作答</span>';
       return '<div class="mk-rev"><div class="rq">'+E(q.q||'').slice(0,140)+((q.q||'').length>140?'…':'')+'</div>'

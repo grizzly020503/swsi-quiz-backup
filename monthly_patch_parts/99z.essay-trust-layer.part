@@ -86,10 +86,6 @@
   }
 
   function renderAIResult(id,out,txt,mode){
-    if(typeof window.swsiSetAICache==='function'&&mode==='text'){
-      var ta=document.getElementById('ta_'+id);
-      try{window.swsiSetAICache(id,(ta?ta.value:'').trim(),txt);}catch(_e){}
-    }
     out.innerHTML='<div style="margin-top:12px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--pine);border-radius:10px;padding:14px;font-size:14px;line-height:1.8;color:var(--ink);white-space:pre-wrap">'+E(txt)+'</div>'
       +'<div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 只提供申論練習回饋，不是考選部官方評分；法規、政策或年代內容若有疑義，請再查課本、老師或官方資料。</div>';
   }
@@ -184,7 +180,12 @@
       var data=await r.json();
       var txt=T(data&&data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
       if(!txt){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong)">AI 沒有回傳內容，請稍後再試。</div>';return;}
+      // Bind feedback to the submitted snapshot, never the live editor value.
       if(typeof window.swsiSetAICache==='function')window.swsiSetAICache(id,ans,txt);
+      var currentAnswer=document.getElementById('ta_'+id);
+      if(!currentAnswer||currentAnswer.value.trim()!==ans){
+        out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--ink-soft)">作答已更新，請重新送出 AI 回饋。</div>';return;
+      }
       renderAIResult(id,out,txt,'text');
     }catch(err){
       var timeout=err&&err.name==='AbortError';

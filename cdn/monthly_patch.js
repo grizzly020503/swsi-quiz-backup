@@ -279,6 +279,33 @@ window.swsiEsc = swsiEsc;
     return [...new Set(QB.manifest.shards.map(x=>parseInt(x.year,10)).filter(Number.isFinite))].sort((a,b)=>b-a);
   }
 
+  // Official Core stays intact. Suppress unverified student-only explanations
+  // at the shared normalization boundary for CDN, DB fallback and offline.
+  const SWSI_ANALYSIS_REVIEW_QUARANTINE = new Set(['SP-115-2-040']);
+  function swsiShouldMaskAnalysis(item){
+    if(!item) return false;
+    const id=swsiText(item.id).trim();
+    if(SWSI_ANALYSIS_REVIEW_QUARANTINE.has(id)) return true;
+    const code=swsiText(item.source_exam_code).trim();
+    // An official question ID can survive in old offline cache without its source metadata.
+    const official=/^\d{6}$/.test(code) || /^[A-Z]{2,6}-\d{3}-[12]-\d{3}$/.test(id);
+    return official && swsiText(item.analysis_status).trim().toLowerCase()!=='ready';
+  }
+  // Shared review-only gate for independent mock-exam results.
+  QB.shouldMaskAnalysis = swsiShouldMaskAnalysis;
+  function swsiMaskStudentAnalysis(item){
+    if(!swsiShouldMaskAnalysis(item)) return item;
+    // Display-only quarantine; no modification of input row or official answer fields.
+    if(SWSI_ANALYSIS_REVIEW_QUARANTINE.has(swsiText(item.id).trim())) item.analysis_status='review';
+    item.exp={why:'',others:'',trap:'',raw:''};
+    item.mnemonic='';
+    item.extension='';
+    item.law='';
+    item.topic='';
+    item.mistake='';
+    return item;
+  }
+
   // normalize must retain official grading metadata from Supabase/CDN.
   const legacyNormalize = normalize;
   normalize = function(r){
@@ -300,7 +327,7 @@ window.swsiEsc = swsiEsc;
     q.extension = swsiCleanPUA(q.extension);
     q.law = swsiCleanPUA(q.law);
     q.mistake = swsiCleanPUA(q.mistake);
-    return q;
+    return swsiMaskStudentAnalysis(q);
   };
 
   // Clean the current auto-essay payload after it is merged; future parser versions also normalize at source.
@@ -643,10 +670,13 @@ window.swsiEsc = swsiEsc;
     let expHTML='';
     if(answered){
       const wrong=!isCorrectAnswer(item,selected);
+      const analysisHidden=swsiShouldMaskAnalysis(item);
       let body='';
       if(mode==='all_credit') body+='<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 官方一律給分：</b>這題即使未作答也計分；解析僅供理解題意。</div>';
       else if(mode==='any_answer') body+='<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 官方特殊給分：</b>A～D 任一作答皆給分，但未作答不給分。</div>';
-      if(item.exp&&(item.exp.why||item.exp.others||item.exp.trap)){
+      if(analysisHidden){
+        body+='<div class="pending">平台解析待複核，暫不顯示。'+swsiEsc(answerLabel(item))+'。</div>';
+      }else if(item.exp&&(item.exp.why||item.exp.others||item.exp.trap)){
         if(item.exp.why) body+='<div class="exp-sec"><h4><span class="dot d-green"></span>為什麼對</h4><p>'+swsiEscLines(item.exp.why)+'</p></div>';
         if(item.exp.others) body+='<div class="exp-sec"><h4><span class="dot d-red"></span>其他選項為什麼錯</h4><p>'+swsiEscLines(item.exp.others)+'</p></div>';
         if(item.exp.trap) body+='<div class="exp-sec"><h4><span class="dot d-gold"></span>考場陷阱</h4><p>'+swsiEscLines(item.exp.trap)+'</p></div>';
@@ -656,11 +686,11 @@ window.swsiEsc = swsiEsc;
         body+='<div class="pending">此題<b>解析生成中</b>。'+swsiEsc(answerLabel(item))+'，先記下來，詳解之後補上。</div>';
       }
       let extra='';
-      if(item.mnemonic) extra+='<div class="extra"><b>記憶法：</b>'+swsiEscLines(item.mnemonic)+'</div>';
-      if(item.law) extra+='<div class="extra"><b>法源：</b>'+swsiEscLines(item.law)+'</div>';
+      if(!analysisHidden && item.mnemonic) extra+='<div class="extra"><b>記憶法：</b>'+swsiEscLines(item.mnemonic)+'</div>';
+      if(!analysisHidden && item.law) extra+='<div class="extra"><b>法源：</b>'+swsiEscLines(item.law)+'</div>';
       if(mode==='standard' && accepted.size>1) extra='<div class="extra"><b>'+swsiEsc(answerLabel(item))+'</b></div>'+extra;
-      expHTML='<div class="exp"><div class="topic">考點：<b>'+swsiEsc(item.topic||item.major)+'</b></div>'+body+extra+
-        (wrong&&item.mistake?'<div class="mistake">這題錯因：'+swsiEsc(item.mistake)+'</div>':'')+
+      expHTML='<div class="exp">'+(analysisHidden?'':'<div class="topic">考點：<b>'+swsiEsc(item.topic||item.major)+'</b></div>')+body+extra+
+        (wrong&&!analysisHidden&&item.mistake?'<div class="mistake">這題錯因：'+swsiEsc(item.mistake)+'</div>':'')+
         '<button class="btn" onclick="next()">'+(idx+1<queue.length?'下一題 →':'看結果 →')+'</button></div>';
     }
 
@@ -4495,10 +4525,6 @@ html[data-fs="2"]{
   }
 
   function renderAIResult(id,out,txt,mode){
-    if(typeof window.swsiSetAICache==='function'&&mode==='text'){
-      var ta=document.getElementById('ta_'+id);
-      try{window.swsiSetAICache(id,(ta?ta.value:'').trim(),txt);}catch(_e){}
-    }
     out.innerHTML='<div style="margin-top:12px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--pine);border-radius:10px;padding:14px;font-size:14px;line-height:1.8;color:var(--ink);white-space:pre-wrap">'+E(txt)+'</div>'
       +'<div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">⚠ AI 只提供申論練習回饋，不是考選部官方評分；法規、政策或年代內容若有疑義，請再查課本、老師或官方資料。</div>';
   }
@@ -4593,7 +4619,12 @@ html[data-fs="2"]{
       var data=await r.json();
       var txt=T(data&&data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
       if(!txt){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong)">AI 沒有回傳內容，請稍後再試。</div>';return;}
+      // Bind feedback to the submitted snapshot, never the live editor value.
       if(typeof window.swsiSetAICache==='function')window.swsiSetAICache(id,ans,txt);
+      var currentAnswer=document.getElementById('ta_'+id);
+      if(!currentAnswer||currentAnswer.value.trim()!==ans){
+        out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--ink-soft)">作答已更新，請重新送出 AI 回饋。</div>';return;
+      }
       renderAIResult(id,out,txt,'text');
     }catch(err){
       var timeout=err&&err.name==='AbortError';

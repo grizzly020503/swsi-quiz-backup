@@ -31,14 +31,14 @@ The token value must not be pasted into issues, PRs, chat, workflow files, scree
 
 ## First cutover run
 
-1. Add both GitHub Actions secrets.
+1. Confirm both GitHub Actions secrets exist. Change credentials only with Owner authorization; never print their values.
 2. Go to Actions -> **Netlify Controlled Production Deploy**.
-3. Choose **Run workflow** on `main`.
+3. Choose **Run workflow** on `main` with the default `release_mode=verify_only`.
 4. The workflow refuses any non-main ref.
-5. It rebuilds `_site` using the exact `netlify.toml` build command.
-6. It verifies the history-v2.2 release contract before upload.
-7. It deploys `_site` with a pinned Netlify CLI.
-8. It verifies `https://swsi-quiznetlify.netlify.app` by HTTP and Chromium smoke tests.
+5. The read-only preflight checks token access, the configured site ID and the existing SWSI project identity. A missing secret, HTTP 401/403/404 or wrong project blocks the run. It does not build or deploy and is not evidence of runtime parity.
+6. After explicit Owner release authorization, start a separate run on the reviewed exact `main` commit with `release_mode=deploy`. Record its SHA and Run ID. A default dispatch never publishes.
+7. The deploy run repeats the preflight, rebuilds `_site` using the exact `netlify.toml` command, verifies the release contract and uploads with the pinned CLI.
+8. It verifies `https://swsi-quiznetlify.netlify.app` by HTTP and Chromium smoke tests, including exact runtime and Service Worker bytes. Separately verify the primary site, old IndexedDB/PWA updates and mobile behavior.
 
 Only after this first controlled deployment is green should the old Netlify repository continuous-deployment connection be disabled/unlinked.
 
@@ -56,4 +56,6 @@ After the first successful controlled deployment:
 
 ## Rollback
 
-Netlify keeps prior production deploys. If the controlled release fails post-deploy verification, use Netlify Deploys to restore the last known-good production deploy while the cause is investigated.
+Before release, record the last known-good deploy ID and retain its matching source, runtime and manifest. If post-deploy verification fails, use Netlify Deploys to restore that exact deploy, then repeat HTTP/runtime/Service Worker and primary/fallback parity checks. Do not claim recovery from the dashboard status alone. Keep any independent repository build trigger from overwriting the rollback during the incident, under Owner authorization.
+
+For the coordinated Supabase caller/function switch, use [the cutover runbook](CURRENT_AFFAIRS_OIDC_CUTOVER.md). Netlify credential verification does not authorize that switch.

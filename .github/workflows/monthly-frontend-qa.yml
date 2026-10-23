@@ -11,6 +11,7 @@ on:
       - 'essay_guides.js'
       - 'scripts/build_essay_guides_runtime.js'
       - 'scripts/p0_frontend_preflight.js'
+      - 'scripts/review_analysis_quarantine_smoke.js'
       - 'scripts/grading_contract_smoke.js'
       - 'scripts/service_worker_upgrade_smoke.js'
       - 'scripts/shard_integrity_browser_smoke.js'
@@ -47,6 +48,7 @@ on:
       - 'essay_guides.js'
       - 'scripts/build_essay_guides_runtime.js'
       - 'scripts/p0_frontend_preflight.js'
+      - 'scripts/review_analysis_quarantine_smoke.js'
       - 'scripts/grading_contract_smoke.js'
       - 'scripts/service_worker_upgrade_smoke.js'
       - 'scripts/shard_integrity_browser_smoke.js'
@@ -106,6 +108,7 @@ jobs:
           node --check sw.js
           node --check scripts/build_essay_guides_runtime.js
           node --check scripts/p0_frontend_preflight.js
+          node --check scripts/review_analysis_quarantine_smoke.js
           node --check scripts/grading_contract_smoke.js
           node --check scripts/service_worker_upgrade_smoke.js
           node --check scripts/shard_integrity_browser_smoke.js
@@ -124,6 +127,9 @@ jobs:
 
       - name: P0 frontend preflight
         run: node scripts/p0_frontend_preflight.js
+
+      - name: Review analysis display quarantine regression
+        run: node scripts/review_analysis_quarantine_smoke.js
 
       - name: Service Worker, Worker and Supabase contracts
         run: |
