@@ -69,7 +69,32 @@ def main() -> int:
             raise AssertionError("no token must fail")
         no_network.assert_not_called()
 
-    print("NETLIFY AUTH PREFLIGHT SELFTEST OK: success/missing/wrong-project/401/403/404/500")
+    # Workflow release_mode is verify_only by default. A read-only credential
+    # check must never build, call Netlify CLI, deploy, or claim parity.
+    workflow = (Path(__file__).resolve().parents[1] /
+                ".github/workflows/netlify-controlled-production-deploy.yml"
+                ).read_text(encoding="utf-8")
+    assert "default: verify_only" in workflow
+    assert "type: choice" in workflow
+    assert "          - verify_only" in workflow
+    assert "          - deploy" in workflow
+    verify_guard = "inputs.release_mode == 'verify_only'"
+    deploy_guard = "inputs.release_mode == 'deploy'"
+    assert workflow.count(verify_guard) == 1
+    assert workflow.count(deploy_guard) == 6  # build + contract + CLI + deploy + HTTP + browser
+    for step in (
+        "Install pinned Netlify CLI",
+        "Deploy prebuilt site to Netlify production",
+        "Verify production HTTP release",
+        "Production browser smoke",
+    ):
+        anchor = f"      - name: {step}\\n        if: "
+        assert anchor in workflow, f"missing guarded stage: {step}"
+        cond = workflow.split(anchor, 1)[1].splitlines()[0]
+        assert deploy_guard in cond and "refs/heads/main" in cond, step
+    assert "No production release was attempted" in workflow
+
+    print("NETLIFY AUTH PREFLIGHT SELFTEST OK: provider errors, wrong project, read-only default and deploy-only gates")
     return 0
 
 
