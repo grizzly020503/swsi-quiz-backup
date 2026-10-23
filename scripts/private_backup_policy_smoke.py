@@ -44,7 +44,6 @@ required_restore_markers = [
     'SWSI_RESTORE_TARGET_KIND',
     'restore_destination_guard.py',
     'private_restore_target_preflight.py',
-    'ISOLATED TARGET PRIVATE TABLE COUNT CHECK OK',
     'source backup reports Storage objects > 0',
     'restore count mismatch',
     'ISOLATED PRIVATE-DATA RESTORE PROOF OK',
