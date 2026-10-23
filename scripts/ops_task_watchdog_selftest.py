@@ -70,6 +70,12 @@ def main() -> int:
                 "conclusion": "success",
                 "run_started_at": "2026-10-02T05:59:00Z",
             },
+            {
+                "id": 6,
+                "event": "schedule",
+                "conclusion": "failure",
+                "run_started_at": "2026-10-02T05:55:00Z",
+            },
         ],
         "stale.yml": [
             {
@@ -85,7 +91,13 @@ def main() -> int:
                 "event": "workflow_dispatch",
                 "conclusion": "success",
                 "run_started_at": "2026-10-02T05:30:00Z",
-            }
+            },
+            {
+                "id": 5,
+                "event": "schedule",
+                "conclusion": "failure",
+                "run_started_at": "2026-10-02T05:50:00Z",
+            },
         ],
     }
 
@@ -127,6 +139,15 @@ def main() -> int:
         assert report["summary"]["blocking"] == 1, report["summary"]
         assert report["summary"]["counts"]["missing"] == 1, report["summary"]
         assert report["independent_of_github_actions"] is False
+        rows = {row["id"]: row for row in report["tasks"]}
+        # A failed new schedule is visible, but cannot replace a true
+        # successful run or make a missing/stale gate pass.
+        assert rows["healthy"]["run_id"] == 1
+        assert rows["healthy"]["last_run_id"] == 6
+        assert rows["healthy"]["last_run_conclusion"] == "failure"
+        assert rows["missing"]["run_id"] is None
+        assert rows["missing"]["last_run_id"] == 5
+        assert rows["missing"]["last_run_conclusion"] == "failure"
 
         validate = run(["--registry", str(registry_path), "--validate-only"])
         if validate.returncode != 0:
