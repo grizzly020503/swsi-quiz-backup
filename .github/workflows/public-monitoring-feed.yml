@@ -208,9 +208,12 @@ jobs:
           git diff --check
 
   monitoring-feed:
-    # PRs are handled by the read-only job above. workflow_run events only proceed
-    # when the trusted upstream main-branch run succeeded.
+    # TEMPORARY PRODUCTION SAFETY PAUSE: prevent any writer between OIDC
+    # Edge and trusted GitHub caller upgrades. Preserve PR read-only validation.
+    # A separate, reviewed follow-up MUST explicitly remove 'false &&' only
+    # after the matching deployed Edge/caller source and rollback are verified.
     if: >
+      false &&
       github.event_name != 'pull_request' &&
       (github.event_name != 'workflow_run' ||
        (github.event.workflow_run.conclusion == 'success' &&
