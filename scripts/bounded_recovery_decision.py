@@ -86,6 +86,9 @@ def decide_failure(policy: dict, failure_class: str, attempts_used: int=0) -> di
     }
 
 def can_transition(policy: dict, current: str, target: str, external_publish_authorization: bool=False) -> dict:
+    # Reject ambiguous strings/ints. bool('false') is True in Python.
+    if type(external_publish_authorization) is not bool:
+        raise ValueError('external_publish_authorization must be a literal boolean')
     normal=policy['release_state_machine']['normal_path']
     allowed=False; reason='transition_not_allowed'
     if current in normal and target in normal:
