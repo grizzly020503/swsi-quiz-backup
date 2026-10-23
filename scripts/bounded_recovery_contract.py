@@ -146,6 +146,15 @@ def self_test(policy: dict) -> dict:
     denied = can_transition(policy, "preview_verified", "publish_authorized", False)
     assert denied["allowed"] is False
     assert denied["contract_generated_authorization"] is False
+    # Non-boolean objects must never be interpreted as publish authorization.
+    for untrusted in ("false", "true", "0", 0, 1, None, []):
+        try:
+            can_transition(policy, "preview_verified", "publish_authorized", untrusted)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("non-boolean publish authorization accepted")
+        cases += 1
     approved = can_transition(policy, "preview_verified", "publish_authorized", True)
     assert approved["allowed"] is True
     assert approved["external_publish_authorization_consumed"] is True
