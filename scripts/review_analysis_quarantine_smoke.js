@@ -13,6 +13,8 @@ function extract(a,b){
   return src.slice(start,stop);
 }
 const stub={
+ // Browser global in the VM; function registration remains production code.
+ window:{},
  normalize:r=>({
    id:r.id,q:r.question,
    options:{A:r.opt_a,B:r.opt_b,C:r.opt_c,D:r.opt_d},
