@@ -91,7 +91,9 @@ jobs:
           for row in report['tasks']:
               lines.append(
                   f"- **{row['display_name']}**: `{row['status']}`; "
-                  f"last={row.get('last_success_at')}; age_hours={row.get('age_hours')}"
+                  f"last_success={row.get('last_success_at')}; age_hours={row.get('age_hours')}; "
+                  f"last_run={row.get('last_run_id')} ({row.get('last_run_event')}, "
+                  f"{row.get('last_run_conclusion')})"
               )
           lines += [
               '',
