@@ -208,6 +208,22 @@ def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
         key=lambda row: str(row.get("run_started_at") or row.get("created_at") or ""),
         reverse=True,
     )
+    # Keep recent failures visible even when the last success is still fresh.
+    # This is diagnostic-only: it must never change the fail-closed status.
+    observed = [row for row in runs if str(row.get("event") or "") in accepted]
+    observed.sort(
+        key=lambda row: str(row.get("run_started_at") or row.get("created_at") or ""),
+        reverse=True,
+    )
+    latest_run = observed[0] if observed else None
+    last_observed = {
+        "last_run_id": latest_run.get("id") if latest_run else None,
+        "last_run_event": latest_run.get("event") if latest_run else None,
+        "last_run_conclusion": latest_run.get("conclusion") if latest_run else None,
+        "last_run_at": (
+            latest_run.get("run_started_at") or latest_run.get("created_at")
+        ) if latest_run else None,
+    }
     base = {
         "id": task["id"],
         "display_name": task["display_name"],
@@ -220,11 +236,15 @@ def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
     if not matching:
         return {
             **base,
+            **last_observed,
             "status": "missing",
             "last_success_at": None,
             "age_hours": None,
             "run_id": None,
-            "message": "no matching successful scheduled run found",
+            "message": (
+                "no matching successful run in fetched history; "
+                f"latest accepted run conclusion={last_observed['last_run_conclusion']}"
+            ),
         }
 
     latest = matching[0]
@@ -234,6 +254,7 @@ def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
     except Exception as exc:
         return {
             **base,
+            **last_observed,
             "status": "error",
             "last_success_at": stamp or None,
             "age_hours": None,
@@ -245,6 +266,7 @@ def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
     status = "healthy" if age_hours <= task["max_age_hours"] else "stale"
     return {
         **base,
+        **last_observed,
         "status": status,
         "last_success_at": last.isoformat().replace("+00:00", "Z"),
         "age_hours": round(age_hours, 2),
