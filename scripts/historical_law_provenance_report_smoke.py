@@ -41,12 +41,12 @@ actual_pairs = [(r.get("law_name"), r.get("question_id")) for r in rows]
 assert report.get("schema_version") == 1
 assert report.get("question_count") == 85 == len(rows)
 assert report.get("law_count") == 10
-assert len(expected_pairs) == 84
-assert len(set(expected_pairs)) == 84
+assert len(expected_pairs) == 85
+assert len(set(expected_pairs)) == 85
 assert Counter(actual_pairs) == Counter(expected_pairs)
 assert len(set(expected_ids)) == 84
 assert Counter(expected_ids)["SP104-2-10"] == 2
-assert sum((report.get("status_counts") or {}).values()) == 84
+assert sum((report.get("status_counts") or {}).values()) == 85
 assert set(report.get("status_counts") or {}) <= allowed_statuses
 assert all(r.get("status") in allowed_statuses for r in rows)
 assert all(r.get("historical_version_checked") is False for r in rows)
@@ -59,7 +59,7 @@ assert dict(sorted(actual_counts.items())) == report.get("status_counts")
 
 laws = report.get("laws") or []
 assert len(laws) == 10
-assert sum(x.get("question_count", 0) for x in laws) == 84
+assert sum(x.get("question_count", 0) for x in laws) == 85
 
 # Source failures are observations, never proof about legal validity.
 errors = report.get("law_fetch_errors") or []
