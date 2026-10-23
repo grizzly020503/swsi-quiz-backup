@@ -121,14 +121,14 @@ def repository_contract() -> None:
         assert len(card_ids) == len(set(card_ids)), f"duplicate question inside law card: {law}"
         mappings.extend((law, row) for row in card_questions)
 
-    assert len(mappings) == 86, len(mappings)
+    # One treaty-only question was removed from the implementing-act card.\n    assert len(mappings) == 85, len(mappings)
     mapping_keys = [(law, str(row.get("question_id") or "")) for law, row in mappings]
-    assert len(set(mapping_keys)) == 86, "duplicate law/question mapping"
+    assert len(set(mapping_keys)) == 85, "duplicate law/question mapping"
 
     question_ids = [qid for _law, qid in mapping_keys]
     unique_question_count = len(set(question_ids))
     overlap_count = len(question_ids) - unique_question_count
-    assert 0 < unique_question_count <= 86
+    assert 0 < unique_question_count <= 85
 
     for _law, row in mappings:
         assert row.get("match_strength") == "metadata_only", row
@@ -142,8 +142,8 @@ def repository_contract() -> None:
         assert pcode_from_url(indexed[law].get("official_url")), indexed[law]
 
     report = build_report(links, watch, live=False)
-    assert report["question_count"] == 86, report
-    assert sum(report["status_counts"].values()) == 86, report
+    assert report["question_count"] == 85, report
+    assert sum(report["status_counts"].values()) == 85, report
     assert all(row["historical_version_checked"] is False for row in report["questions"])
     assert all(row.get("official_history_url") for row in report["questions"])
     assert set(report["status_counts"]).issubset(
@@ -153,7 +153,7 @@ def repository_contract() -> None:
     repeated = {qid: count for qid, count in Counter(question_ids).items() if count > 1}
     print(
         "PRIORITY LAW REAL-DATA CONTRACT:",
-        f"mappings=86 unique_questions={unique_question_count} cross_law_overlap={overlap_count}",
+        f"mappings=85 unique_questions={unique_question_count} cross_law_overlap={overlap_count}",
         f"repeated_question_ids={repeated}",
     )
 
@@ -162,7 +162,7 @@ def main() -> int:
     parser_contract()
     triage_contract()
     repository_contract()
-    print("HISTORICAL LAW PROVENANCE SELFTEST OK: parsers + fail-closed triage + 86-mapping repository contract")
+    print("HISTORICAL LAW PROVENANCE SELFTEST OK: parsers + fail-closed triage + 85-mapping repository contract")
     return 0
 
 
