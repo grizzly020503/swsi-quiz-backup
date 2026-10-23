@@ -2,7 +2,7 @@
   "schema_version": 1,
   "policy": {
     "timezone": "UTC",
-    "status_order": ["healthy", "stale", "missing", "error"],
+    "status_order": ["healthy", "stale", "failed", "missing", "error"],
     "notes": [
       "This registry measures expected GitHub Actions task freshness.",
       "It does not prove independent monitoring of GitHub Actions itself.",
