@@ -31,7 +31,13 @@ async function check(engine, label, width, height, practice) {
     assert.equal(response && response.status(), 200, label + ': home HTTP status');
     assert.equal(new URL(page.url()).origin, ORIGIN, label + ': wrong origin');
     await page.waitForSelector('#app .swsi-focus-primary', { timeout: 45000 });
-    await page.waitForFunction(() => document.querySelectorAll('#tabbar button').length >= 3, null, { timeout: 12000 });
+    // The app initializes nav visibility after first paint; assert usable buttons, not merely DOM presence.
+    await page.waitForFunction(() => [...document.querySelectorAll('#tabbar button')].filter(el => {
+      const style = getComputedStyle(el);
+      const rect = el.getBoundingClientRect();
+      return style.display !== 'none' && style.visibility !== 'hidden' &&
+        Number(style.opacity) !== 0 && rect.width > 0 && rect.height > 0;
+    }).length >= 3, null, { timeout: 15000 });
 
     const state = await page.evaluate(() => ({
       title: document.title,
