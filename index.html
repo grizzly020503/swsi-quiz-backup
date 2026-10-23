@@ -3386,6 +3386,39 @@ body .fbtn,body .gbtn{min-height:44px;border-radius:11px;}
 body .pending,body .extra{border-color:var(--line);background:#F7F9F7;color:var(--ink-soft);}
 body .ux-note,body .ux-subhead{color:var(--ink-soft);}
 body .swsi-data-version summary{color:#52615C;}
+
+/* Live product-philosophy homepage: these are the ACTIVE Cloudflare DOM classes. */
+body .swsi-focus-hero{
+  padding:25px 24px;
+  margin:0 0 17px;
+  background:linear-gradient(135deg,#FFFFFF 8%,#F1F7F2 100%);
+  border:1px solid #D6E7DD;
+  border-left:4px solid var(--pine);
+  border-radius:19px;
+  box-shadow:none;
+}
+body .swsi-focus-hero .kicker{font-size:12px;letter-spacing:1px;color:var(--pine-deep);}
+body .swsi-focus-hero h1{font-size:clamp(24px,5vw,30px);font-weight:900;color:var(--ink);line-height:1.42;}
+body .swsi-focus-hero p{font-size:14px;line-height:1.75;color:var(--ink-soft);max-width:44em;}
+body .swsi-focus-primary .label{color:var(--pine-deep);font-size:12px;letter-spacing:.6px;}
+body .swsi-focus-primary h2{font-size:19px;color:var(--ink);line-height:1.4;}
+body .swsi-focus-primary p{font-size:13px;color:var(--ink-soft);line-height:1.7;}
+body .swsi-focus-actions{gap:10px;margin-top:18px;}
+body .swsi-focus-actions button{min-height:52px;border-radius:13px;font-size:14px;}
+body .swsi-focus-actions .go{background:var(--pine-deep);color:#FFF;border-color:var(--pine-deep);box-shadow:0 4px 11px rgba(29,77,59,.12);}
+body .swsi-focus-actions .choose{background:#FFF;color:var(--pine-deep);border:1.5px solid #B8D0C1;}
+body .swsi-focus-custom{background:#FFF;border:1px solid var(--line);border-radius:17px;padding:18px 18px 20px;margin:0 0 16px;}
+body .swsi-focus-custom .field-label,body .swsi-focus-custom .hint{color:var(--ink-soft);}
+body .swsi-study-card{padding:18px 17px;margin:0 0 11px;border:1px solid var(--line);border-radius:16px;}
+body .swsi-study-card.due{border-color:#E5CBC5;background:#FFFAF8;}
+body .swsi-study-card .title{font-size:16px;color:var(--ink);}
+body .swsi-study-card .sub{font-size:12.5px;color:var(--ink-soft);line-height:1.65;}
+body .swsi-study-card .aside{color:var(--pine);}
+body .swsi-home-quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0 12px;border:0;}
+body .swsi-home-quick button{min-height:56px;padding:12px 11px;font-size:13.5px;background:#FFF;color:var(--pine-deep);border:1px solid #C7D8CE;border-radius:14px;}
+body .swsi-home-quick button+button{border-left:1px solid #C7D8CE;}
+body .swsi-home-quick button.due{border-color:#E1C3BA;background:#FFF8F5;color:#874438;}
+body .swsi-home-resource{min-height:48px;color:var(--ink-soft);font-size:12.5px;}
 body :is(button,a,summary,select,input,textarea,[role="button"]):focus-visible{
   outline:3px solid #227866;
   outline-offset:3px;
