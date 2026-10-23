@@ -34,7 +34,8 @@ class PromotionTests(unittest.TestCase):
         def corrupt_latest(path):
             raw = real_read(path)
             if path.name == '115-1.json':
-                return raw + b' '\n            return raw
+                return raw + b' '
+            return raw
 
         with patch.object(Path, 'read_bytes', corrupt_latest):
             with self.assertRaisesRegex(ValueError, '115-1.json: manifest SHA256/bytes mismatch'):
