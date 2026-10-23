@@ -30,6 +30,8 @@ for marker in required_backup_markers:
 required_verify_markers = [
     'refuses to decrypt backups in CI',
     'age -d "$bundle"',
+    'private_backup_safe_extract.py',
+    'private_backup_sidecar_guard.py',
     'PRIVATE BACKUP BUNDLE STRUCTURE OK',
     'restore proof',
 ]
@@ -43,6 +45,7 @@ required_restore_markers = [
     'I_UNDERSTAND_THIS_WRITES_THE_ISOLATED_TARGET',
     'SWSI_RESTORE_TARGET_KIND',
     'restore_destination_guard.py',
+    'private_backup_safe_extract.py',
     'private_restore_target_preflight.py',
     'source backup reports Storage objects > 0',
     'restore count mismatch',
@@ -71,6 +74,25 @@ for ignore_marker in (
 ):
     if ignore_marker not in gitignore:
         raise SystemExit(f".gitignore backup guard missing: {ignore_marker}")
+
+safe_extractor = (ROOT / "scripts/private_backup_safe_extract.py").read_text(encoding="utf-8")
+safe_extractor_selftest = (ROOT / "scripts/private_backup_safe_extract_selftest.py").read_text(encoding="utf-8")
+for marker in ("tarfile.open", "dir_fd=dir_fd", "O_NOFOLLOW", "member.isfile()", "missing required TAR members"):
+    if marker not in safe_extractor:
+        raise SystemExit(f"private archive extractor guard missing: {marker}")
+if "SWSI SAFE TAR EXTRACTOR SELFTEST OK" not in safe_extractor_selftest:
+    raise SystemExit("private archive extractor selftest missing")
+if "private_backup_safe_extract_selftest.py" not in workflow:
+    raise SystemExit("private backup policy workflow does not run malicious TAR regression")
+sidecar_guard = (ROOT / "scripts/private_backup_sidecar_guard.py").read_text(encoding="utf-8")
+sidecar_selftest = (ROOT / "scripts/private_backup_sidecar_guard_selftest.py").read_text(encoding="utf-8")
+for marker in ("sha256", "1" + "024 * 1024", "sidecar.is_symlink()", "paired filename mismatch"):
+    if marker not in sidecar_guard:
+        raise SystemExit(f"encrypted bundle sidecar check missing: {marker}")
+if "PRIVATE BACKUP SIDECAR SELFTEST OK" not in sidecar_selftest:
+    raise SystemExit("encrypted bundle sidecar regression selftest missing")
+if "private_backup_sidecar_guard_selftest.py" not in workflow:
+    raise SystemExit("private backup policy workflow lacks sidecar regression")
 
 if "upload-artifact" in workflow:
     raise SystemExit("private-backup policy workflow must never upload backup artifacts")
