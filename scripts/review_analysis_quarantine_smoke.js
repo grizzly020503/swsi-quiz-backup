@@ -136,4 +136,42 @@ assert.ok(!q40Text.includes('BAD_AGE_55') && q40Text.includes('官方答案：C'
 const normalMock=mockResult(normalize({id:'DS-115-2-040',analysis_status:'ready'}),
  item=>item.analysis_status!=='ready');
 assert.ok(normalMock.includes('BAD_AGE_55'));count++;
+
+// Use actual immutable CDN rows, not only synthetic question fixtures. This
+// catches a future ID/status/grading drift without modifying MOEX Official Core.
+const published=JSON.parse(fs.readFileSync(path.join(__dirname,'../cdn/question-shards/115-2.json'),'utf8'));
+assert.equal(published.question_count,200);
+assert.equal(published.questions.length,200);
+for(const [id,expectedStatus,expectedAnswer] of [
+ ['SP-115-2-037','review','B'],
+ ['SP-115-2-040','ready','C'],
+]){
+ const row=published.questions.find(r=>r.id===id);
+ assert.ok(row,'missing real CDN row '+id);
+ assert.equal(row.analysis_status,expectedStatus,id+' source status changed; re-review gate');
+ assert.equal(row.answer,expectedAnswer,'Official Core unexpectedly drifted');
+ assert.equal(row.grading_mode,'standard');
+ assert.equal(row.source_exam_code,'115100');
+ const before=JSON.stringify(row);
+ const q=stub.normalize(row);
+ assert.ok(suppressed(q),'real CDN question exposed unverified analysis: '+id);
+ assert.equal(q.q,row.question);
+ assert.equal(q.answer,row.answer);
+ assert.equal(q.options.A,row.opt_a);
+ assert.equal(q.options.B,row.opt_b);
+ assert.equal(q.options.C,row.opt_c);
+ assert.equal(q.options.D,row.opt_d);
+ assert.equal(q.source_exam_code,row.source_exam_code);
+ assert.equal(q.grading_mode,row.grading_mode);
+ assert.equal(JSON.stringify(row),before,'normalization mutated original CDN row');
+ const quiz=render(q);
+ const mock=mockResult(q,item=>stub.window.SWSI_QB.shouldMaskAnalysis(item));
+ assert.ok(quiz.includes('平台解析待複核，暫不顯示'));
+ assert.ok(mock.includes('平台解析待複核，暫不顯示'));
+ assert.ok(quiz.includes('官方答案') && mock.includes('官方答案'));
+ assert.ok(!quiz.includes(row.exp_why),'original AI explanation leaked via quiz');
+ assert.ok(!mock.includes(row.exp_why),'original AI explanation leaked via mock');
+ count++;
+}
+
 console.log('REVIEW ANALYSIS QUARANTINE SELFTEST OK: '+count+' regressions');
