@@ -158,33 +158,48 @@ def summarize_ledger_state(payload: Any, now: datetime) -> dict[str, Any]:
     }
 
 
-def github_runs(repository: str, workflow_file: str, token: str) -> list[dict]:
+def github_runs(repository: str, workflow_file: str, token: str,
+                accepted_events: list[str]) -> list[dict]:
+    """Retrieve the latest *completed* run per accepted event, not a busy PR feed.
+
+    One event-filtered API request per event prevents PR checks from crowding out
+    a monthly schedule, while retaining the latest failure instead of hiding it
+    behind an older success. Unavailable/inconsistent API data fails closed.
+    """
     quoted = urllib.parse.quote(workflow_file, safe="")
-    url = (
-        f"https://api.github.com/repos/{repository}/actions/workflows/{quoted}/runs"
-        "?branch=main&status=completed&per_page=50"
-    )
-    req = urllib.request.Request(
-        url,
-        headers={
-            "Accept": "application/vnd.github+json",
-            "Authorization": f"Bearer {token}",
-            "X-GitHub-Api-Version": "2022-11-28",
-            "User-Agent": "swsi-ops-task-watchdog",
-        },
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=20) as response:
-            payload = json.load(response)
-    except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", "replace")[:500]
-        raise RuntimeError(f"GitHub API HTTP {exc.code}: {body}") from exc
-    except urllib.error.URLError as exc:
-        raise RuntimeError(f"GitHub API request failed: {exc.reason}") from exc
-    runs = payload.get("workflow_runs")
-    if not isinstance(runs, list):
-        raise RuntimeError("GitHub API response missing workflow_runs[]")
-    return runs
+    results: list[dict] = []
+    for event in accepted_events:
+        params = urllib.parse.urlencode({
+            "branch": "main", "status": "completed", "event": event, "per_page": 1
+        })
+        url = (
+            f"https://api.github.com/repos/{repository}/actions/workflows/"
+            f"{quoted}/runs?{params}"
+        )
+        req = urllib.request.Request(
+            url,
+            headers={
+                "Accept": "application/vnd.github+json",
+                "Authorization": f"Bearer {token}",
+                "X-GitHub-Api-Version": "2022-11-28",
+                "User-Agent": "swsi-ops-task-watchdog",
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=20) as response:
+                payload = json.load(response)
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", "replace")[:500]
+            raise RuntimeError(f"GitHub API HTTP {exc.code}: {body}") from exc
+        except urllib.error.URLError as exc:
+            raise RuntimeError(f"GitHub API request failed: {exc.reason}") from exc
+        runs = payload.get("workflow_runs")
+        if not isinstance(runs, list) or len(runs) > 1:
+            raise RuntimeError("GitHub event-filtered API returned invalid workflow_runs[]")
+        if any(str(row.get("event") or "") != event for row in runs):
+            raise RuntimeError("GitHub event-filtered API event mismatch")
+        results.extend(runs)
+    return results
 
 
 def fixture_runs(payload: Any, workflow_file: str) -> list[dict]:
@@ -198,11 +213,11 @@ def fixture_runs(payload: Any, workflow_file: str) -> list[dict]:
 
 def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
     accepted = set(task["accepted_events"])
+    # Use the latest accepted completed run, not just the latest success.
+    # Otherwise a broken recurring workflow is incorrectly reported as
+    # "healthy" (or "missing") even after fresh scheduled failures.
     matching = [
-        row
-        for row in runs
-        if str(row.get("event") or "") in accepted
-        and str(row.get("conclusion") or "") == "success"
+        row for row in runs if str(row.get("event") or "") in accepted
     ]
     matching.sort(
         key=lambda row: str(row.get("run_started_at") or row.get("created_at") or ""),
@@ -224,7 +239,7 @@ def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
             "last_success_at": None,
             "age_hours": None,
             "run_id": None,
-            "message": "no matching successful scheduled run found",
+            "message": "no matching accepted completed workflow run found",
         }
 
     latest = matching[0]
@@ -242,6 +257,20 @@ def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
         }
 
     age_hours = max(0.0, (now - last).total_seconds() / 3600.0)
+    conclusion = str(latest.get("conclusion") or "").strip().lower()
+    if conclusion != "success":
+        return {
+            **base,
+            "status": "failed",
+            "last_success_at": None,
+            "last_failure_at": last.isoformat().replace("+00:00", "Z"),
+            "age_hours": round(age_hours, 2),
+            "run_id": latest.get("id"),
+            "message": (
+                f"latest accepted completed run concluded {conclusion or 'unknown'}"
+            ),
+        }
+
     status = "healthy" if age_hours <= task["max_age_hours"] else "stale"
     return {
         **base,
@@ -285,7 +314,7 @@ def build_report(tasks: list[dict], fetcher: Callable[[str], list[dict]], now: d
         row
         for row in results
         if row["criticality"] in {"high", "critical"}
-        and row["status"] in {"stale", "missing", "error"}
+        and row["status"] in {"stale", "missing", "failed", "error"}
     ]
     ledger = {"available": False}
     if ledger_state is not None:
@@ -331,7 +360,12 @@ def main() -> int:
             raise SystemExit("--repository or GITHUB_REPOSITORY is required")
         if not token:
             raise SystemExit(f"environment variable {args.token_env} is required")
-        fetcher = lambda workflow_file: github_runs(repository, workflow_file, token)
+        events_by_workflow = {
+            task["workflow_file"]: task["accepted_events"] for task in tasks
+        }
+        fetcher = lambda workflow_file: github_runs(
+            repository, workflow_file, token, events_by_workflow[workflow_file]
+        )
 
     ledger_state = read_json(args.ledger_state) if args.ledger_state else None
     report = build_report(tasks, fetcher, now, ledger_state=ledger_state)
