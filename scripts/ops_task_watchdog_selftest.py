@@ -160,6 +160,59 @@ def main() -> int:
         if validate.returncode != 0:
             raise SystemExit(validate.stderr or validate.stdout)
 
+    # Fail closed when the monitoring *policy* is corrupted, rather than
+    # making an impossible freshness calculation look healthy.
+    import copy
+    import ops_task_watchdog as watchdog
+    base_registry = {"schema_version": 1, "tasks": [registry["tasks"][0]]}
+    for key, invalid in (
+        ("expected_interval_hours", float("nan")),
+        ("expected_interval_hours", float("inf")),
+        ("expected_interval_hours", True),
+        ("expected_interval_hours", "6"),
+        ("expected_interval_hours", 0),
+        ("max_age_hours", float("nan")),
+        ("max_age_hours", float("inf")),
+        ("max_age_hours", False),
+        ("max_age_hours", "8"),
+        ("max_age_hours", 4),
+        ("max_age_hours", 10 ** 1000),
+    ):
+        broken = copy.deepcopy(base_registry)
+        broken["tasks"][0][key] = invalid
+        try:
+            watchdog.validate_registry(broken)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"{key}={invalid!r} must fail closed")
+
+    for bad_events in ([], [""], ["pull_request"], ["schedule", "schedule"],
+                       [" schedule"], [True], [1], ["workflow_run", "pull_request"]):
+        broken = copy.deepcopy(base_registry)
+        broken["tasks"][0]["accepted_events"] = bad_events
+        try:
+            watchdog.validate_registry(broken)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"invalid accepted_events={bad_events!r} must fail")
+
+    for version in (True, False, 1.0, "1", None):
+        broken = copy.deepcopy(base_registry)
+        broken["schema_version"] = version
+        try:
+            watchdog.validate_registry(broken)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"schema_version={version!r} must fail closed")
+
+    for good_event in ("schedule", "workflow_dispatch", "push", "workflow_run"):
+        valid = copy.deepcopy(base_registry)
+        valid["tasks"][0]["accepted_events"] = [good_event]
+        assert watchdog.validate_registry(valid)[0]["accepted_events"] == [good_event]
+
     # Regression: PR traffic must not push a scheduled run out of history.
     # The API is queried separately for accepted events, returning the most
     # recent run (including failures) without searching for an older success.

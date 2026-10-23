@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import urllib.error
 import urllib.parse
@@ -40,7 +41,7 @@ def parse_time(value: str) -> datetime:
 
 
 def validate_registry(payload: Any) -> list[dict]:
-    if not isinstance(payload, dict) or payload.get("schema_version") != 1:
+    if not isinstance(payload, dict) or type(payload.get("schema_version")) is not int or payload.get("schema_version") != 1:
         raise ValueError("registry must be schema_version=1 object")
     tasks = payload.get("tasks")
     if not isinstance(tasks, list) or not tasks:
@@ -56,19 +57,34 @@ def validate_registry(payload: Any) -> list[dict]:
         display_name = str(raw.get("display_name") or task_id).strip()
         accepted_events = raw.get("accepted_events")
         criticality = str(raw.get("criticality") or "").strip().lower()
+        # json.loads accepts NaN/Infinity and Python bool subclasses int.
+        # Such values must never disable or fake the time-based health gate.
+        raw_expected = raw.get("expected_interval_hours")
+        raw_max_age = raw.get("max_age_hours")
+        if type(raw_expected) not in (int, float) or type(raw_max_age) not in (int, float):
+            raise ValueError(f"{task_id or '<unknown>'}: interval fields must be JSON numbers (not booleans)")
         try:
-            expected = float(raw.get("expected_interval_hours"))
-            max_age = float(raw.get("max_age_hours"))
-        except (TypeError, ValueError) as exc:
-            raise ValueError(f"{task_id or '<unknown>'}: interval fields must be numeric") from exc
+            expected = float(raw_expected)
+            max_age = float(raw_max_age)
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise ValueError(f"{task_id or '<unknown>'}: interval fields must be finite numbers") from exc
+        if not math.isfinite(expected) or not math.isfinite(max_age):
+            raise ValueError(f"{task_id or '<unknown>'}: interval fields must be finite numbers")
 
         if not task_id or task_id in seen:
             raise ValueError(f"task id missing or duplicated: {task_id!r}")
         seen.add(task_id)
         if not workflow_file.endswith((".yml", ".yaml")):
             raise ValueError(f"{task_id}: workflow_file must be a YAML filename")
-        if not isinstance(accepted_events, list) or not accepted_events:
-            raise ValueError(f"{task_id}: accepted_events must be non-empty")
+        # Never let a PR success, duplicate name, boolean, or typo act as a
+        # successful scheduled maintenance event in production monitoring.
+        allowed_events = {"schedule", "workflow_dispatch", "push", "workflow_run"}
+        if (
+            not isinstance(accepted_events, list) or not accepted_events
+            or any(type(ev) is not str or ev not in allowed_events for ev in accepted_events)
+            or len(set(accepted_events)) != len(accepted_events)
+        ):
+            raise ValueError(f"{task_id}: accepted_events must contain unique supported GitHub events")
         if expected <= 0 or max_age < expected:
             raise ValueError(f"{task_id}: max_age_hours must be >= expected_interval_hours > 0")
         if criticality not in {"low", "medium", "high", "critical"}:
