@@ -160,6 +160,53 @@ def main() -> int:
         if validate.returncode != 0:
             raise SystemExit(validate.stderr or validate.stdout)
 
+    # Regression: PR traffic must not push a scheduled run out of history.
+    # The API is queried separately for accepted events, returning the most
+    # recent run (including failures) without searching for an older success.
+    import io
+    import urllib.parse
+    from unittest import mock
+    import ops_task_watchdog as watchdog
+
+    observed = []
+
+    def fake_urlopen(request, timeout=20):
+        params = urllib.parse.parse_qs(urllib.parse.urlsplit(request.full_url).query)
+        event = params["event"][0]
+        observed.append((event, params["branch"][0], params["per_page"][0]))
+        if event == "schedule":
+            rows = [{"id": 90, "event": event, "conclusion": "failure",
+                     "run_started_at": "2026-10-02T05:40:00Z"}]
+        else:
+            rows = [{"id": 10, "event": event, "conclusion": "success",
+                     "run_started_at": "2026-10-02T05:00:00Z"}]
+        return io.BytesIO(json.dumps({"workflow_runs": rows}).encode("utf-8"))
+
+    with mock.patch.object(watchdog.urllib.request, "urlopen", side_effect=fake_urlopen):
+        rows = watchdog.github_runs(
+            "test-owner/test-repo", "monthly.yml", "fixture-token", ["schedule", "push"]
+        )
+    assert observed == [("schedule", "main", "1"), ("push", "main", "1")], observed
+    check = watchdog.evaluate_task(
+        {"id": "monthly", "display_name": "Monthly", "workflow_file": "monthly.yml",
+         "criticality": "high", "accepted_events": ["schedule", "push"],
+         "expected_interval_hours": 6, "max_age_hours": 8},
+        rows, watchdog.parse_time("2026-10-02T06:00:00Z")
+    )
+    assert check["status"] == "failed" and check["run_id"] == 90, check
+
+    def mismatched_event(request, timeout=20):
+        return io.BytesIO(json.dumps({"workflow_runs": [
+            {"id": 5, "event": "pull_request", "conclusion": "success"}
+        ]}).encode("utf-8"))
+    with mock.patch.object(watchdog.urllib.request, "urlopen", side_effect=mismatched_event):
+        try:
+            watchdog.github_runs("test-owner/test-repo", "monthly.yml", "fixture", ["schedule"])
+        except RuntimeError as exc:
+            assert "event mismatch" in str(exc), exc
+        else:
+            raise AssertionError("untrusted/unmatched API event must fail closed")
+
     print("OPS TASK WATCHDOG SELFTEST OK")
     return 0
 
