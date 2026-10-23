@@ -81,8 +81,10 @@ jobs:
             echo '::error::Netlify manual package release marker mismatch' >&2
             exit 1
           fi
-          if ! grep -q '命題趨勢雷達' _site/index.html; then
-            echo '::error::Netlify manual package missing trend radar marker' >&2
+          # The canonical installer deliberately replaced the legacy trend radar
+          # with three curated exam priorities. Assert the active UI, not the retired label.
+          if ! grep -q '目前 3 個國考重點' _site/index.html; then
+            echo '::error::Netlify manual package missing canonical current-affairs priority UI' >&2
             exit 1
           fi
           if ! grep -q "const VERSION = 'v7'" _site/sw.js; then
