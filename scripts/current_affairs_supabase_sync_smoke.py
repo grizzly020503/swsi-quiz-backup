@@ -89,6 +89,24 @@ def main() -> int:
     for forbidden in ("verifyRepoWriteToken", "repo?.permissions?.push === true"):
         assert forbidden not in source, f"legacy write-token auth remains: {forbidden}"
 
+    # Do not silently report success when the sync's final DB operations fail.
+    # This protects the operational heartbeat from misleading green results.
+    for guard in (
+        'const { error: archiveError } = await sb',
+        'if (archiveError)',
+        'current affairs archival failed',
+        'const { error: auditError } = await sb.from("current_affairs_sync_runs").insert',
+        'if (auditError)',
+        'current affairs sync audit failed',
+    ):
+        assert guard in source, f"missing current-affairs write-result guard: {guard}"
+    archived_idx = source.index('if (archiveError)')
+    audited_idx = source.index('if (auditError)')
+    success_idx = source.index('return json({ ok: true, upserted, feed_errors:')
+    assert archived_idx < audited_idx < success_idx, "must reject failures before success"
+    assert source[archived_idx:audited_idx].count('return json(') == 1
+    assert source[audited_idx:success_idx].count('return json(') == 1
+
     # Preserve the #231 welfare-system fix when storing the legacy DB subjects
     # array: a policy-only knowledge classification must not be expanded back to
     # the old broad social-work/direct-service category map.
