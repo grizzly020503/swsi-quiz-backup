@@ -6,6 +6,7 @@ import io
 import json
 import urllib.error
 from unittest.mock import patch
+from pathlib import Path
 
 import netlify_auth_preflight as preflight
 
@@ -88,7 +89,7 @@ def main() -> int:
         "Verify production HTTP release",
         "Production browser smoke",
     ):
-        anchor = f"      - name: {step}\\n        if: "
+        anchor = f"      - name: {step}\n        if: "
         assert anchor in workflow, f"missing guarded stage: {step}"
         cond = workflow.split(anchor, 1)[1].splitlines()[0]
         assert deploy_guard in cond and "refs/heads/main" in cond, step
