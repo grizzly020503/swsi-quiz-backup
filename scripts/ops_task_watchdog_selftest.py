@@ -46,6 +46,15 @@ def main() -> int:
                 "criticality": "critical",
             },
             {
+                "id": "failed",
+                "workflow_file": "failed.yml",
+                "display_name": "Failed",
+                "accepted_events": ["schedule"],
+                "expected_interval_hours": 6,
+                "max_age_hours": 8,
+                "criticality": "high",
+            },
+            {
                 "id": "missing",
                 "workflow_file": "missing.yml",
                 "display_name": "Missing",
@@ -78,6 +87,20 @@ def main() -> int:
                 "conclusion": "success",
                 "run_started_at": "2026-10-01T00:00:00Z",
             }
+        ],
+        "failed.yml": [
+            {
+                "id": 6,
+                "event": "schedule",
+                "conclusion": "success",
+                "run_started_at": "2026-10-02T04:00:00Z",
+            },
+            {
+                "id": 7,
+                "event": "schedule",
+                "conclusion": "failure",
+                "run_started_at": "2026-10-02T05:40:00Z",
+            },
         ],
         "missing.yml": [
             {
@@ -120,12 +143,17 @@ def main() -> int:
         assert statuses == {
             "healthy": "healthy",
             "stale": "stale",
+            "failed": "failed",
             "missing": "missing",
         }, statuses
         # Only high/critical stale/missing/error tasks block.  The medium
         # missing fixture stays visible in counts but must not fail the gate.
-        assert report["summary"]["blocking"] == 1, report["summary"]
+        assert report["summary"]["blocking"] == 2, report["summary"]
         assert report["summary"]["counts"]["missing"] == 1, report["summary"]
+        failed_row = next(row for row in report["tasks"] if row["id"] == "failed")
+        assert failed_row["run_id"] == 7, failed_row
+        assert failed_row["last_failure_at"] == "2026-10-02T05:40:00Z"
+        assert failed_row["last_success_at"] is None
         assert report["independent_of_github_actions"] is False
 
         validate = run(["--registry", str(registry_path), "--validate-only"])
