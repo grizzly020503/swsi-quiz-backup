@@ -4157,6 +4157,65 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
   header{padding-left:14px;padding-right:14px}.logo{font-size:16px}.fontctl button{width:33px;height:35px;min-width:33px}
   main{padding-left:14px;padding-right:14px}.ux-actions{grid-template-columns:1fr}.ux-home-intro{padding:19px 17px}
 }
+
+/* SWSI Student UI 2026-10: calm, trustworthy, AA-readable visual layer.
+   Guided by the existing #307 task-focused IA; retains all actions and content.
+   Token changes cover official-source labels, quiz, essay, review, and study UI. */
+:root{
+  --paper:#F3F6F3; --paper2:#FFFFFF; --ink:#252E29;
+  --ink-soft:#58645D; --ink-3:#657269; --line:#DAE4DD;
+  --pine:#285E56; --pine-deep:#204F49; --gold:#665F40;
+  --correct:#285E56; --correct-bg:#E8F2EC;
+  --wrong:#914640; --wrong-bg:#F8ECEA;
+  --card:#FFFFFF; --line-soft:#E3E9E4;
+}
+body{background-color:var(--paper);color:var(--ink);}
+header{background:rgba(243,246,243,.96);}
+.tabbar{background:rgba(255,255,255,.97);border-top-color:var(--line);}
+.tabbar button{font-size:13px;line-height:1.38;gap:4px;}
+.tabbar button.on{color:var(--pine);}
+.logo small{font-size:11px;letter-spacing:1.8px;color:var(--ink-soft);}
+.fontctl button{color:var(--ink-soft);}
+.ux-home-intro,.hero{
+  background:linear-gradient(145deg,#285E56,#204F49);
+  box-shadow:0 8px 25px rgba(31,67,58,.13);
+}
+.ux-home-intro .eyebrow{font-size:12px;opacity:.92;letter-spacing:1px;}
+.ux-home-intro p{font-size:14px;opacity:.98;}
+.ux-home-meta span{font-size:12px;}
+.ux-main-card,.ux-link-card,.qcard,.ux-custom{
+  background:var(--paper2);border-color:var(--line);
+  box-shadow:0 2px 12px rgba(37,46,41,.035);
+}
+.ux-main-card.primary{border-color:#B4CFC0;background:linear-gradient(180deg,#FFFFFF,#F3F9F5);}
+.ux-card-sub,.ux-link-card .sub,.ux-page-head p,.ux-review-rule p{font-size:14px;color:var(--ink-soft);}
+.ux-note,.ux-custom-label{font-size:13px;color:var(--ink-soft);}
+.ux-subhead{font-size:13px;color:var(--ink-soft);}
+.ux-badge{color:var(--wrong);background:var(--wrong-bg);}
+.ux-btn-main{background:var(--pine);color:#FFFFFF;}
+.ux-btn-soft{background:#FFFFFF;color:var(--pine);border-color:#B4CFC0;}
+.ux-tools button{font-size:14px;color:var(--pine);}
+.qmeta .tag{font-size:12px;}
+.qcard .opt{background:#FFFFFF;border-color:var(--line);}
+.qcard .opt.correct{background:var(--correct-bg);border-color:var(--correct);}
+.qcard .opt.wrong{background:var(--wrong-bg);border-color:var(--wrong);}
+.opt .lab,.opt .mk,.ux-link-card .arrow{color:var(--ink-soft);}
+.btn.ghost{color:var(--pine);border-color:var(--pine);}
+:where(button,a,select,input,textarea,[tabindex]):focus-visible{
+  outline:3px solid #34786A;outline-offset:3px;
+}
+/* Existing navigation remains intact; desktop no longer uses a phone-width shell. */
+@media(min-width:900px){
+  .wrap{max-width:860px;}
+  .tabbar{max-width:860px;}
+  header{padding:20px 38px 15px;}
+  main{padding:28px 38px 44px;}
+  .ux-home-intro{padding:30px 34px;}
+  .ux-home-intro h1{font-size:29px;}
+  .ux-main-card{padding:25px 28px;}
+  .qcard{padding:28px 30px;}
+  .ux-actions{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);}
+}
 </style>
 <script id="swsi-uiux-v1-script">
 (function(){
