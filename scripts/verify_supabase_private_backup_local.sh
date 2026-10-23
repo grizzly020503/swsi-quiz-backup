@@ -17,28 +17,13 @@ fi
 bundle="$1"
 [[ -f "$bundle" && -s "$bundle" ]] || fail "encrypted bundle not found: $bundle"
 
+# A bundle without the matching .sha256 must NEVER be counted as verified.
+# Check ciphertext in bounded chunks before invoking the private age decryptor.
+python3 "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/private_backup_sidecar_guard.py" "$bundle" || fail "encrypted bundle SHA-256 sidecar verification failed"
+
 for cmd in age python3 tar; do
   command -v "$cmd" >/dev/null 2>&1 || fail "required command not found: $cmd"
 done
-
-checksum="$bundle.sha256"
-if [[ -f "$checksum" ]]; then
-  python3 - "$bundle" "$checksum" <<'PY'
-import hashlib
-import pathlib
-import sys
-
-bundle = pathlib.Path(sys.argv[1])
-checksum_file = pathlib.Path(sys.argv[2])
-expected = checksum_file.read_text(encoding="utf-8").strip().split()[0]
-actual = hashlib.sha256(bundle.read_bytes()).hexdigest()
-if expected != actual:
-    raise SystemExit(f"checksum mismatch: expected={expected} actual={actual}")
-print(f"ENCRYPTED BUNDLE SHA256 OK {actual}")
-PY
-else
-  printf 'WARNING: checksum sidecar not found; continuing with authenticated age decryption only\n' >&2
-fi
 
 work_dir="$(mktemp -d "${TMPDIR:-/tmp}/swsi-backup-verify.XXXXXX")"
 cleanup() {
@@ -46,7 +31,7 @@ cleanup() {
 }
 trap cleanup EXIT HUP INT TERM
 
-age -d "$bundle" | tar -xf - -C "$work_dir"
+age -d "$bundle" | python3 "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/private_backup_safe_extract.py" "$work_dir"
 
 for required in roles.sql schema.sql data.sql source-counts.json metadata.json; do
   [[ -s "$work_dir/$required" ]] || fail "decrypted component is missing or empty: $required"
