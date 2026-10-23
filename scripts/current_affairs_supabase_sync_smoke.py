@@ -76,20 +76,46 @@ def main() -> int:
     for guard in required_guards:
         assert guard in source, f"missing fail-closed source guard: {guard}"
 
-    # The endpoint intentionally keeps verify_jwt=false in Supabase because the
-    # GitHub workflow sends its short-lived repository GITHUB_TOKEN. Public repo
-    # readability is NOT authentication: the token must have push permission on
-    # the immutable SWSI repository id before any service-role database write.
+    # GitHub OIDC must be signature- and claim-verified before service-role
+    # writes; public repository read access or a generic token is insufficient.
     for guard in (
-        'const REPO_ID = 1345053575',
-        'https://api.github.com/repos/${REPO}',
-        'verifyRepoWriteToken',
-        'Number(repo?.id) === REPO_ID',
-        'repo?.permissions?.push === true',
-        'GitHub token lacks write access to the SWSI repository',
+        "verifyGitHubActionsOidcToken",
+        "CURRENT_AFFAIRS_SYNC_POLICY",
+        "public-monitoring-feed.yml@refs/heads/main",
+        'new Set(["schedule", "workflow_dispatch", "workflow_run", "push"])',
+        "GitHub Actions OIDC authorization rejected",
     ):
-        assert guard in source, f"missing public-safe GitHub auth guard: {guard}"
-    assert 'repo?.private === true' not in source, "private-repo readability must not be used as auth"
+        assert guard in source, f"missing GitHub Actions OIDC guard: {guard}"
+    assert 'validateCurrentAffairsPayload(body, {' in source, "missing scanner envelope guard"
+    # The Edge must not accept fallback scans with fewer registry sources or
+    # treat optional-only feed success as successful primary coverage.
+    required_count = sum(not bool(row.get("optional", False)) for row in registry_rows)
+    assert 0 < required_count <= len(registry_rows)
+    assert f"const REQUIRED_FEED_COUNT = {required_count};" in source, "Edge required source count drift"
+    assert "total: SOURCE_POLICY.size" in source
+    assert "required: REQUIRED_FEED_COUNT" in source
+    assert './payload_contract.ts' in source, "missing versioned scanner validator import"
+    assert source.index("validateCurrentAffairsPayload(body, {") < source.index('const url = Deno.env.get("SUPABASE_URL")'), "scanner envelope validation must run before DB access"
+    for forbidden in ("verifyRepoWriteToken", "repo?.permissions?.push === true"):
+        assert forbidden not in source, f"legacy write-token auth remains: {forbidden}"
+
+    # Do not silently report success when the sync's final DB operations fail.
+    # This protects the operational heartbeat from misleading green results.
+    for guard in (
+        'const { error: archiveError } = await sb',
+        'if (archiveError)',
+        'current affairs archival failed',
+        'const { error: auditError } = await sb.from("current_affairs_sync_runs").insert',
+        'if (auditError)',
+        'current affairs sync audit failed',
+    ):
+        assert guard in source, f"missing current-affairs write-result guard: {guard}"
+    archived_idx = source.index('if (archiveError)')
+    audited_idx = source.index('if (auditError)')
+    success_idx = source.index('return json({ ok: true, upserted, feed_errors:')
+    assert archived_idx < audited_idx < success_idx, "must reject failures before success"
+    assert source[archived_idx:audited_idx].count('return json(') == 1
+    assert source[audited_idx:success_idx].count('return json(') == 1
 
     # Preserve the #231 welfare-system fix when storing the legacy DB subjects
     # array: a policy-only knowledge classification must not be expanded back to
@@ -112,11 +138,18 @@ def main() -> int:
         "https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/sync-current-affairs",
         "Fail visibly if current-affairs Supabase sync failed",
         "steps.current_affairs_supabase.outcome != 'success'",
+        "id-token: write",
+        "ACTIONS_ID_TOKEN_REQUEST_TOKEN",
+        "ACTIONS_ID_TOKEN_REQUEST_URL",
+        "audience=swsi-supabase-sync",
+        "::add-mask::$oidc_token",
     ):
         assert required in public_workflow, f"Public Monitoring Feed missing sync ownership contract: {required}"
     assert "continue-on-error: true" in public_workflow, (
         "Supabase sync must not block public snapshot rebuild/publish before the final visible failure gate"
     )
+    assert "GH_REPO_TOKEN:" not in public_workflow, "legacy auth must be retired"
+    assert "SUPABASE_SERVICE_ROLE_KEY" not in public_workflow, "no DB secret in GitHub Actions"
 
     for forbidden in (
         "Scan social-work current affairs",
@@ -129,7 +162,7 @@ def main() -> int:
     print(
         "CURRENT AFFAIRS SUPABASE SYNC POLICY OK: "
         f"sources={len(policy)}, categories={len(categories)}, "
-        "feed/region/type/host binding=yes, public-safe GitHub write-auth=yes, "
+        "feed/region/type/host binding=yes, GitHub OIDC verification=yes, "
         "single-owner=Public Monitoring Feed"
     )
     return 0
