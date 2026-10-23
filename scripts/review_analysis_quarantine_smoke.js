@@ -14,7 +14,7 @@ function extract(a,b){
 }
 const stub={
  // Browser global in the VM; function registration remains production code.
- window:{},
+ window:{SWSI_QB:{}},
  normalize:r=>({
    id:r.id,q:r.question,
    options:{A:r.opt_a,B:r.opt_b,C:r.opt_c,D:r.opt_d},
@@ -108,7 +108,7 @@ const resultFragment=htmlSrc.slice(m0,m1);
 function mockResult(q, mask){
  const context={
   wrong:[{q,picked:'A'}],
-  window:mask==null?{}:{swsiShouldMaskAnalysis:mask},
+  window:mask==null?{}:{SWSI_QB:{shouldMaskAnalysis:mask}},
   E:v=>String(v??''),answerLabel:item=>'官方答案：'+item.answer
  };
  vm.createContext(context);
