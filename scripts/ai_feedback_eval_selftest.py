@@ -103,11 +103,95 @@ def main():
     report = evaluator.evaluate_outputs(dataset, missing_heading, require_human_scores=True)
     require(not report["passed"], "missing feedback section must fail")
 
+    # A map-keyed payload must not silently relabel the model output for
+    # another Golden Set case by supplying a conflicting embedded record id.
+    object_cases = copy.deepcopy(good)
+    object_cases["cases"] = {record["id"]: dict(record) for record in object_cases["cases"]}
+    report = evaluator.evaluate_outputs(dataset, object_cases, require_human_scores=True)
+    require(report["passed"], "matching map-keyed case ids must remain accepted")
+
+    mismatched_case = copy.deepcopy(object_cases)
+    first_id, second_id = [case["id"] for case in dataset["cases"][:2]]
+    mismatched_case["cases"][first_id]["id"] = second_id
+    report = evaluator.evaluate_outputs(dataset, mismatched_case, require_human_scores=True)
+    require(not report["passed"], "embedded id mismatch must fail candidate evidence")
+    require(
+        any("mismatched embedded id" in error for error in report["payload_errors"]),
+        "embedded id mismatch must be reported as a payload error",
+    )
+
+    omitted_embedded_id = copy.deepcopy(object_cases)
+    omitted_embedded_id["cases"][first_id].pop("id")
+    report = evaluator.evaluate_outputs(dataset, omitted_embedded_id, require_human_scores=True)
+    require(report["passed"], "map-keyed case without redundant embedded id must remain accepted")
+
     missing_case = copy.deepcopy(good)
     missing_case["cases"] = missing_case["cases"][:-1]
     report = evaluator.evaluate_outputs(dataset, missing_case, require_human_scores=True)
     require(not report["passed"], "missing Golden Set output must fail closed")
     require(report["payload_errors"], "missing Golden Set output must produce payload error")
+
+    # A real captured JSON can contain NaN/Infinity (Python json.loads accepts
+    # these non-standard constants). Never allow malformed or non-whole human
+    # rubric values to make a candidate appear reviewed and passing.
+    for invalid_score in (float("nan"), float("inf"), -float("inf"), True, False, 1.5, "2"):
+        untrusted = copy.deepcopy(good)
+        case_id = untrusted["cases"][0]["id"]
+        untrusted["cases"][0]["human_scores"]["task_alignment"] = invalid_score
+        report = evaluator.evaluate_outputs(dataset, untrusted, require_human_scores=True)
+        require(not report["passed"], f"invalid human score {invalid_score!r} must fail closed")
+        require(
+            bool(report["cases"][case_id]["errors"]),
+            f"invalid human score {invalid_score!r} must produce an explicit case error",
+        )
+
+    # An integral JSON float is still numerically a valid whole rubric point.
+    integer_float = copy.deepcopy(good)
+    integer_float["cases"][0]["human_scores"]["task_alignment"] = 2.0
+    report = evaluator.evaluate_outputs(dataset, integer_float, require_human_scores=True)
+    require(report["passed"], "finite whole-number JSON float must remain accepted")
+
+    # Invalid metadata cannot silently redefine the human quality gate.
+    # NaN in particular bypassed the original threshold comparison because
+    # `nan < threshold` and `nan > threshold` are both false.
+    for key, invalid_values in {
+        "score_min": (True, -1, float("nan")),
+        "score_max": (False, 3, float("inf")),
+        "normal_case_pass_total": (False, 0, 6, 7.5, float("nan")),
+        "high_risk_case_pass_total": (True, 0, 7, 8.5, float("inf")),
+        "mean_pass_total": (False, 0, 7.5, float("nan"), float("-inf")),
+    }.items():
+        for invalid in invalid_values:
+            altered = copy.deepcopy(dataset)
+            altered["human_rubric"][key] = invalid
+            drift, _warnings = evaluator.validate_dataset(altered)
+            require(
+                any("human_rubric" in error for error in drift),
+                f"rubric {key}={invalid!r} must fail closed",
+            )
+    missing_dims = copy.deepcopy(dataset)
+    missing_dims["human_rubric"]["dimensions"] = ["task_alignment"]
+    drift, _warnings = evaluator.validate_dataset(missing_dims)
+    require(
+        any("attainable maximum" in error for error in drift),
+        "shrunk rubric with impossible pass thresholds must fail",
+    )
+
+    # Four dimensions still allow numeric 7/8/8 thresholds, but omit a
+    # required sign-off criterion; the whole V1 rubric must be pinned.
+    for bad_dims in (
+        dataset["human_rubric"]["dimensions"][:-1],
+        dataset["human_rubric"]["dimensions"][1:],
+        dataset["human_rubric"]["dimensions"][:-1] + ["other_dimension"],
+        list(reversed(dataset["human_rubric"]["dimensions"])),
+    ):
+        altered = copy.deepcopy(dataset)
+        altered["human_rubric"]["dimensions"] = bad_dims
+        drift, _warnings = evaluator.validate_dataset(altered)
+        require(
+            any("five V1 dimensions" in error for error in drift),
+            "modified human rubric dimension set must fail even if thresholds are numerically feasible",
+        )
 
     prompt_drift = copy.deepcopy(dataset)
     prompt_drift["prompt_contract"]["guide_version"] = "deliberately-wrong-version"

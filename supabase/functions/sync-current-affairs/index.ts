@@ -4,6 +4,7 @@ import {
   verifyGitHubActionsOidcToken,
   type GitHubActionsOidcPolicy,
 } from "../_shared/github_actions_oidc.ts";
+import { validateCurrentAffairsPayload } from "./payload_contract.ts";
 
 const CURRENT_AFFAIRS_SYNC_POLICY: GitHubActionsOidcPolicy = {
   allowedWorkflowRefs: new Set([
@@ -57,6 +58,8 @@ const CATEGORIES_JSON = String.raw`[
 const SOURCE_POLICY = new Map<string, SourcePolicy>(
   Object.entries(JSON.parse(SOURCE_POLICY_JSON) as Record<string, SourcePolicy>),
 );
+// Kept in lockstep with required (non-optional) curated feeds by policy smoke.
+const REQUIRED_FEED_COUNT = 17;
 const CATEGORIES = new Set<string>(JSON.parse(CATEGORIES_JSON) as string[]);
 
 function json(body: unknown, status = 200) {
@@ -122,7 +125,12 @@ Deno.serve(async (req: Request) => {
     return json({ error: "invalid JSON" }, 400);
   }
 
-  const items = Array.isArray(body?.items) ? body.items : [];
+  const payloadError = validateCurrentAffairsPayload(body, {
+    total: SOURCE_POLICY.size,
+    required: REQUIRED_FEED_COUNT,
+  });
+  if (payloadError) return json({ error: payloadError }, 400);
+  const items = body.items as Array<Record<string, unknown>>;
   if (items.length > 200) return json({ error: "too many items" }, 400);
 
   for (const x of items) {

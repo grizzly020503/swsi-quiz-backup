@@ -30,50 +30,68 @@ from social_work_knowledge_tree import classify_event_knowledge
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_REGISTRY = ROOT / "data" / "current_affairs_sources.json"
 
-DEFAULT_FEEDS = [
-    {"name":"衛生福利部焦點新聞","url":"https://www.mohw.gov.tw/rss-16-1.html","region":"taiwan"},
-    {"name":"衛生福利部公告訊息","url":"https://www.mohw.gov.tw/rss-18-1.html","region":"taiwan"},
-    {"name":"中央社社會","url":"https://feeds.feedburner.com/rsscna/social","region":"taiwan"},
-    {"name":"中央社生活","url":"https://feeds.feedburner.com/rsscna/lifehealth","region":"taiwan"},
-    {"name":"中央社政治","url":"https://feeds.feedburner.com/rsscna/politics","region":"taiwan"},
-    {"name":"中央社國際","url":"https://feeds.feedburner.com/rsscna/intworld","region":"international"},
-]
+EXPECTED_SOURCE_COUNT = 23
+EXPECTED_REQUIRED_SOURCE_COUNT = 17
 
 
 def load_feeds():
-    if SOURCE_REGISTRY.exists():
-        try:
-            payload = json.loads(SOURCE_REGISTRY.read_text(encoding="utf-8"))
-            rows = payload.get("sources") or []
-            valid = []
-            for row in rows:
-                if not isinstance(row, dict):
-                    continue
-                name = str(row.get("name") or "").strip()
-                url = str(row.get("url") or "").strip()
-                region = str(row.get("region") or "").strip()
-                source_type = str(row.get("source_type") or "news").strip()
-                source_format = str(row.get("source_format") or "rss").strip()
-                optional = bool(row.get("optional", False))
-                if (
-                    name
-                    and url.startswith("https://")
-                    and region in {"taiwan", "international"}
-                    and source_format in {"rss", "who_newsroom_json", "unicef_press_html", "ilo_news_html", "tvbs_realtime_html"}
-                ):
-                    valid.append({
-                        "name": name,
-                        "url": url,
-                        "region": region,
-                        "source_type": source_type if source_type in {"official", "news", "international"} else "news",
-                        "source_format": source_format,
-                        "optional": optional,
-                    })
-            if valid:
-                return valid
-        except Exception as exc:
-            print(f"Source registry fallback: {exc}")
-    return [dict(x, source_type=x.get("source_type", "news")) for x in DEFAULT_FEEDS]
+    # Never silently fall back to the obsolete six-feed configuration: both
+    # public snapshots and the Supabase writer rely on the curated registry.
+    payload = json.loads(SOURCE_REGISTRY.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict) or payload.get("schema_version") != 1:
+        raise ValueError("current-affairs source registry schema invalid")
+    rows = payload.get("sources")
+    if not isinstance(rows, list) or len(rows) != EXPECTED_SOURCE_COUNT:
+        raise ValueError("current-affairs source registry incomplete")
+    valid = []
+    names = set()
+    required_count = 0
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("current-affairs source registry contains non-object source")
+        name = str(row.get("name") or "").strip()
+        url = str(row.get("url") or "").strip()
+        region = str(row.get("region") or "").strip()
+        source_type = str(row.get("source_type") or "").strip()
+        source_format = str(row.get("source_format") or "rss").strip()
+        optional = row.get("optional", False)
+        if (
+            not name or name in names or not url.startswith("https://")
+            or region not in {"taiwan", "international"}
+            or source_type not in {"official", "news"}
+            or source_format not in {"rss", "who_newsroom_json", "unicef_press_html", "ilo_news_html", "tvbs_realtime_html"}
+            or not isinstance(optional, bool)
+        ):
+            raise ValueError(f"current-affairs source registry invalid/duplicate source: {name}")
+        names.add(name)
+        if not optional:
+            required_count += 1
+        valid.append({
+            "name": name,
+            "url": url,
+            "region": region,
+            "source_type": source_type,
+            "source_format": source_format,
+            "optional": optional,
+        })
+    if required_count != EXPECTED_REQUIRED_SOURCE_COUNT:
+        raise ValueError("current-affairs required source count drift")
+    return valid
+
+
+def enforce_required_feed_coverage(feeds, required_errors, fetched_count):
+    """Reject complete primary-feed outages before writing public snapshots.
+
+    A successful feed with zero relevant items is fine; this is an upstream
+    availability guard, not a minimum-article-count requirement.
+    """
+    required = sum(not feed.get("optional", False) for feed in feeds)
+    if required < 1 or len(required_errors) > required:
+        raise RuntimeError("invalid mandatory source health counters")
+    if len(required_errors) == required:
+        raise RuntimeError("all mandatory current-affairs sources failed")
+    if fetched_count <= 0:
+        raise RuntimeError("scanner fetched no source entries")
 
 
 CATEGORIES = [
@@ -952,6 +970,9 @@ def main():
             if old is None or row["relevance_score"] > old["relevance_score"]:
                 items[item_id] = row
 
+    # Do not publish empty/degraded public snapshots when the full mandatory
+    # source lane is down. Optional media successes cannot hide this outage.
+    enforce_required_feed_coverage(feeds, feed_errors, fetched)
     accepted = sorted(items.values(), key=lambda x: (x["relevance_score"], x.get("published_at") or ""), reverse=True)
     payload = {
         "schema_version": 1,

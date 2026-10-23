@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import re
+from datetime import datetime
 import importlib.util
 import json
 import sys
@@ -100,12 +102,25 @@ def validate_snapshot_metadata(
         "human_review_completed": True,
     }
     for key, value in expected.items():
-        if outputs.get(key) != value:
+        # In Python, True == 1; reject JSON booleans disguised as schema
+        # numbers or numeric 1 masquerading as completed human review.
+        if key == "schema_version":
+            valid = type(outputs.get(key)) is int and outputs.get(key) == value
+        elif key == "human_review_completed":
+            valid = outputs.get(key) is True
+        else:
+            valid = outputs.get(key) == value
+        if not valid:
             errors.append(f"snapshot metadata mismatch for {key}: expected {value!r}, got {outputs.get(key)!r}")
 
     generated_at = outputs.get("generated_at")
-    if not isinstance(generated_at, str) or not generated_at.strip():
-        errors.append("snapshot generated_at must be a non-empty timestamp string")
+    if not isinstance(generated_at, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", generated_at):
+        errors.append("snapshot generated_at must be an ISO UTC timestamp (YYYY-MM-DDTHH:MM:SSZ)")
+    else:
+        try:
+            datetime.strptime(generated_at, "%Y-%m-%dT%H:%M:%SZ")
+        except ValueError:
+            errors.append("snapshot generated_at must be a valid calendar timestamp")
 
     try:
         expected_fingerprint = contract_fingerprint(dataset, root=root)

@@ -86,6 +86,16 @@ def main() -> int:
         "GitHub Actions OIDC authorization rejected",
     ):
         assert guard in source, f"missing GitHub Actions OIDC guard: {guard}"
+    assert 'validateCurrentAffairsPayload(body, {' in source, "missing scanner envelope guard"
+    # The Edge must not accept fallback scans with fewer registry sources or
+    # treat optional-only feed success as successful primary coverage.
+    required_count = sum(not bool(row.get("optional", False)) for row in registry_rows)
+    assert 0 < required_count <= len(registry_rows)
+    assert f"const REQUIRED_FEED_COUNT = {required_count};" in source, "Edge required source count drift"
+    assert "total: SOURCE_POLICY.size" in source
+    assert "required: REQUIRED_FEED_COUNT" in source
+    assert './payload_contract.ts' in source, "missing versioned scanner validator import"
+    assert source.index("validateCurrentAffairsPayload(body, {") < source.index('const url = Deno.env.get("SUPABASE_URL")'), "scanner envelope validation must run before DB access"
     for forbidden in ("verifyRepoWriteToken", "repo?.permissions?.push === true"):
         assert forbidden not in source, f"legacy write-token auth remains: {forbidden}"
 

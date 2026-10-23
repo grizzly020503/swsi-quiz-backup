@@ -8,6 +8,8 @@ on:
       - 'scripts/current_affairs_supabase_sync_smoke.py'
       - 'scripts/moex_workflow_ownership_smoke.py'
       - 'supabase/functions/sync-current-affairs/index.ts'
+      - 'supabase/functions/sync-current-affairs/payload_contract.ts'
+      - 'supabase/functions/sync-current-affairs/payload_contract_test.ts'
       - 'supabase/functions/_shared/github_actions_oidc.ts'
       - 'supabase/functions/_shared/github_actions_oidc_test.ts'
       - '.github/workflows/public-monitoring-feed.yml'
@@ -38,6 +40,8 @@ jobs:
       - name: Verify GitHub OIDC negative-claims regression and Edge typecheck
         run: |
           deno test supabase/functions/_shared/github_actions_oidc_test.ts
+          deno test supabase/functions/sync-current-affairs/payload_contract_test.ts
+          deno check supabase/functions/sync-current-affairs/payload_contract.ts
           deno check supabase/functions/sync-current-affairs/index.ts
       - name: Verify source/category/auth/owner policy contract
         run: |

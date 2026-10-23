@@ -58,6 +58,14 @@ concurrency:
 jobs:
   mobile-launch-acceptance:
     runs-on: ubuntu-latest
+    # Preinstalled Chromium/WebKit + OS dependencies; avoids apt/playwright
+    # downloads that consumed the full 20-minute QA budget on 2026-10-23.
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-noble
+      options: --user 1001
+    defaults:
+      run:
+        shell: bash
     timeout-minutes: 20
     steps:
       - name: Checkout
@@ -95,10 +103,13 @@ jobs:
           if [ -d auto ]; then cp -R auto _site/; fi
           python scripts/monthly_patch_build.py _site/index.html
 
-      - name: Install Playwright Chromium and WebKit
+      - name: Install pinned Playwright test packages and verify preinstalled browsers
+        timeout-minutes: 5
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
         run: |
           npm install --no-save playwright@1.55.0 axe-core@4.13.0
-          npx playwright install --with-deps chromium webkit
+          node -e 'const fs=require("fs"),pw=require("playwright"); if(require("playwright/package.json").version!=="1.55.0") throw new Error("Unexpected Playwright package version"); for(const name of ["chromium","webkit"]) if(!fs.existsSync(pw[name].executablePath())) throw new Error(name+" missing from pinned CI container")'
 
       - name: Mobile launch, layout, dead-end, error-state, accessibility, WebKit, storage, slow-network and PWA resilience smoke
         run: |
