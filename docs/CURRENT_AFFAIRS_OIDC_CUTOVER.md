@@ -6,6 +6,8 @@ The Owner must approve the release window and both sides of the switch first.
 
 ## Preconditions
 
+- Before pushing the existing candidate, the Owner must disable preview builds on the existing Worker under Settings > Build > Branch control and confirm the saved state. Keep the production branch and deploy command unchanged; do not select the irreversible "Switch to Worker Previews" migration. This account-setting operation requires separate authorization. See [Cloudflare build branches](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/).
+- Do not use a CI-skip commit message to avoid previews: required GitHub QA must still run. The repository's own preview workflow and Netlify automatic build paths must also be checked before push; a dashboard preview toggle is not blanket permission to publish.
 - Pin the reviewed candidate HEAD, current main HEAD, exact-head CI Run IDs and deployed Edge source/version. A PR contract pass is not production recovery.
 - Save the existing Edge source bundle, shared imports, entry point and `verify_jwt` setting in maintainer-controlled storage. A version number alone is not a redeployable rollback bundle.
 - Record the previous workflow source and stable Cloudflare/Netlify deployment IDs, runtime/Service Worker digests and question manifest revision. Main merge may also trigger the existing site provider integration; include it in release authorization.

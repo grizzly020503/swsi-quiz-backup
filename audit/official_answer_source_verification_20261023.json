@@ -1,0 +1,1289 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-10-23T10:57:49.805090+00:00",
+  "baseline_main": "89a050e07c44aa85b29ee16200062819e9b57757",
+  "remote_candidate_head": "83310f29fe366ae18a76447df5801998e5c45633",
+  "scope": "Read-only official accepted-answer and grading-mode verification; no production writes or release authorization",
+  "source_tool_git_blobs": {
+    "scripts/historical_answer_audit.py": "1e3b58b9f2ceb0a4f62489ad0caf94feca747054",
+    "scripts/historical_answer_audit_v3.py": "dda4dfb88cc466d48631e8c58063923940632442",
+    "scripts/historical_answer_audit_v4.py": "08d33de57664c651135a5342329748cbda8ead24",
+    "scripts/source_url_promotion_stage.py": "fa8574af0f53df456f9fcd4751a290fb47a8ce6d",
+    "data/source_url_promotion_config.json": "36c9e98626c27ed316d272d2b75a866b15823959"
+  },
+  "official_answer_audit": {
+    "schema_version": 1,
+    "official_exam_count": 24,
+    "official_question_count": 4800,
+    "db_question_count": 4800,
+    "finding_count": 0,
+    "finding_types": {},
+    "exam_summary": [
+      {
+        "year": "104",
+        "round": "第一次",
+        "exam_code": "104030",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "104",
+        "round": "第二次",
+        "exam_code": "104100",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "105",
+        "round": "第一次",
+        "exam_code": "105030",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "105",
+        "round": "第二次",
+        "exam_code": "105090",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "106",
+        "round": "第一次",
+        "exam_code": "106030",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "106",
+        "round": "第二次",
+        "exam_code": "106110",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "107",
+        "round": "第一次",
+        "exam_code": "107030",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "107",
+        "round": "第二次",
+        "exam_code": "107110",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "108",
+        "round": "第一次",
+        "exam_code": "108020",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "108",
+        "round": "第二次",
+        "exam_code": "108110",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "109",
+        "round": "第一次",
+        "exam_code": "109030",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "109",
+        "round": "第二次",
+        "exam_code": "109110",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "110",
+        "round": "第一次",
+        "exam_code": "110030",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "110",
+        "round": "第二次",
+        "exam_code": "110111",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "111",
+        "round": "第一次",
+        "exam_code": "111030",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "111",
+        "round": "第二次",
+        "exam_code": "111110",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "112",
+        "round": "第一次",
+        "exam_code": "112030",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "112",
+        "round": "第二次",
+        "exam_code": "112110",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "113",
+        "round": "第一次",
+        "exam_code": "113030",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "113",
+        "round": "第二次",
+        "exam_code": "113100",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "114",
+        "round": "第一次",
+        "exam_code": "114030",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "114",
+        "round": "第二次",
+        "exam_code": "114100",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "115",
+        "round": "第一次",
+        "exam_code": "115030",
+        "counts": {
+          "OK": 200
+        }
+      },
+      {
+        "year": "115",
+        "round": "第二次",
+        "exam_code": "115100",
+        "counts": {
+          "OK": 200
+        }
+      }
+    ],
+    "findings": [],
+    "grading_mode_audit": {
+      "official_counts": {
+        "all_credit": 12,
+        "any_answer": 4,
+        "standard": 4784
+      },
+      "db_counts": {
+        "all_credit": 12,
+        "any_answer": 4,
+        "standard": 4784
+      },
+      "mismatch_count": 0,
+      "mismatches": []
+    }
+  },
+  "source_url_live_question_link_review": {
+    "changed_candidate_rows": 3920,
+    "matching_live_official_question_links": 3920,
+    "mismatch_count": 0,
+    "official_link_ambiguities": [],
+    "mismatches": []
+  },
+  "review_queue_definitions": {
+    "total_items": 5040,
+    "unique_ids": 5040,
+    "official_review_unique": 230,
+    "official_review_by_kind": {
+      "essay": 230
+    },
+    "enrichment_review_unique": 582,
+    "both_layers_unique": 14,
+    "union_review_unique": 798,
+    "official_blocked": 0,
+    "session_issue_count": 0,
+    "rule_occurrences": {
+      "ENRICHMENT_LEGAL_REVIEW": 567,
+      "ESSAY_SOURCE_CODE_REQUIRED": 230,
+      "ESSAY_SOURCE_URL_REQUIRED": 230,
+      "ESSAY_HISTORICAL_LAW_REVIEW": 15
+    },
+    "ready_definition": "Structural/source risk rules; not a proof of per-question official semantic accuracy",
+    "legacy_207": "Historical owner-decision count; no verified ID list available, cannot establish overlap or add to current totals"
+  },
+  "ds_115_2_040": {
+    "official_correction_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115100&q=1&s=0302&t=M",
+    "pdf_sha256": "e4915d5126e895fe4ca6971d13fe3d6598589285e156eb1f6001538bfac0109a",
+    "page": 1,
+    "visually_inspected": true,
+    "official_note": "第40題答B或D或BD者均給分。",
+    "production_and_cdn_accepted_answers": [
+      "B",
+      "D"
+    ],
+    "grading_mode": "standard",
+    "publication_date": "Not established from this PDF; retrieval time is not publication time"
+  },
+  "limitations": [
+    "No claim of full official question-wording review, historical-law proof or AI explanation accuracy",
+    "The 230 source-review essay IDs, 582 enrichment-review IDs and 14-ID intersection form 798 unique queued IDs; historical 207 decisions have no verified ID mapping",
+    "No review/ready state, accepted answer, Official Core, production URL or manifest was changed",
+    "Raw official PDF/HTML evidence is retained outside Git and identified below; no private payloads are included",
+    "Windows curl default TLS used for official sources because Python certificate-chain validation failed; TLS verification was never disabled"
+  ],
+  "sources": [
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=104030&y=2015",
+      "sha256": "f69c4fa152c224d39534332811736f0d1e31e0dd0f75c09d29c3904035cf89e3",
+      "bytes": 145270,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=104030&c=110&s=0601&q=1",
+      "sha256": "08d18c16077921c9feaf50c028cbe539c5544ac687202252da2fcb3731be8f5b",
+      "bytes": 42969,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=104030&c=110&s=0602&q=1",
+      "sha256": "286717203ccd9e7c608ef257bafb942b68538ff949f10a95bbb76aa4b0e260dd",
+      "bytes": 41489,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=104030&c=110&s=0604&q=1",
+      "sha256": "45ab984330ba5afc7ac678d5820e06c62dd03e53a1204741f8d4e13c7ecbe1b9",
+      "bytes": 41544,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=104030&c=110&s=0605&q=1",
+      "sha256": "ffbab51aabcacbc8d3d01211b10807347bd636d5b9251b0141344544b0e3cb2c",
+      "bytes": 41802,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=104030&c=110&s=0606&q=1",
+      "sha256": "a15c6160e836617281ce33e9df059a6f5a0929bb6799d506d1721cd0f70017f5",
+      "bytes": 41595,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=104100&y=2015",
+      "sha256": "2301ab04a2e554f08e97036399ceb2c2ecb8050498f09d953fa152bec37ee86d",
+      "bytes": 161593,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=104100&c=107&s=0601&q=1",
+      "sha256": "bcea0fc8643c307bbf70008ee68289ccc6f1e255568e803f59a3f5690eee8439",
+      "bytes": 42557,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=104100&c=107&s=0602&q=1",
+      "sha256": "92d7ad85bf1dfd33b6046363af1dd11d7f309c4f18b713625676ea0aa6168d33",
+      "bytes": 45420,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=104100&c=107&s=0604&q=1",
+      "sha256": "b5f3d7a979da798f015dc98359c1b0645a8555af0db605676c20f309a891f27e",
+      "bytes": 44943,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=104100&c=107&s=0605&q=1",
+      "sha256": "1bc5f43e992505253cad097115d062406bbd4daa78e635cd08ad18eb9e902b6a",
+      "bytes": 43638,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=104100&c=107&s=0606&q=1",
+      "sha256": "3e0b4021b29f81922c7743a60eb8b32aa2f4c3309a24164787c0ca71410ba33a",
+      "bytes": 45566,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=105030&y=2016",
+      "sha256": "fa50ff7272389142492cb74831e7f9b52bf05ff5ff9a016acff2ecce7da1aab9",
+      "bytes": 111141,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=105030&c=107&s=0601&q=1",
+      "sha256": "b177a53927a06a08296b34a2c9e4b2aeee5fced38a50d637a08d3ad842de952a",
+      "bytes": 43534,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=105030&c=107&s=0602&q=1",
+      "sha256": "33b568cfea3ee7b8e3ff5f10db0eb049da7110f37ac1c4d0d1acd454b485a423",
+      "bytes": 41490,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=105030&c=107&s=0604&q=1",
+      "sha256": "2b4f8c73bf788c948bbc729559b339ec8ba3a29df686f242ef2d2f512a1a79e8",
+      "bytes": 43340,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=105030&c=107&s=0605&q=1",
+      "sha256": "6d596132dab2db42327b16f6b5f0754fa9997190c0db290e1d44380533e23e6d",
+      "bytes": 43811,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=105030&c=107&s=0606&q=1",
+      "sha256": "4882b8a01680960d451261219240c061802b9d6173df3c27d8007d3a46930d4d",
+      "bytes": 41603,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=105090&y=2016",
+      "sha256": "d9ca77cd1d60a6a48bf5e3a7ee06f79adb89068c65e5eb6f6faa482d64535755",
+      "bytes": 158440,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=105090&c=107&s=0601&q=1",
+      "sha256": "bf3e14de299a131ba0eb447c313b7fb6aa2e8d66dcec94cc9a3388e2e443bf06",
+      "bytes": 44700,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=105090&c=107&s=0602&q=1",
+      "sha256": "50449484677816cf1814077854fca0c8d04cbd1af37606dce31365a01201df58",
+      "bytes": 43345,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=105090&c=107&s=0604&q=1",
+      "sha256": "cd2f6974733e98134a22bb90018821006cc39a3a51e5ab748fffa60215228e01",
+      "bytes": 45333,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=105090&c=107&s=0605&q=1",
+      "sha256": "ee72988be9888d4d58a2f543540794380c7faafb71f02c41df2cacc8b8a388f9",
+      "bytes": 43647,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=105090&c=107&s=0606&q=1",
+      "sha256": "cd5a72370dc1e1ad4309a93c223fe92bb7a420da87c051a6d1cd45ec4122a18f",
+      "bytes": 43187,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=106030&y=2017",
+      "sha256": "89a4b972aa190b05b88cc52cdc3ab58e8e06c89f3f09327476dbf19ed79be081",
+      "bytes": 113777,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=106030&c=107&s=0601&q=1",
+      "sha256": "248fe70831bdaa1673f9e01844c03eaf6384203a51009d4458b39a1e7d54fe7f",
+      "bytes": 43272,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=106030&c=107&s=0602&q=1",
+      "sha256": "6e65c4a998e0b2b8ab4bd356d25d1932646110f8ccd891a0fcb2741623942aa3",
+      "bytes": 41485,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=106030&c=107&s=0604&q=1",
+      "sha256": "9c12ce17071570d0b5a1a897bb8fa4edda0c3506eb7b9152e579862e564a2485",
+      "bytes": 41539,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=106030&c=107&s=0605&q=1",
+      "sha256": "8e4d68f0953fc380431f24f32cbd0290c8f5cea19e90a0f1169b21a6da8c6233",
+      "bytes": 41794,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=106030&c=107&s=0606&q=1",
+      "sha256": "551850b0a48b2f8aeb652953050eb1d927b54404c13cabc4e9e6dcd61d126a6a",
+      "bytes": 41591,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=106110&y=2017",
+      "sha256": "81cf8646901022119846d53ee7bc81f10fa2748a5423eaf349938e512d77b4da",
+      "bytes": 182095,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=106110&c=107&s=0601&q=1",
+      "sha256": "cbec0f649400636e3d051b1472fe4bc222af283b8290f69793ef8e82d251eec2",
+      "bytes": 43585,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=106110&c=107&s=0602&q=1",
+      "sha256": "0202bea201ad9c87bddf8b351acdc14ce3e3adfa9c5507db4a649059398b5f85",
+      "bytes": 44306,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=106110&c=107&s=0604&q=1",
+      "sha256": "589a6deaf15ae9111b4920a0279c74eafc7e97d9f8ebb1a3c7daf588a175b4e7",
+      "bytes": 44174,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=106110&c=107&s=0605&q=1",
+      "sha256": "82f5f5bd4a5dc93de66d1e42d84c4abb9de454231105f60119c70fe693caf4dd",
+      "bytes": 46060,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=106110&c=107&s=0606&q=1",
+      "sha256": "1db258c101f5c5eb7b722ea7c96f6811889833f3a509f4134e15bd5569a8271a",
+      "bytes": 44175,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=107030&y=2018",
+      "sha256": "888fcfc9e04106db3f5a8c689da0b23052ec27f8897c3fb2a97b33883b766ae3",
+      "bytes": 113530,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=107030&c=107&s=0601&q=1",
+      "sha256": "a77afa4cda0410711ae87ed35ef0e7abe2e6f2324b19efd7c77c8e06ae0d73a5",
+      "bytes": 40698,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=107030&c=107&s=0602&q=1",
+      "sha256": "9572d1f330a74bba3eb8298764ae9596006886e5aa3fffb6c2cfe1e7c26d4729",
+      "bytes": 43258,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=107030&c=107&s=0604&q=1",
+      "sha256": "2296d73b73bb40177ad5008d7196e369703d8d1ead836e75a78c70c6c7e7e945",
+      "bytes": 43739,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=107030&c=107&s=0605&q=1",
+      "sha256": "470f205a4ebfcc4ed0ac2876965c7a20ac52f1c52550e0154357afe4517e6278",
+      "bytes": 43825,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=107030&c=107&s=0606&q=1",
+      "sha256": "fb8f90ffdccb88ce99d5778e488f7094392b500583b31040925538f44c7f8044",
+      "bytes": 41592,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=107110&y=2018",
+      "sha256": "d0ed0926365c31c649f45f23fc648759003545fdc7818e24d950a89fbfcc05ac",
+      "bytes": 180122,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=107110&c=107&s=0601&q=1",
+      "sha256": "79531685bb1ce518da35d01e801d554a78d71a676018d3f392d7dd465db64599",
+      "bytes": 44579,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=107110&c=107&s=0602&q=1",
+      "sha256": "414ff76db49acf61735e0986885dc1945ef48081a192a80e8f5330bf2a10f21e",
+      "bytes": 43665,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=107110&c=107&s=0604&q=1",
+      "sha256": "18c182c90de1dcf142b27d4f90b75813c54c53722c6960c71f113fbeb42bb988",
+      "bytes": 43545,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=107110&c=107&s=0605&q=1",
+      "sha256": "19648c88a73982742fb36548413735dba2ca59ebf081678962315ce937ab1fcc",
+      "bytes": 45714,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=107110&c=107&s=0606&q=1",
+      "sha256": "7cd59dddf3456e4a328bdb765bcfda1397fec55fbcfdae288c494aa01bb79410",
+      "bytes": 45573,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108020&y=2019",
+      "sha256": "b10e4512dc8d1f2ccbbc6f7c8f868839f370992a73b5b5da7a3aa76358d5b339",
+      "bytes": 110254,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=108020&c=107&s=0601&q=1",
+      "sha256": "e2bd26320f81f60379553abbf692a54ee303b89df5e55c314f1485420a975d91",
+      "bytes": 40701,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=108020&c=107&s=0602&q=1",
+      "sha256": "f0ff66872721cfcfd3480e1bca06fc75fe7da8d50976507b9ba7d2a2d60e04a8",
+      "bytes": 41489,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=108020&c=107&s=0604&q=1",
+      "sha256": "a4b04feed609556bf97afbca1986eac72f6983d6fa997045488052e95a5f401e",
+      "bytes": 41533,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=108020&c=107&s=0605&q=1",
+      "sha256": "384c36e75b68aa3b9cfb43ac8e811fae6ffbf53e032082b6119a246c64a4d949",
+      "bytes": 43873,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=108020&c=107&s=0606&q=1",
+      "sha256": "b8c1b790bd5e22d383d5b69d2ea2dd9af871a20dc7b1402bce6558f5963628ce",
+      "bytes": 41593,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108110&y=2019",
+      "sha256": "fcdb2720dae655f5ab041bfaa3306c7cdcd53685b44fb101fe06eae935148161",
+      "bytes": 177474,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=108110&c=107&s=0601&q=1",
+      "sha256": "a716564b2ffa64e2c48aa9b174a01afffee8509d033e539cfbc5e37bc6f8d3aa",
+      "bytes": 42946,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=108110&c=107&s=0602&q=1",
+      "sha256": "aa489636b5c0c62a4262b1fe51739e0de0d11bbf7d297d95f2f5220d3c474e79",
+      "bytes": 43660,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=108110&c=107&s=0604&q=1",
+      "sha256": "9e0b8429de58f5e9f8d8843d2622a9d7e43d7de9c62af7b8e22613901fdb9a16",
+      "bytes": 43543,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=108110&c=107&s=0605&q=1",
+      "sha256": "79465e5b34af61e865a48c038e945ea9cd0a6370064ed317124e7e0978165ad0",
+      "bytes": 46639,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=108110&c=107&s=0606&q=1",
+      "sha256": "75c24028b3c9b44c5b89923606f708def4403be11a297e8c1f6892055e972f58",
+      "bytes": 45532,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109030&y=2020",
+      "sha256": "ef299a9631fed830e3bca14b4608dd442ab1776a4f67180bff549a261bb4d2f8",
+      "bytes": 109368,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=109030&c=107&s=0601&q=1",
+      "sha256": "e9114eabeef8f7700b475389e69d0ecf07a8b59d86f5208c0fee42e45e258e94",
+      "bytes": 40702,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=109030&c=107&s=0602&q=1",
+      "sha256": "3a7962425f3b6153888ab5bbca4ecfad8e5af734e01b3db794830dfc187220df",
+      "bytes": 41491,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=109030&c=107&s=0604&q=1",
+      "sha256": "d7c79c3226df0abade0ed02331e9dbb8586b043f01a82fc1007d33d3d5bb6d87",
+      "bytes": 41539,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=109030&c=107&s=0605&q=1",
+      "sha256": "342827ff58204f8921062dea10bac609051a663ac18e63e51cbeb2a9e0464b14",
+      "bytes": 41789,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=109030&c=107&s=0606&q=1",
+      "sha256": "ff5aac2968d8ee27d102f487340be3f988668378bc1963faeca6a0982fe44b1c",
+      "bytes": 41601,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109110&y=2020",
+      "sha256": "65a3590a55b58349df306f725835294cd5f8275f01dc191c0c98a4abbfcd511d",
+      "bytes": 177492,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=109110&c=107&s=0601&q=1",
+      "sha256": "2b9f8a001b17349000ab2ef97ade567ce03d722c0d91e1200095ff78288d1ceb",
+      "bytes": 42942,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=109110&c=107&s=0602&q=1",
+      "sha256": "00fe8445972e947b02b3278a4eb7f1875c67ddcfbb2f77771848f75fec4374fc",
+      "bytes": 45539,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=109110&c=107&s=0604&q=1",
+      "sha256": "e39efbbce32eb38086ffc07625822c4d9f979140fcc6f38c07826c3b8d7391c9",
+      "bytes": 43546,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=109110&c=107&s=0605&q=1",
+      "sha256": "9146c76ddeb383034cbc550a2f1c37b3bfdd6897cb5e5efbd7e2781c25f223cf",
+      "bytes": 43766,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=109110&c=107&s=0606&q=1",
+      "sha256": "0d2ae83018a7084768890da4f086941f342ee5bceff1c4f1403b0442b607ce05",
+      "bytes": 43514,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110030&y=2021",
+      "sha256": "cec7dad8f036843a09096d073133afc69569908bce0bdeba8c421efa1692bbe2",
+      "bytes": 83731,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=110030&c=105&s=0401&q=1",
+      "sha256": "71ef36a6aad9b001210a4c20ab62a6727c75f61754c56fa556f5a14cbd08f752",
+      "bytes": 40536,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=110030&c=105&s=0402&q=1",
+      "sha256": "9e458106f0dd00abc415fdf6ed2087d3efcc49bc3b671714a87eebee7e80e263",
+      "bytes": 41342,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=110030&c=105&s=0404&q=1",
+      "sha256": "61f2ac975ed179e86fd95fd11aa4776ad29f6a419b610f486bed472b1824a94a",
+      "bytes": 41384,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=110030&c=105&s=0405&q=1",
+      "sha256": "f4f1d84cc96b59c00e9dbb3b251003a67b32e165e2d730a51ab68de7c8d2c83c",
+      "bytes": 41648,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=110030&c=105&s=0406&q=1",
+      "sha256": "6261db1ae84ae02e06c95d45ed7011774c4ac225d5b29b55be1d229b3c934dce",
+      "bytes": 41433,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110111&y=2021",
+      "sha256": "1d8d1e0ede13dd6cb6d1b0e3d34b3af56a41421593a77f39327f9f278425e5c4",
+      "bytes": 170432,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=110111&c=105&s=0401&q=1",
+      "sha256": "be2afc398665eecabf78d0837b267c3e11e7018cdf1ad1a9ecc9ca8001eb18b7",
+      "bytes": 43355,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=110111&c=105&s=0402&q=1",
+      "sha256": "d91f34687aad0261e245e68bb402e14ddcd520bfeccf34455e6bbe67967d57ae",
+      "bytes": 44072,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=110111&c=105&s=0404&q=1",
+      "sha256": "c2e83e16a1fd42875ba3c5967fbfe535822b4748bf846f852d3015159cdd3b4a",
+      "bytes": 43954,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=110111&c=105&s=0405&q=1",
+      "sha256": "197e6aa43a1b085627756f46a480bd2dbeb0e106c0cb32b6bc173d02f48a6e33",
+      "bytes": 47107,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=110111&c=105&s=0406&q=1",
+      "sha256": "2fbac868e84acf32a0bf98f1da69b53a3502ee503b355632af33d81c7b988d04",
+      "bytes": 43946,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111030&y=2022",
+      "sha256": "691346afc143dc45b3dd0ff3d03ca12fe9e9dac4cbd55aaeb811af6623f516c5",
+      "bytes": 83310,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=111030&c=105&s=0401&q=1",
+      "sha256": "2534baedb488fb6483a7d01a87f3be69cdfa00058aaf48bd553eddfa762739c7",
+      "bytes": 40540,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=111030&c=105&s=0402&q=1",
+      "sha256": "3e10da256662d4db97ae6a9a4912058f7e5c46c33f56134a9ab9a23f741c7f51",
+      "bytes": 41335,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=111030&c=105&s=0404&q=1",
+      "sha256": "a354ff8b116e7cd536a5d9b5320e8446d1b9c1b1f4ee0c98bd318c037c4aae1a",
+      "bytes": 41385,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=111030&c=105&s=0405&q=1",
+      "sha256": "16b5b80a87a1fe9da22d9cbda30c2ffb9c4beab3c7dbfa0dabdd189052eb69df",
+      "bytes": 43315,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=111030&c=105&s=0406&q=1",
+      "sha256": "4d083c32d8a47cb6b7f7532f23ed2e144d56d6825a058fe59c58cf8b1549a561",
+      "bytes": 41432,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111110&y=2022",
+      "sha256": "26d0fca464cfec15ce9ce61942ff3978841f50316625beae5d2c7ccdff893dab",
+      "bytes": 161301,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=111110&c=105&s=0401&q=1",
+      "sha256": "71b5dd4cfe023e16796c296024404f1909c23e75c6fb90e4e36cf4e39d683101",
+      "bytes": 45231,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=111110&c=105&s=0402&q=1",
+      "sha256": "5c39959262b5646ba34099c8bf618a7bd2a86855b250210b6ca476dbcf593511",
+      "bytes": 44001,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=111110&c=105&s=0404&q=1",
+      "sha256": "56913562ef043ea9fe22bb011c3d710ced08192896ea0e6cc94033c694b8ab2b",
+      "bytes": 43874,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=111110&c=105&s=0405&q=1",
+      "sha256": "172e94909827c474596908bd191316d5df5ce009c51c684fa16a62ad53f115aa",
+      "bytes": 44081,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=111110&c=105&s=0406&q=1",
+      "sha256": "ac56d815ae912afb37c0620a2ab1192786bb3c2af19e1f483ec48da614af018f",
+      "bytes": 45825,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112030&y=2023",
+      "sha256": "9177e8c217a05831d27aaa3c724738daab1f6d35ebcff63c9c7fd0884211cca5",
+      "bytes": 67832,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=112030&c=103&s=0301&q=1",
+      "sha256": "874d18b5622fea16e777bac6cc822fa63f94d4ad8eee2080144f355aeb5f6e79",
+      "bytes": 39284,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=112030&c=103&s=0302&q=1",
+      "sha256": "26964f82c9c73ae0276ea3b7076c19c53130a34fea25eaa06ebc6f470b6e6f02",
+      "bytes": 40096,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=112030&c=103&s=0304&q=1",
+      "sha256": "1a950dc1ba3b58a522b967159e1868c406e783b9da7505b8d2bef78c2634ed83",
+      "bytes": 40130,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=112030&c=103&s=0305&q=1",
+      "sha256": "a0455471a4a3e81613ad3a80e72b9e01d11b3717301eb86fed9c0de0d79c75d3",
+      "bytes": 40394,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=112030&c=103&s=0306&q=1",
+      "sha256": "6fddcecf5b710e114f1d4cbae84aa0bee6cf9404fc020fe68d408aa188afb8c9",
+      "bytes": 40240,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112110&y=2023",
+      "sha256": "98fad14a78dc0e0b1cb0091c001ce8065fcdcf4bf4389171cb77bc5df778373d",
+      "bytes": 145514,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=112110&c=103&s=0301&q=1",
+      "sha256": "a103dfcfe11fa9dc79dab474a28156f592d7c186f004f261df04390a6f5d5985",
+      "bytes": 43051,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=112110&c=103&s=0302&q=1",
+      "sha256": "5b6d0e2826bcb9fd2302b9dc8a816089a031f4bbc9b1468b751ce96dab82c425",
+      "bytes": 42105,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=112110&c=103&s=0304&q=1",
+      "sha256": "da5446feb032eb4c7ad32ed6a80d4ea0e112fcbb38a2e93d11426ffbcb52eed0",
+      "bytes": 41916,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=112110&c=103&s=0305&q=1",
+      "sha256": "0e042c7dfd846853a54f1b847b21f8b7b4c2003ac865fb31dc4d1ab2538bfe7a",
+      "bytes": 44717,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=112110&c=103&s=0306&q=1",
+      "sha256": "95b6ef281618520e44602800b14d3f0dcdd5ab86b71d2ec2b5671c71ce2aaf06",
+      "bytes": 41960,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113030&y=2024",
+      "sha256": "d5220e78b1423ae774c03f717e01c02f69700081ce7252b9b4a7a13c2d545ac8",
+      "bytes": 68336,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=113030&c=103&s=0301&q=1",
+      "sha256": "09c8fa4f5790e479de774c86064d4dcd61da72f64100a36c3b027349db62276e",
+      "bytes": 41149,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=113030&c=103&s=0302&q=1",
+      "sha256": "ab68b20ba84412093221b2fa747051797aef7acf72ee71f9a81c2baea770c267",
+      "bytes": 40097,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=113030&c=103&s=0304&q=1",
+      "sha256": "738bdd674708250b27714729a7a9c9503b5fc37dcb445e25ee954d825d455a5b",
+      "bytes": 40140,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=113030&c=103&s=0305&q=1",
+      "sha256": "81037f5915c740f70e624f4612d715f4bdedd5821c26c4b7350d888433045795",
+      "bytes": 40390,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=113030&c=103&s=0306&q=1",
+      "sha256": "18515590b44700f30537bec0e533ffd43163c9a365eafb5db6ce3ab88340e1df",
+      "bytes": 40234,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113100&y=2024",
+      "sha256": "cb8a9d922a450c06ac69ca7cc0915b33fe5504b138bf3d1a855ce9516891a871",
+      "bytes": 173965,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=113100&c=103&s=0301&q=1",
+      "sha256": "7de694dfabdea0e7177bce6f1efec35c693f9784048bf05bd16e5481ff6427db",
+      "bytes": 42638,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=113100&c=103&s=0302&q=1",
+      "sha256": "cbb42c6d92e978bba0e7a399610ea1f7aab41e0a57d9dd053416f07e65924cd0",
+      "bytes": 43372,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=113100&c=103&s=0304&q=1",
+      "sha256": "a26bcbeb24580d1c7cbf5f4557acc2f0008c63f963bb88e1cfd5f4d3a9d9e51f",
+      "bytes": 43245,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=113100&c=103&s=0305&q=1",
+      "sha256": "1ada4279ed94299db0305806b1ca8ffe02ddf8a8f5cc1512f3ca2ac353c0775a",
+      "bytes": 45602,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=113100&c=103&s=0306&q=1",
+      "sha256": "63f853d9c60788d86c4ccf76bcfae7d6a328c0965605590a534c3107d05e1b95",
+      "bytes": 43304,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114030&y=2025",
+      "sha256": "a0ad500918feff5b2a54fde041d623e6b0f848e1e19a8d487842b276f1578c8a",
+      "bytes": 68745,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=114030&c=103&s=0301&q=1",
+      "sha256": "a22838b3d3803ff806d7eb1b10565f5ee6189c134538eaeb544fdb8318598896",
+      "bytes": 41577,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=114030&c=103&s=0302&q=1",
+      "sha256": "8601e7d99ed3399a5fa9ac1d1356b0cffa382c428709d4e4dacaca19113b2737",
+      "bytes": 40107,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=114030&c=103&s=0304&q=1",
+      "sha256": "06935eebc078e5d80bff1af3739fa0d382d96d80710b57f2ab23f664e01ea3be",
+      "bytes": 40124,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=114030&c=103&s=0305&q=1",
+      "sha256": "6e1ef6ec80f1b0df12f0966cf149188c63d7a07e1db4cb8dc1e6297529805f48",
+      "bytes": 40396,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=114030&c=103&s=0306&q=1",
+      "sha256": "c5a309fa1e5b11cdd828501534f164177e707be5dbe98671811ae33b40d2d728",
+      "bytes": 40237,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114100&y=2025",
+      "sha256": "157b8d1cda78e894ed7414762bad7816a2ee94eb911d556b2792f09180571a8f",
+      "bytes": 174304,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=114100&c=103&s=0301&q=1",
+      "sha256": "3a3b1e19347a3980dca6617e7a7b7b80490b471898b0f9cfffe9cd86bc4174bf",
+      "bytes": 44286,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=114100&c=103&s=0302&q=1",
+      "sha256": "77abdc67485e913f04582a24b602be46eb30f4e5b90341dcd47200a0adb8cea2",
+      "bytes": 43369,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=114100&c=103&s=0304&q=1",
+      "sha256": "9d39650aceeb77604a434c7b77bce31d3c6a29b6d278d2830d473c2ece90bc57",
+      "bytes": 43230,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=114100&c=103&s=0305&q=1",
+      "sha256": "755eafd181ab8024eca6c161f9cc47f7babf0e81a862af2edbe57ec1e5ed1249",
+      "bytes": 45602,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=114100&c=103&s=0306&q=1",
+      "sha256": "159ddf299472f3ee95e745a35477a9ed74aeb795aba7bf7b5391b192886ffc7b",
+      "bytes": 43293,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115030&y=2026",
+      "sha256": "ad7f32134e5c53fc39353312eb473d812615b690246009f1c7fff6eab750b4b0",
+      "bytes": 63254,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=115030&c=103&s=0301&q=1",
+      "sha256": "f9bb2cecb8aa9748da33bcfc692813d9aed78dd63191f54049db124290cddac2",
+      "bytes": 39279,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=115030&c=103&s=0302&q=1",
+      "sha256": "07c841de2ccf090261c3d8d136a46737d16fc13d12b560cb8de871efbe3d056d",
+      "bytes": 40097,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=115030&c=103&s=0303&q=1",
+      "sha256": "fd8a2459a82b33bc5b1117da60ef9cf187733c4b6dac69485645f2cc6ab84cba",
+      "bytes": 40140,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=115030&c=103&s=0304&q=1",
+      "sha256": "96b04c53c0339b2845229213c0efc19e3723f12974dca4368e6d2ce2b4e260b6",
+      "bytes": 40402,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=115030&c=103&s=0305&q=1",
+      "sha256": "4745563d644219abb627fbe9552682b51b89ffe3b0c6f64df8c2d3a4711c3a9b",
+      "bytes": 40235,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115100&y=2026",
+      "sha256": "e4a0a70d564489ef962d1cb3b74bfc55b098b01eaf46fbca412bcf0e0a972b46",
+      "bytes": 167875,
+      "kind": "html",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=115100&c=103&s=0301&q=1",
+      "sha256": "0e1ea9e827c99789928fb5b19a6f9cfa6a817795e3272dbc0a410ed36d3bbfab",
+      "bytes": 43275,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=115100&c=103&s=0302&q=1",
+      "sha256": "e4915d5126e895fe4ca6971d13fe3d6598589285e156eb1f6001538bfac0109a",
+      "bytes": 45936,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=115100&c=103&s=0303&q=1",
+      "sha256": "7df053bbb866d20d20be7242bf3b01bc363bac26fe37271580f46430d21f4307",
+      "bytes": 43890,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=115100&c=103&s=0304&q=1",
+      "sha256": "fb9d14fc5029300676955d2fd61ce467e0bdf853c70804fe695ed59d095e37b8",
+      "bytes": 44109,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    },
+    {
+      "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=115100&c=103&s=0305&q=1",
+      "sha256": "e01f96b4b2bb2658a49e23be6171c13c5a97aff417cd537ae9545ee294f0dc64",
+      "bytes": 43931,
+      "kind": "pdf",
+      "tls_verification": "Windows curl default; no insecure flags"
+    }
+  ]
+}

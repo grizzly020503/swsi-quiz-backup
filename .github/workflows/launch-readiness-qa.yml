@@ -14,6 +14,7 @@ on:
       - 'scripts/prelaunch_accessibility_touch_smoke.js'
       - 'scripts/prelaunch_axe_accessibility_smoke.js'
       - 'scripts/prelaunch_webkit_smoke.js'
+      - 'scripts/browser_interaction_smoke.js'
       - 'scripts/prelaunch_storage_degradation_smoke.js'
       - 'scripts/prelaunch_slow_network_smoke.js'
       - 'scripts/monthly_patch_build.py'
@@ -35,6 +36,7 @@ on:
       - 'scripts/prelaunch_error_states_smoke.js'
       - 'scripts/prelaunch_accessibility_touch_smoke.js'
       - 'scripts/prelaunch_webkit_smoke.js'
+      - 'scripts/browser_interaction_smoke.js'
       - 'scripts/prelaunch_storage_degradation_smoke.js'
       - 'scripts/prelaunch_slow_network_smoke.js'
       - 'scripts/monthly_patch_build.py'
@@ -76,6 +78,7 @@ jobs:
           node --check scripts/prelaunch_accessibility_touch_smoke.js
           node --check scripts/prelaunch_axe_accessibility_smoke.js
           node --check scripts/prelaunch_webkit_smoke.js
+          node --check scripts/browser_interaction_smoke.js
           node --check scripts/prelaunch_storage_degradation_smoke.js
           node --check scripts/prelaunch_slow_network_smoke.js
           node --check sw.js
@@ -113,6 +116,7 @@ jobs:
           node scripts/prelaunch_accessibility_touch_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_axe_accessibility_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_webkit_smoke.js http://127.0.0.1:4173/
+          node scripts/browser_interaction_smoke.js http://127.0.0.1:4173/ webkit
           node scripts/prelaunch_storage_degradation_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_slow_network_smoke.js http://127.0.0.1:4173/
           node scripts/pwa_resilience_smoke.js http://127.0.0.1:4173/
