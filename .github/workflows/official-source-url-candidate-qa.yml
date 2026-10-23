@@ -5,6 +5,7 @@ on:
       - 'data/source_url_promotion_config.json'
       - 'scripts/source_url_promotion_stage.py'
       - 'scripts/source_url_promotion_selftest.py'
+      - 'scripts/source_url_pg17_rehearsal.py'
       - '.github/workflows/official-source-url-candidate-qa.yml'
   push:
     branches: [main]
@@ -12,6 +13,7 @@ on:
       - 'data/source_url_promotion_config.json'
       - 'scripts/source_url_promotion_stage.py'
       - 'scripts/source_url_promotion_selftest.py'
+      - 'scripts/source_url_pg17_rehearsal.py'
       - '.github/workflows/official-source-url-candidate-qa.yml'
 permissions:
   contents: read
@@ -33,3 +35,39 @@ jobs:
           python3 scripts/source_url_promotion_selftest.py
           git diff --exit-code
           git diff --check
+  native-postgres17-source-url:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      pg17:
+        image: postgres:17
+        env:
+          POSTGRES_USER: swsi_fixture
+          POSTGRES_PASSWORD: ci-only-synthetic-password
+          POSTGRES_DB: swsi_fixture
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U swsi_fixture -d swsi_fixture"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install ephemeral PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+      - name: Rehearse exact 3920 URL edits in PG TEMP tables and roll back
+        env:
+          SWSI_SYNTHETIC_PG17_CI: I_CONFIRM_DISPOSABLE_FIXTURE
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: swsi_fixture
+          PGPASSWORD: ci-only-synthetic-password
+          PGDATABASE: swsi_fixture
+        run: |
+          python3 scripts/source_url_pg17_rehearsal.py
