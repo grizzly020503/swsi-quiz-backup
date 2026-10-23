@@ -10,6 +10,8 @@ on:
       - 'scripts/restore_supabase_private_backup_isolated.sh'
       - 'scripts/private_backup_policy_smoke.py'
       - 'scripts/private_backup_counts_guard.py'
+      - 'scripts/private_backup_count_query.py'
+      - 'scripts/private_backup_count_query_selftest.py'
       - 'scripts/private_backup_counts_guard_selftest.py'
       - 'scripts/private_restore_target_preflight.py'
       - 'scripts/private_restore_target_preflight_selftest.py'
@@ -28,6 +30,8 @@ on:
       - 'scripts/restore_supabase_private_backup_isolated.sh'
       - 'scripts/private_backup_policy_smoke.py'
       - 'scripts/private_backup_counts_guard.py'
+      - 'scripts/private_backup_count_query.py'
+      - 'scripts/private_backup_count_query_selftest.py'
       - 'scripts/private_backup_counts_guard_selftest.py'
       - 'scripts/private_restore_target_preflight.py'
       - 'scripts/private_restore_target_preflight_selftest.py'
@@ -63,6 +67,7 @@ jobs:
           python -m py_compile scripts/private_backup_policy_smoke.py
           python scripts/private_backup_policy_smoke.py
           python scripts/private_backup_counts_guard_selftest.py
+          python scripts/private_backup_count_query_selftest.py
           python scripts/private_restore_target_preflight_selftest.py
           python scripts/restore_destination_guard_selftest.py
           git diff --check
