@@ -38,7 +38,9 @@ def dump_json(path: Path, payload: Any) -> None:
 
 
 def _is_string_list(value: Any) -> bool:
-    return isinstance(value, list) and all(isinstance(x, str) and x.strip() for x in value)
+    # all([]) is True; an empty list must not disable required prompt,
+    # forbidden-phrase, heading or human-review schema constraints.
+    return isinstance(value, list) and bool(value) and all(isinstance(x, str) and x.strip() for x in value)
 
 
 def validate_human_rubric_contract(rubric: Any) -> list[str]:

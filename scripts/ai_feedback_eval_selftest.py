@@ -193,6 +193,44 @@ def main():
             "modified human rubric dimension set must fail even if thresholds are numerically feasible",
         )
 
+    # Required contract lists must NEVER be empty. The old _is_string_list
+    # accidentally allowed [] because Python's all([]) is True, which could
+    # disable mandatory prompt clauses, feedback sections or forbidden phrases.
+    required_lists = (
+        ("prompt_contract", "required_clauses"),
+        ("global_output_contract", "required_headings"),
+        ("global_output_contract", "forbidden_phrases"),
+        ("global_output_contract", "simplified_markers"),
+        ("global_output_contract", "uncertainty_markers"),
+        ("global_output_contract", "question_priority_markers"),
+    )
+    for block, key in required_lists:
+        malformed = copy.deepcopy(dataset)
+        malformed[block][key] = []
+        drift, _warnings = evaluator.validate_dataset(malformed)
+        require(
+            any(f"{block}.{key}" in error for error in drift),
+            f"required quality contract {block}.{key}=[] must fail closed",
+        )
+
+    # A Golden Set case may have zero must_mention_any groups. But when a
+    # group is present, it must include at least one nonempty marker.
+    empty_group = copy.deepcopy(dataset)
+    empty_group["cases"][0]["expectations"]["must_mention_any"] = [[]]
+    drift, _warnings = evaluator.validate_dataset(empty_group)
+    require(
+        any("must_mention_any" in error for error in drift),
+        "empty must_mention_any marker group must fail closed",
+    )
+
+    empty_outer_groups = copy.deepcopy(dataset)
+    empty_outer_groups["cases"][0]["expectations"]["must_mention_any"] = []
+    drift, _warnings = evaluator.validate_dataset(empty_outer_groups)
+    require(
+        not drift,
+        "an empty optional case-specific marker group LIST must remain valid",
+    )
+
     prompt_drift = copy.deepcopy(dataset)
     prompt_drift["prompt_contract"]["guide_version"] = "deliberately-wrong-version"
     drift_errors, _ = evaluator.validate_dataset(prompt_drift)
