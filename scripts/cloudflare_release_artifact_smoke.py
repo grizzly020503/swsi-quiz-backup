@@ -62,6 +62,25 @@ def main() -> int:
         if marker in html:
             fail(f"preview/candidate marker leaked into production: {marker}")
 
+    current_affairs_marker = '<!-- SWSI CURRENT AFFAIRS RADAR V1 -->'
+    if html.count(current_affairs_marker) != 1:
+        fail("tracked CDN current-affairs UI owner must appear exactly once")
+    installer = (ROOT / "scripts" / "install_current_affairs_ui.py").read_text(encoding="utf-8")
+    block_prefix = "BLOCK = r'''"
+    canonical_start = installer.find(block_prefix)
+    canonical_end = installer.find("\n'''", canonical_start + len(block_prefix))
+    if canonical_start < 0 or canonical_end < 0:
+        fail("canonical current-affairs installer block missing")
+    canonical = installer[canonical_start + len(block_prefix):canonical_end].strip()
+    block_start = html.index(current_affairs_marker)
+    script_start = html.find('<script>', block_start)
+    script_end = html.find('</script>', script_start)
+    if script_start < 0 or script_end < 0:
+        fail("tracked CDN current-affairs script boundary missing")
+    live_block = html[block_start:script_end + len('</script>')].strip()
+    if live_block != canonical:
+        fail("tracked CDN current-affairs UI does not match canonical installer")
+
     patch_text = actual.decode("utf-8")
     for marker in (
         ".swsi-exam-date-label",
