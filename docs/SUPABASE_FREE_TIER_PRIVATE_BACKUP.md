@@ -99,7 +99,7 @@ bash scripts/verify_supabase_private_backup_local.sh \
   "$HOME/swsi-private-backups/swsi-supabase-private-....tar.age"
 ```
 
-The verifier decrypts into a temporary local directory, checks all internal SHA-256 values,
+The verifier first requires the matching `.sha256` sidecar and checks the encrypted bundle's SHA-256 and exact filename using bounded-memory streaming (missing or malformed sidecars are a hard failure). It then decrypts into a temporary local directory and checks all internal SHA-256 values,
 prints only the source Git SHA and row-count baseline, then removes the temporary directory.
 
 ## Recommended zero-cost cadence

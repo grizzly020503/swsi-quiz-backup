@@ -31,6 +31,7 @@ required_verify_markers = [
     'refuses to decrypt backups in CI',
     'age -d "$bundle"',
     'private_backup_safe_extract.py',
+    'private_backup_sidecar_guard.py',
     'PRIVATE BACKUP BUNDLE STRUCTURE OK',
     'restore proof',
 ]
@@ -83,6 +84,16 @@ if "SWSI SAFE TAR EXTRACTOR SELFTEST OK" not in safe_extractor_selftest:
     raise SystemExit("private archive extractor selftest missing")
 if "private_backup_safe_extract_selftest.py" not in workflow:
     raise SystemExit("private backup policy workflow does not run malicious TAR regression")
+sidecar_guard = (ROOT / "scripts/private_backup_sidecar_guard.py").read_text(encoding="utf-8")
+sidecar_selftest = (ROOT / "scripts/private_backup_sidecar_guard_selftest.py").read_text(encoding="utf-8")
+for marker in ("sha256", "1" + "024 * 1024", "sidecar.is_symlink()", "paired filename mismatch"):
+    if marker not in sidecar_guard:
+        raise SystemExit(f"encrypted bundle sidecar check missing: {marker}")
+if "PRIVATE BACKUP SIDECAR SELFTEST OK" not in sidecar_selftest:
+    raise SystemExit("encrypted bundle sidecar regression selftest missing")
+if "private_backup_sidecar_guard_selftest.py" not in workflow:
+    raise SystemExit("private backup policy workflow lacks sidecar regression")
+
 if "upload-artifact" in workflow:
     raise SystemExit("private-backup policy workflow must never upload backup artifacts")
 if "secrets." in workflow:
