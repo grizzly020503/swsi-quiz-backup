@@ -114,11 +114,17 @@ def stage(root: Path, cfg: dict) -> tuple[dict[str, bytes], dict]:
         {key: replacement[key] for key in current}
         for current, replacement in zip(manifest['shards'], cfg['target_manifest_shards'])
     ]
+    # Manifest also includes two latest-exam shards excluded from URL updates.
+    # Refuse to stage a manifest claiming unchanged data when either file drifted.
     for item in manifest['shards']:
         file = item['file']
         raw = output.get(file)
-        if raw is not None and (item['sha256'] != hashlib.sha256(raw).hexdigest() or item['bytes'] != len(raw)):
-            raise ValueError(f'{file}: manifest hash or length does not match staged candidate')
+        if raw is None:
+            if file not in ('115-1.json', '115-2.json'):
+                raise ValueError(f'{file}: unexpected unverified shard in manifest')
+            raw = (root / 'cdn/question-shards' / file).read_bytes()
+        if item['sha256'] != hashlib.sha256(raw).hexdigest() or item['bytes'] != len(raw):
+            raise ValueError(f'{file}: manifest SHA256/bytes mismatch (staged or unchanged)')
     output['manifest.json'] = encode(manifest)
     if git_blob(output['manifest.json']) != cfg['expected_manifest_after_git_blob']:
         raise ValueError('manifest target does not match reviewed candidate')
