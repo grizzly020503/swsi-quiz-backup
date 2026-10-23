@@ -1,0 +1,98 @@
+#!/usr/bin/env node
+'use strict';
+// Offline exercise of the actual monthly runtime owner (no network/DB writes).
+const fs=require('node:fs');
+const vm=require('node:vm');
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const src=fs.readFileSync(path.join(__dirname,'../monthly_patch_parts/00.part'),'utf8');
+function extract(a,b){
+  const start=src.indexOf(a),stop=src.indexOf(b,start+a.length);
+  assert.ok(start>=0&&stop>start,'runtime anchor not found');
+  assert.equal(src.indexOf(a,start+1),-1,'duplicate runtime owner');
+  return src.slice(start,stop);
+}
+const stub={
+ normalize:r=>({
+   id:r.id,q:r.question,
+   options:{A:r.opt_a,B:r.opt_b,C:r.opt_c,D:r.opt_d},
+   answer:r.answer,accepted_answers:r.accepted_answers,
+   source_exam_code:r.source_exam_code,grading_mode:r.grading_mode,
+   exp:{why:r.exp_why,others:r.exp_others,trap:r.exp_trap,raw:r.exp_raw},
+   mnemonic:r.mnemonic,extension:r.extension,law:r.law,topic:r.topic,
+   mistake:r.mistake,major:r.major,subject:r.subject,year:r.year,round:r.round
+ }),
+ swsiText:v=>String(v==null?'':v),
+ swsiCleanPUA:v=>String(v==null?'':v),
+ gradingMode:r=>r.grading_mode,
+};
+vm.createContext(stub);
+vm.runInContext(extract('  // Official Core stays intact.','  // Clean the current auto-essay payload'),stub);
+const raw={
+ id:'SP-115-2-037',source_exam_code:'115100',analysis_status:'review',
+ question:'OFFICIAL QUESTION',opt_a:'A',opt_b:'B',opt_c:'C',opt_d:'D',
+ answer:'B',accepted_answers:['B'],grading_mode:'standard',major:'CATEGORY',
+ exp_why:'BAD_AGE_55',exp_others:'BAD_OTHER',exp_trap:'BAD_TRAP',
+ exp_raw:'BAD_RAW',mnemonic:'BAD_MNEMONIC',extension:'BAD_EXTENSION',
+ law:'BAD_LAW',topic:'BAD_TOPIC',mistake:'BAD_MISTAKE'
+};
+const normalize=override=>stub.normalize({...raw,...override});
+function suppressed(q){
+ return ![q.exp.why,q.exp.others,q.exp.trap,q.exp.raw,q.mnemonic,
+  q.extension,q.law,q.topic,q.mistake].some(Boolean);
+}
+let count=0;
+for(const status of ['review','pending','analyzing','',null,'unexpected']){
+ const q=normalize({analysis_status:status});
+ assert.ok(suppressed(q),'unknown/nonready official analysis leaked: '+status);
+ assert.equal(q.answer,'B');
+ assert.equal(q.q,'OFFICIAL QUESTION');
+ assert.equal(q.options.B,'B');
+ assert.equal(q.grading_mode,'standard');
+ assert.equal(Array.from(q.accepted_answers).join(','),'B');
+ count++;
+}
+const q40=normalize({id:'SP-115-2-040',analysis_status:'ready',answer:'C',accepted_answers:['C']});
+assert.ok(suppressed(q40),'known disputed READY item must be quarantined');
+assert.equal(q40.analysis_status,'review');
+assert.equal(q40.answer,'C');count++;
+const ready=normalize({id:'DS-115-2-040',analysis_status:'ready'});
+assert.equal(ready.exp.why,'BAD_AGE_55');count++;
+const cached=normalize({source_exam_code:'',analysis_status:'review'});
+assert.ok(suppressed(cached),'older official offline cache not quarantined');count++;
+const practice=normalize({source_exam_code:'',id:'SWSI-LOCAL-001',analysis_status:''});
+assert.equal(practice.exp.why,'BAD_AGE_55','nonofficial learning content incorrectly masked');count++;
+const multi=normalize({id:'DS-115-2-040',analysis_status:'review',accepted_answers:['B','D']});
+assert.ok(suppressed(multi));
+assert.equal(Array.from(multi.accepted_answers).join(','),'B,D');count++;
+const credit=normalize({id:'SP-115-2-007',analysis_status:'review',answer:'一律給分',
+ grading_mode:'all_credit',accepted_answers:null});
+assert.ok(suppressed(credit));
+assert.equal(credit.answer,'一律給分');
+assert.equal(credit.grading_mode,'all_credit');count++;
+
+// Even legacy pre-normalized queue entries must not leak at the quiz renderer.
+vm.runInContext(extract('  renderQuiz = function(){','\n  submit = function(){'),stub);
+function render(q){
+ const app={innerHTML:''};
+ Object.assign(stub,{
+  queue:[q],idx:0,answered:true,selected:'A',app,
+  acceptedAnswers:item=>new Set(item.accepted_answers||[]),
+  isCorrectAnswer:()=>false,answerLabel:item=>'官方答案：'+item.answer,
+  swsiEsc:v=>String(v??''),swsiEscLines:v=>String(v??''),
+  yearTier:()=>'',maxExamYear:()=>115,legalBadge:()=>'',legalNotice:()=>''
+ });
+ stub.renderQuiz();
+ return app.innerHTML;
+}
+const legacy={...normalize({id:'SP-115-2-037',analysis_status:'ready'}),
+ analysis_status:'review',exp:{why:'BAD_AGE_55',others:'BAD_OTHER',trap:'BAD_TRAP'}};
+const displayed=render(legacy);
+assert.ok(displayed.includes('平台解析待複核，暫不顯示'));
+for(const term of ['BAD_AGE_55','BAD_OTHER','BAD_TRAP','考點：']){
+ assert.ok(!displayed.includes(term),'quiz leaked '+term);
+}
+assert.ok(displayed.includes('官方答案'));count++;
+const readyHTML=render(normalize({id:'DS-115-2-040',analysis_status:'ready'}));
+assert.ok(readyHTML.includes('BAD_AGE_55'));count++;
+console.log('REVIEW ANALYSIS QUARANTINE SELFTEST OK: '+count+' regressions');
