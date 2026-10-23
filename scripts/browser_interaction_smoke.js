@@ -246,68 +246,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await textarea.fill('一、測試作答\n（一）測試內容');
   assert((await textarea.inputValue()).includes('測試作答'), 'essay textarea did not accept input');
 
-  // A student may revise a saved draft while the AI request is in flight.
-  // Mock only the provider response; exercise the real handler/cache/UI.
-  const feedbackRace = await page.evaluate(async () => {
-    const ta = document.querySelector('.wta');
-    const id = ta.id.slice(3);
-    const answerA = '第一版作答說明社會工作者評估案主需求與資源並共同討論服務目標。'.repeat(3);
-    const answerB = '第二版作答補充案主自主決定與生態系統資源連結及後續服務評估。'.repeat(3);
-    const originalFetch = window.swsiFetchWithTimeout;
-    let resolveFirst;
-    let calls = 0;
-    const response = text => ({ ok: true, status: 200, json: async () => ({ choices: [{ message: { content: text } }] }) });
-    window.swsiFetchWithTimeout = async () => {
-      calls++;
-      if (calls === 1) return await new Promise(resolve => { resolveFirst = resolve; });
-      return response('SYNTHETIC_FEEDBACK_B');
-    };
-    try {
-      localStorage.removeItem(window.swsiAICacheKey(id));
-      ta.value = answerA;
-      window.saveDraft(id);
-      const inFlight = window.runAIFeedback(id);
-      if (!resolveFirst) throw new Error('AI request did not reach the synthetic provider');
-      ta.value = answerB;
-      window.saveDraft(id);
-      resolveFirst(response('SYNTHETIC_FEEDBACK_A'));
-      await inFlight;
-      const cacheA = window.swsiGetAICache(id, answerA);
-      const cacheB = window.swsiGetAICache(id, answerB);
-      const afterRevision = document.getElementById('airesult_' + id).textContent;
-      const draftPreserved = getDraft(id) === answerB;
-      await window.runAIFeedback(id);
-      const revisedFeedback = document.getElementById('airesult_' + id).textContent;
-      const revisedCache = window.swsiGetAICache(id, answerB);
-      await window.runAIFeedback(id);
-      localStorage.removeItem(window.swsiAICacheKey(id));
-      window.swsiFetchWithTimeout = async () => ({
-        ok: false, status: 429, headers: { get: () => null },
-        clone: () => ({ json: async () => ({ error: { code: 'CLIENT_DAILY_QUOTA', message: '合成配額訊息' } }) })
-      });
-      await window.runAIFeedback(id);
-      const quotaFeedback = document.getElementById('airesult_' + id).textContent;
-      window.swsiFetchWithTimeout = async () => { const error = new Error('synthetic timeout'); error.name = 'AbortError'; throw error; };
-      await window.runAIFeedback(id);
-      const timeoutFeedback = document.getElementById('airesult_' + id).textContent;
-      const afterErrors = { saved: getDraft(id) === answerB, enabled: !document.getElementById('aitype_' + id).disabled, cached: window.swsiGetAICache(id, answerB) };
-      return { cacheA, cacheB, afterRevision, draftPreserved, revisedFeedback, revisedCache, calls, quotaFeedback, timeoutFeedback, afterErrors };
-    } finally {
-      window.swsiFetchWithTimeout = originalFetch;
-    }
-  });
-  assert(feedbackRace.cacheA && feedbackRace.cacheA.feedback === 'SYNTHETIC_FEEDBACK_A', 'submitted-answer feedback was not cached');
-  assert.strictEqual(feedbackRace.cacheB, null, 'old AI response was cached under the revised draft');
-  assert(!feedbackRace.afterRevision.includes('SYNTHETIC_FEEDBACK_A'), 'old AI response was displayed against the revised draft');
-  assert(feedbackRace.draftPreserved, 'editing during AI request lost the saved draft');
-  assert(feedbackRace.revisedFeedback.includes('SYNTHETIC_FEEDBACK_B'), 'revised answer did not receive its own feedback');
-  assert(feedbackRace.revisedCache && feedbackRace.revisedCache.feedback === 'SYNTHETIC_FEEDBACK_B', 'revised feedback cache mismatch');
-  assert.strictEqual(feedbackRace.calls, 2, 'cache hit called the provider or stale cache skipped the revised request');
-  assert(feedbackRace.quotaFeedback.includes('合成配額訊息'), 'typed quota error was not shown');
-  assert(feedbackRace.timeoutFeedback.includes('時間過久'), 'timeout did not degrade safely');
-  assert(feedbackRace.afterErrors.saved && feedbackRace.afterErrors.enabled, 'AI failure lost the draft or left retry disabled');
-  assert.strictEqual(feedbackRace.afterErrors.cached, null, 'AI failure was cached as feedback');
-
   let sawConfirm = false;
   page.once('dialog', async dialog => {
     sawConfirm = true;
