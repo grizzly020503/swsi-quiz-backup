@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 
 import current_affairs_watch as watch
@@ -274,7 +275,82 @@ def tvbs_html_adapter_contract() -> None:
     assert entry.published_parsed is not None
 
 
+def source_registry_fail_closed_contract() -> None:
+    # A truncated or unreadable registry must abort the scan; publishing public
+    # snapshots from obsolete fallback feeds is not an acceptable recovery.
+    original = watch.SOURCE_REGISTRY
+    registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    real_rows = registry["sources"]
+    with TemporaryDirectory() as directory:
+        fixture = Path(directory) / "sources.json"
+        watch.SOURCE_REGISTRY = fixture
+        try:
+            assert len(real_rows) == watch.EXPECTED_SOURCE_COUNT
+            assert sum(not bool(row.get("optional", False)) for row in real_rows) == watch.EXPECTED_REQUIRED_SOURCE_COUNT
+            fixture.write_text(json.dumps(registry, ensure_ascii=False), encoding="utf-8")
+            loaded = watch.load_feeds()
+            assert len(loaded) == len(real_rows)
+            assert sum(not row["optional"] for row in loaded) == watch.EXPECTED_REQUIRED_SOURCE_COUNT
+
+            bad = (
+                ("missing", None, FileNotFoundError),
+                ("broken JSON", "{", json.JSONDecodeError),
+                ("wrong schema", {**registry, "schema_version": 2}, ValueError),
+                ("truncated", {**registry, "sources": real_rows[:6]}, ValueError),
+                ("duplicate", {**registry, "sources": [real_rows[0]] + real_rows[:22]}, ValueError),
+                ("bad URL", {**registry, "sources": [{**real_rows[0], "url": "http://example.invalid"}] + real_rows[1:]}, ValueError),
+                ("required count drift", {**registry, "sources": [{**real_rows[0], "optional": True}] + real_rows[1:]}, ValueError),
+            )
+            for label, contents, exception_type in bad:
+                if contents is None:
+                    fixture.unlink(missing_ok=True)
+                elif isinstance(contents, str):
+                    fixture.write_text(contents, encoding="utf-8")
+                else:
+                    fixture.write_text(json.dumps(contents, ensure_ascii=False), encoding="utf-8")
+                try:
+                    watch.load_feeds()
+                except exception_type:
+                    pass
+                else:
+                    raise AssertionError(f"registry {label} must fail closed")
+        finally:
+            watch.SOURCE_REGISTRY = original
+
+
+
+def mandatory_feed_coverage_contract() -> None:
+    feeds = watch.load_feeds()
+    required = sum(not feed.get("optional", False) for feed in feeds)
+    optional = sum(bool(feed.get("optional", False)) for feed in feeds)
+    assert required == watch.EXPECTED_REQUIRED_SOURCE_COUNT, required
+    assert optional == watch.EXPECTED_SOURCE_COUNT - required, optional
+
+    # No failed required sources, or some failed with at least one success.
+    watch.enforce_required_feed_coverage(feeds, [], 8)
+    watch.enforce_required_feed_coverage(feeds, ["unreachable"] * (required - 1), 1)
+    # A successful required feed returning zero accepted stories is valid.
+    # Zero upstream entries across all source responses is NOT.
+    for missing in ([], ["unreachable"] * (required - 1)):
+        try:
+            watch.enforce_required_feed_coverage(feeds, missing, 0)
+        except RuntimeError as exc:
+            assert "fetched no source entries" in str(exc)
+        else:
+            raise AssertionError("zero source entries must fail closed")
+
+    for failures in (required, required + 1):
+        try:
+            watch.enforce_required_feed_coverage(feeds, ["unreachable"] * failures, 8)
+        except RuntimeError:
+            pass
+        else:
+            raise AssertionError(f"mandatory feed outage with {failures} failures must abort")
+
+
 def main() -> int:
+    mandatory_feed_coverage_contract()
+    source_registry_fail_closed_contract()
     retry_contract()
     who_api_adapter_contract()
     unicef_html_adapter_contract()
@@ -283,7 +359,7 @@ def main() -> int:
     payload = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = payload.get("sources") or []
     assert payload.get("schema_version") == 1
-    assert len(rows) >= 23, f"expected at least 23 curated sources, got {len(rows)}"
+    assert len(rows) == watch.EXPECTED_SOURCE_COUNT, f"unexpected source count: {len(rows)}"
 
     urls = [str(x.get("url") or "") for x in rows]
     names = [str(x.get("name") or "") for x in rows]

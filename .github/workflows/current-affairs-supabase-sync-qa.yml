@@ -8,6 +8,10 @@ on:
       - 'scripts/current_affairs_supabase_sync_smoke.py'
       - 'scripts/moex_workflow_ownership_smoke.py'
       - 'supabase/functions/sync-current-affairs/index.ts'
+      - 'supabase/functions/sync-current-affairs/payload_contract.ts'
+      - 'supabase/functions/sync-current-affairs/payload_contract_test.ts'
+      - 'supabase/functions/_shared/github_actions_oidc.ts'
+      - 'supabase/functions/_shared/github_actions_oidc_test.ts'
       - '.github/workflows/public-monitoring-feed.yml'
       - '.github/workflows/moex-social-worker-sync.yml'
       - '.github/workflows/current-affairs-supabase-sync-qa.yml'
@@ -29,6 +33,16 @@ jobs:
           python-version: '3.12'
       - name: Install scanner parser dependency
         run: python -m pip install --disable-pip-version-check feedparser
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Verify GitHub OIDC negative-claims regression and Edge typecheck
+        run: |
+          deno test supabase/functions/_shared/github_actions_oidc_test.ts
+          deno test supabase/functions/sync-current-affairs/payload_contract_test.ts
+          deno check supabase/functions/sync-current-affairs/payload_contract.ts
+          deno check supabase/functions/sync-current-affairs/index.ts
       - name: Verify source/category/auth/owner policy contract
         run: |
           set -euo pipefail
