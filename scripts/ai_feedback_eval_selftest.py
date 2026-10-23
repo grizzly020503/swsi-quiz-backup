@@ -173,9 +173,20 @@ def main():
     missing_dims["human_rubric"]["dimensions"] = ["task_alignment"]
     drift, _warnings = evaluator.validate_dataset(missing_dims)
     require(
-        any("attainable maximum" in error for error in drift),
-        "shrunk rubric with impossible pass thresholds must fail",
+        any("five V1 dimensions" in error for error in drift),
+        "shrunk rubric must fail the canonical dimension contract",
     )
+
+    # Exercise the attainable-score guard independently, with the canonical
+    # dimensions intact so an earlier schema error cannot mask this check.
+    for key in ("normal_case_pass_total", "high_risk_case_pass_total", "mean_pass_total"):
+        impossible = copy.deepcopy(dataset)
+        impossible["human_rubric"][key] = 11
+        drift, _warnings = evaluator.validate_dataset(impossible)
+        require(
+            any("attainable maximum" in error for error in drift),
+            f"rubric {key} above the five-dimension maximum must fail",
+        )
 
     # Four dimensions still allow numeric 7/8/8 thresholds, but omit a
     # required sign-off criterion; the whole V1 rubric must be pinned.
