@@ -1,0 +1,30 @@
+name: SWSI Source URL Metadata 3920 QA
+on:
+  pull_request:
+    paths:
+      - 'cdn/question-shards/**'
+      - 'scripts/source_url_metadata_release_guard.py'
+      - 'data/source_url_3920_release_receipt.json'
+      - '.github/workflows/source-url-metadata-3920-qa.yml'
+permissions:
+  contents: read
+jobs:
+  strict-source-url-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Fail closed on any non-source-url change or manifest drift
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          python3 scripts/source_url_metadata_release_guard.py --base-ref "$BASE_SHA"
+      - name: Never authorize production database or CDN cutover
+        run: |
+          echo 'QA only. Supabase + CDN + manifest release must be coordinated and approved.'
