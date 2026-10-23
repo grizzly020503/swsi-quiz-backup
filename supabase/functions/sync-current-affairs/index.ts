@@ -201,15 +201,24 @@ Deno.serve(async (req: Request) => {
   }
 
   const cutoff = new Date(Date.now() - 1000 * 60 * 60 * 24 * 548).toISOString();
-  await sb
+  const { error: archiveError } = await sb
     .from("current_affairs")
     .update({ status: "archived", updated_at: now })
     .eq("status", "candidate")
     .lt("published_at", cutoff);
-  await sb.from("current_affairs_sync_runs").insert({
+  if (archiveError) {
+    // Even if earlier batches were written, never claim full sync success.
+    return json({ error: "current affairs archival failed" }, 500);
+  }
+
+  const { error: auditError } = await sb.from("current_affairs_sync_runs").insert({
     fetched_count: Number(body?.fetched_count || 0),
     accepted_count: items.length,
     note: `feeds=${Array.isArray(body?.feed_errors) ? body.feed_errors.length : 0} errors`,
   });
+  if (auditError) {
+    // The run cannot be counted as successful without a durable audit row.
+    return json({ error: "current affairs sync audit failed" }, 500);
+  }
   return json({ ok: true, upserted, feed_errors: Array.isArray(body?.feed_errors) ? body.feed_errors : [] });
 });
