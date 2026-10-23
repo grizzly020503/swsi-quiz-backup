@@ -1,0 +1,35 @@
+name: Official Source URL Candidate QA
+on:
+  pull_request:
+    paths:
+      - 'data/source_url_promotion_config.json'
+      - 'scripts/source_url_promotion_stage.py'
+      - 'scripts/source_url_promotion_selftest.py'
+      - '.github/workflows/official-source-url-candidate-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'data/source_url_promotion_config.json'
+      - 'scripts/source_url_promotion_stage.py'
+      - 'scripts/source_url_promotion_selftest.py'
+      - '.github/workflows/official-source-url-candidate-qa.yml'
+permissions:
+  contents: read
+jobs:
+  source-url-exact-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Validate exact 3,920 URL-only review candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/source_url_promotion_stage.py scripts/source_url_promotion_selftest.py
+          python3 scripts/source_url_promotion_stage.py --root .
+          python3 scripts/source_url_promotion_selftest.py
+          git diff --exit-code
+          git diff --check
