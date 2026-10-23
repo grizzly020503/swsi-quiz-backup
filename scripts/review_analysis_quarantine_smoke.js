@@ -28,6 +28,7 @@ const stub={
  swsiCleanPUA:v=>String(v==null?'':v),
  gradingMode:r=>r.grading_mode,
 };
+stub.QB=stub.window.SWSI_QB;
 vm.createContext(stub);
 vm.runInContext(extract('  // Official Core stays intact.','  // Clean the current auto-essay payload'),stub);
 const raw={
