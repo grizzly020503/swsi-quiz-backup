@@ -42,9 +42,9 @@ required_restore_markers = [
     'refuses to run in CI',
     'I_UNDERSTAND_THIS_WRITES_THE_ISOLATED_TARGET',
     'SWSI_RESTORE_TARGET_KIND',
-    'target project ref equals production project ref',
-    'target database URL appears to reference production',
-    'auth_users=0 storage_objects=0',
+    'restore_destination_guard.py',
+    'private_restore_target_preflight.py',
+    'ISOLATED TARGET PRIVATE TABLE COUNT CHECK OK',
     'source backup reports Storage objects > 0',
     'restore count mismatch',
     'ISOLATED PRIVATE-DATA RESTORE PROOF OK',
@@ -82,4 +82,11 @@ if "bash scripts/supabase_private_backup_local.sh" not in workflow:
 if "bash scripts/restore_supabase_private_backup_isolated.sh" not in workflow:
     raise SystemExit("workflow does not prove that the restore helper refuses CI execution")
 
+for script in (backup, verify, restore):
+    if "private_backup_counts_guard.py" not in script:
+        raise SystemExit("private count guard is not wired through all helpers")
+if "private_backup_count_query.py" not in backup or "private_backup_count_query.py" not in restore:
+    raise SystemExit("schema-aware count probe missing from source/target")
+if "restore_destination_guard.py" not in restore or "private_restore_target_preflight.py" not in restore:
+    raise SystemExit("new restore destination/empty-target gates missing")
 print("SWSI PRIVATE BACKUP POLICY SMOKE OK")
