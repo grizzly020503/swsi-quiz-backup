@@ -198,11 +198,11 @@ def fixture_runs(payload: Any, workflow_file: str) -> list[dict]:
 
 def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
     accepted = set(task["accepted_events"])
+    # Use the latest accepted completed run, not just the latest success.
+    # Otherwise a broken recurring workflow is incorrectly reported as
+    # "healthy" (or "missing") even after fresh scheduled failures.
     matching = [
-        row
-        for row in runs
-        if str(row.get("event") or "") in accepted
-        and str(row.get("conclusion") or "") == "success"
+        row for row in runs if str(row.get("event") or "") in accepted
     ]
     matching.sort(
         key=lambda row: str(row.get("run_started_at") or row.get("created_at") or ""),
@@ -224,7 +224,7 @@ def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
             "last_success_at": None,
             "age_hours": None,
             "run_id": None,
-            "message": "no matching successful scheduled run found",
+            "message": "no matching accepted completed workflow run found",
         }
 
     latest = matching[0]
@@ -242,6 +242,20 @@ def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
         }
 
     age_hours = max(0.0, (now - last).total_seconds() / 3600.0)
+    conclusion = str(latest.get("conclusion") or "").strip().lower()
+    if conclusion != "success":
+        return {
+            **base,
+            "status": "failed",
+            "last_success_at": None,
+            "last_failure_at": last.isoformat().replace("+00:00", "Z"),
+            "age_hours": round(age_hours, 2),
+            "run_id": latest.get("id"),
+            "message": (
+                f"latest accepted completed run concluded {conclusion or 'unknown'}"
+            ),
+        }
+
     status = "healthy" if age_hours <= task["max_age_hours"] else "stale"
     return {
         **base,
@@ -285,7 +299,7 @@ def build_report(tasks: list[dict], fetcher: Callable[[str], list[dict]], now: d
         row
         for row in results
         if row["criticality"] in {"high", "critical"}
-        and row["status"] in {"stale", "missing", "error"}
+        and row["status"] in {"stale", "missing", "failed", "error"}
     ]
     ledger = {"available": False}
     if ledger_state is not None:
