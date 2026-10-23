@@ -45,6 +45,12 @@ def main() -> int:
         if marker not in html:
             fail(f"production index marker missing: {marker}")
 
+    # The Cloudflare tracked artifact must use the same maintained study UI
+    # as the production-shaped Netlify build, never the retired radar label.
+    if "目前 3 個國考重點" not in html:
+        fail("tracked Cloudflare study-priorities UI is not canonical")
+    if "命題趨勢雷達" in html:
+        fail("obsolete trend-radar UI in tracked Cloudflare production artifact")
     release = re.search(
         r'<meta name="swsi-release-source" content="([0-9a-f]{40})">',
         html,
