@@ -95,4 +95,42 @@ for(const term of ['BAD_AGE_55','BAD_OTHER','BAD_TRAP','BAD_MNEMONIC','BAD_LAW',
 assert.ok(displayed.includes('官方答案'));count++;
 const readyHTML=render(normalize({id:'DS-115-2-040',analysis_status:'ready'}));
 assert.ok(readyHTML.includes('BAD_AGE_55'));count++;
+
+// The original mock-exam result view uses its own renderer. Exercise that
+// actual snippet without creating a new overlay or changing scoring.
+const htmlSrc=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+const m0=htmlSrc.indexOf('    var revHtml=wrong.map(function(w){');
+const m1=htmlSrc.indexOf('\n    ov.innerHTML=',m0);
+assert.ok(m0>=0 && m1>m0 && htmlSrc.indexOf('    var revHtml=wrong.map(function(w){',m0+1)===-1);
+const resultFragment=htmlSrc.slice(m0,m1);
+function mockResult(q, mask){
+ const context={
+  wrong:[{q,picked:'A'}],
+  window:mask==null?{}:{swsiShouldMaskAnalysis:mask},
+  E:v=>String(v??''),answerLabel:item=>'官方答案：'+item.answer
+ };
+ vm.createContext(context);
+ vm.runInContext(resultFragment,context);
+ return context.revHtml;
+}
+const staleMock={...normalize({id:'SP-115-2-037',analysis_status:'ready'}),
+ analysis_status:'review',
+ exp:{why:'BAD_AGE_55',others:'BAD_OTHER',trap:'BAD_TRAP',raw:'BAD_RAW'},
+ mnemonic:'BAD_MNEMONIC',law:'BAD_LAW'
+};
+for(const mask of [item=>item.analysis_status!=='ready', null]){
+ const out=mockResult(staleMock,mask);
+ assert.ok(out.includes('平台解析待複核，暫不顯示'));
+ for(const term of ['BAD_AGE_55','BAD_OTHER','BAD_TRAP','BAD_RAW','BAD_MNEMONIC','BAD_LAW']){
+  assert.ok(!out.includes(term),'mock review leaked '+term);
+ }
+ assert.ok(out.includes('官方答案：B'));
+ count++;
+}
+const q40Mock={...staleMock,id:'SP-115-2-040',answer:'C',analysis_status:'ready'};
+const q40Text=mockResult(q40Mock,item=>item.id==='SP-115-2-040');
+assert.ok(!q40Text.includes('BAD_AGE_55') && q40Text.includes('官方答案：C'));count++;
+const normalMock=mockResult(normalize({id:'DS-115-2-040',analysis_status:'ready'}),
+ item=>item.analysis_status!=='ready');
+assert.ok(normalMock.includes('BAD_AGE_55'));count++;
 console.log('REVIEW ANALYSIS QUARANTINE SELFTEST OK: '+count+' regressions');
