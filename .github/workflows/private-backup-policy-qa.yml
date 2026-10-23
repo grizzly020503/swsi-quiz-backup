@@ -12,6 +12,7 @@ on:
       - 'scripts/private_backup_counts_guard.py'
       - 'scripts/private_backup_count_query.py'
       - 'scripts/private_backup_count_query_selftest.py'
+      - 'scripts/private_backup_pg17_synthetic_smoke.py'
       - 'scripts/private_backup_counts_guard_selftest.py'
       - 'scripts/private_restore_target_preflight.py'
       - 'scripts/private_restore_target_preflight_selftest.py'
@@ -32,6 +33,7 @@ on:
       - 'scripts/private_backup_counts_guard.py'
       - 'scripts/private_backup_count_query.py'
       - 'scripts/private_backup_count_query_selftest.py'
+      - 'scripts/private_backup_pg17_synthetic_smoke.py'
       - 'scripts/private_backup_counts_guard_selftest.py'
       - 'scripts/private_restore_target_preflight.py'
       - 'scripts/private_restore_target_preflight_selftest.py'
@@ -93,3 +95,35 @@ jobs:
           test "$rc" -ne 0
           printf '%s\n' "$output" | grep -q 'refuses to run in CI'
           echo 'PRIVATE RESTORE CI REFUSAL OK'
+
+  native-postgres17:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    services:
+      pg17:
+        image: postgres:17
+        env:
+          POSTGRES_USER: swsi_fixture
+          POSTGRES_PASSWORD: ci-only-synthetic-password
+          POSTGRES_DB: swsi_fixture
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U swsi_fixture -d swsi_fixture"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install PostgreSQL client for ephemeral container
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+      - name: Verify absent and present optional Ops schema on PostgreSQL 17
+        env:
+          SWSI_SYNTHETIC_PG17_CI: I_CONFIRM_DISPOSABLE_FIXTURE
+        run: |
+          python3 scripts/private_backup_pg17_synthetic_smoke.py
