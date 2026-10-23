@@ -207,6 +207,44 @@ def main() -> int:
         else:
             raise AssertionError("untrusted/unmatched API event must fail closed")
 
+    # Future-dated GitHub data must not be accepted as a fresh healthy run.
+    future_task = {
+        "id": "clock", "display_name": "Clock", "workflow_file": "clock.yml",
+        "criticality": "high", "accepted_events": ["schedule"],
+        "expected_interval_hours": 6, "max_age_hours": 8,
+    }
+    fixed_now = watchdog.parse_time("2026-10-02T06:00:00Z")
+    def with_time(timestamp):
+        return watchdog.evaluate_task(future_task, [{
+            "id": 99, "event": "schedule", "conclusion": "success",
+            "run_started_at": timestamp,
+        }], fixed_now)
+    future = with_time("2026-10-02T06:05:01Z")
+    assert future["status"] == "error" and future["run_id"] == 99, future
+    assert with_time("2026-10-02T06:05:00Z")["status"] == "healthy"
+    assert with_time("2026-10-02T05:00:00Z")["status"] == "healthy"
+    assert with_time("2026-10-01T21:00:00Z")["status"] == "stale"
+
+    # GitHub branch/status filtering is verified, not merely assumed.
+    for key, value, fragment in (
+        ("head_branch", "release/not-main", "branch mismatch"),
+        ("status", "in_progress", "completion mismatch"),
+    ):
+        def bad_filtered_response(req, timeout=20):
+            row = {"id": 80, "event": "schedule", "conclusion": "success",
+                   "head_branch": "main", "status": "completed"}
+            row[key] = value
+            return io.BytesIO(json.dumps({"workflow_runs": [row]}).encode("utf-8"))
+        with mock.patch.object(watchdog.urllib.request, "urlopen",
+                               side_effect=bad_filtered_response):
+            try:
+                watchdog.github_runs("test-owner/test-repo", "clock.yml",
+                                     "fixture-token", ["schedule"])
+            except RuntimeError as exc:
+                assert fragment in str(exc), exc
+            else:
+                raise AssertionError(f"{key} mismatch must fail closed")
+
     print("OPS TASK WATCHDOG SELFTEST OK")
     return 0
 

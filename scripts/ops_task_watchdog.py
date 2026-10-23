@@ -16,7 +16,7 @@ import os
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable
 
@@ -198,6 +198,10 @@ def github_runs(repository: str, workflow_file: str, token: str,
             raise RuntimeError("GitHub event-filtered API returned invalid workflow_runs[]")
         if any(str(row.get("event") or "") != event for row in runs):
             raise RuntimeError("GitHub event-filtered API event mismatch")
+        if any(row.get("head_branch") and row["head_branch"] != "main" for row in runs):
+            raise RuntimeError("GitHub event-filtered API branch mismatch")
+        if any(row.get("status") and row["status"] != "completed" for row in runs):
+            raise RuntimeError("GitHub event-filtered API completion mismatch")
         results.extend(runs)
     return results
 
@@ -254,6 +258,18 @@ def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
             "age_hours": None,
             "run_id": latest.get("id"),
             "message": f"invalid run timestamp: {exc}",
+        }
+
+    # Never turn a future-dated success into a fresh healthy run. Permit only
+    # five minutes of distributed-clock skew; anything beyond that fails closed.
+    if last > now + timedelta(minutes=5):
+        return {
+            **base,
+            "status": "error",
+            "last_success_at": None,
+            "age_hours": None,
+            "run_id": latest.get("id"),
+            "message": "run timestamp exceeds five-minute clock skew",
         }
 
     age_hours = max(0.0, (now - last).total_seconds() / 3600.0)
