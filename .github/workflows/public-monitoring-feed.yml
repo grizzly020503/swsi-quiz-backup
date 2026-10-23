@@ -215,6 +215,7 @@ jobs:
     # PRs are handled by the read-only job above. workflow_run events only proceed
     # when the trusted upstream main-branch run succeeded.
     if: >
+      false &&
       github.event_name != 'pull_request' &&
       (github.event_name != 'workflow_run' ||
        (github.event.workflow_run.conclusion == 'success' &&
