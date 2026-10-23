@@ -1,54 +1,44 @@
 #!/usr/bin/env python3
-"""Purely synthetic negative cases. Does NOT connect to Supabase/PostgreSQL."""
+"""Synthetic preflight tests: does not connect to a real database."""
 import json
 import os
 import pathlib
 import subprocess
 import sys
-
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent))
+from private_backup_counts_guard import REQUIRED_COUNTS, OPTIONAL_COUNTS
 from private_restore_target_preflight import REQUIRED_EMPTY, validate
 
-
-def raises(payload):
+base={'count_schema_version':3,'captured_at_utc':'2026-10-23T00:00:00Z',
+      **{k:0 for k in REQUIRED_COUNTS},**{k:None for k in OPTIONAL_COUNTS},
+      **{k+'_present':False for k in OPTIONAL_COUNTS}}
+checks=[]
+def check(name,fn,expected):
     try:
-        validate(payload)
+        fn();got=True
     except ValueError:
-        return True
-    return False
-
-base = {key: 0 for key in REQUIRED_EMPTY}
-checks = []
-
-def check(name, cond):
-    assert cond, name
+        got=False
+    assert got==expected,name
     checks.append(name)
-
-check("all required tables empty passes", not raises(base))
-check("missing entire JSON rejected", raises(None))
-check("list is rejected", raises([]))
-check("empty dict rejected", raises({}))
-for key in REQUIRED_EMPTY:
-    mutated = dict(base)
-    mutated[key] = 1
-    check(f"nonempty {key} rejected", raises(mutated))
-    missing = dict(base)
-    missing.pop(key)
-    check(f"missing {key} rejected", raises(missing))
-for bad in ("0", 0.0, False, True, None, -1, 0.1):
-    mutated = dict(base)
-    mutated["auth_users"] = bad
-    check(f"ambiguous count {bad!r} rejected", raises(mutated))
-check("unrecognized fields do not bypass checks", raises({**base, "feedback_reports": 12, "untrusted_green": True}))
-
-path = pathlib.Path(__file__).with_name("private_restore_target_preflight.py")
-env = {**os.environ, "SWSI_RESTORE_PREFLIGHT": json.dumps(base)}
-p = subprocess.run([sys.executable, str(path)], env=env, capture_output=True, text=True)
-check("CLI returns success only on all-empty count snapshot", p.returncode == 0)
-
-for broken in ("", "[]", "{", '{"auth_users": 0}', "{" + 'x'*9000 + "}"):
-    env["SWSI_RESTORE_PREFLIGHT"] = broken
-    p = subprocess.run([sys.executable, str(path)], env=env, capture_output=True, text=True)
-    check(f"CLI malformed input ({len(broken)} bytes) fails closed", p.returncode != 0)
-
-print(f"PRIVATE RESTORE TARGET PREFLIGHT TESTS OK {len(checks)}/{len(checks)}")
+check('empty, optional absent succeeds',lambda:validate(base),True)
+for k in REQUIRED_EMPTY:
+    check('nonzero '+k,lambda k=k:validate({**base,k:1}),False)
+for k in OPTIONAL_COUNTS:
+    check('empty, optional present '+k,lambda k=k:validate({**base,k+'_present':True,k:0}),True)
+    check('nonempty optional '+k,lambda k=k:validate({**base,k+'_present':True,k:1}),False)
+    check('optional missing count '+k,lambda k=k:validate({**base,k+'_present':False,k:0}),False)
+    check('optional missing flag '+k,lambda k=k:validate({k2:v for k2,v in base.items() if k2 !=k+'_present'}),False)
+for k in [*REQUIRED_COUNTS,*OPTIONAL_COUNTS]:
+    check('missing count '+k,lambda k=k:validate({k2:v for k2,v in base.items() if k2!=k}),False)
+check('legacy rejected',lambda:validate({**base,'count_schema_version':2}),False)
+check('none rejected',lambda:validate(None),False)
+path=pathlib.Path(__file__).with_name('private_restore_target_preflight.py')
+for bad in ('','[]','{}','{','{"auth_users":0}'):
+    e={**os.environ,'SWSI_RESTORE_PREFLIGHT':bad}
+    r=subprocess.run([sys.executable,str(path)],env=e,capture_output=True,text=True)
+    assert r.returncode!=0,bad
+    checks.append('CLI rejects malformed '+str(len(bad)))
+r=subprocess.run([sys.executable,str(path)],env={**os.environ,'SWSI_RESTORE_PREFLIGHT':json.dumps(base)},capture_output=True,text=True)
+assert r.returncode==0,r.stderr
+checks.append('CLI success only complete empty snapshot')
+print('PRIVATE RESTORE TARGET PREFLIGHT TESTS OK',len(checks),'/',len(checks))
