@@ -1,0 +1,14 @@
+{
+  "purpose": "SWSI production Edge rollback source snapshot, not merged or deployed",
+  "deployed_slug": "sync-current-affairs",
+  "observed_edge_version": 3,
+  "verify_jwt": false,
+  "deployed_ebz_sha256": "761bb310cff758d1a7299eb69d153aa77ac8ff2f8ab1a18fefcdb5f5d78a5ea3",
+  "import_map": false,
+  "source_git_blob_sha": "466d4c700994a3aad89c906937f6e046866f031a",
+  "original_files": [
+    "index.ts"
+  ],
+  "baseline_repo_main": "b01070c5cad32afe1aacc2f0c20312354e738e7c",
+  "security_note": "No tokens/keys/passwords included. Source must be restored only under coordinated paused-writer cutover."
+}
