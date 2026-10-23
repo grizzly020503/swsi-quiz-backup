@@ -291,6 +291,8 @@ window.swsiEsc = swsiEsc;
     const official=/^\d{6}$/.test(code) || /^[A-Z]{2,6}-\d{3}-[12]-\d{3}$/.test(id);
     return official && swsiText(item.analysis_status).trim().toLowerCase()!=='ready';
   }
+  // Shared review-only gate for independent mock-exam results.
+  window.swsiShouldMaskAnalysis = swsiShouldMaskAnalysis;
   function swsiMaskStudentAnalysis(item){
     if(!swsiShouldMaskAnalysis(item)) return item;
     // Display-only quarantine; no modification of input row or official answer fields.
