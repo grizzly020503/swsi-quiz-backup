@@ -106,6 +106,11 @@ const m0=htmlSrc.indexOf('    var revHtml=wrong.map(function(w){');
 const m1=htmlSrc.indexOf('\n    ov.innerHTML=',m0);
 assert.ok(m0>=0 && m1>m0 && htmlSrc.indexOf('    var revHtml=wrong.map(function(w){',m0+1)===-1);
 const resultFragment=htmlSrc.slice(m0,m1);
+const cdnHtml=fs.readFileSync(path.join(__dirname,'../cdn/index.html'),'utf8');
+const c0=cdnHtml.indexOf('    var revHtml=wrong.map(function(w){');
+const c1=cdnHtml.indexOf('\n    ov.innerHTML=',c0);
+assert.ok(c0>=0 && c1>c0 && cdnHtml.indexOf('    var revHtml=wrong.map(function(w){',c0+1)===-1);
+assert.equal(cdnHtml.slice(c0,c1),resultFragment,'CDN mock-exam disclosure gate drifted from canonical HTML');
 function mockResult(q, mask){
  const context={
   wrong:[{q,picked:'A'}],
