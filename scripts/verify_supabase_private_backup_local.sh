@@ -52,6 +52,8 @@ for required in roles.sql schema.sql data.sql source-counts.json metadata.json; 
   [[ -s "$work_dir/$required" ]] || fail "decrypted component is missing or empty: $required"
 done
 
+python3 "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/private_backup_counts_guard.py" "$work_dir/source-counts.json"
+
 python3 - "$work_dir" <<'PY'
 import hashlib
 import json
