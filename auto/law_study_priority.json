@@ -9,8 +9,8 @@
     "recent_end_year": 115,
     "recent_label": "近五年（111–115）",
     "priority_law_count": 10,
-    "linked_law_question_pairs": 86,
-    "unique_linked_questions": 85
+    "linked_law_question_pairs": 85,
+    "unique_linked_questions": 84
   },
   "student_boundary": "題數只計題庫中明確法規 metadata／既有明示 alias 的唯一題目；不是關鍵字命中、不是命題機率，也不代表每題歷史法規版本已核實。",
   "laws": [
@@ -71,18 +71,18 @@
       "recent_exam_codes": []
     },
     {
-      "law_name": "兒童權利公約施行法",
-      "all_linked_question_count": 4,
-      "recent_five_year_question_count": 0,
-      "question_ids": ["SP107-1-37", "SP106-2-05", "SW-104-2-36", "SP104-2-10"],
-      "recent_question_ids": [],
-      "recent_exam_codes": []
-    },
-    {
       "law_name": "全民健康保險法",
       "all_linked_question_count": 4,
       "recent_five_year_question_count": 0,
       "question_ids": ["SP107-1-38", "SP105-2-14", "SP105-1-10", "SP104-1-31"],
+      "recent_question_ids": [],
+      "recent_exam_codes": []
+    },
+    {
+      "law_name": "兒童權利公約施行法",
+      "all_linked_question_count": 3,
+      "recent_five_year_question_count": 0,
+      "question_ids": ["SP107-1-37", "SP106-2-05", "SP104-2-10"],
       "recent_question_ids": [],
       "recent_exam_codes": []
     },
