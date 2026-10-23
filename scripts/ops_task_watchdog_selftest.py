@@ -132,6 +132,75 @@ def main() -> int:
         if validate.returncode != 0:
             raise SystemExit(validate.stderr or validate.stdout)
 
+
+    # GitHub history regression: a busy PR workflow must not hide a scheduled
+    # success after the first 100 failures. Only accepted events are queried.
+    import io
+    import urllib.parse
+    from unittest import mock
+    import ops_task_watchdog as watchdog
+
+    queried = []
+
+    def fake_urlopen(req, timeout=20):
+        params = urllib.parse.parse_qs(urllib.parse.urlsplit(req.full_url).query)
+        event, page = params["event"][0], int(params["page"][0])
+        assert params["per_page"] == ["100"]
+        queried.append((event, page))
+        if event == "schedule" and page == 1:
+            rows = [
+                {"id": i, "event": event, "conclusion": "failure",
+                 "created_at": "2026-10-02T05:59:00Z"}
+                for i in range(100)
+            ]
+        elif event == "schedule" and page == 2:
+            rows = [
+                {"id": 500, "event": event, "conclusion": "success",
+                 "created_at": "2026-10-02T05:00:00Z"}
+            ]
+        else:
+            rows = []
+        return io.BytesIO(json.dumps({"workflow_runs": rows}).encode("utf-8"))
+
+    with mock.patch.object(watchdog.urllib.request, "urlopen",
+                           side_effect=fake_urlopen):
+        live_rows = watchdog.github_runs(
+            "test-owner/test-repo", "monthly.yml", "fixture-token",
+            ["schedule", "push"]
+        )
+    assert queried == [("schedule", 1), ("schedule", 2), ("push", 1)], queried
+    assert len(live_rows) == 101
+    assert watchdog.evaluate_task(
+        {"id": "monthly", "display_name": "Monthly",
+         "workflow_file": "monthly.yml", "criticality": "critical",
+         "accepted_events": ["schedule", "push"],
+         "expected_interval_hours": 744, "max_age_hours": 840},
+        live_rows, watchdog.parse_time("2026-10-02T06:00:00Z")
+    )["status"] == "healthy"
+
+    # Exhausting the bounded API history must be explicit, never a false
+    # "missing" classification or an unbounded request loop.
+    queried.clear()
+    def always_failed(req, timeout=20):
+        params = urllib.parse.parse_qs(urllib.parse.urlsplit(req.full_url).query)
+        queried.append((params["event"][0], int(params["page"][0])))
+        rows = [{"id": i, "event": "schedule", "conclusion": "failure"}
+                for i in range(100)]
+        return io.BytesIO(json.dumps({"workflow_runs": rows}).encode("utf-8"))
+
+    with mock.patch.object(watchdog.urllib.request, "urlopen",
+                           side_effect=always_failed):
+        try:
+            watchdog.github_runs(
+                "test-owner/test-repo", "monthly.yml", "fixture-token",
+                ["schedule"]
+            )
+        except RuntimeError as exc:
+            assert "exceeded 1000 runs" in str(exc), exc
+        else:
+            raise AssertionError("truncated run history must fail closed")
+    assert len(queried) == 10, queried
+
     print("OPS TASK WATCHDOG SELFTEST OK")
     return 0
 
