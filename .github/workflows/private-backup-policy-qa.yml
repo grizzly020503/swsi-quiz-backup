@@ -9,6 +9,8 @@ on:
       - 'scripts/verify_supabase_private_backup_local.sh'
       - 'scripts/restore_supabase_private_backup_isolated.sh'
       - 'scripts/private_backup_policy_smoke.py'
+      - 'scripts/private_backup_safe_extract.py'
+      - 'scripts/private_backup_safe_extract_selftest.py'
       - 'scripts/private_backup_counts_guard.py'
       - 'scripts/private_backup_count_query.py'
       - 'scripts/private_backup_count_query_selftest.py'
@@ -30,6 +32,8 @@ on:
       - 'scripts/verify_supabase_private_backup_local.sh'
       - 'scripts/restore_supabase_private_backup_isolated.sh'
       - 'scripts/private_backup_policy_smoke.py'
+      - 'scripts/private_backup_safe_extract.py'
+      - 'scripts/private_backup_safe_extract_selftest.py'
       - 'scripts/private_backup_counts_guard.py'
       - 'scripts/private_backup_count_query.py'
       - 'scripts/private_backup_count_query_selftest.py'
@@ -68,6 +72,7 @@ jobs:
           bash -n scripts/restore_supabase_private_backup_isolated.sh
           python -m py_compile scripts/private_backup_policy_smoke.py
           python scripts/private_backup_policy_smoke.py
+          python scripts/private_backup_safe_extract_selftest.py
           python scripts/private_backup_counts_guard_selftest.py
           python scripts/private_backup_count_query_selftest.py
           python scripts/private_restore_target_preflight_selftest.py

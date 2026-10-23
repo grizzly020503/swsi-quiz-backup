@@ -46,7 +46,7 @@ cleanup() {
 }
 trap cleanup EXIT HUP INT TERM
 
-age -d "$bundle" | tar -xf - -C "$work_dir"
+age -d "$bundle" | python3 "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/private_backup_safe_extract.py" "$work_dir"
 
 for required in roles.sql schema.sql data.sql source-counts.json metadata.json; do
   [[ -s "$work_dir/$required" ]] || fail "decrypted component is missing or empty: $required"

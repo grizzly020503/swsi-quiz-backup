@@ -114,6 +114,20 @@ With a weekly cadence, the operational hosted-data RPO target is at most 7 days.
 The actual RPO must be calculated from the timestamp of the newest verified backup available
 when an incident happens.
 
+## Safe handling of encrypted TAR member paths
+
+The local verifier and isolated restore now use `scripts/private_backup_safe_extract.py`
+instead of directly extracting arbitrary TAR members. This accepts only
+`roles.sql`, `schema.sql`, `data.sql`, `source-counts.json`, and `metadata.json`.
+Unexpected paths, symlinks/hardlinks, duplicates, empty members and excessive
+individual file sizes are rejected before source-count validation. Source data
+is still only decrypted on the maintainer-controlled machine into its private
+temporary directory. The extractor's synthetic malicious-TAR tests run in
+read-only, no-secret CI; they do **not** decrypt any production bundle.
+Encryption-to-a-public-recipient does not authenticate the person who created
+a backup. Keep bundles and corresponding signed/verified provenance under
+the maintainer's control; private restore is still unproven until exercised.
+
 ## Isolated restore drill
 
 Do not restore over production.
