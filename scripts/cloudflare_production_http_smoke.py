@@ -82,6 +82,13 @@ def main() -> int:
     args = ap.parse_args()
 
     expected_index = (CDN / "index.html").read_text(encoding="utf-8")
+    # A passing release marker/cache-bust check alone can miss a stale UI.
+    # Require the exact reviewed V2 stylesheet on the actual Cloudflare origin.
+    calm_style = re.compile(r'<style id="swsi-calm-student-design-v2">([\s\S]*?)</style>')
+    expected_styles = calm_style.findall(expected_index)
+    if len(expected_styles) != 1:
+        raise SystemExit("Cloudflare source must contain one reviewed calm UI stylesheet")
+    expected_style = expected_styles[0]
     expected_patch = (CDN / "monthly_patch.js").read_bytes()
     expected_sw = (CDN / "sw.js").read_bytes()
     expected_manifest = json.loads((CDN / "question-shards" / "manifest.json").read_text(encoding="utf-8"))
@@ -135,6 +142,7 @@ def main() -> int:
                 "shard_115_2_http": shard_status == 200,
                 "cache_bust": expected_tag in home,
                 "release_source": expected_source in home,
+                "reviewed_ui_css": calm_style.findall(home) == [expected_style],
                 "soft_launch": "SWSI CLOUDFLARE PUBLIC SOFT LAUNCH" in home,
                 "noindex": 'noindex,nofollow,noarchive' in home,
                 "no_preview": "SWSI CLOUDFLARE FRONTEND PREVIEW" not in home and "swsi-preview-banner" not in home,
