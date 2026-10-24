@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'scripts/verified_auto_cdn_sync.py'
+      - 'scripts/cloudflare_auto_mirror_live_smoke.py'
       - '.github/workflows/question-shards-publish.yml'
       - '.github/workflows/verified-auto-cdn-qa.yml'
       - 'auto/questions_auto.json'
@@ -14,6 +15,7 @@ on:
       - main
     paths:
       - 'scripts/verified_auto_cdn_sync.py'
+      - 'scripts/cloudflare_auto_mirror_live_smoke.py'
       - '.github/workflows/question-shards-publish.yml'
       - '.github/workflows/verified-auto-cdn-qa.yml'
 
@@ -36,6 +38,8 @@ jobs:
           set -euo pipefail
           python -m py_compile scripts/verified_auto_cdn_sync.py
           python scripts/verified_auto_cdn_sync.py --selftest
+          python -m py_compile scripts/cloudflare_auto_mirror_live_smoke.py
+          python scripts/cloudflare_auto_mirror_live_smoke.py --selftest
       - name: Verify actual tracked MOEX source against Supabase shards (read-only)
         run: |
           set -euo pipefail
@@ -44,3 +48,10 @@ jobs:
             --auto auto/questions_auto.json \
             --shards cdn/question-shards
           git diff --check
+
+      - name: Verify current hosted Cloudflare auto matches released artifacts (read-only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          python scripts/cloudflare_auto_mirror_live_smoke.py --live --check "$GITHUB_RUN_ID"
