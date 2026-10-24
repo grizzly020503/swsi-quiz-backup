@@ -26,6 +26,17 @@ SUBJECT_CODES = {
     "人類行為與社會環境": "0304",
     "社會工作研究方法": "0305",
 }
+# Verified against MOEX PDF page 1 for exam 112030 (2023-1):
+# social work management occupied 0303; current-five subject positions shifted.
+# Do not generalize to other exams without inspecting their official PDF headers.
+EXAM_SUBJECT_CODE_OVERRIDES = {
+    "112030": {
+        "社會政策與社會立法": "0304",
+        "人類行為與社會環境": "0305",
+        "社會工作研究方法": "0306",
+    },
+}
+
 POLICY = {"round_aliases": {
     "1": "第一次", "第1次": "第一次", "第一次": "第一次",
     "2": "第二次", "第2次": "第二次", "第二次": "第二次",
@@ -56,7 +67,8 @@ def source_index(shards):
         if len(pairs) != 1:
             raise ValueError(f"{key}: same-subject MCQ sources disagree")
         code, url = next(iter(pairs))
-        if not code or not verified_moex_url(url, code, SUBJECT_CODES[key[2]]):
+        expected_subject_code = EXAM_SUBJECT_CODE_OVERRIDES.get(code, {}).get(key[2], SUBJECT_CODES[key[2]])
+        if not code or not verified_moex_url(url, code, expected_subject_code):
             raise ValueError(f"{key}: untrusted MOEX question source")
         sources[key] = {"source_exam_code": code, "source_url": url,
                         "supporting_mcq_count": 40}
@@ -139,6 +151,31 @@ def selftest():
         rows += [dict(id=f"{number}-{i}", subject=subject, year="104",
                       round="第1次", source_exam_code=code, source_url=url)
                  for i in range(1, 41)]
+    # Reproduce the real 112-1 wrong-subject provenance failure, fail closed.
+    def make_112_rows():
+        corrected = []
+        for row in rows:
+            item = dict(row)
+            item["source_exam_code"] = "112030"
+            code = EXAM_SUBJECT_CODE_OVERRIDES["112030"].get(item["subject"], SUBJECT_CODES[item["subject"]])
+            item["source_url"] = (
+                "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?"
+                f"c=103&code=112030&q=1&s={code}&t=Q"
+            )
+            corrected.append(item)
+        return corrected
+
+    rows112 = make_112_rows()
+    assert len(source_index([("112-1.json", rows112)])) == 5
+    wrong112 = [dict(item) for item in rows112]
+    wrong112[0]["source_url"] = wrong112[0]["source_url"].replace("s=0305", "s=0304")
+    try:
+        source_index([("112-1.json", wrong112)])
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("112-1 wrong-subject source was accepted")
+
     index = source_index([("104-1.json", rows)])
     essay = dict(id="synthetic-essay", subject="社會工作", year="104",
                  round="第一次", qno="1", q="此為合成題幹")
