@@ -83,6 +83,31 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await waitHome();
   assert.strictEqual(await page.locator('.swsi-launch-guide').count(), 0, 'dismissed guide returned after reload');
 
+  // Assert the actual *computed* visual system after the runtime injected its
+  // styles. A green static CSS diff is not evidence of the UI users see.
+  const calmMobile = await page.evaluate(() => {
+    const focus = document.querySelector('.swsi-focus-primary');
+    const nav = document.querySelector('.tabbar');
+    const wrap = document.querySelector('.wrap');
+    const primary = document.querySelector('.swsi-focus-primary button');
+    return {
+      v2Loaded: !!document.getElementById('swsi-calm-student-design-v2'),
+      paper: getComputedStyle(document.documentElement).getPropertyValue('--paper').trim().toUpperCase(),
+      pineDeep: getComputedStyle(document.documentElement).getPropertyValue('--pine-deep').trim().toUpperCase(),
+      focusBackground: focus && getComputedStyle(focus).backgroundColor,
+      focusBorder: focus && getComputedStyle(focus).borderTopColor,
+      wrapMaxWidth: wrap && getComputedStyle(wrap).maxWidth,
+      navMaxWidth: nav && getComputedStyle(nav).maxWidth,
+      primaryHeight: primary && primary.getBoundingClientRect().height
+    };
+  });
+  assert(calmMobile.v2Loaded, 'calm student design V2 style is absent from runtime');
+  assert.strictEqual(calmMobile.paper, '#F4F7F5', 'calm paper token did not reach computed CSS');
+  assert.strictEqual(calmMobile.pineDeep, '#1F544B', 'calm primary-action token did not reach computed CSS');
+  assert.strictEqual(calmMobile.focusBackground, 'rgb(255, 255, 255)', 'live focus card is not white');
+  assert.strictEqual(calmMobile.wrapMaxWidth, '660px', 'mobile reading surface is still old width');
+  assert(calmMobile.primaryHeight >= 44, 'calm focus action below 44px touch height');
+
   const visibleTabs = await page.locator('#tabbar button:visible').allInnerTexts();
   const tabText = visibleTabs.join(' ');
   assert(/練題/.test(tabText) && /學習/.test(tabText) && /申論/.test(tabText), 'simplified bottom navigation labels missing');
