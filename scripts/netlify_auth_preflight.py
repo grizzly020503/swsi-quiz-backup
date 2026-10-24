@@ -38,7 +38,14 @@ def assert_expected_site(data: object, site_id: str, domain: str = EXPECTED_DOMA
         raise ValueError("Netlify project does not match SWSI fallback domain")
 
 
-def check(token: str, site_id: str, *, opener=urllib.request.urlopen) -> None:
+class NoCredentialRedirect(urllib.request.HTTPRedirectHandler):
+    """The fixed Netlify API endpoint has no need to forward a bearer token."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def check(token: str, site_id: str, *, opener=None) -> None:
     if not token.strip():
         raise ValueError("NETLIFY_AUTH_TOKEN is missing")
     if not site_id.strip():
@@ -51,11 +58,20 @@ def check(token: str, site_id: str, *, opener=urllib.request.urlopen) -> None:
         "Accept": "application/json",
         "User-Agent": "swsi-netlify-preflight/1.0",
     })
+    if opener is None:
+        # urllib's default redirect handler copies Authorization to a new host.
+        # Refuse every redirect, including same-origin ones, rather than risk
+        # sending credentials to a destination outside this fixed endpoint.
+        opener = urllib.request.build_opener(NoCredentialRedirect()).open
     try:
         with opener(request, timeout=15) as response:
             # Bound the read, and avoid including provider errors in our logs.
             payload = json.loads(response.read(131073))
     except urllib.error.HTTPError as exc:
+        if 300 <= exc.code < 400:
+            raise RuntimeError(
+                f"Netlify API HTTP {exc.code}: redirect refused; no credential forwarding or deployment attempted"
+            ) from None
         if exc.code in (401, 403):
             raise RuntimeError(
                 f"Netlify API HTTP {exc.code}: token invalid or lacks access to target project"
