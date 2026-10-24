@@ -25,14 +25,21 @@ assert due_pos < focus_pos, "due review must remain higher priority than repeate
 
 # Reuse the already-owned Knowledge Path global directly; do not grow another window API.
 assert "window.swsiKnowledgeSearch=function(q)" in KNOW
-assert "swsiKnowledgeSearch(\\''+H(focusTopic[0])+'\\')" in LOOP
+assert "swsiKnowledgeSearch('+actionArg(focusTopic[0])+')" in LOOP
 assert "swsiOpenTopicMaterial" not in LOOP
 assert "先看相關教材" in LOOP
 
+# Visible labels need HTML escaping, but action handlers must use an HTML-safe JS literal.
+# The browser decodes HTML entities BEFORE interpreting inline event-handler JavaScript.
+assert "function actionArg(v){return H(JSON.stringify(String(v==null?'':v)));}" in LOOP
+assert "swsiPracticeSubject('+actionArg(weak.name)+',20)" in LOOP
+assert "swsiPracticeSubject('+actionArg(s.name)+',20)" in LOOP
+assert "(q.topic||q.major||'未分類')===topic" in LOOP
+
 # The loop must end in a bounded same-topic retest, not an open-ended adaptive run.
 assert "練 5 題確認" in LOOP
-assert "swsiPracticeTopic(\\''+H(focusTopic[0])+'\\',5)" in LOOP
-assert "swsiPracticeTopic(\\''+H(x[0])+'\\',5)" in LOOP
+assert "swsiPracticeTopic('+actionArg(focusTopic[0])+',5)" in LOOP
+assert "swsiPracticeTopic('+actionArg(x[0])+',5)" in LOOP
 
 # This layer may use local learning history, but must not gain network/DB/model authority.
 for forbidden in ("fetch(", "supabase", "service_role", "openai", "anthropic", "gemini"):
