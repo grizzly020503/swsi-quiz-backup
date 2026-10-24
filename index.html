@@ -3340,7 +3340,7 @@ async function photoOCR(id,inputEl){
     var mark='【我讀到的作答】';
     if(!raw.startsWith(mark)||raw.includes('【練習回饋】')||raw.includes('【辨識失敗】')||raw.length>20000)
       {status.textContent='辨識結果不可靠，請重新拍攝；不會直接批改。';return;}
-    var transcript=raw.slice(pos+mark.length).trim();
+    var transcript=raw.slice(mark.length).trim();
     if(!transcript){status.textContent='未取得可確認的手寫內容，請重拍。';return;}
     sessions[id]={seq:seq,ocr:transcript};
     status.textContent='辨識完成，請先核對紙本與下方文字。';
