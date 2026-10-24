@@ -3,8 +3,54 @@
 // Live, read-only browser acceptance for the existing Cloudflare soft launch.
 // Never submit answers, login, use the public AI, or send feedback.
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const { chromium, webkit } = require('playwright');
 const ORIGIN = 'https://wandering-wave-4418.c022050333.workers.dev';
+
+// PR checks exercise the CURRENT hosted site. On main/workflow_dispatch, additionally
+// require the deployed CSS to equal the reviewed CDN source. This prevents old live UI
+// from earning a misleading green check while Cloudflare is still deploying.
+const sourceHtml = fs.readFileSync(path.resolve(__dirname, '../cdn/index.html'), 'utf8');
+const cssMatches = [...sourceHtml.matchAll(/<style id="swsi-calm-student-design-v2">([\\s\\S]*?)<\\/style>/g)];
+assert(cssMatches.length <= 1, 'duplicate reviewed calm design CSS in CDN source');
+const expectedCalmCss = cssMatches.length ? cssMatches[0][1] : null;
+const requireCalmParity = process.env.GITHUB_EVENT_NAME !== 'pull_request' && expectedCalmCss !== null;
+
+async function awaitReviewedDesign(page, label) {
+  if (!requireCalmParity) {
+    console.log('LIVE DESIGN PARITY DEFERRED ' + label + ': source has no calm CSS or this is an unmerged PR');
+    return;
+  }
+  const deadline = Date.now() + 4 * 60 * 1000;
+  let attempts = 0;
+  let last = 'style not seen';
+  while (Date.now() < deadline) {
+    const deployed = await page.evaluate(() => {
+      const style = document.getElementById('swsi-calm-student-design-v2');
+      return {
+        css: style ? style.textContent : null,
+        paper: getComputedStyle(document.body).backgroundColor,
+        pine: getComputedStyle(document.documentElement).getPropertyValue('--pine-deep').trim()
+      };
+    });
+    if (deployed.css === expectedCalmCss) {
+      assert.equal(deployed.paper, 'rgb(244, 247, 245)', label + ': new body background not applied');
+      assert.equal(deployed.pine.toUpperCase(), '#1F544B', label + ': new CTA palette not applied');
+      console.log('LIVE REVIEWED DESIGN PARITY OK ' + label + ' refreshes=' + attempts);
+      return;
+    }
+    last = deployed.css === null ? 'new design marker absent' : 'live CSS differs from reviewed CDN source';
+    attempts++;
+    await page.waitForTimeout(7000);
+    const next = await page.goto(ORIGIN + '/?swsi_ui_acceptance=' +
+      encodeURIComponent(process.env.GITHUB_RUN_ID || 'manual') + '-' + attempts, {
+      waitUntil: 'domcontentloaded', timeout: 25000
+    });
+    assert(next && next.status() === 200, label + ': live site unavailable while awaiting deployment');
+  }
+  throw new Error(label + ': deployment never matched the reviewed visual source within 4 minutes: ' + last);
+}
 
 async function check(engine, label, width, height, practice) {
   const browser = await engine.launch({ headless: true });
@@ -30,6 +76,7 @@ async function check(engine, label, width, height, practice) {
     const response = await page.goto(ORIGIN + '/', { waitUntil: 'domcontentloaded', timeout: 25000 });
     assert.equal(response && response.status(), 200, label + ': home HTTP status');
     assert.equal(new URL(page.url()).origin, ORIGIN, label + ': wrong origin');
+    await awaitReviewedDesign(page, label);
     await page.waitForSelector('#app .swsi-focus-primary', { timeout: 45000 });
     // The app initializes nav visibility after first paint; assert usable buttons, not merely DOM presence.
     await page.waitForFunction(() => [...document.querySelectorAll('#tabbar button')].filter(el => {
