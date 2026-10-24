@@ -26,6 +26,23 @@ SUBJECT_CODES = {
     "人類行為與社會環境": "0304",
     "社會工作研究方法": "0305",
 }
+# Exam-specific source-PDF codes verified against the MOEX official PDF cover page.
+# 112-1 (2023): c=103; 0303 is the discontinued Social Work Management
+# subject, and the three subsequent current-exam subjects use 0304/0305/0306.
+# Evidence: https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112030&y=2023
+VERIFIED_SOURCE_CODE_OVERRIDES = {
+    "112030": {
+        "社會政策與社會立法": "0304",
+        "人類行為與社會環境": "0305",
+        "社會工作研究方法": "0306",
+    },
+}
+
+
+def expected_source_subject_code(exam_code: str, subject: str) -> str:
+    return VERIFIED_SOURCE_CODE_OVERRIDES.get(exam_code, {}).get(subject, SUBJECT_CODES[subject])
+
+
 POLICY = {"round_aliases": {
     "1": "第一次", "第1次": "第一次", "第一次": "第一次",
     "2": "第二次", "第2次": "第二次", "第二次": "第二次",
@@ -56,7 +73,7 @@ def source_index(shards):
         if len(pairs) != 1:
             raise ValueError(f"{key}: same-subject MCQ sources disagree")
         code, url = next(iter(pairs))
-        if not code or not verified_moex_url(url, code, SUBJECT_CODES[key[2]]):
+        if not code or not verified_moex_url(url, code, expected_source_subject_code(code, key[2])):
             raise ValueError(f"{key}: untrusted MOEX question source")
         sources[key] = {"source_exam_code": code, "source_url": url,
                         "supporting_mcq_count": 40}
@@ -166,7 +183,24 @@ def selftest():
     bad[0]["source_exam_code"] = "115100"
     fails(lambda: source_index([("fixture", bad)]))
     fails(lambda: candidate_manifest([dict(essay, year="113")], index))
-    print("OFFICIAL ESSAY SOURCE CANDIDATE SELFTEST OK: six fail-closed scenarios")
+    # Regression: the old 112-1 policy URL s=0303 opens Social Work Management,
+    # not Social Policy/Legislation. Require the verified official 0304 code.
+    verified_112 = []
+    for subject, _ in SUBJECT_CODES.items():
+        code_112 = expected_source_subject_code("112030", subject)
+        url_112 = ("https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?"
+                   f"c=103&code=112030&q=1&s={code_112}&t=Q")
+        verified_112 += [dict(id=f"112-{code_112}-{i}", subject=subject,
+                              year="112", round="第1次",
+                              source_exam_code="112030", source_url=url_112)
+                         for i in range(1, 41)]
+    assert len(source_index([("112-1.json", verified_112)])) == 5
+    wrong_112 = [dict(row) for row in verified_112]
+    for row in wrong_112:
+        if row["subject"] == "社會政策與社會立法":
+            row["source_url"] = row["source_url"].replace("s=0304&t=Q", "s=0303&t=Q")
+    fails(lambda: source_index([("112-1.json", wrong_112)]))
+    print("OFFICIAL ESSAY SOURCE CANDIDATE SELFTEST OK: seven fail-closed scenarios")
 
 
 def main():
