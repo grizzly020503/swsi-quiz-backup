@@ -2502,7 +2502,7 @@ async function aiErrorResult(res){
   if(res.status===502||res.status===503) return {message:'AI 服務目前暫時無法使用，請稍後再試。',retry:true};
   return {message:raw||'AI 批改暫時無法使用，請稍後再試。',retry:true};
 }
-const GROQ_MODEL = 'qwen/qwen3.6-27b'; /* Qwen 多模態：同時支援「打字批改」與「手寫照片辨識」，中文最強的免費選項。日後想換模型只改這行 */
+const GROQ_MODEL = 'qwen/qwen3.8-27b'; /* Public AI model matches the Cloudflare Worker allowlist; text feedback and handwritten OCR use this model. */
 function aiFeedbackHTML(id){
   return `<div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">
     <div class="aihelp" style="color:var(--wrong);margin-bottom:9px;background:var(--wrong-bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px">🔒 隱私提醒：請勿輸入或上傳真實個案的姓名、電話、地址、身分證號、病歷或其他可識別個資；需要舉例時請先匿名化。</div>
