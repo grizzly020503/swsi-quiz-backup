@@ -239,19 +239,30 @@ jobs:
             test "${code}" = '200'
           }
 
+          # The static release marker is unchanged between versions; it does not prove
+          # the exact intended release has reached Netlify production.
+          expected_patch_sha="$(sha256sum _site/monthly_patch.js | cut -c1-16)"
+          expected_patch_tag="<script src=\"monthly_patch.js?v=${expected_patch_sha}\"></script>"
           deployed=0
           for attempt in $(seq 1 18); do
-            if fetch_prod / /tmp/prod-index.html; then
-              if grep -q "swsi-netlify-release\" content=\"${EXPECTED_RELEASE_MARKER}" /tmp/prod-index.html; then
-                deployed=1
-                echo "NETLIFY RELEASE MARKER READY on attempt ${attempt}"
-                break
-              fi
+            if fetch_prod / /tmp/prod-index.html \
+              && grep -q "swsi-netlify-release\" content=\"${EXPECTED_RELEASE_MARKER}" /tmp/prod-index.html \
+              && grep -Fq "${expected_patch_tag}" /tmp/prod-index.html \
+              && fetch_prod /monthly_patch.js /tmp/prod-monthly-patch.js \
+              && cmp -s _site/monthly_patch.js /tmp/prod-monthly-patch.js \
+              && fetch_prod /sw.js /tmp/prod-sw.js \
+              && cmp -s _site/sw.js /tmp/prod-sw.js; then
+              deployed=1
+              echo "NETLIFY EXACT RUNTIME READY on attempt ${attempt}: patch=${expected_patch_sha}, service worker matches"
+              break
             fi
-            echo "Waiting for Netlify production deploy: attempt ${attempt}/18"
+            echo "Waiting for exact Netlify production runtime: attempt ${attempt}/18"
             sleep 10
           done
-          test "${deployed}" = '1'
+          if [ "${deployed}" != '1' ]; then
+            echo 'Netlify exact runtime not visible after bounded retries; NO-GO. Do not count an unchanged marker as success.' >&2
+            exit 1
+          fi
 
           fetch_prod /sw.js /tmp/prod-sw.js
           fetch_prod /monthly_patch.js /tmp/prod-monthly-patch.js
