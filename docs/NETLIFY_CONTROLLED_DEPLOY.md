@@ -35,7 +35,7 @@ The token value must not be pasted into issues, PRs, chat, workflow files, scree
 2. Go to Actions -> **Netlify Controlled Production Deploy**.
 3. Choose **Run workflow** on `main` with the default `release_mode=verify_only`.
 4. The workflow refuses any non-main ref.
-5. The read-only preflight checks token access, the configured site ID and the existing SWSI project identity. A missing secret, HTTP 401/403/404 or wrong project blocks the run. It does not build or deploy and is not evidence of runtime parity.
+5. The read-only preflight checks token access, the configured site ID and the existing SWSI project identity. A missing secret, HTTP 401/403/404 or wrong project blocks the run. It rejects HTTP redirects instead of forwarding the bearer token to another URL. It does not build or deploy and is not evidence of runtime parity.
 6. After explicit Owner release authorization, start a separate run on the reviewed exact `main` commit with `release_mode=deploy`. Record its SHA and Run ID. A default dispatch never publishes.
 7. The deploy run repeats the preflight, rebuilds `_site` using the exact `netlify.toml` command, verifies the release contract and uploads with the pinned CLI.
 8. It verifies `https://swsi-quiznetlify.netlify.app` by HTTP and Chromium smoke tests, including exact runtime and Service Worker bytes. Separately verify the primary site, old IndexedDB/PWA updates and mobile behavior.
