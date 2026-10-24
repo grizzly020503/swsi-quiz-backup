@@ -2502,7 +2502,7 @@ async function aiErrorResult(res){
   if(res.status===502||res.status===503) return {message:'AI 服務目前暫時無法使用，請稍後再試。',retry:true};
   return {message:raw||'AI 批改暫時無法使用，請稍後再試。',retry:true};
 }
-const GROQ_MODEL = 'qwen/qwen3.6-27b'; /* Qwen 多模態：同時支援「打字批改」與「手寫照片辨識」，中文最強的免費選項。日後想換模型只改這行 */
+const GROQ_MODEL = 'qwen/qwen3.8-27b'; /* Public AI model matches the Cloudflare Worker allowlist; text feedback and handwritten OCR use this model. */
 function aiFeedbackHTML(id){
   return `<div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">
     <div class="aihelp" style="color:var(--wrong);margin-bottom:9px;background:var(--wrong-bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px">🔒 隱私提醒：請勿輸入或上傳真實個案的姓名、電話、地址、身分證號、病歷或其他可識別個資；需要舉例時請先匿名化。</div>
@@ -3192,5 +3192,196 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
 })();
 </script>
 <!-- SWSI UIUX V1 END -->
+<!-- SWSI HANDWRITING-FIRST ESSAY V1 START -->
+<style id="swsi-paper-essay-style">
+.swsi-paper-essay{padding:14px;margin:0 0 14px;background:#f7faf8;border:1px solid var(--line,#dce6df);border-radius:14px;line-height:1.7}
+.swsi-paper-essay h3{font-size:17px;margin:0;color:var(--ink,#23302c)}.swsi-paper-essay p{font-size:13px;margin:7px 0;color:var(--ink-soft,#52615c)}
+.swsi-paper-mode{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.swsi-paper-essay button{min-height:44px;border-radius:10px;font:inherit;cursor:pointer}
+.swsi-paper-mode button{border:1px solid var(--line,#dce6df);background:white;padding:7px;color:var(--ink,#23302c)}
+.swsi-paper-mode button[aria-pressed=true]{border-color:var(--pine,#28685d);background:#eaf4ee;color:var(--pine-deep,#1f544b);font-weight:700}
+.swsi-paper-essay textarea{box-sizing:border-box;width:100%;min-height:170px;padding:11px;resize:vertical;border:1px solid var(--line,#dce6df);border-radius:10px;font:inherit;line-height:1.7}
+.swsi-paper-essay .swsi-paper-confirm{display:block;width:100%;margin-top:10px;color:white;background:var(--pine,#28685d);border:0;padding:10px;font-weight:700}
+.swsi-paper-essay .swsi-paper-review{border-top:1px solid var(--line,#dce6df);padding-top:12px;margin-top:12px}
+.swsi-paper-essay .swsi-paper-status{font-size:13px;margin-top:9px;line-height:1.7;color:var(--ink-soft,#52615c)}
+.swsi-paper-essay button:focus-visible,.swsi-paper-essay textarea:focus-visible{outline:3px solid var(--pine,#28685d);outline-offset:2px}
+.swsi-paper-essay [hidden],.wbox .wta[hidden],.wbox .fmtbar[hidden],.wbox .wmeta[hidden],.wbox .fbtn[hidden]{display:none!important}
+</style>
+<script id="swsi-paper-essay-script">
+(function () {
+'use strict';
+// Separate visual layer: no source-question, answer, rubric, or trust-prompt changes.
+window.SWSI_PAPER_ESSAY_VERSION='2026-10-24.ocr-confirm.v1';
+var modes=Object.create(null),sessions=Object.create(null),requestSeq=0;
+function elem(tag,cls,text){var x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x;}
+function mode(id){return modes[id]||'paper';}
+function active(id,seq,panel){return !!sessions[id]&&sessions[id].seq===seq&&mode(id)==='paper'&&document.body.contains(panel);}
+function review(id,panel){
+  var slot=panel.querySelector('.swsi-paper-review'),session=sessions[id];
+  slot.replaceChildren();
+  if(!session||typeof session.ocr!=='string')return;
+  var label=elem('label','', '② 對照原稿，確認辨識出的文字');
+  var input=elem('textarea');input.value=session.ocr;input.id='swsi-ocr-'+id;label.htmlFor=input.id;
+  var help=elem('p','','不清楚的字以「◌」標示，請先依紙本修正；這一步不會自動批改。');
+  var send=elem('button','swsi-paper-confirm','確認文字，再取得 AI 練習回饋');send.type='button';
+  var message=elem('div','swsi-paper-status','');message.setAttribute('role','status');
+  input.addEventListener('input',function(){session.ocr=input.value;send.disabled=false;});
+  send.addEventListener('click',function(){
+    if(!active(id,session.seq,panel))return;
+    var answer=input.value.trim();
+    if(/[◌□�]|辨識不清|\[看不清\]/.test(answer)){message.textContent='仍有辨識不清的字，請先改正。';input.focus();return;}
+    var count=typeof window.effectiveEssayLength==='function'?window.effectiveEssayLength(answer):answer.replace(/\s/g,'').length;
+    if(count<30){message.textContent='請先核對至少 30 字的實際作答，再取得回饋。';input.focus();return;}
+    var draft=document.getElementById('ta_'+id);
+    if(!draft)return;
+    if(draft.value.trim()&&draft.value.trim()!==answer&&!window.confirm('確認後的手寫文字將取代本題原有打字草稿。確定繼續？'))return;
+    draft.value=answer;
+    if(typeof window.saveDraft==='function')window.saveDraft(id);
+    message.textContent='辨識文字已由你確認，並寫入作答欄；現在才送交 AI 回饋。';
+    send.disabled=true;
+    if(typeof window.runAIFeedback==='function')window.runAIFeedback(id);
+  });
+  slot.append(label,input,help,send,message);
+}
+function updateMode(id,panel){
+  var paper=mode(id)==='paper',box=panel.closest('.wbox');
+  panel.querySelector('.swsi-paper-body').hidden=!paper;
+  panel.querySelector('.swsi-paper-mode-paper').setAttribute('aria-pressed',String(paper));
+  panel.querySelector('.swsi-paper-mode-text').setAttribute('aria-pressed',String(!paper));
+  var ta=document.getElementById('ta_'+id);if(ta)ta.hidden=paper;
+  ['.fmtbar','.wmeta'].forEach(function(selector){var el=box.querySelector(selector);if(el)el.hidden=paper;});
+  var typed=document.getElementById('aitype_'+id);if(typed)typed.hidden=paper;
+  var photo=document.getElementById('aiphoto_'+id);if(photo)photo.hidden=!paper;
+  var result=document.getElementById('airesult_'+id);
+  var target=panel.querySelector(paper?'.swsi-paper-result':'.swsi-type-result');
+  if(result&&target&&result.parentNode!==target)target.appendChild(result);
+  if(paper)review(id,panel);
+}
+function mount(){
+  var ta=document.querySelector('#app .wbox textarea.wta[id^="ta_"]');if(!ta)return;
+  var id=ta.id.slice(3),box=ta.closest('.wbox');
+  if(!box||box.querySelector('.swsi-paper-essay'))return;
+  var photo=document.getElementById('aiphoto_'+id),typed=document.getElementById('aitype_'+id);
+  if(!photo||!typed)return;
+  var panel=elem('section','swsi-paper-essay');
+  panel.appendChild(elem('h3','','申論練習｜手寫優先'));
+  panel.appendChild(elem('p','','① 讀題後先在紙上作答，拍照上傳；AI 先辨識文字，你確認後才會提供回饋。'));
+  var switcher=elem('div','swsi-paper-mode');
+  var pbtn=elem('button','swsi-paper-mode-paper','📷 手寫拍照');
+  var tbtn=elem('button','swsi-paper-mode-text','鍵盤打字');
+  pbtn.type=tbtn.type='button';switcher.append(pbtn,tbtn);panel.appendChild(switcher);
+  var body=elem('div','swsi-paper-body');
+  body.appendChild(elem('p','','最多 3 張照片、每張原檔最多 25 MB；會先在手機上縮圖成 JPEG（優先保留手寫字清晰度），整份上傳請求須小於 3.8 MB。超過會請你裁切重拍，不會偷縮到字看不清。照片辨識與文字回饋各使用一次免費額度；長篇可能因 AI 回傳字數限制截斷。請勿上傳真實個案或個資；照片不存入草稿。'));
+  var photoSlot=elem('div','swsi-paper-upload');photoSlot.appendChild(photo);body.appendChild(photoSlot);
+  photo.textContent='📷 拍照／上傳手寫答案（1–3 張）';
+  var status=elem('div','swsi-paper-status','拍照時讓整頁入鏡，注意字距、行距與光線。');
+  status.setAttribute('role','status');body.appendChild(status);
+  body.appendChild(elem('div','swsi-paper-review'));
+  body.appendChild(elem('div','swsi-paper-result'));
+  panel.append(body,elem('div','swsi-type-result'));box.prepend(panel);
+  pbtn.addEventListener('click',function(){modes[id]='paper';updateMode(id,panel);});
+  tbtn.addEventListener('click',function(){if(sessions[id])sessions[id].seq=++requestSeq;modes[id]='type';updateMode(id,panel);ta.focus();});
+  updateMode(id,panel);
+}
+// Replaces old photo behavior that graded in the same request before OCR confirmation.
+async function photoOCR(id,inputEl){
+  var panel=document.querySelector('#app .swsi-paper-essay');
+  var files=Array.from(inputEl&&inputEl.files||[]);
+  if(inputEl)inputEl.value='';
+  if(!panel||mode(id)!=='paper'||!files.length)return;
+  var seq=++requestSeq;sessions[id]={seq:seq};
+  panel.querySelector('.swsi-paper-review').replaceChildren();
+  var status=panel.querySelector('.swsi-paper-status');
+  if(files.length>3||files.some(function(f){return !/^image\//.test(f.type);}))
+    {status.textContent='一次只允許 1–3 張照片檔案。';return;}
+  if(files.some(function(f){return !Number.isFinite(f.size)||f.size>25*1024*1024;}))
+    {status.textContent='有原始照片超過每張 25 MB 的本機處理上限；請先在相簿裁切成單頁或轉存較小的照片。本次不會上傳。';return;}
+  if(typeof shrinkImage!=='function'||typeof window.swsiFetchWithTimeout!=='function'||typeof TextEncoder!=='function')
+    {status.textContent='照片處理目前無法使用，仍可切換打字作答。';return;}
+  var button=document.getElementById('aiphoto_'+id);if(button)button.disabled=true;
+  status.textContent='正在手機上整理照片，尚未傳送照片或消耗 AI 額度。';
+  try{
+    var q=(window.ESSAYS||[]).find(function(e){return e&&e.id===id;});
+    var endpoint=typeof AI_PROXY_URL==='string'?AI_PROXY_URL:'';
+    var model=typeof GROQ_MODEL==='string'?GROQ_MODEL:'';
+    if(!q||!q.q||!model||!endpoint.startsWith('https://'))throw Error('AI_SETUP');
+    var prompt='只做繁體中文手寫逐字辨識；不得評分、批改、補全答案或從題目猜字。'+
+      '請只輸出【我讀到的作答】及辨識出的文字，辨識不清用「◌」；無法辨識則輸出【辨識失敗】。'+
+      '以下正式題目只供區分題目與學生答案，不要複製進轉錄：\n'+String(q.q);
+    /* Upstream Worker rejects > 4,000,000 bytes of the *entire JSON body*.
+       Check encoded payload bytes, not only decoded JPEG bytes. Allow margin.
+       Never reduce below 1400px merely to force an unreadable paper through. */
+    var maxPayloadBytes=3800000;
+    var compression=[{side:1800,quality:0.84},{side:1600,quality:0.79},{side:1400,quality:0.73}];
+    var requestBody='',requestBytes=0,ready=false,images=[];
+    for(var attempt=0;attempt<compression.length;attempt++){
+      var spec=compression[attempt];
+      status.textContent='正在處理 '+files.length+' 張照片（清晰度優先，必要時調整尺寸）…';
+      images=[];
+      for(var i=0;i<files.length;i++){
+        var url=await shrinkImage(files[i],spec.side,spec.quality);
+        if(!active(id,seq,panel))return;
+        if(typeof url!=='string'||!url.startsWith('data:image/jpeg;base64,'))throw Error('JPEG_ENCODING');
+        images.push(url);
+      }
+      var content=[{type:'text',text:prompt}];
+      images.forEach(function(url){content.push({type:'image_url',image_url:{url:url}});});
+      requestBody=JSON.stringify({model:model,reasoning_effort:'none',temperature:0.1,max_tokens:1300,
+        messages:[{role:'user',content:content}]});
+      requestBytes=new TextEncoder().encode(requestBody).byteLength;
+      if(requestBytes<=maxPayloadBytes){ready=true;break;}
+    }
+    if(!ready){
+      status.textContent='照片處理後仍超過整份上傳容量上限（3.8 MB，包含照片及請求資料）。為保留手寫字清晰度，不再縮小。請裁切多餘背景或減少頁數後重試；本次沒有消耗 AI 額度，也不會覆蓋草稿。';
+      return;
+    }
+    status.textContent='已將 '+files.length+' 張照片整理為約 '+(requestBytes/1000000).toFixed(2)+' MB；正在辨識文字，尚未批改。';
+    var response=await window.swsiFetchWithTimeout(endpoint,{
+      method:'POST',headers:{'Content-Type':'application/json'},body:requestBody
+    },60000);
+    if(!active(id,seq,panel))return;
+    if(!response.ok){
+      var err=typeof window.swsiReadAIError==='function'?(await window.swsiReadAIError(response)).message:'辨識服務暫時無法使用。';
+      status.textContent=err||'辨識失敗，請稍後重試。';return;
+    }
+    var data=await response.json();
+    if(!active(id,seq,panel))return;
+    var choice=data&&data.choices&&data.choices[0]||{};
+    // Public Worker caps photo output tokens. Never promote a cut-off page into
+    // an apparently complete answer; a retry also consumes photo quota.
+    if(choice.finish_reason==='length'){
+      status.textContent='這份手寫答案的辨識文字被截斷。請減少頁數再拍一次；這次沒有批改，也不會修改原草稿。';
+      return;
+    }
+    if(choice.finish_reason&&choice.finish_reason!=='stop'){
+      status.textContent='辨識沒有完整結束，請重新拍攝；本次不會批改。';
+      return;
+    }
+    var raw=String(choice.message&&choice.message.content||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+    var mark='【我讀到的作答】';
+    if(!raw.startsWith(mark)||raw.includes('【練習回饋】')||raw.includes('【辨識失敗】')||raw.length>20000)
+      {status.textContent='辨識結果不可靠，請重新拍攝；不會直接批改。';return;}
+    var transcript=raw.slice(mark.length).trim();
+    if(!transcript){status.textContent='未取得可確認的手寫內容，請重拍。';return;}
+    sessions[id]={seq:seq,ocr:transcript};
+    status.textContent='辨識完成，請先核對紙本與下方文字。';
+    review(id,panel);
+  }catch(error){
+    if(active(id,seq,panel))status.textContent=error&&error.name==='AbortError'?
+      '辨識逾時，請稍後重試。':'照片辨識失敗，請檢查網路或重拍。';
+  }finally{files.length=0;if(button)button.disabled=false;}
+}
+function start(){
+  var app=document.getElementById('app');if(!app)return;
+  // Install after all standard patch scripts, including trusted AI flow.
+  window.gradePhoto=photoOCR;
+  mount();
+  new MutationObserver(function(){mount();}).observe(app,{childList:true,subtree:true});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+else start();
+})();
+</script>
+<!-- SWSI HANDWRITING-FIRST ESSAY V1 END -->
 </body>
 </html>
