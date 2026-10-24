@@ -30,9 +30,25 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       return url.origin===origin?route.continue():route.abort();
     });
     await page.goto(base,{waitUntil:'domcontentloaded'});
-    await page.waitForFunction(()=>typeof window.openEssayCard==='function'&&Array.isArray(window.ESSAYS)&&window.ESSAYS.length>0);
-    await page.evaluate(()=>{const e=window.ESSAYS[0];window.openEssayCard(e.id,e.subject);});
-    await page.locator('.swsi-paper-essay').waitFor();
+    // Use the canonical quick-essay navigation (same as real mobile students)
+    // rather than calling legacy openEssayCard before navigation settles.
+    await page.waitForFunction(()=>typeof window.swsiStartEssayNow==='function'&&
+      Array.isArray(window.ESSAYS)&&window.ESSAYS.some(e=>e&&e.id&&e.q));
+    await page.evaluate(async()=>{await window.swsiStartEssayNow();});
+    try {
+      await page.locator('.swsi-paper-essay').waitFor({timeout:20000});
+    } catch(err) {
+      const state=await page.evaluate(()=>({
+        app:document.getElementById('app')?.textContent?.slice(0,1100),
+        box:!!document.querySelector('#app .wbox'),
+        editor:!!document.querySelector('#app textarea.wta'),
+        essayCount:window.ESSAYS?.length||0,
+        view:typeof view==='undefined'?'unavailable':view,
+        opened:typeof openEssay==='undefined'?'unavailable':openEssay,
+        paperVersion:window.SWSI_PAPER_ESSAY_VERSION||'missing'
+      }));
+      throw new Error('paper-first UI not mounted after canonical essay navigation: '+JSON.stringify(state)+'; '+String(err));
+    }
     assert.strictEqual(await page.locator('.swsi-paper-mode-paper').getAttribute('aria-pressed'),'true');
     assert.strictEqual(await page.locator('textarea.wta').evaluate(el=>getComputedStyle(el).display),'none');
     await page.evaluate(()=>{
