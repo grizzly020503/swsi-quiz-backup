@@ -19,7 +19,7 @@
   function draftCount(){var n=0;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('essay_draft_')===0&&(localStorage.getItem(k)||'').trim())n++;}}catch(_e){}return n;}
   function questionCorrect(item,picked){try{if(typeof isCorrectAnswer==='function')return !!isCorrectAnswer(item,picked);}catch(_e){}try{if(typeof ansCorrect==='function')return !!ansCorrect(picked,item.answer);}catch(_e){}return String(picked||'')===String(item&&item.answer||'');}
 
-  function causeButton(id,cause,current){var on=current===cause;return '<button type="button" class="swsi-cause-chip'+(on?' on':'')+'" onclick="swsiSetWrongCause(\''+H(id)+'\',\''+H(cause)+'\')">'+H(cause)+(on?' ✓':'')+'</button>';}
+  function causeButton(id,cause,current){var on=current===cause;return '<button type="button" class="swsi-cause-chip'+(on?' on':'')+'" onclick="swsiSetWrongCause('+actionArg(id)+','+actionArg(cause)+')">'+H(cause)+(on?' ✓':'')+'</button>';}
   function decorateWrongCause(){
     var exp=document.querySelector('#app .qcard .exp'); if(!exp)return;
     var item=null,picked=null,isAnswered=false;

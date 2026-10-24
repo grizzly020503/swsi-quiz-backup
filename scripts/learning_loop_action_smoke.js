@@ -92,3 +92,55 @@ const fixtures = [
 let checked = 0;
 for (const [topic, subject] of fixtures) checked += runFixture(topic, subject);
 console.log('LEARNING LOOP ACTION SMOKE OK: ' + fixtures.length + ' isolated topics / ' + checked + ' correctly bound topic-retake handlers');
+
+
+// Regression: the wrong-answer self-reflection chips also embed a dynamic ID
+// in inline event-handler JavaScript. HTML-escaped quotes alone are unsafe
+// after the browser decodes entities; verify round-trip against actual part.
+function runCauseButtonActionFixture(id) {
+  const section = { dataset: {}, innerHTML: '' };
+  const exp = {
+    querySelector: () => null,
+    appendChild(node) { this.section = node; }
+  };
+  const doc = {
+    querySelector: selector => selector === '#app .qcard .exp' ? exp : null,
+    getElementById: () => ({}),
+    createElement: tag => tag === 'section' ? section : {},
+    head: { appendChild() {} },
+    body: {}
+  };
+  const sandbox = {
+    document: doc,
+    window: null,
+    app: { innerHTML: '' },
+    queue: [{ id, answer: 'A' }],
+    idx: 0,
+    selected: 'B',
+    answered: true,
+    localStorage: { getItem: () => null, setItem() {}, length: 0, key: () => null },
+    renderProgress() {},
+    renderReview() {},
+    view: 'nothing'
+  };
+  sandbox.window = sandbox;
+  vm.createContext(sandbox);
+  vm.runInContext(source, sandbox, { timeout: 1000 });
+  const handlers = actions(section.innerHTML, 'swsiSetWrongCause');
+  assert.strictEqual(handlers.length, 5, 'wrong-cause buttons were not generated');
+  const called = [];
+  sandbox.swsiSetWrongCause = (receivedId, receivedCause) => called.push({ receivedId, receivedCause });
+  vm.runInContext(handlers[0], sandbox, { timeout: 1000 });
+  assert.strictEqual(called.length, 1, 'wrong-cause button did not call its safe action once');
+  assert.strictEqual(called[0].receivedId, id, 'question ID was modified by decoded event handler');
+  assert.strictEqual(called[0].receivedCause, '概念不熟', 'wrong-cause choice was modified');
+  assert(!sandbox.__swsiLearningInjected, 'untrusted question ID executed inline JavaScript');
+}
+for (const id of [
+  'TEST-Q-001',
+  "Q-O'Brien & school",
+  'Q-"double quote"',
+  '");window.__swsiLearningInjected=true;//',
+  '<img src=x onerror=window.__swsiLearningInjected=true>'
+]) runCauseButtonActionFixture(id);
+console.log('WRONG-CAUSE ACTION SMOKE OK: 5 isolated escaped question-ID cases');
