@@ -29,7 +29,22 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       };
     });
     await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'paper.png',mimeType:'image/png',buffer:png});
-    await page.locator('.swsi-paper-review textarea').waitFor({timeout:20000});
+    try {
+      await page.locator('.swsi-paper-review textarea').waitFor({timeout:12000});
+    } catch(err) {
+      // Diagnostic-only; do not silently downgrade the OCR confirmation gate.
+      const snapshot=await page.evaluate(()=>({
+        appText:document.querySelector('#app')?.textContent?.slice(-900),
+        ocrStatus:document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent,
+        result:document.querySelector('[id^="airesult_"]')?.textContent?.slice(-1200),
+        requests:window.__paperRequests?.map(r=>({model:r.model,isPhoto:Array.isArray(r.messages?.[0]?.content)})),
+        publicModel:(typeof GROQ_MODEL==='string'?GROQ_MODEL:'UNAVAILABLE'),
+        gradePhotoType:typeof window.gradePhoto,
+        photoInputVisible:!!document.querySelector('input[id^="photo_"]'),
+        reviewElements:document.querySelectorAll('.swsi-paper-review textarea').length
+      }));
+      throw new Error('OCR confirmation editor was not displayed: '+JSON.stringify(snapshot)+'; '+String(err));
+    }
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),1);
     assert(await page.evaluate(()=>Array.isArray(window.__paperRequests[0].messages[0].content)));
     await page.locator('.swsi-paper-confirm').click();
