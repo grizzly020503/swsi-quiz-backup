@@ -246,6 +246,45 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await textarea.fill('一、測試作答\n（一）測試內容');
   assert((await textarea.inputValue()).includes('測試作答'), 'essay textarea did not accept input');
 
+
+  // Handwriting first: OCR must never auto-grade or overwrite a draft.
+  await page.evaluate(() => {
+    window.__swsiHandwritingRequests = [];
+    window.swsiFetchWithTimeout = async function(url, opts) {
+      if (!/\/api\/ai$/.test(url)) throw new Error('unexpected OCR provider URL');
+      const payload = JSON.parse(opts.body);
+      const content = payload.messages[0].content;
+      const isOCR = Array.isArray(content);
+      window.__swsiHandwritingRequests.push({ isOCR, content: JSON.stringify(content).slice(0, 1600) });
+      const reply = isOCR
+        ? '【我讀到的作答】\n一、評估家庭需求與風險◌。\n二、尊重案主自決並盤點家庭支持資源，再連結社區服務，協助案主確認可執行的介入步驟。'
+        : '一、題目要你答什麼：依題意逐點回應。\n二、已做到什麼：有描述服務評估。\n三、下一步補強：請補具體介入評估與倫理說明。';
+      return new Response(JSON.stringify({ choices: [{ message: { content: reply }, finish_reason: 'stop' }] }), {
+        status: 200, headers: { 'Content-Type': 'application/json' }
+      });
+    };
+  });
+  const photoInput = page.locator('#app input[id^="photo_"]').first();
+  const samplePng = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRl8AAAAASUVORK5CYII=', 'base64');
+  await photoInput.setInputFiles({name:'handwriting.png', mimeType:'image/png', buffer:samplePng});
+  await page.waitForSelector('[id^="swsi_handwriting_review_"]', {timeout:15000});
+  const review = page.locator('[id^="swsi_handwriting_review_"]').first();
+  assert((await textarea.inputValue()).includes('測試作答'), 'OCR unexpectedly overwrote draft before review');
+  assert.strictEqual(await page.evaluate(() => window.__swsiHandwritingRequests.length), 1, 'OCR must not automatically grade');
+  assert(await page.evaluate(() => window.__swsiHandwritingRequests[0].isOCR), 'photo step must be OCR only');
+  assert((await page.evaluate(() => window.__swsiHandwritingRequests[0].content)).includes('只轉錄、不評分'), 'OCR request includes no-grade requirement');
+  await page.locator('[data-swsi-ocr-submit]').click();
+  assert.strictEqual(await page.evaluate(() => window.__swsiHandwritingRequests.length), 1, 'unreadable OCR token must block AI grading');
+  assert(/無法辨識/.test(await page.locator('[data-swsi-ocr-warning]').innerText()), 'OCR needs explicit unreadable-marker warning');
+  await review.fill((await review.inputValue()).replace('◌','與安全'));
+  page.once('dialog', async dialog => { assert(/取代/.test(dialog.message())); await dialog.accept(); });
+  await page.locator('[data-swsi-ocr-submit]').click();
+  await page.waitForFunction(() => window.__swsiHandwritingRequests.length === 2, null, {timeout:15000});
+  await page.waitForFunction(() => /下一步補強/.test(document.querySelector('[id^="airesult_"]')?.textContent||''), null, {timeout:15000});
+  assert((await textarea.inputValue()).includes('安全'), 'reviewed OCR transcript was not copied to answer editor');
+  assert.strictEqual(await page.evaluate(() => window.__swsiHandwritingRequests[1].isOCR), false, 'diagnostic call must be text-only');
+  assert(/手寫/.test(await page.locator('.swsi-handwriting-hint').innerText()), 'handwriting should be the primary editor action');
+
   let sawConfirm = false;
   page.once('dialog', async dialog => {
     sawConfirm = true;
