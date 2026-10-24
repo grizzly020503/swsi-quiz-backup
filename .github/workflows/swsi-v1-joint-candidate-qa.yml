@@ -1,0 +1,131 @@
+name: SWSI V1 Joint Release Candidate QA
+
+# Read-only exact-head suite; no remote deploy, AI calls or database writes.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/swsi-v1-joint-candidate-qa.yml'
+      - '.github/workflows/launch-readiness-qa.yml'
+      - '.github/workflows/netlify-controlled-production-deploy.yml'
+      - '.github/workflows/ops-task-watchdog.yml'
+      - 'index.html'
+      - 'cdn/index.html'
+      - 'cdn/monthly_patch.js'
+      - 'cdn/question-shards/**'
+      - 'monthly_patch_parts/**'
+      - 'scripts/handwriting_essay_smoke.js'
+      - 'scripts/launch_readiness_smoke.js'
+      - 'scripts/cloudflare_release_artifact_smoke.py'
+      - 'scripts/current_affairs_watch.py'
+      - 'scripts/current_affairs_sources_smoke.py'
+      - 'scripts/netlify_runtime_gate_selftest.py'
+      - 'scripts/ops_task_watchdog_selftest.py'
+      - 'scripts/full_corpus_qa.py'
+      - 'scripts/official_exam_readonly_guard.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-v1-joint-candidate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  exact-head-acceptance:
+    # Preinstalled Chromium/WebKit avoids wasting Actions quota on browser downloads.
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-noble
+      options: --user 1001
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install pinned test-only dependencies
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check feedparser==6.0.12
+          npm install --no-save playwright@1.55.0 axe-core@4.13.0
+          node -e 'const fs=require("fs"),pw=require("playwright");if(require("playwright/package.json").version!=="1.55.0")throw Error("Playwright package drift");for(const browser of ["chromium","webkit"])if(!fs.existsSync(pw[browser].executablePath()))throw Error(browser+" binary missing")'
+
+      - name: Guard official 5040 questions and historical grading
+        run: |
+          set -euo pipefail
+          python scripts/official_exam_readonly_guard.py
+          python scripts/unified_question_qa_selftest.py
+          python scripts/full_corpus_qa.py --out /tmp/swsi-joint-full-corpus.json --fail-on blocked
+
+      - name: Verify Cloudflare artifact and reviewed UI contrast
+        run: |
+          set -euo pipefail
+          python scripts/cloudflare_release_artifact_smoke.py
+
+      - name: Verify Netlify, operations watchdog and current affairs source recovery
+        run: |
+          set -euo pipefail
+          python scripts/netlify_auth_preflight_selftest.py
+          python scripts/netlify_runtime_gate_selftest.py
+          python scripts/ops_task_watchdog.py --validate-only
+          python scripts/ops_task_watchdog_selftest.py
+          python scripts/current_affairs_sources_smoke.py
+          python scripts/public_monitoring_v2_smoke.py
+
+      - name: Build local student-facing candidate
+        run: |
+          set -euo pipefail
+          mkdir -p _site/icons
+          cp index.html manifest.json sw.js apple-touch-icon.png _site/
+          node scripts/build_essay_guides_runtime.js essay_guides.js _site/essay_guides.js
+          cat monthly_patch_parts/*.part > _site/monthly_patch.js
+          node --check _site/monthly_patch.js
+          cp icons/icon-192.png icons/icon-512.png _site/icons/
+          if [ -d auto ]; then cp -R auto _site/; fi
+          python scripts/monthly_patch_build.py _site/index.html
+          python scripts/monthly_frontend_smoke.py --site _site
+
+      - name: Test same-head mobile, desktop, OCR, grading, WebKit and accessibility
+        run: |
+          set -euo pipefail
+          python -m http.server 4173 --directory _site >/tmp/swsi-joint-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          SWSI_VISUAL_ARTIFACT_DIR=_ui_evidence node scripts/launch_readiness_smoke.js http://127.0.0.1:4173/
+          node scripts/handwriting_essay_smoke.js http://127.0.0.1:4173/
+          node scripts/grading_contract_smoke.js http://127.0.0.1:4173/
+          node scripts/browser_interaction_smoke.js http://127.0.0.1:4173/ webkit
+          node scripts/prelaunch_axe_accessibility_smoke.js http://127.0.0.1:4173/
+          node scripts/prelaunch_webkit_smoke.js http://127.0.0.1:4173/
+
+      - name: Retain local candidate visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-v1-joint-mobile-desktop-evidence
+          path: _ui_evidence/*.png
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Retain full corpus diagnostic report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-v1-joint-full-corpus-report
+          path: /tmp/swsi-joint-full-corpus.json
+          if-no-files-found: warn
+          retention-days: 7
