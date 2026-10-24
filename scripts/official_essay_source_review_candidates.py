@@ -195,7 +195,7 @@ def selftest():
                             source_url=url) for i in range(1, 41))
     assert len(source_index([("112-1.json", rows112)])) == 5
     wrong112 = [dict(item) for item in rows112]
-    wrong112[120]["source_url"] = wrong112[120]["source_url"].replace("s=0306", "s=0305")
+    wrong112[160]["source_url"] = wrong112[160]["source_url"].replace("s=0306", "s=0305")
     fails(lambda: source_index([("112-1.json", wrong112)]))
 
     print("OFFICIAL ESSAY SOURCE CANDIDATE SELFTEST OK: legacy plus 112-1 provenance checks")
