@@ -23,6 +23,7 @@ on:
       - 'scripts/ops_task_watchdog_selftest.py'
       - 'scripts/full_corpus_qa.py'
       - 'scripts/official_exam_readonly_guard.py'
+      - 'scripts/official_essay_source_review_candidates.py'
 
 permissions:
   contents: read
@@ -66,6 +67,21 @@ jobs:
           python scripts/official_exam_readonly_guard.py
           python scripts/unified_question_qa_selftest.py
           python scripts/full_corpus_qa.py --out /tmp/swsi-joint-full-corpus.json --fail-on blocked
+
+      - name: Prepare official essay provenance comparisons without approving stems
+        run: |
+          set -euo pipefail
+          python scripts/official_essay_source_review_candidates.py --selftest
+          python scripts/official_essay_source_review_candidates.py --out /tmp/swsi-essay-source-candidates.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('/tmp/swsi-essay-source-candidates.json').read_text(encoding='utf-8'))
+          assert report['essays_total'] == 240
+          assert report['already_with_matching_source_fields'] + report['candidates_needing_pdf_verification'] == 240
+          assert all(not r['automatic_release_approval'] for r in report['candidates'])
+          assert all(r['matching_mcqs'] == 40 for r in report['candidates'])
+          PY
 
       - name: Verify Cloudflare artifact and reviewed UI contrast
         run: |
@@ -127,5 +143,14 @@ jobs:
         with:
           name: swsi-v1-joint-full-corpus-report
           path: /tmp/swsi-joint-full-corpus.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Retain official essay source review candidates
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-essay-source-review-candidates
+          path: /tmp/swsi-essay-source-candidates.json
           if-no-files-found: warn
           retention-days: 7
