@@ -269,14 +269,15 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
         .map(btn => btn.getBoundingClientRect().height))
     };
   });
+  await visual('05-home-desktop');
+  console.log('SWSI DESKTOP NAV GEOMETRY ' + JSON.stringify(desktopNav));
   assert.strictEqual(desktopNav.layout, 'column', 'wide-screen navigation still uses the mobile bottom bar');
   assert(desktopNav.left >= desktopNav.wrapRight + 8,
-    'desktop navigation overlaps the main reading surface');
+    'desktop navigation overlaps the main reading surface: ' + JSON.stringify(desktopNav));
   assert(desktopNav.right <= desktopNav.viewportWidth - 12,
     'desktop navigation clips off the right edge');
   assert(desktopNav.top >= 85, 'desktop navigation overlaps the header');
   assert(desktopNav.minButtonHeight >= 44, 'desktop navigation targets are too small');
-  await visual('05-home-desktop');
   await page.setViewportSize({ width: 1024, height: 800 });
   assert.strictEqual(await page.locator('#tabbar').evaluate(el => getComputedStyle(el).flexDirection),
     'row', 'intermediate viewport should keep the wide mobile navigation bar');
