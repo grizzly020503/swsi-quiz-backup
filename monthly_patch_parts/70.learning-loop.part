@@ -10,6 +10,10 @@
   var DAY=24*60*60*1000;
 
   function H(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  // HTML-escape a JSON JS string literal for use inside a double-quoted onclick attribute.
+  // Escaping the visible label alone is not enough: HTML entities decode BEFORE JS runs.
+  function actionArg(v){return H(JSON.stringify(String(v==null?'':v)));}
+
   function loadCauses(){try{var x=JSON.parse(localStorage.getItem(CAUSE_KEY)||'{}');return x&&typeof x==='object'?x:{};}catch(_e){return {};}}
   function saveCauses(x){try{localStorage.setItem(CAUSE_KEY,JSON.stringify(x));}catch(_e){}}
   function draftCount(){var n=0;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('essay_draft_')===0&&(localStorage.getItem(k)||'').trim())n++;}}catch(_e){}return n;}
@@ -35,7 +39,7 @@
   function setFromIds(ids){var s=new Set(ids||[]);startQuiz(function(q){return s.has(q.id);},0);}
   window.swsiPracticeReviewSet=function(i){var sets=window._swsiReviewSets||[];if(sets[i])setFromIds(sets[i].ids);};
   window.swsiPracticeSubject=function(subj,n){startQuiz(function(q){return q.subject===subj;},n||20);};
-  window.swsiPracticeTopic=function(topic,n){startQuiz(function(q){return (q.topic||q.major||'')===topic;},n||15);};
+  window.swsiPracticeTopic=function(topic,n){startQuiz(function(q){return (q.topic||q.major||'未分類')===topic;},n||15);};
   window.swsiStartRecommended20=function(){startQuiz(function(){return true;},20);};
   function questionMap(ids){return (ids||[]).map(function(id){try{return ALL.find(function(q){return q.id===id;});}catch(_e){return null;}}).filter(Boolean);}
   function groupPush(obj,key,q){key=key||'未分類';(obj[key]=obj[key]||[]).push(q);}
@@ -80,15 +84,15 @@
     var topTopics=Object.entries(p.wrongTopic).sort(function(a,b){return b[1]-a[1];}).slice(0,5),focusTopic=topTopics.find(function(x){return x[1]>=2;})||null,causeRows=Object.entries(p.byCause).sort(function(a,b){return b[1]-a[1];});
     var action='';
     if(rv.dueCount)action='<div class="swsi-next-copy"><b>先把今天到期的錯題處理掉。</b><span>間隔複習比再刷一堆新題更值得。</span></div><button class="btn" onclick="startDueReview()">複習 '+rv.dueCount+' 題</button>';
-    else if(focusTopic)action='<div class="swsi-next-copy"><b>這個考點已累計錯 '+focusTopic[1]+' 次：'+H(focusTopic[0])+'</b><span>先看相關法規／理論／歷屆連結，再用 5 題確認。這是依你的錯題紀錄產生，不是黑箱 AI 推薦。</span></div><div class="swsi-next-actions"><button class="btn ghost" onclick="swsiKnowledgeSearch(\''+H(focusTopic[0])+'\')">先看相關教材</button><button class="btn" onclick="swsiPracticeTopic(\''+H(focusTopic[0])+'\',5)">練 5 題確認</button></div>';
-    else if(weak)action='<div class="swsi-next-copy"><b>目前最值得補：'+H(weak.name)+'</b><span>你在這科目前 '+weak.r+'%（'+weak.c+'/'+weak.t+'）。先用 20 題再確認一次。</span></div><button class="btn" onclick="swsiPracticeSubject(\''+H(weak.name)+'\',20)">練 '+H(weak.name)+' 20 題</button>';
+    else if(focusTopic)action='<div class="swsi-next-copy"><b>這個考點已累計錯 '+focusTopic[1]+' 次：'+H(focusTopic[0])+'</b><span>先看相關法規／理論／歷屆連結，再用 5 題確認。這是依你的錯題紀錄產生，不是黑箱 AI 推薦。</span></div><div class="swsi-next-actions"><button class="btn ghost" onclick="swsiKnowledgeSearch('+actionArg(focusTopic[0])+')">先看相關教材</button><button class="btn" onclick="swsiPracticeTopic('+actionArg(focusTopic[0])+',5)">練 5 題確認</button></div>';
+    else if(weak)action='<div class="swsi-next-copy"><b>目前最值得補：'+H(weak.name)+'</b><span>你在這科目前 '+weak.r+'%（'+weak.c+'/'+weak.t+'）。先用 20 題再確認一次。</span></div><button class="btn" onclick="swsiPracticeSubject('+actionArg(weak.name)+',20)">練 '+H(weak.name)+' 20 題</button>';
     else action='<div class="swsi-next-copy"><b>繼續累積一點資料。</b><span>再刷 20 題後，弱點判斷會更有參考價值。</span></div><button class="btn" onclick="swsiStartRecommended20()">繼續刷 20 題</button>';
-    var subjHTML=subjects.map(function(s){var col=s.r>=70?'var(--correct)':s.r>=50?'var(--gold)':'var(--wrong)';return '<button class="swsi-progress-subject" onclick="swsiPracticeSubject(\''+H(s.name)+'\',20)"><div class="top"><b>'+H(s.name)+'</b><span>'+s.r+'%　('+s.c+'/'+s.t+')</span></div><div class="accbar"><i style="width:'+s.r+'%;background:'+col+'"></i></div><small>點一下練這科 20 題</small></button>';}).join('');
+    var subjHTML=subjects.map(function(s){var col=s.r>=70?'var(--correct)':s.r>=50?'var(--gold)':'var(--wrong)';return '<button class="swsi-progress-subject" onclick="swsiPracticeSubject('+actionArg(s.name)+',20)"><div class="top"><b>'+H(s.name)+'</b><span>'+s.r+'%　('+s.c+'/'+s.t+')</span></div><div class="accbar"><i style="width:'+s.r+'%;background:'+col+'"></i></div><small>點一下練這科 20 題</small></button>';}).join('');
     var h='<div class="section-h">我的學習進度</div><div class="section-s">只看能幫你決定下一步的數據。重複作答會算進正確率；「題庫覆蓋」則同一題只算一次。</div>';
     h+='<section class="swsi-progress-hero"><div><small>總正確率</small><strong>'+rate+'%</strong></div><div class="swsi-progress-mini"><span><b>'+total+'</b>作答次數</span><span><b>'+p.unique.size+'</b>不同題目</span><span><b>'+coverage+'%</b>題庫覆蓋</span></div></section>';
     h+='<div class="swsi-progress-strip"><div><b>'+(rr==null?'—':rr+'%')+'</b><span>最近 7 天'+(p.recent.length?' · '+p.recent.length+' 題':' · 尚無紀錄')+'</span></div><div><b>'+rv.activeCount+'</b><span>未熟練錯題</span></div><div><b>'+essays+'</b><span>申論草稿</span></div></div>';
     h+='<section class="swsi-next-card"><div class="swsi-learning-h">今天下一步</div>'+action+'</section><section class="swsi-learning-section"><div class="swsi-learning-h">各科狀況</div>'+subjHTML+'</section>';
-    if(topTopics.length)h+='<section class="swsi-learning-section"><div class="swsi-learning-h">最常答錯的考點</div>'+topTopics.map(function(x){return '<button class="swsi-learning-row" onclick="swsiPracticeTopic(\''+H(x[0])+'\',5)"><span><b>'+H(x[0])+'</b><small>累計錯 '+x[1]+' 次 · 練 5 題確認</small></span><span>›</span></button>';}).join('')+'</section>';
+    if(topTopics.length)h+='<section class="swsi-learning-section"><div class="swsi-learning-h">最常答錯的考點</div>'+topTopics.map(function(x){return '<button class="swsi-learning-row" onclick="swsiPracticeTopic('+actionArg(x[0])+',5)"><span><b>'+H(x[0])+'</b><small>累計錯 '+x[1]+' 次 · 練 5 題確認</small></span><span>›</span></button>';}).join('')+'</section>';
     if(causeRows.length)h+='<section class="swsi-learning-section"><div class="swsi-learning-h">你自己標記的錯因</div>'+causeRows.map(function(x){return '<div class="swsi-cause-stat"><span>'+H(x[0])+'</span><b>'+x[1]+' 題</b></div>';}).join('')+'</section>';
     h+='<div class="swsi-progress-foot"><button class="btn ghost" onclick="go(\'review\')">回錯題複習</button><button class="btn ghost" onclick="exportDrafts()">備份申論草稿</button><button class="swsi-danger-link" onclick="if(confirm(\'清除所有刷題、間隔複習與自訂錯因紀錄？無法復原。\')){localStorage.removeItem(LS_KEY);localStorage.removeItem(REVIEW_KEY);localStorage.removeItem(\''+CAUSE_KEY+'\');render();}">清除學習紀錄</button></div>';app.innerHTML=h;
   };
