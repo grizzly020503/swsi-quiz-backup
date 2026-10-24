@@ -70,6 +70,16 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     await page.locator('.swsi-paper-confirm').click();
     assert.match(await page.locator('.swsi-paper-review [role=status]').innerText(),/辨識不清/);
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),1,'unconfirmed OCR cannot trigger grading');
+    // OCR providers may emit multiple unreadable-character conventions.
+    // Every one must require explicit repair, not trigger a feedback call.
+    const originalOCR=await page.locator('.swsi-paper-review textarea').inputValue();
+    for(const marker of ['□','�']){
+      await page.locator('.swsi-paper-review textarea').fill(originalOCR.replace('◌',marker));
+      await page.locator('.swsi-paper-confirm').click();
+      assert.match(await page.locator('.swsi-paper-review [role=status]').innerText(),/辨識不清/);
+      assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),1,
+        'alternate unreadable marker bypassed OCR confirmation');
+    }
     await page.locator('.swsi-paper-review textarea').fill('一、應尊重案主自決並說明社會工作倫理及核心概念，結合理論評估其處境。\n二、提出資源連結、處遇計畫、後續追蹤及實務反思。');
     await page.locator('.swsi-paper-confirm').click();
     await page.waitForFunction(()=>window.__paperRequests.length===2);
@@ -114,6 +124,34 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     await page.waitForFunction(()=>/每張 25 MB/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:12000});
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),sentBeforeOversize,
       'original-file size failure must not make AI calls');
+    // Switching away must cancel an in-flight OCR session permanently,
+    // even if the student switches back before the old provider reply arrives.
+    const draftBeforeStale=await page.locator('textarea.wta').inputValue();
+    const requestsBeforeStale=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{
+      window.__staleOCRResolve=null;
+      window.swsiFetchWithTimeout=async function(_url,opts){
+        const payload=JSON.parse(opts.body);
+        window.__paperRequests.push(payload);
+        return await new Promise(resolve=>{
+          window.__staleOCRResolve=()=>resolve(new Response(JSON.stringify({
+            choices:[{message:{content:'【我讀到的作答】\\n一、舊照片內容不得回填。\\n二、舊資料不得覆蓋新草稿。'},finish_reason:'stop'}]
+          }),{status:200,headers:{'Content-Type':'application/json'}}));
+        });
+      };
+    });
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'stale-ocr.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(()=>typeof window.__staleOCRResolve==='function');
+    await page.locator('.swsi-paper-mode-text').click();
+    await page.locator('.swsi-paper-mode-paper').click();
+    await page.evaluate(()=>window.__staleOCRResolve());
+    await page.waitForTimeout(100);
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,
+      'an OCR reply from a cancelled mode switch must not reappear');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeStale,
+      'cancelled OCR must never overwrite confirmed draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),requestsBeforeStale+1,
+      'cancelled OCR must not trigger AI diagnosis');
     console.log('HANDWRITTEN ESSAY OCR CONFIRM QA OK: photo OCR, correction, explicit diagnosis, typed fallback, truncation NO-GO');
   }finally{await browser.close();}
 })().catch(err=>{console.error(err);process.exitCode=1;});

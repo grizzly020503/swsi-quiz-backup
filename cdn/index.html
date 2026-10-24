@@ -4289,7 +4289,7 @@ function review(id,panel){
   send.addEventListener('click',function(){
     if(!active(id,session.seq,panel))return;
     var answer=input.value.trim();
-    if(/◌|辨識不清|\[看不清\]/.test(answer)){message.textContent='仍有辨識不清的字，請先改正。';input.focus();return;}
+    if(/[◌□�]|辨識不清|\[看不清\]/.test(answer)){message.textContent='仍有辨識不清的字，請先改正。';input.focus();return;}
     var count=typeof window.effectiveEssayLength==='function'?window.effectiveEssayLength(answer):answer.replace(/\s/g,'').length;
     if(count<30){message.textContent='請先核對至少 30 字的實際作答，再取得回饋。';input.focus();return;}
     var draft=document.getElementById('ta_'+id);
@@ -4340,7 +4340,7 @@ function mount(){
   body.appendChild(elem('div','swsi-paper-result'));
   panel.append(body,elem('div','swsi-type-result'));box.prepend(panel);
   pbtn.addEventListener('click',function(){modes[id]='paper';updateMode(id,panel);});
-  tbtn.addEventListener('click',function(){modes[id]='type';updateMode(id,panel);ta.focus();});
+  tbtn.addEventListener('click',function(){delete sessions[id];modes[id]='type';updateMode(id,panel);ta.focus();});
   updateMode(id,panel);
 }
 // Replaces old photo behavior that graded in the same request before OCR confirmation.
