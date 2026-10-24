@@ -12,7 +12,7 @@ const ORIGIN = 'https://wandering-wave-4418.c022050333.workers.dev';
 // require the deployed CSS to equal the reviewed CDN source. This prevents old live UI
 // from earning a misleading green check while Cloudflare is still deploying.
 const sourceHtml = fs.readFileSync(path.resolve(__dirname, '../cdn/index.html'), 'utf8');
-const cssMatches = [...sourceHtml.matchAll(/<style id="swsi-calm-student-design-v2">([\\s\\S]*?)<\\/style>/g)];
+const cssMatches = [...sourceHtml.matchAll(/<style id="swsi-calm-student-design-v2">([\s\S]*?)<\/style>/g)];
 assert(cssMatches.length <= 1, 'duplicate reviewed calm design CSS in CDN source');
 const expectedCalmCss = cssMatches.length ? cssMatches[0][1] : null;
 const requireCalmParity = process.env.GITHUB_EVENT_NAME !== 'pull_request' && expectedCalmCss !== null;
