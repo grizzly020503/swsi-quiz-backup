@@ -56,19 +56,41 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -f _site/index.html
-          test -f _site/admin/index.html
-          test -f _site/monthly_patch.js
-          test -f _site/manifest.json
-          test -f _site/sw.js
-          test -f _site/auto/current_affairs.json
-          test -f _site/auto/current_affairs_signals.json
-          test -f _site/auto/current_affairs_events.json
-          test -f _site/auto/current_affairs_trends.json
-          test -d _site/icons
-          grep -q 'swsi-netlify-release" content="2026-09-26-history-v2.2' _site/index.html
-          grep -q '命題趨勢雷達' _site/index.html
-          grep -q "const VERSION = 'v7'" _site/sw.js
+          # Keep every release guard fail-closed, but label the precise failed
+          # condition so maintainer does not have to guess from exit code 1.
+          for file in \
+            _site/index.html \
+            _site/admin/index.html \
+            _site/monthly_patch.js \
+            _site/manifest.json \
+            _site/sw.js \
+            _site/auto/current_affairs.json \
+            _site/auto/current_affairs_signals.json \
+            _site/auto/current_affairs_events.json \
+            _site/auto/current_affairs_trends.json; do
+            if [ ! -f "$file" ]; then
+              echo "::error::Netlify manual package missing required file: $file" >&2
+              exit 1
+            fi
+          done
+          if [ ! -d _site/icons ]; then
+            echo '::error::Netlify manual package missing icons directory' >&2
+            exit 1
+          fi
+          if ! grep -q 'swsi-netlify-release" content="2026-09-26-history-v2.2' _site/index.html; then
+            echo '::error::Netlify manual package release marker mismatch' >&2
+            exit 1
+          fi
+          # The canonical installer deliberately replaced the legacy trend radar
+          # with three curated exam priorities. Assert the active UI, not the retired label.
+          if ! grep -q '目前 3 個國考重點' _site/index.html; then
+            echo '::error::Netlify manual package missing canonical current-affairs priority UI' >&2
+            exit 1
+          fi
+          if ! grep -q "const VERSION = 'v7'" _site/sw.js; then
+            echo '::error::Netlify manual package service worker version mismatch' >&2
+            exit 1
+          fi
           node --check _site/monthly_patch.js
 
           python - <<'PY'
