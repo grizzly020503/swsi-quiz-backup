@@ -168,7 +168,8 @@ def selftest():
     rows112 = make_112_rows()
     assert len(source_index([("112-1.json", rows112)])) == 5
     wrong112 = [dict(item) for item in rows112]
-    wrong112[0]["source_url"] = wrong112[0]["source_url"].replace("s=0305", "s=0304")
+    wrong_item = next(item for item in wrong112 if item["subject"] == "社會政策與社會立法")
+    wrong_item["source_url"] = wrong_item["source_url"].replace("s=0304", "s=0303")
     try:
         source_index([("112-1.json", wrong112)])
     except ValueError:
