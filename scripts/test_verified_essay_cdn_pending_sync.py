@@ -145,7 +145,7 @@ class VerifiedFutureEssayTest(unittest.TestCase):
         incoming = self.collect()
         rows = deepcopy(self.src['essays'])
         with self.assertRaisesRegex(ValueError, 'IDs differ'):
-            staged_rows(incoming, rows[:-1], [])
+            staged_rows(incoming, rows[:-1], [rows[0]] )
         with self.assertRaisesRegex(ValueError, 'duplicate id'):
             staged_rows(incoming, rows, [rows[0], rows[0]])
 
