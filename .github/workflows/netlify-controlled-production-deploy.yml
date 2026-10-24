@@ -20,6 +20,7 @@ on:
       - '.github/workflows/netlify-controlled-production-deploy.yml'
       - 'scripts/netlify_auth_preflight.py'
       - 'scripts/netlify_auth_preflight_selftest.py'
+      - 'scripts/netlify_runtime_gate_selftest.py'
       - 'netlify.toml'
       - 'index.html'
       - 'manifest.json'
@@ -90,7 +91,9 @@ jobs:
           package-manager-cache: false
 
       - name: Validate Netlify preflight logic offline
-        run: python3 scripts/netlify_auth_preflight_selftest.py
+        run: |
+          python3 scripts/netlify_auth_preflight_selftest.py
+          python3 scripts/netlify_runtime_gate_selftest.py
 
       - name: Require Netlify GitHub secrets
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
