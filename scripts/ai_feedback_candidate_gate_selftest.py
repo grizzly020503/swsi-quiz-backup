@@ -70,10 +70,11 @@ def main() -> int:
 
     # Old reviewed captures must not authorize a revised prompt, even when a
     # caller copies the current fingerprint or leaves all human scores filled.
-    old_prompt = dict(payload)
-    old_prompt["prompt_version"] = "essay-trust-v1-20260826"
-    errors = gate.validate_snapshot_metadata(dataset, old_prompt)
-    require(any("prompt_version" in error for error in errors), "old prompt evidence must fail")
+    for old_version in ("essay-trust-v1-20260826", "essay-trust-v2-20261024"):
+        old_prompt = dict(payload)
+        old_prompt["prompt_version"] = old_version
+        errors = gate.validate_snapshot_metadata(dataset, old_prompt)
+        require(any("prompt_version" in error for error in errors), "old prompt evidence must fail")
 
     mislabeled = dict(payload)
     mislabeled["capture_kind"] = "synthetic_selftest"

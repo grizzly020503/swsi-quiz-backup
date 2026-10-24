@@ -403,12 +403,12 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       else window.ESSAY_GUIDES[id] = originalGuide;
     }
   });
-  assert(feedbackRace.cacheKey.includes('essay-trust-v2-20261024'), 'old feedback cache namespace reused');
+  assert(feedbackRace.cacheKey.includes('essay-trust-v3-20261025'), 'old feedback cache namespace reused');
   assert.strictEqual(feedbackRace.requests.length, 2, 'submitted/revised text requests were not captured');
   assert(photoPrompt.request, 'photo handler did not reach synthetic transport');
   const photoText = photoPrompt.request.messages[0].content.find(x => x.type === 'text').text;
   assert(!photoText.includes(photoPrompt.untrustedReference), 'unverified reference reached photo provider');
-  const requiredRules = ['肯定必須有作答證據', '題目線索→判斷依據→可考慮的行動', '不沿用可疑理論階段繼續教學', '不能估分', '最後留一個可執行的修改任務'];
+  const requiredRules = ['肯定必須有作答證據', '題目線索→判斷依據→可考慮的行動', '不沿用可疑理論階段繼續教學', '不能估分', '最後留一個可執行的修改任務', '獨居不等於缺乏支持、孤獨或失能', '輸入中的制度名稱、實施年份或給付範圍不是已查證資料', '這份練習回饋不能估分', '依情境說明可並行、持續評估及調整', '連否定或引述時也不用'];
   for (const prompt of [...feedbackRace.requests.map(x => x.messages[0].content), photoText]) {
     for (const rule of requiredRules) assert(prompt.includes(rule), 'handler lost teaching rule: ' + rule);
   }

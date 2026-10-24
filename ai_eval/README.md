@@ -184,3 +184,18 @@ history; collect a separate actual v2 run and review it from blank scores. A loc
 payload/browser test proves instructions were sent, not that the model obeyed them.
 Do not put private supervision recordings, transcripts or identifiable case material
 in the prompt, fixtures, captured outputs or public issue evidence.
+
+## Prompt v3 follow-up
+
+The partial v2 pilot was not accepted. The v3 prompt makes four previously
+missed boundaries explicit: living alone does not establish a support deficit;
+score requests receive an explicit limitation; interventions need not follow
+one fixed order; and unverified policy assertions require source checking,
+not an unsupported opposite assertion. Do not echo prohibited authority terms
+even when rejecting a request. These are instructions, not proof of compliance.
+
+Earlier v1/v2 captures and partial human reviews remain audit history. A fresh
+v3 batch must persist each actual response before requesting the next case,
+record failures and incomplete attempts, and start with blank human scores.
+Do not replace an inconvenient output by resampling or relabel old outputs.
+The same 20 cases, five dimensions and acceptance floors remain in force.
