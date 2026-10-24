@@ -1,0 +1,46 @@
+name: Verified MOEX Auto CDN QA
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/verified_auto_cdn_sync.py'
+      - '.github/workflows/question-shards-publish.yml'
+      - '.github/workflows/verified-auto-cdn-qa.yml'
+      - 'auto/questions_auto.json'
+      - 'incoming/**'
+      - 'cdn/question-shards/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/verified_auto_cdn_sync.py'
+      - '.github/workflows/question-shards-publish.yml'
+      - '.github/workflows/verified-auto-cdn-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  official-source-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code only
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate fail-closed synthetic fixtures
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/verified_auto_cdn_sync.py
+          python scripts/verified_auto_cdn_sync.py --selftest
+      - name: Verify actual tracked MOEX source against Supabase shards (read-only)
+        run: |
+          set -euo pipefail
+          python scripts/verified_auto_cdn_sync.py \
+            --incoming incoming \
+            --auto auto/questions_auto.json \
+            --shards cdn/question-shards
+          git diff --check
