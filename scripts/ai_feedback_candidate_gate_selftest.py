@@ -78,6 +78,25 @@ def main() -> int:
     errors = gate.validate_snapshot_metadata(dataset, unreviewed)
     require(any("human_review_completed" in error for error in errors), "unreviewed outputs must fail closed")
 
+    # No synthetic harness should be able to claim a human sign-off by
+    # substituting JSON integer 1 for the literal boolean true.
+    for field, wrong in (
+        ("human_review_completed", 1),
+        ("human_review_completed", "true"),
+        ("schema_version", True),
+        ("schema_version", 1.0),
+    ):
+        disguised = dict(payload)
+        disguised[field] = wrong
+        errors = gate.validate_snapshot_metadata(dataset, disguised)
+        require(any(field in error for error in errors), f"{field}={wrong!r} must be rejected")
+
+    for timestamp in ("selftest", "2026-02-30T00:00:00Z", "2026-10-02T08:00:00+08:00", "2026-10-02"):
+        invalid_time = dict(payload)
+        invalid_time["generated_at"] = timestamp
+        errors = gate.validate_snapshot_metadata(dataset, invalid_time)
+        require(any("generated_at" in error for error in errors), f"invalid capture timestamp {timestamp!r} must fail")
+
     stale_model = dict(payload)
     stale_model["model"] = "old/model"
     errors = gate.validate_snapshot_metadata(dataset, stale_model)

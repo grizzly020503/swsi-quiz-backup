@@ -17,6 +17,8 @@ on:
     paths:
       - '.github/workflows/question-shards-publish.yml'
       - 'scripts/build_question_shards.py'
+      - 'scripts/verified_auto_cdn_sync.py'
+      - 'scripts/verified_essay_cdn_pending_sync.py'
 
 permissions:
   contents: write
@@ -124,9 +126,32 @@ jobs:
             X-Content-Type-Options: nosniff
           EOF
 
+          # Only reached after verified MOEX+Supabase shard build and main release gate.
+          # Keep CDN auto questions synchronized with proven official grading.
+          # The independently reviewed essay enrichment states are not synced here.
+          python scripts/verified_auto_cdn_sync.py \
+            --incoming incoming \
+            --auto auto/questions_auto.json \
+            --shards /tmp/question-shards \
+            --target cdn/auto/questions_auto.json \
+            --stage
+
+          # Future MOEX essay IDs are official question text only. Existing
+          # CDN guides/review states remain unchanged. New IDs start pending.
+          python scripts/verified_essay_cdn_pending_sync.py \
+            --incoming incoming \
+            --auto auto/essays_auto.json \
+            --cdn cdn/auto/essays_auto.json \
+            --registry data/exam_scheme_registry.v1.json \
+            --stage
+
+          # The existing #429 essay official-source parity gate must also hold
+          # AFTER adding a new exam, never silently promoting root "ready".
+          python scripts/cdn_auto_essay_core_parity.py
+
           git config user.name 'swsi-shard-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add cdn/question-shards cdn/_headers
+          git add cdn/question-shards cdn/_headers cdn/auto/questions_auto.json cdn/auto/essays_auto.json
           if git diff --cached --quiet; then
             echo 'No shard or header changes; no repository commit.'
             exit 0
@@ -266,3 +291,18 @@ jobs:
           assert d.get('error',{}).get('message') == '最多一次上傳 3 張照片。', d
           print('AI public image guard runtime OK: fourth image -> 400')
           PY
+
+      # GITHUB_TOKEN-originated publisher commits do not trigger downstream push QA.
+      # Therefore live auto snapshot verification MUST happen in this same owning
+      # workflow, AFTER the existing deployed-shard/Worker smoke succeeds.
+      - name: Verify hosted Cloudflare auto mirrors after authorized shard publication
+        if: >
+          (github.event_name == 'workflow_run' &&
+           github.event.workflow_run.conclusion == 'success' &&
+           github.event.workflow_run.head_branch == 'main') ||
+          (github.event_name != 'workflow_run' && github.ref == 'refs/heads/main')
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/cloudflare_auto_mirror_live_smoke.py
+          python scripts/cloudflare_auto_mirror_live_smoke.py --live --check "$GITHUB_RUN_ID"
