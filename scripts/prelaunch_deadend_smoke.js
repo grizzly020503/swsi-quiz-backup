@@ -48,6 +48,8 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.locator('#app .gcard').first().click();
   await page.waitForSelector('#app [onclick^="toggleEssay("]', { timeout: 30000 });
   await page.locator('#app [onclick^="toggleEssay("]').first().click();
+  // Handwriting is the new default. Explicitly select keyboard mode to test legacy editor behavior.
+  await page.locator('.swsi-paper-mode-text').click();
   await page.waitForSelector('.wta', { timeout: 30000 });
   await page.locator('.wta').first().fill('未完成草稿，dead-end smoke');
   await page.locator('#t-home').click();

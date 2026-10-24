@@ -59,6 +59,8 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
   await page.locator('#app .gcard').first().click();
   await page.waitForSelector('#app [onclick^="toggleEssay("]', { timeout: 30000 });
   await page.locator('#app [onclick^="toggleEssay("]').first().click();
+  // Handwriting is the new default. Explicitly select keyboard mode to test legacy editor behavior.
+  await page.locator('.swsi-paper-mode-text').click();
   await page.waitForSelector('.wta',{timeout:30000});
   let blockedPost='';
   await page.route('**/*',route=>{
