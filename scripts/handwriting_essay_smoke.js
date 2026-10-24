@@ -25,7 +25,7 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
         window.__paperRequests.push(req);
         const isPhoto=Array.isArray(req.messages[0].content);
         const answer=isPhoto?'【我讀到的作答】\n一、社會工作要尊重當事人的自決，運用◌了解需求。\n二、還要完成評估、資源連結、執行處遇與後續追蹤。':'一、可補上具體理論。\n二、題目要求要逐項回應。';
-        return new Response(JSON.stringify({choices:[{message:{content:answer}}]}),{status:200,headers:{'Content-Type':'application/json'}});
+        return new Response(JSON.stringify({choices:[{message:{content:answer},finish_reason:(isPhoto&&window.__ocrReturnTruncated)?'length':'stop'}]}),{status:200,headers:{'Content-Type':'application/json'}});
       };
     });
     await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'paper.png',mimeType:'image/png',buffer:png});
@@ -43,6 +43,17 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     assert.strictEqual(await page.locator('.swsi-paper-mode-text').getAttribute('aria-pressed'),'true');
     assert(await page.locator('textarea.wta').isVisible());
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),2,'switching input must not contact AI');
-    console.log('HANDWRITTEN ESSAY OCR CONFIRM QA OK: photo-only OCR, fail-closed unclear text, explicit confirmation, typed fallback');
+    // A provider length-limited OCR response cannot become editable 'complete' text,
+    // cannot replace an existing confirmed draft, and must never auto-call feedback.
+    await page.locator('.swsi-paper-mode-paper').click();
+    const previousDraft=await page.locator('textarea.wta').inputValue();
+    await page.evaluate(()=>{window.__ocrReturnTruncated=true;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'long-handwriting.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(()=>/辨識文字被截斷/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,'truncated OCR must not expose a confirmation editor');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,'truncated OCR overwrote a verified draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),3,'truncated OCR must not trigger a feedback request');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.filter(r=>typeof r.messages[0].content==='string').length),1,'only explicitly confirmed answer may invoke text diagnosis');
+    console.log('HANDWRITTEN ESSAY OCR CONFIRM QA OK: photo OCR, correction, explicit diagnosis, typed fallback, truncation NO-GO');
   }finally{await browser.close();}
 })().catch(err=>{console.error(err);process.exitCode=1;});

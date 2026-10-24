@@ -3237,7 +3237,7 @@ function review(id,panel){
     if(draft.value.trim()&&draft.value.trim()!==answer&&!window.confirm('確認後的手寫文字將取代本題原有打字草稿。確定繼續？'))return;
     draft.value=answer;
     if(typeof window.saveDraft==='function')window.saveDraft(id);
-    message.textContent='辨識文字已經你確認並儲存為本機草稿，現在才送交 AI 回饋。';
+    message.textContent='辨識文字已由你確認，並寫入作答欄；現在才送交 AI 回饋。';
     send.disabled=true;
     if(typeof window.runAIFeedback==='function')window.runAIFeedback(id);
   });
@@ -3271,7 +3271,7 @@ function mount(){
   var tbtn=elem('button','swsi-paper-mode-text','鍵盤打字');
   pbtn.type=tbtn.type='button';switcher.append(pbtn,tbtn);panel.appendChild(switcher);
   var body=elem('div','swsi-paper-body');
-  body.appendChild(elem('p','','每次最多 3 張照片。請勿上傳可識別真實個案、病歷或私人資料。影像只用於本次辨識，不儲存至草稿。'));
+  body.appendChild(elem('p','','每次最多 3 張照片，將送至外部 AI 辨識；確認文字後再呼叫一次文字 AI，各使用一次免費額度。長篇多頁可能因回應字數限制被截斷。請勿上傳真實個案或個資；照片不儲存至草稿。'));
   var photoSlot=elem('div','swsi-paper-upload');photoSlot.appendChild(photo);body.appendChild(photoSlot);
   photo.textContent='📷 拍照／上傳手寫答案（1–3 張）';
   var status=elem('div','swsi-paper-status','拍照時讓整頁入鏡，注意字距、行距與光線。');
@@ -3325,10 +3325,20 @@ async function photoOCR(id,inputEl){
     }
     var data=await response.json();
     if(!active(id,seq,panel))return;
-    var raw=String(data&&data.choices&&data.choices[0]&&data.choices[0].message&&
-      data.choices[0].message.content||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
-    var mark='【我讀到的作答】',pos=raw.indexOf(mark);
-    if(pos<0||raw.includes('【練習回饋】')||raw.includes('【辨識失敗】')||raw.length>20000)
+    var choice=data&&data.choices&&data.choices[0]||{};
+    // Public Worker caps photo output tokens. Never promote a cut-off page into
+    // an apparently complete answer; a retry also consumes photo quota.
+    if(choice.finish_reason==='length'){
+      status.textContent='這份手寫答案的辨識文字被截斷。請減少頁數再拍一次；這次沒有批改，也不會修改原草稿。';
+      return;
+    }
+    if(choice.finish_reason&&choice.finish_reason!=='stop'){
+      status.textContent='辨識沒有完整結束，請重新拍攝；本次不會批改。';
+      return;
+    }
+    var raw=String(choice.message&&choice.message.content||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+    var mark='【我讀到的作答】';
+    if(!raw.startsWith(mark)||raw.includes('【練習回饋】')||raw.includes('【辨識失敗】')||raw.length>20000)
       {status.textContent='辨識結果不可靠，請重新拍攝；不會直接批改。';return;}
     var transcript=raw.slice(pos+mark.length).trim();
     if(!transcript){status.textContent='未取得可確認的手寫內容，請重拍。';return;}
