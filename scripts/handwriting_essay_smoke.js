@@ -91,6 +91,8 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     // A provider length-limited OCR response cannot become editable 'complete' text,
     // cannot replace an existing confirmed draft, and must never auto-call feedback.
     await page.locator('.swsi-paper-mode-paper').click();
+    assert.match(await page.locator('.swsi-paper-review textarea').inputValue(),/應尊重案主自決/,
+      'switching between typing and paper must preserve already reviewed OCR text');
     const previousDraft=await page.locator('textarea.wta').inputValue();
     await page.evaluate(()=>{window.__ocrReturnTruncated=true;});
     await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'long-handwriting.png',mimeType:'image/png',buffer:png});

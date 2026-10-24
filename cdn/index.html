@@ -4340,7 +4340,7 @@ function mount(){
   body.appendChild(elem('div','swsi-paper-result'));
   panel.append(body,elem('div','swsi-type-result'));box.prepend(panel);
   pbtn.addEventListener('click',function(){modes[id]='paper';updateMode(id,panel);});
-  tbtn.addEventListener('click',function(){delete sessions[id];modes[id]='type';updateMode(id,panel);ta.focus();});
+  tbtn.addEventListener('click',function(){if(sessions[id])sessions[id].seq=++requestSeq;modes[id]='type';updateMode(id,panel);ta.focus();});
   updateMode(id,panel);
 }
 // Replaces old photo behavior that graded in the same request before OCR confirmation.
