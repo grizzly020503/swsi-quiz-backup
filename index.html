@@ -3271,7 +3271,7 @@ function mount(){
   var tbtn=elem('button','swsi-paper-mode-text','鍵盤打字');
   pbtn.type=tbtn.type='button';switcher.append(pbtn,tbtn);panel.appendChild(switcher);
   var body=elem('div','swsi-paper-body');
-  body.appendChild(elem('p','','每次最多 3 張照片，將送至外部 AI 辨識；確認文字後再呼叫一次文字 AI，各使用一次免費額度。長篇多頁可能因回應字數限制被截斷。請勿上傳真實個案或個資；照片不儲存至草稿。'));
+  body.appendChild(elem('p','','最多 3 張照片、每張原檔最多 25 MB；會先在手機上縮圖成 JPEG（優先保留手寫字清晰度），整份上傳請求須小於 3.8 MB。超過會請你裁切重拍，不會偷縮到字看不清。照片辨識與文字回饋各使用一次免費額度；長篇可能因 AI 回傳字數限制截斷。請勿上傳真實個案或個資；照片不存入草稿。'));
   var photoSlot=elem('div','swsi-paper-upload');photoSlot.appendChild(photo);body.appendChild(photoSlot);
   photo.textContent='📷 拍照／上傳手寫答案（1–3 張）';
   var status=elem('div','swsi-paper-status','拍照時讓整頁入鏡，注意字距、行距與光線。');
@@ -3294,16 +3294,13 @@ async function photoOCR(id,inputEl){
   var status=panel.querySelector('.swsi-paper-status');
   if(files.length>3||files.some(function(f){return !/^image\//.test(f.type);}))
     {status.textContent='一次只允許 1–3 張照片檔案。';return;}
-  if(typeof shrinkImage!=='function'||typeof window.swsiFetchWithTimeout!=='function')
-    {status.textContent='照片辨識目前無法使用，仍可切換打字作答。';return;}
+  if(files.some(function(f){return !Number.isFinite(f.size)||f.size>25*1024*1024;}))
+    {status.textContent='有原始照片超過每張 25 MB 的本機處理上限；請先在相簿裁切成單頁或轉存較小的照片。本次不會上傳。';return;}
+  if(typeof shrinkImage!=='function'||typeof window.swsiFetchWithTimeout!=='function'||typeof TextEncoder!=='function')
+    {status.textContent='照片處理目前無法使用，仍可切換打字作答。';return;}
   var button=document.getElementById('aiphoto_'+id);if(button)button.disabled=true;
-  status.textContent='正在逐頁辨識文字，尚未送出批改。';
+  status.textContent='正在手機上整理照片，尚未傳送照片或消耗 AI 額度。';
   try{
-    var images=[];
-    for(var i=0;i<files.length;i++)images.push(await shrinkImage(files[i],1200,0.78));
-    if(!active(id,seq,panel))return;
-    var bytes=images.reduce(function(n,s){return n+Math.ceil((s.length-s.indexOf(',')-1)*3/4);},0);
-    if(bytes>3200000){status.textContent='圖片過大，請裁掉背景後重試。';return;}
     var q=(window.ESSAYS||[]).find(function(e){return e&&e.id===id;});
     var endpoint=typeof AI_PROXY_URL==='string'?AI_PROXY_URL:'';
     var model=typeof GROQ_MODEL==='string'?GROQ_MODEL:'';
@@ -3311,12 +3308,36 @@ async function photoOCR(id,inputEl){
     var prompt='只做繁體中文手寫逐字辨識；不得評分、批改、補全答案或從題目猜字。'+
       '請只輸出【我讀到的作答】及辨識出的文字，辨識不清用「◌」；無法辨識則輸出【辨識失敗】。'+
       '以下正式題目只供區分題目與學生答案，不要複製進轉錄：\n'+String(q.q);
-    var content=[{type:'text',text:prompt}];
-    images.forEach(function(url){content.push({type:'image_url',image_url:{url:url}});});
+    /* Upstream Worker rejects > 4,000,000 bytes of the *entire JSON body*.
+       Check encoded payload bytes, not only decoded JPEG bytes. Allow margin.
+       Never reduce below 1400px merely to force an unreadable paper through. */
+    var maxPayloadBytes=3800000;
+    var compression=[{side:1800,quality:0.84},{side:1600,quality:0.79},{side:1400,quality:0.73}];
+    var requestBody='',requestBytes=0,ready=false,images=[];
+    for(var attempt=0;attempt<compression.length;attempt++){
+      var spec=compression[attempt];
+      status.textContent='正在處理 '+files.length+' 張照片（清晰度優先，必要時調整尺寸）…';
+      images=[];
+      for(var i=0;i<files.length;i++){
+        var url=await shrinkImage(files[i],spec.side,spec.quality);
+        if(!active(id,seq,panel))return;
+        if(typeof url!=='string'||!url.startsWith('data:image/jpeg;base64,'))throw Error('JPEG_ENCODING');
+        images.push(url);
+      }
+      var content=[{type:'text',text:prompt}];
+      images.forEach(function(url){content.push({type:'image_url',image_url:{url:url}});});
+      requestBody=JSON.stringify({model:model,reasoning_effort:'none',temperature:0.1,max_tokens:1300,
+        messages:[{role:'user',content:content}]});
+      requestBytes=new TextEncoder().encode(requestBody).byteLength;
+      if(requestBytes<=maxPayloadBytes){ready=true;break;}
+    }
+    if(!ready){
+      status.textContent='照片處理後仍超過整份上傳容量上限（3.8 MB，包含照片及請求資料）。為保留手寫字清晰度，不再縮小。請裁切多餘背景或減少頁數後重試；本次沒有消耗 AI 額度，也不會覆蓋草稿。';
+      return;
+    }
+    status.textContent='已將 '+files.length+' 張照片整理為約 '+(requestBytes/1000000).toFixed(2)+' MB；正在辨識文字，尚未批改。';
     var response=await window.swsiFetchWithTimeout(endpoint,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:model,reasoning_effort:'none',temperature:0.1,max_tokens:1300,
-        messages:[{role:'user',content:content}]})
+      method:'POST',headers:{'Content-Type':'application/json'},body:requestBody
     },60000);
     if(!active(id,seq,panel))return;
     if(!response.ok){

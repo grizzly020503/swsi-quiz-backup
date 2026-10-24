@@ -65,6 +65,8 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     }
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),1);
     assert(await page.evaluate(()=>Array.isArray(window.__paperRequests[0].messages[0].content)));
+    assert((await page.evaluate(()=>new TextEncoder().encode(JSON.stringify(window.__paperRequests[0])).byteLength)) <= 3800000,
+      'OCR request exceeded safe Worker payload limit');
     await page.locator('.swsi-paper-confirm').click();
     assert.match(await page.locator('.swsi-paper-review [role=status]').innerText(),/辨識不清/);
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),1,'unconfirmed OCR cannot trigger grading');
@@ -87,6 +89,31 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,'truncated OCR overwrote a verified draft');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),3,'truncated OCR must not trigger a feedback request');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.filter(r=>typeof r.messages[0].content==='string').length),1,'only explicitly confirmed answer may invoke text diagnosis');
+    // A huge encoded body must be blocked BEFORE reaching the AI service.
+    // Reject by encoded request bytes, not by JPEG's binary size estimate.
+    const sentBeforeOversize=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{
+      window.__originalShrink=window.shrinkImage;
+      window.__resizeLimits=[];
+      window.shrinkImage=async function(_file,maxDim){
+        window.__resizeLimits.push(maxDim);
+        return 'data:image/jpeg;base64,'+'A'.repeat(4000000);
+      };
+    });
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'oversize-paper.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(()=>/超過整份上傳容量上限/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:20000});
+    assert.deepStrictEqual(await page.evaluate(()=>window.__resizeLimits),[1800,1600,1400],
+      'image size reduction must be bounded to legibility floor');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),sentBeforeOversize,
+      'oversize photographs must not spend AI quota');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,'oversize photo must not affect saved answer');
+    await page.evaluate(()=>{window.shrinkImage=window.__originalShrink;});
+    // >25 MiB original file should fail before browser decoding or provider call.
+    const giant=Buffer.alloc(25*1024*1024+1,0);
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'too-large-original.jpg',mimeType:'image/jpeg',buffer:giant});
+    await page.waitForFunction(()=>/每張 25 MB/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:12000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),sentBeforeOversize,
+      'original-file size failure must not make AI calls');
     console.log('HANDWRITTEN ESSAY OCR CONFIRM QA OK: photo OCR, correction, explicit diagnosis, typed fallback, truncation NO-GO');
   }finally{await browser.close();}
 })().catch(err=>{console.error(err);process.exitCode=1;});
