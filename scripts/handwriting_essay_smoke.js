@@ -30,11 +30,17 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       return url.origin===origin?route.continue():route.abort();
     });
     await page.goto(base,{waitUntil:'domcontentloaded'});
-    // Use the canonical quick-essay navigation (same as real mobile students)
-    // rather than calling legacy openEssayCard before navigation settles.
+    // Wait for the actual homepage to finish its first async bootstrap. A user
+    // cannot open the essay quick-start before the first UI is visible: invoking
+    // its global function too early raced the app's own home initialization.
+    await page.locator('.swsi-focus-primary').waitFor({timeout:30000});
     await page.waitForFunction(()=>typeof window.swsiStartEssayNow==='function'&&
       Array.isArray(window.ESSAYS)&&window.ESSAYS.some(e=>e&&e.id&&e.q));
-    await page.evaluate(async()=>{await window.swsiStartEssayNow();});
+    // Exercise the real bottom-tab -> quick-entry student route, not a helper
+    // invocation on a still-initializing document.
+    await page.locator('#t-essay').click();
+    await page.locator('.swsi-essay-quick-entry button.go').waitFor({timeout:20000});
+    await page.locator('.swsi-essay-quick-entry button.go').click();
     try {
       await page.locator('.swsi-paper-essay').waitFor({timeout:20000});
     } catch(err) {
