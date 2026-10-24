@@ -2,6 +2,8 @@
 'use strict';
 // No provider calls or real student data; synthetic 1x1 image and mocked replies only.
 const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
 const {chromium} = require('playwright');
 const base = process.argv[2] || 'http://127.0.0.1:4173/';
 const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/Sc9NxQAAAABJRU5ErkJggg==','base64');
@@ -10,7 +12,23 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
   const page=await browser.newPage({viewport:{width:390,height:844}});
   try{
     const origin=new URL(base).origin;
-    await page.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());
+    // Exercise the real local question-shard bootstrap without network calls.
+    // Aborting every CDN shard made boot fail asynchronously, replacing the OCR
+    // editor with a transient "題庫無法載入" screen and causing flaky QA.
+    const SHARD_ORIGIN='wandering-wave-4418.c022050333.workers.dev';
+    const SHARD_PREFIX='/question-shards/';
+    const shardDir=path.resolve(process.cwd(),'cdn/question-shards');
+    await page.route('**/*',route=>{
+      const url=new URL(route.request().url());
+      if(url.hostname===SHARD_ORIGIN&&url.pathname.startsWith(SHARD_PREFIX)){
+        const name=decodeURIComponent(url.pathname.slice(SHARD_PREFIX.length));
+        if(!name||path.basename(name)!==name)return route.fulfill({status:404,body:'not found'});
+        const file=path.join(shardDir,name);
+        if(!fs.existsSync(file))return route.fulfill({status:404,body:'not found'});
+        return route.fulfill({status:200,contentType:'application/json; charset=utf-8',body:fs.readFileSync(file)});
+      }
+      return url.origin===origin?route.continue():route.abort();
+    });
     await page.goto(base,{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>typeof window.openEssayCard==='function'&&Array.isArray(window.ESSAYS)&&window.ESSAYS.length>0);
     await page.evaluate(()=>{const e=window.ESSAYS[0];window.openEssayCard(e.id,e.subject);});
