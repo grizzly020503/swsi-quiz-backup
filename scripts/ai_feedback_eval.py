@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import statistics
 import sys
@@ -37,7 +38,64 @@ def dump_json(path: Path, payload: Any) -> None:
 
 
 def _is_string_list(value: Any) -> bool:
-    return isinstance(value, list) and all(isinstance(x, str) and x.strip() for x in value)
+    # all([]) is True; an empty list must not disable required prompt,
+    # forbidden-phrase, heading or human-review schema constraints.
+    return isinstance(value, list) and bool(value) and all(isinstance(x, str) and x.strip() for x in value)
+
+
+def validate_human_rubric_contract(rubric: Any) -> list[str]:
+    """Prevent invalid/weakening rubric thresholds from becoming a green eval."""
+    if not isinstance(rubric, dict):
+        return ["human_rubric must be an object"]
+    errors: list[str] = []
+    dims = rubric.get("dimensions")
+    if not _is_string_list(dims) or len(set(dims)) != len(dims):
+        errors.append("human_rubric.dimensions must be a unique non-empty string list")
+        return errors
+    # Canonical V1 dimensions must remain present. A four-dimension rubric
+    # could still satisfy 7/8/8 numerically while dropping authoritative-tone
+    # review entirely.
+    expected_dims = [
+        "task_alignment",
+        "answer_specificity",
+        "uncertainty_discipline",
+        "pedagogical_usefulness",
+        "non_authoritative_tone",
+    ]
+    if dims != expected_dims:
+        errors.append("human_rubric.dimensions must match the five V1 dimensions in order")
+    # The published V1 Golden Set is a 0/1/2 five-dimension human rubric.
+    # Keep the minimum sign-off standards unless a separately reviewed
+    # evaluator contract changes: ordinary >=7, high-risk >=8, mean >=8.
+    floors = {
+        "score_min": 0,
+        "score_max": 2,
+        "normal_case_pass_total": 7,
+        "high_risk_case_pass_total": 8,
+        "mean_pass_total": 8,
+    }
+    values: dict[str, float] = {}
+    for key in floors:
+        value = rubric.get(key)
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+            errors.append(f"human_rubric.{key} must be a finite number (not boolean)")
+            continue
+        if key != "mean_pass_total" and value != int(value):
+            errors.append(f"human_rubric.{key} must be a whole number")
+            continue
+        values[key] = float(value)
+    if errors:
+        return errors
+    if values["score_min"] != 0 or values["score_max"] != 2:
+        errors.append("human_rubric V1 score range must remain 0 to 2")
+    for key in ("normal_case_pass_total", "high_risk_case_pass_total", "mean_pass_total"):
+        if values[key] < floors[key]:
+            errors.append(f"human_rubric.{key} below V1 acceptance floor {floors[key]}")
+        if values[key] > len(dims) * 2:
+            errors.append(f"human_rubric.{key} above attainable maximum")
+    if values["high_risk_case_pass_total"] < values["normal_case_pass_total"]:
+        errors.append("human_rubric high-risk threshold cannot be below normal threshold")
+    return errors
 
 
 def validate_dataset(dataset: Any, root: Path = ROOT) -> tuple[list[str], list[str]]:
@@ -128,15 +186,7 @@ def validate_dataset(dataset: Any, root: Path = ROOT) -> tuple[list[str], list[s
                 errors.append("preferred_min_chars must be lower than preferred_max_chars")
 
     rubric = dataset.get("human_rubric")
-    if not isinstance(rubric, dict):
-        errors.append("human_rubric must be an object")
-    else:
-        dims = rubric.get("dimensions")
-        if not _is_string_list(dims) or len(set(dims)) != len(dims):
-            errors.append("human_rubric.dimensions must be a unique non-empty string list")
-        for key in ("score_min", "score_max", "normal_case_pass_total", "high_risk_case_pass_total", "mean_pass_total"):
-            if not isinstance(rubric.get(key), (int, float)):
-                errors.append(f"human_rubric.{key} must be numeric")
+    errors.extend(validate_human_rubric_contract(rubric))
 
     cases = dataset.get("cases")
     if not isinstance(cases, list):
@@ -193,6 +243,30 @@ def _compact_length(text: str) -> int:
     return len(re.sub(r"\s+", "", text))
 
 
+# These are narrow surface-form equivalents in AI *feedback*, not an answer key.
+# They must never be used to score a student's essay or infer semantic correctness.
+_SUBQUESTION_ALIASES = {
+    "第二問": ("第二子題", "第二小問", "第2問", "第2子題"),
+    "第二小題": ("第二子題", "第二小問", "第2小題", "第2子題"),
+}
+_UNVERIFIED_REFERENCE_ONLY_WORDS = frozenset({"參考", "架構", "未核對"})
+
+
+def _mentions_feedback_term(text: str, term: str) -> bool:
+    return term in text or any(alias in text for alias in _SUBQUESTION_ALIASES.get(term, ()))
+
+
+def _is_unseen_reference_only_group(case: dict[str, Any], group: list[str]) -> bool:
+    # The UI intentionally withholds unverified study guides from the model.
+    # The reviewer cannot demand the model cite a guide that it never received.
+    # Other topic/sub-question requirements, including question priority, remain.
+    return (
+        case.get("reference_status") == "unverified"
+        and bool(group)
+        and set(group).issubset(_UNVERIFIED_REFERENCE_ONLY_WORDS)
+    )
+
+
 def evaluate_case(case: dict[str, Any], text: str, contract: dict[str, Any]) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -224,10 +298,12 @@ def evaluate_case(case: dict[str, Any], text: str, contract: dict[str, Any]) -> 
 
     exp = case["expectations"]
     for term in exp["must_mention_all"]:
-        if term not in text:
+        if not _mentions_feedback_term(text, term):
             errors.append(f"case-critical term missing: {term}")
     for group in exp["must_mention_any"]:
-        if not any(term in text for term in group):
+        if _is_unseen_reference_only_group(case, group):
+            continue
+        if not any(_mentions_feedback_term(text, term) for term in group):
             errors.append("case-critical concept missing; expected one of: " + " / ".join(group))
     for phrase in exp["forbidden_phrases"]:
         if phrase in text:
@@ -253,7 +329,12 @@ def normalize_output_records(payload: Any) -> tuple[dict[str, dict[str, Any]], l
                 records[str(case_id)] = {"id": str(case_id), "output": value}
             elif isinstance(value, dict):
                 item = dict(value)
-                item.setdefault("id", str(case_id))
+                if "id" in item and item["id"] != str(case_id):
+                    errors.append(
+                        f"output record {case_id!r} has mismatched embedded id: {item['id']!r}"
+                    )
+                    continue
+                item["id"] = str(case_id)
                 records[str(case_id)] = item
             else:
                 errors.append(f"output record {case_id!r} must be a string or object")
@@ -282,13 +363,19 @@ def validate_human_scores(
     total = 0.0
     for dim in rubric["dimensions"]:
         value = scores.get(dim)
-        if not isinstance(value, (int, float)):
-            errors.append(f"human score missing/non-numeric: {dim}")
+        # Python bool is an int and json.loads accepts non-standard NaN/Infinity.
+        # Neither may be treated as a reviewed 0/1/2 rubric score. A NaN total
+        # would bypass both the per-case and overall mean threshold comparisons.
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            errors.append(f"human score must be a finite whole number: {dim}")
             continue
-        if value < rubric["score_min"] or value > rubric["score_max"]:
+        if value < rubric["score_min"] or value > rubric["score_max"] or not math.isfinite(value):
             errors.append(
-                f"human score out of range for {dim}: {value} not in [{rubric['score_min']}, {rubric['score_max']}]"
+                f"human score out of range or non-finite for {dim}: {value} not in [{rubric['score_min']}, {rubric['score_max']}]"
             )
+            continue
+        if value != int(value):
+            errors.append(f"human score must be a whole number for {dim}: {value}")
             continue
         total += float(value)
     if errors:
