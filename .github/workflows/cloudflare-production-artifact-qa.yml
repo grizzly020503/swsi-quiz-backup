@@ -12,6 +12,7 @@ on:
       - 'wrangler.jsonc'
       - 'scripts/cloudflare_release_artifact_smoke.py'
       - 'scripts/cloudflare_production_http_smoke.py'
+      - 'scripts/cloudflare_live_browser_smoke.js'
       - '.github/workflows/cloudflare-production-artifact-qa.yml'
   push:
     branches:
@@ -26,6 +27,7 @@ on:
       - 'wrangler.jsonc'
       - 'scripts/cloudflare_release_artifact_smoke.py'
       - 'scripts/cloudflare_production_http_smoke.py'
+      - 'scripts/cloudflare_live_browser_smoke.js'
       - '.github/workflows/cloudflare-production-artifact-qa.yml'
   workflow_dispatch:
 
@@ -79,3 +81,30 @@ jobs:
       - name: Verify hosted Cloudflare production parity
         if: steps.live.outputs.run == 'true'
         run: python scripts/cloudflare_production_http_smoke.py --check "$GITHUB_RUN_ID"
+
+  live-browser-acceptance:
+    # Live website checks are read-only and never deploy or modify private data.
+    # On PR, this tests the CURRENT hosted site, not unmerged CDN source.
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-noble
+      options: --user 1001
+    timeout-minutes: 12
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install pinned Playwright and verify shipped browser binaries
+        timeout-minutes: 5
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: |
+          set -euo pipefail
+          npm install --no-save playwright@1.55.0
+          node -e 'const fs=require("fs"),pw=require("playwright");if(require("playwright/package.json").version!=="1.55.0")throw Error("Playwright version drift");for(const name of ["chromium","webkit"])if(!fs.existsSync(pw[name].executablePath()))throw Error(name+" missing")'
+      - name: Verify live Cloudflare mobile, desktop, iPhone and 10-question navigation
+        run: |
+          set -euo pipefail
+          node --check scripts/cloudflare_live_browser_smoke.js
+          node scripts/cloudflare_live_browser_smoke.js
