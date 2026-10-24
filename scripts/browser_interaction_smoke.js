@@ -256,8 +256,10 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     const originalFetch = window.swsiFetchWithTimeout;
     let resolveFirst;
     let calls = 0;
+    const requests = [];
     const response = text => ({ ok: true, status: 200, json: async () => ({ choices: [{ message: { content: text } }] }) });
-    window.swsiFetchWithTimeout = async () => {
+    window.swsiFetchWithTimeout = async (url, options) => {
+      requests.push(JSON.parse(options.body));
       calls++;
       if (calls === 1) return await new Promise(resolve => { resolveFirst = resolve; });
       return response('SYNTHETIC_FEEDBACK_B');
@@ -291,7 +293,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       await window.runAIFeedback(id);
       const timeoutFeedback = document.getElementById('airesult_' + id).textContent;
       const afterErrors = { saved: getDraft(id) === answerB, enabled: !document.getElementById('aitype_' + id).disabled, cached: window.swsiGetAICache(id, answerB) };
-      return { cacheA, cacheB, afterRevision, draftPreserved, revisedFeedback, revisedCache, calls, quotaFeedback, timeoutFeedback, afterErrors };
+      return { cacheA, cacheB, afterRevision, draftPreserved, revisedFeedback, revisedCache, calls, quotaFeedback, timeoutFeedback, afterErrors, requests, cacheKey: window.swsiAICacheKey(id) };
     } finally {
       window.swsiFetchWithTimeout = originalFetch;
     }
@@ -376,6 +378,41 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(!answerDiversityTransport.captured[1].content.includes('【SWSI 已逐題核對的參考架構】'), 'withheld study guide leaked into alternative student answer');
   assert(!answerDiversityTransport.captured[0].content.includes(answerDiversityTransport.answers[1]), 'second student answer leaked into first request');
   assert(!answerDiversityTransport.captured[1].content.includes(answerDiversityTransport.answers[0]), 'first student answer leaked into second request');
+  // Inspect actual handler payloads: both entry points must send the same
+  // teaching rules; unverified references stay outside the provider request.
+  const photoPrompt = await page.evaluate(async () => {
+    const id = document.querySelector('.wta').id.slice(3);
+    const originalFetch = window.swsiFetchWithTimeout;
+    const originalShrink = window.shrinkImage;
+    const originalGuide = window.ESSAY_GUIDES[id];
+    let request;
+    const untrustedReference = 'SYNTHETIC_UNVERIFIED_REFERENCE_DO_NOT_SEND';
+    try {
+      window.ESSAY_GUIDES[id] = { review_status: 'needs_review', kao: untrustedReference };
+      window.shrinkImage = async () => 'data:image/jpeg;base64,AA==';
+      window.swsiFetchWithTimeout = async (url, options) => {
+        request = JSON.parse(options.body);
+        return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: 'SYNTHETIC_PHOTO_FEEDBACK' } }] }) };
+      };
+      await window.gradePhoto(id, { files: [new File(['synthetic'], 'fixture.jpg', { type: 'image/jpeg' })], value: '' });
+      return { request, untrustedReference };
+    } finally {
+      window.swsiFetchWithTimeout = originalFetch;
+      window.shrinkImage = originalShrink;
+      if (originalGuide === undefined) delete window.ESSAY_GUIDES[id];
+      else window.ESSAY_GUIDES[id] = originalGuide;
+    }
+  });
+  assert(feedbackRace.cacheKey.includes('essay-trust-v2-20261024'), 'old feedback cache namespace reused');
+  assert.strictEqual(feedbackRace.requests.length, 2, 'submitted/revised text requests were not captured');
+  assert(photoPrompt.request, 'photo handler did not reach synthetic transport');
+  const photoText = photoPrompt.request.messages[0].content.find(x => x.type === 'text').text;
+  assert(!photoText.includes(photoPrompt.untrustedReference), 'unverified reference reached photo provider');
+  const requiredRules = ['肯定必須有作答證據', '題目線索→判斷依據→可考慮的行動', '不沿用可疑理論階段繼續教學', '不能估分', '最後留一個可執行的修改任務'];
+  for (const prompt of [...feedbackRace.requests.map(x => x.messages[0].content), photoText]) {
+    for (const rule of requiredRules) assert(prompt.includes(rule), 'handler lost teaching rule: ' + rule);
+  }
+  assert(photoText.includes('看不清楚的字用「◌」'), 'photo uncertainty instruction was lost');
 
   let sawConfirm = false;
   page.once('dialog', async dialog => {

@@ -6,7 +6,7 @@
   "purpose": "Detect regressions in the non-authoritative, question-first, uncertainty-aware AI essay feedback contract without spending live-model quota in default CI.",
   "prompt_contract": {
     "source": "monthly_patch_parts/99z.essay-trust-layer.part",
-    "guide_version": "essay-trust-v1-20260826",
+    "guide_version": "essay-trust-v2-20261024",
     "text_temperature": 0.35,
     "required_clauses": [
       "整份回饋務必使用繁體中文",
@@ -21,7 +21,14 @@
       "不要替學生寫完整標準答案",
       "一、題目要你答什麼",
       "二、你已經做到什麼",
-      "三、下一步可以補什麼"
+      "三、下一步可以補什麼",
+      "肯定必須有作答證據",
+      "區分題目已知事實、學生主張、可能推論與待確認事項",
+      "題目線索→判斷依據→可考慮的行動",
+      "處遇須回應已辨識的需求與優先順序",
+      "不沿用可疑理論階段繼續教學",
+      "先接住想了解程度的需求",
+      "最後留一個可執行的修改任務"
     ]
   },
   "model_contract": {
@@ -42,7 +49,9 @@
       "滿分答案",
       "閱卷老師一定會",
       "肯定拿到",
-      "官方評分"
+      "官方評分",
+      "嚴重扣分",
+      "一定扣分"
     ],
     "simplified_markers": [
       "这是",
