@@ -125,6 +125,62 @@ def main():
     report = evaluator.evaluate_outputs(dataset, omitted_embedded_id, require_human_scores=True)
     require(report["passed"], "map-keyed case without redundant embedded id must remain accepted")
 
+    # FAIR LANGUAGE QA: the model may correctly say "第二子題" instead of
+    # the Golden Set's "第二小題" / "第二問". This is an exact, narrow phrasing
+    # equivalent; it is NOT a blanket semantic pass for a student answer.
+    coverage_case = next(case for case in dataset["cases"] if case["id"] == "coverage_missing_second_part")
+    coverage_output = good_output(coverage_case, dataset["global_output_contract"])
+    require("第二問" in coverage_output, "coverage fixture must include the original ordinal")
+    alternate_ordinal = coverage_output.replace("第二問", "第二子題")
+    ordinal_errors, _ = evaluator.evaluate_case(
+        coverage_case, alternate_ordinal, dataset["global_output_contract"]
+    )
+    require(not ordinal_errors, "valid 第二子題 wording must not be rejected: " + repr(ordinal_errors))
+
+    wrong_ordinal = coverage_output.replace("第二問", "第一子題")
+    ordinal_errors, _ = evaluator.evaluate_case(
+        coverage_case, wrong_ordinal, dataset["global_output_contract"]
+    )
+    require(
+        any("case-critical concept missing" in error for error in ordinal_errors),
+        "first subquestion must not satisfy missing-second-subquestion requirement",
+    )
+
+    # The public runtime withholds unverified guides from the AI. Requiring
+    # the AI to mention a hidden guide is a false negative, not student error.
+    unverified = next(case for case in dataset["cases"] if case["id"] == "unverified_reference_not_standard")
+    unseen_output = good_output(unverified, dataset["global_output_contract"])
+    unseen_output = unseen_output.replace("參考", "教材").replace("架構", "框架").replace("未核對", "尚未檢查")
+    require(
+        not any(word in unseen_output for word in ("參考", "架構", "未核對")),
+        "unseen reference fixture must not accidentally satisfy lexical reference expectation",
+    )
+    unseen_errors, _ = evaluator.evaluate_case(unverified, unseen_output, dataset["global_output_contract"])
+    require(not unseen_errors, "hidden unverified guide mention must not be required: " + repr(unseen_errors))
+
+    # Fail-closed boundary: the same wording does NOT satisfy a verified
+    # conflicting-reference case whose expectations explicitly require it.
+    visible_case = copy.deepcopy(unverified)
+    visible_case["reference_status"] = "verified_but_intentionally_conflicting_fixture"
+    visible_errors, _ = evaluator.evaluate_case(visible_case, unseen_output, dataset["global_output_contract"])
+    require(
+        any("case-critical concept missing" in error for error in visible_errors),
+        "reference evidence must still be required when a verified guide was supplied",
+    )
+
+    # Question-first discipline and all other gates remain mandatory even
+    # when a reference was withheld.
+    no_priority = unseen_output.replace("以正式考題為準", "由作者自行決定")
+    no_priority = no_priority.replace("以題目為準", "由作者自行決定")
+    no_priority = no_priority.replace("題目要求", "撰寫重點")
+    no_priority = no_priority.replace("題意優先", "自行選擇")
+    no_priority = no_priority.replace("正式考題優先", "自行選擇")
+    priority_errors, _ = evaluator.evaluate_case(unverified, no_priority, dataset["global_output_contract"])
+    require(
+        any("question-priority language required" in error for error in priority_errors),
+        "question-first rule must still be enforced for unverified guide cases",
+    )
+
     missing_case = copy.deepcopy(good)
     missing_case["cases"] = missing_case["cases"][:-1]
     report = evaluator.evaluate_outputs(dataset, missing_case, require_human_scores=True)

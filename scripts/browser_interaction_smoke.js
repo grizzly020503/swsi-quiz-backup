@@ -308,6 +308,75 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(feedbackRace.afterErrors.saved && feedbackRace.afterErrors.enabled, 'AI failure lost the draft or left retry disabled');
   assert.strictEqual(feedbackRace.afterErrors.cached, null, 'AI failure was cached as feedback');
 
+  // Different learners may write in different structures. Verify the REAL
+  // request builder preserves each answer verbatim and treats the guide as
+  // optional, without contacting an AI provider or grading either answer.
+  const answerDiversityTransport = await page.evaluate(async () => {
+    const ta = document.querySelector('.wta');
+    const id = ta && ta.id.slice(3);
+    const question = (window.ESSAYS || []).find(e => e && e.id === id);
+    if (!id || !question || !question.q) throw new Error('official essay question unavailable');
+
+    const answers = [
+      '第一位練習者先從服務對象的生活需求與可動用資源說起，再分析安全風險、自主決定與服務目標，最後提出介入及追蹤方式。',
+      '另一位練習者選擇以倫理與專業評估為起點，先分辨已知事實和仍需確認的資訊，再談共同決策、正式及非正式支持與成效檢視。'
+    ];
+    const saved = {
+      fetch: window.swsiFetchWithTimeout,
+      getCache: window.swsiGetAICache,
+      setCache: window.swsiSetAICache,
+      isVerified: window.swsiEssayGuideIsVerified
+    };
+    const captured = [];
+    const sample = text => ({
+      ok: true, status: 200,
+      json: async () => ({ choices: [{ message: { content: text } }] })
+    });
+
+    try {
+      // Isolate the transport contract from pre-existing draft/cache state.
+      window.swsiGetAICache = () => null;
+      window.swsiSetAICache = () => {};
+      let currentVerified = true;
+      window.swsiEssayGuideIsVerified = () => currentVerified;
+      window.swsiFetchWithTimeout = async (_url, options) => {
+        const request = JSON.parse(options.body);
+        const content = request.messages?.[0]?.content;
+        captured.push({ content, model: request.model });
+        return sample('SYNTHETIC_DIVERSE_ESSAY_FEEDBACK');
+      };
+
+      for (let i = 0; i < answers.length; i++) {
+        currentVerified = i === 0; // verified reference vs intentionally withheld reference
+        ta.value = answers[i];
+        window.saveDraft(id);
+        await window.runAIFeedback(id);
+      }
+
+      return { question: question.q, answers, captured };
+    } finally {
+      window.swsiFetchWithTimeout = saved.fetch;
+      window.swsiGetAICache = saved.getCache;
+      window.swsiSetAICache = saved.setCache;
+      window.swsiEssayGuideIsVerified = saved.isVerified;
+    }
+  });
+  assert.strictEqual(answerDiversityTransport.captured.length, 2, 'alternate essay submissions did not each reach provider transport');
+  for (let i = 0; i < 2; i++) {
+    const payload = answerDiversityTransport.captured[i].content;
+    assert.strictEqual(typeof payload, 'string', 'essay transport must contain the actual prompt');
+    assert(
+      payload.includes('【正式考題】\n' + answerDiversityTransport.question + '\n\n【學生作答】\n' + answerDiversityTransport.answers[i]),
+      'essay transport changed, omitted or replaced a differently structured student answer'
+    );
+    assert(payload.includes('不得強迫學生照參考架構回答'), 'answer-diversity guard missing from submitted AI request');
+    assert(payload.includes('正式考題本身'), 'official question priority missing from submitted AI request');
+  }
+  assert(answerDiversityTransport.captured[0].content.includes('【SWSI 已逐題核對的參考架構】'), 'simulated verified reference not supplied');
+  assert(!answerDiversityTransport.captured[1].content.includes('【SWSI 已逐題核對的參考架構】'), 'withheld study guide leaked into alternative student answer');
+  assert(!answerDiversityTransport.captured[0].content.includes(answerDiversityTransport.answers[1]), 'second student answer leaked into first request');
+  assert(!answerDiversityTransport.captured[1].content.includes(answerDiversityTransport.answers[0]), 'first student answer leaked into second request');
+
   let sawConfirm = false;
   page.once('dialog', async dialog => {
     sawConfirm = true;
