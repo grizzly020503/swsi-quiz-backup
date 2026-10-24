@@ -171,6 +171,15 @@ async function assertFocusTrap(page,dialogSelector,label){
     assert.strictEqual(await page.evaluate(()=>typeof window.swsiOpenExamDate),'function',`${label}: exam date opener missing`);
     await page.evaluate(()=>window.swsiOpenExamDate());
     await page.waitForSelector('.swsi-exam-dialog',{timeout:5000});
+    // An async autofocus must not steal focus after users begin keyboard navigation.
+    const stableExamFocus=await page.evaluate(async()=>{
+      const save=document.querySelector('.swsi-exam-dialog .swsi-exam-save');
+      if(!save)return false;
+      save.focus();
+      await new Promise(resolve=>setTimeout(resolve,80));
+      return document.activeElement===save;
+    });
+    assert(stableExamFocus,`${label}: exam date stole keyboard focus after modal opened`);
     await assertFocusTrap(page,'.swsi-exam-dialog',`${label}: exam date`);
     await page.keyboard.press('Escape');
     await page.waitForFunction(()=>!document.getElementById('swsi-exam-backdrop'));
