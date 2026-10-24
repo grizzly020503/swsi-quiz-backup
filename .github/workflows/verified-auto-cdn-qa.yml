@@ -47,7 +47,7 @@ jobs:
           python -m py_compile scripts/cloudflare_auto_mirror_live_smoke.py
           python scripts/cloudflare_auto_mirror_live_smoke.py --selftest
           python -m py_compile scripts/verified_essay_cdn_pending_sync.py
-          python -m unittest -v scripts/test_verified_essay_cdn_pending_sync.py
+          python scripts/test_verified_essay_cdn_pending_sync.py -v
       - name: Verify actual tracked MOEX source against Supabase shards (read-only)
         run: |
           set -euo pipefail
