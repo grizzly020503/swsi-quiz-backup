@@ -144,6 +144,18 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.getByRole('button', { name: '直接開始 10 題' }).click();
   await page.waitForSelector('.pcount', { timeout: 30000 });
   assert.strictEqual((await page.locator('.pcount').innerText()).trim(), '1 / 10', '10-question CTA did not start a 10-question queue');
+  // Visual regression: disabled submit previously rendered dark green with nearly
+  // invisible muted text. It must have the explicit, readable disabled state.
+  const disabledSubmit = page.locator('.qcard .btn:disabled');
+  assert.strictEqual(await disabledSubmit.count(), 1, 'expected one disabled submit button before selection');
+  const disabledStyle = await disabledSubmit.evaluate(el => ({
+    bg: getComputedStyle(el).backgroundColor,
+    ink: getComputedStyle(el).color,
+    opacity: getComputedStyle(el).opacity
+  }));
+  assert.strictEqual(disabledStyle.bg, 'rgb(229, 236, 231)', 'disabled submit background is not visibly inactive');
+  assert.strictEqual(disabledStyle.ink, 'rgb(62, 85, 74)', 'disabled submit label is not readable');
+  assert.strictEqual(disabledStyle.opacity, '1', 'disabled submit label is faded by opacity');
   await visual('02-question-mobile');
   await page.getByRole('button', { name: /結束這次練習/ }).click();
   await waitHome();
