@@ -316,7 +316,7 @@
       if(!box.querySelector('.swsi-handwriting-hint')){
         var hint=document.createElement('p');
         hint.className='swsi-handwriting-hint';
-        hint.textContent='建議先在紙上限時作答，再拍照辨識；確認錯字後，才送 AI 練習診斷。下方也可直接打字。';
+        hint.textContent='建議先手寫在紙上限時作答，再拍照辨識；確認錯字後，才送 AI 練習診斷。下方也可直接打字。';
         hint.style.cssText='color:var(--ink-soft);font-size:13px;line-height:1.7;margin:4px 0 14px';
         box.insertBefore(hint,format);
       }
@@ -344,7 +344,6 @@
       polishEssayTrustUI();
       return value;
     };
-    try{window.renderEssay=renderEssay;}catch(_e){}
   }
   polishEssayTrustUI();
 })();
