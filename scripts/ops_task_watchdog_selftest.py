@@ -298,6 +298,20 @@ def main() -> int:
             else:
                 raise AssertionError(f"{key} mismatch must fail closed")
 
+    # Production monitoring must not fan out on every PR Full Corpus QA.
+    # Keep the six-hour fail-closed schedule and immediate *main* completions.
+    workflow = (ROOT / ".github/workflows/ops-task-watchdog.yml").read_text(encoding="utf-8")
+    assert "- cron: '45 */6 * * *'" in workflow, "six-hour watchdog schedule missing"
+    trigger = workflow.split("  workflow_run:\\n", 1)[1].split("  pull_request:\\n", 1)[0]
+    assert "      - Full Corpus Question QA" in trigger, "full corpus completion watch missing"
+    assert "    types:\\n      - completed" in trigger, "completion-only event guard missing"
+    assert "    branches:\\n      - main" in trigger, "PR QA could fan out watchdog runs"
+    live_job = workflow.split("  freshness:\\n", 1)[1]
+    assert "github.event_name != 'pull_request'" in live_job, "PR live query guard missing"
+    assert "github.event.workflow_run.head_branch == 'main'" in live_job, "main head guard missing"
+    assert "github.event.workflow_run.head_repository.full_name == github.repository" in live_job, "fork guard missing"
+    assert "github.event.workflow_run.event != 'pull_request'" in live_job, "PR workflow_run guard missing"
+
     print("OPS TASK WATCHDOG SELFTEST OK")
     return 0
 
