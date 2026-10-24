@@ -49,9 +49,6 @@ jobs:
             --shards cdn/question-shards
           git diff --check
 
-      - name: Verify current hosted Cloudflare auto matches released artifacts (read-only)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        timeout-minutes: 4
-        run: |
-          set -euo pipefail
-          python scripts/cloudflare_auto_mirror_live_smoke.py --live --check "$GITHUB_RUN_ID"
+      # Live parity is performed inside the owning question-shards-publish job
+      # AFTER its GITHUB_TOKEN commit and hosted shard smoke. A separate push
+      # workflow is not reliable for bot-originated publication and can race.
