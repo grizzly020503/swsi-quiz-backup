@@ -9,6 +9,8 @@ on:
       - 'monthly_patch_parts/71.my-learning-center.part'
       - 'scripts/student_home_ia_contract.py'
       - 'scripts/student_learning_scenarios_contract.py'
+      - 'scripts/learning_loop_closed_contract.py'
+      - 'scripts/learning_loop_action_smoke.js'
       - 'audit/student_home_ia_20261003.md'
       - 'audit/student_learning_scenarios_20261003.md'
 
@@ -41,4 +43,12 @@ jobs:
         run: |
           python -m py_compile scripts/student_learning_scenarios_contract.py
           python scripts/student_learning_scenarios_contract.py
+          git diff --check
+
+      - name: Repeated-wrong-topic learning loop and safe actions
+        run: |
+          python -m py_compile scripts/learning_loop_closed_contract.py
+          python scripts/learning_loop_closed_contract.py
+          node --check scripts/learning_loop_action_smoke.js
+          node scripts/learning_loop_action_smoke.js
           git diff --check
