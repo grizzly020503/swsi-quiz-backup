@@ -81,6 +81,56 @@ def main() -> int:
     if (CDN / "sw.js").read_bytes() != (ROOT / "sw.js").read_bytes():
         fail("cdn/sw.js differs from canonical root sw.js")
 
+    # Calm UI is shipped in BOTH HTML entrypoints; fail closed on UI drift.
+    # No mutable JS, official exam data, AI contract or SW bytes are changed.
+    root_html = (ROOT / "index.html").read_text(encoding="utf-8")
+    style_tag = re.compile(
+        r'<style id="swsi-calm-student-design-v2">([\s\S]*?)</style>'
+    )
+    root_styles = style_tag.findall(root_html)
+    cdn_styles = style_tag.findall(html)
+    if len(root_styles) != 1 or len(cdn_styles) != 1:
+        fail("calm student style is missing or duplicated in root/CDN")
+    if root_styles[0] != cdn_styles[0]:
+        fail("Cloudflare and canonical root calm student CSS differ")
+    if "<!-- SWSI CALM STUDENT DESIGN V2 START -->" not in html:
+        fail("calm student design release marker missing")
+
+    def luminance(color: str) -> float:
+        channels = [int(color[i:i+2], 16) / 255 for i in (1, 3, 5)]
+        linear = [v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4 for v in channels]
+        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+    def contrast(first: str, second: str) -> float:
+        a, b = luminance(first), luminance(second)
+        return (max(a, b) + 0.05) / (min(a, b) + 0.05)
+
+    for token, background in (
+        ("--ink-soft", "#FFFFFF"),
+        ("--pine", "#FFFFFF"),
+        ("--pine-deep", "#FFFFFF"),
+        ("--wrong", "#FFF2F0"),
+        ("--correct", "#EDF7F1"),
+    ):
+        hit = re.search(r'(?m)^\s*' + re.escape(token) + r':(#[0-9A-Fa-f]{6})\s*;', cdn_styles[0])
+        if not hit:
+            fail(f"calm design color token missing: {token}")
+        if contrast(hit.group(1), background) < 4.5:
+            fail(f"calm design text contrast below WCAG AA: {token}")
+    for required in (
+        "body .ux-home-intro",
+        "body .swsi-focus-primary",
+        "body .tabbar",
+        "body .qcard",
+        "body .opt",
+        "body .swsi-explanation-more",
+        ":focus-visible",
+        "prefers-reduced-motion",
+        "min-width:768px",
+    ):
+        if required not in cdn_styles[0]:
+            fail(f"calm design responsive/accessibility contract missing: {required}")
+
     print(
         "CLOUDFLARE RELEASE ARTIFACT OK "
         f"parts={len(parts)} patch_sha256={digest} source={release.group(1)} sw=parity"
