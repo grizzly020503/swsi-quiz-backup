@@ -26,6 +26,23 @@ SUBJECT_CODES = {
     "人類行為與社會環境": "0304",
     "社會工作研究方法": "0305",
 }
+# Source-code mapping confirmed from the MOEX PDF headers for this exact exam.
+# Other legacy sessions are structural candidates only until independently checked.
+VERIFIED_EXAM_SOURCE_CODE_OVERRIDES = {
+    "112030": {
+        "社會工作": "0301",
+        "社會工作直接服務": "0302",
+        "社會政策與社會立法": "0304",  # 0303 was the discontinued 社會工作管理
+        "人類行為與社會環境": "0305",
+        "社會工作研究方法": "0306",
+    },
+}
+
+
+def expected_subject_code(exam_code: str, subject: str) -> str:
+    return VERIFIED_EXAM_SOURCE_CODE_OVERRIDES.get(exam_code, SUBJECT_CODES)[subject]
+
+
 POLICY = {"round_aliases": {
     "1": "第一次", "第1次": "第一次", "第一次": "第一次",
     "2": "第二次", "第2次": "第二次", "第二次": "第二次",
@@ -56,7 +73,7 @@ def source_index(shards):
         if len(pairs) != 1:
             raise ValueError(f"{key}: same-subject MCQ sources disagree")
         code, url = next(iter(pairs))
-        if not code or not verified_moex_url(url, code, SUBJECT_CODES[key[2]]):
+        if not code or not verified_moex_url(url, code, expected_subject_code(code, key[2])):
             raise ValueError(f"{key}: untrusted MOEX question source")
         sources[key] = {"source_exam_code": code, "source_url": url,
                         "supporting_mcq_count": 40}
@@ -166,7 +183,22 @@ def selftest():
     bad[0]["source_exam_code"] = "115100"
     fails(lambda: source_index([("fixture", bad)]))
     fails(lambda: candidate_manifest([dict(essay, year="113")], index))
-    print("OFFICIAL ESSAY SOURCE CANDIDATE SELFTEST OK: six fail-closed scenarios")
+    # Official 112-1 Q PDFs contain a management paper at s=0303, so the
+    # last three current-subject URLs must not follow positional 0303..0305.
+    rows112 = []
+    for subject in SUBJECT_CODES:
+        subcode = expected_subject_code("112030", subject)
+        url = ("https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?"
+               f"c=103&code=112030&q=1&s={subcode}&t=Q")
+        rows112.extend(dict(id=f"112-{subcode}-{i}", subject=subject,
+                            year="112", round="第1次", source_exam_code="112030",
+                            source_url=url) for i in range(1, 41))
+    assert len(source_index([("112-1.json", rows112)])) == 5
+    wrong112 = [dict(item) for item in rows112]
+    wrong112[120]["source_url"] = wrong112[120]["source_url"].replace("s=0306", "s=0305")
+    fails(lambda: source_index([("112-1.json", wrong112)]))
+
+    print("OFFICIAL ESSAY SOURCE CANDIDATE SELFTEST OK: legacy plus 112-1 provenance checks")
 
 
 def main():
