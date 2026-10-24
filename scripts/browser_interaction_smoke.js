@@ -366,7 +366,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     const payload = answerDiversityTransport.captured[i].content;
     assert.strictEqual(typeof payload, 'string', 'essay transport must contain the actual prompt');
     assert(
-      payload.includes('【正式考題】\\n' + answerDiversityTransport.question + '\\n\\n【學生作答】\\n' + answerDiversityTransport.answers[i]),
+      payload.includes('【正式考題】\n' + answerDiversityTransport.question + '\n\n【學生作答】\n' + answerDiversityTransport.answers[i]),
       'essay transport changed, omitted or replaced a differently structured student answer'
     );
     assert(payload.includes('不得強迫學生照參考架構回答'), 'answer-diversity guard missing from submitted AI request');
