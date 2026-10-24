@@ -18,6 +18,7 @@ on:
       - '.github/workflows/question-shards-publish.yml'
       - 'scripts/build_question_shards.py'
       - 'scripts/verified_auto_cdn_sync.py'
+      - 'scripts/verified_essay_cdn_pending_sync.py'
 
 permissions:
   contents: write
@@ -135,9 +136,22 @@ jobs:
             --target cdn/auto/questions_auto.json \
             --stage
 
+          # Future MOEX essay IDs are official question text only. Existing
+          # CDN guides/review states remain unchanged. New IDs start pending.
+          python scripts/verified_essay_cdn_pending_sync.py \
+            --incoming incoming \
+            --auto auto/essays_auto.json \
+            --cdn cdn/auto/essays_auto.json \
+            --registry data/exam_scheme_registry.v1.json \
+            --stage
+
+          # The existing #429 essay official-source parity gate must also hold
+          # AFTER adding a new exam, never silently promoting root "ready".
+          python scripts/cdn_auto_essay_core_parity.py
+
           git config user.name 'swsi-shard-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add cdn/question-shards cdn/_headers cdn/auto/questions_auto.json
+          git add cdn/question-shards cdn/_headers cdn/auto/questions_auto.json cdn/auto/essays_auto.json
           if git diff --cached --quiet; then
             echo 'No shard or header changes; no repository commit.'
             exit 0
