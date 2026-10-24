@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-24T15:52:52Z",
+  "generated_at": "2026-10-24T20:43:50Z",
   "source_item_count": 5,
   "event_count": 5,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
@@ -463,12 +463,12 @@
           "source_name": "TVBS新聞社會",
           "source_url": "https://news.tvbs.com.tw/local/4040840",
           "source_type": "news",
-          "published_at": "2026-10-24T15:31:31Z",
+          "published_at": "2026-10-24T15:43:28Z",
           "item_id": "b686420092578a4e55c7e9a2b9b05abf"
         }
       ],
       "first_seen": "2026-10-24T15:31:31Z",
-      "last_seen": "2026-10-24T15:31:31Z",
+      "last_seen": "2026-10-24T15:43:28Z",
       "observation_count": 1,
       "observation_dates": [
         "2026-10-24"
@@ -676,11 +676,11 @@
           "source_name": "TVBS新聞社會",
           "source_url": "https://news.tvbs.com.tw/local/4040808",
           "source_type": "news",
-          "published_at": "2026-10-24T12:52:31Z",
+          "published_at": "2026-10-24T12:43:28Z",
           "item_id": "8e41eda8dc1f2dd8d3d61f1d912ac851"
         }
       ],
-      "first_seen": "2026-10-24T12:52:31Z",
+      "first_seen": "2026-10-24T12:43:28Z",
       "last_seen": "2026-10-24T12:52:31Z",
       "observation_count": 1,
       "observation_dates": [
