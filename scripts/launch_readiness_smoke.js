@@ -252,7 +252,34 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.setViewportSize({ width: 1365, height: 900 });
   assert.strictEqual(await page.locator('.wrap').evaluate(el => getComputedStyle(el).maxWidth),
     '790px', 'desktop reading surface unexpectedly narrow');
+  const desktopNav = await page.evaluate(() => {
+    const nav = document.querySelector('#tabbar');
+    const wrap = document.querySelector('.wrap');
+    const r = nav.getBoundingClientRect();
+    const w = wrap.getBoundingClientRect();
+    return {
+      layout: getComputedStyle(nav).flexDirection,
+      left: r.left,
+      right: r.right,
+      top: r.top,
+      wrapRight: w.right,
+      viewportWidth: innerWidth,
+      minButtonHeight: Math.min(...Array.from(nav.querySelectorAll('button'))
+        .filter(btn => getComputedStyle(btn).display !== 'none')
+        .map(btn => btn.getBoundingClientRect().height))
+    };
+  });
+  assert.strictEqual(desktopNav.layout, 'column', 'wide-screen navigation still uses the mobile bottom bar');
+  assert(desktopNav.left >= desktopNav.wrapRight + 8,
+    'desktop navigation overlaps the main reading surface');
+  assert(desktopNav.right <= desktopNav.viewportWidth - 12,
+    'desktop navigation clips off the right edge');
+  assert(desktopNav.top >= 85, 'desktop navigation overlaps the header');
+  assert(desktopNav.minButtonHeight >= 44, 'desktop navigation targets are too small');
   await visual('05-home-desktop');
+  await page.setViewportSize({ width: 1024, height: 800 });
+  assert.strictEqual(await page.locator('#tabbar').evaluate(el => getComputedStyle(el).flexDirection),
+    'row', 'intermediate viewport should keep the wide mobile navigation bar');
 
   assert.deepStrictEqual(browserErrors, [], 'browser page errors: ' + browserErrors.join(' | '));
   console.log('LAUNCH READINESS SMOKE OK');

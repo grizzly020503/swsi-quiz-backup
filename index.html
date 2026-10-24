@@ -3449,6 +3449,40 @@ body :is(button,a,summary,select,input,textarea,[role="button"]):focus-visible{
   body .qcard{padding:30px 34px;}
   body .swsi-home-quick{gap:14px;}
 }
+@media (min-width:1240px){
+  /* Give laptop/desktop users a proper side navigation; keep the mobile tab bar unchanged. */
+  body .tabbar{
+    left:calc(50% + 410px);
+    right:auto;
+    top:114px;
+    bottom:auto;
+    transform:none;
+    width:154px;
+    max-width:154px;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    padding:8px;
+    background:#FFFFFF;
+    border:1px solid var(--line);
+    border-radius:18px;
+    box-shadow:0 8px 24px rgba(22,62,44,.065);
+  }
+  body .tabbar button{
+    width:100%;
+    flex:0 0 auto;
+    display:flex;
+    flex-direction:row;
+    justify-content:flex-start;
+    align-items:center;
+    gap:11px;
+    min-height:48px;
+    padding:9px 12px;
+    text-align:left;
+  }
+  body .tabbar .ico{flex:0 0 auto;font-size:18px;}
+  body .wrap{padding-bottom:28px;}
+}
 @media (max-width:370px){
   body header{padding-left:12px;padding-right:12px;}
   body main{padding-left:14px;padding-right:14px;}
