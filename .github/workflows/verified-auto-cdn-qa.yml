@@ -19,6 +19,8 @@ on:
       - main
     paths:
       - 'scripts/verified_auto_cdn_sync.py'
+      - 'scripts/verified_essay_cdn_pending_sync.py'
+      - 'scripts/test_verified_essay_cdn_pending_sync.py'
       - 'scripts/cloudflare_auto_mirror_live_smoke.py'
       - '.github/workflows/question-shards-publish.yml'
       - '.github/workflows/verified-auto-cdn-qa.yml'
