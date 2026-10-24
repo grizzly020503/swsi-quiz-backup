@@ -262,6 +262,10 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       left: r.left,
       right: r.right,
       top: r.top,
+      height: r.height,
+      computedBottom: getComputedStyle(nav).bottom,
+      visibleButtons: Array.from(nav.querySelectorAll('button'))
+        .filter(btn => getComputedStyle(btn).display !== 'none').length,
       wrapRight: w.right,
       viewportWidth: innerWidth,
       minButtonHeight: Math.min(...Array.from(nav.querySelectorAll('button'))
@@ -277,6 +281,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(desktopNav.right <= desktopNav.viewportWidth - 12,
     'desktop navigation clips off the right edge');
   assert(desktopNav.top >= 85, 'desktop navigation overlaps the header');
+  assert(desktopNav.height >= 48 * desktopNav.visibleButtons &&
+    desktopNav.height <= 65 * desktopNav.visibleButtons + 32,
+    'desktop nav still stretches to the bottom of the screen: ' + JSON.stringify(desktopNav));
   assert(desktopNav.minButtonHeight >= 44, 'desktop navigation targets are too small');
   await page.setViewportSize({ width: 1024, height: 800 });
   assert.strictEqual(await page.locator('#tabbar').evaluate(el => getComputedStyle(el).flexDirection),

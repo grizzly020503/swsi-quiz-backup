@@ -3455,7 +3455,12 @@ body :is(button,a,summary,select,input,textarea,[role="button"]):focus-visible{
     left:calc(50% + 435px)!important;
     right:auto;
     top:114px;
-    bottom:auto;
+    /* Legacy mobile bottom constraints can stretch a fixed top-positioned nav. */
+    bottom:auto!important;
+    height:max-content!important;
+    min-height:0!important;
+    max-height:calc(100vh - 132px);
+    overflow-y:auto;
     transform:none!important;
     width:154px!important;
     max-width:154px!important;
