@@ -108,7 +108,7 @@ class VerifiedFutureEssayTest(unittest.TestCase):
             self.collect()
 
     def test_wrong_id_fails_closed(self):
-        self.src['essays'][0]['id'] = 'E-116-2-SP-1'
+        self.src['essays'][0]['id'] = 'E-116-2-XX-1'
         self.write_source()
         with self.assertRaisesRegex(ValueError, 'essay ID disagrees'):
             self.collect()
