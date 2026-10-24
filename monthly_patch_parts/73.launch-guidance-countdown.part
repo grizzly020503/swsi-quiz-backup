@@ -39,7 +39,7 @@
     var ov=document.createElement('div');ov.id='swsi-exam-backdrop';ov.className='swsi-exam-backdrop';
     ov.innerHTML='<div class="swsi-exam-dialog" role="dialog" aria-modal="true" aria-labelledby="swsi-exam-title" onclick="event.stopPropagation()"><h2 id="swsi-exam-title">設定考試日期</h2><p>日期只儲存在這台裝置，用來顯示倒數。這個預覽版不會要求通知權限，也不會把日期上傳。</p><label class="swsi-exam-date-label" for="swsi-exam-date-input">考試日期</label><input id="swsi-exam-date-input" type="date" value="'+getExamDate()+'"><div class="swsi-exam-actions"><button type="button" class="swsi-exam-clear" onclick="swsiClearExamDate()">清除日期</button><button type="button" class="swsi-exam-save" onclick="swsiSaveExamDate()">儲存日期</button></div></div>';
     ov.addEventListener('click',window.swsiCloseExamDate);document.body.appendChild(ov);document.body.classList.add('swsi-modal-open');document.addEventListener('keydown',onExamKeydown);
-    var input=ov.querySelector('#swsi-exam-date-input');if(input)setTimeout(function(){try{input.focus();}catch(_e){}},0);
+    var input=ov.querySelector('#swsi-exam-date-input');if(input){try{input.focus({preventScroll:true});}catch(_e){try{input.focus();}catch(_e2){}}}
   };
   window.swsiCloseExamDate=function(){var ov=document.getElementById('swsi-exam-backdrop');if(ov)ov.remove();document.body.classList.remove('swsi-modal-open');document.removeEventListener('keydown',onExamKeydown);var opener=lastExamOpener;lastExamOpener=null;if(opener&&document.contains(opener))setTimeout(function(){try{opener.focus();}catch(_e){}},0);};
   window.swsiSaveExamDate=function(){var input=document.getElementById('swsi-exam-date-input');setExamDate(input?input.value:'');window.swsiCloseExamDate();decorateReminder(true);};

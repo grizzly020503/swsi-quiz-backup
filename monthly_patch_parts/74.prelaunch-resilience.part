@@ -56,7 +56,9 @@
       lastFocus=document.activeElement;
       openOriginal.apply(this,arguments);
       lock();
-      requestAnimationFrame(focusInitial);
+      // The original opener synchronously mounts the dialog; avoid a later
+      // animation-frame focus() stealing keyboard focus after the user tabs.
+      focusInitial();
     };
     openWrapped.__swsiResilienceWrapped=true;
     window.swsiOpenExamDate=openWrapped;
