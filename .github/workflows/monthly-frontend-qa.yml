@@ -3,6 +3,8 @@ name: Monthly Frontend QA
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/monthly-frontend-qa.yml'
       - 'monthly_patch_parts/**'
@@ -254,6 +256,14 @@ jobs:
 
   interaction-qa:
     runs-on: ubuntu-latest
+    # Use the same pinned preinstalled Chromium image already validated by
+    # Launch Readiness QA and Storage Durability QA. Keep all smoke coverage.
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-noble
+      options: --user 1001
+    defaults:
+      run:
+        shell: bash
     timeout-minutes: 15
     steps:
       - name: Checkout
@@ -280,10 +290,14 @@ jobs:
           if [ -d auto ]; then cp -R auto _site/; fi
           python scripts/monthly_patch_build.py _site/index.html
 
-      - name: Install Playwright Chromium
+      - name: Verify pinned Playwright and preinstalled Chromium
+        timeout-minutes: 5
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
         run: |
+          set -euo pipefail
           npm install --no-save playwright@1.55.0
-          npx playwright install --with-deps chromium
+          node -e 'const fs=require("fs"),p=require("playwright");if(require("playwright/package.json").version!=="1.55.0")throw Error("Playwright version mismatch");if(!fs.existsSync(p.chromium.executablePath()))throw Error("Chromium missing from pinned container")'
 
       - name: Browser interaction smoke
         run: |
