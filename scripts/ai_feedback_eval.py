@@ -243,6 +243,30 @@ def _compact_length(text: str) -> int:
     return len(re.sub(r"\s+", "", text))
 
 
+# These are narrow surface-form equivalents in AI *feedback*, not an answer key.
+# They must never be used to score a student's essay or infer semantic correctness.
+_SUBQUESTION_ALIASES = {
+    "第二問": ("第二子題", "第二小問", "第2問", "第2子題"),
+    "第二小題": ("第二子題", "第二小問", "第2小題", "第2子題"),
+}
+_UNVERIFIED_REFERENCE_ONLY_WORDS = frozenset({"參考", "架構", "未核對"})
+
+
+def _mentions_feedback_term(text: str, term: str) -> bool:
+    return term in text or any(alias in text for alias in _SUBQUESTION_ALIASES.get(term, ()))
+
+
+def _is_unseen_reference_only_group(case: dict[str, Any], group: list[str]) -> bool:
+    # The UI intentionally withholds unverified study guides from the model.
+    # The reviewer cannot demand the model cite a guide that it never received.
+    # Other topic/sub-question requirements, including question priority, remain.
+    return (
+        case.get("reference_status") == "unverified"
+        and bool(group)
+        and set(group).issubset(_UNVERIFIED_REFERENCE_ONLY_WORDS)
+    )
+
+
 def evaluate_case(case: dict[str, Any], text: str, contract: dict[str, Any]) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -274,10 +298,12 @@ def evaluate_case(case: dict[str, Any], text: str, contract: dict[str, Any]) -> 
 
     exp = case["expectations"]
     for term in exp["must_mention_all"]:
-        if term not in text:
+        if not _mentions_feedback_term(text, term):
             errors.append(f"case-critical term missing: {term}")
     for group in exp["must_mention_any"]:
-        if not any(term in text for term in group):
+        if _is_unseen_reference_only_group(case, group):
+            continue
+        if not any(_mentions_feedback_term(text, term) for term in group):
             errors.append("case-critical concept missing; expected one of: " + " / ".join(group))
     for phrase in exp["forbidden_phrases"]:
         if phrase in text:
