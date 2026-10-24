@@ -58,6 +58,15 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     }, null, 2));
   }
 
+  // Public candidate visuals only: no secrets, private user data or hosted writes.
+  // Snapshots are generated locally from this PR branch, not from a preview site.
+  const visualDir = process.env.SWSI_VISUAL_ARTIFACT_DIR || '';
+  async function visual(name) {
+    if (!visualDir) return;
+    fs.mkdirSync(visualDir, { recursive: true });
+    await page.screenshot({ path: path.join(visualDir, name + '.png'), fullPage: true, animations: 'disabled' });
+  }
+
   async function waitHome() {
     try {
       await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
@@ -107,6 +116,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert.strictEqual(calmMobile.focusBackground, 'rgb(255, 255, 255)', 'live focus card is not white');
   assert.strictEqual(calmMobile.wrapMaxWidth, '660px', 'mobile reading surface is still old width');
   assert(calmMobile.primaryHeight >= 44, 'calm focus action below 44px touch height');
+  await visual('01-home-mobile');
 
   const visibleTabs = await page.locator('#tabbar button:visible').allInnerTexts();
   const tabText = visibleTabs.join(' ');
@@ -134,6 +144,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.getByRole('button', { name: '直接開始 10 題' }).click();
   await page.waitForSelector('.pcount', { timeout: 30000 });
   assert.strictEqual((await page.locator('.pcount').innerText()).trim(), '1 / 10', '10-question CTA did not start a 10-question queue');
+  await visual('02-question-mobile');
   await page.getByRole('button', { name: /結束這次練習/ }).click();
   await waitHome();
 
@@ -147,6 +158,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/錯題複習/.test(hubText) && /快速刷題/.test(hubText) && /申論練習/.test(hubText), 'learning center primary study actions missing');
   const reminderText = await page.locator('.swsi-exam-reminder').innerText();
   assert(/考試倒數/.test(reminderText), 'exam countdown entry missing');
+  await visual('03-learning-mobile');
 
   const examButton = page.locator('.swsi-exam-reminder-btn');
   await examButton.click();
@@ -214,6 +226,21 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     assert.strictEqual(adminLabel, '管理者入口', 'admin entry is not using the canonical launch-safe label');
     assert.strictEqual(await adminLogin.isVisible(), false, 'admin entry is visible before the secondary More disclosure is opened');
   }
+
+  // Capture remaining navigation and the wide layout from the same clean,
+  // synthetic local browser context. No answer is submitted or AI invoked.
+  await page.locator('#t-essay').click();
+  await page.waitForFunction(() => {
+    const app = document.querySelector('#app');
+    return app && app.innerText.length > 50 && app.innerText.includes('申論');
+  }, null, { timeout: 20000 });
+  await visual('04-essay-mobile');
+  await page.locator('#t-home').click();
+  await waitHome();
+  await page.setViewportSize({ width: 1365, height: 900 });
+  assert.strictEqual(await page.locator('.wrap').evaluate(el => getComputedStyle(el).maxWidth),
+    '790px', 'desktop reading surface unexpectedly narrow');
+  await visual('05-home-desktop');
 
   assert.deepStrictEqual(browserErrors, [], 'browser page errors: ' + browserErrors.join(' | '));
   console.log('LAUNCH READINESS SMOKE OK');
