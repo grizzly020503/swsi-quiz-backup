@@ -6,6 +6,9 @@ on:
       - 'data/essay_enrichment.json'
       - 'scripts/build_auto_payload.py'
       - 'scripts/essay_enrichment_overlay_smoke.py'
+      - 'scripts/cdn_auto_essay_core_parity.py'
+      - 'auto/essays_auto.json'
+      - 'cdn/auto/essays_auto.json'
       - 'scripts/official_exam_readonly_guard.py'
       - 'scripts/unified_question_qa.py'
       - '.github/workflows/essay-enrichment-overlay-qa.yml'
@@ -17,6 +20,9 @@ on:
       - 'data/essay_enrichment.json'
       - 'scripts/build_auto_payload.py'
       - 'scripts/essay_enrichment_overlay_smoke.py'
+      - 'scripts/cdn_auto_essay_core_parity.py'
+      - 'auto/essays_auto.json'
+      - 'cdn/auto/essays_auto.json'
       - '.github/workflows/essay-enrichment-overlay-qa.yml'
       - '.github/workflows/moex-social-worker-sync.yml'
 
@@ -45,6 +51,13 @@ jobs:
           python scripts/essay_enrichment_overlay_smoke.py
           git diff --exit-code -- incoming/
           python scripts/official_exam_readonly_guard.py
+
+      - name: Protect CDN auto essay official wording and provenance
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/cdn_auto_essay_core_parity.py
+          python scripts/cdn_auto_essay_core_parity.py --selftest
+          python scripts/cdn_auto_essay_core_parity.py
 
       - name: Verify unified essay QA is no longer pending generation
         run: |
