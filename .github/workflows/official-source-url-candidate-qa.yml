@@ -43,8 +43,8 @@ jobs:
           python3 -m py_compile scripts/source_url_promotion_stage.py scripts/source_url_promotion_selftest.py scripts/source_url_exact_target_replay.py scripts/historical_source_url_guard.py scripts/source_url_live_preflight.py
           python3 scripts/source_url_exact_target_replay.py --root . --fixture-before "${RUNNER_TEMP}/swsi-pinned-before"
           SWSI_SOURCE_URL_TEST_ROOT="${RUNNER_TEMP}/swsi-pinned-before" python3 scripts/source_url_promotion_selftest.py
-          python3 scripts/source_url_live_preflight.py --selftest
           python3 -m pip install --disable-pip-version-check requests
+          python3 scripts/source_url_live_preflight.py --selftest
           python3 scripts/source_url_live_preflight.py --live
           git diff --exit-code
           git diff --check
