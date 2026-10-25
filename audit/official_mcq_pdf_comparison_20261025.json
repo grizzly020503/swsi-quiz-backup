@@ -4,7 +4,7 @@
     "scripts/official_mcq_pdf_audit.py": "127936864c70f561bc13c754451fda0c4ba79668b9ce19983d4924c7c420c642",
     "scripts/moex_sync.py": "f16f05d90ea52c3ab5578b091e5f69eb8fcf79679a93ca8cb8f1ebe952620b30",
     "scripts/moex_sync_v2.py": "741c69ee093b9d844b861a1812b590f2a9f5a9dbcccf7e39223756974782058f",
-    "cdn/question-shards/manifest.json": "e5f177ed6d0fad75c7b211362de5a2e68828a0cb1842ef2abd9eb2955f7c10d4",
+    "cdn/question-shards/manifest.json": "3379107e456b9b25b77e77ff9c9cf0a81e38d4fdb73ae6812a370766d47fee91",
     "data/moex_source_subjects.v1.json": "27612fb18e15430ec2d9d6b25d617164273ad1f39c49e694c846c7925b150c7a",
     "data/moex_answer_sources.v1.json": "575739708c149374506d7785d1bfddafac22ecbec8b1e8d493c32b53fd4b9127"
   },
@@ -5272,11 +5272,11 @@
   },
   "questions": 4800,
   "counts": {
-    "normalized_pdf_text_and_answer_match": 4359,
-    "review": 441
+    "normalized_pdf_text_and_answer_match": 4364,
+    "review": 436
   },
   "parse_review_count": 1,
-  "text_review_count": 440,
+  "text_review_count": 435,
   "answer_comparison_count": 4800,
   "answer_review_count": 0,
   "equivalent_multi_answer_representatives": 10,
@@ -24085,17 +24085,8 @@
       "question_pdf_sha256": "9f6d1a64364b25387606e32b8f0a89142ad42fa8e1474c64f712b7e3fad9179c"
     },
     {
-      "status": "review",
-      "text_differences": {
-        "opt_c": {
-          "stored": "資源運用或分配並不公平，違背社會工作正義的倫理原則，應該避免 原則，應該避免",
-          "official_extraction": "資源運用或分配並不公平,違背社會工作正義的倫理原則,應該避免"
-        },
-        "opt_d": {
-          "stored": "這是團體效能和資源公平分配的倫理兩難議題，怎麼決定都不正確 兩難議題，怎麼決定都不正確",
-          "official_extraction": "這是團體效能和資源公平分配的倫理兩難議題,怎麼決定都不正確"
-        }
-      },
+      "status": "normalized_pdf_text_and_answer_match",
+      "text_differences": {},
       "answer_difference": null,
       "primary_answer_differs_but_same_accepted_set": false,
       "human_approval": false,
@@ -24687,17 +24678,8 @@
       "question_pdf_sha256": "9f6d1a64364b25387606e32b8f0a89142ad42fa8e1474c64f712b7e3fad9179c"
     },
     {
-      "status": "review",
-      "text_differences": {
-        "question": {
-          "stored": "在救災過程中，許多的資源湧入災區，請問你（妳）會如何進行資源的管理？ ？",
-          "official_extraction": "在救災過程中,許多的資源湧入災區,請問你(妳)會如何進行資源的管理?"
-        },
-        "opt_c": {
-          "stored": "資源募集與管理應考量特殊族群的不同需求 應考量特殊族群的不同需求",
-          "official_extraction": "資源募集與管理應考量特殊族群的不同需求"
-        }
-      },
+      "status": "normalized_pdf_text_and_answer_match",
+      "text_differences": {},
       "answer_difference": null,
       "primary_answer_differs_but_same_accepted_set": false,
       "human_approval": false,
@@ -28805,13 +28787,8 @@
       "question_pdf_sha256": "740a83f2f15ef3c0c44978efa118fcee7532798d1a2a06ecca3de71806b8d4a2"
     },
     {
-      "status": "review",
-      "text_differences": {
-        "question": {
-          "stored": "概念或變項，必須經過形成概念與測量的過程，下列那一過程正確？",
-          "official_extraction": "在研究過程中,透過研究工具如問卷或訪問稿蒐集資料,這是一系列從無到有的過程,如果要測量一些 概念或變項,必須經過形成概念與測量的過程,下列那一過程正確?"
-        }
-      },
+      "status": "normalized_pdf_text_and_answer_match",
+      "text_differences": {},
       "answer_difference": null,
       "primary_answer_differs_but_same_accepted_set": false,
       "human_approval": false,
@@ -61525,13 +61502,8 @@
       "question_pdf_sha256": "a646c688e2bc1d1f439b76f27ba9ee840282798cc055d28e38f79f8a65249cbc"
     },
     {
-      "status": "review",
-      "text_differences": {
-        "opt_d": {
-          "stored": "社區參與程度不平衡",
-          "official_extraction": "受助者必須為其未來的幸福與改變而努力"
-        }
-      },
+      "status": "normalized_pdf_text_and_answer_match",
+      "text_differences": {},
       "answer_difference": null,
       "primary_answer_differs_but_same_accepted_set": false,
       "human_approval": false,
@@ -87001,25 +86973,8 @@
       "question_pdf_sha256": "bce6bb1e6054c1bfcd5c94672f5149d23556d327fb65f7609b9a64f66115a937"
     },
     {
-      "status": "review",
-      "text_differences": {
-        "opt_a": {
-          "stored": "當分析者企圖由先拆解文本，將文本視為可供測量的單位（字眼、表現、陳述等），從而",
-          "official_extraction": "當分析者企圖由先拆解文本,將文本視為可供測量的單位(字眼、表現、陳述等) ,從而建立文 本的意義時,事實上已不夠客觀"
-        },
-        "opt_b": {
-          "stored": "建立文本的意義時，事實上已不夠客觀",
-          "official_extraction": "採用內容分析法,基本上需要對概念加以量化,但是並非每一個概念都能夠量化"
-        },
-        "opt_c": {
-          "stored": "採用內容分析法，基本上需要對概念加以量化，但是並非每一個概念都能夠量化",
-          "official_extraction": "研究者測量時會受到測量行動本身的干擾,被觀察的內容會察覺被觀察,因此其反應會不穩定"
-        },
-        "opt_d": {
-          "stored": "研究者測量時會受到測量行動本身的干擾，被觀察的內容會察覺被觀察，因此其反應會",
-          "official_extraction": "「內容」的定義時常含糊不清"
-        }
-      },
+      "status": "normalized_pdf_text_and_answer_match",
+      "text_differences": {},
       "answer_difference": null,
       "primary_answer_differs_but_same_accepted_set": false,
       "human_approval": false,

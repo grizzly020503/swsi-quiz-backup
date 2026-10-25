@@ -5,6 +5,7 @@ const fs=require('fs');
 const {chromium,webkit}=require('playwright');
 const serveLocalQuestionShards=require('./local_question_shards_fixture');
 const proof=JSON.parse(fs.readFileSync('audit/official_mcq_corrections_20261025.json','utf8'));
+proof.rows.push(...JSON.parse(fs.readFileSync('audit/official_mcq_corrections_additional_20261025.json','utf8')).rows);
 const base=process.argv[2]||'http://127.0.0.1:4173/';
 const engine=process.argv[3]||'chromium';
 const compact=s=>s.normalize('NFKC').replace(/\s+/g,'');
@@ -40,6 +41,6 @@ assert(['chromium','webkit'].includes(engine));
       }
       await context.close();
     }
-    console.log('CONTROLLED MCQ BROWSER OK '+engine+': 15 exact official questions/options, real quiz grading and stale-analysis quarantine on mobile and desktop');
+    console.log('CONTROLLED MCQ BROWSER OK '+engine+': 20 exact official questions/options, real quiz grading and stale-analysis quarantine on mobile and desktop');
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1);});
