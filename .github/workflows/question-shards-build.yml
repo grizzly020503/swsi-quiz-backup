@@ -5,6 +5,8 @@ on:
   push:
     paths:
       - 'scripts/build_question_shards.py'
+      - 'scripts/historical_source_url_guard.py'
+      - 'data/moex_source_subjects.v1.json'
       - '.github/workflows/question-shards-build.yml'
 
 permissions:
@@ -139,8 +141,11 @@ jobs:
           import copy
           import importlib.util
           import json
+          import sys
           from pathlib import Path
 
+          # The standalone builder finds sibling modules automatically; importlib does not.
+          sys.path.insert(0, str(Path('scripts').resolve()))
           spec=importlib.util.spec_from_file_location('builder','scripts/build_question_shards.py')
           builder=importlib.util.module_from_spec(spec)
           spec.loader.exec_module(builder)
