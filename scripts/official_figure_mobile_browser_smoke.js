@@ -44,12 +44,24 @@ async function runOne(browser,engine,entry,missing){
       engine+' '+entry.id+': early answer should be blocked before figure load '+JSON.stringify(initial));
     // WebKit can report image-ready before the DOM re-render finishes.
     // Require the actual figure/image in the document, not only its status flag.
-    await page.waitForFunction(({id,missing,width,height})=>{
-      if(SWSI_FIGURE_STATUS[id] !== (missing?'missing':'ready'))return false;
-      const fig=document.querySelector('#app figure[data-swsi-figure="'+id+'"]');
-      const img=fig&&fig.querySelector('img');
-      return !!fig && (missing?!img:!!img&&img.complete&&img.naturalWidth===width&&img.naturalHeight===height);
-    },{id:entry.id,missing,width:entry.width,height:entry.height},{timeout:15000});
+    try{
+      await page.waitForFunction(({id,missing,width,height})=>{
+        if(SWSI_FIGURE_STATUS[id] !== (missing?'missing':'ready'))return false;
+        const fig=document.querySelector('#app figure[data-swsi-figure="'+id+'"]');
+        const img=fig&&fig.querySelector('img');
+        return !!fig && (missing?!img:!!img&&img.complete&&img.naturalWidth===width&&img.naturalHeight===height);
+      },{id:entry.id,missing,width:entry.width,height:entry.height},{timeout:15000});
+    }catch(err){
+      const diagnostic=await page.evaluate(id=>{
+        const fig=document.querySelector('#app figure[data-swsi-figure="'+id+'"]');
+        const img=fig?.querySelector('img');
+        return {status:SWSI_FIGURE_STATUS[id]||'unset',view:typeof view==='undefined'?'unset':view,
+          fig:!!fig,img:!!img,complete:img?.complete,naturalWidth:img?.naturalWidth,
+          naturalHeight:img?.naturalHeight,currentSrc:img?.currentSrc,
+          appPreview:document.getElementById('app')?.textContent?.slice(0,120)};
+      },entry.id);
+      throw new Error(engine+' '+entry.id+' figure DOM timeout '+JSON.stringify(diagnostic)+' '+err.message);
+    }
     const state=await page.evaluate(({id,width,height,missing})=>{
       const fig=document.querySelector('#app figure[data-swsi-figure="'+id+'"]');
       const img=fig?.querySelector('img');
