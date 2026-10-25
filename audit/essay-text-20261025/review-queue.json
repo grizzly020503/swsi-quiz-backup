@@ -24,7 +24,7 @@
     "1": "wording, symbol, font or extraction differences",
     "2": "punctuation-only differences; still require review"
   },
-  "scope": "triage only; nine fingerprint-bound exact-page corrections cleared from baseline machine comparison; remaining reviews are not approved",
+  "scope": "triage only; priority is not proof of an error or release approval",
   "official_core_modified": false,
   "release_approval": false,
   "rows": [
