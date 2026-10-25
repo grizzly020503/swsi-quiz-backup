@@ -41,7 +41,7 @@ async function runOne(browser,engine,entry,missing){
       return {gated,picked:selected,hasFigure:!!document.querySelector('#app figure[data-swsi-figure]')};
     },entry.row);
     assert(initial.gated&&initial.picked===null&&initial.hasFigure,
-      engine+' '+entry.id+': early answer should be blocked before figure load');
+      engine+' '+entry.id+': early answer should be blocked before figure load '+JSON.stringify(initial));
     await page.waitForFunction(({id,missing})=>SWSI_FIGURE_STATUS[id]===(missing?'missing':'ready'),
       {id:entry.id,missing},{timeout:15000});
     const state=await page.evaluate(({id,width,height,missing})=>{
