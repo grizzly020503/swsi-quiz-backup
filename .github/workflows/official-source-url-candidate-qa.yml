@@ -7,6 +7,7 @@ on:
       - 'scripts/source_url_promotion_selftest.py'
       - 'scripts/source_url_pg17_rehearsal.py'
       - 'scripts/source_url_exact_target_replay.py'
+      - 'scripts/source_url_db_rollback_plan.py'
       - 'scripts/source_url_live_preflight.py'
       - 'scripts/historical_source_url_guard.py'
       - 'data/moex_source_subjects.v1.json'
@@ -19,6 +20,7 @@ on:
       - 'scripts/source_url_promotion_selftest.py'
       - 'scripts/source_url_pg17_rehearsal.py'
       - 'scripts/source_url_exact_target_replay.py'
+      - 'scripts/source_url_db_rollback_plan.py'
       - 'scripts/source_url_live_preflight.py'
       - 'scripts/historical_source_url_guard.py'
       - 'data/moex_source_subjects.v1.json'
@@ -87,3 +89,12 @@ jobs:
         run: |
           python3 scripts/source_url_exact_target_replay.py --root . --fixture-before "${RUNNER_TEMP}/swsi-pg-before"
           python3 scripts/source_url_pg17_rehearsal.py --root "${RUNNER_TEMP}/swsi-pg-before"
+          python3 scripts/source_url_db_rollback_plan.py --root . --scratch "${RUNNER_TEMP}/swsi-dbplan-before" --sql-out "${RUNNER_TEMP}/swsi-url-ROLLBACK.sql" --synthetic-seed-out "${RUNNER_TEMP}/swsi-url-SEED.sql"
+          psql -X -qAt -v ON_ERROR_STOP=1 < "${RUNNER_TEMP}/swsi-url-SEED.sql" | grep -Fx SOURCE_URL_QA_FIXTURE_4800_PASS
+          before="$(psql -X -qAt -v ON_ERROR_STOP=1 -c "SELECT md5(string_agg(id||chr(31)||source_url, chr(30) ORDER BY id)) FROM public.questions")"
+          psql -X -qAt -v ON_ERROR_STOP=1 < "${RUNNER_TEMP}/swsi-url-ROLLBACK.sql" > "${RUNNER_TEMP}/swsi-url-execution.log"
+          grep -Fx SOURCE_URL_QA_POSTIMAGE_3920_PASS "${RUNNER_TEMP}/swsi-url-execution.log"
+          grep -Fx SOURCE_URL_QA_ROLLBACK_DONE "${RUNNER_TEMP}/swsi-url-execution.log"
+          after="$(psql -X -qAt -v ON_ERROR_STOP=1 -c "SELECT md5(string_agg(id||chr(31)||source_url, chr(30) ORDER BY id)) FROM public.questions")"
+          test "$before" = "$after"
+          echo 'NATIVE PG17 URL QA ONLY: 3920 source_url updates validated and FULL ROLLBACK verified'
