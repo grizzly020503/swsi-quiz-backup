@@ -214,13 +214,13 @@
   },
   "manifest_after": {
     "schema_version": 1,
-    "dataset_revision": "af21adc8257c6a7920c7",
+    "dataset_revision": "ce885d3c5f240e6fe21a",
     "generated_at": "2026-10-25T12:46:00Z",
     "source": "Git-pinned candidate with seven source-backed Official Core corrections; production unchanged",
     "total_questions": 4800,
     "shard_count": 24,
     "baseline_shard_count": 24,
-    "total_uncompressed_bytes": 7629989,
+    "total_uncompressed_bytes": 7628532,
     "shards": [
       {
         "year": "104",
@@ -267,8 +267,8 @@
         "round": "第二次",
         "file": "106-2.json",
         "question_count": 200,
-        "bytes": 326687,
-        "sha256": "0d9b2e0c60a5f9a09e6b023a6f8ec7204721c994f7f11684dabde12fe0f0eff0"
+        "bytes": 326121,
+        "sha256": "6f97386366d6311da21899e9df22ae43938e4369c77e916469222efe85269dee"
       },
       {
         "year": "107",
@@ -379,8 +379,8 @@
         "round": "第二次",
         "file": "113-2.json",
         "question_count": 200,
-        "bytes": 317096,
-        "sha256": "5cca67aaf49dce1aebb660b5d09e231ea2ae7e2cbf0d3a760de6c466c6467488"
+        "bytes": 316205,
+        "sha256": "22f73c81b90100ea80dedddf1b6466a965dc938e2c71dc7aadb182bcada651b8"
       },
       {
         "year": "114",
