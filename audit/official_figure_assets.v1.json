@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "status": "CANDIDATE_AWAITING_RELEASE_APPROVAL",
+  "approved": false,
+  "official_core_modified": false,
+  "production_modified": false,
+  "source_archive_sha256": "6e1258de9890efc85714a3e4b0fefcdbd552cae3dd5f6c5dc14735f068de428f",
+  "details": "Two source-PDF-derived grayscale PNGs. Exact original raster was visually reviewed, PNGs quantized to 8 gray levels without generating/reconstructing graphic content. Figure-only UI fix; the source lock remains untouched.",
+  "figures": [
+    {
+      "id": "DS-113-2-13",
+      "pdf": "113100-103-0302.pdf",
+      "pdf_sha256": "21b47d133e072b34eab4f07fa95ffab1601d54768eb8cedf680a9471fc9bfbc3",
+      "page": 3,
+      "clip": [
+        69.12,
+        100.07,
+        429.84,
+        418.08
+      ],
+      "png_sha256": "b2f03e6714f4cd9b55950ec947e47a0d8608485109ebc8c5e955f589dafe0d31",
+      "png": "official-figures/DS-113-2-13.png",
+      "graphic_comment": "Full genogram; old false source-paraphrase hidden only in rendered UI; separate Official Core lock update pending."
+    },
+    {
+      "id": "R-114-2-12",
+      "pdf": "114100-103-0306.pdf",
+      "pdf_sha256": "f0da4551b15af06b68d0ff3a287acb2b0253ddecef7e6fdd76e768e8ca990ae2",
+      "page": 2,
+      "clip": [
+        191.04,
+        457.44,
+        427.92,
+        528
+      ],
+      "png_sha256": "ac947126d861db9c99a470ea58c262d52d1c6ffc251bc847bce59b0d302753e2",
+      "png": "official-figures/R-114-2-12.png"
+    }
+  ]
+}

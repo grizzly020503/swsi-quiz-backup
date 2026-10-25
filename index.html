@@ -245,6 +245,14 @@ body{ padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); }
 button:focus-visible,.opt:focus-visible,a:focus-visible,input:focus-visible{ outline:2px solid var(--pine); outline-offset:2px; }
 @media (prefers-reduced-motion:reduce){ *{ transition:none!important; animation-duration:.001ms!important; } }
 /* ===== 外觀精修 END ===== */
+
+.swsi-official-figure{margin:12px 0 17px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--paper2)}
+.swsi-official-figure>a{display:block;max-width:100%}
+.swsi-official-image{display:block;width:auto;max-width:100%;height:auto;max-height:75vh;margin:0 auto;background:white;object-fit:contain}
+.swsi-official-figure figcaption{margin-top:8px;color:var(--ink-soft);font-size:12px;line-height:1.7}
+.swsi-figure-error{font-size:13px;color:var(--wrong);font-weight:600;line-height:1.6}
+@media(max-width:480px){.swsi-official-figure{padding:8px}.swsi-official-image{width:100%;max-height:none}}
+
 </style>
 </head>
 <body>
@@ -2130,6 +2138,38 @@ function doSearch(val){
   box.innerHTML=h;
 }
 
+
+/* Exam figures extracted from original MOEX PDF; grading & locked Official Core unchanged. */
+const SWSI_OFFICIAL_FIGURES=Object.freeze({
+ 'DS-113-2-13':{src:'official-figures/DS-113-2-13.png',alt:'考選部家系圖：1970年結婚的62歲男性及63歲女性，圖中有27歲男性與以雙圈表示的24歲女性案主，包含家系成員及寵物狗；63歲女性和24歲案主之間以鋸齒線連結。',page:'113年第二次·社會工作直接服務·原卷6-3頁'},
+ 'R-114-2-12':{src:'official-figures/R-114-2-12.png',alt:'考選部量表圖：從左邊的「痛苦」到右邊的「快樂」，水平線有1到5五個刻度。',page:'114年第二次·社會工作研究方法·原卷4-2頁'}
+});
+function swsiOfficialVisibleStem(item){
+ const q=String(item.q||'');
+ // Legacy editorial parenthesis falsely claims the conflict line is between the father and the daughter.
+ // Suppress this ONE demonstrably wrong editorial suffix in UI only, pending guarded core correction.
+ const stem=item.id==='DS-113-2-13'&&q.includes('（圖示：')?q.split('（圖示：')[0]:q;
+ return esc(stem).replace(/\n/g,'<br>');
+}
+function swsiOfficialFigureHTML(item){
+ const meta=SWSI_OFFICIAL_FIGURES[item.id];if(!meta)return '';
+ return `<figure class="swsi-official-figure" data-official-qid="${item.id}">
+  <a href="${meta.src}" target="_blank" rel="noopener noreferrer" aria-label="放大檢視考選部原始題圖">
+   <img class="swsi-official-image" src="${meta.src}" alt="${esc(meta.alt)}" loading="eager" decoding="async"
+    onerror="this.closest('figure').querySelector('.swsi-figure-error').hidden=false">
+  </a>
+  <figcaption>${esc(meta.page)} · 考選部原卷圖示（點選放大，非AI重繪）</figcaption>
+  <p class="swsi-figure-error" role="alert" hidden>此題原始圖片未能載入，為避免誤判已暫停送出答案；請檢查網路並重新開啟。</p>
+ </figure>`;
+}
+function swsiOfficialFigureReady(item){
+ if(!SWSI_OFFICIAL_FIGURES[item.id])return true;
+ const image=app.querySelector('.swsi-official-figure img.swsi-official-image');
+ const ok=!!image&&image.complete&&image.naturalWidth>0;
+ if(!ok){const notice=app.querySelector('.swsi-figure-error');if(notice)notice.hidden=false;}
+ return ok;
+}
+
 function renderQuiz(){
   if(!queue.length){ app.innerHTML=`<div class="empty"><div class="ico">∅</div><h3>沒有符合的題目</h3><button class="btn" style="max-width:200px;margin:18px auto 0" onclick="go('home')">回首頁</button></div>`; return; }
   const item=queue[idx]; const pct=Math.round((idx/queue.length)*100);
@@ -2171,12 +2211,12 @@ function renderQuiz(){
     <div class="qcard">
       <div class="qmeta"><span class="tag subj">${esc(item.subject)}</span><span class="tag year">${esc(item.year)}年 ${esc(item.round)}</span>${yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':''}${(maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':''}${legalBadge(item)}</div>
       ${legalNotice(item)}
-      <div class="qtext">${esc(item.q).replace(/\n/g,'<br>')}</div>${optHTML}
+      <div class="qtext">${swsiOfficialVisibleStem(item)}</div>${swsiOfficialFigureHTML(item)}${optHTML}
       ${!answered?`<button class="btn" ${selected?'':'disabled'} onclick="submit()">送出答案</button>`:''}${expHTML}
     </div>`;
 }
 function pick(k){ if(answered)return; selected=k; render(); }
-function submit(){ if(!selected)return; answered=true; const item=queue[idx], correct=ansCorrect(selected,item);
+function submit(){ if(!selected)return; const item=queue[idx]; if(!swsiOfficialFigureReady(item))return; answered=true; const correct=ansCorrect(selected,item);
   sessionStats.done++; if(correct)sessionStats.correct++; else sessionStats.wrongTopics.push(item.topic||item.major);
   record(item,selected,correct); render(); }
 function next(){ if(idx+1<queue.length){idx++;selected=null;answered=false;window.scrollTo(0,0);render();} else {view='summary';window.scrollTo(0,0);render();} }

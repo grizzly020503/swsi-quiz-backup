@@ -14,6 +14,8 @@ const SHELL = [
   './monthly_patch.js',
   './essay_guides.js',
   './manifest.json',
+  './official-figures/DS-113-2-13.png',
+  './official-figures/R-114-2-12.png',
   './apple-touch-icon.png',
   './icons/icon-192.png',
   './icons/icon-512.png',

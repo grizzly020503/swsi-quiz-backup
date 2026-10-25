@@ -1,0 +1,39 @@
+name: Official Figures QA
+on:
+  pull_request:
+    paths:
+      - 'official-figures/**'
+      - 'cdn/official-figures/**'
+      - 'index.html'
+      - 'cdn/index.html'
+      - 'sw.js'
+      - 'cdn/sw.js'
+      - 'netlify.toml'
+      - 'scripts/official_figures_smoke.js'
+      - 'audit/official_figure_assets.v1.json'
+      - '.github/workflows/official-figures-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'official-figures/**'
+      - 'cdn/official-figures/**'
+      - 'index.html'
+      - 'cdn/index.html'
+      - 'sw.js'
+      - 'cdn/sw.js'
+      - 'netlify.toml'
+      - 'scripts/official_figures_smoke.js'
+      - 'audit/official_figure_assets.v1.json'
+      - '.github/workflows/official-figures-qa.yml'
+permissions:
+  contents: read
+jobs:
+  figures:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/official_figures_smoke.js
