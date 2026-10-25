@@ -80,6 +80,33 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     assert(row.ok && row.size > 20, `offline shell fetch failed for ${p}: ${JSON.stringify(row)}`);
   }
 
+  // The two MOEX charts are part of the offline question display contract.
+  // Browser-origin fetch after setOffline(true) must return actual PNG bytes
+  // from the active Service Worker cache, not test-server/network stubs.
+  const imageShell = await page.evaluate(async () => {
+    const rows = {};
+    for (const filename of ['DS-113-2-13.png', 'R-114-2-12.png']) {
+      try {
+        const res = await fetch('/official-figures/' + filename, { cache: 'no-store' });
+        const data = new Uint8Array(await res.arrayBuffer());
+        rows[filename] = {
+          ok: res.ok,
+          byteLength: data.length,
+          png: data.length >= 8 && Array.from(data.slice(0, 8)).join(',') === '137,80,78,71,13,10,26,10'
+        };
+      } catch (e) {
+        rows[filename] = {ok: false, error: String(e && e.message || e)};
+      }
+    }
+    return rows;
+  });
+  assert(imageShell['DS-113-2-13.png'].ok && imageShell['DS-113-2-13.png'].png &&
+         imageShell['DS-113-2-13.png'].byteLength > 30000,
+         'offline genogram image missing/corrupted: ' + JSON.stringify(imageShell));
+  assert(imageShell['R-114-2-12.png'].ok && imageShell['R-114-2-12.png'].png &&
+         imageShell['R-114-2-12.png'].byteLength > 2000,
+         'offline semantic-differential image missing/corrupted: ' + JSON.stringify(imageShell));
+
   const appText = await page.locator('#app').innerText();
   assert(/今天練 10 題|開始 10 題|今天的學習|第一次來/.test(appText), 'offline app shell rendered an unexpected/blank state');
 
