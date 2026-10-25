@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify exact boundaries of the 15 raw-PDF-backed MCQ correction candidates."""
+"""Verify exact boundaries of the 19 raw-PDF-backed MCQ correction candidates."""
 import hashlib
 import json
 from pathlib import Path
@@ -26,8 +26,8 @@ def check():
         allrows.update({r['id']:r for r in rows})
     assert len(allrows)==4800
     extra=json.loads((ROOT/'audit/official_mcq_corrections_additional_20261025.json').read_text())
-    assert extra['count']==len(extra['rows'])==3 and extra['human_approval'] is False
-    assert {r['id'] for r in extra['rows']}=={'DS-106-1-10','DS-106-1-37','DS-110-2-14'}
+    assert extra['count']==len(extra['rows'])==4 and extra['human_approval'] is False
+    assert {r['id'] for r in extra['rows']}=={'DS-106-1-10','DS-106-1-37','DS-110-2-14','DS-104-1-25'}
     historical_rows=dict(allrows)
     for item in extra['rows']:
         historical_rows[item['id']]=item['before']
@@ -62,6 +62,6 @@ def check():
     assert manifest['total_uncompressed_bytes']==sum(s['bytes'] for s in manifest['shards'])
     revision=hashlib.sha256('\n'.join(s['file']+':'+s['sha256'] for s in manifest['shards']).encode()).hexdigest()[:20]
     assert manifest['dataset_revision']==revision
-    print('CONTROLLED MCQ CORRECTIONS OK: 18 text/option candidates; 4782 other rows and all 4800 answer/grading tuples unchanged; hashes and manifest verified; human approval pending')
+    print('CONTROLLED MCQ CORRECTIONS OK: 19 text/option candidates; 4781 other rows and all 4800 answer/grading tuples unchanged; hashes and manifest verified; human approval pending')
 
 if __name__=='__main__':check()
