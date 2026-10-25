@@ -26,6 +26,11 @@ const stub={
  }),
  swsiText:v=>String(v==null?'':v),
  swsiCleanPUA:v=>String(v==null?'':v),
+ // This VM isolates explanation masking from the real figure/browser harness.
+ // A non-figure row must retain ordinary answer and display behavior.
+ swsiOfficialFigureReady:()=>true,
+ swsiOfficialFigureMarkup:()=>'',
+ swsiOfficialFigureQuestion:q=>String(q&&q.q||''),
  gradingMode:r=>r.grading_mode,
 };
 stub.QB=stub.window.SWSI_QB;
