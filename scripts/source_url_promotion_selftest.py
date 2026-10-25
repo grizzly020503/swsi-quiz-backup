@@ -5,11 +5,12 @@ from __future__ import annotations
 import copy
 import json
 from pathlib import Path
+import os
 import unittest
 
 from source_url_promotion_stage import stage, render_session, encode
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(os.getenv('SWSI_SOURCE_URL_TEST_ROOT') or Path(__file__).resolve().parents[1])
 CONFIG = ROOT / 'data/source_url_promotion_config.json'
 
 class PromotionTests(unittest.TestCase):
