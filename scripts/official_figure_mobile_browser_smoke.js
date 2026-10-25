@@ -23,7 +23,16 @@ async function runOne(browser,engine,entry,missing){
   const localImage='/official-figures/'+entry.id+'.png';
   await page.route('**/*',route=>{
     const url=new URL(route.request().url());
-    if(url.origin!==origin)return route.abort();
+    // Serve the pinned local 24-session manifest to the real boot loader.
+    // External Supabase/AI/telemetry calls stay blocked; this test is offline.
+    if(url.origin!==origin){
+      if(url.hostname==='wandering-wave-4418.c022050333.workers.dev'&&
+         url.pathname==='/question-shards/manifest.json'){
+        return route.fulfill({status:200,contentType:'application/json',
+          body:fs.readFileSync(path.join(__dirname,'../cdn/question-shards/manifest.json'))});
+      }
+      return route.abort();
+    }
     if(missing && url.pathname===localImage)return route.fulfill({status:404,body:'QA missing image'});
     return route.continue();
   });
