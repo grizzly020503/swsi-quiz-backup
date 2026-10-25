@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "dataset_revision": "ee9b3070af49baa14acb",
+  "dataset_revision": "04f917afd2313b82893e",
   "generated_at": "2026-10-25T02:29:43.064950Z",
   "source": "Git-pinned public.questions snapshot with verified offline MOEX source URLs and 13 PDF-backed Official Core correction candidates; database unchanged",
   "total_questions": 4800,
   "shard_count": 24,
   "baseline_shard_count": 24,
-  "total_uncompressed_bytes": 7634776,
+  "total_uncompressed_bytes": 7633250,
   "shards": [
     {
       "year": "104",
@@ -29,8 +29,8 @@
       "round": "第一次",
       "file": "105-1.json",
       "question_count": 200,
-      "bytes": 317743,
-      "sha256": "6b8eb88f7d6c4be547dc7b42b966b643fd66f1eac52d51cadec2a6f874b9ba4a"
+      "bytes": 316994,
+      "sha256": "819e37c01391a072511248a56be260f2b96e4862c4dd0d53f341e3e6c0b05f7a"
     },
     {
       "year": "105",
@@ -45,8 +45,8 @@
       "round": "第一次",
       "file": "106-1.json",
       "question_count": 200,
-      "bytes": 316449,
-      "sha256": "a564c0a5ece1defbb4c25439677626318de011a7019e6a9ccc2c94d7f9b00499"
+      "bytes": 315672,
+      "sha256": "6eac99a0b666385a73822d08f38d2318f9fb8e0be7d7f17bbaf77be96a78a8d3"
     },
     {
       "year": "106",

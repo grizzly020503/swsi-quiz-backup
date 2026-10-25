@@ -40,6 +40,6 @@ assert(['chromium','webkit'].includes(engine));
       }
       await context.close();
     }
-    console.log('CONTROLLED MCQ BROWSER OK '+engine+': 13 exact official questions/options, real quiz grading and stale-analysis quarantine on mobile and desktop');
+    console.log('CONTROLLED MCQ BROWSER OK '+engine+': 15 exact official questions/options, real quiz grading and stale-analysis quarantine on mobile and desktop');
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1);});

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify exact boundaries of the 13 raw-PDF-backed MCQ correction candidates."""
+"""Verify exact boundaries of the 15 raw-PDF-backed MCQ correction candidates."""
 import hashlib
 import json
 from pathlib import Path
@@ -13,9 +13,9 @@ def digest(value):
 
 def check():
     proof=json.loads((ROOT/'audit/official_mcq_corrections_20261025.json').read_text())
-    assert proof['count']==len(proof['rows'])==13 and proof['human_approval'] is False
+    assert proof['count']==len(proof['rows'])==15 and proof['human_approval'] is False
     assert proof['maintainer_review_required'] is True and proof['official_production_write'] is False
-    expected={'SW-109-1-05','DS-115-1-18','DS-115-1-22'}|{'SP113-1-'+str(n) for n in (30,31,32,33,34,35,37,38,39,40)}
+    expected={'SW-106-1-40','R-105-1-24','SW-109-1-05','DS-115-1-18','DS-115-1-22'}|{'SP113-1-'+str(n) for n in (30,31,32,33,34,35,37,38,39,40)}
     assert {r['id'] for r in proof['rows']}==expected
     registry=load_registry();transport=json.loads((ROOT/'data/moex_answer_sources.v1.json').read_text())['records'];allrows={}
     for s in proof['manifest_after']['shards']:
@@ -56,6 +56,6 @@ def check():
     assert manifest['total_uncompressed_bytes']==sum(s['bytes'] for s in manifest['shards'])
     revision=hashlib.sha256('\n'.join(s['file']+':'+s['sha256'] for s in manifest['shards']).encode()).hexdigest()[:20]
     assert manifest['dataset_revision']==revision
-    print('CONTROLLED MCQ CORRECTIONS OK: 13 text/option candidates; 4787 other rows and all 4800 answer/grading tuples unchanged; hashes and manifest verified; human approval pending')
+    print('CONTROLLED MCQ CORRECTIONS OK: 15 text/option candidates; 4785 other rows and all 4800 answer/grading tuples unchanged; hashes and manifest verified; human approval pending')
 
 if __name__=='__main__':check()

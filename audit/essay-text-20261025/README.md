@@ -1,5 +1,13 @@
 # Official text correction candidate and release holds
 
+## Latest two negation corrections (2026-10-25)
+
+This follow-up corrects `SW-106-1-40` option B to 「不同住之前夫」 (official 106030/107/0601 page 4), and `R-105-1-24` options B/D to 「更可能發生歷史效應」 / 「更可能發生統計迴歸效應」 (official 105030/107/0606 page 3). Both original PDFs were visually inspected. Exact before/after values, raw PDF and answer hashes, page numbers and the two additional lock deltas are appended to the existing controlled correction proof. Stale enrichment on these two rows is quarantined. No answer or grading tuple changed. The cumulative correction boundary is now 15 MCQs; 4,785 other complete rows and the original baseline lock map remain fingerprint-guarded.
+
+Current PDF results: **4,359 MCQ matches / 441 MCQ review**, plus **222 essay matches / 18 essay review**, for **459 unresolved**. Both negation defects are repaired; the social-work question still has another textual difference, so its review status is retained. The refreshed triage queue has 58 priority-0, 362 priority-1 and 39 priority-2 rows. No release gate was changed. Local controlled-correction, essay-boundary, immutable-core, full-corpus, evidence-freshness and gate-tamper checks pass. Prior CI evidence below applies to its recorded commit only; the new candidate still needs same-head CI and independent AI evidence. No production write or deployment.
+
+### Earlier extraction snapshot
+
 ## Current extraction follow-up (2026-10-25)
 
 **Draft / NO-GO.** The same Official Core remains untouched by this follow-up. The current reproducible reports supersede the older comparison counts below:
