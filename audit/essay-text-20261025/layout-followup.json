@@ -180,5 +180,19 @@
   "human_approval": false,
   "production_deployed": false,
   "raw_evidence_library_id": "libfile_97e4ad821a248191b00f22ac0f2a926b",
-  "raw_evidence_sha256": "6e1258de9890efc85714a3e4b0fefcdbd552cae3dd5f6c5dc14735f068de428f"
+  "raw_evidence_sha256": "6e1258de9890efc85714a3e4b0fefcdbd552cae3dd5f6c5dc14735f068de428f",
+  "main_refresh": {
+    "main": "5e249075d67fb8c1bd7e99c3d9c1445346c93d7d",
+    "candidate_parent": "f1342896ef48594a2a989e037963f95cca3ed2a3",
+    "resolution": "retain new main news and event observation history, regenerate signals/events/trends, mirror root and CDN",
+    "new_feed_scan": false,
+    "production_write": false,
+    "checks": [
+      "exact deterministic monitoring PR rebuild contract: PASS",
+      "current_affairs_signals_smoke: PASS",
+      "current_affairs_events_smoke: PASS",
+      "public_monitoring_v2_smoke: PASS",
+      "official_pdf_text_release_gate --check-evidence-only: PASS / 460 held"
+    ]
+  }
 }

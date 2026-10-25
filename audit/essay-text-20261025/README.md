@@ -20,6 +20,8 @@ The original question ZIP was truncated in its last directory page. All 120 comp
 
 The complete replacement raw evidence archive is [retained here](https://chatgpt.com/library?file_id=libfile_97e4ad821a248191b00f22ac0f2a926b&account_id=personal), SHA256 `6e1258de9890efc85714a3e4b0fefcdbd552cae3dd5f6c5dc14735f068de428f`. It contains all 120 unchanged question PDFs, 24 current matching directories, `directory-refresh.json`, and `refreshed-answer-http.json`. The old `http.json` is historical transport evidence; the refresh manifest and repository registry describe current directory bytes. For reproduction, extract the existing 153-answer archive linked below, replace its `http.json` with `refreshed-answer-http.json`, and run the original audit commands. PDF byte hashes must still match. Test-only extraction dependencies used: requests 2.32.5, pypdf 6.1.3, pdfplumber 0.11.7, PyMuPDF 1.26.5 and Poppler 24.02.0. Selftests remain no-network and do not import those extraction dependencies.
 
+The newer main monitoring snapshot `5e249075` was then merged into this candidate branch. Six generated signal/event/trend conflicts were resolved by retaining main news and event observation history and rebuilding the three outputs, mirrored to CDN. The exact monitoring PR rebuild contract and three monitoring smokes pass without a new feed scan or production write.
+
 The release-gate implementation is unchanged. Evidence validation passes; the default gate still exits 2 on 460 unresolved comparisons. No merge, production deploy or database write was performed. Existing browser/CI results below belong to earlier commits and are not new-head evidence.
 
 ## Prior correction snapshot (historical counts retained)
