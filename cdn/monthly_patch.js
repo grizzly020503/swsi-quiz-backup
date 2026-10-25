@@ -4599,8 +4599,8 @@ html[data-fs="2"]{
       +'<div class="aihelp" style="color:var(--ink-soft);margin-bottom:9px;font-size:12px;line-height:1.7">'+E(guideLine)+'</div>'
       +'<button id="aitype_'+E(id)+'" class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600" onclick="runAIFeedback(\''+E(id)+'\')">🤖 請 AI 看我的作答</button>'
       +'<input type="file" id="photo_'+E(id)+'" accept="image/*" multiple style="display:none" onchange="gradePhoto(\''+E(id)+'\',this)">'
-      +'<button id="aiphoto_'+E(id)+'" class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600;margin-top:8px" onclick="document.getElementById(\'photo_'+E(id)+'\').click()">📷 手寫作答 · 拍照請 AI 看</button>'
-      +'<div class="aihelp" style="color:var(--ink-soft);margin-top:7px;font-size:12px;line-height:1.7">手寫可一次選 1–3 張。照片模式會先辨識字跡，再提供練習回饋；若辨識有誤，請以原稿為準。打字作答不需要辨識。</div>'
+      +'<button id="aiphoto_'+E(id)+'" class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600;margin-top:8px" onclick="document.getElementById(\'photo_'+E(id)+'\').click()">📷 拍照辨識手寫作答（先確認文字）</button>'
+      +'<div class="aihelp" style="color:var(--ink-soft);margin-top:7px;font-size:12px;line-height:1.7">手寫以紙本練習為主：一次最多 3 張。先由 AI 辨識，再請你逐字核對並修正，確認後才會啟動第二次 AI 診斷；兩步各自使用免費 AI 額度。請勿上傳真實個案資料。</div>'
       +'<div id="airesult_'+E(id)+'"></div></div>';
   };
   try{aiFeedbackHTML=window.aiFeedbackHTML;}catch(_e){}
@@ -4638,46 +4638,134 @@ html[data-fs="2"]{
   };
   try{runAIFeedback=window.runAIFeedback;}catch(_e){}
 
+  /* Handwriting-first gate: OCR must be reviewed before any assessment. */
+  var handwritingSession=Object.create(null);
+  var handwritingSerial=0;
+  function handwritingLive(id,out,serial){
+    return handwritingSession[id]===serial&&document.getElementById('airesult_'+id)===out;
+  }
+  function handwritingError(out,message){
+    out.innerHTML='<div role="alert" class="aihelp" style="color:var(--wrong);padding:12px">'+E(message)+'</div>';
+  }
+  window.swsiDiscardHandwriting=function(id){
+    handwritingSession[id]=++handwritingSerial;
+    var out=document.getElementById('airesult_'+id);
+    if(out)out.innerHTML='<p class="aihelp">已取消這次辨識，原有草稿不受影響。</p>';
+  };
+  window.swsiConfirmHandwriting=function(id){
+    var result=document.getElementById('airesult_'+id);
+    var review=document.getElementById('swsi_handwriting_review_'+id);
+    var answer=document.getElementById('ta_'+id);
+    if(!result||!review||!answer||!result.contains(review))return;
+    var transcript=review.value.trim();
+    if(/[◌□�]/.test(transcript)){
+      var warning=result.querySelector('[data-swsi-ocr-warning]');
+      if(warning)warning.textContent='仍有無法辨識的符號（◌／□／�），請對照原稿補齊或刪除後再確認。';
+      review.focus();return;
+    }
+    if((typeof window.effectiveEssayLength==='function'?window.effectiveEssayLength(transcript):transcript.replace(/\s/g,'').length)<30){
+      var warning=result.querySelector('[data-swsi-ocr-warning]');
+      if(warning)warning.textContent='內容不足 30 字，請確認完整辨識後再送出。';
+      review.focus();return;
+    }
+    if(answer.value.trim()&&answer.value.trim()!==transcript&&!window.confirm('這會用剛確認的手寫內容取代此題現有草稿，確定繼續嗎？'))return;
+    answer.value=transcript;
+    if(typeof window.saveDraft==='function')window.saveDraft(id);
+    else if(typeof saveDraft==='function')saveDraft(id);
+    var confirmPanel=result.querySelector('[data-swsi-ocr-confirmation]');
+    if(confirmPanel)confirmPanel.textContent='已確認辨識文字並儲存到這台裝置；現在才送出 AI 練習診斷。';
+    var send=result.querySelector('[data-swsi-ocr-submit]');
+    if(send)send.disabled=true;
+    handwritingSession[id]=++handwritingSerial;
+    window.runAIFeedback(id);
+  };
   window.gradePhoto=async function(id,inputEl){
     var out=document.getElementById('airesult_'+id);if(!out)return;
     var files=(inputEl&&inputEl.files)?Array.from(inputEl.files):[];
     if(!files.length)return;
-    if(files.length>3){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong)">一次最多 3 張照片，請重新選擇。</div>';if(inputEl)inputEl.value='';return;}
-    if(files.some(function(f){return !String(f.type||'').startsWith('image/');})){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong)">請只選擇照片檔案。</div>';if(inputEl)inputEl.value='';return;}
-
+    if(files.length>3){handwritingError(out,'一次最多 3 張照片，請重新選擇。');if(inputEl)inputEl.value='';return;}
+    if(files.some(function(f){return !String(f.type||'').startsWith('image/');})){handwritingError(out,'請只選擇照片檔案。');if(inputEl)inputEl.value='';return;}
+    var serial=++handwritingSerial;
+    handwritingSession[id]=serial;
     if(typeof window.swsiSetAIBusy==='function')window.swsiSetAIBusy(id,true,'photo');
-    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">📷 正在整理照片…</div>';
+    out.innerHTML='<p role="status" class="aihelp">正在辨識手寫文字；這一步不會批改或覆蓋既有草稿…</p>';
     try{
       var imgs=[];
       for(var i=0;i<files.length;i++)imgs.push(await shrinkImage(files[i],1200,0.78));
-      if(inputEl)inputEl.value='';
-      var approxBytes=imgs.reduce(function(n,u){var comma=u.indexOf(',');return n+Math.ceil((u.length-(comma+1))*3/4);},0);
-      if(approxBytes>3200000){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">照片仍太大。請裁掉桌面或背景，只保留作答紙後再上傳。</div>';return;}
-
-      var c=essayContext(id);
-      var sys=trustPrompt('\n照片處理規則：\n- 先逐頁辨識作答文字，標題寫【我讀到的作答】；看不清楚的字用「◌」，不要自行補字。\n- 如果照片模糊、不是申論作答或幾乎無法辨識，只請學生重拍，不要猜內容。\n- 辨識完成後再寫【練習回饋】。\n');
-      var user='【正式考題】\n'+T(c.e.q||'')+(c.reference?'\n\n'+c.reference:'')+'\n\n下面照片是學生同一份手寫作答，請依頁面順序閱讀。';
-      var content=[{type:'text',text:sys+'\n\n'+user}];
+      if(!handwritingLive(id,out,serial))return;
+      var bytes=imgs.reduce(function(n,u){return n+Math.ceil((u.length-(u.indexOf(',')+1))*3/4);},0);
+      if(bytes>3200000){handwritingError(out,'照片太大，請裁掉背景後再上傳，保留完整答案。');return;}
+      /* Separate OCR-only provider request; intentionally omit official answer,
+         rubric, student guide and any request to grade the photographed response. */
+      var prompt='【台灣社工師申論手寫辨識：只轉錄、不評分】\n'
+        +'請依照片順序逐行轉錄實際可辨識的繁體中文手寫文字，保留段落與編號。\n'
+        +'絕對不要批改、評分、補充理論、推測不存在的字、增加標題或提供建議。\n'
+        +'看不清楚的每一字標成「◌」，無法讀清整頁就輸出「無法辨識，請重拍」。\n'
+        +'輸出開頭必須是【我讀到的作答】，其後只有逐字轉錄，不加其他段落。';
+      var content=[{type:'text',text:prompt}];
       imgs.forEach(function(u){content.push({type:'image_url',image_url:{url:u}});});
-      out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 正在讀 '+imgs.length+' 張作答照片…</div>';
-
-      var r=await postAI({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0.25,max_tokens:1300,messages:[{role:'user',content:content}]})},60000,'photo');
-      if(!r.ok){
-        var info=await window.swsiReadAIError(r);
-        out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">'+E(info.message)+'</div>';return;
+      var response=await postAI({method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0,max_tokens:1600,messages:[{role:'user',content:content}]})},60000,'photo');
+      if(!handwritingLive(id,out,serial))return;
+      if(!response.ok){
+        var info=await window.swsiReadAIError(response);
+        handwritingError(out,info.message);return;
       }
-      var data=await r.json();
-      var txt=T(data&&data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
-      if(!txt){out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong)">AI 沒有回傳內容，請稍後再試。</div>';return;}
-      renderAIResult(id,out,txt,'photo');
+      var body=await response.json();
+      if(!handwritingLive(id,out,serial))return;
+      var choice=body&&body.choices&&body.choices[0]||{};
+      var raw=T(choice.message&&choice.message.content).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+      if(choice.finish_reason==='length')throw Error('OCR_TRUNCATED');
+      if(!raw.startsWith('【我讀到的作答】')||/【練習回饋】|【AI批改】|【評分】/.test(raw)){
+        throw Error('OCR_CONTRACT_MISMATCH');
+      }
+      var transcript=raw.slice('【我讀到的作答】'.length).trim();
+      if(!transcript||transcript.length>10000||/無法辨識，請重拍/.test(transcript)&&transcript.length<40){
+        throw Error('OCR_UNREADABLE');
+      }
+      out.innerHTML='<div class="swsi-ocr-review" style="border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff;margin-top:14px">'
+        +'<div style="font-weight:750;margin-bottom:8px">第二步｜核對 AI 辨識文字</div>'
+        +'<p class="aihelp" style="line-height:1.6;margin-bottom:8px">請逐行對照紙本修正錯字。◌ 代表看不清楚；未確認前不會批改，也不會覆蓋原草稿。</p>'
+        +'<label for="swsi_handwriting_review_'+E(id)+'" style="font-weight:650">我讀到的作答（可以修改）</label>'
+        +'<textarea id="swsi_handwriting_review_'+E(id)+'" style="width:100%;min-height:250px;margin:8px 0;line-height:1.8;padding:12px;border-radius:9px;border:1px solid var(--line)" spellcheck="false">'+E(transcript)+'</textarea>'
+        +'<p data-swsi-ocr-warning role="alert" class="aihelp" style="color:var(--wrong)"></p>'
+        +'<p data-swsi-ocr-confirmation role="status" class="aihelp"></p>'
+        +'<button type="button" data-swsi-ocr-submit class="fbtn" style="width:100%;background:var(--pine);color:#fff;padding:12px" onclick="swsiConfirmHandwriting(\''+E(id)+'\')">文字已核對，送出 AI 練習診斷</button>'
+        +'<button type="button" class="fbtn" style="width:100%;margin-top:8px" onclick="swsiDiscardHandwriting(\''+E(id)+'\')">取消本次辨識（保留草稿）</button></div>';
+      var editor=document.getElementById('swsi_handwriting_review_'+id);
+      if(editor){editor.scrollIntoView({block:'nearest'});editor.focus();}
     }catch(err){
-      var timeout=err&&err.name==='AbortError';
-      out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong);line-height:1.7">'+(timeout?'AI 讀取照片時間過久，這次已自動停止。':'照片處理或連線失敗，請重新拍攝後再試。')+'</div>';
-    }finally{if(typeof window.swsiSetAIBusy==='function')window.swsiSetAIBusy(id,false,'photo');if(inputEl)inputEl.value='';}
+      if(handwritingLive(id,out,serial))handwritingError(out,err&&err.name==='AbortError'?'辨識逾時，請縮減照片後重試。':'辨識結果不完整或未符合安全格式，請重拍；這次沒有送交批改。');
+    }finally{
+      if(inputEl)inputEl.value='';
+      if(handwritingLive(id,out,serial)){
+        if(typeof window.swsiSetAIBusy==='function')window.swsiSetAIBusy(id,false,'photo');
+        var btn=document.getElementById('aiphoto_'+id);
+        if(btn)btn.textContent='📷 拍照辨識手寫作答（先確認文字）';
+      }
+    }
   };
   try{gradePhoto=window.gradePhoto;}catch(_e){}
 
   function polishEssayTrustUI(){
+    /* Handwriting is the primary action. Move the existing photo control above
+       the optional typing editor without adding a competing workflow. */
+    document.querySelectorAll('.wbox').forEach(function(box){
+      var photo=box.querySelector('[id^="aiphoto_"]');
+      var format=box.querySelector('.fmtbar');
+      if(!photo||!format)return;
+      if(photo.parentElement!==box){
+        box.insertBefore(photo,format);
+        photo.style.cssText='display:block;width:100%;margin:12px 0 6px;padding:14px;background:var(--pine);color:white;border:1px solid var(--pine);border-radius:10px;font-weight:750;min-height:48px';
+      }
+      if(!box.querySelector('.swsi-handwriting-hint')){
+        var hint=document.createElement('p');
+        hint.className='swsi-handwriting-hint';
+        hint.textContent='建議先手寫在紙上限時作答，再拍照辨識；確認錯字後，才送 AI 練習診斷。下方也可直接打字。';
+        hint.style.cssText='color:var(--ink-soft);font-size:13px;line-height:1.7;margin:4px 0 14px';
+        box.insertBefore(hint,format);
+      }
+    });
     document.querySelectorAll('.gbtn').forEach(function(btn){
       var t=T(btn.textContent).trim();
       if(t.indexOf('對照核心骨架')>=0||t.indexOf('對照核心架構')>=0)btn.textContent='寫完了？看看參考架構 ›';
@@ -4692,6 +4780,15 @@ html[data-fs="2"]{
     var prevRenderTrust=render;
     render=function(){var v=prevRenderTrust.apply(this,arguments);polishEssayTrustUI();return v;};
     try{window.render=render;}catch(_e){}
+  }
+  /* Quick-essay navigation can call renderEssay directly rather than render(). */
+  if(typeof renderEssay==='function'){
+    var oldHandwritingRenderEssay=renderEssay;
+    renderEssay=function(){
+      var value=oldHandwritingRenderEssay.apply(this,arguments);
+      polishEssayTrustUI();
+      return value;
+    };
   }
   polishEssayTrustUI();
 })();
