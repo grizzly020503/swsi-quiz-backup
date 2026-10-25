@@ -28,4 +28,10 @@ for name in ('sw.js','cdn/sw.js'):
     for row in j['figures']:
         assert "./"+row['path'] in sw,name+' does not precache '+row['id']
 assert 'cp official-figures/*.png _site/official-figures/' in (R/'netlify.toml').read_text()
+# The CI local _site build must include assets used by the service worker's
+# atomic cache.addAll; a missing file otherwise blocks SW installation.
+launch=(R/'.github/workflows/launch-readiness-qa.yml').read_text()
+assert 'mkdir -p _site/icons _site/official-figures' in launch
+assert 'cp official-figures/*.png _site/official-figures/' in launch
+
 print('OFFICIAL FIGURES UI QA OK: source-backed 2 image assets, root/CDN parity, grading guard, mock/quiz image gates and PWA pre-cache; human approval pending')
