@@ -25,10 +25,16 @@ def check():
         assert len(rows)==s['question_count']
         allrows.update({r['id']:r for r in rows})
     assert len(allrows)==4800
-    assert digest({k:r for k,r in allrows.items() if k not in expected})==proof['unchanged_other_mcq_rows_sha256'], 'undeclared MCQ field changes'
+    extra=json.loads((ROOT/'audit/official_mcq_corrections_additional_20261025.json').read_text())
+    assert extra['count']==len(extra['rows'])==3 and extra['human_approval'] is False
+    assert {r['id'] for r in extra['rows']}=={'DS-106-1-10','DS-106-1-37','DS-110-2-14'}
+    historical_rows=dict(allrows)
+    for item in extra['rows']:
+        historical_rows[item['id']]=item['before']
+    assert digest({k:r for k,r in historical_rows.items() if k not in expected})==proof['unchanged_other_mcq_rows_sha256'], 'undeclared MCQ field changes'
     assert digest({k:{f:r.get(f) for f in ('answer','accepted_answers','grading_mode')} for k,r in allrows.items()})==proof['baseline_grading_map_sha256'], 'answers or grading changed'
     locked=json.loads((ROOT/'data/official_exam_readonly.lock.json').read_text())['mcq'];restored=dict(locked)
-    for row in proof['rows']:
+    for row in proof['rows'] + extra['rows']:
         before,after=row['before'],row['after'];ident=row['id']
         assert allrows[ident]==after
         assert all(before[k]==after[k] for k in ('id','subject','year','round','qno','answer','accepted_answers','grading_mode'))
@@ -56,6 +62,6 @@ def check():
     assert manifest['total_uncompressed_bytes']==sum(s['bytes'] for s in manifest['shards'])
     revision=hashlib.sha256('\n'.join(s['file']+':'+s['sha256'] for s in manifest['shards']).encode()).hexdigest()[:20]
     assert manifest['dataset_revision']==revision
-    print('CONTROLLED MCQ CORRECTIONS OK: 15 text/option candidates; 4785 other rows and all 4800 answer/grading tuples unchanged; hashes and manifest verified; human approval pending')
+    print('CONTROLLED MCQ CORRECTIONS OK: 18 text/option candidates; 4782 other rows and all 4800 answer/grading tuples unchanged; hashes and manifest verified; human approval pending')
 
 if __name__=='__main__':check()

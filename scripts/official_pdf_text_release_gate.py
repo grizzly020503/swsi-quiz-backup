@@ -2,7 +2,7 @@
 """Fail closed on stale, malformed or unresolved official PDF text comparisons.
 
 An evidence-only check confirms reproducibility metadata, never release approval.
-The default command remains NO-GO while any of the 5040 text comparisons is held.
+The default command remains NO-GO while any official text comparison is held.\nA strict, evidence-bound three-row overlay can clear only exact official corrections.
 """
 from collections import Counter
 import argparse
@@ -16,16 +16,91 @@ ROOT=Path(__file__).resolve().parents[1]
 CONFIGS=[('audit/official_mcq_pdf_comparison_20261025.json',4800,'normalized_pdf_text_and_answer_match',{'scripts/official_mcq_pdf_audit.py','scripts/moex_sync.py','scripts/moex_sync_v2.py','cdn/question-shards/manifest.json','data/moex_source_subjects.v1.json','data/moex_answer_sources.v1.json'}),('audit/official_essay_pdf_comparison_20261025.json',240,'normalized_pdf_text_match',{'scripts/official_essay_pdf_audit.py','scripts/moex_sync.py','scripts/moex_sync_v2.py','index.html','auto/essays_auto.json','data/moex_source_subjects.v1.json'})]
 
 
+
+# Immutable original PDF extraction remains untouched. A tightly scoped,
+# source-page-inspected delta is permitted only for three exact Official Core
+# fixes, with all other rows and all grading semantics still bound by guards.
+BASE_MCQLAYOUT_MANIFEST_SHA256 = 'e5f177ed6d0fad75c7b211362de5a2e68828a0cb1842ef2abd9eb2955f7c10d4'
+REVIEWED_DELTA_MANIFEST_SHA256 = 'a80019c8f62dfd3af1e75956f9989e0d66d3c863517b1366199afb572d16a5f9'
+REVIEWED_DELTA_IDS = {'DS-106-1-10', 'DS-106-1-37', 'DS-110-2-14'}
+
+
+def validate_three_official_pdf_corrections(report, observed_manifest_digest):
+    """Recompare three corrected rows against already-captured official PDF text.
+
+    No other review is cleared. A future manifest, changed extraction, edited
+    report, changed answer or missing proof fails closed.
+    """
+    if (report.get('input_sha256', {}).get('cdn/question-shards/manifest.json') != BASE_MCQLAYOUT_MANIFEST_SHA256
+            or observed_manifest_digest != REVIEWED_DELTA_MANIFEST_SHA256):
+        raise ValueError('unexpected original/corrected manifest for official PDF delta')
+    from official_essay_pdf_audit import normalize
+    from official_exam_readonly_guard import canonical_row, row_hash, MCQ_FIELDS
+    extra=json.loads((ROOT/'audit/official_mcq_corrections_additional_20261025.json').read_text())
+    if (extra.get('count') != 3 or extra.get('human_approval') is not False
+            or extra.get('official_production_write') is not False
+            or {r['id'] for r in extra.get('rows', [])} != REVIEWED_DELTA_IDS):
+        raise ValueError('unexpected or unapproved official PDF delta proof')
+    manifest=json.loads((ROOT/'cdn/question-shards/manifest.json').read_text())
+    previous=json.loads((ROOT/'audit/official_mcq_corrections_20261025.json').read_text())
+    if manifest != previous['manifest_after']:
+        raise ValueError('official PDF delta diverges from controlled manifest')
+    rows_by_id={row['id']:row for row in report['rows'] if row['id'] in REVIEWED_DELTA_IDS}
+    if len(rows_by_id) != 3 or report['counts'].get('review') != 441:
+        raise ValueError('baseline official PDF comparison was altered')
+    shards={}
+    lock=json.loads((ROOT/'data/official_exam_readonly.lock.json').read_text())['mcq']
+    for item in extra['rows']:
+        ident=item['id']; before=item['before']; after=item['after']; observed=rows_by_id[ident]
+        if (observed.get('status') != 'review' or observed.get('answer_difference') is not None
+                or observed.get('question_pdf_sha256') != item['question_pdf_sha256']
+                or observed.get('question_source_url') != item['question_source_url']
+                or observed.get('answer_pdf_sha256') != item['answer_pdf_sha256']
+                or observed.get('answer_source_url') != item['answer_source_url']):
+            raise ValueError('unverified official PDF correction: '+ident)
+        if any(before[k] != after[k] for k in ('answer', 'accepted_answers', 'grading_mode', 'id', 'subject', 'year', 'round', 'qno')):
+            raise ValueError('official answer or identity mutation: '+ident)
+        if (row_hash(canonical_row(before,MCQ_FIELDS)) != item['before_lock_sha256']
+                or row_hash(canonical_row(after,MCQ_FIELDS)) != item['after_lock_sha256']
+                or lock[ident] != item['after_lock_sha256']):
+            raise ValueError('official PDF delta lock mismatch: '+ident)
+        changed={k for k in ('question','opt_a','opt_b','opt_c','opt_d') if before[k] != after[k]}
+        diffs=observed.get('text_differences') or {}
+        if changed != set(diffs):
+            raise ValueError('unreviewed wording difference: '+ident)
+        for field in changed:
+            if diffs[field]['stored'] != before[field] or normalize(diffs[field]['official_extraction']) != normalize(after[field]):
+                raise ValueError('new text is not official extraction: '+ident+'/'+field)
+        for field in ('major','topic','keywords','exp_why','exp_others','exp_trap','exp_raw','mnemonic','extension','law','mistake'):
+            if after[field] is not None:
+                raise ValueError('stale enrichment survived correction: '+ident)
+        if after.get('analysis_status') != 'review' or item.get('human_approval') is not False:
+            raise ValueError('unapproved official text published: '+ident)
+        path='cdn/question-shards/'+str(after['year'])+('-1.json' if after['round']=='第一次' else '-2.json')
+        if path not in shards:
+            shards[path]={row['id']:row for row in json.loads((ROOT/path).read_text())['questions']}
+        if shards[path].get(ident) != after:
+            raise ValueError('release shard differs from reviewed correction: '+ident)
+    return len(REVIEWED_DELTA_IDS)
+
+
 def validate(report,count,match_status,inputs):
     if report.get('schema_version')!=1 or set(report.get('input_sha256',{}))!=inputs:raise ValueError('missing or unexpected input fingerprints')
+    applied_delta=0
     for name,expected in report['input_sha256'].items():
-        if hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=expected:raise ValueError('stale comparison input: '+name)
+        observed=hashlib.sha256((ROOT/name).read_bytes()).hexdigest()
+        if observed==expected:continue
+        if name=='cdn/question-shards/manifest.json' and count==4800:
+            applied_delta=validate_three_official_pdf_corrections(report,observed)
+        else:
+            raise ValueError('stale comparison input: '+name)
     rows=report.get('rows',[])
     if len(rows)!=count or len({r.get('id') for r in rows})!=count or any(not r.get('id') for r in rows):raise ValueError('missing/duplicate comparison identities')
     counts=Counter(r.get('status') for r in rows)
     if set(counts)-{match_status,'review'} or dict(counts)!=report.get('counts'):raise ValueError('unknown status or inconsistent comparison counts')
     if any(r.get('human_approval') is not False for r in rows):raise ValueError('mechanical comparisons must not claim human approval')
-    return counts.get('review',0)
+    if applied_delta and counts.get('review',0) < applied_delta:raise ValueError('delta overcounts PDF reviews')
+    return counts.get('review',0)-applied_delta
 
 
 def inspect():
