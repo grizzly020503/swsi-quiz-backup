@@ -3,18 +3,18 @@
   "input_sha256": {
     "audit/official_mcq_pdf_comparison_20261025.json": "0853dc8e28191f7904e03b850f844ae245caf8ce5336800c3f1b2593aed14949",
     "audit/official_essay_pdf_comparison_20261025.json": "9e986c1d7b77de80bac0e26102f97dd6c82a219c4080f309926d13774e78312f",
-    "audit/official_mcq_corrections_additional_20261025.json": "5389fb9dbc2e736b4b5d35cdeb68606398c99c2e018189ebcbee606e6ab4a4c8"
+    "audit/official_mcq_corrections_additional_20261025.json": "b7ef109cf65c391475c5f770268536ce6b17dd07bdbabac8459a205c0c2b2dec"
   },
-  "unresolved": 455,
+  "unresolved": 452,
   "priority_counts": {
-    "0": 54,
+    "0": 51,
     "1": 362,
     "2": 39
   },
   "flag_counts": {
-    "numeric_tokens_differ": 51,
+    "numeric_tokens_differ": 48,
     "private_use_font_glyph": 3,
-    "wording_or_symbol_difference": 413,
+    "wording_or_symbol_difference": 410,
     "negation_or_exception_characters_differ": 3,
     "punctuation_only_difference_requires_review": 53,
     "incomplete_pdf_extraction": 3
@@ -1499,112 +1499,6 @@
       "automatic_release_approval": false
     },
     {
-      "id": "SP106-2-25",
-      "kind": "mcq",
-      "priority": 0,
-      "flags": [
-        "numeric_tokens_differ",
-        "wording_or_symbol_difference"
-      ],
-      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106110&c=107&s=0604&q=1",
-      "pdf_sha256": "92eeae94ee2c3025422f75de78b38abf6158e3225ae1f72b757c3aca7283d9aa",
-      "extraction_reason": null,
-      "differences": [
-        {
-          "field": "opt_a",
-          "stored": "50 人",
-          "official_extraction": "100 人",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_b",
-          "stored": "200 人",
-          "official_extraction": "50 人",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_c",
-          "stored": "300 人",
-          "official_extraction": "200 人",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_d",
-          "stored": "100 人",
-          "official_extraction": "300 人",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        }
-      ],
-      "status": "review",
-      "human_approval": false,
-      "automatic_release_approval": false
-    },
-    {
-      "id": "SP106-2-35",
-      "kind": "mcq",
-      "priority": 0,
-      "flags": [
-        "numeric_tokens_differ",
-        "wording_or_symbol_difference"
-      ],
-      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106110&c=107&s=0604&q=1",
-      "pdf_sha256": "92eeae94ee2c3025422f75de78b38abf6158e3225ae1f72b757c3aca7283d9aa",
-      "extraction_reason": null,
-      "differences": [
-        {
-          "field": "opt_a",
-          "stored": "立即處理 12",
-          "official_extraction": "立即處理",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_b",
-          "stored": "小時內處理 24",
-          "official_extraction": "12 小時內處理",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_c",
-          "stored": "小時內處理 48",
-          "official_extraction": "24 小時內處理",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_d",
-          "stored": "小時內處理",
-          "official_extraction": "48 小時內處理",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        }
-      ],
-      "status": "review",
-      "human_approval": false,
-      "automatic_release_approval": false
-    },
-    {
       "id": "SP107-1-40",
       "kind": "mcq",
       "priority": 0,
@@ -1742,59 +1636,6 @@
           "field": "opt_d",
           "stored": "至6 個月",
           "official_extraction": "4 至 6 個月",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        }
-      ],
-      "status": "review",
-      "human_approval": false,
-      "automatic_release_approval": false
-    },
-    {
-      "id": "SP111-2-37",
-      "kind": "mcq",
-      "priority": 0,
-      "flags": [
-        "numeric_tokens_differ",
-        "wording_or_symbol_difference"
-      ],
-      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111110&c=105&s=0404&q=1",
-      "pdf_sha256": "9a4afe4df13a7b88582efa0bb3950ccdb3780ec5c7e3380afabe8b0e8f2e3a0d",
-      "extraction_reason": null,
-      "differences": [
-        {
-          "field": "opt_a",
-          "stored": "3 年",
-          "official_extraction": "2年",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_b",
-          "stored": "4 年",
-          "official_extraction": "3年",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_c",
-          "stored": "5 年",
-          "official_extraction": "4年",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_d",
-          "stored": "2 年",
-          "official_extraction": "5年",
           "flags": [
             "numeric_tokens_differ",
             "wording_or_symbol_difference"

@@ -46,7 +46,7 @@ def check():
     mcq_baseline = dict(locked["mcq"])
     mcq_proof = json.loads((ROOT/"audit/official_mcq_corrections_20261025.json").read_text())
     additional_mcq = json.loads((ROOT/"audit/official_mcq_corrections_additional_20261025.json").read_text())
-    assert additional_mcq["count"] == 4 and additional_mcq["human_approval"] is False
+    assert additional_mcq["count"] == 7 and additional_mcq["human_approval"] is False
     for row in mcq_proof["rows"] + additional_mcq["rows"]:
         assert mcq_baseline[row["id"]] == row["after_lock_sha256"]
         mcq_baseline[row["id"]] = row["before_lock_sha256"]
