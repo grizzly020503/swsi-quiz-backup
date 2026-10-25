@@ -38,11 +38,32 @@ def build():
     holds = inspect()  # Reject stale snapshots before creating a review queue.
     report = []
     inputs = {}
+    # PDF comparisons are immutable baseline evidence. A later Official Core
+    # correction is cleared only when inspect() has already verified its
+    # exact-page proof, locks, unchanged grading and reviewed manifest.
+    mcq_path = ROOT / 'audit/official_mcq_pdf_comparison_20261025.json'
+    old_mcq = json.loads(mcq_path.read_text())
+    raw_review_count = sum(r['status'] == 'review' for r in old_mcq['rows'])
+    cleared = raw_review_count - holds['mcq']
+    if cleared < 0:
+        raise ValueError('PDF review gate count exceeds baseline')
+    skip = set()
+    if cleared:
+        from official_pdf_text_release_gate import REVIEWED_DELTA_IDS
+        candidate_path = ROOT / 'audit/official_mcq_corrections_additional_20261025.json'
+        proof = json.loads(candidate_path.read_text())
+        skip = {r['id'] for r in proof['rows']}
+        if (cleared != len(skip) or skip != REVIEWED_DELTA_IDS
+                or proof.get('count') != len(skip)
+                or proof.get('human_approval') is not False
+                or any(r['status'] != 'review' for r in old_mcq['rows'] if r['id'] in skip)):
+            raise ValueError('unproven Official Core review clearance')
+        inputs[str(candidate_path.relative_to(ROOT))] = hashlib.sha256(candidate_path.read_bytes()).hexdigest()
     for kind in ('mcq', 'essay'):
         path = ROOT / f'audit/official_{kind}_pdf_comparison_20261025.json'
         inputs[str(path.relative_to(ROOT))] = hashlib.sha256(path.read_bytes()).hexdigest()
         for row in json.loads(path.read_text())['rows']:
-            if row['status'] != 'review':
+            if row['status'] != 'review' or (kind == 'mcq' and row['id'] in skip):
                 continue
             differences = []
             if kind == 'mcq':
