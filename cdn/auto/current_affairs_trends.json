@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-25T04:34:54Z",
+  "generated_at": "2026-10-25T11:18:32Z",
   "event_count": 3,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -73,7 +73,7 @@
         "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
         "社會工作管理 > 品質與風險管理 > 社會工作 > 高齡者權益與社區支持"
       ],
-      "trend_state": "rising",
+      "trend_state": "cooling",
       "trend_score": 4.7,
       "why": [
         "2 個來源交叉確認",
