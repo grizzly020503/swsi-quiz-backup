@@ -17,6 +17,10 @@ on:
       - 'scripts/unified_question_qa_current.py'
       - 'scripts/unified_question_qa_selftest.py'
       - 'scripts/official_exam_readonly_guard.py'
+      - 'scripts/build_question_shards.py'
+      - 'scripts/historical_source_url_guard.py'
+      - 'scripts/historical_source_url_guard_selftest.py'
+      - 'data/moex_source_subjects.v1.json'
       - 'data/exam_scheme_registry.v1.json'
       - 'data/question_qa_policy_v1.json'
       - 'data/official_exam_readonly.lock.json'
@@ -33,6 +37,10 @@ on:
       - 'scripts/unified_question_qa_current.py'
       - 'scripts/unified_question_qa_selftest.py'
       - 'scripts/official_exam_readonly_guard.py'
+      - 'scripts/build_question_shards.py'
+      - 'scripts/historical_source_url_guard.py'
+      - 'scripts/historical_source_url_guard_selftest.py'
+      - 'data/moex_source_subjects.v1.json'
       - 'data/exam_scheme_registry.v1.json'
       - 'data/question_qa_policy_v1.json'
       - 'data/official_exam_readonly.lock.json'
@@ -76,6 +84,9 @@ jobs:
 
       - name: Verify immutable Official Core baseline
         run: python scripts/official_exam_readonly_guard.py
+
+      - name: Prevent wrong-subject historic MOEX sources in rebuilt shards
+        run: python scripts/historical_source_url_guard_selftest.py
 
       - name: Audit all manifest sessions through effective exam profiles
         run: |
