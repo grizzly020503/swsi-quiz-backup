@@ -1,0 +1,184 @@
+{
+  "base_candidate": "26926a050b8eb124074c424ea8095b180964d50d",
+  "scope": "read-only audit extraction and refreshed directory fingerprints; no official core edits",
+  "checks": [
+    {
+      "name": "MCQ audit selftest",
+      "command": [
+        "python3",
+        "scripts/official_mcq_pdf_audit.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "contract_as_expected": true,
+      "stdout": "OFFICIAL MCQ PDF AUDIT SELFTEST OK: negation, options, answer, multi-answer and scoring differences held; sources strict\n",
+      "stderr": ""
+    },
+    {
+      "name": "essay audit selftest",
+      "command": [
+        "python3",
+        "scripts/official_essay_pdf_audit.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "contract_as_expected": true,
+      "stdout": "OFFICIAL ESSAY PDF AUDIT SELFTEST OK: layout/font equivalence; wording, punctuation, number and score differences held\n",
+      "stderr": ""
+    },
+    {
+      "name": "source identity negative fixtures",
+      "command": [
+        "python3",
+        "scripts/audit_moex_source_subjects_selftest.py"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "contract_as_expected": true,
+      "stdout": "",
+      "stderr": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.011s\n\nOK\n"
+    },
+    {
+      "name": "all 120 raw PDF headers and 24 directories",
+      "command": [
+        "python3",
+        "scripts/audit_moex_source_subjects.py",
+        "--evidence-dir",
+        "../evidence_downloads/questions"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "contract_as_expected": true,
+      "stdout": "{\"scope\": \"source_identity_only\", \"questions\": 4800, \"pdf_identities\": 120, \"full_stem_answer_approval\": false, \"errors\": [], \"status\": \"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "official core read-only guard",
+      "command": [
+        "python3",
+        "scripts/official_exam_readonly_guard.py"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "contract_as_expected": true,
+      "stdout": "OFFICIAL EXAM READ-ONLY GUARD OK: locked MCQ=4800, essays=240\n",
+      "stderr": ""
+    },
+    {
+      "name": "existing 13 MCQ correction boundary",
+      "command": [
+        "python3",
+        "scripts/official_mcq_corrections_smoke.py"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "contract_as_expected": true,
+      "stdout": "CONTROLLED MCQ CORRECTIONS OK: 13 text/option candidates; 4787 other rows and all 4800 answer/grading tuples unchanged; hashes and manifest verified; human approval pending\n",
+      "stderr": ""
+    },
+    {
+      "name": "existing one essay correction boundary",
+      "command": [
+        "python3",
+        "scripts/official_essay_correction_smoke.py"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "contract_as_expected": true,
+      "stdout": "OFFICIAL ESSAY CORRECTION OK: one q/one lock; 239 other essays unchanged; MCQ deltas confined to separate controlled proof; stale guide quarantined; human approval pending\n",
+      "stderr": ""
+    },
+    {
+      "name": "release gate tamper selftest",
+      "command": [
+        "python3",
+        "scripts/official_pdf_text_release_gate.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "contract_as_expected": true,
+      "stdout": "OFFICIAL PDF RELEASE GATE SELFTEST OK: stale input, duplicate identities, count drift and false human approval rejected\n",
+      "stderr": ""
+    },
+    {
+      "name": "current evidence freshness",
+      "command": [
+        "python3",
+        "scripts/official_pdf_text_release_gate.py",
+        "--check-evidence-only"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "contract_as_expected": true,
+      "stdout": "{\"status\": \"NO-GO\", \"unresolved\": {\"mcq\": 442, \"essays\": 18}, \"total_unresolved\": 460, \"evidence_only\": true, \"human_approval\": false}\n",
+      "stderr": ""
+    },
+    {
+      "name": "fail-closed release gate",
+      "command": [
+        "python3",
+        "scripts/official_pdf_text_release_gate.py"
+      ],
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "contract_as_expected": true,
+      "stdout": "{\"status\": \"NO-GO\", \"unresolved\": {\"mcq\": 442, \"essays\": 18}, \"total_unresolved\": 460, \"evidence_only\": false, \"human_approval\": false}\n",
+      "stderr": ""
+    },
+    {
+      "name": "full corpus structural QA",
+      "command": [
+        "python3",
+        "scripts/full_corpus_qa.py",
+        "--out",
+        "/tmp/swsi-layout-full-corpus-final.json",
+        "--fail-on",
+        "blocked"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "contract_as_expected": true,
+      "stdout": "{\"total_mcq\": 4800, \"total_essays\": 240, \"total_items\": 5040, \"official_blocked\": 0, \"manual_review_queue_count\": 796, \"all_manifest_sessions_audited\": true, \"manifest_integrity_ok\": true}",
+      "stderr": ""
+    }
+  ],
+  "mcq_counts": {
+    "normalized_pdf_text_and_answer_match": 4358,
+    "review": 442
+  },
+  "essay_counts": {
+    "normalized_pdf_text_match": 222,
+    "review": 18
+  },
+  "transition_counts": [
+    {
+      "before": "normalized_pdf_text_and_answer_match",
+      "after": "normalized_pdf_text_and_answer_match",
+      "count": 3946
+    },
+    {
+      "before": "review",
+      "after": "review",
+      "count": 441
+    },
+    {
+      "before": "review",
+      "after": "normalized_pdf_text_and_answer_match",
+      "count": 412
+    },
+    {
+      "before": "normalized_pdf_text_and_answer_match",
+      "after": "review",
+      "count": 1
+    }
+  ],
+  "release_status": "NO-GO",
+  "unresolved": 460,
+  "human_approval": false,
+  "production_deployed": false,
+  "raw_evidence_library_id": "libfile_97e4ad821a248191b00f22ac0f2a926b",
+  "raw_evidence_sha256": "6e1258de9890efc85714a3e4b0fefcdbd552cae3dd5f6c5dc14735f068de428f"
+}

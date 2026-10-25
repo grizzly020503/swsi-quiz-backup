@@ -1,5 +1,29 @@
 # Official text correction candidate and release holds
 
+## Current extraction follow-up (2026-10-25)
+
+**Draft / NO-GO.** The same Official Core remains untouched by this follow-up. The current reproducible reports supersede the older comparison counts below:
+
+| Scope | Current result |
+| --- | --- |
+| MCQ normalized text + final grading | 4,358 matches / **442 review** |
+| MCQ review reasons | **1** image-only full-option question / **441** textual or layout differences |
+| Essay text | 222 matches / **18 review** |
+| All PDF text release holds | **460**, previously 871 |
+| Real AI model evidence / independent human ratings | Still missing; no new AI approval |
+
+The audit now uses one fixed Poppler `pdftotext -layout` extraction, a horizontal-whitespace question-number parser, and per-question failure isolation. It does not choose the extractor that happens to match the stored corpus. Exactly one previously matching question, `R-113-2-33`, now stays in review because a raised chi-square exponent crosses option boundaries in layout extraction. That difference is retained rather than hidden.
+
+Three exact official PDF hashes contain A-D labels as soft-mask images. Seventeen visually inspected exact mask hashes recover **476 label occurrences**, with every PDF/page/bounding box/mask hash/label recorded in `image_marker_decodings`. The white 2x2 base image is NOT a label identity: distinct soft masks carry the real glyphs. Only the known source PDF bytes and known masks can be decoded. Unknown masks and full-option images are not inferred. This clears 65 more mechanical comparisons; 55 now expose actual text/layout differences for review. This is traceable machine extraction, not independent human approval.
+
+The original question ZIP was truncated in its last directory page. All 120 complete PDF entries were recovered using local-header lengths and CRC, then independently matched to their registered SHA256. Seven complete directory pages also matched. Seventeen current official directories were fetched again; their five subject Q links and exact observed S/M answer-kind sets were checked before refreshing directory HTTP fingerprints for 85 source records and corresponding answer-manifest rows. Original PDF hashes/URLs, questions, answers, grading and Official Core locks were unchanged. Prior directory hashes are retained as `previous_index_sha256`.
+
+The complete replacement raw evidence archive is [retained here](https://chatgpt.com/library?file_id=libfile_97e4ad821a248191b00f22ac0f2a926b&account_id=personal), SHA256 `6e1258de9890efc85714a3e4b0fefcdbd552cae3dd5f6c5dc14735f068de428f`. It contains all 120 unchanged question PDFs, 24 current matching directories, `directory-refresh.json`, and `refreshed-answer-http.json`. The old `http.json` is historical transport evidence; the refresh manifest and repository registry describe current directory bytes. For reproduction, extract the existing 153-answer archive linked below, replace its `http.json` with `refreshed-answer-http.json`, and run the original audit commands. PDF byte hashes must still match. Test-only extraction dependencies used: requests 2.32.5, pypdf 6.1.3, pdfplumber 0.11.7, PyMuPDF 1.26.5 and Poppler 24.02.0. Selftests remain no-network and do not import those extraction dependencies.
+
+The release-gate implementation is unchanged. Evidence validation passes; the default gate still exits 2 on 460 unresolved comparisons. No merge, production deploy or database write was performed. Existing browser/CI results below belong to earlier commits and are not new-head evidence.
+
+## Prior correction snapshot (historical counts retained)
+
 This extends PR #447 from `fda6bd6aa149b400d1bd00d1c4221e28e9ba53df`. It supersedes the older `audit/final-20261025` snapshot's statement that all Official Core fields were unchanged. **Draft / NO-GO; no production writes or deployment.**
 
 ## Controlled corrections

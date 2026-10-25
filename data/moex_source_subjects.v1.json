@@ -1168,7 +1168,7 @@
       "pdf_sha256": "dd50cce6464ad77f347061c90ddac08da4b03e3c156a28d13694db17c4870b21",
       "pdf_header": "代號：10710\n頁次：4－1     107年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n           心理師、護理師、社會工作師考試、107年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                               座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=107110&y=2018",
-      "index_sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0",
+      "index_sha256": "edc9aa1c20a7254a8df59d3a189e3acb1e2e37bf28c1cdee9c4a4577769fc3c9",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0601&q=1",
         "http_status": 200,
@@ -1183,12 +1183,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 180122,
-        "sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0",
-        "checked_at": "2026-10-24T17:45:38.358049+00:00",
+        "sha256": "edc9aa1c20a7254a8df59d3a189e3acb1e2e37bf28c1cdee9c4a4577769fc3c9",
+        "checked_at": "2026-10-25T10:20:22.932535+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0"
     },
     {
       "session": "107-2",
@@ -1201,7 +1202,7 @@
       "pdf_sha256": "338ec25a9c997894aabdc1fa45417ef15522341c839ca6b8ebc54378ffb42cb1",
       "pdf_header": "代號：10720\n頁次：4－1     107年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n           心理師、護理師、社會工作師考試、107年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                               座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=107110&y=2018",
-      "index_sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0",
+      "index_sha256": "edc9aa1c20a7254a8df59d3a189e3acb1e2e37bf28c1cdee9c4a4577769fc3c9",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0602&q=1",
         "http_status": 200,
@@ -1216,12 +1217,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 180122,
-        "sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0",
-        "checked_at": "2026-10-24T17:45:38.358049+00:00",
+        "sha256": "edc9aa1c20a7254a8df59d3a189e3acb1e2e37bf28c1cdee9c4a4577769fc3c9",
+        "checked_at": "2026-10-25T10:20:22.932535+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0"
     },
     {
       "session": "107-2",
@@ -1234,7 +1236,7 @@
       "pdf_sha256": "2e169de3b7eb75ab88e39322f72407be9e257e31755b2dea14aa81f1a818f3da",
       "pdf_header": "代號：10740\n頁次：4－1     107年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n           心理師、護理師、社會工作師考試、107年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                                座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=107110&y=2018",
-      "index_sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0",
+      "index_sha256": "edc9aa1c20a7254a8df59d3a189e3acb1e2e37bf28c1cdee9c4a4577769fc3c9",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0604&q=1",
         "http_status": 200,
@@ -1249,12 +1251,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 180122,
-        "sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0",
-        "checked_at": "2026-10-24T17:45:38.358049+00:00",
+        "sha256": "edc9aa1c20a7254a8df59d3a189e3acb1e2e37bf28c1cdee9c4a4577769fc3c9",
+        "checked_at": "2026-10-25T10:20:22.932535+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0"
     },
     {
       "session": "107-2",
@@ -1267,7 +1270,7 @@
       "pdf_sha256": "82e40730db7c6d30e75b3cafd0fc0b1f592b5c793b397ec265ae5596056f820d",
       "pdf_header": "代號：10750\n頁次：4－1     107年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n           心理師、護理師、社會工作師考試、107年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                               座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=107110&y=2018",
-      "index_sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0",
+      "index_sha256": "edc9aa1c20a7254a8df59d3a189e3acb1e2e37bf28c1cdee9c4a4577769fc3c9",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0605&q=1",
         "http_status": 200,
@@ -1282,12 +1285,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 180122,
-        "sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0",
-        "checked_at": "2026-10-24T17:45:38.358049+00:00",
+        "sha256": "edc9aa1c20a7254a8df59d3a189e3acb1e2e37bf28c1cdee9c4a4577769fc3c9",
+        "checked_at": "2026-10-25T10:20:22.932535+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0"
     },
     {
       "session": "107-2",
@@ -1300,7 +1304,7 @@
       "pdf_sha256": "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d",
       "pdf_header": "代號：10770\n頁次：4－1     107年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n           心理師、護理師、社會工作師考試、107年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                                    座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=107110&y=2018",
-      "index_sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0",
+      "index_sha256": "edc9aa1c20a7254a8df59d3a189e3acb1e2e37bf28c1cdee9c4a4577769fc3c9",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0606&q=1",
         "http_status": 200,
@@ -1315,12 +1319,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 180122,
-        "sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0",
-        "checked_at": "2026-10-24T17:45:38.358049+00:00",
+        "sha256": "edc9aa1c20a7254a8df59d3a189e3acb1e2e37bf28c1cdee9c4a4577769fc3c9",
+        "checked_at": "2026-10-25T10:20:22.932535+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "c59d11b4e531fae04ebedc62385cc58dc82ac89764cd3f13a58840803b96d6e0"
     },
     {
       "session": "108-1",
@@ -1333,7 +1338,7 @@
       "pdf_sha256": "749aa227892e388a2fd4e1cdc777b0db4a8577530fc7c529a6abeeedab6d5734",
       "pdf_header": "代號：10710   108年第一次專門職業及技術人員高等考試中醫師考試分階段\n頁次：4－1\n           考試、營養師、心理師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                                         座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108020&y=2019",
-      "index_sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49",
+      "index_sha256": "353d64254ed0ed67acdf4860a10340076ed0945670ce9dfb5be861e4bbc59b52",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=108020&c=107&s=0601&q=1",
         "http_status": 200,
@@ -1348,12 +1353,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 110254,
-        "sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49",
-        "checked_at": "2026-10-24T17:45:42.809849+00:00",
+        "sha256": "353d64254ed0ed67acdf4860a10340076ed0945670ce9dfb5be861e4bbc59b52",
+        "checked_at": "2026-10-25T10:20:22.998538+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49"
     },
     {
       "session": "108-1",
@@ -1366,7 +1372,7 @@
       "pdf_sha256": "1bd5e5ea80b07c1e613f599147139f7f400e179528c9d7c1c4f006149eae7d12",
       "pdf_header": "代號：10720   108年第一次專門職業及技術人員高等考試中醫師考試分階段\n頁次：4－1\n           考試、營養師、心理師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                               座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108020&y=2019",
-      "index_sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49",
+      "index_sha256": "353d64254ed0ed67acdf4860a10340076ed0945670ce9dfb5be861e4bbc59b52",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=108020&c=107&s=0602&q=1",
         "http_status": 200,
@@ -1381,12 +1387,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 110254,
-        "sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49",
-        "checked_at": "2026-10-24T17:45:42.809849+00:00",
+        "sha256": "353d64254ed0ed67acdf4860a10340076ed0945670ce9dfb5be861e4bbc59b52",
+        "checked_at": "2026-10-25T10:20:22.998538+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49"
     },
     {
       "session": "108-1",
@@ -1399,7 +1406,7 @@
       "pdf_sha256": "1504147883b53c96587c8f1140786d596b9d3f7b3abb6d847f16b3543883431a",
       "pdf_header": "代號：10740   108年第一次專門職業及技術人員高等考試中醫師考試分階段\n頁次：4－1\n           考試、營養師、心理師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                                  座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108020&y=2019",
-      "index_sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49",
+      "index_sha256": "353d64254ed0ed67acdf4860a10340076ed0945670ce9dfb5be861e4bbc59b52",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=108020&c=107&s=0604&q=1",
         "http_status": 200,
@@ -1414,12 +1421,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 110254,
-        "sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49",
-        "checked_at": "2026-10-24T17:45:42.809849+00:00",
+        "sha256": "353d64254ed0ed67acdf4860a10340076ed0945670ce9dfb5be861e4bbc59b52",
+        "checked_at": "2026-10-25T10:20:22.998538+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49"
     },
     {
       "session": "108-1",
@@ -1432,7 +1440,7 @@
       "pdf_sha256": "2965e19e03ff8eca82787a00eca69b612809d90757077ed74de9b3042496dfc2",
       "pdf_header": "代號：10750    108年第一次專門職業及技術人員高等考試中醫師考試分階段\n頁次：4－1\n            考試、營養師、心理師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                                    座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108020&y=2019",
-      "index_sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49",
+      "index_sha256": "353d64254ed0ed67acdf4860a10340076ed0945670ce9dfb5be861e4bbc59b52",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=108020&c=107&s=0605&q=1",
         "http_status": 200,
@@ -1447,12 +1455,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 110254,
-        "sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49",
-        "checked_at": "2026-10-24T17:45:42.809849+00:00",
+        "sha256": "353d64254ed0ed67acdf4860a10340076ed0945670ce9dfb5be861e4bbc59b52",
+        "checked_at": "2026-10-25T10:20:22.998538+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49"
     },
     {
       "session": "108-1",
@@ -1465,7 +1474,7 @@
       "pdf_sha256": "ab3cb9a73856af348cb8e736e71f18e0167ecf02bb6459db035eeb6388e9ddaa",
       "pdf_header": "代號：10770   108年第一次專門職業及技術人員高等考試中醫師考試分階段\n頁次：4－1\n           考試、營養師、心理師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                                座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108020&y=2019",
-      "index_sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49",
+      "index_sha256": "353d64254ed0ed67acdf4860a10340076ed0945670ce9dfb5be861e4bbc59b52",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=108020&c=107&s=0606&q=1",
         "http_status": 200,
@@ -1480,12 +1489,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 110254,
-        "sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49",
-        "checked_at": "2026-10-24T17:45:42.809849+00:00",
+        "sha256": "353d64254ed0ed67acdf4860a10340076ed0945670ce9dfb5be861e4bbc59b52",
+        "checked_at": "2026-10-25T10:20:22.998538+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "4bed6ae44afc967c8d1b9ffa59b056f65223f5b81dad7411d57bd7781dc3ce49"
     },
     {
       "session": "108-2",
@@ -1498,7 +1508,7 @@
       "pdf_sha256": "89543185cee74523e23139c31e41440c606919699cb8f2cf0de2285ebc1edfbe",
       "pdf_header": "代號：10710\n頁次：4－1     108年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n           心理師、護理師、社會工作師考試、108年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                               座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108110&y=2019",
-      "index_sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c",
+      "index_sha256": "140a02112581c10714c61eb13907095411ffd2eeeec84e68f4ba4bf407504f94",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=108110&c=107&s=0601&q=1",
         "http_status": 200,
@@ -1513,12 +1523,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 177474,
-        "sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c",
-        "checked_at": "2026-10-24T17:45:42.905836+00:00",
+        "sha256": "140a02112581c10714c61eb13907095411ffd2eeeec84e68f4ba4bf407504f94",
+        "checked_at": "2026-10-25T10:20:23.775085+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c"
     },
     {
       "session": "108-2",
@@ -1531,7 +1542,7 @@
       "pdf_sha256": "78e9473d144f9165622f02ac3e5a004658b0ca7dd516c436f56cfdf4042b3e9b",
       "pdf_header": "代號：10720\n頁次：4－1     108年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n           心理師、護理師、社會工作師考試、108年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                                           座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108110&y=2019",
-      "index_sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c",
+      "index_sha256": "140a02112581c10714c61eb13907095411ffd2eeeec84e68f4ba4bf407504f94",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=108110&c=107&s=0602&q=1",
         "http_status": 200,
@@ -1546,12 +1557,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 177474,
-        "sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c",
-        "checked_at": "2026-10-24T17:45:42.905836+00:00",
+        "sha256": "140a02112581c10714c61eb13907095411ffd2eeeec84e68f4ba4bf407504f94",
+        "checked_at": "2026-10-25T10:20:23.775085+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c"
     },
     {
       "session": "108-2",
@@ -1564,7 +1576,7 @@
       "pdf_sha256": "956025f3383d3d721ae428e3dd8a3a97b0abed4026c5ed71bafc6e8a1171ff03",
       "pdf_header": "代號：10740\n頁次：4－1     108年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n           心理師、護理師、社會工作師考試、108年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                                       座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108110&y=2019",
-      "index_sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c",
+      "index_sha256": "140a02112581c10714c61eb13907095411ffd2eeeec84e68f4ba4bf407504f94",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=108110&c=107&s=0604&q=1",
         "http_status": 200,
@@ -1579,12 +1591,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 177474,
-        "sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c",
-        "checked_at": "2026-10-24T17:45:42.905836+00:00",
+        "sha256": "140a02112581c10714c61eb13907095411ffd2eeeec84e68f4ba4bf407504f94",
+        "checked_at": "2026-10-25T10:20:23.775085+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c"
     },
     {
       "session": "108-2",
@@ -1597,7 +1610,7 @@
       "pdf_sha256": "631516dbc826381a971080a07d8fe66c4aea81508c5343fe3a1b9cb834e102c2",
       "pdf_header": "代號：10750\n頁次：4－1     108年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n           心理師、護理師、社會工作師考試、108年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                                座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108110&y=2019",
-      "index_sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c",
+      "index_sha256": "140a02112581c10714c61eb13907095411ffd2eeeec84e68f4ba4bf407504f94",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=108110&c=107&s=0605&q=1",
         "http_status": 200,
@@ -1612,12 +1625,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 177474,
-        "sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c",
-        "checked_at": "2026-10-24T17:45:42.905836+00:00",
+        "sha256": "140a02112581c10714c61eb13907095411ffd2eeeec84e68f4ba4bf407504f94",
+        "checked_at": "2026-10-25T10:20:23.775085+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c"
     },
     {
       "session": "108-2",
@@ -1630,7 +1644,7 @@
       "pdf_sha256": "1df2c7eedb28f7bbf117e604a4b061d6461b51a980d0f22bfcac560eb2b28741",
       "pdf_header": "代號：10760\n頁次：4－1     108年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n           心理師、護理師、社會工作師考試、108年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                               座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108110&y=2019",
-      "index_sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c",
+      "index_sha256": "140a02112581c10714c61eb13907095411ffd2eeeec84e68f4ba4bf407504f94",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=108110&c=107&s=0606&q=1",
         "http_status": 200,
@@ -1645,12 +1659,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 177474,
-        "sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c",
-        "checked_at": "2026-10-24T17:45:42.905836+00:00",
+        "sha256": "140a02112581c10714c61eb13907095411ffd2eeeec84e68f4ba4bf407504f94",
+        "checked_at": "2026-10-25T10:20:23.775085+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "04705485dafa201214c4df7ccb592af61d2c129bf99f6dc48b004901a6e39d4c"
     },
     {
       "session": "109-1",
@@ -1663,7 +1678,7 @@
       "pdf_sha256": "6acb77114fae7a7a424516edd1eb476ce98f1214c81134845b2178ff40b9f885",
       "pdf_header": "代號：10710   109年第一次專門職業及技術人員高等考試中醫師考試分階段\n頁次：4－1\n           考試、營養師、心理師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                               座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109030&y=2020",
-      "index_sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32",
+      "index_sha256": "889ce39a5768113870f13c0f630266fa7716dfc320e0a1159b54006dbab64d80",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=109030&c=107&s=0601&q=1",
         "http_status": 200,
@@ -1678,12 +1693,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 109368,
-        "sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32",
-        "checked_at": "2026-10-24T17:45:49.204288+00:00",
+        "sha256": "889ce39a5768113870f13c0f630266fa7716dfc320e0a1159b54006dbab64d80",
+        "checked_at": "2026-10-25T10:20:22.652932+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32"
     },
     {
       "session": "109-1",
@@ -1696,7 +1712,7 @@
       "pdf_sha256": "7cf310899c22fc034e41d9bef6aed5cd2f89cd7fa97860e0b91df80f03f0519e",
       "pdf_header": "代號：10720   109年第一次專門職業及技術人員高等考試中醫師考試分階段\n頁次：4－1\n           考試、營養師、心理師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                               座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109030&y=2020",
-      "index_sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32",
+      "index_sha256": "889ce39a5768113870f13c0f630266fa7716dfc320e0a1159b54006dbab64d80",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=109030&c=107&s=0602&q=1",
         "http_status": 200,
@@ -1711,12 +1727,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 109368,
-        "sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32",
-        "checked_at": "2026-10-24T17:45:49.204288+00:00",
+        "sha256": "889ce39a5768113870f13c0f630266fa7716dfc320e0a1159b54006dbab64d80",
+        "checked_at": "2026-10-25T10:20:22.652932+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32"
     },
     {
       "session": "109-1",
@@ -1729,7 +1746,7 @@
       "pdf_sha256": "8f58c4a5888112357f5829a232c2e742ea9ff415a119f81aea18968fc1ceecaf",
       "pdf_header": "代號：10740   109年第一次專門職業及技術人員高等考試中醫師考試分階段\n頁次：4－1\n           考試、營養師、心理師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                                 座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109030&y=2020",
-      "index_sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32",
+      "index_sha256": "889ce39a5768113870f13c0f630266fa7716dfc320e0a1159b54006dbab64d80",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=109030&c=107&s=0604&q=1",
         "http_status": 200,
@@ -1744,12 +1761,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 109368,
-        "sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32",
-        "checked_at": "2026-10-24T17:45:49.204288+00:00",
+        "sha256": "889ce39a5768113870f13c0f630266fa7716dfc320e0a1159b54006dbab64d80",
+        "checked_at": "2026-10-25T10:20:22.652932+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32"
     },
     {
       "session": "109-1",
@@ -1762,7 +1780,7 @@
       "pdf_sha256": "da171b941ca1385f8c3822258c1ad0be452df7ad6205602b01a7f8353f2da16b",
       "pdf_header": "代號：10750   109年第一次專門職業及技術人員高等考試中醫師考試分階段\n頁次：4－1\n           考試、營養師、心理師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                                 座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109030&y=2020",
-      "index_sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32",
+      "index_sha256": "889ce39a5768113870f13c0f630266fa7716dfc320e0a1159b54006dbab64d80",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=109030&c=107&s=0605&q=1",
         "http_status": 200,
@@ -1777,12 +1795,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 109368,
-        "sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32",
-        "checked_at": "2026-10-24T17:45:49.204288+00:00",
+        "sha256": "889ce39a5768113870f13c0f630266fa7716dfc320e0a1159b54006dbab64d80",
+        "checked_at": "2026-10-25T10:20:22.652932+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32"
     },
     {
       "session": "109-1",
@@ -1795,7 +1814,7 @@
       "pdf_sha256": "ae9caecf318dd7cf99dc4e28055319a809bbafb51bf536790718d87a7ef9c426",
       "pdf_header": "代號：10760   109年第一次專門職業及技術人員高等考試中醫師考試分階段\n頁次：4－1\n           考試、營養師、心理師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                               座號：\n※注意： 禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109030&y=2020",
-      "index_sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32",
+      "index_sha256": "889ce39a5768113870f13c0f630266fa7716dfc320e0a1159b54006dbab64d80",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=109030&c=107&s=0606&q=1",
         "http_status": 200,
@@ -1810,12 +1829,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 109368,
-        "sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32",
-        "checked_at": "2026-10-24T17:45:49.204288+00:00",
+        "sha256": "889ce39a5768113870f13c0f630266fa7716dfc320e0a1159b54006dbab64d80",
+        "checked_at": "2026-10-25T10:20:22.652932+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "d1d9334af52a516c7403de2d8e79023ad853fef7f61323f4d98f9e0363debf32"
     },
     {
       "session": "109-2",
@@ -1828,7 +1848,7 @@
       "pdf_sha256": "865aa70df0d9bcccf386fa5eee2ab600f32387ecf1eba1780fd73de85983b089",
       "pdf_header": "代號：10710   109年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n頁次：4－1\n           心理師、護理師、社會工作師考試、109年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間：2小時                                 座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109110&y=2020",
-      "index_sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53",
+      "index_sha256": "d89f1c9960e17080f4009da1f8a4588b1acd8fb7aa332d694309e006d5a80fec",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=109110&c=107&s=0601&q=1",
         "http_status": 200,
@@ -1843,12 +1863,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 177492,
-        "sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53",
-        "checked_at": "2026-10-24T17:45:55.222047+00:00",
+        "sha256": "d89f1c9960e17080f4009da1f8a4588b1acd8fb7aa332d694309e006d5a80fec",
+        "checked_at": "2026-10-25T10:20:28.015680+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53"
     },
     {
       "session": "109-2",
@@ -1861,7 +1882,7 @@
       "pdf_sha256": "0351cc6a62bfc1f922ed58cea35cde6b20dde02db4d9768379273ba6baf9798e",
       "pdf_header": "代號：10720   109年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n頁次：4－1\n           心理師、護理師、社會工作師考試、109年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間：2小時                                座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109110&y=2020",
-      "index_sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53",
+      "index_sha256": "d89f1c9960e17080f4009da1f8a4588b1acd8fb7aa332d694309e006d5a80fec",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=109110&c=107&s=0602&q=1",
         "http_status": 200,
@@ -1876,12 +1897,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 177492,
-        "sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53",
-        "checked_at": "2026-10-24T17:45:55.222047+00:00",
+        "sha256": "d89f1c9960e17080f4009da1f8a4588b1acd8fb7aa332d694309e006d5a80fec",
+        "checked_at": "2026-10-25T10:20:28.015680+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53"
     },
     {
       "session": "109-2",
@@ -1894,7 +1916,7 @@
       "pdf_sha256": "1ecdafad23947bd22fe22ee921709903b2675e9542368d82d203bfefe4552c14",
       "pdf_header": "代號：10740   109年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n頁次：4－1\n           心理師、護理師、社會工作師考試、109年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間：2小時                                  座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109110&y=2020",
-      "index_sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53",
+      "index_sha256": "d89f1c9960e17080f4009da1f8a4588b1acd8fb7aa332d694309e006d5a80fec",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=109110&c=107&s=0604&q=1",
         "http_status": 200,
@@ -1909,12 +1931,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 177492,
-        "sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53",
-        "checked_at": "2026-10-24T17:45:55.222047+00:00",
+        "sha256": "d89f1c9960e17080f4009da1f8a4588b1acd8fb7aa332d694309e006d5a80fec",
+        "checked_at": "2026-10-25T10:20:28.015680+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53"
     },
     {
       "session": "109-2",
@@ -1927,7 +1950,7 @@
       "pdf_sha256": "276c564859f8eefc01c1a7d8cda422a15c508020bf9832881842b04c98df0c5f",
       "pdf_header": "代號：10750   109年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n頁次：4－1\n           心理師、護理師、社會工作師考試、109年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間：2小時                                          座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109110&y=2020",
-      "index_sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53",
+      "index_sha256": "d89f1c9960e17080f4009da1f8a4588b1acd8fb7aa332d694309e006d5a80fec",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=109110&c=107&s=0605&q=1",
         "http_status": 200,
@@ -1942,12 +1965,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 177492,
-        "sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53",
-        "checked_at": "2026-10-24T17:45:55.222047+00:00",
+        "sha256": "d89f1c9960e17080f4009da1f8a4588b1acd8fb7aa332d694309e006d5a80fec",
+        "checked_at": "2026-10-25T10:20:28.015680+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53"
     },
     {
       "session": "109-2",
@@ -1960,7 +1984,7 @@
       "pdf_sha256": "a047afd756866d2afaf740b2293510bad3f50e88a0131748d7d42c8b538ca96f",
       "pdf_header": "代號：10760   109年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n頁次：4－1\n           心理師、護理師、社會工作師考試、109年專門職業及技術人員高等考試法醫師、\n           語言治療師、聽力師、牙體技術師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間：2小時                               座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109110&y=2020",
-      "index_sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53",
+      "index_sha256": "d89f1c9960e17080f4009da1f8a4588b1acd8fb7aa332d694309e006d5a80fec",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=109110&c=107&s=0606&q=1",
         "http_status": 200,
@@ -1975,12 +1999,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 177492,
-        "sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53",
-        "checked_at": "2026-10-24T17:45:55.222047+00:00",
+        "sha256": "d89f1c9960e17080f4009da1f8a4588b1acd8fb7aa332d694309e006d5a80fec",
+        "checked_at": "2026-10-25T10:20:28.015680+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "19e1338b3ba43e379bfb3005ba89737aff067cbc038ffd15161ef7d20bd6fd53"
     },
     {
       "session": "110-1",
@@ -1993,7 +2018,7 @@
       "pdf_sha256": "89d9fb0e87e37c7e943da19e9a10c2e16dfc816b905fba57222e888f2753b536",
       "pdf_header": "代號：10510   110年第一次專門職業及技術人員高等考試中醫師考試\n頁次：4－1\n           分階段考試、營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                                  座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110030&y=2021",
-      "index_sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9",
+      "index_sha256": "08d8f90b73cd4b0aa06e82954fd8be2a7e6d8911e83edc63f02bbe2a7c2a5a52",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110030&c=105&s=0401&q=1",
         "http_status": 200,
@@ -2008,12 +2033,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 83731,
-        "sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9",
-        "checked_at": "2026-10-24T17:45:58.457828+00:00",
+        "sha256": "08d8f90b73cd4b0aa06e82954fd8be2a7e6d8911e83edc63f02bbe2a7c2a5a52",
+        "checked_at": "2026-10-25T10:20:27.916402+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9"
     },
     {
       "session": "110-1",
@@ -2026,7 +2052,7 @@
       "pdf_sha256": "8a8edeb31e20e16b5e4034784ec8a0fb6aa87ec89cbf2eb4f8f62a6a06194693",
       "pdf_header": "代號：10520   110年第一次專門職業及技術人員高等考試中醫師考試\n頁次：4－1\n           分階段考試、營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                                 座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110030&y=2021",
-      "index_sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9",
+      "index_sha256": "08d8f90b73cd4b0aa06e82954fd8be2a7e6d8911e83edc63f02bbe2a7c2a5a52",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110030&c=105&s=0402&q=1",
         "http_status": 200,
@@ -2041,12 +2067,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 83731,
-        "sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9",
-        "checked_at": "2026-10-24T17:45:58.457828+00:00",
+        "sha256": "08d8f90b73cd4b0aa06e82954fd8be2a7e6d8911e83edc63f02bbe2a7c2a5a52",
+        "checked_at": "2026-10-25T10:20:27.916402+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9"
     },
     {
       "session": "110-1",
@@ -2059,7 +2086,7 @@
       "pdf_sha256": "a436b98dee01e49484565cc105d8c88d5f2fee340d9eec2b91c7a3bd5862f3b1",
       "pdf_header": "代號：10540   110年第一次專門職業及技術人員高等考試中醫師考試\n頁次：4－1\n           分階段考試、營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                                       座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110030&y=2021",
-      "index_sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9",
+      "index_sha256": "08d8f90b73cd4b0aa06e82954fd8be2a7e6d8911e83edc63f02bbe2a7c2a5a52",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110030&c=105&s=0404&q=1",
         "http_status": 200,
@@ -2074,12 +2101,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 83731,
-        "sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9",
-        "checked_at": "2026-10-24T17:45:58.457828+00:00",
+        "sha256": "08d8f90b73cd4b0aa06e82954fd8be2a7e6d8911e83edc63f02bbe2a7c2a5a52",
+        "checked_at": "2026-10-25T10:20:27.916402+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9"
     },
     {
       "session": "110-1",
@@ -2092,7 +2120,7 @@
       "pdf_sha256": "98bd5522da3560f73da8eeaa5aca5d43347eb65fd3100048b03e570750e7f39e",
       "pdf_header": "代號：10550   110年第一次專門職業及技術人員高等考試中醫師考試\n頁次：4－1\n           分階段考試、營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                              座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110030&y=2021",
-      "index_sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9",
+      "index_sha256": "08d8f90b73cd4b0aa06e82954fd8be2a7e6d8911e83edc63f02bbe2a7c2a5a52",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110030&c=105&s=0405&q=1",
         "http_status": 200,
@@ -2107,12 +2135,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 83731,
-        "sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9",
-        "checked_at": "2026-10-24T17:45:58.457828+00:00",
+        "sha256": "08d8f90b73cd4b0aa06e82954fd8be2a7e6d8911e83edc63f02bbe2a7c2a5a52",
+        "checked_at": "2026-10-25T10:20:27.916402+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9"
     },
     {
       "session": "110-1",
@@ -2125,7 +2154,7 @@
       "pdf_sha256": "4e670367ed1088add4db6ecba6e8371a38fdd8714ac0300dae3c1e104e06c7c9",
       "pdf_header": "代號：10560     110年第一次專門職業及技術人員高等考試中醫師考試\n頁次：4－1\n             分階段考試、營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                                      座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110030&y=2021",
-      "index_sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9",
+      "index_sha256": "08d8f90b73cd4b0aa06e82954fd8be2a7e6d8911e83edc63f02bbe2a7c2a5a52",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110030&c=105&s=0406&q=1",
         "http_status": 200,
@@ -2140,12 +2169,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 83731,
-        "sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9",
-        "checked_at": "2026-10-24T17:45:58.457828+00:00",
+        "sha256": "08d8f90b73cd4b0aa06e82954fd8be2a7e6d8911e83edc63f02bbe2a7c2a5a52",
+        "checked_at": "2026-10-25T10:20:27.916402+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "74e0cb3f966d7791cb390b74c0857dc334906af13a8136d2ecc17b953b4f4dc9"
     },
     {
       "session": "110-2",
@@ -2158,7 +2188,7 @@
       "pdf_sha256": "c42f2b588c4029b13b527b6092e9d1461d02c04300a951dae2ea7b7fa25e515a",
       "pdf_header": "代號：10510   110年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n頁次：4－1\n           社會工作師考試、110年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力 師、牙體技術師 考試、高等暨普 通考試驗光人員 考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110111&y=2021",
-      "index_sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f",
+      "index_sha256": "106099e21d2eff3d7a04c39962f3f4b9ea83878c33abeef6a47bc5e02a52ecbc",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110111&c=105&s=0401&q=1",
         "http_status": 200,
@@ -2173,12 +2203,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 170432,
-        "sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f",
-        "checked_at": "2026-10-24T17:45:58.477847+00:00",
+        "sha256": "106099e21d2eff3d7a04c39962f3f4b9ea83878c33abeef6a47bc5e02a52ecbc",
+        "checked_at": "2026-10-25T10:20:28.071347+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f"
     },
     {
       "session": "110-2",
@@ -2191,7 +2222,7 @@
       "pdf_sha256": "a646c688e2bc1d1f439b76f27ba9ee840282798cc055d28e38f79f8a65249cbc",
       "pdf_header": "代號：10520   110年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n頁次：4－1\n           社會工作師考試、110年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力 師、牙體技術師 考試、高等暨普 通考試驗光人員 考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110111&y=2021",
-      "index_sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f",
+      "index_sha256": "106099e21d2eff3d7a04c39962f3f4b9ea83878c33abeef6a47bc5e02a52ecbc",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110111&c=105&s=0402&q=1",
         "http_status": 200,
@@ -2206,12 +2237,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 170432,
-        "sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f",
-        "checked_at": "2026-10-24T17:45:58.477847+00:00",
+        "sha256": "106099e21d2eff3d7a04c39962f3f4b9ea83878c33abeef6a47bc5e02a52ecbc",
+        "checked_at": "2026-10-25T10:20:28.071347+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f"
     },
     {
       "session": "110-2",
@@ -2224,7 +2256,7 @@
       "pdf_sha256": "39c87bbf9031296ebe1676e3f75d1097c0eaa603f80777b6af6850cc1153fd1e",
       "pdf_header": "代號：10540   110年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n頁次：4－1\n           社會工作師考試、110年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力 師、牙體技術師 考試、高等暨普 通考試驗光人員 考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                                 座號：\n※注意：禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110111&y=2021",
-      "index_sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f",
+      "index_sha256": "106099e21d2eff3d7a04c39962f3f4b9ea83878c33abeef6a47bc5e02a52ecbc",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110111&c=105&s=0404&q=1",
         "http_status": 200,
@@ -2239,12 +2271,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 170432,
-        "sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f",
-        "checked_at": "2026-10-24T17:45:58.477847+00:00",
+        "sha256": "106099e21d2eff3d7a04c39962f3f4b9ea83878c33abeef6a47bc5e02a52ecbc",
+        "checked_at": "2026-10-25T10:20:28.071347+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f"
     },
     {
       "session": "110-2",
@@ -2257,7 +2290,7 @@
       "pdf_sha256": "9219cfe6d13a8749f42b1e7ac997b602e5956f0c4d357613c4b4c54f8f6db288",
       "pdf_header": "代號：10550   110年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n頁次：4－1\n           社會工作師考試、110年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力 師、牙體技術師 考試、高等暨普 通考試驗光人員 考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                               座號：\n※注意：禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110111&y=2021",
-      "index_sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f",
+      "index_sha256": "106099e21d2eff3d7a04c39962f3f4b9ea83878c33abeef6a47bc5e02a52ecbc",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110111&c=105&s=0405&q=1",
         "http_status": 200,
@@ -2272,12 +2305,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 170432,
-        "sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f",
-        "checked_at": "2026-10-24T17:45:58.477847+00:00",
+        "sha256": "106099e21d2eff3d7a04c39962f3f4b9ea83878c33abeef6a47bc5e02a52ecbc",
+        "checked_at": "2026-10-25T10:20:28.071347+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f"
     },
     {
       "session": "110-2",
@@ -2290,7 +2324,7 @@
       "pdf_sha256": "ca9bc221d936f528ec3fac732d60120da07a4698589af5b1e4c9fcf1ba7f5dca",
       "pdf_header": "代號：10560   110 年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、\n頁次：4－1\n           社會工作師考試、110 年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力 師、牙體技術師 考試、高等暨普 通考試驗光人員 考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                                 座號：\n※注意：禁止使用電子計算器。\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110111&y=2021",
-      "index_sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f",
+      "index_sha256": "106099e21d2eff3d7a04c39962f3f4b9ea83878c33abeef6a47bc5e02a52ecbc",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110111&c=105&s=0406&q=1",
         "http_status": 200,
@@ -2305,12 +2339,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 170432,
-        "sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f",
-        "checked_at": "2026-10-24T17:45:58.477847+00:00",
+        "sha256": "106099e21d2eff3d7a04c39962f3f4b9ea83878c33abeef6a47bc5e02a52ecbc",
+        "checked_at": "2026-10-25T10:20:28.071347+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "0d4c0d2a5785f24c882f46181fce3f6c9fe1b30c8c4808a3a75e44fe8049929f"
     },
     {
       "session": "111-1",
@@ -2323,7 +2358,7 @@
       "pdf_sha256": "f7a02a2b21b33c0b10387f5f2468081d8f0ca8c2b7303d6a486542c0884c84d5",
       "pdf_header": "代號：10510   111年第一次專門職業及技術人員高等考試中醫師考試\n頁次：4－1\n           分階段考試、營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111030&y=2022",
-      "index_sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630",
+      "index_sha256": "2809fa9afd8bf293c39b560382b52a49d64877c66e2ad814eaa6a5bb052839a9",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111030&c=105&s=0401&q=1",
         "http_status": 200,
@@ -2338,12 +2373,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 83310,
-        "sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630",
-        "checked_at": "2026-10-24T17:46:02.385836+00:00",
+        "sha256": "2809fa9afd8bf293c39b560382b52a49d64877c66e2ad814eaa6a5bb052839a9",
+        "checked_at": "2026-10-25T10:20:28.111315+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630"
     },
     {
       "session": "111-1",
@@ -2356,7 +2392,7 @@
       "pdf_sha256": "1277494ca0fe882ec6719819a7e9eb374e60767de5222060d35f37b2861dc348",
       "pdf_header": "代號：10520   111年第一次專門職業及技術人員高等考試中醫師考試\n頁次：4－1\n           分階段考試、營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111030&y=2022",
-      "index_sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630",
+      "index_sha256": "2809fa9afd8bf293c39b560382b52a49d64877c66e2ad814eaa6a5bb052839a9",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111030&c=105&s=0402&q=1",
         "http_status": 200,
@@ -2371,12 +2407,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 83310,
-        "sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630",
-        "checked_at": "2026-10-24T17:46:02.385836+00:00",
+        "sha256": "2809fa9afd8bf293c39b560382b52a49d64877c66e2ad814eaa6a5bb052839a9",
+        "checked_at": "2026-10-25T10:20:28.111315+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630"
     },
     {
       "session": "111-1",
@@ -2389,7 +2426,7 @@
       "pdf_sha256": "ede6edbab40f7851726534443a0ca8827e1f507b33c035a7ca45024c81eec9c1",
       "pdf_header": "代號：10540   111年第一次專門職業及技術人員高等考試中醫師考試\n頁次：4－1\n           分階段考試、營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                                      座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111030&y=2022",
-      "index_sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630",
+      "index_sha256": "2809fa9afd8bf293c39b560382b52a49d64877c66e2ad814eaa6a5bb052839a9",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111030&c=105&s=0404&q=1",
         "http_status": 200,
@@ -2404,12 +2441,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 83310,
-        "sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630",
-        "checked_at": "2026-10-24T17:46:02.385836+00:00",
+        "sha256": "2809fa9afd8bf293c39b560382b52a49d64877c66e2ad814eaa6a5bb052839a9",
+        "checked_at": "2026-10-25T10:20:28.111315+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630"
     },
     {
       "session": "111-1",
@@ -2422,7 +2460,7 @@
       "pdf_sha256": "7cbb823be041ee0067d49fccfb4fb5a35150e0c20e0eb891e7e842d34431fb4f",
       "pdf_header": "代號：10550   111年第一次專門職業及技術人員高等考試中醫師考試\n頁次：4－1\n           分階段考試、營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                               座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111030&y=2022",
-      "index_sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630",
+      "index_sha256": "2809fa9afd8bf293c39b560382b52a49d64877c66e2ad814eaa6a5bb052839a9",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111030&c=105&s=0405&q=1",
         "http_status": 200,
@@ -2437,12 +2475,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 83310,
-        "sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630",
-        "checked_at": "2026-10-24T17:46:02.385836+00:00",
+        "sha256": "2809fa9afd8bf293c39b560382b52a49d64877c66e2ad814eaa6a5bb052839a9",
+        "checked_at": "2026-10-25T10:20:28.111315+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630"
     },
     {
       "session": "111-1",
@@ -2455,7 +2494,7 @@
       "pdf_sha256": "3b2c0ae2aaf4fde278c3b743e652b6ca53a70ccc1b6f86b8be2557421cc02653",
       "pdf_header": "代號：10560   111年第一次專門職業及技術人員高等考試中醫師考試\n頁次：4－1\n           分階段考試、營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111030&y=2022",
-      "index_sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630",
+      "index_sha256": "2809fa9afd8bf293c39b560382b52a49d64877c66e2ad814eaa6a5bb052839a9",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111030&c=105&s=0406&q=1",
         "http_status": 200,
@@ -2470,12 +2509,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 83310,
-        "sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630",
-        "checked_at": "2026-10-24T17:46:02.385836+00:00",
+        "sha256": "2809fa9afd8bf293c39b560382b52a49d64877c66e2ad814eaa6a5bb052839a9",
+        "checked_at": "2026-10-25T10:20:28.111315+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "577202dc4e61d81463459e19c8c6ce16f61ead8a270df1b9976803583b32e630"
     },
     {
       "session": "111-2",
@@ -2488,7 +2528,7 @@
       "pdf_sha256": "90db4421595f024d335e1e85c99dfb1996fc5874936bcf6b1f9bf46d3f742d35",
       "pdf_header": "                                              代號：10510\n111年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、           頁次：6－1\n護理師、社會工作師考試、111年專門職業及技術人員高等考試法醫師、語言治療師、\n聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                            座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111110&y=2022",
-      "index_sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef",
+      "index_sha256": "69b5e0d44a5d70b84b31a5242afe4d79c4a9974d400c10cc8eba6e6a6eda0df5",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111110&c=105&s=0401&q=1",
         "http_status": 200,
@@ -2503,12 +2543,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 161301,
-        "sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef",
-        "checked_at": "2026-10-24T17:46:08.953906+00:00",
+        "sha256": "69b5e0d44a5d70b84b31a5242afe4d79c4a9974d400c10cc8eba6e6a6eda0df5",
+        "checked_at": "2026-10-25T10:20:33.365562+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef"
     },
     {
       "session": "111-2",
@@ -2521,7 +2562,7 @@
       "pdf_sha256": "ea96d14fcf57341bbb0613133e14fe411b9357c76566ecd6a64d83f630944cdf",
       "pdf_header": "                                                 代號：10520\n111年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、              頁次：6－1\n護理師、社會工作師考試、111年專門職業及技術人員高等考試法醫師、語言治療師、\n聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                              座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111110&y=2022",
-      "index_sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef",
+      "index_sha256": "69b5e0d44a5d70b84b31a5242afe4d79c4a9974d400c10cc8eba6e6a6eda0df5",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111110&c=105&s=0402&q=1",
         "http_status": 200,
@@ -2536,12 +2577,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 161301,
-        "sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef",
-        "checked_at": "2026-10-24T17:46:08.953906+00:00",
+        "sha256": "69b5e0d44a5d70b84b31a5242afe4d79c4a9974d400c10cc8eba6e6a6eda0df5",
+        "checked_at": "2026-10-25T10:20:33.365562+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef"
     },
     {
       "session": "111-2",
@@ -2554,7 +2596,7 @@
       "pdf_sha256": "9a4afe4df13a7b88582efa0bb3950ccdb3780ec5c7e3380afabe8b0e8f2e3a0d",
       "pdf_header": "                                                         代號：10540\n111年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、                      頁次：6－1\n護理師、社會工作師考試、111年專門職業及技術人員高等考試法醫師、語言治療師、\n聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                                   座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111110&y=2022",
-      "index_sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef",
+      "index_sha256": "69b5e0d44a5d70b84b31a5242afe4d79c4a9974d400c10cc8eba6e6a6eda0df5",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111110&c=105&s=0404&q=1",
         "http_status": 200,
@@ -2569,12 +2611,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 161301,
-        "sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef",
-        "checked_at": "2026-10-24T17:46:08.953906+00:00",
+        "sha256": "69b5e0d44a5d70b84b31a5242afe4d79c4a9974d400c10cc8eba6e6a6eda0df5",
+        "checked_at": "2026-10-25T10:20:33.365562+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef"
     },
     {
       "session": "111-2",
@@ -2587,7 +2630,7 @@
       "pdf_sha256": "5199d5d832f59224707b9b878ccbe0eded4c48da38ca9f1668cfc3b55c51e5dc",
       "pdf_header": "                                               代號：10550\n111年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、            頁次：6－1\n護理師、社會工作師考試、111年專門職業及技術人員高等考試法醫師、語言治療師、\n聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                            座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111110&y=2022",
-      "index_sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef",
+      "index_sha256": "69b5e0d44a5d70b84b31a5242afe4d79c4a9974d400c10cc8eba6e6a6eda0df5",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111110&c=105&s=0405&q=1",
         "http_status": 200,
@@ -2602,12 +2645,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 161301,
-        "sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef",
-        "checked_at": "2026-10-24T17:46:08.953906+00:00",
+        "sha256": "69b5e0d44a5d70b84b31a5242afe4d79c4a9974d400c10cc8eba6e6a6eda0df5",
+        "checked_at": "2026-10-25T10:20:33.365562+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef"
     },
     {
       "session": "111-2",
@@ -2620,7 +2664,7 @@
       "pdf_sha256": "14ba09396d90e0ccd8330821e7fa3fbb2f41a57ecfdb807e3bf18be924375153",
       "pdf_header": "代號：10560   111年第二次專門職業及技術人員高等考試中醫師考試分階段考試、營養師、護理師、\n頁次：4－1\n           社會工作師考試、111年專門職業及技術人員高等考試法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111110&y=2022",
-      "index_sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef",
+      "index_sha256": "69b5e0d44a5d70b84b31a5242afe4d79c4a9974d400c10cc8eba6e6a6eda0df5",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111110&c=105&s=0406&q=1",
         "http_status": 200,
@@ -2635,12 +2679,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 161301,
-        "sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef",
-        "checked_at": "2026-10-24T17:46:08.953906+00:00",
+        "sha256": "69b5e0d44a5d70b84b31a5242afe4d79c4a9974d400c10cc8eba6e6a6eda0df5",
+        "checked_at": "2026-10-25T10:20:33.365562+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "be1cb065270a24b92034a7e6cac8243c6238aa7ff0c9f0779e90e7209e3350ef"
     },
     {
       "session": "112-1",
@@ -2653,7 +2698,7 @@
       "pdf_sha256": "ef47e84801cf7849fa8ff036f4e671c0d69bd03b7a0dc3bb364ed7d2f9ff4e1c",
       "pdf_header": "代號：10310\n頁次：4－1     112年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                                  座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112030&y=2023",
-      "index_sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b",
+      "index_sha256": "bc87758ab7bc5113870cd08352609e2c2f1fc0dd0b5dcc358bb2a5414c453716",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=112030&c=103&s=0301&q=1",
         "http_status": 200,
@@ -2668,12 +2713,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 67832,
-        "sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b",
-        "checked_at": "2026-10-24T17:46:15.636988+00:00",
+        "sha256": "bc87758ab7bc5113870cd08352609e2c2f1fc0dd0b5dcc358bb2a5414c453716",
+        "checked_at": "2026-10-25T10:20:33.200303+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b"
     },
     {
       "session": "112-1",
@@ -2686,7 +2732,7 @@
       "pdf_sha256": "6831cb436245f78afb30b5dd439b7853ef574cd5ee508a928f2b2b8e801cbcd1",
       "pdf_header": "代號：10320\n頁次：4－1     112年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112030&y=2023",
-      "index_sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b",
+      "index_sha256": "bc87758ab7bc5113870cd08352609e2c2f1fc0dd0b5dcc358bb2a5414c453716",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=112030&c=103&s=0302&q=1",
         "http_status": 200,
@@ -2701,12 +2747,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 67832,
-        "sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b",
-        "checked_at": "2026-10-24T17:46:15.636988+00:00",
+        "sha256": "bc87758ab7bc5113870cd08352609e2c2f1fc0dd0b5dcc358bb2a5414c453716",
+        "checked_at": "2026-10-25T10:20:33.200303+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b"
     },
     {
       "session": "112-1",
@@ -2719,7 +2766,7 @@
       "pdf_sha256": "53ee146091e606066cb6a82e07bce1a053f98a0712f384685cfbc7fa07e8a3f1",
       "pdf_header": "代號：10340\n頁次：4－1     112年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                              座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112030&y=2023",
-      "index_sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b",
+      "index_sha256": "bc87758ab7bc5113870cd08352609e2c2f1fc0dd0b5dcc358bb2a5414c453716",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=112030&c=103&s=0304&q=1",
         "http_status": 200,
@@ -2734,12 +2781,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 67832,
-        "sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b",
-        "checked_at": "2026-10-24T17:46:15.636988+00:00",
+        "sha256": "bc87758ab7bc5113870cd08352609e2c2f1fc0dd0b5dcc358bb2a5414c453716",
+        "checked_at": "2026-10-25T10:20:33.200303+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b"
     },
     {
       "session": "112-1",
@@ -2752,7 +2800,7 @@
       "pdf_sha256": "442afe6b1c2bac8994610fcd858dd97cbbc93a8f03cc5fb8b6f8821ffe5cc104",
       "pdf_header": "代號：10350\n頁次：4－1     112年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                                       座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112030&y=2023",
-      "index_sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b",
+      "index_sha256": "bc87758ab7bc5113870cd08352609e2c2f1fc0dd0b5dcc358bb2a5414c453716",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=112030&c=103&s=0305&q=1",
         "http_status": 200,
@@ -2767,12 +2815,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 67832,
-        "sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b",
-        "checked_at": "2026-10-24T17:46:15.636988+00:00",
+        "sha256": "bc87758ab7bc5113870cd08352609e2c2f1fc0dd0b5dcc358bb2a5414c453716",
+        "checked_at": "2026-10-25T10:20:33.200303+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b"
     },
     {
       "session": "112-1",
@@ -2785,7 +2834,7 @@
       "pdf_sha256": "745a890e9821051facb7fda94a656b7b2695dc7627dc769483ec76f485ee1bd9",
       "pdf_header": "代號：10360\n頁次：4－1     112年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112030&y=2023",
-      "index_sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b",
+      "index_sha256": "bc87758ab7bc5113870cd08352609e2c2f1fc0dd0b5dcc358bb2a5414c453716",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=112030&c=103&s=0306&q=1",
         "http_status": 200,
@@ -2800,12 +2849,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 67832,
-        "sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b",
-        "checked_at": "2026-10-24T17:46:15.636988+00:00",
+        "sha256": "bc87758ab7bc5113870cd08352609e2c2f1fc0dd0b5dcc358bb2a5414c453716",
+        "checked_at": "2026-10-25T10:20:33.200303+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "aec2bae2441ac9ca32f935362f8836450d33876d8920345940ddc5b71d7a668b"
     },
     {
       "session": "112-2",
@@ -2818,7 +2868,7 @@
       "pdf_sha256": "9ac4c11c6d514384a7fedff2b3db12bcdfae5e1cc204bd5f9fa9fc0632f7410c",
       "pdf_header": "代號：10310   112年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           112年專門職業及技術人員高等考試法醫師、語言治療師、聽力師、\n           牙體 技 術師 、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112110&y=2023",
-      "index_sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300",
+      "index_sha256": "2954dc65ed6e896c8bacf16c41ec18aa3c74ece97f1f49c27bf841819e4d51d4",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=112110&c=103&s=0301&q=1",
         "http_status": 200,
@@ -2833,12 +2883,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 145514,
-        "sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300",
-        "checked_at": "2026-10-24T17:46:15.182140+00:00",
+        "sha256": "2954dc65ed6e896c8bacf16c41ec18aa3c74ece97f1f49c27bf841819e4d51d4",
+        "checked_at": "2026-10-25T10:20:33.319692+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300"
     },
     {
       "session": "112-2",
@@ -2851,7 +2902,7 @@
       "pdf_sha256": "5002baaba28adc31f421a44e6c54dafd4a5b63e595af7b56b282d4005f6a1f2f",
       "pdf_header": "代號：10320   112年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           112年專門職業及技術人員高等考試法醫師、語言治療師、聽力師、\n           牙體 技 術師 、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112110&y=2023",
-      "index_sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300",
+      "index_sha256": "2954dc65ed6e896c8bacf16c41ec18aa3c74ece97f1f49c27bf841819e4d51d4",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=112110&c=103&s=0302&q=1",
         "http_status": 200,
@@ -2866,12 +2917,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 145514,
-        "sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300",
-        "checked_at": "2026-10-24T17:46:15.182140+00:00",
+        "sha256": "2954dc65ed6e896c8bacf16c41ec18aa3c74ece97f1f49c27bf841819e4d51d4",
+        "checked_at": "2026-10-25T10:20:33.319692+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300"
     },
     {
       "session": "112-2",
@@ -2884,7 +2936,7 @@
       "pdf_sha256": "1c1703b1e515919c5c5798e7ab54c1edd7d734d98d59f442abba60a6af81ddd5",
       "pdf_header": "代號：10340   112年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           112年專門職業及技術人員高等考試法醫師、語言治療師、聽力師、\n           牙體 技 術師 、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                                      座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112110&y=2023",
-      "index_sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300",
+      "index_sha256": "2954dc65ed6e896c8bacf16c41ec18aa3c74ece97f1f49c27bf841819e4d51d4",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=112110&c=103&s=0304&q=1",
         "http_status": 200,
@@ -2899,12 +2951,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 145514,
-        "sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300",
-        "checked_at": "2026-10-24T17:46:15.182140+00:00",
+        "sha256": "2954dc65ed6e896c8bacf16c41ec18aa3c74ece97f1f49c27bf841819e4d51d4",
+        "checked_at": "2026-10-25T10:20:33.319692+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300"
     },
     {
       "session": "112-2",
@@ -2917,7 +2970,7 @@
       "pdf_sha256": "911e4b79fa8e6fa7280fa28e0dd6fc1d623d500b801e9c8a2ce57013a06003ee",
       "pdf_header": "代號：10350   112年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           112年專門職業及技術人員高等考試法醫師、語言治療師、聽力師、\n           牙體 技 術師 、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                                     座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112110&y=2023",
-      "index_sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300",
+      "index_sha256": "2954dc65ed6e896c8bacf16c41ec18aa3c74ece97f1f49c27bf841819e4d51d4",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=112110&c=103&s=0305&q=1",
         "http_status": 200,
@@ -2932,12 +2985,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 145514,
-        "sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300",
-        "checked_at": "2026-10-24T17:46:15.182140+00:00",
+        "sha256": "2954dc65ed6e896c8bacf16c41ec18aa3c74ece97f1f49c27bf841819e4d51d4",
+        "checked_at": "2026-10-25T10:20:33.319692+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300"
     },
     {
       "session": "112-2",
@@ -2950,7 +3004,7 @@
       "pdf_sha256": "b36b3c89b7f482054d657702988d3a2fe07237a5db63298f36ea71572e192937",
       "pdf_header": "代號：10360   112年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           112年專門職業及技術人員高等考試法醫師、語言治療師、聽力師、\n           牙體 技 術師 、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                          座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112110&y=2023",
-      "index_sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300",
+      "index_sha256": "2954dc65ed6e896c8bacf16c41ec18aa3c74ece97f1f49c27bf841819e4d51d4",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=112110&c=103&s=0306&q=1",
         "http_status": 200,
@@ -2965,12 +3019,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 145514,
-        "sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300",
-        "checked_at": "2026-10-24T17:46:15.182140+00:00",
+        "sha256": "2954dc65ed6e896c8bacf16c41ec18aa3c74ece97f1f49c27bf841819e4d51d4",
+        "checked_at": "2026-10-25T10:20:33.319692+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "972b5a8707b0837ed685f4b9c1cae130099bc41624963638e4fc0294beedd300"
     },
     {
       "session": "113-1",
@@ -2983,7 +3038,7 @@
       "pdf_sha256": "638f6943f6d15332a2389a7b7c970e7feaaea69d347bec8911d944ddc9e20fc6",
       "pdf_header": "代號：10310\n頁次：4－1      113年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n            營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                                座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113030&y=2024",
-      "index_sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27",
+      "index_sha256": "2939ceabde8db5e8d6cd4993de3b772ba40e563208f996a58904b35bf7e9a7f3",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0301&q=1",
         "http_status": 200,
@@ -2998,12 +3053,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 68336,
-        "sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27",
-        "checked_at": "2026-10-24T17:46:20.961891+00:00",
+        "sha256": "2939ceabde8db5e8d6cd4993de3b772ba40e563208f996a58904b35bf7e9a7f3",
+        "checked_at": "2026-10-25T10:20:33.120059+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27"
     },
     {
       "session": "113-1",
@@ -3016,7 +3072,7 @@
       "pdf_sha256": "8c13d43914b300fc06fcc54ca4ec79ef8558ab3a79176dc5b9d4802267c795cf",
       "pdf_header": "代號：10320\n頁次：4－1     113年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                              座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113030&y=2024",
-      "index_sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27",
+      "index_sha256": "2939ceabde8db5e8d6cd4993de3b772ba40e563208f996a58904b35bf7e9a7f3",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0302&q=1",
         "http_status": 200,
@@ -3031,12 +3087,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 68336,
-        "sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27",
-        "checked_at": "2026-10-24T17:46:20.961891+00:00",
+        "sha256": "2939ceabde8db5e8d6cd4993de3b772ba40e563208f996a58904b35bf7e9a7f3",
+        "checked_at": "2026-10-25T10:20:33.120059+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27"
     },
     {
       "session": "113-1",
@@ -3049,7 +3106,7 @@
       "pdf_sha256": "3085dd703d382376fe20cbcaebefb413671c2e773ce21e733aee90a616683750",
       "pdf_header": "代號：10340\n頁次：4－1     113年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                               座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113030&y=2024",
-      "index_sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27",
+      "index_sha256": "2939ceabde8db5e8d6cd4993de3b772ba40e563208f996a58904b35bf7e9a7f3",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0304&q=1",
         "http_status": 200,
@@ -3064,12 +3121,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 68336,
-        "sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27",
-        "checked_at": "2026-10-24T17:46:20.961891+00:00",
+        "sha256": "2939ceabde8db5e8d6cd4993de3b772ba40e563208f996a58904b35bf7e9a7f3",
+        "checked_at": "2026-10-25T10:20:33.120059+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27"
     },
     {
       "session": "113-1",
@@ -3082,7 +3140,7 @@
       "pdf_sha256": "7988b626dc48863f36ef7e32ea7de733eb0bc100c57ec4a5cc7b27461157d08d",
       "pdf_header": "代號：10350\n頁次：4－1       113年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n             營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                                              座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113030&y=2024",
-      "index_sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27",
+      "index_sha256": "2939ceabde8db5e8d6cd4993de3b772ba40e563208f996a58904b35bf7e9a7f3",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0305&q=1",
         "http_status": 200,
@@ -3097,12 +3155,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 68336,
-        "sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27",
-        "checked_at": "2026-10-24T17:46:20.961891+00:00",
+        "sha256": "2939ceabde8db5e8d6cd4993de3b772ba40e563208f996a58904b35bf7e9a7f3",
+        "checked_at": "2026-10-25T10:20:33.120059+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27"
     },
     {
       "session": "113-1",
@@ -3115,7 +3174,7 @@
       "pdf_sha256": "7eef5da42f003fa53577f463161e2717cd3fefc1b7ca58c108cbbe22d7f9f0ee",
       "pdf_header": "代號：10360\n頁次：4－1     113年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                                 座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113030&y=2024",
-      "index_sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27",
+      "index_sha256": "2939ceabde8db5e8d6cd4993de3b772ba40e563208f996a58904b35bf7e9a7f3",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0306&q=1",
         "http_status": 200,
@@ -3130,12 +3189,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 68336,
-        "sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27",
-        "checked_at": "2026-10-24T17:46:20.961891+00:00",
+        "sha256": "2939ceabde8db5e8d6cd4993de3b772ba40e563208f996a58904b35bf7e9a7f3",
+        "checked_at": "2026-10-25T10:20:33.120059+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "8e3e01ec89678bde606706fc96ea7470ac049f5524fbdd484c509a40e3274a27"
     },
     {
       "session": "113-2",
@@ -3148,7 +3208,7 @@
       "pdf_sha256": "d1863608050a827453c92db09b72a18151c77464cbfa8a9842ace29b5cb9d19d",
       "pdf_header": "代號：10310   113年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           113年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113100&y=2024",
-      "index_sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae",
+      "index_sha256": "97eee66e42bd8e1b7ee29f5b809e51d5ffa4bc8589a2b279ad8aa774f58c6515",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113100&c=103&s=0301&q=1",
         "http_status": 200,
@@ -3163,12 +3223,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 173965,
-        "sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae",
-        "checked_at": "2026-10-24T17:46:26.980144+00:00",
+        "sha256": "97eee66e42bd8e1b7ee29f5b809e51d5ffa4bc8589a2b279ad8aa774f58c6515",
+        "checked_at": "2026-10-25T10:20:38.433732+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae"
     },
     {
       "session": "113-2",
@@ -3181,7 +3242,7 @@
       "pdf_sha256": "21b47d133e072b34eab4f07fa95ffab1601d54768eb8cedf680a9471fc9bfbc3",
       "pdf_header": "                                                       代號：10320\n113年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、                   頁次：6－1\n113年專 門 職 業 及 技 術 人 員 高 等 考 試 心 理 師、法 醫 師、語 言 治 療 師、\n聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                                  座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113100&y=2024",
-      "index_sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae",
+      "index_sha256": "97eee66e42bd8e1b7ee29f5b809e51d5ffa4bc8589a2b279ad8aa774f58c6515",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113100&c=103&s=0302&q=1",
         "http_status": 200,
@@ -3196,12 +3257,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 173965,
-        "sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae",
-        "checked_at": "2026-10-24T17:46:26.980144+00:00",
+        "sha256": "97eee66e42bd8e1b7ee29f5b809e51d5ffa4bc8589a2b279ad8aa774f58c6515",
+        "checked_at": "2026-10-25T10:20:38.433732+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae"
     },
     {
       "session": "113-2",
@@ -3214,7 +3276,7 @@
       "pdf_sha256": "7d9865e311def5e4c199f1a96c12ec5eaa1f4ee8ed5ee5a17127e2da4150924f",
       "pdf_header": "代號：10340   113年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           113年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                                          座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113100&y=2024",
-      "index_sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae",
+      "index_sha256": "97eee66e42bd8e1b7ee29f5b809e51d5ffa4bc8589a2b279ad8aa774f58c6515",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113100&c=103&s=0304&q=1",
         "http_status": 200,
@@ -3229,12 +3291,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 173965,
-        "sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae",
-        "checked_at": "2026-10-24T17:46:26.980144+00:00",
+        "sha256": "97eee66e42bd8e1b7ee29f5b809e51d5ffa4bc8589a2b279ad8aa774f58c6515",
+        "checked_at": "2026-10-25T10:20:38.433732+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae"
     },
     {
       "session": "113-2",
@@ -3247,7 +3310,7 @@
       "pdf_sha256": "7a11ece60e943f6796940597de568571772685cd3e2d39c527161ccf565f9f4f",
       "pdf_header": "代號：10350   113年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           113年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                                        座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113100&y=2024",
-      "index_sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae",
+      "index_sha256": "97eee66e42bd8e1b7ee29f5b809e51d5ffa4bc8589a2b279ad8aa774f58c6515",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113100&c=103&s=0305&q=1",
         "http_status": 200,
@@ -3262,12 +3325,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 173965,
-        "sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae",
-        "checked_at": "2026-10-24T17:46:26.980144+00:00",
+        "sha256": "97eee66e42bd8e1b7ee29f5b809e51d5ffa4bc8589a2b279ad8aa774f58c6515",
+        "checked_at": "2026-10-25T10:20:38.433732+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae"
     },
     {
       "session": "113-2",
@@ -3280,7 +3344,7 @@
       "pdf_sha256": "bce6bb1e6054c1bfcd5c94672f5149d23556d327fb65f7609b9a64f66115a937",
       "pdf_header": "代號：10360   113年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           113年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113100&y=2024",
-      "index_sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae",
+      "index_sha256": "97eee66e42bd8e1b7ee29f5b809e51d5ffa4bc8589a2b279ad8aa774f58c6515",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113100&c=103&s=0306&q=1",
         "http_status": 200,
@@ -3295,12 +3359,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 173965,
-        "sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae",
-        "checked_at": "2026-10-24T17:46:26.980144+00:00",
+        "sha256": "97eee66e42bd8e1b7ee29f5b809e51d5ffa4bc8589a2b279ad8aa774f58c6515",
+        "checked_at": "2026-10-25T10:20:38.433732+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "4a08870945b28bd8c5d625337c7edcdb4c7821a7af8a27bbe9755fc6ea9323ae"
     },
     {
       "session": "114-1",
@@ -3313,7 +3378,7 @@
       "pdf_sha256": "efbe6666c80b760eaf92dd9a85acd5025aeaf14f9bf2219fede698f048d08b40",
       "pdf_header": "代號：10310\n頁次：4－1     114年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114030&y=2025",
-      "index_sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2",
+      "index_sha256": "58d44f780de9f2a090cdda13b8594f83a9f380416f17568cd2d38dd08509562e",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114030&c=103&s=0301&q=1",
         "http_status": 200,
@@ -3328,12 +3393,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 68745,
-        "sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2",
-        "checked_at": "2026-10-24T17:46:33.069625+00:00",
+        "sha256": "58d44f780de9f2a090cdda13b8594f83a9f380416f17568cd2d38dd08509562e",
+        "checked_at": "2026-10-25T10:20:38.292137+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2"
     },
     {
       "session": "114-1",
@@ -3346,7 +3412,7 @@
       "pdf_sha256": "a66483d966928bdc0a1cf6c6850c08eedce2f71a93fb29efc72cca7a4281c031",
       "pdf_header": "代號：10320\n頁次：4－1     114年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114030&y=2025",
-      "index_sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2",
+      "index_sha256": "58d44f780de9f2a090cdda13b8594f83a9f380416f17568cd2d38dd08509562e",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114030&c=103&s=0302&q=1",
         "http_status": 200,
@@ -3361,12 +3427,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 68745,
-        "sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2",
-        "checked_at": "2026-10-24T17:46:33.069625+00:00",
+        "sha256": "58d44f780de9f2a090cdda13b8594f83a9f380416f17568cd2d38dd08509562e",
+        "checked_at": "2026-10-25T10:20:38.292137+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2"
     },
     {
       "session": "114-1",
@@ -3379,7 +3446,7 @@
       "pdf_sha256": "644cad120f9eaf6d29987957f12c0c89f7743e102be7eb7a8e97c46e1d3ff901",
       "pdf_header": "代號：10340\n頁次：4－1     114年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114030&y=2025",
-      "index_sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2",
+      "index_sha256": "58d44f780de9f2a090cdda13b8594f83a9f380416f17568cd2d38dd08509562e",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114030&c=103&s=0304&q=1",
         "http_status": 200,
@@ -3394,12 +3461,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 68745,
-        "sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2",
-        "checked_at": "2026-10-24T17:46:33.069625+00:00",
+        "sha256": "58d44f780de9f2a090cdda13b8594f83a9f380416f17568cd2d38dd08509562e",
+        "checked_at": "2026-10-25T10:20:38.292137+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2"
     },
     {
       "session": "114-1",
@@ -3412,7 +3480,7 @@
       "pdf_sha256": "e2f15b40bc1eebc88ce0b7db5db55e61fdc4682b785f32065f33306122b68ab0",
       "pdf_header": "代號：10350\n頁次：4－1     114年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                                      座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114030&y=2025",
-      "index_sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2",
+      "index_sha256": "58d44f780de9f2a090cdda13b8594f83a9f380416f17568cd2d38dd08509562e",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114030&c=103&s=0305&q=1",
         "http_status": 200,
@@ -3427,12 +3495,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 68745,
-        "sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2",
-        "checked_at": "2026-10-24T17:46:33.069625+00:00",
+        "sha256": "58d44f780de9f2a090cdda13b8594f83a9f380416f17568cd2d38dd08509562e",
+        "checked_at": "2026-10-25T10:20:38.292137+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2"
     },
     {
       "session": "114-1",
@@ -3445,7 +3514,7 @@
       "pdf_sha256": "e2103e4eb154b5ac0c8de24026a7b35fe3a8370678f606356c919540c87646e2",
       "pdf_header": "代號：10360\n頁次：4－1     114年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114030&y=2025",
-      "index_sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2",
+      "index_sha256": "58d44f780de9f2a090cdda13b8594f83a9f380416f17568cd2d38dd08509562e",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114030&c=103&s=0306&q=1",
         "http_status": 200,
@@ -3460,12 +3529,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 68745,
-        "sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2",
-        "checked_at": "2026-10-24T17:46:33.069625+00:00",
+        "sha256": "58d44f780de9f2a090cdda13b8594f83a9f380416f17568cd2d38dd08509562e",
+        "checked_at": "2026-10-25T10:20:38.292137+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "01bedb5f92b7642111539c9a15b4cd6e2530bb2cfa7fa81b869e43995cdf0dc2"
     },
     {
       "session": "114-2",
@@ -3478,7 +3548,7 @@
       "pdf_sha256": "909556cb840542a7be27999593a6611d2b5934b0442f52ab34b5b975b9d9302e",
       "pdf_header": "代號：10310   114年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           114年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                                 座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114100&y=2025",
-      "index_sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101",
+      "index_sha256": "8fadec893be11452f2a82094f8a49ef38995f33cba59ccd4dc6b93ded0ad143d",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114100&c=103&s=0301&q=1",
         "http_status": 200,
@@ -3493,12 +3563,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 174304,
-        "sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101",
-        "checked_at": "2026-10-24T17:46:33.197957+00:00",
+        "sha256": "8fadec893be11452f2a82094f8a49ef38995f33cba59ccd4dc6b93ded0ad143d",
+        "checked_at": "2026-10-25T10:20:38.400344+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101"
     },
     {
       "session": "114-2",
@@ -3511,7 +3582,7 @@
       "pdf_sha256": "bd5434be9c29c69b68bdb0da15cc75e1466238de64ad65c6b70442bdbdf3a148",
       "pdf_header": "代號：10320   114年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           114年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                            座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114100&y=2025",
-      "index_sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101",
+      "index_sha256": "8fadec893be11452f2a82094f8a49ef38995f33cba59ccd4dc6b93ded0ad143d",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114100&c=103&s=0302&q=1",
         "http_status": 200,
@@ -3526,12 +3597,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 174304,
-        "sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101",
-        "checked_at": "2026-10-24T17:46:33.197957+00:00",
+        "sha256": "8fadec893be11452f2a82094f8a49ef38995f33cba59ccd4dc6b93ded0ad143d",
+        "checked_at": "2026-10-25T10:20:38.400344+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101"
     },
     {
       "session": "114-2",
@@ -3544,7 +3616,7 @@
       "pdf_sha256": "20f08505718850e95aa168c4d1786cfe8c150607f5e3b39002ae3371a0f448f6",
       "pdf_header": "代號：10340   114年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           114年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                            座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114100&y=2025",
-      "index_sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101",
+      "index_sha256": "8fadec893be11452f2a82094f8a49ef38995f33cba59ccd4dc6b93ded0ad143d",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114100&c=103&s=0304&q=1",
         "http_status": 200,
@@ -3559,12 +3631,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 174304,
-        "sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101",
-        "checked_at": "2026-10-24T17:46:33.197957+00:00",
+        "sha256": "8fadec893be11452f2a82094f8a49ef38995f33cba59ccd4dc6b93ded0ad143d",
+        "checked_at": "2026-10-25T10:20:38.400344+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101"
     },
     {
       "session": "114-2",
@@ -3577,7 +3650,7 @@
       "pdf_sha256": "1cffe5f83ac48901e43b0d7e6159006443c72cb1bf02aaf2271767e059dd8912",
       "pdf_header": "代號：10350   114年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           114年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                                       座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114100&y=2025",
-      "index_sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101",
+      "index_sha256": "8fadec893be11452f2a82094f8a49ef38995f33cba59ccd4dc6b93ded0ad143d",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114100&c=103&s=0305&q=1",
         "http_status": 200,
@@ -3592,12 +3665,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 174304,
-        "sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101",
-        "checked_at": "2026-10-24T17:46:33.197957+00:00",
+        "sha256": "8fadec893be11452f2a82094f8a49ef38995f33cba59ccd4dc6b93ded0ad143d",
+        "checked_at": "2026-10-25T10:20:38.400344+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101"
     },
     {
       "session": "114-2",
@@ -3610,7 +3684,7 @@
       "pdf_sha256": "f0da4551b15af06b68d0ff3a287acb2b0253ddecef7e6fdd76e768e8ca990ae2",
       "pdf_header": "代號：10360   114年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           114年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                            座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114100&y=2025",
-      "index_sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101",
+      "index_sha256": "8fadec893be11452f2a82094f8a49ef38995f33cba59ccd4dc6b93ded0ad143d",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114100&c=103&s=0306&q=1",
         "http_status": 200,
@@ -3625,12 +3699,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 174304,
-        "sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101",
-        "checked_at": "2026-10-24T17:46:33.197957+00:00",
+        "sha256": "8fadec893be11452f2a82094f8a49ef38995f33cba59ccd4dc6b93ded0ad143d",
+        "checked_at": "2026-10-25T10:20:38.400344+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "97af165b4361b7279faae72c46518a9f6209f116d0937e007ab8bc42faf61101"
     },
     {
       "session": "115-1",
@@ -3643,7 +3718,7 @@
       "pdf_sha256": "05cecc19c6baaef89266ca0382ab9997b28eb071a810550e3ce0d212472205bc",
       "pdf_header": "代號：10310\n頁次：4－1     115年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                            座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115030&y=2026",
-      "index_sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b",
+      "index_sha256": "f51755efd2c973159207fd5fc695371876cf12e1d0f113f8157ce39d2a2ceca2",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=115030&c=103&s=0301&q=1",
         "http_status": 200,
@@ -3658,12 +3733,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 63254,
-        "sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b",
-        "checked_at": "2026-10-24T17:46:39.268973+00:00",
+        "sha256": "f51755efd2c973159207fd5fc695371876cf12e1d0f113f8157ce39d2a2ceca2",
+        "checked_at": "2026-10-25T10:20:38.880160+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b"
     },
     {
       "session": "115-1",
@@ -3676,7 +3752,7 @@
       "pdf_sha256": "e447ab42c767dd8ba3e6d07a284a5b8b74efdf279eab455abd1c8fd7f0dba491",
       "pdf_header": "代號：10320\n頁次：4－1     115年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                            座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115030&y=2026",
-      "index_sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b",
+      "index_sha256": "f51755efd2c973159207fd5fc695371876cf12e1d0f113f8157ce39d2a2ceca2",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=115030&c=103&s=0302&q=1",
         "http_status": 200,
@@ -3691,12 +3767,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 63254,
-        "sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b",
-        "checked_at": "2026-10-24T17:46:39.268973+00:00",
+        "sha256": "f51755efd2c973159207fd5fc695371876cf12e1d0f113f8157ce39d2a2ceca2",
+        "checked_at": "2026-10-25T10:20:38.880160+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b"
     },
     {
       "session": "115-1",
@@ -3709,7 +3786,7 @@
       "pdf_sha256": "c36f4cb644e32ce7702e0ce65905dbddff78489da8d7fa3930d44d1c62f5480b",
       "pdf_header": "代號：10330\n頁次：4－1     115年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                            座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115030&y=2026",
-      "index_sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b",
+      "index_sha256": "f51755efd2c973159207fd5fc695371876cf12e1d0f113f8157ce39d2a2ceca2",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=115030&c=103&s=0303&q=1",
         "http_status": 200,
@@ -3724,12 +3801,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 63254,
-        "sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b",
-        "checked_at": "2026-10-24T17:46:39.268973+00:00",
+        "sha256": "f51755efd2c973159207fd5fc695371876cf12e1d0f113f8157ce39d2a2ceca2",
+        "checked_at": "2026-10-25T10:20:38.880160+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b"
     },
     {
       "session": "115-1",
@@ -3742,7 +3820,7 @@
       "pdf_sha256": "acce5d33f230fa527182c4f000e793c569a6872d11f7f8e9feae6b7263aa8723",
       "pdf_header": "代號：10340\n頁次：4－1     115年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                                      座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115030&y=2026",
-      "index_sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b",
+      "index_sha256": "f51755efd2c973159207fd5fc695371876cf12e1d0f113f8157ce39d2a2ceca2",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=115030&c=103&s=0304&q=1",
         "http_status": 200,
@@ -3757,12 +3835,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 63254,
-        "sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b",
-        "checked_at": "2026-10-24T17:46:39.268973+00:00",
+        "sha256": "f51755efd2c973159207fd5fc695371876cf12e1d0f113f8157ce39d2a2ceca2",
+        "checked_at": "2026-10-25T10:20:38.880160+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b"
     },
     {
       "session": "115-1",
@@ -3775,7 +3854,7 @@
       "pdf_sha256": "50c5fb998458e1d473ce08042ef649decd63dc229b40c4432050967b18681888",
       "pdf_header": "代號：10350\n頁次：4－1     115年 第 一 次 專 門 職 業 及 技 術 人 員 高 等 考 試\n           營養師、護理師、社會工作師考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                             座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115030&y=2026",
-      "index_sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b",
+      "index_sha256": "f51755efd2c973159207fd5fc695371876cf12e1d0f113f8157ce39d2a2ceca2",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=115030&c=103&s=0305&q=1",
         "http_status": 200,
@@ -3790,12 +3869,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 63254,
-        "sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b",
-        "checked_at": "2026-10-24T17:46:39.268973+00:00",
+        "sha256": "f51755efd2c973159207fd5fc695371876cf12e1d0f113f8157ce39d2a2ceca2",
+        "checked_at": "2026-10-25T10:20:38.880160+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "17e10aa8e9ade69f4cf194ebcaf35888f4ecdfb8c450da54963c6455a7b84c7b"
     },
     {
       "session": "115-2",
@@ -3808,7 +3888,7 @@
       "pdf_sha256": "f24d9b63ab1373dd817d12eab9b4126411b853b388c309ee1e77a22a42e204b4",
       "pdf_header": "                                                       代號：10310\n115年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、                   頁次：5－1\n115年專 門 職 業 及 技 術 人 員 高 等 考 試 心 理 師、法 醫 師、語 言 治 療 師、\n聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作\n考試時間： 2 小時                                 座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115100&y=2026",
-      "index_sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184",
+      "index_sha256": "58ed21d1555a157948a969593d853f5f4084506ba5c635235206782b29146eb8",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=115100&c=103&s=0301&q=1",
         "http_status": 200,
@@ -3823,12 +3903,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 167875,
-        "sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184",
-        "checked_at": "2026-10-25T01:34:55.106725+00:00",
+        "sha256": "58ed21d1555a157948a969593d853f5f4084506ba5c635235206782b29146eb8",
+        "checked_at": "2026-10-25T10:20:43.692251+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184"
     },
     {
       "session": "115-2",
@@ -3841,7 +3922,7 @@
       "pdf_sha256": "cc6f21c7ac52b39eeb78440299cd97e4e29e1e05ae4306aeaa4b1cad2a3efe4a",
       "pdf_header": "代號：10320   115年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           115年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作直接服務\n考試時間： 2 小時                                    座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115100&y=2026",
-      "index_sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184",
+      "index_sha256": "58ed21d1555a157948a969593d853f5f4084506ba5c635235206782b29146eb8",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=115100&c=103&s=0302&q=1",
         "http_status": 200,
@@ -3856,12 +3937,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 167875,
-        "sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184",
-        "checked_at": "2026-10-25T01:34:55.106725+00:00",
+        "sha256": "58ed21d1555a157948a969593d853f5f4084506ba5c635235206782b29146eb8",
+        "checked_at": "2026-10-25T10:20:43.692251+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184"
     },
     {
       "session": "115-2",
@@ -3874,7 +3956,7 @@
       "pdf_sha256": "01c660195f91f444cc371f034b92d92338c3de022886ce32d9cd855142d5bbe4",
       "pdf_header": "代號：10330   115年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           115年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會政策與社會立法\n考試時間： 2 小時                            座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115100&y=2026",
-      "index_sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184",
+      "index_sha256": "58ed21d1555a157948a969593d853f5f4084506ba5c635235206782b29146eb8",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=115100&c=103&s=0303&q=1",
         "http_status": 200,
@@ -3889,12 +3971,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 167875,
-        "sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184",
-        "checked_at": "2026-10-25T01:34:55.106725+00:00",
+        "sha256": "58ed21d1555a157948a969593d853f5f4084506ba5c635235206782b29146eb8",
+        "checked_at": "2026-10-25T10:20:43.692251+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184"
     },
     {
       "session": "115-2",
@@ -3907,7 +3990,7 @@
       "pdf_sha256": "a53d97745e23d6c4eef21b49e27d37b847960957b7e9e3a438ac64840825bfa1",
       "pdf_header": "代號：10340   115年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           115年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：人類行為與社會環境\n考試時間： 2 小時                                 座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115100&y=2026",
-      "index_sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184",
+      "index_sha256": "58ed21d1555a157948a969593d853f5f4084506ba5c635235206782b29146eb8",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=115100&c=103&s=0304&q=1",
         "http_status": 200,
@@ -3922,12 +4005,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 167875,
-        "sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184",
-        "checked_at": "2026-10-25T01:34:55.106725+00:00",
+        "sha256": "58ed21d1555a157948a969593d853f5f4084506ba5c635235206782b29146eb8",
+        "checked_at": "2026-10-25T10:20:43.692251+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184"
     },
     {
       "session": "115-2",
@@ -3940,7 +4024,7 @@
       "pdf_sha256": "a4607635406da2368b1a6fff36a9818e74ae51a9dbf66c4bb0dcfad5b8abc733",
       "pdf_header": "代號：10350   115年第二次專門職業及技術人員高等考試營養師、護理師、社會工作師考試、\n頁次：4－1\n           115年專門職業及技術人員高等考試心理師、法醫師、語言治療師、\n           聽力師、牙體技術師、公共衛生師考試、高等暨普通考試驗光人員考試試題\n等  別：高等考試\n類  科：社會工作師\n科  目：社會工作研究方法\n考試時間： 2 小時                            座號：\n※注意：禁止使用電子計算器。\n\n",
       "index_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=115100&y=2026",
-      "index_sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184",
+      "index_sha256": "58ed21d1555a157948a969593d853f5f4084506ba5c635235206782b29146eb8",
       "http": {
         "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=115100&c=103&s=0305&q=1",
         "http_status": 200,
@@ -3955,12 +4039,13 @@
         "http_status": 200,
         "mime": "text/html; charset=utf-8",
         "bytes": 167875,
-        "sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184",
-        "checked_at": "2026-10-25T01:34:55.106725+00:00",
+        "sha256": "58ed21d1555a157948a969593d853f5f4084506ba5c635235206782b29146eb8",
+        "checked_at": "2026-10-25T10:20:43.692251+00:00",
         "fetch_status": "downloaded"
       },
       "status": "pdf_header_index_matched",
-      "errors": []
+      "errors": [],
+      "previous_index_sha256": "bccd036c0b3804a5ad81ca07b9003d5ed1af36a3d67003b15e544bebf2252184"
     }
   ]
 }
