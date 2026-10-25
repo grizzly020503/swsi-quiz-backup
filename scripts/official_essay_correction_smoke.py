@@ -45,7 +45,9 @@ def check():
     digest = lambda value: hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()).hexdigest()
     mcq_baseline = dict(locked["mcq"])
     mcq_proof = json.loads((ROOT/"audit/official_mcq_corrections_20261025.json").read_text())
-    for row in mcq_proof["rows"]:
+    additional_mcq = json.loads((ROOT/"audit/official_mcq_corrections_additional_20261025.json").read_text())
+    assert additional_mcq["count"] == 3 and additional_mcq["human_approval"] is False
+    for row in mcq_proof["rows"] + additional_mcq["rows"]:
         assert mcq_baseline[row["id"]] == row["after_lock_sha256"]
         mcq_baseline[row["id"]] = row["before_lock_sha256"]
     assert digest(mcq_baseline) == proof["unchanged_mcq_lock_map_sha256"], "undeclared MCQ locks changed"
