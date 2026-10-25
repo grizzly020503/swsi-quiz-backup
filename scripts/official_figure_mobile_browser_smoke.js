@@ -30,6 +30,11 @@ async function runOne(browser,engine,entry,missing){
   try{
     await page.goto(base,{waitUntil:'domcontentloaded',timeout:20000});
     await page.waitForFunction(()=>typeof renderQuiz==='function'&&typeof window.MK==='object',{},{timeout:25000});
+    // monthly_patch.js boots the site asynchronously and later calls go('home').
+    // Do not inject a one-question fixture until that navigation has finished,
+    // otherwise the boot callback can erase the quiz during WebKit image loading.
+    await page.waitForFunction(()=>typeof view!=='undefined'&&view==='home'&&
+      document.getElementById('tabbar')?.style.display==='flex',null,{timeout:25000});
     const initial=await page.evaluate(raw=>{
       const q=normalize(raw);
       view='quiz'; queue=[q]; idx=0;selected=null;answered=false;
