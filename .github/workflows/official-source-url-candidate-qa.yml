@@ -6,6 +6,9 @@ on:
       - 'scripts/source_url_promotion_stage.py'
       - 'scripts/source_url_promotion_selftest.py'
       - 'scripts/source_url_pg17_rehearsal.py'
+      - 'scripts/source_url_exact_target_replay.py'
+      - 'scripts/historical_source_url_guard.py'
+      - 'data/moex_source_subjects.v1.json'
       - '.github/workflows/official-source-url-candidate-qa.yml'
   push:
     branches: [main]
@@ -14,6 +17,9 @@ on:
       - 'scripts/source_url_promotion_stage.py'
       - 'scripts/source_url_promotion_selftest.py'
       - 'scripts/source_url_pg17_rehearsal.py'
+      - 'scripts/source_url_exact_target_replay.py'
+      - 'scripts/historical_source_url_guard.py'
+      - 'data/moex_source_subjects.v1.json'
       - '.github/workflows/official-source-url-candidate-qa.yml'
 permissions:
   contents: read
@@ -23,6 +29,8 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
@@ -30,9 +38,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 -m py_compile scripts/source_url_promotion_stage.py scripts/source_url_promotion_selftest.py
-          python3 scripts/source_url_promotion_stage.py --root .
-          python3 scripts/source_url_promotion_selftest.py
+          python3 -m py_compile scripts/source_url_promotion_stage.py scripts/source_url_promotion_selftest.py scripts/source_url_exact_target_replay.py scripts/historical_source_url_guard.py
+          python3 scripts/source_url_exact_target_replay.py --root . --fixture-before "${RUNNER_TEMP}/swsi-pinned-before"
+          SWSI_SOURCE_URL_TEST_ROOT="${RUNNER_TEMP}/swsi-pinned-before" python3 scripts/source_url_promotion_selftest.py
           git diff --exit-code
           git diff --check
   native-postgres17-source-url:
@@ -54,6 +62,8 @@ jobs:
           --health-retries 8
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
@@ -70,4 +80,5 @@ jobs:
           PGPASSWORD: ci-only-synthetic-password
           PGDATABASE: swsi_fixture
         run: |
-          python3 scripts/source_url_pg17_rehearsal.py
+          python3 scripts/source_url_exact_target_replay.py --root . --fixture-before "${RUNNER_TEMP}/swsi-pg-before"
+          python3 scripts/source_url_pg17_rehearsal.py --root "${RUNNER_TEMP}/swsi-pg-before"
