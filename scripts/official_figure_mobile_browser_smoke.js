@@ -85,9 +85,11 @@ async function runOne(browser,engine,entry,missing){
     }
     // Real timed mock-exam renderer and scoring, using exactly the same official
     // source row; no invented mock questions and no production network access.
-    await page.evaluate(raw=>{
+    await page.evaluate(async raw=>{
       ALL=[normalize(raw)]; SUBJECTS=[raw.subject];
-      window.MK.open();
+      // The unified grading overlay initializes asynchronously; await mounting.
+      await window.MK.open();
+      if(!document.querySelector('.mk-ov'))throw Error('Mock overlay was not mounted');
       window.MK.setMode('exam');
       window.MK.setPaper(raw.year+'|'+raw.round);
       window.MK.beginExam();
