@@ -24,35 +24,51 @@ on:
       - 'scripts/official_figure_ui_qa.py'
 permissions:
   contents: read
+concurrency:
+  group: swsi-official-figures-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   verify-original-figures:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Check exact official image identity and both frontend gates
+      - name: Check exact original figures and protected grading contract
         run: |
           python -m py_compile scripts/official_figure_ui_qa.py
           python scripts/official_figure_ui_qa.py
           python scripts/official_exam_readonly_guard.py
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22.13.0'
-      - name: Install pinned mobile browser QA
+  mobile-quiz-and-mock:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-noble
+      options: --user 1001
+    timeout-minutes: 12
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install pinned Playwright without downloading browser binaries
+        timeout-minutes: 5
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
         run: |
+          set -euo pipefail
           npm install --no-save playwright@1.55.0
-          npx playwright install --with-deps chromium webkit
-      - name: Run real mobile quiz and timed mock with local figure assets
+          node -e 'const fs=require("fs"),pw=require("playwright");if(require("playwright/package.json").version!=="1.55.0")throw Error("Playwright version drift");for(const name of ["chromium","webkit"])if(!fs.existsSync(pw[name].executablePath()))throw Error(name+" missing")'
+      - name: Real iPhone-sized quiz and timed mock figure acceptance
         run: |
           set -euo pipefail
           python3 -m http.server 4176 --directory cdn >/tmp/swsi-figures-http.log 2>&1 &
           server_pid=$!
           trap 'kill $server_pid || true' EXIT
           for i in $(seq 1 20); do
-            curl -fsS http://127.0.0.1:4176/index.html >/dev/null && break
+            if curl -fsS http://127.0.0.1:4176/index.html >/dev/null; then break; fi
             sleep 1
           done
+          node --check scripts/official_figure_mobile_browser_smoke.js
           node scripts/official_figure_mobile_browser_smoke.js http://127.0.0.1:4176/
