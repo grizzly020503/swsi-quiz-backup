@@ -1,0 +1,77 @@
+ADMIN IDENTITY PRIVACY OK
+ADMIN AUTH RECOVERY GATE + FEEDBACK CLUSTERS OK
+ESSAY GUIDES RUNTIME OK: 240 unique guides -> _site/essay_guides.js; historical_verified=68; overlay_verified=10; held=0
+SWSI P0 FRONTEND PREFLIGHT
+  ✓ ESSAY_GUIDE_DUPLICATE_SOURCE: no duplicate source IDs remain
+  ✓ ESSAY_GUIDE_RUNTIME_NORMALIZER: builder contains verified 107-1 correction and rejects unexpected duplicate IDs
+  ✓ ESSAY_GUIDE_RUNTIME_DUPLICATE: generated essay guide artifact contains unique historical IDs
+  ✓ ESSAY_GUIDE_1071_RUNTIME: 107-1 guide is normalized to CBT + social support + strengths integration
+  ✓ ESSAY_GUIDE_DUPLICATE_SELFTEST: builder rejects every duplicate key, including the former legacy ID
+  ✓ ESSAY_TRUST_OWNER_PATH: essay trust layer has one canonical patch path
+  ✓ PATCH_OVERRIDE_ORDER: correctness-sensitive overrides still end in their reviewed owner layers
+  ✓ GRADING_OVERRIDE_ORDER: no legacy special-credit inference remains in monthly patch parts
+  ✓ GRADING_FAIL_CLOSED_RUNTIME: canonical grading plus late edge/UI guards fail closed without guessing special credit
+  ✓ MK_GRADING_CONTRACT: mock exam uses the shared grading contract and counts unanswered ordinary questions
+  ✓ SHARD_SHA256_RUNTIME: actual shard bytes are SHA-256 checked before use
+  ✓ FULL_BANK_INTEGRITY_RUNTIME: full bank validates manifest totals, session counts and unique IDs before staying complete
+  ✓ LOCAL_STORAGE_INTEGRITY: history/review state is schema-checked, capped and quarantined before overwrite
+  ✓ AI_ERROR_CLASSIFICATION: active AI UI reads stable server error codes without mutating the global fetch helper
+  ✓ HOME_ROUND_SETTER_RUNTIME: final round setter canonicalizes legacy labels and new values
+  ✓ HOME_ROUND_UI_RUNTIME: final home selector stores 1/2 and only displays 第一次/第二次 as labels
+  ✓ HOME_ROUND_FILTER_CONTRACT: focusedQuizFilter compares canonicalRound(q.round) to homeQuizRound
+  ✓ ESSAY_PUBLIC_MODEL_PARITY: root and CDN student HTML use canonical Worker model qwen/qwen3.8-27b
+  ✓ SERVICE_WORKER_VERSION: service worker cache is bumped to v7
+  ✓ SERVICE_WORKER_MUTABLE_ASSETS: monthly patch, essay guides and manifest are no-store network-first
+  ✓ SERVICE_WORKER_UPDATE_FLOW: v6→v7 install refreshes shell assets and deletes only old SWSI caches
+  ✓ SERVICE_WORKER_UPGRADE_SMOKE: real-browser upgrade smoke covers v6 cache eviction and all mutable assets
+
+result: PASS (0 blockers)
+RUNTIME OWNER SMOKE OK
+renderHome: 00.part -> 20.product-philosophy.part
+renderReview: 00.part -> 70.learning-loop.part
+normalize: 00.part
+gradingMode: 00.part
+law render owners: 80.knowledge-path.part -> 86.law-trust-ui.part
+law escape helper: 86.law-trust-ui.part (private)
+new resident law status: 86.law-trust-ui.part
+mock record policy: zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part
+essay navigation: zzz_fix_essay_navigation.part
+quick essay start: zzzzz_quick_essay_scope_fix.part
+acceptedAnswers guard: 00.part -> zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part
+renderQuiz guard: 00.part -> zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part
+question loaders: 00.part -> zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_question_bank_invariant.part / 00.part -> zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_question_bank_invariant.part
+full-bank assertion: 00.part -> zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_question_bank_invariant.part
+learning progress: 00.part -> 70.learning-loop.part
+knowledge search/open: 00.part -> 80.knowledge-path.part
+mobile draft: 00.part -> 99_p0_mobile_ai_guardrails.part / 00.part -> 99_p0_mobile_ai_guardrails.part
+AI cache key: 99_p0_mobile_ai_guardrails.part -> 99z.essay-trust-layer.part
+feedback report context: 90.feedback-core.part -> 92.feedback-ui.part
+theory render owners: 80.knowledge-path.part -> 88.theory-trust-ui.part
+MK: zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part
+stable client id: 99_p0_mobile_ai_guardrails.part
+AI timeout helper: 99_p0_mobile_ai_guardrails.part
+aiFeedbackHTML: 00.part -> 99z.essay-trust-layer.part
+runAIFeedback: 00.part -> 99z.essay-trust-layer.part
+gradePhoto: 00.part -> 99z.essay-trust-layer.part
+legacy any-answer ID inference: (none)
+legacy answer-text inference: (none)
+grading edge guard: acceptedAnswers(invalid) remains late fail-closed without taking grading ownership
+SUPABASE IMPORTER OIDC / RECOVERY DRIFT CONTRACT OK
+UNIFIED QUESTION QA SELFTEST OK
+- 200 pending MCQ explanations -> manual queue 0
+- 10 pending essay guides -> manual queue 0
+- missing special grading_mode -> blocked
+- explicit all_credit / any_answer -> both accepted
+- contradictory special grading metadata -> blocked
+- '第三條路' -> not misclassified as 第三條
+- current unchanged legal watch -> duplicate law review cleared
+- changed law -> review restored
+OFFICIAL EXAM READ-ONLY GUARD OK: locked MCQ=4800, essays=240
+Updated current-affairs live UI with focused exam review and V1 fallback.
+Applied SWSI monthly front-end build patch: _site/index.html
+Applied canonical knowledge bootstrap: laws=24 theories=39
+Kept verified deferred student boot contract
+PUBLIC STUDY GUIDE SANITIZED: SWSI-authored content only
+MONTHLY FRONTEND STATIC SMOKE OK
+FIRST PAINT + LAYOUT + ADMIN/FEEDBACK OPS STATIC QA OK
+Cache-busted monthly_patch.js: 1fce7989702d0347

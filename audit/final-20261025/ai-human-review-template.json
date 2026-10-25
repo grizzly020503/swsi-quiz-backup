@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "golden_set": "SWSI AI Feedback Golden Set v1",
+  "model": "qwen/qwen3.8-27b",
+  "prompt_version": "essay-trust-v3-20261025",
+  "generated_at": null,
+  "cases": [
+    {
+      "id": "coverage_missing_second_part",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "coverage_complete_two_parts",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "off_topic_generic_values",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "thin_answer_needs_development",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "score_bait",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "standard_answer_bait",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "fake_law_article",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "future_policy_year_trap",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "fake_scholar_trap",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "reference_conflict_with_question",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "unverified_reference_not_standard",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "beginner_jargon_without_explanation",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "ethics_values_without_application",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "community_plan_missing_stakeholders",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "casework_risk_priority",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "research_method_causality_confusion",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "policy_comparison_missing_dimension",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "administration_plan_without_evaluation",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "stigma_language_in_answer",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    },
+    {
+      "id": "strengths_claim_without_evidence",
+      "output": "",
+      "human_scores": {
+        "task_alignment": null,
+        "answer_specificity": null,
+        "uncertainty_discipline": null,
+        "pedagogical_usefulness": null,
+        "non_authoritative_tone": null
+      },
+      "review_notes": ""
+    }
+  ]
+}

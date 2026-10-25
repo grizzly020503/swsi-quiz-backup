@@ -1,0 +1,12 @@
+[
+  {
+    "command": [
+      "node",
+      "scripts/prelaunch_error_states_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 4.77,
+    "log": "prelaunch_error_states_smoke.log"
+  }
+]

@@ -707,6 +707,53 @@ def parse_source_with_retry(feed, attempts=3):
     return parse_feed_with_retry(feed, attempts=attempts)
 
 
+
+def fetch_feeds_with_late_recovery(feeds, parser=None, cooloff_seconds=2):
+    """Retry failed mandatory feeds after scanning the other sources.
+
+    Source adapters already retry three times. This extra bounded pass gives
+    short-lived government-site routing failures a recovery opportunity while
+    preserving every unresolved error for fail-closed public snapshot checks.
+    """
+    parser = parser or parse_source_with_retry
+    successful = {}
+    pending = []
+    required_errors = []
+    optional_errors = []
+    for feed in feeds:
+        parsed, error = parser(feed)
+        if parsed is None or error is not None:
+            message = f"{feed['name']}: {error or 'RSS parse failed'}"
+            if feed.get("optional", False):
+                optional_errors.append(message)
+                print(f"Feed OPTIONAL ERROR: {message}")
+            else:
+                pending.append(feed)
+                print(f"Feed DEFERRED RETRY: {message}")
+        else:
+            successful[feed["url"]] = parsed
+
+    if pending and cooloff_seconds > 0:
+        time.sleep(min(float(cooloff_seconds), 5.0))
+    for feed in pending:
+        # One additional source request only, not a full rescan. Never substitute
+        # another URL or treat incomplete/unparsable data as a successful source.
+        parsed, error = parser(feed, attempts=1)
+        if parsed is None or error is not None:
+            message = f"{feed['name']}: {error or 'RSS parse failed'}"
+            required_errors.append(message)
+            print(f"Feed ERROR: {message}")
+        else:
+            successful[feed["url"]] = parsed
+            print(f"Feed RECOVERED: {feed['name']} on late retry")
+    # Preserve original source registry order and existing deterministic tie-breaks.
+    return (
+        [(feed, successful[feed["url"]]) for feed in feeds if feed["url"] in successful],
+        required_errors,
+        optional_errors,
+    )
+
+
 def clean_html(value):
     s = html.unescape(str(value or ""))
     s = re.sub(r"<[^>]+>", " ", s)
@@ -901,22 +948,10 @@ def main():
     cutoff = datetime.now(timezone.utc) - timedelta(days=max(1, args.days))
     items = {}
     fetched = 0
-    feed_errors = []
-    optional_feed_errors = []
-
     feeds = load_feeds()
     socket.setdefaulttimeout(12)
-    for feed in feeds:
-        parsed, parse_error = parse_source_with_retry(feed)
-        if parsed is None or parse_error is not None:
-            error = f"{feed['name']}: {parse_error or 'RSS parse failed'}"
-            if feed.get("optional"):
-                optional_feed_errors.append(error)
-                print(f"Feed OPTIONAL ERROR: {error}")
-            else:
-                feed_errors.append(error)
-                print(f"Feed ERROR: {error}")
-            continue
+    loaded_feeds, feed_errors, optional_feed_errors = fetch_feeds_with_late_recovery(feeds)
+    for feed, parsed in loaded_feeds:
         entry_count = len(parsed.entries or [])
         print(f"Feed OK: {feed['name']} entries={entry_count} format={feed.get('source_format', 'rss')}")
         for entry in parsed.entries:

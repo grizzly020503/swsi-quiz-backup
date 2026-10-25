@@ -1,0 +1,572 @@
+{
+  "schema_version": 1,
+  "dataset_revision": "ceda1d399abaecec5ff6",
+  "manifest_shard_count": 24,
+  "canonical_essay_source_count": 240,
+  "exam_scheme_registry": "/workspace/scratch/9cde2d8d7da3/swsi-final/data/exam_scheme_registry.v1.json",
+  "audited_sessions": 24,
+  "manifest_errors": [],
+  "summary": {
+    "total_mcq": 4800,
+    "total_essays": 240,
+    "total_items": 5040,
+    "official_blocked": 0,
+    "manual_review_queue_count": 798,
+    "all_manifest_sessions_audited": true,
+    "manifest_integrity_ok": true
+  },
+  "sessions": [
+    {
+      "year": "104",
+      "round": "第一次",
+      "file": "104-1.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 176,
+        "needs_review": 34,
+        "blocked": 0,
+        "pending_generation": 16
+      },
+      "manual_review_queue_count": 43
+    },
+    {
+      "year": "104",
+      "round": "第二次",
+      "file": "104-2.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 185,
+        "needs_review": 25,
+        "blocked": 0,
+        "pending_generation": 21
+      },
+      "manual_review_queue_count": 34
+    },
+    {
+      "year": "105",
+      "round": "第一次",
+      "file": "105-1.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 186,
+        "needs_review": 24,
+        "blocked": 0,
+        "pending_generation": 15
+      },
+      "manual_review_queue_count": 33
+    },
+    {
+      "year": "105",
+      "round": "第二次",
+      "file": "105-2.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 189,
+        "needs_review": 21,
+        "blocked": 0,
+        "pending_generation": 14
+      },
+      "manual_review_queue_count": 31
+    },
+    {
+      "year": "106",
+      "round": "第一次",
+      "file": "106-1.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 182,
+        "needs_review": 28,
+        "blocked": 0,
+        "pending_generation": 13
+      },
+      "manual_review_queue_count": 38
+    },
+    {
+      "year": "106",
+      "round": "第二次",
+      "file": "106-2.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 179,
+        "needs_review": 31,
+        "blocked": 0,
+        "pending_generation": 14
+      },
+      "manual_review_queue_count": 40
+    },
+    {
+      "year": "107",
+      "round": "第一次",
+      "file": "107-1.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 185,
+        "needs_review": 25,
+        "blocked": 0,
+        "pending_generation": 19
+      },
+      "manual_review_queue_count": 35
+    },
+    {
+      "year": "107",
+      "round": "第二次",
+      "file": "107-2.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 185,
+        "needs_review": 25,
+        "blocked": 0,
+        "pending_generation": 21
+      },
+      "manual_review_queue_count": 34
+    },
+    {
+      "year": "108",
+      "round": "第一次",
+      "file": "108-1.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 185,
+        "needs_review": 25,
+        "blocked": 0,
+        "pending_generation": 13
+      },
+      "manual_review_queue_count": 34
+    },
+    {
+      "year": "108",
+      "round": "第二次",
+      "file": "108-2.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 188,
+        "needs_review": 22,
+        "blocked": 0,
+        "pending_generation": 14
+      },
+      "manual_review_queue_count": 31
+    },
+    {
+      "year": "109",
+      "round": "第一次",
+      "file": "109-1.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 188,
+        "needs_review": 22,
+        "blocked": 0,
+        "pending_generation": 10
+      },
+      "manual_review_queue_count": 32
+    },
+    {
+      "year": "109",
+      "round": "第二次",
+      "file": "109-2.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 186,
+        "needs_review": 24,
+        "blocked": 0,
+        "pending_generation": 15
+      },
+      "manual_review_queue_count": 34
+    },
+    {
+      "year": "110",
+      "round": "第一次",
+      "file": "110-1.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 190,
+        "needs_review": 20,
+        "blocked": 0,
+        "pending_generation": 11
+      },
+      "manual_review_queue_count": 29
+    },
+    {
+      "year": "110",
+      "round": "第二次",
+      "file": "110-2.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 184,
+        "needs_review": 26,
+        "blocked": 0,
+        "pending_generation": 12
+      },
+      "manual_review_queue_count": 36
+    },
+    {
+      "year": "111",
+      "round": "第一次",
+      "file": "111-1.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 188,
+        "needs_review": 22,
+        "blocked": 0,
+        "pending_generation": 14
+      },
+      "manual_review_queue_count": 32
+    },
+    {
+      "year": "111",
+      "round": "第二次",
+      "file": "111-2.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 183,
+        "needs_review": 27,
+        "blocked": 0,
+        "pending_generation": 12
+      },
+      "manual_review_queue_count": 36
+    },
+    {
+      "year": "112",
+      "round": "第一次",
+      "file": "112-1.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 184,
+        "needs_review": 26,
+        "blocked": 0,
+        "pending_generation": 11
+      },
+      "manual_review_queue_count": 35
+    },
+    {
+      "year": "112",
+      "round": "第二次",
+      "file": "112-2.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 187,
+        "needs_review": 23,
+        "blocked": 0,
+        "pending_generation": 19
+      },
+      "manual_review_queue_count": 32
+    },
+    {
+      "year": "113",
+      "round": "第一次",
+      "file": "113-1.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 186,
+        "needs_review": 24,
+        "blocked": 0,
+        "pending_generation": 21
+      },
+      "manual_review_queue_count": 34
+    },
+    {
+      "year": "113",
+      "round": "第二次",
+      "file": "113-2.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 186,
+        "needs_review": 24,
+        "blocked": 0,
+        "pending_generation": 12
+      },
+      "manual_review_queue_count": 33
+    },
+    {
+      "year": "114",
+      "round": "第一次",
+      "file": "114-1.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 190,
+        "needs_review": 20,
+        "blocked": 0,
+        "pending_generation": 12
+      },
+      "manual_review_queue_count": 30
+    },
+    {
+      "year": "114",
+      "round": "第二次",
+      "file": "114-2.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 186,
+        "needs_review": 24,
+        "blocked": 0,
+        "pending_generation": 13
+      },
+      "manual_review_queue_count": 33
+    },
+    {
+      "year": "115",
+      "round": "第一次",
+      "file": "115-1.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 200,
+        "needs_review": 10,
+        "blocked": 0,
+        "release_ready": false
+      },
+      "enrichment": {
+        "passed": 185,
+        "needs_review": 25,
+        "blocked": 0,
+        "pending_generation": 11
+      },
+      "manual_review_queue_count": 34
+    },
+    {
+      "year": "115",
+      "round": "第二次",
+      "file": "115-2.json",
+      "exam_scheme_profile": "social-worker-five-subjects-v1",
+      "expected_total_items": 210,
+      "mcq_count": 200,
+      "essay_count": 10,
+      "items": 210,
+      "official_core": {
+        "passed": 210,
+        "needs_review": 0,
+        "blocked": 0,
+        "release_ready": true
+      },
+      "enrichment": {
+        "passed": 195,
+        "needs_review": 15,
+        "blocked": 0,
+        "pending_generation": 3
+      },
+      "manual_review_queue_count": 15
+    }
+  ]
+}

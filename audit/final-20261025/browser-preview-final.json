@@ -1,0 +1,32 @@
+[
+  {
+    "command": [
+      "node",
+      "scripts/handwriting_essay_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 4.37,
+    "log": "handwriting_essay_smoke.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/launch_readiness_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 1.76,
+    "log": "launch_readiness_smoke.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/prelaunch_axe_accessibility_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 1.09,
+    "log": "prelaunch_axe_accessibility_smoke.log"
+  }
+]

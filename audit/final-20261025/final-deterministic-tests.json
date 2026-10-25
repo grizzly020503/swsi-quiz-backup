@@ -1,0 +1,165 @@
+[
+  {
+    "command": [
+      "python",
+      "scripts/audit_moex_source_subjects_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "audit_moex_source_subjects_selftest.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/audit_moex_source_subjects.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.2,
+    "log": "audit_moex_source_subjects.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/official_essay_source_review_candidates.py",
+      "--selftest"
+    ],
+    "exit_code": 0,
+    "seconds": 0.21,
+    "log": "official_essay_source_review_candidates.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/official_exam_readonly_guard.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.13,
+    "log": "official_exam_readonly_guard.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/ai_feedback_eval.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04,
+    "log": "ai_feedback_eval.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/ai_feedback_eval_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.09,
+    "log": "ai_feedback_eval_selftest.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/ai_feedback_candidate_gate_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.05,
+    "log": "ai_feedback_candidate_gate_selftest.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/cloudflare_release_artifact_smoke.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.05,
+    "log": "cloudflare_release_artifact_smoke.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/current_affairs_sources_smoke.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.08,
+    "log": "current_affairs_sources_smoke.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/public_monitoring_v2_smoke.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.05,
+    "log": "public_monitoring_v2_smoke.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/netlify_auth_preflight_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.62,
+    "log": "netlify_auth_preflight_selftest.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/netlify_runtime_gate_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.54,
+    "log": "netlify_runtime_gate_selftest.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/ops_task_watchdog_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.2,
+    "log": "ops_task_watchdog_selftest.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/supabase_contract_smoke.js"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "supabase_contract_smoke.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/cloudflare_worker_smoke.js"
+    ],
+    "exit_code": 0,
+    "seconds": 0.09,
+    "log": "cloudflare_worker_smoke.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/private_backup_policy_smoke.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "private_backup_policy_smoke.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/private_restore_target_preflight_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.17,
+    "log": "private_restore_target_preflight_selftest.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/restore_destination_guard_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04,
+    "log": "restore_destination_guard_selftest.log"
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "command": [
+      "python",
+      "scripts/current_affairs_sources_smoke.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.1,
+    "tail": "RETRY: MOJ: Network is unreachable\nFeed OPTIONAL ERROR: Optional: optional news failure\nFeed ERROR: MOJ: Network is unreachable\nFeed RETRY: WHO Newsroom attempt=1 error=temporary WHO API failure\nFeed RETRY: UNICEF Press Releases attempt=1 error=temporary UNICEF page failure\nFeed RETRY: ILO Newsroom attempt=1 error=temporary ILO page failure\nCURRENT AFFAIRS SOURCE SMOKE OK: 23 unique HTTPS sources; optional media RSS + WHO JSON + UNICEF/ILO HTML adapters guarded; high-precision exam-event gate enforced; policy changes/guidance accepted; surveys, reminders, courses and generic projects rejected\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/public_monitoring_v2_smoke.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.05,
+    "tail": "NETLIFY ZERO-ERROR COUNT GUARD OK\nPUBLIC MONITORING V2 CONTRACT OK: sources=23/23, news=5, events=5, trends=5, laws=52/52, questions=4800, five-radar-ui=yes\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/ai_feedback_eval.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04,
+    "tail": "Golden Set: SWSI AI Feedback Golden Set v1\nCases: 20\nPrompt version: essay-trust-v3-20261025\nPublic model: qwen/qwen3.8-27b\nAI FEEDBACK GOLDEN SET CONTRACT OK\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/ai_feedback_eval_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.07,
+    "tail": "Golden Set cases: 20\nAI FEEDBACK EVAL SELFTEST OK\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/ai_feedback_candidate_gate_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "tail": "AI FEEDBACK CANDIDATE GATE SELFTEST OK\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/netlify_auth_preflight_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.12,
+    "tail": "NETLIFY REDIRECT TRANSPORT SELFTEST OK: valid response, blocked 301/302/303/307/308 without forwarding\nNETLIFY AUTH PREFLIGHT SELFTEST OK: provider errors, wrong project, read-only default and deploy-only gates\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/cloudflare_release_artifact_smoke.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04,
+    "tail": "CLOUDFLARE RELEASE ARTIFACT OK parts=32 patch_sha256=1fce7989702d0347 source=abb1ac79f314e2dfeddadaa61fa0384c5c8f8a79 sw=parity\n"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/supabase_contract_smoke.js"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "tail": "SUPABASE IMPORTER OIDC / RECOVERY DRIFT CONTRACT OK\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/restore_destination_guard_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.05,
+    "tail": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.001s\n\nOK\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/private_backup_secret_redaction_selftest.py"
+    ],
+    "exit_code": 2,
+    "seconds": 0.01,
+    "tail": "python: can't open file '/workspace/scratch/9cde2d8d7da3/swsi-final/scripts/private_backup_secret_redaction_selftest.py': [Errno 2] No such file or directory\n"
+  }
+]

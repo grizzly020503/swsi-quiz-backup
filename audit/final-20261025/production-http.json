@@ -1,0 +1,55 @@
+[
+  {
+    "origin": "https://wandering-wave-4418.c022050333.workers.dev",
+    "assets": {
+      "/": {
+        "unverified": "HTTPError: HTTP Error 403: Forbidden"
+      },
+      "/monthly_patch.js": {
+        "unverified": "HTTPError: HTTP Error 403: Forbidden"
+      },
+      "/sw.js": {
+        "unverified": "HTTPError: HTTP Error 403: Forbidden"
+      },
+      "/question-shards/manifest.json": {
+        "unverified": "HTTPError: HTTP Error 403: Forbidden"
+      }
+    },
+    "ai_endpoint_test": {
+      "status": 403,
+      "body": "error code: 1010",
+      "interpretation": "Cloudflare rejected this execution environment; no successful model output; site availability for other users unverified",
+      "synthetic_request": true,
+      "max_tokens": 30
+    }
+  },
+  {
+    "origin": "https://swsi-quiznetlify.netlify.app",
+    "assets": {
+      "/": {
+        "status": 200,
+        "bytes": 663057,
+        "sha256": "6b0c9104884eeec5d9231c77b11d4fc712a7e918cf0962a4269c2c34f1a9739b",
+        "release": [],
+        "patch_tag": [
+          "1f7249b839e4ba7d"
+        ],
+        "handwriting": false,
+        "calm_ui": false
+      },
+      "/monthly_patch.js": {
+        "status": 200,
+        "bytes": 341144,
+        "sha256": "1f7249b839e4ba7dd154b0a863e94ceb6d0fa883049bbce0806391004a762c4f"
+      },
+      "/sw.js": {
+        "status": 200,
+        "bytes": 4247,
+        "sha256": "b4f7e51d267c39840bf2a8df3ad5526eee1fcafa20080d6d3a0dc648586c8ee8"
+      },
+      "/question-shards/manifest.json": {
+        "unverified": "HTTPError: HTTP Error 404: Not Found"
+      }
+    }
+  }
+]

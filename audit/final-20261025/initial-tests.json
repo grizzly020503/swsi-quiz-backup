@@ -1,0 +1,153 @@
+[
+  {
+    "command": [
+      "python",
+      "scripts/official_exam_readonly_guard.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16,
+    "tail": "OFFICIAL EXAM READ-ONLY GUARD OK: locked MCQ=4800, essays=240\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/unified_question_qa_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.07,
+    "tail": "UNIFIED QUESTION QA SELFTEST OK\n- 200 pending MCQ explanations -> manual queue 0\n- 10 pending essay guides -> manual queue 0\n- missing special grading_mode -> blocked\n- explicit all_credit / any_answer -> both accepted\n- contradictory special grading metadata -> blocked\n- '第三條路' -> not misclassified as 第三條\n- current unchanged legal watch -> duplicate law review cleared\n- changed law -> review restored\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/full_corpus_qa.py",
+      "--out",
+      "/workspace/scratch/9cde2d8d7da3/swsi-final/audit/final-20261025/full-corpus.json",
+      "--fail-on",
+      "blocked"
+    ],
+    "exit_code": 0,
+    "seconds": 2.66,
+    "tail": "   \"round\": \"第一次\",\n      \"file\": \"115-1.json\",\n      \"exam_scheme_profile\": \"social-worker-five-subjects-v1\",\n      \"expected_total_items\": 210,\n      \"mcq_count\": 200,\n      \"essay_count\": 10,\n      \"items\": 210,\n      \"official_core\": {\n        \"passed\": 200,\n        \"needs_review\": 10,\n        \"blocked\": 0,\n        \"release_ready\": false\n      },\n      \"enrichment\": {\n        \"passed\": 185,\n        \"needs_review\": 25,\n        \"blocked\": 0,\n        \"pending_generation\": 11\n      },\n      \"manual_review_queue_count\": 34\n    },\n    {\n      \"year\": \"115\",\n      \"round\": \"第二次\",\n      \"file\": \"115-2.json\",\n      \"exam_scheme_profile\": \"social-worker-five-subjects-v1\",\n      \"expected_total_items\": 210,\n      \"mcq_count\": 200,\n      \"essay_count\": 10,\n      \"items\": 210,\n      \"official_core\": {\n        \"passed\": 210,\n        \"needs_review\": 0,\n        \"blocked\": 0,\n        \"release_ready\": true\n      },\n      \"enrichment\": {\n        \"passed\": 195,\n        \"needs_review\": 15,\n        \"blocked\": 0,\n        \"pending_generation\": 3\n      },\n      \"manual_review_queue_count\": 15\n    }\n  ]\n}\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/official_essay_source_review_candidates.py",
+      "--selftest"
+    ],
+    "exit_code": 0,
+    "seconds": 0.05,
+    "tail": "OFFICIAL ESSAY SOURCE CANDIDATE SELFTEST OK: seven fail-closed scenarios\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/cloudflare_release_artifact_smoke.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04,
+    "tail": "CLOUDFLARE RELEASE ARTIFACT OK parts=32 patch_sha256=acdbdf186fe21cc3 source=abb1ac79f314e2dfeddadaa61fa0384c5c8f8a79 sw=parity\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/netlify_auth_preflight_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.12,
+    "tail": "NETLIFY AUTH PREFLIGHT SELFTEST OK: provider errors, wrong project, read-only default and deploy-only gates\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/netlify_runtime_gate_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.58,
+    "tail": "NETLIFY EXACT RUNTIME GATE SELFTEST OK: 1 matched + 5 strict NO-GO fixtures\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/ops_task_watchdog.py",
+      "--validate-only"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "tail": "{\"ok\": true, \"tasks\": 4}\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/ops_task_watchdog_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.21,
+    "tail": "OPS TASK WATCHDOG SELFTEST OK\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/ai_feedback_eval.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04,
+    "tail": "Golden Set: SWSI AI Feedback Golden Set v1\nCases: 20\nPrompt version: essay-trust-v1-20260826\nPublic model: qwen/qwen3.8-27b\nAI FEEDBACK GOLDEN SET CONTRACT OK\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/ai_feedback_eval_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.1,
+    "tail": "Golden Set cases: 20\nAI FEEDBACK EVAL SELFTEST OK\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/ai_feedback_candidate_gate.py",
+      "--force"
+    ],
+    "exit_code": 1,
+    "seconds": 0.06,
+    "tail": "Candidate evidence required: yes\nERROR: candidate outputs evidence required but unavailable at /workspace/scratch/9cde2d8d7da3/swsi-final/ai_eval/captured/candidate.json: [Errno 2] No such file or directory: '/workspace/scratch/9cde2d8d7da3/swsi-final/ai_eval/captured/candidate.json'\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/private_backup_policy_smoke.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04,
+    "tail": "SWSI PRIVATE BACKUP POLICY SMOKE OK\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/private_restore_target_preflight_selftest.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.2,
+    "tail": "PRIVATE RESTORE TARGET PREFLIGHT TESTS OK 34 / 34\n"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/cloudflare_worker_smoke.js"
+    ],
+    "exit_code": 0,
+    "seconds": 0.1,
+    "tail": "CLOUDFLARE WORKER SMOKE OK\n"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/maintainability_smoke.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.02,
+    "tail": "SWSI MAINTAINABILITY GUARD OK\nruntime parts: 32/32\ngrandfathered late z-layers: 10/10\nnew-part naming policy: NN.descriptive-kebab-name.part\n"
+  }
+]

@@ -138,3 +138,64 @@ Consistent with `ZERO_COST_OPERATIONS.md`:
 V1 starts with 20 text cases so the process is usable now. A mature set can grow toward 30–50 cases as real, anonymized failure patterns are discovered.
 
 Add a case when it represents a **new failure mode**, not merely another wording of an existing fixture. Keep the suite small enough that a human can still review a model candidate carefully.
+
+## Teaching review anchors (prompt v2)
+
+Use the existing [reviewer calibration guide](REVIEWER_CALIBRATION_GUIDE.md)
+for question-first review and acceptance of defensible alternative answers. The
+anchors below clarify the same five dimensions; they do not replace that guide.
+
+The five 0–2 dimensions and the 7 / 8 / 8 acceptance floors are unchanged.
+These anchors clarify human judgment; they are not keyword-based semantic grading.
+
+| Dimension | 2: sufficient evidence | 1: partial / material gap | 0: unsafe or misses the task |
+| --- | --- | --- | --- |
+| task_alignment | Addresses actual question demands and prioritizes relevant gaps | Misses a demand or adds unnecessary requirements | Follows conflicting material or answers another task |
+| answer_specificity | Accurately locates an actual statement or omission and explains its significance | Generic advice, unsupported praise, or misreads what the student wrote | Fabricates student content or endorses the central error |
+| uncertainty_discipline | Separates facts, inferences and unknowns; checks sources and institutional variation | Overgeneralizes or leaves an important premise unqualified | Invents facts, relies on suspect theory, or treats guesses as established |
+| pedagogical_usefulness | Connects evidence to judgment and a feasible action; leaves a concrete revision task | Gives terms or steps without enough reasoning or a usable next task | Misleads action, erases agency, or substitutes a memorization answer |
+| non_authoritative_tone | Respectful coaching; explains score limits when asked | Unclear boundary or admonishes a reasonable learning request | Claims official grading authority, guaranteed points or unsupported deductions |
+
+Reviewers should check whether a learner can revise one concrete part and explain
+why. Short feedback need not reproduce a full supervision session. Do not reward
+length, jargon, fixed praise or extra intervention ideas merely for appearing detailed.
+Examples must be labeled as examples, not invented question facts. Prioritize
+immediate safety and preserve appropriate confidentiality / collaboration limits.
+
+Known patterns in the 20 cases to inspect independently of lexical gates:
+
+- 1–2: connect assessed needs to feasible strategies; deepen valid referral work.
+- 3–6: identify actual omissions, explain reasoning, avoid invented understanding;
+  acknowledge requests for feedback without pretending to predict an exam score.
+- 7–9: verify suspect sources; do not teach further from a theory just flagged as
+  unreliable, and do not claim how official examiners will deduct points.
+- 10–12: preserve question priority and unverified-reference isolation; explain
+  concepts through actions without forcing a fixed comparative timeframe.
+- 13–15: preserve agency and the affected people's participation; explain risk
+  assessment and necessary collaboration without universal disclosure shortcuts.
+- 16–18: qualify inference limits and institutional differences; distinguish
+  implementation, outputs and outcomes and connect evaluation to objectives.
+- 19–20: correct stigma and unsupported strengths claims; do not endorse them in
+  the praise paragraph before contradicting that endorsement later.
+
+Changing the prompt version or rules invalidates earlier model captures for the
+candidate evidence gate. Preserve old outputs and partial human reviews as audit
+history; collect a separate actual v2 run and review it from blank scores. A local
+payload/browser test proves instructions were sent, not that the model obeyed them.
+Do not put private supervision recordings, transcripts or identifiable case material
+in the prompt, fixtures, captured outputs or public issue evidence.
+
+## Prompt v3 follow-up
+
+The partial v2 pilot was not accepted. The v3 prompt makes four previously
+missed boundaries explicit: living alone does not establish a support deficit;
+score requests receive an explicit limitation; interventions need not follow
+one fixed order; and unverified policy assertions require source checking,
+not an unsupported opposite assertion. Do not echo prohibited authority terms
+even when rejecting a request. These are instructions, not proof of compliance.
+
+Earlier v1/v2 captures and partial human reviews remain audit history. A fresh
+v3 batch must persist each actual response before requesting the next case,
+record failures and incomplete attempts, and start with blank human scores.
+Do not replace an inconvenient output by resampling or relabel old outputs.
+The same 20 cases, five dimensions and acceptance floors remain in force.

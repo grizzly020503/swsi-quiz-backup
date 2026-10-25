@@ -10,6 +10,10 @@ on:
       - Full Corpus Question QA
     types:
       - completed
+    # PRs and topic branches run the full-corpus QA too. Only production
+    # main completions should fan out into the scheduled-task watchdog.
+    branches:
+      - main
   pull_request:
     paths:
       - '.github/workflows/ops-task-watchdog.yml'
@@ -53,7 +57,14 @@ jobs:
 
   freshness:
     name: Check scheduled task freshness
-    if: github.event_name != 'pull_request'
+    # Defense in depth: a PR-origin workflow_run must never launch an
+    # expensive live freshness probe even if trigger filters are edited.
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_run' ||
+       (github.event.workflow_run.head_branch == 'main' &&
+        github.event.workflow_run.head_repository.full_name == github.repository &&
+        github.event.workflow_run.event != 'pull_request'))
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 3

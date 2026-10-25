@@ -249,6 +249,30 @@ if(!/canonicalRound\(q\.round\)!==homeQuizRound/.test(indexSource)){
 }
 
 // -----------------------------------------------------------------------------
+// Public essay AI model must match the Worker model that actually reaches Groq.
+// A legacy alias may be accepted by the Worker for cached clients, but student
+// HTML must never ship a provider-retired model as its canonical model.
+// -----------------------------------------------------------------------------
+const aiWorkerSource = read('cloudflare/wandering-wave-4418/worker.js');
+const workerPublicModel = /\bconst PUBLIC_MODEL\s*=\s*"([^"]+)";/.exec(aiWorkerSource);
+if(!workerPublicModel){
+  fail('ESSAY_PUBLIC_MODEL_PARITY', 'Worker PUBLIC_MODEL is missing');
+}else{
+  const canonical = workerPublicModel[1];
+  for(const htmlPath of ['index.html','cdn/index.html']){
+    const refs = [...read(htmlPath).matchAll(/\bconst GROQ_MODEL\s*=\s*['"]([^'"]+)['"]\s*;/g)];
+    if(refs.length !== 1){
+      fail('ESSAY_PUBLIC_MODEL_PARITY', htmlPath + ' has ' + refs.length + ' frontend model constants (expected 1)');
+    }else if(refs[0][1] !== canonical){
+      fail('ESSAY_PUBLIC_MODEL_PARITY', htmlPath + ' points at ' + refs[0][1] + ', Worker canonical is ' + canonical);
+    }
+  }
+  if(!failures.some(x => x.code === 'ESSAY_PUBLIC_MODEL_PARITY')){
+    pass('ESSAY_PUBLIC_MODEL_PARITY', 'root and CDN student HTML use canonical Worker model ' + canonical);
+  }
+}
+
+// -----------------------------------------------------------------------------
 // Service worker: mutable scoring/content assets must not be stuck cache-first.
 // -----------------------------------------------------------------------------
 const sw = read('sw.js');

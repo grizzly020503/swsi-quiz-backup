@@ -1,11 +1,13 @@
 const assert=require('assert');
 const {chromium}=require('playwright');
+const serveLocalQuestionShards=require('./local_question_shards_fixture');
 
 const base=process.argv[2]||'http://127.0.0.1:4173/';
 
 (async()=>{
   const browser=await chromium.launch({headless:true});
   const context=await browser.newContext({viewport:{width:390,height:844}});
+  await serveLocalQuestionShards(context);
   const page=await context.newPage();
   const pageErrors=[];
   page.on('pageerror',e=>pageErrors.push(String(e&&e.message||e)));
@@ -59,6 +61,8 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
   await page.locator('#app .gcard').first().click();
   await page.waitForSelector('#app [onclick^="toggleEssay("]', { timeout: 30000 });
   await page.locator('#app [onclick^="toggleEssay("]').first().click();
+  // Handwriting is the new default. Explicitly select keyboard mode to test legacy editor behavior.
+  await page.locator('.swsi-paper-mode-text').click();
   await page.waitForSelector('.wta',{timeout:30000});
   let blockedPost='';
   await page.route('**/*',route=>{

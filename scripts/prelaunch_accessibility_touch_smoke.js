@@ -1,5 +1,6 @@
 const assert=require('assert');
 const {chromium}=require('playwright');
+const serveLocalQuestionShards=require('./local_question_shards_fixture');
 
 const base=process.argv[2]||'http://127.0.0.1:4173/';
 
@@ -73,6 +74,7 @@ async function assertFocusTrap(page,dialogSelector,label){
 
   async function runViewport(width,height,label,opts={}){
     const context=await browser.newContext({viewport:{width,height}});
+    await serveLocalQuestionShards(context);
     const page=await context.newPage();
     const pageErrors=[];
     page.on('pageerror',e=>pageErrors.push(String(e&&e.message||e)));
