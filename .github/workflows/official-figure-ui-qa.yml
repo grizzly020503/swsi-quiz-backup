@@ -11,6 +11,7 @@ on:
       - 'netlify.toml'
       - 'data/official_figure_assets.v1.json'
       - 'scripts/official_figure_ui_qa.py'
+      - 'scripts/official_figure_mobile_browser_smoke.js'
       - '.github/workflows/official-figure-ui-qa.yml'
   push:
     branches: [main]
@@ -24,7 +25,7 @@ permissions:
 jobs:
   verify-original-figures:
     runs-on: ubuntu-24.04
-    timeout-minutes: 6
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -35,3 +36,21 @@ jobs:
           python -m py_compile scripts/official_figure_ui_qa.py
           python scripts/official_figure_ui_qa.py
           python scripts/official_exam_readonly_guard.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+      - name: Install pinned mobile browser QA
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium webkit
+      - name: Run real mobile quiz and timed mock with local figure assets
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4176 --directory cdn >/tmp/swsi-figures-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill $server_pid || true' EXIT
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:4176/index.html >/dev/null && break
+            sleep 1
+          done
+          node scripts/official_figure_mobile_browser_smoke.js http://127.0.0.1:4176/
