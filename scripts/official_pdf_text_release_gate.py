@@ -81,7 +81,7 @@ def validate_three_official_pdf_corrections(report, observed_manifest_digest):
                         or after[field] != visual[field]
                         or diffs[field]['stored'] != before[field]):
                     raise ValueError('unverified circled options: '+ident+'/'+field)
-            elif if diffs[field]['stored'] != before[field] or normalize(diffs[field]['official_extraction']) != normalize(after[field]):
+            elif diffs[field]['stored'] != before[field] or normalize(diffs[field]['official_extraction']) != normalize(after[field]):
                 raise ValueError('new text is not official extraction: '+ident+'/'+field)
         for field in ('major','topic','keywords','exp_why','exp_others','exp_trap','exp_raw','mnemonic','extension','law','mistake'):
             if after[field] is not None:
