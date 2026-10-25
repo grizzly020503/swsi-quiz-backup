@@ -42,8 +42,14 @@ async function runOne(browser,engine,entry,missing){
     },entry.row);
     assert(initial.gated&&initial.picked===null&&initial.hasFigure,
       engine+' '+entry.id+': early answer should be blocked before figure load '+JSON.stringify(initial));
-    await page.waitForFunction(({id,missing})=>SWSI_FIGURE_STATUS[id]===(missing?'missing':'ready'),
-      {id:entry.id,missing},{timeout:15000});
+    // WebKit can report image-ready before the DOM re-render finishes.
+    // Require the actual figure/image in the document, not only its status flag.
+    await page.waitForFunction(({id,missing,width,height})=>{
+      if(SWSI_FIGURE_STATUS[id] !== (missing?'missing':'ready'))return false;
+      const fig=document.querySelector('#app figure[data-swsi-figure="'+id+'"]');
+      const img=fig&&fig.querySelector('img');
+      return !!fig && (missing?!img:!!img&&img.complete&&img.naturalWidth===width&&img.naturalHeight===height);
+    },{id:entry.id,missing,width:entry.width,height:entry.height},{timeout:15000});
     const state=await page.evaluate(({id,width,height,missing})=>{
       const fig=document.querySelector('#app figure[data-swsi-figure="'+id+'"]');
       const img=fig?.querySelector('img');
@@ -57,7 +63,7 @@ async function runOne(browser,engine,entry,missing){
         status:SWSI_FIGURE_STATUS[id],options:app.querySelectorAll('.opt').length,
         blockedText:text.includes('本題不可作答'),
         suppressedWrongSurrogate:!text.includes('62 歲男性與 24 歲女兒'),
-        imgOk:missing?!img:(img.complete&&img.naturalWidth===width&&img.naturalHeight===height),
+        imgOk:missing?!img:(!!img&&img.complete&&img.naturalWidth===width&&img.naturalHeight===height),
         withinViewport:!!rect&&rect.left>=-2&&rect.right<=innerWidth+2&&
           (missing||!!imgRect&&imgRect.width>180&&imgRect.right<=innerWidth+2),
         imageLink:!!img?.closest('a[target="_blank"]'),
