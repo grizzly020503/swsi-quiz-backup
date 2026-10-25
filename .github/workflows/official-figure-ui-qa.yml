@@ -12,6 +12,8 @@ on:
       - 'data/official_figure_assets.v1.json'
       - 'scripts/official_figure_ui_qa.py'
       - 'scripts/official_figure_mobile_browser_smoke.js'
+      - 'monthly_patch_parts/**'
+      - 'cdn/monthly_patch.js'
       - '.github/workflows/official-figure-ui-qa.yml'
   push:
     branches: [main]
