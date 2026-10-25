@@ -35,6 +35,8 @@ from pathlib import Path
 
 import requests
 
+from historical_source_url_guard import validate_historical_source_urls
+
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "index.html"
 BASELINE_YEARS = [str(y) for y in range(104, 116)]
@@ -293,6 +295,9 @@ def validate(rows: list[dict]) -> dict[tuple[str, str], list[dict]]:
     # the scheduled publisher. Historical grading/provenance drift must stop
     # publication, not merely fail a separate advisory workflow.
     validate_historical_grading_baseline(rows)
+    # A 200/https URL can still select the wrong subject. Block the publisher
+    # while Supabase metadata differs from pinned original MOEX PDF headers.
+    validate_historical_source_urls(rows)
 
     return grouped
 

@@ -5,6 +5,7 @@ Uses public repo-owned question shard data ONLY, never connects to Supabase prod
 No actual edits to CDN, DB, GitHub or release infrastructure; always ROLLBACK.
 """
 from __future__ import annotations
+import argparse
 import hashlib
 import json
 import os
@@ -81,11 +82,14 @@ def generate_sql(repo: Path) -> tuple[str, dict]:
     return sql, report
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--root', type=Path, default=ROOT, help='verified offline snapshot root, never production')
+    args = parser.parse_args()
     if os.getenv('SWSI_SYNTHETIC_PG17_CI') != 'I_CONFIRM_DISPOSABLE_FIXTURE':
         raise SystemExit('REFUSED: disposable PG17 fixture guard is required')
     if (os.getenv('PGHOST'),os.getenv('PGDATABASE'),os.getenv('PGUSER'))!=('127.0.0.1','swsi_fixture','swsi_fixture'):
         raise SystemExit('REFUSED: only synthetic local fixture connection is permitted')
-    sql,report=generate_sql(ROOT)
+    sql,report=generate_sql(args.root.resolve())
     p=subprocess.run(['psql','-X','-qAt','-v','ON_ERROR_STOP=1'],input=sql,text=True,capture_output=True,timeout=90)
     if p.returncode!=0 or 'PG17 EXACT URL PATCH TX OK rows=3920 shards=22' not in p.stdout or 'PG17 ROLLBACK VERIFIED' not in p.stdout:
         raise SystemExit('PG17 REHEARSAL FAILED: expected transactional SQL + rollback markers missing; '+p.stderr[-750:])
