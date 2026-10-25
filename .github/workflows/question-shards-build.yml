@@ -141,6 +141,11 @@ jobs:
           import json
           from pathlib import Path
 
+          # importlib loads the builder by path without adding scripts/ to sys.path.
+          # Keep the real historical source-URL guard active in future-exam simulation.
+          import sys
+          sys.path.insert(0, str(Path('scripts').resolve()))
+
           spec=importlib.util.spec_from_file_location('builder','scripts/build_question_shards.py')
           builder=importlib.util.module_from_spec(spec)
           spec.loader.exec_module(builder)
