@@ -1,3 +1,7 @@
+## 2026-10-25 remaining P0 targeted correction (stacked candidate)
+
+Two additional PDF-confirmed Official Core corrections were applied in an isolated draft branch: `R-106-2-02` C restores the chi-square sign `χ²`, and `R-113-2-30` restores all four truncated/misallocated options. The immutable original 4,800-row PDF comparison is intentionally retained, and the strict overlay only clears these two identities when current manifest, official source/answer SHA, exact before/after locks, protected grading tuple, and Unicode-normalized authoritative extraction all agree. The original seven controlled fixes also remain. Thus 9 total are defensibly cleared from the original 441 MCQ reviews: **432 MCQ + 18 essay = 450 PDF reviews still held**. This is not teacher approval; all revised stale explanations are quarantined, AI Golden Set and independent production acceptance remain HOLD.
+
 # Official text correction candidate and release holds
 
 ## Latest two negation corrections (2026-10-25)

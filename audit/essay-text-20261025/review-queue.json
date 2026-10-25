@@ -3,19 +3,19 @@
   "input_sha256": {
     "audit/official_mcq_pdf_comparison_20261025.json": "0853dc8e28191f7904e03b850f844ae245caf8ce5336800c3f1b2593aed14949",
     "audit/official_essay_pdf_comparison_20261025.json": "9e986c1d7b77de80bac0e26102f97dd6c82a219c4080f309926d13774e78312f",
-    "audit/official_mcq_corrections_additional_20261025.json": "b7ef109cf65c391475c5f770268536ce6b17dd07bdbabac8459a205c0c2b2dec"
+    "audit/official_mcq_corrections_additional_20261025.json": "e20a5347fb8017a543a7d5226a505e11a64ed72fbf1bd2226622ab93cd95b6d2"
   },
-  "unresolved": 452,
+  "unresolved": 450,
   "priority_counts": {
-    "0": 51,
+    "0": 49,
     "1": 362,
     "2": 39
   },
   "flag_counts": {
-    "numeric_tokens_differ": 48,
+    "numeric_tokens_differ": 47,
     "private_use_font_glyph": 3,
-    "wording_or_symbol_difference": 410,
-    "negation_or_exception_characters_differ": 3,
+    "wording_or_symbol_difference": 408,
+    "negation_or_exception_characters_differ": 2,
     "punctuation_only_difference_requires_review": 53,
     "incomplete_pdf_extraction": 3
   },
@@ -24,7 +24,7 @@
     "1": "wording, symbol, font or extraction differences",
     "2": "punctuation-only differences; still require review"
   },
-  "scope": "triage only; priority is not proof of an error or release approval",
+  "scope": "triage only; nine fingerprint-bound exact-page corrections cleared from baseline machine comparison; remaining reviews are not approved",
   "official_core_modified": false,
   "release_approval": false,
   "rows": [
@@ -991,32 +991,6 @@
       "automatic_release_approval": false
     },
     {
-      "id": "R-106-2-02",
-      "kind": "mcq",
-      "priority": 0,
-      "flags": [
-        "numeric_tokens_differ",
-        "wording_or_symbol_difference"
-      ],
-      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106110&c=107&s=0606&q=1",
-      "pdf_sha256": "a76570be5537192ca405d97050b80dfb92a259deb46732215d6658bea417313c",
-      "extraction_reason": null,
-      "differences": [
-        {
-          "field": "opt_c",
-          "stored": "檢定",
-          "official_extraction": "χ 2 檢定",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        }
-      ],
-      "status": "review",
-      "human_approval": false,
-      "automatic_release_approval": false
-    },
-    {
       "id": "R-107-2-02",
       "kind": "mcq",
       "priority": 0,
@@ -1296,59 +1270,6 @@
           "official_extraction": "這個研究所採用的抽樣方法為何?",
           "flags": [
             "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        }
-      ],
-      "status": "review",
-      "human_approval": false,
-      "automatic_release_approval": false
-    },
-    {
-      "id": "R-113-2-30",
-      "kind": "mcq",
-      "priority": 0,
-      "flags": [
-        "negation_or_exception_characters_differ",
-        "wording_or_symbol_difference"
-      ],
-      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113100&c=103&s=0306&q=1",
-      "pdf_sha256": "bce6bb1e6054c1bfcd5c94672f5149d23556d327fb65f7609b9a64f66115a937",
-      "extraction_reason": null,
-      "differences": [
-        {
-          "field": "opt_a",
-          "stored": "當分析者企圖由先拆解文本，將文本視為可供測量的單位（字眼、表現、陳述等），從而",
-          "official_extraction": "當分析者企圖由先拆解文本,將文本視為可供測量的單位(字眼、表現、陳述等) ,從而建立文 本的意義時,事實上已不夠客觀",
-          "flags": [
-            "negation_or_exception_characters_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_b",
-          "stored": "建立文本的意義時，事實上已不夠客觀",
-          "official_extraction": "採用內容分析法,基本上需要對概念加以量化,但是並非每一個概念都能夠量化",
-          "flags": [
-            "negation_or_exception_characters_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_c",
-          "stored": "採用內容分析法，基本上需要對概念加以量化，但是並非每一個概念都能夠量化",
-          "official_extraction": "研究者測量時會受到測量行動本身的干擾,被觀察的內容會察覺被觀察,因此其反應會不穩定",
-          "flags": [
-            "negation_or_exception_characters_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_d",
-          "stored": "研究者測量時會受到測量行動本身的干擾，被觀察的內容會察覺被觀察，因此其反應會",
-          "official_extraction": "「內容」的定義時常含糊不清",
-          "flags": [
-            "negation_or_exception_characters_differ",
             "wording_or_symbol_difference"
           ]
         }
