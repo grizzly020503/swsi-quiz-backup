@@ -3,18 +3,18 @@
   "input_sha256": {
     "audit/official_mcq_pdf_comparison_20261025.json": "0853dc8e28191f7904e03b850f844ae245caf8ce5336800c3f1b2593aed14949",
     "audit/official_essay_pdf_comparison_20261025.json": "9e986c1d7b77de80bac0e26102f97dd6c82a219c4080f309926d13774e78312f",
-    "audit/official_mcq_corrections_additional_20261025.json": "ff69df421377c031a1755812a3eca7789c281d4a31d4d09d34d59f379fb04c77"
+    "audit/official_mcq_corrections_additional_20261025.json": "78d340bebc97b32bcc76d71a62ca085bb5d2a8f77d4cdd1707c4b7ab6f0612f3"
   },
-  "unresolved": 450,
+  "unresolved": 449,
   "priority_counts": {
-    "0": 49,
+    "0": 48,
     "1": 362,
     "2": 39
   },
   "flag_counts": {
-    "numeric_tokens_differ": 47,
+    "numeric_tokens_differ": 46,
     "private_use_font_glyph": 3,
-    "wording_or_symbol_difference": 408,
+    "wording_or_symbol_difference": 407,
     "negation_or_exception_characters_differ": 2,
     "punctuation_only_difference_requires_review": 53,
     "incomplete_pdf_extraction": 3
@@ -1635,68 +1635,6 @@
           "field": "opt_d",
           "stored": "案主有致命危險的傳染疾病時7",
           "official_extraction": "案主有致命危險的傳染疾病時",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        }
-      ],
-      "status": "review",
-      "human_approval": false,
-      "automatic_release_approval": false
-    },
-    {
-      "id": "SW-105-2-25",
-      "kind": "mcq",
-      "priority": 0,
-      "flags": [
-        "numeric_tokens_differ",
-        "wording_or_symbol_difference"
-      ],
-      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=105090&c=107&s=0601&q=1",
-      "pdf_sha256": "6cb957f74ae14d66bb2c0d83a8a61ec741d520e9c5cec08e0c008eb5a0238332",
-      "extraction_reason": null,
-      "differences": [
-        {
-          "field": "question",
-          "stored": "每一門專業都有其核心的社會使命要去完成，有關Morales & Sheafor（1988）提出的社會工 作存在的三個使命（3C’s），下列何者正確？①照顧（caring）②改變社會（changing the society）③慈善（charity）",
-          "official_extraction": "每一門專業都有其核心的社會使命要去完成,有關 Morales & Sheafor(1998)提出的社會工作存在的三個 使命(3C’s),下列何者正確?1照顧(caring) 2改變社會(changing the society) 3慈善(charity) 4治療(curing)",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_a",
-          "stored": "治療（curing） ①②③",
-          "official_extraction": "111",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_b",
-          "stored": "①②",
-          "official_extraction": "111",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_c",
-          "stored": "①③",
-          "official_extraction": "111",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_d",
-          "stored": "②③",
-          "official_extraction": "111",
           "flags": [
             "numeric_tokens_differ",
             "wording_or_symbol_difference"

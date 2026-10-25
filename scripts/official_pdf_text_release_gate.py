@@ -2,7 +2,7 @@
 """Fail closed on stale, malformed or unresolved official PDF text comparisons.
 
 An evidence-only check confirms reproducibility metadata, never release approval.
-The default command remains NO-GO while any official text comparison is held.\nA strict, evidence-bound seven-row overlay can clear only exact official corrections.
+The default command remains NO-GO while any official text comparison is held.\nA strict, evidence-bound ten-row overlay can clear only exact official corrections.
 """
 from collections import Counter
 import argparse
@@ -18,15 +18,15 @@ CONFIGS=[('audit/official_mcq_pdf_comparison_20261025.json',4800,'normalized_pdf
 
 
 # Immutable original PDF extraction remains untouched. A tightly scoped,
-# source-page-inspected delta is permitted only for nine exact Official Core
+# source-page-inspected delta is permitted only for ten exact Official Core
 # fixes, with all other rows and all grading semantics still bound by guards.
 BASE_MCQLAYOUT_MANIFEST_SHA256 = 'e5f177ed6d0fad75c7b211362de5a2e68828a0cb1842ef2abd9eb2955f7c10d4'
-REVIEWED_DELTA_MANIFEST_SHA256 = '102000536e5f5d904842364a31c585fde400ab67b2afd5a4223d13beb7713ee9'
-REVIEWED_DELTA_IDS = {'DS-104-1-25', 'DS-106-1-10', 'DS-106-1-37', 'DS-110-2-14', 'R-106-2-02', 'R-113-2-30', 'SP106-2-25', 'SP106-2-35', 'SP111-2-37'}
+REVIEWED_DELTA_MANIFEST_SHA256 = 'bc403606fb8292d7d452b568a487a07dfe3811e20ad602e500296feabbeb2aa2'
+REVIEWED_DELTA_IDS = {'DS-104-1-25', 'DS-106-1-10', 'DS-106-1-37', 'DS-110-2-14', 'R-106-2-02', 'R-113-2-30', 'SP106-2-25', 'SP106-2-35', 'SP111-2-37', 'SW-105-2-25'}
 
 
 def validate_three_official_pdf_corrections(report, observed_manifest_digest):
-    """Recompare seven corrected rows against already-captured official PDF text.
+    """Recompare ten corrected rows against already-captured official PDF text.
 
     No other review is cleared. A future manifest, changed extraction, edited
     report, changed answer or missing proof fails closed.
@@ -37,7 +37,7 @@ def validate_three_official_pdf_corrections(report, observed_manifest_digest):
     from official_essay_pdf_audit import normalize
     from official_exam_readonly_guard import canonical_row, row_hash, MCQ_FIELDS
     extra=json.loads((ROOT/'audit/official_mcq_corrections_additional_20261025.json').read_text())
-    if (extra.get('count') != 9 or extra.get('human_approval') is not False
+    if (extra.get('count') != 10 or extra.get('human_approval') is not False
             or extra.get('official_production_write') is not False
             or {r['id'] for r in extra.get('rows', [])} != REVIEWED_DELTA_IDS):
         raise ValueError('unexpected or unapproved official PDF delta proof')
@@ -46,7 +46,7 @@ def validate_three_official_pdf_corrections(report, observed_manifest_digest):
     if manifest != previous['manifest_after']:
         raise ValueError('official PDF delta diverges from controlled manifest')
     rows_by_id={row['id']:row for row in report['rows'] if row['id'] in REVIEWED_DELTA_IDS}
-    if len(rows_by_id) != 9 or report['counts'].get('review') != 441:
+    if len(rows_by_id) != 10 or report['counts'].get('review') != 441:
         raise ValueError('baseline official PDF comparison was altered')
     shards={}
     lock=json.loads((ROOT/'data/official_exam_readonly.lock.json').read_text())['mcq']
@@ -69,7 +69,19 @@ def validate_three_official_pdf_corrections(report, observed_manifest_digest):
         if changed != set(diffs):
             raise ValueError('unreviewed wording difference: '+ident)
         for field in changed:
-            if diffs[field]['stored'] != before[field] or normalize(diffs[field]['official_extraction']) != normalize(after[field]):
+            if ident == 'SW-105-2-25':
+                # Four option groups use circled glyphs reduced to "111" in
+                # machine extraction. Verify one exact official PDF and page.
+                visual = {
+                    'question':'每一門專業都有其核心的社會使命要去完成，有關Morales & Sheafor（1998）提出的社會工 作存在的三個使命（3C’s），下列何者正確？①照顧（caring）②改變社會（changing the society）③慈善（charity）④治療（curing）',
+                    'opt_a':'①②③','opt_b':'①②④','opt_c':'①③④','opt_d':'②③④',
+                }
+                if (item['question_pdf_sha256'] != '6cb957f74ae14d66bb2c0d83a8a61ec741d520e9c5cec08e0c008eb5a0238332'
+                        or item['question_page'] != 3
+                        or after[field] != visual[field]
+                        or diffs[field]['stored'] != before[field]):
+                    raise ValueError('unverified circled options: '+ident+'/'+field)
+            elif if diffs[field]['stored'] != before[field] or normalize(diffs[field]['official_extraction']) != normalize(after[field]):
                 raise ValueError('new text is not official extraction: '+ident+'/'+field)
         for field in ('major','topic','keywords','exp_why','exp_others','exp_trap','exp_raw','mnemonic','extension','law','mistake'):
             if after[field] is not None:
