@@ -47,6 +47,8 @@ Raw public evidence retained as [official PDF identity evidence](https://chatgpt
 | Recovery | Backup policy, restore-target preflight and destination-guard selftests passed. Real encrypted private backup + isolated restore not performed or approved; no recovery claim |
 | Production | `production-http.json`: this execution environment received 403 for Cloudflare assets and AI. Netlify returned an older UI/patch without handwriting/calm markers; backup parity not established. A Netlify-local shard 404 alone is not a failure of its external-CDN architecture |
 
+Exact-head CI initially caught a source-candidate comparison bug: the reused byte-pinned source candidate contains both c-first and t-first URL query order. Source identity comparison now strictly parses every URL before comparing query values; wrong codes/hosts/duplicate parameters still fail closed. A regression covers mixed query order and pre-attributed essay URLs.
+
 Initial failure statuses and retests are retained in the JSON files; `test-transcripts.json` contains the final local attempt transcripts (the transient .log files are not repository artifacts). The initially invoked nonexistent `private_backup_secret_redaction_selftest.py` is a test-selection error, not a product failure and not a pass. No CI was manually dispatched or rerun.
 
 ## Supabase read-only snapshot

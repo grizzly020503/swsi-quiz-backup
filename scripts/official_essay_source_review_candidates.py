@@ -16,7 +16,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from official_exam_readonly_guard import extract_embedded_essays, load_auto_essays
 from unified_question_qa import canon_round
-from audit_moex_source_subjects import load_registry, require_source
+from audit_moex_source_subjects import load_registry, require_source, url_identity
 
 ROOT = Path(__file__).resolve().parents[1]
 SUBJECT_CODES = {
@@ -53,11 +53,16 @@ def source_index(shards):
     for key, rows in groups.items():
         if len(rows) != 40 or len({str(r.get("id") or "") for r in rows}) != 40:
             raise ValueError(f"{key}: expected 40 distinct MCQs")
-        pairs = {(str(r.get("source_exam_code") or ""), str(r.get("source_url") or "")) for r in rows}
+        # Query ordering is not source identity. Parse every row strictly before
+        # comparing; duplicate parameters, wrong host/type/code still fail closed.
+        pairs = {(str(r.get("source_exam_code") or ""),
+                  tuple(sorted(url_identity(str(r.get("source_url") or "")).items())))
+                 for r in rows}
         if len(pairs) != 1:
             raise ValueError(f"{key}: same-subject MCQ sources disagree")
-        code, url = next(iter(pairs))
-        record = require_source(registry, code, key[2], url)
+        code, _identity = next(iter(pairs))
+        record = require_source(registry, code, key[2], str(rows[0]["source_url"]))
+        url = record["url"]
         round_no = {"第一次": 1, "第二次": 2}[key[1]]
         expected_session = f"{key[0]}-{round_no}"
         if record["session"] != expected_session:
@@ -83,7 +88,7 @@ def candidate_manifest(essays, sources):
         existing_code = str(e.get("source_exam_code") or "")
         existing_url = str(e.get("source_url") or "")
         if (existing_code and existing_code != source["source_exam_code"]) or (
-            existing_url and existing_url != source["source_url"]
+            existing_url and url_identity(existing_url) != url_identity(source["source_url"])
         ):
             raise ValueError(f"{ident}: preexisting official source conflicts with PDF-identity-linked MCQ metadata")
         if existing_code and existing_url:
@@ -152,6 +157,16 @@ def selftest():
     approved_fields = dict(essay, source_exam_code=index[session_key(essay)]["source_exam_code"],
                            source_url=index[session_key(essay)]["source_url"])
     assert candidate_manifest([approved_fields], index)["already_with_matching_source_fields"] == 1
+    # Git-pinned legacy candidate intentionally preserves both c-first and
+    # t-first query order. They must remain one verified PDF identity.
+    from urllib.parse import urlencode
+    mixed = [dict(row) for row in rows]
+    parsed = urlsplit(mixed[0]["source_url"])
+    mixed[0]["source_url"] = parsed._replace(query=urlencode(sorted(parse_qs(parsed.query).items()), doseq=True)).geturl()
+    mixed_index = source_index([("104-1.json", mixed)])
+    assert len(mixed_index) == 5
+    alternate = dict(approved_fields, source_url=mixed[0]["source_url"])
+    assert candidate_manifest([alternate], mixed_index)["already_with_matching_source_fields"] == 1
 
     def fails(fn):
         try:
@@ -186,7 +201,7 @@ def selftest():
         if row["subject"] == "社會政策與社會立法":
             row["source_url"] = row["source_url"].replace("s=0304&", "s=0303&")
     fails(lambda: source_index([("112-1.json", wrong_112)]))
-    print("OFFICIAL ESSAY SOURCE CANDIDATE SELFTEST OK: seven fail-closed scenarios")
+    print("OFFICIAL ESSAY SOURCE CANDIDATE SELFTEST OK: query-order equivalence and seven fail-closed scenarios")
 
 
 def main():
