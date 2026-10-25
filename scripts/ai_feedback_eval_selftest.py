@@ -96,6 +96,15 @@ def main():
     case_result = report["cases"][authoritative["cases"][0]["id"]]
     require(case_result["errors"], "authoritative-score regression must produce case errors")
 
+    # Observed unsupported deduction claims are authority failures even without
+    # a numeric score. Keep this independent of coverage/heading checks.
+    for claim in ("引用不存在的理論會嚴重扣分。", "這種寫法一定扣分。"):
+        deduction = copy.deepcopy(good)
+        deduction["cases"][8]["output"] += claim
+        report = evaluator.evaluate_outputs(dataset, deduction, require_human_scores=True)
+        require(not report["passed"], "unsupported deduction claim must fail: " + claim)
+        require(report["cases"][deduction["cases"][8]["id"]]["errors"], "deduction must produce case error")
+
     missing_heading = copy.deepcopy(good)
     missing_heading["cases"][1]["output"] = missing_heading["cases"][1]["output"].replace(
         "三、下一步可以補什麼", "三、後續建議", 1
