@@ -1,5 +1,11 @@
 # Official text correction candidate and release holds
 
+## Follow-up preserving concurrent corrections (2026-10-25)
+
+Based on candidate `1a94608`, retain its three additional official corrections and add two independently visually checked repairs: `R-113-2-30` (113100/103/0306 p3) had four shifted/truncated options, and `R-106-2-01` (106110/107/0606 p1) lacked the opening stem. The overlapping `DS-110-2-14` repair already submitted by the other worker is preserved exactly. Additional proof grows 3→5, for 20 cumulative MCQ corrections; 4,780 other complete rows and all 4,800 answer/grading tuples remain baseline-guarded. Old enrichment is quarantined. Browser correction coverage now includes both proof files, all 20 items.
+
+Fresh real-PDF comparison is **4,364 MCQ matches / 436 review**, plus **222 essay matches / 18 review**, yielding **454 holds**. The release-gate source is unchanged and still refuses publication. Source/lock boundaries, essay immutability, full corpus, gate tamper and freshness checks pass locally. Same-head browser/CI and independent AI evidence are still required. This isolated branch avoids overwriting concurrent candidate updates; no main merge or deployment.
+
 ## Latest two negation corrections (2026-10-25)
 
 This follow-up corrects `SW-106-1-40` option B to 「不同住之前夫」 (official 106030/107/0601 page 4), and `R-105-1-24` options B/D to 「更可能發生歷史效應」 / 「更可能發生統計迴歸效應」 (official 105030/107/0606 page 3). Both original PDFs were visually inspected. Exact before/after values, raw PDF and answer hashes, page numbers and the two additional lock deltas are appended to the existing controlled correction proof. Stale enrichment on these two rows is quarantined. No answer or grading tuple changed. The cumulative correction boundary is now 15 MCQs; 4,785 other complete rows and the original baseline lock map remain fingerprint-guarded.
