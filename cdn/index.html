@@ -1989,7 +1989,8 @@ function answerLabel(item){
       if(!hideAnalysis && q.law) ex+='<div class="ln"><b>法源：</b>'+E(q.law)+'</div>';
       var pk=picked!=null?('你選 '+picked):'未作答';
       var tag=picked!=null?'<span class="mk-tag w">'+pk+'</span>':'<span class="mk-tag n">未作答</span>';
-      return '<div class="mk-rev"><div class="rq">'+E(swsiOfficialFigureQuestion(q)).slice(0,140)+(swsiOfficialFigureQuestion(q).length>140?'…':'')+'</div>'
+      var displayedQ=(typeof swsiOfficialFigureQuestion==='function'?swsiOfficialFigureQuestion(q):(q.q||''));
+      return '<div class="mk-rev"><div class="rq">'+E(displayedQ).slice(0,140)+(displayedQ.length>140?'…':'')+'</div>'
         +'<div class="ln">'+tag+'<span class="mk-tag n">'+E((typeof answerLabel==='function')?answerLabel(q):('正解 '+(q.answer||'')))+'</span></div>'+ex+'</div>';
     }).join('');
 
