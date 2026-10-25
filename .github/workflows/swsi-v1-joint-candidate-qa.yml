@@ -28,6 +28,20 @@ on:
       - 'scripts/audit_moex_source_subjects.py'
       - 'scripts/audit_moex_source_subjects_selftest.py'
       - 'data/moex_source_subjects.v1.json'
+      - 'essay_guides.js'
+      - 'data/official_exam_readonly.lock.json'
+      - 'scripts/official_essay_pdf_audit.py'
+      - 'scripts/official_essay_correction_smoke.py'
+      - 'scripts/official_essay_correction_browser_smoke.js'
+      - 'audit/official_essay_112_2_sw2_correction.json'
+      - 'scripts/official_mcq_pdf_audit.py'
+      - 'scripts/official_mcq_corrections_smoke.py'
+      - 'scripts/official_mcq_corrections_browser_smoke.js'
+      - 'audit/official_mcq_corrections_20261025.json'
+      - 'data/moex_answer_sources.v1.json'
+      - 'scripts/official_pdf_text_release_gate.py'
+      - 'audit/official_mcq_pdf_comparison_20261025.json'
+      - 'audit/official_essay_pdf_comparison_20261025.json'
 
 permissions:
   contents: read
@@ -69,6 +83,10 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/official_exam_readonly_guard.py
+          python scripts/official_essay_pdf_audit.py --selftest
+          python scripts/official_essay_correction_smoke.py
+          python scripts/official_mcq_pdf_audit.py --selftest
+          python scripts/official_mcq_corrections_smoke.py
           python scripts/unified_question_qa_selftest.py
           python scripts/full_corpus_qa.py --out /tmp/swsi-joint-full-corpus.json --fail-on blocked
 
@@ -129,6 +147,10 @@ jobs:
           done
           SWSI_VISUAL_ARTIFACT_DIR=_ui_evidence node scripts/launch_readiness_smoke.js http://127.0.0.1:4173/
           node scripts/handwriting_essay_smoke.js http://127.0.0.1:4173/
+          node scripts/official_essay_correction_browser_smoke.js http://127.0.0.1:4173/
+          node scripts/official_essay_correction_browser_smoke.js http://127.0.0.1:4173/ webkit
+          node scripts/official_mcq_corrections_browser_smoke.js http://127.0.0.1:4173/
+          node scripts/official_mcq_corrections_browser_smoke.js http://127.0.0.1:4173/ webkit
           node scripts/grading_contract_smoke.js http://127.0.0.1:4173/
           node scripts/browser_interaction_smoke.js http://127.0.0.1:4173/ webkit
           node scripts/prelaunch_axe_accessibility_smoke.js http://127.0.0.1:4173/
@@ -160,3 +182,19 @@ jobs:
           path: /tmp/swsi-essay-source-candidates.json
           if-no-files-found: warn
           retention-days: 7
+
+  official-pdf-text-release-gate:
+    # Deliberate release blocker, separate from code/browser acceptance above.
+    # No PDF fetches, model calls, production writes or independent-human claims.
+    needs: exact-head-acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Reject stale or fabricated PDF evidence
+        run: python scripts/official_pdf_text_release_gate.py --selftest
+      - name: Require unresolved official PDF text reviews to be cleared
+        run: python scripts/official_pdf_text_release_gate.py

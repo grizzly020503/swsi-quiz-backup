@@ -1,0 +1,72 @@
+[
+  {
+    "command": [
+      "node",
+      "scripts/official_essay_correction_browser_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 1.54,
+    "log": "official_essay_correction_browser_smoke.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/handwriting_essay_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 4.93,
+    "log": "handwriting_essay_smoke.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/launch_readiness_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 1.95,
+    "log": "launch_readiness_smoke.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/prelaunch_axe_accessibility_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 1.2,
+    "log": "prelaunch_axe_accessibility_smoke.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/browser_interaction_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 2.39,
+    "log": "browser_interaction_smoke.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/grading_contract_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 1.08,
+    "log": "grading_contract_smoke.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/official_mcq_corrections_browser_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 3.55,
+    "log": "official_mcq_corrections_browser_smoke.log"
+  }
+]

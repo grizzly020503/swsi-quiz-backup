@@ -1,3 +1,5 @@
+> Historical integration snapshot. Superseded for Official Core corrections and full PDF comparison status by [`../essay-text-20261025/README.md`](../essay-text-20261025/README.md). The later candidate changes 13 MCQ stems/options and one essay; unresolved reviews remain NO-GO.
+
 # Final integration candidate — 2026-10-25 snapshot
 
 **Release: NO-GO.** This is a review candidate, not a production release or an approval of every question, explanation, rubric, or model response.
