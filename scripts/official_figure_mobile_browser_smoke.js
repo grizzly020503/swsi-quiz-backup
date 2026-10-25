@@ -87,6 +87,9 @@ async function runOne(browser,engine,entry,missing){
     // source row; no invented mock questions and no production network access.
     await page.evaluate(async raw=>{
       ALL=[normalize(raw)]; SUBJECTS=[raw.subject];
+      // This hermetic acceptance test supplies the single audited official row;
+      // it must not fetch the entire live corpus from the blocked production API.
+      if(window.SWSI_QB)window.SWSI_QB.allComplete=true;
       // The unified grading overlay initializes asynchronously; await mounting.
       await window.MK.open();
       if(!document.querySelector('.mk-ov'))throw Error('Mock overlay was not mounted');
