@@ -17,10 +17,13 @@ const rows=[
   return {...x,row};
 });
 async function runOne(browser,engine,entry,missing){
-  const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
+  // Prevent WebKit/PWA service worker caches from bypassing the deliberate 404.
+  // This test verifies UI fail-closed behavior; PWA caching is tested separately.
+  const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true,serviceWorkers:'block'});
   const page=await context.newPage();
   page.on('dialog',dialog=>dialog.accept());
   const localImage='/official-figures/'+entry.id+'.png';
+  let missingRequests=0;
   await page.route('**/*',route=>{
     const url=new URL(route.request().url());
     // Serve the pinned local 24-session manifest to the real boot loader.
@@ -33,7 +36,7 @@ async function runOne(browser,engine,entry,missing){
       }
       return route.abort();
     }
-    if(missing && url.pathname===localImage)return route.fulfill({status:404,body:'QA missing image'});
+    if(missing && url.pathname===localImage){missingRequests++;return route.fulfill({status:404,body:'QA missing image'});}
     return route.continue();
   });
   try{
@@ -96,6 +99,7 @@ async function runOne(browser,engine,entry,missing){
         horizontalOverflow:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)-innerWidth,
       };
     },{id:entry.id,width:entry.width,height:entry.height,missing});
+    if(missing)assert(missingRequests>=1,engine+' '+entry.id+' deliberate 404 was not intercepted');
     assert(state.hasFigure&&state.hasPdf&&state.imgOk&&state.withinViewport,
       engine+' '+entry.id+' figure/PDF/mobile failure '+JSON.stringify(state));
     assert(state.horizontalOverflow<=3,engine+' '+entry.id+' horizontal overflow '+state.horizontalOverflow);
