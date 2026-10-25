@@ -1,0 +1,77 @@
+{
+  "reason": "Regenerate deterministic derived monitoring links after 13 source MCQ text corrections; no new feed scan or production write",
+  "changed_snapshots": [
+    "current_affairs_signals.json",
+    "current_affairs_events.json",
+    "current_affairs_trends.json"
+  ],
+  "commands": [
+    {
+      "command": [
+        "python",
+        "scripts/build_current_affairs_signals_snapshot.py",
+        "--input",
+        "auto/current_affairs.json",
+        "--questions-csv",
+        "data/questions_master_backup_20260824_2220.csv",
+        "--output",
+        "/workspace/scratch/9cde2d8d7da3/monitor-rebuild/current_affairs_signals.json",
+        "--limit",
+        "30"
+      ],
+      "exit_code": 0,
+      "stdout": "Current-affairs exam-signal snapshot: 5 items, questions=4800 -> /workspace/scratch/9cde2d8d7da3/monitor-rebuild/current_affairs_signals.json\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/build_current_affairs_events_snapshot.py",
+        "--news",
+        "auto/current_affairs.json",
+        "--signals",
+        "/workspace/scratch/9cde2d8d7da3/monitor-rebuild/current_affairs_signals.json",
+        "--output",
+        "/workspace/scratch/9cde2d8d7da3/monitor-rebuild/current_affairs_events.json",
+        "--limit",
+        "30"
+      ],
+      "exit_code": 0,
+      "stdout": "Current-affairs V2 events: source_items=5, events=5 -> /workspace/scratch/9cde2d8d7da3/monitor-rebuild/current_affairs_events.json\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/build_current_affairs_trends_snapshot.py",
+        "--events",
+        "/workspace/scratch/9cde2d8d7da3/monitor-rebuild/current_affairs_events.json",
+        "--output",
+        "/workspace/scratch/9cde2d8d7da3/monitor-rebuild/current_affairs_trends.json",
+        "--limit",
+        "30"
+      ],
+      "exit_code": 0,
+      "stdout": "Current-affairs V2 trends: events=5 -> /workspace/scratch/9cde2d8d7da3/monitor-rebuild/current_affairs_trends.json\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/build_public_legal_watch_snapshot.py",
+        "--input",
+        "data/legal_watch_report.json",
+        "--output",
+        "/workspace/scratch/9cde2d8d7da3/monitor-rebuild/legal_watch.json"
+      ],
+      "exit_code": 0,
+      "stdout": "Public legal-watch snapshot updated: 52/52 matched, changed=0\n",
+      "stderr": ""
+    }
+  ],
+  "exact_workflow_replay": {
+    "exit_code": 0,
+    "stdout": "Current-affairs exam-signal snapshot: 5 items, questions=4800 -> /tmp/swsi-monitoring-pr/current_affairs_signals.json\nCurrent-affairs V2 events: source_items=5, events=5 -> /tmp/swsi-monitoring-pr/current_affairs_events.json\nCurrent-affairs V2 trends: events=5 -> /tmp/swsi-monitoring-pr/current_affairs_trends.json\nPublic legal-watch snapshot updated: 52/52 matched, changed=0\nPR DETERMINISTIC SNAPSHOT OK: auto/current_affairs_signals.json\nPR DETERMINISTIC SNAPSHOT OK: auto/current_affairs_events.json\nPR DETERMINISTIC SNAPSHOT OK: auto/current_affairs_trends.json\nPR DETERMINISTIC SNAPSHOT OK: auto/legal_watch.json\n",
+    "stderr": ""
+  }
+}

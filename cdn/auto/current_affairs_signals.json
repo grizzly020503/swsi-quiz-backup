@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-24T20:43:50Z",
+  "generated_at": "2026-10-25T04:16:55Z",
   "item_count": 5,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
@@ -477,12 +477,12 @@
         }
       ],
       "historical_exam_stats": {
-        "matched_question_count": 77,
+        "matched_question_count": 76,
         "weighted_match_count": 4.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 22,
-          "concept": 55
+          "concept": 54
         },
         "matched_year_count": 12,
         "matched_years": [
@@ -505,7 +505,7 @@
         "years_since_last_exam": 0,
         "subject_counts": {
           "社會工作直接服務": 2,
-          "社會政策與社會立法": 75
+          "社會政策與社會立法": 74
         },
         "subject_count": 2,
         "law_match_count": 0,
@@ -669,12 +669,12 @@
         }
       ],
       "historical_exam_stats": {
-        "matched_question_count": 164,
+        "matched_question_count": 163,
         "weighted_match_count": 1.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
-          "concept": 164
+          "concept": 163
         },
         "matched_year_count": 12,
         "matched_years": [
@@ -697,7 +697,7 @@
         "years_since_last_exam": 0,
         "subject_counts": {
           "社會工作直接服務": 2,
-          "社會政策與社會立法": 162
+          "社會政策與社會立法": 161
         },
         "subject_count": 2,
         "law_match_count": 0,
