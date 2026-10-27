@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "status": "QA_ONLY_SOURCE_BACKED_OFFICIAL_CORE_CORRECTION_NOT_RELEASE_APPROVED",
+  "question_id": "DS-113-2-13",
+  "session": "113-2",
+  "subject": "社會工作直接服務",
+  "qno": 13,
+  "official_pdf_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0302&t=Q",
+  "official_pdf_sha256": "21b47d133e072b34eab4f07fa95ffab1601d54768eb8cedf680a9471fc9bfbc3",
+  "official_pdf_page_index": 2,
+  "official_print_page": "6-3",
+  "original_question": "有關下圖案母與案主之間的關係狀況，下列何者正確？（圖示：62 歲男性與 24 歲女兒之間以鋸齒線連結）",
+  "corrected_official_question": "有關下圖案母與案主之間的關係狀況，下列何者正確？",
+  "old_row_sha256": "76ca5f940cd3d9dc7e6eae1a773ccc323f46fa9e4ea879fa0091082dc940c739",
+  "new_row_sha256": "333f81b3ac881def4ddb54825d126933b5a30bd9d3f8b79d9fd5708d555725ba",
+  "old_shard_sha256": "5cca67aaf49dce1aebb660b5d09e231ea2ae7e2cbf0d3a760de6c466c6467488",
+  "new_shard_sha256": "79b080bac529986a107eefc0f91402bf4a184a11a387e877ea8f568f28c8b3e2",
+  "old_shard_bytes": 317096,
+  "new_shard_bytes": 317029,
+  "expected_answer": "B",
+  "expected_grading_mode": "standard",
+  "release_gates": {
+    "independent_pdf_review_required": true,
+    "production_database_migration_required": true,
+    "existing_enrichment_must_be_reviewed": true,
+    "figure_pr_455_required": true,
+    "public_deployment_authorized": false
+  },
+  "notes": "Original official question asks the student to read a figure; the imported parenthetical paraphrase is NOT on the official PDF and misidentifies the relationship. Figure must be visible in the student UI. This data-only candidate must not silently change live Supabase or certify AI explanations."
+}
