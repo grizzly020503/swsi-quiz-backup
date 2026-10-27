@@ -17,9 +17,9 @@
   "accepted_answers": null,
   "original_shard_blob_sha": "3a6fe35845f504ffbbcd25595987185f8bce3c90",
   "original_shard_sha256": "e13b5e7cfd3b68841e008d867461be7bb80d2d72ded3b9a21971770fbe25d5f5",
-  "after_shard_sha256": "ec9bf3ab8708075663b0226f922ce3ca75e72626c4fcb5ca94676c06aa73d352",
+  "after_shard_sha256": "8e5fd87ea7fb38d6a64c521316fe55baa9c549a79dcc8bb2d4b95eeece2a8bc4",
   "original_manifest_sha256": "581e349761c67d58a5a7493b2dc38e01b8de327415cb22fc26e30ed5d377ee57",
-  "after_manifest_sha256": "db4bfa94b2b4e45fb642c8c508d3fd06791cdbfd6745212fcc4785740108bb20",
+  "after_manifest_sha256": "d0e315f463e1648d889635eabf907557f77b91552ed0d8370e113400b0d707b6",
   "before_lock_sha256": "fd9b1712d88c89537a0c03b07e40fc2aa6d64f479afba1f53cbfc66ae7d3f3b9",
   "after_lock_sha256": "fd5542b3d9c391f96bb9345855fc7002c6ab40c9279a7a732ec4fa477df91f5d",
   "untouched_199_row_count": 199,
@@ -86,7 +86,7 @@
     "exp_raw": null,
     "mnemonic": null,
     "extension": null,
-    "law": null,
+    "law": "兒童及少年未來教育與發展帳戶條例第22條。",
     "mistake": null,
     "source_exam_code": "111110",
     "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111110&q=1&s=0404&t=Q",
@@ -102,5 +102,5 @@
   "human_approval": false,
   "production_written": false,
   "release_approved": false,
-  "note": "Original PDF choices: A 1至3個月, B 2至4個月, C 3至6個月, D 4至6個月. Split digits in platform choices invalidate exercise; correction preserves answer C and locks other data."
+  "note": "Original PDF choices: A 1至3個月, B 2至4個月, C 3至6個月, D 4至6個月. Split digits in platform choices invalidate exercise; correction preserves answer C and locks other data. Verified law citation remains unchanged and unreviewed; only dependent explanations/tags quarantined."
 }

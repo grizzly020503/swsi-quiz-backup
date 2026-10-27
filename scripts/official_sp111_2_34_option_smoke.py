@@ -30,7 +30,8 @@ def check():
     assert after["grading_mode"] == "standard" and after["accepted_answers"] is None
     assert [after["opt_" + x] for x in "abcd"] == ["1 至 3 個月", "2 至 4 個月", "3 至 6 個月", "4 至 6 個月"]
     assert after["analysis_status"] == "review"
-    for key in ("major","topic","keywords","exp_why","exp_others","exp_trap","exp_raw","mnemonic","extension","law","mistake"):
+    assert after["law"] == before["law"] == "兒童及少年未來教育與發展帳戶條例第22條。"
+    for key in ("major","topic","keywords","exp_why","exp_others","exp_trap","exp_raw","mnemonic","extension","mistake"):
         assert after[key] is None, "stale AI-derived explanation survived"
     assert row_hash(canonical_row(before, MCQ_FIELDS)) == p["before_lock_sha256"] == "fd9b1712d88c89537a0c03b07e40fc2aa6d64f479afba1f53cbfc66ae7d3f3b9"
     assert row_hash(canonical_row(after, MCQ_FIELDS)) == p["after_lock_sha256"] == "fd5542b3d9c391f96bb9345855fc7002c6ab40c9279a7a732ec4fa477df91f5d"
@@ -50,7 +51,7 @@ def check():
     target=next(x for x in manifest["shards"] if x["file"]=="111-2.json")
     assert target["bytes"] == len(raw) and target["sha256"] == sha(raw)
     assert manifest["total_uncompressed_bytes"] == sum(x["bytes"] for x in manifest["shards"])
-    revision=sha("\\n".join(x["file"]+":"+x["sha256"] for x in manifest["shards"]).encode("utf-8"))[:20]
+    revision=sha("\n".join(x["file"]+":"+x["sha256"] for x in manifest["shards"]).encode("utf-8"))[:20]
     assert manifest["dataset_revision"] == revision
     print("OFFICIAL SP111-2-34 CANDIDATE OK: four option boundaries restored; 199 peer rows and official C grading preserved; release remains HOLD")
 
