@@ -11,6 +11,10 @@ on:
     paths:
       - '.github/workflows/full-corpus-qa.yml'
       - 'scripts/full_corpus_qa.py'
+      - 'scripts/official_105_107_shared_context_integrated_smoke.py'
+      - 'audit/official_105_107_shared_context_integration_20261028.json'
+      - 'audit/official_105_2_shared_context_20261028.json'
+      - 'audit/official_107_2_shared_context_20261028.json'
       - 'scripts/exam_scheme.py'
       - 'scripts/exam_scheme_qa_policy.py'
       - 'scripts/unified_question_qa.py'
@@ -31,6 +35,10 @@ on:
     paths:
       - '.github/workflows/full-corpus-qa.yml'
       - 'scripts/full_corpus_qa.py'
+      - 'scripts/official_105_107_shared_context_integrated_smoke.py'
+      - 'audit/official_105_107_shared_context_integration_20261028.json'
+      - 'audit/official_105_2_shared_context_20261028.json'
+      - 'audit/official_107_2_shared_context_20261028.json'
       - 'scripts/exam_scheme.py'
       - 'scripts/exam_scheme_qa_policy.py'
       - 'scripts/unified_question_qa.py'
@@ -72,6 +80,7 @@ jobs:
       - name: Compile QA scripts
         run: |
           python -m py_compile scripts/full_corpus_qa.py
+          python -m py_compile scripts/official_105_107_shared_context_integrated_smoke.py
           python -m py_compile scripts/exam_scheme.py
           python -m py_compile scripts/exam_scheme_qa_policy.py
           python -m py_compile scripts/unified_question_qa.py
@@ -84,6 +93,9 @@ jobs:
 
       - name: Verify immutable Official Core baseline
         run: python scripts/official_exam_readonly_guard.py
+
+      - name: Check 13 official MOEX shared-context corrections against source locks
+        run: python scripts/official_105_107_shared_context_integrated_smoke.py
 
       - name: Prevent wrong-subject historic MOEX sources in rebuilt shards
         run: python scripts/historical_source_url_guard_selftest.py
