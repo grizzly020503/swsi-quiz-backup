@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT_NO_GO_RELEASE_HOLD",
+  "base_main_sha": "579ad20c4b762ab63969ffd1e03f552c848e8c7e",
+  "dependent_source_prs": [
+    466,
+    467
+  ],
+  "candidate_commits": [
+    "d46ed7e32c7fe3cd21bf8381ac4657c5c8f49713",
+    "864f4cbe92c92e0a21ef9e6569251b3e697d4d69"
+  ],
+  "official_pdfs": [
+    {
+      "name": "105090-107-0606.pdf",
+      "sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836"
+    },
+    {
+      "name": "107110-107-0606.pdf",
+      "sha256": "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d"
+    }
+  ],
+  "changed_mcq_ids": [
+    "R-105-2-12",
+    "R-105-2-13",
+    "R-105-2-14",
+    "R-105-2-15",
+    "R-105-2-16",
+    "R-105-2-20",
+    "R-105-2-21",
+    "R-105-2-22",
+    "R-107-2-04",
+    "R-107-2-05",
+    "R-107-2-06",
+    "R-107-2-07",
+    "R-107-2-08"
+  ],
+  "changed_core_locks": 13,
+  "unmodified_core_locks": 4787,
+  "unmodified_essay_locks": 240,
+  "source_shard_blob_shas": {
+    "105-2.json": "3d8c48f25e10c346b466645632f57e7a4f4c39e3",
+    "107-2.json": "c475b96362e5c832bf20c8858b20a12b84798e0e"
+  },
+  "source_audit_blob_shas": {
+    "105-2": "c93a05be177912a7e579873b8caec4a421eb73ae",
+    "107-2": "ce6d298b57d64fe6a7c3d60c5021fda053dfd51b"
+  },
+  "manifest_total_bytes": 7639946,
+  "dataset_revision": "b13c08a1b9d9e8c27ca5",
+  "release_approved": false,
+  "production_writes": false,
+  "netlify_backup_changes": false,
+  "notes": "Combined release candidate only; preserve source PR audit evidence, immutable core lock hashes except exact 13 and all answers/grading; human source review, full corpus and AI Golden Set gates remain NO-GO."
+}
