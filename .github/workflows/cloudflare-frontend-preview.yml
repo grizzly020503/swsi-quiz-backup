@@ -55,7 +55,8 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf /tmp/swsi-preview
-          mkdir -p /tmp/swsi-preview/icons
+          mkdir -p /tmp/swsi-preview/icons /tmp/swsi-preview/official-figures
+          cp official-figures/*.png /tmp/swsi-preview/official-figures/
           cp index.html manifest.json sw.js apple-touch-icon.png /tmp/swsi-preview/
           node scripts/build_essay_guides_runtime.js essay_guides.js /tmp/swsi-preview/essay_guides.js
           cat monthly_patch_parts/*.part > /tmp/swsi-preview/monthly_patch.js

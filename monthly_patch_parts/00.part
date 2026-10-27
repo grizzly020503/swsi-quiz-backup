@@ -647,6 +647,7 @@ window.swsiEsc = swsiEsc;
       return;
     }
     const item=queue[idx], pct=Math.round((idx/queue.length)*100), mode=gradingMode(item), accepted=acceptedAnswers(item);
+    const figureReady=swsiOfficialFigureReady(item);
     let optHTML='';
     for(const k of ['A','B','C','D']){
       if(!item.options[k]) continue;
@@ -666,6 +667,9 @@ window.swsiEsc = swsiEsc;
         ' onclick="pick(\''+k+'\')" style="width:100%;text-align:left;font-family:inherit;color:inherit"><span class="lab">'+k+'</span><span>'+
         swsiEscLines(item.options[k])+'</span>'+marker+'</button>';
     }
+    // Runtime owner overrides the legacy renderer; never expose answer options
+    // until a required MOEX source figure has loaded successfully.
+    if(!figureReady)optHTML='<div class="pending" role="status">原圖未載入，本題不可作答；可略過且不計分。</div>';
 
     let expHTML='';
     if(answered){
@@ -699,12 +703,12 @@ window.swsiEsc = swsiEsc;
       '<div class="qcard"><div class="qmeta"><span class="tag subj">'+swsiEsc(item.subject)+'</span><span class="tag year">'+swsiEsc(item.year)+'年 '+swsiEsc(item.round)+'</span>'+
       (yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':'')+
       ((maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':'')+
-      legalBadge(item)+'</div>'+legalNotice(item)+'<div class="qtext">'+swsiEscLines(item.q)+'</div>'+optHTML+
-      (!answered?'<button class="btn" '+(selected?'':'disabled')+' onclick="submit()">送出答案</button>':'')+expHTML+'</div>';
+      legalBadge(item)+'</div>'+legalNotice(item)+'<div class="qtext">'+swsiEscLines(swsiOfficialFigureQuestion(item))+'</div>'+swsiOfficialFigureMarkup(item)+optHTML+
+      (!answered?(figureReady?'<button class="btn" '+(selected?'':'disabled')+' onclick="submit()">送出答案</button>':'<button class="btn ghost" onclick="next()">略過缺圖題（不計分）→</button>'):'')+expHTML+'</div>';
   };
 
   submit = function(){
-    if(!selected) return;
+    if(!selected || !swsiOfficialFigureReady(queue[idx])) return;
     answered=true;
     const item=queue[idx], correct=isCorrectAnswer(item,selected);
     sessionStats.done++;
