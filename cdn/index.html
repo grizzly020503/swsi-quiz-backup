@@ -1924,8 +1924,9 @@ function answerLabel(item){
       +'</div>'
       +'<div class="mk-qcard">'
       +'<div class="mk-qmeta">'+E(q.subject||'')+'　'+E(q.year||'')+' '+E(q.round||'')+'　'+E(q.major||'')+'</div>'
-      +'<div class="mk-q">'+E(q.q||'').replace(/\n/g,'<br>')+'</div>'
-      +optsHtml
+      +'<div class="mk-q">'+E(swsiOfficialFigureQuestion(q)).replace(/\n/g,'<br>')+'</div>'
+      +swsiOfficialFigureMarkup(q)
+      +(swsiOfficialFigureReady(q)?optsHtml:'<div class="mk-sub" role="status">原圖未載入，這題不可作答；若仍缺圖，交卷後不列入計分。</div>')
       +'</div>'
       +'<div class="mk-nav">'
       +'<button class="mk-btn ghost" onclick="MK.go(-1)" '+(idx===0?'disabled':'')+'>‹ 上一題</button>'
@@ -1949,8 +1950,9 @@ function answerLabel(item){
   function grade(auto){
     if(timer){clearInterval(timer);timer=null;} running=false;
     var letters=['A','B','C','D'];
-    var correct=0, answered=0, bySubj={}, wrong=[];
+    var correct=0, answered=0, excluded=0, bySubj={}, wrong=[];
     Q.forEach(function(q,i){
+      if(!swsiOfficialFigureReady(q)){excluded++;return;}
       var picked=ans[i]!=null?ans[i]:null;
       var ok=isCorrectAnswer(q,picked);
       if(ok) correct++;
@@ -1963,7 +1965,8 @@ function answerLabel(item){
       if(!ok) wrong.push({q:q,picked:picked});
     });
     var used=Math.max(0, Math.floor((Date.now()-t0)/1000));
-    var pct=Q.length?Math.round(correct/Q.length*100):0;
+    var gradedTotal=Q.length-excluded;
+    var pct=gradedTotal?Math.round(correct/gradedTotal*100):0;
 
     var subjHtml=Object.keys(bySubj).map(function(s){
       var o=bySubj[s], r=o.t?Math.round(o.c/o.t*100):0;
@@ -1986,7 +1989,8 @@ function answerLabel(item){
       if(!hideAnalysis && q.law) ex+='<div class="ln"><b>法源：</b>'+E(q.law)+'</div>';
       var pk=picked!=null?('你選 '+picked):'未作答';
       var tag=picked!=null?'<span class="mk-tag w">'+pk+'</span>':'<span class="mk-tag n">未作答</span>';
-      return '<div class="mk-rev"><div class="rq">'+E(q.q||'').slice(0,140)+((q.q||'').length>140?'…':'')+'</div>'
+      var displayedQ=(typeof swsiOfficialFigureQuestion==='function'?swsiOfficialFigureQuestion(q):(q.q||''));
+      return '<div class="mk-rev"><div class="rq">'+E(displayedQ).slice(0,140)+(displayedQ.length>140?'…':'')+'</div>'
         +'<div class="ln">'+tag+'<span class="mk-tag n">'+E((typeof answerLabel==='function')?answerLabel(q):('正解 '+(q.answer||'')))+'</span></div>'+ex+'</div>';
     }).join('');
 
@@ -1995,8 +1999,9 @@ function answerLabel(item){
       +'<div class="mk-top"><div class="mk-timer" style="color:var(--ink,#2A2C2A);font-size:var(--fs-q)">模擬考結果</div>'
       +'<div style="display:flex;align-items:center;gap:10px">'+fc()+'<button class="mk-x" onclick="MK.close()">✕</button></div></div>'
       +(auto?'<div class="mk-sub" style="color:var(--wrong,#9E6155);margin-top:14px">⏰ 時間到，已自動交卷。</div>':'')
-      +'<div class="mk-score"><div class="big">'+correct+' / '+Q.length+'</div>'
+      +'<div class="mk-score"><div class="big">'+correct+' / '+gradedTotal+'</div>'
       +'<div class="pct">答對率 '+pct+'%　·　作答 '+answered+' 題　·　用時 '+fmt(used)+'</div></div>'
+      +(excluded?'<div class="mk-sub" role="status">⚠ '+excluded+' 題原圖未載入，已排除計分。</div>':'')
       +(subjHtml?'<div class="mk-lab">各科表現</div>'+subjHtml:'')
       +(revHtml?'<div class="mk-lab">錯題與詳解（'+wrong.length+' 題）</div>'+revHtml:'<div class="mk-sub" style="margin-top:16px">🎉 全部答對！</div>')
       +'<div class="mk-nav" style="margin-top:18px"><button class="mk-btn ghost" onclick="MK.retry()">再考一次</button><button class="mk-btn go" onclick="MK.close()">完成</button></div>'
@@ -2036,6 +2041,7 @@ function answerLabel(item){
       run();
     },
     pick:function(L){
+      if(!swsiOfficialFigureReady(Q[idx]))return;
       ans[idx]=L;
       ['A','B','C','D'].forEach(function(x){ var el=document.getElementById('mk-opt-'+x); if(el){ if(x===L)el.classList.add('sel'); else el.classList.remove('sel'); } });
       var cells=ov.querySelectorAll('.mk-cell'); if(cells[idx])cells[idx].classList.add('done');
@@ -3180,10 +3186,49 @@ function doSearch(val){
   box.innerHTML=h;
 }
 
+
+/* ===== MOEX ORIGINAL FIGURES: image-gated, source-backed ===== */
+const SWSI_OFFICIAL_FIGURES=Object.freeze({
+  'DS-113-2-13':{asset:'./official-figures/DS-113-2-13.png',pdf:'https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113100&c=103&s=0302&q=1',alt:'原卷家系圖，含親屬、年齡與關係線。點擊放大以閱讀完整圖示。'},
+  'R-114-2-12':{asset:'./official-figures/R-114-2-12.png',pdf:'https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114100&c=103&s=0306&q=1',alt:'原卷量表圖，左右兩端分別是痛苦與快樂，中間有五個評分刻度。點擊放大以閱讀完整圖示。'}
+});
+const SWSI_FIGURE_STATUS=Object.create(null);
+function swsiNeedsOfficialFigure(q){return !!(q&&Object.prototype.hasOwnProperty.call(SWSI_OFFICIAL_FIGURES,q.id));}
+function swsiOfficialFigureReady(q){return !swsiNeedsOfficialFigure(q)||SWSI_FIGURE_STATUS[q.id]==='ready';}
+function swsiOfficialFigureQuestion(q){
+  let txt=String((q&&q.q)||'');
+  // Original imported surrogate describes the wrong relationship; show only
+  // the official stem with the actual figure. Dataset correction remains gated.
+  if(q&&q.id==='DS-113-2-13')txt=txt.replace('（圖示：62 歲男性與 24 歲女兒之間以鋸齒線連結）','');
+  return txt;
+}
+function swsiOfficialFigureLoaded(id,ok){
+  const status=ok?'ready':'missing';
+  if(SWSI_FIGURE_STATUS[id]===status)return;
+  SWSI_FIGURE_STATUS[id]=status;
+  if(typeof view!=='undefined'&&view==='quiz'&&typeof queue!=='undefined'&&queue[idx]&&queue[idx].id===id)render();
+  if(document.querySelector('.mk-ov [data-swsi-figure="'+id+'"]')&&window.MK)window.MK.go(0);
+}
+function swsiOfficialFigureMarkup(q){
+  if(!swsiNeedsOfficialFigure(q))return '';
+  const f=SWSI_OFFICIAL_FIGURES[q.id], status=SWSI_FIGURE_STATUS[q.id];
+  const img=status==='missing'?'':('<a href="'+f.asset+'" target="_blank" rel="noopener noreferrer" title="開啟考選部原圖放大" style="display:block;max-width:720px;margin:12px auto">'
+    +'<img src="'+f.asset+'" loading="eager" decoding="async" alt="'+f.alt+'" style="display:block;width:100%;height:auto;max-height:75vh;object-fit:contain;background:#fff;border-radius:10px"'
+    +' onload="swsiOfficialFigureLoaded(\''+q.id+'\',true)" onerror="swsiOfficialFigureLoaded(\''+q.id+'\',false)"></a>');
+  const hint=status==='missing'?'⚠ 原圖暫時無法載入，本題不計分；請查看官方原卷。'
+    :status==='ready'?'點擊原圖可放大，在手機上也能檢視細節。':'原圖載入中，載入完成之前暫停作答。';
+  return '<figure data-swsi-figure="'+q.id+'" style="margin:16px 0;padding:12px;border:1px solid #cbd7d2;border-radius:12px;background:#fafcfa">'
+    +'<figcaption style="font-size:14px;font-weight:650;line-height:1.6">考選部官方試題原圖（非 AI 重繪）</figcaption>'
+    +img+'<p role="status" style="font-size:13px;line-height:1.6;margin:8px 0;color:#4d5d57">'+hint+'</p>'
+    +'<a href="'+f.pdf+'" target="_blank" rel="noopener noreferrer" style="font-size:13px;text-decoration:underline">查看官方原始試卷 PDF</a></figure>';
+}
+/* ===== END MOEX ORIGINAL FIGURES ===== */
+
 function renderQuiz(){
   if(!queue.length){ app.innerHTML=`<div class="empty"><div class="ico">∅</div><h3>沒有符合的題目</h3><button class="btn" style="max-width:200px;margin:18px auto 0" onclick="go('home')">回首頁</button></div>`; return; }
   const item=queue[idx]; const pct=Math.round((idx/queue.length)*100);
   let optHTML='';
+  const officialFigureReady=swsiOfficialFigureReady(item);
   for(const k of ['A','B','C','D']){
     if(!item.options[k]) continue;
     let cls='opt';
@@ -3199,6 +3244,7 @@ function renderQuiz(){
     else if(answered&&k===selected) mk='<span class="mk"><b class="ck no">✗</b>你選的</span>';
     optHTML+=`<div class="${cls}" role="radio" aria-checked="${k===selected?'true':'false'}" tabindex="0" onclick="pick('${k}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pick('${k}')}"><span class="lab">${k}</span><span>${esc(item.options[k]).replace(/\n/g,'<br>')}</span>${mk}</div>`;
   }
+  if(!officialFigureReady)optHTML='<div class="pending" role="status">原圖未載入，本題不可作答；可略過且不計分。</div>';
   let expHTML='';
   if(answered){
     const wrong=!ansCorrect(selected,item); let body=gradingMode(item)==='all_credit'?'<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 官方特殊給分：</b>本題採一律給分規則，不代表四個選項在學理上都正確。</div>':(gradingMode(item)==='any_answer'?'<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 官方特殊給分：</b>本題除未作答外，其餘作答均給分。</div>':'');
@@ -3221,12 +3267,12 @@ function renderQuiz(){
     <div class="qcard">
       <div class="qmeta"><span class="tag subj">${esc(item.subject)}</span><span class="tag year">${esc(item.year)}年 ${esc(item.round)}</span>${yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':''}${(maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':''}${legalBadge(item)}</div>
       ${legalNotice(item)}
-      <div class="qtext">${esc(item.q).replace(/\n/g,'<br>')}</div>${optHTML}
-      ${!answered?`<button class="btn" ${selected?'':'disabled'} onclick="submit()">送出答案</button>`:''}${expHTML}
+      <div class="qtext">${esc(swsiOfficialFigureQuestion(item)).replace(/\n/g,'<br>')}</div>${swsiOfficialFigureMarkup(item)}${optHTML}
+      ${!answered?(officialFigureReady?`<button class="btn" ${selected?'':'disabled'} onclick="submit()">送出答案</button>`:`<button class="btn ghost" onclick="next()">略過缺圖題（不計分）→</button>`):''}${expHTML}
     </div>`;
 }
-function pick(k){ if(answered)return; selected=k; render(); }
-function submit(){ if(!selected)return; answered=true; const item=queue[idx], correct=ansCorrect(selected,item);
+function pick(k){ if(answered||!swsiOfficialFigureReady(queue[idx]))return; selected=k; render(); }
+function submit(){ if(!selected||!swsiOfficialFigureReady(queue[idx]))return; answered=true; const item=queue[idx], correct=ansCorrect(selected,item);
   sessionStats.done++; if(correct)sessionStats.correct++; else sessionStats.wrongTopics.push(item.topic||item.major);
   record(item,selected,correct); render(); }
 function next(){ if(idx+1<queue.length){idx++;selected=null;answered=false;window.scrollTo(0,0);render();} else {view='summary';window.scrollTo(0,0);render();} }
@@ -4251,6 +4297,6 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
 </script>
 <!-- SWSI UIUX V1 END -->
 <script>window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP={"version":"2026-08-27.canonical-build.v1","laws":{"count":24,"sha256":"bb946b67af633ea371550dc1b074dbca530ccb50f47e561c7590ff0e5ea89dfc"},"theories":{"count":39,"sha256":"1a74d39a9611caf002383527390dd3d7e5cc0b6665b6b7f89494f2a0d58ead4d"}};</script>
-<script src="monthly_patch.js?v=acdbdf186fe21cc3"></script>
+<script src="monthly_patch.js?v=2d545dcc94d81c51"></script>
 </body>
 </html>

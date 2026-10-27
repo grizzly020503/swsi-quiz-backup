@@ -15,6 +15,8 @@ const SHELL = [
   './essay_guides.js',
   './manifest.json',
   './apple-touch-icon.png',
+  './official-figures/DS-113-2-13.png',
+  './official-figures/R-114-2-12.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './auto/questions_auto.json',
