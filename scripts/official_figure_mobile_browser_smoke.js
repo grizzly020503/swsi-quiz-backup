@@ -16,10 +16,10 @@ const rows=[
   assert(row,'official question row missing '+x.id);
   return {...x,row};
 });
-async function runOne(browser,engine,entry,missing){
+async function runOne(browser,engine,entry,missing,layout){
   // Prevent WebKit/PWA service worker caches from bypassing the deliberate 404.
   // This test verifies UI fail-closed behavior; PWA caching is tested separately.
-  const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true,serviceWorkers:'block'});
+  const context=await browser.newContext({viewport:layout.viewport,deviceScaleFactor:layout.mobile?2:1,isMobile:layout.mobile,hasTouch:layout.mobile,serviceWorkers:'block'});
   const page=await context.newPage();
   page.on('dialog',dialog=>dialog.accept());
   const localImage='/official-figures/'+entry.id+'.png';
@@ -158,11 +158,15 @@ async function runOne(browser,engine,entry,missing){
   for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
     const browser=await type.launch({headless:true});
     try{
-      for(const entry of rows)await runOne(browser,engine,entry,false);
-      await runOne(browser,engine,rows[0],true);
+      for(const layout of [{name:'mobile',viewport:{width:390,height:844},mobile:true},{name:'desktop',viewport:{width:1366,height:900},mobile:false}]){
+        for(const entry of rows){
+          await runOne(browser,engine+' '+layout.name,entry,false,layout);
+          await runOne(browser,engine+' '+layout.name,entry,true,layout);
+        }
+      }
     }finally{
       await browser.close();
     }
   }
-  console.log('OFFICIAL MOEX FIGURE REAL MOBILE BROWSER QA PASS: 2 engines x 2 figures + missing-image fail closed, quiz and mock');
+  console.log('OFFICIAL MOEX FIGURE REAL MOBILE BROWSER QA PASS: 2 engines x 2 layouts x 2 figures x loaded/missing, quiz and mock');
 })().catch(err=>{console.error(err&&err.stack||err);process.exitCode=1;});

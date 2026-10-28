@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-27T12:04:13Z",
+  "generated_at": "2026-10-28T22:31:11Z",
   "event_count": 4,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -419,8 +419,8 @@
       ]
     },
     {
-      "canonical_event_id": "71845b04962e95869a9450f8",
-      "title": "隨機傷人近失明判刑 高院裁定延長暫行安置6月",
+      "canonical_event_id": "d113c47d574e8a81379a0965",
+      "title": "男嬰暴瘦藏虐童慘劇！檢警醫社跨界揭真相 同獲「菁網獎」",
       "category": "兒少保護",
       "subjects": [
         "社會工作",
@@ -468,7 +468,10 @@
       },
       "knowledge_topics": [
         "兒少保護",
-        "安置"
+        "兒虐",
+        "虐童",
+        "兒少",
+        "保護"
       ],
       "knowledge_paths": [
         "社會工作管理 > 品質與風險管理",
@@ -495,7 +498,7 @@
       "trend_state": "one-off",
       "trend_score": 2.6,
       "why": [
-        "歷屆廣義概念關聯 49 題，跨 12 個年度；強 0／中 0／概念 49（僅作低權重背景）",
+        "歷屆廣義概念關聯 170 題，跨 12 個年度；強 0／中 0／概念 170（僅作低權重背景）",
         "最近相關題為 115 年（距題庫最新年度 0 年）",
         "歷屆分布 3 個考科"
       ],
@@ -516,20 +519,20 @@
       "source_count": 1,
       "official_source_count": 0,
       "observation_count": 1,
-      "first_seen": "2026-10-26T07:46:14Z",
-      "last_seen": "2026-10-26T07:46:14Z",
+      "first_seen": "2026-10-28T09:55:36Z",
+      "last_seen": "2026-10-28T09:55:36Z",
       "related_laws": [],
       "related_policy_instruments": [],
       "law_link_status": "unresolved",
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
       "law_link_basis": [],
       "law_link_rules_schema": 1,
-      "historical_question_count": 49,
+      "historical_question_count": 170,
       "historical_weighted_match_count": 1.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 0,
-        "concept": 49
+        "concept": 170
       },
       "historical_exam_years": [
         104,
@@ -549,9 +552,9 @@
       "corpus_latest_exam_year": 115,
       "years_since_last_related_exam": 0,
       "historical_subject_counts": {
-        "社會工作": 19,
-        "社會工作直接服務": 1,
-        "社會政策與社會立法": 29
+        "社會工作": 58,
+        "社會工作直接服務": 6,
+        "社會政策與社會立法": 106
       },
       "historical_subject_count": 3,
       "historical_law_match_count": 0,
@@ -560,72 +563,75 @@
       "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
       "related_exam_questions": [
         {
-          "id": "DS-115-2-015",
-          "subject": "社會工作直接服務",
+          "id": "SP115-1-20",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "20",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 出生通報",
+          "match_reason": "事件詞：兒少",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-21",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "21",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家式托育服務",
+          "match_reason": "事件詞：兒少",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP-115-2-022",
+          "subject": "社會政策與社會立法",
           "year": "115",
           "round": "第二次",
-          "qno": "15",
-          "major": "社會工作倫理",
-          "topic": "倫理原則 > 倫理困境與決策",
-          "match_reason": "事件詞：安置",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP114-1-22",
-          "subject": "社會政策與社會立法",
-          "year": "114",
-          "round": "第一次",
           "qno": "22",
-          "major": "老人福利法規",
-          "topic": "老人福利法 > 私立機構停辦安置",
-          "match_reason": "事件詞：安置",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP114-2-24",
-          "subject": "社會政策與社會立法",
-          "year": "114",
-          "round": "第二次",
-          "qno": "24",
           "major": "兒少福利法規",
-          "topic": "兒少權法 > 緊急安置延長期限",
-          "match_reason": "事件詞：安置",
+          "topic": "兒童及少年福利與權益保障法 > 收養程序與媒合",
+          "match_reason": "事件詞：兒少",
           "match_score": 2.2
         },
         {
-          "id": "SP114-2-25",
+          "id": "SP-115-2-023",
           "subject": "社會政策與社會立法",
-          "year": "114",
+          "year": "115",
           "round": "第二次",
-          "qno": "25",
+          "qno": "23",
           "major": "兒少福利法規",
-          "topic": "兒少權法 > 安置期滿追蹤輔導",
-          "match_reason": "事件詞：安置",
+          "topic": "兒童及少年福利與權益保障法 > 調查統計機制",
+          "match_reason": "事件詞：兒少",
           "match_score": 2.2
         },
         {
-          "id": "SW-114-1-27",
-          "subject": "社會工作",
-          "year": "114",
+          "id": "SP115-1-29",
+          "subject": "社會政策與社會立法",
+          "year": "115",
           "round": "第一次",
-          "qno": "27",
-          "major": "社會工作倫理",
-          "topic": "Lowenberg倫理抉擇 > 自由自主原則",
-          "match_reason": "事件詞：安置",
+          "qno": "29",
+          "major": "兒少福利法規",
+          "topic": "兒少性剝削防制條例 > 親職教育輔導時數",
+          "match_reason": "事件詞：兒少",
           "match_score": 2.2
         }
       ],
       "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
-        "安置"
+        "兒虐",
+        "虐童",
+        "兒少保護",
+        "兒少"
       ],
       "evidence": [
         {
-          "source_name": "中央社社會",
-          "source_url": "https://www.cna.com.tw/news/asoc/202610260145.aspx",
+          "source_name": "自由時報社會",
+          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5621700",
           "source_type": "news",
-          "published_at": "2026-10-26T07:46:14Z",
-          "item_id": "190130cb1c7d4f3d5c41fb3a2388ce53"
+          "published_at": "2026-10-28T09:55:36Z",
+          "item_id": "1953ac875e47974e88697ef2bfe0429e"
         }
       ]
     },

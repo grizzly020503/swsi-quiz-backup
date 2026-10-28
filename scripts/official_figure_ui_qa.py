@@ -27,7 +27,10 @@ for name in ('sw.js','cdn/sw.js'):
     sw=(R/name).read_text()
     for row in j['figures']:
         assert "./"+row['path'] in sw,name+' does not precache '+row['id']
-assert 'cp official-figures/*.png _site/official-figures/' in (R/'netlify.toml').read_text()
+# Owner froze the backup site: candidate must retain the exact main config.
+assert hashlib.sha256((R/'netlify.toml').read_bytes()).hexdigest()=='3ae451ea75b48614db95e7438e675deb7a43354cb0324711150754cd805483a5','backup configuration must remain frozen'
+# Primary Workers assets are the tracked CDN tree; no preview/deploy action.
+assert '"directory": "./cdn"' in (R/'wrangler.jsonc').read_text()
 # The CI local _site build must include assets used by the service worker's
 # atomic cache.addAll; a missing file otherwise blocks SW installation.
 launch=(R/'.github/workflows/launch-readiness-qa.yml').read_text()
