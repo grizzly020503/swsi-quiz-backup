@@ -21,7 +21,7 @@ CONFIGS=[('audit/official_mcq_pdf_comparison_20261025.json',4800,'normalized_pdf
 # source-page-inspected delta is permitted only for twelve exact Official Core
 # fixes, with all other rows and all grading semantics still bound by guards.
 BASE_MCQLAYOUT_MANIFEST_SHA256 = 'e5f177ed6d0fad75c7b211362de5a2e68828a0cb1842ef2abd9eb2955f7c10d4'
-REVIEWED_DELTA_MANIFEST_SHA256 = '177f865cc5c13f6a098f0d235863365f0a73c5045f29ee6b5267bde905068999'
+REVIEWED_DELTA_MANIFEST_SHA256 = 'd8dd80c13231cafa2b72961c47e7bd6a78516e0f4796bd3df7715ae192a30e72'
 REVIEWED_DELTA_IDS = {'DS-104-1-25', 'DS-106-1-10', 'DS-106-1-37', 'DS-110-2-14', 'R-106-2-02', 'R-113-2-30', 'SP106-2-25', 'SP106-2-35', 'SP111-2-37', 'SW-105-2-25', 'DS-109-2-23', 'SW-108-2-01'}
 
 

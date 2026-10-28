@@ -216,7 +216,7 @@
     "schema_version": 1,
     "dataset_revision": "041e28799fd3fd82b7e1",
     "generated_at": "2026-10-28T23:18:00Z",
-    "source": "Git-pinned candidate with 26 PDF-backed Official Core corrections; production unchanged; human approval pending",
+    "source": "Git-pinned candidate with 27 PDF-backed Official Core corrections and existing verified main source metadata; production unchanged; human approval pending",
     "total_questions": 4800,
     "shard_count": 24,
     "baseline_shard_count": 24,
