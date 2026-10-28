@@ -5,6 +5,10 @@ const fs=require('fs');
 const {chromium,webkit}=require('playwright');
 const serveLocalQuestionShards=require('./local_question_shards_fixture');
 const proof=JSON.parse(fs.readFileSync('audit/official_mcq_corrections_20261025.json','utf8'));
+const additional=JSON.parse(fs.readFileSync('audit/official_mcq_corrections_additional_20261025.json','utf8'));
+const cases=proof.rows.concat(additional.rows);
+assert.strictEqual(cases.length,27);
+assert.strictEqual(new Set(cases.map(row=>row.id)).size,27);
 const base=process.argv[2]||'http://127.0.0.1:4173/';
 const engine=process.argv[3]||'chromium';
 const compact=s=>s.normalize('NFKC').replace(/\s+/g,'');
@@ -19,7 +23,7 @@ assert(['chromium','webkit'].includes(engine));
       await page.goto(base,{waitUntil:'domcontentloaded'});
       await page.locator('.swsi-focus-primary').waitFor();
       await page.evaluate(()=>window.ensureAllQuestionsLoaded());
-      for(const row of proof.rows){
+      for(const row of cases){
         await page.evaluate(id=>startQuiz(q=>q.id===id,1),row.id);
         const question=await page.locator('.qtext').innerText();
         assert.strictEqual(compact(question),compact(row.after.question),row.id+': stale question');
@@ -40,6 +44,6 @@ assert(['chromium','webkit'].includes(engine));
       }
       await context.close();
     }
-    console.log('CONTROLLED MCQ BROWSER OK '+engine+': 15 exact official questions/options, real quiz grading and stale-analysis quarantine on mobile and desktop');
+    console.log('CONTROLLED MCQ BROWSER OK '+engine+': '+cases.length+' exact official questions/options, real quiz grading and stale-analysis quarantine on mobile and desktop');
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1);});

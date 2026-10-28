@@ -2,7 +2,7 @@
 """Fail closed on stale, malformed or unresolved official PDF text comparisons.
 
 An evidence-only check confirms reproducibility metadata, never release approval.
-The default command remains NO-GO while any official text comparison is held.\nA strict, evidence-bound eleven-row overlay can clear only exact official corrections.
+The default command remains NO-GO while any official text comparison is held.\nA strict, evidence-bound twelve-row overlay can clear only exact official corrections.
 """
 from collections import Counter
 import argparse
@@ -18,15 +18,15 @@ CONFIGS=[('audit/official_mcq_pdf_comparison_20261025.json',4800,'normalized_pdf
 
 
 # Immutable original PDF extraction remains untouched. A tightly scoped,
-# source-page-inspected delta is permitted only for eleven exact Official Core
+# source-page-inspected delta is permitted only for twelve exact Official Core
 # fixes, with all other rows and all grading semantics still bound by guards.
 BASE_MCQLAYOUT_MANIFEST_SHA256 = 'e5f177ed6d0fad75c7b211362de5a2e68828a0cb1842ef2abd9eb2955f7c10d4'
-REVIEWED_DELTA_MANIFEST_SHA256 = '39000608c983c4ee2fd44c372fa95d372a0c8698e255781c2d429f758927be73'
-REVIEWED_DELTA_IDS = {'DS-104-1-25', 'DS-106-1-10', 'DS-106-1-37', 'DS-110-2-14', 'R-106-2-02', 'R-113-2-30', 'SP106-2-25', 'SP106-2-35', 'SP111-2-37', 'SW-105-2-25', 'DS-109-2-23'}
+REVIEWED_DELTA_MANIFEST_SHA256 = '177f865cc5c13f6a098f0d235863365f0a73c5045f29ee6b5267bde905068999'
+REVIEWED_DELTA_IDS = {'DS-104-1-25', 'DS-106-1-10', 'DS-106-1-37', 'DS-110-2-14', 'R-106-2-02', 'R-113-2-30', 'SP106-2-25', 'SP106-2-35', 'SP111-2-37', 'SW-105-2-25', 'DS-109-2-23', 'SW-108-2-01'}
 
 
 def validate_three_official_pdf_corrections(report, observed_manifest_digest):
-    """Recompare eleven corrected rows against already-captured official PDF text.
+    """Recompare twelve corrected rows against already-captured official PDF text.
 
     No other review is cleared. A future manifest, changed extraction, edited
     report, changed answer or missing proof fails closed.
@@ -37,7 +37,7 @@ def validate_three_official_pdf_corrections(report, observed_manifest_digest):
     from official_essay_pdf_audit import normalize
     from official_exam_readonly_guard import canonical_row, row_hash, MCQ_FIELDS
     extra=json.loads((ROOT/'audit/official_mcq_corrections_additional_20261025.json').read_text())
-    if (extra.get('count') != 11 or extra.get('human_approval') is not False
+    if (extra.get('count') != 12 or extra.get('human_approval') is not False
             or extra.get('official_production_write') is not False
             or {r['id'] for r in extra.get('rows', [])} != REVIEWED_DELTA_IDS):
         raise ValueError('unexpected or unapproved official PDF delta proof')
@@ -46,7 +46,7 @@ def validate_three_official_pdf_corrections(report, observed_manifest_digest):
     if manifest != previous['manifest_after']:
         raise ValueError('official PDF delta diverges from controlled manifest')
     rows_by_id={row['id']:row for row in report['rows'] if row['id'] in REVIEWED_DELTA_IDS}
-    if len(rows_by_id) != 11 or report['counts'].get('review') != 441:
+    if len(rows_by_id) != 12 or report['counts'].get('review') != 441:
         raise ValueError('baseline official PDF comparison was altered')
     shards={}
     lock=json.loads((ROOT/'data/official_exam_readonly.lock.json').read_text())['mcq']
@@ -144,11 +144,15 @@ def selftest():
     stale=copy.deepcopy(report);stale['input_sha256'][next(iter(inputs))]='0'*64
     inconsistent=copy.deepcopy(report);inconsistent['counts']['review']+=1
     human=copy.deepcopy(report);human['rows'][0]['human_approval']=True
-    for bad in (wrong,stale,inconsistent,human):
+    source_mismatch=copy.deepcopy(report)
+    next(r for r in source_mismatch['rows'] if r['id']=='SW-108-2-01')['question_pdf_sha256']='0'*64
+    year_mismatch=copy.deepcopy(report)
+    next(r for r in year_mismatch['rows'] if r['id']=='SW-108-2-01')['text_differences']['opt_d']['official_extraction']='1972 年政府通過設置社會工作員實驗計畫'
+    for bad in (wrong,stale,inconsistent,human,source_mismatch,year_mismatch):
         try:validate(bad,count,status,inputs)
         except ValueError:pass
         else:raise AssertionError('tampered comparison accepted')
-    print('OFFICIAL PDF RELEASE GATE SELFTEST OK: stale input, duplicate identities, count drift and false human approval rejected')
+    print('OFFICIAL PDF RELEASE GATE SELFTEST OK: stale input, duplicate identities, count drift, false human approval, wrong PDF and altered 1971 evidence rejected')
 
 
 def main():

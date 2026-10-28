@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
   "input_sha256": {
+    "audit/official_mcq_corrections_additional_20261025.json": "97b3f417bb6b4c2e64c75b1f32b22a8e6e1bcce8ea6f8a84433feaec445f6879",
     "audit/official_mcq_pdf_comparison_20261025.json": "0853dc8e28191f7904e03b850f844ae245caf8ce5336800c3f1b2593aed14949",
-    "audit/official_essay_pdf_comparison_20261025.json": "9e986c1d7b77de80bac0e26102f97dd6c82a219c4080f309926d13774e78312f",
-    "audit/official_mcq_corrections_additional_20261025.json": "e6afd8a041d2f9fd6b148e0415bb348b43e3155fb997fc2b8fceb853442c3372"
+    "audit/official_essay_pdf_comparison_20261025.json": "9e986c1d7b77de80bac0e26102f97dd6c82a219c4080f309926d13774e78312f"
   },
-  "unresolved": 448,
+  "unresolved": 447,
   "priority_counts": {
-    "0": 47,
+    "0": 46,
     "1": 362,
     "2": 39
   },
   "flag_counts": {
-    "numeric_tokens_differ": 46,
+    "numeric_tokens_differ": 45,
     "private_use_font_glyph": 3,
-    "wording_or_symbol_difference": 406,
+    "wording_or_symbol_difference": 405,
     "negation_or_exception_characters_differ": 1,
     "punctuation_only_difference_requires_review": 53,
     "incomplete_pdf_extraction": 3
@@ -1757,41 +1757,6 @@
           "field": "opt_a",
           "stored": "保護令可分為暫時保護令、緊急保護令及通常保護令6",
           "official_extraction": "保護令可分為暫時保護令、緊急保護令及通常保護令",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        }
-      ],
-      "status": "review",
-      "human_approval": false,
-      "automatic_release_approval": false
-    },
-    {
-      "id": "SW-108-2-01",
-      "kind": "mcq",
-      "priority": 0,
-      "flags": [
-        "numeric_tokens_differ",
-        "wording_or_symbol_difference"
-      ],
-      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=108110&c=107&s=0601&q=1",
-      "pdf_sha256": "89543185cee74523e23139c31e41440c606919699cb8f2cf0de2285ebc1edfbe",
-      "extraction_reason": null,
-      "differences": [
-        {
-          "field": "opt_c",
-          "stored": "臺灣社會工作員制度法制化文字出現於1976 年「中華民國臺灣經濟建設六年計畫」 1971",
-          "official_extraction": "臺灣社會工作員制度法制化文字出現於 1976 年「中華民國臺灣經濟建設六年計畫」",
-          "flags": [
-            "numeric_tokens_differ",
-            "wording_or_symbol_difference"
-          ]
-        },
-        {
-          "field": "opt_d",
-          "stored": "年政府通過設置社會工作員實驗計畫，聘用10 名社會工作員，負責平價住宅業務",
-          "official_extraction": "1971 年政府通過設置社會工作員實驗計畫,聘用 10 名社會工作員,負責平價住宅業務",
           "flags": [
             "numeric_tokens_differ",
             "wording_or_symbol_difference"
