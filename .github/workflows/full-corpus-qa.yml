@@ -17,6 +17,7 @@ on:
       - 'scripts/unified_question_qa_current.py'
       - 'scripts/unified_question_qa_selftest.py'
       - 'scripts/official_exam_readonly_guard.py'
+      - 'scripts/official_shared_context_integration_smoke.py'
       - 'scripts/build_question_shards.py'
       - 'scripts/historical_source_url_guard.py'
       - 'scripts/historical_source_url_guard_selftest.py'
@@ -37,6 +38,7 @@ on:
       - 'scripts/unified_question_qa_current.py'
       - 'scripts/unified_question_qa_selftest.py'
       - 'scripts/official_exam_readonly_guard.py'
+      - 'scripts/official_shared_context_integration_smoke.py'
       - 'scripts/build_question_shards.py'
       - 'scripts/historical_source_url_guard.py'
       - 'scripts/historical_source_url_guard_selftest.py'
@@ -78,12 +80,16 @@ jobs:
           python -m py_compile scripts/unified_question_qa_current.py
           python -m py_compile scripts/unified_question_qa_selftest.py
           python -m py_compile scripts/official_exam_readonly_guard.py
+          python -m py_compile scripts/official_shared_context_integration_smoke.py
 
       - name: Run existing unified QA synthetic invariants
         run: python scripts/unified_question_qa_selftest.py
 
       - name: Verify immutable Official Core baseline
         run: python scripts/official_exam_readonly_guard.py
+
+      - name: Verify shared-context official PDF repairs and all 4,800 locked MCQs
+        run: python scripts/official_shared_context_integration_smoke.py
 
       - name: Prevent wrong-subject historic MOEX sources in rebuilt shards
         run: python scripts/historical_source_url_guard_selftest.py
