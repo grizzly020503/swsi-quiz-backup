@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT_NO_GO",
+  "base_main_sha": "464680f8673ea454e2092031a938f5603c1f8d74",
+  "source_prs": [
+    466,
+    467
+  ],
+  "source_commits": [
+    "d46ed7e32c7fe3cd21bf8381ac4657c5c8f49713",
+    "864f4cbe92c92e0a21ef9e6569251b3e697d4d69"
+  ],
+  "scope": {
+    "modified_mcq_ids": [
+      "R-105-2-12",
+      "R-105-2-13",
+      "R-105-2-14",
+      "R-105-2-15",
+      "R-105-2-16",
+      "R-105-2-20",
+      "R-105-2-21",
+      "R-105-2-22",
+      "R-107-2-04",
+      "R-107-2-05",
+      "R-107-2-06",
+      "R-107-2-07",
+      "R-107-2-08"
+    ],
+    "changed_rows": 13,
+    "untouched_mcq_rows": 4787,
+    "answer_grading_edits": 0,
+    "source_shards": 2,
+    "other_shards_untouched": 22,
+    "essay_edits": 0
+  },
+  "source_evidence": [
+    {
+      "path": "audit/official_105_2_shared_context_20261028.json",
+      "pdf": "105090-107-0606.pdf",
+      "sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836",
+      "printed_pages": [
+        "4-2",
+        "4-3"
+      ]
+    },
+    {
+      "path": "audit/official_107_2_shared_context_20261028.json",
+      "pdf": "107110-107-0606.pdf",
+      "sha256": "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d",
+      "printed_page": "4-1"
+    }
+  ],
+  "manifest": {
+    "previous_revision": "ceda1d399abaecec5ff6",
+    "new_revision": "59fec039c5c2e573ad42",
+    "previous_total_bytes": 7636982,
+    "new_total_bytes": 7639946,
+    "shards": [
+      {
+        "file": "105-2.json",
+        "sha256": "0fed023d9913c076cd7f4947c9fa9c854f21535a2052bddacbd2e20be5e11767",
+        "bytes": 328332
+      },
+      {
+        "file": "107-2.json",
+        "sha256": "ab473bcc155b04cc95d32d7fb0c34332fc573f1a0e20ba86c04ed1ecabe05e88",
+        "bytes": 320761
+      }
+    ]
+  },
+  "validated_changes": [
+    {
+      "id": "R-105-2-12",
+      "fields": [
+        "opt_d"
+      ],
+      "sourcePDF": "105090-107-0606.pdf",
+      "official_source_sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836"
+    },
+    {
+      "id": "R-105-2-13",
+      "fields": [
+        "question"
+      ],
+      "sourcePDF": "105090-107-0606.pdf",
+      "official_source_sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836"
+    },
+    {
+      "id": "R-105-2-14",
+      "fields": [
+        "question"
+      ],
+      "sourcePDF": "105090-107-0606.pdf",
+      "official_source_sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836"
+    },
+    {
+      "id": "R-105-2-15",
+      "fields": [
+        "question"
+      ],
+      "sourcePDF": "105090-107-0606.pdf",
+      "official_source_sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836"
+    },
+    {
+      "id": "R-105-2-16",
+      "fields": [
+        "question"
+      ],
+      "sourcePDF": "105090-107-0606.pdf",
+      "official_source_sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836"
+    },
+    {
+      "id": "R-105-2-20",
+      "fields": [
+        "opt_d",
+        "question"
+      ],
+      "sourcePDF": "105090-107-0606.pdf",
+      "official_source_sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836"
+    },
+    {
+      "id": "R-105-2-21",
+      "fields": [
+        "question"
+      ],
+      "sourcePDF": "105090-107-0606.pdf",
+      "official_source_sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836"
+    },
+    {
+      "id": "R-105-2-22",
+      "fields": [
+        "question"
+      ],
+      "sourcePDF": "105090-107-0606.pdf",
+      "official_source_sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836"
+    },
+    {
+      "id": "R-107-2-04",
+      "fields": [
+        "opt_d"
+      ],
+      "sourcePDF": "107110-107-0606.pdf",
+      "official_source_sha256": "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d"
+    },
+    {
+      "id": "R-107-2-05",
+      "fields": [
+        "question"
+      ],
+      "sourcePDF": "107110-107-0606.pdf",
+      "official_source_sha256": "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d"
+    },
+    {
+      "id": "R-107-2-06",
+      "fields": [
+        "question"
+      ],
+      "sourcePDF": "107110-107-0606.pdf",
+      "official_source_sha256": "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d"
+    },
+    {
+      "id": "R-107-2-07",
+      "fields": [
+        "question"
+      ],
+      "sourcePDF": "107110-107-0606.pdf",
+      "official_source_sha256": "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d"
+    },
+    {
+      "id": "R-107-2-08",
+      "fields": [
+        "question"
+      ],
+      "sourcePDF": "107110-107-0606.pdf",
+      "official_source_sha256": "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d"
+    }
+  ],
+  "checks": [
+    "Original 200-row shards matched exact official-core lock before correction",
+    "All 13 candidate row fields matched original/new source proof",
+    "387 other rows in two shards unchanged",
+    "All 13 grading tuples unchanged",
+    "4,800 lock-key count unchanged",
+    "Other 22 shards unchanged",
+    "No backup, deployment, main, or Supabase write"
+  ],
+  "approved_to_merge": false,
+  "production_mutation": false
+}
