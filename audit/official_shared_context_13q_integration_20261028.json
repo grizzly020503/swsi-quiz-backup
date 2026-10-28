@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT_NO_GO_NOT_DEPLOYED",
+  "base_main_sha": "464680f8673ea454e2092031a938f5603c1f8d74",
+  "source_prs": [
+    466,
+    467
+  ],
+  "official_question_pdf_sha256": {
+    "105-2": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836",
+    "107-2": "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d"
+  },
+  "pdf_evidence": "MOEX original visually checked 105-2 printed pages 4-2, 4-3; 107-2 printed page 4-1. Detailed original source evidence belongs to PRs 466, 467.",
+  "counts": {
+    "all_mcq": 4800,
+    "changed_mcq": 13,
+    "unchanged_mcq": 4787,
+    "changed_shards": 2,
+    "all_shards": 24,
+    "changed_grading": 0
+  },
+  "new_manifest_revision": "moex-13q-0fed02ab473b",
+  "manifest_bytes_before": 7636982,
+  "manifest_bytes_after": 7639946,
+  "candidate_shard_sha256": {
+    "105-2": "0fed023d9913c076cd7f4947c9fa9c854f21535a2052bddacbd2e20be5e11767",
+    "107-2": "ab473bcc155b04cc95d32d7fb0c34332fc573f1a0e20ba86c04ed1ecabe05e88"
+  },
+  "changes": [
+    {
+      "id": "R-105-2-12",
+      "source_pr": 466,
+      "fields": {
+        "opt_d": {
+          "before": "Chatili, D., Mary, E. K., Ching, M. L., and Lee, S. S. 情況：假想廖教授計劃以臺灣社會工作專業人員協會的所有會員進行普查。研究者所擬定的其中 一個研究假設為「女性社工人員的倫理兩難決斷力較男性來得高」。請依上述資料回答下 列第題至第題。",
+          "after": "Chatili, D., Mary, E. K., Ching, M. L., and Lee, S. S."
+        }
+      },
+      "old_lock_sha256": "25c45b299e6a457657e1187eebae83b21a723989906befc4181081e497af8d85",
+      "new_lock_sha256": "3e33ee91914757c5ef59c237c7d088ab392b726e2b0546d0b110af0efb424eab",
+      "answer": "C",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-20",
+      "source_pr": 466,
+      "fields": {
+        "opt_d": {
+          "before": "樣本數經常會不足 情況：假想某政府單位委託民間民意調查機構，以電腦隨機撥號的方式，進行「臺灣應否逐步廢 除死刑以符合國際人權公約的準則」之電話民調。該調查指稱有效樣本數為 3,757 份，具 有 95%的信賴水準（confidence level）。請依上述資料回答下列第題至第題。",
+          "after": "樣本數經常會不足"
+        },
+        "question": {
+          "before": "從抽樣的理論來看，方便抽樣（convenience sampling）昀大的缺點在於：",
+          "after": "從抽樣的理論來看，方便抽樣（convenience sampling）最大的缺點在於："
+        }
+      },
+      "old_lock_sha256": "28951a983950cb1abb96a7a349b59e2cb32630bbbbedf8ba18c6def81e983475",
+      "new_lock_sha256": "62947940eb7bb323bb5083e1b8a9f837b40a589a0200c858db69eb8c10980add",
+      "answer": "B",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-13",
+      "source_pr": 466,
+      "fields": {
+        "question": {
+          "before": "以上說明是屬於那一種研究假設？",
+          "after": "情況：假想廖教授計劃以臺灣社會工作專業人員協會的所有會員進行普查。研究者所擬定的其中一個研究假設為「女性社工人員的倫理兩難決斷力較男性來得高」。請依上述資料回答下列第13題至第16題。\n\n以上說明是屬於那一種研究假設？"
+        }
+      },
+      "old_lock_sha256": "a7a3cad981860f9da678fd0250bee8f79f12b19f0727b2d8f79565ef097d0727",
+      "new_lock_sha256": "35940012774e9775b9fd693e4f9d0ca3054d1191f156be27f85a88f897d7f7e0",
+      "answer": "B",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-14",
+      "source_pr": 466,
+      "fields": {
+        "question": {
+          "before": "這個研究假設的自變項與依變項為何？",
+          "after": "情況：假想廖教授計劃以臺灣社會工作專業人員協會的所有會員進行普查。研究者所擬定的其中一個研究假設為「女性社工人員的倫理兩難決斷力較男性來得高」。請依上述資料回答下列第13題至第16題。\n\n這個研究假設的自變項與依變項為何？"
+        }
+      },
+      "old_lock_sha256": "7a15bd2e9be5bc27aadb3ba2e41e9775aa5464b91171ecd1c74ae5d0aa8142aa",
+      "new_lock_sha256": "5b86e63ee20d60a32ab494967d6eea17eaf11abf406acb7eefb664a3efc9220d",
+      "answer": "D",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-15",
+      "source_pr": 466,
+      "fields": {
+        "question": {
+          "before": "若廖教授以其自行設計的 10 題五等尺度量表來測量社工人員的「倫理決斷能力」，得 分越高代表倫理兩難決斷力越高。若研究者想驗證其所提出的這個研究假設，在不改變 變項測量層次的情形下，這位研究者應選用下列那個統計程序？",
+          "after": "情況：假想廖教授計劃以臺灣社會工作專業人員協會的所有會員進行普查。研究者所擬定的其中一個研究假設為「女性社工人員的倫理兩難決斷力較男性來得高」。請依上述資料回答下列第13題至第16題。\n\n若廖教授以其自行設計的 10 題五等尺度量表來測量社工人員的「倫理決斷能力」，得 分越高代表倫理兩難決斷力越高。若研究者想驗證其所提出的這個研究假設，在不改變 變項測量層次的情形下，這位研究者應選用下列那個統計程序？"
+        }
+      },
+      "old_lock_sha256": "551603df678bab3a82495c5a595c07b3a92789fffd7ed05ef43bacd7b05b6843",
+      "new_lock_sha256": "07633d588190bee88a0ee5160078a673290defe1417dbdad248d41440f6b8a20",
+      "answer": "D",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-16",
+      "source_pr": 466,
+      "fields": {
+        "question": {
+          "before": "若廖教授完成資料分析後，驗證了其所提出的「女性社工人員的倫理兩難決斷力較男性 來得高」這個研究假設。但有不少男性社工人員質疑量表中將進行倫理決策的頻率、時 間及影響人數等題目納入，忽略了男性社工人員比較少有機會從事第一線的實務工作， 因而較少參與在倫理兩難的決策中。請問這些男性社工人員質疑的是這個量表的：",
+          "after": "情況：假想廖教授計劃以臺灣社會工作專業人員協會的所有會員進行普查。研究者所擬定的其中一個研究假設為「女性社工人員的倫理兩難決斷力較男性來得高」。請依上述資料回答下列第13題至第16題。\n\n若廖教授完成資料分析後，驗證了其所提出的「女性社工人員的倫理兩難決斷力較男性 來得高」這個研究假設。但有不少男性社工人員質疑量表中將進行倫理決策的頻率、時 間及影響人數等題目納入，忽略了男性社工人員比較少有機會從事第一線的實務工作， 因而較少參與在倫理兩難的決策中。請問這些男性社工人員質疑的是這個量表的："
+        }
+      },
+      "old_lock_sha256": "aba38a5012665b55e3162a858a63c4c12c50a274ef163700bb04df75b83d7e96",
+      "new_lock_sha256": "f62ca951f87eea0d6dfd70f72c8c9dc6e69530e93d165a3db13b521ae5179e90",
+      "answer": "B",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-21",
+      "source_pr": 466,
+      "fields": {
+        "question": {
+          "before": "若該民調想更精準地掌握民意，希望達到 99%的信賴水準，請問該民調公司該怎麼做？",
+          "after": "情況：假想某政府單位委託民間民意調查機構，以電腦隨機撥號的方式，進行「臺灣應否逐步廢除死刑以符合國際人權公約的準則」之電話民調。該調查指稱有效樣本數為3,757份，具有95%的信賴水準（confidence level）。請依上述資料回答下列第21題至第22題。\n\n若該民調想更精準地掌握民意，希望達到 99%的信賴水準，請問該民調公司該怎麼做？"
+        }
+      },
+      "old_lock_sha256": "9a7bbfd78270f659f7e0dbb2026a6007a6c4a4620c08d78e89ac679f084b144c",
+      "new_lock_sha256": "f0586bf87489e203c0817b6e3b3198e62b37ca579e0090ed7e79f08906967358",
+      "answer": "C",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-22",
+      "source_pr": 466,
+      "fields": {
+        "question": {
+          "before": "若在調查前幾天，剛好發生街頭隨機殺人事件，且經媒體大幅報導；顯然此街頭隨機殺 人事件及其後續的討論可能會影響民意調查的結果。請問影響該民意調查效度的因素為 何？",
+          "after": "情況：假想某政府單位委託民間民意調查機構，以電腦隨機撥號的方式，進行「臺灣應否逐步廢除死刑以符合國際人權公約的準則」之電話民調。該調查指稱有效樣本數為3,757份，具有95%的信賴水準（confidence level）。請依上述資料回答下列第21題至第22題。\n\n若在調查前幾天，剛好發生街頭隨機殺人事件，且經媒體大幅報導；顯然此街頭隨機殺 人事件及其後續的討論可能會影響民意調查的結果。請問影響該民意調查效度的因素為 何？"
+        }
+      },
+      "old_lock_sha256": "0191324a7a01cd95ac978c00013ae6b604bdf228c852ad0bdaf3b513db4bc58b",
+      "new_lock_sha256": "f74a7265d9c4b3324fd27a14e02f78109d3ed6929c456cc43b70829728b841e1",
+      "answer": "A",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-107-2-04",
+      "source_pr": 467,
+      "fields": {
+        "opt_d": {
+          "before": "沒有箭頭的線條表示兩端的變項沒有關係 情況：睡眠對健康至關重要。但研究發現，多數大學生睡眠品質不佳。葉教授想了解影響大學生 睡眠品質的因素，他從自己任教的大學裡，以系級名單隨機抽取 20 個班級，到這些班級發 放問卷，請全班同學填寫。問卷中，睡眠品質以「匹茲堡睡眠品質量表」（是由 7 題，每 題 4 點尺度的李克特（Likert）量表所構成，分數越高代表睡眠品質越差）來測量，其他變 項包括受訪者性別、每週運動時數、每天上網時數等。請依照上述資料，回答下列第 5 題 至第 8 題。",
+          "after": "沒有箭頭的線條表示兩端的變項沒有關係"
+        }
+      },
+      "old_lock_sha256": "0e0b65bae33741c0e30844ab5905749db38f796b8f75cd7da290722817af86f0",
+      "new_lock_sha256": "2b73670d96aefe6b9ba5e64db648af5315ca66d4e597958feba833c1973cc1ee",
+      "answer": "D",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-107-2-05",
+      "source_pr": 467,
+      "fields": {
+        "question": {
+          "before": "此研究的抽樣方法為：",
+          "after": "情況：睡眠對健康至關重要。但研究發現，多數大學生睡眠品質不佳。葉教授想了解影響大學生睡眠品質的因素，他從自己任教的大學裡，以系級名單隨機抽取20個班級，到這些班級發放問卷，請全班同學填寫。問卷中，睡眠品質以「匹茲堡睡眠品質量表」（是由7題，每題4點尺度的李克特（Likert）量表所構成，分數越高代表睡眠品質越差）來測量，其他變項包括受訪者性別、每週運動時數、每天上網時數等。請依照上述資料，回答下列第5題至第8題。\n\n此研究的抽樣方法為："
+        }
+      },
+      "old_lock_sha256": "56d10ec735ce6561d19b19be67c7080fd188e83a0a9d7c6eb7abda4286a99acd",
+      "new_lock_sha256": "f0f74988c18ad282cb7ded104f152226f4aaaa9d7544518b4abc5b9e2616ef77",
+      "answer": "A",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-107-2-06",
+      "source_pr": 467,
+      "fields": {
+        "question": {
+          "before": "研究的分析單位是：",
+          "after": "情況：睡眠對健康至關重要。但研究發現，多數大學生睡眠品質不佳。葉教授想了解影響大學生睡眠品質的因素，他從自己任教的大學裡，以系級名單隨機抽取20個班級，到這些班級發放問卷，請全班同學填寫。問卷中，睡眠品質以「匹茲堡睡眠品質量表」（是由7題，每題4點尺度的李克特（Likert）量表所構成，分數越高代表睡眠品質越差）來測量，其他變項包括受訪者性別、每週運動時數、每天上網時數等。請依照上述資料，回答下列第5題至第8題。\n\n研究的分析單位是："
+        }
+      },
+      "old_lock_sha256": "57c4df5401e18718d554b4a1c1b05db60780668572fa0930496b285d210fe432",
+      "new_lock_sha256": "9f0d24e9594bfcc4f69e2a15ef4a2e0086569cd759d71cd2fefaf374c0d488c8",
+      "answer": "C",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-107-2-07",
+      "source_pr": 467,
+      "fields": {
+        "question": {
+          "before": "研究發現，「每天上網時數」與「睡眠品質」的相關係數 pearson r = 0.64（p=.002）。若顯 著水準α=0.05，以下敘述何者正確？",
+          "after": "情況：睡眠對健康至關重要。但研究發現，多數大學生睡眠品質不佳。葉教授想了解影響大學生睡眠品質的因素，他從自己任教的大學裡，以系級名單隨機抽取20個班級，到這些班級發放問卷，請全班同學填寫。問卷中，睡眠品質以「匹茲堡睡眠品質量表」（是由7題，每題4點尺度的李克特（Likert）量表所構成，分數越高代表睡眠品質越差）來測量，其他變項包括受訪者性別、每週運動時數、每天上網時數等。請依照上述資料，回答下列第5題至第8題。\n\n研究發現，「每天上網時數」與「睡眠品質」的相關係數 pearson r = 0.64（p=.002）。若顯 著水準α=0.05，以下敘述何者正確？"
+        }
+      },
+      "old_lock_sha256": "29a99bf911b28898636147c46dd1893f7fd1c3c80cd1c0949dfc787f2c052fde",
+      "new_lock_sha256": "8dc182ebb493c350f33c442ae6ae739330d472e57c2e23e66c3d0aae41217adc",
+      "answer": "B",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-107-2-08",
+      "source_pr": 467,
+      "fields": {
+        "question": {
+          "before": "研究也發現，單就性別進行比較，女學生的睡眠品質顯著比男學生差，但控制了每週運動時 數後發現，運動時數越高睡眠品質顯著越佳，同時性別就沒有顯著作用了。下列敘述何者正 確？①性別跟睡眠品質有因果關係 ②每週運動時數跟睡眠品質有因果關係 ③性別跟睡眠 品質是虛假關係 ④每週運動時數跟睡眠品質是間接關係",
+          "after": "情況：睡眠對健康至關重要。但研究發現，多數大學生睡眠品質不佳。葉教授想了解影響大學生睡眠品質的因素，他從自己任教的大學裡，以系級名單隨機抽取20個班級，到這些班級發放問卷，請全班同學填寫。問卷中，睡眠品質以「匹茲堡睡眠品質量表」（是由7題，每題4點尺度的李克特（Likert）量表所構成，分數越高代表睡眠品質越差）來測量，其他變項包括受訪者性別、每週運動時數、每天上網時數等。請依照上述資料，回答下列第5題至第8題。\n\n研究也發現，單就性別進行比較，女學生的睡眠品質顯著比男學生差，但控制了每週運動時 數後發現，運動時數越高睡眠品質顯著越佳，同時性別就沒有顯著作用了。下列敘述何者正 確？①性別跟睡眠品質有因果關係 ②每週運動時數跟睡眠品質有因果關係 ③性別跟睡眠 品質是虛假關係 ④每週運動時數跟睡眠品質是間接關係"
+        }
+      },
+      "old_lock_sha256": "1aec327ac1fd9f9897945bbada6748c454f7ae32e6c0971232ae1aaad6b90b75",
+      "new_lock_sha256": "12f9f75ec6ed974c95bd6492e1fd9dc225d0405594fb9f3a31536e46070c5869",
+      "answer": "B",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    }
+  ],
+  "production_database_write": false,
+  "main_merged": false,
+  "backup_site_touched": false,
+  "release_approved": false
+}
