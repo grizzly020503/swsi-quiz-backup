@@ -15,13 +15,18 @@ const SHELL = [
   './essay_guides.js',
   './manifest.json',
   './apple-touch-icon.png',
-  './official-figures/DS-113-2-13.png',
-  './official-figures/R-114-2-12.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './auto/questions_auto.json',
   './auto/essays_auto.json',
   './auto/sync_state.json'
+];
+
+// Cache available official figures for offline use. Their absence must keep
+// the figure-dependent question blocked, without disabling the entire app.
+const OPTIONAL_FIGURES = [
+  './official-figures/DS-113-2-13.png',
+  './official-figures/R-114-2-12.png'
 ];
 
 function cleanupStaleCaches() {
@@ -39,7 +44,13 @@ self.addEventListener('install', function (e) {
       .then(function (c) {
         return c.addAll(SHELL.map(function (url) {
           return new Request(url, { cache: 'reload' });
-        }));
+        })).then(function () {
+          return Promise.all(OPTIONAL_FIGURES.map(function (url) {
+            return c.addAll([new Request(url, { cache: 'reload' })]).catch(function (err) {
+              console.warn('[SWSI] official figure unavailable; question remains blocked', url, err);
+            });
+          }));
+        });
       })
       .then(function () { return self.skipWaiting(); })
   );

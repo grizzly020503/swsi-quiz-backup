@@ -19,6 +19,7 @@ class FakeResponse {
   let skipped = false;
   let fetchInit = null;
   let cachePutFailure = false;
+  let installFailure = null;
   const cacheKeys = new Set(['swsi-shell-v4', 'swsi-shell-v5', 'swsi-shell-v6', 'swsi-shell-v7', 'another-app-cache']);
 
   class FakeRequest {
@@ -35,7 +36,15 @@ class FakeResponse {
     async open(name) {
       assert.strictEqual(name, 'swsi-shell-v7');
       return {
-        async addAll(reqs) { addRequests.push(...reqs); },
+        async addAll(reqs) {
+          addRequests.push(...reqs);
+          if (installFailure === 'figure' && reqs.some(req => req.url.includes('/official-figures/'))) {
+            throw new Error('simulated missing official figure');
+          }
+          if (installFailure === 'core' && reqs.some(req => req.url === './index.html')) {
+            throw new Error('simulated missing core shell');
+          }
+        },
         async put(req, response) {
           puts.push({ req, response });
           if (cachePutFailure) throw new Error('simulated quota failure');
@@ -76,6 +85,20 @@ class FakeResponse {
   assert(skipped, 'new service worker did not call skipWaiting');
   assert(addRequests.length >= 10, 'shell assets were not precached');
   assert(addRequests.every(req => req.cache === 'reload'), 'install did not bypass the old HTTP cache');
+  for (const id of ['DS-113-2-13', 'R-114-2-12']) {
+    assert(addRequests.some(req => req.url === './official-figures/' + id + '.png'), 'available figure not precached');
+  }
+  installFailure = 'figure';
+  skipped = false;
+  handlers.install({ waitUntil(p) { installPromise = p; } });
+  await installPromise;
+  assert(skipped, 'missing official figure disabled the entire service worker');
+  installFailure = 'core';
+  skipped = false;
+  handlers.install({ waitUntil(p) { installPromise = p; } });
+  await assert.rejects(installPromise, /missing core shell/);
+  assert(!skipped, 'missing core shell must still fail installation');
+  installFailure = null;
 
   let activatePromise;
   handlers.activate({ waitUntil(p) { activatePromise = p; } });
