@@ -1,0 +1,18 @@
+{
+  "observed_date": "2026-10-29 (Asia/Taipei)",
+  "kind": "READ_ONLY_PRODUCTION_PARITY",
+  "project_name": "Swsi",
+  "production_rows": 4800,
+  "repository_rows": 4800,
+  "source_identity_mismatches": 0,
+  "question_identity_mismatches": 0,
+  "answer_accepted_answers_grading_mode_mismatches": 0,
+  "changed_row_preimage_checks": {
+    "rows": 13,
+    "mismatches": []
+  },
+  "writes_executed": 0,
+  "human_source_approval": false,
+  "method": "Connected Supabase SELECT: all public.questions IDs, source URLs/exam codes, year/round/subject and grading tuples; separate SELECT of the 13 public question preimages. Compare URL query parameters independent of their order. No user/admin/private records selected.",
+  "limitation": "Point-in-time observation only. Recheck under lock and obtain source approval before any production write. This is not a database backup or deployment proof."
+}
