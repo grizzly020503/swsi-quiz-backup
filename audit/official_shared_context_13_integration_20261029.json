@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT_NO_GO",
+  "baseline_commit": "e08b0292ddb653219327776d65440e837721bba7",
+  "source_prs": [
+    466,
+    467
+  ],
+  "changed_ids": [
+    "R-105-2-12",
+    "R-105-2-20",
+    "R-105-2-13",
+    "R-105-2-14",
+    "R-105-2-15",
+    "R-105-2-16",
+    "R-105-2-21",
+    "R-105-2-22",
+    "R-107-2-04",
+    "R-107-2-05",
+    "R-107-2-06",
+    "R-107-2-07",
+    "R-107-2-08"
+  ],
+  "unchanged_count": 4787,
+  "source_pdf_sha256": [
+    "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836",
+    "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d"
+  ],
+  "source_proofs": [
+    "audit/official_105_2_shared_context_20261028.json",
+    "audit/official_107_2_shared_context_20261028.json"
+  ],
+  "manifest_total_bytes": 7639946,
+  "dataset_revision": "0fed023d99ab473bcc15",
+  "sha256": {
+    "105-2.json": "0fed023d9913c076cd7f4947c9fa9c854f21535a2052bddacbd2e20be5e11767",
+    "107-2.json": "ab473bcc155b04cc95d32d7fb0c34332fc573f1a0e20ba86c04ed1ecabe05e88"
+  },
+  "grade_tuple_changed": false,
+  "production_mutation": false,
+  "backup_modified": false,
+  "merge_approval": false
+}

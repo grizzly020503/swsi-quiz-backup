@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "review_status": "DRAFT_NO_GO_NOT_RELEASE_APPROVED",
+  "base_main_sha": "579ad20c4b762ab63969ffd1e03f552c848e8c7e",
+  "source_pdf": "105090-107-0606.pdf",
+  "source_pdf_sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836",
+  "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0606&t=Q",
+  "printed_pages": [
+    "4-2",
+    "4-3"
+  ],
+  "evidence_method": "original PDF visually inspected, not AI-generated",
+  "old_shard_sha256": "3b907f487c75bfc53bfd67d85b05b580bb9dbd2b72c532b3ffb1f9f8586e092e",
+  "new_shard_sha256": "0fed023d9913c076cd7f4947c9fa9c854f21535a2052bddacbd2e20be5e11767",
+  "old_manifest_blob_sha": "7aad7ad759e330197406fb25d2b813e809da2dfc",
+  "old_lock_blob_sha": "2af67c5bd986680d8d0305190af6a3b6c7401240",
+  "changed_questions": 8,
+  "untouched_105_2_rows": 192,
+  "other_23_shards_unchanged": true,
+  "answers_and_grading_unchanged": true,
+  "shared_contexts": {
+    "13-16": "情況：假想廖教授計劃以臺灣社會工作專業人員協會的所有會員進行普查。研究者所擬定的其中一個研究假設為「女性社工人員的倫理兩難決斷力較男性來得高」。請依上述資料回答下列第13題至第16題。",
+    "21-22": "情況：假想某政府單位委託民間民意調查機構，以電腦隨機撥號的方式，進行「臺灣應否逐步廢除死刑以符合國際人權公約的準則」之電話民調。該調查指稱有效樣本數為3,757份，具有95%的信賴水準（confidence level）。請依上述資料回答下列第21題至第22題。"
+  },
+  "changes": [
+    {
+      "id": "R-105-2-12",
+      "fields": {
+        "opt_d": {
+          "before": "Chatili, D., Mary, E. K., Ching, M. L., and Lee, S. S. 情況：假想廖教授計劃以臺灣社會工作專業人員協會的所有會員進行普查。研究者所擬定的其中 一個研究假設為「女性社工人員的倫理兩難決斷力較男性來得高」。請依上述資料回答下 列第題至第題。",
+          "after": "Chatili, D., Mary, E. K., Ching, M. L., and Lee, S. S."
+        }
+      },
+      "old_lock_sha256": "25c45b299e6a457657e1187eebae83b21a723989906befc4181081e497af8d85",
+      "new_lock_sha256": "3e33ee91914757c5ef59c237c7d088ab392b726e2b0546d0b110af0efb424eab",
+      "answer": "C",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-20",
+      "fields": {
+        "opt_d": {
+          "before": "樣本數經常會不足 情況：假想某政府單位委託民間民意調查機構，以電腦隨機撥號的方式，進行「臺灣應否逐步廢 除死刑以符合國際人權公約的準則」之電話民調。該調查指稱有效樣本數為 3,757 份，具 有 95%的信賴水準（confidence level）。請依上述資料回答下列第題至第題。",
+          "after": "樣本數經常會不足"
+        },
+        "question": {
+          "before": "從抽樣的理論來看，方便抽樣（convenience sampling）昀大的缺點在於：",
+          "after": "從抽樣的理論來看，方便抽樣（convenience sampling）最大的缺點在於："
+        }
+      },
+      "old_lock_sha256": "28951a983950cb1abb96a7a349b59e2cb32630bbbbedf8ba18c6def81e983475",
+      "new_lock_sha256": "62947940eb7bb323bb5083e1b8a9f837b40a589a0200c858db69eb8c10980add",
+      "answer": "B",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-13",
+      "fields": {
+        "question": {
+          "before": "以上說明是屬於那一種研究假設？",
+          "after": "情況：假想廖教授計劃以臺灣社會工作專業人員協會的所有會員進行普查。研究者所擬定的其中一個研究假設為「女性社工人員的倫理兩難決斷力較男性來得高」。請依上述資料回答下列第13題至第16題。\n\n以上說明是屬於那一種研究假設？"
+        }
+      },
+      "old_lock_sha256": "a7a3cad981860f9da678fd0250bee8f79f12b19f0727b2d8f79565ef097d0727",
+      "new_lock_sha256": "35940012774e9775b9fd693e4f9d0ca3054d1191f156be27f85a88f897d7f7e0",
+      "answer": "B",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-14",
+      "fields": {
+        "question": {
+          "before": "這個研究假設的自變項與依變項為何？",
+          "after": "情況：假想廖教授計劃以臺灣社會工作專業人員協會的所有會員進行普查。研究者所擬定的其中一個研究假設為「女性社工人員的倫理兩難決斷力較男性來得高」。請依上述資料回答下列第13題至第16題。\n\n這個研究假設的自變項與依變項為何？"
+        }
+      },
+      "old_lock_sha256": "7a15bd2e9be5bc27aadb3ba2e41e9775aa5464b91171ecd1c74ae5d0aa8142aa",
+      "new_lock_sha256": "5b86e63ee20d60a32ab494967d6eea17eaf11abf406acb7eefb664a3efc9220d",
+      "answer": "D",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-15",
+      "fields": {
+        "question": {
+          "before": "若廖教授以其自行設計的 10 題五等尺度量表來測量社工人員的「倫理決斷能力」，得 分越高代表倫理兩難決斷力越高。若研究者想驗證其所提出的這個研究假設，在不改變 變項測量層次的情形下，這位研究者應選用下列那個統計程序？",
+          "after": "情況：假想廖教授計劃以臺灣社會工作專業人員協會的所有會員進行普查。研究者所擬定的其中一個研究假設為「女性社工人員的倫理兩難決斷力較男性來得高」。請依上述資料回答下列第13題至第16題。\n\n若廖教授以其自行設計的 10 題五等尺度量表來測量社工人員的「倫理決斷能力」，得 分越高代表倫理兩難決斷力越高。若研究者想驗證其所提出的這個研究假設，在不改變 變項測量層次的情形下，這位研究者應選用下列那個統計程序？"
+        }
+      },
+      "old_lock_sha256": "551603df678bab3a82495c5a595c07b3a92789fffd7ed05ef43bacd7b05b6843",
+      "new_lock_sha256": "07633d588190bee88a0ee5160078a673290defe1417dbdad248d41440f6b8a20",
+      "answer": "D",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-16",
+      "fields": {
+        "question": {
+          "before": "若廖教授完成資料分析後，驗證了其所提出的「女性社工人員的倫理兩難決斷力較男性 來得高」這個研究假設。但有不少男性社工人員質疑量表中將進行倫理決策的頻率、時 間及影響人數等題目納入，忽略了男性社工人員比較少有機會從事第一線的實務工作， 因而較少參與在倫理兩難的決策中。請問這些男性社工人員質疑的是這個量表的：",
+          "after": "情況：假想廖教授計劃以臺灣社會工作專業人員協會的所有會員進行普查。研究者所擬定的其中一個研究假設為「女性社工人員的倫理兩難決斷力較男性來得高」。請依上述資料回答下列第13題至第16題。\n\n若廖教授完成資料分析後，驗證了其所提出的「女性社工人員的倫理兩難決斷力較男性 來得高」這個研究假設。但有不少男性社工人員質疑量表中將進行倫理決策的頻率、時 間及影響人數等題目納入，忽略了男性社工人員比較少有機會從事第一線的實務工作， 因而較少參與在倫理兩難的決策中。請問這些男性社工人員質疑的是這個量表的："
+        }
+      },
+      "old_lock_sha256": "aba38a5012665b55e3162a858a63c4c12c50a274ef163700bb04df75b83d7e96",
+      "new_lock_sha256": "f62ca951f87eea0d6dfd70f72c8c9dc6e69530e93d165a3db13b521ae5179e90",
+      "answer": "B",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-21",
+      "fields": {
+        "question": {
+          "before": "若該民調想更精準地掌握民意，希望達到 99%的信賴水準，請問該民調公司該怎麼做？",
+          "after": "情況：假想某政府單位委託民間民意調查機構，以電腦隨機撥號的方式，進行「臺灣應否逐步廢除死刑以符合國際人權公約的準則」之電話民調。該調查指稱有效樣本數為3,757份，具有95%的信賴水準（confidence level）。請依上述資料回答下列第21題至第22題。\n\n若該民調想更精準地掌握民意，希望達到 99%的信賴水準，請問該民調公司該怎麼做？"
+        }
+      },
+      "old_lock_sha256": "9a7bbfd78270f659f7e0dbb2026a6007a6c4a4620c08d78e89ac679f084b144c",
+      "new_lock_sha256": "f0586bf87489e203c0817b6e3b3198e62b37ca579e0090ed7e79f08906967358",
+      "answer": "C",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    },
+    {
+      "id": "R-105-2-22",
+      "fields": {
+        "question": {
+          "before": "若在調查前幾天，剛好發生街頭隨機殺人事件，且經媒體大幅報導；顯然此街頭隨機殺 人事件及其後續的討論可能會影響民意調查的結果。請問影響該民意調查效度的因素為 何？",
+          "after": "情況：假想某政府單位委託民間民意調查機構，以電腦隨機撥號的方式，進行「臺灣應否逐步廢除死刑以符合國際人權公約的準則」之電話民調。該調查指稱有效樣本數為3,757份，具有95%的信賴水準（confidence level）。請依上述資料回答下列第21題至第22題。\n\n若在調查前幾天，剛好發生街頭隨機殺人事件，且經媒體大幅報導；顯然此街頭隨機殺 人事件及其後續的討論可能會影響民意調查的結果。請問影響該民意調查效度的因素為 何？"
+        }
+      },
+      "old_lock_sha256": "0191324a7a01cd95ac978c00013ae6b604bdf228c852ad0bdaf3b513db4bc58b",
+      "new_lock_sha256": "f74a7265d9c4b3324fd27a14e02f78109d3ed6929c456cc43b70829728b841e1",
+      "answer": "A",
+      "accepted_answers": null,
+      "grading_mode": "standard"
+    }
+  ],
+  "not_approved_for_merge": true,
+  "requires": "source-PDF human signoff, exact-head CI, lock+manifest tests, broader official PDF review, controlled Supabase source parity. No main/production/Netlify backup mutation."
+}
