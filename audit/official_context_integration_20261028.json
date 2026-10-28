@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT_NO_GO",
+  "main_base_sha": "464680f8673ea454e2092031a938f5603c1f8d74",
+  "source_prs": [
+    466,
+    467
+  ],
+  "changed_mcq_count": 13,
+  "untouched_mcq_count": 4787,
+  "untouched_other_shards": 22,
+  "essays_unchanged": 240,
+  "answers_grading_unchanged": true,
+  "analysis_unchanged": true,
+  "production_mutated": false,
+  "backup_site_mutated": false,
+  "official_source_pdf_shas": [
+    "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836",
+    "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d"
+  ],
+  "source_shard_sha256": [
+    "0fed023d9913c076cd7f4947c9fa9c854f21535a2052bddacbd2e20be5e11767",
+    "ab473bcc155b04cc95d32d7fb0c34332fc573f1a0e20ba86c04ed1ecabe05e88"
+  ],
+  "dataset_revision": "0fed023d99ab473bcc15",
+  "total_manifest_bytes": 7639946,
+  "changes": [
+    {
+      "id": "R-105-2-12",
+      "old_lock_sha256": "25c45b299e6a457657e1187eebae83b21a723989906befc4181081e497af8d85",
+      "new_lock_sha256": "3e33ee91914757c5ef59c237c7d088ab392b726e2b0546d0b110af0efb424eab",
+      "fields": [
+        "opt_d"
+      ]
+    },
+    {
+      "id": "R-105-2-20",
+      "old_lock_sha256": "28951a983950cb1abb96a7a349b59e2cb32630bbbbedf8ba18c6def81e983475",
+      "new_lock_sha256": "62947940eb7bb323bb5083e1b8a9f837b40a589a0200c858db69eb8c10980add",
+      "fields": [
+        "opt_d",
+        "question"
+      ]
+    },
+    {
+      "id": "R-105-2-13",
+      "old_lock_sha256": "a7a3cad981860f9da678fd0250bee8f79f12b19f0727b2d8f79565ef097d0727",
+      "new_lock_sha256": "35940012774e9775b9fd693e4f9d0ca3054d1191f156be27f85a88f897d7f7e0",
+      "fields": [
+        "question"
+      ]
+    },
+    {
+      "id": "R-105-2-14",
+      "old_lock_sha256": "7a15bd2e9be5bc27aadb3ba2e41e9775aa5464b91171ecd1c74ae5d0aa8142aa",
+      "new_lock_sha256": "5b86e63ee20d60a32ab494967d6eea17eaf11abf406acb7eefb664a3efc9220d",
+      "fields": [
+        "question"
+      ]
+    },
+    {
+      "id": "R-105-2-15",
+      "old_lock_sha256": "551603df678bab3a82495c5a595c07b3a92789fffd7ed05ef43bacd7b05b6843",
+      "new_lock_sha256": "07633d588190bee88a0ee5160078a673290defe1417dbdad248d41440f6b8a20",
+      "fields": [
+        "question"
+      ]
+    },
+    {
+      "id": "R-105-2-16",
+      "old_lock_sha256": "aba38a5012665b55e3162a858a63c4c12c50a274ef163700bb04df75b83d7e96",
+      "new_lock_sha256": "f62ca951f87eea0d6dfd70f72c8c9dc6e69530e93d165a3db13b521ae5179e90",
+      "fields": [
+        "question"
+      ]
+    },
+    {
+      "id": "R-105-2-21",
+      "old_lock_sha256": "9a7bbfd78270f659f7e0dbb2026a6007a6c4a4620c08d78e89ac679f084b144c",
+      "new_lock_sha256": "f0586bf87489e203c0817b6e3b3198e62b37ca579e0090ed7e79f08906967358",
+      "fields": [
+        "question"
+      ]
+    },
+    {
+      "id": "R-105-2-22",
+      "old_lock_sha256": "0191324a7a01cd95ac978c00013ae6b604bdf228c852ad0bdaf3b513db4bc58b",
+      "new_lock_sha256": "f74a7265d9c4b3324fd27a14e02f78109d3ed6929c456cc43b70829728b841e1",
+      "fields": [
+        "question"
+      ]
+    },
+    {
+      "id": "R-107-2-04",
+      "old_lock_sha256": "0e0b65bae33741c0e30844ab5905749db38f796b8f75cd7da290722817af86f0",
+      "new_lock_sha256": "2b73670d96aefe6b9ba5e64db648af5315ca66d4e597958feba833c1973cc1ee",
+      "fields": [
+        "opt_d"
+      ]
+    },
+    {
+      "id": "R-107-2-05",
+      "old_lock_sha256": "56d10ec735ce6561d19b19be67c7080fd188e83a0a9d7c6eb7abda4286a99acd",
+      "new_lock_sha256": "f0f74988c18ad282cb7ded104f152226f4aaaa9d7544518b4abc5b9e2616ef77",
+      "fields": [
+        "question"
+      ]
+    },
+    {
+      "id": "R-107-2-06",
+      "old_lock_sha256": "57c4df5401e18718d554b4a1c1b05db60780668572fa0930496b285d210fe432",
+      "new_lock_sha256": "9f0d24e9594bfcc4f69e2a15ef4a2e0086569cd759d71cd2fefaf374c0d488c8",
+      "fields": [
+        "question"
+      ]
+    },
+    {
+      "id": "R-107-2-07",
+      "old_lock_sha256": "29a99bf911b28898636147c46dd1893f7fd1c3c80cd1c0949dfc787f2c052fde",
+      "new_lock_sha256": "8dc182ebb493c350f33c442ae6ae739330d472e57c2e23e66c3d0aae41217adc",
+      "fields": [
+        "question"
+      ]
+    },
+    {
+      "id": "R-107-2-08",
+      "old_lock_sha256": "1aec327ac1fd9f9897945bbada6748c454f7ae32e6c0971232ae1aaad6b90b75",
+      "new_lock_sha256": "12f9f75ec6ed974c95bd6492e1fd9dc225d0405594fb9f3a31536e46070c5869",
+      "fields": [
+        "question"
+      ]
+    }
+  ],
+  "release_approval": false,
+  "holds": [
+    "Official PDF sign-off",
+    "same-head QA",
+    "unresolved whole-corpus official text comparison",
+    "real essay AI human ratings",
+    "controlled Supabase publication"
+  ]
+}
