@@ -44,3 +44,6 @@ jobs:
 
       - name: Dependent-question context regression
         run: node scripts/dependent_question_context_smoke.js
+
+      - name: Verified official shared-scenario data regression
+        run: python scripts/official_context_integration_smoke.py
