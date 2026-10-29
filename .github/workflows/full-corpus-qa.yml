@@ -20,6 +20,8 @@ on:
       - 'scripts/build_question_shards.py'
       - 'scripts/historical_source_url_guard.py'
       - 'scripts/historical_source_url_guard_selftest.py'
+      - 'scripts/official_option_scenario_guard.py'
+      - 'scripts/official_option_scenario_guard_selftest.py'
       - 'data/moex_source_subjects.v1.json'
       - 'data/exam_scheme_registry.v1.json'
       - 'data/question_qa_policy_v1.json'
@@ -40,6 +42,8 @@ on:
       - 'scripts/build_question_shards.py'
       - 'scripts/historical_source_url_guard.py'
       - 'scripts/historical_source_url_guard_selftest.py'
+      - 'scripts/official_option_scenario_guard.py'
+      - 'scripts/official_option_scenario_guard_selftest.py'
       - 'data/moex_source_subjects.v1.json'
       - 'data/exam_scheme_registry.v1.json'
       - 'data/question_qa_policy_v1.json'
@@ -87,6 +91,12 @@ jobs:
 
       - name: Prevent wrong-subject historic MOEX sources in rebuilt shards
         run: python scripts/historical_source_url_guard_selftest.py
+
+      - name: Audit official MCQ option vs next-case boundary (read-only)
+        run: |
+          python -m py_compile scripts/official_option_scenario_guard.py scripts/official_option_scenario_guard_selftest.py
+          python scripts/official_option_scenario_guard_selftest.py
+          python scripts/official_option_scenario_guard.py --out /tmp/official-option-scenario-qa.json --fail-on-blocked
 
       - name: Audit all manifest sessions through effective exam profiles
         run: |
@@ -137,6 +147,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: full-corpus-question-qa
-          path: /tmp/full-corpus-question-qa.json
+          path: |
+            /tmp/full-corpus-question-qa.json
+            /tmp/official-option-scenario-qa.json
           if-no-files-found: ignore
           retention-days: 14
