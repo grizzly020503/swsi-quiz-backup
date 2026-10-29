@@ -3,8 +3,13 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import json
+from pathlib import Path
+import subprocess
+import sys
+from tempfile import TemporaryDirectory
 
-from official_option_scenario_guard import read_rows, scan
+from official_option_scenario_guard import read_rows, scan, validate_live_baseline
 
 EXAMPLES = [
     ("R-105-2-12", "Chatili, D., Mary, E. K., Ching, M. L., and Lee, S. S. 情況：假想廖教授…請依上述資料回答下列第題至第題。"),
@@ -26,6 +31,17 @@ def main() -> int:
     base = scan(verified_candidate)
     assert base["scanned_questions"] == 4800
     assert base["scanned_options"] == 19200
+    validate_live_baseline(verified_candidate)
+    for invalid in ([], verified_candidate[:-1], verified_candidate + [verified_candidate[0]]):
+        try:
+            validate_live_baseline(invalid)
+        except ValueError as exc:
+            assert "historical scope incomplete" in str(exc)
+        else:
+            raise AssertionError("live audit cannot accept partial/empty/duplicate baseline")
+    # Future official years may be appended without invalidating the historical set.
+    future = dict(verified_candidate[0], id="FUTURE-FIXTURE", year="116")
+    validate_live_baseline(verified_candidate + [future])
     assert base["blocking_suspicions"] == 0, (
         "verified source candidate has newly detected option/context contamination",
         base["risks"][:10],
@@ -55,6 +71,28 @@ def main() -> int:
     mutated[0]["opt_d"] = EXAMPLES[0][1]
     assert scan(mutated)["blocking_suspicions"] == 1
     assert mutated[0]["opt_d"] == EXAMPLES[0][1], "read-only scan changed its input"
+    # Exercise the exact production-shaped CLI using a bounded local export,
+    # without network or credentials. Detect drift and preserve the report.
+    with TemporaryDirectory(prefix="swsi-option-audit-test-") as tmp:
+        input_file = Path(tmp) / "live-fixture.json"
+        report_file = Path(tmp) / "report.json"
+        mutated_full = [dict(r) for r in verified_candidate]
+        victim = next(i for i, r in enumerate(mutated_full) if r["id"] == "R-107-2-04")
+        mutated_full[victim]["opt_d"] = EXAMPLES[2][1]
+        input_file.write_text(json.dumps(mutated_full, ensure_ascii=False), encoding="utf-8")
+        proc = subprocess.run(
+            [sys.executable, str(Path(__file__).with_name("official_option_scenario_guard.py")),
+             "--input", str(input_file), "--out", str(report_file), "--fail-on-blocked"],
+            capture_output=True, text=True, timeout=90, check=False,
+        )
+        assert proc.returncode == 2, (proc.stdout, proc.stderr)
+        report = json.loads(report_file.read_text(encoding="utf-8"))
+        assert report["dataset_scope"] == "input_export"
+        assert report["scanned_questions"] == 4800
+        assert report["blocking_suspicions"] >= 1
+        assert any(x["id"] == "R-107-2-04" and x["field"] == "opt_d" for x in report["risks"])
+        assert report["official_core_modified"] is False and report["release_approval"] is False
+
     dupe = [row("DUPE", "甲"), row("DUPE", "乙")]
     try:
         scan(dupe)
