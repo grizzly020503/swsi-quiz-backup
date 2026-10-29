@@ -45,6 +45,15 @@
       "expected_interval_hours": 744,
       "max_age_hours": 840,
       "criticality": "critical"
+    },
+    {
+      "id": "official-pdf-batch-pipeline",
+      "workflow_file": "official-pdf-batch-pipeline.yml",
+      "display_name": "Official PDF Batch Pipeline",
+      "accepted_events": ["schedule"],
+      "expected_interval_hours": 24,
+      "max_age_hours": 36,
+      "criticality": "high"
     }
   ]
 }
