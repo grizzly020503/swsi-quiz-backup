@@ -9,7 +9,7 @@ import subprocess
 import sys
 from tempfile import TemporaryDirectory
 
-from official_option_scenario_guard import read_rows, scan, validate_live_baseline
+from official_option_scenario_guard import read_rows, scan, validate_live_baseline, verified_shared_case_groups
 
 EXAMPLES = [
     ("R-105-2-12", "Chatili, D., Mary, E. K., Ching, M. L., and Lee, S. S. 情況：假想廖教授…請依上述資料回答下列第題至第題。"),
@@ -32,6 +32,36 @@ def main() -> int:
     assert base["scanned_questions"] == 4800
     assert base["scanned_options"] == 19200
     validate_live_baseline(verified_candidate)
+    shared = verified_shared_case_groups(verified_candidate)
+    assert shared["required_groups"] == 3 and shared["required_dependent_questions"] == 10, shared
+    assert shared["context_blocking_suspicions"] == 0, shared
+    assert shared["groups_with_source_context"] == 3, shared
+    def context_broken(ident: str, value: str, expected_reason: str) -> None:
+        mutated = [dict(r) for r in verified_candidate]
+        victim = next(row for row in mutated if row["id"] == ident)
+        original = victim["question"]
+        victim["question"] = value
+        result = verified_shared_case_groups(mutated)
+        assert result["context_blocking_suspicions"] >= 1, result
+        assert any(x["id"] == ident and x["reason"] == expected_reason
+                   for x in result["context_risks"]), result["context_risks"]
+        assert original != victim["question"]
+    source_q14 = next(r for r in verified_candidate if r["id"] == "R-105-2-14")
+    # The dependent Q14 can no longer be answered in a shuffled one-question drill.
+    context_broken("R-105-2-14", source_q14["question"].split("\n\n", 1)[-1],
+                   "shared_case_context_missing")
+    source_q22 = next(r for r in verified_candidate if r["id"] == "R-105-2-22")
+    context_broken("R-105-2-22", source_q22["question"].replace("第21題至第22題", "第20題至第22題"),
+                   "shared_case_context_incomplete_or_wrong_range")
+    source_q8 = next(r for r in verified_candidate if r["id"] == "R-107-2-08")
+    context_broken("R-107-2-08", source_q8["question"].replace("睡眠對健康至關重要", "睡眠無關緊要"),
+                   "shared_case_context_mismatch")
+    # A missing dependent record cannot quietly pass the shared context gate.
+    incomplete = [row for row in verified_candidate if row["id"] != "R-105-2-16"]
+    missing = verified_shared_case_groups(incomplete)
+    assert any(x["id"] == "R-105-2-16" and x["reason"] ==
+               "missing_or_wrong_dependent_question_identity" for x in missing["context_risks"])
+
     for invalid in ([], verified_candidate[:-1], verified_candidate + [verified_candidate[0]]):
         try:
             validate_live_baseline(invalid)
@@ -92,6 +122,8 @@ def main() -> int:
         assert report["blocking_suspicions"] >= 1
         assert any(x["id"] == "R-107-2-04" and x["field"] == "opt_d" for x in report["risks"])
         assert report["official_core_modified"] is False and report["release_approval"] is False
+        assert report["shared_case_groups"]["context_blocking_suspicions"] == 0
+        assert report["shared_case_groups"]["required_dependent_questions"] == 10
 
     dupe = [row("DUPE", "甲"), row("DUPE", "乙")]
     try:
