@@ -121,6 +121,7 @@ def main() -> int:
     source.add_argument("--input", type=Path, help="JSON list of exported question records")
     source.add_argument("--live", action="store_true", help="explicit anon READ ONLY production API")
     parser.add_argument("--out", type=Path, help="write review-only JSON outside the repo")
+    parser.add_argument("--fail-on-proposals", action="store_true", help="monthly QA blocks if official URL drift is found")
     args = parser.parse_args()
     if args.live:
         from build_question_shards import fetch_questions
@@ -137,7 +138,7 @@ def main() -> int:
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: v for k, v in report.items() if k != "patches"}, ensure_ascii=False))
-    return 0
+    return 2 if args.fail_on_proposals and report["proposed_url_changes"] else 0
 
 
 if __name__ == "__main__":
