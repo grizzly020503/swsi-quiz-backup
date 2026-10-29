@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "base_commit": "992c6a85cdb92964f5101b10b0d2de52fb0158b9",
+  "comparison_sha256": "0853dc8e28191f7904e03b850f844ae245caf8ce5336800c3f1b2593aed14949",
+  "scope": "five source-backed mechanical PDF-review dispositions; no new Official Core edit or human approval",
+  "human_approval": false,
+  "release_approved": false,
+  "official_core_modified": false,
+  "count": 5,
+  "rows": [
+    {
+      "id": "DS-113-2-13",
+      "classification": "original_figure_text_segmentation",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113100&c=103&s=0302&q=1",
+      "pdf_sha256": "21b47d133e072b34eab4f07fa95ffab1601d54768eb8cedf680a9471fc9bfbc3",
+      "printed_page": "6-3",
+      "pdf_page_number": 3,
+      "baseline_comparison_row_sha256": "846ce6df1acb2b8e30074d151792feee499a51e4a5917d125b5ae11ebe6ae1bb",
+      "baseline_differences": {
+        "question": {
+          "stored": "有關下圖案母與案主之間的關係狀況，下列何者正確？（圖示：62 歲男性與 24 歲女兒之間以鋸齒線連結）",
+          "official_extraction": "有關下圖案母與案主之間的關係狀況,下列何者正確? 1970 結婚 寵物:狗"
+        }
+      },
+      "current_full_row_sha256": "e656382d32f230b5e1f74896fcf5d45864e45f035f92cc11ccd0ac9e15085b7b",
+      "current_core_lock_sha256": "333f81b3ac881def4ddb54825d126933b5a30bd9d3f8b79d9fd5708d555725ba",
+      "official_answer": "B",
+      "accepted_answers": null,
+      "grading_mode": "standard",
+      "official_field_transcription": {
+        "question": "有關下圖案母與案主之間的關係狀況，下列何者正確？"
+      },
+      "validation_method": "SHA256-verified original PDF rendered locally and AI visually compared; deterministic exact-row/source/field/grading and segmentation checks; not independent human signoff",
+      "human_approval": false,
+      "layout_observation": "1970結婚 and 寵物:狗 are labels inside the original genogram, not question stem. Both original image assets remain byte-bound by the combined guard."
+    },
+    {
+      "id": "R-105-2-12",
+      "classification": "shared_context_segmentation",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=105090&c=107&s=0606&q=1",
+      "pdf_sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836",
+      "printed_page": "4-2",
+      "pdf_page_number": 2,
+      "baseline_comparison_row_sha256": "fa3fa32559aa3b0dc7074a972a868506d4e72718dc3d0745045b17d15bdf8ac1",
+      "baseline_differences": {
+        "opt_d": {
+          "stored": "Chatili, D., Mary, E. K., Ching, M. L., and Lee, S. S. 情況：假想廖教授計劃以臺灣社會工作專業人員協會的所有會員進行普查。研究者所擬定的其中 一個研究假設為「女性社工人員的倫理兩難決斷力較男性來得高」。請依上述資料回答下 列第題至第題。",
+          "official_extraction": "Chatili, D., Mary, E. K., Ching, M. L., and Lee, S. S. 情況:假想廖教授計劃以臺灣社會工作專業人員協會的所有會員進行普查。研究者所擬定的其中一個研究假設 為「女性社工人員的倫理兩難決斷力較男性來得高」。請依上述資料回答下列第 13 題至第 16 題。"
+        }
+      },
+      "current_full_row_sha256": "e11eb4250f3db5b0b93b47fbac314142e8db35d2aa147c759b64f0857833a7fb",
+      "current_core_lock_sha256": "3e33ee91914757c5ef59c237c7d088ab392b726e2b0546d0b110af0efb424eab",
+      "official_answer": "C",
+      "accepted_answers": null,
+      "grading_mode": "standard",
+      "official_field_transcription": {
+        "opt_d": "Chatili, D., Mary, E. K., Ching, M. L., and Lee, S. S."
+      },
+      "validation_method": "SHA256-verified original PDF rendered locally and AI visually compared; deterministic exact-row/source/field/grading and segmentation checks; not independent human signoff",
+      "human_approval": false,
+      "layout_observation": "Q12 opt_d ends at Lee, S. S.; the following context belongs to Q13-16 and is present in each dependent question."
+    },
+    {
+      "id": "R-105-2-16",
+      "classification": "shared_context_segmentation",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=105090&c=107&s=0606&q=1",
+      "pdf_sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836",
+      "printed_page": "4-2 / 4-3",
+      "pdf_page_number": 2,
+      "baseline_comparison_row_sha256": "a28d271b93a815d793217c05f117d7bf273a957f7ca77569cbb775ece43244de",
+      "baseline_differences": {
+        "opt_d": {
+          "stored": "精確度（precision）",
+          "official_extraction": "精確度(precision) 情況:假想某篇論文是以《中國時報》、《聯合報》、《自由時報》、《蘋果日報》於最近二十年間(即 1996 ~2015 年),針對新住民進行報導的 19,738 則新聞為母全體;作者先將母全體的每篇報導以時間順序 排列,形成一個抽樣架構後,以每六則取一則的方式抽出 3,289 篇新聞報導作為樣本;之後針對樣本與 研究者所建立的類目表進行比對與歸類,進而整理出臺灣主流媒體所型塑的新住民形象。請依上述資料 回答下列第 17 題至第 19 題。"
+        }
+      },
+      "current_full_row_sha256": "720e21f840401c52ad9a64e2ae52201075c093bfc21f08d64a7d9510431f2d8f",
+      "current_core_lock_sha256": "f62ca951f87eea0d6dfd70f72c8c9dc6e69530e93d165a3db13b521ae5179e90",
+      "official_answer": "B",
+      "accepted_answers": null,
+      "grading_mode": "standard",
+      "official_field_transcription": {
+        "opt_d": "精確度（precision）"
+      },
+      "validation_method": "SHA256-verified original PDF rendered locally and AI visually compared; deterministic exact-row/source/field/grading and segmentation checks; not independent human signoff",
+      "human_approval": false,
+      "layout_observation": "Q16 opt_d ends at precision on printed4-2. The following context belongs to Q17-19 at start of printed4-3; it is not part of Q16 opt_d. Q16 retains its Q13-16 context."
+    },
+    {
+      "id": "R-105-2-20",
+      "classification": "shared_context_segmentation",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=105090&c=107&s=0606&q=1",
+      "pdf_sha256": "6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836",
+      "printed_page": "4-3",
+      "pdf_page_number": 3,
+      "baseline_comparison_row_sha256": "a018c3470f27b79513c7db66c7313447a0d5a05040ea7591959fb2f12df2352d",
+      "baseline_differences": {
+        "question": {
+          "stored": "從抽樣的理論來看，方便抽樣（convenience sampling）昀大的缺點在於：",
+          "official_extraction": "從抽樣的理論來看,方便抽樣(convenience sampling)最大的缺點在於:"
+        },
+        "opt_d": {
+          "stored": "樣本數經常會不足 情況：假想某政府單位委託民間民意調查機構，以電腦隨機撥號的方式，進行「臺灣應否逐步廢 除死刑以符合國際人權公約的準則」之電話民調。該調查指稱有效樣本數為 3,757 份，具 有 95%的信賴水準（confidence level）。請依上述資料回答下列第題至第題。",
+          "official_extraction": "樣本數經常會不足 情況:假想某政府單位委託民間民意調查機構,以電腦隨機撥號的方式,進行「臺灣應否逐步廢除死刑以符合 國際人權公約的準則」之電話民調。該調查指稱有效樣本數為 3,757 份,具有 95%的信賴水準(confidence level)。請依上述資料回答下列第 21 題至第 22 題。"
+        }
+      },
+      "current_full_row_sha256": "e1995eb2a5c95c093d6032dcca4dc1a09f4fc171812c685acc80526fbf811481",
+      "current_core_lock_sha256": "62947940eb7bb323bb5083e1b8a9f837b40a589a0200c858db69eb8c10980add",
+      "official_answer": "B",
+      "accepted_answers": null,
+      "grading_mode": "standard",
+      "official_field_transcription": {
+        "question": "從抽樣的理論來看，方便抽樣（convenience sampling）最大的缺點在於：",
+        "opt_d": "樣本數經常會不足"
+      },
+      "validation_method": "SHA256-verified original PDF rendered locally and AI visually compared; deterministic exact-row/source/field/grading and segmentation checks; not independent human signoff",
+      "human_approval": false,
+      "layout_observation": "Q20 opt_d ends at 樣本數經常會不足; following context belongs to Q21-22 and is present in both questions. PDF prints 最大, not 昀大."
+    },
+    {
+      "id": "R-107-2-08",
+      "classification": "circled_glyph_extraction",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0606&q=1",
+      "pdf_sha256": "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d",
+      "printed_page": "4-2",
+      "pdf_page_number": 2,
+      "baseline_comparison_row_sha256": "db9acc280f2559fc0978f062f1c7d53d959a46065763534c9001cf8ad01c5b51",
+      "baseline_differences": {
+        "opt_a": {
+          "stored": "僅①④",
+          "official_extraction": "僅11"
+        },
+        "opt_b": {
+          "stored": "僅②③",
+          "official_extraction": "僅22"
+        },
+        "opt_c": {
+          "stored": "①②④",
+          "official_extraction": "121"
+        },
+        "opt_d": {
+          "stored": "②③④",
+          "official_extraction": "221"
+        }
+      },
+      "current_full_row_sha256": "1a3f8212840dee90628837747a72bb374d968d869ed937501f97204450faa854",
+      "current_core_lock_sha256": "12f9f75ec6ed974c95bd6492e1fd9dc225d0405594fb9f3a31536e46070c5869",
+      "official_answer": "B",
+      "accepted_answers": null,
+      "grading_mode": "standard",
+      "official_field_transcription": {
+        "opt_a": "僅①④",
+        "opt_b": "僅②③",
+        "opt_c": "①②④",
+        "opt_d": "②③④"
+      },
+      "validation_method": "SHA256-verified original PDF rendered locally and AI visually compared; deterministic exact-row/source/field/grading and segmentation checks; not independent human signoff",
+      "human_approval": false,
+      "layout_observation": "PDF page4-2 visually prints A僅①④ / B僅②③ / C①②④ / D②③④. The raw parser produces 僅11 / 僅22 /121 /221; no generalized digit substitution is permitted."
+    }
+  ]
+}

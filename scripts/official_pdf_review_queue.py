@@ -52,9 +52,13 @@ def build():
         from official_pdf_text_release_gate import REVIEWED_DELTA_IDS
         candidate_path = ROOT / 'audit/official_mcq_corrections_additional_20261025.json'
         proof = json.loads(candidate_path.read_text())
-        skip = {r['id'] for r in proof['rows']}
-        if (cleared != len(skip) or skip != REVIEWED_DELTA_IDS
-                or proof.get('count') != len(skip)
+        from official_pdf_review_dispositions import validated_ids, PROOF_PATH
+        disposition_ids = validated_ids(old_mcq, ROOT)
+        skip = {r['id'] for r in proof['rows']} | disposition_ids
+        disposition_path = ROOT / PROOF_PATH
+        inputs[PROOF_PATH] = hashlib.sha256(disposition_path.read_bytes()).hexdigest()
+        if (cleared != len(skip) or skip != REVIEWED_DELTA_IDS | disposition_ids
+                or proof.get('count') != len(skip - disposition_ids)
                 or proof.get('human_approval') is not False
                 or any(r['status'] != 'review' for r in old_mcq['rows'] if r['id'] in skip)):
             raise ValueError('unproven Official Core review clearance')

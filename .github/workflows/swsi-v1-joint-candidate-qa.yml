@@ -40,6 +40,10 @@ on:
       - 'audit/official_mcq_corrections_20261025.json'
       - 'data/moex_answer_sources.v1.json'
       - 'scripts/official_pdf_text_release_gate.py'
+      - 'scripts/official_pdf_review_queue.py'
+      - 'scripts/official_pdf_review_dispositions.py'
+      - 'scripts/official_pdf_review_dispositions_selftest.py'
+      - 'audit/official_pdf_review_dispositions_20261029.json'
       - 'audit/official_mcq_pdf_comparison_20261025.json'
       - 'audit/official_essay_pdf_comparison_20261025.json'
 
@@ -198,6 +202,10 @@ jobs:
         with:
           python-version: '3.12'
       - name: Reject stale or fabricated PDF evidence
-        run: python scripts/official_pdf_text_release_gate.py --selftest
+        run: |
+          python scripts/official_pdf_review_dispositions_selftest.py
+          python scripts/official_pdf_review_queue.py --selftest
+          python scripts/official_pdf_review_queue.py --out /tmp/swsi-official-pdf-review-queue.json
+          python scripts/official_pdf_text_release_gate.py --selftest
       - name: Require unresolved official PDF text reviews to be cleared
         run: python scripts/official_pdf_text_release_gate.py

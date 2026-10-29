@@ -116,6 +116,9 @@ def validate(report,count,match_status,inputs):
     if set(counts)-{match_status,'review'} or dict(counts)!=report.get('counts'):raise ValueError('unknown status or inconsistent comparison counts')
     if any(r.get('human_approval') is not False for r in rows):raise ValueError('mechanical comparisons must not claim human approval')
     if applied_delta and counts.get('review',0) < applied_delta:raise ValueError('delta overcounts PDF reviews')
+    if count == 4800:
+        from official_pdf_review_dispositions import validated_ids
+        applied_delta += len(validated_ids(report, ROOT))
     return counts.get('review',0)-applied_delta
 
 
