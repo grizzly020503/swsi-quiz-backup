@@ -60,7 +60,8 @@ def run(check_real_baseline: bool) -> None:
     assert grade_report["live_grading_difference"] == 1
 
     bad_essay = deepcopy(base)
-    bad_essay["essays"]["社會工作-112-1-申論1"] = "0" * 64
+    another_essay_id = next(ident for ident in bad_essay["essays"] if ident != ESSAY_ID)
+    bad_essay["essays"][another_essay_id] = "0" * 64
     try:
         check(bad_essay, candidate, candidate_rows, before_rows)
     except ValueError as exc:
