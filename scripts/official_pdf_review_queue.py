@@ -54,10 +54,10 @@ def build():
         proof = json.loads(candidate_path.read_text())
         from official_pdf_review_dispositions import validated_ids, PROOF_PATH
         from official_pdf_stem_repairs import validated_ids as validated_stem_ids, PROOF_PATH as STEM_PROOF_PATH
-        from official_pdf_glyph_dispositions import validated_ids as validated_glyph_ids, PROOF_PATH as GLYPH_PROOF_PATH
+        from official_pdf_glyph_dispositions import validated_ids as validated_glyph_ids, PROOF_PATH as GLYPH_PROOF_PATH, NEW_PROOF_PATH as GLYPH_FOLLOWUP_PATH
         disposition_ids = validated_ids(old_mcq, ROOT) | validated_stem_ids(old_mcq, ROOT) | validated_glyph_ids(old_mcq, ROOT)
-        glyph_path = ROOT / GLYPH_PROOF_PATH
-        inputs[GLYPH_PROOF_PATH] = hashlib.sha256(glyph_path.read_bytes()).hexdigest()
+        for glyph_name in (GLYPH_PROOF_PATH, GLYPH_FOLLOWUP_PATH):
+            inputs[glyph_name] = hashlib.sha256((ROOT/glyph_name).read_bytes()).hexdigest()
         stem_path = ROOT / STEM_PROOF_PATH
         inputs[STEM_PROOF_PATH] = hashlib.sha256(stem_path.read_bytes()).hexdigest()
         skip = {r['id'] for r in proof['rows']} | disposition_ids

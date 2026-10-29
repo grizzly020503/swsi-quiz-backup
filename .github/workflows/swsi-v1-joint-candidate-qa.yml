@@ -45,6 +45,7 @@ on:
       - 'scripts/official_pdf_glyph_dispositions.py'
       - 'scripts/official_pdf_glyph_dispositions_selftest.py'
       - 'audit/official_pdf_ds107_glyph_dispositions_20261029.json'
+      - 'audit/official_pdf_circle_followup_20261029.json'
       - 'scripts/official_pdf_stem_repairs.py'
       - 'scripts/official_pdf_stem_repairs_selftest.py'
       - 'audit/official_pdf_stem_repairs_20261029.json'
