@@ -121,6 +121,8 @@ def validate(report,count,match_status,inputs):
         applied_delta += len(validated_ids(report, ROOT))
         from official_pdf_stem_repairs import validated_ids as validated_stem_ids
         applied_delta += len(validated_stem_ids(report, ROOT))
+        from official_pdf_glyph_dispositions import validated_ids as validated_glyph_ids
+        applied_delta += len(validated_glyph_ids(report, ROOT))
     return counts.get('review',0)-applied_delta
 
 

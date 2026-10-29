@@ -42,6 +42,9 @@ on:
       - 'scripts/official_pdf_text_release_gate.py'
       - 'scripts/official_pdf_review_queue.py'
       - 'scripts/official_pdf_review_dispositions.py'
+      - 'scripts/official_pdf_glyph_dispositions.py'
+      - 'scripts/official_pdf_glyph_dispositions_selftest.py'
+      - 'audit/official_pdf_ds107_glyph_dispositions_20261029.json'
       - 'scripts/official_pdf_stem_repairs.py'
       - 'scripts/official_pdf_stem_repairs_selftest.py'
       - 'audit/official_pdf_stem_repairs_20261029.json'
@@ -206,6 +209,7 @@ jobs:
           python-version: '3.12'
       - name: Reject stale or fabricated PDF evidence
         run: |
+          python scripts/official_pdf_glyph_dispositions_selftest.py
           python scripts/official_pdf_stem_repairs_selftest.py
           python scripts/official_pdf_review_dispositions_selftest.py
           python scripts/official_pdf_review_queue.py --selftest

@@ -1,0 +1,372 @@
+{
+  "schema_version": 1,
+  "base_commit": "808b2a17969d9a6b87b60f5a3f7a15cae90274cc",
+  "scope": "eight exact circled-glyph PDF extraction dispositions; stored choices already match official print",
+  "comparison_sha256": "0853dc8e28191f7904e03b850f844ae245caf8ce5336800c3f1b2593aed14949",
+  "count": 8,
+  "human_approval": false,
+  "release_approved": false,
+  "official_core_modified": false,
+  "rows": [
+    {
+      "id": "DS-107-2-09",
+      "classification": "circled_glyph_extraction_only",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0602&q=1",
+      "pdf_sha256": "338ec25a9c997894aabdc1fa45417ef15522341c839ca6b8ebc54378ffb42cb1",
+      "printed_page": "4-2",
+      "pdf_page_number": 2,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=107110&c=107&s=0602&q=1",
+      "answer_pdf_sha256": "414ff76db49acf61735e0986885dc1945ef48081a192a80e8f5330bf2a10f21e",
+      "answer_page": 1,
+      "baseline_comparison_row_sha256": "6a65ae6406bdc1a1ae17a09c17f3e9241c1152aafad227090b629a30c4b2109d",
+      "baseline_differences": {
+        "opt_a": {
+          "stored": "①③⑤",
+          "official_extraction": "115"
+        },
+        "opt_b": {
+          "stored": "①②③④",
+          "official_extraction": "1111"
+        },
+        "opt_c": {
+          "stored": "①②④⑤",
+          "official_extraction": "1111"
+        },
+        "opt_d": {
+          "stored": "①②③",
+          "official_extraction": "111"
+        }
+      },
+      "current_full_row_sha256": "629f0e06f50a0141eb7ee7e3b12a2e5beb5862c85277ba24f65e973fd57d0b98",
+      "current_core_lock_sha256": "6c2c5dcc2a674fc93dd1005049a8c3cd529ad78e8393090dda6edcd5d35fd377",
+      "official_field_transcription": {
+        "opt_a": "①③⑤",
+        "opt_b": "①②③④",
+        "opt_c": "①②④⑤",
+        "opt_d": "①②③"
+      },
+      "official_answer_rule": {
+        "answer": "C",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "human_approval": false,
+      "verification": "Original question PDF SHA256 checked and pages4-2/4-4 rendered/AI visually compared; final standard-answer PDF SHA256 checked and answer table rendered/AI visually compared. Not independent human approval; no generic digit replacement."
+    },
+    {
+      "id": "DS-107-2-10",
+      "classification": "circled_glyph_extraction_only",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0602&q=1",
+      "pdf_sha256": "338ec25a9c997894aabdc1fa45417ef15522341c839ca6b8ebc54378ffb42cb1",
+      "printed_page": "4-2",
+      "pdf_page_number": 2,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=107110&c=107&s=0602&q=1",
+      "answer_pdf_sha256": "414ff76db49acf61735e0986885dc1945ef48081a192a80e8f5330bf2a10f21e",
+      "answer_page": 1,
+      "baseline_comparison_row_sha256": "ab70c49a2339eb1c6587a6c70cde00410402c97ec0f4033d956abe1cec5a40ce",
+      "baseline_differences": {
+        "opt_a": {
+          "stored": "①②③④⑤",
+          "official_extraction": "11111"
+        },
+        "opt_b": {
+          "stored": "⑤③④②①",
+          "official_extraction": "11111"
+        },
+        "opt_c": {
+          "stored": "①②③⑤④",
+          "official_extraction": "11111"
+        },
+        "opt_d": {
+          "stored": "②①③⑤④",
+          "official_extraction": "11111"
+        }
+      },
+      "current_full_row_sha256": "9d5aa7a23b46ef7b6ad0215ed388f32b7fea91c2a4c1a32d77c333a10ae94530",
+      "current_core_lock_sha256": "122a7e7177ac8b8803165ff97e0452d2c8c3b119092a882d67c51c11afb4e8b1",
+      "official_field_transcription": {
+        "opt_a": "①②③④⑤",
+        "opt_b": "⑤③④②①",
+        "opt_c": "①②③⑤④",
+        "opt_d": "②①③⑤④"
+      },
+      "official_answer_rule": {
+        "answer": "D",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "human_approval": false,
+      "verification": "Original question PDF SHA256 checked and pages4-2/4-4 rendered/AI visually compared; final standard-answer PDF SHA256 checked and answer table rendered/AI visually compared. Not independent human approval; no generic digit replacement."
+    },
+    {
+      "id": "DS-107-2-11",
+      "classification": "circled_glyph_extraction_only",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0602&q=1",
+      "pdf_sha256": "338ec25a9c997894aabdc1fa45417ef15522341c839ca6b8ebc54378ffb42cb1",
+      "printed_page": "4-2",
+      "pdf_page_number": 2,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=107110&c=107&s=0602&q=1",
+      "answer_pdf_sha256": "414ff76db49acf61735e0986885dc1945ef48081a192a80e8f5330bf2a10f21e",
+      "answer_page": 1,
+      "baseline_comparison_row_sha256": "8ae53e3f321014c7374a5bb548d5989c2ecd1b77af4a8308c8fb768981743ed6",
+      "baseline_differences": {
+        "opt_a": {
+          "stored": "①③",
+          "official_extraction": "11"
+        },
+        "opt_b": {
+          "stored": "①②",
+          "official_extraction": "11"
+        },
+        "opt_c": {
+          "stored": "①③④",
+          "official_extraction": "111"
+        },
+        "opt_d": {
+          "stored": "①④",
+          "official_extraction": "11"
+        }
+      },
+      "current_full_row_sha256": "730f0509dae3561436658669e6b02dfd0df78532e6b379bb80d045fb186931ef",
+      "current_core_lock_sha256": "a8312e5da54bdf6eafe7ee2d8297ad1a0a22bf12daebcb8710ee53c108d2f4e2",
+      "official_field_transcription": {
+        "opt_a": "①③",
+        "opt_b": "①②",
+        "opt_c": "①③④",
+        "opt_d": "①④"
+      },
+      "official_answer_rule": {
+        "answer": "B",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "human_approval": false,
+      "verification": "Original question PDF SHA256 checked and pages4-2/4-4 rendered/AI visually compared; final standard-answer PDF SHA256 checked and answer table rendered/AI visually compared. Not independent human approval; no generic digit replacement."
+    },
+    {
+      "id": "DS-107-2-13",
+      "classification": "circled_glyph_extraction_only",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0602&q=1",
+      "pdf_sha256": "338ec25a9c997894aabdc1fa45417ef15522341c839ca6b8ebc54378ffb42cb1",
+      "printed_page": "4-2",
+      "pdf_page_number": 2,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=107110&c=107&s=0602&q=1",
+      "answer_pdf_sha256": "414ff76db49acf61735e0986885dc1945ef48081a192a80e8f5330bf2a10f21e",
+      "answer_page": 1,
+      "baseline_comparison_row_sha256": "e7d575d0d307a1eb94e892e0cd51ed58747bebcac548b972bfef4bcc614a83e6",
+      "baseline_differences": {
+        "opt_a": {
+          "stored": "②③④⑤",
+          "official_extraction": "1311"
+        },
+        "opt_b": {
+          "stored": "①②④⑤",
+          "official_extraction": "1111"
+        },
+        "opt_c": {
+          "stored": "①②③④",
+          "official_extraction": "1111"
+        },
+        "opt_d": {
+          "stored": "①④⑤",
+          "official_extraction": "111"
+        }
+      },
+      "current_full_row_sha256": "750839e37ab1eea039b1daf827c8fa5238546fbc85211ff78fb1330d32b44455",
+      "current_core_lock_sha256": "39c8e3f9150032ebfec336bfe793534409e021b48e63cac87ae41ebbe398110d",
+      "official_field_transcription": {
+        "opt_a": "②③④⑤",
+        "opt_b": "①②④⑤",
+        "opt_c": "①②③④",
+        "opt_d": "①④⑤"
+      },
+      "official_answer_rule": {
+        "answer": "C",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "human_approval": false,
+      "verification": "Original question PDF SHA256 checked and pages4-2/4-4 rendered/AI visually compared; final standard-answer PDF SHA256 checked and answer table rendered/AI visually compared. Not independent human approval; no generic digit replacement."
+    },
+    {
+      "id": "DS-107-2-35",
+      "classification": "circled_glyph_extraction_only",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0602&q=1",
+      "pdf_sha256": "338ec25a9c997894aabdc1fa45417ef15522341c839ca6b8ebc54378ffb42cb1",
+      "printed_page": "4-4",
+      "pdf_page_number": 4,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=107110&c=107&s=0602&q=1",
+      "answer_pdf_sha256": "414ff76db49acf61735e0986885dc1945ef48081a192a80e8f5330bf2a10f21e",
+      "answer_page": 1,
+      "baseline_comparison_row_sha256": "d89bf357ebb3cdde5f40bb0b5e6bf7ecc83bd76119d1207769289683d941aae1",
+      "baseline_differences": {
+        "opt_a": {
+          "stored": "②③④",
+          "official_extraction": "211"
+        },
+        "opt_b": {
+          "stored": "①②③",
+          "official_extraction": "111"
+        },
+        "opt_c": {
+          "stored": "①③④",
+          "official_extraction": "111"
+        },
+        "opt_d": {
+          "stored": "①②③④",
+          "official_extraction": "1111"
+        }
+      },
+      "current_full_row_sha256": "0a85f05e13a4bdf7f6ff9677c2e2e8ba568db5986ea0be66afb3d95cbbe9057f",
+      "current_core_lock_sha256": "cb42430402612e6d26636fa644dd3cb4ab33b6e70366d560498450e37290c1f9",
+      "official_field_transcription": {
+        "opt_a": "②③④",
+        "opt_b": "①②③",
+        "opt_c": "①③④",
+        "opt_d": "①②③④"
+      },
+      "official_answer_rule": {
+        "answer": "B",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "human_approval": false,
+      "verification": "Original question PDF SHA256 checked and pages4-2/4-4 rendered/AI visually compared; final standard-answer PDF SHA256 checked and answer table rendered/AI visually compared. Not independent human approval; no generic digit replacement."
+    },
+    {
+      "id": "DS-107-2-36",
+      "classification": "circled_glyph_extraction_only",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0602&q=1",
+      "pdf_sha256": "338ec25a9c997894aabdc1fa45417ef15522341c839ca6b8ebc54378ffb42cb1",
+      "printed_page": "4-4",
+      "pdf_page_number": 4,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=107110&c=107&s=0602&q=1",
+      "answer_pdf_sha256": "414ff76db49acf61735e0986885dc1945ef48081a192a80e8f5330bf2a10f21e",
+      "answer_page": 1,
+      "baseline_comparison_row_sha256": "ee835f4a9552320c57dc01b42377116415b862df3004a5b816e3c933cba8f802",
+      "baseline_differences": {
+        "opt_a": {
+          "stored": "②③④",
+          "official_extraction": "111"
+        },
+        "opt_b": {
+          "stored": "①②④",
+          "official_extraction": "111"
+        },
+        "opt_c": {
+          "stored": "①③④",
+          "official_extraction": "111"
+        },
+        "opt_d": {
+          "stored": "①②③",
+          "official_extraction": "111"
+        }
+      },
+      "current_full_row_sha256": "b11a0e92348dc40dc7ff91fbb8005d8229f641bb6298fbf48584709a920f9004",
+      "current_core_lock_sha256": "18fc6dd4c70deb3e7e76c70a119d4513ac6838a027e16ac5ddf5390c49e29c04",
+      "official_field_transcription": {
+        "opt_a": "②③④",
+        "opt_b": "①②④",
+        "opt_c": "①③④",
+        "opt_d": "①②③"
+      },
+      "official_answer_rule": {
+        "answer": "D",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "human_approval": false,
+      "verification": "Original question PDF SHA256 checked and pages4-2/4-4 rendered/AI visually compared; final standard-answer PDF SHA256 checked and answer table rendered/AI visually compared. Not independent human approval; no generic digit replacement."
+    },
+    {
+      "id": "DS-107-2-38",
+      "classification": "circled_glyph_extraction_only",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0602&q=1",
+      "pdf_sha256": "338ec25a9c997894aabdc1fa45417ef15522341c839ca6b8ebc54378ffb42cb1",
+      "printed_page": "4-4",
+      "pdf_page_number": 4,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=107110&c=107&s=0602&q=1",
+      "answer_pdf_sha256": "414ff76db49acf61735e0986885dc1945ef48081a192a80e8f5330bf2a10f21e",
+      "answer_page": 1,
+      "baseline_comparison_row_sha256": "e87d9784dc123c62d39b1570c87cd20e96ff575ba925eba3a60b4af4b1407fae",
+      "baseline_differences": {
+        "opt_a": {
+          "stored": "①②③④",
+          "official_extraction": "1111"
+        },
+        "opt_b": {
+          "stored": "②③④⑤",
+          "official_extraction": "1111"
+        },
+        "opt_c": {
+          "stored": "①②③④⑤",
+          "official_extraction": "11111"
+        },
+        "opt_d": {
+          "stored": "①②④⑤",
+          "official_extraction": "1111"
+        }
+      },
+      "current_full_row_sha256": "9113da4cf7583fd38553b269276576e10cdcbff798fa9c8350e2372408546bd1",
+      "current_core_lock_sha256": "1677471640adf0457abcd2a6688fc5a9dda0f19c1c9d65711333dc6df5aff282",
+      "official_field_transcription": {
+        "opt_a": "①②③④",
+        "opt_b": "②③④⑤",
+        "opt_c": "①②③④⑤",
+        "opt_d": "①②④⑤"
+      },
+      "official_answer_rule": {
+        "answer": "D",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "human_approval": false,
+      "verification": "Original question PDF SHA256 checked and pages4-2/4-4 rendered/AI visually compared; final standard-answer PDF SHA256 checked and answer table rendered/AI visually compared. Not independent human approval; no generic digit replacement."
+    },
+    {
+      "id": "DS-107-2-39",
+      "classification": "circled_glyph_extraction_only",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0602&q=1",
+      "pdf_sha256": "338ec25a9c997894aabdc1fa45417ef15522341c839ca6b8ebc54378ffb42cb1",
+      "printed_page": "4-4",
+      "pdf_page_number": 4,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=107110&c=107&s=0602&q=1",
+      "answer_pdf_sha256": "414ff76db49acf61735e0986885dc1945ef48081a192a80e8f5330bf2a10f21e",
+      "answer_page": 1,
+      "baseline_comparison_row_sha256": "8734692fd20218c4a5f311349d455eace6f2368390763b7b543fdd366e6d7228",
+      "baseline_differences": {
+        "opt_a": {
+          "stored": "②③④",
+          "official_extraction": "111"
+        },
+        "opt_b": {
+          "stored": "①②③④",
+          "official_extraction": "1111"
+        },
+        "opt_c": {
+          "stored": "①③④",
+          "official_extraction": "111"
+        },
+        "opt_d": {
+          "stored": "①②③",
+          "official_extraction": "111"
+        }
+      },
+      "current_full_row_sha256": "d7a81fc74e1feddbd8a612c0df313be44fa9cb333944a4c19aa8d2c55c7527ea",
+      "current_core_lock_sha256": "0b5fba5a0324eb5c672b9086c343c6e50cf00d727430572c1eae4183dcb47c25",
+      "official_field_transcription": {
+        "opt_a": "②③④",
+        "opt_b": "①②③④",
+        "opt_c": "①③④",
+        "opt_d": "①②③"
+      },
+      "official_answer_rule": {
+        "answer": "D",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "human_approval": false,
+      "verification": "Original question PDF SHA256 checked and pages4-2/4-4 rendered/AI visually compared; final standard-answer PDF SHA256 checked and answer table rendered/AI visually compared. Not independent human approval; no generic digit replacement."
+    }
+  ]
+}

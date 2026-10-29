@@ -105,6 +105,7 @@ def checks(work):
     commands=[['official_exam_readonly_guard.py'],['official_combined_candidate_guard_selftest.py'],
               ['official_mcq_corrections_smoke.py'],['official_essay_correction_smoke.py'],
               ['official_pdf_stem_repairs_selftest.py'],['official_pdf_review_dispositions_selftest.py'],
+              ['official_pdf_glyph_dispositions_selftest.py'],
               ['official_pdf_text_release_gate.py','--selftest'],
               ['full_corpus_qa.py','--out',str(work/'full-corpus.json'),'--fail-on','blocked']]
     results=[]

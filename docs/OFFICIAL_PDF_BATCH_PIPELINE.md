@@ -21,7 +21,7 @@ python scripts/official_pdf_batch_pipeline.py --out /tmp/swsi-pdf-batch --eviden
 - `packets/`：原始差異、當前完整題目、PDF layout 文字、來源/雜湊；固定保持待查及未人工核准。
 - `verified-candidate/`：從已提交且 source-bound 的修正 recipe 重建資料檔，逐檔比對已驗證 SHA256；保留官方給分規則。
 
-「資料包準備完成」不等於「題目已校正」。新差異沒有足夠證據時保持 review；更新題目仍須增加精確官方來源、修改前後、校驗鎖、驗證與 PR 審核。原有預設 PDF/AI release gates 不被此流程取代，440 筆未審不能因此歸零。此版本只重建已證實的修正，不會將新差異直接當成可發布更正。
+「資料包準備完成」不等於「題目已校正」。新差異沒有足夠證據時保持 review；更新題目仍須增加精確官方來源、修改前後、校驗鎖、驗證與 PR 審核。原有預設 PDF/AI release gates 不被此流程取代，剩餘待審不能因此歸零。此版本只重建已證實的修正，不會將新差異直接當成可發布更正。
 
 ## GitHub 背景執行
 
