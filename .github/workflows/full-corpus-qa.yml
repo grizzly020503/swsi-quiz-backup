@@ -107,6 +107,42 @@ jobs:
           cat /tmp/full-corpus-question-qa.log
           exit "$rc"
 
+      - name: Monthly READ-ONLY production source URL drift audit
+        if: github.event_name == 'schedule'
+        run: |
+          python -m pip install --disable-pip-version-check 'requests==2.32.5'
+          python scripts/historical_source_url_repair_plan.py \\
+            --live --out /tmp/swsi-source-url-repair-proposals.json \\
+            --fail-on-proposals
+
+      - name: Preserve monthly source URL audit candidates
+        if: always() && github.event_name == 'schedule'
+        uses: actions/upload-artifact@v4
+        with:
+          name: monthly-moex-source-url-review
+          path: /tmp/swsi-source-url-repair-proposals.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Summarize monthly source URL drift
+        if: always() && github.event_name == 'schedule'
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path('/tmp/swsi-source-url-repair-proposals.json')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
+              f.write('## Monthly public source URL audit (read only)\\n\\n')
+              if p.exists():
+                  r=json.loads(p.read_text(encoding='utf-8'))
+                  f.write(f"- Verified papers: {r['verified_papers']}\\n")
+                  f.write(f"- Checked historic questions: {r['historical_rows_checked']}\\n")
+                  f.write(f"- Official URL repair proposals: **{r['proposed_url_changes']}**\\n")
+                  f.write('- All proposals are held for review, no data/website writes.\\n')
+              else:
+                  f.write('- No verified report produced: inspect the failed source check.\\n')
+          PY
+
       - name: Publish compact job summary
         if: always()
         run: |
