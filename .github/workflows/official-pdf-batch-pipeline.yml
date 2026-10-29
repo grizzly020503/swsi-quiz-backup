@@ -6,15 +6,6 @@ on:
   pull_request:
     paths:
       - '.github/workflows/official-pdf-batch-pipeline.yml'
-      - 'scripts/official_pdf_batch_pipeline*.py'
-      - 'scripts/official_pdf_review*.py'
-      - 'scripts/official_pdf_stem_repairs*.py'
-      - 'scripts/official_combined_candidate_guard*.py'
-      - 'audit/official*.json'
-      - 'cdn/question-shards/**'
-      - 'data/official_exam_readonly.lock.json'
-      - 'data/moex_source_subjects.v1.json'
-      - 'data/moex_answer_sources.v1.json'
 permissions:
   contents: read
 concurrency:
@@ -25,8 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      # Audit a reviewed immutable candidate; never merge or serve its held content.
       - uses: actions/checkout@v7
         with:
+          ref: 808b2a17969d9a6b87b60f5a3f7a15cae90274cc
           fetch-depth: 1
       - name: Fetch only the pinned candidate preimage
         run: |

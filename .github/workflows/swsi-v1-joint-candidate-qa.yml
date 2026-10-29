@@ -94,6 +94,7 @@ jobs:
           set -euo pipefail
           python scripts/official_exam_readonly_guard.py
           python scripts/official_combined_candidate_guard_selftest.py
+          python scripts/official_pdf_batch_pipeline_selftest.py
           python scripts/official_essay_pdf_audit.py --selftest
           python scripts/official_essay_correction_smoke.py
           python scripts/official_mcq_pdf_audit.py --selftest
