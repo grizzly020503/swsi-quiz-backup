@@ -1,0 +1,89 @@
+name: Official PDF Batch Pipeline
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * *'
+  pull_request:
+    paths:
+      - '.github/workflows/official-pdf-batch-pipeline.yml'
+permissions:
+  contents: read
+concurrency:
+  group: official-pdf-batch-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Audit a reviewed immutable candidate; never merge or serve its held content.
+      - uses: actions/checkout@v7
+        with:
+          ref: 808b2a17969d9a6b87b60f5a3f7a15cae90274cc
+          fetch-depth: 1
+      - name: Fetch only the pinned candidate preimage
+        run: |
+          base=$(python -c 'import json,re; p=json.load(open("audit/official_pdf_stem_repairs_20261029.json")); s=p["base_commit"]; assert re.fullmatch("[0-9a-f]{40}",s); print(s)')
+          git fetch --no-tags --depth=1 origin "$base"
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install PDF text extraction
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils
+      - name: Test checkpoint and source safety
+        run: python scripts/official_pdf_batch_pipeline_selftest.py
+      - name: Fingerprint exact audit inputs
+        id: inputs
+        run: echo "fingerprint=$(python scripts/official_pdf_batch_pipeline.py --fingerprint)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/swsi-pdf-batch
+          key: pdf-batch-${{ steps.inputs.outputs.fingerprint }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: pdf-batch-${{ steps.inputs.outputs.fingerprint }}-
+      - name: Resume bounded official source audit
+        run: |
+          python scripts/official_pdf_batch_pipeline.py \
+            --out "$RUNNER_TEMP/swsi-pdf-batch" --download --batch-size 25 \
+            --max-batches 4 --max-sources 12
+      - name: Persist checkpoint after success or source outage
+        if: always() && steps.inputs.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/swsi-pdf-batch
+          key: pdf-batch-${{ steps.inputs.outputs.fingerprint }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Preserve exact-head audit and candidate artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-pdf-batch-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/swsi-pdf-batch/latest.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/summary.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/checkpoint.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/inputs.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/checks.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/check-*.log
+            ${{ runner.temp }}/swsi-pdf-batch/**/full-corpus.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/queue.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/packets/*.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/verified-candidate/**
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Publish measured progress and unchanged release hold
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          path=Path(os.environ['RUNNER_TEMP'])/'swsi-pdf-batch/latest.json'
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write('## Official PDF batch pipeline\n\n')
+              if not path.exists():
+                  out.write('No completed summary. Check failure logs/checkpoint artifact; no release approval.\n')
+              else:
+                  report=json.loads(path.read_text())
+                  out.write('```json\n'+json.dumps(report,ensure_ascii=False,indent=2)+'\n```\n')
+                  out.write('\nPrepared packets are pending source review, not corrected/approved questions. Existing PDF/AI release gates still apply.\n')
+          PY
