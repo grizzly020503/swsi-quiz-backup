@@ -19,6 +19,7 @@ on:
       - '.github/workflows/ops-task-watchdog.yml'
       - 'scripts/ops_task_watchdog.py'
       - 'scripts/ops_task_watchdog_selftest.py'
+      - '.github/workflows/official-pdf-batch-pipeline.yml'
       - 'scripts/ops_health_snapshot.py'
       - 'scripts/ops_health_snapshot_selftest.py'
       - 'data/ops_task_registry.v1.json'
