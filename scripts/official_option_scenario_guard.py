@@ -63,6 +63,36 @@ def read_rows(root: Path = ROOT) -> list[dict[str, Any]]:
     return rows
 
 
+def validate_live_baseline(rows: list[dict[str, Any]]) -> None:
+    """Do not report a partial/empty production API response as healthy.
+
+    Historical baseline is immutable: ROC 104–115, 2 rounds/year,
+    5 named subjects and exactly 40 questions in each 120-paper group.
+    Future official exams are not guessed or silently rejected here.
+    """
+    from collections import Counter
+
+    years = {str(y) for y in range(104, 116)}
+    subjects = {
+        "社會工作", "社會工作直接服務", "社會政策與社會立法",
+        "人類行為與社會環境", "社會工作研究方法",
+    }
+    rounds = {"第一次", "第二次"}
+    expected = {(y, rnd, subject) for y in years for rnd in rounds for subject in subjects}
+    observed: Counter[tuple[str, str, str]] = Counter()
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("live questions API supplied malformed row")
+        year = str(row.get("year") or "")
+        if year in years:
+            observed[(year, str(row.get("round") or ""), str(row.get("subject") or ""))] += 1
+    if set(observed) != expected or any(count != 40 for count in observed.values()):
+        raise ValueError(
+            "live historical scope incomplete; require 120 subjects/papers x 40 questions; "
+            f"observed_rows={sum(observed.values())}, groups={len(observed)}"
+        )
+
+
 def scan(rows: list[dict[str, Any]]) -> dict[str, Any]:
     risks: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -113,10 +143,25 @@ def scan(rows: list[dict[str, Any]]) -> dict[str, Any]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument("--live", action="store_true", help="explicit public anon READ ONLY API")
+    source.add_argument("--input", type=Path, help="offline JSON list of question rows")
     parser.add_argument("--out", type=Path, help="write diagnostic JSON outside repo")
     parser.add_argument("--fail-on-blocked", action="store_true")
     args = parser.parse_args()
-    result = scan(read_rows())
+    if args.live:
+        from build_question_shards import fetch_questions
+        rows = fetch_questions()  # Public questions SELECT; no service-role or DB mutation.
+        validate_live_baseline(rows)
+    elif args.input:
+        rows = json.loads(args.input.read_text(encoding="utf-8"))
+        validate_live_baseline(rows)
+    else:
+        rows = read_rows()
+    result = scan(rows)
+    result["dataset_scope"] = "live_public_questions" if args.live else (
+        "input_export" if args.input else "sha_verified_local_shards"
+    )
     if args.out:
         dest = args.out.resolve()
         if dest == ROOT or ROOT in dest.parents:
