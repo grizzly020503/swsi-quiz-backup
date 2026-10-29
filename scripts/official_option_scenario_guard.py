@@ -93,6 +93,87 @@ def validate_live_baseline(rows: list[dict[str, Any]]) -> None:
         )
 
 
+# Three original MOEX case passages are verified in #465 / #447. Every
+# dependent standalone question must carry the *same* complete case preface.
+# Other unseen case groups are not silently considered source-verified.
+REQUIRED_CONTEXT_GROUPS = (
+    ("105", "第二次", "社會工作研究方法", 13, 16),
+    ("105", "第二次", "社會工作研究方法", 21, 22),
+    ("107", "第二次", "社會工作研究方法", 5, 8),
+)
+
+
+def verified_shared_case_groups(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Verify 3 source-reviewed group boundaries and all 10 dependent questions.
+
+    Produces only reason/identity/hash evidence, never the question passage.
+    A question can be opened in random practice without its preceding item, so
+    each dependent stem needs its own unchanged source context.
+    """
+    index: dict[tuple[str, str, str, int], dict] = {}
+    for item in rows:
+        if not isinstance(item, dict):
+            raise ValueError("shared-case audit requires question objects")
+        try:
+            qno = int(str(item.get("qno") or ""))
+        except ValueError:
+            continue
+        key = (
+            str(item.get("year") or ""),
+            str(item.get("round") or ""),
+            str(item.get("subject") or ""),
+            qno,
+        )
+        if key in index:
+            raise ValueError(f"duplicate question identity in shared-case scope: {key}")
+        index[key] = item
+    risks: list[dict[str, Any]] = []
+    verified = 0
+    all_dependent = 0
+    for year, round_name, subject, first, last in REQUIRED_CONTEXT_GROUPS:
+        canonical = None
+        for number in range(first, last + 1):
+            all_dependent += 1
+            item = index.get((year, round_name, subject, number))
+            ident = f"R-{year}-{1 if round_name == '第一次' else 2}-{number:02d}"
+            reason = None
+            if item is None or item.get("id") != ident:
+                reason = "missing_or_wrong_dependent_question_identity"
+            else:
+                raw = item.get("question")
+                if not isinstance(raw, str) or "\n\n" not in raw:
+                    reason = "shared_case_context_missing"
+                else:
+                    preface, _, own_stem = raw.partition("\n\n")
+                    normalized = re.sub(r"\s+", "", preface)
+                    if (not preface.startswith("情況：") or not own_stem.strip()
+                            or len(normalized) < 50
+                            or f"第{first}題至第{last}題" not in normalized):
+                        reason = "shared_case_context_incomplete_or_wrong_range"
+                    elif canonical is None:
+                        canonical = preface
+                    elif preface != canonical:
+                        reason = "shared_case_context_mismatch"
+            if reason:
+                risks.append({
+                    "id": ident, "year": year, "round": round_name,
+                    "subject": subject, "reason": reason,
+                    "blocking": True, "automatic_edit": False,
+                    "release_approval": False,
+                })
+        if canonical is not None:
+            verified += 1
+    return {
+        "required_groups": len(REQUIRED_CONTEXT_GROUPS),
+        "groups_with_source_context": verified,
+        "required_dependent_questions": all_dependent,
+        "context_blocking_suspicions": len(risks),
+        "context_risks": risks,
+        "automatic_edit": False,
+        "release_approval": False,
+    }
+
+
 def scan(rows: list[dict[str, Any]]) -> dict[str, Any]:
     risks: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -159,6 +240,8 @@ def main() -> int:
     else:
         rows = read_rows()
     result = scan(rows)
+    context = verified_shared_case_groups(rows)
+    result["shared_case_groups"] = context
     result["dataset_scope"] = "live_public_questions" if args.live else (
         "input_export" if args.input else "sha_verified_local_shards"
     )
@@ -169,7 +252,8 @@ def main() -> int:
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: v for k, v in result.items() if k != "risks"}, ensure_ascii=False))
-    return 2 if args.fail_on_blocked and result["blocking_suspicions"] else 0
+    total_blocked = result["blocking_suspicions"] + context["context_blocking_suspicions"]
+    return 2 if args.fail_on_blocked and total_blocked else 0
 
 
 if __name__ == "__main__":
