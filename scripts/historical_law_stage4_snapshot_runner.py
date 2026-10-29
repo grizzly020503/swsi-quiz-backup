@@ -42,6 +42,13 @@ MOJ_API_ENDPOINTS = {
 }
 
 
+def verified_identity_counts(records: list[dict]) -> Counter:
+    """Count only accepted snapshots; failed sources can retain a method label."""
+    return Counter(str(row["source_identity_method"]) for row in records
+                   if row.get("status") == "historical_text_evidence_ready"
+                   and row.get("source_identity_method"))
+
+
 def _sha256_text(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
@@ -416,9 +423,7 @@ def build_hybrid_report(
         records.append(_oldver_ready_record(base, selected, history_url, page, exam, start_date, end_date))
 
     counts = Counter(str(row.get("status") or "") for row in records)
-    identity_counts = Counter(
-        str(row.get("source_identity_method")) for row in records if row.get("source_identity_method")
-    )
+    identity_counts = verified_identity_counts(records)
     ready_rows = [row for row in records if row.get("status") == "historical_text_evidence_ready"]
     return {
         "schema_version": 5,

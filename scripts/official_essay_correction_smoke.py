@@ -41,7 +41,8 @@ def check():
         assert guide == proof["quarantined_guide"], name + ": stale inline guide returned"
     # Fingerprint the unchanged portions of the immutable baseline lock. This
     # remains deterministic in shallow CI checkouts without fetching history.
-    locked = json.loads((ROOT/"data/official_exam_readonly.lock.json").read_text())
+    from official_combined_candidate_guard import view
+    _, locked, _ = view(ROOT)
     digest = lambda value: hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()).hexdigest()
     mcq_baseline = dict(locked["mcq"])
     mcq_proof = json.loads((ROOT/"audit/official_mcq_corrections_20261025.json").read_text())

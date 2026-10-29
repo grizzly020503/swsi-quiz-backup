@@ -26,6 +26,11 @@ const stub={
  }),
  swsiText:v=>String(v==null?'':v),
  swsiCleanPUA:v=>String(v==null?'':v),
+ // This VM isolates explanation masking from the real figure/browser harness.
+ // A non-figure row must retain ordinary answer and display behavior.
+ swsiOfficialFigureReady:()=>true,
+ swsiOfficialFigureMarkup:()=>'',
+ swsiOfficialFigureQuestion:q=>String(q&&q.q||''),
  gradingMode:r=>r.grading_mode,
 };
 stub.QB=stub.window.SWSI_QB;
@@ -111,6 +116,18 @@ const c0=cdnHtml.indexOf('    var revHtml=wrong.map(function(w){');
 const c1=cdnHtml.indexOf('\n    ov.innerHTML=',c0);
 assert.ok(c0>=0 && c1>c0 && cdnHtml.indexOf('    var revHtml=wrong.map(function(w){',c0+1)===-1);
 assert.equal(cdnHtml.slice(c0,c1),resultFragment,'CDN mock-exam disclosure gate drifted from canonical HTML');
+// Evaluate the actual page helper in the isolated VM, rather than inventing a
+// stub that might conceal a broken image-question text gate.
+const imageTextHelperStart='function swsiOfficialFigureQuestion(q){';
+const imageTextHelperEnd='function swsiOfficialFigureLoaded(id,ok){';
+function exactFigureTextHelper(source){
+ const a=source.indexOf(imageTextHelperStart), b=source.indexOf(imageTextHelperEnd,a);
+ assert.ok(a>=0&&b>a,'original figure text helper missing from student HTML');
+ assert.equal(source.indexOf(imageTextHelperStart,a+1),-1,'duplicate image text helper');
+ return source.slice(a,b);
+}
+const imageTextHelper=exactFigureTextHelper(htmlSrc);
+assert.equal(imageTextHelper,exactFigureTextHelper(cdnHtml),'root/CDN figure text helper mismatch');
 function mockResult(q, mask){
  const context={
   wrong:[{q,picked:'A'}],
@@ -118,6 +135,7 @@ function mockResult(q, mask){
   E:v=>String(v??''),answerLabel:item=>'官方答案：'+item.answer
  };
  vm.createContext(context);
+ vm.runInContext(imageTextHelper,context);
  vm.runInContext(resultFragment,context);
  return context.revHtml;
 }

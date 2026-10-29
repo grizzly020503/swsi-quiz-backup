@@ -99,7 +99,8 @@ jobs:
       - name: Build browser-test site
         run: |
           rm -rf _site
-          mkdir -p _site/icons
+          mkdir -p _site/icons _site/official-figures
+          cp official-figures/*.png _site/official-figures/
           cp index.html manifest.json sw.js apple-touch-icon.png _site/
           node scripts/build_essay_guides_runtime.js essay_guides.js _site/essay_guides.js
           cat monthly_patch_parts/*.part > _site/monthly_patch.js

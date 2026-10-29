@@ -18,12 +18,8 @@ def check():
     expected={'SW-106-1-40','R-105-1-24','SW-109-1-05','DS-115-1-18','DS-115-1-22'}|{'SP113-1-'+str(n) for n in (30,31,32,33,34,35,37,38,39,40)}
     assert {r['id'] for r in proof['rows']}==expected
     registry=load_registry();transport=json.loads((ROOT/'data/moex_answer_sources.v1.json').read_text())['records'];allrows={}
-    for s in proof['manifest_after']['shards']:
-        path=ROOT/'cdn/question-shards'/s['file'];raw=path.read_bytes()
-        assert hashlib.sha256(raw).hexdigest()==s['sha256'] and len(raw)==s['bytes']
-        payload=json.loads(raw);rows=payload if isinstance(payload,list) else payload['questions']
-        assert len(rows)==s['question_count']
-        allrows.update({r['id']:r for r in rows})
+    from official_combined_candidate_guard import view
+    allrows, projected_lock, manifest = view(ROOT)
     assert len(allrows)==4800
     extra=json.loads((ROOT/'audit/official_mcq_corrections_additional_20261025.json').read_text())
     assert extra['count']==len(extra['rows'])==12 and extra['human_approval'] is False
@@ -33,7 +29,7 @@ def check():
         historical_rows[item['id']]=item['before']
     assert digest({k:r for k,r in historical_rows.items() if k not in expected})==proof['unchanged_other_mcq_rows_sha256'], 'undeclared MCQ field changes'
     assert digest({k:{f:r.get(f) for f in ('answer','accepted_answers','grading_mode')} for k,r in allrows.items()})==proof['baseline_grading_map_sha256'], 'answers or grading changed'
-    locked=json.loads((ROOT/'data/official_exam_readonly.lock.json').read_text())['mcq'];restored=dict(locked)
+    locked=projected_lock['mcq'];restored=dict(locked)
     for row in proof['rows'] + extra['rows']:
         before,after=row['before'],row['after'];ident=row['id']
         assert allrows[ident]==after
@@ -57,11 +53,10 @@ def check():
         for field in ('major','topic','keywords','exp_why','exp_others','exp_trap','exp_raw','mnemonic','extension','law','mistake'):
             assert after[field] is None, 'stale enrichment returned'
     assert digest(restored)==proof['baseline_mcq_lock_map_sha256']
-    manifest=json.loads((ROOT/'cdn/question-shards/manifest.json').read_text())
     assert manifest==proof['manifest_after']
     assert manifest['total_uncompressed_bytes']==sum(s['bytes'] for s in manifest['shards'])
     revision=hashlib.sha256('\n'.join(s['file']+':'+s['sha256'] for s in manifest['shards']).encode()).hexdigest()[:20]
     assert manifest['dataset_revision']==revision
-    print('CONTROLLED MCQ CORRECTIONS OK: 27 text/option candidates; 4773 other rows and all 4800 answer/grading tuples unchanged; hashes and manifest verified; human approval pending')
+    print('CONTROLLED MCQ CORRECTIONS OK: 27 text/option candidates; 4773 other projected base rows and all 4800 answer/grading tuples unchanged; actual 41-row bytes checked first; hashes and manifest verified; human approval pending')
 
 if __name__=='__main__':check()

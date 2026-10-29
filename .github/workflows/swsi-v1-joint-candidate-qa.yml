@@ -83,6 +83,7 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/official_exam_readonly_guard.py
+          python scripts/official_combined_candidate_guard_selftest.py
           python scripts/official_essay_pdf_audit.py --selftest
           python scripts/official_essay_correction_smoke.py
           python scripts/official_mcq_pdf_audit.py --selftest
@@ -125,8 +126,9 @@ jobs:
       - name: Build local student-facing candidate
         run: |
           set -euo pipefail
-          mkdir -p _site/icons
+          mkdir -p _site/icons _site/official-figures
           cp index.html manifest.json sw.js apple-touch-icon.png _site/
+          cp official-figures/*.png _site/official-figures/
           node scripts/build_essay_guides_runtime.js essay_guides.js _site/essay_guides.js
           cat monthly_patch_parts/*.part > _site/monthly_patch.js
           node --check _site/monthly_patch.js
@@ -151,6 +153,7 @@ jobs:
           node scripts/official_essay_correction_browser_smoke.js http://127.0.0.1:4173/ webkit
           node scripts/official_mcq_corrections_browser_smoke.js http://127.0.0.1:4173/
           node scripts/official_mcq_corrections_browser_smoke.js http://127.0.0.1:4173/ webkit
+          node scripts/official_figure_mobile_browser_smoke.js http://127.0.0.1:4173/
           node scripts/grading_contract_smoke.js http://127.0.0.1:4173/
           node scripts/browser_interaction_smoke.js http://127.0.0.1:4173/ webkit
           node scripts/prelaunch_axe_accessibility_smoke.js http://127.0.0.1:4173/

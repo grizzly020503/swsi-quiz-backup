@@ -41,7 +41,8 @@ def validate_three_official_pdf_corrections(report, observed_manifest_digest):
             or extra.get('official_production_write') is not False
             or {r['id'] for r in extra.get('rows', [])} != REVIEWED_DELTA_IDS):
         raise ValueError('unexpected or unapproved official PDF delta proof')
-    manifest=json.loads((ROOT/'cdn/question-shards/manifest.json').read_text())
+    from official_combined_candidate_guard import view
+    _, _, manifest = view(ROOT)
     previous=json.loads((ROOT/'audit/official_mcq_corrections_20261025.json').read_text())
     if manifest != previous['manifest_after']:
         raise ValueError('official PDF delta diverges from controlled manifest')
@@ -103,7 +104,10 @@ def validate(report,count,match_status,inputs):
         observed=hashlib.sha256((ROOT/name).read_bytes()).hexdigest()
         if observed==expected:continue
         if name=='cdn/question-shards/manifest.json' and count==4800:
-            applied_delta=validate_three_official_pdf_corrections(report,observed)
+            from official_combined_candidate_guard import view, checked_json, PROJECTION_SHA
+            view(ROOT)  # Check actual 41-row bytes before projecting the old audit input.
+            projection=checked_json(ROOT, 'audit/official_combined_base_projection_20261029.json', PROJECTION_SHA)
+            applied_delta=validate_three_official_pdf_corrections(report,projection['base_manifest_sha256'])
         else:
             raise ValueError('stale comparison input: '+name)
     rows=report.get('rows',[])

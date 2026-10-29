@@ -6,9 +6,20 @@ const {chromium,webkit}=require('playwright');
 const serveLocalQuestionShards=require('./local_question_shards_fixture');
 const proof=JSON.parse(fs.readFileSync('audit/official_mcq_corrections_20261025.json','utf8'));
 const additional=JSON.parse(fs.readFileSync('audit/official_mcq_corrections_additional_20261025.json','utf8'));
-const cases=proof.rows.concat(additional.rows);
-assert.strictEqual(cases.length,27);
-assert.strictEqual(new Set(cases.map(row=>row.id)).size,27);
+const projection=JSON.parse(fs.readFileSync('audit/official_combined_base_projection_20261029.json','utf8'));
+const shared=['audit/official_105_2_shared_context_20261028.json','audit/official_107_2_shared_context_20261028.json'].flatMap(p=>JSON.parse(fs.readFileSync(p,'utf8')).changes);
+const cases=proof.rows.concat(additional.rows).map(row=>({...row,quarantine:true})).concat(shared.map(change=>{
+  const before=projection.before_rows[change.id];
+  assert(before,'missing shared preimage');
+  const after={...before};
+  for(const [field,delta] of Object.entries(change.fields)){
+    assert.strictEqual(before[field],delta.before);
+    after[field]=delta.after;
+  }
+  return {id:change.id,before,after,quarantine:false};
+}));
+assert.strictEqual(cases.length,40);
+assert.strictEqual(new Set(cases.map(row=>row.id)).size,40);
 const base=process.argv[2]||'http://127.0.0.1:4173/';
 const engine=process.argv[3]||'chromium';
 const compact=s=>s.normalize('NFKC').replace(/\s+/g,'');
@@ -37,8 +48,8 @@ assert(['chromium','webkit'].includes(engine));
         await page.getByRole('button',{name:'送出答案',exact:true}).click();
         await page.locator('.exp').waitFor();
         assert.strictEqual(await page.locator('.opt.correct').count(),1,row.id+': official grading failed');
-        assert.strictEqual(await page.locator('.exp-sec').count(),0,row.id+': quarantined old analysis returned');
-        if(row.before.exp_why){
+        if(row.quarantine) assert.strictEqual(await page.locator('.exp-sec').count(),0,row.id+': quarantined old analysis returned');
+        if(row.quarantine&&row.before.exp_why){
           assert(!(await page.locator('.exp').innerText()).includes(row.before.exp_why.slice(0,25)),row.id+': old explanation leaked');
         }
       }

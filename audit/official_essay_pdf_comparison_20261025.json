@@ -4,7 +4,7 @@
     "scripts/official_essay_pdf_audit.py": "64873a34b2517d43fe346af0a31bbc415a105701f522c69da55eecfc7b24e775",
     "scripts/moex_sync.py": "f16f05d90ea52c3ab5578b091e5f69eb8fcf79679a93ca8cb8f1ebe952620b30",
     "scripts/moex_sync_v2.py": "741c69ee093b9d844b861a1812b590f2a9f5a9dbcccf7e39223756974782058f",
-    "index.html": "4f9e14e6b0be9cb9b7324d98ddf6dcf83cbb245e35ff228ab9310018e61d8b53",
+    "index.html": "fc0737c18e07258b0c67ba9d77c580b42bf84bb6a0c0573b052195af45857cf8",
     "auto/essays_auto.json": "65eff71beae3b6b3afea5458b23386d3e4f33dfec5456c704b70850b54202714",
     "data/moex_source_subjects.v1.json": "27612fb18e15430ec2d9d6b25d617164273ad1f39c49e694c846c7925b150c7a"
   },
