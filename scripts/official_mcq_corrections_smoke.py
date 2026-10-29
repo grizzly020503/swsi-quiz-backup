@@ -57,6 +57,6 @@ def check():
     assert manifest['total_uncompressed_bytes']==sum(s['bytes'] for s in manifest['shards'])
     revision=hashlib.sha256('\n'.join(s['file']+':'+s['sha256'] for s in manifest['shards']).encode()).hexdigest()[:20]
     assert manifest['dataset_revision']==revision
-    print('CONTROLLED MCQ CORRECTIONS OK: 27 text/option candidates; 4773 other projected base rows and all 4800 answer/grading tuples unchanged; actual 41-row bytes checked first; hashes and manifest verified; human approval pending')
+    print('CONTROLLED MCQ CORRECTIONS OK: 27 text/option candidates; 4773 other projected base rows and all 4800 answer/grading tuples unchanged; actual 43-row bytes checked first; hashes and manifest verified; human approval pending')
 
 if __name__=='__main__':check()

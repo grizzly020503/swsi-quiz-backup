@@ -8,7 +8,8 @@ const proof=JSON.parse(fs.readFileSync('audit/official_mcq_corrections_20261025.
 const additional=JSON.parse(fs.readFileSync('audit/official_mcq_corrections_additional_20261025.json','utf8'));
 const projection=JSON.parse(fs.readFileSync('audit/official_combined_base_projection_20261029.json','utf8'));
 const shared=['audit/official_105_2_shared_context_20261028.json','audit/official_107_2_shared_context_20261028.json'].flatMap(p=>JSON.parse(fs.readFileSync(p,'utf8')).changes);
-const cases=proof.rows.concat(additional.rows).map(row=>({...row,quarantine:true})).concat(shared.map(change=>{
+const repairs=JSON.parse(fs.readFileSync('audit/official_pdf_stem_repairs_20261029.json','utf8'));
+const cases=proof.rows.concat(additional.rows,repairs.rows).map(row=>({...row,quarantine:true})).concat(shared.map(change=>{
   const before=projection.before_rows[change.id];
   assert(before,'missing shared preimage');
   const after={...before};
@@ -18,8 +19,8 @@ const cases=proof.rows.concat(additional.rows).map(row=>({...row,quarantine:true
   }
   return {id:change.id,before,after,quarantine:false};
 }));
-assert.strictEqual(cases.length,40);
-assert.strictEqual(new Set(cases.map(row=>row.id)).size,40);
+assert.strictEqual(cases.length,42);
+assert.strictEqual(new Set(cases.map(row=>row.id)).size,42);
 const base=process.argv[2]||'http://127.0.0.1:4173/';
 const engine=process.argv[3]||'chromium';
 const compact=s=>s.normalize('NFKC').replace(/\s+/g,'');

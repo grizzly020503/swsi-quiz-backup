@@ -53,7 +53,10 @@ def build():
         candidate_path = ROOT / 'audit/official_mcq_corrections_additional_20261025.json'
         proof = json.loads(candidate_path.read_text())
         from official_pdf_review_dispositions import validated_ids, PROOF_PATH
-        disposition_ids = validated_ids(old_mcq, ROOT)
+        from official_pdf_stem_repairs import validated_ids as validated_stem_ids, PROOF_PATH as STEM_PROOF_PATH
+        disposition_ids = validated_ids(old_mcq, ROOT) | validated_stem_ids(old_mcq, ROOT)
+        stem_path = ROOT / STEM_PROOF_PATH
+        inputs[STEM_PROOF_PATH] = hashlib.sha256(stem_path.read_bytes()).hexdigest()
         skip = {r['id'] for r in proof['rows']} | disposition_ids
         disposition_path = ROOT / PROOF_PATH
         inputs[PROOF_PATH] = hashlib.sha256(disposition_path.read_bytes()).hexdigest()

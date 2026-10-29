@@ -15,7 +15,7 @@ class CombinedGuardTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         self.report = json.loads((guard.ROOT / 'audit/official_combined_data_integration_20261029.json').read_text())
-        for name in list(self.report['output_sha256']) + ['audit/official_combined_data_integration_20261029.json', 'audit/official_combined_base_projection_20261029.json']:
+        for name in list(self.report['output_sha256']) + ['audit/official_combined_data_integration_20261029.json', 'audit/official_combined_base_projection_20261029.json', 'audit/official_pdf_stem_repairs_20261029.json', 'audit/official_mcq_pdf_comparison_20261025.json', 'data/moex_answer_sources.v1.json']:
             target = self.root / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(guard.ROOT / name, target)

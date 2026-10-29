@@ -119,6 +119,8 @@ def validate(report,count,match_status,inputs):
     if count == 4800:
         from official_pdf_review_dispositions import validated_ids
         applied_delta += len(validated_ids(report, ROOT))
+        from official_pdf_stem_repairs import validated_ids as validated_stem_ids
+        applied_delta += len(validated_stem_ids(report, ROOT))
     return counts.get('review',0)-applied_delta
 
 

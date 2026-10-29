@@ -26,14 +26,18 @@ def view(root=ROOT):
     root = Path(root)
     report = checked_json(root, 'audit/official_combined_data_integration_20261029.json', REPORT_SHA)
     projection = checked_json(root, 'audit/official_combined_base_projection_20261029.json', PROJECTION_SHA)
+    from official_pdf_stem_repairs import previous_bytes
+    projected = previous_bytes(root, report)
+    def read(path):
+        return projected[path] if path in projected else (root / path).read_bytes()
     for path, expected in report['output_sha256'].items():
-        if hashlib.sha256((root / path).read_bytes()).hexdigest() != expected:
+        if hashlib.sha256(read(path)).hexdigest() != expected:
             raise ValueError('combined payload drift: ' + path)
-    manifest = json.loads((root / 'cdn/question-shards/manifest.json').read_text())
-    lock = json.loads((root / 'data/official_exam_readonly.lock.json').read_text())
+    manifest = json.loads(read('cdn/question-shards/manifest.json'))
+    lock = json.loads(read('data/official_exam_readonly.lock.json'))
     rows = {}
     for entry in manifest['shards']:
-        raw = (root / 'cdn/question-shards' / entry['file']).read_bytes()
+        raw = read('cdn/question-shards/' + entry['file'])
         if len(raw) != entry['bytes'] or hashlib.sha256(raw).hexdigest() != entry['sha256']:
             raise ValueError('combined manifest drift')
         for row in json.loads(raw)['questions']:
@@ -55,4 +59,4 @@ def view(root=ROOT):
 
 if __name__ == '__main__':
     view()
-    print('COMBINED CANDIDATE OK: exact 41-row dataset/locks/2 figures; 14-row projection bound to pinned evidence; no release approval')
+    print('COMBINED CANDIDATE OK: exact 43-row dataset/locks/2 figures; layered 2+14-row projection bound to pinned evidence; no release approval')
