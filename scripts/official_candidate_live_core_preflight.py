@@ -21,6 +21,8 @@ BASELINE_COMMIT = "62fed9b5a3e7b6bd770886bfc9fe6b6ce3ce1576"
 LOCK_PATH = "data/official_exam_readonly.lock.json"
 GRADING_FIELDS = ("answer", "accepted_answers", "grading_mode")
 EXPECTED_CHANGED = 43
+ESSAY_ID = "社會工作-112-2-申論2"
+ESSAY_PROOF = ROOT / "audit/official_essay_112_2_sw2_correction.json"
 
 
 def read_pinned_lock(root: Path = ROOT, commit: str = BASELINE_COMMIT) -> dict:
@@ -63,10 +65,21 @@ def check(
     old, new = baseline.get("mcq"), candidate_lock.get("mcq")
     if not isinstance(old, dict) or not isinstance(new, dict):
         raise ValueError("official lock mcq maps required")
+    essay_before, essay_after = baseline.get("essays"), candidate_lock.get("essays")
     if (len(old) != 4800 or set(old) != set(new)
-            or len(candidate_lock.get("essays", {})) != 240
-            or baseline.get("essays") != candidate_lock.get("essays")):
+            or not isinstance(essay_before, dict) or not isinstance(essay_after, dict)
+            or len(essay_before) != 240 or set(essay_before) != set(essay_after)):
         raise ValueError("pinned official lock coverage/essay lock mismatch")
+    # The candidate includes one already documented official essay typo/wrong-stem
+    # correction, not zero. The exact official PDF proof must bind both hashes.
+    essay_changes = {ident for ident in essay_before if essay_before[ident] != essay_after[ident]}
+    proof = json.loads(ESSAY_PROOF.read_text(encoding="utf-8"))
+    if (essay_changes != {ESSAY_ID} or proof.get("id") != ESSAY_ID
+            or proof.get("status") != "CONTROLLED_OFFICIAL_CORE_CORRECTION_CANDIDATE"
+            or proof.get("human_approval") is not False
+            or proof.get("before_lock_sha256") != essay_before[ESSAY_ID]
+            or proof.get("after_lock_sha256") != essay_after[ESSAY_ID]):
+        raise ValueError("unreviewed official essay delta or proof-hash mismatch")
     changes = {ident for ident in old if old[ident] != new[ident]}
     if len(changes) != expected_changes:
         raise ValueError(f"unreviewed Official Core candidate change scope: {len(changes)}")
@@ -100,7 +113,9 @@ def check(
         "schema_version": 1,
         "baseline_ref": BASELINE_COMMIT,
         "historical_questions": 4800,
-        "official_essay_locks_unchanged": 240,
+        "official_essay_count": 240,
+        "candidate_changed_official_essay": len(essay_changes),
+        "essay_live_parity": "NOT_CHECKED_REQUIRE_SEPARATE_OFFICIAL_ESSAY_REVIEW",
         "candidate_changed_official_core": len(changes),
         "live_pending_exact_core": len(before),
         "live_already_at_candidate_core": len(after),
