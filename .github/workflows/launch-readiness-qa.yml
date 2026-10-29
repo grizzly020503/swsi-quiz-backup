@@ -120,7 +120,7 @@ jobs:
             if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
             sleep 1
           done
-          node scripts/launch_readiness_smoke.js http://127.0.0.1:4173/
+          SWSI_VISUAL_ARTIFACT_DIR=_ui_evidence node scripts/launch_readiness_smoke.js http://127.0.0.1:4173/
           node scripts/layout_foundation_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_deadend_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_error_states_smoke.js http://127.0.0.1:4173/
@@ -131,3 +131,12 @@ jobs:
           node scripts/prelaunch_storage_degradation_smoke.js http://127.0.0.1:4173/
           node scripts/prelaunch_slow_network_smoke.js http://127.0.0.1:4173/
           node scripts/pwa_resilience_smoke.js http://127.0.0.1:4173/
+
+      - name: Retain candidate UI screenshots for human visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-calm-ui-visual-evidence
+          path: _ui_evidence/*.png
+          if-no-files-found: warn
+          retention-days: 7

@@ -58,6 +58,15 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     }, null, 2));
   }
 
+  // Public candidate visuals only: no secrets, private user data or hosted writes.
+  // Snapshots are generated locally from this PR branch, not from a preview site.
+  const visualDir = process.env.SWSI_VISUAL_ARTIFACT_DIR || '';
+  async function visual(name) {
+    if (!visualDir) return;
+    fs.mkdirSync(visualDir, { recursive: true });
+    await page.screenshot({ path: path.join(visualDir, name + '.png'), fullPage: true, animations: 'disabled' });
+  }
+
   async function waitHome() {
     try {
       await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
@@ -82,6 +91,32 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.reload({ waitUntil: 'commit' });
   await waitHome();
   assert.strictEqual(await page.locator('.swsi-launch-guide').count(), 0, 'dismissed guide returned after reload');
+
+  // Assert the actual *computed* visual system after the runtime injected its
+  // styles. A green static CSS diff is not evidence of the UI users see.
+  const calmMobile = await page.evaluate(() => {
+    const focus = document.querySelector('.swsi-focus-primary');
+    const nav = document.querySelector('.tabbar');
+    const wrap = document.querySelector('.wrap');
+    const primary = document.querySelector('.swsi-focus-primary button');
+    return {
+      v2Loaded: !!document.getElementById('swsi-calm-student-design-v2'),
+      paper: getComputedStyle(document.documentElement).getPropertyValue('--paper').trim().toUpperCase(),
+      pineDeep: getComputedStyle(document.documentElement).getPropertyValue('--pine-deep').trim().toUpperCase(),
+      focusBackground: focus && getComputedStyle(focus).backgroundColor,
+      focusBorder: focus && getComputedStyle(focus).borderTopColor,
+      wrapMaxWidth: wrap && getComputedStyle(wrap).maxWidth,
+      navMaxWidth: nav && getComputedStyle(nav).maxWidth,
+      primaryHeight: primary && primary.getBoundingClientRect().height
+    };
+  });
+  assert(calmMobile.v2Loaded, 'calm student design V2 style is absent from runtime');
+  assert.strictEqual(calmMobile.paper, '#F4F7F5', 'calm paper token did not reach computed CSS');
+  assert.strictEqual(calmMobile.pineDeep, '#1F544B', 'calm primary-action token did not reach computed CSS');
+  assert.strictEqual(calmMobile.focusBackground, 'rgb(255, 255, 255)', 'live focus card is not white');
+  assert.strictEqual(calmMobile.wrapMaxWidth, '660px', 'mobile reading surface is still old width');
+  assert(calmMobile.primaryHeight >= 44, 'calm focus action below 44px touch height');
+  await visual('01-home-mobile');
 
   const visibleTabs = await page.locator('#tabbar button:visible').allInnerTexts();
   const tabText = visibleTabs.join(' ');
@@ -109,6 +144,19 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.getByRole('button', { name: '直接開始 10 題' }).click();
   await page.waitForSelector('.pcount', { timeout: 30000 });
   assert.strictEqual((await page.locator('.pcount').innerText()).trim(), '1 / 10', '10-question CTA did not start a 10-question queue');
+  // Visual regression: disabled submit previously rendered dark green with nearly
+  // invisible muted text. It must have the explicit, readable disabled state.
+  const disabledSubmit = page.locator('.qcard .btn:disabled');
+  assert.strictEqual(await disabledSubmit.count(), 1, 'expected one disabled submit button before selection');
+  const disabledStyle = await disabledSubmit.evaluate(el => ({
+    bg: getComputedStyle(el).backgroundColor,
+    ink: getComputedStyle(el).color,
+    opacity: getComputedStyle(el).opacity
+  }));
+  assert.strictEqual(disabledStyle.bg, 'rgb(229, 236, 231)', 'disabled submit background is not visibly inactive');
+  assert.strictEqual(disabledStyle.ink, 'rgb(62, 85, 74)', 'disabled submit label is not readable');
+  assert.strictEqual(disabledStyle.opacity, '1', 'disabled submit label is faded by opacity');
+  await visual('02-question-mobile');
   await page.getByRole('button', { name: /結束這次練習/ }).click();
   await waitHome();
 
@@ -122,6 +170,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/錯題複習/.test(hubText) && /快速刷題/.test(hubText) && /申論練習/.test(hubText), 'learning center primary study actions missing');
   const reminderText = await page.locator('.swsi-exam-reminder').innerText();
   assert(/考試倒數/.test(reminderText), 'exam countdown entry missing');
+  await visual('03-learning-mobile');
 
   const examButton = page.locator('.swsi-exam-reminder-btn');
   await examButton.click();
@@ -189,6 +238,56 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     assert.strictEqual(adminLabel, '管理者入口', 'admin entry is not using the canonical launch-safe label');
     assert.strictEqual(await adminLogin.isVisible(), false, 'admin entry is visible before the secondary More disclosure is opened');
   }
+
+  // Capture remaining navigation and the wide layout from the same clean,
+  // synthetic local browser context. No answer is submitted or AI invoked.
+  await page.locator('#t-essay').click();
+  await page.waitForFunction(() => {
+    const app = document.querySelector('#app');
+    return app && app.innerText.length > 50 && app.innerText.includes('申論');
+  }, null, { timeout: 20000 });
+  await visual('04-essay-mobile');
+  await page.locator('#t-home').click();
+  await waitHome();
+  await page.setViewportSize({ width: 1365, height: 900 });
+  assert.strictEqual(await page.locator('.wrap').evaluate(el => getComputedStyle(el).maxWidth),
+    '790px', 'desktop reading surface unexpectedly narrow');
+  const desktopNav = await page.evaluate(() => {
+    const nav = document.querySelector('#tabbar');
+    const wrap = document.querySelector('.wrap');
+    const r = nav.getBoundingClientRect();
+    const w = wrap.getBoundingClientRect();
+    return {
+      layout: getComputedStyle(nav).flexDirection,
+      left: r.left,
+      right: r.right,
+      top: r.top,
+      height: r.height,
+      computedBottom: getComputedStyle(nav).bottom,
+      visibleButtons: Array.from(nav.querySelectorAll('button'))
+        .filter(btn => getComputedStyle(btn).display !== 'none').length,
+      wrapRight: w.right,
+      viewportWidth: innerWidth,
+      minButtonHeight: Math.min(...Array.from(nav.querySelectorAll('button'))
+        .filter(btn => getComputedStyle(btn).display !== 'none')
+        .map(btn => btn.getBoundingClientRect().height))
+    };
+  });
+  await visual('05-home-desktop');
+  console.log('SWSI DESKTOP NAV GEOMETRY ' + JSON.stringify(desktopNav));
+  assert.strictEqual(desktopNav.layout, 'column', 'wide-screen navigation still uses the mobile bottom bar');
+  assert(desktopNav.left >= desktopNav.wrapRight + 8,
+    'desktop navigation overlaps the main reading surface: ' + JSON.stringify(desktopNav));
+  assert(desktopNav.right <= desktopNav.viewportWidth - 12,
+    'desktop navigation clips off the right edge');
+  assert(desktopNav.top >= 85, 'desktop navigation overlaps the header');
+  assert(desktopNav.height >= 48 * desktopNav.visibleButtons &&
+    desktopNav.height <= 65 * desktopNav.visibleButtons + 32,
+    'desktop nav still stretches to the bottom of the screen: ' + JSON.stringify(desktopNav));
+  assert(desktopNav.minButtonHeight >= 44, 'desktop navigation targets are too small');
+  await page.setViewportSize({ width: 1024, height: 800 });
+  assert.strictEqual(await page.locator('#tabbar').evaluate(el => getComputedStyle(el).flexDirection),
+    'row', 'intermediate viewport should keep the wide mobile navigation bar');
 
   assert.deepStrictEqual(browserErrors, [], 'browser page errors: ' + browserErrors.join(' | '));
   console.log('LAUNCH READINESS SMOKE OK');
