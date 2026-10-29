@@ -22,6 +22,8 @@ on:
       - 'scripts/historical_source_url_guard_selftest.py'
       - 'scripts/official_option_scenario_guard.py'
       - 'scripts/official_option_scenario_guard_selftest.py'
+      - 'scripts/official_candidate_live_core_preflight.py'
+      - 'scripts/official_candidate_live_core_preflight_selftest.py'
       - 'data/moex_source_subjects.v1.json'
       - 'data/exam_scheme_registry.v1.json'
       - 'data/question_qa_policy_v1.json'
@@ -44,6 +46,8 @@ on:
       - 'scripts/historical_source_url_guard_selftest.py'
       - 'scripts/official_option_scenario_guard.py'
       - 'scripts/official_option_scenario_guard_selftest.py'
+      - 'scripts/official_candidate_live_core_preflight.py'
+      - 'scripts/official_candidate_live_core_preflight_selftest.py'
       - 'data/moex_source_subjects.v1.json'
       - 'data/exam_scheme_registry.v1.json'
       - 'data/question_qa_policy_v1.json'
@@ -98,6 +102,11 @@ jobs:
           python scripts/official_option_scenario_guard_selftest.py
           python scripts/official_option_scenario_guard.py --out /tmp/official-option-scenario-qa.json --fail-on-blocked
 
+      - name: Three-way Official Core candidate vs pinned released baseline (no writes)
+        run: |
+          git fetch --no-tags --depth=1 origin 62fed9b5a3e7b6bd770886bfc9fe6b6ce3ce1576
+          python -m py_compile scripts/official_candidate_live_core_preflight.py scripts/official_candidate_live_core_preflight_selftest.py
+          python scripts/official_candidate_live_core_preflight_selftest.py --with-pinned-real-baseline
       - name: Audit all manifest sessions through effective exam profiles
         run: |
           set +e
