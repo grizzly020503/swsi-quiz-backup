@@ -108,6 +108,32 @@ jobs:
           cat /tmp/full-corpus-question-qa.log
           exit "$rc"
 
+      - name: Monthly READ-ONLY live option/context audit
+        if: github.event_name == 'schedule'
+        run: |
+          python -m pip install --disable-pip-version-check 'requests==2.32.5'
+          python scripts/official_option_scenario_guard.py \
+            --live --out /tmp/official-option-scenario-live-qa.json \
+            --fail-on-blocked
+
+      - name: Summarize monthly live option-boundary risks
+        if: always() && github.event_name == 'schedule'
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path('/tmp/official-option-scenario-live-qa.json')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
+              f.write('## Monthly live MCQ option/context audit\n\n')
+              if p.is_file():
+                  r=json.loads(p.read_text(encoding='utf-8'))
+                  f.write(f"- Public questions examined: {r['scanned_questions']}\n")
+                  f.write(f"- Option boundaries examined: {r['scanned_options']}\n")
+                  f.write(f"- Blocking case-boundary suspicions: **{r['blocking_suspicions']}**\n")
+                  f.write('- Source-review only; no official text, answers or DB records changed.\n')
+              else:
+                  f.write('- No valid live audit report produced; inspect failed live/coverage steps.\n')
+          PY
       - name: Publish compact job summary
         if: always()
         run: |
@@ -150,5 +176,6 @@ jobs:
           path: |
             /tmp/full-corpus-question-qa.json
             /tmp/official-option-scenario-qa.json
+            /tmp/official-option-scenario-live-qa.json
           if-no-files-found: ignore
           retention-days: 14
