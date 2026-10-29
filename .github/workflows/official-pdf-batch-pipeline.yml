@@ -19,7 +19,7 @@ jobs:
       # Audit a reviewed immutable candidate; never merge or serve its held content.
       - uses: actions/checkout@v7
         with:
-          ref: 5eea6f41609b1d749678e4dfac08b7824dbf63a3
+          ref: 7cd99a23f98ecc62fa18f104f154084650bef9c8
           fetch-depth: 1
       - name: Fetch only the pinned candidate preimage
         run: |
