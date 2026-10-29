@@ -7,7 +7,7 @@ from copy import deepcopy
 
 from official_exam_readonly_guard import MCQ_FIELDS, canonical_row, row_hash
 from official_candidate_live_core_preflight import (
-    EXPECTED_CHANGED, check, current_lock, read_pinned_lock,
+    EXPECTED_CHANGED, ESSAY_ID, ESSAY_PROOF, check, current_lock, read_pinned_lock,
 )
 from official_option_scenario_guard import read_rows
 
@@ -17,6 +17,9 @@ def run(check_real_baseline: bool) -> None:
     candidate = current_lock()
     assert len(candidate_rows) == 4800 and len(candidate["essays"]) == 240
     base = deepcopy(candidate)
+    proof = __import__("json").loads(ESSAY_PROOF.read_text(encoding="utf-8"))
+    assert candidate["essays"][ESSAY_ID] == proof["after_lock_sha256"]
+    base["essays"][ESSAY_ID] = proof["before_lock_sha256"]
     before_rows = [dict(r) for r in candidate_rows]
     changed_ids = sorted(candidate["mcq"])[:EXPECTED_CHANGED]
     changed = set(changed_ids)
@@ -27,6 +30,8 @@ def run(check_real_baseline: bool) -> None:
 
     clean_old = check(base, candidate, candidate_rows, before_rows)
     assert clean_old["candidate_changed_official_core"] == 43
+    assert clean_old["candidate_changed_official_essay"] == 1
+    assert clean_old["essay_live_parity"].startswith("NOT_CHECKED")
     assert clean_old["live_state"] == "BEFORE_ONLY" and clean_old["live_pending_exact_core"] == 43
     assert clean_old["live_unexpected_core_drift"] == 0 and clean_old["live_grading_difference"] == 0
     assert not clean_old["production_written"] and not clean_old["release_approved"]
@@ -53,6 +58,15 @@ def run(check_real_baseline: bool) -> None:
     grade_report = check(base, candidate, candidate_rows, bad_grade)
     assert grade_report["live_state"] == "DRIFT"
     assert grade_report["live_grading_difference"] == 1
+
+    bad_essay = deepcopy(base)
+    bad_essay["essays"]["社會工作-112-1-申論1"] = "0" * 64
+    try:
+        check(bad_essay, candidate, candidate_rows, before_rows)
+    except ValueError as exc:
+        assert "essay delta" in str(exc), str(exc)
+    else:
+        raise AssertionError("unregistered second essay change must fail")
 
     bad_scope = deepcopy(base)
     bad_scope["mcq"][changed_ids[0]] = candidate["mcq"][changed_ids[0]]
