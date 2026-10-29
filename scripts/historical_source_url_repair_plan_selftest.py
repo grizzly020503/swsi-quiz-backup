@@ -2,6 +2,11 @@
 """End-to-end regression against the real 4,800 read-only local shard rows."""
 from __future__ import annotations
 
+import json
+import subprocess
+import sys
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from historical_source_url_repair_plan import load_local_shards, propose
@@ -45,6 +50,23 @@ def main() -> int:
     assert proposal["patches"][0]["official_pdf_sha256"]
     assert not proposal["production_written"] and not proposal["release_approved"]
     assert changed[index]["source_url"] != original["source_url"], "planner must not mutate rows"
+
+    # The monthly CI mode must write a review-only artifact and fail on drift.
+    with TemporaryDirectory(prefix="swsi-url-plan-test-") as temp:
+        input_path = Path(temp) / "rows.json"
+        output_path = Path(temp) / "candidate.json"
+        input_path.write_text(json.dumps(changed, ensure_ascii=False), encoding="utf-8")
+        runner = Path(__file__).with_name("historical_source_url_repair_plan.py")
+        proc = subprocess.run(
+            [sys.executable, str(runner), "--input", str(input_path),
+             "--out", str(output_path), "--fail-on-proposals"],
+            capture_output=True, text=True, check=False, timeout=60,
+        )
+        assert proc.returncode == 2, (proc.stdout, proc.stderr)
+        generated = json.loads(output_path.read_text(encoding="utf-8"))
+        assert generated["proposed_url_changes"] == 1
+        assert generated["production_written"] is False
+        assert generated["release_approved"] is False
 
     code_bad = [dict(r) for r in rows]
     code_bad[index]["source_exam_code"] = "000000"
