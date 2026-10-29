@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "input_fingerprint": "f38b571af5082562eca28a96d380f68a593369d5d00d70c9325efc54833ba7b7",
+  "local_first_run": {
+    "schema_version": 1,
+    "input_fingerprint": "f38b571af5082562eca28a96d380f68a593369d5d00d70c9325efc54833ba7b7",
+    "source_commit": "b901ca92d7293d1329dae8fe09dcc3ac187cae77",
+    "source_tree_dirty": true,
+    "queue_total": 440,
+    "prepared_packets": 440,
+    "new_packets": 440,
+    "reused_packets": 0,
+    "failed_records_this_run": 0,
+    "not_yet_prepared": 0,
+    "batches_executed": 18,
+    "candidate": "43_existing_verified_corrections_reproduced",
+    "release_status": "NO-GO",
+    "unresolved_official_reviews": 440,
+    "human_approval": false,
+    "official_core_modified": false,
+    "production_write": false,
+    "backup_operation": false,
+    "work_directory": "/tmp/swsi-automatic-pdf-run/f38b571af5082562eca28a96d380f68a593369d5d00d70c9325efc54833ba7b7"
+  },
+  "local_resume": {
+    "schema_version": 1,
+    "input_fingerprint": "f38b571af5082562eca28a96d380f68a593369d5d00d70c9325efc54833ba7b7",
+    "source_commit": "b901ca92d7293d1329dae8fe09dcc3ac187cae77",
+    "source_tree_dirty": true,
+    "queue_total": 440,
+    "prepared_packets": 440,
+    "new_packets": 0,
+    "reused_packets": 440,
+    "failed_records_this_run": 0,
+    "not_yet_prepared": 0,
+    "batches_executed": 0,
+    "candidate": "43_existing_verified_corrections_reproduced",
+    "release_status": "NO-GO",
+    "unresolved_official_reviews": 440,
+    "human_approval": false,
+    "official_core_modified": false,
+    "production_write": false,
+    "backup_operation": false,
+    "work_directory": "/tmp/swsi-automatic-pdf-run/f38b571af5082562eca28a96d380f68a593369d5d00d70c9325efc54833ba7b7"
+  },
+  "independently_verified_packet_hashes": 440,
+  "independently_verified_unique_official_pdfs": 70,
+  "new_core_corrections_in_this_unit": 0,
+  "release_approved": false,
+  "checks": [
+    {
+      "command": [
+        "official_exam_readonly_guard.py"
+      ],
+      "log": "check-00.log",
+      "returncode": 0,
+      "sha256": "f0375357a79b610447554c23311649040016fb67fd7067de72eb5013e6bd00a0"
+    },
+    {
+      "command": [
+        "official_combined_candidate_guard_selftest.py"
+      ],
+      "log": "check-01.log",
+      "returncode": 0,
+      "sha256": "47c6e15f01492ef7ecc9fe44e35241d26b963bd0cf7f26d41ccd44b38a39bcb6"
+    },
+    {
+      "command": [
+        "official_mcq_corrections_smoke.py"
+      ],
+      "log": "check-02.log",
+      "returncode": 0,
+      "sha256": "466070a87ad21d5a2c03badc9e9377998bbe7b2558db7228ba7a120f4cafffbb"
+    },
+    {
+      "command": [
+        "official_essay_correction_smoke.py"
+      ],
+      "log": "check-03.log",
+      "returncode": 0,
+      "sha256": "080aa4c764e001065d65d830f6233664f404a812f2d1393d096cda0b52bb984c"
+    },
+    {
+      "command": [
+        "official_pdf_stem_repairs_selftest.py"
+      ],
+      "log": "check-04.log",
+      "returncode": 0,
+      "sha256": "a392c33c97194700035d02ddeb9ff914a8ebceb8a847eb6698085fed251712ae"
+    },
+    {
+      "command": [
+        "official_pdf_review_dispositions_selftest.py"
+      ],
+      "log": "check-05.log",
+      "returncode": 0,
+      "sha256": "f502226ef2d1307676aba54e37aaafd709273cdfa8a6f96baecb0dac2f31fd5e"
+    },
+    {
+      "command": [
+        "official_pdf_text_release_gate.py",
+        "--selftest"
+      ],
+      "log": "check-06.log",
+      "returncode": 0,
+      "sha256": "53b3e7e485aede079171b11d0a479ab7f632f9545fac7576e27d313eb79ce438"
+    },
+    {
+      "command": [
+        "full_corpus_qa.py",
+        "--out",
+        "/tmp/swsi-automatic-pdf-run/f38b571af5082562eca28a96d380f68a593369d5d00d70c9325efc54833ba7b7/full-corpus.json",
+        "--fail-on",
+        "blocked"
+      ],
+      "log": "check-07.log",
+      "returncode": 0,
+      "sha256": "487a276d03c937df8d715cbb6a324312384a6a3d4a9f817239875bdcb59cddf4"
+    }
+  ],
+  "selftests_passed": 11,
+  "workflow_status": "pending exact-head PR CI; daily schedule requires default-branch merge",
+  "note": "All440 packets prepared; all440 content reviews remain held. Reproduced43 existing source-backed corrections; no new AI or human ratings."
+}
