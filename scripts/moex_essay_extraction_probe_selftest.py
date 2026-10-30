@@ -17,14 +17,15 @@ def legacy_without_optional_pdf_deps():
     """Compile actual legacy parsing functions without importing PDF packages."""
     source = (ROOT / "scripts/moex_sync.py").read_text(encoding="utf-8")
     tree = ast.parse(source)
-    wanted = {"clean", "strip_headers", "parse_essays"}
+    wanted = {"clean", "strip_headers", "parse_essays", "pdf_url"}
     nodes = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in wanted]
     assert {x.name for x in nodes} == wanted
-    env = {"re": re, "TARGET_EXAM_PHRASE": "專門職業及技術人員高等考試"}
+    env = {"re": re, "TARGET_EXAM_PHRASE": "專門職業及技術人員高等考試",
+           "BASE": "https://wwwq.moex.gov.tw/exam"}
     exec(compile(ast.Module(body=nodes, type_ignores=[]), "moex_sync.py", "exec"), env)
     def parse(text):
         return env["parse_essays"](
-            text, {"prefix": "R", "name": "社會工作研究方法"},
+            text, {"prefix": "R", "name": "社會工作研究方法", "s": "0606"},
             "108110", "108", "第二次",
         )
     return parse
