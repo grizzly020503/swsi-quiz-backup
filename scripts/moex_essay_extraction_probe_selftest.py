@@ -69,7 +69,7 @@ def main():
     # Incomplete or ambiguous source markers must NOT trigger fallback.
     no_points = inline.replace("同意書應包括哪些內容。（25 分）", "同意書應包括哪些內容。")
     assert probe.diagnose(no_points, parse)["legacy_essay_count"] == 1
-    ambiguous = inline.replace("德菲法的操作步驟", "德菲法的一、操作步驟")
+    ambiguous = inline.replace("德菲法的操作步驟", "德菲法的。 一、操作步驟")
     assert probe.diagnose(ambiguous, parse)["legacy_essay_count"] == 1
 
     no_second = clean.replace("二、說明", "題目補充說明")
