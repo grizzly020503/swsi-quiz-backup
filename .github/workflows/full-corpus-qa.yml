@@ -113,7 +113,9 @@ jobs:
           exit "$rc"
 
       - name: Monthly READ-ONLY production source URL drift audit
-        if: github.event_name == 'schedule'
+        # A failure in offline full-corpus QA must not silently suppress the
+        # independent monthly live diagnostics. Cancelled jobs remain stopped.
+        if: ${{ !cancelled() && github.event_name == 'schedule' }}
         run: |
           python -m pip install --disable-pip-version-check 'requests==2.32.5'
           python scripts/historical_source_url_repair_plan.py \
@@ -138,26 +140,26 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
-          p=Path('/tmp/swsi-source-url-repair-proposals.json')
+          url_path=Path('/tmp/swsi-source-url-repair-proposals.json')
+          core_path=Path('/tmp/swsi-live-official-core-parity.json')
           with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
-              f.write('## Monthly public source URL audit (read only)\n\n')
-              if p.exists():
-                  r=json.loads(p.read_text(encoding='utf-8'))
-                  f.write(f"- Verified papers: {r['verified_papers']}\n")
-                  f.write(f"- Checked historic questions: {r['historical_rows_checked']}\n")
-                  f.write(f"- Official URL repair proposals: **{r['proposed_url_changes']}**\n")
-                  parity_path=Path('/tmp/swsi-live-official-core-parity.json')
-                  if parity_path.exists():
-                      p=json.loads(parity_path.read_text(encoding='utf-8'))
-                      f.write(f"- Git-to-live Official Core parity: **{p['status']}**\n")
-                      f.write(f"- Official wording discrepancies: **{p['summary']['official_wording_drift']}**\n")
-                      f.write(f"- Grading discrepancies: **{p['summary']['grading_drift']}**\n")
-                      f.write(f"- Missing/unpublished question IDs: {p['summary']['missing_live']}/{p['summary']['unpublished_live']}\n")
-                  else:
-                      f.write('- Official Core parity report missing; inspect job failure.\n')
-                  f.write('- No automated official-core or answer modifications.\n')
+              f.write('## Monthly public official-core audits (read only)\\n\\n')
+              if url_path.exists():
+                  url=json.loads(url_path.read_text(encoding='utf-8'))
+                  f.write(f"- Verified papers: {url['verified_papers']}\\n")
+                  f.write(f"- Checked historic questions: {url['historical_rows_checked']}\\n")
+                  f.write(f"- Official URL repair proposals: **{url['proposed_url_changes']}**\\n")
               else:
-                  f.write('- No verified report produced: inspect the failed source check.\n')
+                  f.write('- Official URL proof: **FAILED / report unavailable**; inspect source gate.\\n')
+              if core_path.exists():
+                  core=json.loads(core_path.read_text(encoding='utf-8'))
+                  f.write(f"- Git-to-live Official Core parity: **{core['status']}**\\n")
+                  f.write(f"- Official wording discrepancies: **{core['summary']['official_wording_drift']}**\\n")
+                  f.write(f"- Grading discrepancies: **{core['summary']['grading_drift']}**\\n")
+                  f.write(f"- Missing/unpublished question IDs: {core['summary']['missing_live']}/{core['summary']['unpublished_live']}\\n")
+              else:
+                  f.write('- Official Core parity: **FAILED / report unavailable**; inspect live API and local manifest.\\n')
+              f.write('- Reports are diagnostic only; no automated official-core or answer modifications.\\n')
           PY
 
       - name: Publish compact job summary
