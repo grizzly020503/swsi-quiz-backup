@@ -122,6 +122,8 @@ def main() -> int:
     source.add_argument("--live", action="store_true", help="explicit anon READ ONLY production API")
     parser.add_argument("--out", type=Path, help="write review-only JSON outside the repo")
     parser.add_argument("--fail-on-proposals", action="store_true", help="monthly QA blocks if official URL drift is found")
+    parser.add_argument("--core-parity-out", type=Path, help="save current Git-vs-live official/grade parity outside repo")
+    parser.add_argument("--fail-on-core-drift", action="store_true")
     args = parser.parse_args()
     if args.live:
         from build_question_shards import fetch_questions
@@ -131,6 +133,17 @@ def main() -> int:
     else:
         rows = load_local_shards()
     report = propose(rows)
+    if args.fail_on_core_drift and not args.core_parity_out:
+        parser.error("--fail-on-core-drift requires --core-parity-out")
+    core = None
+    if args.core_parity_out:
+        from official_live_snapshot_parity import check_local
+        core = check_local(rows)
+        core_out = args.core_parity_out.resolve()
+        if core_out == ROOT or ROOT in core_out.parents:
+            raise SystemExit("REFUSED: core parity output must be outside the Git repository")
+        core_out.parent.mkdir(parents=True, exist_ok=True)
+        core_out.write_text(json.dumps(core, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
     if args.out:
         out = args.out.resolve()
         if out == ROOT or ROOT in out.parents:
@@ -138,7 +151,8 @@ def main() -> int:
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: v for k, v in report.items() if k != "patches"}, ensure_ascii=False))
-    return 2 if args.fail_on_proposals and report["proposed_url_changes"] else 0
+    return 2 if ((args.fail_on_proposals and report["proposed_url_changes"]) or
+                 (args.fail_on_core_drift and core is not None and core["status"] != "MATCH")) else 0
 
 
 if __name__ == "__main__":
