@@ -143,23 +143,23 @@ jobs:
           url_path=Path('/tmp/swsi-source-url-repair-proposals.json')
           core_path=Path('/tmp/swsi-live-official-core-parity.json')
           with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
-              f.write('## Monthly public official-core audits (read only)\\n\\n')
+              f.write('## Monthly public official-core audits (read only)\n\n')
               if url_path.exists():
                   url=json.loads(url_path.read_text(encoding='utf-8'))
-                  f.write(f"- Verified papers: {url['verified_papers']}\\n")
-                  f.write(f"- Checked historic questions: {url['historical_rows_checked']}\\n")
-                  f.write(f"- Official URL repair proposals: **{url['proposed_url_changes']}**\\n")
+                  f.write(f"- Verified papers: {url['verified_papers']}\n")
+                  f.write(f"- Checked historic questions: {url['historical_rows_checked']}\n")
+                  f.write(f"- Official URL repair proposals: **{url['proposed_url_changes']}**\n")
               else:
-                  f.write('- Official URL proof: **FAILED / report unavailable**; inspect source gate.\\n')
+                  f.write('- Official URL proof: **FAILED / report unavailable**; inspect source gate.\n')
               if core_path.exists():
                   core=json.loads(core_path.read_text(encoding='utf-8'))
-                  f.write(f"- Git-to-live Official Core parity: **{core['status']}**\\n")
-                  f.write(f"- Official wording discrepancies: **{core['summary']['official_wording_drift']}**\\n")
-                  f.write(f"- Grading discrepancies: **{core['summary']['grading_drift']}**\\n")
-                  f.write(f"- Missing/unpublished question IDs: {core['summary']['missing_live']}/{core['summary']['unpublished_live']}\\n")
+                  f.write(f"- Git-to-live Official Core parity: **{core['status']}**\n")
+                  f.write(f"- Official wording discrepancies: **{core['summary']['official_wording_drift']}**\n")
+                  f.write(f"- Grading discrepancies: **{core['summary']['grading_drift']}**\n")
+                  f.write(f"- Missing/unpublished question IDs: {core['summary']['missing_live']}/{core['summary']['unpublished_live']}\n")
               else:
-                  f.write('- Official Core parity: **FAILED / report unavailable**; inspect live API and local manifest.\\n')
-              f.write('- Reports are diagnostic only; no automated official-core or answer modifications.\\n')
+                  f.write('- Official Core parity: **FAILED / report unavailable**; inspect live API and local manifest.\n')
+              f.write('- Reports are diagnostic only; no automated official-core or answer modifications.\n')
           PY
 
       - name: Publish compact job summary
