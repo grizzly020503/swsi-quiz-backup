@@ -1,0 +1,12 @@
+[
+  {
+    "command": [
+      "node",
+      "scripts/browser_interaction_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 2.01,
+    "log": "browser_interaction_smoke.log"
+  }
+]

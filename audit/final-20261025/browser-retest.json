@@ -1,0 +1,32 @@
+[
+  {
+    "command": [
+      "node",
+      "scripts/browser_interaction_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 1,
+    "seconds": 32.03,
+    "log": "browser_interaction_smoke.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/prelaunch_accessibility_touch_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 2.14,
+    "log": "prelaunch_accessibility_touch_smoke.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/prelaunch_storage_degradation_smoke.js",
+      "http://127.0.0.1:4173/"
+    ],
+    "exit_code": 0,
+    "seconds": 0.86,
+    "log": "prelaunch_storage_degradation_smoke.log"
+  }
+]

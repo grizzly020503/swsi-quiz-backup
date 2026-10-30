@@ -1,5 +1,6 @@
 const assert=require('assert');
 const {chromium}=require('playwright');
+const serveLocalQuestionShards=require('./local_question_shards_fixture');
 
 const base=process.argv[2]||'http://127.0.0.1:4173/';
 
@@ -8,6 +9,7 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
 
   async function boot(label,initScript){
     const context=await browser.newContext({viewport:{width:390,height:844}});
+    await serveLocalQuestionShards(context);
     if(initScript)await context.addInitScript(initScript);
     const page=await context.newPage();
     const errors=[];
@@ -45,6 +47,7 @@ const base=process.argv[2]||'http://127.0.0.1:4173/';
 
   // Reload must remain recoverable after a normal first boot.
   const context=await browser.newContext({viewport:{width:390,height:844}});
+  await serveLocalQuestionShards(context);
   const page=await context.newPage();
   const reloadErrors=[];
   page.on('pageerror',e=>reloadErrors.push(String(e&&e.message||e)));

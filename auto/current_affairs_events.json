@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-28T22:31:11Z",
+  "generated_at": "2026-10-28T23:25:25Z",
   "source_item_count": 4,
   "event_count": 4,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
@@ -535,12 +535,12 @@
         }
       ],
       "historical_exam_stats": {
-        "matched_question_count": 35,
+        "matched_question_count": 34,
         "weighted_match_count": 4.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 7,
-          "concept": 28
+          "concept": 27
         },
         "matched_year_count": 11,
         "matched_years": [
@@ -562,7 +562,7 @@
         "years_since_last_exam": 0,
         "subject_counts": {
           "社會工作": 11,
-          "社會政策與社會立法": 24
+          "社會政策與社會立法": 23
         },
         "subject_count": 2,
         "law_match_count": 0,
@@ -760,12 +760,12 @@
         }
       ],
       "historical_exam_stats": {
-        "matched_question_count": 170,
+        "matched_question_count": 169,
         "weighted_match_count": 1.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
-          "concept": 170
+          "concept": 169
         },
         "matched_year_count": 12,
         "matched_years": [
@@ -789,7 +789,7 @@
         "subject_counts": {
           "社會工作": 58,
           "社會工作直接服務": 6,
-          "社會政策與社會立法": 106
+          "社會政策與社會立法": 105
         },
         "subject_count": 3,
         "law_match_count": 0,

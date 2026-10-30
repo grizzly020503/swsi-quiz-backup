@@ -1,0 +1,646 @@
+{
+  "schema_version": 1,
+  "base_commit": "9d65b78e6b3eba73eb94fe70c86e5cfc97b0f531",
+  "count": 2,
+  "human_approval": false,
+  "release_approved": false,
+  "production_write": false,
+  "backup_operation": false,
+  "baseline_comparison_sha256": "0853dc8e28191f7904e03b850f844ae245caf8ce5336800c3f1b2593aed14949",
+  "manifest_before": {
+    "schema_version": 1,
+    "dataset_revision": "8ca2972dcc6bb5f70ae3",
+    "generated_at": "2026-10-28T23:18:00Z",
+    "source": "Pinned combined DATA candidate: 27+13+1 official corrections; NOT release approved",
+    "total_questions": 4800,
+    "shard_count": 24,
+    "baseline_shard_count": 24,
+    "total_uncompressed_bytes": 7629721,
+    "shards": [
+      {
+        "year": "104",
+        "round": "第一次",
+        "file": "104-1.json",
+        "question_count": 200,
+        "bytes": 318222,
+        "sha256": "1902fa0a804d7f760e172c79d52f7e6123918cbf5c2d7f6bcd8919b0307ed1e6"
+      },
+      {
+        "year": "104",
+        "round": "第二次",
+        "file": "104-2.json",
+        "question_count": 200,
+        "bytes": 323397,
+        "sha256": "53e1a96fa8f1728925414203f1c780138a29e2698fc7be3ee207a2013241e639"
+      },
+      {
+        "year": "105",
+        "round": "第一次",
+        "file": "105-1.json",
+        "question_count": 200,
+        "bytes": 316994,
+        "sha256": "819e37c01391a072511248a56be260f2b96e4862c4dd0d53f341e3e6c0b05f7a"
+      },
+      {
+        "year": "105",
+        "round": "第二次",
+        "file": "105-2.json",
+        "question_count": 200,
+        "bytes": 327895,
+        "sha256": "a95ab7993d94f5d9393c7ccbf60e89a635c6c3ee91a051eb830c1e37ffc1933e"
+      },
+      {
+        "year": "106",
+        "round": "第一次",
+        "file": "106-1.json",
+        "question_count": 200,
+        "bytes": 314512,
+        "sha256": "ffa95fc8e0fe99644b2ce473e44792d2884d2f380e8899e24bf09d21506cee34"
+      },
+      {
+        "year": "106",
+        "round": "第二次",
+        "file": "106-2.json",
+        "question_count": 200,
+        "bytes": 326121,
+        "sha256": "6f97386366d6311da21899e9df22ae43938e4369c77e916469222efe85269dee"
+      },
+      {
+        "year": "107",
+        "round": "第一次",
+        "file": "107-1.json",
+        "question_count": 200,
+        "bytes": 313346,
+        "sha256": "f58fa27f7643712565e6438789f9730653e25739c0eb3b5b3f04f96df24fb65f"
+      },
+      {
+        "year": "107",
+        "round": "第二次",
+        "file": "107-2.json",
+        "question_count": 200,
+        "bytes": 320761,
+        "sha256": "ab473bcc155b04cc95d32d7fb0c34332fc573f1a0e20ba86c04ed1ecabe05e88"
+      },
+      {
+        "year": "108",
+        "round": "第一次",
+        "file": "108-1.json",
+        "question_count": 200,
+        "bytes": 318780,
+        "sha256": "f5a498d9ad479d0f126435d3b70e51713c1c11978992be3a28117374e0c41653"
+      },
+      {
+        "year": "108",
+        "round": "第二次",
+        "file": "108-2.json",
+        "question_count": 200,
+        "bytes": 311038,
+        "sha256": "b2a7eb44319da30733e91856668158e80fcbe8ceee3d5406f486b7073147dca2"
+      },
+      {
+        "year": "109",
+        "round": "第一次",
+        "file": "109-1.json",
+        "question_count": 200,
+        "bytes": 315930,
+        "sha256": "595f831b93ffab3a2b1a33dac26f4c267c6c5f8647c843d86e6c4aff05f6b968"
+      },
+      {
+        "year": "109",
+        "round": "第二次",
+        "file": "109-2.json",
+        "question_count": 200,
+        "bytes": 311724,
+        "sha256": "5d56b53c087b227e3288f95ad23f03c3c76b44cc037f0ff6b11edf3e143d689c"
+      },
+      {
+        "year": "110",
+        "round": "第一次",
+        "file": "110-1.json",
+        "question_count": 200,
+        "bytes": 316503,
+        "sha256": "56a23d918dfe87185386b7cfba0e57d654299cb38e60caeccc9a074110549490"
+      },
+      {
+        "year": "110",
+        "round": "第二次",
+        "file": "110-2.json",
+        "question_count": 200,
+        "bytes": 309952,
+        "sha256": "020a34668f1060a19ac07d62e8cdc73076d5a01f9eb3e06897d3d09bae54c0af"
+      },
+      {
+        "year": "111",
+        "round": "第一次",
+        "file": "111-1.json",
+        "question_count": 200,
+        "bytes": 308168,
+        "sha256": "17b97ba64b670790e4734ff0fa14f28c496db6add8a5af8cdf21f3f5899baa4c"
+      },
+      {
+        "year": "111",
+        "round": "第二次",
+        "file": "111-2.json",
+        "question_count": 200,
+        "bytes": 315369,
+        "sha256": "3a1152562f438c4efe7d5fa337ca4fdb4c2da895d4aa71dfc74f3ae6aafe94eb"
+      },
+      {
+        "year": "112",
+        "round": "第一次",
+        "file": "112-1.json",
+        "question_count": 200,
+        "bytes": 313678,
+        "sha256": "6b2eb8c6305f9a0e48609e9747b25b9faa3c25cb0d66c8701e3ea82e658216c4"
+      },
+      {
+        "year": "112",
+        "round": "第二次",
+        "file": "112-2.json",
+        "question_count": 200,
+        "bytes": 307001,
+        "sha256": "46ad7ec3d536c42e4577007176272a226a822338cfaf1f58e76611419f51922b"
+      },
+      {
+        "year": "113",
+        "round": "第一次",
+        "file": "113-1.json",
+        "question_count": 200,
+        "bytes": 303982,
+        "sha256": "a90d518b17fb5bf50f434ccbc2ae79d2dbeb4bac9f4fcbca938651d7f88c0dcb"
+      },
+      {
+        "year": "113",
+        "round": "第二次",
+        "file": "113-2.json",
+        "question_count": 200,
+        "bytes": 316138,
+        "sha256": "d1bb5eca06f6683f10fcc4ba0736363ba5eed62bd596cdd26ad5ab06fdb01fa6"
+      },
+      {
+        "year": "114",
+        "round": "第一次",
+        "file": "114-1.json",
+        "question_count": 200,
+        "bytes": 317957,
+        "sha256": "52ac524c4f26dbef39170c6341d3bdcfd390a06eea3fbeeaa7f7180fab9815e8"
+      },
+      {
+        "year": "114",
+        "round": "第二次",
+        "file": "114-2.json",
+        "question_count": 200,
+        "bytes": 314729,
+        "sha256": "1628838492b0d50b5cdc899057ea3e0e23c2e42562383165d07e2768d56784b7"
+      },
+      {
+        "year": "115",
+        "round": "第一次",
+        "file": "115-1.json",
+        "question_count": 200,
+        "bytes": 316870,
+        "sha256": "b76f0c94fc12dd5dc0319f3922d3884487b7f9977b5df075a5c356a9c2fa0a4f"
+      },
+      {
+        "year": "115",
+        "round": "第二次",
+        "file": "115-2.json",
+        "question_count": 200,
+        "bytes": 370654,
+        "sha256": "59019bd86818a87c409d0b532f227d6ed0fe58ea790b353552d8743312a1229a"
+      }
+    ]
+  },
+  "rows": [
+    {
+      "id": "R-106-2-01",
+      "classification": "missing_opening_clause",
+      "before": {
+        "id": "R-106-2-01",
+        "subject": "社會工作研究方法",
+        "year": "106",
+        "round": "第二次",
+        "qno": "1",
+        "major": "測量",
+        "topic": "測量 > 概念化操作化流程",
+        "keywords": "抽象構念, 概念化, 名目, 操作",
+        "question": "概念或變項，必須經過形成概念與測量的過程，下列那一過程正確？",
+        "opt_a": "抽象構念→操作定義→概念化→名目定義→實際測量",
+        "opt_b": "抽象構念→概念化→名目定義→操作定義→實際測量",
+        "opt_c": "抽象構念→名目定義→操作定義→概念化→實際測量",
+        "opt_d": "抽象構念→名目定義→概念化→操作定義→實際測量",
+        "answer": "B",
+        "accepted_answers": null,
+        "grading_mode": "standard",
+        "exp_why": "(B)抽象構念→概念化→名目定義→操作定義→實際測量：形成概念與測量的正確過程。",
+        "exp_others": "把操作定義排在概念化之前皆不對。",
+        "exp_trap": "測量流程:抽象構念→概念化(賦予明確意義)→名目(概念性)定義→操作性定義(指明具體測量步驟/操作活動,連結概念與指標的過程＝操作化)→真實世界的實際測量。",
+        "exp_raw": "",
+        "mnemonic": "測量流程:抽象構念→概念化→名目定義→操作型定義(具體測量步驟)→實際測量。",
+        "extension": "測量(測量流程)。",
+        "law": "",
+        "mistake": "流程順序錯誤",
+        "source_exam_code": "106110",
+        "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0606&t=Q",
+        "analysis_status": "ready",
+        "legal_status": "not_applicable",
+        "legal_checked_at": null,
+        "legal_note": null,
+        "legal_source_url": null
+      },
+      "after": {
+        "id": "R-106-2-01",
+        "subject": "社會工作研究方法",
+        "year": "106",
+        "round": "第二次",
+        "qno": "1",
+        "major": null,
+        "topic": null,
+        "keywords": null,
+        "question": "在研究過程中，透過研究工具如問卷或訪問稿蒐集資料，這是一系列從無到有的過程，如果要測量一些概念或變項，必須經過形成概念與測量的過程，下列那一過程正確？",
+        "opt_a": "抽象構念→操作定義→概念化→名目定義→實際測量",
+        "opt_b": "抽象構念→概念化→名目定義→操作定義→實際測量",
+        "opt_c": "抽象構念→名目定義→操作定義→概念化→實際測量",
+        "opt_d": "抽象構念→名目定義→概念化→操作定義→實際測量",
+        "answer": "B",
+        "accepted_answers": null,
+        "grading_mode": "standard",
+        "exp_why": null,
+        "exp_others": null,
+        "exp_trap": null,
+        "exp_raw": null,
+        "mnemonic": null,
+        "extension": null,
+        "law": null,
+        "mistake": null,
+        "source_exam_code": "106110",
+        "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0606&t=Q",
+        "analysis_status": "review",
+        "legal_status": "not_applicable",
+        "legal_checked_at": null,
+        "legal_note": null,
+        "legal_source_url": null
+      },
+      "before_lock_sha256": "17636fc724e489c74d6be05d59ab0d3e2a94d1b186d61de4eada358eda5aec15",
+      "after_lock_sha256": "a04f5768dcf35a2c9eb350eae10b42582b58dec16e5da70046a82949331b3c2a",
+      "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106110&c=107&s=0606&q=1",
+      "question_pdf_sha256": "a76570be5537192ca405d97050b80dfb92a259deb46732215d6658bea417313c",
+      "printed_page": "4-1",
+      "pdf_page_number": 1,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=106110&c=107&s=0606&q=1",
+      "answer_pdf_sha256": "1db258c101f5c5eb7b722ea7c96f6811889833f3a509f4134e15bd5569a8271a",
+      "answer_page": 1,
+      "official_answer_rule": {
+        "answer": "B",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "baseline_comparison_row_sha256": "9de8bc96b4d2bef3ab80ee95cb722ff3735d08dd5759f4e7535b7bc27c9d15de",
+      "baseline_differences": {
+        "question": {
+          "stored": "概念或變項，必須經過形成概念與測量的過程，下列那一過程正確？",
+          "official_extraction": "在研究過程中,透過研究工具如問卷或訪問稿蒐集資料,這是一系列從無到有的過程,如果要測量一些 概念或變項,必須經過形成概念與測量的過程,下列那一過程正確?"
+        }
+      },
+      "official_transcription": "在研究過程中，透過研究工具如問卷或訪問稿蒐集資料，這是一系列從無到有的過程，如果要測量一些概念或變項，必須經過形成概念與測量的過程，下列那一過程正確？",
+      "human_approval": false,
+      "verification": "Original question and final-answer PDFs SHA256 verified from retained official archive, rendered and AI visually compared; exact normalized captured text agrees. Not independent human acceptance."
+    },
+    {
+      "id": "SW-110-1-33",
+      "classification": "circled_marker_numeric_order",
+      "before": {
+        "id": "SW-110-1-33",
+        "subject": "社會工作",
+        "year": "110",
+        "round": "第一次",
+        "qno": "33",
+        "major": "障礙者服務",
+        "topic": "身障歷史 > 身障觀點演變",
+        "keywords": "身心障礙, 機構化, 去機構化, 醫療觀點, 文藝復興",
+        "question": "關於身心障礙的敘述，下列何者正確？①障礙的分類是固定不變的 ②中世紀歐洲因慈善理念進行貧民與障礙者的分類收容救濟，是將障礙者機構化的第一步 ③文藝復興時期的歐洲開始將貧窮與障礙議題分開處理 19 ④世紀啟蒙時代視障礙者為病人的醫療觀點，讓障礙者逐漸被社會所排除 1950 ⑤年代機構式缺乏人性的照顧機制備受關注，開始西方的去機構化運動",
+        "opt_a": "①②③",
+        "opt_b": "②④⑤",
+        "opt_c": "①③⑤",
+        "opt_d": "③④⑤",
+        "answer": "D",
+        "accepted_answers": null,
+        "grading_mode": "standard",
+        "exp_why": "(D)③④⑤：③文藝復興時期開始將貧窮與障礙議題分開處理④19世紀啟蒙時代視障礙者為病人的醫療觀點⑤(相關正確敘述)。",
+        "exp_others": "①障礙的分類『固定不變』＝錯(分類隨時代文化變動);②關於中世紀分類收容是『機構化第一步』的敘述不正確。",
+        "exp_trap": "障礙分類隨時代文化『變動』(非固定不變)。",
+        "exp_raw": "",
+        "mnemonic": "身障史:分類隨時代變動;文藝復興將貧窮與障礙分開;19世紀醫療觀點視為病人。",
+        "extension": "身心障礙(障礙歷史)。",
+        "law": "",
+        "mistake": "概念混淆",
+        "source_exam_code": "110030",
+        "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110030&q=1&s=0401&t=Q",
+        "analysis_status": "ready",
+        "legal_status": "not_applicable",
+        "legal_checked_at": null,
+        "legal_note": null,
+        "legal_source_url": null
+      },
+      "after": {
+        "id": "SW-110-1-33",
+        "subject": "社會工作",
+        "year": "110",
+        "round": "第一次",
+        "qno": "33",
+        "major": null,
+        "topic": null,
+        "keywords": null,
+        "question": "關於身心障礙的敘述，下列何者正確？①障礙的分類是固定不變的 ②中世紀歐洲因慈善理念進行貧民與障礙者的分類收容救濟，是將障礙者機構化的第一步 ③文藝復興時期的歐洲開始將貧窮與障礙議題分開處理 ④19 世紀啟蒙時代視障礙者為病人的醫療觀點，讓障礙者逐漸被社會所排除 ⑤1950 年代機構式缺乏人性的照顧機制備受關注，開始西方的去機構化運動",
+        "opt_a": "①②③",
+        "opt_b": "②④⑤",
+        "opt_c": "①③⑤",
+        "opt_d": "③④⑤",
+        "answer": "D",
+        "accepted_answers": null,
+        "grading_mode": "standard",
+        "exp_why": null,
+        "exp_others": null,
+        "exp_trap": null,
+        "exp_raw": null,
+        "mnemonic": null,
+        "extension": null,
+        "law": null,
+        "mistake": null,
+        "source_exam_code": "110030",
+        "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110030&q=1&s=0401&t=Q",
+        "analysis_status": "review",
+        "legal_status": "not_applicable",
+        "legal_checked_at": null,
+        "legal_note": null,
+        "legal_source_url": null
+      },
+      "before_lock_sha256": "fa72e241b3c65d3d5882b51d9e1186ce83ff956f7c6455fb2242a8ed08d2e171",
+      "after_lock_sha256": "f12437e5ddc78a4d3f51a784a368a7f44d1ca7fed106b218ae81cc638424dc58",
+      "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110030&c=105&s=0401&q=1",
+      "question_pdf_sha256": "89d9fb0e87e37c7e943da19e9a10c2e16dfc816b905fba57222e888f2753b536",
+      "printed_page": "4-4",
+      "pdf_page_number": 4,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=110030&c=105&s=0401&q=1",
+      "answer_pdf_sha256": "71ef36a6aad9b001210a4c20ab62a6727c75f61754c56fa556f5a14cbd08f752",
+      "answer_page": 1,
+      "official_answer_rule": {
+        "answer": "D",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "baseline_comparison_row_sha256": "47f65252830d1d761a81c6b42f2652c2cc56c82c0c14420c917be667396a1731",
+      "baseline_differences": {
+        "question": {
+          "stored": "關於身心障礙的敘述，下列何者正確？①障礙的分類是固定不變的 ②中世紀歐洲因慈善理念進行貧民與障礙者的分類收容救濟，是將障礙者機構化的第一步 ③文藝復興時期的歐洲開始將貧窮與障礙議題分開處理 19 ④世紀啟蒙時代視障礙者為病人的醫療觀點，讓障礙者逐漸被社會所排除 1950 ⑤年代機構式缺乏人性的照顧機制備受關注，開始西方的去機構化運動",
+          "official_extraction": "關於身心障礙的敘述,下列何者正確?1障礙的分類是固定不變的 2中世紀歐洲因慈善理念進 行貧民與障礙者的分類收容救濟,是將障礙者機構化的第一步 3文藝復興時期的歐洲開始將貧 窮與障礙議題分開處理 419 世紀啟蒙時代視障礙者為病人的醫療觀點,讓障礙者逐漸被社會所 排除 51950 年代機構式缺乏人性的照顧機制備受關注,開始西方的去機構化運動"
+        }
+      },
+      "official_transcription": "關於身心障礙的敘述，下列何者正確？①障礙的分類是固定不變的 ②中世紀歐洲因慈善理念進行貧民與障礙者的分類收容救濟，是將障礙者機構化的第一步 ③文藝復興時期的歐洲開始將貧窮與障礙議題分開處理 ④19 世紀啟蒙時代視障礙者為病人的醫療觀點，讓障礙者逐漸被社會所排除 ⑤1950 年代機構式缺乏人性的照顧機制備受關注，開始西方的去機構化運動",
+      "human_approval": false,
+      "verification": "Original question and final-answer PDFs SHA256 verified from retained official archive, rendered and AI visually compared; exact normalized captured text agrees. Not independent human acceptance."
+    }
+  ],
+  "unchanged_other_rows_sha256": "08cc6f7f9f6ae484b4d3df328345699db05a46ff79c525201464d232a2f62bd1",
+  "grading_map_sha256": "dbf127d90819c7435c1799e2f6a6aed6d20bd89f8c622e8b95ad4950c5ede6d1",
+  "essay_locks_sha256": "c6fa68093bf83146d4220e4621fe150ef57cdf28d2d2d0e63db43c9a1f78543c",
+  "manifest_after": {
+    "schema_version": 1,
+    "dataset_revision": "164bf295b8801e06799f",
+    "generated_at": "2026-10-28T23:18:00Z",
+    "source": "Pinned combined DATA candidate: 27+13+1+2 official corrections; NOT release approved",
+    "total_questions": 4800,
+    "shard_count": 24,
+    "baseline_shard_count": 24,
+    "total_uncompressed_bytes": 7628667,
+    "shards": [
+      {
+        "year": "104",
+        "round": "第一次",
+        "file": "104-1.json",
+        "question_count": 200,
+        "bytes": 318222,
+        "sha256": "1902fa0a804d7f760e172c79d52f7e6123918cbf5c2d7f6bcd8919b0307ed1e6"
+      },
+      {
+        "year": "104",
+        "round": "第二次",
+        "file": "104-2.json",
+        "question_count": 200,
+        "bytes": 323397,
+        "sha256": "53e1a96fa8f1728925414203f1c780138a29e2698fc7be3ee207a2013241e639"
+      },
+      {
+        "year": "105",
+        "round": "第一次",
+        "file": "105-1.json",
+        "question_count": 200,
+        "bytes": 316994,
+        "sha256": "819e37c01391a072511248a56be260f2b96e4862c4dd0d53f341e3e6c0b05f7a"
+      },
+      {
+        "year": "105",
+        "round": "第二次",
+        "file": "105-2.json",
+        "question_count": 200,
+        "bytes": 327895,
+        "sha256": "a95ab7993d94f5d9393c7ccbf60e89a635c6c3ee91a051eb830c1e37ffc1933e"
+      },
+      {
+        "year": "106",
+        "round": "第一次",
+        "file": "106-1.json",
+        "question_count": 200,
+        "bytes": 314512,
+        "sha256": "ffa95fc8e0fe99644b2ce473e44792d2884d2f380e8899e24bf09d21506cee34"
+      },
+      {
+        "year": "106",
+        "round": "第二次",
+        "file": "106-2.json",
+        "question_count": 200,
+        "bytes": 325674,
+        "sha256": "34b467f637361e5dc7f96816a676ce8d30a85b8ee61eac5afb4a774b0d93461c"
+      },
+      {
+        "year": "107",
+        "round": "第一次",
+        "file": "107-1.json",
+        "question_count": 200,
+        "bytes": 313346,
+        "sha256": "f58fa27f7643712565e6438789f9730653e25739c0eb3b5b3f04f96df24fb65f"
+      },
+      {
+        "year": "107",
+        "round": "第二次",
+        "file": "107-2.json",
+        "question_count": 200,
+        "bytes": 320761,
+        "sha256": "ab473bcc155b04cc95d32d7fb0c34332fc573f1a0e20ba86c04ed1ecabe05e88"
+      },
+      {
+        "year": "108",
+        "round": "第一次",
+        "file": "108-1.json",
+        "question_count": 200,
+        "bytes": 318780,
+        "sha256": "f5a498d9ad479d0f126435d3b70e51713c1c11978992be3a28117374e0c41653"
+      },
+      {
+        "year": "108",
+        "round": "第二次",
+        "file": "108-2.json",
+        "question_count": 200,
+        "bytes": 311038,
+        "sha256": "b2a7eb44319da30733e91856668158e80fcbe8ceee3d5406f486b7073147dca2"
+      },
+      {
+        "year": "109",
+        "round": "第一次",
+        "file": "109-1.json",
+        "question_count": 200,
+        "bytes": 315930,
+        "sha256": "595f831b93ffab3a2b1a33dac26f4c267c6c5f8647c843d86e6c4aff05f6b968"
+      },
+      {
+        "year": "109",
+        "round": "第二次",
+        "file": "109-2.json",
+        "question_count": 200,
+        "bytes": 311724,
+        "sha256": "5d56b53c087b227e3288f95ad23f03c3c76b44cc037f0ff6b11edf3e143d689c"
+      },
+      {
+        "year": "110",
+        "round": "第一次",
+        "file": "110-1.json",
+        "question_count": 200,
+        "bytes": 315896,
+        "sha256": "2719e71ccf01d9c9dbc31159f981b3ad5d2c309d3360443a39d73136bfc4376d"
+      },
+      {
+        "year": "110",
+        "round": "第二次",
+        "file": "110-2.json",
+        "question_count": 200,
+        "bytes": 309952,
+        "sha256": "020a34668f1060a19ac07d62e8cdc73076d5a01f9eb3e06897d3d09bae54c0af"
+      },
+      {
+        "year": "111",
+        "round": "第一次",
+        "file": "111-1.json",
+        "question_count": 200,
+        "bytes": 308168,
+        "sha256": "17b97ba64b670790e4734ff0fa14f28c496db6add8a5af8cdf21f3f5899baa4c"
+      },
+      {
+        "year": "111",
+        "round": "第二次",
+        "file": "111-2.json",
+        "question_count": 200,
+        "bytes": 315369,
+        "sha256": "3a1152562f438c4efe7d5fa337ca4fdb4c2da895d4aa71dfc74f3ae6aafe94eb"
+      },
+      {
+        "year": "112",
+        "round": "第一次",
+        "file": "112-1.json",
+        "question_count": 200,
+        "bytes": 313678,
+        "sha256": "6b2eb8c6305f9a0e48609e9747b25b9faa3c25cb0d66c8701e3ea82e658216c4"
+      },
+      {
+        "year": "112",
+        "round": "第二次",
+        "file": "112-2.json",
+        "question_count": 200,
+        "bytes": 307001,
+        "sha256": "46ad7ec3d536c42e4577007176272a226a822338cfaf1f58e76611419f51922b"
+      },
+      {
+        "year": "113",
+        "round": "第一次",
+        "file": "113-1.json",
+        "question_count": 200,
+        "bytes": 303982,
+        "sha256": "a90d518b17fb5bf50f434ccbc2ae79d2dbeb4bac9f4fcbca938651d7f88c0dcb"
+      },
+      {
+        "year": "113",
+        "round": "第二次",
+        "file": "113-2.json",
+        "question_count": 200,
+        "bytes": 316138,
+        "sha256": "d1bb5eca06f6683f10fcc4ba0736363ba5eed62bd596cdd26ad5ab06fdb01fa6"
+      },
+      {
+        "year": "114",
+        "round": "第一次",
+        "file": "114-1.json",
+        "question_count": 200,
+        "bytes": 317957,
+        "sha256": "52ac524c4f26dbef39170c6341d3bdcfd390a06eea3fbeeaa7f7180fab9815e8"
+      },
+      {
+        "year": "114",
+        "round": "第二次",
+        "file": "114-2.json",
+        "question_count": 200,
+        "bytes": 314729,
+        "sha256": "1628838492b0d50b5cdc899057ea3e0e23c2e42562383165d07e2768d56784b7"
+      },
+      {
+        "year": "115",
+        "round": "第一次",
+        "file": "115-1.json",
+        "question_count": 200,
+        "bytes": 316870,
+        "sha256": "b76f0c94fc12dd5dc0319f3922d3884487b7f9977b5df075a5c356a9c2fa0a4f"
+      },
+      {
+        "year": "115",
+        "round": "第二次",
+        "file": "115-2.json",
+        "question_count": 200,
+        "bytes": 370654,
+        "sha256": "59019bd86818a87c409d0b532f227d6ed0fe58ea790b353552d8743312a1229a"
+      }
+    ]
+  },
+  "output_sha256": {
+    "cdn/question-shards/104-1.json": "1902fa0a804d7f760e172c79d52f7e6123918cbf5c2d7f6bcd8919b0307ed1e6",
+    "cdn/question-shards/104-2.json": "53e1a96fa8f1728925414203f1c780138a29e2698fc7be3ee207a2013241e639",
+    "cdn/question-shards/105-1.json": "819e37c01391a072511248a56be260f2b96e4862c4dd0d53f341e3e6c0b05f7a",
+    "cdn/question-shards/105-2.json": "a95ab7993d94f5d9393c7ccbf60e89a635c6c3ee91a051eb830c1e37ffc1933e",
+    "cdn/question-shards/106-1.json": "ffa95fc8e0fe99644b2ce473e44792d2884d2f380e8899e24bf09d21506cee34",
+    "cdn/question-shards/106-2.json": "34b467f637361e5dc7f96816a676ce8d30a85b8ee61eac5afb4a774b0d93461c",
+    "cdn/question-shards/107-1.json": "f58fa27f7643712565e6438789f9730653e25739c0eb3b5b3f04f96df24fb65f",
+    "cdn/question-shards/107-2.json": "ab473bcc155b04cc95d32d7fb0c34332fc573f1a0e20ba86c04ed1ecabe05e88",
+    "cdn/question-shards/108-1.json": "f5a498d9ad479d0f126435d3b70e51713c1c11978992be3a28117374e0c41653",
+    "cdn/question-shards/108-2.json": "b2a7eb44319da30733e91856668158e80fcbe8ceee3d5406f486b7073147dca2",
+    "cdn/question-shards/109-1.json": "595f831b93ffab3a2b1a33dac26f4c267c6c5f8647c843d86e6c4aff05f6b968",
+    "cdn/question-shards/109-2.json": "5d56b53c087b227e3288f95ad23f03c3c76b44cc037f0ff6b11edf3e143d689c",
+    "cdn/question-shards/110-1.json": "2719e71ccf01d9c9dbc31159f981b3ad5d2c309d3360443a39d73136bfc4376d",
+    "cdn/question-shards/110-2.json": "020a34668f1060a19ac07d62e8cdc73076d5a01f9eb3e06897d3d09bae54c0af",
+    "cdn/question-shards/111-1.json": "17b97ba64b670790e4734ff0fa14f28c496db6add8a5af8cdf21f3f5899baa4c",
+    "cdn/question-shards/111-2.json": "3a1152562f438c4efe7d5fa337ca4fdb4c2da895d4aa71dfc74f3ae6aafe94eb",
+    "cdn/question-shards/112-1.json": "6b2eb8c6305f9a0e48609e9747b25b9faa3c25cb0d66c8701e3ea82e658216c4",
+    "cdn/question-shards/112-2.json": "46ad7ec3d536c42e4577007176272a226a822338cfaf1f58e76611419f51922b",
+    "cdn/question-shards/113-1.json": "a90d518b17fb5bf50f434ccbc2ae79d2dbeb4bac9f4fcbca938651d7f88c0dcb",
+    "cdn/question-shards/113-2.json": "d1bb5eca06f6683f10fcc4ba0736363ba5eed62bd596cdd26ad5ab06fdb01fa6",
+    "cdn/question-shards/114-1.json": "52ac524c4f26dbef39170c6341d3bdcfd390a06eea3fbeeaa7f7180fab9815e8",
+    "cdn/question-shards/114-2.json": "1628838492b0d50b5cdc899057ea3e0e23c2e42562383165d07e2768d56784b7",
+    "cdn/question-shards/115-1.json": "b76f0c94fc12dd5dc0319f3922d3884487b7f9977b5df075a5c356a9c2fa0a4f",
+    "cdn/question-shards/115-2.json": "59019bd86818a87c409d0b532f227d6ed0fe58ea790b353552d8743312a1229a",
+    "cdn/question-shards/manifest.json": "82ef4405200a18fd671ed7acad00ee8d8606bed0aaf6a88813462506f018f68e",
+    "data/official_exam_readonly.lock.json": "bb5065a5d78bde5a1e2ffab20b0673f8ef11dc3e0afd4fdf13255ca48743f9ee",
+    "official-figures/DS-113-2-13.png": "b2f03e6714f4cd9b55950ec947e47a0d8608485109ebc8c5e955f589dafe0d31",
+    "cdn/official-figures/DS-113-2-13.png": "b2f03e6714f4cd9b55950ec947e47a0d8608485109ebc8c5e955f589dafe0d31",
+    "official-figures/R-114-2-12.png": "ac947126d861db9c99a470ea58c262d52d1c6ffc251bc847bce59b0d302753e2",
+    "cdn/official-figures/R-114-2-12.png": "ac947126d861db9c99a470ea58c262d52d1c6ffc251bc847bce59b0d302753e2"
+  },
+  "cumulative_core_changes": 43,
+  "unchanged_other_rows": 4798,
+  "grading_preserved": 4800
+}

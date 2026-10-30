@@ -149,3 +149,17 @@ assert old_row4["historical_version_checked"] is False
 assert "official_answer" not in api_row4 and "official_answer" not in old_row4
 
 print("HISTORICAL LAW HYBRID SNAPSHOT PIPELINE SELFTEST OK")
+
+# A source may have an identified transport but fail article/window checks.
+# Such rows remain failure/review and must not inflate accepted-snapshot totals.
+from collections import Counter
+mixed_rows = [api_row4, old_row4,
+              dict(api_row4, status="article_missing_in_selected_version"),
+              dict(old_row4, status="effective_date_review"),
+              dict(old_row4, status="source_identity_mismatch"),
+              dict(old_row4, status="source_failure")]
+assert snap4.verified_identity_counts(mixed_rows) == Counter(
+    {"moj_open_api_current": 1, "stage4_moj_title": 1})
+assert snap4.verified_identity_counts(mixed_rows[2:]) == Counter()
+assert all(row["status"] != "historical_text_evidence_ready" for row in mixed_rows[2:])
+print("SNAPSHOT IDENTITY COUNTS OK: failed/review rows do not count as verified")

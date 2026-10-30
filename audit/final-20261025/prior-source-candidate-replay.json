@@ -1,0 +1,13 @@
+{
+  "status": "STAGED_QA_ONLY_NOT_DEPLOYED",
+  "sessions_verified": 22,
+  "historical_questions": 4400,
+  "changed_source_urls": 3920,
+  "other_fields_changed": 0,
+  "manifest_matched": true,
+  "production_db_written": false,
+  "main_shards_written": false,
+  "owner_approval_needed": true,
+  "reuse_existing_candidate": true,
+  "independent_120_pdf_identity_semantic_match": true
+}

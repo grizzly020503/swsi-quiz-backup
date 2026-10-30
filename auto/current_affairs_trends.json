@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-28T22:31:11Z",
+  "generated_at": "2026-10-28T23:25:25Z",
   "event_count": 4,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -79,7 +79,7 @@
       "trend_score": 3.9,
       "why": [
         "1 個官方來源",
-        "歷屆同概念／事件詞關聯 35 題，跨 11 個年度；強 0／中 7／概念 28",
+        "歷屆同概念／事件詞關聯 34 題，跨 11 個年度；強 0／中 7／概念 27",
         "最近相關題為 115 年（距題庫最新年度 0 年）",
         "歷屆分布 2 個考科"
       ],
@@ -108,12 +108,12 @@
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
       "law_link_basis": [],
       "law_link_rules_schema": 1,
-      "historical_question_count": 35,
+      "historical_question_count": 34,
       "historical_weighted_match_count": 4.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 7,
-        "concept": 28
+        "concept": 27
       },
       "historical_exam_years": [
         104,
@@ -133,7 +133,7 @@
       "years_since_last_related_exam": 0,
       "historical_subject_counts": {
         "社會工作": 11,
-        "社會政策與社會立法": 24
+        "社會政策與社會立法": 23
       },
       "historical_subject_count": 2,
       "historical_law_match_count": 0,
@@ -498,7 +498,7 @@
       "trend_state": "one-off",
       "trend_score": 2.6,
       "why": [
-        "歷屆廣義概念關聯 170 題，跨 12 個年度；強 0／中 0／概念 170（僅作低權重背景）",
+        "歷屆廣義概念關聯 169 題，跨 12 個年度；強 0／中 0／概念 169（僅作低權重背景）",
         "最近相關題為 115 年（距題庫最新年度 0 年）",
         "歷屆分布 3 個考科"
       ],
@@ -527,12 +527,12 @@
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
       "law_link_basis": [],
       "law_link_rules_schema": 1,
-      "historical_question_count": 170,
+      "historical_question_count": 169,
       "historical_weighted_match_count": 1.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 0,
-        "concept": 170
+        "concept": 169
       },
       "historical_exam_years": [
         104,
@@ -554,7 +554,7 @@
       "historical_subject_counts": {
         "社會工作": 58,
         "社會工作直接服務": 6,
-        "社會政策與社會立法": 106
+        "社會政策與社會立法": 105
       },
       "historical_subject_count": 3,
       "historical_law_match_count": 0,

@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "base_commit": "5eea6f41609b1d749678e4dfac08b7824dbf63a3",
+  "scope": "four source-bound circled-option extraction dispositions; no question/answer change",
+  "comparison_sha256": "0853dc8e28191f7904e03b850f844ae245caf8ce5336800c3f1b2593aed14949",
+  "count": 4,
+  "human_approval": false,
+  "release_approved": false,
+  "official_core_modified": false,
+  "rows": [
+    {
+      "id": "DS-105-2-09",
+      "classification": "circled_glyph_extraction_only",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=105090&c=107&s=0602&q=1",
+      "pdf_sha256": "bc62d02d54064ab139b10af93f33766c3464eb4a95256cc373ed4f2140487132",
+      "printed_page": "4-2",
+      "pdf_page_number": 2,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=105090&c=107&s=0602&q=1",
+      "answer_pdf_sha256": "50449484677816cf1814077854fca0c8d04cbd1af37606dce31365a01201df58",
+      "answer_page": 1,
+      "baseline_comparison_row_sha256": "5d89779591aa97f7155e7460e16204066fb9b0e87e5e4047cae3259b9810e71e",
+      "baseline_differences": {
+        "opt_a": {
+          "stored": "①②③④⑤",
+          "official_extraction": "11115"
+        },
+        "opt_b": {
+          "stored": "僅①②⑤",
+          "official_extraction": "僅115"
+        },
+        "opt_c": {
+          "stored": "僅②④⑤",
+          "official_extraction": "僅112"
+        },
+        "opt_d": {
+          "stored": "僅①③④",
+          "official_extraction": "僅111"
+        }
+      },
+      "current_full_row_sha256": "c4dcf3bfe57951475dbd78605b89d05235b3e1df18aabdf4195fbf8b9254020b",
+      "current_core_lock_sha256": "76f1f15aa831ec819a6b2e05e34a615128cec6985b51dd3898d6e60f661bbe25",
+      "official_field_transcription": {
+        "opt_a": "①②③④⑤",
+        "opt_b": "僅①②⑤",
+        "opt_c": "僅②④⑤",
+        "opt_d": "僅①③④"
+      },
+      "official_answer_rule": {
+        "answer": "A",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "human_approval": false,
+      "verification": "Question PDFs and final S/M answer PDFs SHA256 checked from retained official archive and rendered/AI visually compared. Research uses formal M correction, not earlier S. Not independent human signoff; unchanged R23 optionC remains part of full-row verification."
+    },
+    {
+      "id": "DS-105-2-10",
+      "classification": "circled_glyph_extraction_only",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=105090&c=107&s=0602&q=1",
+      "pdf_sha256": "bc62d02d54064ab139b10af93f33766c3464eb4a95256cc373ed4f2140487132",
+      "printed_page": "4-2",
+      "pdf_page_number": 2,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=S&code=105090&c=107&s=0602&q=1",
+      "answer_pdf_sha256": "50449484677816cf1814077854fca0c8d04cbd1af37606dce31365a01201df58",
+      "answer_page": 1,
+      "baseline_comparison_row_sha256": "52c52104701e6269e4ce258a87b8d69a61f5f60831fe1ec4d88916ba316668b9",
+      "baseline_differences": {
+        "opt_a": {
+          "stored": "①②③⑤",
+          "official_extraction": "1112"
+        },
+        "opt_b": {
+          "stored": "①④⑤⑥",
+          "official_extraction": "1121"
+        },
+        "opt_c": {
+          "stored": "僅②③④⑥",
+          "official_extraction": "僅1111"
+        },
+        "opt_d": {
+          "stored": "①②③④⑥",
+          "official_extraction": "11111"
+        }
+      },
+      "current_full_row_sha256": "499a2d7b56dc06cc37b5677655844830ec908b21ebb34b2ec72ce61c298e3e46",
+      "current_core_lock_sha256": "8f19e5b2388e8107d49b0c6e9081838e2f20393efe2ac456e3e54af890719576",
+      "official_field_transcription": {
+        "opt_a": "①②③⑤",
+        "opt_b": "①④⑤⑥",
+        "opt_c": "僅②③④⑥",
+        "opt_d": "①②③④⑥"
+      },
+      "official_answer_rule": {
+        "answer": "D",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "human_approval": false,
+      "verification": "Question PDFs and final S/M answer PDFs SHA256 checked from retained official archive and rendered/AI visually compared. Research uses formal M correction, not earlier S. Not independent human signoff; unchanged R23 optionC remains part of full-row verification."
+    },
+    {
+      "id": "R-107-2-02",
+      "classification": "circled_glyph_extraction_only",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0606&q=1",
+      "pdf_sha256": "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d",
+      "printed_page": "4-1",
+      "pdf_page_number": 1,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=107110&c=107&s=0606&q=1",
+      "answer_pdf_sha256": "7cd59dddf3456e4a328bdb765bcfda1397fec55fbcfdae288c494aa01bb79410",
+      "answer_page": 1,
+      "baseline_comparison_row_sha256": "021639ac056fb147088198a340cee629d2f095e3c487788f9a4a2d43452ddeac",
+      "baseline_differences": {
+        "opt_a": {
+          "stored": "僅①④",
+          "official_extraction": "僅11"
+        },
+        "opt_b": {
+          "stored": "僅②③",
+          "official_extraction": "僅22"
+        },
+        "opt_c": {
+          "stored": "僅①②④",
+          "official_extraction": "僅121"
+        },
+        "opt_d": {
+          "stored": "①②③④",
+          "official_extraction": "1221"
+        }
+      },
+      "current_full_row_sha256": "a0410241101f100e63ec9b4cb1c50a4d9f940c8c485707d7021eb7d764faa7f0",
+      "current_core_lock_sha256": "27f6c9ea712695485a20bcdbc96c8ee5a6056d24efd60bc65f0629e1b4da7bec",
+      "official_field_transcription": {
+        "opt_a": "僅①④",
+        "opt_b": "僅②③",
+        "opt_c": "僅①②④",
+        "opt_d": "①②③④"
+      },
+      "official_answer_rule": {
+        "answer": "A",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "human_approval": false,
+      "verification": "Question PDFs and final S/M answer PDFs SHA256 checked from retained official archive and rendered/AI visually compared. Research uses formal M correction, not earlier S. Not independent human signoff; unchanged R23 optionC remains part of full-row verification."
+    },
+    {
+      "id": "R-107-2-23",
+      "classification": "circled_glyph_extraction_only",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0606&q=1",
+      "pdf_sha256": "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d",
+      "printed_page": "4-3",
+      "pdf_page_number": 3,
+      "answer_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=M&code=107110&c=107&s=0606&q=1",
+      "answer_pdf_sha256": "7cd59dddf3456e4a328bdb765bcfda1397fec55fbcfdae288c494aa01bb79410",
+      "answer_page": 1,
+      "baseline_comparison_row_sha256": "6164843e1215aa1d416546d92189ce9d424cdc62d36f84700abd59688747a50b",
+      "baseline_differences": {
+        "opt_a": {
+          "stored": "僅①④",
+          "official_extraction": "僅11"
+        },
+        "opt_b": {
+          "stored": "僅②③",
+          "official_extraction": "僅22"
+        },
+        "opt_d": {
+          "stored": "①②③",
+          "official_extraction": "122"
+        }
+      },
+      "current_full_row_sha256": "9a74f4051c3c3c02c4f15dc4b115f1aceab68fb637af2047a2d7eee190108277",
+      "current_core_lock_sha256": "d75127c2562c6c1ef52c0e106956a4be2c63b8b2c1d023e56f550a47333de6fe",
+      "official_field_transcription": {
+        "opt_a": "僅①④",
+        "opt_b": "僅②③",
+        "opt_c": "僅①②",
+        "opt_d": "①②③"
+      },
+      "official_answer_rule": {
+        "answer": "D",
+        "accepted_answers": null,
+        "grading_mode": "standard"
+      },
+      "human_approval": false,
+      "verification": "Question PDFs and final S/M answer PDFs SHA256 checked from retained official archive and rendered/AI visually compared. Research uses formal M correction, not earlier S. Not independent human signoff; unchanged R23 optionC remains part of full-row verification."
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-25",
+  "purpose": "MOEX PDF page-checked three additional correction candidates; no Official Core writes, no approval",
+  "base_pr": 447,
+  "base_head": "f584d9da0da58c8347bbc0247578592d1d817eb1",
+  "status": "PENDING_CONTROLLED_CORRECTION",
+  "human_approval": false,
+  "official_production_write": false,
+  "release_approval": false,
+  "answer_grading_mutation_allowed": false,
+  "verification": "Compared original official PDF page images and separately opened official final answer PDF; holds remain until controlled corrections, locks, QA and approval",
+  "rows": [
+    {
+      "id": "SW-105-2-25",
+      "pdf": "105090-107-0601.pdf",
+      "pdf_sha256": "6cb957f74ae14d66bb2c0d83a8a61ec741d520e9c5cec08e0c008eb5a0238332",
+      "answer_pdf": "105090-107-0601-M.pdf",
+      "answer_pdf_sha256": "bf3e14de299a131ba0eb447c313b7fb6aa2e8d66dcec94cc9a3388e2e443bf06",
+      "answer_from_official_pdf": "B",
+      "official_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0601&t=Q",
+      "source_exam_code": "105090",
+      "question_page": 3,
+      "before_fields": {
+        "question": "每一門專業都有其核心的社會使命要去完成，有關Morales & Sheafor（1988）提出的社會工 作存在的三個使命（3C’s），下列何者正確？①照顧（caring）②改變社會（changing the society）③慈善（charity）",
+        "opt_a": "治療（curing） ①②③",
+        "opt_b": "①②",
+        "opt_c": "①③",
+        "opt_d": "②③"
+      },
+      "proposed_after_fields": {
+        "question": "每一門專業都有其核心的社會使命要去完成，有關Morales & Sheafor（1998）提出的社會工 作存在的三個使命（3C’s），下列何者正確？①照顧（caring）②改變社會（changing the society）③慈善（charity）④治療（curing）",
+        "opt_a": "①②③",
+        "opt_b": "①②④",
+        "opt_c": "①③④",
+        "opt_d": "②③④"
+      },
+      "original_answer": "B",
+      "original_accepted_answers": null,
+      "original_grading_mode": "standard",
+      "still_held": true,
+      "independent_human_approval": false,
+      "notes": "Full statement ④ is stranded in option A; restore question text and four complete option combinations"
+    },
+    {
+      "id": "R-106-2-02",
+      "pdf": "106110-107-0606.pdf",
+      "pdf_sha256": "a76570be5537192ca405d97050b80dfb92a259deb46732215d6658bea417313c",
+      "answer_pdf": "106110-107-0606-S.pdf",
+      "answer_pdf_sha256": "1db258c101f5c5eb7b722ea7c96f6811889833f3a509f4134e15bd5569a8271a",
+      "answer_from_official_pdf": "C",
+      "official_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0606&t=Q",
+      "source_exam_code": "106110",
+      "question_page": 1,
+      "before_fields": {
+        "opt_c": "檢定"
+      },
+      "proposed_after_fields": {
+        "opt_c": "χ² 檢定"
+      },
+      "original_answer": "C",
+      "original_accepted_answers": null,
+      "original_grading_mode": "standard",
+      "still_held": true,
+      "independent_human_approval": false,
+      "notes": "Restore χ² symbol; confirm mathematical superscript rendering"
+    },
+    {
+      "id": "R-113-2-30",
+      "pdf": "113100-103-0306.pdf",
+      "pdf_sha256": "bce6bb1e6054c1bfcd5c94672f5149d23556d327fb65f7609b9a64f66115a937",
+      "answer_pdf": "113100-103-0306-S.pdf",
+      "answer_pdf_sha256": "63f853d9c60788d86c4ccf76bcfae7d6a328c0965605590a534c3107d05e1b95",
+      "answer_from_official_pdf": "C",
+      "official_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0306&t=Q",
+      "source_exam_code": "113100",
+      "question_page": 3,
+      "before_fields": {
+        "opt_a": "當分析者企圖由先拆解文本，將文本視為可供測量的單位（字眼、表現、陳述等），從而",
+        "opt_b": "建立文本的意義時，事實上已不夠客觀",
+        "opt_c": "採用內容分析法，基本上需要對概念加以量化，但是並非每一個概念都能夠量化",
+        "opt_d": "研究者測量時會受到測量行動本身的干擾，被觀察的內容會察覺被觀察，因此其反應會"
+      },
+      "proposed_after_fields": {
+        "opt_a": "當分析者企圖由先拆解文本，將文本視為可供測量的單位（字眼、表現、陳述等），從而建立文本的意義時，事實上已不夠客觀",
+        "opt_b": "採用內容分析法，基本上需要對概念加以量化，但是並非每一個概念都能夠量化",
+        "opt_c": "研究者測量時會受到測量行動本身的干擾，被觀察的內容會察覺被觀察，因此其反應會不穩定",
+        "opt_d": "「內容」的定義時常含糊不清"
+      },
+      "original_answer": "C",
+      "original_accepted_answers": null,
+      "original_grading_mode": "standard",
+      "still_held": true,
+      "independent_human_approval": false,
+      "notes": "Each option is shifted/truncated; replace complete A-D boundaries from the official page"
+    }
+  ]
+}

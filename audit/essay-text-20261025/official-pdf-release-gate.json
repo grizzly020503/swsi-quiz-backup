@@ -1,0 +1,34 @@
+[
+  {
+    "command": [
+      "python",
+      "scripts/official_pdf_text_release_gate.py",
+      "--selftest"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "stdout": "OFFICIAL PDF RELEASE GATE SELFTEST OK: stale input, duplicate identities, count drift and false human approval rejected\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python",
+      "scripts/official_pdf_text_release_gate.py",
+      "--check-evidence-only"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "stdout": "{\"status\": \"NO-GO\", \"unresolved\": {\"mcq\": 853, \"essays\": 18}, \"total_unresolved\": 871, \"evidence_only\": true, \"human_approval\": false}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python",
+      "scripts/official_pdf_text_release_gate.py"
+    ],
+    "exit_code": 2,
+    "expected_exit_code": 2,
+    "stdout": "{\"status\": \"NO-GO\", \"unresolved\": {\"mcq\": 853, \"essays\": 18}, \"total_unresolved\": 871, \"evidence_only\": false, \"human_approval\": false}\n",
+    "stderr": ""
+  }
+]

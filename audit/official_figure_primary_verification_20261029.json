@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "observed_date": "2026-10-29 (Asia/Taipei)",
+  "candidate_scope": "P1 primary-site official figures, existing PR #463",
+  "base_main": "e08b0292ddb653219327776d65440e837721bba7",
+  "source_reinspection": [
+    {
+      "id": "DS-113-2-13",
+      "pdf": "113100-103-0302.pdf",
+      "sha256": "21b47d133e072b34eab4f07fa95ffab1601d54768eb8cedf680a9471fc9bfbc3",
+      "printed_page": "6-3",
+      "official_stem": "有關下圖案母與案主之間的關係狀況，下列何者正確？",
+      "observed": "Original genogram matches retained PNG: mother age 63, identified client age 24, conflict zigzag between mother and client. False father/daughter surrogate is absent from official stem."
+    },
+    {
+      "id": "R-114-2-12",
+      "pdf": "114100-103-0306.pdf",
+      "sha256": "f0da4551b15af06b68d0ff3a287acb2b0253ddecef7e6fdd76e768e8ca990ae2",
+      "printed_page": "4-2",
+      "observed": "Original pain-to-happiness scale, five numbered ticks 1-5, matches retained PNG."
+    }
+  ],
+  "method": "Fresh official PDF downloads with recomputed SHA256, source pages rendered and inspected alongside existing PNGs by Codex AI. Not independent human approval. No image edit/redraw.",
+  "required_browser_matrix": "Chromium/WebKit x mobile 390x844/desktop 1366x900 x both figures x loaded/missing; each tests actual quiz and timed mock rendering/scoring.",
+  "backup_scope": "Original PR's netlify.toml edit excluded; candidate netlify.toml exactly equals current main. No backup deployment, setting, monitoring, or backup workflow change.",
+  "release_approved": false,
+  "independent_human_approval": false,
+  "production_write": false,
+  "main_merge": false,
+  "deployment": false
+}

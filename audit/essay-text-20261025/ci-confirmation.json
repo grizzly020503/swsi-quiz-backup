@@ -1,0 +1,19 @@
+{
+  "candidate": "abfe82f5c3f310661d4d3e626e2807297b47c642",
+  "workflows": {
+    "success": 24,
+    "failure": 2
+  },
+  "joint_run": 40185357112,
+  "exact_head_acceptance": "success",
+  "pdf_gate": {
+    "job": 121145198710,
+    "exit": 2,
+    "unresolved": 460
+  },
+  "ai_gate": {
+    "job": 121144886693,
+    "failure": "candidate.json missing; real outputs and independent human ratings absent"
+  },
+  "production_deployed": false
+}

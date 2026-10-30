@@ -111,8 +111,18 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
 
   await page.goto(base, { waitUntil: 'commit', timeout: 15000 });
   await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
+  // First paint may render home before init() finishes loadAutoEssays().
+  // Its inline flex assignment signals boot completion; computed CSS visibility
+  // remains an independent assertion below and is never used as a retry escape.
+  await page.waitForFunction(() => document.getElementById('tabbar')?.style.display === 'flex',
+    null, { timeout: 30000 });
   await waitPage('home');
 
+  // Negative contract: a hidden nav after boot must still fail the layout gate.
+  const hiddenNavStyle = await page.addStyleTag({ content: '#tabbar{display:none!important}' });
+  const hiddenNav = await shellSnapshot();
+  assert.throws(() => assertDocked(hiddenNav, 'negative hidden home'), /bottom nav is not visible/);
+  await hiddenNavStyle.evaluate(style => style.remove());
   let s = await shellSnapshot();
   assertDocked(s, 'home');
   assert.notStrictEqual(s.footer.display, 'none', 'home: public footer should be visible');

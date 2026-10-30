@@ -1,0 +1,146 @@
+{
+  "checks": [
+    {
+      "command": [
+        "node",
+        "scripts/handwriting_essay_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 4.37,
+      "log": "handwriting_essay_smoke.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/launch_readiness_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 1.76,
+      "log": "launch_readiness_smoke.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/grading_contract_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 0.96,
+      "log": "grading_contract_smoke.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/browser_interaction_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 2.01,
+      "log": "browser_interaction_smoke.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/prelaunch_axe_accessibility_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 1.09,
+      "log": "prelaunch_axe_accessibility_smoke.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/prelaunch_accessibility_touch_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 2.14,
+      "log": "prelaunch_accessibility_touch_smoke.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/prelaunch_deadend_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 1.75,
+      "log": "prelaunch_deadend_smoke.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/prelaunch_error_states_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 4.77,
+      "log": "prelaunch_error_states_smoke.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/prelaunch_storage_degradation_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 0.86,
+      "log": "prelaunch_storage_degradation_smoke.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/prelaunch_slow_network_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 3.55,
+      "log": "prelaunch_slow_network_smoke.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/pwa_resilience_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 0.7,
+      "log": "pwa_resilience_smoke.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/service_worker_update_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 0.05,
+      "log": "service_worker_update_smoke.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/shard_integrity_browser_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 0.87,
+      "log": "shard_integrity_browser_smoke.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/feedback_smoke.js",
+        "http://127.0.0.1:4173/"
+      ],
+      "exit_code": 0,
+      "seconds": 1.5,
+      "log": "feedback_smoke.log"
+    }
+  ],
+  "passed": 14,
+  "total": 14
+}

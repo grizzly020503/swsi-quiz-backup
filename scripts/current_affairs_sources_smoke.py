@@ -348,10 +348,62 @@ def mandatory_feed_coverage_contract() -> None:
             raise AssertionError(f"mandatory feed outage with {failures} failures must abort")
 
 
+
+def deferred_required_source_recovery_contract() -> None:
+    """No live network: only failed mandatory sources get a bounded late retry."""
+    feeds = [
+        {"name": "MOJ", "url": "https://www.moj.gov.tw/test", "optional": False},
+        {"name": "Healthy", "url": "https://www.mol.gov.tw/test", "optional": False},
+        {"name": "Optional", "url": "https://example.test/optional", "optional": True},
+    ]
+    request_history = []
+    calls = {"MOJ": 0, "Healthy": 0, "Optional": 0}
+
+    def make_parser(moj_recovers):
+        def parse(feed, attempts=3):
+            name = feed["name"]
+            calls[name] += 1
+            request_history.append((name, attempts))
+            if name == "MOJ" and (calls[name] == 1 or not moj_recovers):
+                return None, OSError("Network is unreachable")
+            if name == "Optional":
+                return None, OSError("optional news failure")
+            return SimpleNamespace(entries=[SimpleNamespace(title=name)]), None
+        return parse
+
+    parsed, errors, optional = watch.fetch_feeds_with_late_recovery(
+        feeds, parser=make_parser(True), cooloff_seconds=0
+    )
+    assert [feed["name"] for feed, _ in parsed] == ["MOJ", "Healthy"], parsed
+    assert errors == [], errors
+    assert len(optional) == 1 and optional[0].startswith("Optional:"), optional
+    expected_calls = [("MOJ", 3), ("Healthy", 3), ("Optional", 3), ("MOJ", 1)]
+    assert request_history == expected_calls, request_history
+
+    request_history.clear()
+    calls.update({"MOJ": 0, "Healthy": 0, "Optional": 0})
+    parsed, errors, optional = watch.fetch_feeds_with_late_recovery(
+        feeds, parser=make_parser(False), cooloff_seconds=0
+    )
+    assert [feed["name"] for feed, _ in parsed] == ["Healthy"], parsed
+    assert len(errors) == 1 and errors[0].startswith("MOJ:"), errors
+    assert len(optional) == 1, optional
+    assert request_history == expected_calls, request_history
+
+    # An outage affecting all mandatory sources still blocks publication.
+    try:
+        watch.enforce_required_feed_coverage(feeds, ["MOJ: offline", "Healthy: offline"], 1)
+    except RuntimeError as exc:
+        assert "all mandatory" in str(exc), exc
+    else:
+        raise AssertionError("late retry must never bypass the mandatory source gate")
+
+
 def main() -> int:
     mandatory_feed_coverage_contract()
     source_registry_fail_closed_contract()
     retry_contract()
+    deferred_required_source_recovery_contract()
     who_api_adapter_contract()
     unicef_html_adapter_contract()
     ilo_html_adapter_contract()

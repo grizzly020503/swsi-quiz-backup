@@ -5,6 +5,8 @@ from __future__ import annotations
 import io
 import json
 import urllib.error
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from unittest.mock import patch
 from pathlib import Path
 
@@ -15,7 +17,62 @@ def fake_response(site_id: str, *, name="swsi-quiznetlify", url="https://swsi-qu
     return io.BytesIO(json.dumps({"id": site_id, "name": name, "ssl_url": url}).encode())
 
 
+def redirect_transport_selftest() -> None:
+    """Exercise the default production opener against loopback, never Netlify."""
+    requests = []
+    redirect_status = None
+    configured = "fixture-redirect-project"
+
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+
+        def do_GET(self):
+            requests.append((self.path, self.headers.get("Authorization")))
+            if self.path.startswith("/credential-target"):
+                self.send_response(200)
+                self.end_headers()
+                return
+            if redirect_status is not None:
+                self.send_response(redirect_status)
+                # localhost differs from the original 127.0.0.1 host. This
+                # would receive Authorization with urllib's default opener.
+                self.send_header("Location", f"http://localhost:{self.server.server_port}/credential-target")
+                self.end_headers()
+                return
+            body = json.dumps({"id": configured, "name": "swsi-quiznetlify"}).encode()
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        with patch.object(preflight, "API_ROOT", f"http://127.0.0.1:{server.server_port}/sites/"):
+            preflight.check("fixture-token", configured)
+            assert requests == [("/sites/" + configured, "Bearer fixture-token")]
+            for status in (301, 302, 303, 307, 308):
+                requests.clear()
+                redirect_status = status
+                try:
+                    preflight.check("fixture-token", configured)
+                except RuntimeError as exc:
+                    assert "redirect refused" in str(exc) and str(status) in str(exc)
+                    assert "fixture-token" not in str(exc) and "localhost" not in str(exc)
+                else:
+                    raise AssertionError(f"HTTP {status} redirect was accepted")
+                assert requests == [("/sites/" + configured, "Bearer fixture-token")], "redirect target received a request"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+    print("NETLIFY REDIRECT TRANSPORT SELFTEST OK: valid response, blocked 301/302/303/307/308 without forwarding")
+
+
 def main() -> int:
+    redirect_transport_selftest()
     configured = "fixture-opaque-project-id"
     seen = []
 

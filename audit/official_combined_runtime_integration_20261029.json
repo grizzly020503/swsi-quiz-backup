@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "dataset_revision": "8ca2972dcc6bb5f70ae3",
+  "integrated_mcq_corrections": 41,
+  "components": {
+    "controlled_pdf": 27,
+    "shared_context": 13,
+    "figure_stem": 1
+  },
+  "official_images": 2,
+  "runtime_ui_integrated": true,
+  "human_approval": false,
+  "release_approved": false,
+  "production_database_updated": false,
+  "primary_deployed": false,
+  "backup_operation": false,
+  "full_corpus": {
+    "total_mcq": 4800,
+    "total_essays": 240,
+    "total_items": 5040,
+    "official_blocked": 0,
+    "manual_review_queue_count": 795,
+    "all_manifest_sessions_audited": true,
+    "manifest_integrity_ok": true
+  },
+  "pdf_reviews": {
+    "mcq": 429,
+    "essays": 18,
+    "total": 447
+  },
+  "essay_pdf_rerun": {
+    "pdfs": 120,
+    "essays": 240,
+    "row_results_identical_to_previous": true,
+    "only_changed_input": "index.html",
+    "index_sha256": "fc0737c18e07258b0c67ba9d77c580b42bf84bb6a0c0573b052195af45857cf8"
+  },
+  "local_tests_passed": [
+    "official_exam_readonly_guard",
+    "official_combined_candidate_guard_selftest:6",
+    "build_official_combined_candidate_selftest:6",
+    "official_mcq_corrections_smoke:27 projected plus exact41 artifact guard",
+    "official_essay_correction_smoke",
+    "official_pdf_text_release_gate:selftest and evidence-only",
+    "official_figure_ui_qa",
+    "cloudflare_release_artifact_smoke",
+    "service_worker_update_smoke",
+    "review_analysis_quarantine_smoke:20",
+    "historical_law_snapshot_pipeline_selftest",
+    "full_corpus_qa:5040"
+  ],
+  "browser_acceptance": "pending new exact-head CI; 40 textual MCQs plus separate16 figure combinations",
+  "intentional_release_holds": [
+    "447 official PDF reviews",
+    "independent human source acceptance missing",
+    "authentic AI Golden Set and human ratings missing"
+  ],
+  "recovery": "Continue PR447 exact-head CI. Never merge source PR463/475 separately after this combined candidate. Reconcile source review queue with captured PDF evidence; do not clear holds based on generated metadata."
+}

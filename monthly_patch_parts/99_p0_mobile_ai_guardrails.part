@@ -48,11 +48,29 @@
   };
 
   window.swsiAICacheKey=function(id){return 'essay_ai_cache_'+id;};
+  function essayCacheContext(id){
+    var e=(window.ESSAYS||[]).find(function(row){return row&&row.id===id;});
+    if(!e||typeof e.q!=='string'||!e.q.trim())return null;
+    var g=(window.ESSAY_GUIDES||{})[id]||{},reference=null;
+    if(typeof window.swsiEssayGuideIsVerified==='function'&&window.swsiEssayGuideIsVerified(id)){
+      reference={kao:g.kao||'',dati:g.dati||'',biaoti:g.biaoti||[],kw:g.kw||[]};
+    }
+    return JSON.stringify({question:e.q,reference:reference,
+      model:typeof GROQ_MODEL==='string'?GROQ_MODEL:null,
+      promptVersion:window.SWSI_ESSAY_TRUST_VERSION||null});
+  }
   window.swsiGetAICache=function(id,answer){
-    try{var x=JSON.parse(localStorage.getItem(window.swsiAICacheKey(id))||'null');return x&&x.answer===answer&&x.feedback?x:null;}catch(e){return null;}
+    try{
+      var context=essayCacheContext(id);
+      var x=JSON.parse(localStorage.getItem(window.swsiAICacheKey(id))||'null');
+      return context&&x&&x.schema_version===2&&x.context===context&&x.answer===answer&&typeof x.feedback==='string'&&x.feedback?x:null;
+    }catch(e){return null;}
   };
   window.swsiSetAICache=function(id,answer,feedback){
-    try{localStorage.setItem(window.swsiAICacheKey(id),JSON.stringify({answer:answer,feedback:feedback,at:Date.now()}));}catch(e){}
+    try{
+      var context=essayCacheContext(id);if(!context)return;
+      localStorage.setItem(window.swsiAICacheKey(id),JSON.stringify({schema_version:2,context:context,answer:answer,feedback:feedback,at:Date.now()}));
+    }catch(e){}
   };
 
   var CLIENT_ID_KEY='swsi_ai_client_id_v1';

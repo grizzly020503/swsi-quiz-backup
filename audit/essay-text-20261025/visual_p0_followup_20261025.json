@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "status": "EVIDENCE_CANDIDATES_NOT_RELEASE_APPROVED",
+  "created_date": "2026-10-25",
+  "candidate_head_before_evidence_commit": "8b12b1b8dacf2fbe17cc2e1317278699660ae236",
+  "method": "Read only baseline comparison against official PDFs recovered from already archived 120-document evidence set. PDF SHA256 matched; PDF page 3 rendered and visually inspected. Cross-checked current Supabase public.questions read-only. No reviewer signed off on Official Core release.",
+  "pending_count_prior": 449,
+  "cleared_by_this_evidence": 0,
+  "visual_checks": [
+    {
+      "id": "DS-109-1-23",
+      "pdf_archive": "SWSI_20261025_official_pdf_layout_evidence.zip",
+      "original_pdf_name": "109030-107-0602.pdf",
+      "official_pdf_sha256": "7cf310899c22fc034e41d9bef6aed5cd2f89cd7fa97860e0b91df80f03f0519e",
+      "official_pdf_page": 3,
+      "github_branch": "work/final-source-quality-20261025",
+      "source_shard_path": "cdn/question-shards/109-1.json",
+      "source_shard_git_blob": "e6173a407e54b505c0164ae0c248f41afbb7bff7",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109030&q=1&s=0602&t=Q",
+      "original_answer": "A",
+      "original_accepted_answers": null,
+      "original_grading_mode": "standard",
+      "original_analysis_status": "ready",
+      "human_approved": false,
+      "production_modified": false,
+      "status": "VISUAL_PDF_TEXT_DELTA_NEEDS_HUMAN_APPROVAL",
+      "exact_field_changes": {
+        "question": {
+          "before": "有關團體工作的歷史發展，下列何者正確? 1950 ① 年代及1960年代，在鄰里中心及社區機 構運用團體方法，來推動社區發展與社會運動 1960 ② 年代社會工作學院實務朝向綜觀點 發展，導致團體工作方法蓬勃發展 31930 ③ 年代至1940年代間，影響團體工作發展的兩大 議題，一為對貧窮作戰，一為公民權利運動 1980 ④ 年代及1990年代，社會團體工作促進 協會(AASWG)透過辦理專題研討會、促進團體工作課程之規劃、發展團體工作教育的標 準等，試圖復興社會團體工作，持續且不斷地增加 ⑤社會個案工作的先驅Mary Richmond 於1920年代開始注意到小團體心理學",
+          "proposed_official_pdf_text": "有關團體工作的歷史發展，下列何者正確？①1950 年代及 1960 年代，在鄰里中心及社區機構運用團體方法，來推動社區發展與社會運動 ②1960 年代社會工作學院實務朝向綜融觀點發展，導致團體工作方法蓬勃發展 ③1930 年代至 1940 年代間，影響團體工作發展的兩大議題，一為對貧窮作戰，一為公民權利運動 ④1980 年代及 1990 年代，社會團體工作促進協會（AASWG）透過辦理專題研討會、促進團體工作課程之規劃、發展團體工作教育的標準等，試圖復興社會團體工作，持續且不斷地增加 ⑤社會個案工作的先驅 Mary Richmond 於 1920 年代開始注意到小團體心理學"
+        }
+      },
+      "application_policy": "Apply only after independent maintainer approval; replace exact fields in Official Core, quarantine stale AI explanation/keywords and set analysis_status review; update exact immutable lock, manifest, SHAs, PDF evidence and unchanged grading tuple; rerun release gates."
+    },
+    {
+      "id": "DS-109-2-23",
+      "pdf_archive": "SWSI_20261025_official_pdf_layout_evidence.zip",
+      "original_pdf_name": "109110-107-0602.pdf",
+      "official_pdf_sha256": "0351cc6a62bfc1f922ed58cea35cde6b20dde02db4d9768373ba6baf9798e",
+      "official_pdf_page": 3,
+      "github_branch": "work/final-source-quality-20261025",
+      "source_shard_path": "cdn/question-shards/109-2.json",
+      "source_shard_git_blob": "0a3c83259560597111c81db9f4856a23777707d1",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109110&q=1&s=0602&t=Q",
+      "original_answer": "C",
+      "original_accepted_answers": null,
+      "original_grading_mode": "standard",
+      "original_analysis_status": "ready",
+      "human_approved": false,
+      "production_modified": false,
+      "status": "VISUAL_PDF_TEXT_DELTA_NEEDS_HUMAN_APPROVAL",
+      "exact_field_changes": {
+        "opt_a": {
+          "before": "當成員因上下班延遲出席半小時，導致領導者延遲半小時開始，也應該延後半小時結束，以彌補短缺的時間",
+          "proposed_official_pdf_text": "當成員因上下班延遲出席半小時，導致領導者延遲半小時開始，也應該延後半小時結束，以彌補短缺的時間，讓所有團體內容能被執行"
+        },
+        "opt_b": {
+          "before": "團體結束前，成員之一突然大哭，說在昨晚約會時被性侵，儘管預定结束時間已到，領導者認為情況特殊不該貿然讓其離開，決定延長團體的時間安撫其情緒",
+          "proposed_official_pdf_text": "團體結束前，成員之一突然大哭，說在昨晚約會時被性侵，其遭遇讓成員既震驚又不平，儘管預定結束時間已到，領導者認為情況特殊不該貿然讓其離開，決定延長團體的時間安撫其情緒"
+        }
+      },
+      "application_policy": "Apply only after independent maintainer approval; replace exact fields in Official Core, quarantine stale AI explanation/keywords and set analysis_status review; update exact immutable lock, manifest, SHAs, PDF evidence and unchanged grading tuple; rerun release gates."
+    },
+    {
+      "id": "DS-113-2-13",
+      "pdf_archive": "SWSI_20261025_official_pdf_layout_evidence.zip",
+      "original_pdf_name": "113100-103-0302.pdf",
+      "official_pdf_sha256": "21b47d133e072b34eab4f07fa95ffab1601d54768eb8cedf680a9471fc9bfbc3",
+      "official_pdf_page": 3,
+      "github_branch": "work/final-source-quality-20261025",
+      "source_shard_path": "cdn/question-shards/113-2.json",
+      "source_shard_git_blob": "df66411220d1f23f1a5783d33585d782fbd17555",
+      "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0302&t=Q",
+      "original_answer": "B",
+      "original_accepted_answers": null,
+      "original_grading_mode": "standard",
+      "original_analysis_status": "ready",
+      "human_approved": false,
+      "production_modified": false,
+      "status": "GRAPHIC_QUESTION_NEEDS_REAL_DIAGRAM_NOT_TEXT_GUESS",
+      "current_question": "有關下圖案母與案主之間的關係狀況，下列何者正確？（圖示：62 歲男性與 24 歲女兒之間以鋸齒線連結）",
+      "finding": "Source page 3 contains a full multi-generation genogram (62-year-old man, 63-year-old woman, 27-year-old man, 24-year-old woman, relationship and dog symbols). The zigzag conflict indication is between the mother (63-year-old woman) and the 24-year-old service user, not the 62-year-old man as current prose implies. The entire essential figure is missing from the student question. Preserve official answer B but do not label the current paraphrase verified.",
+      "application_policy": "Fail closed: add verified actual diagram with legible/accessible equivalent in question UI or quarantine the question. Never fabricate this family graphic from a one-sentence text substitute."
+    }
+  ],
+  "owner_review_required": true,
+  "official_core_write": false,
+  "production_write": false,
+  "global_release_no_go": true
+}

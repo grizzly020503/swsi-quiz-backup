@@ -102,7 +102,8 @@ async function optionTexts(page) {
 
   // Essay entry uses the same short question-report choices, not feature suggestions.
   await page.evaluate(() => swsiStartEssayNow());
-  await page.waitForSelector('.wta', { timeout: 30000 });
+  // Essay opens in handwriting-first mode; report controls must still work.
+  await page.waitForSelector('.swsi-paper-essay', { timeout: 30000 });
   await page.waitForSelector('.swsi-report-inline[data-swsi-essay-report="1"] .swsi-report-mini');
   await page.locator('.swsi-report-inline[data-swsi-essay-report="1"] .swsi-report-mini').click();
   await page.waitForSelector('.swsi-report-dialog[data-swsi-compact="2"]');
