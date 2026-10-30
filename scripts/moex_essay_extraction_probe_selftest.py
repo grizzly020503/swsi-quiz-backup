@@ -55,12 +55,22 @@ def main():
     assert "whitespace_or_linebreak_inside_section_boundary" in result["suspected_extraction_stages"]
     assert result["status"] == "PARSER_FAILURE_REVIEW_REQUIRED"
 
-    # A second essay marker merged onto a preceding line yields one question.
-    inline = clean.replace("\n二、說明", "  二、說明")
+    # Pinned 108-2 PDF proved the real legacy parser lost the inline second
+    # heading. The conservative fallback must now recover exactly 2 questions
+    # only when both ordered prompts have explicit individual score marks.
+    inline = clean.replace("\n二、說明", "二、說明")
     result = probe.diagnose(inline, parse)
-    assert result["legacy_essay_count"] == 1
+    assert result["legacy_essay_count"] == 2
+    assert result["legacy_essay_points"] == ["25", "25"]
+    assert result["status"] == "EXTRACTED_BUT_REQUIRES_PDF_TEXT_REVIEW"
     assert "possible_inline_or_spaced_question_markers" in result["suspected_extraction_stages"]
     assert [x["marker"] for x in result["diagnostic_only_relaxed_markers"]] == ["一", "二"]
+
+    # Incomplete or ambiguous source markers must NOT trigger fallback.
+    no_points = inline.replace("同意書應包括哪些內容。（25 分）", "同意書應包括哪些內容。")
+    assert probe.diagnose(no_points, parse)["legacy_essay_count"] == 1
+    ambiguous = inline.replace("德菲法的操作步驟", "德菲法的一、操作步驟")
+    assert probe.diagnose(ambiguous, parse)["legacy_essay_count"] == 1
 
     no_second = clean.replace("二、說明", "題目補充說明")
     assert probe.diagnose(no_second, parse)["legacy_essay_count"] == 1
@@ -78,7 +88,7 @@ def main():
             else:
                 raise AssertionError("forged PDF accepted")
 
-    print("MOEX ESSAY PROBE SELFTEST OK: actual legacy parser 2/0/1; SHA fail-closed, no writes/approval")
+    print("MOEX ESSAY PROBE SELFTEST OK: actual legacy parser 2/0/1, source-safe inline recovery; SHA fail-closed, no writes/approval")
     return 0
 
 
