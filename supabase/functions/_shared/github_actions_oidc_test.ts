@@ -51,15 +51,22 @@ Deno.test("OIDC claims reject repository, repo id, ref, runner, workflow and eve
   }
 });
 
-Deno.test("legal-watch policy is workflow- and event-specific", () => {
+Deno.test("MOEX legal-watch policy allows main schedule/manual but rejects push", () => {
   const policy: GitHubActionsOidcPolicy = {
     allowedWorkflowRefs: new Set([LEGAL]),
-    allowedEvents: new Set(["schedule", "workflow_dispatch", "push"]),
+    allowedEvents: new Set(["schedule", "workflow_dispatch"]),
   };
-  assertEquals(
-    assertGitHubActionsOidcClaims(payload({ workflow_ref: LEGAL, event_name: "schedule" }), policy),
-    undefined,
-  );
+  for (const event_name of ["schedule", "workflow_dispatch"]) {
+    assertEquals(
+      assertGitHubActionsOidcClaims(payload({ workflow_ref: LEGAL, event_name }), policy),
+      undefined,
+    );
+  }
+  for (const event_name of ["push", "pull_request", "workflow_run"]) {
+    assertThrows(() => assertGitHubActionsOidcClaims(
+      payload({ workflow_ref: LEGAL, event_name }), policy
+    ));
+  }
   assertThrows(() => assertGitHubActionsOidcClaims(payload({ workflow_ref: HISTORICAL }), policy));
 });
 
