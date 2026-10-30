@@ -154,13 +154,21 @@ def parse_essays(text, subject, exam_code, roc_year, round_name):
         start = m.end()
         end = matches[i + 1].start() if i + 1 < len(matches) else len(part)
         body = clean(part[start:end])
-        score_values = [int(x) for x in re.findall(r"[（(](\d+)\s*分[）)]", body)]
+        # Use the same whitespace-tolerant official score markers as the
+        # bounded two-heading recovery above. A missing score is a review
+        # blocker, never evidence that the question is worth 20 points.
+        score_values = [int(x) for x in re.findall(
+            r"[（(]\s*(\d+)\s*分\s*[）)]", body
+        )]
+        if not score_values:
+            raise RuntimeError(
+                f"官方申論配分無法從 PDF 確認：{exam_code} "
+                f"{subject['name']} 第 {i + 1} 題；拒絕預設 20 分"
+            )
         if len(score_values) > 1 and sum(score_values) <= 40:
             points = str(sum(score_values))
-        elif score_values:
-            points = str(score_values[-1])
         else:
-            points = "20"
+            points = str(score_values[-1])
         qno = str(i + 1)
         essays.append({
             "id": f"E-{roc_year}-{2 if round_name == '第二次' else 1}-{subject['prefix']}-{qno}",
