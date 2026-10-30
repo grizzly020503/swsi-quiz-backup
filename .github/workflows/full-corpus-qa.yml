@@ -26,6 +26,9 @@ on:
       - 'scripts/official_live_snapshot_parity_selftest.py'
       - 'scripts/moex_essay_extraction_probe.py'
       - 'scripts/moex_essay_extraction_probe_selftest.py'
+      - 'scripts/moex_sync.py'
+      - '.github/workflows/moex-social-worker-sync.yml'
+      - 'scripts/moex_sync_dispatch_guard_selftest.py'
       - 'data/moex_source_subjects.v1.json'
       - 'data/exam_scheme_registry.v1.json'
       - 'data/question_qa_policy_v1.json'
@@ -52,6 +55,9 @@ on:
       - 'scripts/official_live_snapshot_parity_selftest.py'
       - 'scripts/moex_essay_extraction_probe.py'
       - 'scripts/moex_essay_extraction_probe_selftest.py'
+      - 'scripts/moex_sync.py'
+      - '.github/workflows/moex-social-worker-sync.yml'
+      - 'scripts/moex_sync_dispatch_guard_selftest.py'
       - 'data/moex_source_subjects.v1.json'
       - 'data/exam_scheme_registry.v1.json'
       - 'data/question_qa_policy_v1.json'
@@ -110,6 +116,11 @@ jobs:
         run: |
           python -m py_compile scripts/moex_essay_extraction_probe.py scripts/moex_essay_extraction_probe_selftest.py
           python scripts/moex_essay_extraction_probe_selftest.py
+
+      - name: Prove MOEX write-capable sync cannot run from code push or PR
+        run: |
+          python -m py_compile scripts/moex_sync_dispatch_guard_selftest.py
+          python scripts/moex_sync_dispatch_guard_selftest.py
 
       - name: Audit all manifest sessions through effective exam profiles
         run: |
