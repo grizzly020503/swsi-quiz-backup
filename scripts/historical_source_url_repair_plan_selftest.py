@@ -94,6 +94,44 @@ def main() -> int:
         assert not core["database_written"] and not core["release_approved"]
         assert wrong[0]["answer"] == "SYNTHETIC_UNAPPROVED_ANSWER"
 
+    # A malicious/wrong source URL must HOLD the release; however the separate
+    # grade/core diagnostic is still saved for investigation. The failure is
+    # never converted into a successful URL proposal.
+    with TemporaryDirectory(prefix="swsi-independent-evidence-") as temp:
+        top = Path(temp)
+        url_tampered = [dict(r) for r in rows]
+        url_tampered[index]["source_url"] = (
+            "https://wwwq.moex.gov.tw@evil.example/exam/wHandExamQandA_File.ashx"
+        )
+        input_path = top / "live.json"
+        url_out = top / "url-proposal.json"
+        core_out = top / "core-parity.json"
+        input_path.write_text(json.dumps(url_tampered, ensure_ascii=False), encoding="utf-8")
+        proc = subprocess.run(
+            [sys.executable, str(Path(__file__).with_name("historical_source_url_repair_plan.py")),
+             "--input", str(input_path), "--out", str(url_out),
+             "--core-parity-out", str(core_out),
+             "--fail-on-proposals", "--fail-on-core-drift"],
+            capture_output=True, text=True, check=False, timeout=90,
+        )
+        assert proc.returncode != 0, "wrong official URL must block release"
+        assert "unsafe or malformed" in proc.stderr, proc.stderr
+        assert not url_out.exists(), "unsafe URL must not become a proposal"
+        core = json.loads(core_out.read_text(encoding="utf-8"))
+        assert core["status"] == "MATCH", "core parity excludes URL-only proof"
+        assert core["expected_questions"] == core["live_questions"] == 4800
+        assert core["release_approved"] is False and core["database_written"] is False
+
+    # Offline/full-corpus failure must not suppress scheduled live-source QA.
+    workflow = (Path(__file__).resolve().parents[1] /
+                ".github/workflows/full-corpus-qa.yml").read_text(encoding="utf-8")
+    step = workflow.split("      - name: Monthly READ-ONLY production source URL drift audit\n", 1)[1]
+    assert "if: ${{ !cancelled() && github.event_name == 'schedule' }}" in step.split("      - name:", 1)[0]
+    assert "--core-parity-out /tmp/swsi-live-official-core-parity.json" in step
+    assert "if: always() && github.event_name == 'schedule'" in workflow, (
+        "independent artifacts must be retained even on a failed URL/core gate"
+    )
+
     code_bad = [dict(r) for r in rows]
     code_bad[index]["source_exam_code"] = "000000"
     must_reject(code_bad, "exam_code disagreement")
