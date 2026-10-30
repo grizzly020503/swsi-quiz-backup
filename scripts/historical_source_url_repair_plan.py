@@ -143,7 +143,7 @@ def main() -> int:
         if core_out == ROOT or ROOT in core_out.parents:
             raise SystemExit("REFUSED: core parity output must be outside the Git repository")
         core_out.parent.mkdir(parents=True, exist_ok=True)
-        core_out.write_text(json.dumps(core, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+        core_out.write_text(json.dumps(core, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     if args.out:
         out = args.out.resolve()
         if out == ROOT or ROOT in out.parents:
