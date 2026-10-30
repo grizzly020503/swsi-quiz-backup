@@ -164,12 +164,20 @@ jobs:
           start=txt.find('甲、申論題部分')
           stop=txt.find('乙、測驗題部分')
           section=moex_sync.strip_headers(txt[start+len('甲、申論題部分'):stop])
+          rawsection=txt[start+len('甲、申論題部分'):stop]
+          rawmarkers=list(re.finditer(r'([一二])、',rawsection))
+          print('OFFICIAL_RAW_SECTION_MARKERS',[(m.group(1),m.start(),repr(rawsection[max(0,m.start()-65):m.end()+25])) for m in rawmarkers],flush=True)
+          for line in rawsection.splitlines():
+              if '二、' in line:
+                  compact=re.sub(r'\s+','',line.strip())
+                  reason = ('page_label' if re.search(r'^頁次[:：]',line.strip()) else
+                            'paper_code' if re.search(r'^代號[:：]',line.strip()) else
+                            'exam_heading' if moex_sync.TARGET_EXAM_PHRASE in line.strip() and '試題' in line.strip() else
+                            'metadata_prefix' if compact.startswith(('等別：','類科：','科目：','考試時間：')) else
+                            'none')
+                  print('OFFICIAL_SECOND_HEADING_LINE',repr(line[:190]),'STRIP_REASON',reason,flush=True)
           candidates=list(re.finditer(r'([一二])、',section))
-          print('OFFICIAL_PDF_RAW_ESSAY_MARKERS',[(m.group(1),m.start(),repr(section[max(0,m.start()-35):m.end()+18])) for m in candidates],flush=True)
-          print('OFFICIAL_PDF_BOUNDARY_SEGMENT_SCORE_FLAGS',[
-              bool(re.search(r'[（(]\s*\d+\s*分\s*[）)]',section[candidates[i].end():(candidates[i+1].start() if i+1<len(candidates) else len(section))]))
-              for i in range(len(candidates))
-          ],flush=True)
+          print('OFFICIAL_AFTER_STRIP_ESSAY_MARKERS',[(m.group(1),m.start()) for m in candidates],flush=True)
           PY
           if [ "$rc" -gt 2 ]; then exit "$rc"; fi
 
