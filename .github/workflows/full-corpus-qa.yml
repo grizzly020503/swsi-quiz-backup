@@ -153,6 +153,22 @@ jobs:
           rc=$?
           set -e
           echo "OFFICIAL_PDF_PARSER_DIAGNOSTIC_EXIT=$rc"
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          import moex_sync
+          raw=Path('/tmp/swsi-108-2-official.pdf').read_bytes()
+          txt=moex_sync.pdf_text(raw)
+          start=txt.find('甲、申論題部分')
+          stop=txt.find('乙、測驗題部分')
+          section=moex_sync.strip_headers(txt[start+len('甲、申論題部分'):stop])
+          candidates=list(re.finditer(r'([一二])、',section))
+          print('OFFICIAL_PDF_RAW_ESSAY_MARKERS',[(m.group(1),m.start(),repr(section[max(0,m.start()-35):m.end()+18])) for m in candidates],flush=True)
+          print('OFFICIAL_PDF_BOUNDARY_SEGMENT_SCORE_FLAGS',[
+              bool(re.search(r'[（(]\\s*\\d+\\s*分\\s*[）)]',section[candidates[i].end():(candidates[i+1].start() if i+1<len(candidates) else len(section))]))
+              for i in range(len(candidates))
+          ],flush=True)
+          PY
           if [ "$rc" -gt 2 ]; then exit "$rc"; fi
 
       - name: Preserve one-off 108-2 essay diagnostic evidence
