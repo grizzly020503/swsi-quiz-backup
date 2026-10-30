@@ -149,13 +149,13 @@ jobs:
                   parity_path=Path('/tmp/swsi-live-official-core-parity.json')
                   if parity_path.exists():
                       p=json.loads(parity_path.read_text(encoding='utf-8'))
-                      f.write(f"- Git-to-live Official Core parity: **{p['status']}**\\n")
-                      f.write(f"- Official wording discrepancies: **{p['summary']['official_wording_drift']}**\\n")
-                      f.write(f"- Grading discrepancies: **{p['summary']['grading_drift']}**\\n")
-                      f.write(f"- Missing/unpublished question IDs: {p['summary']['missing_live']}/{p['summary']['unpublished_live']}\\n")
+                      f.write(f"- Git-to-live Official Core parity: **{p['status']}**\n")
+                      f.write(f"- Official wording discrepancies: **{p['summary']['official_wording_drift']}**\n")
+                      f.write(f"- Grading discrepancies: **{p['summary']['grading_drift']}**\n")
+                      f.write(f"- Missing/unpublished question IDs: {p['summary']['missing_live']}/{p['summary']['unpublished_live']}\n")
                   else:
-                      f.write('- Official Core parity report missing; inspect job failure.\\n')
-                  f.write('- No automated official-core or answer modifications.\\n')
+                      f.write('- Official Core parity report missing; inspect job failure.\n')
+                  f.write('- No automated official-core or answer modifications.\n')
               else:
                   f.write('- No verified report produced: inspect the failed source check.\n')
           PY
