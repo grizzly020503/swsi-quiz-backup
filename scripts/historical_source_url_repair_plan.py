@@ -125,6 +125,8 @@ def main() -> int:
     parser.add_argument("--core-parity-out", type=Path, help="save current Git-vs-live official/grade parity outside repo")
     parser.add_argument("--fail-on-core-drift", action="store_true")
     args = parser.parse_args()
+    if args.fail_on_core_drift and not args.core_parity_out:
+        parser.error("--fail-on-core-drift requires --core-parity-out")
     if args.live:
         from build_question_shards import fetch_questions
         rows = fetch_questions()
@@ -132,9 +134,9 @@ def main() -> int:
         rows = json.loads(args.input.read_text(encoding="utf-8"))
     else:
         rows = load_local_shards()
-    report = propose(rows)
-    if args.fail_on_core_drift and not args.core_parity_out:
-        parser.error("--fail-on-core-drift requires --core-parity-out")
+    # Produce the independent current-shard/production-core evidence first.
+    # Invalid official URL evidence must still fail closed below, but must
+    # not hide a separately valid grading/wording diagnostic artifact.
     core = None
     if args.core_parity_out:
         from official_live_snapshot_parity import check_local
@@ -144,6 +146,9 @@ def main() -> int:
             raise SystemExit("REFUSED: core parity output must be outside the Git repository")
         core_out.parent.mkdir(parents=True, exist_ok=True)
         core_out.write_text(json.dumps(core, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    # URL identity is an independent release barrier. Even if this raises on
+    # malformed/wrong-exam URL, the above core artifact remains available.
+    report = propose(rows)
     if args.out:
         out = args.out.resolve()
         if out == ROOT or ROOT in out.parents:
