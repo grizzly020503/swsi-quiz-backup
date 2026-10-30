@@ -312,6 +312,50 @@ def main() -> int:
     assert "github.event.workflow_run.head_repository.full_name == github.repository" in live_job, "fork guard missing"
     assert "github.event.workflow_run.event != 'pull_request'" in live_job, "PR workflow_run guard missing"
 
+    # A monthly full-corpus schedule is a separate reliability requirement.
+    # Push/manual CI success must NEVER mask the absence/failure of the cron.
+    main_tasks = watchdog.validate_registry(watchdog.read_json(watchdog.DEFAULT_REGISTRY))
+    monthly_tasks = [t for t in main_tasks if t["id"] == "full-corpus-question-qa"]
+    assert len(monthly_tasks) == 1
+    monthly = monthly_tasks[0]
+    assert monthly["workflow_file"] == "full-corpus-qa.yml"
+    assert monthly["accepted_events"] == ["schedule"], (
+        "push/manual green would conceal a missed mandatory monthly full-corpus audit", monthly
+    )
+    assert monthly["expected_interval_hours"] == 744
+    assert monthly["max_age_hours"] == 840
+    assert monthly["criticality"] == "critical"
+    monthly_workflow = (ROOT / ".github/workflows/full-corpus-qa.yml").read_text(encoding="utf-8")
+    assert "cron: '47 3 1 * *'" in monthly_workflow, "monthly QA cron drifted"
+    manual_only = [
+        {"id": 301, "event": "workflow_dispatch", "conclusion": "success",
+         "run_started_at": "2026-10-30T05:59:00Z"},
+        {"id": 302, "event": "push", "conclusion": "success",
+         "run_started_at": "2026-10-30T05:59:30Z"},
+    ]
+    now = watchdog.parse_time("2026-10-30T06:00:00Z")
+    monthly_missing = watchdog.evaluate_task(monthly, manual_only, now)
+    assert monthly_missing["status"] == "missing", monthly_missing
+    monthly_failed = watchdog.evaluate_task(monthly, manual_only + [
+        {"id": 303, "event": "schedule", "conclusion": "failure",
+         "run_started_at": "2026-10-29T03:47:00Z"},
+    ], now)
+    assert monthly_failed["status"] == "failed" and monthly_failed["run_id"] == 303, monthly_failed
+    monthly_good = watchdog.evaluate_task(monthly, manual_only + [
+        {"id": 304, "event": "schedule", "conclusion": "success",
+         "run_started_at": "2026-10-01T03:47:00Z"},
+    ], now)
+    assert monthly_good["status"] == "healthy" and monthly_good["run_id"] == 304, monthly_good
+    monthly_stale = watchdog.evaluate_task(monthly, manual_only + [
+        {"id": 305, "event": "schedule", "conclusion": "success",
+         "run_started_at": "2026-09-01T03:47:00Z"},
+    ], now)
+    assert monthly_stale["status"] == "stale" and monthly_stale["run_id"] == 305, monthly_stale
+    blocking = watchdog.build_report(
+        [monthly], lambda _: manual_only, now
+    )
+    assert blocking["summary"]["blocking"] == 1, blocking
+
     # Daily Official PDF batch is a real scheduled source audit, not a PR
     # or manual run. A green manual dispatch must not conceal missed cron work.
     live_tasks = watchdog.validate_registry(watchdog.read_json(watchdog.DEFAULT_REGISTRY))
