@@ -41,6 +41,25 @@ def test_contract():
             path, "read-only CI must run on PR and main push"
         )
     assert "python scripts/moex_sync_dispatch_guard_selftest.py" in checks
+    # GitHub's event filter is NOT the authorization boundary by itself.
+    # The three deployed Edge Function source policies must agree and fail
+    # closed on the old push token even if a workflow is later misconfigured.
+    only_events = 'allowedEvents: new Set(["schedule", "workflow_dispatch"])'
+    forbidden = 'allowedEvents: new Set(["schedule", "workflow_dispatch", "push"])'
+    for relative in (
+        "supabase/functions/import-moex-social-worker/index.ts",
+        "supabase/functions/sync-essay-enrichment/index.ts",
+        "supabase/functions/sync-legal-watch/index.ts",
+    ):
+        source = (ROOT / relative).read_text(encoding="utf-8")
+        assert source.count(only_events) == 1, (relative, "MOEX OIDC event restriction missing")
+        assert forbidden not in source, (relative, "push OIDC still authorized")
+        assert "moex-social-worker-sync.yml@refs/heads/main" in source
+        assert "verifyGitHubActionsOidcToken" in source
+    oidc_test = (ROOT / "supabase/functions/_shared/github_actions_oidc_test.ts").read_text(
+        encoding="utf-8"
+    )
+    assert "MOEX legal-watch policy allows main schedule/manual but rejects push" in oidc_test
     print("MOEX WRITE-CAPABLE SYNC TRIGGER GUARD OK: no push/import, main-only scheduled/manual; PR QA retained")
 
 
