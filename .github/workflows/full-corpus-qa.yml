@@ -111,6 +111,59 @@ jobs:
           python -m py_compile scripts/moex_essay_extraction_probe.py scripts/moex_essay_extraction_probe_selftest.py
           python scripts/moex_essay_extraction_probe_selftest.py
 
+      - name: One-off 108-2 immutable MOEX essay source probe (PR diagnostics only)
+        if: github.event_name == 'pull_request' && github.head_ref == 'qa/sha-bound-moex-essay-parser-diagnostic-20261031'
+        timeout-minutes: 3
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check 'pypdf==5.9.0' 'pdfplumber==0.11.6' 'requests==2.32.5'
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          import urllib.request
+          import hashlib
+          from scripts.moex_essay_extraction_probe import registry_row
+          row = registry_row("108-2", "社會工作研究方法")
+          url = row["url"]
+          u = urlsplit(url)
+          if u.scheme != "https" or u.hostname != "wwwq.moex.gov.tw" or u.username or u.password or u.path != "/exam/wHandExamQandA_File.ashx":
+              raise ValueError("wrong official source URL")
+          class OfficialOnly(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, request, fp, code, msg, headers, newurl):
+                  r = urlsplit(newurl)
+                  if r.scheme != "https" or r.hostname != "wwwq.moex.gov.tw" or r.username or r.password or r.path != "/exam/wHandExamQandA_File.ashx":
+                      raise ValueError("official PDF redirected outside trusted host/path")
+                  return super().redirect_request(request, fp, code, msg, headers, newurl)
+          req = urllib.request.Request(url, headers={"User-Agent": "SWSI-official-essay-diagnostic/1.0"})
+          with urllib.request.build_opener(OfficialOnly()).open(req, timeout=20) as response:
+              raw = response.read(15 * 1024 * 1024 + 1)
+          observed = hashlib.sha256(raw).hexdigest()
+          print("OFFICIAL_PDF_OBSERVED_SHA256="+observed, flush=True)
+          print("OFFICIAL_PDF_PINNED_SHA256="+row["pdf_sha256"], flush=True)
+          if len(raw)>15*1024*1024 or not raw.startswith(b"%PDF-") or observed != row["pdf_sha256"]:
+              raise ValueError("official PDF raw bytes mismatch pinned source; no parsing")
+          Path("/tmp/swsi-108-2-official.pdf").write_bytes(raw)
+          PY
+          set +e
+          python scripts/moex_essay_extraction_probe.py \
+            --pdf /tmp/swsi-108-2-official.pdf \
+            --session 108-2 --subject '社會工作研究方法' \
+            --out /tmp/swsi-108-2-essay-probe.json
+          rc=$?
+          set -e
+          echo "OFFICIAL_PDF_PARSER_DIAGNOSTIC_EXIT=$rc"
+          if [ "$rc" -gt 2 ]; then exit "$rc"; fi
+
+      - name: Preserve one-off 108-2 essay diagnostic evidence
+        if: always() && github.event_name == 'pull_request' && github.head_ref == 'qa/sha-bound-moex-essay-parser-diagnostic-20261031'
+        uses: actions/upload-artifact@v4
+        with:
+          name: moex-108-2-essay-verified-diagnostic
+          path: /tmp/swsi-108-2-essay-probe.json
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Audit all manifest sessions through effective exam profiles
         run: |
           set +e
