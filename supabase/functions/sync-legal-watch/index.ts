@@ -15,7 +15,7 @@ const LEGAL_WATCH_SYNC_POLICY: GitHubActionsOidcPolicy = {
   allowedWorkflowRefs: new Set([
     "grizzly020503/swsi-quiz-backup/.github/workflows/moex-social-worker-sync.yml@refs/heads/main",
   ]),
-  allowedEvents: new Set(["schedule", "workflow_dispatch", "push"]),
+  allowedEvents: new Set(["schedule", "workflow_dispatch"]),
 };
 
 type WatchRecord = {

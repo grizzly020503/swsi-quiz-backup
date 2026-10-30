@@ -9,7 +9,7 @@ const IMPORT_SYNC_POLICY: GitHubActionsOidcPolicy = {
   allowedWorkflowRefs: new Set([
     "grizzly020503/swsi-quiz-backup/.github/workflows/moex-social-worker-sync.yml@refs/heads/main",
   ]),
-  allowedEvents: new Set(["schedule", "workflow_dispatch", "push"]),
+  allowedEvents: new Set(["schedule", "workflow_dispatch"]),
 };
 const EXAM_TYPE = "專門職業及技術人員高等考試社會工作師";
 const ALLOWED_SUBJECTS = ["社會工作","社會工作直接服務","社會政策與社會立法","人類行為與社會環境","社會工作研究方法"];

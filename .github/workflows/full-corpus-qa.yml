@@ -24,6 +24,11 @@ on:
       - 'scripts/historical_source_url_repair_plan_selftest.py'
       - 'scripts/official_live_snapshot_parity.py'
       - 'scripts/official_live_snapshot_parity_selftest.py'
+      - 'scripts/moex_essay_extraction_probe.py'
+      - 'scripts/moex_essay_extraction_probe_selftest.py'
+      - 'scripts/moex_sync.py'
+      - '.github/workflows/moex-social-worker-sync.yml'
+      - 'scripts/moex_sync_dispatch_guard_selftest.py'
       - 'data/moex_source_subjects.v1.json'
       - 'data/exam_scheme_registry.v1.json'
       - 'data/question_qa_policy_v1.json'
@@ -48,6 +53,11 @@ on:
       - 'scripts/historical_source_url_repair_plan_selftest.py'
       - 'scripts/official_live_snapshot_parity.py'
       - 'scripts/official_live_snapshot_parity_selftest.py'
+      - 'scripts/moex_essay_extraction_probe.py'
+      - 'scripts/moex_essay_extraction_probe_selftest.py'
+      - 'scripts/moex_sync.py'
+      - '.github/workflows/moex-social-worker-sync.yml'
+      - 'scripts/moex_sync_dispatch_guard_selftest.py'
       - 'data/moex_source_subjects.v1.json'
       - 'data/exam_scheme_registry.v1.json'
       - 'data/question_qa_policy_v1.json'
@@ -101,6 +111,16 @@ jobs:
           python -m py_compile scripts/historical_source_url_repair_plan.py scripts/historical_source_url_repair_plan_selftest.py
           python scripts/historical_source_url_repair_plan_selftest.py
           python scripts/official_live_snapshot_parity_selftest.py
+
+      - name: Test MOEX official essay parser failure diagnosis (synthetic, read only)
+        run: |
+          python -m py_compile scripts/moex_essay_extraction_probe.py scripts/moex_essay_extraction_probe_selftest.py
+          python scripts/moex_essay_extraction_probe_selftest.py
+
+      - name: Prove MOEX write-capable sync cannot run from code push or PR
+        run: |
+          python -m py_compile scripts/moex_sync_dispatch_guard_selftest.py
+          python scripts/moex_sync_dispatch_guard_selftest.py
 
       - name: Audit all manifest sessions through effective exam profiles
         run: |

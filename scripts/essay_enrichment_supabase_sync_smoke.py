@@ -46,7 +46,7 @@ def main() -> int:
         "verifyGitHubActionsOidcToken",
         "ESSAY_SYNC_POLICY",
         "moex-social-worker-sync.yml@refs/heads/main",
-        'new Set(["schedule", "workflow_dispatch", "push"])',
+        'new Set(["schedule", "workflow_dispatch"])',
         "GitHub Actions OIDC authorization rejected",
         '.from("essays")',
         '.select("id")',

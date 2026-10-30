@@ -134,6 +134,21 @@ def parse_essays(text, subject, exam_code, roc_year, round_name):
     part = text.split("甲、申論題部分", 1)[1].split("乙、測驗題部分", 1)[0]
     part = strip_headers(part)
     matches = list(re.finditer(r"(?m)^\s*([一二])、\s*", part))
+    if len(matches) != 2:
+        # Some official pypdf text streams join headings inline or insert
+        # whitespace between a numeral and its comma. A bounded fallback requires exactly
+        # two ordered major essay numbers and BOTH separated bodies with
+        # explicit points. Never use a fuzzy single-marker guess.
+        inline = list(re.finditer(r"([一二])\s*、[ \t]*", part))
+        if ([m.group(1) for m in inline] == ["一", "二"]
+                and (not matches or matches[0].start(1) == inline[0].start(1))):
+            spans = (
+                part[inline[0].end():inline[1].start()],
+                part[inline[1].end():],
+            )
+            explicit_score = r"[（(]\s*\d+\s*分\s*[）)]"
+            if all(re.search(explicit_score, body) for body in spans):
+                matches = inline
     essays = []
     for i, m in enumerate(matches[:2]):
         start = m.end()
