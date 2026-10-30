@@ -68,6 +68,32 @@ def main() -> int:
         assert generated["production_written"] is False
         assert generated["release_approved"] is False
 
+    # The monthly source + full Official Core/grade check shares one public
+    # API snapshot. One altered answer must fail without rewriting that answer.
+    with TemporaryDirectory(prefix="swsi-monthly-core-parity-") as temp:
+        top = Path(temp)
+        wrong = [dict(x) for x in rows]
+        wrong[0]["answer"] = "SYNTHETIC_UNAPPROVED_ANSWER"
+        input_path = top / "live.json"
+        url_output = top / "url.json"
+        core_output = top / "core.json"
+        input_path.write_text(json.dumps(wrong, ensure_ascii=False), encoding="utf-8")
+        cmd = [
+            sys.executable, str(Path(__file__).with_name("historical_source_url_repair_plan.py")),
+            "--input", str(input_path), "--out", str(url_output),
+            "--core-parity-out", str(core_output),
+            "--fail-on-proposals", "--fail-on-core-drift",
+        ]
+        run = subprocess.run(cmd, capture_output=True, text=True, timeout=90, check=False)
+        assert run.returncode == 2, (run.stdout, run.stderr)
+        assert json.loads(url_output.read_text(encoding="utf-8"))["proposed_url_changes"] == 0
+        core = json.loads(core_output.read_text(encoding="utf-8"))
+        assert core["status"] == "HOLD_REVIEW_DRIFT"
+        assert core["summary"]["grading_drift"] == 1
+        assert core["summary"]["official_wording_drift"] == 0
+        assert not core["database_written"] and not core["release_approved"]
+        assert wrong[0]["answer"] == "SYNTHETIC_UNAPPROVED_ANSWER"
+
     code_bad = [dict(r) for r in rows]
     code_bad[index]["source_exam_code"] = "000000"
     must_reject(code_bad, "exam_code disagreement")
