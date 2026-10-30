@@ -48,6 +48,27 @@ def main():
     assert [m["marker"] for m in normal["exact_question_markers"]] == ["一", "二"]
     assert not normal["human_approval"] and not normal["release_approved"]
 
+    # Official PDF points can contain whitespace inside the parentheses.
+    # Both markers must be interpreted as 25, not silently replaced by 20.
+    odd_spacing = clean.replace("（25 分）", "（ 25 分 ）")
+    normalized = probe.diagnose(odd_spacing, parse)
+    assert normalized["legacy_essay_count"] == 2
+    assert normalized["legacy_essay_points"] == ["25", "25"]
+
+    # Existing old behavior guessed a default of 20 for scoreless Official Core.
+    # New behavior MUST fail closed for a normally segmented two-essay PDF.
+    no_explicit_score = clean.replace("內容。（25 分）", "內容。")
+    try:
+        parse(no_explicit_score)
+    except RuntimeError as exc:
+        assert "配分無法從 PDF 確認" in str(exc), str(exc)
+        assert "第 2 題" in str(exc), str(exc)
+    else:
+        raise AssertionError("scoreless official essay was wrongly accepted")
+
+    # This check is deliberately not an 'approved official content' test.
+    # It guards import safety only; normal source comparison stays manual.
+
     # An embedded section-label spacing change hides both valid questions.
     missing = clean.replace("乙、測驗題部分", "乙 、 測 驗 題 部 分")
     result = probe.diagnose(missing, parse)
