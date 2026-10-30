@@ -66,6 +66,13 @@ def main():
     assert "possible_inline_or_spaced_question_markers" in result["suspected_extraction_stages"]
     assert [x["marker"] for x in result["diagnostic_only_relaxed_markers"]] == ["一", "二"]
 
+    # The real pinned 108-2 PDF text places whitespace between the second
+    # numeral and its punctuation, not merely before an inline heading.
+    pdf_spaced_heading = clean.replace("\n二、說明", "二  、說明")
+    spaced = probe.diagnose(pdf_spaced_heading, parse)
+    assert spaced["legacy_essay_count"] == 2
+    assert spaced["legacy_essay_points"] == ["25", "25"]
+
     # Incomplete or ambiguous source markers must NOT trigger fallback.
     no_points = inline.replace("同意書應包括哪些內容。（25 分）", "同意書應包括哪些內容。")
     assert probe.diagnose(no_points, parse)["legacy_essay_count"] == 1
