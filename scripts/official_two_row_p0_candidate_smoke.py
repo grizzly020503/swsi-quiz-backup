@@ -147,6 +147,9 @@ def main():
     lock = json.loads((ROOT / 'data/official_exam_readonly.lock.json').read_text())
     from official_111_2_shared_context_six_smoke import validate_overlay as reverse_six
     six_proof=json.loads((ROOT/'audit/official_111_2_shared_context_six_20261031.json').read_text())
+    from official_next_three_p0_source_smoke import validate_overlay as reverse_three
+    three_proof=json.loads((ROOT/'audit/official_next_three_p0_source_candidate_20261031.json').read_text())
+    rows,lock,manifest_raw=reverse_three(three_proof,rows,lock,manifest_raw)
     rows,lock,manifest_raw=reverse_six(six_proof,rows,lock,manifest_raw)
     validate_overlay(proof, rows, lock, manifest_raw)
     for kind in ('target-text', 'answer', 'other-row', 'target-lock','source-proof','manifest'):
