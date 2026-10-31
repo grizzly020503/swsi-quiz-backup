@@ -41,7 +41,7 @@ def projected_parent_shard_bytes(filename):
     actual=next(x for x in document['questions'] if x['id']==c['id'])
     assert actual==c['full_after']
     actual.clear();actual.update(c['full_before'])
-    prior=(json.dumps(document,ensure_ascii=False,separators=(',',':'))+'\\n').encode()
+    prior=(json.dumps(document,ensure_ascii=False,separators=(',',':'))+'\n').encode()
     assert len(prior)==c['shard_before_bytes'] and digest(prior)==c['shard_before_sha256']
     return prior
 
