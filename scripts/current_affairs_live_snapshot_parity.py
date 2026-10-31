@@ -214,7 +214,7 @@ def main() -> int:
         if out == ROOT or ROOT in out.parents:
             parser.error("report must be outside the repository")
     result = compare(ROOT, lambda kind: http_read(kind, args.cache_bust))
-    print("SWSI CLOUDFARE PUBLIC SNAPSHOT PARITY " + result["status"])
+    print("SWSI CLOUDFLARE PUBLIC SNAPSHOT PARITY " + result["status"])
     for kind, d in result["snapshots"].items():
         print(f"{kind}: {d['status']} expected={d['expected_generated_at']} "
               f"live={d['live_generated_at'] or 'unknown'} "
