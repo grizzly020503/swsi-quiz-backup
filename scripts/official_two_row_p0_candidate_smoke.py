@@ -69,7 +69,8 @@ def validate_overlay(proof: dict, rows: list[dict], lock: dict,
         six_items = {x['id']: x for x in six_proof['changes']}
         assert len(six_items) == 6
     for shard in after_manifest['shards']:
-        payload = json.loads((ROOT / 'cdn/question-shards' / shard['file']).read_bytes())
+        from official_r105207_ds106134_candidate_smoke import projected_parent_shard_bytes
+        payload = json.loads(projected_parent_shard_bytes(shard['file']))
         assert len(payload['questions']) == shard['question_count']
         for item in payload['questions']:
             assert item['id'] in index
@@ -147,6 +148,9 @@ def main():
     lock = json.loads((ROOT / 'data/official_exam_readonly.lock.json').read_text())
     from official_111_2_shared_context_six_smoke import validate_overlay as reverse_six
     six_proof=json.loads((ROOT/'audit/official_111_2_shared_context_six_20261031.json').read_text())
+    from official_r105207_ds106134_candidate_smoke import validate_overlay as reverse_two_more
+    new_p=json.loads((ROOT/'audit/official_r105207_ds106134_source_candidate_20261031.json').read_text())
+    rows,lock,manifest_raw=reverse_two_more(new_p,rows,lock,manifest_raw)
     rows,lock,manifest_raw=reverse_six(six_proof,rows,lock,manifest_raw)
     validate_overlay(proof, rows, lock, manifest_raw)
     for kind in ('target-text', 'answer', 'other-row', 'target-lock','source-proof','manifest'):
