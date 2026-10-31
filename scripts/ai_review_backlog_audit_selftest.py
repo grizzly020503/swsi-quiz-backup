@@ -50,7 +50,9 @@ def main() -> None:
     rows[4]["accepted_answers"] = ["A", "B"]
     rows[4]["analysis_error"] = "AI qwen/qwen3.6-27b HTTP 405"  # multi takes priority
     rows[5]["grading_mode"] = "all_credit"
+    rows[5]["answer"] = "一律給分"  # Official MOEX marker, not A-D
     rows[6]["grading_mode"] = "any_answer"
+    rows[6]["answer"] = "一律給分"  # Both special modes use this sentinel
     result = audit(rows)
     assert result["total_historical_mcq"] == 4800
     assert result["analysis_status"]["review"] == 7
@@ -80,13 +82,19 @@ def main() -> None:
     require_fail(bad, "invalid accepted_answers")
     bad = deepcopy(rows); bad[4]["accepted_answers"] = ["B", "C"]
     require_fail(bad, "standard grading conflicts")
+    bad = deepcopy(rows); bad[0]["answer"] = "一律給分"
+    require_fail(bad, "invalid standard official answer")
+    bad = deepcopy(rows); bad[5]["answer"] = "A"
+    require_fail(bad, "invalid special-credit official answer")
+    bad = deepcopy(rows); bad[6]["accepted_answers"] = ["A"]
+    require_fail(bad, "invalid special-credit official answer")
     bad = deepcopy(rows); bad[0]["analysis_error"] = ["unexpected"]
     require_fail(bad, "invalid analysis error type")
     bad = deepcopy(rows); bad[0].pop("analysis_error")
     require_fail(bad, "malformed or incomplete")
     bad = deepcopy(rows); bad[0]["year"] = "116"
     require_fail(bad, "unexpected historic")
-    print("AI REVIEW BACKLOG TRIAGE SELFTEST PASS: 4800 historical, 7 review cases, 10 fail-closed variants; no writes")
+    print("AI REVIEW BACKLOG TRIAGE SELFTEST PASS: 4800 historical, 7 review cases, 13 fail-closed variants; no writes")
 
 
 if __name__ == "__main__":
