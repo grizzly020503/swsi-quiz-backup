@@ -3,7 +3,7 @@
   "status": "DRAFT_NO_GO",
   "base_main_sha": "e3fb69e77870164d3c1e18b89e56878969bc0aee",
   "source_candidate_pr": 506,
-  "dataset_revision": "0515b76fa7b331c5db07",
+  "dataset_revision": "6c40323128a348851c7a",
   "changed_row_count": 4,
   "mcq_total": 4800,
   "essay_total": 240,
@@ -118,7 +118,7 @@
       "shard": "108-2.json",
       "official_pdf_sha256": "78e9473d144f9165622f02ac3e5a004658b0ca7dd516c436f56cfdf4042b3e9b",
       "before_core_sha256": "b160aabb425c0ee7b9c39b5af82deb63e8b7c48cc29d67dbcb6957b96bb1bbf4",
-      "after_core_sha256": "2ef9bff0394120e2cff86b8475a194aebc5296bbf6d14de0ab9bf2a1567fc281",
+      "after_core_sha256": "332f09aa770ebd8030006f446977ea7335f83c980815ea7903768d54486da26c",
       "changed_fields": [
         "question"
       ],
@@ -164,7 +164,7 @@
         "major": null,
         "topic": null,
         "keywords": null,
-        "question": "2005 年之前，社工人力並未普遍於社區組織中被運用，其原因有哪些? ①「社區發展工作綱要」強調社區組織的「志工化」 ②社區組織無能力聘用專職人力 ③政府支持補助社工專職人力，但社區幹部不接受 ④社區場域派系糾葛抑制社工之專業能力發揮",
+        "question": "2005 年之前，社工人力並未普遍於社區組織中被運用，其原因有那些？ ①「社區發展工作綱要」強調社區組織的「志工化」 ②社區組織無能力聘用專職人力 ③政府支持補助社工專職人力，但社區幹部不接受 ④社區場域派系糾葛抑制社工之專業能力發揮",
         "opt_a": "①②③",
         "opt_b": "②③④",
         "opt_c": "①③④",
@@ -393,13 +393,25 @@
       "bytes": 322470
     },
     "108-2.json": {
-      "sha256": "2aac3f9f6781146328aa32ac5766f133ec6e9fdf6867113d1021e0e9b69f58af",
-      "bytes": 309340
+      "sha256": "9e1ef9e810721fbd1c0d6880dfc0e0ece36f2b671d64de102c3c6dc1a9447109",
+      "bytes": 309342
     },
     "109-2.json": {
       "sha256": "a3b43d24d411105e849f100170905d47f44a94a0b7f9eaddf01d2a1361fd2f61",
       "bytes": 312253
     }
   },
-  "current_manifest_sha256": "ebcb3bc9c81ca777d40eb131dce139e6b347911dc16efb7b3ab5e8d768045076"
+  "current_manifest_sha256": "176829e929257e4a01b6ffcd01ce84d4ab44cbba1cf5a64c1e598f7d24725c62",
+  "official_visual_review": {
+    "reviewed_on": "2026-10-31",
+    "method": "model visual comparison of MOEX PDF screenshot, not independent human signoff",
+    "subject": "社會工作直接服務",
+    "session": "108-2",
+    "question": "38",
+    "pdf_display_page": "4-4",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0602&t=Q",
+    "verified_phrase": "其原因有那些？",
+    "previous_draft_phrase": "其原因有哪些?",
+    "source_pdf_bytes_rehashed_in_this_turn": false
+  }
 }
