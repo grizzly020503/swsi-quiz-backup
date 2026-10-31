@@ -85,7 +85,7 @@ def validate(a,cross,manifest):
     assert sum(x['staged_in_pr499'] for x in mcq)==8
     assert {x['id'] for x in mcq if x['staged_in_pr499']}==CANDIDATE_IDS
     assert len({x['id'] for x in mcq if x['field_count']>=3})==26
-    assert all(x['staged_in_pr499'] is False if x['kind']=='ESSAY' else True for x in a['items'])
+    assert all(not x.get('staged_in_pr499', False) for x in essays)
     assert all(x['human_approval'] is False and x['release_approved'] is False for x in cross['targets'])
 
 def main():
