@@ -57,6 +57,28 @@ def main() -> int:
     assert ok == 0 and "[backup-availability]" in message, message
     assert backup == ["Netlify fallback"], backup
 
+    # The opposite failure direction must remain independent too:
+    # a dead Cloudflare primary is not disguised by a reachable Netlify backup.
+    primary_error_labels = []
+    healthy_primary = fake_status(primary_error_labels)
+
+    def dead_primary(label, url, expected=200, *, method="GET", headers=None):
+        if label == "Cloudflare home":
+            raise urllib.error.URLError("synthetic primary unavailable")
+        return healthy_primary(label, url, expected, method=method, headers=headers)
+
+    try:
+        run_mode(["--primary-only"], dead_primary)
+    except urllib.error.URLError as exc:
+        assert "synthetic primary unavailable" in str(exc), exc
+    else:
+        raise AssertionError("primary failure must fail its own independent uptime gate")
+
+    independent_backup = []
+    ok, message = run_mode(["--backup-only"], fake_status(independent_backup))
+    assert ok == 0 and "[backup-availability]" in message, message
+    assert independent_backup == ["Netlify fallback"], independent_backup
+
     legacy = []
     ok, _ = run_mode([], fake_status(legacy))
     assert ok == 0 and "Cloudflare home" in legacy and "Netlify fallback" in legacy
