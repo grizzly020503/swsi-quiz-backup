@@ -312,7 +312,9 @@ jobs:
         id: stage3
         if: always()
         continue-on-error: true
-        run: python scripts/historical_law_article_resolver.py
+        run: |
+          python scripts/historical_law_article_resolver.py \
+            --moj-api-targets auto/qa/historical_law_moj_api_targets.v1.json
 
       - name: Validate Stage 3 if available
         if: always()

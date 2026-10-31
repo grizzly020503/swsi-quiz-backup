@@ -94,6 +94,8 @@ lock=json.loads((R/'data/official_exam_readonly.lock.json').read_text())
 # No unrelated-row allowance or old-genogram quarantine is weakened.
 from official_shared_context_13row_integration_smoke import validate_transition
 shared_proof=json.loads((R/'audit/official_shared_context_release_transition_20261031.json').read_text())
+from official_ten_source_integration_smoke import reverse_current
+all_rows,lock,manifest_raw=reverse_current(all_rows,lock,manifest_raw)
 from official_five_source_mcq_smoke import validate_overlay as reverse_five
 five_proof=json.loads((R/'audit/official_five_source_corrections_20261031.json').read_text())
 all_rows,lock,manifest_raw=reverse_five(five_proof,all_rows,lock,manifest_raw)

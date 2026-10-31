@@ -66,6 +66,8 @@ def main():
         assert hashlib.sha256(b).hexdigest()==meta['sha256'] and len(b)==meta['bytes']
         payload=json.loads(b);assert len(payload['questions'])==meta['question_count'];rows+=payload['questions']
     lock=json.loads((R/'data/official_exam_readonly.lock.json').read_text())
+    from official_ten_source_integration_smoke import reverse_current
+    rows,lock,raw=reverse_current(rows,lock,raw)
     from official_five_source_mcq_smoke import validate_overlay as reverse_five
     five_proof=json.loads((R/'audit/official_five_source_corrections_20261031.json').read_text())
     rows,lock,raw=reverse_five(five_proof,rows,lock,raw)

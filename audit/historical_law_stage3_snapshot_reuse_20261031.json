@@ -1,0 +1,36 @@
+{
+  "scope": "Stage 3 reuses the same verified MOJ Open API snapshot as Stage 4",
+  "failed_run": "https://github.com/grizzly020503/swsi-quiz-backup/actions/runs/41196814623",
+  "failed_head": "d6cb92db27cfa2dc8fd7ea0641678cb72bb6b7b5",
+  "failure": "Independent LawAll HTML request for volunteer law exhausted retries with network unreachable. One other low-confidence control remained a legitimate review. Calibration was 8/10; Stage 3 and Stage 5 correctly held.",
+  "captured_artifact": "historical-law-stage2-6-live-evidence",
+  "captured_api_snapshot_sha256": "cab89a177acc346e3d909baf4aca50c046f1c01a28bed4c7ee61048a739f28c3",
+  "captured_stage3_sha256": "152122380164504bbefd0c1f74a5e4e0448433d824d5b1743c3da61e1ed07b06",
+  "replay": {
+    "network_requests": 0,
+    "mappings": 85,
+    "targets": 75,
+    "explicit_controls": 10,
+    "top1_matches": 9,
+    "top3_matches": 9,
+    "false_machine_candidates": 0,
+    "law_source_errors": 0,
+    "question_shard_errors": 0,
+    "stage5_calibration_safe": true,
+    "stage5_note": "Replay used the captured Stage 4 artifact. Its remaining eight blocked records remain blocked; this does not replace a new complete live run."
+  },
+  "verification": [
+    "Existing source identity, article payload and per-article hashes checked by the Stage 4 validator",
+    "Additional law-name, exact official URL, duplicate PCode and record-count rejection",
+    "Network-forbidden snapshot positive regression and seven corrupted-evidence cases pass",
+    "Missing source stays in the calibration denominator with a visible source error",
+    "Existing hybrid snapshot and Stage 5 selftests pass",
+    "Ten-source transition with twelve negative cases and Official Core 4800/240 locks pass"
+  ],
+  "acceptance_threshold_changed": false,
+  "official_core_changed_by_this_fix": false,
+  "historical_version_checked_count": 0,
+  "independent_human_approval": false,
+  "production_written_by_this_fix": false,
+  "backup_changed": false
+}

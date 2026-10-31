@@ -83,7 +83,8 @@ def validate_overlay(proof, rows, lock, manifest_raw):
         old_index[ident].clear();old_index[ident].update(before)
         old_lock['mcq'][ident]=item['before_core_lock_sha256']
     for ent in after_m['shards']:
-        raw=(ROOT/'cdn/question-shards'/ent['file']).read_bytes()
+        from official_ten_source_integration_smoke import projected_parent_shard_bytes
+        raw=projected_parent_shard_bytes(ent['file'])
         assert sha(raw)==ent['sha256'] and len(raw)==ent['bytes']
         original=json.loads(raw)
         assert len(original['questions'])==ent['question_count']==200
@@ -113,6 +114,8 @@ def main():
         assert len(b)==entry['bytes'] and sha(b)==entry['sha256']
         rows+=json.loads(b)['questions']
     locks=json.loads((ROOT/'data/official_exam_readonly.lock.json').read_text())
+    from official_ten_source_integration_smoke import reverse_current
+    rows,locks,raw=reverse_current(rows,locks,raw)
     validate_overlay(proof,rows,locks,raw)
     for kind in ('target-question','wrong-answer','other-row','bad-lock','bad-source','bad-approval','bad-manifest','bad-enrichment','bad-source-page','bad-correction-source'):
         p,r,l=copy.deepcopy((proof,rows,locks))
