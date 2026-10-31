@@ -64,10 +64,16 @@ def validate_scope(rows: Any) -> None:
             or len(accepted) != len(set(accepted))
         ):
             raise ValueError("invalid accepted_answers contract")
-        if row["answer"] not in ("A", "B", "C", "D"):
-            raise ValueError("invalid official answer contract")
-        if row["grading_mode"] == "standard" and accepted and row["answer"] not in accepted:
-            raise ValueError("standard grading conflicts with accepted answer set")
+        # Official MOEX special-credit rows store a literal Chinese marker,
+        # not an A/B/C/D letter. Validate against grading_mode instead of
+        # misclassifying all 16 reviewed special-credit rows as corrupt.
+        if row["grading_mode"] == "standard":
+            if row["answer"] not in ("A", "B", "C", "D"):
+                raise ValueError("invalid standard official answer contract")
+            if accepted and row["answer"] not in accepted:
+                raise ValueError("standard grading conflicts with accepted answer set")
+        elif row["answer"] != "一律給分" or accepted is not None:
+            raise ValueError("invalid special-credit official answer contract")
         if row["analysis_error"] is not None and not isinstance(row["analysis_error"], str):
             raise ValueError("invalid analysis error type")
     expected = {(y, r, s) for y in HISTORICAL_YEARS for r in ROUNDS for s in SUBJECTS}
