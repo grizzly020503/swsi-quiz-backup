@@ -15,6 +15,8 @@ on:
       - 'scripts/official_option_scenario_guard_selftest.py'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
       - 'scripts/official_ten_source_integration_smoke.py'
+      - 'scripts/official_1041_ds_three_ocr_candidate_selftest.py'
+      - 'audit/official_1041_ds_three_ocr_candidate_20261031.json'
       - 'audit/official_ten_source_release_transition_20261031.json'
       - 'audit/official_shared_context*.json'
       - 'audit/official_105_2_shared_context_20261028.json'
@@ -53,6 +55,8 @@ on:
       - 'scripts/official_option_scenario_guard_selftest.py'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
       - 'scripts/official_ten_source_integration_smoke.py'
+      - 'scripts/official_1041_ds_three_ocr_candidate_selftest.py'
+      - 'audit/official_1041_ds_three_ocr_candidate_20261031.json'
       - 'audit/official_ten_source_release_transition_20261031.json'
       - 'audit/official_shared_context*.json'
       - 'audit/official_105_2_shared_context_20261028.json'
@@ -120,6 +124,11 @@ jobs:
 
       - name: Verify immutable Official Core baseline
         run: python scripts/official_exam_readonly_guard.py
+
+      - name: 104-1 DS three OCR candidates are review-only (zero network)
+        run: |
+          python -m py_compile scripts/official_1041_ds_three_ocr_candidate_selftest.py
+          python scripts/official_1041_ds_three_ocr_candidate_selftest.py
 
       - name: Prevent wrong-subject historic MOEX sources in rebuilt shards
         run: python scripts/historical_source_url_guard_selftest.py
