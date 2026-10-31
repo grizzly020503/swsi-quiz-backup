@@ -66,6 +66,9 @@ def main():
         assert hashlib.sha256(b).hexdigest()==meta['sha256'] and len(b)==meta['bytes']
         payload=json.loads(b);assert len(payload['questions'])==meta['question_count'];rows+=payload['questions']
     lock=json.loads((R/'data/official_exam_readonly.lock.json').read_text())
+    from official_five_source_mcq_smoke import validate_overlay as reverse_five
+    five_proof=json.loads((R/'audit/official_five_source_corrections_20261031.json').read_text())
+    rows,lock,raw=reverse_five(five_proof,rows,lock,raw)
     validate_transition(proof,rows,lock,raw)
     for kind in ('target-wording','answer','source-url','unrelated-row','unrelated-lock','source-proof','old-lock','enrichment'):
         p,rs,lk=copy.deepcopy((proof,rows,lock));target=next(r for r in rs if r['id']=='R-105-2-14')
