@@ -77,4 +77,83 @@ try:
 finally:
     r.fetch_law_articles = orig
 
-print("HISTORICAL LAW ARTICLE RESOLVER SELFTEST OK")
+# The live pipeline already fetched the current corpus. A broken LawAll HTML
+# connection must not erase an otherwise verifiable calibration control.
+import copy
+import hashlib
+import json
+
+def digest(value):
+    return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True,
+                                    separators=(',', ':')).encode()).hexdigest()
+
+def snapshot(rows):
+    bound = [{**a, 'sha256': hashlib.sha256(a['text'].encode()).hexdigest()}
+             for a in rows]
+    identity = {
+        'endpoint': 'https://law.moj.gov.tw/api/ch/law/json',
+        'collection': 'law', 'update_date': '2026-10-31',
+        'pcode': 'D0050075', 'law_name': LAW,
+        'law_url': r.MOJ_ALL.format(pcode='D0050075'),
+        'modified_date': '20260101', 'article_count': len(bound),
+        'articles_sha256': digest(bound),
+    }
+    return {'schema_version': 1, 'record_count': 1, 'records': [{
+        **identity, 'source_identity_sha256': digest(identity), 'articles': bound,
+    }]}
+
+watch = {'records': [{'law_name': LAW, 'official_url': r.MOJ_ALL.format(pcode='D0050075')}]}
+links = {'cards': [{'law_name': LAW, 'questions': [explicit, {'question_id': 'Q6', 'stem': q6}]}]}
+captured = snapshot(articles)
+inputs = copy.deepcopy((captured, watch, links))
+orig = r.fetch_law_articles
+try:
+    def forbid_network(*args):
+        raise AssertionError('Snapshot mode must not fetch LawAll')
+    r.fetch_law_articles = forbid_network
+    report = r.build_report(links, watch, captured)
+    assert report['explicit_control_count'] == report['explicit_control_top1_match_count'] == 1
+    assert report['explicit_control_false_machine_candidate_count'] == 0
+    assert report['law_source_error_count'] == 0
+    assert report['historical_version_checked_count'] == 0
+    assert report['records'][0]['suggested_article'] == '6'
+    assert (captured, watch, links) == inputs
+
+    missing = r.build_report(links, watch, {'schema_version': 1, 'record_count': 0, 'records': []})
+    assert missing['route_counts'] == {'source_failure': 1}
+    assert missing['explicit_control_count'] == 1  # never shrink the denominator
+    assert missing['explicit_control_top1_match_count'] == 0
+    assert missing['controls'][0]['source_error']
+
+    for kind in ('text', 'endpoint', 'name', 'url', 'count', 'duplicate', 'identity'):
+        bad = copy.deepcopy(captured)
+        row = bad['records'][0]
+        if kind == 'text':
+            row['articles'][0]['text'] += 'altered'
+        elif kind == 'endpoint':
+            row['endpoint'] = 'https://example.invalid/api'
+        elif kind == 'name':
+            row['law_name'] = '另一個法律'
+        elif kind == 'url':
+            row['law_url'] = 'https://example.invalid/?pcode=D0050075'
+        elif kind == 'count':
+            bad['record_count'] = 2
+        elif kind == 'duplicate':
+            bad['records'].append(copy.deepcopy(row)); bad['record_count'] = 2
+        else:
+            row['source_identity_sha256'] = '0' * 64
+        # A self-consistent checksum does not excuse the wrong law or origin.
+        if kind in ('name', 'url'):
+            identity = {k: row[k] for k in ('endpoint', 'collection', 'update_date',
+                'pcode', 'law_name', 'law_url', 'modified_date', 'article_count', 'articles_sha256')}
+            row['source_identity_sha256'] = digest(identity)
+        try:
+            r.build_report(links, watch, bad)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError('Invalid API snapshot accepted: ' + kind)
+finally:
+    r.fetch_law_articles = orig
+
+print("HISTORICAL LAW ARTICLE RESOLVER SELFTEST OK: snapshot reuse, missing-source hold and 7 invalid-evidence cases")

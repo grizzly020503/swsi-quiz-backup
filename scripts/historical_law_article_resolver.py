@@ -357,9 +357,42 @@ def strip_explicit_article_refs(stem: str) -> str:
     return EXPLICIT_ARTICLE_REF_RE.sub("", str(stem or ""))
 
 
-def build_report(links: dict, watch: dict) -> dict:
+def snapshot_law_articles(snapshot: dict, watch: dict, cards: list[dict]) -> tuple[dict, dict, dict]:
+    """Reuse hash-bound official API articles; never retry HTML after invalid evidence."""
+    # Import lazily: the Stage 4 validator also imports this resolver's text helpers.
+    from historical_law_stage4_snapshot_runner import verified_api_targets
+
+    targets = verified_api_targets(snapshot)
+    records = snapshot.get("records") or []
+    if snapshot.get("record_count") != len(records) or len(targets) != len(records):
+        raise ValueError("MOJ API snapshot count or duplicate PCode mismatch")
+    watch_map = hp.watch_record_map(watch)
+    articles_by_law, urls, errors = {}, {}, {}
+    for card in cards:
+        law = card["law_name"]
+        source = watch_map.get(hp.clean_text(law)) or {}
+        pcode = (hp.pcode_from_url(source.get("official_url")) or "").upper()
+        target = targets.get(pcode)
+        url = MOJ_ALL.format(pcode=pcode) if pcode else ""
+        urls[law] = url
+        articles_by_law[law] = []
+        if target is None:
+            errors[law] = "verified MOJ API snapshot missing target"
+        elif (hp.clean_text(target["law_name"]) != hp.clean_text(law)
+              or target["law_url"] != url):
+            raise ValueError(f"MOJ API snapshot law identity mismatch for {law}")
+        else:
+            articles_by_law[law] = target["articles"]
+            errors[law] = None
+    return articles_by_law, urls, errors
+
+
+def build_report(links: dict, watch: dict, api_snapshot: dict | None = None) -> dict:
     cards = links.get("cards") or []
-    articles_by_law, urls, errors = fetch_law_articles(watch, cards)
+    if api_snapshot is None:
+        articles_by_law, urls, errors = fetch_law_articles(watch, cards)
+    else:
+        articles_by_law, urls, errors = snapshot_law_articles(api_snapshot, watch, cards)
     option_map, shard_errors = load_question_options(links)
     records = []
     controls = []
@@ -401,6 +434,7 @@ def build_report(links: dict, watch: dict) -> dict:
                     "shadow_confidence": shadow_confidence,
                     "shadow_decision_reason": shadow_reason,
                     "shadow_false_machine_candidate": shadow_false_machine,
+                    **({"source_error": source_error} if source_error else {}),
                 })
                 continue
             if source_error:
@@ -463,11 +497,15 @@ def main() -> int:
     parser.add_argument("--links", default=str(hp.DEFAULT_LINKS))
     parser.add_argument("--legal-watch-report", default=str(hp.DEFAULT_WATCH))
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
+    parser.add_argument("--moj-api-targets", type=Path,
+                        help="reuse a verified official API snapshot; no LawAll requests")
     args = parser.parse_args()
 
     links = json.loads(Path(args.links).read_text(encoding="utf-8"))
     watch = json.loads(Path(args.legal_watch_report).read_text(encoding="utf-8"))
-    report = build_report(links, watch)
+    snapshot = (json.loads(args.moj_api_targets.read_text(encoding="utf-8"))
+                if args.moj_api_targets is not None else None)
+    report = build_report(links, watch, snapshot)
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
