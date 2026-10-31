@@ -92,7 +92,11 @@ def validate(a,cross,manifest):
 def main():
     a=json.loads(PATH.read_text(encoding='utf-8'))
     cross=json.loads(CROSSWALK.read_text(encoding='utf-8'))
-    manifest=json.loads(MANIFEST.read_text(encoding='utf-8'))
+    from official_r105207_ds106134_candidate_smoke import digest
+    newer=json.loads((ROOT/'audit/official_r105207_ds106134_source_candidate_20261031.json').read_text())
+    raw=MANIFEST.read_bytes()
+    assert digest(raw)==newer['new_manifest_sha256']
+    manifest=json.loads(newer['old_manifest_raw'])
     validate(a,cross,manifest)
     tests=('auto-clear','fake-human','review-removed','fake-staged-count','manifest-drift','candidate-cleared')
     for kind in tests:
