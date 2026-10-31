@@ -4,6 +4,7 @@
     "timezone": "UTC",
     "status_order": [
       "healthy",
+      "pending_first_run",
       "stale",
       "failed",
       "missing",
@@ -12,7 +13,8 @@
     "notes": [
       "This registry measures expected GitHub Actions task freshness.",
       "It does not prove independent monitoring of GitHub Actions itself.",
-      "External/independent heartbeat remains a separate P1-6 requirement."
+      "External/independent heartbeat remains a separate P1-6 requirement.",
+      "A new schedule may be pending only before its explicitly registered first due timestamp plus bounded grace; a completed failure still blocks immediately."
     ]
   },
   "tasks": [
@@ -58,7 +60,9 @@
       ],
       "expected_interval_hours": 744,
       "max_age_hours": 840,
-      "criticality": "critical"
+      "criticality": "critical",
+      "first_expected_at": "2026-11-01T03:47:00Z",
+      "first_run_grace_hours": 6
     },
     {
       "id": "official-pdf-batch-pipeline",

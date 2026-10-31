@@ -61,6 +61,8 @@ def validate_registry(payload: Any) -> list[dict]:
         # Such values must never disable or fake the time-based health gate.
         raw_expected = raw.get("expected_interval_hours")
         raw_max_age = raw.get("max_age_hours")
+        first_expected_at = raw.get("first_expected_at")
+        first_run_grace_hours = raw.get("first_run_grace_hours")
         if type(raw_expected) not in (int, float) or type(raw_max_age) not in (int, float):
             raise ValueError(f"{task_id or '<unknown>'}: interval fields must be JSON numbers (not booleans)")
         try:
@@ -89,6 +91,24 @@ def validate_registry(payload: Any) -> list[dict]:
             raise ValueError(f"{task_id}: max_age_hours must be >= expected_interval_hours > 0")
         if criticality not in {"low", "medium", "high", "critical"}:
             raise ValueError(f"{task_id}: invalid criticality {criticality!r}")
+        if first_expected_at is None:
+            if first_run_grace_hours is not None:
+                raise ValueError(f"{task_id}: first_run_grace_hours requires first_expected_at")
+        else:
+            if type(first_expected_at) is not str or not first_expected_at.endswith("Z"):
+                raise ValueError(f"{task_id}: first_expected_at must be an explicit UTC timestamp")
+            try:
+                first_due = parse_time(first_expected_at)
+            except (ValueError, TypeError) as exc:
+                raise ValueError(f"{task_id}: invalid first_expected_at") from exc
+            if first_due.isoformat().replace("+00:00", "Z") != first_expected_at:
+                raise ValueError(f"{task_id}: first_expected_at must be normalized ISO UTC")
+            if accepted_events != ["schedule"]:
+                raise ValueError(f"{task_id}: first expected run can only be a scheduled event")
+            if type(first_run_grace_hours) not in (int, float) or not math.isfinite(float(first_run_grace_hours)):
+                raise ValueError(f"{task_id}: first_run_grace_hours must be finite")
+            if not 0 <= float(first_run_grace_hours) <= 24:
+                raise ValueError(f"{task_id}: first_run_grace_hours must be between 0 and 24")
 
         normalized.append(
             {
@@ -99,6 +119,10 @@ def validate_registry(payload: Any) -> list[dict]:
                 "expected_interval_hours": expected,
                 "max_age_hours": max_age,
                 "criticality": criticality,
+                **({
+                    "first_expected_at": first_expected_at,
+                    "first_run_grace_hours": float(first_run_grace_hours),
+                } if first_expected_at is not None else {}),
             }
         )
     return normalized
@@ -253,6 +277,26 @@ def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
         "max_age_hours": task["max_age_hours"],
     }
     if not matching:
+        # The first schedule may not yet have been due. Never mistake a
+        # newly configured monthly cron for a missed run in the preceding month.
+        # This is an explicit one-time, bounded grace only: once expired,
+        # missing remains blocking as before, and a completed failure is
+        # evaluated below immediately regardless of grace.
+        first_due_raw = task.get("first_expected_at")
+        if first_due_raw:
+            due = parse_time(first_due_raw)
+            until = due + timedelta(hours=float(task["first_run_grace_hours"]))
+            if now < until:
+                return {
+                    **base,
+                    "status": "pending_first_run",
+                    "first_expected_at": first_due_raw,
+                    "grace_expires_at": until.isoformat().replace("+00:00", "Z"),
+                    "last_success_at": None,
+                    "age_hours": None,
+                    "run_id": None,
+                    "message": "first scheduled run is not yet overdue",
+                }
         return {
             **base,
             "status": "missing",
