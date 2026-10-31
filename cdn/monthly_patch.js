@@ -647,6 +647,7 @@ window.swsiEsc = swsiEsc;
       return;
     }
     const item=queue[idx], pct=Math.round((idx/queue.length)*100), mode=gradingMode(item), accepted=acceptedAnswers(item);
+    const figureReady=swsiOfficialFigureReady(item);
     let optHTML='';
     for(const k of ['A','B','C','D']){
       if(!item.options[k]) continue;
@@ -666,6 +667,9 @@ window.swsiEsc = swsiEsc;
         ' onclick="pick(\''+k+'\')" style="width:100%;text-align:left;font-family:inherit;color:inherit"><span class="lab">'+k+'</span><span>'+
         swsiEscLines(item.options[k])+'</span>'+marker+'</button>';
     }
+    // Runtime owner overrides the legacy renderer; never expose answer options
+    // until a required MOEX source figure has loaded successfully.
+    if(!figureReady)optHTML='<div class="pending" role="status">原圖未載入，本題不可作答；可略過且不計分。</div>';
 
     let expHTML='';
     if(answered){
@@ -699,12 +703,12 @@ window.swsiEsc = swsiEsc;
       '<div class="qcard"><div class="qmeta"><span class="tag subj">'+swsiEsc(item.subject)+'</span><span class="tag year">'+swsiEsc(item.year)+'年 '+swsiEsc(item.round)+'</span>'+
       (yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':'')+
       ((maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':'')+
-      legalBadge(item)+'</div>'+legalNotice(item)+'<div class="qtext">'+swsiEscLines(item.q)+'</div>'+optHTML+
-      (!answered?'<button class="btn" '+(selected?'':'disabled')+' onclick="submit()">送出答案</button>':'')+expHTML+'</div>';
+      legalBadge(item)+'</div>'+legalNotice(item)+'<div class="qtext">'+swsiEscLines(swsiOfficialFigureQuestion(item))+'</div>'+swsiOfficialFigureMarkup(item)+optHTML+
+      (!answered?(figureReady?'<button class="btn" '+(selected?'':'disabled')+' onclick="submit()">送出答案</button>':'<button class="btn ghost" onclick="next()">略過缺圖題（不計分）→</button>'):'')+expHTML+'</div>';
   };
 
   submit = function(){
-    if(!selected) return;
+    if(!selected || !swsiOfficialFigureReady(queue[idx])) return;
     answered=true;
     const item=queue[idx], correct=isCorrectAnswer(item,selected);
     sessionStats.done++;
@@ -5715,6 +5719,14 @@ html[data-fs="2"]{
   function gradeMode(q){return typeof window.gradingMode==='function'?window.gradingMode(q):'invalid';}
   function correct(q,picked){return typeof window.isCorrectAnswer==='function'?window.isCorrectAnswer(q,picked):false;}
   function label(q){return typeof window.answerLabel==='function'?window.answerLabel(q):('正確答案：'+E(q&&q.answer||''));}
+  // Image-dependent questions must fail closed when image helpers are unavailable.
+  function figureReady(q){return typeof window.swsiOfficialFigureReady==='function'
+    ?window.swsiOfficialFigureReady(q)
+    :!(q&&(q.id==='DS-113-2-13'||q.id==='R-114-2-12'));}
+  function figureMarkup(q){return typeof window.swsiOfficialFigureMarkup==='function'
+    ?window.swsiOfficialFigureMarkup(q):'';}
+  function figureStem(q){return typeof window.swsiOfficialFigureQuestion==='function'
+    ?window.swsiOfficialFigureQuestion(q):figureReady(q)?String(q&&q.q||''):'官方原圖不可用，暫停作答';}
 
   async function prepareLegacyStyle(){
     if(legacyStyleReady)return;
@@ -5770,9 +5782,9 @@ html[data-fs="2"]{
 
   function run(){
     var q=Q[idx],letters=['A','B','C','D'];
-    var options=letters.map(function(L){var t=q.options&&q.options[L];if(t==null||t==='')return '';return '<div class="mk-opt'+(ans[idx]===L?' sel':'')+'" id="mk-opt-'+L+'" onclick="MK.pick(\''+L+'\')"><span class="lab">('+L+')</span><span>'+E(t)+'</span></div>';}).join('');
+    var options=figureReady(q)?letters.map(function(L){var t=q.options&&q.options[L];if(t==null||t==='')return '';return '<div class="mk-opt'+(ans[idx]===L?' sel':'')+'" id="mk-opt-'+L+'" onclick="MK.pick(\''+L+'\')"><span class="lab">('+L+')</span><span>'+E(t)+'</span></div>';}).join(''):'<div class="mk-sub" role="status">原圖未載入，這題不可作答；缺圖時交卷不計分。</div>';
     var pal=Q.map(function(_,i){return '<div class="mk-cell'+(ans[i]!=null?' done':'')+(i===idx?' cur':'')+'" onclick="MK.jump('+i+')">'+(i+1)+'</div>';}).join('');
-    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer'+(limited&&left<=60?' warn':'')+'" id="mk-timer">'+(limited?fmt(left):'∞')+'</div><div class="mk-prog">第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length+'</div><button class="mk-btn go" onclick="MK.submit()">交卷</button></div><div class="mk-qcard"><div class="mk-qmeta">'+E(q.subject||'')+'　'+E(q.year||'')+' '+E(q.round||'')+'</div><div class="mk-q">'+E(q.q||'').replace(/\n/g,'<br>')+'</div>'+options+'</div><div class="mk-nav"><button class="mk-btn ghost" onclick="MK.go(-1)" '+(idx===0?'disabled':'')+'>‹ 上一題</button><button class="mk-btn ghost" onclick="MK.go(1)" '+(idx===Q.length-1?'disabled':'')+'>下一題 ›</button></div><div class="mk-pal">'+pal+'</div><button class="mk-btn go" style="width:100%;margin-top:18px" onclick="MK.submit()">交卷看結果</button></div>';
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer'+(limited&&left<=60?' warn':'')+'" id="mk-timer">'+(limited?fmt(left):'∞')+'</div><div class="mk-prog">第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length+'</div><button class="mk-btn go" onclick="MK.submit()">交卷</button></div><div class="mk-qcard"><div class="mk-qmeta">'+E(q.subject||'')+'　'+E(q.year||'')+' '+E(q.round||'')+'</div><div class="mk-q">'+E(figureStem(q)).replace(/\n/g,'<br>')+'</div>'+figureMarkup(q)+options+'</div><div class="mk-nav"><button class="mk-btn ghost" onclick="MK.go(-1)" '+(idx===0?'disabled':'')+'>‹ 上一題</button><button class="mk-btn ghost" onclick="MK.go(1)" '+(idx===Q.length-1?'disabled':'')+'>下一題 ›</button></div><div class="mk-pal">'+pal+'</div><button class="mk-btn go" style="width:100%;margin-top:18px" onclick="MK.submit()">交卷看結果</button></div>';
     window.scrollTo(0,0);
   }
   function tick(){left--;var el=document.getElementById('mk-timer');if(el){el.textContent=fmt(left);if(left<=60)el.classList.add('warn');}if(left<=0){if(timer)clearInterval(timer);timer=null;grade(true);}}
@@ -5780,12 +5792,14 @@ html[data-fs="2"]{
   function evaluateMockAnswers(items,answers){
     var rows=Array.isArray(items)?items:[];
     var picks=answers&&typeof answers==='object'?answers:{};
-    var invalid=rows.filter(function(q){return gradeMode(q)==='invalid';});
+    var excluded=rows.filter(function(q){return !figureReady(q);}).length;
+    var invalid=rows.filter(function(q){return figureReady(q)&&gradeMode(q)==='invalid';});
     if(invalid.length){
       return {blocked:true,total:rows.length,correct:0,answered:0,bySubj:{},wrong:[],results:[],invalidIds:invalid.map(function(q){return q&&q.id||'';})};
     }
-    var out={blocked:false,total:rows.length,correct:0,answered:0,bySubj:{},wrong:[],results:[],invalidIds:[]};
+    var out={blocked:false,total:rows.length-excluded,excluded:excluded,correct:0,answered:0,bySubj:{},wrong:[],results:[],invalidIds:[]};
     rows.forEach(function(q,i){
+      if(!figureReady(q))return;
       var picked=picks[i]!=null?picks[i]:null;
       var gm=gradeMode(q),ok=correct(q,picked);
       if(picked!=null)out.answered++;
@@ -5825,9 +5839,9 @@ html[data-fs="2"]{
       if(exp.others)ex+='<div class="ln"><b>其他選項：</b>'+E(exp.others)+'</div>';
       if(exp.trap)ex+='<div class="ln"><b>考場陷阱：</b>'+E(exp.trap)+'</div>';
       var tag=p!=null?'<span class="mk-tag w">你選 '+E(p)+'</span>':'<span class="mk-tag n">未作答</span>';
-      return '<div class="mk-rev"><div class="rq">'+E(q.q||'').slice(0,140)+'</div><div class="ln">'+tag+'<span class="mk-tag n">'+E(w.dataError?'給分資料異常':label(q))+'</span></div>'+ex+'</div>';
+      return '<div class="mk-rev"><div class="rq">'+E(figureStem(q)).slice(0,140)+'</div><div class="ln">'+tag+'<span class="mk-tag n">'+E(w.dataError?'給分資料異常':label(q))+'</span></div>'+ex+'</div>';
     }).join('');
-    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">模擬考結果</div><button class="mk-x" onclick="MK.close()">✕</button></div>'+(auto?'<div class="mk-sub" style="color:var(--wrong);margin-top:14px">⏰ 時間到，已自動交卷。</div>':'')+'<div class="mk-score"><div class="big">'+scored.correct+' / '+scored.total+'</div><div class="pct">答對率 '+pct+'%　·　實際作答 '+scored.answered+' 題　·　用時 '+fmt(used)+'</div></div><div class="mk-lab">各科表現（未作答也列入分母）</div>'+subjHtml+(revHtml?'<div class="mk-lab">錯題與未作答（'+scored.wrong.length+' 題）</div>'+revHtml:'<div class="mk-sub" style="margin-top:16px">🎉 全部計分正確！</div>')+'<div class="mk-nav"><button class="mk-btn ghost" onclick="MK.retry()">再考一次</button><button class="mk-btn go" onclick="MK.close()">完成</button></div></div>';
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">模擬考結果</div><button class="mk-x" onclick="MK.close()">✕</button></div>'+(auto?'<div class="mk-sub" style="color:var(--wrong);margin-top:14px">⏰ 時間到，已自動交卷。</div>':'')+'<div class="mk-score"><div class="big">'+scored.correct+' / '+scored.total+'</div><div class="pct">答對率 '+pct+'%　·　實際作答 '+scored.answered+' 題　·　用時 '+fmt(used)+'</div></div>'+(scored.excluded?'<div class="mk-sub" role="status" style="margin-top:12px">'+scored.excluded+' 題原圖未載入，已排除計分。</div>':'')+'<div class="mk-lab">各科表現（未作答也列入分母）</div>'+subjHtml+(revHtml?'<div class="mk-lab">錯題與未作答（'+scored.wrong.length+' 題）</div>'+revHtml:'<div class="mk-sub" style="margin-top:16px">🎉 全部計分正確！</div>')+'<div class="mk-nav"><button class="mk-btn ghost" onclick="MK.retry()">再考一次</button><button class="mk-btn go" onclick="MK.close()">完成</button></div></div>';
     window.scrollTo(0,0);
   }
 
@@ -5844,10 +5858,10 @@ html[data-fs="2"]{
     toggleTimed:function(){limited=!limited;var el=document.getElementById('mk-tg');if(el)el.textContent=limited?'⏱ 倒數計時':'∞ 不限時';},
     begin:function(n){var pool=build(n);if(!pool.length){alert('這個範圍目前沒有可安全判分的題目。');return;}Q=pool;idx=0;ans={};running=true;t0=Date.now();left=Math.round(Q.length*1.2)*60;if(timer)clearInterval(timer);timer=limited?setInterval(tick,1000):null;run();},
     beginExam:function(){var raw=rawExam(),bad=raw.filter(function(q){return gradeMode(q)==='invalid';});if(!raw.length){alert('這份考卷目前沒有題目。');return;}if(bad.length){alert('這份考卷有 '+bad.length+' 題官方給分資料不完整。為避免算錯分，修正前暫不開放整卷模擬。');return;}Q=raw;idx=0;ans={};running=true;t0=Date.now();left=Math.round(Q.length*1.2)*60;if(timer)clearInterval(timer);timer=limited?setInterval(tick,1000):null;run();},
-    pick:function(L){ans[idx]=L;['A','B','C','D'].forEach(function(x){var el=document.getElementById('mk-opt-'+x);if(el)el.classList.toggle('sel',x===L);});var cells=ov.querySelectorAll('.mk-cell');if(cells[idx])cells[idx].classList.add('done');var pr=ov.querySelector('.mk-prog');if(pr)pr.textContent='第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length;},
+    pick:function(L){if(!figureReady(Q[idx]))return;ans[idx]=L;['A','B','C','D'].forEach(function(x){var el=document.getElementById('mk-opt-'+x);if(el)el.classList.toggle('sel',x===L);});var cells=ov.querySelectorAll('.mk-cell');if(cells[idx])cells[idx].classList.add('done');var pr=ov.querySelector('.mk-prog');if(pr)pr.textContent='第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length;},
     go:function(d){var n=idx+d;if(n<0||n>=Q.length)return;idx=n;run();},
     jump:function(i){if(i<0||i>=Q.length)return;idx=i;run();},
-    submit:function(){var un=Q.length-Object.keys(ans).length;if(un>0&&!confirm('還有 '+un+' 題未作答，確定交卷？未作答普通題會計為錯誤。'))return;grade(false);},
+    submit:function(){var un=Q.reduce(function(n,q,i){return n+(figureReady(q)&&ans[i]==null?1:0);},0);if(un>0&&!confirm('還有 '+un+' 題未作答，確定交卷？未作答普通題會計為錯誤。'))return;grade(false);},
     retry:function(){setup();}
   };
 })();
