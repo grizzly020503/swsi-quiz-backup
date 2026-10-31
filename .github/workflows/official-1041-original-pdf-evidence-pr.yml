@@ -1,0 +1,87 @@
+# TEMPORARY evidence-only workflow on Draft PR #510.
+# Run on the isolated PR head; remove after original-PDF byte verification.
+name: MOEX 104-1 Original PDF Evidence Probe (PR only)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/official-1041-original-pdf-evidence-pr.yml'
+      - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
+
+permissions:
+  contents: read
+
+jobs:
+  original-pdf-evidence:
+    name: Verify original MOEX PDF SHA without touching production
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout review-only PR
+        uses: actions/checkout@v4
+
+      - name: Retrieve official public PDF and compare pinned original bytes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          from urllib.request import build_opener, HTTPRedirectHandler, Request
+          
+          registry = json.loads(Path("data/moex_source_subjects.v1.json").read_text(encoding="utf-8"))
+          evidence = json.loads(Path("audit/official_104_1_direct_service_three_ocr_candidate_20261031.json").read_text(encoding="utf-8"))
+          records = [r for r in registry["records"] if r["session"] == "104-1" and r["subject"] == "社會工作直接服務"]
+          assert len(records) == 1, "Missing or duplicate verified official PDF"
+          record = records[0]
+          assert record["status"] == "pdf_header_index_matched"
+          url = record["url"]
+          assert url == evidence["original_pdf_approved_source"]
+          assert record["pdf_sha256"] == evidence["original_pdf_sha256_expected_from_pinned_registry"]
+          parsed = urlsplit(url)
+          assert parsed.scheme == "https" and parsed.netloc == "wwwq.moex.gov.tw"
+          assert parsed.path == "/exam/wHandExamQandA_File.ashx"
+          
+          class NoRedirect(HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  raise RuntimeError(f"Official PDF URL redirected (HTTP {code}); fail closed")
+          
+          client = build_opener(NoRedirect())
+          req = Request(url, headers={"User-Agent": "SWSI-OfficialSourceEvidence/1.0"})
+          with client.open(req, timeout=30) as response:
+              assert response.status == 200, f"Unexpected HTTP {response.status}"
+              content_type = response.headers.get("Content-Type", "")
+              data = response.read(5000000)
+          expected_bytes = record["http"]["bytes"]
+          assert data.startswith(b"%PDF-"), "Response is not a PDF"
+          assert len(data) == expected_bytes, f"Size drift {len(data)} vs {expected_bytes}"
+          got_sha = hashlib.sha256(data).hexdigest()
+          assert got_sha == record["pdf_sha256"], f"Official original SHA256 mismatch: {got_sha}"
+          path = Path("/tmp/swsi-moex-104030-110-0602-original.pdf")
+          path.write_bytes(data)
+          output = "OFFICIAL ORIGINAL PDF BYTE MATCH: 104-1 社會工作直接服務, " + str(len(data)) + " bytes, sha256=" + got_sha
+          print(output)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("## Official source exact-byte verification — PASS\n\n")
+              summary.write(f"104-1 社會工作直接服務: {len(data)} bytes, SHA256 \`{got_sha}\`. MIME: \`{content_type}\`.\n\n")
+              summary.write("**Not a human source-text approval, not a merge/deploy grant.**\n")
+          PY
+
+      - name: Extract original source page 3 as human-review locator (not approval)
+        shell: bash
+        run: |
+          pdfinfo /tmp/swsi-moex-104030-110-0602-original.pdf | grep '^Pages:'
+          pdftotext -f 3 -l 3 -layout /tmp/swsi-moex-104030-110-0602-original.pdf /tmp/swsi-moex-1041-page3.txt
+          echo 'Original PDF page 3 extracted for review; no text was auto-approved.'
+          grep -E -C 2 '團體工作紀錄|稱讚社會工作人員|業務聯繫會報' /tmp/swsi-moex-1041-page3.txt | head -90 || true
+
+      - name: Retain verified publicly available original PDF briefly for visual human approval
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-1041-verified-official-original-pdf
+          path: /tmp/swsi-moex-104030-110-0602-original.pdf
+          if-no-files-found: error
+          retention-days: 2
