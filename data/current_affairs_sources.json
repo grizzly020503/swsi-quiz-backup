@@ -5,106 +5,157 @@
       "name": "衛生福利部焦點新聞",
       "url": "https://www.mohw.gov.tw/rss-16-1.html",
       "region": "taiwan",
-      "source_type": "official"
+      "source_type": "official",
+      "article_hosts": [
+        "mohw.gov.tw"
+      ]
     },
     {
       "name": "衛生福利部公告訊息",
       "url": "https://www.mohw.gov.tw/rss-18-1.html",
       "region": "taiwan",
-      "source_type": "official"
+      "source_type": "official",
+      "article_hosts": [
+        "mohw.gov.tw"
+      ]
     },
     {
       "name": "中央社社會",
       "url": "https://feeds.feedburner.com/rsscna/social",
       "region": "taiwan",
-      "source_type": "news"
+      "source_type": "news",
+      "article_hosts": [
+        "cna.com.tw"
+      ]
     },
     {
       "name": "中央社生活",
       "url": "https://feeds.feedburner.com/rsscna/lifehealth",
       "region": "taiwan",
-      "source_type": "news"
+      "source_type": "news",
+      "article_hosts": [
+        "cna.com.tw"
+      ]
     },
     {
       "name": "中央社政治",
       "url": "https://feeds.feedburner.com/rsscna/politics",
       "region": "taiwan",
-      "source_type": "news"
+      "source_type": "news",
+      "article_hosts": [
+        "cna.com.tw"
+      ]
     },
     {
       "name": "中央社國際",
       "url": "https://feeds.feedburner.com/rsscna/intworld",
       "region": "international",
-      "source_type": "news"
+      "source_type": "news",
+      "article_hosts": [
+        "cna.com.tw"
+      ]
     },
     {
       "name": "內政部新聞發布",
       "url": "https://www.moi.gov.tw/OpenData.aspx?SN=76F358C679FAD4CF",
       "region": "taiwan",
-      "source_type": "official"
+      "source_type": "official",
+      "article_hosts": [
+        "moi.gov.tw"
+      ]
     },
     {
       "name": "行政院本院新聞",
       "url": "https://www.ey.gov.tw/RSS_Content.aspx?ModuleType=3",
       "region": "taiwan",
-      "source_type": "official"
+      "source_type": "official",
+      "article_hosts": [
+        "ey.gov.tw"
+      ]
     },
     {
       "name": "教育部即時新聞",
       "url": "https://www.edu.tw/Rss_News.aspx?n=9E7AC85F1954DDA8",
       "region": "taiwan",
-      "source_type": "official"
+      "source_type": "official",
+      "article_hosts": [
+        "edu.tw"
+      ]
     },
     {
       "name": "教育部重要政策",
       "url": "https://www.edu.tw/Rss_WebArchive.aspx?n=FB01D469347C76A7",
       "region": "taiwan",
-      "source_type": "official"
+      "source_type": "official",
+      "article_hosts": [
+        "edu.tw"
+      ]
     },
     {
       "name": "移民署新住民政策法規",
       "url": "https://news.immigration.gov.tw/Rss/Content/8?lang=TW",
       "region": "taiwan",
-      "source_type": "official"
+      "source_type": "official",
+      "article_hosts": [
+        "immigration.gov.tw"
+      ]
     },
     {
       "name": "勞動部新聞稿",
       "url": "https://www.mol.gov.tw/1607/1632/1633/RssList",
       "region": "taiwan",
-      "source_type": "official"
+      "source_type": "official",
+      "article_hosts": [
+        "mol.gov.tw"
+      ]
     },
     {
       "name": "法務部新聞發布",
       "url": "https://www.moj.gov.tw/2204/2795/2796/rss",
       "region": "taiwan",
-      "source_type": "official"
+      "source_type": "official",
+      "article_hosts": [
+        "moj.gov.tw"
+      ]
     },
     {
       "name": "UN News English",
       "url": "https://news.un.org/feed/subscribe/en/news/all/rss.xml",
       "region": "international",
-      "source_type": "official"
+      "source_type": "official",
+      "article_hosts": [
+        "un.org"
+      ]
     },
     {
       "name": "WHO Newsroom",
       "url": "https://www.who.int/api/newsroom/newsitems",
       "region": "international",
       "source_type": "official",
-      "source_format": "who_newsroom_json"
+      "source_format": "who_newsroom_json",
+      "article_hosts": [
+        "who.int"
+      ]
     },
     {
       "name": "UNICEF Press Releases",
       "url": "https://www.unicef.org/media/press-releases",
       "region": "international",
       "source_type": "official",
-      "source_format": "unicef_press_html"
+      "source_format": "unicef_press_html",
+      "article_hosts": [
+        "unicef.org"
+      ]
     },
     {
       "name": "ILO Newsroom",
       "url": "https://www.ilo.org/resource/news/all-news-recent",
       "region": "international",
       "source_type": "official",
-      "source_format": "ilo_news_html"
+      "source_format": "ilo_news_html",
+      "article_hosts": [
+        "ilo.org"
+      ]
     },
     {
       "name": "TVBS新聞社會",
@@ -112,42 +163,60 @@
       "region": "taiwan",
       "source_type": "news",
       "optional": true,
-      "source_format": "tvbs_realtime_html"
+      "source_format": "tvbs_realtime_html",
+      "article_hosts": [
+        "tvbs.com.tw"
+      ]
     },
     {
       "name": "中天新聞社會",
       "url": "https://ctinews.com/rss/google-society.xml",
       "region": "taiwan",
       "source_type": "news",
-      "optional": true
+      "optional": true,
+      "article_hosts": [
+        "ctinews.com"
+      ]
     },
     {
       "name": "中天新聞生活",
       "url": "https://ctinews.com/rss/google-life.xml",
       "region": "taiwan",
       "source_type": "news",
-      "optional": true
+      "optional": true,
+      "article_hosts": [
+        "ctinews.com"
+      ]
     },
     {
       "name": "自由時報社會",
       "url": "https://news.ltn.com.tw/rss/society.xml",
       "region": "taiwan",
       "source_type": "news",
-      "optional": true
+      "optional": true,
+      "article_hosts": [
+        "ltn.com.tw"
+      ]
     },
     {
       "name": "自由時報生活",
       "url": "https://news.ltn.com.tw/rss/life.xml",
       "region": "taiwan",
       "source_type": "news",
-      "optional": true
+      "optional": true,
+      "article_hosts": [
+        "ltn.com.tw"
+      ]
     },
     {
       "name": "聯合新聞網社會",
       "url": "https://udn.com/rssfeed/news/2/6639?ch=news",
       "region": "taiwan",
       "source_type": "news",
-      "optional": true
+      "optional": true,
+      "article_hosts": [
+        "udn.com"
+      ]
     }
   ]
 }
