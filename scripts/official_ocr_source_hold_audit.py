@@ -9,14 +9,54 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "audit/official_104_1_direct_service_three_ocr_candidate_20261031.json"
 SHARD = ROOT / "cdn/question-shards/104-1.json"
+SHADOW = ROOT / "audit/official_104_1_direct_service_three_shadow_readonly_20261031.sql"
 IDS = frozenset(("DS-104-1-22", "DS-104-1-27", "DS-104-1-29"))
 TEXT = ("question", "opt_a", "opt_b", "opt_c", "opt_d")
 PDF_SHA = "979233d2cb316565c4eed2b5c5289e89e5d21c0bb2b2076a7443887cd24ffadc"
+
+
+def pinned_live_preimages() -> dict[str, dict]:
+    """Re-use original 3x37 frozen production snapshots; don't create a second baseline."""
+    sql = SHADOW.read_text(encoding="utf-8")
+    match = re.search(r"jsonb_array_elements\\('((?:''|[^'])*)'::jsonb\\)", sql)
+    if not match:
+        raise ValueError("missing pinned 37-column production preimages")
+    entries = json.loads(match.group(1).replace("''", "'"))
+    if not isinstance(entries, list) or len(entries) != 3:
+        raise ValueError("expected exactly three frozen preimages")
+    mapping = {}
+    for entry in entries:
+        before = entry["before"]
+        ident = entry["id"]
+        if not isinstance(before, dict) or len(before) != 37 or before.get("id") != ident:
+            raise ValueError("incomplete source preimage")
+        if ident in mapping:
+            raise ValueError("duplicate source preimage")
+        mapping[ident] = before
+    if set(mapping) != IDS:
+        raise ValueError("unverified source ID in frozen preimages")
+    return mapping
+
+
+def verify_live_full_rows(rows: list[dict], *, baseline: dict[str, dict] | None = None) -> int:
+    """Fail closed if ANY of 37 public production columns drifted, without printing text."""
+    expected = baseline if baseline is not None else pinned_live_preimages()
+    if not isinstance(rows, list) or len(rows) != 3 or {
+            r.get("id") for r in rows} != IDS:
+        raise ValueError("full-row verification requires exactly three source IDs")
+    for row in rows:
+        target = expected[row["id"]]
+        if set(row) != set(target):
+            raise ValueError("live 37-column shape drift: " + row["id"])
+        if row != target:
+            raise ValueError("live 37-column preimage drift: " + row["id"])
+    return 3
 
 
 def classify(rows: list[dict], proof: dict) -> dict:
@@ -94,8 +134,9 @@ def live_rows() -> list[dict]:
     from build_question_shards import frontend_config
 
     base, key = frontend_config()
-    cols = ("id", *TEXT, "answer", "accepted_answers",
-            "grading_mode", "source_exam_code", "analysis_status")
+    # Every column must match the existing 37-column production shadow proof.
+    # This is a 3-row bounded SELECT; do not fetch unrelated/public user data.
+    cols = tuple(sorted(next(iter(pinned_live_preimages().values())).keys()))
     response = requests.get(
         base + "/rest/v1/questions",
         headers={"apikey": key, "Authorization": "Bearer " + key,
@@ -145,7 +186,25 @@ def synthetic_selftest(proof: dict) -> None:
                                if p["id"] == bad[0]["id"])["proposed_fields"]["question"]
     # Partial source text remains held, but can never be mislabeled approved.
     assert classify(bad, proof)["release_approved"] is False
-    print("MOEX OCR HOLD SELFTEST OK: 3 known source discrepancies, 2 ready; 7 fail-closed negatives")
+    original = pinned_live_preimages()
+    full = [copy.deepcopy(original[k]) for k in sorted(original)]
+    assert verify_live_full_rows(full) == 3
+    for label, mutation in (
+            ("text", lambda r: r[0].update({"question": "UNVERIFIED"})),
+            ("ready", lambda r: r[0].update({"analysis_status": "review"})),
+            ("metadata", lambda r: r[0].update({"legal_note": "UNKNOWN"})),
+            ("column", lambda r: r[0].pop("analysis_attempts")),
+    ):
+        changed = copy.deepcopy(full)
+        mutation(changed)
+        try:
+            verify_live_full_rows(changed)
+        except ValueError as error:
+            assert "live 37-column" in str(error), label
+        else:
+            raise AssertionError("full-record " + label + " tamper accepted")
+    print("MOEX OCR HOLD SELFTEST OK: 3 source discrepancies, 2 ready; "
+          "7 source negatives plus 4 exact-37-column negatives")
 
 
 def main() -> int:
@@ -159,7 +218,10 @@ def main() -> int:
     if args.selftest:
         synthetic_selftest(proof)
         return 0
-    result = classify(live_rows() if args.live else local_rows(), proof)
+    rows = live_rows() if args.live else local_rows()
+    result = classify(rows, proof)
+    if args.live:
+        result["exact_live_37column_preimages"] = verify_live_full_rows(rows)
     print(json.dumps(result, ensure_ascii=False, sort_keys=True))
     return 0  # Known defects explicitly HOLD; unexpected source drift FAILS.
 
