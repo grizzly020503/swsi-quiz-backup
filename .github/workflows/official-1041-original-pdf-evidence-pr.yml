@@ -66,17 +66,21 @@ jobs:
           print(output)
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
               summary.write("## Official source exact-byte verification — PASS\n\n")
-              summary.write(f"104-1 社會工作直接服務: {len(data)} bytes, SHA256 \`{got_sha}\`. MIME: \`{content_type}\`.\n\n")
+              summary.write(f"104-1 社會工作直接服務: {len(data)} bytes, SHA256 `{got_sha}`. MIME: `{content_type}`.\n\n")
               summary.write("**Not a human source-text approval, not a merge/deploy grant.**\n")
           PY
 
-      - name: Extract original source page 3 as human-review locator (not approval)
+      - name: Extract source page locator if PDF text tools are available
         shell: bash
         run: |
-          pdfinfo /tmp/swsi-moex-104030-110-0602-original.pdf | grep '^Pages:'
-          pdftotext -f 3 -l 3 -layout /tmp/swsi-moex-104030-110-0602-original.pdf /tmp/swsi-moex-1041-page3.txt
-          echo 'Original PDF page 3 extracted for review; no text was auto-approved.'
-          grep -E -C 2 '團體工作紀錄|稱讚社會工作人員|業務聯繫會報' /tmp/swsi-moex-1041-page3.txt | head -90 || true
+          if command -v pdfinfo >/dev/null && command -v pdftotext >/dev/null; then
+            pdfinfo /tmp/swsi-moex-104030-110-0602-original.pdf | grep '^Pages:'
+            pdftotext -f 3 -l 3 -layout /tmp/swsi-moex-104030-110-0602-original.pdf /tmp/swsi-moex-1041-page3.txt
+            echo 'Original PDF page 3 extracted only as a locator, not approved.'
+            grep -E -C 2 '團體工作紀錄|稱讚社會工作人員|業務聯繫會報' /tmp/swsi-moex-1041-page3.txt | head -90 || true
+          else
+            echo 'No PDF text tools on runner: original SHA256 verified, page-level visual review remains pending.'
+          fi
 
       - name: Retain verified publicly available original PDF briefly for visual human approval
         uses: actions/upload-artifact@v4
