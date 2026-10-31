@@ -24,7 +24,7 @@ PDF_SHA = "979233d2cb316565c4eed2b5c5289e89e5d21c0bb2b2076a7443887cd24ffadc"
 def pinned_live_preimages() -> dict[str, dict]:
     """Re-use original 3x37 frozen production snapshots; don't create a second baseline."""
     sql = SHADOW.read_text(encoding="utf-8")
-    match = re.search(r"jsonb_array_elements\\('((?:''|[^'])*)'::jsonb\\)", sql)
+    match = re.search(r"jsonb_array_elements\('((?:''|[^'])*)'::jsonb\)", sql)
     if not match:
         raise ValueError("missing pinned 37-column production preimages")
     entries = json.loads(match.group(1).replace("''", "'"))
