@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import sys
 from contextlib import redirect_stdout
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import current_affairs_watch as watch
 
@@ -404,8 +406,11 @@ def scanner_source_url_preflight_contract() -> None:
         with TemporaryDirectory() as tmp:
             output = Path(tmp) / "affairs.json"
             sys.argv = ["current_affairs_watch.py", "--output", str(output), "--days", "21"]
-            with redirect_stdout(io.StringIO()) as log:
-                assert watch.main() == 0
+            # Exercise the real scanner with the GitHub Actions environment
+            # that must surface quarantined URLs without failing the sync.
+            with patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}):
+                with redirect_stdout(io.StringIO()) as log:
+                    assert watch.main() == 0
             data = json.loads(output.read_text(encoding="utf-8"))
             assert data["feed_count"] == watch.EXPECTED_SOURCE_COUNT, data
             assert data["fetched_count"] == 2, data
@@ -414,6 +419,16 @@ def scanner_source_url_preflight_contract() -> None:
             assert [item["source_url"] for item in data["items"]] == [allowed], data
             assert foreign not in output.read_text(encoding="utf-8")
             assert "Feed ARTICLE URL REJECTED: source=中央社社會" in log.getvalue()
+            assert "::warning title=Current-affairs URL quarantine::1 article URL(s) rejected" in log.getvalue()
+            assert foreign not in log.getvalue(), "untrusted URL must not appear in Actions annotations"
+            # A zero-rejection scan must not issue an unnecessary warning.
+            with patch.object(watch, "safe_article_url", return_value=True):
+                with patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}):
+                    with redirect_stdout(io.StringIO()) as clean_log:
+                        assert watch.main() == 0
+            clean_data = json.loads(output.read_text(encoding="utf-8"))
+            assert clean_data["source_url_rejected_count"] == 0, clean_data
+            assert "::warning title=Current-affairs URL quarantine::" not in clean_log.getvalue()
     finally:
         watch.parse_source_with_retry = old_parser
         watch.score_item = old_score
