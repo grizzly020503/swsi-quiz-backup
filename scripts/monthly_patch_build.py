@@ -61,6 +61,17 @@ MK_GRADE_NEW = ''' var correct=0, answered=0, bySubj={}, wrong=[];
       if(!ok) wrong.push({q:q,picked:picked});
     });'''
 
+# Exact third permitted simulation-grading contract: original MOEX image questions
+# are excluded from scoring only when the actual source image failed to load.
+# Keep the original and pre-existing special-grading contracts unchanged.
+MK_GRADE_IMAGE_GATED = MK_GRADE_NEW.replace(
+    'correct=0, answered=0, bySubj={}, wrong=[];',
+    'correct=0, answered=0, excluded=0, bySubj={}, wrong=[];',
+).replace(
+    'Q.forEach(function(q,i){\n      var picked=',
+    'Q.forEach(function(q,i){\n      if(!swsiOfficialFigureReady(q)){excluded++;return;}\n      var picked=',
+)
+
 MK_LABEL_OLD = '''<span class="mk-tag n">正解 '+E(q.answer||'')+'</span>'''
 MK_LABEL_NEW = '''<span class="mk-tag n">'+E((typeof answerLabel==='function')?answerLabel(q):('正解 '+(q.answer||'')))+'</span>'''
 
@@ -172,7 +183,18 @@ def transform(text: str, laws_json: str, theories_json: str, knowledge_manifest:
     text = replace_exact(text, SUPABASE_SDK_OLD, SUPABASE_SDK_NEW, 'student Supabase SDK removal')
     text = replace_exact(text, INITIAL_APP_OLD, INITIAL_APP_NEW, 'first-paint placeholder')
     text = replace_exact(text, '\ninit();\n', '\nwindow.__SWSI_BOOT_DEFERRED__=true;\n', 'legacy init deferral')
-    text = replace_exact_or_current(text, MK_GRADE_OLD, MK_GRADE_NEW, MK_GRADE_NEW, 'simulation grading')
+    # The figure-integrated quiz retains the verified official-answer grading.
+    # In this narrowly scoped variant, missing image rows cannot count as wrong.
+    if text.count(MK_GRADE_IMAGE_GATED) == 1 and text.count(MK_GRADE_OLD) == 0 and text.count(MK_GRADE_NEW) == 0:
+        expected = (
+            'var gradedTotal=Q.length-excluded;',
+            'var pct=gradedTotal?Math.round(correct/gradedTotal*100):0;',
+            "'<div class=\"mk-score\"><div class=\"big\">'+correct+' / '+gradedTotal",
+        )
+        if any(text.count(marker) != 1 for marker in expected):
+            raise RuntimeError('simulation grading: figure-gated denominator/protection drift')
+    else:
+        text = replace_exact_or_current(text, MK_GRADE_OLD, MK_GRADE_NEW, MK_GRADE_NEW, 'simulation grading')
     text = replace_exact_or_current(text, MK_LABEL_OLD, MK_LABEL_NEW, MK_LABEL_NEW, 'simulation answer label')
     text = replace_exact(text, ROUND_1_OLD, ROUND_1_NEW, 'UIUX round 1')
     text = replace_exact(text, ROUND_2_OLD, ROUND_2_NEW, 'UIUX round 2')
