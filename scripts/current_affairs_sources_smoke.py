@@ -422,16 +422,13 @@ def scanner_source_url_preflight_contract() -> None:
             assert "::warning title=Current-affairs URL quarantine::1 article URL(s) rejected" in log.getvalue()
             assert foreign not in log.getvalue(), "untrusted URL must not appear in Actions annotations"
             # A zero-rejection scan must not issue an unnecessary warning.
-            watch.safe_article_url, previous_check = (lambda *args: True), watch.safe_article_url
-            try:
+            with patch.object(watch, "safe_article_url", return_value=True):
                 with patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}):
                     with redirect_stdout(io.StringIO()) as clean_log:
                         assert watch.main() == 0
-                clean_data = json.loads(output.read_text(encoding="utf-8"))
-                assert clean_data["source_url_rejected_count"] == 0, clean_data
-                assert "::warning title=Current-affairs URL quarantine::" not in clean_log.getvalue()
-            finally:
-                watch.safe_article_url = previous_check
+            clean_data = json.loads(output.read_text(encoding="utf-8"))
+            assert clean_data["source_url_rejected_count"] == 0, clean_data
+            assert "::warning title=Current-affairs URL quarantine::" not in clean_log.getvalue()
     finally:
         watch.parse_source_with_retry = old_parser
         watch.score_item = old_score
