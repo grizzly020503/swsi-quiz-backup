@@ -29,7 +29,7 @@ def validate(proof, queue, doc):
     assert src['official_question_pdf_sha256']=='e219347d5b1bbe4ffa539bebf656ce196b72e569437e386fad078b37d7745687'
     assert src['pdf_page']==4 and src['printed_page']=='4-4'
     assert src['answer_filename']=='105030-107-0606-S.pdf'
-    assert src['official_answer_pdf_sha256']=='4882b8a01680960d451261219240c061802b9d6173df3c27d8007d3a46930d4'
+    assert src['official_answer_pdf_sha256']=='4882b8a01680960d451261219240c061802b9d6173df3c27d8007d3a46930d4d'
     assert src['answer_page']==1
     assert proof['normalized_unicode_nfkc_match'] is True
     assert proof['official_answer_unchanged'] is True
