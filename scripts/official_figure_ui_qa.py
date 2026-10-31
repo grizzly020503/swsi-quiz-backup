@@ -92,6 +92,11 @@ lock=json.loads((R/'data/official_exam_readonly.lock.json').read_text())
 # Validate the newer, explicitly source-backed transition and reverse only its
 # thirteen exact rows/locks before running the unchanged historical guard.
 # No unrelated-row allowance or old-genogram quarantine is weakened.
+# Reconstruct the released main manifest / official locks before the older
+# shared-context + genogram baseline gates; do not loosen existing approvals.
+from official_two_question_transition_smoke import reverse_transition
+two_proof=json.loads((R/'audit/official_two_question_source_transition_20261031.json').read_text())
+all_rows,lock,manifest_raw=reverse_transition(two_proof,all_rows,lock,manifest_raw)
 from official_shared_context_13row_integration_smoke import validate_transition
 shared_proof=json.loads((R/'audit/official_shared_context_release_transition_20261031.json').read_text())
 all_rows,lock,manifest_raw=validate_transition(shared_proof,all_rows,lock,manifest_raw)
