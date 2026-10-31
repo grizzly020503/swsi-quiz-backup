@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "audit/official_104_1_direct_service_three_ocr_candidate_20261031.json"
 SHADOW = ROOT / "audit/official_104_1_direct_service_three_shadow_readonly_20261031.sql"
 MANIFEST = ROOT / "cdn/question-shards/manifest.json"
+TRIGGER_SNAPSHOT = ROOT / "audit/official_104_1_live_seven_trigger_definitions_20261031.json"
 FIELDS = [
     "id", "subject", "year", "round", "qno", "major", "topic", "keywords",
     "question", "opt_a", "opt_b", "opt_c", "opt_d", "answer", "exp_why",
@@ -120,53 +121,62 @@ def main() -> int:
         writer.writerow(cells)
     out.write("\\.\n")
 
-    # Isolated stand-in for the actual production scheduling side effect.
-    # It *never* schedules cron or makes an HTTP request.
+    # Source-faithful seven live questions triggers; only the external AI
+    # scheduler helpers are STUBBED to avoid touching cron, pg_net and secrets.
+    # No live DB connection is used by this generated SQL.
+    snapshot = json.loads(TRIGGER_SNAPSHOT.read_text(encoding="utf-8"))
+    triggers = snapshot.get("triggers")
+    assert snapshot["production_question_trigger_count"] == len(triggers) == 7
+    assert len({t["tgname"] for t in triggers}) == 7
+    assert all(t["tgenabled"] == "O" for t in triggers)
+    expected_functions = {
+        "sanitize_unverified_law_provenance",
+        "sync_question_legal_canonical_names",
+        "auto_enable_ai_for_pending_question",
+        "auto_stop_ai_when_queue_drains",
+        "set_analysis_completed_at",
+        "reject_ai_answer_meta_commentary",
+        "reset_ai_analysis_on_official_change",
+    }
+    assert {t["proname"] for t in triggers} == expected_functions
+    assert len(snapshot.get("extra_functions", [])) == 1
+    for trigger in triggers:
+        assert trigger["trigger_def"].startswith("CREATE TRIGGER ")
+        assert "ON public.questions FOR EACH ROW EXECUTE FUNCTION public." in trigger["trigger_def"]
+        assert trigger["function_def"].startswith(
+            "CREATE OR REPLACE FUNCTION public." + trigger["proname"] + "()"
+        )
+        assert "CREATE EXTENSION" not in trigger["function_def"].upper()
     out.write("""
-CREATE FUNCTION public.enable_swsi_ai_analysis() RETURNS void LANGUAGE plpgsql AS $fn$
+-- Synthetic isolated *external* helpers only: no cron/net or credentials.
+CREATE OR REPLACE FUNCTION public.enable_swsi_ai_analysis()
+RETURNS void LANGUAGE plpgsql AS $external_stub$
 BEGIN
  UPDATE public.ai_analysis_job_config SET enabled=true WHERE id=true;
  INSERT INTO public.mock_ai_schedule_events VALUES ('WOULD_ENABLE_AI_CRON_AND_EDGE');
-END;$fn$;
-CREATE FUNCTION public.auto_enable_ai_for_pending_question() RETURNS trigger LANGUAGE plpgsql AS $fn$
+END;$external_stub$;
+CREATE OR REPLACE FUNCTION public.maybe_stop_swsi_ai_analysis()
+RETURNS jsonb LANGUAGE plpgsql AS $external_stub$
 BEGIN
- IF NEW.source_exam_code IS NOT NULL AND NEW.analysis_status='pending' THEN
-   IF NOT (SELECT enabled FROM public.ai_analysis_job_config WHERE id=true) THEN
-      PERFORM public.enable_swsi_ai_analysis();
-   END IF;
- END IF;
- RETURN NEW;
-END;$fn$;
-CREATE FUNCTION public.reset_ai_analysis_on_official_change() RETURNS trigger LANGUAGE plpgsql AS $fn$
-BEGIN
- IF NEW.source_exam_code IS NOT NULL AND (
-      NEW.question IS DISTINCT FROM OLD.question
-   OR NEW.opt_a IS DISTINCT FROM OLD.opt_a OR NEW.opt_b IS DISTINCT FROM OLD.opt_b
-   OR NEW.opt_c IS DISTINCT FROM OLD.opt_c OR NEW.opt_d IS DISTINCT FROM OLD.opt_d
-   OR NEW.answer IS DISTINCT FROM OLD.answer
-   OR NEW.accepted_answers IS DISTINCT FROM OLD.accepted_answers
-   OR NEW.grading_mode IS DISTINCT FROM OLD.grading_mode
- ) THEN
-   NEW.major := NULL; NEW.topic := NULL; NEW.keywords := NULL;
-   NEW.exp_why := NULL; NEW.exp_others := NULL; NEW.exp_trap := NULL;
-   NEW.exp_raw := NULL; NEW.mnemonic := NULL; NEW.extension := NULL;
-   NEW.law := NULL; NEW.mistake := NULL;
-   NEW.analysis_attempts := 0; NEW.analysis_error := NULL;
-   NEW.analysis_started_at := NULL; NEW.analysis_completed_at := NULL;
-   NEW.analysis_last_attempt_at := NULL;
-   NEW.analysis_status := 'pending';
- END IF;
- RETURN NEW;
-END;$fn$;
-CREATE TRIGGER trg_reset_ai_on_official_change BEFORE UPDATE OF question,opt_a,opt_b,opt_c,opt_d,answer,accepted_answers,grading_mode
-ON public.questions FOR EACH ROW EXECUTE FUNCTION public.reset_ai_analysis_on_official_change();
-CREATE TRIGGER trg_auto_enable_ai_pending AFTER INSERT OR UPDATE OF analysis_status
-ON public.questions FOR EACH ROW EXECUTE FUNCTION public.auto_enable_ai_for_pending_question();
+ INSERT INTO public.mock_ai_schedule_events VALUES ('WOULD_MAYBE_STOP_AI_CRON');
+ RETURN jsonb_build_object('stopped',true);
+END;$external_stub$;
+""")
+    for fn in snapshot["extra_functions"]:
+        out.write(fn.rstrip().rstrip(";") + ";\n")
+    for trigger in triggers:
+        out.write(trigger["function_def"].rstrip().rstrip(";") + ";\n")
+    for trigger in triggers:
+        out.write(trigger["trigger_def"].rstrip().rstrip(";") + ";\n")
+    out.write("""
 CREATE TEMP TABLE swsi_baseline AS SELECT id, to_jsonb(q) original FROM public.questions q;
 DO $test$
 BEGIN
  IF (SELECT count(*) FROM public.questions) <> 4800 THEN RAISE EXCEPTION 'expected 4800'; END IF;
  IF (SELECT count(*) FROM swsi_baseline) <> 4800 THEN RAISE EXCEPTION 'baseline incomplete'; END IF;
+ IF (SELECT count(*) FROM pg_trigger WHERE tgrelid='public.questions'::regclass
+        AND NOT tgisinternal AND tgenabled='O') <> 7
+ THEN RAISE EXCEPTION 'expected exactly 7 enabled copied production triggers'; END IF;
 END;$test$;
 """)
     # Demonstrate that the ORIGINAL default path really creates pending and
@@ -245,7 +255,7 @@ END;$test$;
     content = out.getvalue()
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
-    print("Generated ISOLATED PostgreSQL 17 dry-run from 4800 public questions, " +
+    print("Generated ISOLATED PG17 source-faithful 7-trigger dry-run from 4800 public questions, " +
           str(len(content.encode("utf-8"))) + " UTF-8 bytes; NO production DB credentials")
     return 0
 
