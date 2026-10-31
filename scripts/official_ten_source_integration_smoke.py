@@ -19,7 +19,9 @@ encode=lambda v:(json.dumps(v,ensure_ascii=False,separators=(',',':'))+'\n').enc
 
 def projected_parent_shard_bytes(filename):
     """Verify physical shard, reverse only pinned rows, require exact parent bytes."""
-    p=json.loads(P.read_text());raw=(ROOT/'cdn/question-shards'/filename).read_bytes()
+    p=json.loads(P.read_text())
+    from official_four_source_overlay_smoke import projected_parent_shard_bytes as reverse_four_shard
+    raw=reverse_four_shard(filename)
     if filename not in p['new_shards']:return raw
     assert sha(raw)==p['new_shards'][filename]['sha256'] and len(raw)==p['new_shards'][filename]['bytes']
     data=json.loads(raw);source={r['id']:r for r in p['rows']}
@@ -75,7 +77,8 @@ def validate_transition(p,rows,lock,raw):
     assert digest({k:v for k,v in lock['mcq'].items() if k not in IDS})==p['unchanged_other_mcq_locks_sha256']
     assert digest(lock['essays'])==p['unchanged_essay_locks_sha256']
     for meta,oldmeta in zip(after['shards'],before['shards']):
-        b=(ROOT/'cdn/question-shards'/meta['file']).read_bytes();data=json.loads(b)
+        from official_four_source_overlay_smoke import projected_parent_shard_bytes as reverse_four_shard
+        b=reverse_four_shard(meta['file']);data=json.loads(b)
         assert sha(b)==meta['sha256'] and len(b)==meta['bytes'] and len(data['questions'])==meta['question_count']==200
         assert all(index[r['id']]==r for r in data['questions'])
         ancestor=projected_parent_shard_bytes(meta['file'])
@@ -83,12 +86,14 @@ def validate_transition(p,rows,lock,raw):
     return restored,oldlock,prior
 
 def reverse_current(rows,lock,raw):
+    from official_four_source_overlay_smoke import audit as four_audit, validate_transition as reverse_four
+    rows,lock,raw=reverse_four(four_audit(),rows,lock,raw)
     return validate_transition(json.loads(P.read_text()),rows,lock,raw)
 
 def main():
     p=json.loads(P.read_text());raw=(ROOT/'cdn/question-shards/manifest.json').read_bytes();rows=[]
     for m in json.loads(raw)['shards']:rows+=json.loads((ROOT/'cdn/question-shards'/m['file']).read_bytes())['questions']
-    lock=json.loads((ROOT/'data/official_exam_readonly.lock.json').read_text());validate_transition(p,rows,lock,raw)
+    lock=json.loads((ROOT/'data/official_exam_readonly.lock.json').read_text());rows,lock,raw=reverse_current(rows,lock,raw)
     for kind in ('target','answer','other-row','source-url','source-hash','source-page','source-correction','lock','approval','enrichment','manifest','database'):
         cp,rs,lk=copy.deepcopy((p,rows,lock));t=next(r for r in rs if r['id']=='R-111-2-14')
         if kind=='target':t['question']=t['question'].split('\n\n')[-1]
