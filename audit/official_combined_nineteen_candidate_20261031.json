@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT_NO_GO",
+  "parent_sha": "ad9d0b711170dfdcb0a72496cf4b8f8da6670a5e",
+  "source_prs": [
+    503,
+    500,
+    502
+  ],
+  "parent_manifest_raw": "{\"schema_version\":1,\"dataset_revision\":\"38853f9ed79bcc951fc3\",\"generated_at\":\"2026-10-31T06:21:31Z\",\"source\":\"Three additional source-PDF-backed official OCR corrections (105-2 and 106-1), draft child of PR499\",\"total_questions\":4800,\"shard_count\":24,\"baseline_shard_count\":24,\"total_uncompressed_bytes\":7627187,\"shards\":[{\"year\":\"104\",\"round\":\"第一次\",\"file\":\"104-1.json\",\"question_count\":200,\"bytes\":318738,\"sha256\":\"49167f691ebd199d1a1e7d2a8ab66e9e98538120a3f150d85e10d744c240477f\"},{\"year\":\"104\",\"round\":\"第二次\",\"file\":\"104-2.json\",\"question_count\":200,\"bytes\":323397,\"sha256\":\"53e1a96fa8f1728925414203f1c780138a29e2698fc7be3ee207a2013241e639\"},{\"year\":\"105\",\"round\":\"第一次\",\"file\":\"105-1.json\",\"question_count\":200,\"bytes\":317743,\"sha256\":\"6b8eb88f7d6c4be547dc7b42b966b643fd66f1eac52d51cadec2a6f874b9ba4a\"},{\"year\":\"105\",\"round\":\"第二次\",\"file\":\"105-2.json\",\"question_count\":200,\"bytes\":322465,\"sha256\":\"b8c1178aa1176989ecf2fc00c526a05e22bbfd5ed10fd096f8183bf66f30a84e\"},{\"year\":\"106\",\"round\":\"第一次\",\"file\":\"106-1.json\",\"question_count\":200,\"bytes\":315595,\"sha256\":\"aab117f8e774d1053ce052ea5b209bb50ca7a0e0f2a635d1fee40294a197c8ef\"},{\"year\":\"106\",\"round\":\"第二次\",\"file\":\"106-2.json\",\"question_count\":200,\"bytes\":327224,\"sha256\":\"15fa91f4277dfffdb8df19ca593d3ff16ad06a66df9b9b69146c4c2b360db297\"},{\"year\":\"107\",\"round\":\"第一次\",\"file\":\"107-1.json\",\"question_count\":200,\"bytes\":313346,\"sha256\":\"f58fa27f7643712565e6438789f9730653e25739c0eb3b5b3f04f96df24fb65f\"},{\"year\":\"107\",\"round\":\"第二次\",\"file\":\"107-2.json\",\"question_count\":200,\"bytes\":318173,\"sha256\":\"3734dd44902d4431f5d778ce77a5f758835b683ec5f0a1f1d0a6daebdf022f2e\"},{\"year\":\"108\",\"round\":\"第一次\",\"file\":\"108-1.json\",\"question_count\":200,\"bytes\":318780,\"sha256\":\"f5a498d9ad479d0f126435d3b70e51713c1c11978992be3a28117374e0c41653\"},{\"year\":\"108\",\"round\":\"第二次\",\"file\":\"108-2.json\",\"question_count\":200,\"bytes\":311124,\"sha256\":\"4c93647231b26f24c2e46854f32a991810dc1e099e2ea9c0568225a103daf94d\"},{\"year\":\"109\",\"round\":\"第一次\",\"file\":\"109-1.json\",\"question_count\":200,\"bytes\":316885,\"sha256\":\"7e5628c59e409075f3c864e35277447cd1a1ded1ae5d110a02cdc9c361a3a3ad\"},{\"year\":\"109\",\"round\":\"第二次\",\"file\":\"109-2.json\",\"question_count\":200,\"bytes\":312242,\"sha256\":\"9162044ee4acea8bee78e38914471b9b6ff0d551ef72cfb57fbc73d788757abb\"},{\"year\":\"110\",\"round\":\"第一次\",\"file\":\"110-1.json\",\"question_count\":200,\"bytes\":316503,\"sha256\":\"56a23d918dfe87185386b7cfba0e57d654299cb38e60caeccc9a074110549490\"},{\"year\":\"110\",\"round\":\"第二次\",\"file\":\"110-2.json\",\"question_count\":200,\"bytes\":310537,\"sha256\":\"99fc70c1bfe3c71a9d6ec196c49120db062766d84ab46c6207812b1976f628b3\"},{\"year\":\"111\",\"round\":\"第一次\",\"file\":\"111-1.json\",\"question_count\":200,\"bytes\":308168,\"sha256\":\"17b97ba64b670790e4734ff0fa14f28c496db6add8a5af8cdf21f3f5899baa4c\"},{\"year\":\"111\",\"round\":\"第二次\",\"file\":\"111-2.json\",\"question_count\":200,\"bytes\":314089,\"sha256\":\"8fdbdf177e4e3f152aaecb6f06520752ac1610b70ec79e17449939a54868773e\"},{\"year\":\"112\",\"round\":\"第一次\",\"file\":\"112-1.json\",\"question_count\":200,\"bytes\":313678,\"sha256\":\"6b2eb8c6305f9a0e48609e9747b25b9faa3c25cb0d66c8701e3ea82e658216c4\"},{\"year\":\"112\",\"round\":\"第二次\",\"file\":\"112-2.json\",\"question_count\":200,\"bytes\":307001,\"sha256\":\"46ad7ec3d536c42e4577007176272a226a822338cfaf1f58e76611419f51922b\"},{\"year\":\"113\",\"round\":\"第一次\",\"file\":\"113-1.json\",\"question_count\":200,\"bytes\":304163,\"sha256\":\"bd46e4099dfee60a31b8b4a802ef4f5af17a0f2018ec3ac7515975c6263c23d4\"},{\"year\":\"113\",\"round\":\"第二次\",\"file\":\"113-2.json\",\"question_count\":200,\"bytes\":316601,\"sha256\":\"9328e64f2142b3cf20bc5a85d3b2aa2cc7d03ed8913c406e6da4f61a8f6cd572\"},{\"year\":\"114\",\"round\":\"第一次\",\"file\":\"114-1.json\",\"question_count\":200,\"bytes\":317412,\"sha256\":\"46bdf82db571ca127bf7f346140e7233ea8097b4d2ac26a3d83f9ed5308995ce\"},{\"year\":\"114\",\"round\":\"第二次\",\"file\":\"114-2.json\",\"question_count\":200,\"bytes\":314729,\"sha256\":\"1628838492b0d50b5cdc899057ea3e0e23c2e42562383165d07e2768d56784b7\"},{\"year\":\"115\",\"round\":\"第一次\",\"file\":\"115-1.json\",\"question_count\":200,\"bytes\":317940,\"sha256\":\"2b2a3c05559bc44a039ed435a74ced0c8a68603709908597636d91c71e4257bb\"},{\"year\":\"115\",\"round\":\"第二次\",\"file\":\"115-2.json\",\"question_count\":200,\"bytes\":370654,\"sha256\":\"59019bd86818a87c409d0b532f227d6ed0fe58ea790b353552d8743312a1229a\"}]}\n",
+  "parent_manifest_sha256": "3eda15c27329e69ba5b4abc4060ab3bebe98b390a709e612664c4b9089f83ca3",
+  "new_manifest_sha256": "4e2029c80800ee8145c456b2a30e3c17064efbdcb2bea565132deabe3fca98d3",
+  "parent_lock_sha256": "38b2cda5167a7ee08dabc8e1db9332ed566f51ac6ed286b588dbd3505dc879b3",
+  "new_lock_sha256": "88fe0956bba193206d71f2ca07ec44a2fdf5143c0ea50014d124cf9a09ce5611",
+  "parent_revision": "38853f9ed79bcc951fc3",
+  "new_revision": "d8ccbb37821cad7c90b1",
+  "changed_rows": [
+    {
+      "id": "SP108-2-09",
+      "file": "108-2.json",
+      "old_core_sha256": "9d5efacd0bddbaf53071288f03083ee8a6eb95c3a0b579d93a8a4fad233c963e",
+      "new_core_sha256": "fde0f5e5b5bf17456290224114238b96be9206043dc065f7b19f00de3fb5327b"
+    },
+    {
+      "id": "DS-109-2-26",
+      "file": "109-2.json",
+      "old_core_sha256": "3eb8a80cd73bc964debdeb222fb6958954659fcf5b7a7be4028b2f5f0a8a5a5b",
+      "new_core_sha256": "b2720a25ee8e06db73aef1d5f31f0c3ee3872b858e8cd8386827250569eecc69"
+    },
+    {
+      "id": "DS-108-2-38",
+      "file": "108-2.json",
+      "old_core_sha256": "b160aabb425c0ee7b9c39b5af82deb63e8b7c48cc29d67dbcb6957b96bb1bbf4",
+      "new_core_sha256": "2ef9bff0394120e2cff86b8475a194aebc5296bbf6d14de0ab9bf2a1567fc281"
+    },
+    {
+      "id": "DS-104-1-30",
+      "file": "104-1.json",
+      "old_core_sha256": "81afa6c1bde318a907e3a745eb47ee252cb81a59cac78ed2a200c4486021f920",
+      "new_core_sha256": "3360bef07e4f8c0045a292fb7e00cf0f35fc6d106237d0c9a0d87f638323569f"
+    },
+    {
+      "id": "SW-106-1-29",
+      "file": "106-1.json",
+      "old_core_sha256": "4860fb6b27912fd839913148774c666465fee2dc4b4d44a39c7ee542458bc6d9",
+      "new_core_sha256": "61aaaca141d5c2cbab8f02630400587b65ddcd0b67451439a9c686e662fe1c29"
+    },
+    {
+      "id": "R-106-1-30",
+      "file": "106-1.json",
+      "old_core_sha256": "2c803f89c4c50dc5a00f4cb3f7cb933f5ea62826c04a6791457212ded0c502ba",
+      "new_core_sha256": "468a55a31142aab38b3cd30c106b95e1054279e2340f03b5accc5a6b25cac46c"
+    },
+    {
+      "id": "SW-108-2-27",
+      "file": "108-2.json",
+      "old_core_sha256": "1b82f00064e2c59225f228c931b2342b4ed9e89da186d2b37aea059854475208",
+      "new_core_sha256": "a101010d804622f70a863d45a30f4e90e85965c83ad930b8a0c017a207c8afb4"
+    },
+    {
+      "id": "DS-108-2-12",
+      "file": "108-2.json",
+      "old_core_sha256": "4c312122a2eaa264ba36566842b95a140b3aaf41696bf151b82a252d32ad4181",
+      "new_core_sha256": "48bd0c80068fbce3c000a9f9a0aead41287ac16a7fc8a9c83d28ebf3a8055d03"
+    }
+  ],
+  "old_shards": {
+    "108-2.json": {
+      "sha256": "4c93647231b26f24c2e46854f32a991810dc1e099e2ea9c0568225a103daf94d",
+      "bytes": 311124
+    },
+    "109-2.json": {
+      "sha256": "9162044ee4acea8bee78e38914471b9b6ff0d551ef72cfb57fbc73d788757abb",
+      "bytes": 312242
+    },
+    "104-1.json": {
+      "sha256": "49167f691ebd199d1a1e7d2a8ab66e9e98538120a3f150d85e10d744c240477f",
+      "bytes": 318738
+    },
+    "106-1.json": {
+      "sha256": "aab117f8e774d1053ce052ea5b209bb50ca7a0e0f2a635d1fee40294a197c8ef",
+      "bytes": 315595
+    }
+  },
+  "new_shards": {
+    "108-2.json": {
+      "sha256": "2aac3f9f6781146328aa32ac5766f133ec6e9fdf6867113d1021e0e9b69f58af",
+      "bytes": 309340
+    },
+    "109-2.json": {
+      "sha256": "a3b43d24d411105e849f100170905d47f44a94a0b7f9eaddf01d2a1361fd2f61",
+      "bytes": 312253
+    },
+    "104-1.json": {
+      "sha256": "4e2a0ac71e2f35488fcd9fd2179a586ed910cae64993559cceb134b05002ad8d",
+      "bytes": 318202
+    },
+    "106-1.json": {
+      "sha256": "f50f2ee7c260cdb763d27aa598e770f4f7d7b4bdabde5d56afc0273b620f379b",
+      "bytes": 315094
+    }
+  },
+  "distinct_repairs": 19,
+  "mcq_count": 4800,
+  "essay_count": 240,
+  "unresolved_pdf_reviews": 428,
+  "independent_human_approval": false,
+  "production_written": false,
+  "backup_modified": false,
+  "release_approved": false
+}
