@@ -348,7 +348,30 @@ def mandatory_feed_coverage_contract() -> None:
             raise AssertionError(f"mandatory feed outage with {failures} failures must abort")
 
 
+def article_source_host_contract() -> None:
+    """Trusted HTTPS hosts pass; lookalikes and foreign feed links fail closed."""
+    feeds = {row["name"]: row for row in watch.load_feeds()}
+    assert len(feeds) == watch.EXPECTED_SOURCE_COUNT
+    cna = feeds["中央社社會"]
+    assert cna["url"].startswith("https://feeds.feedburner.com/")
+    assert cna["article_hosts"] == ["cna.com.tw"]
+    assert watch.safe_article_url("https://www.cna.com.tw/news/asoc/202610310001.aspx", cna["article_hosts"])
+    assert watch.safe_article_url("https://cna.com.tw/news/asoc/1", cna["article_hosts"])
+    assert not watch.safe_article_url("https://feeds.feedburner.com/rsscna/social", cna["article_hosts"])
+    assert not watch.safe_article_url("https://cna.com.tw.attacker.test/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("https://badcna.com.tw/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("http://www.cna.com.tw/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("https://www.cna.com.tw@evil.test/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("https://evil.test@www.cna.com.tw/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("javascript:alert(1)", cna["article_hosts"])
+    assert not watch.safe_article_url("https://www.cna.com.tw\\\\@evil.test/news/1", cna["article_hosts"])
+    who = feeds["WHO Newsroom"]
+    assert watch.safe_article_url("https://www.who.int/news/item/test", who["article_hosts"])
+    assert not watch.safe_article_url("https://untrusted.example/news/item/test", who["article_hosts"])
+
+
 def main() -> int:
+    article_source_host_contract()
     mandatory_feed_coverage_contract()
     source_registry_fail_closed_contract()
     retry_contract()
