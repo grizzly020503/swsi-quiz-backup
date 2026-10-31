@@ -86,6 +86,16 @@ Human / Quarantine（少數 conflict）
 
 CI failure 要先分類原因：code、data、quota、runner、permission、configuration 或 provider outage。不要為了讓燈變綠而刪 gate。
 
+### 7.1 主站／備援站獨立監控（不可混用）
+
+SWSI 正式服務入口為 Cloudflare Worker／靜態資產，Netlify 站僅為備援入口，不是正式站的上游依賴。監控的意義必須分開：
+
+- **Cloudflare 主站可用性（高優先）**：由 `Public Uptime Sentinel` 對正式入口執行唯讀檢查，包含首頁、4,800 題／24 個分片契約、PWA、監測快照，以及 AI、回饋 API 預檢。失敗表示**正式入口有問題**，但仍要依失敗步驟辨認前端或 API 的原因。
+- **Netlify 備援站可開啟性（降級備援訊號）**：由 `Backup Uptime Sentinel` 獨立檢查。失敗表示**備援入口無法使用**，但不能據此宣稱 Cloudflare 主站停機。GitHub 定期任務健康報告須保留備援失敗紀錄，不可抹除。
+- **Netlify 備援版本／內容差異（警示，不等於站台失效）**：備援站可能依 owner 決策長期固定在舊版本；嚴格的 `--fallback-parity` 只用於診斷，可能因版本、必要資產或公開快照契約不符而失敗，必須查看具體錯誤。**不可為了消除警示而修改、重建或重新部署備援站。**
+
+兩個站點的監控都僅執行唯讀 HTTP 請求，不依賴付費外部監測服務。診斷順序：先查主站獨立 job 是否通過，再看備援站的連通檢查，最後看不阻擋主站健康判定的版本差異警示；必要時檢查個別請求與 GitHub Actions 記錄。**PR 上的綠燈只驗證該 PR 測試，不能當成日後定期排程成功的證據。**
+
 ## 8. 安全與 private boundary
 
 Public source 可以公開架構與一般維運方法，但不得公開：

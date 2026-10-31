@@ -1,0 +1,64 @@
+name: Backup Uptime Sentinel
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Separate from primary uptime and the expensive monitoring feed.
+    - cron: '23 1 * * *'
+  pull_request:
+    paths:
+      - '.github/workflows/backup-uptime.yml'
+      - '.github/workflows/public-uptime.yml'
+      - 'scripts/public_uptime_smoke.py'
+      - 'scripts/public_uptime_mode_selftest.py'
+      - 'data/ops_task_registry.v1.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-backup-uptime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backup-uptime:
+    name: Netlify backup reachability (independent)
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Verify independent uptime probe contract (zero network)
+        run: |
+          python -m py_compile scripts/public_uptime_smoke.py scripts/public_uptime_mode_selftest.py
+          python scripts/public_uptime_mode_selftest.py
+
+      - name: Verify Netlify backup reachability only (read-only)
+        run: python scripts/public_uptime_smoke.py --backup-only
+
+      - name: Diagnose frozen backup release drift (not reachability)
+        id: parity
+        continue-on-error: true
+        run: python scripts/public_uptime_smoke.py --backup-only --fallback-parity
+
+      - name: Explain distinct backup signals
+        if: always()
+        shell: bash
+        run: |
+          echo '## Netlify backup diagnostics' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo 'This workflow checks the frozen **backup** only; it does not determine Cloudflare production availability.' >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.parity.outcome }}" = "failure" ]; then
+            echo '::warning::Netlify backup runtime/release parity differs from current main. Backup remains frozen by owner decision; primary availability is unaffected by this warning.'
+            echo '- **Backup version drift:** detected; separate from reachability and primary uptime.' >> "$GITHUB_STEP_SUMMARY"
+          elif [ "${{ steps.parity.outcome }}" = "success" ]; then
+            echo '- **Backup version drift:** no difference detected.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo '- **Backup version drift:** not checked because preceding backup availability or setup failed.' >> "$GITHUB_STEP_SUMMARY"
+          fi

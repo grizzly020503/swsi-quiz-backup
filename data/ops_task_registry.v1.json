@@ -32,13 +32,26 @@
     {
       "id": "public-uptime",
       "workflow_file": "public-uptime.yml",
-      "display_name": "Public Uptime Sentinel",
+      "display_name": "Cloudflare Primary Uptime Sentinel",
       "accepted_events": [
         "schedule"
       ],
       "expected_interval_hours": 24,
       "max_age_hours": 30,
       "criticality": "high"
+    },
+    {
+      "id": "backup-uptime",
+      "workflow_file": "backup-uptime.yml",
+      "display_name": "Netlify Backup Uptime Sentinel",
+      "accepted_events": [
+        "schedule"
+      ],
+      "expected_interval_hours": 24,
+      "max_age_hours": 30,
+      "criticality": "medium",
+      "first_expected_at": "2026-11-01T01:23:00Z",
+      "first_run_grace_hours": 8
     },
     {
       "id": "moex-social-worker-sync",
