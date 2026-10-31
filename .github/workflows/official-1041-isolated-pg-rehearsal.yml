@@ -1,0 +1,59 @@
+name: SWSI 104-1 Isolated PostgreSQL 17 Rollback Rehearsal
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/official-1041-isolated-pg-rehearsal.yml'
+      - 'scripts/official_1041_ds_isolated_pg_rehearsal.py'
+      - 'audit/official_104_1_direct_service_three_shadow_readonly_20261031.sql'
+      - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-pg:
+    if: github.event.pull_request.head.ref == 'audit/104-1-ds-three-ocr-review-20261031'
+    name: 4800-row actual PostgreSQL BEGIN/ROLLBACK and AI trigger guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_DB: swsi_ci
+          POSTGRES_USER: swsi_ci
+          POSTGRES_PASSWORD: isolated_only
+        options: >-
+          --health-cmd "pg_isready -U swsi_ci -d swsi_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 8
+    steps:
+      - name: Checkout isolated audit branch
+        uses: actions/checkout@v4
+
+      - name: Generate isolated 4800 public-row PostgreSQL test SQL
+        run: |
+          python3 -m py_compile scripts/official_1041_ds_isolated_pg_rehearsal.py
+          python3 scripts/official_1041_ds_isolated_pg_rehearsal.py \
+            --out /tmp/swsi-1041-isolated-postgres-rollback.sql
+
+      - name: Run true local PostgreSQL transactions with rollback and AI event stubs
+        run: |
+          docker exec -i "${{ job.services.postgres.id }}" \
+            psql -U swsi_ci -d swsi_ci -v ON_ERROR_STOP=1 -X \
+            < /tmp/swsi-1041-isolated-postgres-rollback.sql
+
+      - name: Write review-only evidence summary
+        run: |
+          echo '## Isolated SWSI PostgreSQL 17 transaction proof' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- 4,800 public question rows seeded from verified local shards; 3 full 37-column live preimages.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Real BEGIN/UPDATE/ROLLBACK executed **only** against disposable PostgreSQL service.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Unsafe combined Official Core + status UPDATE produces pending and mock scheduling event; rollback.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Safe two-step transaction: official question update then status-only Review update, no mock AI job enable.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- After ROLLBACK all 4,800 records match original baseline and AI job remains disabled.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- NOT a proof of all seven real production trigger functions or a production-ready migration.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Human signoff and explicit production merge/deploy approval remain NO-GO.' >> "$GITHUB_STEP_SUMMARY"
