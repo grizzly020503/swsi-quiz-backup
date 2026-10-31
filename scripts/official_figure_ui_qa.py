@@ -29,6 +29,9 @@ for needle in ("const figureReady=swsiOfficialFigureReady(item)",
                "swsiOfficialFigureMarkup(item)", "if(!figureReady)optHTML=",
                "if(!selected || !swsiOfficialFigureReady(queue[idx])) return;"):
     assert needle in runtime,'canonical runtime missing '+needle
+mock=(R/'monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzzz_mk_grading_contract.part').read_text()
+for needle in ("function figureReady(q)", "figureMarkup(q)+options", "total:rows.length-excluded", "if(!figureReady(q))return;"):
+    assert needle in mock,'effective mock runtime missing '+needle
 for name in ('sw.js','cdn/sw.js'):
     sw=(R/name).read_text()
     for row in j['figures']:
