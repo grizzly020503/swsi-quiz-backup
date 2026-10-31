@@ -39,6 +39,7 @@ def validate(a,cross,manifest):
     assert cross['source_baseline']['essay_held']==18
     assert len(cross['targets'])==8
     assert {x['id'] for x in cross['targets']}==CANDIDATE_IDS
+    assert all(x['counted_as_cleared'] is False and x['human_approval'] is False and x['release_approved'] is False for x in cross['targets'])
     assert all(v is False for v in a['guarantees'].values())
     c=a['counts']
     assert c['original_mcq_review']==441
