@@ -10,6 +10,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import re
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
@@ -18,6 +19,7 @@ AUDIT = ROOT / "audit/official_104_1_direct_service_three_ocr_candidate_20261031
 SHARD = ROOT / "cdn/question-shards/104-1.json"
 MANIFEST = ROOT / "cdn/question-shards/manifest.json"
 REGISTRY = ROOT / "data/moex_source_subjects.v1.json"
+SHADOW_SQL = ROOT / "audit/official_104_1_direct_service_three_shadow_readonly_20261031.sql"
 IDS = {"DS-104-1-22": "A", "DS-104-1-27": "B", "DS-104-1-29": "D"}
 TEXT_FIELDS = {"question", "opt_a", "opt_b", "opt_c", "opt_d"}
 FALSE_GATES = (
@@ -171,6 +173,53 @@ def validate(candidate: dict, rows: list[dict], manifest: dict, registry: dict,
             "unaffected 104-1 row invariant violated")
 
 
+def validate_readonly_sql(candidate: dict) -> None:
+    """Check that the separately executed production-shadow artifact stays scoped.
+
+    Pure static guard; successful CI is not production SQL execution proof.
+    """
+    sql = SHADOW_SQL.read_text(encoding="utf-8")
+    without_comments = "\n".join(
+        line for line in sql.splitlines()
+        if not line.strip().startswith("--")
+    )
+    assert without_comments.lstrip().startswith("WITH candidate AS (")
+    assert without_comments.rstrip().endswith("FROM flags;")
+    assert without_comments.count(";") == 1, "Only one SQL statement allowed"
+    literal = re.search(
+        r"jsonb_array_elements\('((?:''|[^'])*)'::jsonb\)",
+        without_comments,
+    )
+    assert literal is not None, "SQL must carry exact three immutable full rows"
+    embedded = json.loads(literal.group(1).replace("''", "'"))
+    assert len(embedded) == 3
+    assert {x["id"] for x in embedded} == set(IDS)
+    for entry in embedded:
+        assert len(entry["before"]) == 37, "all 37 live columns required"
+        reference = next(x for x in candidate["proposed_changes"]
+                         if x["id"] == entry["id"])
+        assert entry["after_text"] == reference["proposed_fields"]
+        assert entry["expected_answer"] == reference["official_answer_unchanged"]
+        assert (entry["expected_accepted_answers"] ==
+                reference["accepted_answers_unchanged"])
+        assert (entry["expected_grading_mode"] ==
+                reference["grading_mode_unchanged"])
+        for name, value in reference["preimage_fields"].items():
+            assert entry["before"][name] == value, "baseline preimage drift"
+
+    stripped = without_comments.replace(literal.group(0), "jsonb_array_elements('[]'::jsonb)")
+    # Refuse write statements regardless of SQL keyword case.
+    assert not re.search(
+        r"\b(?:INSERT|UPDATE|DELETE|MERGE|CREATE|ALTER|DROP|TRUNCATE|GRANT|REVOKE|CALL|DO)\b",
+        stripped, re.IGNORECASE,
+    ), "read-only shadow file contains a write/DDL token"
+    assert "public.questions q" in stripped
+    assert "PASS_READONLY_SHADOW_ONLY" in stripped
+    assert "forbidden_field_changes_total" in stripped
+    assert "grade_tuples_unchanged" in stripped
+    assert "other_rows_byte_semantics_unchanged" in stripped
+
+
 def adversarial_selftest(candidate: dict, rows: list[dict],
                          manifest: dict, registry: dict, sha: str) -> None:
     cases = []
@@ -220,6 +269,7 @@ def main() -> int:
     registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = json.loads(raw)["questions"]
     validate(audit, rows, manifest, registry, physical_sha)
+    validate_readonly_sql(audit)
     adversarial_selftest(audit, rows, manifest, registry, physical_sha)
     print("REVIEW-ONLY OCR CANDIDATE QA PASS: 3 records/15 preimages, "
           "4800 official grade tuples untouched by this audit, "
