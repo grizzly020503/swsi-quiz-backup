@@ -19,6 +19,8 @@ on:
       - 'scripts/official_ten_source_integration_smoke.py'
       - 'scripts/official_1041_ds_ocr_candidate_selftest.py'
       - 'scripts/official_ocr_source_hold_audit.py'
+      - 'scripts/official_1041_live_preflight_sql_selftest.py'
+      - 'audit/official_1041_live_release_preflight_readonly_20261101.sql'
       - 'scripts/official_1041_ds_release_candidate_builder.py'
       - 'scripts/official_1041_ds_successor_overlay_smoke.py'
       - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
@@ -65,6 +67,8 @@ on:
       - 'scripts/official_ten_source_integration_smoke.py'
       - 'scripts/official_1041_ds_ocr_candidate_selftest.py'
       - 'scripts/official_ocr_source_hold_audit.py'
+      - 'scripts/official_1041_live_preflight_sql_selftest.py'
+      - 'audit/official_1041_live_release_preflight_readonly_20261101.sql'
       - 'scripts/official_1041_ds_release_candidate_builder.py'
       - 'scripts/official_1041_ds_successor_overlay_smoke.py'
       - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
@@ -159,6 +163,8 @@ jobs:
           python -m py_compile scripts/official_ocr_source_hold_audit.py
           python scripts/official_ocr_source_hold_audit.py --selftest
           python scripts/official_ocr_source_hold_audit.py --local
+          python -m py_compile scripts/official_1041_live_preflight_sql_selftest.py
+          python scripts/official_1041_live_preflight_sql_selftest.py
 
       - name: Check live 104-1 official OCR HOLD against public anon API (GET only)
         if: ${{ github.event_name == 'pull_request' || github.event_name == 'schedule' }}
