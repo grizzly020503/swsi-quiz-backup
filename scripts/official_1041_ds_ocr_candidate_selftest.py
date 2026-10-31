@@ -209,11 +209,14 @@ def validate_readonly_sql(candidate: dict) -> None:
     stripped = without_comments.replace(literal.group(0), "jsonb_array_elements('[]'::jsonb)")
     # Embedded 37-column JSON preimages contain prose semicolons. Ignore the
     # JSON literal before counting *SQL* statement separators.
-    assert stripped.count(";") == 1, "Only one SQL statement allowed"
+    # Also omit ordinary SQL quoted strings, e.g. the output description
+    # 'SELECT_ONLY; ...'. It is data, not an extra SQL statement.
+    sql_code_only = re.sub(r"'(?:''|[^'])*'", "''", stripped)
+    assert sql_code_only.count(";") == 1, "Only one SQL statement allowed"
     # Refuse write statements regardless of SQL keyword case.
     assert not re.search(
         r"\b(?:INSERT|UPDATE|DELETE|MERGE|CREATE|ALTER|DROP|TRUNCATE|GRANT|REVOKE|CALL|DO)\b",
-        stripped, re.IGNORECASE,
+        sql_code_only, re.IGNORECASE,
     ), "read-only shadow file contains a write/DDL token"
     assert "public.questions q" in stripped
     assert "PASS_READONLY_SHADOW_ONLY" in stripped
