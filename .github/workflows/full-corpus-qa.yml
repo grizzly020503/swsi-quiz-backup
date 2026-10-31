@@ -16,6 +16,8 @@ on:
       - 'scripts/official_shared_context_13row_integration_smoke.py'
       - 'scripts/official_ten_source_integration_smoke.py'
       - 'scripts/official_1041_ds_ocr_candidate_selftest.py'
+      - 'scripts/official_1041_ds_release_candidate_builder.py'
+      - 'scripts/official_1041_ds_successor_overlay_smoke.py'
       - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
       - 'audit/official_104_1_direct_service_three_shadow_readonly_20261031.sql'
       - 'audit/official_ten_source_release_transition_20261031.json'
@@ -57,6 +59,8 @@ on:
       - 'scripts/official_shared_context_13row_integration_smoke.py'
       - 'scripts/official_ten_source_integration_smoke.py'
       - 'scripts/official_1041_ds_ocr_candidate_selftest.py'
+      - 'scripts/official_1041_ds_release_candidate_builder.py'
+      - 'scripts/official_1041_ds_successor_overlay_smoke.py'
       - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
       - 'audit/official_104_1_direct_service_three_shadow_readonly_20261031.sql'
       - 'audit/official_ten_source_release_transition_20261031.json'
@@ -162,6 +166,36 @@ jobs:
           python scripts/official_shared_context_13row_integration_smoke.py
           python scripts/official_option_scenario_guard_selftest.py
           python scripts/official_option_scenario_guard.py --out /tmp/official-option-scenario-qa.json --fail-on-blocked
+
+      - name: Verify draft 104-1 successor against pinned historic release (NEVER publish)
+        run: |
+          set -eu
+          python -m py_compile \
+            scripts/official_1041_ds_release_candidate_builder.py \
+            scripts/official_1041_ds_successor_overlay_smoke.py
+          python scripts/official_1041_ds_release_candidate_builder.py \
+            --out /tmp/swsi-1041-draft-mainline-release-gate
+          python scripts/official_1041_ds_successor_overlay_smoke.py \
+            --candidate /tmp/swsi-1041-draft-mainline-release-gate \
+            --out /tmp/swsi-1041-draft-mainline-predecessor \
+            --adversarial-selftest
+          cmp cdn/question-shards/104-1.json \
+            /tmp/swsi-1041-draft-mainline-predecessor/cdn/question-shards/104-1.json
+          cmp cdn/question-shards/manifest.json \
+            /tmp/swsi-1041-draft-mainline-predecessor/cdn/question-shards/manifest.json
+          cmp data/official_exam_readonly.lock.json \
+            /tmp/swsi-1041-draft-mainline-predecessor/data/official_exam_readonly.lock.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/swsi-1041-draft-mainline-release-gate/candidate-evidence.json')
+          d=json.loads(p.read_text(encoding='utf-8'))
+          assert d['human_approval'] is False and d['published'] is False
+          assert d['status']=='STAGED_ONLY_HUMAN_APPROVAL_FALSE_PRODUCTION_NO_GO'
+          assert d['changed_official_lock_count']==3 and d['grading_unchanged_count']==4800
+          assert d['unaffected_exact_row_count']==4797 and d['essay_lock_count']==240
+          print('MAINLINE NO-GO SUCCESSOR GATE PASS: exact predecessor, three-field release lock, ten fail-closed tamper cases')
+          PY
 
       - name: Audit all manifest sessions through effective exam profiles
         run: |
