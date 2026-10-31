@@ -12,6 +12,7 @@ import argparse
 import copy
 import hashlib
 import json
+import tempfile
 from pathlib import Path
 
 from official_exam_readonly_guard import MCQ_FIELDS, canonical_row, row_hash
@@ -176,10 +177,94 @@ def verify(staged_root: Path) -> tuple[dict[str, bytes], dict]:
     }, evidence
 
 
+
+def adversarial_selftest(staged_root: Path) -> None:
+    """Demand that intentional mutations in the staged successor fail closed."""
+    paths = [
+        "cdn/question-shards/104-1.json",
+        "cdn/question-shards/manifest.json",
+        "data/official_exam_readonly.lock.json",
+    ]
+    original = {p: (staged_root / p).read_bytes() for p in paths}
+    changes = [
+        ("target question text", "shard", "DS-104-1-22", "question"),
+        ("unrelated question text", "shard", "DS-104-1-01", "opt_a"),
+        ("official grading", "shard", "DS-104-1-27", "answer"),
+        ("stale explanation retained", "shard", "DS-104-1-22", "exp_why"),
+        ("review status faked ready", "shard", "DS-104-1-29", "analysis_status"),
+        ("manifest revision", "manifest", "", "dataset_revision"),
+        ("manifest unrelated shard", "manifest", "104-2.json", "sha256"),
+        ("manifest forged publication", "manifest", "", "source"),
+        ("official target lock", "lock", "DS-104-1-22", ""),
+        ("official other lock", "lock", "DS-104-1-01", ""),
+    ]
+    for label, category, item_id, field in changes:
+        with tempfile.TemporaryDirectory(prefix="swsi-successor-tamper-") as directory:
+            tmp = Path(directory)
+            for path, data in original.items():
+                f = tmp / path
+                f.parent.mkdir(parents=True, exist_ok=True)
+                f.write_bytes(data)
+            if category == "shard":
+                file = tmp / paths[0]
+                obj = json.loads(file.read_bytes())
+                target = next((r for r in obj["questions"] if r["id"] == item_id), None)
+                must(target is not None, "selftest target unavailable " + item_id)
+                if field == "analysis_status":
+                    target[field] = "ready"
+                elif field == "answer":
+                    target[field] = "D" if target[field] != "D" else "A"
+                else:
+                    target[field] = str(target.get(field) or "") + " TAMPER"
+                file.write_bytes(stable(obj))
+                # Recompute all plausible manifest checksums, so the test
+                # cannot pass only because of a stale digest.
+                mf = tmp / paths[1]
+                m = json.loads(mf.read_bytes())
+                shard = next(x for x in m["shards"] if x["file"] == "104-1.json")
+                old_bytes = shard["bytes"]
+                shard["bytes"] = len(file.read_bytes())
+                shard["sha256"] = sha(file.read_bytes())
+                m["total_uncompressed_bytes"] += shard["bytes"] - old_bytes
+                m["dataset_revision"] = sha("\n".join(
+                    f"{x['file']}:{x['sha256']}" for x in m["shards"]
+                ).encode("utf-8"))[:20]
+                mf.write_bytes(stable(m))
+                if item_id in EXPECTED_CHANGED:
+                    lf = tmp / paths[2]
+                    l = json.loads(lf.read_bytes())
+                    from official_exam_readonly_guard import row_hash, canonical_row, MCQ_FIELDS
+                    l["mcq"][item_id] = row_hash(canonical_row(target, MCQ_FIELDS))
+                    lf.write_text(json.dumps(l, ensure_ascii=False, indent=2) + "\n",
+                                  encoding="utf-8")
+            elif category == "manifest":
+                file = tmp / paths[1]
+                obj = json.loads(file.read_bytes())
+                if item_id:
+                    entry = next(x for x in obj["shards"] if x["file"] == item_id)
+                    entry[field] = "0" * 64
+                else:
+                    obj[field] = "UNAUTHORIZED" if field == "source" else "0" * 20
+                file.write_bytes(stable(obj))
+            else:
+                file = tmp / paths[2]
+                obj = json.loads(file.read_bytes())
+                obj["mcq"][item_id] = "0" * 64
+                file.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n",
+                                encoding="utf-8")
+            try:
+                verify(tmp)
+            except (AssertionError, ValueError, KeyError, TypeError):
+                continue
+            raise AssertionError("SUCCESSOR NEGATIVE CHECK DID NOT FAIL: " + label)
+    print("SUCCESSOR ADVERSARIAL SELFTEST PASS: 10/10 unauthorized successor mutations rejected")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidate", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--adversarial-selftest", action="store_true")
     args = parser.parse_args()
     candidate = args.candidate.resolve()
     dest = args.out.resolve()
@@ -187,6 +272,8 @@ def main() -> int:
     must(not dest.exists(), "destination must not preexist")
     must(candidate != ROOT and ROOT not in candidate.parents, "must inspect external staged tree")
     originals, evidence = verify(candidate)
+    if args.adversarial_selftest:
+        adversarial_selftest(candidate)
     dest.mkdir(parents=True)
     for subpath, body in originals.items():
         file = dest / subpath
