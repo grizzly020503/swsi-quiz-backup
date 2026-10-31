@@ -23,6 +23,12 @@ for html in ('index.html','cdn/index.html'):
         assert needle in s,html+' missing '+needle
     for row in j['figures']:
         assert s.count("'"+row['id']+"'")>=1,html+' missing '+row['id']
+# The maintained runtime overrides the legacy HTML renderer. Guard that owner too.
+runtime=(R/'monthly_patch_parts/00.part').read_text()
+for needle in ("const figureReady=swsiOfficialFigureReady(item)",
+               "swsiOfficialFigureMarkup(item)", "if(!figureReady)optHTML=",
+               "if(!selected || !swsiOfficialFigureReady(queue[idx])) return;"):
+    assert needle in runtime,'canonical runtime missing '+needle
 for name in ('sw.js','cdn/sw.js'):
     sw=(R/name).read_text()
     for row in j['figures']:
