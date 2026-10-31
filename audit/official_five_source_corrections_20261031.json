@@ -4,7 +4,7 @@
   "base_main": "d6a17bd85abfe4c3c71092c666132393cbe7d4a9",
   "source_archive": "SWSI_20261025_official_pdf_layout_evidence.zip",
   "answer_archive": "SWSI_20261025_153_official_answer_pdf_evidence.zip",
-  "verification": "All five source-question and five standard-answer PDF byte hashes recalculated locally and matching original registry; original PDF text extracted and page renders inspected; independent human source approval not claimed.",
+  "verification": "Fresh official Q+S PDF downloads matched all ten pinned hashes; all edited source pieces were found in PDF text and the five target pages were visually checked. Corrected R-106-1 Q30 provenance from page3 to actual page4. Independent human approval remains false. Also downloaded corrected-answer t=M sheets: four official not-found HTML responses; SW-106-1 M PDF SHA verified, only Q36 is corrected (all nonblank responses score), target Q29 remains B. Existing parser Q+S/M rule checks agree; no grading changes proposed.",
   "source_question_count": 5,
   "official_answer_change": false,
   "other_rows_changed": false,
@@ -139,7 +139,12 @@
         "question_pdf_sha256": "86a2d3ef50bfbbb3df71cda6fd3215ce39def303e43b22bf9cfaa48e5ecb4951",
         "official_answer_pdf_sha256": "cfee626fcfca9131e6341b7376b28449f0e132d46577408654893df97e734a07",
         "pdf_page_number": 3,
-        "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0601&t=Q"
+        "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0601&t=Q",
+        "official_correction_pdf_sha256": "248fe70831bdaa1673f9e01844c03eaf6384203a51009d4458b39a1e7d54fe7f",
+        "correction_changed_question_numbers": [
+          36
+        ],
+        "target_answer_unchanged_by_correction": true
       },
       "edits": {
         "opt_b": "中華民國醫務社會服務協會",
@@ -222,7 +227,7 @@
         "pdf": "106030-107-0606.pdf",
         "question_pdf_sha256": "054c1bc1d7e673a811f1c786bca8e151d506eb99158f67f938f1d490436e7f11",
         "official_answer_pdf_sha256": "551850b0a48b2f8aeb652953050eb1d927b54404c13cabc4e9e6dcd61d126a6a",
-        "pdf_page_number": 3,
+        "pdf_page_number": 4,
         "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106030&c=107&s=0606&q=1"
       },
       "edits": {

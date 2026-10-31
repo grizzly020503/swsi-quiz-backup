@@ -18,6 +18,7 @@ ENRICH=('major','topic','keywords','exp_why','exp_others','exp_trap',
         'exp_raw','mnemonic','extension','law','mistake')
 GRADING=('answer','accepted_answers','grading_mode')
 IDENTITY=('id','subject','year','round','qno','source_exam_code','source_url')
+SOURCE_PAGES={'DS-104-1-30':3,'SW-106-1-29':3,'R-106-1-30':4,'SW-108-2-27':3,'DS-108-2-12':2}
 SOURCE_HASHES={
  'DS-104-1-30':('979233d2cb316565c4eed2b5c5289e89e5d21c0bb2b2076a7443887cd24ffadc','286717203ccd9e7c608ef257bafb942b68538ff949f10a95bbb76aa4b0e260dd','B'),
  'SW-106-1-29':('86a2d3ef50bfbbb3df71cda6fd3215ce39def303e43b22bf9cfaa48e5ecb4951','cfee626fcfca9131e6341b7376b28449f0e132d46577408654893df97e734a07','B'),
@@ -62,7 +63,11 @@ def validate_overlay(proof, rows, lock, manifest_raw):
         assert item['source']['official_answer_pdf_sha256']==official_a
         assert item['official_answer']==before['answer']==after['answer']==official_grade
         assert item['source']['question_source_url']==before['source_url']
-        assert item['source']['pdf_page_number'] in (2,3)
+        assert item['source']['pdf_page_number']==SOURCE_PAGES[ident]
+        if ident=='SW-106-1-29':
+            assert item['source']['official_correction_pdf_sha256']=='248fe70831bdaa1673f9e01844c03eaf6384203a51009d4458b39a1e7d54fe7f'
+            assert item['source']['correction_changed_question_numbers']==[36]
+            assert item['source']['target_answer_unchanged_by_correction'] is True
         assert item['file'] in SHARDS and item['file']==('104-1.json' if ident.startswith('DS-104-') else '106-1.json' if '106-1' in ident else '108-2.json')
         assert before['id']==after['id']==ident and index[ident]==after
         assert row_hash(canonical_row(before,MCQ_FIELDS))==item['before_core_lock_sha256']
@@ -109,7 +114,7 @@ def main():
         rows+=json.loads(b)['questions']
     locks=json.loads((ROOT/'data/official_exam_readonly.lock.json').read_text())
     validate_overlay(proof,rows,locks,raw)
-    for kind in ('target-question','wrong-answer','other-row','bad-lock','bad-source','bad-approval','bad-manifest','bad-enrichment'):
+    for kind in ('target-question','wrong-answer','other-row','bad-lock','bad-source','bad-approval','bad-manifest','bad-enrichment','bad-source-page','bad-correction-source'):
         p,r,l=copy.deepcopy((proof,rows,locks))
         t=next(v for v in r if v['id']=='SW-106-1-29')
         if kind=='target-question':t['opt_b']+='fabricated'
@@ -119,10 +124,12 @@ def main():
         elif kind=='bad-source':p['rows'][0]['source']['question_pdf_sha256']='0'*64
         elif kind=='bad-approval':p['human_approval']=True
         elif kind=='bad-manifest':p['new_manifest_sha256']='0'*64
+        elif kind=='bad-source-page':p['rows'][0]['source']['pdf_page_number']=1
+        elif kind=='bad-correction-source':next(x for x in p['rows'] if x['id']=='SW-106-1-29')['source']['official_correction_pdf_sha256']='0'*64
         else:t['analysis_status']='ready'
         try:validate_overlay(p,r,l,raw)
         except AssertionError:pass
         else:raise AssertionError('Incorrect official-core candidate accepted: '+kind)
-    print('OFFICIAL NEXT-FIVE SOURCE QA PASS: 5 original MOEX Q+answer PDFs, 4795 other full rows unchanged, 4800 grading tuples / 240 essay locks unchanged, 8 negatives rejected; NO HUMAN APPROVAL, NO DEPLOY')
+    print('OFFICIAL NEXT-FIVE SOURCE QA PASS: 5 original MOEX Q+answer PDFs, 4795 other full rows unchanged, 4800 grading tuples / 240 essay locks unchanged, 10 negatives rejected; NO HUMAN APPROVAL, NO DEPLOY')
 
 if __name__=='__main__':main()
