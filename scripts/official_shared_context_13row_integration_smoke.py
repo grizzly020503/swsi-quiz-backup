@@ -66,6 +66,11 @@ def main():
         assert hashlib.sha256(b).hexdigest()==meta['sha256'] and len(b)==meta['bytes']
         payload=json.loads(b);assert len(payload['questions'])==meta['question_count'];rows+=payload['questions']
     lock=json.loads((R/'data/official_exam_readonly.lock.json').read_text())
+    # Rewind only the independently source-backed two-row candidate before
+    # running the immutable 13-row check; keep all prior negative tests.
+    from official_two_question_transition_smoke import reverse_transition
+    two=json.loads((R/'audit/official_two_question_source_transition_20261031.json').read_text())
+    rows,lock,raw=reverse_transition(two,rows,lock,raw)
     validate_transition(proof,rows,lock,raw)
     for kind in ('target-wording','answer','source-url','unrelated-row','unrelated-lock','source-proof','old-lock','enrichment'):
         p,rs,lk=copy.deepcopy((proof,rows,lock));target=next(r for r in rs if r['id']=='R-105-2-14')
