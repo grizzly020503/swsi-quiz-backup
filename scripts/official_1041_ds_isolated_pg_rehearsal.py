@@ -267,6 +267,27 @@ BEGIN
     OR to_jsonb(q)->'accepted_answers' IS DISTINCT FROM b.original->'accepted_answers'
     OR to_jsonb(q)->'grading_mode' IS DISTINCT FROM b.original->'grading_mode';
  IF grade_changed <> 0 THEN RAISE EXCEPTION 'grading drift: %',grade_changed; END IF;
+ IF EXISTS (
+  SELECT 1 FROM jsonb_to_recordset({quoted(values)}::jsonb)
+   AS x(id text, question text,opt_a text,opt_b text,opt_c text,opt_d text)
+  LEFT JOIN public.questions q USING(id)
+  WHERE q.id IS NULL
+     OR q.question IS DISTINCT FROM x.question
+     OR q.opt_a IS DISTINCT FROM x.opt_a
+     OR q.opt_b IS DISTINCT FROM x.opt_b
+     OR q.opt_c IS DISTINCT FROM x.opt_c
+     OR q.opt_d IS DISTINCT FROM x.opt_d
+ ) THEN RAISE EXCEPTION 'actual 7-trigger text postimage differs from official source'; END IF;
+ IF EXISTS(
+  SELECT 1 FROM public.questions
+  WHERE id IN ('DS-104-1-22','DS-104-1-27','DS-104-1-29')
+    AND (major IS NOT NULL OR topic IS NOT NULL OR keywords IS NOT NULL
+      OR exp_why IS NOT NULL OR exp_others IS NOT NULL OR exp_trap IS NOT NULL
+      OR exp_raw IS NOT NULL OR mnemonic IS NOT NULL OR extension IS NOT NULL
+      OR law IS NOT NULL OR mistake IS NOT NULL OR analysis_attempts <> 0
+      OR analysis_error IS NOT NULL OR analysis_started_at IS NOT NULL
+      OR analysis_completed_at IS NOT NULL OR analysis_last_attempt_at IS NOT NULL)
+ ) THEN RAISE EXCEPTION 'obsolete enrichment/status metadata survived source correction'; END IF;
 END;$test$;
 ROLLBACK;
 DO $test$
