@@ -22,6 +22,29 @@ SHA={
 
 def digest(b):return hashlib.sha256(b).hexdigest()
 
+def projected_parent_shard_bytes(filename):
+    """Return bytes for the previous #499 parent after exact two-row undo.
+
+    Older release guards inspect on-disk shards rather than only in-memory rows;
+    verify the new file and reconstruct their known parent bytes in the two
+    changed shards. All other shards are read unchanged and still hash-checked.
+    """
+    raw=(R/'cdn/question-shards'/filename).read_bytes()
+    if filename not in ('105-2.json','106-1.json'):
+        return raw
+    proof=json.loads(PROOF.read_text())
+    changes=[x for x in proof['changes'] if x['file']==filename]
+    assert len(changes)==1
+    c=changes[0]
+    assert digest(raw)==c['shard_after_sha256'] and len(raw)==c['shard_after_bytes']
+    document=json.loads(raw)
+    actual=next(x for x in document['questions'] if x['id']==c['id'])
+    assert actual==c['full_after']
+    actual.clear();actual.update(c['full_before'])
+    prior=(json.dumps(document,ensure_ascii=False,separators=(',',':'))+'\\n').encode()
+    assert len(prior)==c['shard_before_bytes'] and digest(prior)==c['shard_before_sha256']
+    return prior
+
 def validate_overlay(p,rows,lock,manifest_raw):
     assert p['schema_version']==1 and p['scope']=='TWO_VERIFIED_MOEX_SOURCE_TEXT_P0_CANDIDATES'
     assert p['base_candidate']=='ada95f436a8b151967de1cdae59f8bac9a5dbc90'
