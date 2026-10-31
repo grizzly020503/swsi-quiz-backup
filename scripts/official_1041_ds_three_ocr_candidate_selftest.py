@@ -79,18 +79,7 @@ def main() -> None:
     registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
     validate(proof, shard, registry, manifest)
 
-    # Two tamper tests ensure no stale official text, rewritten answer or
-    # artificial human approval can silently pass.
-    proof_wrong = json.loads(json.dumps(proof))
-    proof_wrong["candidates"][0]["proposed"]["opt_a"] += " TAMPER"
-    try:
-        validate(proof_wrong, shard, registry, manifest)
-    except AssertionError:
-        pass
-    else:
-        # A different *candidate* can legitimately be proposed, so only
-        # immutable baseline/approval flags, not proposed text, can be proven.
-        pass
+    # Two negative tests catch fabricated approval and altered official grading.
     proof_wrong = json.loads(json.dumps(proof))
     proof_wrong["source_state"]["independent_human_approval"] = True
     try:
