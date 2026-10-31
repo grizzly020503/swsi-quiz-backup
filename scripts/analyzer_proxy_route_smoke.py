@@ -6,6 +6,7 @@ ANALYZER = ROOT / "supabase/functions/analyze-pending-questions/index.ts"
 WORKER = ROOT / "cloudflare/wandering-wave-4418/worker.js"
 WORKER_SMOKE = ROOT / "scripts/cloudflare_worker_smoke.js"
 GOLDEN = ROOT / "ai_eval/golden_set.json"
+CDN_PAGE = ROOT / "cdn/index.html"
 SHARD_WORKFLOW = ROOT / ".github/workflows/question-shards-publish.yml"
 RELEASE = ROOT / ".github/workflows/prepare-cloudflare-soft-launch-artifact.yml"
 CANDIDATE = ROOT / ".github/workflows/cloudflare-public-candidate.yml"
@@ -20,6 +21,7 @@ texts = {
     "worker": WORKER.read_text(encoding="utf-8"),
     "worker_smoke": WORKER_SMOKE.read_text(encoding="utf-8"),
     "golden": GOLDEN.read_text(encoding="utf-8"),
+    "cloudflare_cdn": CDN_PAGE.read_text(encoding="utf-8"),
     "shard_workflow": SHARD_WORKFLOW.read_text(encoding="utf-8"),
     "release": RELEASE.read_text(encoding="utf-8"),
     "candidate": CANDIDATE.read_text(encoding="utf-8"),
@@ -34,6 +36,9 @@ for name in ("analyzer", "golden", "shard_workflow"):
     assert DEPRECATED_MODEL not in texts[name], f"{name} still references deprecated Groq model {DEPRECATED_MODEL}"
 for name in ("analyzer", "worker", "worker_smoke", "golden", "shard_workflow"):
     assert CURRENT_MODEL in texts[name], f"{name} must reference current Groq model {CURRENT_MODEL}"
+
+assert f"const GROQ_MODEL = '{CURRENT_MODEL}';" in texts["cloudflare_cdn"], "Cloudflare student page must request the supported Groq model"
+assert DEPRECATED_MODEL not in texts["cloudflare_cdn"], "Cloudflare student page must not depend on deprecated frontend model alias"
 
 assert f'const DRAFT_MODEL = "{CURRENT_MODEL}";' in texts["analyzer"], "background analyzer draft model contract drifted"
 assert f'const PUBLIC_MODEL = "{CURRENT_MODEL}";' in texts["worker"], "public Worker model contract drifted"
