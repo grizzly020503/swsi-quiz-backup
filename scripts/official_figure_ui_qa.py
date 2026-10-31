@@ -89,8 +89,6 @@ for meta in manifest['shards']:
     assert len(raw)==meta['bytes'] and hashlib.sha256(raw).hexdigest()==meta['sha256']
     all_rows.extend(json.loads(raw)['questions'])
 lock=json.loads((R/'data/official_exam_readonly.lock.json').read_text())
-from official_combined_nineteen_integrity_smoke import reverse_overlay as reverse_new_eight
-all_rows,lock,manifest_raw=reverse_new_eight(all_rows,lock,manifest_raw)
 # Validate the newer, explicitly source-backed transition and reverse only its
 # thirteen exact rows/locks before running the unchanged historical guard.
 # No unrelated-row allowance or old-genogram quarantine is weakened.

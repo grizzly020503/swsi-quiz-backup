@@ -15,6 +15,7 @@ on:
       - 'data/official_exam_readonly.lock.json'
       - 'scripts/official_figure_ui_qa.py'
       - 'scripts/official_combined_nineteen_integrity_smoke.py'
+      - 'scripts/official_integrated_19_isolation_qa.py'
       - 'audit/official_combined_nineteen_candidate_20261031.json'
       - 'audit/official_five_source_corrections_20261031.json'
       - 'audit/official_three_truncations_20261031.json'
@@ -43,6 +44,7 @@ on:
       - 'data/official_exam_readonly.lock.json'
       - 'scripts/official_figure_ui_qa.py'
       - 'scripts/official_combined_nineteen_integrity_smoke.py'
+      - 'scripts/official_integrated_19_isolation_qa.py'
       - 'audit/official_combined_nineteen_candidate_20261031.json'
       - 'audit/official_five_source_corrections_20261031.json'
       - 'audit/official_three_truncations_20261031.json'
@@ -74,13 +76,7 @@ jobs:
         run: |
           python -m py_compile scripts/official_figure_ui_qa.py
           python scripts/official_combined_nineteen_integrity_smoke.py
-          python scripts/official_next_three_p0_source_smoke.py
-          python scripts/official_eight_p0_pdf_review_crosswalk_smoke.py
-          python scripts/official_428_review_priority_queue_smoke.py
-          python scripts/official_r105138_pdf_visual_nochange_smoke.py
-          python scripts/official_111_2_shared_context_six_smoke.py
-          python scripts/official_two_row_p0_candidate_smoke.py
-          python scripts/official_figure_ui_qa.py
+          python scripts/official_integrated_19_isolation_qa.py
           python scripts/official_exam_readonly_guard.py
   mobile-quiz-and-mock:
     runs-on: ubuntu-latest

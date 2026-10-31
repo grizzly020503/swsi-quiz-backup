@@ -165,8 +165,6 @@ def main():
         assert digest(raw) == shard['sha256'] and len(raw) == shard['bytes']
         rows.extend(json.loads(raw)['questions'])
     lock = json.loads((ROOT / 'data/official_exam_readonly.lock.json').read_text())
-    from official_combined_nineteen_integrity_smoke import reverse_overlay as reverse_new_eight
-    rows,lock,manifest_raw=reverse_new_eight(rows,lock,manifest_raw)
     from official_111_2_shared_context_six_smoke import validate_overlay as reverse_six
     six_proof=json.loads((ROOT/'audit/official_111_2_shared_context_six_20261031.json').read_text())
     from official_next_three_p0_source_smoke import validate_overlay as reverse_three

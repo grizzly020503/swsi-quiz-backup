@@ -103,8 +103,6 @@ def main():
     assert len(raw)==meta['bytes'] and digest(raw)==meta['sha256']
     rows.extend(json.loads(raw)['questions'])
   lock=json.loads((ROOT/'data/official_exam_readonly.lock.json').read_text())
-  from official_combined_nineteen_integrity_smoke import reverse_overlay as reverse_new_eight
-  rows,lock,manifest_raw=reverse_new_eight(rows,lock,manifest_raw)
   validate_overlay(proof,rows,lock,manifest_raw)
   for kind in ('source','answer','target','other-row','lock','approval','manifest','enrichment'):
     p,rs,lk=copy.deepcopy((proof,rows,lock))

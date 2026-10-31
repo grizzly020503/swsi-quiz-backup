@@ -66,8 +66,6 @@ def main():
         assert hashlib.sha256(b).hexdigest()==meta['sha256'] and len(b)==meta['bytes']
         payload=json.loads(b);assert len(payload['questions'])==meta['question_count'];rows+=payload['questions']
     lock=json.loads((R/'data/official_exam_readonly.lock.json').read_text())
-    from official_combined_nineteen_integrity_smoke import reverse_overlay as reverse_new_eight
-    rows,lock,raw=reverse_new_eight(rows,lock,raw)
     from official_two_row_p0_candidate_smoke import validate_overlay
     p0_proof=json.loads((R/'audit/official_two_row_p0_candidate_20261031.json').read_text())
     from official_111_2_shared_context_six_smoke import validate_overlay as reverse_six
