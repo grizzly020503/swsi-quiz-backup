@@ -50,6 +50,7 @@ def main() -> int:
             row.get("source_type"),
         )
         hosts = cfg.get("article_hosts") or []
+        assert hosts == row.get("article_hosts"), (name, "article host policy drift")
         assert hosts and len(hosts) == len(set(hosts)), (name, hosts)
         for host in hosts:
             assert re.fullmatch(r"[a-z0-9.-]+", str(host)), (name, host)
