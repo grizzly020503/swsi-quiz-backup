@@ -334,8 +334,28 @@ def main() -> int:
          "run_started_at": "2026-10-30T05:59:30Z"},
     ]
     now = watchdog.parse_time("2026-10-30T06:00:00Z")
-    monthly_missing = watchdog.evaluate_task(monthly, manual_only, now)
+    # The monthly workflow was added on Oct 2, after the Oct 1 schedule.
+    # Its first due time is Nov 1 at 03:47 UTC, with only six hours of
+    # expected GitHub schedule latency. Prior push/PR green does not count.
+    assert monthly["first_expected_at"] == "2026-11-01T03:47:00Z", monthly
+    assert monthly["first_run_grace_hours"] == 6, monthly
+    monthly_pending = watchdog.evaluate_task(monthly, manual_only, now)
+    assert monthly_pending["status"] == "pending_first_run", monthly_pending
+    assert monthly_pending["run_id"] is None, monthly_pending
+    just_before_expiry = watchdog.evaluate_task(
+        monthly, manual_only, watchdog.parse_time("2026-11-01T09:46:59Z")
+    )
+    assert just_before_expiry["status"] == "pending_first_run", just_before_expiry
+    monthly_missing = watchdog.evaluate_task(
+        monthly, manual_only, watchdog.parse_time("2026-11-01T09:47:00Z")
+    )
     assert monthly_missing["status"] == "missing", monthly_missing
+    pending_report = watchdog.build_report([monthly], lambda _: manual_only, now)
+    assert pending_report["summary"]["blocking"] == 0, pending_report
+    overdue_report = watchdog.build_report(
+        [monthly], lambda _: manual_only, watchdog.parse_time("2026-11-01T09:47:00Z")
+    )
+    assert overdue_report["summary"]["blocking"] == 1, overdue_report
     monthly_failed = watchdog.evaluate_task(monthly, manual_only + [
         {"id": 303, "event": "schedule", "conclusion": "failure",
          "run_started_at": "2026-10-29T03:47:00Z"},
@@ -351,10 +371,42 @@ def main() -> int:
          "run_started_at": "2026-09-01T03:47:00Z"},
     ], now)
     assert monthly_stale["status"] == "stale" and monthly_stale["run_id"] == 305, monthly_stale
-    blocking = watchdog.build_report(
-        [monthly], lambda _: manual_only, now
+    # An actual failed scheduled run blocks immediately even during the
+    # first-run grace. Grace can never excuse a completed failure.
+    first_failed = watchdog.evaluate_task(
+        monthly,
+        manual_only + [{
+            "id": 306, "event": "schedule", "conclusion": "failure",
+            "run_started_at": "2026-11-01T03:47:00Z",
+        }],
+        watchdog.parse_time("2026-11-01T03:48:00Z"),
     )
-    assert blocking["summary"]["blocking"] == 1, blocking
+    assert first_failed["status"] == "failed" and first_failed["run_id"] == 306, first_failed
+    first_ok = watchdog.evaluate_task(
+        monthly,
+        manual_only + [{
+            "id": 307, "event": "schedule", "conclusion": "success",
+            "run_started_at": "2026-11-01T03:47:00Z",
+        }],
+        watchdog.parse_time("2026-11-01T03:48:00Z"),
+    )
+    assert first_ok["status"] == "healthy" and first_ok["run_id"] == 307, first_ok
+    for invalid in (
+        {"first_expected_at": "not-a-date", "first_run_grace_hours": 6},
+        {"first_expected_at": "2026-11-01T03:47:00Z", "first_run_grace_hours": 99},
+        {"first_expected_at": "2026-11-01T03:47:00Z", "first_run_grace_hours": True},
+        {"first_run_grace_hours": 6},
+    ):
+        bad = dict(monthly)
+        bad.pop("first_expected_at", None)
+        bad.pop("first_run_grace_hours", None)
+        bad.update(invalid)
+        try:
+            watchdog.validate_registry({"schema_version": 1, "tasks": [bad]})
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"invalid bootstrap gate was accepted: {invalid}")
 
     # Daily Official PDF batch is a real scheduled source audit, not a PR
     # or manual run. A green manual dispatch must not conceal missed cron work.
