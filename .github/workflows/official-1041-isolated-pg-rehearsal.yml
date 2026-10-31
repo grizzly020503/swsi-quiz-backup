@@ -7,6 +7,7 @@ on:
       - '.github/workflows/official-1041-isolated-pg-rehearsal.yml'
       - 'scripts/official_1041_ds_isolated_pg_rehearsal.py'
       - 'scripts/official_1041_ds_release_candidate_builder.py'
+      - 'scripts/official_1041_ds_rollback_only_sql_builder.py'
       - 'scripts/official_1041_ds_successor_overlay_smoke.py'
       - 'audit/official_104_1_live_seven_trigger_definitions_20261031.json'
       - 'audit/official_104_1_direct_service_three_shadow_readonly_20261031.sql'
@@ -49,6 +50,30 @@ jobs:
             psql -U swsi_ci -d swsi_ci -v ON_ERROR_STOP=1 -X \
             < /tmp/swsi-1041-isolated-postgres-rollback.sql
 
+      - name: Generate strict 3x37 rollback-only official correction rehearsal SQL
+        shell: bash
+        run: |
+          python3 -m py_compile scripts/official_1041_ds_rollback_only_sql_builder.py
+          python3 scripts/official_1041_ds_rollback_only_sql_builder.py \
+            --out /tmp/swsi-1041-3row-ROLLBACK-ONLY.sql
+          python3 - <<'PY'
+          from pathlib import Path
+          sql=Path('/tmp/swsi-1041-3row-ROLLBACK-ONLY.sql').read_text()
+          assert sql.count('ROLLBACK;') == 1
+          assert 'BEGIN ISOLATION LEVEL SERIALIZABLE;' in sql
+          assert 'UPDATE public.questions q SET analysis_status' in sql
+          assert '3x37 original rows restored' in sql
+          assert not any(k in sql.upper() for k in ('TRUNCATE PUBLIC.', 'DROP TABLE PUBLIC.'))
+          print('Rollback-only controlled SQL generated; NOT for production')
+          PY
+
+      - name: Execute 3x37 actual trigger-correct release rehearsal and ROLLBACK
+        shell: bash
+        run: |
+          docker exec -i "${{ job.services.postgres.id }}" \
+            psql -U swsi_ci -d swsi_ci -v ON_ERROR_STOP=1 -X \
+            < /tmp/swsi-1041-3row-ROLLBACK-ONLY.sql
+          
       - name: Stage offline 104-1 shard, manifest and official lock (NEVER PUBLISH)
         shell: bash
         run: |
@@ -141,4 +166,5 @@ jobs:
           echo '- After ROLLBACK all 4,800 records match original baseline and AI job remains disabled.' >> "$GITHUB_STEP_SUMMARY"
           echo '- Seven exact live question trigger definitions reproduced; external AI cron/net helpers are harmless stubs, not a complete production replica.' >> "$GITHUB_STEP_SUMMARY"
           echo '- Human signoff and explicit production merge/deploy approval remain NO-GO.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Exact 3x37 original/preimage ROLLBACK-ONLY SQL rehearsal completed in disposable PG17; NO live updates.' >> "$GITHUB_STEP_SUMMARY"
           echo '- Staged 104-1 shard + manifest + Official Core lock emitted to an UNAPPROVED artifact only, never main/CDN.' >> "$GITHUB_STEP_SUMMARY"
