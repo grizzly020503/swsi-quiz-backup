@@ -100,6 +100,9 @@ def safe_article_url(link, article_hosts):
             return False
         if parsed.username is not None or parsed.password is not None:
             return False
+        # JS new URL() in the Edge function rejects malformed/out-of-range
+        # ports; urlsplit().hostname alone would wrongly accept them.
+        _ = parsed.port
         hostname = parsed.hostname.lower()
         return any(hostname == root or hostname.endswith("." + root) for root in article_hosts)
     except ValueError:
