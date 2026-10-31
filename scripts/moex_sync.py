@@ -165,10 +165,25 @@ def parse_essays(text, subject, exam_code, roc_year, round_name):
                 f"官方申論配分無法從 PDF 確認：{exam_code} "
                 f"{subject['name']} 第 {i + 1} 題；拒絕預設 20 分"
             )
-        if len(score_values) > 1 and sum(score_values) <= 40:
+        if any(score <= 0 for score in score_values):
+            raise RuntimeError(
+                f"官方申論配分標記無效：{exam_code} "
+                f"{subject['name']} 第 {i + 1} 題；拒絕零分或負分標記"
+            )
+        if len(score_values) > 1:
+            # Legacy behavior silently selected the last point marker when the
+            # combined sum exceeded 40. A source containing an overall score
+            # plus sub-question scores (e.g. 25, 10, 15) would then be imported
+            # as 15. Treat that ambiguity as manual review, never guess.
+            if sum(score_values) > 40:
+                raise RuntimeError(
+                    f"官方申論配分標記互相矛盾：{exam_code} "
+                    f"{subject['name']} 第 {i + 1} 題；"
+                    f"標記={score_values}；拒絕取最後一個分數"
+                )
             points = str(sum(score_values))
         else:
-            points = str(score_values[-1])
+            points = str(score_values[0])
         qno = str(i + 1)
         essays.append({
             "id": f"E-{roc_year}-{2 if round_name == '第二次' else 1}-{subject['prefix']}-{qno}",
