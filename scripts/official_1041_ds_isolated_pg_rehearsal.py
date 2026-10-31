@@ -2,7 +2,7 @@
 """Build a ZERO-SECRETS, isolated PostgreSQL 17 rehearsal from public SWSI CDN shards.
 
 Never connects to production. Output is for ephemeral GitHub Actions postgres service.
-The patched trigger below is a REVIEW CANDIDATE, not a deployed production fix.
+The two-step update sequence is a CANDIDATE, not a deployed production fix.
 """
 from __future__ import annotations
 
@@ -154,12 +154,7 @@ BEGIN
    NEW.analysis_attempts := 0; NEW.analysis_error := NULL;
    NEW.analysis_started_at := NULL; NEW.analysis_completed_at := NULL;
    NEW.analysis_last_attempt_at := NULL;
-   IF current_setting('swsi.official_core_review_only',true)='on'
-      AND session_user='postgres' THEN
-      NEW.analysis_status := 'review';
-   ELSE
-      NEW.analysis_status := 'pending';
-   END IF;
+   NEW.analysis_status := 'pending';
  END IF;
  RETURN NEW;
 END;$fn$;
@@ -179,7 +174,7 @@ END;$test$;
     first = candidates[0]
     out.write(f"""
 BEGIN;
-UPDATE public.questions SET question = question || ' [ISOLATED SYNTHETIC CHANGE]' WHERE id={quoted(first["id"])};
+UPDATE public.questions SET question = question || ' [ISOLATED SYNTHETIC CHANGE]', analysis_status='review' WHERE id={quoted(first["id"])};
 DO $test$
 BEGIN
  IF (SELECT analysis_status FROM public.questions WHERE id={quoted(first["id"])}) <> 'pending'
@@ -189,7 +184,10 @@ BEGIN
 END;$test$;
 ROLLBACK;
 """)
-    # Approved-mode candidate: 3 source-text rows, all 5 official text fields.
+    # Candidate is a two-step update: Official Core changes first (implicit pending),
+    # then explicit review-only status update in the SAME transaction. The
+    # existing auto-enable trigger only fires for explicit UPDATE OF analysis_status.
+    # It MUST NOT schedule analysis when finalizing a review status.
     props = []
     for change in candidates:
         obj = {"id": change["id"], **change["after_text"]}
@@ -197,11 +195,19 @@ ROLLBACK;
     values = json.dumps(props, ensure_ascii=False)
     out.write(f"""
 BEGIN;
-SET LOCAL swsi.official_core_review_only='on';
 UPDATE public.questions q
 SET question = x.question, opt_a=x.opt_a, opt_b=x.opt_b, opt_c=x.opt_c, opt_d=x.opt_d
 FROM jsonb_to_recordset({quoted(values)}::jsonb) AS x(id text, question text, opt_a text,opt_b text,opt_c text,opt_d text)
 WHERE q.id=x.id;
+DO $test$
+BEGIN
+ IF (SELECT count(*) FROM public.questions WHERE id IN ('DS-104-1-22','DS-104-1-27','DS-104-1-29') AND analysis_status='pending')<>3
+ OR (SELECT count(*) FROM public.mock_ai_schedule_events)<>0
+ OR (SELECT enabled FROM public.ai_analysis_job_config WHERE id=true)
+ THEN RAISE EXCEPTION 'first official-only UPDATE must reset pending but not launch AI'; END IF;
+END;$test$;
+UPDATE public.questions SET analysis_status='review'
+WHERE id IN ('DS-104-1-22','DS-104-1-27','DS-104-1-29');
 DO $test$
 DECLARE
   before_json jsonb;
@@ -233,7 +239,7 @@ BEGIN
  OR (SELECT count(*) FROM public.mock_ai_schedule_events)<>0
  OR (SELECT enabled FROM public.ai_analysis_job_config WHERE id=true)
  THEN RAISE EXCEPTION 'ROLLBACK not exact for all 4800 rows or AI job state'; END IF;
- RAISE NOTICE 'SWSI ISOLATED PG17 TRANSACTIONAL PASS: unsafe default reproduced; 3 safe review postimages; 4797 unchanged; 4800 grade tuples preserved; rollback exact; zero AI events';
+ RAISE NOTICE 'SWSI ISOLATED PG17 TRANSACTIONAL PASS: unsafe combined update reproduced; two-step 3 safe review postimages; 4797 unchanged; 4800 grade tuples preserved; rollback exact; zero AI events';
 END;$test$;
 """)
     content = out.getvalue()
