@@ -312,6 +312,167 @@ def main() -> int:
     assert "github.event.workflow_run.head_repository.full_name == github.repository" in live_job, "fork guard missing"
     assert "github.event.workflow_run.event != 'pull_request'" in live_job, "PR workflow_run guard missing"
 
+    # Backup is a separate *medium* degraded-redundancy signal, not evidence
+    # that Cloudflare primary production is unavailable.
+    uptime_tasks = [x for x in watchdog.validate_registry(
+        watchdog.read_json(watchdog.DEFAULT_REGISTRY)
+    ) if x["id"] in {"public-uptime", "backup-uptime"}]
+    assert len(uptime_tasks) == 2
+    primary = next(x for x in uptime_tasks if x["id"] == "public-uptime")
+    backup = next(x for x in uptime_tasks if x["id"] == "backup-uptime")
+    assert primary["workflow_file"] == "public-uptime.yml"
+    assert primary["criticality"] == "high"
+    assert backup["workflow_file"] == "backup-uptime.yml"
+    assert backup["criticality"] == "medium"
+    assert backup["accepted_events"] == ["schedule"]
+    assert backup["first_expected_at"] == "2026-11-01T01:23:00Z"
+    assert backup["first_run_grace_hours"] == 8
+    uptime_now = watchdog.parse_time("2026-11-01T02:00:00Z")
+    result = watchdog.build_report(
+        [primary, backup],
+        lambda workflow_file: [{
+            "id": 999,
+            "event": "schedule",
+            "conclusion": "failure" if workflow_file == "backup-uptime.yml" else "success",
+            "run_started_at": "2026-11-01T01:45:00Z",
+        }],
+        uptime_now,
+    )
+    assert result["summary"]["blocking"] == 0, result
+    assert [x["status"] for x in result["tasks"]] == ["healthy", "failed"], result
+    assert watchdog.evaluate_task(
+        backup, [], watchdog.parse_time("2026-10-31T03:00:00Z")
+    )["status"] == "pending_first_run"
+
+    # A monthly full-corpus schedule is a separate reliability requirement.
+    # Push/manual CI success must NEVER mask the absence/failure of the cron.
+    main_tasks = watchdog.validate_registry(watchdog.read_json(watchdog.DEFAULT_REGISTRY))
+    monthly_tasks = [t for t in main_tasks if t["id"] == "full-corpus-question-qa"]
+    assert len(monthly_tasks) == 1
+    monthly = monthly_tasks[0]
+    assert monthly["workflow_file"] == "full-corpus-qa.yml"
+    assert monthly["accepted_events"] == ["schedule"], (
+        "push/manual green would conceal a missed mandatory monthly full-corpus audit", monthly
+    )
+    assert monthly["expected_interval_hours"] == 744
+    assert monthly["max_age_hours"] == 840
+    assert monthly["criticality"] == "critical"
+    monthly_workflow = (ROOT / ".github/workflows/full-corpus-qa.yml").read_text(encoding="utf-8")
+    assert "cron: '47 3 1 * *'" in monthly_workflow, "monthly QA cron drifted"
+    manual_only = [
+        {"id": 301, "event": "workflow_dispatch", "conclusion": "success",
+         "run_started_at": "2026-10-30T05:59:00Z"},
+        {"id": 302, "event": "push", "conclusion": "success",
+         "run_started_at": "2026-10-30T05:59:30Z"},
+    ]
+    now = watchdog.parse_time("2026-10-30T06:00:00Z")
+    # The monthly workflow was added on Oct 2, after the Oct 1 schedule.
+    # Its first due time is Nov 1 at 03:47 UTC, with only six hours of
+    # expected GitHub schedule latency. Prior push/PR green does not count.
+    assert monthly["first_expected_at"] == "2026-11-01T03:47:00Z", monthly
+    assert monthly["first_run_grace_hours"] == 6, monthly
+    monthly_pending = watchdog.evaluate_task(monthly, manual_only, now)
+    assert monthly_pending["status"] == "pending_first_run", monthly_pending
+    assert monthly_pending["run_id"] is None, monthly_pending
+    just_before_expiry = watchdog.evaluate_task(
+        monthly, manual_only, watchdog.parse_time("2026-11-01T09:46:59Z")
+    )
+    assert just_before_expiry["status"] == "pending_first_run", just_before_expiry
+    monthly_missing = watchdog.evaluate_task(
+        monthly, manual_only, watchdog.parse_time("2026-11-01T09:47:00Z")
+    )
+    assert monthly_missing["status"] == "missing", monthly_missing
+    pending_report = watchdog.build_report([monthly], lambda _: manual_only, now)
+    assert pending_report["summary"]["blocking"] == 0, pending_report
+    overdue_report = watchdog.build_report(
+        [monthly], lambda _: manual_only, watchdog.parse_time("2026-11-01T09:47:00Z")
+    )
+    assert overdue_report["summary"]["blocking"] == 1, overdue_report
+    monthly_failed = watchdog.evaluate_task(monthly, manual_only + [
+        {"id": 303, "event": "schedule", "conclusion": "failure",
+         "run_started_at": "2026-10-29T03:47:00Z"},
+    ], now)
+    assert monthly_failed["status"] == "failed" and monthly_failed["run_id"] == 303, monthly_failed
+    monthly_good = watchdog.evaluate_task(monthly, manual_only + [
+        {"id": 304, "event": "schedule", "conclusion": "success",
+         "run_started_at": "2026-10-01T03:47:00Z"},
+    ], now)
+    assert monthly_good["status"] == "healthy" and monthly_good["run_id"] == 304, monthly_good
+    monthly_stale = watchdog.evaluate_task(monthly, manual_only + [
+        {"id": 305, "event": "schedule", "conclusion": "success",
+         "run_started_at": "2026-09-01T03:47:00Z"},
+    ], now)
+    assert monthly_stale["status"] == "stale" and monthly_stale["run_id"] == 305, monthly_stale
+    # An actual failed scheduled run blocks immediately even during the
+    # first-run grace. Grace can never excuse a completed failure.
+    first_failed = watchdog.evaluate_task(
+        monthly,
+        manual_only + [{
+            "id": 306, "event": "schedule", "conclusion": "failure",
+            "run_started_at": "2026-11-01T03:47:00Z",
+        }],
+        watchdog.parse_time("2026-11-01T03:48:00Z"),
+    )
+    assert first_failed["status"] == "failed" and first_failed["run_id"] == 306, first_failed
+    first_ok = watchdog.evaluate_task(
+        monthly,
+        manual_only + [{
+            "id": 307, "event": "schedule", "conclusion": "success",
+            "run_started_at": "2026-11-01T03:47:00Z",
+        }],
+        watchdog.parse_time("2026-11-01T03:48:00Z"),
+    )
+    assert first_ok["status"] == "healthy" and first_ok["run_id"] == 307, first_ok
+    for invalid in (
+        {"first_expected_at": "not-a-date", "first_run_grace_hours": 6},
+        {"first_expected_at": "2026-11-01T03:47:00Z", "first_run_grace_hours": 99},
+        {"first_expected_at": "2026-11-01T03:47:00Z", "first_run_grace_hours": True},
+        {"first_run_grace_hours": 6},
+    ):
+        bad = dict(monthly)
+        bad.pop("first_expected_at", None)
+        bad.pop("first_run_grace_hours", None)
+        bad.update(invalid)
+        try:
+            watchdog.validate_registry({"schema_version": 1, "tasks": [bad]})
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"invalid bootstrap gate was accepted: {invalid}")
+
+    # Daily Official PDF batch is a real scheduled source audit, not a PR
+    # or manual run. A green manual dispatch must not conceal missed cron work.
+    live_tasks = watchdog.validate_registry(watchdog.read_json(watchdog.DEFAULT_REGISTRY))
+    pdf_tasks = [t for t in live_tasks if t["id"] == "official-pdf-batch-pipeline"]
+    assert len(pdf_tasks) == 1, "official PDF daily job is missing from watchdog registry"
+    pdf_task = pdf_tasks[0]
+    assert pdf_task["workflow_file"] == "official-pdf-batch-pipeline.yml"
+    assert pdf_task["accepted_events"] == ["schedule"], "manual/PR audit runs must not mask missed cron"
+    assert pdf_task["expected_interval_hours"] == 24
+    assert pdf_task["max_age_hours"] == 36
+    assert pdf_task["criticality"] == "high"
+    pdf_workflow = (ROOT / ".github/workflows/official-pdf-batch-pipeline.yml").read_text(encoding="utf-8")
+    assert "- cron: '17 3 * * *'" in pdf_workflow, "daily PDF schedule drifted without a watchdog policy update"
+    pdf_runs = [
+        {"id": 201, "event": "schedule", "conclusion": "success",
+         "run_started_at": "2026-10-29T03:17:00Z"},
+        {"id": 202, "event": "workflow_dispatch", "conclusion": "success",
+         "run_started_at": "2026-10-30T05:59:00Z"},
+    ]
+    fresh_pdf = watchdog.evaluate_task(pdf_task, pdf_runs, watchdog.parse_time("2026-10-30T06:00:00Z"))
+    assert fresh_pdf["status"] == "healthy" and fresh_pdf["run_id"] == 201, fresh_pdf
+    stale_pdf = watchdog.evaluate_task(pdf_task, pdf_runs, watchdog.parse_time("2026-10-31T16:00:00Z"))
+    assert stale_pdf["status"] == "stale" and stale_pdf["run_id"] == 201, stale_pdf
+    failed_pdf = watchdog.evaluate_task(pdf_task, pdf_runs + [
+        {"id": 203, "event": "schedule", "conclusion": "failure",
+         "run_started_at": "2026-10-30T03:17:00Z"}
+    ], watchdog.parse_time("2026-10-30T06:00:00Z"))
+    assert failed_pdf["status"] == "failed" and failed_pdf["run_id"] == 203, failed_pdf
+    missing_pdf = watchdog.evaluate_task(pdf_task, pdf_runs[1:], watchdog.parse_time("2026-10-30T06:00:00Z"))
+    assert missing_pdf["status"] == "missing", missing_pdf
+    pdf_report = watchdog.build_report([pdf_task], lambda _: pdf_runs, watchdog.parse_time("2026-10-31T16:00:00Z"))
+    assert pdf_report["summary"]["blocking"] == 1, pdf_report
+
     print("OPS TASK WATCHDOG SELFTEST OK")
     return 0
 

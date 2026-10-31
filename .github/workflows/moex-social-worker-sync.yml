@@ -2,25 +2,7 @@ name: MOEX Social Worker Exam Sync
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/moex-social-worker-sync.yml'
-      - 'scripts/moex_sync.py'
-      - 'scripts/moex_sync_v2.py'
-      - 'scripts/test_moex_grading_modes.py'
-      - 'scripts/build_auto_payload.py'
-      - 'scripts/essay_enrichment_overlay_smoke.py'
-      - 'scripts/essay_enrichment_supabase_sync_smoke.py'
-      - 'scripts/health_check.py'
-      - 'scripts/health_check_v2.py'
-      - 'scripts/moex_workflow_ownership_smoke.py'
-      - 'scripts/moj_law_watch.py'
-      - 'data/essay_enrichment.json'
-      - 'data/legal_watch_names.json'
-      - 'supabase/functions/sync-essay-enrichment/index.ts'
-      - 'supabase/functions/import-moex-social-worker/index.ts'
+    # Explicit operator action; code changes never start write-capable imports.
   schedule:
     # 零成本正常模式：台灣時間每週一 10:35（UTC 02:35）。
     # 國考資料平時低頻檢查；接近已知考試放榜／更正窗口時，用 workflow_dispatch
@@ -38,6 +20,11 @@ concurrency:
 
 jobs:
   sync:
+    # Weekly schedule or explicit manual dispatch, ONLY on the protected main.
+    # Critical: never import/upsert/push from a PR or topic-branch ref.
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

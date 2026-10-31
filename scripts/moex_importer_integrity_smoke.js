@@ -11,7 +11,7 @@ for (const marker of [
   'verifyGitHubActionsOidcToken',
   'IMPORT_SYNC_POLICY',
   'moex-social-worker-sync.yml@refs/heads/main',
-  'new Set(["schedule", "workflow_dispatch", "push"])',
+  'new Set(["schedule", "workflow_dispatch"])',
   'GitHub Actions OIDC authorization rejected',
   'function assertSameIdentity',
   '["source_exam_code", incoming.source_exam_code, existing.source_exam_code]',

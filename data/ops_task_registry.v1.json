@@ -2,11 +2,19 @@
   "schema_version": 1,
   "policy": {
     "timezone": "UTC",
-    "status_order": ["healthy", "stale", "failed", "missing", "error"],
+    "status_order": [
+      "healthy",
+      "pending_first_run",
+      "stale",
+      "failed",
+      "missing",
+      "error"
+    ],
     "notes": [
       "This registry measures expected GitHub Actions task freshness.",
       "It does not prove independent monitoring of GitHub Actions itself.",
-      "External/independent heartbeat remains a separate P1-6 requirement."
+      "External/independent heartbeat remains a separate P1-6 requirement.",
+      "A new schedule may be pending only before its explicitly registered first due timestamp plus bounded grace; a completed failure still blocks immediately."
     ]
   },
   "tasks": [
@@ -14,7 +22,9 @@
       "id": "public-monitoring-feed",
       "workflow_file": "public-monitoring-feed.yml",
       "display_name": "Public Monitoring Feed",
-      "accepted_events": ["schedule"],
+      "accepted_events": [
+        "schedule"
+      ],
       "expected_interval_hours": 6,
       "max_age_hours": 8,
       "criticality": "high"
@@ -22,17 +32,34 @@
     {
       "id": "public-uptime",
       "workflow_file": "public-uptime.yml",
-      "display_name": "Public Uptime Sentinel",
-      "accepted_events": ["schedule"],
+      "display_name": "Cloudflare Primary Uptime Sentinel",
+      "accepted_events": [
+        "schedule"
+      ],
       "expected_interval_hours": 24,
       "max_age_hours": 30,
       "criticality": "high"
     },
     {
+      "id": "backup-uptime",
+      "workflow_file": "backup-uptime.yml",
+      "display_name": "Netlify Backup Uptime Sentinel",
+      "accepted_events": [
+        "schedule"
+      ],
+      "expected_interval_hours": 24,
+      "max_age_hours": 30,
+      "criticality": "medium",
+      "first_expected_at": "2026-11-01T01:23:00Z",
+      "first_run_grace_hours": 8
+    },
+    {
       "id": "moex-social-worker-sync",
       "workflow_file": "moex-social-worker-sync.yml",
       "display_name": "MOEX Social Worker Exam Sync",
-      "accepted_events": ["schedule"],
+      "accepted_events": [
+        "schedule"
+      ],
       "expected_interval_hours": 168,
       "max_age_hours": 192,
       "criticality": "critical"
@@ -41,10 +68,25 @@
       "id": "full-corpus-question-qa",
       "workflow_file": "full-corpus-qa.yml",
       "display_name": "Full Corpus Question QA",
-      "accepted_events": ["schedule", "workflow_dispatch", "push"],
+      "accepted_events": [
+        "schedule"
+      ],
       "expected_interval_hours": 744,
       "max_age_hours": 840,
-      "criticality": "critical"
+      "criticality": "critical",
+      "first_expected_at": "2026-11-01T03:47:00Z",
+      "first_run_grace_hours": 6
+    },
+    {
+      "id": "official-pdf-batch-pipeline",
+      "workflow_file": "official-pdf-batch-pipeline.yml",
+      "display_name": "Official PDF Batch Pipeline",
+      "accepted_events": [
+        "schedule"
+      ],
+      "expected_interval_hours": 24,
+      "max_age_hours": 36,
+      "criticality": "high"
     }
   ]
 }

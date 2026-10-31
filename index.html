@@ -817,8 +817,9 @@ function answerLabel(item){
       +'</div>'
       +'<div class="mk-qcard">'
       +'<div class="mk-qmeta">'+E(q.subject||'')+'　'+E(q.year||'')+' '+E(q.round||'')+'　'+E(q.major||'')+'</div>'
-      +'<div class="mk-q">'+E(q.q||'').replace(/\n/g,'<br>')+'</div>'
-      +optsHtml
+      +'<div class="mk-q">'+E(swsiOfficialFigureQuestion(q)).replace(/\n/g,'<br>')+'</div>'
+      +swsiOfficialFigureMarkup(q)
+      +(swsiOfficialFigureReady(q)?optsHtml:'<div class="mk-sub" role="status">原圖未載入，這題不可作答；若仍缺圖，交卷後不列入計分。</div>')
       +'</div>'
       +'<div class="mk-nav">'
       +'<button class="mk-btn ghost" onclick="MK.go(-1)" '+(idx===0?'disabled':'')+'>‹ 上一題</button>'
@@ -842,8 +843,9 @@ function answerLabel(item){
   function grade(auto){
     if(timer){clearInterval(timer);timer=null;} running=false;
     var letters=['A','B','C','D'];
-    var correct=0, answered=0, bySubj={}, wrong=[];
+    var correct=0, answered=0, excluded=0, bySubj={}, wrong=[];
     Q.forEach(function(q,i){
+      if(!swsiOfficialFigureReady(q)){excluded++;return;}
       var picked=ans[i]!=null?ans[i]:null;
       var ok=isCorrectAnswer(q,picked);
       if(ok) correct++;
@@ -856,7 +858,8 @@ function answerLabel(item){
       if(!ok) wrong.push({q:q,picked:picked});
     });
     var used=Math.max(0, Math.floor((Date.now()-t0)/1000));
-    var pct=Q.length?Math.round(correct/Q.length*100):0;
+    var gradedTotal=Q.length-excluded;
+    var pct=gradedTotal?Math.round(correct/gradedTotal*100):0;
 
     var subjHtml=Object.keys(bySubj).map(function(s){
       var o=bySubj[s], r=o.t?Math.round(o.c/o.t*100):0;
@@ -879,7 +882,8 @@ function answerLabel(item){
       if(!hideAnalysis && q.law) ex+='<div class="ln"><b>法源：</b>'+E(q.law)+'</div>';
       var pk=picked!=null?('你選 '+picked):'未作答';
       var tag=picked!=null?'<span class="mk-tag w">'+pk+'</span>':'<span class="mk-tag n">未作答</span>';
-      return '<div class="mk-rev"><div class="rq">'+E(q.q||'').slice(0,140)+((q.q||'').length>140?'…':'')+'</div>'
+      var displayedQ=(typeof swsiOfficialFigureQuestion==='function'?swsiOfficialFigureQuestion(q):(q.q||''));
+      return '<div class="mk-rev"><div class="rq">'+E(displayedQ).slice(0,140)+(displayedQ.length>140?'…':'')+'</div>'
         +'<div class="ln">'+tag+'<span class="mk-tag n">'+E((typeof answerLabel==='function')?answerLabel(q):('正解 '+(q.answer||'')))+'</span></div>'+ex+'</div>';
     }).join('');
 
@@ -888,8 +892,9 @@ function answerLabel(item){
       +'<div class="mk-top"><div class="mk-timer" style="color:var(--ink,#2A2C2A);font-size:var(--fs-q)">模擬考結果</div>'
       +'<div style="display:flex;align-items:center;gap:10px">'+fc()+'<button class="mk-x" onclick="MK.close()">✕</button></div></div>'
       +(auto?'<div class="mk-sub" style="color:var(--wrong,#9E6155);margin-top:14px">⏰ 時間到，已自動交卷。</div>':'')
-      +'<div class="mk-score"><div class="big">'+correct+' / '+Q.length+'</div>'
+      +'<div class="mk-score"><div class="big">'+correct+' / '+gradedTotal+'</div>'
       +'<div class="pct">答對率 '+pct+'%　·　作答 '+answered+' 題　·　用時 '+fmt(used)+'</div></div>'
+      +(excluded?'<div class="mk-sub" role="status">⚠ '+excluded+' 題原圖未載入，已排除計分。</div>':'')
       +(subjHtml?'<div class="mk-lab">各科表現</div>'+subjHtml:'')
       +(revHtml?'<div class="mk-lab">錯題與詳解（'+wrong.length+' 題）</div>'+revHtml:'<div class="mk-sub" style="margin-top:16px">🎉 全部答對！</div>')
       +'<div class="mk-nav" style="margin-top:18px"><button class="mk-btn ghost" onclick="MK.retry()">再考一次</button><button class="mk-btn go" onclick="MK.close()">完成</button></div>'
@@ -929,6 +934,7 @@ function answerLabel(item){
       run();
     },
     pick:function(L){
+      if(!swsiOfficialFigureReady(Q[idx]))return;
       ans[idx]=L;
       ['A','B','C','D'].forEach(function(x){ var el=document.getElementById('mk-opt-'+x); if(el){ if(x===L)el.classList.add('sel'); else el.classList.remove('sel'); } });
       var cells=ov.querySelectorAll('.mk-cell'); if(cells[idx])cells[idx].classList.add('done');
@@ -2130,10 +2136,49 @@ function doSearch(val){
   box.innerHTML=h;
 }
 
+
+/* ===== MOEX ORIGINAL FIGURES: image-gated, source-backed ===== */
+const SWSI_OFFICIAL_FIGURES=Object.freeze({
+  'DS-113-2-13':{asset:'./official-figures/DS-113-2-13.png',pdf:'https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113100&c=103&s=0302&q=1',alt:'原卷家系圖，含親屬、年齡與關係線。點擊放大以閱讀完整圖示。'},
+  'R-114-2-12':{asset:'./official-figures/R-114-2-12.png',pdf:'https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114100&c=103&s=0306&q=1',alt:'原卷量表圖，左右兩端分別是痛苦與快樂，中間有五個評分刻度。點擊放大以閱讀完整圖示。'}
+});
+const SWSI_FIGURE_STATUS=Object.create(null);
+function swsiNeedsOfficialFigure(q){return !!(q&&Object.prototype.hasOwnProperty.call(SWSI_OFFICIAL_FIGURES,q.id));}
+function swsiOfficialFigureReady(q){return !swsiNeedsOfficialFigure(q)||SWSI_FIGURE_STATUS[q.id]==='ready';}
+function swsiOfficialFigureQuestion(q){
+  let txt=String((q&&q.q)||'');
+  // Original imported surrogate describes the wrong relationship; show only
+  // the official stem with the actual figure. Dataset correction remains gated.
+  if(q&&q.id==='DS-113-2-13')txt=txt.replace('（圖示：62 歲男性與 24 歲女兒之間以鋸齒線連結）','');
+  return txt;
+}
+function swsiOfficialFigureLoaded(id,ok){
+  const status=ok?'ready':'missing';
+  if(SWSI_FIGURE_STATUS[id]===status)return;
+  SWSI_FIGURE_STATUS[id]=status;
+  if(typeof view!=='undefined'&&view==='quiz'&&typeof queue!=='undefined'&&queue[idx]&&queue[idx].id===id)render();
+  if(document.querySelector('.mk-ov [data-swsi-figure="'+id+'"]')&&window.MK)window.MK.go(0);
+}
+function swsiOfficialFigureMarkup(q){
+  if(!swsiNeedsOfficialFigure(q))return '';
+  const f=SWSI_OFFICIAL_FIGURES[q.id], status=SWSI_FIGURE_STATUS[q.id];
+  const img=status==='missing'?'':('<a href="'+f.asset+'" target="_blank" rel="noopener noreferrer" title="開啟考選部原圖放大" style="display:block;max-width:720px;margin:12px auto">'
+    +'<img src="'+f.asset+'" loading="eager" decoding="async" alt="'+f.alt+'" style="display:block;width:100%;height:auto;max-height:75vh;object-fit:contain;background:#fff;border-radius:10px"'
+    +' onload="swsiOfficialFigureLoaded(\''+q.id+'\',true)" onerror="swsiOfficialFigureLoaded(\''+q.id+'\',false)"></a>');
+  const hint=status==='missing'?'⚠ 原圖暫時無法載入，本題不計分；請查看官方原卷。'
+    :status==='ready'?'點擊原圖可放大，在手機上也能檢視細節。':'原圖載入中，載入完成之前暫停作答。';
+  return '<figure data-swsi-figure="'+q.id+'" style="margin:16px 0;padding:12px;border:1px solid #cbd7d2;border-radius:12px;background:#fafcfa">'
+    +'<figcaption style="font-size:14px;font-weight:650;line-height:1.6">考選部官方試題原圖（非 AI 重繪）</figcaption>'
+    +img+'<p role="status" style="font-size:13px;line-height:1.6;margin:8px 0;color:#4d5d57">'+hint+'</p>'
+    +'<a href="'+f.pdf+'" target="_blank" rel="noopener noreferrer" style="font-size:13px;text-decoration:underline">查看官方原始試卷 PDF</a></figure>';
+}
+/* ===== END MOEX ORIGINAL FIGURES ===== */
+
 function renderQuiz(){
   if(!queue.length){ app.innerHTML=`<div class="empty"><div class="ico">∅</div><h3>沒有符合的題目</h3><button class="btn" style="max-width:200px;margin:18px auto 0" onclick="go('home')">回首頁</button></div>`; return; }
   const item=queue[idx]; const pct=Math.round((idx/queue.length)*100);
   let optHTML='';
+  const officialFigureReady=swsiOfficialFigureReady(item);
   for(const k of ['A','B','C','D']){
     if(!item.options[k]) continue;
     let cls='opt';
@@ -2149,6 +2194,7 @@ function renderQuiz(){
     else if(answered&&k===selected) mk='<span class="mk"><b class="ck no">✗</b>你選的</span>';
     optHTML+=`<div class="${cls}" role="radio" aria-checked="${k===selected?'true':'false'}" tabindex="0" onclick="pick('${k}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pick('${k}')}"><span class="lab">${k}</span><span>${esc(item.options[k]).replace(/\n/g,'<br>')}</span>${mk}</div>`;
   }
+  if(!officialFigureReady)optHTML='<div class="pending" role="status">原圖未載入，本題不可作答；可略過且不計分。</div>';
   let expHTML='';
   if(answered){
     const wrong=!ansCorrect(selected,item); let body=gradingMode(item)==='all_credit'?'<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 官方特殊給分：</b>本題採一律給分規則，不代表四個選項在學理上都正確。</div>':(gradingMode(item)==='any_answer'?'<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 官方特殊給分：</b>本題除未作答外，其餘作答均給分。</div>':'');
@@ -2171,12 +2217,12 @@ function renderQuiz(){
     <div class="qcard">
       <div class="qmeta"><span class="tag subj">${esc(item.subject)}</span><span class="tag year">${esc(item.year)}年 ${esc(item.round)}</span>${yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':''}${(maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':''}${legalBadge(item)}</div>
       ${legalNotice(item)}
-      <div class="qtext">${esc(item.q).replace(/\n/g,'<br>')}</div>${optHTML}
-      ${!answered?`<button class="btn" ${selected?'':'disabled'} onclick="submit()">送出答案</button>`:''}${expHTML}
+      <div class="qtext">${esc(swsiOfficialFigureQuestion(item)).replace(/\n/g,'<br>')}</div>${swsiOfficialFigureMarkup(item)}${optHTML}
+      ${!answered?(officialFigureReady?`<button class="btn" ${selected?'':'disabled'} onclick="submit()">送出答案</button>`:`<button class="btn ghost" onclick="next()">略過缺圖題（不計分）→</button>`):''}${expHTML}
     </div>`;
 }
-function pick(k){ if(answered)return; selected=k; render(); }
-function submit(){ if(!selected)return; answered=true; const item=queue[idx], correct=ansCorrect(selected,item);
+function pick(k){ if(answered||!swsiOfficialFigureReady(queue[idx]))return; selected=k; render(); }
+function submit(){ if(!selected||!swsiOfficialFigureReady(queue[idx]))return; answered=true; const item=queue[idx], correct=ansCorrect(selected,item);
   sessionStats.done++; if(correct)sessionStats.correct++; else sessionStats.wrongTopics.push(item.topic||item.major);
   record(item,selected,correct); render(); }
 function next(){ if(idx+1<queue.length){idx++;selected=null;answered=false;window.scrollTo(0,0);render();} else {view='summary';window.scrollTo(0,0);render();} }
@@ -3192,5 +3238,314 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
 })();
 </script>
 <!-- SWSI UIUX V1 END -->
+
+<!-- SWSI CALM STUDENT DESIGN V2 START -->
+<style id="swsi-calm-student-design-v2">
+/*
+ * SWSI calm student experience (visual CSS only).
+ * Clear next action > progressive disclosure > trust. No grading/data/AI changes.
+ * Token contrast on white: ink-soft >= 6:1, pine-deep >= 8:1.
+ */
+:root{
+  --paper:#F4F7F5;
+  --paper2:#FFFFFF;
+  --ink:#23302C;
+  --ink-soft:#52615C;
+  --ink-3:#63716C;
+  --line:#DCE6DF;
+  --pine:#28685D;
+  --pine-deep:#1F544B;
+  --gold:#85704C;
+  --correct:#256B59;
+  --correct-bg:#EDF7F1;
+  --wrong:#A2443F;
+  --wrong-bg:#FFF2F0;
+  --ux-radius:18px;
+  --ux-touch:48px;
+  --swsi-calm-surface:#FFFFFF;
+  --swsi-calm-shadow:0 3px 12px rgba(28,60,49,.035),0 12px 32px rgba(28,60,49,.035);
+}
+body{
+  font-family:'Noto Sans TC',system-ui,sans-serif;
+  background:#F4F7F5;
+  background-image:radial-gradient(75% 40% at 100% 0%,rgba(56,131,107,.065),transparent 65%);
+  color:var(--ink);
+  line-height:1.7;
+}
+body .wrap{max-width:660px;}
+body header{
+  align-items:center;
+  padding:calc(13px + env(safe-area-inset-top)) 20px 12px;
+  background:rgba(244,247,245,.94);
+  border-bottom:1px solid rgba(220,230,223,.72);
+  box-shadow:0 2px 12px rgba(24,51,42,.025);
+}
+body .logo{font-size:19px;letter-spacing:.15px;color:#203A31;}
+body .logo small{letter-spacing:1.5px;color:var(--ink-soft);}
+body .logo::after{width:48px;height:2px;margin-top:7px;background:var(--pine);opacity:.75;}
+body .gear{color:var(--pine-deep);opacity:1;min-width:44px;min-height:44px;border-radius:12px;}
+body .fontctl{background:#FFF;border:1px solid var(--line);border-radius:12px;padding:3px;}
+body .fontctl button{width:38px;min-width:38px;height:38px;color:var(--ink-soft);}
+body .fontctl button.on{background:var(--pine-deep);color:white;box-shadow:0 2px 6px rgba(31,84,75,.14);}
+body main{padding:24px 20px 36px;}
+body .wrap{padding-bottom:calc(82px + env(safe-area-inset-bottom));}
+body .tabbar{
+  max-width:660px;
+  padding:5px 7px env(safe-area-inset-bottom);
+  background:rgba(255,255,255,.975);
+  border:1px solid var(--line);
+  border-bottom:0;
+  border-radius:18px 18px 0 0;
+  box-shadow:0 -7px 28px rgba(33,58,49,.065);
+}
+body .tabbar button{
+  min-width:0;min-height:60px;
+  padding:8px 5px 10px;border-radius:11px;
+  font-family:'Noto Sans TC',sans-serif;font-size:12px;
+  color:var(--ink-soft);
+}
+body .tabbar button.on{background:#EDF6F0;color:var(--pine-deep);font-weight:800;}
+body .tabbar .ico{font-size:20px;}
+body .tabbar .swsi-nav-label{font-size:12px;line-height:1.3;}
+
+/* The first screen is a calm decision surface, not a saturated dashboard. */
+body .ux-home-intro,body .hero{
+  background:linear-gradient(130deg,#FFFFFF 3%,#F0F6F1 100%);
+  color:var(--ink);
+  border:1px solid #D5E6DB;
+  border-left:5px solid var(--pine);
+  border-radius:21px;
+  padding:27px 23px;
+  box-shadow:var(--swsi-calm-shadow);
+  margin-bottom:20px;
+}
+body .ux-home-intro h1,body .hero h1{font-size:clamp(24px,4.5vw,30px);line-height:1.38;letter-spacing:0;font-weight:900;color:#213E34;}
+body .ux-home-intro .eyebrow{color:#35695B;opacity:1;letter-spacing:1.2px;}
+body .ux-home-intro p,body .hero .tagline{color:var(--ink-soft);opacity:1;font-size:14px;line-height:1.7;}
+body .ux-home-meta span,body .hero .chip{
+  background:#F4F8F5;
+  border:1px solid #DCEAE0;
+  color:#37584B;
+  font-size:12px;
+  font-weight:700;
+  border-radius:999px;
+}
+body .swsi-focus-primary,body .ux-main-card.primary{
+  background:#FFFFFF;
+  border:1.5px solid #B9D5C5;
+  border-radius:21px;
+  box-shadow:0 4px 24px rgba(24,78,58,.075);
+}
+body .swsi-focus-primary{padding:21px;}
+body .ux-main-card{background:white;border:1px solid var(--line);border-radius:19px;padding:21px;}
+body .ux-card-title{color:var(--ink);font-size:18px;letter-spacing:0;}
+body .ux-card-sub,body .ux-link-card .sub,body .ux-page-head p{font-size:13px;color:var(--ink-soft);line-height:1.7;}
+body .ux-link-card,body .gcard,body .ecard,body .swsi-study-card,body .swsi-essay-action-card{
+  background:var(--swsi-calm-surface);
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:var(--swsi-calm-shadow);
+}
+body .ux-link-card{min-height:78px;padding:18px 19px;margin-bottom:12px;}
+body .ux-link-card.hot{border-color:#E7C6C1;background:#FFF8F7;}
+body .ux-link-card .title{font-size:16px;letter-spacing:0;color:var(--ink);}
+body .ux-link-card .arrow{color:var(--pine);font-size:20px;}
+body .ux-badge{color:var(--wrong);background:var(--wrong-bg);}
+body .ux-custom,body .ux-review-rule{background:#FFF;border-color:var(--line);border-radius:17px;}
+body .ux-page-head h2,body .section-h{color:var(--ink);letter-spacing:0;line-height:1.4;}
+body .ux-tools{gap:11px;margin-top:16px;}
+body .ux-tools button,body .swsi-home-quick button{
+  min-height:48px;
+  background:#FFF;color:var(--pine-deep);
+  border:1px solid #C7D8CE;
+  border-radius:13px;font-weight:750;
+}
+body .ux-btn-main,body .btn:not(.ghost),body .swsi-essay-action-card button.go{
+  min-height:var(--ux-touch);
+  background:var(--pine-deep);
+  border:1px solid var(--pine-deep);
+  color:white;
+  border-radius:13px;
+  letter-spacing:0;
+  font-weight:800;
+  box-shadow:0 3px 10px rgba(24,78,61,.12);
+}
+body .btn:disabled{background:#C2CDC6;border-color:#C2CDC6;box-shadow:none;color:#43564C;}
+/* A disabled answer action must be visibly inactive AND readable (WCAG AA). */
+body #app .qcard .btn:not(.ghost):disabled{
+  background:#E5ECE7;
+  border-color:#BED0C4;
+  color:#3E554A;
+  opacity:1;
+  box-shadow:none;
+  cursor:not-allowed;
+}
+body .btn.ghost,body .ux-btn-soft,body .swsi-essay-action-card button.choose{
+  background:#FFF;
+  color:var(--pine-deep);
+  border:1.5px solid #A6C4B3;
+  border-radius:13px;
+  box-shadow:none;
+}
+body select.subj,body .wta{
+  background-color:#FFFFFF;
+  border:1.5px solid #B8CFC1;
+  border-radius:13px;
+  color:var(--ink);
+  min-height:var(--ux-touch);
+}
+body select.subj{padding-top:12px;padding-bottom:12px;}
+body .qcard{
+  background:#FFF;
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:23px 21px;
+  box-shadow:var(--swsi-calm-shadow);
+}
+body .qmeta{margin-bottom:18px;gap:8px;}
+body .tag{font-size:11px;border-radius:8px;padding:5px 9px;}
+body .tag.subj{background:#E9F4EE;color:var(--pine-deep);}
+body .tag.year{background:#F3F4EE;color:#655D43;}
+body .qtext{font-size:var(--fs-q);font-weight:650;line-height:1.82;margin-bottom:21px;letter-spacing:0;}
+body .opt{
+  display:flex;min-height:58px;
+  padding:15px 16px;
+  margin-bottom:11px;
+  background:#FFFFFF;
+  border:1.5px solid #D7E1DA;
+  border-radius:14px;
+  line-height:1.7;
+  color:var(--ink);
+}
+body .opt .lab{color:var(--pine-deep);font-weight:800;}
+body .opt.sel{border-color:var(--pine);background:#F0F7F2;}
+body .opt.correct{border-color:var(--correct);background:var(--correct-bg);}
+body .opt.wrong{border-color:var(--wrong);background:var(--wrong-bg);}
+body .pbar{height:8px;background:#E0E9E2;}
+body .pbar i{background:var(--pine);}
+body .pcount{color:var(--ink-soft);font-size:13px;font-weight:700;}
+body .quit{color:var(--ink-soft);min-height:44px;text-underline-offset:3px;}
+body .exp{border-top:1px solid #DCE7DE;padding-top:19px;}
+body .exp-sec h4{color:var(--pine-deep);letter-spacing:0;}
+body .exp-sec p,body .ebody,body .gtext,body .glist li{color:var(--ink);line-height:1.78;}
+body .swsi-answer-line{background:#ECF6EF;color:var(--pine-deep);border-color:#C9E0CF;}
+body .swsi-core-reason{background:#F4F8F5;border-left-color:var(--pine);}
+body .swsi-explanation-more,body .swsi-answer-trust{
+  background:#FFF;border:1px solid var(--line);border-radius:13px;
+}
+body .swsi-explanation-more summary,body .swsi-answer-trust summary{min-height:46px;color:var(--pine-deep);}
+body .stat,body .sumcard{background:#FFF;border:1px solid var(--line);border-radius:15px;box-shadow:none;}
+body .stat .k,body .gcard .cnt,body .section-s{color:var(--ink-soft);}
+body .wta{padding:15px 16px;line-height:1.85;}
+body .fbtn,body .gbtn{min-height:44px;border-radius:11px;}
+body .pending,body .extra{border-color:var(--line);background:#F7F9F7;color:var(--ink-soft);}
+body .ux-note,body .ux-subhead{color:var(--ink-soft);}
+body .swsi-data-version summary{color:#52615C;}
+
+/* Live product-philosophy homepage: these are the ACTIVE Cloudflare DOM classes. */
+body .swsi-focus-hero{
+  padding:25px 24px;
+  margin:0 0 17px;
+  background:linear-gradient(135deg,#FFFFFF 8%,#F1F7F2 100%);
+  border:1px solid #D6E7DD;
+  border-left:4px solid var(--pine);
+  border-radius:19px;
+  box-shadow:none;
+}
+body .swsi-focus-hero .kicker{font-size:12px;letter-spacing:1px;color:var(--pine-deep);}
+body .swsi-focus-hero h1{font-size:clamp(24px,5vw,30px);font-weight:900;color:var(--ink);line-height:1.42;}
+body .swsi-focus-hero p{font-size:14px;line-height:1.75;color:var(--ink-soft);max-width:44em;}
+body .swsi-focus-primary .label{color:var(--pine-deep);font-size:12px;letter-spacing:.6px;}
+body .swsi-focus-primary h2{font-size:19px;color:var(--ink);line-height:1.4;}
+body .swsi-focus-primary p{font-size:13px;color:var(--ink-soft);line-height:1.7;}
+body .swsi-focus-actions{gap:10px;margin-top:18px;}
+body .swsi-focus-actions button{min-height:52px;border-radius:13px;font-size:14px;}
+body .swsi-focus-actions .go{background:var(--pine-deep);color:#FFF;border-color:var(--pine-deep);box-shadow:0 4px 11px rgba(29,77,59,.12);}
+body .swsi-focus-actions .choose{background:#FFF;color:var(--pine-deep);border:1.5px solid #B8D0C1;}
+body .swsi-focus-custom{background:#FFF;border:1px solid var(--line);border-radius:17px;padding:18px 18px 20px;margin:0 0 16px;}
+body .swsi-focus-custom .field-label,body .swsi-focus-custom .hint{color:var(--ink-soft);}
+body .swsi-study-card{padding:18px 17px;margin:0 0 11px;border:1px solid var(--line);border-radius:16px;}
+body .swsi-study-card.due{border-color:#E5CBC5;background:#FFFAF8;}
+body .swsi-study-card .title{font-size:16px;color:var(--ink);}
+body .swsi-study-card .sub{font-size:12.5px;color:var(--ink-soft);line-height:1.65;}
+body .swsi-study-card .aside{color:var(--pine);}
+body .swsi-home-quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0 12px;border:0;}
+body .swsi-home-quick button{min-height:56px;padding:12px 11px;font-size:13.5px;background:#FFF;color:var(--pine-deep);border:1px solid #C7D8CE;border-radius:14px;}
+body .swsi-home-quick button+button{border-left:1px solid #C7D8CE;}
+body .swsi-home-quick button.due{border-color:#E1C3BA;background:#FFF8F5;color:#874438;}
+body .swsi-home-resource{min-height:48px;color:var(--ink-soft);font-size:12.5px;}
+body :is(button,a,summary,select,input,textarea,[role="button"]):focus-visible{
+  outline:3px solid #227866;
+  outline-offset:3px;
+}
+@media (hover:hover){
+  body .ux-link-card:hover,body .gcard:hover,body .ecard:hover{border-color:#AACDB8;box-shadow:0 8px 28px rgba(25,80,59,.075);}
+  body .opt:hover:not(.correct):not(.wrong){border-color:#8FBBA2;background:#F7FBF8;}
+  body .ux-btn-main:hover,body .btn:not(.ghost):not(:disabled):hover{background:#153F38;}
+}
+@media (min-width:768px){
+  body .wrap{max-width:790px;}
+  body header{padding:17px 30px 16px;}
+  body main{padding:30px 36px 56px;}
+  body .tabbar{max-width:520px;bottom:14px;border:1px solid var(--line);border-radius:18px;padding:5px 8px;box-shadow:0 9px 38px rgba(22,62,44,.12);}
+  body .wrap{padding-bottom:104px;}
+  body .ux-home-intro,body .hero{padding:31px 34px;}
+  body .ux-main-card{padding:25px 26px;}
+  body .ux-link-card{padding:20px 24px;}
+  body .qcard{padding:30px 34px;}
+  body .swsi-home-quick{gap:14px;}
+}
+@media (min-width:1240px){
+  /* Give laptop/desktop users a proper side navigation; keep the mobile tab bar unchanged. */
+  body .tabbar{
+    left:calc(50% + 435px)!important;
+    right:auto;
+    top:114px;
+    /* Legacy mobile bottom constraints can stretch a fixed top-positioned nav. */
+    bottom:auto!important;
+    height:max-content!important;
+    min-height:0!important;
+    max-height:calc(100vh - 132px);
+    overflow-y:auto;
+    transform:none!important;
+    width:154px!important;
+    max-width:154px!important;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    padding:8px;
+    background:#FFFFFF;
+    border:1px solid var(--line);
+    border-radius:18px;
+    box-shadow:0 8px 24px rgba(22,62,44,.065);
+  }
+  body .tabbar button{
+    width:100%;
+    flex:0 0 auto;
+    display:flex;
+    flex-direction:row;
+    justify-content:flex-start;
+    align-items:center;
+    gap:11px;
+    min-height:48px;
+    padding:9px 12px;
+    text-align:left;
+  }
+  body .tabbar .ico{flex:0 0 auto;font-size:18px;}
+  body .wrap{padding-bottom:28px;}
+}
+@media (max-width:370px){
+  body header{padding-left:12px;padding-right:12px;}
+  body main{padding-left:14px;padding-right:14px;}
+  body .ux-home-intro,body .hero{padding:20px 18px;}
+  body .ux-actions{grid-template-columns:minmax(0,1fr);}
+  body .ux-link-card{padding:16px;}
+  body .qcard{padding:18px 15px;}
+}
+@media (prefers-reduced-motion:reduce){
+  body .opt,body .gcard,body .ux-link-card,body .btn{transition:none;animation:none;}
+}
+</style>
+<!-- SWSI CALM STUDENT DESIGN V2 END -->
 </body>
 </html>

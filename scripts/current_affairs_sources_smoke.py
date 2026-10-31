@@ -2,10 +2,15 @@
 """Regression contract for curated SWSI current-affairs sources and relevance."""
 from __future__ import annotations
 
+import io
 import json
+import os
+import sys
+from contextlib import redirect_stdout
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import current_affairs_watch as watch
 
@@ -348,7 +353,91 @@ def mandatory_feed_coverage_contract() -> None:
             raise AssertionError(f"mandatory feed outage with {failures} failures must abort")
 
 
+def article_source_host_contract() -> None:
+    """Trusted HTTPS hosts pass; lookalikes and foreign feed links fail closed."""
+    feeds = {row["name"]: row for row in watch.load_feeds()}
+    assert len(feeds) == watch.EXPECTED_SOURCE_COUNT
+    cna = feeds["中央社社會"]
+    assert cna["url"].startswith("https://feeds.feedburner.com/")
+    assert cna["article_hosts"] == ["cna.com.tw"]
+    assert watch.safe_article_url("https://www.cna.com.tw/news/asoc/202610310001.aspx", cna["article_hosts"])
+    assert watch.safe_article_url("https://cna.com.tw/news/asoc/1", cna["article_hosts"])
+    assert not watch.safe_article_url("https://feeds.feedburner.com/rsscna/social", cna["article_hosts"])
+    assert not watch.safe_article_url("https://cna.com.tw.attacker.test/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("https://badcna.com.tw/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("http://www.cna.com.tw/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("https://www.cna.com.tw:65536/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("https://www.cna.com.tw:notaport/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("https://www.cna.com.tw@evil.test/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("https://evil.test@www.cna.com.tw/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("javascript:alert(1)", cna["article_hosts"])
+    assert not watch.safe_article_url("https://www.cna.com.tw\\\\@evil.test/news/1", cna["article_hosts"])
+    who = feeds["WHO Newsroom"]
+    assert watch.safe_article_url("https://www.who.int/news/item/test", who["article_hosts"])
+    assert not watch.safe_article_url("https://untrusted.example/news/item/test", who["article_hosts"])
+
+
+def scanner_source_url_preflight_contract() -> None:
+    """Run the actual scanner loop offline: reject one scored poisoned feed link."""
+    feeds = {row["name"]: row for row in watch.load_feeds()}
+    cna = feeds["中央社社會"]
+    allowed = "https://www.cna.com.tw/news/asoc/202610310001.aspx"
+    foreign = "https://cna.com.tw.attacker.test/news/asoc/202610310002.aspx"
+    assert watch.safe_article_url(allowed, cna["article_hosts"])
+    assert not watch.safe_article_url(foreign, cna["article_hosts"])
+
+    def fake_parse(feed):
+        entries = []
+        if feed["name"] == "中央社社會":
+            entries = [
+                SimpleNamespace(title="社工專業新制生效", summary="社會工作制度修法", link=allowed),
+                SimpleNamespace(title="社工專業新制生效", summary="社會工作制度修法", link=foreign),
+            ]
+        return SimpleNamespace(entries=entries), None
+
+    old_parser = watch.parse_source_with_retry
+    old_score = watch.score_item
+    old_argv = sys.argv
+    try:
+        # Force both items past the relevance gate. This exercises the source
+        # admission check in main(), not just the safe_article_url helper.
+        watch.parse_source_with_retry = fake_parse
+        watch.score_item = lambda *args, **kwargs: (7, "社工專業與社福制度", ["社工"])
+        with TemporaryDirectory() as tmp:
+            output = Path(tmp) / "affairs.json"
+            sys.argv = ["current_affairs_watch.py", "--output", str(output), "--days", "21"]
+            # Exercise the real scanner with the GitHub Actions environment
+            # that must surface quarantined URLs without failing the sync.
+            with patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}):
+                with redirect_stdout(io.StringIO()) as log:
+                    assert watch.main() == 0
+            data = json.loads(output.read_text(encoding="utf-8"))
+            assert data["feed_count"] == watch.EXPECTED_SOURCE_COUNT, data
+            assert data["fetched_count"] == 2, data
+            assert data["accepted_count"] == 1, data
+            assert data["source_url_rejected_count"] == 1, data
+            assert [item["source_url"] for item in data["items"]] == [allowed], data
+            assert foreign not in output.read_text(encoding="utf-8")
+            assert "Feed ARTICLE URL REJECTED: source=中央社社會" in log.getvalue()
+            assert "::warning title=Current-affairs URL quarantine::1 article URL(s) rejected" in log.getvalue()
+            assert foreign not in log.getvalue(), "untrusted URL must not appear in Actions annotations"
+            # A zero-rejection scan must not issue an unnecessary warning.
+            with patch.object(watch, "safe_article_url", return_value=True):
+                with patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}):
+                    with redirect_stdout(io.StringIO()) as clean_log:
+                        assert watch.main() == 0
+            clean_data = json.loads(output.read_text(encoding="utf-8"))
+            assert clean_data["source_url_rejected_count"] == 0, clean_data
+            assert "::warning title=Current-affairs URL quarantine::" not in clean_log.getvalue()
+    finally:
+        watch.parse_source_with_retry = old_parser
+        watch.score_item = old_score
+        sys.argv = old_argv
+
+
 def main() -> int:
+    article_source_host_contract()
+    scanner_source_url_preflight_contract()
     mandatory_feed_coverage_contract()
     source_registry_fail_closed_contract()
     retry_contract()
