@@ -33,7 +33,11 @@ def validate(a,cross,manifest):
     child=json.loads((ROOT/'audit/official_next_three_p0_source_candidate_20261031.json').read_text())
     parent=json.loads(child['old_manifest_raw'])
     assert source['candidate_dataset_revision']==parent['dataset_revision']
-    assert child['dataset_revision_after']==manifest['dataset_revision']
+    combined=json.loads((ROOT/'audit/official_combined_nineteen_candidate_20261031.json').read_text())
+    assert child['dataset_revision_after']==combined['parent_revision']
+    assert combined['new_revision']==manifest['dataset_revision']
+    assert combined['parent_manifest_sha256']==__import__('hashlib').sha256(combined['parent_manifest_raw'].encode('utf-8')).hexdigest()
+    assert combined['new_manifest_sha256']==__import__('hashlib').sha256((ROOT/'cdn/question-shards/manifest.json').read_bytes()).hexdigest()
     assert source['latest_candidate_pr']==499
     assert source['baseline_release_comparison_is_stale'] is True
     assert source['candidate_is_draft'] is True

@@ -120,6 +120,8 @@ def main():
         assert digest(b)==info['sha256'] and len(b)==info['bytes']
         all_rows.extend(json.loads(b)['questions'])
     lock=json.loads((ROOT/'data/official_exam_readonly.lock.json').read_text())
+    from official_combined_nineteen_integrity_smoke import reverse_overlay as reverse_new_eight
+    all_rows,lock,raw=reverse_new_eight(all_rows,lock,raw)
     from official_next_three_p0_source_smoke import validate_overlay as reverse_three
     three_proof=json.loads((ROOT/'audit/official_next_three_p0_source_candidate_20261031.json').read_text())
     all_rows,lock,raw=reverse_three(three_proof,all_rows,lock,raw)
