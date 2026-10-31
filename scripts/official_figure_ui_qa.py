@@ -46,4 +46,65 @@ launch=(R/'.github/workflows/launch-readiness-qa.yml').read_text()
 assert 'mkdir -p _site/icons _site/official-figures' in launch
 assert 'cp official-figures/*.png _site/official-figures/' in launch
 
+# One independently source-backed raw question correction follows the released
+# figure UI. Keep the other 4,799 full rows, all answers and all essay locks exact.
+import copy
+from official_exam_readonly_guard import canonical_row, row_hash, MCQ_FIELDS
+def canonical_digest(value):
+    return hashlib.sha256(json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+
+def validate_core_transition(proof, rows, lock):
+    ident='DS-113-2-13'
+    assert proof['id']==ident and proof['base_main']=='12b84b4adeca779b38fbc5fb6da71a5ab11f9c87'
+    assert proof['source']['pdf_sha256']=='21b47d133e072b34eab4f07fa95ffab1601d54768eb8cedf680a9471fc9bfbc3'
+    stem='有關下圖案母與案主之間的關係狀況，下列何者正確？'
+    assert proof['source']['official_stem']==stem and proof['source']['pdf_page_number']==3
+    before,after=proof['published_before'],proof['published_after']
+    assert before['question']==stem+'（圖示：62 歲男性與 24 歲女兒之間以鋸齒線連結）'
+    assert after['question']==stem
+    assert proof['before_core_lock_sha256']=='76ca5f940cd3d9dc7e6eae1a773ccc323f46fa9e4ea879fa0091082dc940c739'
+    assert row_hash(canonical_row(before,MCQ_FIELDS))==proof['before_core_lock_sha256']
+    assert row_hash(canonical_row(after,MCQ_FIELDS))==proof['after_core_lock_sha256']
+    assert all(before[k]==after[k] for k in MCQ_FIELDS if k!='question')
+    assert all(before[k]==after[k] for k in ('answer','accepted_answers','grading_mode','source_exam_code','source_url'))
+    assert after['analysis_status']=='review'
+    assert all(after[k] is None for k in ('major','topic','keywords','exp_why','exp_others','exp_trap','exp_raw','mnemonic','extension','law','mistake'))
+    assert proof['official_answer_changed'] is False and proof['independent_human_approval'] is False
+    assert proof['whole_platform_release_approved'] is False
+    indexed={r['id']:r for r in rows}
+    assert len(rows)==len(indexed)==4800 and indexed[ident]==after
+    assert canonical_digest(sorted([r for r in rows if r['id']!=ident],key=lambda x:x['id']))==proof['unchanged_other_rows_sha256']
+    assert canonical_digest(sorted([[r['id'],r['answer'],r['accepted_answers'],r['grading_mode']] for r in rows]))==proof['grading_tuples_sha256']
+    assert lock['mcq'][ident]==proof['after_core_lock_sha256']
+    assert canonical_digest({k:v for k,v in lock['mcq'].items() if k!=ident})==proof['unchanged_other_mcq_locks_sha256']
+    assert canonical_digest(lock['essays'])==proof['unchanged_essay_locks_sha256']
+
+proof_path=R/'audit/official_genogram_core_transition_20261031.json'
+proof=json.loads(proof_path.read_text())
+manifest_raw=(R/'cdn/question-shards/manifest.json').read_bytes()
+assert hashlib.sha256(manifest_raw).hexdigest()==proof['manifest_after_sha256']
+manifest=json.loads(manifest_raw)
+assert manifest['dataset_revision']==proof['dataset_revision_after']
+all_rows=[]
+for meta in manifest['shards']:
+    raw=(R/'cdn/question-shards'/meta['file']).read_bytes()
+    assert len(raw)==meta['bytes'] and hashlib.sha256(raw).hexdigest()==meta['sha256']
+    all_rows.extend(json.loads(raw)['questions'])
+lock=json.loads((R/'data/official_exam_readonly.lock.json').read_text())
+validate_core_transition(proof,all_rows,lock)
+for kind in ('question','answer','unrelated-row','unrelated-lock','source'):
+    p,rs,lk=copy.deepcopy((proof,all_rows,lock))
+    target=next(r for r in rs if r['id']==p['id'])
+    if kind=='question': target['question']+='tamper'
+    elif kind=='answer': target['answer']='A'
+    elif kind=='unrelated-row': next(r for r in rs if r['id']!=p['id'])['question']+='tamper'
+    elif kind=='unrelated-lock': lk['mcq'][next(k for k in lk['mcq'] if k!=p['id'])]='0'*64
+    else: p['source']['pdf_sha256']='0'*64
+    try:
+        validate_core_transition(p,rs,lk)
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError('controlled correction accepted tamper: '+kind)
+print('GENOGRAM CORE TRANSITION QA OK: 1 official stem; 4,799 full rows / 4,800 grading tuples / 240 essays preserved; 5 negative cases rejected')
 print('OFFICIAL FIGURES UI QA OK: source-backed 2 image assets, root/CDN parity, grading guard, mock/quiz image gates and PWA pre-cache; human approval pending')
