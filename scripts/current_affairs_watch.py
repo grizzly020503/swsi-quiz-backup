@@ -9,7 +9,7 @@ import socket
 import time
 from types import SimpleNamespace
 from html.parser import HTMLParser
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 from urllib.request import Request, urlopen
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -55,12 +55,17 @@ def load_feeds():
         source_type = str(row.get("source_type") or "").strip()
         source_format = str(row.get("source_format") or "rss").strip()
         optional = row.get("optional", False)
+        article_hosts = row.get("article_hosts")
         if (
             not name or name in names or not url.startswith("https://")
             or region not in {"taiwan", "international"}
             or source_type not in {"official", "news"}
             or source_format not in {"rss", "who_newsroom_json", "unicef_press_html", "ilo_news_html", "tvbs_realtime_html"}
             or not isinstance(optional, bool)
+            or not isinstance(article_hosts, list) or not article_hosts
+            or any(not isinstance(h, str) or not re.fullmatch(r"[a-z0-9.-]+", h)
+                   or h.startswith(".") or h.endswith(".") or ".." in h for h in article_hosts)
+            or len(article_hosts) != len(set(article_hosts))
         ):
             raise ValueError(f"current-affairs source registry invalid/duplicate source: {name}")
         names.add(name)
@@ -73,10 +78,35 @@ def load_feeds():
             "source_type": source_type,
             "source_format": source_format,
             "optional": optional,
+            "article_hosts": article_hosts,
         })
     if required_count != EXPECTED_REQUIRED_SOURCE_COUNT:
         raise ValueError("current-affairs required source count drift")
     return valid
+
+
+def safe_article_url(link, article_hosts):
+    """Use the same exact/subdomain HTTPS article-host boundary as the Edge writer.
+
+    Feed URLs and article URLs need not share a host (e.g. FeedBurner/CNA),
+    but a candidate may never bypass its source-specific trusted host list.
+    Do not rewrite, guess or silently publish an untrusted article link.
+    """
+    try:
+        if not isinstance(link, str) or "\\" in link:
+            return False
+        parsed = urlsplit(link)
+        if parsed.scheme.lower() != "https" or not parsed.hostname:
+            return False
+        if parsed.username is not None or parsed.password is not None:
+            return False
+        # JS new URL() in the Edge function rejects malformed/out-of-range
+        # ports; urlsplit().hostname alone would wrongly accept them.
+        _ = parsed.port
+        hostname = parsed.hostname.lower()
+        return any(hostname == root or hostname.endswith("." + root) for root in article_hosts)
+    except ValueError:
+        return False
 
 
 def enforce_required_feed_coverage(feeds, required_errors, fetched_count):
@@ -903,6 +933,7 @@ def main():
     fetched = 0
     feed_errors = []
     optional_feed_errors = []
+    source_url_rejected = 0
 
     feeds = load_feeds()
     socket.setdefaulttimeout(12)
@@ -939,6 +970,10 @@ def main():
                 continue
             score, category, tags = scored
             item_id = hashlib.sha256(link.encode("utf-8")).hexdigest()[:32]
+            if not safe_article_url(link, feed["article_hosts"]):
+                source_url_rejected += 1
+                print(f"Feed ARTICLE URL REJECTED: source={feed['name']} item={item_id[:12]}")
+                continue
             concept_keys = sorted(canonical_concepts(f"{title} {summary}"))
             agency_keys = sorted(canonical_agencies(f"{title} {summary}"))
             fact_keys = sorted(canonical_fact_keys(f"{title} {summary}"))
@@ -979,6 +1014,7 @@ def main():
         "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "fetched_count": fetched,
         "accepted_count": len(accepted),
+        "source_url_rejected_count": source_url_rejected,
         "feed_count": len(feeds),
         "feed_errors": feed_errors,
         "optional_feed_errors": optional_feed_errors,
@@ -989,7 +1025,8 @@ def main():
     p.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(
         f"Current affairs radar: fetched={fetched}, accepted={len(accepted)}, "
-        f"errors={len(feed_errors)}, optional_errors={len(optional_feed_errors)}"
+        f"errors={len(feed_errors)}, optional_errors={len(optional_feed_errors)}, "
+        f"source_url_rejected={source_url_rejected}"
     )
     for row in accepted[:20]:
         print(f"[{row['relevance_score']}] {row['category']} | {row['title']}")
