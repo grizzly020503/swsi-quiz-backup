@@ -149,18 +149,52 @@ def parse_essays(text, subject, exam_code, roc_year, round_name):
             explicit_score = r"[（(]\s*\d+\s*分\s*[）)]"
             if all(re.search(explicit_score, body) for body in spans):
                 matches = inline
+    # A corrupt PDF extraction can introduce a third apparent essay heading
+    # or duplicate the first heading. Never truncate with matches[:2] and
+    # quietly publish only part of the official question as "two essays".
+    if len(matches) > 2 or (
+        len(matches) == 2 and [m.group(1) for m in matches] != ["一", "二"]
+    ):
+        raise RuntimeError(
+            f"官方申論題號界線不明：{exam_code} {subject['name']}；"
+            f"解析到題號={[m.group(1) for m in matches]}；"
+            "只接受依序一、二兩題"
+        )
     essays = []
     for i, m in enumerate(matches[:2]):
         start = m.end()
         end = matches[i + 1].start() if i + 1 < len(matches) else len(part)
         body = clean(part[start:end])
-        score_values = [int(x) for x in re.findall(r"[（(](\d+)\s*分[）)]", body)]
-        if len(score_values) > 1 and sum(score_values) <= 40:
+        # Use the same whitespace-tolerant official score markers as the
+        # bounded two-heading recovery above. A missing score is a review
+        # blocker, never evidence that the question is worth 20 points.
+        score_values = [int(x) for x in re.findall(
+            r"[（(]\s*(\d+)\s*分\s*[）)]", body
+        )]
+        if not score_values:
+            raise RuntimeError(
+                f"官方申論配分無法從 PDF 確認：{exam_code} "
+                f"{subject['name']} 第 {i + 1} 題；拒絕預設 20 分"
+            )
+        if any(score <= 0 for score in score_values):
+            raise RuntimeError(
+                f"官方申論配分標記無效：{exam_code} "
+                f"{subject['name']} 第 {i + 1} 題；拒絕零分或負分標記"
+            )
+        if len(score_values) > 1:
+            # Legacy behavior silently selected the last point marker when the
+            # combined sum exceeded 40. A source containing an overall score
+            # plus sub-question scores (e.g. 25, 10, 15) would then be imported
+            # as 15. Treat that ambiguity as manual review, never guess.
+            if sum(score_values) > 40:
+                raise RuntimeError(
+                    f"官方申論配分標記互相矛盾：{exam_code} "
+                    f"{subject['name']} 第 {i + 1} 題；"
+                    f"標記={score_values}；拒絕取最後一個分數"
+                )
             points = str(sum(score_values))
-        elif score_values:
-            points = str(score_values[-1])
         else:
-            points = "20"
+            points = str(score_values[0])
         qno = str(i + 1)
         essays.append({
             "id": f"E-{roc_year}-{2 if round_name == '第二次' else 1}-{subject['prefix']}-{qno}",

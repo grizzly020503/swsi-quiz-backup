@@ -48,6 +48,73 @@ def main():
     assert [m["marker"] for m in normal["exact_question_markers"]] == ["一", "二"]
     assert not normal["human_approval"] and not normal["release_approved"]
 
+    # Official PDF points can contain whitespace inside the parentheses.
+    # Both markers must be interpreted as 25, not silently replaced by 20.
+    odd_spacing = clean.replace("（25 分）", "（ 25 分 ）")
+    normalized = probe.diagnose(odd_spacing, parse)
+    assert normalized["legacy_essay_count"] == 2
+    assert normalized["legacy_essay_points"] == ["25", "25"]
+
+    # Existing old behavior guessed a default of 20 for scoreless Official Core.
+    # New behavior MUST fail closed for a normally segmented two-essay PDF.
+    no_explicit_score = clean.replace("內容。（25 分）", "內容。")
+    try:
+        parse(no_explicit_score)
+    except RuntimeError as exc:
+        assert "配分無法從 PDF 確認" in str(exc), str(exc)
+        assert "第 2 題" in str(exc), str(exc)
+    else:
+        raise AssertionError("scoreless official essay was wrongly accepted")
+
+    # Several explicit point markers are not interchangeable with a single
+    # official question score. The former parser silently selected the last
+    # marker when their sum exceeded 40, e.g. 25+10+15 -> *15*.
+    ambiguous_points = clean.replace(
+        "德菲法的操作步驟與優缺點。（25 分）",
+        "德菲法的操作步驟與優缺點。（25 分）分項：（10 分）（15 分）",
+    )
+    try:
+        parse(ambiguous_points)
+    except RuntimeError as exc:
+        assert "配分標記互相矛盾" in str(exc), str(exc)
+        assert "第 1 題" in str(exc), str(exc)
+    else:
+        raise AssertionError("contradictory official score markers were wrongly accepted")
+
+    duplicate_points = clean.replace(
+        "德菲法的操作步驟與優缺點。（25 分）",
+        "德菲法的操作步驟與優缺點。（25 分）（25 分）",
+    )
+    try:
+        parse(duplicate_points)
+    except RuntimeError as exc:
+        assert "配分標記互相矛盾" in str(exc), str(exc)
+    else:
+        raise AssertionError("ambiguous repeated official scores were wrongly accepted")
+
+    # Preserve intentional subquestion aggregation (10+15=25). A complete
+    # source audit remains mandatory; this synthetic case only tests arithmetic.
+    split_explicit_points = clean.replace(
+        "德菲法的操作步驟與優缺點。（25 分）",
+        "德菲法的操作步驟與優缺點：甲（10 分）、乙（15 分）。",
+    )
+    assert [row["points"] for row in parse(split_explicit_points)] == ["25", "25"]
+
+    zero_points = clean.replace(
+        "德菲法的操作步驟與優缺點。（25 分）",
+        "德菲法的操作步驟與優缺點。（0 分）",
+    )
+    try:
+        parse(zero_points)
+    except RuntimeError as exc:
+        assert "配分標記無效" in str(exc), str(exc)
+        assert "第 1 題" in str(exc), str(exc)
+    else:
+        raise AssertionError("zero-point official essay was wrongly accepted")
+
+    # This check is deliberately not an 'approved official content' test.
+    # It guards import safety only; normal source comparison stays manual.
+
     # An embedded section-label spacing change hides both valid questions.
     missing = clean.replace("乙、測驗題部分", "乙 、 測 驗 題 部 分")
     result = probe.diagnose(missing, parse)
@@ -77,10 +144,47 @@ def main():
     no_points = inline.replace("同意書應包括哪些內容。（25 分）", "同意書應包括哪些內容。")
     assert probe.diagnose(no_points, parse)["legacy_essay_count"] == 1
     ambiguous = inline.replace("德菲法的操作步驟", "德菲法的。 一、操作步驟")
-    assert probe.diagnose(ambiguous, parse)["legacy_essay_count"] == 1
+    # The malformed extra first-question marker suppresses bounded heading
+    # recovery. Its single remaining body then contains both 25-point markers.
+    # A parser hard-fail is safer than silently attaching both to one essay.
+    try:
+        result = probe.diagnose(ambiguous, parse)
+    except RuntimeError as exc:
+        assert "配分標記互相矛盾" in str(exc), str(exc)
+    else:
+        assert result["legacy_essay_count"] == 1, result
 
     no_second = clean.replace("二、說明", "題目補充說明")
-    assert probe.diagnose(no_second, parse)["legacy_essay_count"] == 1
+    # Removing the second marker also folds two scored question bodies into
+    # one. It must be rejected, not scored using the final 25-point marker.
+    try:
+        parse(no_second)
+    except RuntimeError as exc:
+        assert "配分標記互相矛盾" in str(exc), str(exc)
+    else:
+        raise AssertionError("merged two-score body was wrongly accepted")
+
+    # A third top-level essay heading would be silently discarded by the old
+    # matches[:2] loop, and a repeated first heading would masquerade as Q2.
+    # Neither may be imported as a two-question official PDF.
+    extra_heading = clean.replace(
+        "二、說明深入訪談",
+        "一、辨識出多餘的大題標記。（5 分）\\n二、說明深入訪談",
+    ).replace("。（5 分）\\n二、", "。（5 分）\n二、")
+    try:
+        parse(extra_heading)
+    except RuntimeError as exc:
+        assert "申論題號界線不明" in str(exc), str(exc)
+    else:
+        raise AssertionError("third essay heading was silently truncated")
+
+    repeated_heading = clean.replace("二、說明深入訪談", "一、說明深入訪談")
+    try:
+        parse(repeated_heading)
+    except RuntimeError as exc:
+        assert "申論題號界線不明" in str(exc), str(exc)
+    else:
+        raise AssertionError("repeated first essay heading was wrongly accepted")
 
     # A forged file may have PDF magic but cannot bypass official SHA binding.
     import tempfile
