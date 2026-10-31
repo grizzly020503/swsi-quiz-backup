@@ -52,8 +52,9 @@ def main():
             edited = 0
             for row in doc['questions']:
                 if row['id'] in new_ids:
+                    item_id = row['id']
                     row.clear()
-                    row.update(parent_by_id[row['id']])
+                    row.update(parent_by_id[item_id])
                     edited += 1
             assert edited > 0
             old_raw = (json.dumps(doc,ensure_ascii=False,separators=(',',':'))+'\n').encode()

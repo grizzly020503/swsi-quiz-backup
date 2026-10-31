@@ -14,6 +14,8 @@ on:
       - 'scripts/official_option_scenario_guard.py'
       - 'scripts/official_option_scenario_guard_selftest.py'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
+      - 'scripts/official_integrated_19_isolation_qa.py'
+      - 'scripts/official_combined_nineteen_integrity_smoke.py'
       - 'audit/official_shared_context*.json'
       - 'audit/official_105_2_shared_context_20261028.json'
       - 'audit/official_107_2_shared_context_20261028.json'
@@ -50,6 +52,8 @@ on:
       - 'scripts/official_option_scenario_guard.py'
       - 'scripts/official_option_scenario_guard_selftest.py'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
+      - 'scripts/official_integrated_19_isolation_qa.py'
+      - 'scripts/official_combined_nineteen_integrity_smoke.py'
       - 'audit/official_shared_context*.json'
       - 'audit/official_105_2_shared_context_20261028.json'
       - 'audit/official_107_2_shared_context_20261028.json'
@@ -143,7 +147,8 @@ jobs:
 
       - name: Verify source-backed shared-case release transition (zero network)
         run: |
-          python scripts/official_shared_context_13row_integration_smoke.py
+          python scripts/official_combined_nineteen_integrity_smoke.py
+          python scripts/official_integrated_19_isolation_qa.py
           python scripts/official_option_scenario_guard_selftest.py
           python scripts/official_option_scenario_guard.py --out /tmp/official-option-scenario-qa.json --fail-on-blocked
 
