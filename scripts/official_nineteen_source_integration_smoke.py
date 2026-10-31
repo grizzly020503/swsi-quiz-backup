@@ -61,7 +61,7 @@ def main():
   for name,raw in restored.items():(dest/'cdn/question-shards'/name).write_bytes(raw)
   (dest/'cdn/question-shards/manifest.json').write_bytes(base_raw)
   (dest/'data/official_exam_readonly.lock.json').write_bytes(bjson(previous_lock,2))
-  for f in ('official_next_three_p0_source_smoke.py','official_eight_p0_pdf_review_crosswalk_smoke.py','official_428_review_priority_queue_smoke.py','official_r105138_pdf_visual_nochange_smoke.py','official_111_2_shared_context_six_smoke.py','official_two_row_p0_candidate_smoke.py','official_figure_ui_qa.py','official_exam_readonly_guard.py'):
+  for f in ('official_next_three_p0_source_smoke.py','official_eight_p0_pdf_review_crosswalk_smoke.py','official_428_review_priority_queue_smoke.py','official_r105138_pdf_visual_nochange_smoke.py','official_111_2_shared_context_six_smoke.py','official_two_row_p0_candidate_smoke.py','official_shared_context_13row_integration_smoke.py','official_figure_ui_qa.py','official_exam_readonly_guard.py'):
    r=subprocess.run([sys.executable,'scripts/'+f],cwd=dest,text=True,capture_output=True,timeout=80)
    if r.returncode:raise AssertionError('Inherited QA failure '+f+': '+r.stdout+' '+r.stderr)
  print('MOEX 19 ROW INTEGRATION PASS: 8 additional source-locked, 11 prior unchanged, 4800 grades/240 essays intact; inherited 428-review HOLD verified')
