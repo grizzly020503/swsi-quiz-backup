@@ -361,6 +361,8 @@ def article_source_host_contract() -> None:
     assert not watch.safe_article_url("https://cna.com.tw.attacker.test/news/1", cna["article_hosts"])
     assert not watch.safe_article_url("https://badcna.com.tw/news/1", cna["article_hosts"])
     assert not watch.safe_article_url("http://www.cna.com.tw/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("https://www.cna.com.tw:65536/news/1", cna["article_hosts"])
+    assert not watch.safe_article_url("https://www.cna.com.tw:notaport/news/1", cna["article_hosts"])
     assert not watch.safe_article_url("https://www.cna.com.tw@evil.test/news/1", cna["article_hosts"])
     assert not watch.safe_article_url("https://evil.test@www.cna.com.tw/news/1", cna["article_hosts"])
     assert not watch.safe_article_url("javascript:alert(1)", cna["article_hosts"])
