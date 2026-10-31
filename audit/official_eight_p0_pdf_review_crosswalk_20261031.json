@@ -1,0 +1,467 @@
+{
+  "schema_version": 1,
+  "purpose": "Evidence-only crosswalk linking eight exact P0 candidate rows to original 2026-10-25 MOEX PDF review flags; never changes release gate counts",
+  "generated_on": "2026-10-31",
+  "source_baseline": {
+    "ref": "7cd99a23f98ecc62fa18f104f154084650bef9c8",
+    "mcq_comparison_blob_sha": "f1821813830aff4ce811583c142c4a29f35dddf9",
+    "mcq_held": 441,
+    "essay_held": 18,
+    "legacy_evidence_dispositioned": 31,
+    "legacy_remaining_mcq": 410,
+    "legacy_remaining_combined": 428,
+    "cleared_legacy_ids": [
+      "DS-104-1-25",
+      "DS-105-2-09",
+      "DS-105-2-10",
+      "DS-106-1-10",
+      "DS-106-1-37",
+      "DS-107-2-09",
+      "DS-107-2-10",
+      "DS-107-2-11",
+      "DS-107-2-13",
+      "DS-107-2-35",
+      "DS-107-2-36",
+      "DS-107-2-38",
+      "DS-107-2-39",
+      "DS-109-2-23",
+      "DS-110-2-14",
+      "DS-113-2-13",
+      "R-105-2-12",
+      "R-105-2-16",
+      "R-105-2-20",
+      "R-106-2-01",
+      "R-106-2-02",
+      "R-107-2-02",
+      "R-107-2-08",
+      "R-107-2-23",
+      "R-113-2-30",
+      "SP106-2-25",
+      "SP106-2-35",
+      "SP111-2-37",
+      "SW-105-2-25",
+      "SW-108-2-01",
+      "SW-110-1-33"
+    ]
+  },
+  "candidate": {
+    "head_scope": "PR #499",
+    "dataset_revision": "5ec3ff8fd5676e4e6ae8",
+    "source_prs": [
+      496,
+      498
+    ],
+    "affected_rows": 8,
+    "staged_not_published": true,
+    "production_write": false,
+    "backup_site_changed": false
+  },
+  "status": "HOLD_NO_AUTO_CLEAR",
+  "reason": "8 verified source-backed candidate edits are in PR #499 only, not a completed approved comparison. Shared-case extraction may omit context; not all candidate-versus-PDF extraction differences can be machine-cleared; all remain awaiting human review, production promotion, and fresh exact-head comparison.",
+  "unresolved_release_count_unchanged": 428,
+  "targets": [
+    {
+      "id": "DS-108-2-23",
+      "subject": "社會工作直接服務",
+      "session": "108-第二次",
+      "source_pdf_sha256": "78e9473d144f9165622f02ac3e5a004658b0ca7dd516c436f56cfdf4042b3e9b",
+      "original_comparison_status": "review",
+      "original_difference_fields": [
+        "question",
+        "opt_a"
+      ],
+      "baseline_official_extraction_differences": {
+        "question": {
+          "stored": "有關團體工作開始階段的工作重點和工作目標，下列何者正確？①建立團體規範 ②加 強正向動機，降低抗拒 ③處理團體成員參與的問題 ④處理成員之間的衝突與緊張 ⑤ 創造安全與信任關係 ④發展溝通、地位、角色與規範的彈性結構 ⑦協助成員感覺自己 是團體的一份子 ⑧穩定成員的參與及團體的運作",
+          "official_extraction": "有關團體工作開始階段的工作重點和工作目標,下列何者正確?1建立團體規範 2加強正向動 機,降低抗拒 3處理團體成員參與的問題 4處理成員之間的衝突與緊張 5創造安全與信任 關係 6發展溝通、地位、角色與規範的彈性結構 7協助成員感覺自己是團體的一份子 8穩 定成員的參與及團體的運作"
+        },
+        "opt_a": {
+          "stored": "②④④⑧",
+          "official_extraction": "2468"
+        }
+      },
+      "official_answer_difference": null,
+      "staged_changed_fields": [
+        "major",
+        "topic",
+        "keywords",
+        "question",
+        "opt_a",
+        "exp_why",
+        "exp_others",
+        "exp_trap",
+        "exp_raw",
+        "mnemonic",
+        "extension",
+        "law",
+        "mistake",
+        "analysis_status"
+      ],
+      "staged_question": "有關團體工作開始階段的工作重點和工作目標，下列何者正確？①建立團體規範 ②加強正向動機，降低抗拒 ③處理團體成員參與的問題 ④處理成員之間的衝突與緊張 ⑤創造安全與信任關係 ⑥發展溝通、地位、角色與規範的彈性結構 ⑦協助成員感覺自己是團體的一份子 ⑧穩定成員的參與及團體的運作",
+      "staged_options": {
+        "a": "②④⑥⑧",
+        "b": "①③⑤⑦",
+        "c": "②③⑦⑧",
+        "d": "①④⑤⑦"
+      },
+      "staged_answer": "B",
+      "staged_analysis_status": "review",
+      "origin_pr": 496,
+      "source_proof": "audit/official_two_row_p0_candidate_20261031.json",
+      "counted_as_cleared": false,
+      "human_approval": false,
+      "release_approved": false
+    },
+    {
+      "id": "R-114-1-17",
+      "subject": "社會工作研究方法",
+      "session": "114-第一次",
+      "source_pdf_sha256": "e2103e4eb154b5ac0c8de24026a7b35fe3a8370678f606356c919540c87646e2",
+      "original_comparison_status": "review",
+      "original_difference_fields": [
+        "question",
+        "opt_a",
+        "opt_b",
+        "opt_c",
+        "opt_d"
+      ],
+      "baseline_official_extraction_differences": {
+        "question": {
+          "stored": "下列對於個別深入訪談與日常談話的異同敘述，何者正確？ 個別深入訪談主要是為了滿足訪談者的要求，因此受訪者必須向訪談者提供有用的資料",
+          "official_extraction": "下列對於個別深入訪談與日常談話的異同敘述,何者正確?"
+        },
+        "opt_a": {
+          "stored": "日常談話完全沒有目的性，但個別深入訪談具有強烈的目的性",
+          "official_extraction": "個別深入訪談主要是為了滿足訪談者的要求,因此受訪者必須向訪談者提供有用的資料"
+        },
+        "opt_b": {
+          "stored": "日常談話通常會以友好的打招呼開始，但個別深入訪談會直接開始預定的訪談計畫",
+          "official_extraction": "日常談話完全沒有目的性,但個別深入訪談具有強烈的目的性"
+        },
+        "opt_c": {
+          "stored": "個別深入訪談中，通常是由受訪者主導新的話題，訪談者儘可能表現興趣與熱情，鼓勵受",
+          "official_extraction": "日常談話通常會以友好的打招呼開始,但個別深入訪談會直接開始預定的訪談計畫"
+        },
+        "opt_d": {
+          "stored": "訪者暢所欲言",
+          "official_extraction": "個別深入訪談中,通常是由受訪者主導新的話題,訪談者儘可能表現興趣與熱情,鼓勵受訪者 暢所欲言"
+        }
+      },
+      "official_answer_difference": null,
+      "staged_changed_fields": [
+        "major",
+        "topic",
+        "keywords",
+        "question",
+        "opt_a",
+        "opt_b",
+        "opt_c",
+        "opt_d",
+        "exp_why",
+        "exp_others",
+        "exp_trap",
+        "exp_raw",
+        "mnemonic",
+        "extension",
+        "law",
+        "mistake",
+        "analysis_status"
+      ],
+      "staged_question": "下列對於個別深入訪談與日常談話的異同敘述，何者正確？",
+      "staged_options": {
+        "a": "個別深入訪談主要是為了滿足訪談者的要求，因此受訪者必須向訪談者提供有用的資料",
+        "b": "日常談話完全沒有目的性，但個別深入訪談具有強烈的目的性",
+        "c": "日常談話通常會以友好的打招呼開始，但個別深入訪談會直接開始預定的訪談計畫",
+        "d": "個別深入訪談中，通常是由受訪者主導新的話題，訪談者儘可能表現興趣與熱情，鼓勵受訪者暢所欲言"
+      },
+      "staged_answer": "A",
+      "staged_analysis_status": "review",
+      "origin_pr": 496,
+      "source_proof": "audit/official_two_row_p0_candidate_20261031.json",
+      "counted_as_cleared": false,
+      "human_approval": false,
+      "release_approved": false
+    },
+    {
+      "id": "R-111-2-14",
+      "subject": "社會工作研究方法",
+      "session": "111-第二次",
+      "source_pdf_sha256": "14ba09396d90e0ccd8330821e7fa3fbb2f41a57ecfdb807e3bf18be924375153",
+      "original_comparison_status": "review",
+      "original_difference_fields": [
+        "question"
+      ],
+      "baseline_official_extraction_differences": {
+        "question": {
+          "stored": "承上題，此研究的資料蒐集方法最大的缺點為何？",
+          "official_extraction": "此研究的資料蒐集方法最大的缺點為何?"
+        }
+      },
+      "official_answer_difference": null,
+      "staged_changed_fields": [
+        "major",
+        "topic",
+        "keywords",
+        "question",
+        "exp_why",
+        "exp_others",
+        "exp_trap",
+        "exp_raw",
+        "mnemonic",
+        "extension",
+        "law",
+        "mistake",
+        "analysis_status"
+      ],
+      "staged_question": "情況：某社工想了解北部地區受聘在家中的外籍看護工照顧及生活適應的現況，他設計了一份網路問卷放到外籍移工常聯絡的群組或瀏覽的網站（Facebook 或 Line）上，讓在群組或網站看到此問卷的外籍看護工自由填寫。\n\n承上題，此研究的資料蒐集方法最大的缺點為何？",
+      "staged_options": {
+        "a": "樣本偏誤",
+        "b": "地理範圍受限",
+        "c": "成本過高",
+        "d": "回收率低"
+      },
+      "staged_answer": "A",
+      "staged_analysis_status": "review",
+      "origin_pr": 498,
+      "source_proof": "audit/official_111_2_shared_context_six_20261031.json",
+      "counted_as_cleared": false,
+      "human_approval": false,
+      "release_approved": false
+    },
+    {
+      "id": "R-111-2-15",
+      "subject": "社會工作研究方法",
+      "session": "111-第二次",
+      "source_pdf_sha256": "14ba09396d90e0ccd8330821e7fa3fbb2f41a57ecfdb807e3bf18be924375153",
+      "original_comparison_status": "review",
+      "original_difference_fields": [
+        "question",
+        "opt_d"
+      ],
+      "baseline_official_extraction_differences": {
+        "question": {
+          "stored": "承上題，若該社工也想要進一步了解北部地區移工失聯的現象，由於受訪對象隱匿（難以尋覓）的特性，下列何種方法適合？",
+          "official_extraction": "若該社工也想要進一步了解北部地區移工失聯的現象,由於受訪對象隱匿(難以尋覓)的特性, 下列何種方法適合?"
+        },
+        "opt_d": {
+          "stored": "叢集抽樣（cluster sampling）",
+          "official_extraction": "叢集抽樣(cluster sampling) 請依下文回答第 16 題至第 18 題: 某研究者欲進行全國社會工作師之薪資所得相關因素探究,但研究經費有限。"
+        }
+      },
+      "official_answer_difference": null,
+      "staged_changed_fields": [
+        "major",
+        "topic",
+        "keywords",
+        "question",
+        "exp_why",
+        "exp_others",
+        "exp_trap",
+        "exp_raw",
+        "mnemonic",
+        "extension",
+        "law",
+        "mistake",
+        "analysis_status"
+      ],
+      "staged_question": "情況：某社工想了解北部地區受聘在家中的外籍看護工照顧及生活適應的現況，他設計了一份網路問卷放到外籍移工常聯絡的群組或瀏覽的網站（Facebook 或 Line）上，讓在群組或網站看到此問卷的外籍看護工自由填寫。\n\n承上題，若該社工也想要進一步了解北部地區移工失聯的現象，由於受訪對象隱匿（難以尋覓）的特性，下列何種方法適合？",
+      "staged_options": {
+        "a": "簡單隨機抽樣（simple random sampling）",
+        "b": "分層抽樣（stratified sampling）",
+        "c": "滾雪球抽樣（snowball sampling）",
+        "d": "叢集抽樣（cluster sampling）"
+      },
+      "staged_answer": "C",
+      "staged_analysis_status": "review",
+      "origin_pr": 498,
+      "source_proof": "audit/official_111_2_shared_context_six_20261031.json",
+      "counted_as_cleared": false,
+      "human_approval": false,
+      "release_approved": false
+    },
+    {
+      "id": "R-111-2-17",
+      "subject": "社會工作研究方法",
+      "session": "111-第二次",
+      "source_pdf_sha256": "14ba09396d90e0ccd8330821e7fa3fbb2f41a57ecfdb807e3bf18be924375153",
+      "original_comparison_status": "review",
+      "original_difference_fields": [
+        "question"
+      ],
+      "baseline_official_extraction_differences": {
+        "question": {
+          "stored": "承上題，該研究之分析單位為何？",
+          "official_extraction": "該研究之分析單位為何?"
+        }
+      },
+      "official_answer_difference": null,
+      "staged_changed_fields": [
+        "major",
+        "topic",
+        "keywords",
+        "question",
+        "exp_why",
+        "exp_others",
+        "exp_trap",
+        "exp_raw",
+        "mnemonic",
+        "extension",
+        "law",
+        "mistake",
+        "analysis_status"
+      ],
+      "staged_question": "情況：某研究者欲進行全國社會工作師之薪資所得相關因素探究，但研究經費有限。\n\n承上題，該研究之分析單位為何？",
+      "staged_options": {
+        "a": "社會福利機構",
+        "b": "薪資所得",
+        "c": "社會工作師",
+        "d": "全國各縣市"
+      },
+      "staged_answer": "C",
+      "staged_analysis_status": "review",
+      "origin_pr": 498,
+      "source_proof": "audit/official_111_2_shared_context_six_20261031.json",
+      "counted_as_cleared": false,
+      "human_approval": false,
+      "release_approved": false
+    },
+    {
+      "id": "R-111-2-18",
+      "subject": "社會工作研究方法",
+      "session": "111-第二次",
+      "source_pdf_sha256": "14ba09396d90e0ccd8330821e7fa3fbb2f41a57ecfdb807e3bf18be924375153",
+      "original_comparison_status": "review",
+      "original_difference_fields": [
+        "question"
+      ],
+      "baseline_official_extraction_differences": {
+        "question": {
+          "stored": "承上題，此一研究可能使用下列何種統計分析方法？",
+          "official_extraction": "此一研究可能使用下列何種統計分析方法?"
+        }
+      },
+      "official_answer_difference": null,
+      "staged_changed_fields": [
+        "major",
+        "topic",
+        "keywords",
+        "question",
+        "exp_why",
+        "exp_others",
+        "exp_trap",
+        "exp_raw",
+        "mnemonic",
+        "extension",
+        "law",
+        "mistake",
+        "analysis_status"
+      ],
+      "staged_question": "情況：某研究者欲進行全國社會工作師之薪資所得相關因素探究，但研究經費有限。\n\n承上題，此一研究可能使用下列何種統計分析方法？",
+      "staged_options": {
+        "a": "多元迴歸分析",
+        "b": "內容分析",
+        "c": "因素分析",
+        "d": "卡方檢定"
+      },
+      "staged_answer": "A",
+      "staged_analysis_status": "review",
+      "origin_pr": 498,
+      "source_proof": "audit/official_111_2_shared_context_six_20261031.json",
+      "counted_as_cleared": false,
+      "human_approval": false,
+      "release_approved": false
+    },
+    {
+      "id": "R-111-2-29",
+      "subject": "社會工作研究方法",
+      "session": "111-第二次",
+      "source_pdf_sha256": "14ba09396d90e0ccd8330821e7fa3fbb2f41a57ecfdb807e3bf18be924375153",
+      "original_comparison_status": "review",
+      "original_difference_fields": [
+        "question"
+      ],
+      "baseline_official_extraction_differences": {
+        "question": {
+          "stored": "承上題，此研究的分析單位為何？",
+          "official_extraction": "此研究的分析單位為何?"
+        }
+      },
+      "official_answer_difference": null,
+      "staged_changed_fields": [
+        "major",
+        "topic",
+        "keywords",
+        "question",
+        "exp_why",
+        "exp_others",
+        "exp_trap",
+        "exp_raw",
+        "mnemonic",
+        "extension",
+        "law",
+        "mistake",
+        "analysis_status"
+      ],
+      "staged_question": "情況：某學者想要針對 4 家平面媒體對於政府開放移工引進臺灣後這 16 年間（1992～2018 年）8,248 則相關報導為母體，研究者先將每篇報導以時間順序排列，形成一個抽樣架構後，以每 4 則抽取一則的方式抽出 2,062 篇新聞報導作為研究樣本，進而整理出臺灣主流媒體報導所塑造的移工形象。\n\n承上題，此研究的分析單位為何？",
+      "staged_options": {
+        "a": "4 家平面媒體",
+        "b": "移工",
+        "c": "1992 年至 2018 年的每一年",
+        "d": "每一則對移工的相關報導"
+      },
+      "staged_answer": "D",
+      "staged_analysis_status": "review",
+      "origin_pr": 498,
+      "source_proof": "audit/official_111_2_shared_context_six_20261031.json",
+      "counted_as_cleared": false,
+      "human_approval": false,
+      "release_approved": false
+    },
+    {
+      "id": "R-111-2-30",
+      "subject": "社會工作研究方法",
+      "session": "111-第二次",
+      "source_pdf_sha256": "14ba09396d90e0ccd8330821e7fa3fbb2f41a57ecfdb807e3bf18be924375153",
+      "original_comparison_status": "review",
+      "original_difference_fields": [
+        "question"
+      ],
+      "baseline_official_extraction_differences": {
+        "question": {
+          "stored": "承上題，這個研究所採用的研究方法為何？",
+          "official_extraction": "這個研究所採用的研究方法為何?"
+        }
+      },
+      "official_answer_difference": null,
+      "staged_changed_fields": [
+        "major",
+        "topic",
+        "keywords",
+        "question",
+        "exp_why",
+        "exp_others",
+        "exp_trap",
+        "exp_raw",
+        "mnemonic",
+        "extension",
+        "law",
+        "mistake",
+        "analysis_status"
+      ],
+      "staged_question": "情況：某學者想要針對 4 家平面媒體對於政府開放移工引進臺灣後這 16 年間（1992～2018 年）8,248 則相關報導為母體，研究者先將每篇報導以時間順序排列，形成一個抽樣架構後，以每 4 則抽取一則的方式抽出 2,062 篇新聞報導作為研究樣本，進而整理出臺灣主流媒體報導所塑造的移工形象。\n\n承上題，這個研究所採用的研究方法為何？",
+      "staged_options": {
+        "a": "歷史比較分析法",
+        "b": "內容分析法",
+        "c": "次級資料分析法",
+        "d": "調查研究法"
+      },
+      "staged_answer": "B",
+      "staged_analysis_status": "review",
+      "origin_pr": 498,
+      "source_proof": "audit/official_111_2_shared_context_six_20261031.json",
+      "counted_as_cleared": false,
+      "human_approval": false,
+      "release_approved": false
+    }
+  ]
+}
