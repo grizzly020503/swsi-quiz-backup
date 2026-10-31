@@ -214,20 +214,20 @@ BEGIN
 END;$swsi_postcheck$;
 
 ROLLBACK;
-SELECT CASE WHEN count(*)=4800
- AND (SELECT coalesce(enabled,true) FROM public.ai_analysis_job_config WHERE id=true) IS FALSE
- AND (SELECT count(*) FROM public.questions q JOIN swsi_1041_expected e ON q.id=e.id) = 0
- THEN 'UNREACHABLE TEMP TABLE AFTER ROLLBACK'
- ELSE 'ROLLBACK_EXECUTED_TEMP_TABLE_REMOVED'
- END AS rollback_status
-FROM public.questions;
-"""
-    # DROP happens as part of ROLLBACK; do not reference rolled-back temp tables.
-    result = result[:result.index("SELECT CASE WHEN count(*)=4800\n")] + """SELECT CASE WHEN count(*)=4800 AND
- (SELECT coalesce(enabled,true) FROM public.ai_analysis_job_config WHERE id=true) IS FALSE
- THEN 'ROLLBACK_COMPLETED_4800_ROWS_AI_DISABLED'
- ELSE 'ROLLBACK_POSTCHECK_BLOCKED' END AS rollback_status
-FROM public.questions;
+-- After rollback, the session must see the exact original 3x37 records.
+DO $swsi_rollback_verify$
+BEGIN
+ IF (SELECT count(*) FROM public.questions) <> 4800
+ OR (SELECT coalesce(enabled,true) FROM public.ai_analysis_job_config WHERE id=true)
+    IS DISTINCT FROM false
+ OR EXISTS (
+   SELECT 1 FROM jsonb_array_elements(%PAYLOAD%::jsonb) e
+   LEFT JOIN public.questions q ON q.id=e->>'id'
+   WHERE q.id IS NULL OR to_jsonb(q) IS DISTINCT FROM e->'before'
+ )
+ THEN RAISE EXCEPTION 'rollback postimages or AI scheduler did not restore'; END IF;
+ RAISE NOTICE 'SWSI ROLLBACK COMPLETED: all 3x37 original rows restored, 4800 total, AI scheduler remains disabled';
+END;$swsi_rollback_verify$;
 """
     result = (result.replace("%PAYLOAD%", item_values)
                     .replace("%TRIGGERS%", trigger_values)
