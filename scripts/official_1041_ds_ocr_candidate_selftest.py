@@ -185,7 +185,6 @@ def validate_readonly_sql(candidate: dict) -> None:
     )
     assert without_comments.lstrip().startswith("WITH candidate AS (")
     assert without_comments.rstrip().endswith("FROM flags;")
-    assert without_comments.count(";") == 1, "Only one SQL statement allowed"
     literal = re.search(
         r"jsonb_array_elements\('((?:''|[^'])*)'::jsonb\)",
         without_comments,
@@ -208,6 +207,9 @@ def validate_readonly_sql(candidate: dict) -> None:
             assert entry["before"][name] == value, "baseline preimage drift"
 
     stripped = without_comments.replace(literal.group(0), "jsonb_array_elements('[]'::jsonb)")
+    # Embedded 37-column JSON preimages contain prose semicolons. Ignore the
+    # JSON literal before counting *SQL* statement separators.
+    assert stripped.count(";") == 1, "Only one SQL statement allowed"
     # Refuse write statements regardless of SQL keyword case.
     assert not re.search(
         r"\b(?:INSERT|UPDATE|DELETE|MERGE|CREATE|ALTER|DROP|TRUNCATE|GRANT|REVOKE|CALL|DO)\b",
