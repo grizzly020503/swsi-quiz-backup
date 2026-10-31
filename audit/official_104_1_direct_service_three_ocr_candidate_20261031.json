@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT_NO_GO_PUBLIC_MIRROR_TRANSCRIPTION",
+  "purpose": "Review-only OCR correction candidate: no Official Core file or production mutation; needs exact official PDF and independent human approval before any promotion.",
+  "base_main_sha": "e3fb69e77870164d3c1e18b89e56878969bc0aee",
+  "baseline_dataset_revision": "bcfb073e5672d0b15bd0",
+  "baseline_shard_file": "cdn/question-shards/104-1.json",
+  "baseline_shard_sha256": "4e2a0ac71e2f35488fcd9fd2179a586ed910cae64993559cceb134b05002ad8d",
+  "baseline_shard_git_blob_sha": "11ed9eb5986652e1a54f5fd644564a7ec415fa0f",
+  "baseline_question_count": 200,
+  "original_pdf_approved_source": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=104030&c=110&s=0602&q=1",
+  "original_pdf_sha256_expected_from_pinned_registry": "979233d2cb316565c4eed2b5c5289e89e5d21c0bb2b2076a7443887cd24ffadc",
+  "original_pdf_sha256_reverified_in_this_run": false,
+  "original_pdf_fetch_in_this_run": "CACHE_MISS",
+  "secondary_pdf_mirror": "https://www.twstudy.com/wp-content/webinfo/AQ/LN/SW/104/104-1/104-DSWP.pdf",
+  "secondary_pdf_page_number": 3,
+  "secondary_pdf_role": "UNVERIFIED_SECONDARY_TRANSCRIPTION_NOT_OFFICIAL_APPROVAL",
+  "official_exam_answer_source": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?code=104030&t=A",
+  "official_answer_strings": {
+    "DS-104-1-22": "A",
+    "DS-104-1-27": "B",
+    "DS-104-1-29": "D"
+  },
+  "pdf_header_and_index_registry_verified_20261024": true,
+  "independent_human_approval": false,
+  "release_approved": false,
+  "production_database_written": false,
+  "cloudflare_main_deployed": false,
+  "netlify_backup_changed": false,
+  "mcq_total_unchanged": 4800,
+  "essay_total_unchanged": 240,
+  "affected_question_count": 3,
+  "affected_ids": [
+    "DS-104-1-22",
+    "DS-104-1-27",
+    "DS-104-1-29"
+  ],
+  "unaffected_question_count": 4797,
+  "all_grading_tuples_must_remain_unchanged": true,
+  "all_unaffected_rows_must_remain_byte_identical": true,
+  "proposed_changes": [
+    {
+      "id": "DS-104-1-22",
+      "official_answer_unchanged": "A",
+      "grading_mode_unchanged": "standard",
+      "accepted_answers_unchanged": null,
+      "source_exam_code": "104030",
+      "original_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0602&t=Q",
+      "prior_analysis_status": "ready",
+      "changed_fields": [
+        "question",
+        "opt_a",
+        "opt_b",
+        "opt_c",
+        "opt_d"
+      ],
+      "preimage_fields": {
+        "question": "團體工作紀錄可作為工作者檢視及評鑑團體運作的重要方式之一，下列有關團體紀 錄的敘述何者錯誤",
+        "opt_a": "「摘要式紀錄」較能具體且深人的呈現團體過程與內容，適用於量化的評鑑，所 花費的時間較多",
+        "opt_b": "團體紀錄可以檢視團體目標達成狀態及成員參與狀態等重要面向，是團體成效評 鑑工具之一",
+        "opt_c": "紀錄裡的文字內容、相片等，項遵守保密原則及匿名處理",
+        "opt_d": "任務性團體的紀錄•需在下次聚會前發給成員檢閱，並於下次會議開始前進行修止"
+      },
+      "proposed_fields": {
+        "question": "團體工作紀錄可作為工作者檢視及評鑑團體運作的重要方式之一，下列有關團體紀錄的敘述何者錯誤？",
+        "opt_a": "「摘要式紀錄」較能具體且深入的呈現團體過程與內容，適用於量化的評鑑，所花費的時間較多",
+        "opt_b": "團體紀錄可以檢視團體目標達成狀態及成員參與狀態等重要面向，是團體成效評鑑工具之一",
+        "opt_c": "紀錄裡的文字內容、相片等，須遵守保密原則及匿名處理",
+        "opt_d": "任務性團體的紀錄，需在下次聚會前發給成員檢閱，並於下次會議開始前進行修正"
+      },
+      "post_approval_action": "invalidate_stale_explanation_and_quarantine_for_reanalysis"
+    },
+    {
+      "id": "DS-104-1-27",
+      "official_answer_unchanged": "B",
+      "grading_mode_unchanged": "standard",
+      "accepted_answers_unchanged": null,
+      "source_exam_code": "104030",
+      "original_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0602&t=Q",
+      "prior_analysis_status": "ready",
+      "changed_fields": [
+        "question",
+        "opt_a",
+        "opt_b"
+      ],
+      "preimage_fields": {
+        "question": "當女性社會工作人員與男性案主第二次在機構進行會談時，會談過程中，案主不斷 稱讀社會工作人員，並對社會工作人員的建議言聽計從，此時該社會工作人員應該 合理懷疑這是下面那一種專業關係的反應？",
+        "opt_a": "反情感轉栘",
+        "opt_b": "情感轉栘",
+        "opt_c": "反向作用",
+        "opt_d": "現實反應"
+      },
+      "proposed_fields": {
+        "question": "當女性社會工作人員與男性案主第二次在機構進行會談時，會談過程中，案主不斷稱讚社會工作人員，並對社會工作人員的建議言聽計從，此時該社會工作人員應該合理懷疑這是下面那一種專業關係的反應？",
+        "opt_a": "反情感轉移",
+        "opt_b": "情感轉移",
+        "opt_c": "反向作用",
+        "opt_d": "現實反應"
+      },
+      "post_approval_action": "invalidate_stale_explanation_and_quarantine_for_reanalysis"
+    },
+    {
+      "id": "DS-104-1-29",
+      "official_answer_unchanged": "D",
+      "grading_mode_unchanged": "standard",
+      "accepted_answers_unchanged": null,
+      "source_exam_code": "104030",
+      "original_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0602&t=Q",
+      "prior_analysis_status": "review",
+      "changed_fields": [
+        "question",
+        "opt_b",
+        "opt_c",
+        "opt_d"
+      ],
+      "preimage_fields": {
+        "question": "社會工作實務領域常運用「業務聯繫會報」與「個案研討會」等形式,由不同機構或 不同專業工作者, 一起討論個案工作的方法。這種類型的會議，社會工作者需要面對 的倫理議題為何?",
+        "opt_a": "個人價值與專業價值的衝突",
+        "opt_b": "不同專業間的價值與介入焦點不一致",
+        "opt_c": "不同機構間的代表權利分配的議題",
+        "opt_d": "資訊分享程度的保密拿捏的問題"
+      },
+      "proposed_fields": {
+        "question": "社會工作實務領域常運用「業務聯繫會報」與「個案研討會」等形式，由不同機構或不同專業的工作者，一起討論個案工作的方法。這種類型的會議，社會工作者需要面對的倫理議題為何？",
+        "opt_a": "個人價值與專業價值的衝突",
+        "opt_b": "不同專業間的價值觀與介入焦點不一致",
+        "opt_c": "不同機構間的代表權力分配的議題",
+        "opt_d": "資訊分享程度與保密拿捏的問題"
+      },
+      "post_approval_action": "invalidate_stale_explanation_and_quarantine_for_reanalysis"
+    }
+  ],
+  "release_gate": [
+    "Fetch byte-for-byte original MOEX PDF and recheck against pinned SHA256",
+    "Visually confirm official 104-1 Direct Service printed Q22/Q27/Q29 on page 4-3",
+    "Independent human approves exact text only",
+    "Reconcile latest main/preimages and affected explanations, generate scoped shard/manifest/read-only lock updates",
+    "Run exact-head full 4800 grading + 4797 unaffected integrity QA and rollback-only 37-column production SQL rehearsal",
+    "Only after separate explicit owner release approval: controlled merge, production transaction, Cloudflare deployment and browser acceptance"
+  ],
+  "blocked_flags": [
+    "428 archived review entries do not auto-clear",
+    "All remaining PDF holds and essay/AI human gates unchanged"
+  ]
+}
