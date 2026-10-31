@@ -56,6 +56,13 @@ def validate_overlay(proof: dict, rows: list[dict], lock: dict,
     assert {p['id'] for p in proof['rows']} == IDS and len(proof['rows']) == 2
 
     index = {r['id']: r for r in rows}
+    # Compare supplied in-memory rows against every checked-in shard, including
+    # the 22 untouched files. Reject out-of-band changes in any of 4,800 rows.
+    for shard in after_manifest['shards']:
+        payload = json.loads((ROOT / 'cdn/question-shards' / shard['file']).read_bytes())
+        assert len(payload['questions']) == shard['question_count']
+        for item in payload['questions']:
+            assert item['id'] in index and item == index[item['id']]
     originals = copy.deepcopy(rows)
     orig_index = {r['id']: r for r in originals}
     orig_lock = copy.deepcopy(lock)
