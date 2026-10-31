@@ -82,6 +82,17 @@ def main() -> int:
     args = ap.parse_args()
 
     expected_index = (CDN / "index.html").read_text(encoding="utf-8")
+    # A CDN-only model change does not necessarily alter an existing release
+    # marker or monthly_patch.js digest. Require the actual deployed student
+    # homepage to use the exact reviewed current model, not just the Worker
+    # legacy alias. This is GET-only and does not call the AI provider.
+    current_student_model = f"const GROQ_MODEL = '{CURRENT_MODEL}';"
+    legacy_student_model = f"const GROQ_MODEL = '{LEGACY_MODEL}';"
+    if (
+        expected_index.count(current_student_model) != 1
+        or legacy_student_model in expected_index
+    ):
+        raise SystemExit("Tracked CDN student AI model is not the reviewed current Qwen model")
     # A passing release marker/cache-bust check alone can miss a stale UI.
     # Require the exact reviewed V2 stylesheet on the actual Cloudflare origin.
     calm_style = re.compile(r'<style id="swsi-calm-student-design-v2">([\s\S]*?)</style>')
@@ -143,6 +154,9 @@ def main() -> int:
                 "cache_bust": expected_tag in home,
                 "release_source": expected_source in home,
                 "reviewed_ui_css": calm_style.findall(home) == [expected_style],
+                # Detect stale CDN HTML even when all non-HTML artifacts match.
+                "current_student_ai_model": home.count(current_student_model) == 1,
+                "no_legacy_student_ai_model": legacy_student_model not in home,
                 "soft_launch": "SWSI CLOUDFLARE PUBLIC SOFT LAUNCH" in home,
                 "noindex": 'noindex,nofollow,noarchive' in home,
                 "no_preview": "SWSI CLOUDFLARE FRONTEND PREVIEW" not in home and "swsi-preview-banner" not in home,
