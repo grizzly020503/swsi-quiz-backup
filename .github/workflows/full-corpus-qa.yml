@@ -20,6 +20,10 @@ on:
       - 'scripts/build_question_shards.py'
       - 'scripts/historical_source_url_guard.py'
       - 'scripts/historical_source_url_guard_selftest.py'
+      - 'scripts/official_option_scenario_guard.py'
+      - 'scripts/official_option_scenario_guard_selftest.py'
+      - 'scripts/official_candidate_live_core_preflight.py'
+      - 'scripts/official_candidate_live_core_preflight_selftest.py'
       - 'data/moex_source_subjects.v1.json'
       - 'data/exam_scheme_registry.v1.json'
       - 'data/question_qa_policy_v1.json'
@@ -40,6 +44,10 @@ on:
       - 'scripts/build_question_shards.py'
       - 'scripts/historical_source_url_guard.py'
       - 'scripts/historical_source_url_guard_selftest.py'
+      - 'scripts/official_option_scenario_guard.py'
+      - 'scripts/official_option_scenario_guard_selftest.py'
+      - 'scripts/official_candidate_live_core_preflight.py'
+      - 'scripts/official_candidate_live_core_preflight_selftest.py'
       - 'data/moex_source_subjects.v1.json'
       - 'data/exam_scheme_registry.v1.json'
       - 'data/question_qa_policy_v1.json'
@@ -88,6 +96,17 @@ jobs:
       - name: Prevent wrong-subject historic MOEX sources in rebuilt shards
         run: python scripts/historical_source_url_guard_selftest.py
 
+      - name: Audit official MCQ option vs next-case boundary (read-only)
+        run: |
+          python -m py_compile scripts/official_option_scenario_guard.py scripts/official_option_scenario_guard_selftest.py
+          python scripts/official_option_scenario_guard_selftest.py
+          python scripts/official_option_scenario_guard.py --out /tmp/official-option-scenario-qa.json --fail-on-blocked
+
+      - name: Three-way Official Core candidate vs pinned released baseline (no writes)
+        run: |
+          git fetch --no-tags --depth=1 origin 62fed9b5a3e7b6bd770886bfc9fe6b6ce3ce1576
+          python -m py_compile scripts/official_candidate_live_core_preflight.py scripts/official_candidate_live_core_preflight_selftest.py
+          python scripts/official_candidate_live_core_preflight_selftest.py --with-pinned-real-baseline
       - name: Audit all manifest sessions through effective exam profiles
         run: |
           set +e
@@ -98,6 +117,32 @@ jobs:
           cat /tmp/full-corpus-question-qa.log
           exit "$rc"
 
+      - name: Monthly READ-ONLY live option/context audit
+        if: github.event_name == 'schedule'
+        run: |
+          python -m pip install --disable-pip-version-check 'requests==2.32.5'
+          python scripts/official_option_scenario_guard.py \
+            --live --out /tmp/official-option-scenario-live-qa.json \
+            --fail-on-blocked
+
+      - name: Summarize monthly live option-boundary risks
+        if: always() && github.event_name == 'schedule'
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path('/tmp/official-option-scenario-live-qa.json')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
+              f.write('## Monthly live MCQ option/context audit\n\n')
+              if p.is_file():
+                  r=json.loads(p.read_text(encoding='utf-8'))
+                  f.write(f"- Public questions examined: {r['scanned_questions']}\n")
+                  f.write(f"- Option boundaries examined: {r['scanned_options']}\n")
+                  f.write(f"- Blocking case-boundary suspicions: **{r['blocking_suspicions']}**\n")
+                  f.write('- Source-review only; no official text, answers or DB records changed.\n')
+              else:
+                  f.write('- No valid live audit report produced; inspect failed live/coverage steps.\n')
+          PY
       - name: Publish compact job summary
         if: always()
         run: |
@@ -137,6 +182,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: full-corpus-question-qa
-          path: /tmp/full-corpus-question-qa.json
+          path: |
+            /tmp/full-corpus-question-qa.json
+            /tmp/official-option-scenario-qa.json
+            /tmp/official-option-scenario-live-qa.json
           if-no-files-found: ignore
           retention-days: 14
