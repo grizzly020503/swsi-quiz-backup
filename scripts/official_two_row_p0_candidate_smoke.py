@@ -68,12 +68,32 @@ def validate_overlay(proof: dict, rows: list[dict], lock: dict,
         six_proof = json.loads(six_path.read_text())
         six_items = {x['id']: x for x in six_proof['changes']}
         assert len(six_items) == 6
+    # Parent #496 overlay reconstructs memory rows to its own version,
+    # whereas the checked-in candidate includes both source-bound additions.
+    # Verify exact staged rows for both overlays and byte-identities on disk.
+    child=json.loads((ROOT/'audit/official_next_three_p0_source_candidate_20261031.json').read_text())
+    child_rows={c['id']:c for c in child['changed_rows']}
+    assert len(child_rows)==3
+    parent_six=json.loads((ROOT/'audit/official_111_2_shared_context_six_20261031.json').read_text())
     for shard in after_manifest['shards']:
-        payload = json.loads((ROOT / 'cdn/question-shards' / shard['file']).read_bytes())
+        source_path=ROOT / 'cdn/question-shards' / shard['file']
+        raw=source_path.read_bytes()
+        extra=child['shards'].get('cdn/question-shards/'+shard['file'])
+        if extra:
+            assert len(raw)==extra['new_bytes'] and digest(raw)==extra['new_sha256']
+        elif shard['file']=='111-2.json':
+            assert len(raw)==(ROOT/'cdn/question-shards/111-2.json').stat().st_size
+            assert digest(raw)==parent_six['after_shard_sha256']
+        else:
+            assert len(raw)==shard['bytes'] and digest(raw)==shard['sha256']
+        payload = json.loads(raw)
         assert len(payload['questions']) == shard['question_count']
         for item in payload['questions']:
             assert item['id'] in index
-            if item['id'] in six_items:
+            if item['id'] in child_rows:
+                assert item == child_rows[item['id']]['published_after']
+                assert index[item['id']] == child_rows[item['id']]['published_before']
+            elif item['id'] in six_items:
                 assert item == six_items[item['id']]['published_after']
                 assert index[item['id']] == six_items[item['id']]['published_before']
             else:
@@ -147,6 +167,9 @@ def main():
     lock = json.loads((ROOT / 'data/official_exam_readonly.lock.json').read_text())
     from official_111_2_shared_context_six_smoke import validate_overlay as reverse_six
     six_proof=json.loads((ROOT/'audit/official_111_2_shared_context_six_20261031.json').read_text())
+    from official_next_three_p0_source_smoke import validate_overlay as reverse_three
+    three_proof=json.loads((ROOT/'audit/official_next_three_p0_source_candidate_20261031.json').read_text())
+    rows,lock,manifest_raw=reverse_three(three_proof,rows,lock,manifest_raw)
     rows,lock,manifest_raw=reverse_six(six_proof,rows,lock,manifest_raw)
     validate_overlay(proof, rows, lock, manifest_raw)
     for kind in ('target-text', 'answer', 'other-row', 'target-lock','source-proof','manifest'):

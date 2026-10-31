@@ -1,0 +1,51 @@
+-- Source-backed P0 correction candidate PR501; ALWAYS ROLLBACK, never release.
+-- Original MOEX SHA: 106030-107-0602 9f6d1a64364b25387606e32b8f0a89142ad42fa8e1474c64f712b7e3fad9179c
+-- 105090-107-0601 6cb957f74ae14d66bb2c0d83a8a61ec741d520e9c5cec08e0c008eb5a0238332
+-- 105090-107-0606 6afea97bde8d58d00358d23bc5a31a0372a47f98d60b99ebc8f04495e3e9d836
+BEGIN ISOLATION LEVEL REPEATABLE READ;
+SET LOCAL lock_timeout='3s';
+SET LOCAL statement_timeout='30s';
+DO $guard_three$
+DECLARE
+ before_rows jsonb:=$pre$[{"id":"DS-106-1-34","subject":"社會工作直接服務","year":"106","round":"第一次","qno":"34","major":"會談與溝通技巧","topic":"自我揭露 > 使用自我","keywords":"使用自我, use of self, 示範真誠, 揭露經驗, 技術","question":"使用自我（use of self）是社會工作直接服務常用的技術，請問下列那一項屬於使用自我 的做法？","opt_a":"深層次的同理心，將覺察到的個案情緒反應出來 心，將覺察到的個案情緒反應出來","opt_b":"示範真誠的行為或適時揭露自己的經驗、想法","opt_c":"透過案主的轉移，處理其和工作者的關係之議題 其和工作者的關係之議題","opt_d":"同理心或設身處地和案主互動，並給予的正向回饋 心或設身處地和案主互動，並給予的正向回饋","answer":"B","exp_why":"(B)使用自我(use of self)：示範真誠的行為、或適時揭露自己的經驗與想法。","exp_others":"(A)是深層同理、(C)是處理轉移、(D)是同理與正向回饋——皆非『使用自我』的核心定義。","exp_trap":"自我表露/使用自我:有意有目的透露自身訊息(口語與非口語);類型＝立即性與個人性;以誠實為基礎且須考量是否有助專業關係與案主利益;含分享與面質意味。","exp_raw":"","mnemonic":"使用自我/自我表露＝有目的透露自身訊息(口語非口語);類型＝立即性與個人性;以誠實為基礎、須利於專業關係與案主利益。","extension":"會談技巧(使用自我)。","law":"","mistake":"概念混淆","source_exam_code":"106030","source_url":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0602&t=Q","analysis_status":"ready","analysis_attempts":0,"analysis_error":null,"analysis_started_at":null,"analysis_completed_at":null,"legal_status":"not_applicable","legal_checked_at":null,"legal_note":null,"legal_source_url":null,"legal_canonical_names":[],"accepted_answers":null,"grading_mode":"standard","analysis_last_attempt_at":null},{"id":"R-105-2-07","subject":"社會工作研究方法","year":"105","round":"第二次","qno":"7","major":"統計檢定","topic":"統計檢定 > 型 I/II 錯誤","keywords":"型I錯誤, 型II錯誤, 檢定力","question":"型Ⅰ錯誤稱為 ，型Ⅱ錯誤稱為 ，下列敘述何者錯誤？","opt_a":"在不增加 的情況下，我們可以增加樣本數達到降低 的目的","opt_b":"1-稱為檢定力，對立假設為真時，錯誤判斷的機率","opt_c":"是指虛無假設為假，不拒絕虛無假設的機率","opt_d":"是指虛無假設為真，但拒斥虛無假設的機率","answer":"B","exp_why":"用煙霧警報器想：型Ⅰ錯誤＝沒火卻響（誤報）；型Ⅱ錯誤＝有火卻沒響（漏掉）。「檢定力」就是「真的失火時，警報抓得到的本事」——它是抓對的能力、不是出錯的機率，越高越好。(B)把檢定力說成「錯誤判斷的機率」，剛好說反了。","exp_others":"(A)不動α而加大樣本可降低β，正確；(C)β＝有火沒響（虛無為假卻不拒絕）的機率，正確；(D)α＝沒火卻響（虛無為真卻拒絕）的機率，正確。","exp_trap":"檢定力是「好能力」，常被偷換成「錯誤率」。記住1−β＝抓到真效果的本事。","exp_raw":"","mnemonic":"型Ⅰ＝誤報、型Ⅱ＝漏報；檢定力＝真失火時警報抓得到的本事，越大越靈，不是出錯率。","extension":"檢定力四要素（α、效果量、樣本數、變異）→增樣本提升檢定力。","law":"","mistake":"概念混淆","source_exam_code":"105090","source_url":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0606&t=Q","analysis_status":"ready","analysis_attempts":0,"analysis_error":null,"analysis_started_at":null,"analysis_completed_at":null,"legal_status":"not_applicable","legal_checked_at":null,"legal_note":null,"legal_source_url":null,"legal_canonical_names":[],"accepted_answers":null,"grading_mode":"standard","analysis_last_attempt_at":null},{"id":"SW-105-2-12","subject":"社會工作","year":"105","round":"第二次","qno":"12","major":"心理健康","topic":"醫務社工 > 4Rs評估法","keywords":"4Rs, Role, Reaction, Recovery, Resource","question":"醫務社會工作的個案工作，在評估上主要是以心理暨社會評估取向，經常採用的方式有社會 系統紀錄法(4Rs)，下列何者錯誤?","opt_a":"社會角色) Reaction(","opt_b":"情緒反應) Recovery(","opt_c":"症狀恢復狀況) Resource(","opt_d":"問題解決的資源)","answer":"C","exp_why":"(C)錯誤：4Rs不含『症狀恢復狀況(Recovery)』；4Rs＝角色/反應/關係/資源。","exp_others":"(A)社會角色Role、(B)情緒反應Reaction、(D)問題解決的資源Resources——皆為4Rs面向。","exp_trap":"醫務社工社會診斷4Rs(Doremus 1976)：角色(Role)、反應(Reaction,情緒態度)、關係(Relationship)、資源(Resources)。","exp_raw":"","mnemonic":"醫務社工社會診斷4Rs(Doremus 1976):角色Role/反應Reaction(情緒態度)/關係Relationship/資源Resources。","extension":"醫務社會工作(社會系統紀錄4Rs)。","law":"","mistake":"概念混淆","source_exam_code":"105090","source_url":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0601&t=Q","analysis_status":"ready","analysis_attempts":0,"analysis_error":null,"analysis_started_at":null,"analysis_completed_at":null,"legal_status":"not_applicable","legal_checked_at":null,"legal_note":null,"legal_source_url":null,"legal_canonical_names":[],"accepted_answers":null,"grading_mode":"standard","analysis_last_attempt_at":null}]$pre$::jsonb;
+ after_rows jsonb:=$post$[{"id":"DS-106-1-34","subject":"社會工作直接服務","year":"106","round":"第一次","qno":"34","major":null,"topic":null,"keywords":null,"question":"使用自我（use of self）是社會工作直接服務常用的技術，請問下列那一項屬於使用自我 的做法？","opt_a":"深層次的同理心，將覺察到的個案情緒反應出來","opt_b":"示範真誠的行為或適時揭露自己的經驗、想法","opt_c":"透過案主的轉移，處理其和工作者的關係之議題","opt_d":"同理心或設身處地和案主互動，並給予的正向回饋","answer":"B","exp_why":null,"exp_others":null,"exp_trap":null,"exp_raw":null,"mnemonic":null,"extension":null,"law":null,"mistake":null,"source_exam_code":"106030","source_url":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0602&t=Q","analysis_status":"review","analysis_attempts":0,"analysis_error":null,"analysis_started_at":null,"analysis_completed_at":null,"legal_status":"not_applicable","legal_checked_at":null,"legal_note":null,"legal_source_url":null,"legal_canonical_names":[],"accepted_answers":null,"grading_mode":"standard","analysis_last_attempt_at":null},{"id":"R-105-2-07","subject":"社會工作研究方法","year":"105","round":"第二次","qno":"7","major":null,"topic":null,"keywords":null,"question":"型Ⅰ錯誤稱為α，型Ⅱ錯誤稱為β，下列敘述何者錯誤？","opt_a":"在不增加α的情況下，我們可以增加樣本數達到降低β的目的","opt_b":"1-β稱為檢定力，對立假設為真時，錯誤判斷的機率","opt_c":"β是指虛無假設為假，不拒絕虛無假設的機率","opt_d":"α是指虛無假設為真，但拒斥虛無假設的機率","answer":"B","exp_why":null,"exp_others":null,"exp_trap":null,"exp_raw":null,"mnemonic":null,"extension":null,"law":null,"mistake":null,"source_exam_code":"105090","source_url":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0606&t=Q","analysis_status":"review","analysis_attempts":0,"analysis_error":null,"analysis_started_at":null,"analysis_completed_at":null,"legal_status":"not_applicable","legal_checked_at":null,"legal_note":null,"legal_source_url":null,"legal_canonical_names":[],"accepted_answers":null,"grading_mode":"standard","analysis_last_attempt_at":null},{"id":"SW-105-2-12","subject":"社會工作","year":"105","round":"第二次","qno":"12","major":null,"topic":null,"keywords":null,"question":"醫務社會工作的個案工作，在評估上主要是以心理暨社會評估取向，經常採用的方式有社會 系統紀錄法(4Rs)，下列何者錯誤?","opt_a":"Role（社會角色）","opt_b":"Reaction（情緒反應）","opt_c":"Recovery（症狀恢復情況）","opt_d":"Resource（問題解決的資源）","answer":"C","exp_why":null,"exp_others":null,"exp_trap":null,"exp_raw":null,"mnemonic":null,"extension":null,"law":null,"mistake":null,"source_exam_code":"105090","source_url":"https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0601&t=Q","analysis_status":"review","analysis_attempts":0,"analysis_error":null,"analysis_started_at":null,"analysis_completed_at":null,"legal_status":"not_applicable","legal_checked_at":null,"legal_note":null,"legal_source_url":null,"legal_canonical_names":[],"accepted_answers":null,"grading_mode":"standard","analysis_last_attempt_at":null}]$post$::jsonb;
+ item jsonb;seen jsonb;others_before jsonb;others_after jsonb;
+ grades_before jsonb;grades_after jsonb;config_before jsonb;config_after jsonb;
+ changed integer;
+BEGIN
+ IF (SELECT count(*) FROM public.questions)<>4800 THEN RAISE EXCEPTION 'SWSI expected exactly 4800';END IF;
+ SELECT jsonb_agg(to_jsonb(q) ORDER BY id) INTO others_before FROM public.questions q WHERE id NOT IN ('DS-106-1-34','R-105-2-07','SW-105-2-12');
+ SELECT jsonb_agg(jsonb_build_array(id,answer,accepted_answers,grading_mode) ORDER BY id) INTO grades_before FROM public.questions;
+ SELECT to_jsonb(c) INTO config_before FROM public.ai_analysis_job_config c WHERE id=true;
+ IF config_before->>'enabled'<>'false' THEN RAISE EXCEPTION 'SWSI unexpected AI queue state';END IF;
+ FOR item IN SELECT value FROM jsonb_array_elements(before_rows) LOOP
+   SELECT to_jsonb(q) INTO STRICT seen FROM public.questions q WHERE id=item->>'id' FOR UPDATE;
+   IF seen IS DISTINCT FROM item THEN RAISE EXCEPTION 'SWSI preimage mismatch %',item->>'id';END IF;
+ END LOOP;
+  UPDATE public.questions SET opt_a='深層次的同理心，將覺察到的個案情緒反應出來',opt_c='透過案主的轉移，處理其和工作者的關係之議題',opt_d='同理心或設身處地和案主互動，並給予的正向回饋' WHERE id='DS-106-1-34';
+  GET DIAGNOSTICS changed=ROW_COUNT;
+  IF changed<>1 THEN RAISE EXCEPTION 'P0 next three row affected count mismatch: DS-106-1-34';END IF;
+  UPDATE public.questions SET question='型Ⅰ錯誤稱為α，型Ⅱ錯誤稱為β，下列敘述何者錯誤？',opt_a='在不增加α的情況下，我們可以增加樣本數達到降低β的目的',opt_b='1-β稱為檢定力，對立假設為真時，錯誤判斷的機率',opt_c='β是指虛無假設為假，不拒絕虛無假設的機率',opt_d='α是指虛無假設為真，但拒斥虛無假設的機率' WHERE id='R-105-2-07';
+  GET DIAGNOSTICS changed=ROW_COUNT;
+  IF changed<>1 THEN RAISE EXCEPTION 'P0 next three row affected count mismatch: R-105-2-07';END IF;
+  UPDATE public.questions SET opt_a='Role（社會角色）',opt_b='Reaction（情緒反應）',opt_c='Recovery（症狀恢復情況）',opt_d='Resource（問題解決的資源）' WHERE id='SW-105-2-12';
+  GET DIAGNOSTICS changed=ROW_COUNT;
+  IF changed<>1 THEN RAISE EXCEPTION 'P0 next three row affected count mismatch: SW-105-2-12';END IF;
+ UPDATE public.questions SET analysis_status='review' WHERE id IN ('DS-106-1-34','R-105-2-07','SW-105-2-12') AND analysis_status='pending';
+ GET DIAGNOSTICS changed=ROW_COUNT;
+ IF changed<>3 THEN RAISE EXCEPTION 'SWSI pending quarantine mismatch';END IF;
+ FOR item IN SELECT value FROM jsonb_array_elements(after_rows) LOOP
+   SELECT to_jsonb(q) INTO STRICT seen FROM public.questions q WHERE id=item->>'id';
+   IF seen IS DISTINCT FROM item THEN RAISE EXCEPTION 'SWSI postimage mismatch %',item->>'id';END IF;
+ END LOOP;
+ SELECT jsonb_agg(to_jsonb(q) ORDER BY id) INTO others_after FROM public.questions q WHERE id NOT IN ('DS-106-1-34','R-105-2-07','SW-105-2-12');
+ SELECT jsonb_agg(jsonb_build_array(id,answer,accepted_answers,grading_mode) ORDER BY id) INTO grades_after FROM public.questions;
+ SELECT to_jsonb(c) INTO config_after FROM public.ai_analysis_job_config c WHERE id=true;
+ IF others_before IS DISTINCT FROM others_after THEN RAISE EXCEPTION 'SWSI unrelated row changed';END IF;
+ IF grades_before IS DISTINCT FROM grades_after THEN RAISE EXCEPTION 'SWSI grading tuple changed';END IF;
+ IF config_before IS DISTINCT FROM config_after THEN RAISE EXCEPTION 'SWSI AI config changed';END IF;
+ IF EXISTS (SELECT 1 FROM public.questions WHERE analysis_status='pending') THEN RAISE EXCEPTION 'SWSI unexpected pending';END IF;
+ RAISE NOTICE 'SWSI three-source-rows rehearsal succeeded: 4797 other rows and 4800 grading tuples unchanged; ROLLBACK next';
+END;
+$guard_three$;
+ROLLBACK;
