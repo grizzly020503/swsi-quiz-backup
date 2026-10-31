@@ -49,6 +49,10 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       }));
       throw new Error('paper-first UI not mounted after canonical essay navigation: '+JSON.stringify(state)+'; '+String(err));
     }
+    if (process.env.SWSI_HANDWRITING_EVIDENCE_DIR) {
+      fs.mkdirSync(process.env.SWSI_HANDWRITING_EVIDENCE_DIR,{recursive:true});
+      await page.screenshot({path:path.join(process.env.SWSI_HANDWRITING_EVIDENCE_DIR,'paper-first-mobile-390px.png'),fullPage:true});
+    }
     assert.strictEqual(await page.locator('.swsi-paper-mode-paper').getAttribute('aria-pressed'),'true');
     assert.strictEqual(await page.locator('textarea.wta').evaluate(el=>getComputedStyle(el).display),'none');
     await page.evaluate(()=>{
@@ -78,6 +82,9 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
         reviewElements:document.querySelectorAll('.swsi-paper-review textarea').length
       }));
       throw new Error('OCR confirmation editor was not displayed: '+JSON.stringify(snapshot)+'; '+String(err));
+    }
+    if (process.env.SWSI_HANDWRITING_EVIDENCE_DIR) {
+      await page.screenshot({path:path.join(process.env.SWSI_HANDWRITING_EVIDENCE_DIR,'ocr-review-before-confirm-390px.png'),fullPage:true});
     }
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),1);
     assert(await page.evaluate(()=>Array.isArray(window.__paperRequests[0].messages[0].content)));
