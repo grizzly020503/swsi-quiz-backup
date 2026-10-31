@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "kind": "RENDERED_OFFICIAL_SOURCE_PARSER_BLINDSPOT",
+  "id": "R-105-1-38",
+  "created_on": "2026-10-31",
+  "status": "AI_VISUAL_VERIFIED_CANDIDATE_HOLD_HUMAN_APPROVAL",
+  "baseline_review_reason": "missing_field_detail",
+  "source": {
+    "url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=105030&c=107&s=0606&q=1",
+    "pdf_filename": "105030-107-0606.pdf",
+    "official_question_pdf_sha256": "e219347d5b1bbe4ffa539bebf656ce196b72e569437e386fad078b37d7745687",
+    "pdf_page": 4,
+    "printed_page": "4-4",
+    "answer_filename": "105030-107-0606-S.pdf",
+    "official_answer_pdf_sha256": "4882b8a01680960d451261219240c061802b9d6173df3c27d8007d3a46930d4d",
+    "answer_page": 1,
+    "inspection": "Retained original PDF was SHA256 verified and page 4 rendered as PNG at 180 DPI; native pdftotext -layout and PyMuPDF page.get_text both omitted question 38 option texts, while the page image renders A-D clearly."
+  },
+  "official_page_visual_transcription": {
+    "question": "有關研究之過程、成果和倫理議題，下列敘述何者正確？",
+    "opt_a": "為了讓統計結果達到顯著，可將統計數據微調",
+    "opt_b": "研究者可依照機構主管或督導的期待，調整各項調查統計數據",
+    "opt_c": "為了滿足年底評鑑需要，實務工作者可調整服務滿意度的調查結果",
+    "opt_d": "研究倫理應該內化在研究者的心中，並在研究過程持續檢視和遵守",
+    "answer": "D"
+  },
+  "stored_question_and_options": {
+    "question": "有關研究之過程、成果和倫理議題，下列敘述何者正確？",
+    "opt_a": "為了讓統計結果達到顯著，可將統計數據微調",
+    "opt_b": "研究者可依照機構主管或督導的期待，調整各項調查統計數據",
+    "opt_c": "為了滿足年底評鑑需要，實務工作者可調整服務滿意度的調查結果",
+    "opt_d": "研究倫理應該內化在研究者的心中，並在研究過程持續檢視和遵守",
+    "answer": "D"
+  },
+  "normalized_unicode_nfkc_match": true,
+  "official_answer_unchanged": true,
+  "official_core_change_required": false,
+  "source_text_extractor_has_complete_options": false,
+  "existing_queue_priority": "P0",
+  "retained_in_428_queue": true,
+  "independent_human_approval": false,
+  "cleared_from_release_queue": false,
+  "production_modified": false,
+  "backup_modified": false,
+  "next_action": "Human double-check rendered original PDF p4-4 and final official answer D; then approve document-bound no-change disposition in refreshed 428 review queue without changing grading or source wording. Do not pretend text-only PDF extraction was successful."
+}
