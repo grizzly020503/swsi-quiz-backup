@@ -260,6 +260,25 @@ def split_question_blocks(text):
     return blocks
 
 
+def option_contains_followup_case_passage(value):
+    """Block a shared-case paragraph swallowed into the previous MCQ option.
+
+    A PDF text stream can append the NEXT group's scenario to the previous
+    option D (105-2 research Q12/Q20; 107-2 research Q4). A clear case label
+    plus an instruction to answer subsequent questions requires source review.
+    This detection is conservative; it NEVER auto-extracts or edits a stem.
+    """
+    raw = str(value or "")
+    case = re.search(r"(?:情況|情境|共同情境|共同題組)\s*[:：]", raw)
+    if not case:
+        return False
+    return bool(re.search(
+        r"(?:請依|請根據|請依照|根據|依據).{0,200}?(?:回答|作答)",
+        raw[case.end():],
+        re.S,
+    ))
+
+
 def parse_mc(text, subject, exam_code, roc_year, round_name, answer_rules):
     rows = []
     for qno, raw in split_question_blocks(text):
@@ -277,6 +296,12 @@ def parse_mc(text, subject, exam_code, roc_year, round_name, answer_rules):
             opts[k] = re.sub(r"\s*代號[:：]\s*\d+\s*$", "", opts[k]).strip()
             if not opts[k]:
                 raise RuntimeError(f"{subject['name']} 第 {qno} 題 {k} 選項為空白")
+            if option_contains_followup_case_passage(opts[k]):
+                raise RuntimeError(
+                    f"官方選擇題疑似共同情境被併入選項：{exam_code} "
+                    f"{subject['name']} 第 {qno} 題 {k} 選項；"
+                    "拒絕匯入，須人工對照原始考選部 PDF 確認題組界線"
+                )
         if not stem:
             raise RuntimeError(f"{subject['name']} 第 {qno} 題題幹為空白")
         rule = answer_rules[qno - 1]
