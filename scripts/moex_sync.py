@@ -206,6 +206,27 @@ def parse_essays(text, subject, exam_code, roc_year, round_name):
             "source_exam_code": exam_code, "source_url": pdf_url(exam_code, subject["s"], "Q"),
             "analysis_status": "pending",
         })
+    if len(essays) == 2 and matches:
+        # Compare two extracted question scores against the actual section
+        # total printed *before* essay Q1, if the PDF preserved that marker.
+        # Do not infer an expected total from the exam year or from AI text.
+        header = part[:matches[0].start()]
+        declared = [int(x) for x in re.findall(
+            r"[（(]\\s*(\\d+)\\s*分\\s*[）)]", header
+        )]
+        if len(declared) > 1:
+            raise RuntimeError(
+                f"官方申論總分標記不明：{exam_code} {subject['name']}；"
+                f"考卷標記={declared}；拒絕猜測"
+            )
+        if len(declared) == 1:
+            actual_total = sum(int(row["points"]) for row in essays)
+            if actual_total != declared[0]:
+                raise RuntimeError(
+                    f"官方申論分數合計不符：{exam_code} {subject['name']}；"
+                    f"原卷申論總分={declared[0]}，逐題合計={actual_total}；"
+                    "停止匯入並要求核對官方 PDF"
+                )
     return essays
 
 
