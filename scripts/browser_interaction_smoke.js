@@ -102,17 +102,31 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     assert(layout, 'home/footer layout elements missing');
     assert(layout.gap <= 48, 'home leaves an artificial blank slab before footer: '+layout.gap+'px');
 
-    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-    await page.waitForTimeout(80);
-    const clearance = await page.evaluate(() => {
-      const footer = document.querySelector('.wrap > footer') || document.querySelector('footer');
-      const brand = footer && footer.querySelector('.swsi-public-footer-brand');
-      const tab = document.querySelector('.tabbar');
-      if (!brand || !tab) return null;
-      const br = brand.getBoundingClientRect();
-      const tr = tab.getBoundingClientRect();
-      return { brandBottom: br.bottom, tabTop: tr.top };
+    // A late font/layout repaint can increase document height *after* the
+    // first scroll. Re-scroll to the actual end, but retain the strict visual
+    // overlap assertion rather than masking a truly covered footer.
+    await page.evaluate(async () => {
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
     });
+    let clearance = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      await page.evaluate(() => window.scrollTo({
+        top: document.scrollingElement.scrollHeight,
+        behavior: 'instant'
+      }));
+      await page.waitForTimeout(100);
+      clearance = await page.evaluate(() => {
+        const footer = document.querySelector('.wrap > footer') || document.querySelector('footer');
+        const brand = footer && footer.querySelector('.swsi-public-footer-brand');
+        const tab = document.querySelector('.tabbar');
+        if (!brand || !tab) return null;
+        const br = brand.getBoundingClientRect();
+        const tr = tab.getBoundingClientRect();
+        return { brandBottom: br.bottom, tabTop: tr.top,
+          scrollY: window.scrollY, scrollHeight: document.scrollingElement.scrollHeight };
+      });
+      if (clearance && clearance.brandBottom <= clearance.tabTop + 1) break;
+    }
     assert(clearance, 'footer brand or bottom nav missing');
     assert(clearance.brandBottom <= clearance.tabTop + 1,
       'footer content is covered by fixed bottom navigation: brandBottom='+clearance.brandBottom+' tabTop='+clearance.tabTop);
