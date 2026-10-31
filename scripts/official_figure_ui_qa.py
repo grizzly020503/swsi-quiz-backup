@@ -82,15 +82,21 @@ def validate_core_transition(proof, rows, lock):
 proof_path=R/'audit/official_genogram_core_transition_20261031.json'
 proof=json.loads(proof_path.read_text())
 manifest_raw=(R/'cdn/question-shards/manifest.json').read_bytes()
-assert hashlib.sha256(manifest_raw).hexdigest()==proof['manifest_after_sha256']
 manifest=json.loads(manifest_raw)
-assert manifest['dataset_revision']==proof['dataset_revision_after']
 all_rows=[]
 for meta in manifest['shards']:
     raw=(R/'cdn/question-shards'/meta['file']).read_bytes()
     assert len(raw)==meta['bytes'] and hashlib.sha256(raw).hexdigest()==meta['sha256']
     all_rows.extend(json.loads(raw)['questions'])
 lock=json.loads((R/'data/official_exam_readonly.lock.json').read_text())
+# Validate the newer, explicitly source-backed transition and reverse only its
+# thirteen exact rows/locks before running the unchanged historical guard.
+# No unrelated-row allowance or old-genogram quarantine is weakened.
+from official_shared_context_13row_integration_smoke import validate_transition
+shared_proof=json.loads((R/'audit/official_shared_context_release_transition_20261031.json').read_text())
+all_rows,lock,manifest_raw=validate_transition(shared_proof,all_rows,lock,manifest_raw)
+assert hashlib.sha256(manifest_raw).hexdigest()==proof['manifest_after_sha256']
+assert json.loads(manifest_raw)['dataset_revision']==proof['dataset_revision_after']
 validate_core_transition(proof,all_rows,lock)
 for kind in ('question','answer','unrelated-row','unrelated-lock','source'):
     p,rs,lk=copy.deepcopy((proof,all_rows,lock))

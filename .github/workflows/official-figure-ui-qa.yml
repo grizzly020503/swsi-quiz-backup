@@ -14,6 +14,10 @@ on:
       - 'cdn/question-shards/**'
       - 'data/official_exam_readonly.lock.json'
       - 'scripts/official_figure_ui_qa.py'
+      - 'scripts/official_shared_context_13row_integration_smoke.py'
+      - 'audit/official_shared_context*.json'
+      - 'audit/official_105_2_shared_context_20261028.json'
+      - 'audit/official_107_2_shared_context_20261028.json'
       - 'scripts/official_figure_mobile_browser_smoke.js'
       - 'monthly_patch_parts/**'
       - 'cdn/monthly_patch.js'
@@ -28,6 +32,10 @@ on:
       - 'cdn/question-shards/**'
       - 'data/official_exam_readonly.lock.json'
       - 'scripts/official_figure_ui_qa.py'
+      - 'scripts/official_shared_context_13row_integration_smoke.py'
+      - 'audit/official_shared_context*.json'
+      - 'audit/official_105_2_shared_context_20261028.json'
+      - 'audit/official_107_2_shared_context_20261028.json'
 permissions:
   contents: read
 concurrency:

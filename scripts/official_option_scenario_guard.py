@@ -1,0 +1,276 @@
+#!/usr/bin/env python3
+"""Read-only heuristic for scenario passages accidentally swallowed by MCQ choices.
+
+A match is a *risk signal*, never proof of the authoritative wording. The rule
+must not rewrite the official question, context, options, grading or metadata.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+from pathlib import Path
+from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+CASE_LABEL = re.compile(r"(?:情況|情境|共同情境|共同題組)\s*[:：]")
+FOLLOWUP = re.compile(
+    r"(?:請依|請根據|請依照|根據|依據).{0,170}?"
+    r"(?:回答(?:下列|以下)?|作答(?:下列|以下)?|第\s*[\d一二三四五六七八九十]*\s*題\s*至\s*第\s*[\d一二三四五六七八九十]*\s*題)",
+    re.S,
+)
+NEXT_RANGE = re.compile(
+    r"(?:第\s*[\d一二三四五六七八九十]*\s*題\s*至\s*第\s*[\d一二三四五六七八九十]*\s*題|回答下列第.{0,25}題)",
+    re.S,
+)
+FIELDS = ("opt_a", "opt_b", "opt_c", "opt_d")
+
+
+def read_rows(root: Path = ROOT) -> list[dict[str, Any]]:
+    base = root / "cdn" / "question-shards"
+    manifest = json.loads((base / "manifest.json").read_text(encoding="utf-8"))
+    shards = manifest.get("shards")
+    if not isinstance(shards, list) or not shards:
+        raise ValueError("manifest shards[] missing")
+    seen_files: set[str] = set()
+    seen_ids: set[str] = set()
+    rows: list[dict[str, Any]] = []
+    for item in shards:
+        if not isinstance(item, dict):
+            raise ValueError("manifest shard must be an object")
+        name = item.get("file")
+        if (not isinstance(name, str) or not name.endswith(".json")
+                or Path(name).name != name or name in seen_files):
+            raise ValueError("unsafe/duplicate manifest shard filename")
+        seen_files.add(name)
+        raw = (base / name).read_bytes()
+        if hashlib.sha256(raw).hexdigest() != item.get("sha256"):
+            raise ValueError(f"manifest SHA-256 mismatch: {name}")
+        data = json.loads(raw)
+        entries = data.get("questions") if isinstance(data, dict) else None
+        if not isinstance(entries, list) or len(entries) != item.get("question_count"):
+            raise ValueError(f"incorrect shard question count: {name}")
+        for row in entries:
+            if not isinstance(row, dict) or not isinstance(row.get("id"), str) or not row["id"]:
+                raise ValueError(f"malformed question in {name}")
+            if row["id"] in seen_ids:
+                raise ValueError(f"duplicate MCQ identity {row['id']}")
+            seen_ids.add(row["id"])
+            rows.append(row)
+    if len(rows) != manifest.get("total_questions"):
+        raise ValueError("manifest total question count mismatch")
+    return rows
+
+
+def validate_live_baseline(rows: list[dict[str, Any]]) -> None:
+    """Do not report a partial/empty production API response as healthy.
+
+    Historical baseline is immutable: ROC 104–115, 2 rounds/year,
+    5 named subjects and exactly 40 questions in each 120-paper group.
+    Future official exams are not guessed or silently rejected here.
+    """
+    from collections import Counter
+
+    years = {str(y) for y in range(104, 116)}
+    subjects = {
+        "社會工作", "社會工作直接服務", "社會政策與社會立法",
+        "人類行為與社會環境", "社會工作研究方法",
+    }
+    rounds = {"第一次", "第二次"}
+    expected = {(y, rnd, subject) for y in years for rnd in rounds for subject in subjects}
+    observed: Counter[tuple[str, str, str]] = Counter()
+    numbers: dict[tuple[str, str, str], set[int]] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("live questions API supplied malformed row")
+        year = str(row.get("year") or "")
+        if year in years:
+            group = (year, str(row.get("round") or ""), str(row.get("subject") or ""))
+            observed[group] += 1
+            number_text = str(row.get("qno") or "").strip()
+            try:
+                number = int(number_text)
+            except ValueError:
+                number = -1
+            numbers.setdefault(group, set()).add(number)
+    expected_numbers = set(range(1, 41))
+    if (set(observed) != expected
+            or any(count != 40 for count in observed.values())
+            or any(group not in numbers or numbers[group] != expected_numbers for group in expected)):
+        raise ValueError(
+            "live historical scope incomplete; require 120 subjects/papers x 40 questions; "
+            f"observed_rows={sum(observed.values())}, groups={len(observed)}; "
+            "each historical paper must include exactly one qno 1 through 40"
+        )
+
+
+# Three original MOEX case passages are verified in #465 / #447. Every
+# dependent standalone question must carry the *same* complete case preface.
+# Other unseen case groups are not silently considered source-verified.
+REQUIRED_CONTEXT_GROUPS = (
+    ("105", "第二次", "社會工作研究方法", 13, 16),
+    ("105", "第二次", "社會工作研究方法", 21, 22),
+    ("107", "第二次", "社會工作研究方法", 5, 8),
+)
+
+
+SOURCE_CONTEXT_SHA256={('105', 13, 16): '35834d2b25273dd359d9511cb9647aebf8f8ebcbab239d745547facbde6008f6', ('105', 21, 22): '31b9a0a0c5f074ef27a0216dab04fc5b2cd9251701e58b29a730a927c6e420db', ('107', 5, 8): '2c77fd36458c1cc27f2b9760a381f29da258067d95b9184958cd0d81435b1d37'}
+
+def verified_shared_case_groups(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Verify 3 source-reviewed group boundaries and all 10 dependent questions.
+
+    Produces only reason/identity/hash evidence, never the question passage.
+    A question can be opened in random practice without its preceding item, so
+    each dependent stem needs its own unchanged source context.
+    """
+    index: dict[tuple[str, str, str, int], dict] = {}
+    for item in rows:
+        if not isinstance(item, dict):
+            raise ValueError("shared-case audit requires question objects")
+        try:
+            qno = int(str(item.get("qno") or ""))
+        except ValueError:
+            continue
+        key = (
+            str(item.get("year") or ""),
+            str(item.get("round") or ""),
+            str(item.get("subject") or ""),
+            qno,
+        )
+        if key in index:
+            raise ValueError(f"duplicate question identity in shared-case scope: {key}")
+        index[key] = item
+    risks: list[dict[str, Any]] = []
+    verified = 0
+    all_dependent = 0
+    for year, round_name, subject, first, last in REQUIRED_CONTEXT_GROUPS:
+        canonical = None
+        for number in range(first, last + 1):
+            all_dependent += 1
+            item = index.get((year, round_name, subject, number))
+            ident = f"R-{year}-{1 if round_name == '第一次' else 2}-{number:02d}"
+            reason = None
+            if item is None or item.get("id") != ident:
+                reason = "missing_or_wrong_dependent_question_identity"
+            else:
+                raw = item.get("question")
+                if not isinstance(raw, str) or "\n\n" not in raw:
+                    reason = "shared_case_context_missing"
+                else:
+                    preface, _, own_stem = raw.partition("\n\n")
+                    normalized = re.sub(r"\s+", "", preface)
+                    if (not preface.startswith("情況：") or not own_stem.strip()
+                            or len(normalized) < 50
+                            or f"第{first}題至第{last}題" not in normalized):
+                        reason = "shared_case_context_incomplete_or_wrong_range"
+                    elif canonical is None:
+                        canonical = preface
+                    elif preface != canonical:
+                        reason = "shared_case_context_mismatch"
+                    if reason is None and hashlib.sha256(preface.encode()).hexdigest() != SOURCE_CONTEXT_SHA256[(year,first,last)]:
+                        reason = "shared_case_context_source_mismatch"
+            if reason:
+                risks.append({
+                    "id": ident, "year": year, "round": round_name,
+                    "subject": subject, "reason": reason,
+                    "blocking": True, "automatic_edit": False,
+                    "release_approval": False,
+                })
+        if canonical is not None:
+            verified += 1
+    return {
+        "required_groups": len(REQUIRED_CONTEXT_GROUPS),
+        "groups_with_source_context": verified,
+        "required_dependent_questions": all_dependent,
+        "context_blocking_suspicions": len(risks),
+        "context_risks": risks,
+        "automatic_edit": False,
+        "release_approval": False,
+    }
+
+
+def scan(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    risks: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    total = 0
+    for row in rows:
+        ident = row.get("id")
+        if not isinstance(ident, str) or not ident or ident in seen:
+            raise ValueError("invalid/duplicate question ID")
+        seen.add(ident)
+        for field in FIELDS:
+            value = row.get(field)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{ident}: missing or invalid {field}")
+            total += 1
+            has_case = bool(CASE_LABEL.search(value))
+            has_followup = bool(FOLLOWUP.search(value))
+            has_range = bool(NEXT_RANGE.search(value))
+            flags = []
+            if has_case:
+                flags.append("case_label_inside_option")
+            if has_followup:
+                flags.append("next_question_directive_inside_option")
+            if has_range:
+                flags.append("question_range_inside_option")
+            if len(value) > 260:
+                flags.append("long_option_review")
+            # Both a case-label and a dependent-questions directive is strong
+            # enough to stop a release for expert review, not to auto-edit.
+            blocking = has_case and (has_followup or has_range)
+            if flags:
+                risks.append({
+                    "id": ident, "field": field, "year": row.get("year"),
+                    "round": row.get("round"), "subject": row.get("subject"),
+                    "flags": flags, "blocking": blocking,
+                    "review_required": True, "automatic_edit": False,
+                    "release_approval": False,
+                })
+    risks.sort(key=lambda item: (not item["blocking"], item["id"], item["field"]))
+    return {
+        "schema_version": 1, "scope": "heuristic option-boundary triage only",
+        "scanned_questions": len(seen), "scanned_options": total,
+        "blocking_suspicions": sum(r["blocking"] for r in risks),
+        "review_signals": len(risks),
+        "release_approval": False, "official_core_modified": False,
+        "risks": risks,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument("--live", action="store_true", help="explicit public anon READ ONLY API")
+    source.add_argument("--input", type=Path, help="offline JSON list of question rows")
+    parser.add_argument("--out", type=Path, help="write diagnostic JSON outside repo")
+    parser.add_argument("--fail-on-blocked", action="store_true")
+    args = parser.parse_args()
+    if args.live:
+        from build_question_shards import fetch_questions
+        rows = fetch_questions()  # Public questions SELECT; no service-role or DB mutation.
+        validate_live_baseline(rows)
+    elif args.input:
+        rows = json.loads(args.input.read_text(encoding="utf-8"))
+        validate_live_baseline(rows)
+    else:
+        rows = read_rows()
+    result = scan(rows)
+    context = verified_shared_case_groups(rows)
+    result["shared_case_groups"] = context
+    result["dataset_scope"] = "live_public_questions" if args.live else (
+        "input_export" if args.input else "sha_verified_local_shards"
+    )
+    if args.out:
+        dest = args.out.resolve()
+        if dest == ROOT or ROOT in dest.parents:
+            raise SystemExit("REFUSED: audit report output inside repo")
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({k: v for k, v in result.items() if k != "risks"}, ensure_ascii=False))
+    total_blocked = result["blocking_suspicions"] + context["context_blocking_suspicions"]
+    return 2 if args.fail_on_blocked and total_blocked else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

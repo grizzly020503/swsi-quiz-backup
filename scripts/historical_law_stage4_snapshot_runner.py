@@ -317,6 +317,16 @@ def _oldver_ready_record(
     }
 
 
+def verified_source_identity_counts(records: list[dict]) -> dict[str, int]:
+    """Count verified snapshots, never attempted identities on rejected sources."""
+    counts = Counter(
+        str(row['source_identity_method']) for row in records
+        if row.get('status') == 'historical_text_evidence_ready'
+        and row.get('source_identity_method')
+    )
+    return dict(sorted(counts.items()))
+
+
 def build_hybrid_report(
     stage3_report: dict,
     watch: dict,
@@ -416,9 +426,7 @@ def build_hybrid_report(
         records.append(_oldver_ready_record(base, selected, history_url, page, exam, start_date, end_date))
 
     counts = Counter(str(row.get("status") or "") for row in records)
-    identity_counts = Counter(
-        str(row.get("source_identity_method")) for row in records if row.get("source_identity_method")
-    )
+    identity_counts = verified_source_identity_counts(records)
     ready_rows = [row for row in records if row.get("status") == "historical_text_evidence_ready"]
     return {
         "schema_version": 5,
@@ -431,7 +439,7 @@ def build_hybrid_report(
         "stage3_machine_candidate_count": len(candidates),
         "record_count": len(records),
         "status_counts": dict(sorted(counts.items())),
-        "source_identity_method_counts": dict(sorted(identity_counts.items())),
+        "source_identity_method_counts": identity_counts,
         "stage2_history_snapshot_bundle_count": len(history_bundles),
         "moj_api_target_snapshot_count": len(api_targets),
         "historical_text_evidence_ready_count": counts.get("historical_text_evidence_ready", 0),

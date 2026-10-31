@@ -148,4 +148,21 @@ assert api_row4["historical_version_checked"] is False
 assert old_row4["historical_version_checked"] is False
 assert "official_answer" not in api_row4 and "official_answer" not in old_row4
 
+# A rejected old-version title may retain its attempted method for diagnosis.
+# It must not be included in the report's verified identity-method counts.
+rejected_old = snap4._oldver_ready_record(
+    BASE, old_selected, 'https://law.moj.gov.tw/LawClass/LawHistory.aspx?pcode=D0050075',
+    '<html><title>Access denied</title></html>', EXAM, '2015-02-07', '2015-02-08'
+)
+assert rejected_old['status'] == 'source_identity_mismatch'
+assert rejected_old['source_identity_method'] == 'stage4_moj_title'
+mixed_records = [api_row4, old_row4, rejected_old]
+assert snap4.verified_source_identity_counts(mixed_records) == {
+    'moj_open_api_current': 1, 'stage4_moj_title': 1,
+}
+assert sum(snap4.verified_source_identity_counts(mixed_records).values()) == 2
+assert snap4.verified_source_identity_counts([rejected_old]) == {}
+assert rejected_old['status'] == 'source_identity_mismatch'
+assert rejected_old['historical_version_checked'] is False
+
 print("HISTORICAL LAW HYBRID SNAPSHOT PIPELINE SELFTEST OK")
