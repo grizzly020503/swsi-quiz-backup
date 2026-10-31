@@ -57,6 +57,7 @@ jobs:
       - name: Check exact original figures and protected grading contract
         run: |
           python -m py_compile scripts/official_figure_ui_qa.py
+          python scripts/official_next_three_p0_source_smoke.py
           python scripts/official_eight_p0_pdf_review_crosswalk_smoke.py
           python scripts/official_111_2_shared_context_six_smoke.py
           python scripts/official_two_row_p0_candidate_smoke.py
