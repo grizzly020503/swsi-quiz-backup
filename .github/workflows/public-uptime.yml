@@ -18,11 +18,13 @@ on:
       - '.github/workflows/public-uptime.yml'
       - 'scripts/public_uptime_smoke.py'
       - 'scripts/public_uptime_mode_selftest.py'
+      - 'scripts/current_affairs_live_snapshot_parity.py'
   pull_request:
     paths:
       - '.github/workflows/public-uptime.yml'
       - 'scripts/public_uptime_smoke.py'
       - 'scripts/public_uptime_mode_selftest.py'
+      - 'scripts/current_affairs_live_snapshot_parity.py'
 
 permissions:
   contents: read
@@ -53,10 +55,36 @@ jobs:
           python-version: '3.12'
       - name: Syntax check and independent probe regression (zero network)
         run: |
-          python -m py_compile scripts/public_uptime_smoke.py scripts/public_uptime_mode_selftest.py
+          python -m py_compile scripts/public_uptime_smoke.py scripts/public_uptime_mode_selftest.py scripts/current_affairs_live_snapshot_parity.py
           python scripts/public_uptime_mode_selftest.py
+          python scripts/current_affairs_live_snapshot_parity.py --selftest
       - name: Verify Cloudflare primary only (read-only)
         run: python scripts/public_uptime_smoke.py --monitoring-v2 --primary-only
+
+      - name: Diagnose latest public monitoring snapshots (read-only, independent of uptime)
+        run: |
+          python scripts/current_affairs_live_snapshot_parity.py \
+            --live --cache-bust "$GITHUB_RUN_ID" \
+            --out /tmp/swsi-current-affairs-live-parity.json
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          report=json.loads(Path('/tmp/swsi-current-affairs-live-parity.json').read_text(encoding='utf-8'))
+          status=report['status']
+          if status not in {'MATCH', 'STALE', 'DIVERGED', 'NOT_VERIFIED'}:
+              raise AssertionError('unexpected diagnostic status')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as out:
+              out.write('## Cloudflare primary current-affairs snapshot freshness (diagnostic)\n')
+              out.write('**' + status + '** — diagnostic completed; this is not a publish or uptime gate.\n\n')
+              out.write('| Snapshot | Parity | GitHub generated | Live generated |\n')
+              out.write('|---|---|---|---|\n')
+              for name, d in report['snapshots'].items():
+                  out.write(f"| {name} | {d['status']} | {d['expected_generated_at']} | {d['live_generated_at'] or 'not verified'} |\n")
+              if status != 'MATCH':
+                  out.write('\n**Attention:** Cloudflare public snapshots are not proven identical to current main; a normal health-check success must not be treated as latest snapshot deployed.\n')
+          print('SWSI MONITORING FRESHNESS DIAGNOSTIC:', status, '(does not contact Netlify)')
+          PY
 
       - name: Explain independent primary status
         if: always()
