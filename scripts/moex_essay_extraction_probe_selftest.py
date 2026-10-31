@@ -112,6 +112,52 @@ def main():
     else:
         raise AssertionError("zero-point official essay was wrongly accepted")
 
+    # Two individually explicit points can still disagree with the printed
+    # total for the essay section; do not silently import 25+20 as "valid".
+    wrong_section_sum = clean.replace(
+        "內容。（25 分）", "內容。（20 分）"
+    )
+    try:
+        parse(wrong_section_sum)
+    except RuntimeError as exc:
+        assert "申論分數合計不符" in str(exc), str(exc)
+        assert "原卷申論總分=50" in str(exc), str(exc)
+        assert "逐題合計=45" in str(exc), str(exc)
+    else:
+        raise AssertionError("mismatched explicit essay section total was accepted")
+
+    wrong_header_total = clean.replace(
+        "甲、申論題部分：（50 分）", "甲、申論題部分：（60 分）"
+    )
+    try:
+        parse(wrong_header_total)
+    except RuntimeError as exc:
+        assert "申論分數合計不符" in str(exc), str(exc)
+    else:
+        raise AssertionError("unmatched explicit section header score was accepted")
+
+    duplicate_header_total = clean.replace(
+        "甲、申論題部分：（50 分）",
+        "甲、申論題部分：（50 分）（50 分）",
+    )
+    try:
+        parse(duplicate_header_total)
+    except RuntimeError as exc:
+        assert "申論總分標記不明" in str(exc), str(exc)
+    else:
+        raise AssertionError("duplicate section score markers were accepted")
+
+    # If the source text did not preserve a section total, never fabricate
+    # it based on historical expectations. Per-question markers are still
+    # mandatory and any discrepancy stays for official source review.
+    no_total_header = clean.replace(
+        "甲、申論題部分：（50 分）", "甲、申論題部分："
+    )
+    assert [row["points"] for row in parse(no_total_header)] == ["25", "25"]
+    assert [row["points"] for row in parse(
+        clean.replace("甲、申論題部分：（50 分）", "甲、申論題部分：（ 50 分 ）")
+    )] == ["25", "25"]
+
     # This check is deliberately not an 'approved official content' test.
     # It guards import safety only; normal source comparison stays manual.
 
