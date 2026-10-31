@@ -32,7 +32,23 @@
 3. 在 **COMMIT 前** 檢查 exactly 3 postimages、4797 其他題不變、4800 判分不變、沒有 pending、AI 設定仍 disabled、沒有新增排程事件；任何異常必須 rollback。
 4. 上述流程在 **隔離、簡化觸發器** 的 PostgreSQL 17 真交易內成功，並已執行 ROLLBACK，還原 4,800 測試資料與模擬 AI 狀態。
 
-**注意：** 離線測試重現關鍵 reset + scheduler 的邏輯，未完整執行正式 Supabase 的其餘五個 triggers、pg_cron、net.http_post、RLS 服務角色與每筆 37 欄的所有 live 資料；不是「正式 transaction 已測通」或「必然安全」。production `public.ai_analysis_job_config.enabled` 在本輪唯讀查詢仍為 `false`。在正式環境直接測試寫入，可能有資料觸發器、排程與第三方副作用，需先有**真正隔離的 production-faithful restore**、人工來源批准和明確發布授權。
+**2026-10-31 更新：** 下方「七觸發器原始程式」測試已補上本段原先缺少的五個 triggers，並加入匿名與一般登入角色的 SELECT/RLS 權限檢查。然而 **pg_cron、net.http_post 及完整正式資料庫復原環境仍未複製**；其餘 4,797 題是由公開 CDN 快照載入，非每題 37 欄的 production 備份，因此仍不是「正式交易已驗證」或「必然安全」。production `public.ai_analysis_job_config.enabled` 在本輪唯讀查詢仍為 `false`。在正式環境直接測試寫入，可能有資料觸發器、排程與第三方副作用，需先有**真正隔離的 production-faithful restore**、人工來源批准和明確發布授權。
+
+
+## 2026-10-31 擴充：全部七個正式 trigger DDL 的隔離執行結果
+
+讀取正式 `pg_catalog` 後，已將七個啟用的 `pg_get_triggerdef` 與相應 `pg_get_functiondef`、法律名稱抽取函式，**逐字保存**於 `audit/official_104_1_live_seven_trigger_definitions_20261031.json`。該文件只有靜態程式與觸發器定義，不包含資料庫金鑰、使用者資料或私密備份。
+
+`scripts/official_1041_ds_isolated_pg_rehearsal.py` 現在會在一次性 PostgreSQL 17 容器建立 4,800 筆公開題庫快照，**載入七個與正式資料庫相同的 trigger 函式定義及 trigger DDL**，並重現官方文字更新的實際執行順序。只有具網路或排程副作用的 `enable_swsi_ai_analysis` 與 `maybe_stop_swsi_ai_analysis` 使用**無副作用替身**，不會產生真實 cron 工作或 HTTP 呼叫。
+
+新增角色測試以獨立的 `swsi_anon` 與 `swsi_authenticated` 模擬兩種學生角色，測試結果均可透過 SELECT/RLS 讀取 4,800 題，且對題庫未持有 INSERT/UPDATE/DELETE 權限。這證明**隔離模型**符合該權限契約，不代表所有正式 Supabase API 權限已完成完整 E2E 驗收。
+
+最新提交 `982aa8457efa340189b4c005b778bdfc51f4322e`：
+
+- <https://github.com/grizzly020503/swsi-quiz-backup/actions/runs/41212950794> — **SUCCESS**：七觸發器、學生角色權限、正式來源修正、兩步驟交易、全部題目回滾、無模擬 AI 排程事件。
+- <https://github.com/grizzly020503/swsi-quiz-backup/actions/runs/41212950858> — **SUCCESS**：完整題庫 QA。
+
+**仍未做：** 對正式站 DML、七個觸發器以外的真實 pg_cron/pg_net、Production-faithful 私有 isolated restore、正式部署；獨立人工官方來源核准仍為 false，Owner 尚未授權當前任務合併或部署。
 
 ## 尚未完成的必需發布關卡
 
