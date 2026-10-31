@@ -218,8 +218,8 @@ def main() -> int:
     }
     (out / "candidate-evidence.json").write_bytes(
         json.dumps(evidence, ensure_ascii=False, indent=2).encode("utf-8") + b"\n")
-    require(len(list(out.rglob("*"))) == 6,
-            "output must be exactly four files and two directories")
+    require(len(list(out.rglob("*"))) == 7,
+            "output must be exactly four files and three directories")
     print("STAGED OFFLINE NO-GO: three original-PDF-supported repairs, "
           "4,797 untouched, 4,800 grading tuples unchanged, "
           "three Official Core hashes staged, 136 proposed review / 4664 ready; "
