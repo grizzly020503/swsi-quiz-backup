@@ -10,6 +10,9 @@ on:
       - 'cdn/sw.js'
       - 'netlify.toml'
       - 'data/official_figure_assets.v1.json'
+      - 'audit/official_genogram_core_transition_20261031.json'
+      - 'cdn/question-shards/**'
+      - 'data/official_exam_readonly.lock.json'
       - 'scripts/official_figure_ui_qa.py'
       - 'scripts/official_figure_mobile_browser_smoke.js'
       - 'monthly_patch_parts/**'
@@ -21,6 +24,9 @@ on:
       - 'official-figures/**'
       - 'cdn/official-figures/**'
       - 'data/official_figure_assets.v1.json'
+      - 'audit/official_genogram_core_transition_20261031.json'
+      - 'cdn/question-shards/**'
+      - 'data/official_exam_readonly.lock.json'
       - 'scripts/official_figure_ui_qa.py'
 permissions:
   contents: read
