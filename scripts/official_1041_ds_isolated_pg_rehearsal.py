@@ -106,6 +106,9 @@ def main() -> int:
     out.write("CREATE TABLE public.mock_ai_schedule_events (event text);\n")
     out.write("ALTER TABLE public.questions ENABLE ROW LEVEL SECURITY;\n")
     out.write("CREATE POLICY \"public read questions\" ON public.questions FOR SELECT USING (true);\n")
+    out.write("CREATE ROLE swsi_anon NOLOGIN; CREATE ROLE swsi_authenticated NOLOGIN;\n")
+    out.write("GRANT USAGE ON SCHEMA public TO swsi_anon, swsi_authenticated;\n")
+    out.write("GRANT SELECT ON public.questions TO swsi_anon, swsi_authenticated;\n")
     out.write("COPY public.questions (" + ",".join(FIELDS) + ") FROM STDIN WITH (FORMAT csv, NULL '\\N');\n")
     writer = csv.writer(out, lineterminator="\n")
     for row in rows:
@@ -174,6 +177,25 @@ END;$external_stub$;
     for trigger in triggers:
         out.write(trigger["trigger_def"].rstrip().rstrip(";") + ";\n")
     out.write("""
+-- Isolated RLS/role contract: no student role has write grants.
+DO $priv$
+BEGIN
+ IF NOT has_table_privilege('swsi_anon','public.questions','SELECT')
+ OR NOT has_table_privilege('swsi_authenticated','public.questions','SELECT')
+ OR has_table_privilege('swsi_anon','public.questions','INSERT')
+ OR has_table_privilege('swsi_anon','public.questions','UPDATE')
+ OR has_table_privilege('swsi_anon','public.questions','DELETE')
+ OR has_table_privilege('swsi_authenticated','public.questions','INSERT')
+ OR has_table_privilege('swsi_authenticated','public.questions','UPDATE')
+ OR has_table_privilege('swsi_authenticated','public.questions','DELETE')
+ THEN RAISE EXCEPTION 'role grants fail closed'; END IF;
+END;$priv$;
+SET ROLE swsi_anon;
+SELECT count(*) AS anonymous_select_visible FROM public.questions;
+RESET ROLE;
+SET ROLE swsi_authenticated;
+SELECT count(*) AS signed_in_select_visible FROM public.questions;
+RESET ROLE;
 CREATE TEMP TABLE swsi_baseline AS SELECT id, to_jsonb(q) original FROM public.questions q;
 DO $test$
 BEGIN
