@@ -58,11 +58,26 @@ def validate_overlay(proof: dict, rows: list[dict], lock: dict,
     index = {r['id']: r for r in rows}
     # Compare supplied in-memory rows against every checked-in shard, including
     # the 22 untouched files. Reject out-of-band changes in any of 4,800 rows.
+    # Combined candidate overlays six 111-2 questions on the tracked shard.
+    # The six-row source guard has already reversed them in the *in-memory* rows,
+    # so compare the six explicit original/after images without weakening any
+    # other row checks or accepting unknown source-core edits.
+    six_path = ROOT / 'audit/official_111_2_shared_context_six_20261031.json'
+    six_items = {}
+    if six_path.exists():
+        six_proof = json.loads(six_path.read_text())
+        six_items = {x['id']: x for x in six_proof['changes']}
+        assert len(six_items) == 6
     for shard in after_manifest['shards']:
         payload = json.loads((ROOT / 'cdn/question-shards' / shard['file']).read_bytes())
         assert len(payload['questions']) == shard['question_count']
         for item in payload['questions']:
-            assert item['id'] in index and item == index[item['id']]
+            assert item['id'] in index
+            if item['id'] in six_items:
+                assert item == six_items[item['id']]['published_after']
+                assert index[item['id']] == six_items[item['id']]['published_before']
+            else:
+                assert item == index[item['id']]
     originals = copy.deepcopy(rows)
     orig_index = {r['id']: r for r in originals}
     orig_lock = copy.deepcopy(lock)
@@ -130,6 +145,9 @@ def main():
         assert digest(raw) == shard['sha256'] and len(raw) == shard['bytes']
         rows.extend(json.loads(raw)['questions'])
     lock = json.loads((ROOT / 'data/official_exam_readonly.lock.json').read_text())
+    from official_111_2_shared_context_six_smoke import validate_overlay as reverse_six
+    six_proof=json.loads((ROOT/'audit/official_111_2_shared_context_six_20261031.json').read_text())
+    rows,lock,manifest_raw=reverse_six(six_proof,rows,lock,manifest_raw)
     validate_overlay(proof, rows, lock, manifest_raw)
     for kind in ('target-text', 'answer', 'other-row', 'target-lock','source-proof','manifest'):
         p, rs, lk = copy.deepcopy((proof, rows, lock))
