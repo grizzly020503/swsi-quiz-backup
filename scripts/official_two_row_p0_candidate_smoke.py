@@ -104,9 +104,11 @@ def validate_overlay(proof: dict, rows: list[dict], lock: dict,
         doc = json.loads(current_bytes)
         assert len(doc['questions']) == 200
         for row in doc['questions']:
-            if row['id'] in IDS:
+            ident = row['id']
+            if ident in IDS:
+                old_row = next(p['published_before'] for p in proof['rows'] if p['id'] == ident)
                 row.clear()
-                row.update(next(p['published_before'] for p in proof['rows'] if p['id'] == row['id']))
+                row.update(old_row)
         original_bytes = (json.dumps(doc, ensure_ascii=False, separators=(',',':')) + '\n').encode('utf-8')
         assert digest(original_bytes) == proof['before_shards'][name]['sha256'] == before_shards[name]['sha256']
         assert len(original_bytes) == proof['before_shards'][name]['bytes'] == before_shards[name]['bytes']
