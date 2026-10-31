@@ -14,6 +14,17 @@ on:
       - 'cdn/question-shards/**'
       - 'data/official_exam_readonly.lock.json'
       - 'scripts/official_figure_ui_qa.py'
+      - 'scripts/official_combined_nineteen_integrity_smoke.py'
+      - 'scripts/official_integrated_19_isolation_qa.py'
+      - 'audit/official_combined_nineteen_candidate_20261031.json'
+      - 'audit/official_five_source_corrections_20261031.json'
+      - 'audit/official_three_truncations_20261031.json'
+      - 'scripts/official_eight_p0_pdf_review_crosswalk_smoke.py'
+      - 'scripts/official_428_review_priority_queue_smoke.py'
+      - 'audit/official_428_review_priority_queue_20261031.json'
+      - 'audit/official_r105138_pdf_visual_nochange_candidate_20261031.json'
+      - 'scripts/official_r105138_pdf_visual_nochange_smoke.py'
+      - 'audit/official_eight_p0_pdf_review_crosswalk_20261031.json'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
       - 'audit/official_shared_context*.json'
       - 'audit/official_105_2_shared_context_20261028.json'
@@ -32,6 +43,17 @@ on:
       - 'cdn/question-shards/**'
       - 'data/official_exam_readonly.lock.json'
       - 'scripts/official_figure_ui_qa.py'
+      - 'scripts/official_combined_nineteen_integrity_smoke.py'
+      - 'scripts/official_integrated_19_isolation_qa.py'
+      - 'audit/official_combined_nineteen_candidate_20261031.json'
+      - 'audit/official_five_source_corrections_20261031.json'
+      - 'audit/official_three_truncations_20261031.json'
+      - 'scripts/official_eight_p0_pdf_review_crosswalk_smoke.py'
+      - 'scripts/official_428_review_priority_queue_smoke.py'
+      - 'audit/official_428_review_priority_queue_20261031.json'
+      - 'audit/official_r105138_pdf_visual_nochange_candidate_20261031.json'
+      - 'scripts/official_r105138_pdf_visual_nochange_smoke.py'
+      - 'audit/official_eight_p0_pdf_review_crosswalk_20261031.json'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
       - 'audit/official_shared_context*.json'
       - 'audit/official_105_2_shared_context_20261028.json'
@@ -53,7 +75,8 @@ jobs:
       - name: Check exact original figures and protected grading contract
         run: |
           python -m py_compile scripts/official_figure_ui_qa.py
-          python scripts/official_figure_ui_qa.py
+          python scripts/official_combined_nineteen_integrity_smoke.py
+          python scripts/official_integrated_19_isolation_qa.py
           python scripts/official_exam_readonly_guard.py
   mobile-quiz-and-mock:
     runs-on: ubuntu-latest
