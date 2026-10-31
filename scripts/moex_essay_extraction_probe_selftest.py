@@ -164,6 +164,28 @@ def main():
     else:
         raise AssertionError("merged two-score body was wrongly accepted")
 
+    # A third top-level essay heading would be silently discarded by the old
+    # matches[:2] loop, and a repeated first heading would masquerade as Q2.
+    # Neither may be imported as a two-question official PDF.
+    extra_heading = clean.replace(
+        "二、說明深入訪談",
+        "一、辨識出多餘的大題標記。（5 分）\\n二、說明深入訪談",
+    ).replace("。（5 分）\\n二、", "。（5 分）\n二、")
+    try:
+        parse(extra_heading)
+    except RuntimeError as exc:
+        assert "申論題號界線不明" in str(exc), str(exc)
+    else:
+        raise AssertionError("third essay heading was silently truncated")
+
+    repeated_heading = clean.replace("二、說明深入訪談", "一、說明深入訪談")
+    try:
+        parse(repeated_heading)
+    except RuntimeError as exc:
+        assert "申論題號界線不明" in str(exc), str(exc)
+    else:
+        raise AssertionError("repeated first essay heading was wrongly accepted")
+
     # A forged file may have PDF magic but cannot bypass official SHA binding.
     import tempfile
     with tempfile.TemporaryDirectory() as td:
