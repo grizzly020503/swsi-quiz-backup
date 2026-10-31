@@ -83,6 +83,7 @@ jobs:
                   out.write(f"| {name} | {d['status']} | {d['expected_generated_at']} | {d['live_generated_at'] or 'not verified'} |\n")
               if status != 'MATCH':
                   out.write('\n**Attention:** Cloudflare public snapshots are not proven identical to current main; a normal health-check success must not be treated as latest snapshot deployed.\n')
+                  print('::warning title=SWSI snapshot freshness::Cloudflare current-affairs public snapshots are ' + status + ' relative to checked-out main; no deployment inferred.')
           print('SWSI MONITORING FRESHNESS DIAGNOSTIC:', status, '(does not contact Netlify)')
           PY
 
