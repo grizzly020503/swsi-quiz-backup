@@ -88,7 +88,8 @@ jobs:
           python3 -m py_compile scripts/official_1041_ds_successor_overlay_smoke.py
           python3 scripts/official_1041_ds_successor_overlay_smoke.py \
             --candidate /tmp/swsi-1041-unapproved-release-candidate \
-            --out /tmp/swsi-1041-recovered-published-predecessor
+            --out /tmp/swsi-1041-recovered-published-predecessor \
+            --adversarial-selftest
           predecessor_dir="$(mktemp -d /tmp/swsi-1041-recovered-regression-XXXXXX)"
           git archive HEAD | tar -x -C "$predecessor_dir"
           cp /tmp/swsi-1041-recovered-published-predecessor/cdn/question-shards/104-1.json \
