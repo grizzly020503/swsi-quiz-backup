@@ -212,7 +212,7 @@ def parse_essays(text, subject, exam_code, roc_year, round_name):
         # Do not infer an expected total from the exam year or from AI text.
         header = part[:matches[0].start()]
         declared = [int(x) for x in re.findall(
-            r"[（(]\\s*(\\d+)\\s*分\\s*[）)]", header
+            r"[（(]\s*(\d+)\s*分\s*[）)]", header
         )]
         if len(declared) > 1:
             raise RuntimeError(
