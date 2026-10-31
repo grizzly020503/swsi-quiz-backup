@@ -17,10 +17,12 @@ on:
     paths:
       - '.github/workflows/public-uptime.yml'
       - 'scripts/public_uptime_smoke.py'
+      - 'scripts/public_uptime_mode_selftest.py'
   pull_request:
     paths:
       - '.github/workflows/public-uptime.yml'
       - 'scripts/public_uptime_smoke.py'
+      - 'scripts/public_uptime_mode_selftest.py'
 
 permissions:
   contents: read
@@ -49,8 +51,10 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Syntax check
-        run: python -m py_compile scripts/public_uptime_smoke.py
+      - name: Syntax check and independent probe regression (zero network)
+        run: |
+          python -m py_compile scripts/public_uptime_smoke.py scripts/public_uptime_mode_selftest.py
+          python scripts/public_uptime_mode_selftest.py
       - name: Verify Cloudflare primary only (read-only)
         run: python scripts/public_uptime_smoke.py --monitoring-v2 --primary-only
 
