@@ -46,7 +46,8 @@ def validate_overlay(p,rows,lock,manifest_raw):
 
     index={r['id']:r for r in rows}
     for shard in after_manifest['shards']:
-        data=(ROOT/'cdn/question-shards'/shard['file']).read_bytes()
+        from official_r105207_ds106134_candidate_smoke import projected_parent_shard_bytes
+        data=projected_parent_shard_bytes(shard['file'])
         assert len(data)==shard['bytes'] and digest(data)==shard['sha256']
         for r in json.loads(data)['questions']:
             assert r==index[r['id']]
@@ -103,6 +104,9 @@ def main():
         assert digest(b)==info['sha256'] and len(b)==info['bytes']
         all_rows.extend(json.loads(b)['questions'])
     lock=json.loads((ROOT/'data/official_exam_readonly.lock.json').read_text())
+    from official_r105207_ds106134_candidate_smoke import validate_overlay as reverse_two_more
+    new_p=json.loads((ROOT/'audit/official_r105207_ds106134_source_candidate_20261031.json').read_text())
+    all_rows,lock,raw=reverse_two_more(new_p,all_rows,lock,raw)
     validate_overlay(p,all_rows,lock,raw)
     for kind in ('target','answer','other-row','source-sha','lock','context','manifest'):
         probe,rs,lk=copy.deepcopy((p,all_rows,lock))
