@@ -21,7 +21,6 @@ REGISTRY = ROOT / "data/moex_source_subjects.v1.json"
 IDS = {"DS-104-1-22": "A", "DS-104-1-27": "B", "DS-104-1-29": "D"}
 TEXT_FIELDS = {"question", "opt_a", "opt_b", "opt_c", "opt_d"}
 FALSE_GATES = (
-    "original_pdf_sha256_reverified_in_this_run",
     "independent_human_approval",
     "release_approved",
     "production_database_written",
@@ -56,13 +55,27 @@ def url_identity(url: str) -> tuple[str, str, str]:
 
 def validate(candidate: dict, rows: list[dict], manifest: dict, registry: dict,
              actual_shard_sha: str) -> None:
-    require(candidate["status"] == "DRAFT_NO_GO_PUBLIC_MIRROR_TRANSCRIPTION",
-            "candidate must remain draft/no-go")
+    require(candidate["status"] == "DRAFT_ORIGINAL_MOEX_PDF_VERIFIED_HUMAN_APPROVAL_REQUIRED",
+            "candidate must remain human-held/no-go")
     require(all(candidate.get(flag) is False for flag in FALSE_GATES),
             "an unverified source/production/approval gate was asserted true")
     require(candidate["secondary_pdf_role"] ==
             "UNVERIFIED_SECONDARY_TRANSCRIPTION_NOT_OFFICIAL_APPROVAL",
             "mirror transcription cannot become MOEX approval")
+    require(candidate["original_pdf_sha256_reverified_in_this_run"] is True,
+            "official original PDF exact-byte gate not recorded")
+    source_proof = candidate["original_source_verification"]
+    require(source_proof["github_actions_run_result"] == "success"
+            and source_proof["exact_byte_sha256"] ==
+            candidate["original_pdf_sha256_expected_from_pinned_registry"]
+            and source_proof["exact_bytes"] == 317707
+            and source_proof["official_pdf_page_number"] == 3
+            and source_proof["extracted_text_field_count"] == 15
+            and source_proof["matched_proposed_text_fields"] == 15
+            and source_proof["independent_human_approval"] is False
+            and source_proof["exact_text_whitespace_normalization"] ==
+                "remove-whitespace-only (no character substitutions)",
+            "official original PDF proof incomplete/overclaimed")
     require(candidate["all_grading_tuples_must_remain_unchanged"] is True,
             "grading lock missing")
     require(candidate["all_unaffected_rows_must_remain_byte_identical"] is True,
@@ -95,7 +108,10 @@ def validate(candidate: dict, rows: list[dict], manifest: dict, registry: dict,
     require(
         candidate["original_pdf_sha256_expected_from_pinned_registry"] ==
         source["pdf_sha256"] and
-        candidate["original_pdf_approved_source"] == source["url"],
+        candidate["original_pdf_approved_source"] == source["url"] and
+        source_proof["official_url"] == source["url"] and
+        source_proof["exact_byte_sha256"] == source["pdf_sha256"] and
+        source_proof["exact_bytes"] == source["http"]["bytes"],
         "pinned official PDF metadata mismatch",
     )
     expected_url = (source["exam_code"], str(source["c"]), str(source["s"]))
@@ -168,8 +184,14 @@ def adversarial_selftest(candidate: dict, rows: list[dict],
     altered["release_approved"] = True
     cases.append(("false approval", altered))
     altered = copy.deepcopy(candidate)
-    altered["original_pdf_sha256_reverified_in_this_run"] = True
-    cases.append(("fabricated original PDF check", altered))
+    altered["original_pdf_sha256_reverified_in_this_run"] = False
+    cases.append(("falsely omitted original PDF check", altered))
+    altered = copy.deepcopy(candidate)
+    altered["original_source_verification"]["matched_proposed_text_fields"] = 14
+    cases.append(("source text incompletely verified", altered))
+    altered = copy.deepcopy(candidate)
+    altered["original_source_verification"]["exact_byte_sha256"] = "0" * 64
+    cases.append(("fabricated verified original PDF", altered))
     altered = copy.deepcopy(candidate)
     altered["proposed_changes"][0]["proposed_fields"]["question"] = ""
     cases.append(("blank proposed stem", altered))
@@ -201,7 +223,7 @@ def main() -> int:
     adversarial_selftest(audit, rows, manifest, registry, physical_sha)
     print("REVIEW-ONLY OCR CANDIDATE QA PASS: 3 records/15 preimages, "
           "4800 official grade tuples untouched by this audit, "
-          "8 fail-closed adversarial checks. SOURCE PDF/HUMAN APPROVAL STILL NO-GO.")
+          "10 fail-closed adversarial checks. VERIFIED PDF / HUMAN APPROVAL STILL NO-GO.")
     return 0
 
 
