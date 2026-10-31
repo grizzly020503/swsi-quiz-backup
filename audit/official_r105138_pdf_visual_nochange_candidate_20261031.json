@@ -12,7 +12,7 @@
     "pdf_page": 4,
     "printed_page": "4-4",
     "answer_filename": "105030-107-0606-S.pdf",
-    "official_answer_pdf_sha256": "4882b8a01680960d451261219240c061802b9d6173df3c27d8007d3a46930d4",
+    "official_answer_pdf_sha256": "4882b8a01680960d451261219240c061802b9d6173df3c27d8007d3a46930d4d",
     "answer_page": 1,
     "inspection": "Retained original PDF was SHA256 verified and page 4 rendered as PNG at 180 DPI; native pdftotext -layout and PyMuPDF page.get_text both omitted question 38 option texts, while the page image renders A-D clearly."
   },
