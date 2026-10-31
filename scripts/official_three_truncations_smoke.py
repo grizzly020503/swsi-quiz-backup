@@ -47,6 +47,9 @@ def validate_overlay(proof, rows, lock, manifest_raw):
     assert len(rows)==len({r['id'] for r in rows})==4800
     assert len(lock['mcq'])==4800 and len(lock['essays'])==240
     index={r['id']:r for r in rows}
+    # All 4,800 official-core locks must match the exact current row,
+    # not only the three repaired rows. Detect unrelated lock tampering.
+    assert all(row_hash(canonical_row(r,MCQ_FIELDS))==lock['mcq'][r['id']] for r in rows)
     for unit in newer_m['shards']:
         raw=(ROOT/'cdn/question-shards'/unit['file']).read_bytes()
         assert digest(raw)==unit['sha256'] and len(raw)==unit['bytes']
