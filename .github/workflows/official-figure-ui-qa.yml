@@ -14,6 +14,8 @@ on:
       - 'cdn/question-shards/**'
       - 'data/official_exam_readonly.lock.json'
       - 'scripts/official_figure_ui_qa.py'
+      - 'scripts/official_eight_p0_pdf_review_crosswalk_smoke.py'
+      - 'audit/official_eight_p0_pdf_review_crosswalk_20261031.json'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
       - 'audit/official_shared_context*.json'
       - 'audit/official_105_2_shared_context_20261028.json'
@@ -32,6 +34,8 @@ on:
       - 'cdn/question-shards/**'
       - 'data/official_exam_readonly.lock.json'
       - 'scripts/official_figure_ui_qa.py'
+      - 'scripts/official_eight_p0_pdf_review_crosswalk_smoke.py'
+      - 'audit/official_eight_p0_pdf_review_crosswalk_20261031.json'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
       - 'audit/official_shared_context*.json'
       - 'audit/official_105_2_shared_context_20261028.json'
@@ -53,6 +57,7 @@ jobs:
       - name: Check exact original figures and protected grading contract
         run: |
           python -m py_compile scripts/official_figure_ui_qa.py
+          python scripts/official_eight_p0_pdf_review_crosswalk_smoke.py
           python scripts/official_111_2_shared_context_six_smoke.py
           python scripts/official_two_row_p0_candidate_smoke.py
           python scripts/official_figure_ui_qa.py
