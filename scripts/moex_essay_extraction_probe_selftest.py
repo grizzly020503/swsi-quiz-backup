@@ -155,7 +155,14 @@ def main():
         assert result["legacy_essay_count"] == 1, result
 
     no_second = clean.replace("二、說明", "題目補充說明")
-    assert probe.diagnose(no_second, parse)["legacy_essay_count"] == 1
+    # Removing the second marker also folds two scored question bodies into
+    # one. It must be rejected, not scored using the final 25-point marker.
+    try:
+        parse(no_second)
+    except RuntimeError as exc:
+        assert "配分標記互相矛盾" in str(exc), str(exc)
+    else:
+        raise AssertionError("merged two-score body was wrongly accepted")
 
     # A forged file may have PDF magic but cannot bypass official SHA binding.
     import tempfile
