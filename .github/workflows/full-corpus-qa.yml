@@ -26,6 +26,7 @@ on:
       - 'scripts/official_live_snapshot_parity_selftest.py'
       - 'scripts/moex_essay_extraction_probe.py'
       - 'scripts/moex_essay_extraction_probe_selftest.py'
+      - 'scripts/moex_mc_boundary_selftest.py'
       - 'scripts/moex_sync.py'
       - '.github/workflows/moex-social-worker-sync.yml'
       - 'scripts/moex_sync_dispatch_guard_selftest.py'
@@ -55,6 +56,7 @@ on:
       - 'scripts/official_live_snapshot_parity_selftest.py'
       - 'scripts/moex_essay_extraction_probe.py'
       - 'scripts/moex_essay_extraction_probe_selftest.py'
+      - 'scripts/moex_mc_boundary_selftest.py'
       - 'scripts/moex_sync.py'
       - '.github/workflows/moex-social-worker-sync.yml'
       - 'scripts/moex_sync_dispatch_guard_selftest.py'
@@ -116,6 +118,11 @@ jobs:
         run: |
           python -m py_compile scripts/moex_essay_extraction_probe.py scripts/moex_essay_extraction_probe_selftest.py
           python scripts/moex_essay_extraction_probe_selftest.py
+
+      - name: Test official MCQ option/shared-case boundary intake (zero network)
+        run: |
+          python -m py_compile scripts/moex_sync.py scripts/moex_mc_boundary_selftest.py
+          python scripts/moex_mc_boundary_selftest.py
 
       - name: Prove MOEX write-capable sync cannot run from code push or PR
         run: |
