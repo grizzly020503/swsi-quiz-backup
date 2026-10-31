@@ -68,6 +68,9 @@ def main():
     lock=json.loads((R/'data/official_exam_readonly.lock.json').read_text())
     from official_two_row_p0_candidate_smoke import validate_overlay
     p0_proof=json.loads((R/'audit/official_two_row_p0_candidate_20261031.json').read_text())
+    from official_111_2_shared_context_six_smoke import validate_overlay as reverse_six
+    six_proof=json.loads((R/'audit/official_111_2_shared_context_six_20261031.json').read_text())
+    rows,lock,raw=reverse_six(six_proof,rows,lock,raw)
     rows,lock,raw=validate_overlay(p0_proof,rows,lock,raw)
     validate_transition(proof,rows,lock,raw)
     for kind in ('target-wording','answer','source-url','unrelated-row','unrelated-lock','source-proof','old-lock','enrichment'):
