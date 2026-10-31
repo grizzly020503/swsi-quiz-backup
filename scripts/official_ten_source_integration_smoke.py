@@ -77,7 +77,8 @@ def validate_transition(p,rows,lock,raw):
     assert digest({k:v for k,v in lock['mcq'].items() if k not in IDS})==p['unchanged_other_mcq_locks_sha256']
     assert digest(lock['essays'])==p['unchanged_essay_locks_sha256']
     for meta,oldmeta in zip(after['shards'],before['shards']):
-        b=(ROOT/'cdn/question-shards'/meta['file']).read_bytes();data=json.loads(b)
+        from official_four_source_overlay_smoke import projected_parent_shard_bytes as reverse_four_shard
+        b=reverse_four_shard(meta['file']);data=json.loads(b)
         assert sha(b)==meta['sha256'] and len(b)==meta['bytes'] and len(data['questions'])==meta['question_count']==200
         assert all(index[r['id']]==r for r in data['questions'])
         ancestor=projected_parent_shard_bytes(meta['file'])
