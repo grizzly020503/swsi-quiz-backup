@@ -53,6 +53,7 @@ jobs:
       - name: Check exact original figures and protected grading contract
         run: |
           python -m py_compile scripts/official_figure_ui_qa.py
+          python scripts/official_111_2_shared_context_six_smoke.py
           python scripts/official_figure_ui_qa.py
           python scripts/official_exam_readonly_guard.py
   mobile-quiz-and-mock:
