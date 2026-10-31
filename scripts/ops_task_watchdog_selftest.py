@@ -312,6 +312,38 @@ def main() -> int:
     assert "github.event.workflow_run.head_repository.full_name == github.repository" in live_job, "fork guard missing"
     assert "github.event.workflow_run.event != 'pull_request'" in live_job, "PR workflow_run guard missing"
 
+    # Backup is a separate *medium* degraded-redundancy signal, not evidence
+    # that Cloudflare primary production is unavailable.
+    uptime_tasks = [x for x in watchdog.validate_registry(
+        watchdog.read_json(watchdog.DEFAULT_REGISTRY)
+    ) if x["id"] in {"public-uptime", "backup-uptime"}]
+    assert len(uptime_tasks) == 2
+    primary = next(x for x in uptime_tasks if x["id"] == "public-uptime")
+    backup = next(x for x in uptime_tasks if x["id"] == "backup-uptime")
+    assert primary["workflow_file"] == "public-uptime.yml"
+    assert primary["criticality"] == "high"
+    assert backup["workflow_file"] == "backup-uptime.yml"
+    assert backup["criticality"] == "medium"
+    assert backup["accepted_events"] == ["schedule"]
+    assert backup["first_expected_at"] == "2026-11-01T01:23:00Z"
+    assert backup["first_run_grace_hours"] == 8
+    uptime_now = watchdog.parse_time("2026-11-01T02:00:00Z")
+    result = watchdog.build_report(
+        [primary, backup],
+        lambda workflow_file: [{
+            "id": 999,
+            "event": "schedule",
+            "conclusion": "failure" if workflow_file == "backup-uptime.yml" else "success",
+            "run_started_at": "2026-11-01T01:45:00Z",
+        }],
+        uptime_now,
+    )
+    assert result["summary"]["blocking"] == 0, result
+    assert [x["status"] for x in result["tasks"]] == ["healthy", "failed"], result
+    assert watchdog.evaluate_task(
+        backup, [], watchdog.parse_time("2026-10-31T03:00:00Z")
+    )["status"] == "pending_first_run"
+
     # A monthly full-corpus schedule is a separate reliability requirement.
     # Push/manual CI success must NEVER mask the absence/failure of the cron.
     main_tasks = watchdog.validate_registry(watchdog.read_json(watchdog.DEFAULT_REGISTRY))
