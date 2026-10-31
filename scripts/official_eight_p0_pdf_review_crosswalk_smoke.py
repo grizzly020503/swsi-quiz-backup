@@ -43,7 +43,13 @@ def validate(cross, full_rows, proofs, manifest):
     assert cross['unresolved_release_count_unchanged'] == 428
     assert cross['candidate']['affected_rows'] == 8
     assert cross['candidate']['source_prs'] == [496,498]
-    assert cross['candidate']['dataset_revision'] == manifest['dataset_revision']
+    # This crosswalk belongs to the verified eight-row parent revision.
+    # The child three-row correction stages a separate source-bound overlay;
+    # never rewrite the old crosswalk identity to pretend a new sign-off.
+    child=json.loads((ROOT/'audit/official_next_three_p0_source_candidate_20261031.json').read_text())
+    parent=json.loads(child['old_manifest_raw'])
+    assert cross['candidate']['dataset_revision'] == parent['dataset_revision']
+    assert child['dataset_revision_after'] == manifest['dataset_revision']
     assert cross['candidate']['staged_not_published'] is True
     assert cross['candidate']['production_write'] is False
     assert cross['candidate']['backup_site_changed'] is False
