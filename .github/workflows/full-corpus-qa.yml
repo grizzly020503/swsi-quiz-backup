@@ -136,6 +136,14 @@ jobs:
         run: |
           python -m py_compile scripts/ai_review_backlog_audit.py scripts/ai_review_backlog_audit_selftest.py
           python scripts/ai_review_backlog_audit_selftest.py
+      - name: Verify actual Supabase public anon review pagination (PR-only, GET only)
+        # One bounded PR verification closes the real HTTP path gap; never writes production.
+        # The saved JSON report contains ONLY aggregate counts, not question IDs/errors.
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          python -m pip install --disable-pip-version-check 'requests==2.32.5'
+          python scripts/ai_review_backlog_audit.py --live --out /tmp/swsi-ai-review-backlog-pr-triage.json
+
       - name: Verify immutable Official Core baseline
         run: python scripts/official_exam_readonly_guard.py
 
