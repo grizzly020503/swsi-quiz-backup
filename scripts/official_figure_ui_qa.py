@@ -94,15 +94,11 @@ lock=json.loads((R/'data/official_exam_readonly.lock.json').read_text())
 # No unrelated-row allowance or old-genogram quarantine is weakened.
 from official_shared_context_13row_integration_smoke import validate_transition
 shared_proof=json.loads((R/'audit/official_shared_context_release_transition_20261031.json').read_text())
-from official_two_row_p0_candidate_smoke import validate_overlay
-p0_proof=json.loads((R/'audit/official_two_row_p0_candidate_20261031.json').read_text())
-from official_111_2_shared_context_six_smoke import validate_overlay as reverse_six
-six_proof=json.loads((R/'audit/official_111_2_shared_context_six_20261031.json').read_text())
-from official_r105207_ds106134_candidate_smoke import validate_overlay as reverse_two_more
-new_p=json.loads((R/'audit/official_r105207_ds106134_source_candidate_20261031.json').read_text())
-all_rows,lock,manifest_raw=reverse_two_more(new_p,all_rows,lock,manifest_raw)
-all_rows,lock,manifest_raw=reverse_six(six_proof,all_rows,lock,manifest_raw)
-all_rows,lock,manifest_raw=validate_overlay(p0_proof,all_rows,lock,manifest_raw)
+from official_ten_source_integration_smoke import reverse_current
+all_rows,lock,manifest_raw=reverse_current(all_rows,lock,manifest_raw)
+from official_five_source_mcq_smoke import validate_overlay as reverse_five
+five_proof=json.loads((R/'audit/official_five_source_corrections_20261031.json').read_text())
+all_rows,lock,manifest_raw=reverse_five(five_proof,all_rows,lock,manifest_raw)
 all_rows,lock,manifest_raw=validate_transition(shared_proof,all_rows,lock,manifest_raw)
 assert hashlib.sha256(manifest_raw).hexdigest()==proof['manifest_after_sha256']
 assert json.loads(manifest_raw)['dataset_revision']==proof['dataset_revision_after']
