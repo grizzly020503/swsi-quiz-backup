@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/official-1041-isolated-pg-rehearsal.yml'
       - 'scripts/official_1041_ds_isolated_pg_rehearsal.py'
+      - 'scripts/official_1041_ds_release_candidate_builder.py'
       - 'audit/official_104_1_live_seven_trigger_definitions_20261031.json'
       - 'audit/official_104_1_direct_service_three_shadow_readonly_20261031.sql'
       - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
@@ -47,6 +48,36 @@ jobs:
             psql -U swsi_ci -d swsi_ci -v ON_ERROR_STOP=1 -X \
             < /tmp/swsi-1041-isolated-postgres-rollback.sql
 
+      - name: Stage offline 104-1 shard, manifest and official lock (NEVER PUBLISH)
+        shell: bash
+        run: |
+          python3 -m py_compile scripts/official_1041_ds_release_candidate_builder.py
+          python3 scripts/official_1041_ds_release_candidate_builder.py \
+            --out /tmp/swsi-1041-unapproved-release-candidate
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path=Path('/tmp/swsi-1041-unapproved-release-candidate/candidate-evidence.json')
+          d=json.loads(path.read_text(encoding='utf-8'))
+          assert d['status']=='STAGED_ONLY_HUMAN_APPROVAL_FALSE_PRODUCTION_NO_GO'
+          assert d['grading_unchanged_count']==4800
+          assert d['unaffected_exact_row_count']==4797
+          assert d['changed_official_lock_count']==3
+          assert d['essay_lock_count']==240
+          assert d['staged_ready_count']==4664 and d['staged_review_count']==136
+          assert d['human_approval'] is False and d['published'] is False
+          print('DRAFT ONLY: official-candidate shard/manifest/lock staging verified, no tracked file changed')
+          PY
+
+      - name: Retain unapproved release candidate for independent human review
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-1041-DS-3row-DO-NOT-PUBLISH-candidate
+          path: /tmp/swsi-1041-unapproved-release-candidate/
+          if-no-files-found: error
+          retention-days: 2
+          compression-level: 6
+
       - name: Write review-only evidence summary
         run: |
           echo '## Isolated SWSI PostgreSQL 17 transaction proof' >> "$GITHUB_STEP_SUMMARY"
@@ -58,3 +89,4 @@ jobs:
           echo '- After ROLLBACK all 4,800 records match original baseline and AI job remains disabled.' >> "$GITHUB_STEP_SUMMARY"
           echo '- Seven exact live question trigger definitions reproduced; external AI cron/net helpers are harmless stubs, not a complete production replica.' >> "$GITHUB_STEP_SUMMARY"
           echo '- Human signoff and explicit production merge/deploy approval remain NO-GO.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Staged 104-1 shard + manifest + Official Core lock emitted to an UNAPPROVED artifact only, never main/CDN.' >> "$GITHUB_STEP_SUMMARY"
