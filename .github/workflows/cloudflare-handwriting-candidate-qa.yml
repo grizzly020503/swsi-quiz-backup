@@ -84,7 +84,16 @@ jobs:
             if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
             sleep 1
           done
-          node scripts/handwriting_essay_smoke.js http://127.0.0.1:4173/
+          SWSI_HANDWRITING_EVIDENCE_DIR=_handwriting_evidence node scripts/handwriting_essay_smoke.js http://127.0.0.1:4173/
+
+      - name: Save synthetic candidate mobile and OCR review screenshots (3 days)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-cloudflare-handwriting-review-only
+          path: _handwriting_evidence/*.png
+          if-no-files-found: warn
+          retention-days: 3
 
       - name: Explicit release hold
         if: always()
