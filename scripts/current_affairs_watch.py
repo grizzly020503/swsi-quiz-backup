@@ -4,6 +4,7 @@ import calendar
 import hashlib
 import html
 import json
+import os
 import re
 import socket
 import time
@@ -1028,6 +1029,17 @@ def main():
         f"errors={len(feed_errors)}, optional_errors={len(optional_feed_errors)}, "
         f"source_url_rejected={source_url_rejected}"
     )
+    # A quarantined candidate is not a failed feed or a failed job: valid
+    # articles should still be published. Surface this provenance drift as a
+    # distinct GitHub Actions warning so operations cannot silently miss it.
+    # Never write untrusted article URLs or feed titles into annotations.
+    if os.getenv("GITHUB_ACTIONS") == "true" and source_url_rejected:
+        print(
+            "::warning title=Current-affairs URL quarantine::"
+            f"{source_url_rejected} article URL(s) rejected before sync; "
+            "accepted articles remain eligible for publication. "
+            "Inspect the hashed Feed ARTICLE URL REJECTED log entries."
+        )
     for row in accepted[:20]:
         print(f"[{row['relevance_score']}] {row['category']} | {row['title']}")
     return 0
