@@ -66,6 +66,52 @@ def main():
     else:
         raise AssertionError("scoreless official essay was wrongly accepted")
 
+    # Several explicit point markers are not interchangeable with a single
+    # official question score. The former parser silently selected the last
+    # marker when their sum exceeded 40, e.g. 25+10+15 -> *15*.
+    ambiguous_points = clean.replace(
+        "德菲法的操作步驟與優缺點。（25 分）",
+        "德菲法的操作步驟與優缺點。（25 分）分項：（10 分）（15 分）",
+    )
+    try:
+        parse(ambiguous_points)
+    except RuntimeError as exc:
+        assert "配分標記互相矛盾" in str(exc), str(exc)
+        assert "第 1 題" in str(exc), str(exc)
+    else:
+        raise AssertionError("contradictory official score markers were wrongly accepted")
+
+    duplicate_points = clean.replace(
+        "德菲法的操作步驟與優缺點。（25 分）",
+        "德菲法的操作步驟與優缺點。（25 分）（25 分）",
+    )
+    try:
+        parse(duplicate_points)
+    except RuntimeError as exc:
+        assert "配分標記互相矛盾" in str(exc), str(exc)
+    else:
+        raise AssertionError("ambiguous repeated official scores were wrongly accepted")
+
+    # Preserve intentional subquestion aggregation (10+15=25). A complete
+    # source audit remains mandatory; this synthetic case only tests arithmetic.
+    split_explicit_points = clean.replace(
+        "德菲法的操作步驟與優缺點。（25 分）",
+        "德菲法的操作步驟與優缺點：甲（10 分）、乙（15 分）。",
+    )
+    assert [row["points"] for row in parse(split_explicit_points)] == ["25", "25"]
+
+    zero_points = clean.replace(
+        "德菲法的操作步驟與優缺點。（25 分）",
+        "德菲法的操作步驟與優缺點。（0 分）",
+    )
+    try:
+        parse(zero_points)
+    except RuntimeError as exc:
+        assert "配分標記無效" in str(exc), str(exc)
+        assert "第 1 題" in str(exc), str(exc)
+    else:
+        raise AssertionError("zero-point official essay was wrongly accepted")
+
     # This check is deliberately not an 'approved official content' test.
     # It guards import safety only; normal source comparison stays manual.
 
