@@ -80,16 +80,28 @@ def validate_live_baseline(rows: list[dict[str, Any]]) -> None:
     rounds = {"第一次", "第二次"}
     expected = {(y, rnd, subject) for y in years for rnd in rounds for subject in subjects}
     observed: Counter[tuple[str, str, str]] = Counter()
+    numbers: dict[tuple[str, str, str], set[int]] = {}
     for row in rows:
         if not isinstance(row, dict):
             raise ValueError("live questions API supplied malformed row")
         year = str(row.get("year") or "")
         if year in years:
-            observed[(year, str(row.get("round") or ""), str(row.get("subject") or ""))] += 1
-    if set(observed) != expected or any(count != 40 for count in observed.values()):
+            group = (year, str(row.get("round") or ""), str(row.get("subject") or ""))
+            observed[group] += 1
+            number_text = str(row.get("qno") or "").strip()
+            try:
+                number = int(number_text)
+            except ValueError:
+                number = -1
+            numbers.setdefault(group, set()).add(number)
+    expected_numbers = set(range(1, 41))
+    if (set(observed) != expected
+            or any(count != 40 for count in observed.values())
+            or any(group not in numbers or numbers[group] != expected_numbers for group in expected)):
         raise ValueError(
             "live historical scope incomplete; require 120 subjects/papers x 40 questions; "
-            f"observed_rows={sum(observed.values())}, groups={len(observed)}"
+            f"observed_rows={sum(observed.values())}, groups={len(observed)}; "
+            "each historical paper must include exactly one qno 1 through 40"
         )
 
 
