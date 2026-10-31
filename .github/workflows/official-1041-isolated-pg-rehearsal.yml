@@ -69,6 +69,36 @@ jobs:
           print('DRAFT ONLY: official-candidate shard/manifest/lock staging verified, no tracked file changed')
           PY
 
+      - name: Validate staged shard, manifest and Official Core lock in a disposable code copy
+        shell: bash
+        run: |
+          set -eu
+          qa_dir="$(mktemp -d /tmp/swsi-1041-release-validation-XXXXXX)"
+          git archive HEAD | tar -x -C "$qa_dir"
+          cp /tmp/swsi-1041-unapproved-release-candidate/cdn/question-shards/104-1.json \
+            "$qa_dir/cdn/question-shards/104-1.json"
+          cp /tmp/swsi-1041-unapproved-release-candidate/cdn/question-shards/manifest.json \
+            "$qa_dir/cdn/question-shards/manifest.json"
+          cp /tmp/swsi-1041-unapproved-release-candidate/data/official_exam_readonly.lock.json \
+            "$qa_dir/data/official_exam_readonly.lock.json"
+          (
+            cd "$qa_dir"
+            python3 scripts/official_exam_readonly_guard.py
+            python3 scripts/official_ten_source_integration_smoke.py
+            python3 scripts/official_shared_context_13row_integration_smoke.py
+            python3 scripts/full_corpus_qa.py \
+              --out /tmp/swsi-1041-candidate-full-corpus-qa.json --fail-on blocked
+          )
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('/tmp/swsi-1041-candidate-full-corpus-qa.json').read_text())
+          assert d['summary']['total_mcq']==4800
+          assert d['summary']['total_essays']==240
+          assert d['summary']['official_blocked']==0
+          print('OFFLINE CANDIDATE QA PASS: 4800 MCQ + 240 essays, Official Core lock valid; no checked-in files modified')
+          PY
+
       - name: Retain unapproved release candidate for independent human review
         uses: actions/upload-artifact@v4
         with:
