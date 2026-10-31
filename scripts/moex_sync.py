@@ -149,6 +149,17 @@ def parse_essays(text, subject, exam_code, roc_year, round_name):
             explicit_score = r"[（(]\s*\d+\s*分\s*[）)]"
             if all(re.search(explicit_score, body) for body in spans):
                 matches = inline
+    # A corrupt PDF extraction can introduce a third apparent essay heading
+    # or duplicate the first heading. Never truncate with matches[:2] and
+    # quietly publish only part of the official question as "two essays".
+    if len(matches) > 2 or (
+        len(matches) == 2 and [m.group(1) for m in matches] != ["一", "二"]
+    ):
+        raise RuntimeError(
+            f"官方申論題號界線不明：{exam_code} {subject['name']}；"
+            f"解析到題號={[m.group(1) for m in matches]}；"
+            "只接受依序一、二兩題"
+        )
     essays = []
     for i, m in enumerate(matches[:2]):
         start = m.end()
