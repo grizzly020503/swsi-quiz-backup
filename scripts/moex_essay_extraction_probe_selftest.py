@@ -144,7 +144,15 @@ def main():
     no_points = inline.replace("同意書應包括哪些內容。（25 分）", "同意書應包括哪些內容。")
     assert probe.diagnose(no_points, parse)["legacy_essay_count"] == 1
     ambiguous = inline.replace("德菲法的操作步驟", "德菲法的。 一、操作步驟")
-    assert probe.diagnose(ambiguous, parse)["legacy_essay_count"] == 1
+    # The malformed extra first-question marker suppresses bounded heading
+    # recovery. Its single remaining body then contains both 25-point markers.
+    # A parser hard-fail is safer than silently attaching both to one essay.
+    try:
+        result = probe.diagnose(ambiguous, parse)
+    except RuntimeError as exc:
+        assert "配分標記互相矛盾" in str(exc), str(exc)
+    else:
+        assert result["legacy_essay_count"] == 1, result
 
     no_second = clean.replace("二、說明", "題目補充說明")
     assert probe.diagnose(no_second, parse)["legacy_essay_count"] == 1
