@@ -31,6 +31,7 @@ concurrency:
 
 jobs:
   public-uptime:
+    name: Cloudflare primary availability (independent)
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 3
@@ -50,16 +51,12 @@ jobs:
           python-version: '3.12'
       - name: Syntax check
         run: python -m py_compile scripts/public_uptime_smoke.py
-      - name: Read-only public availability checks
-        shell: bash
+      - name: Verify Cloudflare primary only (read-only)
+        run: python scripts/public_uptime_smoke.py --monitoring-v2 --primary-only
+
+      - name: Explain independent primary status
+        if: always()
         run: |
-          set -euo pipefail
-          args='--monitoring-v2'
-          # Monitoring V2 is now the established live production baseline, so PRs
-          # validate it too. Exact fallback release parity is checked only from
-          # main/scheduled/manual runs because a feature branch may intentionally
-          # contain an unreleased marker.
-          if [ "$GITHUB_EVENT_NAME" != 'pull_request' ]; then
-            args="$args --fallback-parity"
-          fi
-          python scripts/public_uptime_smoke.py $args
+          echo '## Cloudflare primary availability' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo 'This run checks the primary site only. Netlify backup reachability and version drift have their own Backup Uptime Sentinel.' >> "$GITHUB_STEP_SUMMARY"
