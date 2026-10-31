@@ -69,6 +69,20 @@ def main() -> int:
             assert "historical scope incomplete" in str(exc)
         else:
             raise AssertionError("live audit cannot accept partial/empty/duplicate baseline")
+    # A 200-item shard or 40-row subject count is not sufficient evidence:
+    # duplicate/missing qno values must fail even with unique IDs and 4800 rows.
+    for invalid_number in ("15", "not-a-number", "41"):
+        duplicate_number = [dict(row) for row in verified_candidate]
+        victim = next(row for row in duplicate_number if row["id"] == "R-105-2-16")
+        victim["qno"] = invalid_number
+        assert len(duplicate_number) == 4800
+        try:
+            validate_live_baseline(duplicate_number)
+        except ValueError as exc:
+            assert "historical scope incomplete" in str(exc), str(exc)
+        else:
+            raise AssertionError(f"corrupt historical qno passed full scope: {invalid_number}")
+
     # Future official years may be appended without invalidating the historical set.
     future = dict(verified_candidate[0], id="FUTURE-FIXTURE", year="116")
     validate_live_baseline(verified_candidate + [future])
