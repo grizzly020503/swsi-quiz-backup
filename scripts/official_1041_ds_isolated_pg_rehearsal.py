@@ -142,7 +142,12 @@ def main() -> int:
     assert len(snapshot.get("extra_functions", [])) == 1
     for trigger in triggers:
         assert trigger["trigger_def"].startswith("CREATE TRIGGER ")
-        assert "ON public.questions FOR EACH ROW EXECUTE FUNCTION public." in trigger["trigger_def"]
+        assert "ON public.questions FOR EACH ROW EXECUTE FUNCTION " in trigger["trigger_def"]
+        assert trigger["trigger_def"].endswith(
+            "EXECUTE FUNCTION " + trigger["proname"] + "()"
+        ) or trigger["trigger_def"].endswith(
+            "EXECUTE FUNCTION public." + trigger["proname"] + "()"
+        )
         assert trigger["function_def"].startswith(
             "CREATE OR REPLACE FUNCTION public." + trigger["proname"] + "()"
         )
