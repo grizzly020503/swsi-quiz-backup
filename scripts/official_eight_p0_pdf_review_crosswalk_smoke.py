@@ -92,7 +92,13 @@ def main():
     proof_two=json.loads(PROOF_TWO.read_text())
     proof_six=json.loads(PROOF_SIX.read_text())
     proofs=proof_two['rows']+proof_six['changes']
-    manifest=json.loads((ROOT/'cdn/question-shards/manifest.json').read_text())
+    # Keep the eight-row source baseline frozen; validate the newer two-row
+    # overlay separately instead of rewriting its historical source evidence.
+    from official_r105207_ds106134_candidate_smoke import digest
+    newer=json.loads((ROOT/'audit/official_r105207_ds106134_source_candidate_20261031.json').read_text())
+    current=(ROOT/'cdn/question-shards/manifest.json').read_bytes()
+    assert digest(current)==newer['new_manifest_sha256']
+    manifest=json.loads(newer['old_manifest_raw'])
     rows=[]
     for name in ('108-2.json','111-2.json','114-1.json'):
         payload=json.loads((ROOT/'cdn/question-shards'/name).read_text())
