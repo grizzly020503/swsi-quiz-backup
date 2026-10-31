@@ -45,11 +45,28 @@ def validate_overlay(p,rows,lock,manifest_raw):
     assert {id for s in p['scenarios'] for id in s['target_ids']}==IDS
 
     index={r['id']:r for r in rows}
+    # Child PR #501 has exactly three verified source-core changes atop
+    # this parent #499 revision. The memory rows were already reversed to
+    # #499, but the on-disk files retain #501 bytes. Verify BOTH hashes and
+    # the three exact before/after rows instead of skipping raw validation.
+    child=json.loads((ROOT/'audit/official_next_three_p0_source_candidate_20261031.json').read_text())
+    child_rows={c['id']:c for c in child['changed_rows']}
+    assert len(child_rows)==3
+    child_shards=child['shards']
     for shard in after_manifest['shards']:
         data=(ROOT/'cdn/question-shards'/shard['file']).read_bytes()
-        assert len(data)==shard['bytes'] and digest(data)==shard['sha256']
+        candidate=child_shards.get('cdn/question-shards/'+shard['file'])
+        if candidate is not None:
+            assert candidate['old_sha256']==shard['sha256'] and candidate['old_bytes']==shard['bytes']
+            assert len(data)==candidate['new_bytes'] and digest(data)==candidate['new_sha256']
+        else:
+            assert len(data)==shard['bytes'] and digest(data)==shard['sha256']
         for r in json.loads(data)['questions']:
-            assert r==index[r['id']]
+            if r['id'] in child_rows:
+                assert r==child_rows[r['id']]['published_after']
+                assert index[r['id']]==child_rows[r['id']]['published_before']
+            else:
+                assert r==index[r['id']]
 
     previous=copy.deepcopy(rows);previous_index={r['id']:r for r in previous}
     previous_lock=copy.deepcopy(lock)
