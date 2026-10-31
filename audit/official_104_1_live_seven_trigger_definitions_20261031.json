@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "scope": "READ_ONLY production pg_catalog snapshot for ISOLATED PostgreSQL rehearsal only; NO SECRETS, NO DATA WRITES",
+  "production_question_trigger_count": 7,
+  "production_source_project_ref": "yumjtrdctaxyczpspuyo",
+  "snapshot_captured_at": "2026-10-31",
+  "external_effects_replaced_in_isolation": [
+    "public.enable_swsi_ai_analysis()",
+    "public.maybe_stop_swsi_ai_analysis()"
+  ],
+  "source_data_classes": "static function definitions and trigger definitions only; no user data/no key values",
+  "extra_functions": [
+    "CREATE OR REPLACE FUNCTION public.extract_legal_canonical_names(raw_law text)\n RETURNS text[]\n LANGUAGE plpgsql\n IMMUTABLE\n SET search_path TO ''\nAS $function$\ndeclare\n  s text := coalesce(raw_law, '');\n  out_names text[] := '{}'::text[];\n  n text;\n  names text[] := array[\n    '兒童及少年福利與權益保障法','身心障礙者權益保障法','老人福利法','家庭暴力防治法','社會救助法','長期照顧服務法','社會工作師法','兒童及少年性剝削防制條例','特殊境遇家庭扶助條例','性侵害犯罪防治法','性別平等工作法','國民年金法','志願服務法','公益勸募條例','精神衛生法','兒童及少年未來教育與發展帳戶條例','病人自主權利法','就業保險法','少年事件處理法','消除對婦女一切形式歧視公約施行法','兒童權利公約施行法','兒童權利公約','身心障礙者權利公約施行法','身心障礙者權利公約','全民健康保險法','原住民族工作權保障法','中華民國刑法','中華民國憲法增修條文','人口販運防制法','住宅法','公益彩券發行條例','勞工保險條例','協助積極自立脫離貧窮實施辦法','國民教育法','學生輔導法','家事事件法','專科社會工作師分科甄審及接受繼續教育辦法','性別平等教育法','性騷擾防治法','跟蹤騷擾防制法','毒品危害防制條例','民法','社會工作師接受繼續教育及執業執照更新辦法','社會福利基本法','老年農民福利津貼暫行條例','長期照顧服務機構法人條例','經濟社會文化權利國際公約','全民健康保險醫療服務給付項目及支付標準','國民小學與國民中學未入學或中途輟學學生通報及復學輔導辦法','校園霸凌防制準則','社區發展工作綱要','公民與政治權利國際公約及經濟社會文化權利國際公約施行法'\n  ];\nbegin\n  if position('性別工作平等法' in s) > 0 and position('性別平等工作法' in s) = 0 then\n    out_names := array_append(out_names, '性別平等工作法');\n  end if;\n\n  if position('兩公約施行法' in s) > 0 or position('人權公約施行法' in s) > 0 then\n    if not ('公民與政治權利國際公約及經濟社會文化權利國際公約施行法' = any(out_names)) then\n      out_names := array_append(out_names, '公民與政治權利國際公約及經濟社會文化權利國際公約施行法');\n    end if;\n  end if;\n\n  if position('社會工作師執業登記及繼續教育辦法' in s) > 0\n     and position('社會工作師接受繼續教育及執業執照更新辦法' in s) = 0 then\n    out_names := array_append(out_names, '社會工作師接受繼續教育及執業執照更新辦法');\n  end if;\n\n  foreach n in array names loop\n    if position(n in s) > 0 and not (n = any(out_names)) then\n      out_names := array_append(out_names, n);\n    end if;\n  end loop;\n\n  return out_names;\nend;\n$function$\n"
+  ],
+  "triggers": [
+    {
+      "tgname": "questions_00_sanitize_unverified_law_provenance",
+      "proname": "sanitize_unverified_law_provenance",
+      "tgenabled": "O",
+      "trigger_def": "CREATE TRIGGER questions_00_sanitize_unverified_law_provenance BEFORE INSERT OR UPDATE OF analysis_status, law, question, opt_a, opt_b, opt_c, opt_d ON public.questions FOR EACH ROW EXECUTE FUNCTION sanitize_unverified_law_provenance()",
+      "function_def": "CREATE OR REPLACE FUNCTION public.sanitize_unverified_law_provenance()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\ndeclare\n  source_names text[] := '{}'::text[];\n  law_names text[] := '{}'::text[];\nbegin\n  -- Only police student-facing ready enrichment. Pending/review rows may retain\n  -- draft/debug metadata for diagnosis.\n  if lower(coalesce(new.analysis_status, '')) <> 'ready' then\n    return new;\n  end if;\n\n  if nullif(btrim(coalesce(new.law, '')), '') is null then\n    return new;\n  end if;\n\n  -- Evidence-backed legal review owns these states. This guard must not erase a\n  -- reviewed extension merely because the official stem did not spell it out.\n  if lower(coalesce(new.legal_status, '')) in ('verified_current', 'changed') then\n    return new;\n  end if;\n\n  -- Official-source support is intentionally limited to the immutable question\n  -- and option text. AI explanation fields are never accepted as self-evidence.\n  source_names := public.extract_legal_canonical_names(\n    concat_ws(\n      ' ',\n      new.question,\n      new.opt_a,\n      new.opt_b,\n      new.opt_c,\n      new.opt_d\n    )\n  );\n  law_names := public.extract_legal_canonical_names(new.law);\n\n  -- Fail closed without creating manual-work debt: law is optional enrichment.\n  -- If it is not canonical, or any claimed canonical law is absent from the\n  -- official question/options, drop the law field and keep the explanation.\n  if coalesce(cardinality(law_names), 0) = 0\n     or not (law_names <@ source_names) then\n    new.law := null;\n\n    -- Keep the reference index consistent even when this trigger was activated\n    -- by analysis_status rather than an UPDATE OF law statement.\n    new.legal_canonical_names := source_names;\n  end if;\n\n  return new;\nend;\n$function$\n"
+    },
+    {
+      "tgname": "questions_sync_legal_canonical_names",
+      "proname": "sync_question_legal_canonical_names",
+      "tgenabled": "O",
+      "trigger_def": "CREATE TRIGGER questions_sync_legal_canonical_names BEFORE INSERT OR UPDATE OF question, opt_a, opt_b, opt_c, opt_d, law ON public.questions FOR EACH ROW EXECUTE FUNCTION sync_question_legal_canonical_names()",
+      "function_def": "CREATE OR REPLACE FUNCTION public.sync_question_legal_canonical_names()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\nbegin\n  new.legal_canonical_names := public.extract_legal_canonical_names(\n    concat_ws(' ', new.question, new.opt_a, new.opt_b, new.opt_c, new.opt_d, new.law)\n  );\n  return new;\nend;\n$function$\n"
+    },
+    {
+      "tgname": "trg_auto_enable_ai_pending",
+      "proname": "auto_enable_ai_for_pending_question",
+      "tgenabled": "O",
+      "trigger_def": "CREATE TRIGGER trg_auto_enable_ai_pending AFTER INSERT OR UPDATE OF analysis_status ON public.questions FOR EACH ROW EXECUTE FUNCTION auto_enable_ai_for_pending_question()",
+      "function_def": "CREATE OR REPLACE FUNCTION public.auto_enable_ai_for_pending_question()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n  enabled_now boolean;\nbegin\n  if new.source_exam_code is not null and new.analysis_status = 'pending' then\n    select enabled into enabled_now from public.ai_analysis_job_config where id = true;\n    if coalesce(enabled_now,false) = false then\n      perform public.enable_swsi_ai_analysis();\n    end if;\n  end if;\n  return new;\nend;\n$function$\n"
+    },
+    {
+      "tgname": "trg_auto_stop_ai_queue",
+      "proname": "auto_stop_ai_when_queue_drains",
+      "tgenabled": "O",
+      "trigger_def": "CREATE TRIGGER trg_auto_stop_ai_queue AFTER UPDATE OF analysis_status ON public.questions FOR EACH ROW EXECUTE FUNCTION auto_stop_ai_when_queue_drains()",
+      "function_def": "CREATE OR REPLACE FUNCTION public.auto_stop_ai_when_queue_drains()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n  enabled_now boolean;\nbegin\n  if old.analysis_status is distinct from new.analysis_status\n     and new.analysis_status in ('ready','review') then\n    select enabled into enabled_now from public.ai_analysis_job_config where id = true;\n    if coalesce(enabled_now,false) = true then\n      perform public.maybe_stop_swsi_ai_analysis();\n    end if;\n  end if;\n  return new;\nend;\n$function$\n"
+    },
+    {
+      "tgname": "trg_questions_analysis_completed_at",
+      "proname": "set_analysis_completed_at",
+      "tgenabled": "O",
+      "trigger_def": "CREATE TRIGGER trg_questions_analysis_completed_at BEFORE UPDATE OF analysis_status ON public.questions FOR EACH ROW EXECUTE FUNCTION set_analysis_completed_at()",
+      "function_def": "CREATE OR REPLACE FUNCTION public.set_analysis_completed_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nbegin\n  if new.analysis_status = 'ready' and old.analysis_status is distinct from 'ready' then\n    new.analysis_completed_at := now();\n  elsif new.analysis_status is distinct from 'ready' and old.analysis_status = 'ready' then\n    new.analysis_completed_at := null;\n  end if;\n  return new;\nend;\n$function$\n"
+    },
+    {
+      "tgname": "trg_reject_ai_answer_meta_commentary",
+      "proname": "reject_ai_answer_meta_commentary",
+      "tgenabled": "O",
+      "trigger_def": "CREATE TRIGGER trg_reject_ai_answer_meta_commentary BEFORE INSERT OR UPDATE OF analysis_status, exp_why, exp_others, exp_trap, mnemonic, extension, law ON public.questions FOR EACH ROW EXECUTE FUNCTION reject_ai_answer_meta_commentary()",
+      "function_def": "CREATE OR REPLACE FUNCTION public.reject_ai_answer_meta_commentary()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\ndeclare\n  s text;\nbegin\n  if new.analysis_status = 'ready' then\n    s := concat_ws(' ', new.exp_why, new.exp_others, new.exp_trap, new.mnemonic, new.extension, new.law);\n    if s ~* '(題庫答案|題庫正解|答案待查|答案有瑕疵|官方答案|本題官方|官方正確|官方全體給分|建議.{0,12}(查|複查).{0,12}答案|已核對答案|選項判定有爭議)' then\n      raise exception 'AI analysis contains forbidden answer-meta commentary' using errcode = '23514';\n    end if;\n  end if;\n  return new;\nend;\n$function$\n"
+    },
+    {
+      "tgname": "trg_reset_ai_on_official_change",
+      "proname": "reset_ai_analysis_on_official_change",
+      "tgenabled": "O",
+      "trigger_def": "CREATE TRIGGER trg_reset_ai_on_official_change BEFORE UPDATE OF question, opt_a, opt_b, opt_c, opt_d, answer, accepted_answers, grading_mode ON public.questions FOR EACH ROW EXECUTE FUNCTION reset_ai_analysis_on_official_change()",
+      "function_def": "CREATE OR REPLACE FUNCTION public.reset_ai_analysis_on_official_change()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nbegin\n  if new.source_exam_code is not null and (\n       new.question is distinct from old.question\n    or new.opt_a is distinct from old.opt_a\n    or new.opt_b is distinct from old.opt_b\n    or new.opt_c is distinct from old.opt_c\n    or new.opt_d is distinct from old.opt_d\n    or new.answer is distinct from old.answer\n    or new.accepted_answers is distinct from old.accepted_answers\n    or new.grading_mode is distinct from old.grading_mode\n  ) then\n    new.major := null;\n    new.topic := null;\n    new.keywords := null;\n    new.exp_why := null;\n    new.exp_others := null;\n    new.exp_trap := null;\n    new.exp_raw := null;\n    new.mnemonic := null;\n    new.extension := null;\n    new.law := null;\n    new.mistake := null;\n    new.analysis_status := 'pending';\n    new.analysis_attempts := 0;\n    new.analysis_error := null;\n    new.analysis_started_at := null;\n    new.analysis_completed_at := null;\n    new.analysis_last_attempt_at := null;\n  end if;\n  return new;\nend;\n$function$\n"
+    }
+  ]
+}
