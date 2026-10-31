@@ -7,6 +7,7 @@ on:
       - '.github/workflows/official-1041-isolated-pg-rehearsal.yml'
       - 'scripts/official_1041_ds_isolated_pg_rehearsal.py'
       - 'scripts/official_1041_ds_release_candidate_builder.py'
+      - 'scripts/official_1041_ds_successor_overlay_smoke.py'
       - 'audit/official_104_1_live_seven_trigger_definitions_20261031.json'
       - 'audit/official_104_1_direct_service_three_shadow_readonly_20261031.sql'
       - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
@@ -81,12 +82,28 @@ jobs:
             "$qa_dir/cdn/question-shards/manifest.json"
           cp /tmp/swsi-1041-unapproved-release-candidate/data/official_exam_readonly.lock.json \
             "$qa_dir/data/official_exam_readonly.lock.json"
-          # The pinned historical transition tests must continue to validate the
-          # exact *published predecessor*; they intentionally reject a newer
-          # manifest revision, even a legitimate future correction.
-          python3 scripts/official_ten_source_integration_smoke.py
-          python3 scripts/official_shared_context_13row_integration_smoke.py
-          # Independently validate the staged, unpublished future snapshot.
+          # Verify the staged FUTURE release has *exactly* one 3-row official
+          # overlay and reconstructs the immutable published predecessor,
+          # including its SHA-pinned manifest and immutable Official Core locks.
+          python3 -m py_compile scripts/official_1041_ds_successor_overlay_smoke.py
+          python3 scripts/official_1041_ds_successor_overlay_smoke.py \
+            --candidate /tmp/swsi-1041-unapproved-release-candidate \
+            --out /tmp/swsi-1041-recovered-published-predecessor
+          predecessor_dir="$(mktemp -d /tmp/swsi-1041-recovered-regression-XXXXXX)"
+          git archive HEAD | tar -x -C "$predecessor_dir"
+          cp /tmp/swsi-1041-recovered-published-predecessor/cdn/question-shards/104-1.json \
+            "$predecessor_dir/cdn/question-shards/104-1.json"
+          cp /tmp/swsi-1041-recovered-published-predecessor/cdn/question-shards/manifest.json \
+            "$predecessor_dir/cdn/question-shards/manifest.json"
+          cp /tmp/swsi-1041-recovered-published-predecessor/data/official_exam_readonly.lock.json \
+            "$predecessor_dir/data/official_exam_readonly.lock.json"
+          (
+            cd "$predecessor_dir"
+            python3 scripts/official_exam_readonly_guard.py
+            python3 scripts/official_ten_source_integration_smoke.py
+            python3 scripts/official_shared_context_13row_integration_smoke.py
+          )
+          # Independently validate the staged, unpublished FUTURE snapshot.
           (
             cd "$qa_dir"
             python3 scripts/official_exam_readonly_guard.py
