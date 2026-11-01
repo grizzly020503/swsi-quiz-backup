@@ -125,6 +125,20 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     const essayId=(await page.locator('#app textarea.wta').getAttribute('id')).slice(3);
     const unconfirmedOCR=await page.locator('.swsi-paper-review textarea').inputValue();
     const draftBeforeNav=await page.locator('textarea.wta').inputValue();
+    // Invalid selections are rejected *before* replacing the existing OCR
+    // session, so a student who mis-selects four photos keeps corrections.
+    const rejectedBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles(
+      Array.from({length:4},(_,i)=>({name:'invalid-'+i+'.png',mimeType:'image/png',buffer:png}))
+    );
+    await page.waitForFunction(()=>/一次只允許 1–3 張/.test(
+      document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:12000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),unconfirmedOCR,
+      'invalid photo count must preserve the unconfirmed OCR review');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeNav,
+      'invalid photo count must not alter the typed draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),rejectedBaseline,
+      'invalid photo count must not spend AI quota');
     const requestsBeforeNav=await page.evaluate(()=>window.__paperRequests.length);
     await page.evaluate(()=>closeEssay());
     await page.locator('.swsi-paper-essay').waitFor({state:'detached'});
