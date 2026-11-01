@@ -170,12 +170,89 @@ async function verifyHostedLatestEssayGuides(page, label) {
 // Exercise the *hosted* grading UI without writing any student/server data.
 // The Playwright context is fresh, isolated, and destroyed after this run;
 // its network route rejects all non-GET/HEAD/OPTIONS requests.
+// Validate the *actual hosted* 4,800 MCQ runtime rows against the pinned
+// 120 official MOEX PDF identities. URL parameter order is insignificant;
+// a wrong exam code, PDF c/s identifier, path, missing metadata or duplicate
+// ID is NOT. This tests what the student receives after shard loading.
+const moexRegistry = JSON.parse(fs.readFileSync(
+  path.resolve(__dirname, '../data/moex_source_subjects.v1.json'), 'utf8'
+));
+assert.equal(moexRegistry.scope, 'source_identity_only_not_stem_answer_or_rubric_approval',
+  'pinned registry scope changed unexpectedly');
+assert.equal(moexRegistry.records.length, 120, 'official registry must contain 120 papers');
+const moexExpected = moexRegistry.records.map(r => ({
+  session: r.session, subject: r.subject, code: r.exam_code,
+  c: String(r.c), s: String(r.s)
+}));
+
+async function verifyHostedOfficialSourceIdentity(page, label) {
+  const result = await page.evaluate(expected => {
+    const rows = (typeof ALL !== 'undefined' && Array.isArray(ALL)) ? ALL : [];
+    const byPaper = new Map(expected.map(p => [p.session + '|' + p.subject, p]));
+    const seenIds = new Set();
+    const paperCounts = new Map();
+    const problems = [];
+    for (const row of rows) {
+      const id = String(row?.id || '');
+      if (!id || seenIds.has(id)) {
+        problems.push({ id, reason: 'missing_or_duplicate_id' }); continue;
+      }
+      seenIds.add(id);
+      const rd = row.round === '第一次' ? '1' : row.round === '第二次' ? '2' : '?';
+      const paper = String(row.year) + '-' + rd + '|' + row.subject;
+      const expectedPaper = byPaper.get(paper);
+      paperCounts.set(paper, (paperCounts.get(paper) || 0) + 1);
+      if (!expectedPaper) {
+        problems.push({ id, reason: 'no_pinned_official_paper' }); continue;
+      }
+      if (String(row.source_exam_code || '') !== expectedPaper.code ||
+          /時事|預測|自製/.test(String(row.qtype || '') + ' ' + id)) {
+        problems.push({ id, reason: 'student_origin_identity_drift' }); continue;
+      }
+      try {
+        const url = new URL(String(row.source_url || ''));
+        const search = url.searchParams;
+        if (url.origin !== 'https://wwwq.moex.gov.tw' ||
+            url.pathname !== '/exam/wHandExamQandA_File.ashx' ||
+            search.get('code') !== expectedPaper.code ||
+            search.get('c') !== expectedPaper.c ||
+            search.get('s') !== expectedPaper.s ||
+            search.get('t') !== 'Q' || search.get('q') !== '1') {
+          problems.push({ id, reason: 'wrong_official_pdf_identity' });
+        }
+      } catch (_e) {
+        problems.push({ id, reason: 'unparseable_source_url' });
+      }
+    }
+    for (const [paper, count] of paperCounts) {
+      if (count !== 40) problems.push({ paper, count, reason: 'paper_not_40_mcqs' });
+    }
+    for (const item of expected) {
+      const paper = item.session + '|' + item.subject;
+      if (!paperCounts.has(paper)) problems.push({ paper, reason: 'missing_paper' });
+    }
+    return {
+      total: rows.length,
+      papers: paperCounts.size,
+      uniqueIds: seenIds.size,
+      problemCount: problems.length,
+      firstProblems: problems.slice(0, 12)
+    };
+  }, moexExpected);
+  assert.deepEqual(result, { total: 4800, papers: 120, uniqueIds: 4800,
+    problemCount: 0, firstProblems: [] },
+  label + ': hosted official-source misclassification/drift ' + JSON.stringify(result));
+  console.log('CLOUDFLARE HOSTED OFFICIAL SOURCE TRUST OK ' + label +
+    ': 4800 official MCQs, 120/120 pinned papers, no invalid PDF identities');
+}
+
 async function verifyHostedLocalGrading(page, label) {
   await page.evaluate(async () => {
     if (typeof ensureAllQuestionsLoaded !== 'function')
       throw Error('official question loader not available');
     await ensureAllQuestionsLoaded();
   });
+  await verifyHostedOfficialSourceIdentity(page, label);
   const baseline = await page.evaluate(() => {
     if (typeof loadHist !== 'function') throw Error('history helper not found');
     return loadHist().length;
@@ -202,6 +279,25 @@ async function verifyHostedLocalGrading(page, label) {
   await page.locator('#app .opt').first().click();
   await page.getByRole('button', { name: '送出答案' }).click();
   await page.waitForSelector('#app .exp', { timeout: 12000 });
+  // The student-visible post-answer trust panel must call the question
+  // "考選部歷屆試題", never "平台自製"; interpretation and source labels
+  // must distinguish official question/answer from SWSI's explanation.
+  await page.waitForSelector('#app .swsi-answer-trust summary', { timeout: 12000 });
+  const trustBadge = await page.locator('#app .swsi-answer-trust summary').innerText();
+  assert(trustBadge.includes('考選部歷屆試題') && !trustBadge.includes('平台自製'),
+    label + ': student-facing official question mislabeled ' + trustBadge);
+  await page.locator('#app .swsi-answer-trust summary').click();
+  const bodyText = await page.locator('#app .swsi-answer-trust .swsi-trust-body').innerText();
+  assert(bodyText.includes('本題為考選部歷屆試題') &&
+    bodyText.includes('不是考選部官方解析'),
+    label + ': official source/independent explanation distinction missing');
+  const link = await page.locator('#app .swsi-answer-trust .swsi-trust-links a')
+    .filter({ hasText: '開啟官方題目來源' }).first().getAttribute('href');
+  assert(link && /^https:\/\/wwwq\.moex\.gov\.tw\/exam\/wHandExamQandA_File\.ashx\?/.test(link),
+    label + ': student official-source PDF link missing or wrong host');
+  console.log('CLOUDFLARE HOSTED OFFICIAL SOURCE BADGE OK ' + label +
+    ': official paper, SWSI explanation distinction, MOEX PDF link');
+
   const afterPractice = await page.evaluate(() => ({
     history: loadHist(),
     reviewCount: document.querySelectorAll('#app .exp').length,
