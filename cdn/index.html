@@ -4642,12 +4642,12 @@ function review(id,panel){
   send.disabled=locked();
   var message=elem('div','swsi-paper-status','');message.setAttribute('role','status');
   if(session.feedbackPending)message.textContent='AI 回饋處理中，請勿重複送出。';
-  else if(send.disabled)message.textContent='這份作答已確認；需要新的回饋請先修改內容。';
+  else if(send.disabled)message.textContent='AI 回饋已完成；這份作答已確認，修改內容才能取得新回饋。';
   else if(session.feedbackFailed)message.textContent='AI 回饋尚未完成；原稿已保存，服務恢復後可以重試。';
   input.addEventListener('input',function(){
     session.ocr=input.value;
     send.disabled=locked();
-    message.textContent=session.feedbackPending?'AI 回饋處理中，請勿重複送出。':send.disabled?'這份作答已確認；需要新的回饋請先修改內容。':session.feedbackFailed?'AI 回饋尚未完成；原稿已保存，服務恢復後可以重試。':'';
+    message.textContent=session.feedbackPending?'AI 回饋處理中，請勿重複送出。':send.disabled?'AI 回饋已完成；這份作答已確認，修改內容才能取得新回饋。':session.feedbackFailed?'AI 回饋尚未完成；原稿已保存，服務恢復後可以重試。':'';
   });
   send.addEventListener('click',async function(){
     if(!active(id,session.seq,panel)||session.feedbackPending)return;
