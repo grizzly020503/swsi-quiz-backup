@@ -87,7 +87,7 @@ def main() -> int:
         fail("cdn/essay_guides.js missing")
     guide_raw = guide_path.read_text(encoding="utf-8")
     found = re.fullmatch(
-        r"/\\*[^\\n]*\\*/\\nwindow\\.ESSAY_GUIDES = (\\{[^\\n]+\\});\\n?",
+        r"/\*[^\n]*\*/\nwindow\.ESSAY_GUIDES = (\{[^\n]+\});\n?",
         guide_raw,
     )
     if not found:
