@@ -375,6 +375,27 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       &&/已確認/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),null,{timeout:15000});
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),duringModeBaseline+3,
       'retry should make only one new text request without another photo upload');
+    // Re-photographing an already confirmed answer consumes one OCR call,
+    // but if the student corrects it back to the *same* confirmed transcript,
+    // the platform must not spend another text-feedback call.
+    const retakeBefore=await page.evaluate(()=>window.__paperRequests.length);
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'same-answer-retake.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(expected=>window.__paperRequests.length===expected+1 &&
+      !!document.querySelector('.swsi-paper-review textarea'),retakeBefore,{timeout:12000});
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),newText,
+      'successful retake must not overwrite confirmed student draft');
+    await page.locator('.swsi-paper-review textarea').fill(newText);
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'retake of the same corrected answer must preserve completed-feedback lock');
+    await page.locator('.swsi-paper-confirm').evaluate(button=>button.click());
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),retakeBefore+1,
+      'reconfirming the same answer after a new OCR call must not spend feedback quota');
+    await page.locator('.swsi-paper-review textarea').fill(newText+'（增加一段新論述）');
+    assert(await page.locator('.swsi-paper-confirm').isEnabled(),
+      'a genuinely revised answer must remain eligible for explicit new confirmation');
+    await page.locator('.swsi-paper-review textarea').fill(newText);
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'restoring the prior confirmed answer must reapply duplicate-feedback lock');
     // Switching away must cancel an in-flight OCR session permanently,
     // even if the student switches back before the old provider reply arrives.
     const draftBeforeStale=await page.locator('textarea.wta').inputValue();
