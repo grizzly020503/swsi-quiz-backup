@@ -87,6 +87,18 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
           window.__textFailureOnce=false;
           return new Response(JSON.stringify({error:{code:'UPSTREAM_UNAVAILABLE',message:'AI 服務暫時不可用'}}),{status:503,headers:{'Content-Type':'application/json'}});
         }
+        // Model-access failures and model-supplied grading text are not valid OCR.
+        if(isPhoto&&window.__ocrRejectOnce){
+          window.__ocrRejectOnce=false;
+          return new Response(JSON.stringify({error:{code:'FORBIDDEN',message:'OCR 測試存取被拒絕'}}),
+            {status:403,headers:{'Content-Type':'application/json'}});
+        }
+        if(isPhoto&&window.__ocrInjectedFeedbackOnce){
+          window.__ocrInjectedFeedbackOnce=false;
+          return new Response(JSON.stringify({choices:[{message:{
+            content:'【我讀到的作答】\\n一、這是模擬辨識稿。\\n【練習回饋】不得隱藏批改文字。'
+          },finish_reason:'stop'}]}),{status:200,headers:{'Content-Type':'application/json'}});
+        }
         const answer=isPhoto?'【我讀到的作答】\n一、社會工作要尊重當事人的自決，運用◌了解需求。\n二、還要完成評估、資源連結、執行處遇與後續追蹤。':'一、可補上具體理論。\n二、題目要求要逐項回應。';
         return new Response(JSON.stringify({choices:[{message:{content:answer},finish_reason:(isPhoto&&window.__ocrReturnNoFinish)?undefined:
           ((isPhoto&&window.__ocrReturnTruncated)?'length':'stop')}]}),{status:200,headers:{'Content-Type':'application/json'}});
@@ -218,6 +230,31 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),4,'missing OCR finish_reason caused unsolicited feedback');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.filter(r=>typeof r.messages[0].content==='string').length),1,'only manually confirmed text can be diagnosed');
     await page.evaluate(()=>{window.__ocrReturnNoFinish=false;});
+    // A denied private-model path (403) must fail closed: no confirmed OCR,
+    // no grading, no draft overwrite, and the upload button must recover.
+    const denyBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{window.__ocrRejectOnce=true;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'provider-denied.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(()=>document.querySelector('[id^="aiphoto_"]')?.disabled===false &&
+      !/正在辨識文字/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),denyBaseline+1,
+      'provider denial must not retry or send text feedback');
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,
+      'provider denial must not expose a confirmable transcript');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,
+      'provider denial must not overwrite the verified answer');
+    // A provider could return a nominally completed OCR response containing a
+    // grading section. That is NOT an OCR-only answer and cannot be confirmed.
+    const injectedBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{window.__ocrInjectedFeedbackOnce=true;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'mixed-ocr-feedback.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(()=>/辨識結果不可靠/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),injectedBaseline+1,
+      'provider-generated grading text must not cause an unsolicited feedback call');
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,
+      'provider-generated grading text must not become confirmable OCR');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,
+      'model-injected grading text must not alter the confirmed draft');
     // A huge encoded body must be blocked BEFORE reaching the AI service.
     // Reject by encoded request bytes, not by JPEG's binary size estimate.
     const sentBeforeOversize=await page.evaluate(()=>window.__paperRequests.length);
