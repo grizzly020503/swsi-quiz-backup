@@ -30,6 +30,12 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       return url.origin===origin?route.continue():route.abort();
     });
     await page.goto(base,{waitUntil:'domcontentloaded'});
+    // A real student can use navigation only after the CDN manifest and essay
+    // bootstrap finish. Calling the quick action before the tab bar becomes
+    // visible races boot's final go('home') and falsely resets the test route.
+    // This is a concrete readiness condition, not a fixed sleep or test skip.
+    await page.locator('#tabbar').waitFor({state:'visible',timeout:20000});
+    await page.locator('#app .hero').waitFor({state:'visible',timeout:20000});
     // Use the canonical quick-essay navigation (same as real mobile students)
     // rather than calling legacy openEssayCard before navigation settles.
     await page.waitForFunction(()=>typeof window.swsiStartEssayNow==='function'&&
