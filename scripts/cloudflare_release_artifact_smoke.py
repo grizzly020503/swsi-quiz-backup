@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -77,6 +78,34 @@ def main() -> int:
     ):
         if marker not in patch_text:
             fail(f"verified accessibility runtime marker missing: {marker}")
+
+    # Primary Cloudflare static guide artifact must include the already-reviewed
+    # 68 historical corrections and all 10 official 115-2 question guide overlays.
+    # The canonical builder is byte-compared independently in Essay Guide Overlay QA.
+    guide_path = CDN / "essay_guides.js"
+    if not guide_path.is_file():
+        fail("cdn/essay_guides.js missing")
+    guide_raw = guide_path.read_text(encoding="utf-8")
+    found = re.fullmatch(
+        r"/\\*[^\\n]*\\*/\\nwindow\\.ESSAY_GUIDES = (\\{[^\\n]+\\});\\n?",
+        guide_raw,
+    )
+    if not found:
+        fail("Cloudflare student essay guide artifact is malformed")
+    try:
+        guide_map = json.loads(found.group(1))
+    except (ValueError, TypeError):
+        fail("Cloudflare student essay guide artifact is not JSON")
+    if not isinstance(guide_map, dict) or len(guide_map) != 240:
+        fail("Cloudflare student guide count must be 240")
+    e_ids = [key for key in guide_map if re.fullmatch(r"E-115-2-(?:HBSE|SW|DS|R|SP)-[12]", key)]
+    if len(e_ids) != 10 or any(
+        not isinstance(guide_map[key], dict)
+        or guide_map[key].get("review_status") != "verified"
+        or guide_map[key].get("is_official") is not False
+        for key in e_ids
+    ):
+        fail("10 verified, explicitly nonofficial 115-2 guides must be present")
 
     if (CDN / "sw.js").read_bytes() != (ROOT / "sw.js").read_bytes():
         fail("cdn/sw.js differs from canonical root sw.js")
