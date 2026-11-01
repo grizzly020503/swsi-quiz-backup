@@ -118,8 +118,15 @@ def normalize(root: Path, get_previous=baseline_file) -> dict:
     # Validate BEFORE restoring any files to avoid partial normalization on failure.
     if max(generation_times) - min(generation_times) > MAX_BATCH_TIMESTAMP_SKEW:
         raise ValueError("generated monitoring snapshots span different scan batches")
-    if max(published_times) - min(published_times) > MAX_BATCH_TIMESTAMP_SKEW:
-        raise ValueError("normalized monitoring snapshots would mix scan batches")
+    # If one stream has real data changes, keep ALL newly generated timestamps:
+    # selectively keeping an older timestamp for unchanged siblings would
+    # publish one public snapshot batch with contradictory version metadata.
+    # The same safe fallback applies to differing prior public timestamps.
+    forced_batch_refresh = []
+    if substantive or max(published_times) - min(published_times) > MAX_BATCH_TIMESTAMP_SKEW:
+        forced_batch_refresh = list(restored)
+        restored.clear()
+        planned = [(a, b, old, False, name) for a, b, old, _drop, name in planned]
     for a, b, old, drop, _ in planned:
         if drop:
             a.write_bytes(old)
@@ -128,6 +135,7 @@ def normalize(root: Path, get_previous=baseline_file) -> dict:
         "timestamp_only_elided": restored,
         "substantive_kept": substantive,
         "already_unchanged": unchanged,
+        "timestamp_only_kept_for_batch_consistency": forced_batch_refresh,
         "no_source_changes": True,
         "backup_untouched": True,
     }
@@ -180,12 +188,19 @@ def selftest() -> None:
             assert (root / "auto" / name).read_bytes() == data(t1)
             assert (root / "cdn/auto" / name).read_bytes() == data(t1)
         first = NAMES[0]
+        # Actual scheduled builder refreshes all three generation times, even
+        # when only one kind's substantive content changes.
+        for name in NAMES:
+            for prefix in ("auto", "cdn/auto"):
+                (root / prefix / name).write_bytes(data(t2))
         for prefix in ("auto", "cdn/auto"):
             (root / prefix / first).write_bytes(data(t2, 2))
         result = normalize(root, prior.__getitem__)
         assert result["substantive_kept"] == [first], result
-        assert len(result["already_unchanged"]) == 2
+        assert len(result["timestamp_only_kept_for_batch_consistency"]) == 2, result
+        assert not result["timestamp_only_elided"]
         assert (root / "cdn/auto" / first).read_bytes() == data(t2, 2)
+        assert (root / "cdn/auto" / NAMES[1]).read_bytes() == data(t2)
         # Fail closed on split CDN and never modify earlier pairs.
         (root / "cdn/auto" / first).write_bytes(data(t2, 3))
         before = (root / "auto" / NAMES[1]).read_bytes()
@@ -221,16 +236,15 @@ def selftest() -> None:
         last = NAMES[-1]
         for prefix in ("auto", "cdn/auto"):
             old_mixed[prefix + "/" + last] = data("2026-10-30T15:55:01Z")
-        try:
-            normalize(root, old_mixed.__getitem__)
-        except ValueError as exc:
-            assert "normalized monitoring snapshots would mix" in str(exc), str(exc)
-        else:
-            raise AssertionError("mixed published generations accepted")
+        result = normalize(root, old_mixed.__getitem__)
+        assert not result["timestamp_only_elided"], result
+        assert len(result["timestamp_only_kept_for_batch_consistency"]) == 2, result
         assert (root / "auto" / NAMES[0]).read_bytes() == data(t2)
+        assert (root / "auto" / NAMES[-1]).read_bytes() == data(t2)
     print("SWSI MONITORING NO-OP SELFTEST OK: "
           "timestamp-only skip under 18h, mandatory refresh at 18h, "
-          "real updates, synced CDN, generated and published same-scan timestamps, fail-closed")
+          "real updates, synced CDN, generated same-scan timestamps, "
+          "forced coherent batch refresh, fail-closed")
 
 
 def main() -> int:
