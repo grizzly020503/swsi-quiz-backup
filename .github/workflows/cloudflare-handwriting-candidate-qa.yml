@@ -1,0 +1,107 @@
+name: Cloudflare Handwriting Confirmation Candidate QA (NO DEPLOY)
+
+on:
+  pull_request:
+    paths:
+      - 'cdn/index.html'
+      - 'scripts/handwriting_essay_smoke.js'
+      - '.github/workflows/cloudflare-handwriting-candidate-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-cloudflare-handwriting-candidate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolated-cdn-handwriting:
+    name: Cloudflare CDN candidate handwriting / OCR confirmation only
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-noble
+      options: --user 1001
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout candidate SHA
+        uses: actions/checkout@v7
+
+      - name: Verify no backup or Official Core changes in this PR
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$BASE_REF"
+          git diff --name-only "origin/$BASE_REF" HEAD > /tmp/swsi-candidate-changed-files
+          cat /tmp/swsi-candidate-changed-files
+          grep -Fxq 'cdn/index.html' /tmp/swsi-candidate-changed-files
+          grep -Fxq 'scripts/handwriting_essay_smoke.js' /tmp/swsi-candidate-changed-files
+          if grep -Ev '^cdn/index\.html$|^scripts/handwriting_essay_smoke\.js$|^\.github/workflows/cloudflare-handwriting-candidate-qa\.yml$' /tmp/swsi-candidate-changed-files; then
+            echo 'UNAPPROVED candidate path changed; refuses test promotion' >&2
+            exit 1
+          fi
+
+      - name: Install pinned browser runner without downloading browsers
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: |
+          set -euo pipefail
+          npm install --no-save playwright@1.55.0
+          node -e 'const fs=require("fs"),pw=require("playwright");if(require("playwright/package.json").version!=="1.55.0"||!fs.existsSync(pw.chromium.executablePath()))throw Error("pinned Chromium not installed")'
+
+      - name: Verify candidate syntax and protective invariants
+        run: |
+          set -euo pipefail
+          node --check scripts/handwriting_essay_smoke.js
+          python3 - <<'PY'
+          from pathlib import Path
+          page=Path("cdn/index.html").read_text()
+          assert page.count('SWSI HANDWRITING-FIRST ESSAY V1 START')==1
+          assert page.count('SWSI HANDWRITING-FIRST ESSAY V1 END')==1
+          assert "const GROQ_MODEL = 'qwen/qwen3.8-27b';" in page
+          assert "SWSI_PAPER_ESSAY_VERSION" in page
+          assert "辨識文字已由你確認" in page
+          assert "仍有辨識不清的字" in page
+          assert "3.8 MB" in page
+          assert '<style id="swsi-calm-student-design-v2">' in page
+          assert '<script id="swsi-paper-essay-script">' in page
+          assert "SWSI CLOUDFLARE FRONTEND PREVIEW" not in page
+          print('CLOUDFLARE-ONLY HANDWRITING CANDIDATE SOURCE PASS: no source/backup deployment')
+          PY
+
+      - name: Test CDN candidate in local isolated browser with synthetic 1px photo only
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory cdn >/tmp/swsi-cloudflare-candidate.log 2>&1 &
+          server=$!
+          trap 'kill "$server" || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          SWSI_HANDWRITING_EVIDENCE_DIR=_handwriting_evidence node scripts/handwriting_essay_smoke.js http://127.0.0.1:4173/
+
+      - name: Save synthetic candidate mobile and OCR review screenshots (3 days)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-cloudflare-handwriting-review-only
+          path: _handwriting_evidence/*.png
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Explicit release hold
+        if: always()
+        run: |
+          {
+            echo "## SWSI handwriting-first OCR Cloudflare candidate ONLY"
+            echo ""
+            echo "Synthetic mocked OCR / browser tests do NOT validate Chinese handwritten photo accuracy or student privacy. Original official essay question and grading are unchanged."
+            echo ""
+            echo "Not deployed, not merged, no Supabase/Cloudflare/Netlify writes. Do not merge into main or publish until an independent real-handwriting sample QA and explicit release go decision."
+          } >> "$GITHUB_STEP_SUMMARY"
