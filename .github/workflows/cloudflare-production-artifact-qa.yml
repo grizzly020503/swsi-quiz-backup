@@ -5,6 +5,7 @@ on:
     paths:
       - 'cdn/index.html'
       - 'cdn/monthly_patch.js'
+      - 'cdn/essay_guides.js'
       - 'cdn/sw.js'
       - 'cdn/_headers'
       - 'cdn/question-shards/**'
@@ -20,6 +21,7 @@ on:
     paths:
       - 'cdn/index.html'
       - 'cdn/monthly_patch.js'
+      - 'cdn/essay_guides.js'
       - 'cdn/sw.js'
       - 'cdn/_headers'
       - 'cdn/question-shards/**'
@@ -68,6 +70,7 @@ jobs:
           if git diff --quiet "origin/$GITHUB_BASE_REF...HEAD" -- \
             cdn/index.html \
             cdn/monthly_patch.js \
+            cdn/essay_guides.js \
             cdn/sw.js \
             cdn/_headers \
             cdn/question-shards \
