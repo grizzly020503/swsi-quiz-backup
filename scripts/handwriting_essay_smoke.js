@@ -68,10 +68,12 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       window.__paperRequests=[];
       window.__paperRequestHeaders=[];
       window.swsiRecordAITelemetry=()=>{};
-      window.swsiFetchWithTimeout=async function(url,options){
+      window.__nativeFetch=window.fetch.bind(window);
+      window.fetch=async function(url,options){
+        if(!String(url).includes('/api/ai'))return window.__nativeFetch(url,options);
         const req=JSON.parse(options.body);
         window.__paperRequests.push(req);
-        window.__paperRequestHeaders.push(options.headers||{});
+        window.__paperRequestHeaders.push(Object.fromEntries(new Headers(options.headers||{}).entries()));
         const isPhoto=Array.isArray(req.messages[0].content);
         const answer=isPhoto?'【我讀到的作答】\n一、社會工作要尊重當事人的自決，運用◌了解需求。\n二、還要完成評估、資源連結、執行處遇與後續追蹤。':'一、可補上具體理論。\n二、題目要求要逐項回應。';
         return new Response(JSON.stringify({choices:[{message:{content:answer},finish_reason:(isPhoto&&window.__ocrReturnNoFinish)?undefined:
@@ -100,9 +102,9 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     }
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),1);
     assert(await page.evaluate(()=>Array.isArray(window.__paperRequests[0].messages[0].content)));
-    const photoClientId=await page.evaluate(()=>window.__paperRequestHeaders[0]['X-SWSI-Client-ID']);
+    const photoClientId=await page.evaluate(()=>window.__paperRequestHeaders[0]['x-swsi-client-id']);
     assert.match(photoClientId,/^[A-Za-z0-9_-]{16,128}$/,
-      'photo OCR must use the same per-client ID contract as text feedback');
+      'real SWSI transport wrapper must set a valid photo OCR client ID');
     assert((await page.evaluate(()=>new TextEncoder().encode(JSON.stringify(window.__paperRequests[0])).byteLength)) <= 3800000,
       'OCR request exceeded safe Worker payload limit');
     await page.locator('.swsi-paper-confirm').click();
@@ -122,6 +124,9 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     await page.locator('.swsi-paper-confirm').click();
     await page.waitForFunction(()=>window.__paperRequests.length===2);
     assert.strictEqual(await page.evaluate(()=>typeof window.__paperRequests[1].messages[0].content),'string');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequestHeaders[0]['x-swsi-client-id']),
+      await page.evaluate(()=>window.__paperRequestHeaders[1]['x-swsi-client-id']),
+      'OCR and confirmed text-feedback request must use the same real transport client ID');
     await page.locator('.swsi-paper-mode-text').click();
     assert.strictEqual(await page.locator('.swsi-paper-mode-text').getAttribute('aria-pressed'),'true');
     assert(await page.locator('textarea.wta').isVisible());
