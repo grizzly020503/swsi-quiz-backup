@@ -4822,7 +4822,10 @@ async function photoOCR(id,inputEl){
       {status.textContent='辨識結果不可靠，請重新拍攝；不會直接批改。';return;}
     var transcript=raw.slice(mark.length).trim();
     if(!transcript){status.textContent='未取得可確認的手寫內容，請重拍。';return;}
-    sessions[id]={seq:seq,ocr:transcript};
+    // A successful re-photo must not reset a prior *completed* confirmation.
+    // Same corrected text is already graded; changed text still requires the
+    // student to confirm explicitly before making any new AI feedback call.
+    sessions[id]={seq:seq,ocr:transcript,confirmedText:previous&&previous.confirmedText};
     status.textContent='辨識完成，請先核對紙本與下方文字。';
     review(id,panel);
   }catch(error){
