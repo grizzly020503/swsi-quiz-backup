@@ -106,7 +106,7 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     // OCR providers may emit multiple unreadable-character conventions.
     // Every one must require explicit repair, not trigger a feedback call.
     const originalOCR=await page.locator('.swsi-paper-review textarea').inputValue();
-    for(const marker of ['□','�']){
+    for(const marker of ['□','�','（看不清）','[無法辨識]','［無法辨識］']){
       await page.locator('.swsi-paper-review textarea').fill(originalOCR.replace('◌',marker));
       await page.locator('.swsi-paper-confirm').click();
       assert.match(await page.locator('.swsi-paper-review [role=status]').innerText(),/辨識不清/);
