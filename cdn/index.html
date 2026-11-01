@@ -4767,7 +4767,7 @@ async function photoOCR(id,inputEl){
       status.textContent='這份手寫答案的辨識文字被截斷。請減少頁數再拍一次；這次沒有批改，也不會修改原草稿。';
       return;
     }
-    if(choice.finish_reason&&choice.finish_reason!=='stop'){
+    if(choice.finish_reason!=='stop'){
       status.textContent='辨識沒有完整結束，請重新拍攝；本次不會批改。';
       return;
     }
