@@ -136,6 +136,18 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     await page.locator('.swsi-paper-mode-paper').click();
     assert.match(await page.locator('.swsi-paper-review textarea').inputValue(),/應尊重案主自決/,
       'switching between typing and paper must preserve already reviewed OCR text');
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'switching back to a confirmed OCR answer must not re-enable a duplicate feedback call');
+    await page.locator('.swsi-paper-confirm').evaluate(button=>button.click());
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),2,
+      're-entering paper mode must not silently consume a second text feedback call');
+    const reviewed=await page.locator('.swsi-paper-review textarea').inputValue();
+    await page.locator('.swsi-paper-review textarea').fill(reviewed+'\n（待修訂）');
+    assert(await page.locator('.swsi-paper-confirm').isEnabled(),
+      'a genuinely edited transcription must be eligible for new confirmation');
+    await page.locator('.swsi-paper-review textarea').fill(reviewed);
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'restoring already-confirmed transcription must disable duplicate submission');
     const previousDraft=await page.locator('textarea.wta').inputValue();
     await page.evaluate(()=>{window.__ocrReturnTruncated=true;});
     await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'long-handwriting.png',mimeType:'image/png',buffer:png});

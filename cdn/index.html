@@ -4638,11 +4638,22 @@ function review(id,panel){
   var input=elem('textarea');input.value=session.ocr;input.id='swsi-ocr-'+id;label.htmlFor=input.id;
   var help=elem('p','','不清楚的字以「◌」標示，請先依紙本修正；這一步不會自動批改。');
   var send=elem('button','swsi-paper-confirm','確認文字，再取得 AI 練習回饋');send.type='button';
+  send.disabled=!!session.confirmedText&&input.value.trim()===session.confirmedText;
   var message=elem('div','swsi-paper-status','');message.setAttribute('role','status');
-  input.addEventListener('input',function(){session.ocr=input.value;send.disabled=false;});
+  if(send.disabled)message.textContent='這份作答已確認；需要新的回饋請先修改內容。';
+  input.addEventListener('input',function(){
+    session.ocr=input.value;
+    send.disabled=!!session.confirmedText&&input.value.trim()===session.confirmedText;
+    message.textContent=send.disabled?'這份作答已確認；需要新的回饋請先修改內容。':'';
+  });
   send.addEventListener('click',function(){
     if(!active(id,session.seq,panel))return;
     var answer=input.value.trim();
+    if(session.confirmedText&&answer===session.confirmedText){
+      send.disabled=true;
+      message.textContent='這份作答已確認；需要新的回饋請先修改內容。';
+      return;
+    }
     if(/[◌□�]|辨識不清|(?:\[|［|（|\()(?:看不清|無法辨識)(?:\]|］|）|\))/.test(answer)){message.textContent='仍有辨識不清的字，請先改正。';input.focus();return;}
     var count=typeof window.effectiveEssayLength==='function'?window.effectiveEssayLength(answer):answer.replace(/\s/g,'').length;
     if(count<30){message.textContent='請先核對至少 30 字的實際作答，再取得回饋。';input.focus();return;}
@@ -4651,6 +4662,7 @@ function review(id,panel){
     if(draft.value.trim()&&draft.value.trim()!==answer&&!window.confirm('確認後的手寫文字將取代本題原有打字草稿。確定繼續？'))return;
     draft.value=answer;
     if(typeof window.saveDraft==='function')window.saveDraft(id);
+    session.confirmedText=answer;
     message.textContent='辨識文字已由你確認，並寫入作答欄；現在才送交 AI 回饋。';
     send.disabled=true;
     if(typeof window.runAIFeedback==='function')window.runAIFeedback(id);
