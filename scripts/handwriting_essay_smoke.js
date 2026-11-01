@@ -35,7 +35,10 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     // visible races boot's final go('home') and falsely resets the test route.
     // This is a concrete readiness condition, not a fixed sleep or test skip.
     await page.locator('#tabbar').waitFor({state:'visible',timeout:20000});
-    await page.locator('#app .hero').waitFor({state:'visible',timeout:20000});
+    await page.waitForFunction(()=>{
+      const app=document.getElementById('app');
+      return app&&app.textContent.trim().length>150&&typeof view!=='undefined'&&view==='home';
+    },null,{timeout:20000});
     // Use the canonical quick-essay navigation (same as real mobile students)
     // rather than calling legacy openEssayCard before navigation settles.
     await page.waitForFunction(()=>typeof window.swsiStartEssayNow==='function'&&
