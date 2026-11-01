@@ -89,6 +89,7 @@ def normalize(root: Path, get_previous=baseline_file) -> dict:
     # pair or skips validation for a later snapshot.
     planned: list[tuple[Path, Path, bytes, bool, str]] = []
     generation_times: list[datetime] = []
+    published_times: list[datetime] = []
     for name in NAMES:
         a, b = root / "auto" / name, root / "cdn" / "auto" / name
         if not a.is_file() or not b.is_file():
@@ -102,6 +103,9 @@ def normalize(root: Path, get_previous=baseline_file) -> dict:
         built = parse(current, name + " generated")
         generation_times.append(datetime.fromisoformat(built["generated_at"].replace("Z", "+00:00")))
         drop = decide(old, current, name)
+        selected = parse(old if drop else current, name + " selected publication")
+        published_times.append(datetime.fromisoformat(
+            selected["generated_at"].replace("Z", "+00:00")))
         planned.append((a, b, old, drop, name))
         if drop:
             restored.append(name)
@@ -114,6 +118,8 @@ def normalize(root: Path, get_previous=baseline_file) -> dict:
     # Validate BEFORE restoring any files to avoid partial normalization on failure.
     if max(generation_times) - min(generation_times) > MAX_BATCH_TIMESTAMP_SKEW:
         raise ValueError("generated monitoring snapshots span different scan batches")
+    if max(published_times) - min(published_times) > MAX_BATCH_TIMESTAMP_SKEW:
+        raise ValueError("normalized monitoring snapshots would mix scan batches")
     for a, b, old, drop, _ in planned:
         if drop:
             a.write_bytes(old)
@@ -206,9 +212,25 @@ def selftest() -> None:
         else:
             raise AssertionError("mixed scan generations accepted")
         assert (root / "auto" / NAMES[0]).read_bytes() == original
+        # Even when new generated timestamps agree, selective 18-hour
+        # normalization can leave old/new outputs from different scan batches.
+        for name in NAMES:
+            for prefix in ("auto", "cdn/auto"):
+                (root / prefix / name).write_bytes(data(t2))
+        old_mixed = dict(prior)
+        last = NAMES[-1]
+        for prefix in ("auto", "cdn/auto"):
+            old_mixed[prefix + "/" + last] = data("2026-10-30T15:55:01Z")
+        try:
+            normalize(root, old_mixed.__getitem__)
+        except ValueError as exc:
+            assert "normalized monitoring snapshots would mix" in str(exc), str(exc)
+        else:
+            raise AssertionError("mixed published generations accepted")
+        assert (root / "auto" / NAMES[0]).read_bytes() == data(t2)
     print("SWSI MONITORING NO-OP SELFTEST OK: "
           "timestamp-only skip under 18h, mandatory refresh at 18h, "
-          "real updates, synced CDN, same-scan timestamps, fail-closed")
+          "real updates, synced CDN, generated and published same-scan timestamps, fail-closed")
 
 
 def main() -> int:
