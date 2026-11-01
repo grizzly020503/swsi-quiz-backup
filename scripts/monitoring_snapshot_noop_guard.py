@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import argparse
 import copy
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
 import subprocess
@@ -25,6 +25,7 @@ NAMES = (
 # Public generated_at still needs bounded periodic refresh so parity and
 # consumers never see a weeks-old generation timestamp when news is unchanged.
 MAX_TIMESTAMP_SUPPRESSION_HOURS = 18
+MAX_BATCH_TIMESTAMP_SKEW = timedelta(minutes=5)
 
 
 def parse(raw: bytes, label: str) -> dict:
@@ -87,6 +88,7 @@ def normalize(root: Path, get_previous=baseline_file) -> dict:
     # Read and validate ALL files first. Failure never produces a half-patched
     # pair or skips validation for a later snapshot.
     planned: list[tuple[Path, Path, bytes, bool, str]] = []
+    generation_times: list[datetime] = []
     for name in NAMES:
         a, b = root / "auto" / name, root / "cdn" / "auto" / name
         if not a.is_file() or not b.is_file():
@@ -97,6 +99,8 @@ def normalize(root: Path, get_previous=baseline_file) -> dict:
             raise ValueError(name + ": generated CDN and root diverged")
         if old != cdn_old:
             raise ValueError(name + ": HEAD CDN and root baseline diverged")
+        built = parse(current, name + " generated")
+        generation_times.append(datetime.fromisoformat(built["generated_at"].replace("Z", "+00:00")))
         drop = decide(old, current, name)
         planned.append((a, b, old, drop, name))
         if drop:
@@ -105,6 +109,11 @@ def normalize(root: Path, get_previous=baseline_file) -> dict:
             unchanged.append(name)
         else:
             substantive.append(name)
+    # All event/signal/trend snapshots come from this one monitoring run.
+    # A cross-run mix is not safe to publish even when each pair is individually valid.
+    # Validate BEFORE restoring any files to avoid partial normalization on failure.
+    if max(generation_times) - min(generation_times) > MAX_BATCH_TIMESTAMP_SKEW:
+        raise ValueError("generated monitoring snapshots span different scan batches")
     for a, b, old, drop, _ in planned:
         if drop:
             a.write_bytes(old)
@@ -181,9 +190,25 @@ def selftest() -> None:
         else:
             raise AssertionError("split CDN accepted")
         assert (root / "auto" / NAMES[1]).read_bytes() == before
+        # Coherent auto/CDN pairs can still be an unsafe mix of different scans.
+        # Refuse all changes before any no-op restoration occurs.
+        for name in NAMES:
+            for prefix in ("auto", "cdn/auto"):
+                (root / prefix / name).write_bytes(data(t2))
+        skewed = "2026-10-31T21:20:00Z"  # >5m away from t2, but newer than t1
+        for prefix in ("auto", "cdn/auto"):
+            (root / prefix / NAMES[-1]).write_bytes(data(skewed))
+        original = (root / "auto" / NAMES[0]).read_bytes()
+        try:
+            normalize(root, prior.__getitem__)
+        except ValueError as exc:
+            assert "different scan batches" in str(exc), str(exc)
+        else:
+            raise AssertionError("mixed scan generations accepted")
+        assert (root / "auto" / NAMES[0]).read_bytes() == original
     print("SWSI MONITORING NO-OP SELFTEST OK: "
           "timestamp-only skip under 18h, mandatory refresh at 18h, "
-          "real updates, synced CDN, fail-closed")
+          "real updates, synced CDN, same-scan timestamps, fail-closed")
 
 
 def main() -> int:
