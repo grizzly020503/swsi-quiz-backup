@@ -11,11 +11,16 @@ on:
     paths:
       - '.github/workflows/full-corpus-qa.yml'
       - 'scripts/full_corpus_qa.py'
+      - 'scripts/ai_review_backlog_audit.py'
+      - 'scripts/ai_review_backlog_audit_selftest.py'
       - 'scripts/official_option_scenario_guard.py'
       - 'scripts/official_option_scenario_guard_selftest.py'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
       - 'scripts/official_ten_source_integration_smoke.py'
       - 'scripts/official_1041_ds_ocr_candidate_selftest.py'
+      - 'scripts/official_ocr_source_hold_audit.py'
+      - 'scripts/official_1041_live_preflight_sql_selftest.py'
+      - 'audit/official_1041_live_release_preflight_readonly_20261101.sql'
       - 'scripts/official_1041_ds_release_candidate_builder.py'
       - 'scripts/official_1041_ds_successor_overlay_smoke.py'
       - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
@@ -54,11 +59,16 @@ on:
     paths:
       - '.github/workflows/full-corpus-qa.yml'
       - 'scripts/full_corpus_qa.py'
+      - 'scripts/ai_review_backlog_audit.py'
+      - 'scripts/ai_review_backlog_audit_selftest.py'
       - 'scripts/official_option_scenario_guard.py'
       - 'scripts/official_option_scenario_guard_selftest.py'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
       - 'scripts/official_ten_source_integration_smoke.py'
       - 'scripts/official_1041_ds_ocr_candidate_selftest.py'
+      - 'scripts/official_ocr_source_hold_audit.py'
+      - 'scripts/official_1041_live_preflight_sql_selftest.py'
+      - 'audit/official_1041_live_release_preflight_readonly_20261101.sql'
       - 'scripts/official_1041_ds_release_candidate_builder.py'
       - 'scripts/official_1041_ds_successor_overlay_smoke.py'
       - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
@@ -128,6 +138,18 @@ jobs:
       - name: Run existing unified QA synthetic invariants
         run: python scripts/unified_question_qa_selftest.py
 
+      - name: Validate read-only AI review backlog triage (synthetic, zero network)
+        run: |
+          python -m py_compile scripts/ai_review_backlog_audit.py scripts/ai_review_backlog_audit_selftest.py
+          python scripts/ai_review_backlog_audit_selftest.py
+      - name: Verify actual Supabase public anon review pagination (PR-only, GET only)
+        # One bounded PR verification closes the real HTTP path gap; never writes production.
+        # The saved JSON report contains ONLY aggregate counts, not question IDs/errors.
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          python -m pip install --disable-pip-version-check 'requests==2.32.5'
+          python scripts/ai_review_backlog_audit.py --live --out /tmp/swsi-ai-review-backlog-pr-triage.json
+
       - name: Verify immutable Official Core baseline
         run: python scripts/official_exam_readonly_guard.py
 
@@ -135,6 +157,20 @@ jobs:
         run: |
           python -m py_compile scripts/official_1041_ds_ocr_candidate_selftest.py
           python scripts/official_1041_ds_ocr_candidate_selftest.py
+
+      - name: Detect PDF-proven 104-1 OCR hold and misleading ready labels (zero network)
+        run: |
+          python -m py_compile scripts/official_ocr_source_hold_audit.py
+          python scripts/official_ocr_source_hold_audit.py --selftest
+          python scripts/official_ocr_source_hold_audit.py --local
+          python -m py_compile scripts/official_1041_live_preflight_sql_selftest.py
+          python scripts/official_1041_live_preflight_sql_selftest.py
+
+      - name: Check live 104-1 official OCR HOLD against public anon API (GET only)
+        if: ${{ github.event_name == 'pull_request' || github.event_name == 'schedule' }}
+        run: |
+          python -m pip install --disable-pip-version-check 'requests==2.32.5'
+          python scripts/official_ocr_source_hold_audit.py --live
 
       - name: Prevent wrong-subject historic MOEX sources in rebuilt shards
         run: python scripts/historical_source_url_guard_selftest.py
@@ -218,6 +254,44 @@ jobs:
             --core-parity-out /tmp/swsi-live-official-core-parity.json \
             --fail-on-proposals --fail-on-core-drift
 
+      - name: Monthly READ-ONLY production AI review backlog cause triage
+        # Public anon SELECT only; no requeue, secrets, source or enrichment writes.
+        # Continue monthly diagnostics even if an earlier independent QA failed.
+        if: ${{ !cancelled() && github.event_name == 'schedule' }}
+        run: |
+          python -m pip install --disable-pip-version-check 'requests==2.32.5'
+          python scripts/ai_review_backlog_audit.py --live --out /tmp/swsi-ai-review-backlog-triage.json
+
+      - name: Preserve aggregate review diagnostics (no raw errors or question IDs)
+        if: always() && github.event_name == 'schedule'
+        uses: actions/upload-artifact@v4
+        with:
+          name: monthly-ai-review-backlog-triage
+          path: /tmp/swsi-ai-review-backlog-triage.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Summarize monthly AI review status (read only)
+        if: always() && github.event_name == 'schedule'
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path('/tmp/swsi-ai-review-backlog-triage.json')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
+              f.write('## SWSI AI review backlog (read only)\n\n')
+              if not p.is_file():
+                  f.write('- Production review triage: **FAILED / report unavailable**; inspect public API and scope.\n')
+              else:
+                  r=json.loads(p.read_text(encoding='utf-8'))
+                  s=r['analysis_status']
+                  f.write(f"- Historical MCQ: {r['total_historical_mcq']} / 4800\n")
+                  f.write(f"- Ready (automated, NOT human approved): {s['ready']}\n")
+                  f.write(f"- Review: **{s['review']}**; pending/analyzing: {s['pending']}/{s['analyzing']}\n")
+                  for name, count in r['review_categories'].items():
+                      f.write(f'- {name}: {count}\n')
+                  f.write('- Historical 405 markers are NOT new outages. No requeue, source edit or automatic approval.\n')
+          PY
       - name: Preserve monthly source URL audit candidates
         if: always() && github.event_name == 'schedule'
         uses: actions/upload-artifact@v4
