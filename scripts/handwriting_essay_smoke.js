@@ -397,8 +397,10 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     await page.locator('.swsi-paper-mode-paper').click();
     await page.evaluate(()=>window.__staleOCRResolve());
     await page.waitForTimeout(100);
-    assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,
-      'an OCR reply from a cancelled mode switch must not reappear');
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),newText,
+      'cancelled OCR must not replace the previously confirmed transcript');
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'cancelled OCR must not unlock the previous approved text for duplicate feedback');
     assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeStale,
       'cancelled OCR must never overwrite confirmed draft');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),requestsBeforeStale+1,
