@@ -4751,7 +4751,7 @@ async function photoOCR(id,inputEl){
     }
     status.textContent='已將 '+files.length+' 張照片整理為約 '+(requestBytes/1000000).toFixed(2)+' MB；正在辨識文字，尚未批改。';
     var response=await window.swsiFetchWithTimeout(endpoint,{
-      method:'POST',headers:{'Content-Type':'application/json'},body:requestBody
+      method:'POST',headers:{'Content-Type':'application/json','X-SWSI-Client-ID':getAIClientId()},body:requestBody
     },60000);
     if(!active(id,seq,panel))return;
     if(!response.ok){

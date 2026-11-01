@@ -66,10 +66,12 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     assert.strictEqual(await page.locator('textarea.wta').evaluate(el=>getComputedStyle(el).display),'none');
     await page.evaluate(()=>{
       window.__paperRequests=[];
+      window.__paperRequestHeaders=[];
       window.swsiRecordAITelemetry=()=>{};
       window.swsiFetchWithTimeout=async function(url,options){
         const req=JSON.parse(options.body);
         window.__paperRequests.push(req);
+        window.__paperRequestHeaders.push(options.headers||{});
         const isPhoto=Array.isArray(req.messages[0].content);
         const answer=isPhoto?'【我讀到的作答】\n一、社會工作要尊重當事人的自決，運用◌了解需求。\n二、還要完成評估、資源連結、執行處遇與後續追蹤。':'一、可補上具體理論。\n二、題目要求要逐項回應。';
         return new Response(JSON.stringify({choices:[{message:{content:answer},finish_reason:(isPhoto&&window.__ocrReturnNoFinish)?undefined:
@@ -98,6 +100,9 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     }
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),1);
     assert(await page.evaluate(()=>Array.isArray(window.__paperRequests[0].messages[0].content)));
+    const photoClientId=await page.evaluate(()=>window.__paperRequestHeaders[0]['X-SWSI-Client-ID']);
+    assert.match(photoClientId,/^[A-Za-z0-9_-]{16,128}$/,
+      'photo OCR must use the same per-client ID contract as text feedback');
     assert((await page.evaluate(()=>new TextEncoder().encode(JSON.stringify(window.__paperRequests[0])).byteLength)) <= 3800000,
       'OCR request exceeded safe Worker payload limit');
     await page.locator('.swsi-paper-confirm').click();
