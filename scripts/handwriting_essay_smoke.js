@@ -216,7 +216,8 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     await page.evaluate(()=>{window.__ocrReturnTruncated=true;});
     await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'long-handwriting.png',mimeType:'image/png',buffer:png});
     await page.waitForFunction(()=>/辨識文字被截斷/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:15000});
-    assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,'truncated OCR must not expose a confirmation editor');
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),reviewed,'truncated replacement must retain the prior confirmed transcript');
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),'truncation must not unlock already confirmed text');
     assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,'truncated OCR overwrote a verified draft');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),3,'truncated OCR must not trigger a feedback request');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.filter(r=>typeof r.messages[0].content==='string').length),1,'only explicitly confirmed answer may invoke text diagnosis');
@@ -225,7 +226,8 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     await page.evaluate(()=>{window.__ocrReturnTruncated=false;window.__ocrReturnNoFinish=true;});
     await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'missing-finish.png',mimeType:'image/png',buffer:png});
     await page.waitForFunction(()=>/辨識沒有完整結束/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:15000});
-    assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,'missing OCR finish_reason exposed a confirmation editor');
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),reviewed,'missing finish_reason must retain the prior confirmed transcript');
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),'incomplete OCR must not unlock already confirmed text');
     assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,'unconfirmed OCR overwrote saved draft');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),4,'missing OCR finish_reason caused unsolicited feedback');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.filter(r=>typeof r.messages[0].content==='string').length),1,'only manually confirmed text can be diagnosed');
@@ -239,8 +241,9 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       !/正在辨識文字/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:15000});
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),denyBaseline+1,
       'provider denial must not retry or send text feedback');
-    assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,
-      'provider denial must not expose a confirmable transcript');
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),reviewed,
+      'provider denial must keep only the previous confirmed transcript');
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),'denial must not unlock previous confirmed text');
     assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,
       'provider denial must not overwrite the verified answer');
     // A provider could return a nominally completed OCR response containing a
@@ -251,8 +254,9 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     await page.waitForFunction(()=>/辨識結果不可靠/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:15000});
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),injectedBaseline+1,
       'provider-generated grading text must not cause an unsolicited feedback call');
-    assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,
-      'provider-generated grading text must not become confirmable OCR');
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),reviewed,
+      'provider-generated grading text must not replace the previous transcript');
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),'injected grading must not unlock previous confirmed text');
     assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,
       'model-injected grading text must not alter the confirmed draft');
     // Real correction work must survive a *valid* replacement photo whose OCR
