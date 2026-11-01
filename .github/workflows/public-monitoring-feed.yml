@@ -41,6 +41,7 @@ on:
       - 'scripts/build_current_affairs_signals_snapshot.py'
       - 'scripts/build_public_legal_watch_snapshot.py'
       - 'scripts/public_monitoring_v2_smoke.py'
+      - 'scripts/monitoring_snapshot_noop_guard.py'
   pull_request:
     paths:
       - '.github/workflows/public-monitoring-feed.yml'
@@ -68,6 +69,7 @@ on:
       - 'scripts/install_current_affairs_ui.py'
       - 'scripts/build_public_legal_watch_snapshot.py'
       - 'scripts/public_monitoring_v2_smoke.py'
+      - 'scripts/monitoring_snapshot_noop_guard.py'
       - 'monthly_patch_parts/89.public-branding-info.part'
       - 'auto/current_affairs.json'
       - 'auto/current_affairs_signals.json'
@@ -209,6 +211,8 @@ jobs:
           python scripts/public_monitoring_v2_smoke.py
           python scripts/current_affairs_signals_smoke.py
           python scripts/current_affairs_events_smoke.py
+          python -m py_compile scripts/monitoring_snapshot_noop_guard.py
+          python scripts/monitoring_snapshot_noop_guard.py --selftest
           git diff --check
 
   monitoring-feed:
@@ -328,6 +332,19 @@ jobs:
           python scripts/public_monitoring_v2_smoke.py
           python scripts/current_affairs_signals_smoke.py
           python scripts/current_affairs_events_smoke.py
+          python -m py_compile scripts/monitoring_snapshot_noop_guard.py
+          python scripts/monitoring_snapshot_noop_guard.py --selftest
+          git diff --check
+
+      - name: Skip timestamp-only event/signal/trend changes (main only, no backup)
+        if: > 
+          (github.event_name == 'workflow_run' &&
+           github.event.workflow_run.conclusion == 'success' &&
+           github.event.workflow_run.head_branch == 'main') ||
+          github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          python scripts/monitoring_snapshot_noop_guard.py --root .
           git diff --check
 
       - name: Publish changed monitoring snapshots
