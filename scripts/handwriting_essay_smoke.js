@@ -127,6 +127,7 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     await page.locator('.swsi-paper-review textarea').fill('一、應尊重案主自決並說明社會工作倫理及核心概念，結合理論評估其處境。\n二、提出資源連結、處遇計畫、後續追蹤及實務反思。');
     await page.locator('.swsi-paper-confirm').click();
     await page.waitForFunction(()=>window.__paperRequests.length===2);
+    await page.waitForFunction(()=>/回饋已完成/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),null,{timeout:15000});
     assert.strictEqual(await page.evaluate(()=>typeof window.__paperRequests[1].messages[0].content),'string');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequestHeaders[0]['x-swsi-client-id']),
       await page.evaluate(()=>window.__paperRequestHeaders[1]['x-swsi-client-id']),
@@ -198,6 +199,7 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     // The same confirmed transcription must be retryable when the text-feedback
     // provider returns 503. Failed feedback must not force another paid OCR call.
     const retryBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    const photoBeforeRetry=await page.evaluate(()=>window.__paperRequests.filter(x=>Array.isArray(x.messages[0].content)).length);
     await page.evaluate(()=>{window.__textFailureOnce=true;});
     await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'retry-feedback.png',mimeType:'image/png',buffer:png});
     await page.locator('.swsi-paper-review textarea').waitFor({timeout:12000});
@@ -216,7 +218,7 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       &&/回饋已完成/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),null,{timeout:15000});
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),retryBaseline+3,
       'recovery must use only one additional text-feedback call; no new OCR call');
-    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.filter(x=>Array.isArray(x.messages[0].content)).length),5,
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.filter(x=>Array.isArray(x.messages[0].content)).length),photoBeforeRetry+1,
       'recovery should not upload the photograph a second time');
     const requestsAfterSuccess=await page.evaluate(()=>window.__paperRequests.length);
     await page.locator('.swsi-paper-confirm').evaluate(button=>button.click());
