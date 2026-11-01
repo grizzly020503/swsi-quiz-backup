@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-31T21:28:36Z",
+  "generated_at": "2026-11-01T05:56:13Z",
   "event_count": 5,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -75,7 +75,7 @@
         "社會工作管理 > 規劃與政策執行 > 社會工作 > 去標籤、權利保障與社區復歸"
       ],
       "trend_state": "one-off",
-      "trend_score": 6.4,
+      "trend_score": 6.1,
       "why": [
         "1 個官方來源",
         "有政策／制度訊號",
@@ -97,7 +97,7 @@
         "persistence": 0.0,
         "essay_value": 1.1,
         "mcq_density": 0.45,
-        "recency": 1.0
+        "recency": 0.6
       },
       "source_count": 1,
       "official_source_count": 1,
@@ -908,7 +908,7 @@
         "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 需求評估與資源連結",
         "社會工作管理 > 品質與風險管理 > 社會工作 > 貧窮、社會排除與社會正義"
       ],
-      "trend_state": "one-off",
+      "trend_state": "cooling",
       "trend_score": 2.1,
       "why": [
         "1 個官方來源",
