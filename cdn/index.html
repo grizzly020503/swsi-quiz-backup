@@ -4641,11 +4641,13 @@ function review(id,panel){
   function locked(){return !!session.feedbackPending||!!session.confirmedText&&input.value.trim()===session.confirmedText;}
   send.disabled=locked();
   var message=elem('div','swsi-paper-status','');message.setAttribute('role','status');
-  if(send.disabled)message.textContent=session.feedbackPending?'AI 回饋處理中，請勿重複送出。':'這份作答已確認；需要新的回饋請先修改內容。';
+  if(session.feedbackPending)message.textContent='AI 回饋處理中，請勿重複送出。';
+  else if(send.disabled)message.textContent='這份作答已確認；需要新的回饋請先修改內容。';
+  else if(session.feedbackFailed)message.textContent='AI 回饋尚未完成；原稿已保存，服務恢復後可以重試。';
   input.addEventListener('input',function(){
     session.ocr=input.value;
     send.disabled=locked();
-    message.textContent=session.feedbackPending?'AI 回饋處理中，請勿重複送出。':send.disabled?'這份作答已確認；需要新的回饋請先修改內容。':'';
+    message.textContent=session.feedbackPending?'AI 回饋處理中，請勿重複送出。':send.disabled?'這份作答已確認；需要新的回饋請先修改內容。':session.feedbackFailed?'AI 回饋尚未完成；原稿已保存，服務恢復後可以重試。':'';
   });
   send.addEventListener('click',async function(){
     if(!active(id,session.seq,panel)||session.feedbackPending)return;
@@ -4664,6 +4666,7 @@ function review(id,panel){
     draft.value=answer;
     if(typeof window.saveDraft==='function')window.saveDraft(id);
     session.feedbackPending=true;
+    session.feedbackFailed=false;
     message.textContent='辨識文字已由你確認並保存，正在取得 AI 練習回饋。';
     send.disabled=true;
     try{
@@ -4672,14 +4675,18 @@ function review(id,panel){
       if(cached&&cached.feedback){
         session.confirmedText=answer;
         if(input.isConnected)message.textContent='AI 練習回饋已完成，這份答案不會重複送出。';
-      }else if(input.isConnected){
-        message.textContent='AI 回饋尚未完成；原稿已保存，請查看下方錯誤訊息，服務恢復後可直接重試。';
+      }else{
+        session.feedbackFailed=true;
+        if(input.isConnected)message.textContent='AI 回饋尚未完成；原稿已保存，請查看下方錯誤訊息，服務恢復後可直接重試。';
       }
     }catch(_e){
+      session.feedbackFailed=true;
       if(input.isConnected)message.textContent='AI 回饋未完成；原稿已保存，稍後可直接重試。';
     }finally{
       session.feedbackPending=false;
-      if(input.isConnected)send.disabled=locked();
+      // Switching paper -> typing -> paper recreates the review editor while
+      // feedback is pending. Refresh its *current* button, not the stale one.
+      if(sessions[id]===session&&mode(id)==='paper'&&panel.isConnected)review(id,panel);
     }
   });
   slot.append(label,input,help,send,message);

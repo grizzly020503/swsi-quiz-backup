@@ -75,6 +75,14 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
         window.__paperRequests.push(req);
         window.__paperRequestHeaders.push(Object.fromEntries(new Headers(options.headers||{}).entries()));
         const isPhoto=Array.isArray(req.messages[0].content);
+        if(!isPhoto&&window.__textHoldOnce){
+          window.__textHoldOnce=false;
+          return new Promise(resolve=>{
+            window.__resolveHeldFeedback=()=>resolve(new Response(
+              JSON.stringify({error:{code:'UPSTREAM_UNAVAILABLE',message:'AI 服務暫時不可用'}}),
+              {status:503,headers:{'Content-Type':'application/json'}}));
+          });
+        }
         if(!isPhoto&&window.__textFailureOnce){
           window.__textFailureOnce=false;
           return new Response(JSON.stringify({error:{code:'UPSTREAM_UNAVAILABLE',message:'AI 服務暫時不可用'}}),{status:503,headers:{'Content-Type':'application/json'}});
@@ -249,6 +257,33 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     await page.locator('.swsi-paper-confirm').evaluate(button=>button.click());
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),requestsAfterSuccess,
       'successful retry must not be repeated from stale confirmation UI');
+    // Switching typing/paper while a feedback request is pending re-creates
+    // the review button. A 503 must unblock the *new* button, not only the stale one.
+    const duringModeBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{window.__textHoldOnce=true;window.__resolveHeldFeedback=null;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'mode-switch-feedback.png',mimeType:'image/png',buffer:png});
+    await page.locator('.swsi-paper-review textarea').waitFor({timeout:12000});
+    const newText='一、分析國家政策與社會生活條件，注意家庭選擇與照顧負擔。\\n二、建立社會支持並評估福利措施是否符合需求。';
+    await page.locator('.swsi-paper-review textarea').fill(newText);
+    page.once('dialog',dialog=>dialog.accept());
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>typeof window.__resolveHeldFeedback==='function',null,{timeout:12000});
+    await page.locator('.swsi-paper-mode-text').click();
+    await page.locator('.swsi-paper-mode-paper').click();
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'new review button must remain disabled while feedback is pending');
+    await page.evaluate(()=>window.__resolveHeldFeedback());
+    await page.waitForFunction(()=>document.querySelector('.swsi-paper-review .swsi-paper-confirm')?.disabled===false
+      &&/回饋尚未完成/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),duringModeBaseline+2,
+      'switching input modes during failed feedback must not duplicate OCR or text calls');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),newText,
+      'failed feedback after mode switch must preserve the confirmed answer');
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>document.querySelector('.swsi-paper-review .swsi-paper-confirm')?.disabled===true
+      &&/已確認/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),duringModeBaseline+3,
+      'retry should make only one new text request without another photo upload');
     // Switching away must cancel an in-flight OCR session permanently,
     // even if the student switches back before the old provider reply arrives.
     const draftBeforeStale=await page.locator('textarea.wta').inputValue();
