@@ -4737,13 +4737,15 @@ async function photoOCR(id,inputEl){
   var files=Array.from(inputEl&&inputEl.files||[]);
   if(inputEl)inputEl.value='';
   if(!panel||mode(id)!=='paper'||!files.length)return;
-  var seq=++requestSeq;sessions[id]={seq:seq};
-  panel.querySelector('.swsi-paper-review').replaceChildren();
   var status=panel.querySelector('.swsi-paper-status');
+  // A rejected local file selection must not discard unconfirmed OCR edits.
+  // Start a new session only after file-count/type/size validation passes.
   if(files.length>3||files.some(function(f){return !/^image\//.test(f.type);}))
     {status.textContent='一次只允許 1–3 張照片檔案。';return;}
   if(files.some(function(f){return !Number.isFinite(f.size)||f.size>25*1024*1024;}))
     {status.textContent='有原始照片超過每張 25 MB 的本機處理上限；請先在相簿裁切成單頁或轉存較小的照片。本次不會上傳。';return;}
+  var seq=++requestSeq;sessions[id]={seq:seq};
+  panel.querySelector('.swsi-paper-review').replaceChildren();
   if(typeof shrinkImage!=='function'||typeof window.swsiFetchWithTimeout!=='function'||typeof TextEncoder!=='function')
     {status.textContent='照片處理目前無法使用，仍可切換打字作答。';return;}
   var button=document.getElementById('aiphoto_'+id);if(button)button.disabled=true;
