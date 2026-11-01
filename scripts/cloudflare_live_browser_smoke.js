@@ -249,13 +249,24 @@ async function verifyHostedLocalGrading(page, label) {
     label + ': mock score should count exactly one answer of twenty, got ' + score);
   assert.match(await page.locator('.mk-ov .mk-score .pct').innerText(),
     /作答 1 題/, label + ': mock answered count');
-  const afterMock = await page.evaluate(() => loadHist().length);
-  assert.equal(afterMock, baseline + 2,
-    label + ': mock exam must store only the single answered attempt');
+  // The deployed monthly_patch Unified Grading Contract deliberately
+  // records unanswered ordinary questions as wrong for spaced repetition.
+  // Unanswered all_credit questions are the one explicit exception.
+  // That is separate from the UI's actual answered count of one.
+  const mockHistory = await page.evaluate(offset => loadHist().slice(offset),
+    afterPractice.history.length);
+  assert(mockHistory.length >= 1 && mockHistory.length <= 20,
+    label + ': wrong number of scored mock history entries');
+  assert(mockHistory.every(row => row && typeof row.id === 'string' &&
+    typeof row.correct === 'boolean'),
+    label + ': mock entries missing official IDs or score booleans');
+  assert.equal(new Set(mockHistory.map(row => row.id)).size, mockHistory.length,
+    label + ': duplicate mock question history entries on a single submission');
   await page.evaluate(() => MK.close());
   await page.waitForSelector('.mk-ov', { state: 'detached', timeout: 8000 });
   console.log('CLOUDFLARE HOSTED LOCAL GRADING OK ' + label +
-    ': practice answer/review, 20-question mock partial-submit/score, local attempts=2, network writes blocked');
+    ': practice answer/review, 20-question mock partial-submit/score, actual_answers=1, mock_history_rows=' +
+    mockHistory.length + ', all network writes blocked');
 }
 
 async function check(engine, label, width, height, practice) {
