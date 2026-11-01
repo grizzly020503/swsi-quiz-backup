@@ -52,6 +52,99 @@ async function awaitReviewedDesign(page, label) {
   throw new Error(label + ': deployment never matched the reviewed visual source within 4 minutes: ' + last);
 }
 
+// The source's latest ten exam IDs and official text are immutable inputs for
+// this smoke. Browser rendering and guides must come from the LIVE Cloudflare
+// host, not from local mocks or a bare static SHA check.
+const latestExam = JSON.parse(fs.readFileSync(
+  path.resolve(__dirname, '../cdn/auto/essays_auto.json'), 'utf8'
+));
+const latestIds = latestExam.map(row => String(row.id));
+assert.equal(latestIds.length, 10, 'expected ten latest exam essays');
+assert.equal(new Set(latestIds).size, 10, 'duplicate latest essay IDs');
+function normalized(s) { return String(s || '').replace(/\s/g, ''); }
+
+async function verifyHostedLatestEssayGuides(page, label) {
+  await page.waitForFunction(ids => {
+    let rows = [];
+    try {
+      if (typeof ESSAYS !== 'undefined' && Array.isArray(ESSAYS)) rows = ESSAYS;
+      else if (Array.isArray(window.ESSAYS)) rows = window.ESSAYS;
+    } catch (_e) {
+      rows = Array.isArray(window.ESSAYS) ? window.ESSAYS : [];
+    }
+    const present = new Set(rows.map(e => e && String(e.id)));
+    const guides = window.ESSAY_GUIDES || {};
+    return ids.every(id => present.has(id) && guides[id]);
+  }, latestIds, { timeout: 45000 });
+
+  const guideCount = await page.evaluate(() => Object.keys(window.ESSAY_GUIDES || {}).length);
+  assert.equal(guideCount, 240, label + ': live student runtime must expose all 240 guides');
+
+  for (const [index, expected] of latestExam.entries()) {
+    const id = String(expected.id);
+    await page.evaluate(essayId => {
+      if (typeof toggleEssay !== 'function') throw Error('essay detail route unavailable');
+      toggleEssay(essayId); // existing actual student detail rendering
+    }, id);
+    const question = await page.locator('#app .ebody').first().textContent();
+    assert.equal(normalized(question), normalized(expected.q),
+      label + ': latest official essay question text drift ' + id);
+    assert.equal(await page.locator('#ta_' + id).count(), 1,
+      label + ': missing actual student writing editor for ' + id);
+
+    if (index === 0) {
+      // Exercise the student-facing editor and guide button in an isolated
+      // ephemeral browser profile. Only localStorage changes; all POST/PUT/
+      // PATCH/DELETE requests remain blocked at the context network layer.
+      const draft = '一、社會工作應先辨認服務需求與當事人處境。\n二、整合社會支持、尊重自主，並定期檢視服務成效。';
+      await page.locator('#ta_' + id).fill(draft);
+      assert.equal(await page.evaluate(essayId =>
+        localStorage.getItem('essay_draft_' + essayId), id), draft,
+        label + ': input must auto-save only to isolated localStorage');
+      assert(await page.locator('#gbtn_' + id).isVisible(),
+        label + ': answer-first guide button must appear after writing');
+      await page.locator('#gbtn_' + id).click();
+      assert.equal(await page.locator('#app .guide .gsec').count(), 4,
+        label + ': guide must display four student-facing sections');
+
+      await page.reload({ waitUntil: 'domcontentloaded', timeout: 25000 });
+      await page.waitForSelector('#app .swsi-focus-primary', { timeout: 45000 });
+      await page.locator('#t-essay').click();
+      await page.waitForFunction(essayId => {
+        let rows = [];
+        try { rows = typeof ESSAYS !== 'undefined' && Array.isArray(ESSAYS)
+          ? ESSAYS : (window.ESSAYS || []); } catch (_) { rows = window.ESSAYS || []; }
+        return rows.some(row => row && row.id === essayId);
+      }, id, { timeout: 45000 });
+      await page.evaluate(essayId => toggleEssay(essayId), id);
+      assert.equal(await page.locator('#ta_' + id).inputValue(), draft,
+        label + ': answer must survive a real page reload');
+      assert(await page.locator('#gbtn_' + id).isVisible(),
+        label + ': saved answer should expose its guide after reload');
+      // The test leaves no fake student answer, even inside its throwaway profile.
+      await page.evaluate(essayId => localStorage.removeItem('essay_draft_' + essayId), id);
+    }
+
+    // All ten new essays must genuinely render their own guide in the
+    // hosted browser, not merely exist in the downloaded JS object.
+    await page.evaluate(essayId => showGuide(essayId), id);
+    const rendered = page.locator('#app .guide');
+    await rendered.waitFor({ timeout: 8000 });
+    const guide = await page.evaluate(essayId =>
+      (window.ESSAY_GUIDES || {})[essayId], id);
+    assert(guide && guide.kao && guide.dati,
+      label + ': missing source-reviewed learning guidance for ' + id);
+    const visibleText = await rendered.innerText();
+    assert(visibleText.includes(guide.kao) && visibleText.includes(guide.dati),
+      label + ': guide visible text does not match runtime content for ' + id);
+    assert.equal(await page.locator('#app .guide .gsec').count(), 4,
+      label + ': guide lacks one of four sections for ' + id);
+    await page.evaluate(() => closeEssay());
+  }
+  console.log('CLOUDFLARE HOSTED LATEST ESSAYS OK ' + label +
+    ': 10/10 real question views, 10/10 guides, local draft survives reload, zero AI submissions');
+}
+
 async function check(engine, label, width, height, practice) {
   const browser = await engine.launch({ headless: true });
   const context = await browser.newContext({
@@ -126,6 +219,8 @@ async function check(engine, label, width, height, practice) {
       const text = document.querySelector('#app')?.innerText || '';
       return /申論/.test(text) && text.length > 50;
     }, null, { timeout: 18000 });
+
+    if (practice) await verifyHostedLatestEssayGuides(page, label);
 
     await page.locator('#t-home').click();
     await page.waitForSelector('#app .swsi-focus-primary', { timeout: 15000 });
