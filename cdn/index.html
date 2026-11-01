@@ -4744,10 +4744,19 @@ async function photoOCR(id,inputEl){
     {status.textContent='一次只允許 1–3 張照片檔案。';return;}
   if(files.some(function(f){return !Number.isFinite(f.size)||f.size>25*1024*1024;}))
     {status.textContent='有原始照片超過每張 25 MB 的本機處理上限；請先在相簿裁切成單頁或轉存較小的照片。本次不會上傳。';return;}
-  var seq=++requestSeq;sessions[id]={seq:seq};
-  panel.querySelector('.swsi-paper-review').replaceChildren();
   if(typeof shrinkImage!=='function'||typeof window.swsiFetchWithTimeout!=='function'||typeof TextEncoder!=='function')
     {status.textContent='照片處理目前無法使用，仍可切換打字作答。';return;}
+  var previous=sessions[id];
+  if(previous&&previous.feedbackPending)
+    {status.textContent='上一份已確認作答仍在取得 AI 回饋，請先完成或等候回應再換照片；舊草稿不會清除。';return;}
+  // Keep the manually corrected transcript until the next photo genuinely
+  // produces a valid new OCR result. A 403, malformed response, truncation,
+  // image processing failure or timeout must not destroy unfinished work.
+  var seq=++requestSeq;
+  sessions[id]=previous&&typeof previous.ocr==='string'
+    ?{seq:seq,ocr:previous.ocr,confirmedText:previous.confirmedText,feedbackFailed:previous.feedbackFailed}
+    :{seq:seq};
+  panel.querySelector('.swsi-paper-review').replaceChildren();
   var button=document.getElementById('aiphoto_'+id);if(button)button.disabled=true;
   status.textContent='正在手機上整理照片，尚未傳送照片或消耗 AI 額度。';
   try{
@@ -4819,7 +4828,15 @@ async function photoOCR(id,inputEl){
   }catch(error){
     if(active(id,seq,panel))status.textContent=error&&error.name==='AbortError'?
       '辨識逾時，請稍後重試。':'照片辨識失敗，請檢查網路或重拍。';
-  }finally{files.length=0;if(button)button.disabled=false;}
+  }finally{
+    // Restore the previous in-memory, student-edited OCR after an unsuccessful
+    // upload. If a newer upload or page transition superseded this attempt,
+    // never resurrect the stale review or touch its editor.
+    if(active(id,seq,panel)&&typeof sessions[id].ocr==='string'&&
+      !panel.querySelector('.swsi-paper-review textarea'))review(id,panel);
+    files.length=0;
+    if(button)button.disabled=false;
+  }
 }
 function start(){
   var app=document.getElementById('app');if(!app)return;
