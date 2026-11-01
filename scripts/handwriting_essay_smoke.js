@@ -75,6 +75,10 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
         window.__paperRequests.push(req);
         window.__paperRequestHeaders.push(Object.fromEntries(new Headers(options.headers||{}).entries()));
         const isPhoto=Array.isArray(req.messages[0].content);
+        if(!isPhoto&&window.__textFailureOnce){
+          window.__textFailureOnce=false;
+          return new Response(JSON.stringify({error:{code:'UPSTREAM_UNAVAILABLE',message:'AI 服務暫時不可用'}}),{status:503,headers:{'Content-Type':'application/json'}});
+        }
         const answer=isPhoto?'【我讀到的作答】\n一、社會工作要尊重當事人的自決，運用◌了解需求。\n二、還要完成評估、資源連結、執行處遇與後續追蹤。':'一、可補上具體理論。\n二、題目要求要逐項回應。';
         return new Response(JSON.stringify({choices:[{message:{content:answer},finish_reason:(isPhoto&&window.__ocrReturnNoFinish)?undefined:
           ((isPhoto&&window.__ocrReturnTruncated)?'length':'stop')}]}),{status:200,headers:{'Content-Type':'application/json'}});
@@ -191,6 +195,33 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     await page.waitForFunction(()=>/每張 25 MB/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:12000});
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),sentBeforeOversize,
       'original-file size failure must not make AI calls');
+    // The same confirmed transcription must be retryable when the text-feedback
+    // provider returns 503. Failed feedback must not force another paid OCR call.
+    const retryBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{window.__textFailureOnce=true;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'retry-feedback.png',mimeType:'image/png',buffer:png});
+    await page.locator('.swsi-paper-review textarea').waitFor({timeout:12000});
+    const retryText='一、政策討論要指出現況與制度限制，說明問題背景及影響。\\n二、提出可行政策與實務分析，兼顧當事人自主、家庭支持及福利資源連結。';
+    await page.locator('.swsi-paper-review textarea').fill(retryText);
+    page.once('dialog',dialog=>dialog.accept());
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>document.querySelector('.swsi-paper-review .swsi-paper-confirm')?.disabled===false
+      &&/回饋尚未完成/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),retryBaseline+2,
+      'initial retry case should make exactly one OCR and one failed text-feedback request');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),retryText,
+      'failed text-feedback must preserve the manually confirmed draft');
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>document.querySelector('.swsi-paper-review .swsi-paper-confirm')?.disabled===true
+      &&/回饋已完成/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),retryBaseline+3,
+      'recovery must use only one additional text-feedback call; no new OCR call');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.filter(x=>Array.isArray(x.messages[0].content)).length),5,
+      'recovery should not upload the photograph a second time');
+    const requestsAfterSuccess=await page.evaluate(()=>window.__paperRequests.length);
+    await page.locator('.swsi-paper-confirm').evaluate(button=>button.click());
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),requestsAfterSuccess,
+      'successful retry must not be repeated from stale confirmation UI');
     // Switching away must cancel an in-flight OCR session permanently,
     // even if the student switches back before the old provider reply arrives.
     const draftBeforeStale=await page.locator('textarea.wta').inputValue();

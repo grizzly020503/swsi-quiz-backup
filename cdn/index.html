@@ -4638,16 +4638,17 @@ function review(id,panel){
   var input=elem('textarea');input.value=session.ocr;input.id='swsi-ocr-'+id;label.htmlFor=input.id;
   var help=elem('p','','不清楚的字以「◌」標示，請先依紙本修正；這一步不會自動批改。');
   var send=elem('button','swsi-paper-confirm','確認文字，再取得 AI 練習回饋');send.type='button';
-  send.disabled=!!session.confirmedText&&input.value.trim()===session.confirmedText;
+  function locked(){return !!session.feedbackPending||!!session.confirmedText&&input.value.trim()===session.confirmedText;}
+  send.disabled=locked();
   var message=elem('div','swsi-paper-status','');message.setAttribute('role','status');
-  if(send.disabled)message.textContent='這份作答已確認；需要新的回饋請先修改內容。';
+  if(send.disabled)message.textContent=session.feedbackPending?'AI 回饋處理中，請勿重複送出。':'這份作答已確認；需要新的回饋請先修改內容。';
   input.addEventListener('input',function(){
     session.ocr=input.value;
-    send.disabled=!!session.confirmedText&&input.value.trim()===session.confirmedText;
-    message.textContent=send.disabled?'這份作答已確認；需要新的回饋請先修改內容。':'';
+    send.disabled=locked();
+    message.textContent=session.feedbackPending?'AI 回饋處理中，請勿重複送出。':send.disabled?'這份作答已確認；需要新的回饋請先修改內容。':'';
   });
-  send.addEventListener('click',function(){
-    if(!active(id,session.seq,panel))return;
+  send.addEventListener('click',async function(){
+    if(!active(id,session.seq,panel)||session.feedbackPending)return;
     var answer=input.value.trim();
     if(session.confirmedText&&answer===session.confirmedText){
       send.disabled=true;
@@ -4662,10 +4663,24 @@ function review(id,panel){
     if(draft.value.trim()&&draft.value.trim()!==answer&&!window.confirm('確認後的手寫文字將取代本題原有打字草稿。確定繼續？'))return;
     draft.value=answer;
     if(typeof window.saveDraft==='function')window.saveDraft(id);
-    session.confirmedText=answer;
-    message.textContent='辨識文字已由你確認，並寫入作答欄；現在才送交 AI 回饋。';
+    session.feedbackPending=true;
+    message.textContent='辨識文字已由你確認並保存，正在取得 AI 練習回饋。';
     send.disabled=true;
-    if(typeof window.runAIFeedback==='function')window.runAIFeedback(id);
+    try{
+      if(typeof window.runAIFeedback==='function')await window.runAIFeedback(id);
+      var cached=typeof window.swsiGetAICache==='function'?window.swsiGetAICache(id,answer):null;
+      if(cached&&cached.feedback){
+        session.confirmedText=answer;
+        if(input.isConnected)message.textContent='AI 練習回饋已完成，這份答案不會重複送出。';
+      }else if(input.isConnected){
+        message.textContent='AI 回饋尚未完成；原稿已保存，請查看下方錯誤訊息，服務恢復後可直接重試。';
+      }
+    }catch(_e){
+      if(input.isConnected)message.textContent='AI 回饋未完成；原稿已保存，稍後可直接重試。';
+    }finally{
+      session.feedbackPending=false;
+      if(input.isConnected)send.disabled=locked();
+    }
   });
   slot.append(label,input,help,send,message);
 }
