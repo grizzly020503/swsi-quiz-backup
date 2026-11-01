@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 // Live, read-only browser acceptance for the existing Cloudflare soft launch.
-// Never submit answers, login, use the public AI, or send feedback.
+// Never login, use public AI or feedback. Local answer/grading interactions
+// use only an ephemeral browser profile; all network writes stay blocked.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -50,6 +51,222 @@ async function awaitReviewedDesign(page, label) {
     assert(next && next.status() === 200, label + ': live site unavailable while awaiting deployment');
   }
   throw new Error(label + ': deployment never matched the reviewed visual source within 4 minutes: ' + last);
+}
+
+// The source's latest ten exam IDs and official text are immutable inputs for
+// this smoke. Browser rendering and guides must come from the LIVE Cloudflare
+// host, not from local mocks or a bare static SHA check.
+const latestExam = JSON.parse(fs.readFileSync(
+  path.resolve(__dirname, '../cdn/auto/essays_auto.json'), 'utf8'
+));
+const latestIds = latestExam.map(row => String(row.id));
+// Canonical 240-guide asset is a strict release contract. The runtime may
+// additionally expose compatibility aliases, which are not extra official
+// exam questions and must not make all 240 reviewed guides look absent.
+const guideAsset = fs.readFileSync(
+  path.resolve(__dirname, '../cdn/essay_guides.js'), 'utf8'
+);
+const guidePayload = guideAsset.match(/window\.ESSAY_GUIDES\s*=\s*(\{[\s\S]*?\})\s*;\s*$/);
+assert(guidePayload, 'tracked 240-guide JSON asset missing');
+const canonicalGuideIds = Object.keys(JSON.parse(guidePayload[1]));
+assert.equal(canonicalGuideIds.length, 240, 'tracked canonical guide count drift');
+assert.equal(latestIds.length, 10, 'expected ten latest exam essays');
+assert.equal(new Set(latestIds).size, 10, 'duplicate latest essay IDs');
+function normalized(s) { return String(s || '').replace(/\s/g, ''); }
+
+async function verifyHostedLatestEssayGuides(page, label) {
+  await page.waitForFunction(ids => {
+    let rows = [];
+    try {
+      if (typeof ESSAYS !== 'undefined' && Array.isArray(ESSAYS)) rows = ESSAYS;
+      else if (Array.isArray(window.ESSAYS)) rows = window.ESSAYS;
+    } catch (_e) {
+      rows = Array.isArray(window.ESSAYS) ? window.ESSAYS : [];
+    }
+    const present = new Set(rows.map(e => e && String(e.id)));
+    const guides = window.ESSAY_GUIDES || {};
+    return ids.every(id => present.has(id) && guides[id]);
+  }, latestIds, { timeout: 45000 });
+
+  const coverage = await page.evaluate(ids => {
+    const runtime = window.ESSAY_GUIDES || {};
+    return {
+      total: Object.keys(runtime).length,
+      missing: ids.filter(id => !runtime[id]),
+      aliases: Object.keys(runtime).filter(id => !ids.includes(id))
+    };
+  }, canonicalGuideIds);
+  assert.deepEqual(coverage.missing, [],
+    label + ': live student runtime missing canonical guides');
+  console.log('HOSTED GUIDE COVERAGE ' + label + ': canonical=240/' +
+    canonicalGuideIds.length + ', runtime_keys=' + coverage.total +
+    ', compatibility_keys=' + coverage.aliases.length);
+
+  for (const [index, expected] of latestExam.entries()) {
+    const id = String(expected.id);
+    await page.evaluate(essayId => {
+      if (typeof toggleEssay !== 'function') throw Error('essay detail route unavailable');
+      toggleEssay(essayId); // existing actual student detail rendering
+    }, id);
+    const question = await page.locator('#app .ebody').first().textContent();
+    assert.equal(normalized(question), normalized(expected.q),
+      label + ': latest official essay question text drift ' + id);
+    assert.equal(await page.locator('#ta_' + id).count(), 1,
+      label + ': missing actual student writing editor for ' + id);
+
+    if (index === 0) {
+      // Exercise the student-facing editor and guide button in an isolated
+      // ephemeral browser profile. Only localStorage changes; all POST/PUT/
+      // PATCH/DELETE requests remain blocked at the context network layer.
+      const draft = '一、社會工作應先辨認服務需求與當事人處境。\n二、整合社會支持、尊重自主，並定期檢視服務成效。';
+      await page.locator('#ta_' + id).fill(draft);
+      assert.equal(await page.evaluate(essayId =>
+        localStorage.getItem('essay_draft_' + essayId), id), draft,
+        label + ': input must auto-save only to isolated localStorage');
+      assert(await page.locator('#gbtn_' + id).isVisible(),
+        label + ': answer-first guide button must appear after writing');
+      await page.locator('#gbtn_' + id).click();
+      assert.equal(await page.locator('#app .guide .gsec').count(), 4,
+        label + ': guide must display four student-facing sections');
+
+      await page.reload({ waitUntil: 'domcontentloaded', timeout: 25000 });
+      await page.waitForSelector('#app .swsi-focus-primary', { timeout: 45000 });
+      await page.locator('#t-essay').click();
+      await page.waitForFunction(essayId => {
+        let rows = [];
+        try { rows = typeof ESSAYS !== 'undefined' && Array.isArray(ESSAYS)
+          ? ESSAYS : (window.ESSAYS || []); } catch (_) { rows = window.ESSAYS || []; }
+        return rows.some(row => row && row.id === essayId);
+      }, id, { timeout: 45000 });
+      await page.evaluate(essayId => toggleEssay(essayId), id);
+      assert.equal(await page.locator('#ta_' + id).inputValue(), draft,
+        label + ': answer must survive a real page reload');
+      assert(await page.locator('#gbtn_' + id).isVisible(),
+        label + ': saved answer should expose its guide after reload');
+      // The test leaves no fake student answer, even inside its throwaway profile.
+      await page.evaluate(essayId => localStorage.removeItem('essay_draft_' + essayId), id);
+    }
+
+    // All ten new essays must genuinely render their own guide in the
+    // hosted browser, not merely exist in the downloaded JS object.
+    await page.evaluate(essayId => showGuide(essayId), id);
+    const rendered = page.locator('#app .guide');
+    await rendered.waitFor({ timeout: 8000 });
+    const guide = await page.evaluate(essayId =>
+      (window.ESSAY_GUIDES || {})[essayId], id);
+    assert(guide && guide.kao && guide.dati,
+      label + ': missing source-reviewed learning guidance for ' + id);
+    const visibleText = await rendered.innerText();
+    assert(visibleText.includes(guide.kao) && visibleText.includes(guide.dati),
+      label + ': guide visible text does not match runtime content for ' + id);
+    assert.equal(await page.locator('#app .guide .gsec').count(), 4,
+      label + ': guide lacks one of four sections for ' + id);
+    await page.evaluate(() => closeEssay());
+  }
+  console.log('CLOUDFLARE HOSTED LATEST ESSAYS OK ' + label +
+    ': 10/10 real question views, 10/10 guides, local draft survives reload, zero AI submissions');
+}
+
+// Exercise the *hosted* grading UI without writing any student/server data.
+// The Playwright context is fresh, isolated, and destroyed after this run;
+// its network route rejects all non-GET/HEAD/OPTIONS requests.
+async function verifyHostedLocalGrading(page, label) {
+  await page.evaluate(async () => {
+    if (typeof ensureAllQuestionsLoaded !== 'function')
+      throw Error('official question loader not available');
+    await ensureAllQuestionsLoaded();
+  });
+  const baseline = await page.evaluate(() => {
+    if (typeof loadHist !== 'function') throw Error('history helper not found');
+    return loadHist().length;
+  });
+
+  // Actual regular practice: option -> submit -> local-only recorded attempt
+  // -> answer explanation. Do not complete any real user work on their device.
+  // The primary homepage entry was already tested in the previous live
+  // acceptance job. Use the shipped practice engine to isolate its grading
+  // and persistence behavior from optional homepage/UI entry variations.
+  await page.evaluate(() => startQuiz(() => true, 10));
+  await page.waitForSelector('.pcount', { timeout: 25000 });
+  assert.equal((await page.locator('.pcount').innerText()).trim(), '1 / 10',
+    label + ': practice start');
+  let practiceIndex = -1;
+  for (let i = 0; i < 10; i++) {
+    if (await page.locator('#app .opt').count() > 0) {
+      practiceIndex = i;
+      break;
+    }
+    await page.evaluate(() => next());
+  }
+  assert(practiceIndex >= 0, label + ': practice lacked an answerable item');
+  await page.locator('#app .opt').first().click();
+  await page.getByRole('button', { name: '送出答案' }).click();
+  await page.waitForSelector('#app .exp', { timeout: 12000 });
+  const afterPractice = await page.evaluate(() => ({
+    history: loadHist(),
+    reviewCount: document.querySelectorAll('#app .exp').length,
+    answered: typeof answered !== 'undefined' ? answered : null
+  }));
+  assert.equal(afterPractice.history.length, baseline + 1,
+    label + ': practice answer must save exactly one local attempt');
+  assert.equal(afterPractice.answered, true,
+    label + ': practice answer must enter explanation state');
+  assert.equal(afterPractice.reviewCount, 1, label + ': missing explanation');
+  await page.getByRole('button', { name: /結束這次練習/ }).click();
+  await page.waitForSelector('#app .swsi-focus-primary', { timeout: 16000 });
+
+  // Actual 20-question timed-mock engine: select one answer, leave others
+  // unanswered, explicitly confirm partial submission, view 0/1 out of 20.
+  await page.evaluate(() => MK.open());
+  await page.waitForSelector('.mk-ov .mk-toggle', { timeout: 12000 });
+  await page.evaluate(() => { MK.toggleTimed(); MK.begin(20); });
+  assert.match(await page.locator('.mk-ov .mk-prog').innerText(), /第 1 \/ 20 題/,
+    label + ': mock paper did not start with 20 questions');
+  let answerable = -1;
+  for (let i = 0; i < 20; i++) {
+    if (await page.locator('.mk-ov .mk-opt').count() > 0) {
+      answerable = i;
+      break;
+    }
+    await page.evaluate(() => MK.go(1));
+  }
+  assert(answerable >= 0, label + ': mock paper lacked an answerable item');
+  await page.locator('.mk-ov .mk-opt').first().click();
+  assert.equal(await page.locator('.mk-ov .mk-opt.sel').count(), 1,
+    label + ': mock answer not selected');
+  // There must be a confirm dialog when a student attempts to hand in
+  // an incomplete paper. Accept it; all scoring is purely in the browser.
+  let confirmed = false;
+  page.once('dialog', dialog => {
+    confirmed = /未作答|交卷/.test(dialog.message());
+    return dialog.accept();
+  });
+  await page.locator('.mk-ov .mk-top button', { hasText: '交卷' }).click();
+  await page.waitForSelector('.mk-ov .mk-score .big', { timeout: 12000 });
+  assert(confirmed, label + ': partial mock submission skipped confirmation');
+  const score = (await page.locator('.mk-ov .mk-score .big').innerText()).trim();
+  assert(/^[01] \/ 20$/.test(score),
+    label + ': mock score should count exactly one answer of twenty, got ' + score);
+  assert.match(await page.locator('.mk-ov .mk-score .pct').innerText(),
+    /作答 1 題/, label + ': mock answered count');
+  // The deployed monthly_patch Unified Grading Contract deliberately
+  // records unanswered ordinary questions as wrong for spaced repetition.
+  // Unanswered all_credit questions are the one explicit exception.
+  // That is separate from the UI's actual answered count of one.
+  const mockHistory = await page.evaluate(offset => loadHist().slice(offset),
+    afterPractice.history.length);
+  assert(mockHistory.length >= 1 && mockHistory.length <= 20,
+    label + ': wrong number of scored mock history entries');
+  assert(mockHistory.every(row => row && typeof row.id === 'string' &&
+    typeof row.correct === 'boolean'),
+    label + ': mock entries missing official IDs or score booleans');
+  assert.equal(new Set(mockHistory.map(row => row.id)).size, mockHistory.length,
+    label + ': duplicate mock question history entries on a single submission');
+  await page.evaluate(() => MK.close());
+  await page.waitForSelector('.mk-ov', { state: 'detached', timeout: 8000 });
+  console.log('CLOUDFLARE HOSTED LOCAL GRADING OK ' + label +
+    ': practice answer/review, 20-question mock partial-submit/score, actual_answers=1, mock_history_rows=' +
+    mockHistory.length + ', all network writes blocked');
 }
 
 async function check(engine, label, width, height, practice) {
@@ -127,16 +344,13 @@ async function check(engine, label, width, height, practice) {
       return /申論/.test(text) && text.length > 50;
     }, null, { timeout: 18000 });
 
+    if (practice) await verifyHostedLatestEssayGuides(page, label);
+
     await page.locator('#t-home').click();
     await page.waitForSelector('#app .swsi-focus-primary', { timeout: 15000 });
 
     if (practice) {
-      // Navigation only: do not answer, score, submit or persist hosted data.
-      await page.getByRole('button', { name: /開始 10 題/ }).first().click();
-      await page.waitForSelector('.pcount', { timeout: 45000 });
-      assert.equal((await page.locator('.pcount').innerText()).trim(), '1 / 10', label + ': practice queue');
-      await page.getByRole('button', { name: /結束這次練習/ }).click();
-      await page.waitForSelector('#app .swsi-focus-primary', { timeout: 20000 });
+      await verifyHostedLocalGrading(page, label);
     }
 
     assert.deepEqual(pageErrors, [], label + ': uncaught page errors');
