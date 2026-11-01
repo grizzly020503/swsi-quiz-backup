@@ -5,6 +5,7 @@ on:
     paths:
       - 'data/essay_guide_overlay.json'
       - 'essay_guides.js'
+      - 'cdn/essay_guides.js'
       - 'auto/essays_auto.json'
       - 'incoming/*.json'
       - 'audit/essay_guide_audit_batch*_verified_*.md'
@@ -22,6 +23,7 @@ on:
     paths:
       - 'data/essay_guide_overlay.json'
       - 'essay_guides.js'
+      - 'cdn/essay_guides.js'
       - 'auto/essays_auto.json'
       - 'incoming/*.json'
       - 'audit/essay_guide_audit_batch*_verified_*.md'
@@ -79,6 +81,10 @@ jobs:
           mkdir -p /tmp/swsi-guide-site/icons
           cp index.html manifest.json sw.js apple-touch-icon.png /tmp/swsi-guide-site/
           node scripts/build_essay_guides_runtime.js essay_guides.js /tmp/swsi-guide-site/essay_guides.js data/essay_guide_overlay.json
+          # Fail if the Cloudflare primary tracked asset lacks any verified
+          # historical corrections or 115-2 overlay. Do not accept a 230-guide
+          # stale CDN file when the canonical fail-closed builder emits 240.
+          cmp cdn/essay_guides.js /tmp/swsi-guide-site/essay_guides.js
           node scripts/historical_essay_verified_runtime_smoke.js /tmp/swsi-guide-site/essay_guides.js
           cat monthly_patch_parts/*.part > /tmp/swsi-guide-site/monthly_patch.js
           cp icons/icon-192.png icons/icon-512.png /tmp/swsi-guide-site/icons/
