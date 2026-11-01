@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 // Live, read-only browser acceptance for the existing Cloudflare soft launch.
-// Never submit answers, login, use the public AI, or send feedback.
+// Never login, use public AI or feedback. Local answer/grading interactions
+// use only an ephemeral browser profile; all network writes stay blocked.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -166,6 +167,94 @@ async function verifyHostedLatestEssayGuides(page, label) {
     ': 10/10 real question views, 10/10 guides, local draft survives reload, zero AI submissions');
 }
 
+// Exercise the *hosted* grading UI without writing any student/server data.
+// The Playwright context is fresh, isolated, and destroyed after this run;
+// its network route rejects all non-GET/HEAD/OPTIONS requests.
+async function verifyHostedLocalGrading(page, label) {
+  await page.evaluate(async () => {
+    if (typeof ensureAllQuestionsLoaded !== 'function')
+      throw Error('official question loader not available');
+    await ensureAllQuestionsLoaded();
+  });
+  const baseline = await page.evaluate(() => {
+    if (typeof loadHist !== 'function') throw Error('history helper not found');
+    return loadHist().length;
+  });
+
+  // Actual regular practice: option -> submit -> local-only recorded attempt
+  // -> answer explanation. Do not complete any real user work on their device.
+  await page.getByRole('button', { name: /開始 10 題/ }).first().click();
+  await page.waitForSelector('.pcount', { timeout: 25000 });
+  assert.equal((await page.locator('.pcount').innerText()).trim(), '1 / 10',
+    label + ': practice start');
+  let practiceIndex = -1;
+  for (let i = 0; i < 10; i++) {
+    if (await page.locator('#app .opt').count() > 0) {
+      practiceIndex = i;
+      break;
+    }
+    await page.evaluate(() => next());
+  }
+  assert(practiceIndex >= 0, label + ': practice lacked an answerable item');
+  await page.locator('#app .opt').first().click();
+  await page.getByRole('button', { name: '送出答案' }).click();
+  await page.waitForSelector('#app .exp', { timeout: 12000 });
+  const afterPractice = await page.evaluate(() => ({
+    history: loadHist(),
+    reviewCount: document.querySelectorAll('#app .exp').length,
+    answered: typeof answered !== 'undefined' ? answered : null
+  }));
+  assert.equal(afterPractice.history.length, baseline + 1,
+    label + ': practice answer must save exactly one local attempt');
+  assert.equal(afterPractice.answered, true,
+    label + ': practice answer must enter explanation state');
+  assert.equal(afterPractice.reviewCount, 1, label + ': missing explanation');
+  await page.getByRole('button', { name: /結束這次練習/ }).click();
+  await page.waitForSelector('#app .swsi-focus-primary', { timeout: 16000 });
+
+  // Actual 20-question timed-mock engine: select one answer, leave others
+  // unanswered, explicitly confirm partial submission, view 0/1 out of 20.
+  await page.evaluate(() => MK.open());
+  await page.waitForSelector('.mk-ov .mk-toggle', { timeout: 12000 });
+  await page.evaluate(() => { MK.toggleTimed(); MK.begin(20); });
+  assert.match(await page.locator('.mk-ov .mk-prog').innerText(), /第 1 \/ 20 題/,
+    label + ': mock paper did not start with 20 questions');
+  let answerable = -1;
+  for (let i = 0; i < 20; i++) {
+    if (await page.locator('.mk-ov .mk-opt').count() > 0) {
+      answerable = i;
+      break;
+    }
+    await page.evaluate(() => MK.go(1));
+  }
+  assert(answerable >= 0, label + ': mock paper lacked an answerable item');
+  await page.locator('.mk-ov .mk-opt').first().click();
+  assert.equal(await page.locator('.mk-ov .mk-opt.sel').count(), 1,
+    label + ': mock answer not selected');
+  // There must be a confirm dialog when a student attempts to hand in
+  // an incomplete paper. Accept it; all scoring is purely in the browser.
+  let confirmed = false;
+  page.once('dialog', dialog => {
+    confirmed = /未作答|交卷/.test(dialog.message());
+    return dialog.accept();
+  });
+  await page.locator('.mk-ov .mk-top button', { hasText: '交卷' }).click();
+  await page.waitForSelector('.mk-ov .mk-score .big', { timeout: 12000 });
+  assert(confirmed, label + ': partial mock submission skipped confirmation');
+  const score = (await page.locator('.mk-ov .mk-score .big').innerText()).trim();
+  assert(/^[01] \/ 20$/.test(score),
+    label + ': mock score should count exactly one answer of twenty, got ' + score);
+  assert.match(await page.locator('.mk-ov .mk-score .pct').innerText(),
+    /作答 1 題/, label + ': mock answered count');
+  const afterMock = await page.evaluate(() => loadHist().length);
+  assert.equal(afterMock, baseline + 2,
+    label + ': mock exam must store only the single answered attempt');
+  await page.evaluate(() => MK.close());
+  await page.waitForSelector('.mk-ov', { state: 'detached', timeout: 8000 });
+  console.log('CLOUDFLARE HOSTED LOCAL GRADING OK ' + label +
+    ': practice answer/review, 20-question mock partial-submit/score, local attempts=2, network writes blocked');
+}
+
 async function check(engine, label, width, height, practice) {
   const browser = await engine.launch({ headless: true });
   const context = await browser.newContext({
@@ -247,12 +336,7 @@ async function check(engine, label, width, height, practice) {
     await page.waitForSelector('#app .swsi-focus-primary', { timeout: 15000 });
 
     if (practice) {
-      // Navigation only: do not answer, score, submit or persist hosted data.
-      await page.getByRole('button', { name: /開始 10 題/ }).first().click();
-      await page.waitForSelector('.pcount', { timeout: 45000 });
-      assert.equal((await page.locator('.pcount').innerText()).trim(), '1 / 10', label + ': practice queue');
-      await page.getByRole('button', { name: /結束這次練習/ }).click();
-      await page.waitForSelector('#app .swsi-focus-primary', { timeout: 20000 });
+      await verifyHostedLocalGrading(page, label);
     }
 
     assert.deepEqual(pageErrors, [], label + ': uncaught page errors');
