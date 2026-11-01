@@ -59,6 +59,16 @@ const latestExam = JSON.parse(fs.readFileSync(
   path.resolve(__dirname, '../cdn/auto/essays_auto.json'), 'utf8'
 ));
 const latestIds = latestExam.map(row => String(row.id));
+// Canonical 240-guide asset is a strict release contract. The runtime may
+// additionally expose compatibility aliases, which are not extra official
+// exam questions and must not make all 240 reviewed guides look absent.
+const guideAsset = fs.readFileSync(
+  path.resolve(__dirname, '../cdn/essay_guides.js'), 'utf8'
+);
+const guidePayload = guideAsset.match(/window\.ESSAY_GUIDES\s*=\s*(\{[\s\S]*?\})\s*;\s*$/);
+assert(guidePayload, 'tracked 240-guide JSON asset missing');
+const canonicalGuideIds = Object.keys(JSON.parse(guidePayload[1]));
+assert.equal(canonicalGuideIds.length, 240, 'tracked canonical guide count drift');
 assert.equal(latestIds.length, 10, 'expected ten latest exam essays');
 assert.equal(new Set(latestIds).size, 10, 'duplicate latest essay IDs');
 function normalized(s) { return String(s || '').replace(/\s/g, ''); }
@@ -77,8 +87,19 @@ async function verifyHostedLatestEssayGuides(page, label) {
     return ids.every(id => present.has(id) && guides[id]);
   }, latestIds, { timeout: 45000 });
 
-  const guideCount = await page.evaluate(() => Object.keys(window.ESSAY_GUIDES || {}).length);
-  assert.equal(guideCount, 240, label + ': live student runtime must expose all 240 guides');
+  const coverage = await page.evaluate(ids => {
+    const runtime = window.ESSAY_GUIDES || {};
+    return {
+      total: Object.keys(runtime).length,
+      missing: ids.filter(id => !runtime[id]),
+      aliases: Object.keys(runtime).filter(id => !ids.includes(id))
+    };
+  }, canonicalGuideIds);
+  assert.deepEqual(coverage.missing, [],
+    label + ': live student runtime missing canonical guides');
+  console.log('HOSTED GUIDE COVERAGE ' + label + ': canonical=240/' +
+    canonicalGuideIds.length + ', runtime_keys=' + coverage.total +
+    ', compatibility_keys=' + coverage.aliases.length);
 
   for (const [index, expected] of latestExam.entries()) {
     const id = String(expected.id);
