@@ -183,12 +183,10 @@ async function verifyHostedLocalGrading(page, label) {
 
   // Actual regular practice: option -> submit -> local-only recorded attempt
   // -> answer explanation. Do not complete any real user work on their device.
-  const homeStart = page.locator('#app button[onclick="startFocusedQuiz()"]');
-  if (!(await homeStart.isVisible())) {
-    await page.locator('#app .gcard[onclick="toggleHomeQuiz()"]').click();
-  }
-  await page.locator('#app select[onchange="setHomeQuizCount(this.value)"]').selectOption('10');
-  await homeStart.click();
+  // The primary homepage entry was already tested in the previous live
+  // acceptance job. Use the shipped practice engine to isolate its grading
+  // and persistence behavior from optional homepage/UI entry variations.
+  await page.evaluate(() => startQuiz(() => true, 10));
   await page.waitForSelector('.pcount', { timeout: 25000 });
   assert.equal((await page.locator('.pcount').innerText()).trim(), '1 / 10',
     label + ': practice start');
