@@ -111,6 +111,31 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       'real SWSI transport wrapper must set a valid photo OCR client ID');
     assert((await page.evaluate(()=>new TextEncoder().encode(JSON.stringify(window.__paperRequests[0])).byteLength)) <= 3800000,
       'OCR request exceeded safe Worker payload limit');
+    // Unconfirmed OCR is kept only in browser memory, not localStorage.
+    // Navigating to the list or another question must not discard the text
+    // within the current tab, submit grading, or leak it into another essay.
+    const essayId=(await page.locator('#app textarea.wta').getAttribute('id')).slice(3);
+    const unconfirmedOCR=await page.locator('.swsi-paper-review textarea').inputValue();
+    const draftBeforeNav=await page.locator('textarea.wta').inputValue();
+    const requestsBeforeNav=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>closeEssay());
+    await page.locator('.swsi-paper-essay').waitFor({state:'detached'});
+    const otherEssayId=await page.evaluate(id=>window.ESSAYS.find(e=>e&&e.id&&e.id!==id)?.id||'',essayId);
+    if(otherEssayId){
+      await page.evaluate(id=>toggleEssay(id),otherEssayId);
+      await page.locator('.swsi-paper-essay').waitFor({timeout:12000});
+      assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,
+        'unconfirmed OCR text must not leak across essay questions');
+      await page.evaluate(()=>closeEssay());
+    }
+    await page.evaluate(id=>toggleEssay(id),essayId);
+    await page.locator('.swsi-paper-review textarea').waitFor({timeout:12000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),unconfirmedOCR,
+      'unconfirmed OCR must survive same-tab essay navigation');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeNav,
+      'unconfirmed OCR must not overwrite the student draft on navigation');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),requestsBeforeNav,
+      'navigating questions must not consume AI quota');
     await page.locator('.swsi-paper-confirm').click();
     assert.match(await page.locator('.swsi-paper-review [role=status]').innerText(),/辨識不清/);
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),1,'unconfirmed OCR cannot trigger grading');
