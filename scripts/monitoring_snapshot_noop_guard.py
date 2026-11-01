@@ -21,6 +21,10 @@ NAMES = (
     "current_affairs_events.json",
     "current_affairs_trends.json",
 )
+# A successful scheduled scanner is a separate 6-hour task heartbeat.
+# Public generated_at still needs bounded periodic refresh so parity and
+# consumers never see a weeks-old generation timestamp when news is unchanged.
+MAX_TIMESTAMP_SUPPRESSION_HOURS = 18
 
 
 def parse(raw: bytes, label: str) -> dict:
@@ -58,6 +62,13 @@ def decide(previous: bytes, built: bytes, label: str) -> bool:
         raise ValueError(label + ": generated_at moved backwards")
     if new != old and new_time == old_time and semantic(new) != semantic(old):
         raise ValueError(label + ": actual content changed without new generated_at")
+    # Do not retain an old public generated_at forever: at least once in any
+    # 18-hour window publish the actual newly generated timestamp, even when
+    # content is unchanged. This is a bounded freshness budget, not a guarantee
+    # that a public snapshot was deployed to Cloudflare.
+    elapsed_hours = (new_time - old_time).total_seconds() / 3600
+    if elapsed_hours >= MAX_TIMESTAMP_SUPPRESSION_HOURS:
+        return False
     return new != old and semantic(new) == semantic(old)
 
 
@@ -117,6 +128,14 @@ def selftest() -> None:
     assert decide(data(t1), data(t2), "test")
     assert not decide(data(t1), data(t1), "test")
     assert not decide(data(t1), data(t2, 2), "test")
+    # Snapshot generation timestamp must refresh periodically, even when
+    # semantic events and scores stay byte-identical.
+    assert decide(data("2026-10-31T00:00:00Z"),
+                  data("2026-10-31T17:59:59Z"), "before-limit")
+    assert not decide(data("2026-10-31T00:00:00Z"),
+                      data("2026-10-31T18:00:00Z"), "at-limit")
+    assert not decide(data("2026-10-31T00:00:00Z"),
+                      data("2026-11-01T00:00:00Z"), "after-limit")
     for wrong in (data("2026-10-30T00:00:00Z"), b"not-json",
                   b'{"schema_version":2,"generated_at":"2026-11-01T00:00:00Z"}'):
         try:
@@ -163,7 +182,8 @@ def selftest() -> None:
             raise AssertionError("split CDN accepted")
         assert (root / "auto" / NAMES[1]).read_bytes() == before
     print("SWSI MONITORING NO-OP SELFTEST OK: "
-          "timestamp-only skip, real updates, synced CDN, fail-closed")
+          "timestamp-only skip under 18h, mandatory refresh at 18h, "
+          "real updates, synced CDN, fail-closed")
 
 
 def main() -> int:
