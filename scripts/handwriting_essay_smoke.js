@@ -255,6 +255,42 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       'provider-generated grading text must not become confirmable OCR');
     assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,
       'model-injected grading text must not alter the confirmed draft');
+    // Real correction work must survive a *valid* replacement photo whose OCR
+    // provider later rejects it. This differs from an invalid 4-photo picker.
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'old-ocr-before-failure.png',mimeType:'image/png',buffer:png});
+    await page.locator('.swsi-paper-review textarea').waitFor({timeout:12000});
+    const preservedOCR='一、這是學生已自行校正的既有手寫辨識稿，請勿因重新拍照失敗而刪除。\\n二、仍有◌需要人工對照原稿，不能自動送去批改。';
+    await page.locator('.swsi-paper-review textarea').fill(preservedOCR);
+    const preservedTypedDraft=await page.locator('textarea.wta').inputValue();
+    const beforeFailedReplacement=await page.evaluate(()=>window.__paperRequests.length);
+    const feedbackBeforeReplacement=await page.evaluate(()=>
+      window.__paperRequests.filter(r=>typeof r.messages[0].content==='string').length);
+    await page.evaluate(()=>{window.__ocrRejectOnce=true;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'valid-photo-denied-by-provider.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(expected=>window.__paperRequests.length===expected+1 &&
+      document.querySelector('[id^="aiphoto_"]')?.disabled===false &&
+      !!document.querySelector('.swsi-paper-review textarea'),beforeFailedReplacement,{timeout:15000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),preservedOCR,
+      'HTTP 403 on a valid replacement photo must restore edited unconfirmed OCR');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),preservedTypedDraft,
+      'failed replacement photo must preserve the saved typed answer');
+    assert.strictEqual(await page.evaluate(()=>
+      window.__paperRequests.filter(r=>typeof r.messages[0].content==='string').length),
+      feedbackBeforeReplacement,'OCR replacement failure must not spend feedback quota');
+    const beforeTruncatedReplacement=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{window.__ocrReturnTruncated=true;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'valid-photo-truncated-by-provider.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(()=>/辨識文字被截斷/.test(
+      document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||'') &&
+      document.querySelector('[id^="aiphoto_"]')?.disabled===false &&
+      !!document.querySelector('.swsi-paper-review textarea'),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),beforeTruncatedReplacement+1,
+      'truncated replacement should consume only its attempted OCR request');
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),preservedOCR,
+      'truncated replacement must preserve the previous manually edited OCR');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),preservedTypedDraft,
+      'truncated replacement must not overwrite the student draft');
+    await page.evaluate(()=>{window.__ocrReturnTruncated=false;});
     // A huge encoded body must be blocked BEFORE reaching the AI service.
     // Reject by encoded request bytes, not by JPEG's binary size estimate.
     const sentBeforeOversize=await page.evaluate(()=>window.__paperRequests.length);
