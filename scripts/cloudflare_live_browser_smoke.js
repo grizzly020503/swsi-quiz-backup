@@ -456,10 +456,123 @@ async function check(engine, label, width, height, practice) {
     await browser.close();
   }
 }
+// A separate real Cloudflare browser profile tests the PWA path that the
+// normal UI/byte parity smoke intentionally disables (serviceWorkers: block).
+// All answers and drafts remain on the disposable local browser profile.
+// No network writes to production (analytics, AI, feedback) are permitted.
+async function verifyHostedPwaOffline() {
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    serviceWorkers: 'allow',
+    reducedMotion: 'reduce'
+  });
+  let blockedWrites = 0;
+  await context.route('**/*', route => {
+    const method = route.request().method().toUpperCase();
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+      blockedWrites++;
+      return route.abort();
+    }
+    return route.continue();
+  });
+  const page = await context.newPage();
+  try {
+    const live = await page.goto(ORIGIN + '/', { waitUntil: 'load', timeout: 30000 });
+    assert.equal(live && live.status(), 200, 'PWA online warm-up HTTP');
+    await page.waitForSelector('#app .swsi-focus-primary', { timeout: 45000 });
+    const registration = await page.evaluate(async () => {
+      if (!('serviceWorker' in navigator)) throw Error('PWA Service Worker unsupported');
+      const reg = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((_, reject) => setTimeout(() => reject(Error('PWA worker ready timeout')), 30000))
+      ]);
+      return { scope: reg.scope };
+    });
+    assert(registration.scope.startsWith(ORIGIN + '/'),
+      'PWA worker does not control hosted origin');
+    await page.waitForFunction(() => !!navigator.serviceWorker.controller,
+      null, { timeout: 20000 });
+
+    await page.evaluate(() => ensureAllQuestionsLoaded());
+    await page.waitForFunction(async () => {
+      try { const record = await loadOfflineQuestions();
+        return record?.rows?.length === 4800; } catch (_e) { return false; }
+    }, null, { timeout: 45000 });
+    const warm = await page.evaluate(async () => ({
+      online: navigator.onLine,
+      all: typeof ALL !== 'undefined' && Array.isArray(ALL) ? ALL.length : -1,
+      cached: (await loadOfflineQuestions()).rows.length,
+      cacheNames: await caches.keys(),
+      controlled: !!navigator.serviceWorker.controller
+    }));
+    assert.equal(warm.online, true, 'PWA warmup online flag wrong');
+    assert.equal(warm.all, 4800, 'PWA warmup question count');
+    assert.equal(warm.cached, 4800, 'PWA IndexedDB did not persist all questions');
+    assert(warm.controlled && warm.cacheNames.includes('swsi-shell-v7'),
+      'PWA cache/SW missing after warm-up');
+
+    const draftId = latestIds[0];
+    const draft = '一、先完成需求評估；二、尊重案主自決；三、追蹤服務結果。';
+    await page.locator('#t-essay').click();
+    await page.waitForFunction(id => {
+      try { return Array.isArray(ESSAYS) && ESSAYS.some(x => x?.id === id); }
+      catch (_) { return Array.isArray(window.ESSAYS) && window.ESSAYS.some(x => x?.id === id); }
+    }, draftId, { timeout: 30000 });
+    await page.evaluate(id => toggleEssay(id), draftId);
+    await page.locator('#ta_' + draftId).fill(draft);
+    assert.equal(await page.evaluate(id => localStorage.getItem('essay_draft_' + id), draftId),
+      draft, 'PWA source draft not saved before disconnection');
+
+    await context.setOffline(true);
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForSelector('#app .swsi-focus-primary', { timeout: 45000 });
+    const offline = await page.evaluate(async id => {
+      const data = await loadOfflineQuestions();
+      return { online: navigator.onLine, cached: data.rows.length,
+        controlled: !!navigator.serviceWorker.controller,
+        draft: localStorage.getItem('essay_draft_' + id) };
+    }, draftId);
+    assert.equal(offline.online, false, 'browser did not actually disconnect');
+    assert.equal(offline.cached, 4800, 'offline IndexedDB no longer has 4800 questions');
+    assert.equal(offline.draft, draft, 'offline reload lost handwritten-text draft');
+    assert(offline.controlled, 'offline app lost Service Worker control');
+    await page.evaluate(() => ensureAllQuestionsLoaded());
+    const offlineCount = await page.evaluate(() =>
+      typeof ALL !== 'undefined' && Array.isArray(ALL) ? ALL.length : -1);
+    assert.equal(offlineCount, 4800, 'offline reload could not load all questions');
+    await page.locator('#t-essay').click();
+    await page.waitForFunction(id => {
+      try { return Array.isArray(ESSAYS) && ESSAYS.some(x => x?.id === id); }
+      catch (_) { return Array.isArray(window.ESSAYS) && window.ESSAYS.some(x => x?.id === id); }
+    }, draftId, { timeout: 18000 });
+    await page.evaluate(id => toggleEssay(id), draftId);
+    assert.equal(await page.locator('#ta_' + draftId).inputValue(), draft,
+      'offline student editor did not restore draft');
+    await page.evaluate(() => startQuiz(() => true, 10));
+    await page.waitForSelector('#app .pcount', { timeout: 16000 });
+    assert.equal((await page.locator('#app .pcount').innerText()).trim(), '1 / 10',
+      'offline practice failed to start');
+
+    await context.setOffline(false);
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 25000 });
+    await page.waitForSelector('#app .swsi-focus-primary', { timeout: 45000 });
+    assert.equal(await page.evaluate(id =>
+      localStorage.getItem('essay_draft_' + id), draftId), draft,
+      'online restoration overwrote saved draft');
+    await page.evaluate(id => localStorage.removeItem('essay_draft_' + id), draftId);
+    console.log('CLOUDFLARE HOSTED PWA OFFLINE OK: SW v7 active, 4800/4800 IDB, offline reload, offline practice, essay draft persistence, online recovery, blockedWrites=' + blockedWrites);
+  } finally {
+    await context.close();
+    await browser.close();
+  }
+}
+
 (async () => {
   await check(chromium, 'chromium-phone', 390, 844, true);
   await check(chromium, 'chromium-desktop', 1365, 900, false);
   await check(webkit, 'webkit-iphone', 390, 844, false);
+  await verifyHostedPwaOffline();
   console.log('CLOUDFLARE LIVE BROWSER ACCEPTANCE OK: read-only mobile, desktop, iPhone');
 })().catch(error => {
   console.error('CLOUDFLARE LIVE BROWSER ACCEPTANCE FAILED: ' + String(error.stack || error));
