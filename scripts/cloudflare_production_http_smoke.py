@@ -102,6 +102,7 @@ def main() -> int:
     expected_style = expected_styles[0]
     expected_patch = (CDN / "monthly_patch.js").read_bytes()
     expected_sw = (CDN / "sw.js").read_bytes()
+    expected_guides = (CDN / "essay_guides.js").read_bytes()
     expected_manifest = json.loads((CDN / "question-shards" / "manifest.json").read_text(encoding="utf-8"))
 
     tag = re.search(r'<script src="monthly_patch\.js\?v=([0-9a-f]{16})"></script>', expected_index)
@@ -122,6 +123,7 @@ def main() -> int:
 
     patch_sha = sha(expected_patch)
     sw_sha = sha(expected_sw)
+    guides_sha = sha(expected_guides)
 
     last = ""
     static_ready = False
@@ -131,6 +133,7 @@ def main() -> int:
             home_status, home_body = fetch("/", token)
             patch_status, live_patch = fetch("/monthly_patch.js", token)
             sw_status, live_sw = fetch("/sw.js", token)
+            guides_status, live_guides = fetch("/essay_guides.js", token)
             manifest_status, manifest_raw = fetch("/question-shards/manifest.json", token)
             shard_status, shard_raw = fetch("/question-shards/115-2.json", token)
             home = home_body.decode("utf-8", "replace")
@@ -149,6 +152,7 @@ def main() -> int:
                 "home_http": home_status == 200,
                 "patch_http": patch_status == 200,
                 "sw_http": sw_status == 200,
+                "essay_guides_http": guides_status == 200,
                 "manifest_http": manifest_status == 200,
                 "shard_115_2_http": shard_status == 200,
                 "cache_bust": expected_tag in home,
@@ -162,6 +166,9 @@ def main() -> int:
                 "no_preview": "SWSI CLOUDFLARE FRONTEND PREVIEW" not in home and "swsi-preview-banner" not in home,
                 "patch_bytes": sha(live_patch) == patch_sha,
                 "sw_bytes": sha(live_sw) == sw_sha,
+                # Homepage/manifest/patch can all match while the latest 10
+                # verified 115-2 student guides are absent from hosted CDN.
+                "essay_guides_bytes": sha(live_guides) == guides_sha,
                 "exam_label": b"swsi-exam-date-label" in live_patch,
                 "dataset_revision": live_manifest.get("dataset_revision") == expected_revision,
                 "question_total": live_manifest.get("total_questions") == 4800,
@@ -180,6 +187,7 @@ def main() -> int:
                 print(
                     "CLOUDFLARE PRODUCTION STATIC + SHARD PARITY OK "
                     f"attempt={attempt} patch_sha256={patch_sha[:16]} sw_sha256={sw_sha[:16]} "
+                    f"guides_sha256={guides_sha[:16]} "
                     f"source={source.group(1)} dataset_revision={expected_revision}"
                 )
                 break
