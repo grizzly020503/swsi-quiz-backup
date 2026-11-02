@@ -141,7 +141,31 @@ def main() -> int:
     return 0
 
 
+
+def workflow_no_write_contract() -> None:
+    """Prevent a later workflow refactor from bypassing the pre-write gate."""
+    path = Path(__file__).resolve().parents[1] / ".github/workflows/public-monitoring-feed.yml"
+    workflow = path.read_text(encoding="utf-8")
+    scan = workflow.index("      - name: Scan social-work current affairs")
+    gate = workflow.index("      - name: Gate transient source degradation before any writes")
+    sync = workflow.index("      - name: Sync current-affairs candidates to Supabase")
+    assert scan < gate < sync, "source health gate must execute before Supabase writes"
+    for name in (
+        "Sync current-affairs candidates to Supabase",
+        "Build privacy-safe public snapshots",
+        "Skip timestamp-only event/signal/trend changes (main only, no backup)",
+        "Publish changed monitoring snapshots",
+    ):
+        step = workflow.split("      - name: " + name + "\n", 1)[1].split("      - name:", 1)[0]
+        if "steps.source_health.outputs.mode == 'healthy'" not in step:
+            raise AssertionError("missing pre-write source gate: " + name)
+    final = workflow.split("      - name: Fail visibly if current-affairs Supabase sync failed", 1)[1]
+    assert "steps.source_health.outputs.mode == 'healthy'" in "\n".join(final.splitlines()[:4]), ("skipped sync must not trigger a false failure")
+
+
+
 def selftest() -> None:
+    workflow_no_write_contract()
     fixed = datetime(2026, 11, 2, 10, tzinfo=timezone.utc)
     healthy = {"schema_version": 1, "feed_count": 23, "fetched_count": 100,
                "feed_errors": [], "optional_feed_errors": [], "items": [{"id": "x"}]}
