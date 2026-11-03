@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-03T14:04:54Z",
-  "source_item_count": 5,
-  "event_count": 5,
+  "generated_at": "2026-11-03T23:17:13Z",
+  "source_item_count": 7,
+  "event_count": 6,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
   "events": [
     {
@@ -320,12 +320,20 @@
       "concept_keys": [],
       "agency_keys": [],
       "fact_keys": [],
-      "source_count": 1,
+      "source_count": 2,
       "official_source_count": 1,
       "sources": [
-        "內政部新聞發布"
+        "內政部新聞發布",
+        "自由時報生活"
       ],
       "evidence": [
+        {
+          "source_name": "自由時報生活",
+          "source_url": "https://news.ltn.com.tw/news/life/paper/1777161",
+          "source_type": "news",
+          "published_at": "2026-11-03T21:30:00Z",
+          "item_id": "04d508b37ad3647cd86b1e9a8b6ff78d"
+        },
         {
           "source_name": "內政部新聞發布",
           "source_url": "https://www.moi.gov.tw/News_Content.aspx?n=4&s=342928",
@@ -335,7 +343,7 @@
         }
       ],
       "first_seen": "2026-11-03T05:35:00Z",
-      "last_seen": "2026-11-03T05:35:00Z",
+      "last_seen": "2026-11-03T21:30:00Z",
       "observation_count": 1,
       "observation_dates": [
         "2026-11-03"
@@ -1013,6 +1021,219 @@
         "subject_counts": {
           "社會工作": 11,
           "社會政策與社會立法": 24
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
+      },
+      "related_policy_instruments": [],
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
+    },
+    {
+      "canonical_event_id": "db25c42323e5137ba2cd5dd6",
+      "title": "游泳狼教練性侵10女童 還散布性影像",
+      "summary": "太可惡！「換臉」合成裸照逼被害人拍更多私密影像 〔記者丁偉杰、蔡宗勳／嘉義報導〕三十八歲嘉義縣某國小林姓游泳教練，涉嫌與女童性交、猥褻女童，並利用「AI脫衣、換臉技術」合成被害人裸照，威脅她們拍攝私密影像，還將影像傳送他人、加以散布。檢警查出共有十人受害，其中一名被害人與林男發生約廿次性行為。嘉義…",
+      "category": "家暴與性暴力",
+      "subjects": [
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "品質與風險管理",
+        "服務輸送與跨網絡",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會工作直接服務": [
+          "危險評估與安全計畫",
+          "創傷知情與危機介入"
+        ],
+        "人類行為與社會環境": [
+          "創傷反應與家庭互動"
+        ],
+        "社會政策與社會立法": [
+          "家暴與性暴力防治制度",
+          "保護令與被害人權益"
+        ],
+        "社會工作": [
+          "被害人權利與專業倫理"
+        ]
+      },
+      "knowledge_topics": [
+        "家暴與性暴力",
+        "性侵",
+        "性影像"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 創傷反應與家庭互動"
+      ],
+      "exam_tags": [
+        "性侵",
+        "性影像"
+      ],
+      "related_laws": [],
+      "concept_keys": [
+        "gender_violence"
+      ],
+      "agency_keys": [],
+      "fact_keys": [],
+      "source_count": 1,
+      "official_source_count": 0,
+      "sources": [
+        "自由時報社會"
+      ],
+      "evidence": [
+        {
+          "source_name": "自由時報社會",
+          "source_url": "https://news.ltn.com.tw/news/society/paper/1777132",
+          "source_type": "news",
+          "published_at": "2026-11-03T21:30:00Z",
+          "item_id": "2683208bcfab329ae1e548ca46311afc"
+        }
+      ],
+      "first_seen": "2026-11-03T21:30:00Z",
+      "last_seen": "2026-11-03T21:30:00Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-11-03"
+      ],
+      "policy_signal": "low",
+      "essay_value": "medium",
+      "mcq_fact_density": "low",
+      "signal_confidence": "low",
+      "signal_score": 5,
+      "exam_point_summary": "游泳狼教練性侵10女童 還散布性影像。尚未見明確制度變動，先作事件與專業議題觀察；申論可從危險評估、保護令、創傷知情與跨網絡合作切入。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「危險評估、保護令、創傷知情與跨網絡合作」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "性侵",
+        "性影像"
+      ],
+      "related_exam_questions": [
+        {
+          "id": "SP115-1-11",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "11",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 保護令聲請",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "DS-115-2-011",
+          "subject": "社會工作直接服務",
+          "year": "115",
+          "round": "第二次",
+          "qno": "11",
+          "major": "專業關係",
+          "topic": "情感反轉移的處理原則",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-24",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "24",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 家暴基金來源",
+          "match_reason": "事件詞：性侵；共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-25",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "25",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 家庭成員定義",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP-115-2-026",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "26",
+          "major": "其他社會立法與人權公約",
+          "topic": "家庭暴力防治法 > 家庭暴力定義與相關名詞解釋",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 77,
+        "weighted_match_count": 1.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 77
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作直接服務": 2,
+          "社會政策與社會立法": 75
         },
         "subject_count": 2,
         "law_match_count": 0,

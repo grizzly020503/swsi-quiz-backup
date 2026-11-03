@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-03T14:04:54Z",
-  "item_count": 5,
+  "generated_at": "2026-11-03T23:17:13Z",
+  "item_count": 7,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
   "law_link_rules_schema": 1,
@@ -314,6 +314,205 @@
       "mcq_focus": [
         "內政部",
         "行政院",
+        "安置"
+      ],
+      "related_laws": [],
+      "related_policy_instruments": [],
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "related_exam_questions": [
+        {
+          "id": "DS-115-2-015",
+          "subject": "社會工作直接服務",
+          "year": "115",
+          "round": "第二次",
+          "qno": "15",
+          "major": "社會工作倫理",
+          "topic": "倫理原則 > 倫理困境與決策",
+          "match_reason": "事件詞：安置",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP114-1-22",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第一次",
+          "qno": "22",
+          "major": "老人福利法規",
+          "topic": "老人福利法 > 私立機構停辦安置",
+          "match_reason": "事件詞：安置",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP114-2-24",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第二次",
+          "qno": "24",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 緊急安置延長期限",
+          "match_reason": "事件詞：安置",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP114-2-25",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第二次",
+          "qno": "25",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 安置期滿追蹤輔導",
+          "match_reason": "事件詞：安置",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-114-1-27",
+          "subject": "社會工作",
+          "year": "114",
+          "round": "第一次",
+          "qno": "27",
+          "major": "社會工作倫理",
+          "topic": "Lowenberg倫理抉擇 > 自由自主原則",
+          "match_reason": "事件詞：安置",
+          "match_score": 2.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 49,
+        "weighted_match_count": 1.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 49
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 19,
+          "社會工作直接服務": 1,
+          "社會政策與社會立法": 29
+        },
+        "subject_count": 3,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
+      "id": "04d508b37ad3647cd86b1e9a8b6ff78d",
+      "title": "大林蒲遷村安置加速 都計變更通過",
+      "summary": "〔記者王榮祥／高雄報導〕內政部都市計畫委員會昨審議通過高雄新材料循環產業園區、大林蒲遷村安置地都市計畫變更案；高雄市政府指出，將為大林蒲明年實質遷村邁出重要一步。 推動新材料園區 明年實質遷村 高市副市長林欽榮表示，新材料循環產業園區及大林蒲遷村安置地都市計畫經內政部審議通過，象徵整個遷村計畫迎…",
+      "source_name": "自由時報生活",
+      "source_url": "https://news.ltn.com.tw/news/life/paper/1777161",
+      "published_at": "2026-11-03T21:30:00Z",
+      "region": "taiwan",
+      "category": "兒少保護",
+      "relevance_score": 5,
+      "exam_tags": [
+        "安置"
+      ],
+      "subjects": [
+        "社會工作直接服務",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "品質與風險管理",
+        "服務輸送與跨網絡",
+        "倫理與權利保障",
+        "規劃與政策執行",
+        "方案與資源管理"
+      ],
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會工作直接服務": [
+          "兒少保護風險評估",
+          "家庭評估與危機介入"
+        ],
+        "人類行為與社會環境": [
+          "兒童發展、依附與創傷",
+          "家庭系統與風險保護因子"
+        ],
+        "社會政策與社會立法": [
+          "兒少福利與保護法制",
+          "責任通報與保護體系"
+        ],
+        "社會工作": [
+          "專業倫理與兒童最佳利益",
+          "權利倡導與社會正義"
+        ]
+      },
+      "knowledge_topics": [
+        "兒少保護",
+        "安置"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 兒少福利與保護法制",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 責任通報與保護體系",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制"
+      ],
+      "policy_signal": "low",
+      "essay_value": "high",
+      "mcq_fact_density": "medium",
+      "signal_confidence": "medium",
+      "signal_score": 7,
+      "exam_point_summary": "大林蒲遷村安置加速 都計變更通過。尚未見明確制度變動，先作事件與專業議題觀察；申論可從兒少最佳利益、責任通報、跨網絡合作與制度漏洞切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "內政部",
         "安置"
       ],
       "related_laws": [],
@@ -916,6 +1115,198 @@
         "subject_counts": {
           "社會工作": 11,
           "社會政策與社會立法": 24
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
+      "id": "2683208bcfab329ae1e548ca46311afc",
+      "title": "游泳狼教練性侵10女童 還散布性影像",
+      "summary": "太可惡！「換臉」合成裸照逼被害人拍更多私密影像 〔記者丁偉杰、蔡宗勳／嘉義報導〕三十八歲嘉義縣某國小林姓游泳教練，涉嫌與女童性交、猥褻女童，並利用「AI脫衣、換臉技術」合成被害人裸照，威脅她們拍攝私密影像，還將影像傳送他人、加以散布。檢警查出共有十人受害，其中一名被害人與林男發生約廿次性行為。嘉義…",
+      "source_name": "自由時報社會",
+      "source_url": "https://news.ltn.com.tw/news/society/paper/1777132",
+      "published_at": "2026-11-03T21:30:00Z",
+      "region": "taiwan",
+      "category": "家暴與性暴力",
+      "relevance_score": 5,
+      "exam_tags": [
+        "性侵",
+        "性影像"
+      ],
+      "subjects": [
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "品質與風險管理",
+        "服務輸送與跨網絡",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會工作直接服務": [
+          "危險評估與安全計畫",
+          "創傷知情與危機介入"
+        ],
+        "人類行為與社會環境": [
+          "創傷反應與家庭互動"
+        ],
+        "社會政策與社會立法": [
+          "家暴與性暴力防治制度",
+          "保護令與被害人權益"
+        ],
+        "社會工作": [
+          "被害人權利與專業倫理"
+        ]
+      },
+      "knowledge_topics": [
+        "家暴與性暴力",
+        "性侵",
+        "性影像"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 創傷反應與家庭互動"
+      ],
+      "policy_signal": "low",
+      "essay_value": "medium",
+      "mcq_fact_density": "low",
+      "signal_confidence": "low",
+      "signal_score": 5,
+      "exam_point_summary": "游泳狼教練性侵10女童 還散布性影像。尚未見明確制度變動，先作事件與專業議題觀察；申論可從危險評估、保護令、創傷知情與跨網絡合作切入。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「危險評估、保護令、創傷知情與跨網絡合作」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "性侵",
+        "性影像"
+      ],
+      "related_laws": [],
+      "related_policy_instruments": [],
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "related_exam_questions": [
+        {
+          "id": "SP115-1-11",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "11",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 保護令聲請",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "DS-115-2-011",
+          "subject": "社會工作直接服務",
+          "year": "115",
+          "round": "第二次",
+          "qno": "11",
+          "major": "專業關係",
+          "topic": "情感反轉移的處理原則",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-24",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "24",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 家暴基金來源",
+          "match_reason": "事件詞：性侵；共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-25",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "25",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 家庭成員定義",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP-115-2-026",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "26",
+          "major": "其他社會立法與人權公約",
+          "topic": "家庭暴力防治法 > 家庭暴力定義與相關名詞解釋",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 77,
+        "weighted_match_count": 1.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 77
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作直接服務": 2,
+          "社會政策與社會立法": 75
         },
         "subject_count": 2,
         "law_match_count": 0,
