@@ -28,6 +28,7 @@ on:
       - 'scripts/social_work_knowledge_tree.py'
       - 'scripts/social_work_knowledge_tree_smoke.py'
       - 'scripts/current_affairs_sources_smoke.py'
+      - 'scripts/current_affairs_degraded_guard.py'
       - 'scripts/current_affairs_supabase_sync_smoke.py'
       - 'supabase/functions/sync-current-affairs/index.ts'
       - 'supabase/functions/sync-current-affairs/payload_contract.ts'
@@ -52,6 +53,7 @@ on:
       - 'scripts/social_work_knowledge_tree.py'
       - 'scripts/social_work_knowledge_tree_smoke.py'
       - 'scripts/current_affairs_sources_smoke.py'
+      - 'scripts/current_affairs_degraded_guard.py'
       - 'scripts/current_affairs_supabase_sync_smoke.py'
       - 'supabase/functions/sync-current-affairs/index.ts'
       - 'supabase/functions/sync-current-affairs/payload_contract.ts'
@@ -209,6 +211,7 @@ jobs:
           python scripts/current_affairs_sources_smoke.py
           python scripts/current_affairs_supabase_sync_smoke.py
           python scripts/public_monitoring_v2_smoke.py
+          python scripts/current_affairs_degraded_guard.py --selftest
           python scripts/current_affairs_signals_smoke.py
           python scripts/current_affairs_events_smoke.py
           python -m py_compile scripts/monitoring_snapshot_noop_guard.py
@@ -248,7 +251,17 @@ jobs:
       - name: Scan social-work current affairs
         run: python scripts/current_affairs_watch.py --output /tmp/current_affairs_payload.json --days 21
 
+      # Mandatory feed errors are not new verified facts. A temporary outage may
+      # reuse the existing paired 24h-fresh public artifacts, without any writes.
+      # An expired/malformed fallback fails the job instead of hiding an outage.
+      - name: Gate transient source degradation before any writes
+        id: source_health
+        run: |
+          python scripts/current_affairs_degraded_guard.py \
+            --payload /tmp/current_affairs_payload.json --root .
+
       - name: Sync current-affairs candidates to Supabase
+        if: steps.source_health.outputs.mode == 'healthy'
         id: current_affairs_supabase
         continue-on-error: true
         env:
@@ -275,6 +288,7 @@ jobs:
           echo
 
       - name: Build privacy-safe public snapshots
+        if: steps.source_health.outputs.mode == 'healthy'
         run: |
           set -euo pipefail
           python scripts/build_current_affairs_snapshot.py \
@@ -330,6 +344,7 @@ jobs:
           python scripts/current_affairs_sources_smoke.py
           python scripts/current_affairs_supabase_sync_smoke.py
           python scripts/public_monitoring_v2_smoke.py
+          python scripts/current_affairs_degraded_guard.py --selftest
           python scripts/current_affairs_signals_smoke.py
           python scripts/current_affairs_events_smoke.py
           python -m py_compile scripts/monitoring_snapshot_noop_guard.py
@@ -337,11 +352,12 @@ jobs:
           git diff --check
 
       - name: Skip timestamp-only event/signal/trend changes (main only, no backup)
-        if: > 
-          (github.event_name == 'workflow_run' &&
-           github.event.workflow_run.conclusion == 'success' &&
-           github.event.workflow_run.head_branch == 'main') ||
-          github.ref == 'refs/heads/main'
+        if: >
+          steps.source_health.outputs.mode == 'healthy' &&
+          ((github.event_name == 'workflow_run' &&
+            github.event.workflow_run.conclusion == 'success' &&
+            github.event.workflow_run.head_branch == 'main') ||
+           github.ref == 'refs/heads/main')
         run: |
           set -euo pipefail
           python scripts/monitoring_snapshot_noop_guard.py --root .
@@ -349,10 +365,11 @@ jobs:
 
       - name: Publish changed monitoring snapshots
         if: >
-          (github.event_name == 'workflow_run' &&
-           github.event.workflow_run.conclusion == 'success' &&
-           github.event.workflow_run.head_branch == 'main') ||
-          github.ref == 'refs/heads/main'
+          steps.source_health.outputs.mode == 'healthy' &&
+          ((github.event_name == 'workflow_run' &&
+            github.event.workflow_run.conclusion == 'success' &&
+            github.event.workflow_run.head_branch == 'main') ||
+           github.ref == 'refs/heads/main')
         run: |
           set -euo pipefail
           git config user.name 'swsi-monitoring-bot'
@@ -380,7 +397,7 @@ jobs:
           exit 1
 
       - name: Fail visibly if current-affairs Supabase sync failed
-        if: steps.current_affairs_supabase.outcome != 'success'
+        if: steps.source_health.outputs.mode == 'healthy' && steps.current_affairs_supabase.outcome != 'success'
         run: |
           echo '::error::Current-affairs public snapshots were allowed to rebuild/publish, but the Supabase candidate sync failed.'
           exit 1
