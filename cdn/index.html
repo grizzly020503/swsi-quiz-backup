@@ -4606,5 +4606,190 @@ body :is(button,a,summary,select,input,textarea,[role="button"]):focus-visible{
 }
 </style>
 <!-- SWSI CALM STUDENT DESIGN V2 END -->
+
+<!-- SWSI CALM LEARNING UI V3 START -->
+<style id="swsi-calm-learning-ui-v3">
+/*
+ * Visual-only refinement, 2026-11-05.
+ * Keep student interactions, official answers, data flows, OCR, and backup unchanged.
+ * Prioritize one primary action; quiet surfaces; readable question text.
+ */
+:root {
+  --paper:#F7F9F7;
+  --paper2:#FFFFFF;
+  --ink:#23352F;
+  --ink-soft:#52655D;
+  --ink-3:#687A72;
+  --line:#DFE8E1;
+  --pine:#245D56;
+  --pine-deep:#204F48;
+  --gold:#8D6631;
+  --correct:#236B57;
+  --correct-bg:#E5F0EB;
+  --wrong:#A54F4B;
+  --wrong-bg:#F9EFED;
+  --swsi-calm-shadow:none;
+  --ux-radius:16px;
+}
+body {background:#F7F9F7;background-image:none;line-height:1.7;}
+body header {
+  background:rgba(247,249,247,.97);
+  border-bottom:1px solid #E5EDE7;
+  box-shadow:none;
+}
+body .logo::after{display:none;}
+body .gear{opacity:1;}
+body main{padding-top:22px;}
+/* One soft welcome surface instead of an additional visual banner. */
+body .ux-home-intro,body .hero,body .swsi-focus-hero{
+  background:#E5F0EB;
+  border:1px solid #D4E3D9;
+  border-left:1px solid #D4E3D9;
+  border-radius:19px;
+  box-shadow:none;
+  padding:25px 22px;
+  margin-bottom:17px;
+}
+body .hero::before,body .hero::after{display:none;}
+body .ux-home-intro h1,body .hero h1,body .swsi-focus-hero h1{
+  color:#204F48;
+  font-weight:800;
+  font-size:clamp(23px,4.6vw,29px);
+  line-height:1.35;
+  letter-spacing:0;
+}
+body .ux-home-intro p,body .hero .tagline,body .swsi-focus-hero p{
+  color:#4F685D;
+  line-height:1.7;
+  font-size:14px;
+}
+body .ux-home-meta span,body .hero .chip{
+  background:rgba(255,255,255,.60);
+  color:#32594E;
+  border:1px solid #D1E1D5;
+  box-shadow:none;
+}
+body .ux-main-card.primary,body .swsi-focus-primary{
+  background:#FFFFFF;
+  border:1px solid #D4E3D9;
+  border-radius:18px;
+  box-shadow:none;
+  padding:20px;
+}
+body .ux-card-title,body .swsi-focus-primary h2{
+  color:#213A32;
+  font-size:19px;
+  font-weight:800;
+  letter-spacing:0;
+}
+body .ux-main-card .ux-card-sub,body .swsi-focus-primary p{
+  color:var(--ink-soft);line-height:1.65;
+}
+body .ux-link-card,body .gcard,body .ecard,body .swsi-study-card,body .swsi-essay-action-card{
+  background:#FFFFFF;
+  border:1px solid #E1E9E3;
+  box-shadow:none;
+  border-radius:15px;
+}
+body .ux-link-card,body .swsi-study-card{padding:17px;margin-bottom:10px;}
+body .ux-link-card.hot,body .swsi-study-card.due{
+  background:#FFF8F6;
+  border-color:#ECD8D3;
+}
+body .ux-tools{margin-top:12px;}
+body .ux-tools button,body .swsi-home-quick button{
+  background:#FFFFFF;
+  color:var(--pine-deep);
+  border:1px solid #D2E0D6;
+  box-shadow:none;
+}
+body .ux-btn-main,body .btn:not(.ghost),body .swsi-focus-actions .go,
+body .swsi-essay-action-card button.go{
+  background:var(--pine);
+  color:white;
+  border-color:var(--pine);
+  border-radius:12px;
+  box-shadow:none;
+  letter-spacing:0;
+  font-weight:700;
+  transition:background-color .18s ease,transform .15s ease;
+}
+body .ux-btn-soft,body .btn.ghost,body .swsi-focus-actions .choose,
+body .swsi-essay-action-card button.choose{
+  background:#FFFFFF;
+  border:1px solid #C7D9CB;
+  box-shadow:none;
+  color:var(--pine-deep);
+}
+body .qcard,body .sumcard{
+  background:#FFFFFF;
+  border:1px solid #E0E9E3;
+  border-radius:18px;
+  box-shadow:none;
+}
+body .qmeta{gap:7px;}
+body .tag.subj{background:#E5F0EB;color:#204F48;}
+body .tag.year{background:#F5F4EF;color:#6E644D;}
+body .qtext{
+  color:#23352F;
+  font-weight:650;
+  line-height:1.83;
+  letter-spacing:0;
+}
+body .opt{
+  border:1.5px solid #DFE8E1;
+  background:#FFFFFF;
+  border-radius:12px;
+  margin-bottom:10px;
+  transition:background-color .18s ease,border-color .18s ease,transform .15s ease;
+}
+body .opt.sel{border-color:var(--pine);background:#EEF6F0;}
+body .opt.correct{border-color:var(--correct);background:var(--correct-bg);}
+body .opt.wrong{border-color:var(--wrong);background:var(--wrong-bg);}
+body .pbar{background:#E1EAE3;}
+body .pbar i{background:var(--pine);}
+body .exp{border-top:1px solid #E0E9E3;animation:swsi-v3-reveal .24s ease both;}
+body .tabbar{
+  background:rgba(255,255,255,.98);
+  border-color:#E1E9E3;
+  box-shadow:none;
+}
+body .tabbar button.on{
+  color:var(--pine);
+  background:#E5F0EB;
+}
+body .tabbar button.on::before{background:var(--pine);height:2px;}
+body .stat,body .sumcard,body .swsi-focus-custom,body .ux-custom{
+  box-shadow:none;
+  border-color:#E1E9E3;
+}
+body .swsi-home-resource{color:var(--ink-soft);}
+body :is(button,a,summary,select,input,textarea,[role="button"],[role="radio"]):focus-visible{
+  outline:3px solid #245D56;
+  outline-offset:3px;
+}
+@keyframes swsi-v3-reveal{
+  from{opacity:.65;transform:translateY(5px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@media (hover:hover){
+  body .ux-link-card:hover,body .gcard:hover,body .ecard:hover,body .swsi-study-card:hover{
+    box-shadow:none;
+    border-color:#B4D2BF;
+  }
+  body .opt:hover:not(.correct):not(.wrong){border-color:#90B7A1;background:#F6FAF6;}
+  body .ux-btn-main:hover,body .btn:not(.ghost):not(:disabled):hover{background:#193E38;}
+}
+@media (max-width:370px){
+  body .ux-home-intro,body .hero,body .swsi-focus-hero{padding:20px 17px;}
+  body .ux-main-card.primary,body .swsi-focus-primary{padding:17px;}
+}
+@media (prefers-reduced-motion:reduce){
+  body .exp,body .opt,body .ux-btn-main,body .btn,
+  body .ux-link-card,body .gcard,body .ecard{animation:none!important;transition:none!important;}
+}
+</style>
+<!-- SWSI CALM LEARNING UI V3 END -->
+
 </body>
 </html>
