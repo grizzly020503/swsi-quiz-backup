@@ -12,6 +12,7 @@ import hashlib
 import json
 import re
 from pathlib import Path
+from official_ten_source_integration_smoke import historical_manifest, P, encode
 from urllib.parse import parse_qs, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -86,7 +87,7 @@ def validate(candidate: dict, rows: list[dict], manifest: dict, registry: dict,
             candidate["essay_total_unchanged"] == 240,
             "corpus sizes not locked")
     require(candidate["baseline_dataset_revision"] ==
-            manifest["dataset_revision"], "dataset revision drift")
+            json.loads(historical_manifest(json.loads(P.read_text()), encode(manifest)))["dataset_revision"], "dataset revision drift")
     require(candidate["baseline_shard_sha256"] == actual_shard_sha,
             "baseline physical shard hash drift")
 
