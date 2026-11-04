@@ -13,7 +13,8 @@ const ORIGIN = 'https://wandering-wave-4418.c022050333.workers.dev';
 // require the deployed CSS to equal the reviewed CDN source. This prevents old live UI
 // from earning a misleading green check while Cloudflare is still deploying.
 const sourceHtml = fs.readFileSync(path.resolve(__dirname, '../cdn/index.html'), 'utf8');
-const cssMatches = [...sourceHtml.matchAll(/<style id="swsi-calm-student-design-v2">([\s\S]*?)<\/style>/g)];
+const designId = sourceHtml.includes('<style id="swsi-calm-learning-ui-v3">') ? 'swsi-calm-learning-ui-v3' : 'swsi-calm-student-design-v2';
+const cssMatches = [...sourceHtml.matchAll(new RegExp('<style id="' + designId + '">([\\s\\S]*?)</style>', 'g'))];
 assert(cssMatches.length <= 1, 'duplicate reviewed calm design CSS in CDN source');
 const expectedCalmCss = cssMatches.length ? cssMatches[0][1] : null;
 const requireCalmParity = process.env.GITHUB_EVENT_NAME !== 'pull_request' && expectedCalmCss !== null;
@@ -27,17 +28,17 @@ async function awaitReviewedDesign(page, label) {
   let attempts = 0;
   let last = 'style not seen';
   while (Date.now() < deadline) {
-    const deployed = await page.evaluate(() => {
-      const style = document.getElementById('swsi-calm-student-design-v2');
+    const deployed = await page.evaluate(id => {
+      const style = document.getElementById(id);
       return {
         css: style ? style.textContent : null,
         paper: getComputedStyle(document.body).backgroundColor,
         pine: getComputedStyle(document.documentElement).getPropertyValue('--pine-deep').trim()
       };
-    });
+    }, designId);
     if (deployed.css === expectedCalmCss) {
-      assert.equal(deployed.paper, 'rgb(244, 247, 245)', label + ': new body background not applied');
-      assert.equal(deployed.pine.toUpperCase(), '#1F544B', label + ': new CTA palette not applied');
+      assert.equal(deployed.paper, designId.endsWith('v3') ? 'rgb(247, 249, 247)' : 'rgb(244, 247, 245)', label + ': new body background not applied');
+      assert.equal(deployed.pine.toUpperCase(), designId.endsWith('v3') ? '#204F48' : '#1F544B', label + ': new CTA palette not applied');
       console.log('LIVE REVIEWED DESIGN PARITY OK ' + label + ' refreshes=' + attempts);
       return;
     }
