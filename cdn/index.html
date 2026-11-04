@@ -3192,10 +3192,16 @@ const SWSI_OFFICIAL_FIGURES=Object.freeze({
   'DS-113-2-13':{asset:'./official-figures/DS-113-2-13.png',pdf:'https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113100&c=103&s=0302&q=1',alt:'原卷家系圖，含親屬、年齡與關係線。點擊放大以閱讀完整圖示。'},
   'R-114-2-12':{asset:'./official-figures/R-114-2-12.png',pdf:'https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114100&c=103&s=0306&q=1',alt:'原卷量表圖，左右兩端分別是痛苦與快樂，中間有五個評分刻度。點擊放大以閱讀完整圖示。'}
 });
+// Confirmed source defects remain isolated until independent PDF approval.
+// Cloudflare-only policy: do not change official rows, answers or saved records.
+const SWSI_SOURCE_HOLD_IDS=Object.freeze(['DS-104-1-22','DS-104-1-27','DS-104-1-29']);
+function swsiSourceHeld(q){return !!q&&SWSI_SOURCE_HOLD_IDS.includes(q.id);}
+function swsiSourceHoldQuiz(q){return '<div class="card" data-source-hold="'+q.id+'"><h3>本題暫停作答</h3><p role="status">'+q.id+'：題目文字正在依官方原卷覆核，暫不顯示題幹、選項與解析，也不列入計分。</p><button class="btn" onclick="next()">略過待覆核題（不計分）→</button></div>';}
 const SWSI_FIGURE_STATUS=Object.create(null);
 function swsiNeedsOfficialFigure(q){return !!(q&&Object.prototype.hasOwnProperty.call(SWSI_OFFICIAL_FIGURES,q.id));}
-function swsiOfficialFigureReady(q){return !swsiNeedsOfficialFigure(q)||SWSI_FIGURE_STATUS[q.id]==='ready';}
+function swsiOfficialFigureReady(q){if(swsiSourceHeld(q))return false;return !swsiNeedsOfficialFigure(q)||SWSI_FIGURE_STATUS[q.id]==='ready';}
 function swsiOfficialFigureQuestion(q){
+  if(swsiSourceHeld(q))return '題目文字待官方原卷覆核，暫停作答';
   let txt=String((q&&q.q)||'');
   // Original imported surrogate describes the wrong relationship; show only
   // the official stem with the actual figure. Dataset correction remains gated.
@@ -3226,7 +3232,7 @@ function swsiOfficialFigureMarkup(q){
 
 function renderQuiz(){
   if(!queue.length){ app.innerHTML=`<div class="empty"><div class="ico">∅</div><h3>沒有符合的題目</h3><button class="btn" style="max-width:200px;margin:18px auto 0" onclick="go('home')">回首頁</button></div>`; return; }
-  const item=queue[idx]; const pct=Math.round((idx/queue.length)*100);
+  const item=queue[idx]; if(swsiSourceHeld(item)){app.innerHTML=swsiSourceHoldQuiz(item);return;} const pct=Math.round((idx/queue.length)*100);
   let optHTML='';
   const officialFigureReady=swsiOfficialFigureReady(item);
   for(const k of ['A','B','C','D']){
@@ -4297,7 +4303,7 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
 </script>
 <!-- SWSI UIUX V1 END -->
 <script>window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP={"version":"2026-08-27.canonical-build.v1","laws":{"count":24,"sha256":"bb946b67af633ea371550dc1b074dbca530ccb50f47e561c7590ff0e5ea89dfc"},"theories":{"count":39,"sha256":"1a74d39a9611caf002383527390dd3d7e5cc0b6665b6b7f89494f2a0d58ead4d"}};</script>
-<script src="monthly_patch.js?v=2d545dcc94d81c51"></script>
+<script src="monthly_patch.js?v=d2ae7e30135f5d95"></script>
 <!-- SWSI CALM STUDENT DESIGN V2 START -->
 <style id="swsi-calm-student-design-v2">
 /*
