@@ -4247,12 +4247,12 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
 
     app.innerHTML=offlineNote+
       '<div class="ux-home-intro">'+
-        '<div class="eyebrow">社工師國考</div><h1>今天要練什麼？</h1><p>選一件事開始就好，進階設定需要時再打開。</p>'+
-        '<div class="ux-home-meta"><span>5 科</span><span>'+ALL.length+' 題</span>'+(newest?'<span>'+newest+' 最新</span>':'')+'</div>'+
+        '<div class="eyebrow">社工師國考</div><h1>今天，從一題開始。</h1><p>先選一件事專心練習，進階功能需要時再打開。</p>'+
+        '<div class="ux-home-meta"><span>5 科</span><span>'+questionTotal()+' 題</span></div>'+
       '</div>'+
       '<div class="ux-main-card primary">'+
-        '<div class="ux-card-top"><div><div class="ux-card-title">📝 刷選擇題</div><div class="ux-card-sub">直接用智慧推薦練 20 題，或自己指定歷屆範圍。</div></div></div>'+
-        '<div class="ux-actions"><button class="ux-btn-main" onclick="startQuickSmartV1()">智慧刷 20 題</button><button class="ux-btn-soft" onclick="toggleHomeQuiz()">'+(homeQuizOpen?'收起設定':'自訂範圍')+'</button></div>'+
+        '<div class="ux-card-top"><div><div class="ux-card-title">刷選擇題</div><div class="ux-card-sub">先練 20 題，也可以自訂年度、科目與題數。</div></div></div>'+
+        '<div class="ux-actions"><button class="ux-btn-main" onclick="startQuickSmartV1()">開始刷題 · 20 題</button><button class="ux-btn-soft" onclick="toggleHomeQuiz()">'+(homeQuizOpen?'收起設定':'自訂範圍')+'</button></div>'+
       '</div>'+
       (homeQuizOpen?('<div class="ux-custom">'+
         '<div class="ux-custom-label">刷題範圍</div><select class="subj" onchange="setHomeQuizScope(this.value)" style="margin-bottom:9px">'+
@@ -4261,9 +4261,9 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
         '<select class="subj" onchange="subjFilter=this.value" style="margin-bottom:9px">'+subjOpts+'</select>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="subj" onchange="setHomeQuizCount(this.value)" style="margin:0"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="50" '+(homeQuizCount===50?'selected':'')+'>50 題</option><option value="0" '+(homeQuizCount===0?'selected':'')+'>全部符合題目</option></select><button class="ux-btn-main" onclick="startFocusedQuiz()">開始刷題</button></div>'+
         '<div class="ux-note">'+scopeHint+'</div></div>'):'')+
-      '<div class="ux-link-card '+(rv.dueCount?'hot':'')+'" onclick="'+(rv.dueCount?'startDueReview()':"go('review')")+'"><div class="left"><div class="title">🧠 今日複習</div><div class="sub">'+reviewSub+'</div></div>'+(rv.dueCount?'<span class="ux-badge">'+rv.dueCount+' 題</span>':'<span class="arrow">›</span>')+'</div>'+
-      '<div class="ux-link-card" onclick="go(\'essay\')"><div class="left"><div class="title">✍️ 申論練習</div><div class="sub">歷屆申論、時事題材與 AI 作答回饋</div></div><span class="arrow">›</span></div>'+
-      '<div class="ux-tools"><button onclick="MK.open()">計時模擬考</button><button onclick="go(\'topics\')">學習工具</button></div>';
+      '<div class="swsi-v3-shortcuts"><div class="ux-link-card '+(rv.dueCount?'hot':'')+'" onclick="'+(rv.dueCount?'startDueReview()':"go('review')")+'"><div class="left"><div class="title">今日複習</div><div class="sub">'+reviewSub+'</div></div>'+(rv.dueCount?'<span class="ux-badge">'+rv.dueCount+' 題</span>':'<span class="arrow">›</span>')+'</div>'+
+      '<div class="ux-link-card" onclick="go(\'essay\')"><div class="left"><div class="title">申論練習</div><div class="sub">歷屆申論、時事題材與 AI 作答回饋</div></div><span class="arrow">›</span></div>'+
+      '</div><div class="ux-tools"><button onclick="MK.open()">計時模擬考</button><button onclick="go(\'topics\')">學習工具</button></div>';
     relabelTabs();
   };
 
@@ -4788,6 +4788,36 @@ body :is(button,a,summary,select,input,textarea,[role="button"],[role="radio"]):
   body .exp,body .opt,body .ux-btn-main,body .btn,
   body .ux-link-card,body .gcard,body .ecard{animation:none!important;transition:none!important;}
 }
+
+/* Two equal secondary learning paths; primary CTA stays visually dominant. */
+body .swsi-v3-shortcuts{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin:16px 0 0;
+}
+body .swsi-v3-shortcuts .ux-link-card{
+  display:flex;
+  min-height:106px;
+  margin:0;
+  padding:17px 15px;
+  align-items:flex-start;
+}
+body .swsi-v3-shortcuts .ux-link-card .left{min-width:0;}
+body .swsi-v3-shortcuts .ux-link-card .title{font-size:16px;font-weight:750;}
+body .swsi-v3-shortcuts .ux-link-card .sub{font-size:12px;line-height:1.6;}
+body .swsi-v3-shortcuts .ux-link-card .arrow{flex-shrink:0;}
+body .ux-main-card.primary{margin-bottom:0;}
+body .ux-main-card.primary .ux-btn-main:active,
+body .btn:not(:disabled):active{transform:translateY(1px);}
+@media(max-width:410px){
+ body .swsi-v3-shortcuts{grid-template-columns:1fr;gap:10px;}
+ body .swsi-v3-shortcuts .ux-link-card{min-height:76px;align-items:center;}
+}
+@media(prefers-reduced-motion:reduce){
+ body .ux-main-card.primary .ux-btn-main,body .btn{transform:none;transition:none;}
+}
+
 </style>
 <!-- SWSI CALM LEARNING UI V3 END -->
 
