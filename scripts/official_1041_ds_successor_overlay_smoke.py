@@ -14,6 +14,7 @@ import hashlib
 import json
 import tempfile
 from pathlib import Path
+from official_ten_source_integration_smoke import historical_manifest, P, encode
 
 from official_exam_readonly_guard import MCQ_FIELDS, canonical_row, row_hash
 
@@ -72,7 +73,7 @@ def verify(staged_root: Path) -> tuple[dict[str, bytes], dict]:
          before_manifest["total_questions"] == EXAM_COUNT and
          before_lock["mcq_count"] == EXAM_COUNT and before_lock["essay_count"] == 240,
          "prior historical counts drifted")
-    must(before_manifest["dataset_revision"] == audit["baseline_dataset_revision"],
+    must(json.loads(historical_manifest(json.loads(P.read_text()), encode(before_manifest)))["dataset_revision"] == audit["baseline_dataset_revision"],
          "base manifest revision drift")
     before_meta = next(m for m in before_manifest["shards"] if m["file"] == "104-1.json")
     must(before_meta["sha256"] == sha(before_shard_raw) ==

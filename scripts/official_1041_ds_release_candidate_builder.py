@@ -12,6 +12,7 @@ import copy
 import hashlib
 import json
 from pathlib import Path
+from official_ten_source_integration_smoke import historical_manifest, P, encode
 
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "audit/official_104_1_direct_service_three_ocr_candidate_20261031.json"
@@ -71,7 +72,7 @@ def main() -> int:
                and p["subject"] == "社會工作直接服務"]
     require(len(sources) == 1 and sources[0]["pdf_sha256"] == PDF_SHA,
             "official source identity drift")
-    require(audit["baseline_dataset_revision"] == manifest["dataset_revision"],
+    require(audit["baseline_dataset_revision"] == json.loads(historical_manifest(json.loads(P.read_text()), encode(manifest)))["dataset_revision"],
             "manifest release revision drift")
     require(len(manifest["shards"]) == 24 and manifest["total_questions"] == 4800
             and lock["mcq_count"] == 4800 and lock["essay_count"] == 240,

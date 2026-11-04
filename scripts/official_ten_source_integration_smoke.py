@@ -5,6 +5,7 @@ Reconstruct its exact parent so earlier five/13/genogram assertions remain intac
 These deterministic checks do not supply independent human approval.
 """
 import copy,hashlib,json
+from datetime import datetime
 from pathlib import Path
 from official_exam_readonly_guard import canonical_row,row_hash,MCQ_FIELDS
 ROOT=Path(__file__).resolve().parents[1]
@@ -31,12 +32,42 @@ def projected_parent_shard_bytes(filename):
     assert sha(prior)==p['old_shards'][filename]['sha256'] and len(prior)==p['old_shards'][filename]['bytes']
     return prior
 
+def historical_manifest(p, raw):
+    """Accept only a byte-identical corpus rebuilt by the tracked shard builder.
+
+    Reconstruct and hash the pinned historical manifest first. Only the three
+    builder-owned metadata fields may differ; physical shards and row contracts
+    are still checked by validate_transition. No files are rewritten.
+    """
+    historical = json.loads(p['manifest_before_raw'])
+    for entry in historical['shards']:
+        if entry['file'] in p['new_shards']:
+            entry.update(p['new_shards'][entry['file']])
+    historical['total_uncompressed_bytes'] = sum(e['bytes'] for e in historical['shards'])
+    historical['dataset_revision'] = p['dataset_revision_after']
+    pinned = encode(historical)
+    assert sha(pinned) == p['manifest_after_sha256'], 'historical manifest proof drift'
+    if raw == pinned:
+        return pinned
+    current = json.loads(raw)
+    assert raw == encode(current), 'noncanonical rebuilt manifest'
+    assert current['source'] == 'Supabase public.questions (read-only)'
+    stamp = datetime.fromisoformat(current['generated_at'].replace('Z', '+00:00'))
+    assert stamp.tzinfo is not None, 'rebuilt manifest timestamp lacks timezone'
+    revision = sha('\n'.join(f"{e['file']}:{e['sha256']}" for e in current['shards']).encode())[:20]
+    assert current['dataset_revision'] == revision, 'rebuilt dataset revision drift'
+    metadata = {'source', 'generated_at', 'dataset_revision'}
+    assert {k:v for k,v in current.items() if k not in metadata} == {
+        k:v for k,v in historical.items() if k not in metadata
+    }, 'rebuilt manifest corpus differs from pinned release'
+    return pinned
+
 def validate_transition(p,rows,lock,raw):
     assert p['schema_version']==1 and p['scope']=='TEN_PINNED_OFFICIAL_SOURCE_CORRECTIONS'
     assert p['base_main']=='73460bfdfbc3503e0c7d3d7674c857a954429152'
     assert p['independent_human_approval'] is False and p['whole_platform_release_approved'] is False
     assert p['backup_changed'] is False and p['analyzer_configuration_changed'] is False
-    assert sha(raw)==p['manifest_after_sha256']
+    raw=historical_manifest(p,raw)
     prior=p['manifest_before_raw'].encode();assert sha(prior)==p['manifest_before_sha256']
     five=json.loads((ROOT/'audit/official_five_source_corrections_20261031.json').read_text())
     assert p['manifest_before_sha256']==five['new_manifest_sha256']
@@ -89,6 +120,13 @@ def main():
     p=json.loads(P.read_text());raw=(ROOT/'cdn/question-shards/manifest.json').read_bytes();rows=[]
     for m in json.loads(raw)['shards']:rows+=json.loads((ROOT/'cdn/question-shards'/m['file']).read_bytes())['questions']
     lock=json.loads((ROOT/'data/official_exam_readonly.lock.json').read_text());validate_transition(p,rows,lock,raw)
+    historical_manifest(p, historical_manifest(p, raw))
+    for field, value in (('dataset_revision', '0'*20), ('source', 'unverified'),
+                         ('total_questions', 4799), ('generated_at', 'invalid')):
+        mutated=json.loads(raw);mutated[field]=value
+        try:historical_manifest(p,encode(mutated))
+        except (AssertionError,ValueError):pass
+        else:raise AssertionError('Unauthorized manifest accepted: '+field)
     for kind in ('target','answer','other-row','source-url','source-hash','source-page','source-correction','lock','approval','enrichment','manifest','database'):
         cp,rs,lk=copy.deepcopy((p,rows,lock));t=next(r for r in rs if r['id']=='R-111-2-14')
         if kind=='target':t['question']=t['question'].split('\n\n')[-1]
