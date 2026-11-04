@@ -4606,5 +4606,166 @@ body :is(button,a,summary,select,input,textarea,[role="button"]):focus-visible{
 }
 </style>
 <!-- SWSI CALM STUDENT DESIGN V2 END -->
+
+<!-- SWSI CALM UI V3 / CLOUDFLARE CANDIDATE / CSS ONLY -->
+<style id="swsi-calm-ui-v3-20261105">
+/* Single visual language; preserve all navigation, question and grading behavior. */
+:root{
+  --paper:#F7F9F7;
+  --paper2:#FFFFFF;
+  --ink:#26352F;
+  --ink-soft:#52625B;
+  --ink-3:#65746D;
+  --line:#E2EAE4;
+  --pine:#245D56;
+  --pine-deep:#245D56;
+  --gold:#96703D;
+  --correct:#246C59;
+  --correct-bg:#E5F0EB;
+  --wrong:#9B4542;
+  --wrong-bg:#FFF1EF;
+  --swsi-calm-shadow:none;
+}
+body{
+  color:var(--ink);
+  background:#F7F9F7;
+  background-image:none;
+  font-family:'Noto Sans TC',system-ui,-apple-system,sans-serif;
+}
+body header{
+  background:rgba(247,249,247,.96);
+  border-bottom:1px solid var(--line);
+  box-shadow:none;
+}
+body .logo{color:var(--pine-deep);font-family:'Noto Sans TC',system-ui,sans-serif;letter-spacing:0}
+body .logo::after{display:none}
+body main{padding-top:22px}
+body .fontctl,body .tabbar{box-shadow:none}
+body .tabbar{border-color:var(--line);background:rgba(255,255,255,.98)}
+body .tabbar button.on{background:#E5F0EB;color:var(--pine-deep)}
+/* The existing focus intro and primary action form ONE calm, sage-tinted hero. */
+body .swsi-focus-hero{
+  background:#E5F0EB;
+  border:1px solid #D1E2D8;
+  border-bottom:0;
+  border-radius:22px 22px 0 0;
+  margin:0;
+  padding:25px 24px 10px;
+  box-shadow:none;
+}
+body .swsi-focus-hero .kicker{
+  color:#365E54;font-size:12px;letter-spacing:.4px;font-weight:700;
+}
+body .swsi-focus-hero h1{
+  color:#204E48;font-family:'Noto Sans TC',system-ui,sans-serif;
+  font-weight:800;letter-spacing:-.4px;font-size:clamp(25px,5vw,31px);
+}
+body .swsi-focus-hero p{
+  color:#42645B;font-size:14px;line-height:1.75;
+  max-width:38em;margin-top:9px;
+}
+body .swsi-focus-primary{
+  background:#E5F0EB;
+  border:1px solid #D1E2D8;
+  border-top:0;
+  border-radius:0 0 22px 22px;
+  box-shadow:none;
+  padding:4px 24px 24px;
+  margin-bottom:26px;
+}
+body .swsi-focus-primary .label{color:#466E62;font-size:12px;letter-spacing:0}
+body .swsi-focus-primary h2{
+  color:#204E48;font-family:'Noto Sans TC',system-ui,sans-serif;
+  font-size:18px;letter-spacing:0;
+}
+body .swsi-focus-primary p{font-size:13px;color:#506C63;line-height:1.65}
+body .swsi-focus-actions{gap:10px;margin-top:16px}
+body .swsi-focus-actions button{min-height:52px;border-radius:13px;font-weight:750}
+body .swsi-focus-actions .go{
+  background:var(--pine);border-color:var(--pine);color:#FFF;box-shadow:none;
+}
+body .swsi-focus-actions .choose{
+  color:var(--pine-deep);background:#FFF;border:1px solid #B7D2C4;
+}
+body .swsi-focus-custom{
+  margin-top:-9px;margin-bottom:22px;
+  padding:18px;background:#FFF;border:1px solid var(--line);
+  border-radius:18px;box-shadow:none;
+}
+/* Keep review and mock exam as two quiet choices, not two competing hero panels. */
+body .swsi-home-quick{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:11px;margin:5px 0 0;border:0;background:transparent;
+}
+body .swsi-home-quick button,
+body .swsi-home-quick button+button,
+body .swsi-home-quick button.due{
+  min-height:66px;
+  padding:14px 10px;
+  background:#FFF;
+  border:1px solid var(--line);
+  border-radius:16px;
+  color:var(--pine-deep);
+  box-shadow:none;
+  font-size:14px;
+  line-height:1.4;
+}
+body .swsi-home-quick button.due{border-color:#E9C8C2;color:#8D413D;background:#FFF9F8}
+body .swsi-home-resource{
+  background:transparent;border:0;color:#52625B;
+  margin-top:10px;font-size:13px;
+}
+body .swsi-study-card,
+body .ux-link-card,
+body .gcard,
+body .ecard{
+  background:#FFF;border:1px solid var(--line);
+  border-radius:16px;box-shadow:none;
+}
+body .swsi-study-card{padding:18px 16px;margin-bottom:10px}
+body .swsi-study-card .title,
+body .ux-link-card .title,
+body .gcard .name{
+  color:var(--ink);font-family:'Noto Sans TC',system-ui,sans-serif;
+}
+body .qcard,body .sumcard{
+  background:#FFF;border:1px solid var(--line);
+  border-radius:19px;box-shadow:none;
+}
+body .qtext{color:#25342D;line-height:1.85}
+body .opt{background:#FFF;border:1.5px solid #DCE6DF;box-shadow:none}
+body .opt.sel{border-color:var(--pine);background:#F0F7F2}
+body .opt.correct{border-color:var(--correct);background:var(--correct-bg)}
+body .opt.wrong{border-color:var(--wrong);background:var(--wrong-bg)}
+body .btn,body .ux-btn-main{letter-spacing:0;box-shadow:none;background:var(--pine);color:#FFF}
+body .btn.ghost,body .ux-btn-soft{background:#FFF;color:var(--pine-deep);box-shadow:none}
+body .tag.subj{background:#E5F0EB;color:var(--pine-deep)}
+body .tag.year{background:#F2F4F1;color:#52625B}
+body .stat,body .pending,body .extra{box-shadow:none}
+body :is(.swsi-focus-actions button,.swsi-home-quick button,.btn,.opt,.gcard,.ecard,.swsi-study-card){
+  transition:background-color 180ms ease,border-color 180ms ease,transform 160ms ease;
+}
+@media (hover:hover){
+  body :is(.swsi-focus-actions button,.swsi-home-quick button,.swsi-study-card):hover{transform:translateY(-1px)}
+}
+body :is(.swsi-focus-actions button,.swsi-home-quick button,.swsi-study-card):active{transform:translateY(1px)}
+body :is(button,a,summary,select,input,textarea,[role="button"]):focus-visible{
+  outline:3px solid #245D56;outline-offset:3px;
+}
+@media (max-width:370px){
+  body .swsi-focus-hero{padding:23px 17px 9px}
+  body .swsi-focus-primary{padding:3px 17px 19px}
+  body .swsi-focus-actions{grid-template-columns:1fr}
+  body .swsi-home-quick{gap:8px}
+  body .swsi-home-quick button{padding:12px 6px;font-size:12.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  body :is(.swsi-focus-actions button,.swsi-home-quick button,.btn,.opt,.gcard,.ecard,.swsi-study-card){
+    transition:none!important;animation:none!important;transform:none!important;
+  }
+}
+</style>
+<!-- SWSI CALM UI V3 END -->
+
 </body>
 </html>
