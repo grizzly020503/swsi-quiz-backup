@@ -645,7 +645,51 @@ async function verifyHostedPwaOffline() {
     await page.waitForFunction(() => !!navigator.serviceWorker.controller,
       null, { timeout: 20000 });
 
-    await page.evaluate(() => ensureAllQuestionsLoaded());
+    try {
+      await page.evaluate(() => ensureAllQuestionsLoaded());
+    } catch (error) {
+      // This occasionally fails only on the first, real hosted PWA warm-up.
+      // Log a bounded, read-only integrity snapshot to distinguish a short
+      // network/cache race from leaked/duplicated official rows. Never retry
+      // or silently downgrade the full-corpus fail-closed gate here.
+      let details;
+      try {
+        details = await page.evaluate(() => {
+          const qb = window.SWSI_QB || {};
+          const rows = typeof ALL !== 'undefined' && Array.isArray(ALL) ? ALL : [];
+          const owners = qb.questionOwners instanceof Map ? qb.questionOwners : new Map();
+          const seen = new Set(), duplicates = [], missingOwnerIds = [];
+          let blankIds = 0;
+          for (const row of rows) {
+            const id = row && typeof row.id === 'string' ? row.id.trim() : '';
+            if (!id) { blankIds++; continue; }
+            if (seen.has(id) && duplicates.length < 8) duplicates.push(id);
+            seen.add(id);
+            if (!owners.has(id) && missingOwnerIds.length < 8) missingOwnerIds.push(id);
+          }
+          return {
+            manifestRevision: qb.manifest?.dataset_revision || null,
+            expectedTotal: qb.manifest?.total_questions ?? null,
+            expectedShards: qb.manifest?.shards?.length ?? null,
+            actualRows: rows.length,
+            uniqueIds: seen.size,
+            blankIds,
+            ownerCount: owners.size,
+            loadedFiles: qb.loadedFiles instanceof Set ? [...qb.loadedFiles].sort() : [],
+            loadingFiles: qb.loading instanceof Map ? [...qb.loading.keys()].sort() : [],
+            duplicateIds: duplicates,
+            missingOwnerIds,
+            usingOffline: qb.usingOffline,
+            manifestSource: qb.manifestSource,
+            integrityError: String(qb.error?.message || '')
+          };
+        });
+      } catch (diagnosticError) {
+        details = { diagnosticError: String(diagnosticError?.message || diagnosticError) };
+      }
+      console.error('CLOUDFLARE PWA FULL-CORPUS FAILURE DIAGNOSTIC ' + JSON.stringify(details));
+      throw error;
+    }
     await page.waitForFunction(async () => {
       try { const record = await loadOfflineQuestions();
         return record?.rows?.length === 4800; } catch (_e) { return false; }
