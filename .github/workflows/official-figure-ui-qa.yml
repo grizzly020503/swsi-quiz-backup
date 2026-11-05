@@ -94,3 +94,5 @@ jobs:
           node scripts/official_figure_mobile_browser_smoke.js http://127.0.0.1:4176/
           node --check scripts/official_source_hold_browser_smoke.js
           node scripts/official_source_hold_browser_smoke.js http://127.0.0.1:4176/
+          node scripts/browser_interaction_smoke.js http://127.0.0.1:4176 chromium
+          node scripts/browser_interaction_smoke.js http://127.0.0.1:4176 webkit
