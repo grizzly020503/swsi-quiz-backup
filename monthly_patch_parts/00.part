@@ -647,6 +647,7 @@ window.swsiEsc = swsiEsc;
       return;
     }
     const item=queue[idx], pct=Math.round((idx/queue.length)*100), mode=gradingMode(item), accepted=acceptedAnswers(item);
+    if(typeof window.swsiSourceHeld==='function'&&window.swsiSourceHeld(item)){app.innerHTML=window.swsiSourceHoldQuiz(item);return;}
     const figureReady=swsiOfficialFigureReady(item);
     let optHTML='';
     for(const k of ['A','B','C','D']){
