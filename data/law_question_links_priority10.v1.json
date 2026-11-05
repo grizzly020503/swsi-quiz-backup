@@ -792,7 +792,7 @@
         "兒童及少年未來教育與發展帳戶條例"
       ],
       "legacy_question_count": 12,
-      "matched_question_count": 12,
+      "matched_question_count": 11,
       "questions": [
         {
           "question_id": "SP106-2-12",
@@ -902,22 +902,6 @@
           "grading_mode": "standard",
           "accepted_answers": null,
           "law_metadata": "兒童及少年未來教育與發展帳戶條例。",
-          "match_reason": "題目 law metadata 明示法規名稱；尚未逐條核對歷史法規版本",
-          "match_strength": "metadata_only",
-          "historical_version_checked": false
-        },
-        {
-          "question_id": "SP111-2-34",
-          "year": "111",
-          "round": "第二次",
-          "exam_code": "111-2",
-          "subject": "社會政策與社會立法",
-          "question_number": "34",
-          "stem": "依據兒童及少年未來教育與發展帳戶條例第22 條規定，直轄市、縣（市）主管機關得對連 續幾個月內未存款之開戶人、法定代理人或最近親屬，進行輔導及提供相關協助？",
-          "official_answer": "C",
-          "grading_mode": "standard",
-          "accepted_answers": null,
-          "law_metadata": "兒童及少年未來教育與發展帳戶條例第22條。",
           "match_reason": "題目 law metadata 明示法規名稱；尚未逐條核對歷史法規版本",
           "match_strength": "metadata_only",
           "historical_version_checked": false
