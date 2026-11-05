@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "status": "LIVE_SELECT_PREIMAGE_PROVEN_RELEASE_NO_GO",
+  "checked_at": "2026-11-05",
+  "database_project_name": "Swsi",
+  "scope": "Two still-held historical official MCQ imports; SELECT-only production shadow. Source review, not approval.",
+  "main_base_sha": "d76eb79623e1a98c0cf9c3ffa63a828978a7829f",
+  "results": {
+    "official_mcq_count": 4800,
+    "targets": 2,
+    "strict_matches": 2,
+    "rows_have_37_columns": true,
+    "all_non_option_fields_preserved": true,
+    "production_writes": 0
+  },
+  "rows": [
+    {
+      "id": "R-107-2-40",
+      "expected_answer": "D",
+      "changed_fields_proposed": [
+        "opt_d"
+      ],
+      "before_37_column_sha256": "ec50059ee6d7ef42fb093e19edde8c2058321e6730844f8a64463a01397d6705",
+      "unaffected_fields_sha256": "b5838df66ee261cf845a0c93f3f08e7e8304c0059286cfd3e8725a93cf943faa",
+      "proposed_source_field_shadow_sha256": "62be4a94fd07080100a30a389e0245ab1d272e99454134bce2acde163a80fe87",
+      "original_pdf_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0606&q=1",
+      "original_pdf_registry_sha256": "65fc5955c9a6190db3a4792eb0889678d958e856e544ecaa8c22c86cf952468d",
+      "original_printed_page": "4-4",
+      "evidence": "Official PDF source web page 4 visually inspected in this conversation. Appended Q12 special-credit note is not part of Q40(D)."
+    },
+    {
+      "id": "SP111-2-34",
+      "expected_answer": "C",
+      "changed_fields_proposed": [
+        "opt_a",
+        "opt_b",
+        "opt_c",
+        "opt_d"
+      ],
+      "before_37_column_sha256": "b4ebad61984ab44a8e0949d90d6cf23a8bd2575f00568d93fdd598ca4c79ef7d",
+      "unaffected_fields_sha256": "d045f3978fb52e7018149c3c7ff81b6efb92c7e86ab1ec0f42bc4a21e7e28f2f",
+      "proposed_source_field_shadow_sha256": "b931225d843499b14144b98df9970961744bdc1f6f691ee3fae4b474bba0eae3",
+      "original_pdf_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111110&c=105&s=0404&q=1",
+      "original_pdf_registry_sha256": "9a4afe4df13a7b88582efa0bb3950ccdb3780ec5c7e3380afabe8b0e8f2e3a0d",
+      "original_printed_page": "6-5",
+      "evidence": "Official PDF source web page 5 visually inspected in this conversation. Original A/B/C/D number prefixes verified."
+    }
+  ],
+  "safety": {
+    "human_original_pdf_approval": false,
+    "private_production_faithful_restore_proven": false,
+    "release_approved": false,
+    "production_write": false,
+    "backup_operation": false,
+    "official_core_modified": false,
+    "next_required": "Independent human original-PDF review; production-faithful restore and all triggers/pg_cron/AI side-effects; guarded 37-column transaction and rollback rehearsal; then controlled data/CDN source release and public browser parity. Current five-source hold remains."
+  }
+}
