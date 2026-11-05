@@ -408,7 +408,7 @@ async function check(engine, label, width, height, practice) {
       const paths = [...document.querySelectorAll('#app .swsi-v4-study-paths > .swsi-v4-path')]
         .map(el => el.querySelector('.swsi-v4-path-title')?.textContent?.trim() || '');
       const tools = [...document.querySelectorAll('#app .swsi-v4-tool-grid > button')]
-        .map(el => el.textContent?.trim() || '');
+        .map(el => el.querySelector('span:last-child')?.textContent?.trim() || '');
       const nav = [...document.querySelectorAll('#tabbar button')].filter(el => {
         const style = getComputedStyle(el);
         const box = el.getBoundingClientRect();
