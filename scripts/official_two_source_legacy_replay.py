@@ -21,6 +21,7 @@ PINNED_PRE_RELEASE = "c51f5dff3af0563944c8ba790caa1208c98885ac"
 CASES = {
     "ten": ("scripts/official_ten_source_integration_smoke.py",),
     "five": ("scripts/official_five_source_mcq_smoke.py",),
+    "figure": ("scripts/official_figure_ui_qa.py",),
     "1041": ("scripts/official_1041_ds_ocr_candidate_selftest.py",),
     "context": ("scripts/official_shared_context_13row_integration_smoke.py",),
 }
