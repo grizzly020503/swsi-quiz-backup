@@ -111,7 +111,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       v4Installed: !!document.getElementById('swsi-calm-navigation-v4')
     };
   });
-  assert.strictEqual(actualHome.paper, '#F7F9F7', 'V4 background token not active');
+  assert.strictEqual(actualHome.paper, '#F4F7F5', 'static build calm paper token changed (Cloudflare V3 has its own #F7F9F7 override)');
   assert.strictEqual(actualHome.heroBackground, 'rgb(229, 240, 235)', 'approved pale green CTA hero is not rendered');
   assert(/今天，從一題開始/.test(actualHome.heroTitle || ''), 'live renderHome still uses old copy');
   assert(actualHome.primaryHeight >= 48, 'primary CTA touch height is too small');
