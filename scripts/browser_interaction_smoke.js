@@ -173,7 +173,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.waitForFunction(() => document.documentElement.getAttribute('data-fs') === '0');
 
   // Force one genuinely wrong answer so the learning-loop UI is always exercised.
-  await page.getByRole('button', { name: /開始 10 題/ }).click();
+  await page.getByRole('button', { name: /開始刷題/ }).click();
   await page.waitForSelector('.qcard .opt', { timeout: 45000 });
   assert.strictEqual((await page.locator('.pcount').innerText()).trim(), '1 / 10', 'default home CTA did not start a 10-question queue');
   await page.waitForFunction(() => document.body.classList.contains('swsi-question-active'));
