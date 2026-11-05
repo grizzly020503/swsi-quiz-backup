@@ -51,7 +51,7 @@ def verify():
  m=json.loads(M.read_text(encoding='utf-8'))
  require(m['dataset_revision']=='cf421a2ab378b68322f7' and m['total_questions']==4800 and
          len(m['shards'])==24 and m['total_uncompressed_bytes']==7623799,'release manifest/version')
- require('owner-approved' in m['source'],'source release provenance')
+ require(m['source']=='Supabase public.questions (read-only)','canonical manifest provenance')
  allrows={}
  others={}
  sizes=0
