@@ -697,14 +697,15 @@ async function verifyHostedPwaOffline() {
     // online site. Use only the browser's already-persisted offline question
     // rows, with no official corpus write or AI/network request.
     const offlineHoldResult = await page.evaluate(() => {
-      const ids = ['DS-104-1-22', 'DS-104-1-27', 'DS-104-1-29',
-        'R-107-2-40', 'SP111-2-34'];
+      const heldIds = ['DS-104-1-22', 'DS-104-1-27', 'DS-104-1-29'];
+      const releasedIds = ['R-107-2-40', 'SP111-2-34'];
       if (typeof swsiSourceHeld !== 'function' || ALL.length !== 4800)
         throw Error('offline source quarantine/corpus missing');
       const beforeStorage = JSON.stringify(localStorage);
       const beforeHistory = loadHist().length;
       const cases = [];
-      for (const id of ids) {
+      const releasedCases = [];
+      for (const id of heldIds) {
         const item = ALL.find(q => q.id === id);
         if (!item) throw Error('offline source-held question absent: ' + id);
         const beforeRow = JSON.stringify(item);
@@ -728,21 +729,43 @@ async function verifyHostedPwaOffline() {
         cases.push({ id, hidden, blocked, afterStaleAnswer,
           originalUnchanged: JSON.stringify(item) === beforeRow });
       }
+      // Owner-approved #542 source fixes must be answerable offline. Do not
+      // submit them or modify progress; verify rendered options and exact rows.
+      for (const id of releasedIds) {
+        const item = ALL.find(q => q.id === id);
+        if (!item) throw Error('offline approved question absent: ' + id);
+        const beforeRow = JSON.stringify(item);
+        view = 'quiz'; queue = [item]; idx = 0; selected = null;
+        answered = false;
+        sessionStats = { done: 0, correct: 0, wrongTopics: [] };
+        renderQuiz();
+        const app = document.getElementById('app');
+        const answerable = !swsiSourceHeld(item) &&
+          !app.querySelector('[data-source-hold="' + id + '"]') &&
+          app.querySelectorAll('.opt').length === 4 &&
+          app.innerText.includes(item.q);
+        releasedCases.push({ id, answerable,
+          originalUnchanged: JSON.stringify(item) === beforeRow });
+      }
       view = 'home'; queue = []; selected = null; answered = false;
       render();
-      return { online: navigator.onLine, cases,
+      return { online: navigator.onLine, cases, releasedCases,
         storageUnchanged: JSON.stringify(localStorage) === beforeStorage,
         historyUnchanged: loadHist().length === beforeHistory };
     });
     assert.equal(offlineHoldResult.online, false, 'offline hold test accidentally online');
-    assert.equal(offlineHoldResult.cases.length, 5, 'offline held-source case count');
+    assert.equal(offlineHoldResult.cases.length, 3, 'offline held-source case count');
     assert(offlineHoldResult.cases.every(c => c.hidden && c.blocked &&
       c.afterStaleAnswer && c.originalUnchanged),
-      'offline PWA leaked a malformed held question: ' + JSON.stringify(offlineHoldResult.cases));
+      'offline PWA leaked an unapproved held question: ' + JSON.stringify(offlineHoldResult.cases));
+    assert.equal(offlineHoldResult.releasedCases.length, 2, 'offline approved-source case count');
+    assert(offlineHoldResult.releasedCases.every(c => c.answerable && c.originalUnchanged),
+      'offline PWA still blocked an owner-approved source repair: ' +
+      JSON.stringify(offlineHoldResult.releasedCases));
     assert(offlineHoldResult.storageUnchanged && offlineHoldResult.historyUnchanged,
-      'offline held questions mutated student progress or attempt history');
+      'offline source check mutated student progress or attempt history');
     console.log('CLOUDFLARE HOSTED PWA OFFLINE SOURCE HOLDS OK: ' +
-      '5/5 held stems/options blocked, stale answer rejected, zero history writes');
+      '3/3 unapproved held stems blocked; 2/2 owner-approved questions answerable; zero history writes');
 
     await page.locator('#t-essay').click();
     await page.waitForFunction(id => {
