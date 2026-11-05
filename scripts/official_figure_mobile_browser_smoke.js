@@ -158,7 +158,7 @@ async function runOne(browser,engine,entry,missing,layout){
   for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
     const browser=await type.launch({headless:true});
     try{
-      for(const layout of [{name:'mobile',viewport:{width:390,height:844},mobile:true},{name:'desktop',viewport:{width:1366,height:900},mobile:false}]){
+      for(const layout of [320,375,390,430,768,1366].map(width=>({name:String(width)+'px',viewport:{width,height:900},mobile:width<768}))){
         for(const entry of rows){
           await runOne(browser,engine+' '+layout.name,entry,false,layout);
           await runOne(browser,engine+' '+layout.name,entry,true,layout);
@@ -168,5 +168,5 @@ async function runOne(browser,engine,entry,missing,layout){
       await browser.close();
     }
   }
-  console.log('OFFICIAL MOEX FIGURE REAL MOBILE BROWSER QA PASS: 2 engines x 2 layouts x 2 figures x loaded/missing, quiz and mock');
+  console.log('OFFICIAL MOEX FIGURE REAL MOBILE BROWSER QA PASS: 2 engines x 6 layouts x 2 figures x loaded/missing, quiz and mock');
 })().catch(err=>{console.error(err&&err.stack||err);process.exitCode=1;});

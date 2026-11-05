@@ -100,6 +100,10 @@ def main() -> int:
     if len(expected_styles) != 1:
         raise SystemExit("Cloudflare source must contain one reviewed calm UI stylesheet")
     expected_style = expected_styles[0]
+    v3_style = re.compile(r'<style id="swsi-calm-learning-ui-v3">([\s\S]*?)</style>')
+    expected_v3 = v3_style.findall(expected_index)
+    if len(expected_v3) > 1:
+        raise SystemExit("Duplicate V3 visual stylesheet")
     expected_patch = (CDN / "monthly_patch.js").read_bytes()
     expected_sw = (CDN / "sw.js").read_bytes()
     expected_guides = (CDN / "essay_guides.js").read_bytes()
@@ -158,6 +162,7 @@ def main() -> int:
                 "cache_bust": expected_tag in home,
                 "release_source": expected_source in home,
                 "reviewed_ui_css": calm_style.findall(home) == [expected_style],
+                "reviewed_v3_css": v3_style.findall(home) == expected_v3,
                 # Detect stale CDN HTML even when all non-HTML artifacts match.
                 "current_student_ai_model": home.count(current_student_model) == 1,
                 "no_legacy_student_ai_model": legacy_student_model not in home,
