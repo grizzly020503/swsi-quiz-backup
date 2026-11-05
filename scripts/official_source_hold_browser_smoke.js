@@ -5,8 +5,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
 const {chromium,webkit}=require('playwright');
 const base=process.argv[2]||'http://127.0.0.1:4176/';
 const origin=new URL(base).origin;
-const corpus=JSON.parse(fs.readFileSync('cdn/question-shards/104-1.json')).questions;
-const ids=['DS-104-1-22','DS-104-1-27','DS-104-1-29'];
+const corpus=['104-1','107-2','111-2'].flatMap(stem=>
+  JSON.parse(fs.readFileSync('cdn/question-shards/'+stem+'.json')).questions);
+const ids=['DS-104-1-22','DS-104-1-27','DS-104-1-29','R-107-2-40','SP111-2-34'];
 (async()=>{
 for(const type of [chromium,webkit]){
  const browser=await type.launch();
