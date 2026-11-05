@@ -161,41 +161,7 @@ jobs:
                   result.append((ident,'essay','not_compared','',item['source_url']))
                   continue
               assert item['kind']=='mcq'
-              m=re.search(r'(10[4-9]|11[0-5])-([12])-\d+        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: official-pdf-batch-${{ github.sha }}-${{ github.run_attempt }}
-          path: |
-            ${{ runner.temp }}/swsi-pdf-batch/latest.json
-            ${{ runner.temp }}/swsi-pdf-batch/**/summary.json
-            ${{ runner.temp }}/swsi-pdf-batch/**/checkpoint.json
-            ${{ runner.temp }}/swsi-pdf-batch/**/inputs.json
-            ${{ runner.temp }}/swsi-pdf-batch/**/checks.json
-            ${{ runner.temp }}/swsi-pdf-batch/**/check-*.log
-            ${{ runner.temp }}/swsi-pdf-batch/**/full-corpus.json
-            ${{ runner.temp }}/swsi-pdf-batch/**/queue.json
-            ${{ runner.temp }}/swsi-pdf-batch/priority-review-index.csv
-            ${{ runner.temp }}/swsi-pdf-batch/**/packets/*.json
-            ${{ runner.temp }}/swsi-pdf-batch/**/verified-candidate/**
-          retention-days: 14
-          if-no-files-found: warn
-      - name: Publish measured progress and unchanged release hold
-        if: always()
-        run: |
-          python - <<'PY'
-          import json, os
-          from pathlib import Path
-          path=Path(os.environ['RUNNER_TEMP'])/'swsi-pdf-batch/latest.json'
-          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
-              out.write('## Official PDF batch pipeline\n\n')
-              if not path.exists():
-                  out.write('No completed summary. Check failure logs/checkpoint artifact; no release approval.\n')
-              else:
-                  report=json.loads(path.read_text())
-                  out.write('```json\n'+json.dumps(report,ensure_ascii=False,indent=2)+'\n```\n')
-                  out.write('\nPrepared packets are pending source review, not corrected/approved questions. Existing PDF/AI release gates still apply.\n')
-          PY
-,ident)
+              m=re.search(r'(10[4-9]|11[0-5])-([12])-\d+$',ident)
               assert m
               name=f'cdn/question-shards/{m[1]}-{m[2]}.json'
               if name not in cache:
@@ -244,6 +210,7 @@ jobs:
             ${{ runner.temp }}/swsi-pdf-batch/**/full-corpus.json
             ${{ runner.temp }}/swsi-pdf-batch/**/queue.json
             ${{ runner.temp }}/swsi-pdf-batch/priority-review-index.csv
+            ${{ runner.temp }}/swsi-pdf-batch/priority0-main-comparison.csv
             ${{ runner.temp }}/swsi-pdf-batch/**/packets/*.json
             ${{ runner.temp }}/swsi-pdf-batch/**/verified-candidate/**
           retention-days: 14
