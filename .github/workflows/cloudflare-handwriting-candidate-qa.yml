@@ -5,6 +5,7 @@ on:
     paths:
       - 'cdn/index.html'
       - 'scripts/handwriting_essay_smoke.js'
+      - 'scripts/browser_interaction_smoke.js'
       - '.github/workflows/cloudflare-handwriting-candidate-qa.yml'
   workflow_dispatch:
 
@@ -41,7 +42,7 @@ jobs:
           cat /tmp/swsi-candidate-changed-files
           grep -Fxq 'cdn/index.html' /tmp/swsi-candidate-changed-files
           grep -Fxq 'scripts/handwriting_essay_smoke.js' /tmp/swsi-candidate-changed-files
-          if grep -Ev '^cdn/index\.html$|^scripts/handwriting_essay_smoke\.js$|^\.github/workflows/cloudflare-handwriting-candidate-qa\.yml$' /tmp/swsi-candidate-changed-files; then
+          if grep -Ev '^cdn/index\.html$|^scripts/handwriting_essay_smoke\.js$|^scripts/browser_interaction_smoke\.js$|^\.github/workflows/cloudflare-handwriting-candidate-qa\.yml$' /tmp/swsi-candidate-changed-files; then
             echo 'UNAPPROVED candidate path changed; refuses test promotion' >&2
             exit 1
           fi
