@@ -22,7 +22,7 @@ RELEASED={
 }
 REMAIN=('DS-104-1-22','DS-104-1-27','DS-104-1-29')
 META=('major','topic','keywords','exp_why','exp_others','exp_trap','exp_raw','mnemonic','extension','law','mistake')
-EXACT_RELEASE_SHARDS={'107-2.json':'d946241685411c3c2303ab28be2ad17f362af2fbbd8221946b6e9ca90311341f','111-2.json':'105c1e38104dbc28aa34d3501496132f53caa4f739ab4c9fa7a43bbe19b17bed'}
+EXACT_RELEASE_SHARDS={'107-2.json':'d946241685411c3c2303ab28be2ad17f362af2fbbd8221946b6e9ca90311341f','111-2.json':'6768b34f2c9c683f7891032add0313adb657740eeffde56ed039fa646900a3fd'}
 BASE_4798='a4a2a7c6f52ec7da45523071a209d420931faf1ce0051c4d6f08de1e509f7ed7'
 ESSAYS_240='9f4067690e856f54bef439e806f05f64ebb1e0c7b90e59f0c0798fa779c6870d'
 UNTOUCHED_SHARDS='6f0cfcc8988972a9513841d7e27ed7192879be13ddea938e4c47a80f6c24799f'
@@ -49,8 +49,8 @@ def verify():
       approval['source_pdf_urls'][0].split('?')[0] and x['pdf_sha256']==meta['source']),None)
   require(paper is not None,'original MOEX PDF registry identity '+id)
  m=json.loads(M.read_text(encoding='utf-8'))
- require(m['dataset_revision']=='cf421a2ab378b68322f7' and m['total_questions']==4800 and
-         len(m['shards'])==24 and m['total_uncompressed_bytes']==7623799,'release manifest/version')
+ require(m['dataset_revision']=='3b2081809838aede064a' and m['total_questions']==4800 and
+         len(m['shards'])==24 and m['total_uncompressed_bytes']==7623856,'release manifest/version')
  require(m['source']=='Supabase public.questions (read-only)','canonical manifest provenance')
  allrows={}
  others={}
@@ -66,7 +66,7 @@ def verify():
   else: others[name]=f['sha256']
   for row in rows:
    id=row['id'];require(id not in allrows,'duplicate id '+id);allrows[id]=row
- require(len(allrows)==4800 and sizes==7623799,'all 4800 rows total')
+ require(len(allrows)==4800 and sizes==7623856,'all 4800 rows total')
  require(inventory_digest(others)==UNTOUCHED_SHARDS,'unrelated 22 source shards changed')
  lock=json.loads(LOCK.read_text(encoding='utf-8'))
  require(lock['mcq_count']==4800 and lock['essay_count']==240 and len(lock['mcq'])==4800 and len(lock['essays'])==240,'Official Core count')
@@ -80,7 +80,14 @@ def verify():
           q['accepted_answers'] is None and q['grading_mode']=='standard' and
           q['analysis_status']=='review','unapproved grade/review state '+id)
   require(all(q[key]==val for key,val in meta['options'].items()),'original MOEX option mismatch '+id)
-  require(all(q.get(key) is None for key in META),'stale AI enrichment exposed '+id)
+  require(all(q.get(key) is None for key in META if key != 'law'),
+          'stale AI enrichment exposed '+id)
+  # Law-name metadata is independent evidence here: SP Q34's original
+  # question names the exact Article 22. Do not discard the source link,
+  # or promote any unreviewed explanation as authoritative.
+  original_law=next(x['before_row']['law'] for x in approval['preimages'] if x['id']==id)
+  require(q['law']==(original_law if id=='SP111-2-34' else None),
+          'pinned official law link drift '+id)
   before=next(x['before_row'] for x in approval['preimages'] if x['id']==id)
   for field in q:
    if field in meta['options'] or field in META or field=='analysis_status':continue
