@@ -37,9 +37,9 @@ def main() -> int:
         ('onclick="toggleHomeQuiz()"', "disclose official past exam filters"),
         ('onclick="swsiOpenHomeReview()"', "review existing missed questions"),
         ('onclick="MK.open()"', "mock exam entry"),
-        ('onclick="go(\\\'topics\\\')" ', "more learning tools entry"),
-        ('onclick="go(\\\'essay\\\')" ', "essay practice entry"),
-        ('onclick="go(\\\'progress\\\')" ', "weakness analysis entry"),
+        ('onclick="go(\\\'topics\\\')"', "more learning tools entry"),
+        ('onclick="go(\\\'essay\\\')"', "essay practice entry"),
+        ('onclick="go(\\\'progress\\\')"', "weakness analysis entry"),
     ):
         if marker not in text:
             fail("missing functional route: " + label)
