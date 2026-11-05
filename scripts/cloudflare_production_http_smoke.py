@@ -107,7 +107,8 @@ def main() -> int:
     expected_patch = (CDN / "monthly_patch.js").read_bytes()
     expected_sw = (CDN / "sw.js").read_bytes()
     expected_guides = (CDN / "essay_guides.js").read_bytes()
-    expected_manifest = json.loads((CDN / "question-shards" / "manifest.json").read_text(encoding="utf-8"))
+    expected_manifest_bytes = (CDN / "question-shards" / "manifest.json").read_bytes()
+    expected_manifest = json.loads(expected_manifest_bytes.decode("utf-8"))
 
     tag = re.search(r'<script src="monthly_patch\.js\?v=([0-9a-f]{16})"></script>', expected_index)
     source = re.search(r'<meta name="swsi-release-source" content="([0-9a-f]{40})">', expected_index)
@@ -125,6 +126,22 @@ def main() -> int:
             f"total={expected_total} shards={expected_shards}"
         )
 
+    # Two owner-approved question text repairs require exact hosted shard bytes.
+    # A matching dataset revision alone cannot prove the corrected options are live.
+    approved_files = ("107-2.json", "111-2.json")
+    approved_sha = {}
+    for filename in approved_files:
+        entries = [row for row in expected_manifest.get("shards", [])
+                   if isinstance(row, dict) and row.get("file") == filename]
+        if len(entries) != 1:
+            raise SystemExit(f"Tracked manifest has no unique approved source shard: {filename}")
+        digest = entries[0].get("sha256")
+        if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+            raise SystemExit(f"Tracked manifest has invalid SHA-256: {filename}")
+        if sha((CDN / "question-shards" / filename).read_bytes()) != digest:
+            raise SystemExit(f"Local shard differs from manifest SHA-256: {filename}")
+        approved_sha[filename] = digest
+
     patch_sha = sha(expected_patch)
     sw_sha = sha(expected_sw)
     guides_sha = sha(expected_guides)
@@ -140,6 +157,10 @@ def main() -> int:
             guides_status, live_guides = fetch("/essay_guides.js", token)
             manifest_status, manifest_raw = fetch("/question-shards/manifest.json", token)
             shard_status, shard_raw = fetch("/question-shards/115-2.json", token)
+            approved_responses = {
+                filename: fetch(f"/question-shards/{filename}", token)
+                for filename in approved_files
+            }
             home = home_body.decode("utf-8", "replace")
 
             try:
@@ -175,6 +196,7 @@ def main() -> int:
                 # verified 115-2 student guides are absent from hosted CDN.
                 "essay_guides_bytes": sha(live_guides) == guides_sha,
                 "exam_label": b"swsi-exam-date-label" in live_patch,
+                "manifest_exact_bytes": sha(manifest_raw) == sha(expected_manifest_bytes),
                 "dataset_revision": live_manifest.get("dataset_revision") == expected_revision,
                 "question_total": live_manifest.get("total_questions") == 4800,
                 "shard_count": live_manifest.get("shard_count") == 24,
@@ -187,6 +209,9 @@ def main() -> int:
                     and all("accepted_answers" in q for q in shard_questions if isinstance(q, dict))
                 ),
             }
+            for filename, (status, content) in approved_responses.items():
+                checks[f"{filename}_http"] = status == 200
+                checks[f"{filename}_sha256"] = sha(content) == approved_sha[filename]
             if all(checks.values()):
                 static_ready = True
                 print(
