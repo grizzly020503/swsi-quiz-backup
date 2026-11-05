@@ -1394,8 +1394,7 @@ main [style*="font-size:15px"]{
 (function(){
   'use strict';
   var bar=document.getElementById('tabbar');
-  if(!bar || window.__SWSI_CALM_NAV_V4__)return;
-  window.__SWSI_CALM_NAV_V4__=true;
+  if(!bar || document.getElementById('swsi-calm-navigation-v4'))return;
   var symbols={
     home:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>',
     quiz:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1V6Zm0 0c3-2 6-2 9-1v14c-3-1-6-1-9 1"/></svg>',
