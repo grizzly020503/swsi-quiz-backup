@@ -9,8 +9,8 @@
     "recent_end_year": 115,
     "recent_label": "近五年（111–115）",
     "priority_law_count": 10,
-    "linked_law_question_pairs": 85,
-    "unique_linked_questions": 84
+    "linked_law_question_pairs": 84,
+    "unique_linked_questions": 83
   },
   "student_boundary": "題數只計題庫中明確法規 metadata／既有明示 alias 的唯一題目；不是關鍵字命中、不是命題機率，也不代表每題歷史法規版本已核實。",
   "laws": [
@@ -91,37 +91,6 @@
       ]
     },
     {
-      "law_name": "兒童及少年未來教育與發展帳戶條例",
-      "all_linked_question_count": 12,
-      "recent_five_year_question_count": 5,
-      "question_ids": [
-        "SP115-1-40",
-        "SP115-1-39",
-        "SP112-1-34",
-        "SP112-1-33",
-        "SP111-2-34",
-        "SP110-1-40",
-        "SP109-1-40",
-        "SP108-2-40",
-        "SP108-1-35",
-        "SP108-1-34",
-        "SP106-2-17",
-        "SP106-2-12"
-      ],
-      "recent_question_ids": [
-        "SP115-1-40",
-        "SP115-1-39",
-        "SP112-1-34",
-        "SP112-1-33",
-        "SP111-2-34"
-      ],
-      "recent_exam_codes": [
-        "115-1",
-        "112-1",
-        "111-2"
-      ]
-    },
-    {
       "law_name": "國民年金法",
       "all_linked_question_count": 17,
       "recent_five_year_question_count": 4,
@@ -154,6 +123,34 @@
         "115-1",
         "114-1",
         "113-2"
+      ]
+    },
+    {
+      "law_name": "兒童及少年未來教育與發展帳戶條例",
+      "all_linked_question_count": 11,
+      "recent_five_year_question_count": 4,
+      "question_ids": [
+        "SP115-1-40",
+        "SP115-1-39",
+        "SP112-1-34",
+        "SP112-1-33",
+        "SP110-1-40",
+        "SP109-1-40",
+        "SP108-2-40",
+        "SP108-1-35",
+        "SP108-1-34",
+        "SP106-2-17",
+        "SP106-2-12"
+      ],
+      "recent_question_ids": [
+        "SP115-1-40",
+        "SP115-1-39",
+        "SP112-1-34",
+        "SP112-1-33"
+      ],
+      "recent_exam_codes": [
+        "115-1",
+        "112-1"
       ]
     },
     {
