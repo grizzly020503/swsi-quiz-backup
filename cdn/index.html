@@ -4312,7 +4312,7 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
     throw Error('SWSI source review policy unavailable');
   reviewSummary=function(){
     const state=bootstrapReviewState(),now=Date.now();
-    const exists=QB.allComplete?
+    const exists=window.SWSI_QB&&window.SWSI_QB.allComplete?
       new Set(ALL.filter(q=>!lawConfirmedChanged(q)&&!swsiSourceHeld(q)).map(q=>q.id)):null;
     const activeIds=[],dueIds=[],maintenanceDueIds=[];
     let masteredCount=0,nextDueAt=0;
