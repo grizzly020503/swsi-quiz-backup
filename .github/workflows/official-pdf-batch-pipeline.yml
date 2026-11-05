@@ -46,7 +46,7 @@ jobs:
         run: |
           python scripts/official_pdf_batch_pipeline.py \
             --out "$RUNNER_TEMP/swsi-pdf-batch" --download --batch-size 25 \
-            --max-batches 4 --max-sources 12
+            --max-batches 8 --max-sources 24
       - name: Persist checkpoint after success or source outage
         if: always() && steps.inputs.outcome == 'success'
         uses: actions/cache/save@v4
