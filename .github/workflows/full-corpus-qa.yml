@@ -22,6 +22,8 @@ on:
       - 'scripts/official_r107_2_40_review_selftest.py'
       - 'scripts/official_held_two_readonly_shadow_selftest.py'
       - 'scripts/official_held_two_option_stager.py'
+      - 'scripts/official_two_source_owner_release_guard.py'
+      - 'audit/official_two_owner_authorization_and_37_column_preimages_20261105.json'
       - 'audit/official_held_two_option_shadow_readonly_20261105.sql'
       - 'audit/official_held_two_live_preflight_evidence_20261105.json'
       - 'audit/official_r107_2_40_option_tail_candidate_20261105.json'
@@ -76,6 +78,8 @@ on:
       - 'scripts/official_r107_2_40_review_selftest.py'
       - 'scripts/official_held_two_readonly_shadow_selftest.py'
       - 'scripts/official_held_two_option_stager.py'
+      - 'scripts/official_two_source_owner_release_guard.py'
+      - 'audit/official_two_owner_authorization_and_37_column_preimages_20261105.json'
       - 'audit/official_held_two_option_shadow_readonly_20261105.sql'
       - 'audit/official_held_two_live_preflight_evidence_20261105.json'
       - 'audit/official_r107_2_40_option_tail_candidate_20261105.json'
@@ -178,29 +182,17 @@ jobs:
           python -m py_compile scripts/official_1041_live_preflight_sql_selftest.py
           python scripts/official_1041_live_preflight_sql_selftest.py
 
-      - name: Verify original 107-2 research Q40 source-bound option tail (NO-GO)
+      # Historical Q40 and two-row stager proofs remain in audit/scripts for
+      # provenance but must not be re-run against their now-released old preimages.
+      - name: Verify owner-approved two-source release and three remaining HOLDs
         run: |
-          python -m py_compile scripts/official_r107_2_40_review_selftest.py
-          python scripts/official_r107_2_40_review_selftest.py
+          python -m py_compile scripts/official_two_source_owner_release_guard.py
+          python scripts/official_two_source_owner_release_guard.py
 
-      - name: Prove two held MOEX options preserve live 37-column source preimages (no writes)
+      - name: Preserve the original read-only 37-column transaction preflight evidence
         run: |
           python -m py_compile scripts/official_held_two_readonly_shadow_selftest.py
           python scripts/official_held_two_readonly_shadow_selftest.py
-
-      - name: Rebuild two-source MOEX candidate offline (never release)
-        run: |
-          python -m py_compile scripts/official_held_two_option_stager.py
-          python scripts/official_held_two_option_stager.py --out "$RUNNER_TEMP/swsi-held-two-mcq-candidate"
-
-      - name: Attach unapproved source-review candidate files (PR only)
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: held-two-moex-no-go-${{ github.sha }}
-          path: ${{ runner.temp }}/swsi-held-two-mcq-candidate/**
-          retention-days: 14
-          if-no-files-found: error
 
       - name: Check live 104-1 official OCR HOLD against public anon API (GET only)
         if: ${{ github.event_name == 'pull_request' || github.event_name == 'schedule' }}
@@ -239,35 +231,10 @@ jobs:
           python scripts/official_option_scenario_guard_selftest.py
           python scripts/official_option_scenario_guard.py --out /tmp/official-option-scenario-qa.json --fail-on-blocked
 
-      - name: Verify draft 104-1 successor against pinned historic release (NEVER publish)
+      - name: Retain three unapproved 104-1 sources without merging obsolete predecessor
         run: |
-          set -eu
-          python -m py_compile \
-            scripts/official_1041_ds_release_candidate_builder.py \
-            scripts/official_1041_ds_successor_overlay_smoke.py
-          python scripts/official_1041_ds_release_candidate_builder.py \
-            --out /tmp/swsi-1041-draft-mainline-release-gate
-          python scripts/official_1041_ds_successor_overlay_smoke.py \
-            --candidate /tmp/swsi-1041-draft-mainline-release-gate \
-            --out /tmp/swsi-1041-draft-mainline-predecessor \
-            --adversarial-selftest
-          cmp cdn/question-shards/104-1.json \
-            /tmp/swsi-1041-draft-mainline-predecessor/cdn/question-shards/104-1.json
-          cmp cdn/question-shards/manifest.json \
-            /tmp/swsi-1041-draft-mainline-predecessor/cdn/question-shards/manifest.json
-          cmp data/official_exam_readonly.lock.json \
-            /tmp/swsi-1041-draft-mainline-predecessor/data/official_exam_readonly.lock.json
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          p=Path('/tmp/swsi-1041-draft-mainline-release-gate/candidate-evidence.json')
-          d=json.loads(p.read_text(encoding='utf-8'))
-          assert d['human_approval'] is False and d['published'] is False
-          assert d['status']=='STAGED_ONLY_HUMAN_APPROVAL_FALSE_PRODUCTION_NO_GO'
-          assert d['changed_official_lock_count']==3 and d['grading_unchanged_count']==4800
-          assert d['unaffected_exact_row_count']==4797 and d['essay_lock_count']==240
-          print('MAINLINE NO-GO SUCCESSOR GATE PASS: exact predecessor, three-field release lock, ten fail-closed tamper cases')
-          PY
+          python scripts/official_1041_ds_ocr_candidate_selftest.py
+          python scripts/official_two_source_owner_release_guard.py
 
       - name: Audit all manifest sessions through effective exam profiles
         run: |
