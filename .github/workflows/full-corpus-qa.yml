@@ -23,6 +23,7 @@ on:
       - 'scripts/official_held_two_readonly_shadow_selftest.py'
       - 'scripts/official_held_two_option_stager.py'
       - 'scripts/official_two_source_owner_release_guard.py'
+      - 'scripts/official_two_source_legacy_replay.py'
       - 'audit/official_two_owner_authorization_and_37_column_preimages_20261105.json'
       - 'audit/official_held_two_option_shadow_readonly_20261105.sql'
       - 'audit/official_held_two_live_preflight_evidence_20261105.json'
@@ -79,6 +80,7 @@ on:
       - 'scripts/official_held_two_readonly_shadow_selftest.py'
       - 'scripts/official_held_two_option_stager.py'
       - 'scripts/official_two_source_owner_release_guard.py'
+      - 'scripts/official_two_source_legacy_replay.py'
       - 'audit/official_two_owner_authorization_and_37_column_preimages_20261105.json'
       - 'audit/official_held_two_option_shadow_readonly_20261105.sql'
       - 'audit/official_held_two_live_preflight_evidence_20261105.json'
@@ -172,7 +174,7 @@ jobs:
       - name: Check review-only 104-1 Direct Service OCR candidate (never auto-approve)
         run: |
           python -m py_compile scripts/official_1041_ds_ocr_candidate_selftest.py
-          python scripts/official_1041_ds_ocr_candidate_selftest.py
+          python scripts/official_two_source_legacy_replay.py --case 1041
 
       - name: Detect PDF-proven 104-1 OCR hold and misleading ready labels (zero network)
         run: |
@@ -226,14 +228,14 @@ jobs:
 
       - name: Verify source-backed shared-case release transition (zero network)
         run: |
-          python scripts/official_ten_source_integration_smoke.py
-          python scripts/official_shared_context_13row_integration_smoke.py
+          python scripts/official_two_source_legacy_replay.py --case ten
+          python scripts/official_two_source_legacy_replay.py --case context
           python scripts/official_option_scenario_guard_selftest.py
           python scripts/official_option_scenario_guard.py --out /tmp/official-option-scenario-qa.json --fail-on-blocked
 
       - name: Retain three unapproved 104-1 sources without merging obsolete predecessor
         run: |
-          python scripts/official_1041_ds_ocr_candidate_selftest.py
+          python scripts/official_two_source_legacy_replay.py --case 1041
           python scripts/official_two_source_owner_release_guard.py
 
       - name: Audit all manifest sessions through effective exam profiles
