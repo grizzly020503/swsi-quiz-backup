@@ -59,6 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           node --check scripts/handwriting_essay_smoke.js
+          node --check scripts/browser_interaction_smoke.js
           python3 - <<'PY'
           from pathlib import Path
           page=Path("cdn/index.html").read_text()
