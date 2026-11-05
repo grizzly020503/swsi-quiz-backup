@@ -212,7 +212,6 @@
     '@media(prefers-reduced-motion:reduce){body #tabbar button{transition:none!important;}}'
   ].join('');
   document.head.appendChild(s);
-  var scheduled=false;
   function format(button,icon,label,action){
     if(!button)return;
     var html='<span class="ico">'+symbols[icon]+'</span><span class="swsi-nav-label">'+label+'</span>';
@@ -240,14 +239,8 @@
     if(topics&&topics.style.display!=='none')topics.style.display='none';
     if(progress&&progress.style.display!=='none')progress.style.display='none';
   }
-  function schedule(){
-    if(scheduled)return;
-    scheduled=true;
-    Promise.resolve().then(function(){scheduled=false;syncNav();});
-  }
+  // Navigation is reconciled by the existing late product owner.
+  // Never observe the nav subtree from an early part: it would trigger
+  // competing microtask observers and starve DOMContentLoaded on iOS/Chromium.
   syncNav();
-  try{new MutationObserver(schedule).observe(bar,{childList:true,subtree:true,attributes:true,attributeFilter:['onclick','aria-label','style']});}catch(_e){}
-  var app=document.getElementById('app');
-  if(app)try{new MutationObserver(schedule).observe(app,{childList:true});}catch(_e){}
-  window.addEventListener('pageshow',schedule);
 })();

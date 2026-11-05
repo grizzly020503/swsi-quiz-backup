@@ -1415,7 +1415,6 @@ main [style*="font-size:15px"]{
     '@media(prefers-reduced-motion:reduce){body #tabbar button{transition:none!important;}}'
   ].join('');
   document.head.appendChild(s);
-  var scheduled=false;
   function format(button,icon,label,action){
     if(!button)return;
     var html='<span class="ico">'+symbols[icon]+'</span><span class="swsi-nav-label">'+label+'</span>';
@@ -1443,16 +1442,10 @@ main [style*="font-size:15px"]{
     if(topics&&topics.style.display!=='none')topics.style.display='none';
     if(progress&&progress.style.display!=='none')progress.style.display='none';
   }
-  function schedule(){
-    if(scheduled)return;
-    scheduled=true;
-    Promise.resolve().then(function(){scheduled=false;syncNav();});
-  }
+  // Navigation is reconciled by the existing late product owner.
+  // Never observe the nav subtree from an early part: it would trigger
+  // competing microtask observers and starve DOMContentLoaded on iOS/Chromium.
   syncNav();
-  try{new MutationObserver(schedule).observe(bar,{childList:true,subtree:true,attributes:true,attributeFilter:['onclick','aria-label','style']});}catch(_e){}
-  var app=document.getElementById('app');
-  if(app)try{new MutationObserver(schedule).observe(app,{childList:true});}catch(_e){}
-  window.addEventListener('pageshow',schedule);
 })();
 
 /* SWSI Focused Study Home V2 2026-08-29
@@ -2690,8 +2683,8 @@ html[data-fs="2"]{
 
   function installLearningTab(){
     var home=document.getElementById('t-home'),learning=document.getElementById('t-review'),essay=document.getElementById('t-essay'),progress=document.getElementById('t-progress');
-    if(home)home.innerHTML='<span class="ico">◎</span>練題';
-    if(learning){learning.innerHTML='<span class="ico">↻</span>學習';learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');learning.setAttribute('aria-label','學習中心');}
+    if(home)home.innerHTML='<span class="ico">◎</span>首頁';
+    if(learning){learning.innerHTML='<span class="ico">↻</span>我的';learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');learning.setAttribute('aria-label','我的');}
     if(essay)essay.innerHTML='<span class="ico">✒</span>申論';
     if(progress)progress.style.display='none';
     if(window.__SWSI_LEARNING_CENTER_OPEN__)setLearningNavActive();
@@ -5084,8 +5077,9 @@ html[data-fs="2"]{
   };
 
   function polishNav(){
-    setNavButton('t-home','home','練題',"go('home')");
-    setNavButton('t-review','review','學習',"swsiOpenLearningCenter()");
+    setNavButton('t-home','home','首頁',"go('home')");
+    setNavButton('swsi-v4-tab-quiz','quiz','刷題',"swsiStartNow()");
+    setNavButton('t-review','review','我的',"return swsiOpenLearningCenter(event)");
     setNavButton('t-essay','essay','申論',"go('essay')");
   }
 
@@ -5415,7 +5409,7 @@ html[data-fs="2"]{
     var learning=document.getElementById('t-review');
     if(learning){
       if(learning.getAttribute('onclick')!==route)learning.setAttribute('onclick',route);
-      if(learning.getAttribute('aria-label')!=='學習中心')learning.setAttribute('aria-label','學習中心');
+      if(learning.getAttribute('aria-label')!=='我的')learning.setAttribute('aria-label','我的');
     }
 
     /* Home also exposes a Learning Center card. Keep it on the same direct local

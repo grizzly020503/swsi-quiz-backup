@@ -102,8 +102,9 @@
   };
 
   function polishNav(){
-    setNavButton('t-home','home','練題',"go('home')");
-    setNavButton('t-review','review','學習',"swsiOpenLearningCenter()");
+    setNavButton('t-home','home','首頁',"go('home')");
+    setNavButton('swsi-v4-tab-quiz','quiz','刷題',"swsiStartNow()");
+    setNavButton('t-review','review','我的',"return swsiOpenLearningCenter(event)");
     setNavButton('t-essay','essay','申論',"go('essay')");
   }
 
