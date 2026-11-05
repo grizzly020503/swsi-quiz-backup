@@ -134,6 +134,101 @@ jobs:
           print(f"REVIEW INDEX OK: total={len(rows)} prepared={len(prepared)} "
                 f"p0={counts['0']} p1={counts['1']} p2={counts['2']} no_approvals=1")
           PY
+      - name: Crosscheck held P0 against current main (read only)
+        if: success()
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin main
+          python - <<'PY'
+          import csv,hashlib,json,os,re,subprocess
+          from collections import Counter
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'swsi-pdf-batch'
+          report=json.loads((root/'latest.json').read_text())
+          work=root/report['input_fingerprint']
+          queue=json.loads((work/'queue.json').read_text())
+          checkpoint=json.loads((work/'checkpoint.json').read_text())
+          assert queue['unresolved']==report['queue_total']==428
+          assert report['release_status']=='NO-GO' and report['human_approval'] is False
+          main=subprocess.check_output(['git','rev-parse','FETCH_HEAD'],text=True).strip()
+          assert re.fullmatch('[0-9a-f]{40}',main)
+          cache={}
+          result=[]
+          for item in queue['rows']:
+              if item['priority']!=0:continue
+              ident=item['id']
+              if item['kind']=='essay':
+                  result.append((ident,'essay','not_compared','',item['source_url']))
+                  continue
+              assert item['kind']=='mcq'
+              m=re.search(r'(10[4-9]|11[0-5])-([12])-\d+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-pdf-batch-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/swsi-pdf-batch/latest.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/summary.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/checkpoint.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/inputs.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/checks.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/check-*.log
+            ${{ runner.temp }}/swsi-pdf-batch/**/full-corpus.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/queue.json
+            ${{ runner.temp }}/swsi-pdf-batch/priority-review-index.csv
+            ${{ runner.temp }}/swsi-pdf-batch/**/packets/*.json
+            ${{ runner.temp }}/swsi-pdf-batch/**/verified-candidate/**
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Publish measured progress and unchanged release hold
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          path=Path(os.environ['RUNNER_TEMP'])/'swsi-pdf-batch/latest.json'
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write('## Official PDF batch pipeline\n\n')
+              if not path.exists():
+                  out.write('No completed summary. Check failure logs/checkpoint artifact; no release approval.\n')
+              else:
+                  report=json.loads(path.read_text())
+                  out.write('```json\n'+json.dumps(report,ensure_ascii=False,indent=2)+'\n```\n')
+                  out.write('\nPrepared packets are pending source review, not corrected/approved questions. Existing PDF/AI release gates still apply.\n')
+          PY
+,ident)
+              assert m
+              name=f'cdn/question-shards/{m[1]}-{m[2]}.json'
+              if name not in cache:
+                  data=json.loads(subprocess.check_output(['git','show',main+':'+name],text=True))
+                  assert len(data['questions'])==200
+                  cache[name]={x['id']:x for x in data['questions']}
+              live=cache[name][ident]
+              file=work/'packets'/(hashlib.sha256(ident.encode()).hexdigest()+'.json')
+              raw=file.read_bytes()
+              assert hashlib.sha256(raw).hexdigest()==checkpoint['packets'][ident]
+              old=json.loads(raw)['current_official_record']
+              keys=('question','opt_a','opt_b','opt_c','opt_d',
+                    'answer','accepted_answers','grading_mode')
+              diff=[k for k in keys if old.get(k)!=live.get(k)]
+              result.append((ident,'mcq','changed' if diff else 'same',
+                             ';'.join(diff),item['source_url']))
+          assert len(result)==queue['priority_counts']['0']==27
+          c=Counter(x[2] for x in result)
+          assert c['not_compared']==4 and c['changed']+c['same']==23
+          with (root/'priority0-main-comparison.csv').open('w',encoding='utf-8-sig',newline='') as fp:
+              w=csv.writer(fp)
+              w.writerow(['id','kind','current_main_vs_pinned','changed_fields',
+                          'official_pdf','main_sha','approved'])
+              for ident,kind,status,diff,url in result:
+                  w.writerow([ident,kind,status,diff,url,main,False])
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as fp:
+              fp.write('\n## Current main versus old pinned P0 candidate\n\n')
+              fp.write('main='+main+'; content change is not official proof.\n\n')
+              fp.write('Changed: '+str(c['changed'])+'; unchanged: '+str(c['same'])+
+                       '; essays not compared: '+str(c['not_compared'])+'.\n\n')
+              fp.write('**NO-GO**: all 428 source reviews remain pending independent approval.\n')
+          print('P0 MAIN COMPARISON OK '+json.dumps(dict(c),sort_keys=True))
+          PY
       - name: Preserve exact-head audit and candidate artifacts
         if: always()
         uses: actions/upload-artifact@v4
