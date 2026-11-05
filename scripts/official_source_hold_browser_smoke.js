@@ -22,6 +22,54 @@ for(const type of [chromium,webkit]){
  });
  await page.goto(base);
  await page.waitForFunction(()=>typeof view!=='undefined'&&view==='home'&&document.getElementById('tabbar')?.style.display==='flex');
+ // Verify that held official text cannot leak into search results, random
+ // practice, or a student's *existing* due-review schedule. Old saved review
+ // records are preserved, not deleted, so they can reappear after approval.
+ const entrances=await page.evaluate(rows=>{
+  const normalized=rows.map(normalize);
+  ALL=normalized; SUBJECTS=[...new Set(normalized.map(q=>q.subject))];
+  window.SWSI_QB.allComplete=true;
+  const held=['DS-104-1-22','DS-104-1-27','DS-104-1-29',
+    'R-107-2-40','SP111-2-34'];
+  const ordinary=normalized.find(q=>q.id==='DS-104-1-01');
+  if(!ordinary)throw Error('ordinary control missing');
+  const searchLeaks=held.filter(id=>{
+   const item=normalized.find(q=>q.id===id);
+   const token=String(item?.q||'').match(/[\u4e00-\u9fff]{2,}/)?.[0]?.slice(0,2);
+   if(!token)throw Error('missing source search query '+id);
+   return searchAll(token).mcq.some(q=>q.id===id);
+  });
+  const positiveToken=String(ordinary.q).match(/[\u4e00-\u9fff]{2,}/)?.[0]?.slice(0,2);
+  const normalSearch=searchAll(positiveToken).mcq.some(q=>q.id===ordinary.id);
+  startQuiz(()=>true,0);
+  const selectedIds=queue.map(q=>q.id);
+  const randomPracticeNoHeld=selectedIds.length===rows.length-held.length&&
+    held.every(id=>!selectedIds.includes(id))&&selectedIds.includes(ordinary.id);
+  const originalReviewRaw=localStorage.getItem(REVIEW_KEY);
+  const state=loadReviewState();state.migratedFromHistory=true;
+  state.items[held[0]]={id:held[0],mastered:false,dueAt:0};
+  state.items[ordinary.id]={id:ordinary.id,mastered:false,dueAt:0};
+  let reviewHeldVisible=false,reviewOrdinaryVisible=false,preserved=false;
+  try{
+   localStorage.setItem(REVIEW_KEY,JSON.stringify(state));
+   const before=localStorage.getItem(REVIEW_KEY);
+   const summary=reviewSummary();
+   reviewHeldVisible=summary.activeIds.includes(held[0])||summary.dueIds.includes(held[0]);
+   reviewOrdinaryVisible=summary.activeIds.includes(ordinary.id)&&summary.dueIds.includes(ordinary.id);
+   preserved=localStorage.getItem(REVIEW_KEY)===before;
+  }finally{
+   if(originalReviewRaw===null)localStorage.removeItem(REVIEW_KEY);
+   else localStorage.setItem(REVIEW_KEY,originalReviewRaw);
+  }
+  return {searchLeaks,normalSearch,randomPracticeNoHeld,
+    reviewHeldVisible,reviewOrdinaryVisible,preserved};
+ },corpus);
+ assert.deepEqual(entrances.searchLeaks,[], 'held official text exposed by search');
+ assert(entrances.normalSearch&&entrances.randomPracticeNoHeld,
+   'healthy questions must remain searchable/practicable while holds are excluded: '+JSON.stringify(entrances));
+ assert(!entrances.reviewHeldVisible&&entrances.reviewOrdinaryVisible&&entrances.preserved,
+   'held historical due review not suppressed without deleting saved progress: '+JSON.stringify(entrances));
+ console.log(type.name(),width,'held-source search + random practice + due review PASS');
  for(const id of ids){
   const raw=corpus.find(q=>q.id===id);assert(raw,id);
   const result=await page.evaluate(raw=>{
