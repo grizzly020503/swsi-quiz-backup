@@ -35,10 +35,24 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     // visible races boot's final go('home') and falsely resets the test route.
     // This is a concrete readiness condition, not a fixed sleep or test skip.
     await page.locator('#tabbar').waitFor({state:'visible',timeout:20000});
-    await page.waitForFunction(()=>{
-      const app=document.getElementById('app');
-      return app&&app.textContent.trim().length>150&&typeof view!=='undefined'&&view==='home';
-    },null,{timeout:20000});
+    // The newer V3 homepage has intentionally shorter copy. An arbitrary
+    // >150 character threshold falsely times out on a valid landing screen.
+    // The real hosted release QA uses this visible stable primary CTA instead.
+    try {
+      await page.locator('#app .swsi-focus-primary').waitFor({state:'visible',timeout:20000});
+      await page.waitForFunction(()=>typeof view!=='undefined'&&view==='home',
+        null,{timeout:10000});
+    } catch (error) {
+      const boot=await page.evaluate(()=>({
+        view:typeof view==='undefined'?'undefined':view,
+        appLength:document.getElementById('app')?.textContent?.trim().length||0,
+        focus:!!document.querySelector('#app .swsi-focus-primary'),
+        tabbar:document.getElementById('tabbar')?.style.display,
+        essayCount:Array.isArray(window.ESSAYS)?window.ESSAYS.length:-1,
+        publicVersion:window.SWSI_PAPER_ESSAY_VERSION||'missing'
+      }));
+      throw new Error('V3 stable homepage not ready: '+JSON.stringify(boot)+'; '+String(error));
+    }
     // Use the canonical quick-essay navigation (same as real mobile students)
     // rather than calling legacy openEssayCard before navigation settles.
     await page.waitForFunction(()=>typeof window.swsiStartEssayNow==='function'&&
