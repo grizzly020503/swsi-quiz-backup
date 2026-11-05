@@ -7,7 +7,7 @@ const base=process.argv[2]||'http://127.0.0.1:4176/';
 const origin=new URL(base).origin;
 const corpus=['104-1','107-2','111-2'].flatMap(stem=>
   JSON.parse(fs.readFileSync('cdn/question-shards/'+stem+'.json')).questions);
-const ids=['DS-104-1-22','DS-104-1-27','DS-104-1-29','R-107-2-40','SP111-2-34'];
+const ids=['DS-104-1-22','DS-104-1-27','DS-104-1-29'];
 (async()=>{
 for(const type of [chromium,webkit]){
  const browser=await type.launch();
@@ -29,8 +29,7 @@ for(const type of [chromium,webkit]){
   const normalized=rows.map(normalize);
   ALL=normalized; SUBJECTS=[...new Set(normalized.map(q=>q.subject))];
   window.SWSI_QB.allComplete=true;
-  const held=['DS-104-1-22','DS-104-1-27','DS-104-1-29',
-    'R-107-2-40','SP111-2-34'];
+  const held=['DS-104-1-22','DS-104-1-27','DS-104-1-29'];
   const ordinary=normalized.find(q=>q.id==='DS-104-1-01');
   if(!ordinary)throw Error('ordinary control missing');
   const searchLeaks=held.filter(id=>{
@@ -98,6 +97,27 @@ for(const type of [chromium,webkit]){
   assert.equal(await page.evaluate(()=>JSON.stringify(localStorage)),storage);
   await page.evaluate(()=>MK.close());
   console.log(type.name(),width,id,'quiz + stale cache + mock PASS');
+ }
+ // Owner-approved exact-source Q40 and SP34 must now be visible, answerable
+ // and correctly graded; only the other three 104-1 OCR cases are quarantined.
+ for(const id of ['R-107-2-40','SP111-2-34']){
+  const raw=corpus.find(q=>q.id===id);assert(raw,id);
+  const result=await page.evaluate(raw=>{
+    const q=normalize(raw);
+    view='quiz';queue=[q];idx=0;selected=null;answered=false;
+    sessionStats={done:0,correct:0,wrongTopics:[]};
+    renderQuiz();
+    const a=document.getElementById('app'),initial=a.innerText;
+    const safe= !a.querySelector('[data-source-hold]') &&
+      a.querySelectorAll('.opt').length===4 && initial.includes(q.q) &&
+      !initial.includes('第 12 題答 B 或 C') &&
+      !swsiSourceHeld(q) && q.answer===raw.answer;
+    pick(q.answer);submit();
+    return {safe,done:sessionStats.done,correct:sessionStats.correct,answer:q.answer};
+  },raw);
+  assert(result.safe&&result.done===1&&result.correct===1,
+    'owner-approved official question must be re-enabled safely '+id+' '+JSON.stringify(result));
+  console.log(type.name(),width,id,'approved source visible and correctly graded PASS');
  }
  // An ordinary official question remains answerable and scores normally.
  const raw=corpus.find(q=>q.id==='DS-104-1-01');assert(raw);

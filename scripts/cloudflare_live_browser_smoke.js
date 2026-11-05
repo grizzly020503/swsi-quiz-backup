@@ -370,8 +370,16 @@ async function verifyHostedLocalGrading(page, label) {
 // malformed official imports, not only pass a local candidate smoke. This
 // never POSTs, writes student records, or marks a PDF source as approved.
 async function verifyHostedSourceHoldQuarantine(page, label) {
-  const ids = ['DS-104-1-22', 'DS-104-1-27', 'DS-104-1-29',
+  // Before this PR merges, production still correctly holds all five.
+  // Once deployed, only the three still-unapproved 104-1 sources may be held.
+  const oldIds = ['DS-104-1-22', 'DS-104-1-27', 'DS-104-1-29',
     'R-107-2-40', 'SP111-2-34'];
+  const releasedIds = ['R-107-2-40', 'SP111-2-34'];
+  const threeIds = oldIds.slice(0, 3);
+  const ids = await page.evaluate(() => Array.from(SWSI_SOURCE_HOLD_IDS));
+  assert.deepEqual(ids.length === 5 ? ids : ids.length === 3 ? ids : [],
+    ids.length === 5 ? oldIds : threeIds,
+    label + ': deployed hold list is neither guarded pre-release nor approved post-release');
   const result = await page.evaluate(heldIds => {
     if (typeof swsiSourceHeld !== 'function' ||
         typeof swsiOfficialFigureReady !== 'function') {
@@ -418,11 +426,34 @@ async function verifyHostedSourceHoldQuarantine(page, label) {
     label + ': live source-hold quiz leak ' + JSON.stringify(item));
   }
 
+  if (ids.length === 3) {
+    const released = await page.evaluate(() => {
+      const research = ALL.find(x => x.id === 'R-107-2-40');
+      const policy = ALL.find(x => x.id === 'SP111-2-34');
+      if (!research || !policy) throw Error('approved source rows absent');
+      return {
+        unheld: !swsiSourceHeld(research) && !swsiSourceHeld(policy),
+        researchAnswer: research.answer,
+        policyAnswer: policy.answer,
+        researchD: research.options.D,
+        policyOptions: [policy.options.A, policy.options.B,
+          policy.options.C, policy.options.D]
+      };
+    });
+    assert(released.unheld && released.researchAnswer === 'D' &&
+      released.policyAnswer === 'C' &&
+      released.researchD === '兩個變項間有高度相關，則非常可能有因果關係' &&
+      JSON.stringify(released.policyOptions) ===
+        JSON.stringify(['1 至 3 個月', '2 至 4 個月', '3 至 6 個月', '4 至 6 個月']),
+      label + ': released two official options differ from original MOEX PDFs: ' +
+        JSON.stringify(released));
+  }
+
   // One real hosted mock exam through the shipped UI. Unlike local fixture
   // tests, the row comes from Cloudflare's actual loaded 4,800-question feed.
   const before = await page.evaluate(() => JSON.stringify(localStorage));
   await page.evaluate(async () => {
-    const item = ALL.find(q => q && q.id === 'SP111-2-34');
+    const item = ALL.find(q => q && q.id === 'DS-104-1-22');
     if (!item) throw Error('hosted mock source-hold item absent');
     ALL = [item];
     SUBJECTS = [item.subject];
@@ -446,7 +477,7 @@ async function verifyHostedSourceHoldQuarantine(page, label) {
     label + ': held mock leaked into student records');
   await page.evaluate(() => MK.close());
   console.log('CLOUDFLARE HOSTED SOURCE HOLDS OK ' + label +
-    ': five official IDs hidden before/after stale grading, one hosted mock excluded 0/0');
+    ': ' + ids.length + ' official IDs hidden before/after stale grading, one hosted mock excluded 0/0');
 }
 
 async function check(engine, label, width, height, practice) {

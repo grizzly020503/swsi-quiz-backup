@@ -3192,9 +3192,9 @@ const SWSI_OFFICIAL_FIGURES=Object.freeze({
   'DS-113-2-13':{asset:'./official-figures/DS-113-2-13.png',pdf:'https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113100&c=103&s=0302&q=1',alt:'原卷家系圖，含親屬、年齡與關係線。點擊放大以閱讀完整圖示。'},
   'R-114-2-12':{asset:'./official-figures/R-114-2-12.png',pdf:'https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=114100&c=103&s=0306&q=1',alt:'原卷量表圖，左右兩端分別是痛苦與快樂，中間有五個評分刻度。點擊放大以閱讀完整圖示。'}
 });
-// Confirmed source defects remain isolated until independent PDF approval.
+// Three unreleased original-PDF source defects remain isolated; two owner-approved sources are corrected.
 // Cloudflare-only policy: do not change official rows, answers or saved records.
-const SWSI_SOURCE_HOLD_IDS=Object.freeze(['DS-104-1-22','DS-104-1-27','DS-104-1-29','R-107-2-40','SP111-2-34']);
+const SWSI_SOURCE_HOLD_IDS=Object.freeze(['DS-104-1-22','DS-104-1-27','DS-104-1-29']);
 function swsiSourceHeld(q){return !!q&&SWSI_SOURCE_HOLD_IDS.includes(q.id);}
 function swsiSourceHoldQuiz(q){return '<div class="card" data-source-hold="'+q.id+'"><h3>本題暫停作答</h3><p role="status">'+q.id+'：題目文字正在依官方原卷覆核，暫不顯示題幹、選項與解析，也不列入計分。</p><button class="btn" onclick="next()">略過待覆核題（不計分）→</button></div>';}
 const SWSI_FIGURE_STATUS=Object.create(null);
