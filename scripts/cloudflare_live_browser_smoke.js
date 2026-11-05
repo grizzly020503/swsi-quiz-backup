@@ -400,6 +400,41 @@ async function check(engine, label, width, height, practice) {
         Number(style.opacity) !== 0 && rect.width > 0 && rect.height > 0;
     }).length >= 3, null, { timeout: 15000 });
 
+    // Guard the actual deployed V4 DOM against a late renderHome override.
+    // CSS/artifact byte parity alone did not catch the previous homepage regression.
+    await page.waitForSelector('#app .swsi-v4-hero .swsi-v4-start', { timeout: 15000 });
+    const homeV4 = await page.evaluate(() => {
+      const hero = document.querySelector('#app .swsi-v4-hero');
+      const paths = [...document.querySelectorAll('#app .swsi-v4-study-paths > .swsi-v4-path')]
+        .map(el => el.querySelector('.swsi-v4-path-title')?.textContent?.trim() || '');
+      const tools = [...document.querySelectorAll('#app .swsi-v4-tool-grid > button')]
+        .map(el => el.textContent?.trim() || '');
+      const nav = [...document.querySelectorAll('#tabbar button')].filter(el => {
+        const style = getComputedStyle(el);
+        const box = el.getBoundingClientRect();
+        return style.display !== 'none' && style.visibility !== 'hidden' &&
+          Number(style.opacity) !== 0 && box.width > 0 && box.height > 0;
+      }).map(el => el.getAttribute('aria-label') || el.textContent.trim());
+      return {
+        heroCount: document.querySelectorAll('#app .swsi-v4-hero').length,
+        headline: hero?.querySelector('h1')?.textContent?.trim() || '',
+        heroColor: hero ? getComputedStyle(hero).backgroundColor : '',
+        paths, tools, nav
+      };
+    });
+    assert.equal(homeV4.heroCount, 1, label + ': missing/duplicate V4 primary hero');
+    assert.equal(homeV4.headline, '今天，從一題開始。', label + ': old homepage renderer active');
+    assert.equal(homeV4.heroColor, 'rgb(229, 240, 235)', label + ': approved pale-green hero missing');
+    assert.deepEqual(homeV4.paths, ['歷屆試題', '申論練習'], label + ': V4 study paths');
+    assert.equal(homeV4.tools.length, 3, label + ': V4 study tools count');
+    assert(homeV4.tools[0] === '模擬考' &&
+      homeV4.tools[1].startsWith('錯題本') &&
+      homeV4.tools[2] === '弱點分析', label + ': V4 tool labels/order ' + JSON.stringify(homeV4.tools));
+    assert.deepEqual(homeV4.nav, ['首頁', '刷題', '申論', '我的'],
+      label + ': active four-tab V4 navigation ' + JSON.stringify(homeV4.nav));
+    console.log('CLOUDFLARE LIVE V4 HOME OK ' + label +
+      ': one hero, two paths, three tools, four visible navigation tabs');
+
     const state = await page.evaluate(() => ({
       title: document.title,
       robots: document.querySelector('meta[name="robots"]')?.content || '',
