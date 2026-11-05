@@ -4303,6 +4303,42 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
 <!-- SWSI UIUX V1 END -->
 <script>window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP={"version":"2026-08-27.canonical-build.v1","laws":{"count":24,"sha256":"bb946b67af633ea371550dc1b074dbca530ccb50f47e561c7590ff0e5ea89dfc"},"theories":{"count":39,"sha256":"1a74d39a9611caf002383527390dd3d7e5cc0b6665b6b7f89494f2a0d58ead4d"}};</script>
 <script src="monthly_patch.js?v=61080ac33cf3d16a"></script>
+<!-- Cloudflare-only source-hold due-review guard. Do not change the shared
+     monthly_patch_parts/Netlify backup. The monthly patch overrides the
+     earlier reviewSummary at runtime; reapply the fail-closed rule AFTER it. -->
+<script id="swsi-source-hold-review-guard">
+(function(){
+  if(typeof reviewSummary!=='function'||typeof swsiSourceHeld!=='function')
+    throw Error('SWSI source review policy unavailable');
+  reviewSummary=function(){
+    const state=bootstrapReviewState(),now=Date.now();
+    const exists=QB.allComplete?
+      new Set(ALL.filter(q=>!lawConfirmedChanged(q)&&!swsiSourceHeld(q)).map(q=>q.id)):null;
+    const activeIds=[],dueIds=[],maintenanceDueIds=[];
+    let masteredCount=0,nextDueAt=0;
+    Object.values(state.items).forEach(r=>{
+      // Preserve stored history unchanged, including old held answers. Merely
+      // suppress these unfinished official rows from current due/active UI.
+      if(!r||!r.id||swsiSourceHeld(r)||(exists&&!exists.has(r.id)))return;
+      const due=Number(r.dueAt||0);
+      if(r.mastered){
+        masteredCount++;
+        if(!r.maintenanceDone){
+          if(!due||due<=now){dueIds.push(r.id);maintenanceDueIds.push(r.id);}
+          else if(!nextDueAt||due<nextDueAt)nextDueAt=due;
+        }
+        return;
+      }
+      activeIds.push(r.id);
+      if(!due||due<=now)dueIds.push(r.id);
+      else if(!nextDueAt||due<nextDueAt)nextDueAt=due;
+    });
+    return {state,activeIds,dueIds,maintenanceDueIds,
+      activeCount:activeIds.length,dueCount:dueIds.length,
+      maintenanceDueCount:maintenanceDueIds.length,masteredCount,nextDueAt};
+  };
+})();
+</script>
 <!-- SWSI CALM STUDENT DESIGN V2 START -->
 <style id="swsi-calm-student-design-v2">
 /*
