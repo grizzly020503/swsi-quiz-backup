@@ -153,12 +153,38 @@ jobs:
           main=subprocess.check_output(['git','rev-parse','FETCH_HEAD'],text=True).strip()
           assert re.fullmatch('[0-9a-f]{40}',main)
           cache={}
+          # Historical essay source lives in root index.html (230) plus auto/ (10).
+          # Read only the exact current main SHA pinned above; never write to it.
+          index_html=subprocess.check_output(['git','show',main+':index.html'],text=True)
+          match=re.search(r'window\.ESSAYS\s*=\s*(\[.*?\]);\s*\n\s*window\.CLUSTER_ANCHORS',
+                          index_html, flags=re.S)
+          assert match, 'current main embedded essay source missing'
+          embedded=json.loads(match.group(1))
+          recent=json.loads(subprocess.check_output(
+              ['git','show',main+':auto/essays_auto.json'],text=True))
+          assert isinstance(embedded,list) and isinstance(recent,list)
+          essays={}
+          for entry in embedded+recent:
+              assert isinstance(entry,dict)
+              ident=str(entry.get('id') or '')
+              if entry.get('subject')=='時事預測題' or ident.startswith('時事-'):
+                  continue
+              assert ident and ident not in essays, 'duplicate/missing official essay ID'
+              essays[ident]=entry
+          assert len(essays)==240, 'current main official essay coverage changed'
           result=[]
           for item in queue['rows']:
               if item['priority']!=0:continue
               ident=item['id']
               if item['kind']=='essay':
-                  result.append((ident,'essay','not_compared','',item['source_url']))
+                  live=essays[ident]
+                  file=work/'packets'/(hashlib.sha256(ident.encode()).hexdigest()+'.json')
+                  raw=file.read_bytes()
+                  assert hashlib.sha256(raw).hexdigest()==checkpoint['packets'][ident]
+                  old=json.loads(raw)['current_official_record']
+                  diff=[k for k in ('q','points') if old.get(k)!=live.get(k)]
+                  result.append((ident,'essay','changed' if diff else 'same',
+                                 ';'.join(diff),item['source_url']))
                   continue
               assert item['kind']=='mcq'
               m=re.search(r'(10[4-9]|11[0-5])-([12])-\d+$',ident)
@@ -180,7 +206,9 @@ jobs:
                              ';'.join(diff),item['source_url']))
           assert len(result)==queue['priority_counts']['0']==27
           c=Counter(x[2] for x in result)
-          assert c['not_compared']==4 and c['changed']+c['same']==23
+          assert sum(r[1]=='essay' for r in result)==4
+          assert sum(r[1]=='mcq' for r in result)==23
+          assert c['not_compared']==0 and c['changed']+c['same']==27
           with (root/'priority0-main-comparison.csv').open('w',encoding='utf-8-sig',newline='') as fp:
               w=csv.writer(fp)
               w.writerow(['id','kind','current_main_vs_pinned','changed_fields',
@@ -190,8 +218,8 @@ jobs:
           with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as fp:
               fp.write('\n## Current main versus old pinned P0 candidate\n\n')
               fp.write('main='+main+'; content change is not official proof.\n\n')
-              fp.write('Changed: '+str(c['changed'])+'; unchanged: '+str(c['same'])+
-                       '; essays not compared: '+str(c['not_compared'])+'.\n\n')
+              fp.write('Compared: 27 P0 records (23 MCQ + 4 essay). Changed: '+
+                       str(c['changed'])+'; unchanged: '+str(c['same'])+'.\n\n')
               fp.write('**NO-GO**: all 428 source reviews remain pending independent approval.\n')
           print('P0 MAIN COMPARISON OK '+json.dumps(dict(c),sort_keys=True))
           PY
