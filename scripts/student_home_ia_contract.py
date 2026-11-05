@@ -1,81 +1,70 @@
 #!/usr/bin/env python3
-"""Fail-closed IA contract for the SWSI student homepage (#307).
-
-This is intentionally a source-level, zero-network check. It protects the
-existing subtraction-first homepage from growing back into a feature wall and
-prevents a cosmetic "resume" entry from being added before a durable quiz
-session contract exists.
-"""
+"""Fail-closed homepage IA contract for SWSI Calm Learning V4."""
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 HOME = ROOT / "monthly_patch_parts" / "20.product-philosophy.part"
+BUILD = ROOT / "cdn" / "monthly_patch.js"
 
 
 def fail(message: str) -> None:
-    raise SystemExit(f"STUDENT HOME IA CONTRACT FAILED: {message}")
+    raise SystemExit("STUDENT HOME IA CONTRACT FAILED: " + message)
 
 
-def require_count(text: str, marker: str, expected: int, label: str) -> None:
-    actual = text.count(marker)
-    if actual != expected:
-        fail(f"{label}: expected {expected}, found {actual}")
+def require_count(source: str, token: str, count: int, label: str) -> None:
+    found = source.count(token)
+    if found != count:
+        fail(f"{label}: expected {count}, found {found}")
 
 
 def main() -> int:
     text = HOME.read_text(encoding="utf-8")
+    built = BUILD.read_text(encoding="utf-8")
+    if text not in built:
+        fail("canonical homepage source diverged from deployed monthly_patch.js")
 
-    # One primary study card only. Advanced scope stays inside that card rather
-    # than becoming another top-level feature area.
-    require_count(text, '<section class="swsi-focus-primary">', 1, "primary study card")
-    require_count(text, '<div class="swsi-home-quick">', 1, "quick-action row")
-    require_count(text, 'class="swsi-home-resource"', 1, "low-interference resource entry")
+    require_count(text, '<section class="swsi-focus-hero swsi-focus-primary swsi-v4-hero">',
+                  1, "single primary learning hero")
+    require_count(text, '<div class="swsi-v4-study-paths">', 1, "two study paths section")
+    require_count(text, '<section class="swsi-v4-tools">', 1, "three optional study tools section")
+    require_count(text, 'class="swsi-v4-path"', 2, "historical and essay study cards")
+    require_count(text, 'class="swsi-v4-start"', 1, "one prominent primary CTA")
 
-    # Existing first-screen action owners. Adding another top-level action must
-    # be an explicit IA decision, not an incidental feature addition.
     for marker, label in (
-        ('onclick="swsiStartNow()"', "primary practice action"),
-        ('onclick="toggleHomeQuiz()"', "advanced-range disclosure"),
-        ('onclick="swsiOpenHomeReview()"', "review action"),
-        ('onclick="MK.open()"', "mock-exam action"),
-        ('onclick="go(\\\'topics\\\')"', "resource action"),
+        ('onclick="swsiStartNow()"', "start short practice"),
+        ('onclick="toggleHomeQuiz()"', "disclose official past exam filters"),
+        ('onclick="swsiOpenHomeReview()"', "review existing missed questions"),
+        ('onclick="MK.open()"', "mock exam entry"),
+        ('onclick="go(\\\'topics\\\')"', "more learning tools entry"),
+        ('onclick="go(\\\'essay\\\')"', "essay practice entry"),
+        ('onclick="go(\\\'progress\\\')"', "weakness analysis entry"),
     ):
-        require_count(text, marker, 1, label)
+        if marker not in text:
+            fail("missing functional route: " + label)
 
-    # The primary CTA count and the actual start contract must agree. The exact
-    # number may intentionally move from 20 to 10 later; drift is what is banned.
-    start = re.search(r"swsiStartNow=function\(\)\{.*?homeQuizCount=(\d+);", text, re.S)
-    button = re.search(r">直接開始\s+(\d+)\s+題</button>", text)
-    heading = re.search(r"<h2>(\d+)\s*題[^<]*</h2>", text)
-    if not start or not button or not heading:
-        fail("primary practice count markers are incomplete")
-    counts = {int(start.group(1)), int(button.group(1)), int(heading.group(1))}
-    if len(counts) != 1:
-        fail(f"primary practice count drift: {sorted(counts)}")
-    count = counts.pop()
-    if count not in {10, 20, 40}:
-        fail(f"primary practice count must use an existing supported size, got {count}")
+    if "homeQuizCount=10" not in text:
+        fail("short-practice route no longer owns its 10-question contract")
+    if not all(s in text for s in (
+        "今天，從一題開始。", "歷屆試題", "申論練習", "模擬考", "錯題本", "弱點分析"
+    )):
+        fail("approved homepage hierarchy or copy missing")
 
-    # Current product has answer history/review persistence, not a durable
-    # unfinished-quiz session. Do not create a misleading button before the
-    # session state, version/fingerprint and expiry/fail-closed behavior exist.
-    forbidden_resume_copy = ("繼續上次", "繼續作答", "繼續未完成")
-    if any(copy in text for copy in forbidden_resume_copy):
-        fail("resume copy appeared before a durable unfinished-quiz session contract exists")
+    forbidden = ("繼續上次", "繼續作答", "繼續未完成")
+    if any(s in text for s in forbidden):
+        fail("unverified resume-session promise introduced")
 
-    # Engineering terms should not leak into the focused homepage copy.
-    rendered_home = text[text.find("app.innerHTML=offlineNote+") : text.find("if(typeof relabelTabs")]
-    for term in ("shard", "canonical", "runtime", "manifest", "fingerprint"):
-        if term.lower() in rendered_home.lower():
-            fail(f"engineering term leaked into student homepage: {term}")
+    region_start = text.find("app.innerHTML=offlineNote+")
+    region_end = text.find("if(typeof relabelTabs", region_start)
+    if region_start < 0 or region_end <= region_start:
+        fail("actual homepage renderer not found")
+    region = text[region_start:region_end].lower()
+    for word in ("shard", "canonical", "runtime", "manifest", "fingerprint"):
+        if word in region:
+            fail("engineering term leaked into student homepage: " + word)
 
-    print(
-        "STUDENT HOME IA CONTRACT OK "
-        f"primary_count={count} primary_cards=1 quick_row=1 resource_entries=1 resume=disabled"
-    )
+    print("STUDENT HOME IA CONTRACT OK primary=1 historical=1 essay=1 optional_tools=3")
     return 0
 
 

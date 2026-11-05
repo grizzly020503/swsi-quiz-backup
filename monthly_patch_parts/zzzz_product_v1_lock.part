@@ -102,9 +102,19 @@
   };
 
   function polishNav(){
-    setNavButton('t-home','home','練題',"go('home')");
-    setNavButton('t-review','review','學習',"swsiOpenLearningCenter()");
+    setNavButton('t-home','home','首頁',"go('home')");
+    setNavButton('swsi-v4-tab-quiz','quiz','刷題',"swsiStartNow()");
+    setNavButton('t-review','review','我的',"return swsiOpenLearningCenter(event)");
     setNavButton('t-essay','essay','申論',"go('essay')");
+    // Older renderHome/relabelTabs appends the three legacy tabs and disturbs
+    // DOM order. Reconcile in this existing final owner (no separate observer).
+    var bar=document.getElementById('tabbar');
+    if(bar){
+      ['t-home','swsi-v4-tab-quiz','t-essay','t-review','t-topics','t-progress'].forEach(function(id,i){
+        var item=document.getElementById(id);
+        if(item&&bar.children[i]!==item)bar.insertBefore(item,bar.children[i]||null);
+      });
+    }
   }
 
   /* Essay navigation is owned by zzz_fix_essay_navigation.part. */

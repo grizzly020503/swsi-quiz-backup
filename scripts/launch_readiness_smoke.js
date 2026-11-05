@@ -92,56 +92,50 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await waitHome();
   assert.strictEqual(await page.locator('.swsi-launch-guide').count(), 0, 'dismissed guide returned after reload');
 
-  // Assert the actual *computed* visual system after the runtime injected its
-  // styles. A green static CSS diff is not evidence of the UI users see.
-  const calmMobile = await page.evaluate(() => {
-    const focus = document.querySelector('.swsi-focus-primary');
-    const nav = document.querySelector('.tabbar');
+
+  // The visible homepage, not an unused CSS selector, must match the approved
+  // mobile concept. This guards against later runtime renderHome overrides.
+  const actualHome = await page.evaluate(() => {
+    const hero = document.querySelector('#app .swsi-v4-hero');
+    const primary = document.querySelector('#app .swsi-v4-start');
+    const nav = document.querySelector('#tabbar');
     const wrap = document.querySelector('.wrap');
-    const primary = document.querySelector('.swsi-focus-primary button');
     return {
-      v2Loaded: !!document.getElementById('swsi-calm-student-design-v2'),
       paper: getComputedStyle(document.documentElement).getPropertyValue('--paper').trim().toUpperCase(),
-      pineDeep: getComputedStyle(document.documentElement).getPropertyValue('--pine-deep').trim().toUpperCase(),
-      focusBackground: focus && getComputedStyle(focus).backgroundColor,
-      focusBorder: focus && getComputedStyle(focus).borderTopColor,
-      wrapMaxWidth: wrap && getComputedStyle(wrap).maxWidth,
+      heroBackground: hero && getComputedStyle(hero).backgroundColor,
+      heroTitle: hero && hero.querySelector('h1')?.textContent,
+      primaryHeight: primary && primary.getBoundingClientRect().height,
       navMaxWidth: nav && getComputedStyle(nav).maxWidth,
-      primaryHeight: primary && primary.getBoundingClientRect().height
+      wrapMaxWidth: wrap && getComputedStyle(wrap).maxWidth,
+      tabs: Array.from(nav.querySelectorAll('button')).filter(b => getComputedStyle(b).display !== 'none').map(b => b.getAttribute('aria-label')),
+      v4Installed: !!document.getElementById('swsi-calm-navigation-v4')
     };
   });
-  assert(calmMobile.v2Loaded, 'calm student design V2 style is absent from runtime');
-  assert.strictEqual(calmMobile.paper, '#F4F7F5', 'calm paper token did not reach computed CSS');
-  assert.strictEqual(calmMobile.pineDeep, '#1F544B', 'calm primary-action token did not reach computed CSS');
-  assert.strictEqual(calmMobile.focusBackground, 'rgb(255, 255, 255)', 'live focus card is not white');
-  assert.strictEqual(calmMobile.wrapMaxWidth, '660px', 'mobile reading surface is still old width');
-  assert(calmMobile.primaryHeight >= 44, 'calm focus action below 44px touch height');
+  assert.strictEqual(actualHome.paper, '#F4F7F5', 'static build calm paper token changed (Cloudflare V3 has its own #F7F9F7 override)');
+  assert.strictEqual(actualHome.heroBackground, 'rgb(229, 240, 235)', 'approved pale green CTA hero is not rendered');
+  assert(/今天，從一題開始/.test(actualHome.heroTitle || ''), 'live renderHome still uses old copy');
+  assert(actualHome.primaryHeight >= 48, 'primary CTA touch height is too small');
+  assert.strictEqual(actualHome.wrapMaxWidth, '660px', 'mobile reading width regressed');
+  assert(actualHome.v4Installed, 'V4 navigation owner missing');
+  assert.deepStrictEqual(actualHome.tabs, ['首頁','刷題','申論','我的'], 'mobile navigation has wrong labels/order');
   await visual('01-home-mobile');
 
-  const visibleTabs = await page.locator('#tabbar button:visible').allInnerTexts();
-  const tabText = visibleTabs.join(' ');
-  assert(/練題/.test(tabText) && /學習/.test(tabText) && /申論/.test(tabText), 'simplified bottom navigation labels missing');
-
-  // Homepage subtraction: Home owns one dominant short practice action,
-  // review/mock shortcuts, and one low-emphasis route to deeper tools.
-  // Learning and Essay stay in bottom navigation instead of being repeated here.
-  assert.strictEqual(await page.locator('#app .swsi-study-card').count(), 0, 'homepage repeated large study cards returned');
-  assert.strictEqual(await page.locator('#app details.swsi-other-tools').count(), 0, 'homepage duplicate advanced-tools disclosure returned');
-  const primaryHomeText = await page.locator('#app .swsi-focus-primary').innerText();
-  assert(/10 題今日練習/.test(primaryHomeText), 'homepage primary action is not the 10-question short practice');
-  assert(/直接開始 10 題/.test(primaryHomeText), 'homepage primary CTA is not the 10-question action');
-  const quickActions = page.locator('#app .swsi-home-quick button');
-  assert.strictEqual(await quickActions.count(), 2, 'homepage compact quick actions missing');
-  const quickText = (await quickActions.allInnerTexts()).join(' ');
-  assert(/複習錯題/.test(quickText) && /完整模擬考/.test(quickText), 'homepage quick actions are not focused on review + mock exam');
-  const resourceLink = page.locator('#app .swsi-home-resource');
-  assert.strictEqual(await resourceLink.count(), 1, 'homepage deeper-tools link missing');
-  assert(/更多學習工具/.test(await resourceLink.innerText()), 'homepage deeper-tools label missing');
-  const homeText = await page.locator('#app').innerText();
-  assert(!/學習中心/.test(homeText) && !/申論練習/.test(homeText), 'homepage repeated bottom-navigation destinations returned');
+  const pathCards = page.locator('#app .swsi-v4-study-paths button');
+  assert.strictEqual(await pathCards.count(), 2, 'historical/essay entry cards missing');
+  assert(/歷屆試題/.test(await pathCards.nth(0).innerText()), 'historical past-exam entry missing');
+  assert(/申論練習/.test(await pathCards.nth(1).innerText()), 'handwriting-first essay entry missing');
+  const toolButtons = page.locator('#app .swsi-v4-tool-grid button');
+  assert.strictEqual(await toolButtons.count(), 3, 'three optional learning tools missing');
+  const toolText = (await toolButtons.allInnerTexts()).join(' ');
+  assert(/模擬考/.test(toolText) && /錯題本/.test(toolText) && /弱點分析/.test(toolText),
+    'mock/review/progress tools are not reachable');
+  assert.strictEqual(await page.locator('#app .swsi-v4-hero button').count(), 1,
+    'hero must have exactly one prominent primary action');
+  assert.strictEqual(await page.locator('#app details.swsi-other-tools').count(), 0,
+    'old redundant advanced-tools disclosure returned');
 
   // The simplified CTA must change behavior as well as copy: it starts 10 questions.
-  await page.getByRole('button', { name: '直接開始 10 題' }).click();
+  await page.getByRole('button', { name: '開始刷題' }).click();
   await page.waitForSelector('.pcount', { timeout: 30000 });
   assert.strictEqual((await page.locator('.pcount').innerText()).trim(), '1 / 10', '10-question CTA did not start a 10-question queue');
   // Visual regression: disabled submit previously rendered dark green with nearly

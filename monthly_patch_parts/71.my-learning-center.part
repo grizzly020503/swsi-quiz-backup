@@ -130,8 +130,8 @@
 
   function installLearningTab(){
     var home=document.getElementById('t-home'),learning=document.getElementById('t-review'),essay=document.getElementById('t-essay'),progress=document.getElementById('t-progress');
-    if(home)home.innerHTML='<span class="ico">◎</span>練題';
-    if(learning){learning.innerHTML='<span class="ico">↻</span>學習';learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');learning.setAttribute('aria-label','學習中心');}
+    if(home)home.innerHTML='<span class="ico">◎</span>首頁';
+    if(learning){learning.innerHTML='<span class="ico">↻</span>我的';learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');learning.setAttribute('aria-label','我的');}
     if(essay)essay.innerHTML='<span class="ico">✒</span>申論';
     if(progress)progress.style.display='none';
     if(window.__SWSI_LEARNING_CENTER_OPEN__)setLearningNavActive();

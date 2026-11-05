@@ -1387,6 +1387,67 @@ main [style*="font-size:15px"]{
   window.addEventListener('pageshow',syncLayout);
   window.addEventListener('focus',syncLayout);
 })();
+/* SWSI Calm Learning V4 — final navigation owner.
+   Four visible routes reflect the approved mobile concept while preserving
+   existing home, essay and Learning Center route owners.
+   No grading, user-state, API, or security changes. */
+(function(){
+  'use strict';
+  var bar=document.getElementById('tabbar');
+  if(!bar || document.getElementById('swsi-calm-navigation-v4'))return;
+  var symbols={
+    home:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>',
+    quiz:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1V6Zm0 0c3-2 6-2 9-1v14c-3-1-6-1-9 1"/></svg>',
+    essay:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9M16 4l4 4-11 11-4 1 1-4z"/></svg>',
+    mine:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>'
+  };
+  var s=document.createElement('style');
+  s.id='swsi-calm-navigation-v4';
+  s.textContent=[
+    'body #tabbar #t-topics,body #tabbar #t-progress{display:none!important;}',
+    'body #tabbar{gap:0;}',
+    "body #tabbar button{font-family:'Noto Sans TC',system-ui,sans-serif;font-size:12px;}",
+    'body #tabbar button .ico{display:grid;place-items:center;width:24px;height:24px;font-size:22px;line-height:1;}',
+    'body #tabbar button .ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}',
+    'body #tabbar button .swsi-nav-label{font-size:12px;font-weight:650;line-height:1.35;}',
+    'body #tabbar button.on{color:#245D56;}',
+    '@media(max-width:390px){body #tabbar button{padding-left:2px;padding-right:2px;}}',
+    '@media(prefers-reduced-motion:reduce){body #tabbar button{transition:none!important;}}'
+  ].join('');
+  document.head.appendChild(s);
+  function format(button,icon,label,action){
+    if(!button)return;
+    var html='<span class="ico">'+symbols[icon]+'</span><span class="swsi-nav-label">'+label+'</span>';
+    if(button.innerHTML!==html)button.innerHTML=html;
+    if(button.getAttribute('onclick')!==action)button.setAttribute('onclick',action);
+    if(button.getAttribute('aria-label')!==label)button.setAttribute('aria-label',label);
+  }
+  function syncNav(){
+    var home=document.getElementById('t-home');
+    var essay=document.getElementById('t-essay');
+    var mine=document.getElementById('t-review');
+    var topics=document.getElementById('t-topics');
+    var progress=document.getElementById('t-progress');
+    if(!home||!essay||!mine)return;
+    var quiz=document.getElementById('swsi-v4-tab-quiz');
+    if(!quiz){quiz=document.createElement('button');quiz.id='swsi-v4-tab-quiz';quiz.type='button';}
+    format(home,'home','首頁',"go('home')");
+    format(quiz,'quiz','刷題',"swsiStartNow()");
+    format(essay,'essay','申論',"go('essay')");
+    format(mine,'mine','我的',"return swsiOpenLearningCenter(event)");
+    var order=[home,quiz,essay,mine,topics,progress].filter(Boolean);
+    order.forEach(function(node,i){
+      if(bar.children[i]!==node)bar.insertBefore(node,bar.children[i]||null);
+    });
+    if(topics&&topics.style.display!=='none')topics.style.display='none';
+    if(progress&&progress.style.display!=='none')progress.style.display='none';
+  }
+  // Navigation is reconciled by the existing late product owner.
+  // Never observe the nav subtree from an early part: it would trigger
+  // competing microtask observers and starve DOMContentLoaded on iOS/Chromium.
+  syncNav();
+})();
+
 /* SWSI Focused Study Home V2 2026-08-29
    UX simplification preview: one clear study action at a time.
    No grading, question-bank, AI or storage contract changes.
@@ -1437,6 +1498,89 @@ main [style*="font-size:15px"]{
         .swsi-focus-primary{padding:18px 16px}
         .swsi-home-quick{grid-template-columns:1fr 1fr}
       }
+
+      /* V4: the live renderer follows the approved mobile concept, not just the CSS tokens. */
+      html body #app .swsi-v4-hero{
+        background:#E5F0EB;border:1px solid #D4E4D9;border-radius:20px;
+        margin:0 0 23px;padding:25px 23px;box-shadow:none;color:#245D56;
+        display:block;
+      }
+      html body #app .swsi-v4-hero .kicker{
+        color:#3E655B;font-family:'Noto Sans TC',system-ui,sans-serif;
+        font-size:13px;font-weight:750;letter-spacing:.25px;margin-bottom:15px;
+      }
+      html body #app .swsi-v4-hero h1{
+        color:#204E48;font-family:'Noto Sans TC',system-ui,sans-serif;
+        font-size:clamp(24px,5vw,29px);font-weight:850;line-height:1.42;
+        margin:0 0 10px;letter-spacing:0;
+      }
+      html body #app .swsi-v4-hero p{color:#49685E;font-size:14px;line-height:1.7;margin:0 0 20px;}
+      html body #app .swsi-v4-start{
+        display:flex;align-items:center;justify-content:center;gap:10px;
+        width:100%;min-height:55px;border:1px solid #245D56;border-radius:13px;
+        background:#245D56;color:#fff;cursor:pointer;box-shadow:none;
+        font:750 17px/1.3 'Noto Sans TC',system-ui,sans-serif;
+        transition:background-color .18s ease,transform .16s ease;
+      }
+      html body #app .swsi-v4-start span{font-size:23px;line-height:1;}
+      html body #app .swsi-v4-start:active{transform:translateY(1px);}
+      html body #app .swsi-v4-section-heading{
+        margin:0 0 15px;font:800 20px/1.5 'Noto Sans TC',system-ui,sans-serif;
+        color:#273B34;
+      }
+      html body #app .swsi-v4-study-paths{
+        display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
+        margin:0 0 16px;
+      }
+      html body #app .swsi-v4-path{
+        display:flex;flex-direction:column;align-items:flex-start;gap:0;text-align:left;
+        min-width:0;min-height:134px;padding:17px 16px;border:1px solid #E0E9E3;
+        border-radius:17px;background:#fff;color:#254E46;box-shadow:none;
+        cursor:pointer;font-family:'Noto Sans TC',system-ui,sans-serif;
+      }
+      html body #app .swsi-v4-path-icon{font-size:24px;line-height:1.2;margin-bottom:12px;color:#245D56;}
+      html body #app .swsi-v4-path-title{font-size:17px;font-weight:800;color:#273B34;line-height:1.4;}
+      html body #app .swsi-v4-path-sub{font-size:12px;font-weight:500;color:#63756E;line-height:1.55;margin-top:5px;}
+      html body #app .swsi-v4-tools{
+        background:#fff;border:1px solid #E2EAE4;border-radius:18px;padding:18px;
+        margin:0 0 12px;
+      }
+      html body #app .swsi-v4-tools-head{
+        display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px;
+      }
+      html body #app .swsi-v4-tools-head h2{margin:0;color:#273B34;font:800 20px/1.5 'Noto Sans TC',system-ui,sans-serif;}
+      html body #app .swsi-v4-tools-head button{
+        border:0;background:transparent;color:#5C766D;min-width:44px;min-height:44px;
+        font:500 29px/1 sans-serif;cursor:pointer;
+      }
+      html body #app .swsi-v4-tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+      html body #app .swsi-v4-tool-grid button{
+        min-width:0;min-height:83px;padding:11px 4px;display:flex;flex-direction:column;
+        align-items:center;justify-content:center;gap:7px;
+        border:1px solid #EDF2EE;border-radius:12px;background:#F7F9F7;color:#315C51;
+        font:700 12px/1.4 'Noto Sans TC',system-ui,sans-serif;cursor:pointer;
+      }
+      html body #app .swsi-v4-tool-grid button span:first-child{font-size:24px;line-height:1.1;}
+      html body #app .swsi-focus-custom{
+        margin:0 0 16px;padding:15px;background:#fff;border:1px solid #E0E9E3;border-radius:15px;
+      }
+      html body #app :is(.swsi-v4-start,.swsi-v4-path,.swsi-v4-tools button):focus-visible{
+        outline:3px solid #245D56;outline-offset:3px;
+      }
+      @media(hover:hover){
+        html body #app .swsi-v4-start:hover{background:#1C4E47;}
+        html body #app .swsi-v4-path:hover,html body #app .swsi-v4-tool-grid button:hover{border-color:#9FC8AE;}
+      }
+      @media(max-width:360px){
+        html body #app .swsi-v4-hero{padding:20px 18px;}
+        html body #app .swsi-v4-path{padding:15px 12px;}
+        html body #app .swsi-v4-path-title{font-size:15px;}
+        html body #app .swsi-v4-tool-grid{gap:6px;}
+        html body #app .swsi-v4-tool-grid button{font-size:11px;}
+      }
+      @media(prefers-reduced-motion:reduce){
+        html body #app .swsi-v4-start{animation:none;transition:none;}
+      }
     `;
     document.head.appendChild(style);
   }
@@ -1471,11 +1615,18 @@ main [style*="font-size:15px"]{
     try{if(window.SWSI_QB&&window.SWSI_QB.usingOffline)offlineNote='<div style="margin-bottom:9px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:var(--swsi-ui-small);color:var(--ink-soft)">目前使用這台裝置已儲存的離線題庫。</div>';}catch(_e){}
 
     app.innerHTML=offlineNote+
-      '<section class="swsi-focus-hero"><div class="kicker">SWSI · 免費社工師國考學習平台</div><h1>今天先做一件事</h1><p>先用約 10 分鐘練 10 題；要複習錯題或做完整模擬考，就選下面兩個入口。</p></section>'+
-      '<section class="swsi-focus-primary"><div class="label">現在開始</div><h2>10 題今日練習</h2><p>直接開始；想指定年度、考次、科目或題數，再打開範圍設定。</p><div class="swsi-focus-actions"><button class="go" onclick="swsiStartNow()">直接開始 10 題</button><button class="choose" onclick="toggleHomeQuiz()">'+(homeQuizOpen?'收起設定':'自己選範圍')+'</button></div></section>'+
+      '<section class="swsi-focus-hero swsi-focus-primary swsi-v4-hero"><div class="kicker">你的學習空間</div><h1>今天，從一題開始。</h1><p>選擇自己的步調，持續累積實力。</p><button class="swsi-v4-start" type="button" onclick="swsiStartNow()"><span aria-hidden="true">▷</span> 開始刷題</button></section>'+
+      '<h2 class="swsi-v4-section-heading">想從哪裡開始？</h2>'+
+      '<div class="swsi-v4-study-paths">'+
+        '<button type="button" class="swsi-v4-path" onclick="toggleHomeQuiz()" aria-expanded="'+(homeQuizOpen?'true':'false')+'"><span class="swsi-v4-path-icon" aria-hidden="true">▤</span><span class="swsi-v4-path-title">歷屆試題</span><span class="swsi-v4-path-sub">依年份、科目練習</span></button>'+
+        '<button type="button" class="swsi-v4-path" onclick="go(\'essay\')"><span class="swsi-v4-path-icon" aria-hidden="true">✎</span><span class="swsi-v4-path-title">申論練習</span><span class="swsi-v4-path-sub">手寫上傳與 AI 回饋</span></button>'+
+      '</div>'+
       (homeQuizOpen?('<section class="swsi-focus-custom"><div class="field-label">範圍</div><select class="subj" aria-label="刷題範圍" onchange="setHomeQuizScope(this.value)" style="margin-bottom:9px"><option value="smart" '+(homeQuizScope==='smart'?'selected':'')+'>智慧推薦</option><option value="recent3" '+(homeQuizScope==='recent3'?'selected':'')+'>近 3 年</option><option value="recent5" '+(homeQuizScope==='recent5'?'selected':'')+'>近 5 年</option><option value="specific" '+(homeQuizScope==='specific'?'selected':'')+'>指定歷屆</option><option value="all" '+(homeQuizScope==='all'?'selected':'')+'>全部題庫</option></select>'+(specific?('<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="subj" aria-label="考試年度" onchange="setHomeQuizYear(this.value)" style="margin-bottom:9px">'+yearOpts+'</select><select class="subj" aria-label="考試考次" onchange="setHomeQuizRound(this.value)" style="margin-bottom:9px"><option value="all" '+(homeQuizRound==='all'?'selected':'')+'>全部考次</option><option value="1" '+(homeQuizRound==='1'?'selected':'')+'>第一次</option><option value="2" '+(homeQuizRound==='2'?'selected':'')+'>第二次</option></select></div>'):'')+'<div class="field-label">科目</div><select class="subj" aria-label="科目" onchange="subjFilter=this.value;render()" style="margin-bottom:9px">'+subjOpts+'</select><div class="field-label">題數</div><select class="subj" aria-label="題數" onchange="setHomeQuizCount(this.value)" style="margin-bottom:7px"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="40" '+(homeQuizCount===40?'selected':'')+'>40 題</option></select><div class="hint">'+swsiEsc(scopeHint)+'</div><button class="btn" onclick="startFocusedQuiz()" style="margin-top:2px">開始這組題目</button></section>'):'')+
-      '<div class="swsi-home-quick"><button class="'+(rv.dueCount?'due':'')+'" onclick="swsiOpenHomeReview()">'+reviewLabel+'</button><button onclick="MK.open()">完整模擬考</button></div>'+
-      '<button type="button" class="swsi-home-resource" onclick="go(\'topics\')">更多學習工具 <span aria-hidden="true">›</span></button>';
+      '<section class="swsi-v4-tools"><div class="swsi-v4-tools-head"><h2>其他學習工具</h2><button type="button" onclick="go(\'topics\')" aria-label="查看其他學習工具">›</button></div><div class="swsi-v4-tool-grid">'+
+        '<button type="button" onclick="MK.open()"><span aria-hidden="true">◷</span><span>模擬考</span></button>'+
+        '<button type="button" onclick="swsiOpenHomeReview()"><span aria-hidden="true">▣</span><span>錯題本'+(rv.dueCount?' · '+rv.dueCount:'')+'</span></button>'+
+        '<button type="button" onclick="go(\'progress\')"><span aria-hidden="true">▥</span><span>弱點分析</span></button>'+
+      '</div></section>';
 
     if(typeof relabelTabs==='function')try{relabelTabs();}catch(_e){}
   };
@@ -2532,8 +2683,8 @@ html[data-fs="2"]{
 
   function installLearningTab(){
     var home=document.getElementById('t-home'),learning=document.getElementById('t-review'),essay=document.getElementById('t-essay'),progress=document.getElementById('t-progress');
-    if(home)home.innerHTML='<span class="ico">◎</span>練題';
-    if(learning){learning.innerHTML='<span class="ico">↻</span>學習';learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');learning.setAttribute('aria-label','學習中心');}
+    if(home)home.innerHTML='<span class="ico">◎</span>首頁';
+    if(learning){learning.innerHTML='<span class="ico">↻</span>我的';learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');learning.setAttribute('aria-label','我的');}
     if(essay)essay.innerHTML='<span class="ico">✒</span>申論';
     if(progress)progress.style.display='none';
     if(window.__SWSI_LEARNING_CENTER_OPEN__)setLearningNavActive();
@@ -4926,9 +5077,19 @@ html[data-fs="2"]{
   };
 
   function polishNav(){
-    setNavButton('t-home','home','練題',"go('home')");
-    setNavButton('t-review','review','學習',"swsiOpenLearningCenter()");
+    setNavButton('t-home','home','首頁',"go('home')");
+    setNavButton('swsi-v4-tab-quiz','quiz','刷題',"swsiStartNow()");
+    setNavButton('t-review','review','我的',"return swsiOpenLearningCenter(event)");
     setNavButton('t-essay','essay','申論',"go('essay')");
+    // Older renderHome/relabelTabs appends the three legacy tabs and disturbs
+    // DOM order. Reconcile in this existing final owner (no separate observer).
+    var bar=document.getElementById('tabbar');
+    if(bar){
+      ['t-home','swsi-v4-tab-quiz','t-essay','t-review','t-topics','t-progress'].forEach(function(id,i){
+        var item=document.getElementById(id);
+        if(item&&bar.children[i]!==item)bar.insertBefore(item,bar.children[i]||null);
+      });
+    }
   }
 
   /* Essay navigation is owned by zzz_fix_essay_navigation.part. */
@@ -5257,7 +5418,7 @@ html[data-fs="2"]{
     var learning=document.getElementById('t-review');
     if(learning){
       if(learning.getAttribute('onclick')!==route)learning.setAttribute('onclick',route);
-      if(learning.getAttribute('aria-label')!=='學習中心')learning.setAttribute('aria-label','學習中心');
+      if(learning.getAttribute('aria-label')!=='我的')learning.setAttribute('aria-label','我的');
     }
 
     /* Home also exposes a Learning Center card. Keep it on the same direct local

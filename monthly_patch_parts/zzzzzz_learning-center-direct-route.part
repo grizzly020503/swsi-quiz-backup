@@ -30,7 +30,7 @@
     var learning=document.getElementById('t-review');
     if(learning){
       if(learning.getAttribute('onclick')!==route)learning.setAttribute('onclick',route);
-      if(learning.getAttribute('aria-label')!=='學習中心')learning.setAttribute('aria-label','學習中心');
+      if(learning.getAttribute('aria-label')!=='我的')learning.setAttribute('aria-label','我的');
     }
 
     /* Home also exposes a Learning Center card. Keep it on the same direct local
