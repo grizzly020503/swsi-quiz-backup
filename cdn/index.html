@@ -4992,7 +4992,11 @@ async function photoOCR(id,inputEl){
   var panel=document.querySelector('#app .swsi-paper-essay');
   var files=Array.from(inputEl&&inputEl.files||[]);
   if(inputEl)inputEl.value='';
-  if(!panel||mode(id)!=='paper'||!files.length)return;
+  // An old file-picker callback can fire after navigation to another essay.
+  // Never attach or upload a prior question's photo into the active question.
+  var targetDraft=document.getElementById('ta_'+id);
+  if(!panel||!targetDraft||targetDraft.closest('.wbox')!==panel.closest('.wbox')||
+     mode(id)!=='paper'||!files.length)return;
   var status=panel.querySelector('.swsi-paper-status');
   // A rejected local file selection must not discard unconfirmed OCR edits.
   // Start a new session only after file-count/type/size validation passes.

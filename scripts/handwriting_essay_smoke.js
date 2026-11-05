@@ -174,6 +174,19 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       await page.locator('.swsi-paper-essay').waitFor({timeout:12000});
       assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,
         'unconfirmed OCR text must not leak across essay questions');
+      // Simulate a delayed file-picker callback from the *previous* essay
+      // while the new essay is open. It must be rejected before any AI call,
+      // and must not inject the previous question's OCR into this editor.
+      const crossBaseline=await page.evaluate(()=>window.__paperRequests.length);
+      await page.evaluate(async ({previousId,png64})=>{
+        const bytes=Uint8Array.from(atob(png64),c=>c.charCodeAt(0));
+        const staleInput={files:[new File([bytes],'late-previous-question.png',{type:'image/png'})],value:'stale'};
+        await window.gradePhoto(previousId,staleInput);
+      },{previousId:essayId,png64:png.toString('base64')});
+      assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),crossBaseline,
+        'stale photo selection from a different essay must not call AI');
+      assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,
+        'old essay OCR must not appear in the new essay review panel');
       await page.evaluate(()=>closeEssay());
     }
     await page.evaluate(id=>toggleEssay(id),essayId);
