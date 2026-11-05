@@ -53,6 +53,87 @@ jobs:
         with:
           path: ${{ runner.temp }}/swsi-pdf-batch
           key: pdf-batch-${{ steps.inputs.outputs.fingerprint }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Build priority-sorted reviewer index (evidence only)
+        # One index over the immutable review queue; no official edits or approvals.
+        # Skip after upstream failure to avoid a secondary monitoring alert.
+        if: success()
+        run: |
+          python - <<'PY'
+          import csv, hashlib, json, os, re
+          from collections import Counter
+          from pathlib import Path
+          from urllib.parse import urlsplit
+
+          base = Path(os.environ['RUNNER_TEMP']) / 'swsi-pdf-batch'
+          report = json.loads((base / 'latest.json').read_text(encoding='utf-8'))
+          key = str(report['input_fingerprint'])
+          assert re.fullmatch(r'[0-9a-f]{64}', key)
+          work = base / key
+          queue = json.loads((work / 'queue.json').read_text(encoding='utf-8'))
+          state = json.loads((work / 'checkpoint.json').read_text(encoding='utf-8'))
+          rows = queue['rows']
+          ids = [str(row['id']) for row in rows]
+          assert len(rows) == report['queue_total'] == queue['unresolved']
+          assert len(set(ids)) == len(ids)
+          assert report['release_status'] == 'NO-GO'
+          assert report['human_approval'] is False and queue['release_approval'] is False
+          assert report['official_core_modified'] is False
+          assert report['production_write'] is False and report['backup_operation'] is False
+          assert all(row['status'] == 'review' and row['human_approval'] is False
+                     and row['automatic_release_approval'] is False for row in rows)
+          prepared = set(state['packets']).intersection(ids)
+          assert len(prepared) == report['prepared_packets']
+          counts = Counter(str(row['priority']) for row in rows)
+          assert set(counts) <= {'0', '1', '2'}
+          assert set(queue['priority_counts']) == set(counts)
+          assert all(int(queue['priority_counts'][k]) == v for k, v in counts.items())
+
+          out = base / 'priority-review-index.csv'
+          with out.open('w', encoding='utf-8-sig', newline='') as handle:
+              writer = csv.writer(handle)
+              writer.writerow(['priority', 'kind', 'question_id', 'risk_flags',
+                               'official_pdf_url', 'pdf_sha256', 'packet_prepared',
+                               'human_approved', 'release_approved'])
+              for row in rows:
+                  source = str(row.get('source_url') or '')
+                  if source:
+                      url = urlsplit(source)
+                      assert (url.scheme == 'https' and url.hostname == 'wwwq.moex.gov.tw'
+                              and url.path == '/exam/wHandExamQandA_File.ashx'
+                              and not url.username and not url.password)
+                  sha = str(row.get('pdf_sha256') or '')
+                  assert re.fullmatch(r'[0-9a-f]{64}', sha)
+                  writer.writerow([row['priority'], row['kind'], row['id'],
+                                   '; '.join(row['flags']), source, sha,
+                                   row['id'] in prepared, False, False])
+
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
+              summary.write('## Official PDF source-review priorities (NOT APPROVED)\n\n')
+              summary.write(f"Prepared evidence packets: **{len(prepared)}/{len(rows)}**. ")
+              summary.write("These are source-review candidates, not verified corrections.\n\n")
+              summary.write('| Review priority | Records | Meaning |\n|---|---:|---|\n')
+              for rank, label in [('0', 'Numbers / negations / grading'), 
+                                  ('1', 'Text / glyph / extraction'),
+                                  ('2', 'Punctuation only')]:
+                  summary.write(f'| {rank} | {counts[rank]} | {label} |\n')
+              summary.write('\n### Priority 0 — compare the original PDF page first\n\n')
+              summary.write('| Question | Risk flags | Evidence prepared | Official PDF |\n')
+              summary.write('|---|---|---|---|\n')
+              for row in rows:
+                  if row['priority'] != 0:
+                      continue
+                  ident = str(row['id']).replace('|', '\\|')
+                  flags = ', '.join(row['flags']).replace('|', '\\|')
+                  official = str(row.get('source_url') or '')
+                  link = f'[source PDF]({official})' if official else 'source missing'
+                  ready = 'yes' if row['id'] in prepared else 'no'
+                  summary.write(f'| {ident} | {flags} | {ready} | {link} |\n')
+              summary.write('\n**NO-GO:** source evidence and risk flags never constitute '
+                            'human approval. No official question, answer, scoring, AI, '
+                            'Cloudflare or Netlify changes are authorized here.\n')
+          print(f"REVIEW INDEX OK: total={len(rows)} prepared={len(prepared)} "
+                f"p0={counts['0']} p1={counts['1']} p2={counts['2']} no_approvals=1")
+          PY
       - name: Preserve exact-head audit and candidate artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -67,6 +148,7 @@ jobs:
             ${{ runner.temp }}/swsi-pdf-batch/**/check-*.log
             ${{ runner.temp }}/swsi-pdf-batch/**/full-corpus.json
             ${{ runner.temp }}/swsi-pdf-batch/**/queue.json
+            ${{ runner.temp }}/swsi-pdf-batch/priority-review-index.csv
             ${{ runner.temp }}/swsi-pdf-batch/**/packets/*.json
             ${{ runner.temp }}/swsi-pdf-batch/**/verified-candidate/**
           retention-days: 14
