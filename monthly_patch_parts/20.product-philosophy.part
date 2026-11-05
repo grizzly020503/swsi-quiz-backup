@@ -57,7 +57,7 @@
         display:block;
       }
       html body #app .swsi-v4-hero .kicker{
-        color:#4B756A;font-family:'Noto Sans TC',system-ui,sans-serif;
+        color:#3E655B;font-family:'Noto Sans TC',system-ui,sans-serif;
         font-size:13px;font-weight:750;letter-spacing:.25px;margin-bottom:15px;
       }
       html body #app .swsi-v4-hero h1{
