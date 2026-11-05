@@ -51,7 +51,7 @@ for(const type of [chromium,webkit]){
   console.log(type.name(),width,id,'quiz + stale cache + mock PASS');
  }
  // An ordinary official question remains answerable and scores normally.
- const raw=corpus.find(q=>q.id==='DS-104-1-1');assert(raw);
+ const raw=corpus.find(q=>q.id==='DS-104-1-01');assert(raw);
  const good=await page.evaluate(raw=>{
   const q=normalize(raw);queue=[q];idx=0;selected=null;answered=false;view='quiz';sessionStats={done:0,correct:0,wrongTopics:[]};
   renderQuiz();pick(q.answer);submit();return {done:sessionStats.done,correct:sessionStats.correct};

@@ -5727,7 +5727,7 @@ html[data-fs="2"]{
   function sourceHeld(q){return typeof window.swsiSourceHeld==='function'&&window.swsiSourceHeld(q);}
   function figureMarkup(q){return typeof window.swsiOfficialFigureMarkup==='function'
     ?window.swsiOfficialFigureMarkup(q):'';}
-  function figureStem(q){return typeof window.swsiOfficialFigureQuestion==='function'
+  function figureStem(q){if(sourceHeld(q))return '題目文字待官方原卷覆核，暫停作答';return typeof window.swsiOfficialFigureQuestion==='function'
     ?window.swsiOfficialFigureQuestion(q):figureReady(q)?String(q&&q.q||''):'官方原圖不可用，暫停作答';}
 
   async function prepareLegacyStyle(){

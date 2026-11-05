@@ -3201,7 +3201,6 @@ const SWSI_FIGURE_STATUS=Object.create(null);
 function swsiNeedsOfficialFigure(q){return !!(q&&Object.prototype.hasOwnProperty.call(SWSI_OFFICIAL_FIGURES,q.id));}
 function swsiOfficialFigureReady(q){if(swsiSourceHeld(q))return false;return !swsiNeedsOfficialFigure(q)||SWSI_FIGURE_STATUS[q.id]==='ready';}
 function swsiOfficialFigureQuestion(q){
-  if(swsiSourceHeld(q))return '題目文字待官方原卷覆核，暫停作答';
   let txt=String((q&&q.q)||'');
   // Original imported surrogate describes the wrong relationship; show only
   // the official stem with the actual figure. Dataset correction remains gated.
@@ -4303,7 +4302,7 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
 </script>
 <!-- SWSI UIUX V1 END -->
 <script>window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP={"version":"2026-08-27.canonical-build.v1","laws":{"count":24,"sha256":"bb946b67af633ea371550dc1b074dbca530ccb50f47e561c7590ff0e5ea89dfc"},"theories":{"count":39,"sha256":"1a74d39a9611caf002383527390dd3d7e5cc0b6665b6b7f89494f2a0d58ead4d"}};</script>
-<script src="monthly_patch.js?v=d2ae7e30135f5d95"></script>
+<script src="monthly_patch.js?v=562aa49d38953acf"></script>
 <!-- SWSI CALM STUDENT DESIGN V2 START -->
 <style id="swsi-calm-student-design-v2">
 /*
