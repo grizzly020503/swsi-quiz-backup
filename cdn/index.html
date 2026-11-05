@@ -2458,10 +2458,10 @@ function updateReviewSchedule(item,correct){
   saveReviewState(st);
 }
 function reviewSummary(){
-  const st=bootstrapReviewState(), now=Date.now(), exists=QB.allComplete?new Set(ALL.filter(q=>!lawConfirmedChanged(q)).map(q=>q.id)):null;
+  const st=bootstrapReviewState(), now=Date.now(), exists=QB.allComplete?new Set(ALL.filter(q=>!lawConfirmedChanged(q)&&!swsiSourceHeld(q)).map(q=>q.id)):null;
   const activeIds=[], dueIds=[], maintenanceDueIds=[]; let masteredCount=0, nextDueAt=0;
   Object.values(st.items).forEach(r=>{
-    if(!r||!r.id||(exists&&!exists.has(r.id))) return;
+    if(!r||!r.id||swsiSourceHeld(r)||(exists&&!exists.has(r.id))) return;
     const due=Number(r.dueAt||0);
     if(r.mastered){
       masteredCount++;
@@ -2991,7 +2991,7 @@ function legalNotice(q){
   return '';
 }
 /* ===== LEGAL QUALITY GUARD V1 END ===== */
-function startQuiz(filterFn,n){ let pool=ALL.filter(filterFn).map(q=>({q,k:Math.pow(Math.random(),1/drawWeight(q))})).sort((a,b)=>b.k-a.k).map(x=>x.q);
+function startQuiz(filterFn,n){ let pool=ALL.filter(q=>!swsiSourceHeld(q)&&filterFn(q)).map(q=>({q,k:Math.pow(Math.random(),1/drawWeight(q))})).sort((a,b)=>b.k-a.k).map(x=>x.q);
   if(n) pool=pool.slice(0,n); queue=pool; idx=0; selected=null; answered=false;
   sessionStats={done:0,correct:0,wrongTopics:[]}; view='quiz'; window.scrollTo(0,0); render(); }
 async function startBySubject(n){ await ensureAllQuestionsLoadedWithUI(); const f=subjFilter==='全部科目'?(()=>true):(q=>q.subject===subjFilter); startQuiz(f,n); }
@@ -3133,7 +3133,7 @@ function searchAll(query){
   const r={mcq:[],theories:[],laws:[],essays:[]};
   if(!terms.length) return r;
   const hit=(b)=>terms.every(t=>b.indexOf(t)>=0);
-  for(const q of ALL){ if(hit(mcqBlob(q))) r.mcq.push(q); }
+  for(const q of ALL){ if(!swsiSourceHeld(q)&&hit(mcqBlob(q))) r.mcq.push(q); }
   const TH=window.THEORIES||[], LW=window.LAWS||[], ES=window.ESSAYS||[];
   for(const t of TH){ if(hit(((t.n||'')+' '+(t.d||'')+' '+(t.s||'')+' '+(t.c||'')+' '+(t.a||'')+' '+((t.k||[]).join(' '))).toLowerCase())) r.theories.push(t); }
   for(const l of LW){ if(hit(((l.n||'')+' '+(l.d||'')+' '+(l.p||'')+' '+(l.c||'')+' '+(l.a||'')+' '+(l.u||'')+' '+((l.k||[]).join(' '))).toLowerCase())) r.laws.push(l); }
