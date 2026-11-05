@@ -366,6 +366,89 @@ async function verifyHostedLocalGrading(page, label) {
     mockHistory.length + ', all network writes blocked');
 }
 
+// The *hosted* Cloudflare runtime must quarantine the five confirmed
+// malformed official imports, not only pass a local candidate smoke. This
+// never POSTs, writes student records, or marks a PDF source as approved.
+async function verifyHostedSourceHoldQuarantine(page, label) {
+  const ids = ['DS-104-1-22', 'DS-104-1-27', 'DS-104-1-29',
+    'R-107-2-40', 'SP111-2-34'];
+  const result = await page.evaluate(heldIds => {
+    if (typeof swsiSourceHeld !== 'function' ||
+        typeof swsiOfficialFigureReady !== 'function') {
+      throw Error('deployed source-hold policy missing');
+    }
+    if (typeof ALL === 'undefined' || !Array.isArray(ALL) || ALL.length !== 4800) {
+      throw Error('deployed official corpus not loaded');
+    }
+    return heldIds.map(id => {
+      const item = ALL.find(q => q && q.id === id);
+      if (!item) throw Error('held official question absent: ' + id);
+      const unchangedRow = JSON.stringify(item);
+      const beforeHistory = loadHist().length;
+      const beforeStorage = JSON.stringify(localStorage);
+      view = 'quiz'; queue = [item]; idx = 0; selected = null; answered = false;
+      sessionStats = { done: 0, correct: 0, wrongTopics: [] };
+      renderQuiz();
+      const app = document.getElementById('app');
+      const initial = app.querySelector('[data-source-hold="' + id + '"]');
+      const excluded = !!initial &&
+        initial.textContent.includes('本題暫停作答') &&
+        initial.textContent.includes('不計分') &&
+        app.querySelectorAll('.opt').length === 0 &&
+        !app.innerText.includes(item.q) &&
+        swsiSourceHeld(item) && !swsiOfficialFigureReady(item);
+      // Try a stale, scripted answer and the already-answered cache path.
+      // Neither may bypass quarantine or mutate local scoring/history.
+      selected = 'B'; submit();
+      const blocked = !answered && sessionStats.done === 0 &&
+        sessionStats.correct === 0 && loadHist().length === beforeHistory;
+      answered = true; renderQuiz();
+      const hiddenAfterAnswer = !!app.querySelector('[data-source-hold="' + id + '"]') &&
+        app.querySelectorAll('.opt, .exp').length === 0 &&
+        !app.innerText.includes(item.q);
+      return { id, excluded, blocked, hiddenAfterAnswer,
+        dataUnchanged: JSON.stringify(item) === unchangedRow,
+        storageUnchanged: JSON.stringify(localStorage) === beforeStorage };
+    });
+  }, ids);
+  assert.equal(result.length, ids.length, label + ': source-hold case count');
+  for (const item of result) {
+    assert(item.excluded && item.blocked && item.hiddenAfterAnswer &&
+      item.dataUnchanged && item.storageUnchanged,
+    label + ': live source-hold quiz leak ' + JSON.stringify(item));
+  }
+
+  // One real hosted mock exam through the shipped UI. Unlike local fixture
+  // tests, the row comes from Cloudflare's actual loaded 4,800-question feed.
+  const before = await page.evaluate(() => JSON.stringify(localStorage));
+  await page.evaluate(async () => {
+    const item = ALL.find(q => q && q.id === 'SP111-2-34');
+    if (!item) throw Error('hosted mock source-hold item absent');
+    ALL = [item];
+    SUBJECTS = [item.subject];
+    window.SWSI_QB.allComplete = true;
+    await MK.open();
+    MK.setMode('exam');
+    MK.setPaper(item.year + '|' + item.round);
+    MK.beginExam();
+  });
+  assert.equal(await page.locator('.mk-ov .mk-opt').count(), 0,
+    label + ': held official item exposed mock options');
+  assert((await page.locator('.mk-ov').innerText()).includes('待官方原卷覆核'),
+    label + ': held mock question lacks explanation of temporary exclusion');
+  await page.evaluate(() => { MK.pick('B'); MK.submit(); });
+  const score = (await page.locator('.mk-ov .mk-score .big').innerText()).trim();
+  assert.equal(score, '0 / 0',
+    label + ': held source question must not alter mock score');
+  assert((await page.locator('.mk-ov').innerText()).includes('已排除計分'),
+    label + ': held source question not explicitly excluded from scoring');
+  assert.equal(await page.evaluate(() => JSON.stringify(localStorage)), before,
+    label + ': held mock leaked into student records');
+  await page.evaluate(() => MK.close());
+  console.log('CLOUDFLARE HOSTED SOURCE HOLDS OK ' + label +
+    ': five official IDs hidden before/after stale grading, one hosted mock excluded 0/0');
+}
+
 async function check(engine, label, width, height, practice) {
   const browser = await engine.launch({ headless: true });
   const context = await browser.newContext({
@@ -483,6 +566,7 @@ async function check(engine, label, width, height, practice) {
 
     if (practice) {
       await verifyHostedLocalGrading(page, label);
+      await verifyHostedSourceHoldQuarantine(page, label);
     }
 
     assert.deepEqual(pageErrors, [], label + ': uncaught page errors');
