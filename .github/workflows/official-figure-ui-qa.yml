@@ -13,6 +13,7 @@ on:
       - 'audit/official_genogram_core_transition_20261031.json'
       - 'cdn/question-shards/**'
       - 'data/official_exam_readonly.lock.json'
+      - 'scripts/official_source_hold_browser_smoke.js'
       - 'scripts/official_figure_ui_qa.py'
       - 'scripts/official_ten_source_integration_smoke.py'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
@@ -32,6 +33,7 @@ on:
       - 'audit/official_genogram_core_transition_20261031.json'
       - 'cdn/question-shards/**'
       - 'data/official_exam_readonly.lock.json'
+      - 'scripts/official_source_hold_browser_smoke.js'
       - 'scripts/official_figure_ui_qa.py'
       - 'scripts/official_ten_source_integration_smoke.py'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
@@ -90,3 +92,5 @@ jobs:
           done
           node --check scripts/official_figure_mobile_browser_smoke.js
           node scripts/official_figure_mobile_browser_smoke.js http://127.0.0.1:4176/
+          node --check scripts/official_source_hold_browser_smoke.js
+          node scripts/official_source_hold_browser_smoke.js http://127.0.0.1:4176/
