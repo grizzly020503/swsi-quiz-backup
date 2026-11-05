@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-11-05",
+  "scope": "Two official MOEX choice option text corrections, never include other three held questions",
+  "owner_authorization_recorded_in_chat": true,
+  "owner_authorized_fields": {
+    "R-107-2-40": [
+      "opt_d"
+    ],
+    "SP111-2-34": [
+      "opt_a",
+      "opt_b",
+      "opt_c",
+      "opt_d"
+    ]
+  },
+  "grade_tuple_must_not_change": true,
+  "independent_original_pdf_human_page_read_confirmed": false,
+  "official_pdf_source_text_verified": true,
+  "required_to_release": "Rollback-safe production-trigger rehearsal, source-shard/lock exact-head CI, CDN and DB parity; untouched other three source holds.",
+  "source_pdf_urls": [
+    "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0606&q=1",
+    "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111110&c=105&s=0404&q=1"
+  ],
+  "preimages": [
+    {
+      "id": "R-107-2-40",
+      "before_row": {
+        "id": "R-107-2-40",
+        "law": "",
+        "qno": "40",
+        "year": "107",
+        "major": "因果關係",
+        "opt_a": "原因必須發生於結果之前",
+        "opt_b": "原因與結果必須要有共變性",
+        "opt_c": "原因與結果的共變性不是因為其他變項的影響",
+        "opt_d": "兩個變項間有高度相關，則非常可能有因果關係 備 註：第 12 題答 B 或 C 或 BC 者均給分。",
+        "round": "第二次",
+        "topic": "因果條件 > 相關非因果",
+        "answer": "D",
+        "exp_raw": "",
+        "exp_why": "(D)錯誤：兩變項高度相關，『不能』說非常可能有因果關係——相關只是因果的必要條件之一(還需時序與排除第三變項)。",
+        "mistake": "概念混淆",
+        "subject": "社會工作研究方法",
+        "exp_trap": "因果三條件:①時間順序(因先於果——X先於Y只能確定『Y不是X的因』,不能證明X是Y的因)②共變關係(有因果必有關聯;無共變即無因果;但相關/共變≠因果)③排除其他解釋(控制『影響Y』的其他變項,非影響X的變項);因果關係本身無法直接觀察、靠推論;相關性可證實、因果靠設計與排除。",
+        "keywords": "因果關係, 共變性, 時間順序, 相關, 非虛假關係",
+        "mnemonic": "因果三條件:時序(因先於果——X先於Y只能說「Y不是X的因」)、共變(有關聯但相關≠因果)、排除其他解釋。",
+        "question": "下述有關因果關係界定標準的敘述，何者錯誤？",
+        "extension": "因果條件(三大判準)。",
+        "exp_others": "(A)因先於果、(B)需有共變性、(C)共變不是因為其他變項影響——即因果三條件。",
+        "legal_note": null,
+        "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107110&q=1&s=0606&t=Q",
+        "grading_mode": "standard",
+        "legal_status": "not_applicable",
+        "analysis_error": null,
+        "analysis_status": "ready",
+        "accepted_answers": null,
+        "legal_checked_at": null,
+        "legal_source_url": null,
+        "source_exam_code": "107110",
+        "analysis_attempts": 0,
+        "analysis_started_at": null,
+        "analysis_completed_at": null,
+        "legal_canonical_names": [],
+        "analysis_last_attempt_at": null
+      },
+      "row_sha256": "ec50059ee6d7ef42fb093e19edde8c2058321e6730844f8a64463a01397d6705"
+    },
+    {
+      "id": "SP111-2-34",
+      "before_row": {
+        "id": "SP111-2-34",
+        "law": "兒童及少年未來教育與發展帳戶條例第22條。",
+        "qno": "34",
+        "year": "111",
+        "major": "兒少福利法規",
+        "opt_a": "至3 個月 2",
+        "opt_b": "至4 個月 3",
+        "opt_c": "至6 個月 4",
+        "opt_d": "至6 個月",
+        "round": "第二次",
+        "topic": "兒少福利方案 > 兒少教育發展帳戶條例",
+        "answer": "C",
+        "exp_raw": "",
+        "exp_why": "依條例第22條，主管機關得對連續『至6個月』未存款之開戶人、法定代理人或最近親屬，進行輔導及提供相關協助。(C)。",
+        "mistake": "法規混淆",
+        "subject": "社會政策與社會立法",
+        "exp_trap": "未存款輔導門檻＝連續(3至)6個月。",
+        "keywords": "兒童及少年未來教育與發展帳戶條例, 第22條, 連續未存款, 輔導, 6個月",
+        "mnemonic": "兒少教育發展帳戶(條例)：每年最高自存1.5萬、政府相對提撥同額；適用＝低收/中低收且105/1/1以後出生、或安置2年以上由法院指定監護人者；開戶人＝完成開戶之兒少本人。",
+        "question": "依據兒童及少年未來教育與發展帳戶條例第22 條規定，直轄市、縣（市）主管機關得對連 續幾個月內未存款之開戶人、法定代理人或最近親屬，進行輔導及提供相關協助？",
+        "extension": "兒少未來教育與發展帳戶條例第22條(未存款之輔導)。",
+        "exp_others": "至3個月、至4個月皆非。",
+        "legal_note": null,
+        "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111110&q=1&s=0404&t=Q",
+        "grading_mode": "standard",
+        "legal_status": "unreviewed",
+        "analysis_error": null,
+        "analysis_status": "ready",
+        "accepted_answers": null,
+        "legal_checked_at": null,
+        "legal_source_url": null,
+        "source_exam_code": "111110",
+        "analysis_attempts": 0,
+        "analysis_started_at": null,
+        "analysis_completed_at": null,
+        "legal_canonical_names": [
+          "兒童及少年未來教育與發展帳戶條例"
+        ],
+        "analysis_last_attempt_at": null
+      },
+      "row_sha256": "b4ebad61984ab44a8e0949d90d6cf23a8bd2575f00568d93fdd598ca4c79ef7d"
+    }
+  ],
+  "student_user_data_saved": false,
+  "netlify_backup_touched": false
+}
