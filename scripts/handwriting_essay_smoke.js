@@ -165,6 +165,32 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       'invalid photo count must not alter the typed draft');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),rejectedBaseline,
       'invalid photo count must not spend AI quota');
+    // SVG may declare image/* yet is not a photographic raster input. Reject
+    // it before decoding, without consuming quota or clearing OCR corrections.
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({
+      name:'not-a-photo.svg',mimeType:'image/svg+xml',
+      buffer:Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5"/>')
+    });
+    await page.waitForFunction(()=>/不接受 SVG/.test(
+      document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:12000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),unconfirmedOCR,
+      'SVG rejection must preserve manually corrected OCR');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeNav,
+      'SVG rejection must not overwrite typed draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),rejectedBaseline,
+      'SVG rejection must not call provider or spend photo quota');
+    // Even when a filename/MIME is allowed, an empty file is not a valid photo.
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({
+      name:'empty.png',mimeType:'image/png',buffer:Buffer.alloc(0)
+    });
+    await page.waitForFunction(()=>/空白檔案/.test(
+      document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:12000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),unconfirmedOCR,
+      'empty image must preserve corrected OCR');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeNav,
+      'empty image must preserve original draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),rejectedBaseline,
+      'empty photo must not call the provider');
     const requestsBeforeNav=await page.evaluate(()=>window.__paperRequests.length);
     await page.evaluate(()=>closeEssay());
     await page.locator('.swsi-paper-essay').waitFor({state:'detached'});

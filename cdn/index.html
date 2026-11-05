@@ -4978,6 +4978,8 @@ function mount(){
   body.appendChild(elem('p','','最多 3 張照片、每張原檔最多 25 MB；會先在手機上縮圖成 JPEG（優先保留手寫字清晰度），整份上傳請求須小於 3.8 MB。超過會請你裁切重拍，不會偷縮到字看不清。照片辨識與文字回饋各使用一次免費額度；長篇可能因 AI 回傳字數限制截斷。請勿上傳真實個案或個資；照片不存入草稿。'));
   var photoSlot=elem('div','swsi-paper-upload');photoSlot.appendChild(photo);body.appendChild(photoSlot);
   photo.textContent='📷 拍照／上傳手寫答案（1–3 張）';
+  var picker=document.getElementById('photo_'+id);
+  if(picker)picker.accept='image/jpeg,image/png,image/webp,image/heic,image/heif,image/avif';
   var status=elem('div','swsi-paper-status','拍照時讓整頁入鏡，注意字距、行距與光線。');
   status.setAttribute('role','status');body.appendChild(status);
   body.appendChild(elem('div','swsi-paper-review'));
@@ -5000,10 +5002,14 @@ async function photoOCR(id,inputEl){
   var status=panel.querySelector('.swsi-paper-status');
   // A rejected local file selection must not discard unconfirmed OCR edits.
   // Start a new session only after file-count/type/size validation passes.
-  if(files.length>3||files.some(function(f){return !/^image\//.test(f.type);}))
+  // Reject active/non-photo formats (especially SVG) before browser image
+  // decoding; photo OCR accepts only supported raster image containers.
+  if(files.length>3)
     {status.textContent='一次只允許 1–3 張照片檔案。';return;}
-  if(files.some(function(f){return !Number.isFinite(f.size)||f.size>25*1024*1024;}))
-    {status.textContent='有原始照片超過每張 25 MB 的本機處理上限；請先在相簿裁切成單頁或轉存較小的照片。本次不會上傳。';return;}
+  if(files.some(function(f){return !/^image\/(?:jpeg|png|webp|heic|heif|avif)$/i.test(f.type);}))
+    {status.textContent='只接受 JPEG、PNG、WebP、HEIC／HEIF 或 AVIF 照片；不接受 SVG 或其他檔案。';return;}
+  if(files.some(function(f){return !Number.isFinite(f.size)||f.size<=0||f.size>25*1024*1024;}))
+    {status.textContent='有空白檔案或原始照片超過每張 25 MB 的本機處理上限；請重新拍攝或轉存較小的照片。本次不會上傳。';return;}
   if(typeof shrinkImage!=='function'||typeof window.swsiFetchWithTimeout!=='function'||typeof TextEncoder!=='function')
     {status.textContent='照片處理目前無法使用，仍可切換打字作答。';return;}
   var previous=sessions[id];
