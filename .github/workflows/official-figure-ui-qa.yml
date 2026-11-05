@@ -63,7 +63,7 @@ jobs:
           # Current release is first checked in full by its own exact 4,800
           # row/3-held-source guard, then originals run UNMODIFIED on ancestor.
           python scripts/official_two_source_legacy_replay.py --case ten --case five
-          python scripts/official_figure_ui_qa.py
+          python scripts/official_two_source_legacy_replay.py --case figure
           python scripts/official_exam_readonly_guard.py
   mobile-quiz-and-mock:
     runs-on: ubuntu-latest
