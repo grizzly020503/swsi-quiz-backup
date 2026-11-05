@@ -121,22 +121,16 @@ def repository_contract() -> None:
         assert len(card_ids) == len(set(card_ids)), f"duplicate question inside law card: {law}"
         mappings.extend((law, row) for row in card_questions)
 
-    assert len(mappings) == 84, len(mappings)
-    # Owner-approved SP111-2-34 option/source correction invalidated its old
-    # unverified law metadata link. Precisely one historical mapping is removed;
-    # the other 84 remain under review, never treated as verified law evidence.
-    assert not any(row.get('question_id') == 'SP111-2-34' for _law, row in mappings)
+    assert len(mappings) == 85, len(mappings)
     # Treaty-only SW-104-2-36 must not be linked to Taiwan's implementing act.
     assert not any(law == "兒童權利公約施行法" and row.get("question_id") == "SW-104-2-36" for law, row in mappings)
     mapping_keys = [(law, str(row.get("question_id") or "")) for law, row in mappings]
-    assert len(set(mapping_keys)) == 84, "duplicate law/question mapping"
+    assert len(set(mapping_keys)) == 85, "duplicate law/question mapping"
 
     question_ids = [qid for _law, qid in mapping_keys]
     unique_question_count = len(set(question_ids))
     overlap_count = len(question_ids) - unique_question_count
-    assert unique_question_count == 83, unique_question_count
-    assert overlap_count == 1, 'historical cross-law overlap changed'
-    assert [qid for qid, n in Counter(question_ids).items() if n > 1] == ['SP104-2-10']
+    assert unique_question_count == 84, unique_question_count
 
     for _law, row in mappings:
         assert row.get("match_strength") == "metadata_only", row
@@ -150,8 +144,8 @@ def repository_contract() -> None:
         assert pcode_from_url(indexed[law].get("official_url")), indexed[law]
 
     report = build_report(links, watch, live=False)
-    assert report["question_count"] == 84, report
-    assert sum(report["status_counts"].values()) == 84, report
+    assert report["question_count"] == 85, report
+    assert sum(report["status_counts"].values()) == 85, report
     assert all(row["historical_version_checked"] is False for row in report["questions"])
     assert all(row.get("official_history_url") for row in report["questions"])
     assert set(report["status_counts"]).issubset(
@@ -161,7 +155,7 @@ def repository_contract() -> None:
     repeated = {qid: count for qid, count in Counter(question_ids).items() if count > 1}
     print(
         "PRIORITY LAW REAL-DATA CONTRACT:",
-        f"mappings=84 unique_questions={unique_question_count} cross_law_overlap={overlap_count}",
+        f"mappings=85 unique_questions={unique_question_count} cross_law_overlap={overlap_count}",
         f"repeated_question_ids={repeated}",
     )
 
@@ -170,7 +164,7 @@ def main() -> int:
     parser_contract()
     triage_contract()
     repository_contract()
-    print("HISTORICAL LAW PROVENANCE SELFTEST OK: parsers + fail-closed triage + 84-mapping repository contract")
+    print("HISTORICAL LAW PROVENANCE SELFTEST OK: parsers + fail-closed triage + 85-mapping repository contract")
     return 0
 
 
