@@ -108,17 +108,17 @@ jobs:
                                    row['id'] in prepared, False, False])
 
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
-              summary.write('## Official PDF source-review priorities (NOT APPROVED)\\n\\n')
+              summary.write('## Official PDF source-review priorities (NOT APPROVED)\n\n')
               summary.write(f"Prepared evidence packets: **{len(prepared)}/{len(rows)}**. ")
-              summary.write("These are source-review candidates, not verified corrections.\\n\\n")
-              summary.write('| Review priority | Records | Meaning |\\n|---|---:|---|\\n')
+              summary.write("These are source-review candidates, not verified corrections.\n\n")
+              summary.write('| Review priority | Records | Meaning |\n|---|---:|---|\n')
               for rank, label in [('0', 'Numbers / negations / grading'), 
                                   ('1', 'Text / glyph / extraction'),
                                   ('2', 'Punctuation only')]:
-                  summary.write(f'| {rank} | {counts[rank]} | {label} |\\n')
-              summary.write('\\n### Priority 0 — compare the original PDF page first\\n\\n')
-              summary.write('| Question | Risk flags | Evidence prepared | Official PDF |\\n')
-              summary.write('|---|---|---|---|\\n')
+                  summary.write(f'| {rank} | {counts[rank]} | {label} |\n')
+              summary.write('\n### Priority 0 — compare the original PDF page first\n\n')
+              summary.write('| Question | Risk flags | Evidence prepared | Official PDF |\n')
+              summary.write('|---|---|---|---|\n')
               for row in rows:
                   if row['priority'] != 0:
                       continue
@@ -127,10 +127,10 @@ jobs:
                   official = str(row.get('source_url') or '')
                   link = f'[source PDF]({official})' if official else 'source missing'
                   ready = 'yes' if row['id'] in prepared else 'no'
-                  summary.write(f'| {ident} | {flags} | {ready} | {link} |\\n')
-              summary.write('\\n**NO-GO:** source evidence and risk flags never constitute '
+                  summary.write(f'| {ident} | {flags} | {ready} | {link} |\n')
+              summary.write('\n**NO-GO:** source evidence and risk flags never constitute '
                             'human approval. No official question, answer, scoring, AI, '
-                            'Cloudflare or Netlify changes are authorized here.\\n')
+                            'Cloudflare or Netlify changes are authorized here.\n')
           print(f"REVIEW INDEX OK: total={len(rows)} prepared={len(prepared)} "
                 f"p0={counts['0']} p1={counts['1']} p2={counts['2']} no_approvals=1")
           PY
