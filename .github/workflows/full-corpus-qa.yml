@@ -21,6 +21,7 @@ on:
       - 'scripts/official_ocr_source_hold_audit.py'
       - 'scripts/official_r107_2_40_review_selftest.py'
       - 'scripts/official_held_two_readonly_shadow_selftest.py'
+      - 'scripts/official_held_two_option_stager.py'
       - 'audit/official_held_two_option_shadow_readonly_20261105.sql'
       - 'audit/official_held_two_live_preflight_evidence_20261105.json'
       - 'audit/official_r107_2_40_option_tail_candidate_20261105.json'
@@ -74,6 +75,7 @@ on:
       - 'scripts/official_ocr_source_hold_audit.py'
       - 'scripts/official_r107_2_40_review_selftest.py'
       - 'scripts/official_held_two_readonly_shadow_selftest.py'
+      - 'scripts/official_held_two_option_stager.py'
       - 'audit/official_held_two_option_shadow_readonly_20261105.sql'
       - 'audit/official_held_two_live_preflight_evidence_20261105.json'
       - 'audit/official_r107_2_40_option_tail_candidate_20261105.json'
@@ -185,6 +187,20 @@ jobs:
         run: |
           python -m py_compile scripts/official_held_two_readonly_shadow_selftest.py
           python scripts/official_held_two_readonly_shadow_selftest.py
+
+      - name: Rebuild two-source MOEX candidate offline (never release)
+        run: |
+          python -m py_compile scripts/official_held_two_option_stager.py
+          python scripts/official_held_two_option_stager.py --out "$RUNNER_TEMP/swsi-held-two-mcq-candidate"
+
+      - name: Attach unapproved source-review candidate files (PR only)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: held-two-moex-no-go-${{ github.sha }}
+          path: ${{ runner.temp }}/swsi-held-two-mcq-candidate/**
+          retention-days: 14
+          if-no-files-found: error
 
       - name: Check live 104-1 official OCR HOLD against public anon API (GET only)
         if: ${{ github.event_name == 'pull_request' || github.event_name == 'schedule' }}
