@@ -509,13 +509,39 @@ window.swsiEsc = swsiEsc;
       }
       SUBJECTS = SWSI_CORE_SUBJECTS.slice();
       QB.allComplete = QB.loadedFiles.size === QB.manifest.shards.length ? assertCompleteBank() : false;
+      QB.error = null;
       window._usingOfflineBackup = QB.usingOffline;
       return;
     }catch(err){
-      console.warn('Manifest-first 啟動失敗，退回舊完整題庫備援。',err);
-      await legacyLoadAll();
-      QB.allComplete = true;
-      QB.usingOffline = !!window._usingOfflineBackup;
+      // Manifest integrity failure must never silently become a legacy
+      // full-bank success, even when an older cached backup is present.
+      if(QB.manifest || QB.loadedFiles.size > 0){
+        QB.allComplete = false;
+        QB.error = err;
+        throw err;
+      }
+      console.warn('題庫目錄無法取得，嘗試舊版完整題庫備援。',err);
+      try{
+        await legacyLoadAll();
+        // No manifest is available: require the last known official baseline
+        // and unique, nonempty IDs before accepting a legacy offline cache.
+        if(!Array.isArray(ALL) || ALL.length !== 4800)
+          throw new Error('舊版備援題庫題數不完整，禁止當作完整題庫');
+        const ids = new Set();
+        for(const row of ALL){
+          const id = swsiText(row && row.id).trim();
+          if(!id || ids.has(id))
+            throw new Error('舊版備援題庫含空白或重複 ID，禁止當作完整題庫');
+          ids.add(id);
+        }
+        QB.allComplete = true;
+        QB.error = null;
+        QB.usingOffline = !!window._usingOfflineBackup;
+      }catch(fallbackErr){
+        QB.allComplete = false;
+        QB.error = fallbackErr;
+        throw fallbackErr;
+      }
     }
   };
 

@@ -15,6 +15,7 @@ on:
       - 'scripts/p0_frontend_preflight.js'
       - 'scripts/review_analysis_quarantine_smoke.js'
       - 'scripts/grading_contract_smoke.js'
+      - 'scripts/manifest_fallback_smoke.js'
       - 'scripts/service_worker_upgrade_smoke.js'
       - 'scripts/shard_integrity_browser_smoke.js'
       - 'scripts/service_worker_update_smoke.js'
@@ -52,6 +53,7 @@ on:
       - 'scripts/p0_frontend_preflight.js'
       - 'scripts/review_analysis_quarantine_smoke.js'
       - 'scripts/grading_contract_smoke.js'
+      - 'scripts/manifest_fallback_smoke.js'
       - 'scripts/service_worker_upgrade_smoke.js'
       - 'scripts/shard_integrity_browser_smoke.js'
       - 'scripts/service_worker_update_smoke.js'
@@ -112,6 +114,7 @@ jobs:
           node --check scripts/p0_frontend_preflight.js
           node --check scripts/review_analysis_quarantine_smoke.js
           node --check scripts/grading_contract_smoke.js
+          node --check scripts/manifest_fallback_smoke.js
           node --check scripts/service_worker_upgrade_smoke.js
           node --check scripts/shard_integrity_browser_smoke.js
           node --check scripts/service_worker_update_smoke.js
@@ -129,6 +132,9 @@ jobs:
 
       - name: P0 frontend preflight
         run: node scripts/p0_frontend_preflight.js
+
+      - name: Manifest fallback fail-closed regression
+        run: node scripts/manifest_fallback_smoke.js
 
       - name: Review analysis display quarantine regression
         run: node scripts/review_analysis_quarantine_smoke.js
