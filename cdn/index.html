@@ -5024,6 +5024,10 @@ async function photoOCR(id,inputEl){
   var previous=sessions[id];
   if(previous&&previous.feedbackPending)
     {status.textContent='上一份已確認作答仍在取得 AI 回饋，請先完成或等候回應再換照片；舊草稿不會清除。';return;}
+  // The browser picker can fire twice even with the visible button disabled.
+  // Never start or charge a second OCR call while this question is uploading.
+  if(previous&&previous.photoPending)
+    {status.textContent='這份照片仍在辨識中，請完成後再拍下一份；不會重複上傳。';return;}
   // Keep the manually corrected transcript until the next photo genuinely
   // produces a valid new OCR result. A 403, malformed response, truncation,
   // image processing failure or timeout must not destroy unfinished work.

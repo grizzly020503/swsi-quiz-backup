@@ -487,6 +487,7 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       window.__overlapPending=[];
       window.__overlapDone=0;
       const underlying=window.gradePhoto;
+      window.__realPhotoOCR=underlying;
       window.gradePhoto=function(id,input){
         return Promise.resolve(underlying(id,input)).finally(()=>{window.__overlapDone++;});
       };
@@ -502,6 +503,19 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
     await page.waitForFunction(()=>window.__overlapPending?.length===1);
     assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
       'first pending upload must lock the photo button');
+    // Duplicate input change events can still call the global handler even
+    // while the visible camera button is disabled. This must not consume
+    // another photo quota or replace the active OCR review/session.
+    const duplicateCalls=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(async id=>{
+      await window.__realPhotoOCR(id,{files:[new File(['x'],'duplicate.png',{type:'image/png'})],value:'fake'});
+    },essayId);
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),duplicateCalls,
+      'duplicate file-picker event while OCR pending must not call the provider');
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'rejected duplicate must keep the real upload pending');
+    assert.match(await page.locator('.swsi-paper-body>.swsi-paper-status').innerText(),
+      /仍在辨識中/, 'duplicate upload must explain that the first upload is active');
     await page.locator('.swsi-paper-mode-text').click();
     await page.locator('.swsi-paper-mode-paper').click();
     assert(await page.locator('[id^="aiphoto_"]').isEnabled(),
