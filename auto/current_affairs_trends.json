@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-06T06:33:20Z",
-  "event_count": 6,
+  "generated_at": "2026-11-06T19:19:33Z",
+  "event_count": 8,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
   "trends": [
@@ -884,7 +884,7 @@
         "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭工作與照顧支持",
         "社會工作管理 > 品質與風險管理 > 社會工作 > 性別平等、照顧正義與家庭支持"
       ],
-      "trend_state": "one-off",
+      "trend_state": "cooling",
       "trend_score": 3.3,
       "why": [
         "1 個官方來源",
@@ -1166,6 +1166,314 @@
           "source_type": "official",
           "published_at": "2026-11-05T09:55:20Z",
           "item_id": "336762ca1408a35f353d9ac4dcc91e28"
+        }
+      ]
+    },
+    {
+      "canonical_event_id": "6e0fb4e9c6ff2edd9f95711c",
+      "title": "政院不副署老人福利法修法 醫界、社福界表支持",
+      "category": "社工專業與社福制度",
+      "subjects": [
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "規劃與政策執行"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社福服務體系、福利給付與制度責信"
+        ]
+      },
+      "knowledge_topics": [
+        "社工專業與社福制度",
+        "社福",
+        "修法",
+        "福利",
+        "行政院"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社福服務體系、福利給付與制度責信"
+      ],
+      "trend_state": "one-off",
+      "trend_score": 3.1,
+      "why": [
+        "有政策／制度訊號",
+        "涉及 1 項法規／公約",
+        "同法規另有 63 題歷屆紀錄，跨 12 個年度"
+      ],
+      "factors": {
+        "cross_source": 0.0,
+        "official_evidence": 0.0,
+        "policy_change": 1.8,
+        "historical_frequency": 0.0,
+        "historical_year_breadth": 0.0,
+        "recent_exam_support": 0.0,
+        "historical_subject_breadth": 0.0,
+        "law_relevance": 0.75,
+        "persistence": 0.0,
+        "essay_value": 0.55,
+        "mcq_density": 0.0,
+        "recency": 1.0
+      },
+      "source_count": 1,
+      "official_source_count": 0,
+      "observation_count": 1,
+      "first_seen": "2026-11-06T11:38:28Z",
+      "last_seen": "2026-11-06T11:38:28Z",
+      "related_laws": [
+        "老人福利法"
+      ],
+      "related_policy_instruments": [],
+      "law_link_status": "law_linked",
+      "law_link_note": "事件已連到具體法律；相關法律表示制度關聯，不代表本事件發生修法。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "historical_question_count": 0,
+      "historical_weighted_match_count": 0.0,
+      "historical_match_breakdown": {
+        "strong": 0,
+        "medium": 0,
+        "concept": 0
+      },
+      "historical_exam_years": [],
+      "latest_related_exam_year": null,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": null,
+      "historical_subject_counts": {},
+      "historical_subject_count": 0,
+      "historical_law_match_count": 63,
+      "historical_law_match_years": [
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
+      "related_exam_questions": [],
+      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，並結合「老人福利法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "行政院",
+        "老人福利法",
+        "社福",
+        "修法"
+      ],
+      "evidence": [
+        {
+          "source_name": "中央社生活",
+          "source_url": "https://www.cna.com.tw/news/ahel/202611060310.aspx",
+          "source_type": "news",
+          "published_at": "2026-11-06T11:38:28Z",
+          "item_id": "a86fbe05f336b53c71bb41073b606c03"
+        }
+      ]
+    },
+    {
+      "canonical_event_id": "68bde336ee1958c12fcc416d",
+      "title": "Global conference calls for renewed action on universal social protection",
+      "category": "社會救助與居住",
+      "subjects": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "規劃與政策執行",
+        "方案與資源管理",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作",
+        "社會工作直接服務"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社會救助、所得保障與居住權"
+        ],
+        "社會工作": [
+          "貧窮、社會排除與社會正義"
+        ],
+        "社會工作直接服務": [
+          "需求評估與資源連結"
+        ]
+      },
+      "knowledge_topics": [
+        "社會救助與居住",
+        "社會保障"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估與資源連結",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會救助、所得保障與居住權"
+      ],
+      "trend_state": "one-off",
+      "trend_score": 2.1,
+      "why": [
+        "1 個官方來源",
+        "歷屆廣義概念關聯 90 題，跨 12 個年度；強 0／中 0／概念 90（僅作低權重背景）",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 2 個考科"
+      ],
+      "factors": {
+        "cross_source": 0.0,
+        "official_evidence": 0.7,
+        "policy_change": 0.0,
+        "historical_frequency": 0.28,
+        "historical_year_breadth": 0.28,
+        "recent_exam_support": 0.28,
+        "historical_subject_breadth": 0.25,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
+        "essay_value": 0.0,
+        "mcq_density": 0.0,
+        "recency": 1.0
+      },
+      "source_count": 1,
+      "official_source_count": 1,
+      "observation_count": 1,
+      "first_seen": "2026-11-06T00:00:00Z",
+      "last_seen": "2026-11-06T00:00:00Z",
+      "related_laws": [],
+      "related_policy_instruments": [],
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "historical_question_count": 90,
+      "historical_weighted_match_count": 1.0,
+      "historical_match_breakdown": {
+        "strong": 0,
+        "medium": 0,
+        "concept": 90
+      },
+      "historical_exam_years": [
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會工作": 13,
+        "社會政策與社會立法": 77
+      },
+      "historical_subject_count": 2,
+      "historical_law_match_count": 0,
+      "historical_law_match_years": [],
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
+      "related_exam_questions": [
+        {
+          "id": "SP-115-2-021",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "21",
+          "major": "社會救助",
+          "topic": "社會救助 > 中低收入老人生活津貼性質",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-26",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "26",
+          "major": "社會救助",
+          "topic": "社會救助法 > 有工作能力者服務",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-27",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "27",
+          "major": "社會救助",
+          "topic": "社會救助法 > 低收入戶福利",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP-115-2-028",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "28",
+          "major": "社會救助",
+          "topic": "社會救助法 > 救助種類與適用對象",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP-115-2-029",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "29",
+          "major": "社會救助",
+          "topic": "社會救助法 > 工作收入認定",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
+        }
+      ],
+      "essay_direction": "可從「最低生活保障、貧窮結構因素與居住權」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "社會保障"
+      ],
+      "evidence": [
+        {
+          "source_name": "ILO Newsroom",
+          "source_url": "https://www.ilo.org/resource/news/global-conference-calls-renewed-action-universal-social-protection",
+          "source_type": "official",
+          "published_at": "2026-11-06T00:00:00Z",
+          "item_id": "0b13d1001d698749d7f99c764022ef1d"
         }
       ]
     }

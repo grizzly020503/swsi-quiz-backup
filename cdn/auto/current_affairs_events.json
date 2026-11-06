@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-06T06:33:20Z",
-  "source_item_count": 6,
-  "event_count": 6,
+  "generated_at": "2026-11-06T19:19:33Z",
+  "source_item_count": 8,
+  "event_count": 8,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
   "events": [
     {
@@ -999,6 +999,130 @@
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
     },
     {
+      "canonical_event_id": "6e0fb4e9c6ff2edd9f95711c",
+      "title": "政院不副署老人福利法修法 醫界、社福界表支持",
+      "summary": "（中央社記者吳欣紜台北6日電）「老人福利法」修法日前三讀通過，逾8成長者免繳健保費，行政院今天決議不副署，醫界肯定行政院作法，不僅能確保健保永續經營、維護世代正義，也不會排擠重要醫療資源。",
+      "category": "社工專業與社福制度",
+      "subjects": [
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "規劃與政策執行"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社福服務體系、福利給付與制度責信"
+        ]
+      },
+      "knowledge_topics": [
+        "社工專業與社福制度",
+        "社福",
+        "修法",
+        "福利",
+        "行政院"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社福服務體系、福利給付與制度責信"
+      ],
+      "exam_tags": [
+        "修法",
+        "社福",
+        "福利",
+        "行政院"
+      ],
+      "related_laws": [
+        "老人福利法"
+      ],
+      "concept_keys": [],
+      "agency_keys": [],
+      "fact_keys": [],
+      "source_count": 1,
+      "official_source_count": 0,
+      "sources": [
+        "中央社生活"
+      ],
+      "evidence": [
+        {
+          "source_name": "中央社生活",
+          "source_url": "https://www.cna.com.tw/news/ahel/202611060310.aspx",
+          "source_type": "news",
+          "published_at": "2026-11-06T11:38:28Z",
+          "item_id": "a86fbe05f336b53c71bb41073b606c03"
+        }
+      ],
+      "first_seen": "2026-11-06T11:38:28Z",
+      "last_seen": "2026-11-06T11:38:28Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-11-06"
+      ],
+      "policy_signal": "high",
+      "essay_value": "medium",
+      "mcq_fact_density": "low",
+      "signal_confidence": "medium",
+      "signal_score": 7,
+      "exam_point_summary": "政院不副署老人福利法修法 醫界、社福界表支持。涉及「老人福利法」。制度或給付已有明確變動；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，並結合「老人福利法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "行政院",
+        "老人福利法",
+        "社福",
+        "修法"
+      ],
+      "related_exam_questions": [],
+      "historical_exam_stats": {
+        "matched_question_count": 0,
+        "weighted_match_count": 0.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 0
+        },
+        "matched_year_count": 0,
+        "matched_years": [],
+        "earliest_exam_year": null,
+        "latest_exam_year": null,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": null,
+        "subject_counts": {},
+        "subject_count": 0,
+        "law_match_count": 63,
+        "law_match_year_count": 12,
+        "law_match_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
+      },
+      "related_policy_instruments": [],
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "law_link_status": "law_linked",
+      "law_link_note": "事件已連到具體法律；相關法律表示制度關聯，不代表本事件發生修法。"
+    },
+    {
       "canonical_event_id": "0b48c19a55cccb6ffc5bd3f6",
       "title": "國內新增1例腸病毒感染併發重症病例 籲請家長及教托育機構人員留意學幼童健康情形 出現重症前兆病徵儘速就醫",
       "summary": "疾病管制署(下稱疾管署)今(2026)年10月27日公布國內新增1例腸病毒感染併發重症病例，為北部1名未滿10歲女童，9月下旬出現發燒症狀至醫院就醫後返家，之後反覆發燒且出現排尿困難、腹痛等情形再次就醫並收治住院，後續出現下肢無力等症狀，經臨床評估及通報檢驗，確認為感染克沙奇A6型併發重症，目前已出院返家休養。 疾管署表示，今年累計8例腸病毒感染併發重症確定病例(含1例死亡)，分別為感染腸病毒D68型5例，克沙奇A4型、克沙奇A6型及克沙奇A16型各1例；呼籲民眾留意嬰幼童健康狀況與腸病毒重症前兆病徵。依據疾管署監測資料顯示，腸病毒就診人次第42週(10",
@@ -1198,6 +1322,202 @@
         "subject_counts": {
           "社會工作": 11,
           "社會政策與社會立法": 24
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
+      },
+      "related_policy_instruments": [],
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
+    },
+    {
+      "canonical_event_id": "68bde336ee1958c12fcc416d",
+      "title": "Global conference calls for renewed action on universal social protection",
+      "summary": "Participants at a conference convened under the Global Partnership for Universal Social Protection (USP2030) emphasized the urgent need for better social protection amid growing global challenges.",
+      "category": "社會救助與居住",
+      "subjects": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "規劃與政策執行",
+        "方案與資源管理",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作",
+        "社會工作直接服務"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社會救助、所得保障與居住權"
+        ],
+        "社會工作": [
+          "貧窮、社會排除與社會正義"
+        ],
+        "社會工作直接服務": [
+          "需求評估與資源連結"
+        ]
+      },
+      "knowledge_topics": [
+        "社會救助與居住",
+        "社會保障"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估與資源連結",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會救助、所得保障與居住權"
+      ],
+      "exam_tags": [
+        "社會保障"
+      ],
+      "related_laws": [],
+      "concept_keys": [
+        "social_protection"
+      ],
+      "agency_keys": [],
+      "fact_keys": [],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "ILO Newsroom"
+      ],
+      "evidence": [
+        {
+          "source_name": "ILO Newsroom",
+          "source_url": "https://www.ilo.org/resource/news/global-conference-calls-renewed-action-universal-social-protection",
+          "source_type": "official",
+          "published_at": "2026-11-06T00:00:00Z",
+          "item_id": "0b13d1001d698749d7f99c764022ef1d"
+        }
+      ],
+      "first_seen": "2026-11-06T00:00:00Z",
+      "last_seen": "2026-11-06T00:00:00Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-11-06"
+      ],
+      "policy_signal": "low",
+      "essay_value": "low",
+      "mcq_fact_density": "low",
+      "signal_confidence": "low",
+      "signal_score": 4,
+      "exam_point_summary": "Global conference calls for renewed action on un…。尚未見明確制度變動，先作事件與專業議題觀察。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「最低生活保障、貧窮結構因素與居住權」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "社會保障"
+      ],
+      "related_exam_questions": [
+        {
+          "id": "SP-115-2-021",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "21",
+          "major": "社會救助",
+          "topic": "社會救助 > 中低收入老人生活津貼性質",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-26",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "26",
+          "major": "社會救助",
+          "topic": "社會救助法 > 有工作能力者服務",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-27",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "27",
+          "major": "社會救助",
+          "topic": "社會救助法 > 低收入戶福利",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP-115-2-028",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "28",
+          "major": "社會救助",
+          "topic": "社會救助法 > 救助種類與適用對象",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP-115-2-029",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "29",
+          "major": "社會救助",
+          "topic": "社會救助法 > 工作收入認定",
+          "match_reason": "共同概念：社會保障",
+          "match_score": 2.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 90,
+        "weighted_match_count": 1.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 90
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 13,
+          "社會政策與社會立法": 77
         },
         "subject_count": 2,
         "law_match_count": 0,
