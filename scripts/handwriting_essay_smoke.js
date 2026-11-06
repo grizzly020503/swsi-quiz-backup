@@ -662,6 +662,50 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       'restoring cached feedback after navigation must not make an extra AI request');
     assert.strictEqual(await page.locator('textarea.wta').inputValue(),navigationFeedbackAnswer,
       'feedback completion after navigation must not replace corrected draft');
+    // The student can edit the OCR review while feedback for the earlier
+    // confirmed text is pending. Never label the old answer's feedback as
+    // belonging to the new transcription; keep both drafts intact.
+    const staleFeedbackBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    const answerWaiting='一、先評估家庭和社區的資源限制，再釐清當事人需求與服務目標。\n二、採取跨專業協作並建立處遇與追蹤機制，持續檢視成果。';
+    const answerUpdated='一、釐清需求並尊重案主自決，列出具體社區資源與福利支持方向。\n二、設計符合家庭處境的服務計畫，追蹤成效並反思倫理。';
+    await page.locator('.swsi-paper-review textarea').fill(answerWaiting);
+    page.once('dialog',dialog=>dialog.accept());
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>window.__feedbackQueue?.length===3);
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'feedback request must lock the confirmation control');
+    await page.locator('.swsi-paper-review textarea').fill(answerUpdated);
+    await page.evaluate(()=>{
+      window.__feedbackQueue[2](new Response(JSON.stringify({
+        choices:[{message:{content:'舊作答專屬回饋不可顯示為新版答案的評語。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(()=>/回饋對應先前確認的舊文字/.test(
+      document.querySelector('[id^="airesult_"]')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),answerUpdated,
+      'new OCR edits must survive the earlier response');
+    assert(!(await page.locator('[id^="airesult_"]').innerText()).includes('舊作答專屬回饋'),
+      'old cached feedback must not be displayed for a newly edited OCR answer');
+    assert(await page.locator('.swsi-paper-confirm').isEnabled(),
+      'edited answer must be eligible for fresh explicit confirmation');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),staleFeedbackBaseline+1,
+      'editing while feedback pending must not automatically submit again');
+    page.once('dialog',dialog=>dialog.accept());
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>window.__feedbackQueue?.length===4);
+    await page.evaluate(()=>{
+      window.__feedbackQueue[3](new Response(JSON.stringify({
+        choices:[{message:{content:'新的確認文字回饋：需求評估與追蹤方向正確。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(()=>/新的確認文字回饋/.test(
+      document.querySelector('[id^="airesult_"]')?.textContent||''),null,{timeout:15000});
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'freshly graded amended text must now be locked from duplicate feedback');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),answerUpdated,
+      'reconfirmation must preserve the newer, corrected draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),staleFeedbackBaseline+2,
+      're-confirmed updated text should cost only one new text feedback call');
     console.log('HANDWRITTEN ESSAY OCR CONFIRM QA OK: photo OCR, correction, explicit diagnosis, typed fallback, truncation NO-GO');
   }finally{await browser.close();}
 })().catch(err=>{console.error(err);process.exitCode=1;});

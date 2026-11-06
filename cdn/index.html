@@ -4963,11 +4963,25 @@ function review(id,panel){
               try{Promise.resolve(window.runAIFeedback(id)).catch(function(){});}catch(_e){}
             }
           }
+          // If the student revised the answer while feedback was pending,
+          // hide the response to the old text rather than mislabeling it.
+          hideOutdatedFeedback(id,livePanel);
         }
       }
     }
   });
   slot.append(label,input,help,send,message);
+}
+function hideOutdatedFeedback(id,panel){
+  var session=sessions[id],draft=document.getElementById('ta_'+id);
+  if(!session||!session.confirmedText||session.feedbackPending||!draft)return;
+  if(session.ocr.trim()===session.confirmedText&&
+     draft.value.trim()===session.confirmedText)return;
+  var result=document.getElementById('airesult_'+id);
+  if(result&&panel.contains(result)){
+    result.replaceChildren(elem('div','swsi-paper-status',
+      '這份 AI 回饋對應先前確認的舊文字。你已修改作答，請核對新文字並再次確認後取得新的回饋。'));
+  }
 }
 function updateMode(id,panel){
   var paper=mode(id)==='paper',box=panel.closest('.wbox');
@@ -4987,7 +5001,12 @@ function updateMode(id,panel){
   var result=document.getElementById('airesult_'+id);
   var target=panel.querySelector(paper?'.swsi-paper-result':'.swsi-type-result');
   if(result&&target&&result.parentNode!==target)target.appendChild(result);
-  if(paper)review(id,panel);
+  if(paper){
+    review(id,panel);
+    // Never display a previous answer's cached feedback as evaluation of
+    // a student's newly edited OCR transcript or typed draft.
+    hideOutdatedFeedback(id,panel);
+  }
 }
 function mount(){
   var ta=document.querySelector('#app .wbox textarea.wta[id^="ta_"]');if(!ta)return;
