@@ -82,17 +82,19 @@ def main() -> int:
     verify_guard = "inputs.release_mode == 'verify_only'"
     deploy_guard = "inputs.release_mode == 'deploy'"
     assert workflow.count(verify_guard) == 1
-    assert workflow.count(deploy_guard) == 6  # build + contract + CLI + deploy + HTTP + browser
+    assert workflow.count(deploy_guard) == 7  # build + contract + CLI + deploy + HTTP + browser + V4 parity
     for step in (
         "Install pinned Netlify CLI",
         "Deploy prebuilt site to Netlify production",
         "Verify production HTTP release",
         "Production browser smoke",
+        "Verify Cloudflare and Netlify published V4 home parity (read-only)",
     ):
         anchor = f"      - name: {step}\n        if: "
         assert anchor in workflow, f"missing guarded stage: {step}"
         cond = workflow.split(anchor, 1)[1].splitlines()[0]
         assert deploy_guard in cond and "refs/heads/main" in cond, step
+    assert "node scripts/dual_site_v4_parity_smoke.js" in workflow
     assert "No production release was attempted" in workflow
 
     print("NETLIFY AUTH PREFLIGHT SELFTEST OK: provider errors, wrong project, read-only default and deploy-only gates")

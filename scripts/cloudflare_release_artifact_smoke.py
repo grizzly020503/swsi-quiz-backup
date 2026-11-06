@@ -122,6 +122,26 @@ def main() -> int:
         fail("calm student style is missing or duplicated in root/CDN")
     if root_styles[0] != cdn_styles[0]:
         fail("Cloudflare and canonical root calm student CSS differ")
+
+    # The V4 homepage is shared through monthly_patch.js; its final visual
+    # stylesheet must match too. Keep Cloudflare-only guards out of Netlify.
+    learning_tag = re.compile(
+        r'<style id="swsi-calm-learning-ui-v3">([\s\S]*?)</style>'
+    )
+    root_learning = learning_tag.findall(root_html)
+    cdn_learning = learning_tag.findall(html)
+    if len(root_learning) != 1 or len(cdn_learning) != 1:
+        fail("Netlify and Cloudflare must each have one V3 learning stylesheet")
+    if root_learning[0] != cdn_learning[0]:
+        fail("Netlify/Cloudflare V3 learning stylesheet parity failed")
+    for site, source in (("Netlify", root_html), ("Cloudflare", html)):
+        if source.count("<!-- SWSI CALM LEARNING UI V3 START -->") != 1:
+            fail(f"{site} V3 visual release marker missing/duplicated")
+        if source.index("swsi-calm-learning-ui-v3") < source.index("swsi-calm-student-design-v2"):
+            fail(f"{site} V3 stylesheet must follow V2")
+    if 'id="swsi-source-hold-review-guard"' in root_html:
+        fail("Cloudflare-only source-hold release guard leaked into Netlify")
+
     if "<!-- SWSI CALM STUDENT DESIGN V2 START -->" not in html:
         fail("calm student design release marker missing")
 

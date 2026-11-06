@@ -8,7 +8,7 @@ const start='  const legacyLoadAll = loadAll;',end='  // Manifest replaces ALL a
 const a=src.indexOf(start),b=src.indexOf(end,a);
 assert(a>=0&&b>a&&src.indexOf(start,a+1)<0);
 const code=src.slice(a,b);
-function scenario({loaded=0,broken=false,offline=false,size=4800,dupe=false}={}){
+function scenario({loaded=0,broken=false,offline=false,size=4800,dupe=false,badId,legacyError=false}={}){
   const meta={shards:[{file:'a'},{file:'b'}]};
   let calls=0;
   const ctx={ALL:[],SUBJECTS:[],window:{_usingOfflineBackup:true},
@@ -22,8 +22,11 @@ function scenario({loaded=0,broken=false,offline=false,size=4800,dupe=false}={})
       if(broken)throw Error('完整題庫總量或跨 shard ID 驗證失敗');
       return true;},
     loadAll:async()=>{
-      calls++;ctx.ALL=Array.from({length:size},(_,i)=>({id:'Q'+i}));
-      if(dupe)ctx.ALL[1].id=ctx.ALL[0].id;},
+      calls++;
+      if(legacyError)throw Error('legacy storage unavailable');
+      ctx.ALL=Array.from({length:size},(_,i)=>({id:'Q'+i}));
+      if(dupe)ctx.ALL[1].id=ctx.ALL[0].id;
+      if(badId!==undefined)ctx.ALL[0].id=badId;},
     console:{warn(){}}
   };
   vm.runInNewContext(code,ctx);
@@ -32,7 +35,12 @@ function scenario({loaded=0,broken=false,offline=false,size=4800,dupe=false}={})
 (async()=>{
   let s=scenario();await s.ctx.loadAll();
   assert.equal(s.count(),0);assert.equal(s.ctx.QB.allComplete,false);
+  s=scenario({loaded:2});s.ctx.QB.error=Error('previous failure');
+  await s.ctx.loadAll();
+  assert.equal(s.count(),0);assert.equal(s.ctx.QB.allComplete,true);
+  assert.equal(s.ctx.QB.error,null);
   s=scenario({loaded:2,broken:true});
+  s.ctx.QB.allComplete=true;
   await assert.rejects(()=>s.ctx.loadAll(),/完整題庫總量/);
   assert.equal(s.count(),0);assert.equal(s.ctx.QB.allComplete,false);
   s=scenario({loaded:1,offline:true});
@@ -40,11 +48,15 @@ function scenario({loaded=0,broken=false,offline=false,size=4800,dupe=false}={})
   assert.equal(s.count(),0);
   s=scenario({offline:true});await s.ctx.loadAll();
   assert.equal(s.count(),1);assert.equal(s.ctx.QB.allComplete,true);
-  for(const opts of [{size:4799},{size:4801},{dupe:true}]){
+  for(const opts of [{size:4799},{size:4801},{dupe:true},{badId:''},{badId:'  '},{badId:null}]){
     s=scenario({offline:true,...opts});
     await assert.rejects(()=>s.ctx.loadAll(),/舊版備援題庫/);
     assert.equal(s.ctx.QB.allComplete,false);
     assert(s.ctx.QB.error);
   }
+  s=scenario({offline:true,legacyError:true});s.ctx.QB.allComplete=true;
+  await assert.rejects(()=>s.ctx.loadAll(),/legacy storage unavailable/);
+  assert.equal(s.count(),1);assert.equal(s.ctx.QB.allComplete,false);
+  assert.match(s.ctx.QB.error.message,/legacy storage unavailable/);
   console.log('MANIFEST FALLBACK FAIL-CLOSED QA OK');
 })().catch(e=>{console.error(e);process.exitCode=1;});
