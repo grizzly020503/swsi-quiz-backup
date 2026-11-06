@@ -551,6 +551,59 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       'interleaved photo uploads must not change confirmed draft');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),overlapBaseline+2,
       'two OCR calls must not silently start a text-feedback request');
+    // Closing and reopening the same essay while OCR is pending creates a
+    // NEW DOM panel. The old request must not disable the fresh upload button
+    // until timeout, nor may its late reply overwrite a new photo session.
+    const navigationBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    const navigationDoneBaseline=await page.evaluate(()=>window.__overlapDone);
+    await page.evaluate(()=>{
+      window.__navigationPending=[];
+      window.swsiFetchWithTimeout=async function(_url,opts){
+        window.__paperRequests.push(JSON.parse(opts.body));
+        return new Promise(resolve=>window.__navigationPending.push(resolve));
+      };
+    });
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({
+      name:'navigation-old.png',mimeType:'image/png',buffer:png
+    });
+    await page.waitForFunction(()=>window.__navigationPending?.length===1);
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'pending OCR must disable camera before navigation');
+    await page.evaluate(()=>closeEssay());
+    await page.locator('.swsi-paper-essay').waitFor({state:'detached'});
+    await page.evaluate(id=>toggleEssay(id),essayId);
+    await page.locator('.swsi-paper-essay').waitFor({timeout:12000});
+    assert(await page.locator('[id^="aiphoto_"]').isEnabled(),
+      'reopening same essay must cancel old detached OCR and re-enable camera');
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({
+      name:'navigation-new.png',mimeType:'image/png',buffer:png
+    });
+    await page.waitForFunction(()=>window.__navigationPending?.length===2);
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'new OCR must lock the new camera control');
+    await page.evaluate(()=>{
+      window.__navigationPending[0](new Response(JSON.stringify({
+        choices:[{message:{content:'【我讀到的作答】\\n已取消的上一個題目畫面。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(n=>window.__overlapDone===n+1,navigationDoneBaseline);
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'stale detached-panel response must not unlock the newer upload');
+    await page.evaluate(()=>{
+      window.__navigationPending[1](new Response(JSON.stringify({
+        choices:[{message:{content:'【我讀到的作答】\\n再次開啟題目後的新照片文字。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(n=>window.__overlapDone===n+2,navigationDoneBaseline);
+    assert(await page.locator('[id^="aiphoto_"]').isEnabled(),
+      'new photo completion must restore the reopened camera control');
+    assert.match(await page.locator('.swsi-paper-review textarea').inputValue(),
+      /再次開啟題目後的新照片文字/,
+      'late detached-panel OCR must not overwrite the re-opened editor');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeStale,
+      'navigation during OCR must not silently change the typed draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),
+      navigationBaseline+2,'navigation OCR race must not trigger feedback calls');
     console.log('HANDWRITTEN ESSAY OCR CONFIRM QA OK: photo OCR, correction, explicit diagnosis, typed fallback, truncation NO-GO');
   }finally{await browser.close();}
 })().catch(err=>{console.error(err);process.exitCode=1;});

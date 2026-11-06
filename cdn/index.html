@@ -4971,6 +4971,13 @@ function mount(){
   var ta=document.querySelector('#app .wbox textarea.wta[id^="ta_"]');if(!ta)return;
   var id=ta.id.slice(3),box=ta.closest('.wbox');
   if(!box||box.querySelector('.swsi-paper-essay'))return;
+  // Reopening this essay creates a different panel. Any photo request tied
+  // to the detached panel must be invalidated now, not when its timeout fires,
+  // or the new camera control can stay disabled indefinitely.
+  if(sessions[id]&&sessions[id].photoPending){
+    sessions[id].seq=++requestSeq;
+    sessions[id].photoPending=false;
+  }
   var photo=document.getElementById('aiphoto_'+id),typed=document.getElementById('aitype_'+id);
   if(!photo||!typed)return;
   var panel=elem('section','swsi-paper-essay');
