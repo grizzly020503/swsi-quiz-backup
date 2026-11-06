@@ -706,6 +706,22 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       'reconfirmation must preserve the newer, corrected draft');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),staleFeedbackBaseline+2,
       're-confirmed updated text should cost only one new text feedback call');
+    // After successful confirmation, a subsequent OCR-editor keystroke must
+    // hide the earlier graded answer immediately, without another AI call.
+    const finalEditBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    assert.match(await page.locator('[id^="airesult_"]').innerText(),/新的確認文字回饋/,
+      'prior confirmed feedback is visible before changing the text');
+    await page.locator('.swsi-paper-review textarea').fill(
+      answerUpdated+'\n三、補充新的社區資源與家庭介入措施。');
+    const latestPanelText=await page.locator('[id^="airesult_"]').innerText();
+    assert.match(latestPanelText,/回饋對應先前確認的舊文字/,
+      'editing a completed OCR transcript must hide previous-answer AI feedback instantly');
+    assert(!latestPanelText.includes('新的確認文字回饋'),
+      'outdated grading must not remain visible after confirmed text is edited');
+    assert(await page.locator('.swsi-paper-confirm').isEnabled(),
+      'edited OCR text should be eligible for manual confirmation');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),finalEditBaseline,
+      'editing a confirmed OCR response must not auto-submit another AI call');
     console.log('HANDWRITTEN ESSAY OCR CONFIRM QA OK: photo OCR, correction, explicit diagnosis, typed fallback, truncation NO-GO');
   }finally{await browser.close();}
 })().catch(err=>{console.error(err);process.exitCode=1;});

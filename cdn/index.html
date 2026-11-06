@@ -4903,6 +4903,9 @@ function review(id,panel){
   input.addEventListener('input',function(){
     session.ocr=input.value;
     send.disabled=locked();
+    // Once this answer is edited, any cached response for its old confirmed
+    // text must disappear immediately. An edit alone never calls the provider.
+    hideOutdatedFeedback(id,panel);
     message.textContent=session.feedbackPending?'AI 回饋處理中，請勿重複送出。':send.disabled?'AI 回饋已完成；這份作答已確認，修改內容才能取得新回饋。':session.feedbackFailed?'AI 回饋尚未完成；原稿已保存，服務恢復後可以重試。':'';
   });
   send.addEventListener('click',async function(){
