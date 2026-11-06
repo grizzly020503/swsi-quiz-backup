@@ -342,8 +342,23 @@ async function verifyHostedLocalGrading(page, label) {
   await page.waitForSelector('.mk-ov .mk-score .big', { timeout: 12000 });
   assert(confirmed, label + ': partial mock submission skipped confirmation');
   const score = (await page.locator('.mk-ov .mk-score .big').innerText()).trim();
-  assert(/^[01] \/ 20$/.test(score),
-    label + ': mock score should count exactly one answer of twenty, got ' + score);
+  // Official source holds and unavailable MOEX figures are excluded from
+  // scoring by the deployed engine. Verify the denominator against the exact
+  // student-visible exclusion count, never a random fixed "20" assumption.
+  const notices = await page.locator('.mk-ov [role="status"]').allInnerTexts();
+  const exclusions = notices.filter(x => /題原圖未載入，已排除計分/.test(x));
+  assert.equal(exclusions.length <= 1, true,
+    label + ': duplicated or conflicting exclusion notices: ' + notices.join(' | '));
+  const excluded = exclusions.length
+    ? Number((exclusions[0].match(/(\d+)\s*題原圖未載入，已排除計分/) || [])[1])
+    : 0;
+  assert(Number.isInteger(excluded) && excluded >= 0 && excluded < 20,
+    label + ': invalid explicitly reported exclusion count: ' + notices.join(' | '));
+  const expectedScore = new RegExp('^[01] / ' + (20 - excluded) + '$');
+  assert(expectedScore.test(score),
+    label + ': mock score should count exactly one answer of ' +
+    (20 - excluded) + ' eligible questions (20 minus ' + excluded +
+    ' visibly excluded), got ' + score);
   assert.match(await page.locator('.mk-ov .mk-score .pct').innerText(),
     /作答 1 題/, label + ': mock answered count');
   // The deployed monthly_patch Unified Grading Contract deliberately
