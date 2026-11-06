@@ -111,7 +111,16 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       v4Installed: !!document.getElementById('swsi-calm-navigation-v4')
     };
   });
-  assert.strictEqual(actualHome.paper, '#F4F7F5', 'static build calm paper token changed (Cloudflare V3 has its own #F7F9F7 override)');
+  // Netlify now shares the reviewed V3 stylesheet with Cloudflare. Check
+  // the actual computed color against the primary's V3 source, not an
+  // obsolete pre-V3 token. Accessibility tests still check visible contrast.
+  const primaryHtml = fs.readFileSync(path.resolve(__dirname, '../cdn/index.html'), 'utf8');
+  const v3Style = primaryHtml.match(/<style id="swsi-calm-learning-ui-v3">([\\s\\S]*?)<\\/style>/);
+  assert(v3Style, 'reviewed Cloudflare V3 stylesheet missing');
+  const v3Paper = v3Style[1].match(/--paper:\\s*(#[0-9A-Fa-f]{6})\\s*;/);
+  assert(v3Paper, 'reviewed Cloudflare V3 paper token missing');
+  assert.strictEqual(actualHome.paper, v3Paper[1].toUpperCase(),
+    'Netlify V4 paper token differs from reviewed Cloudflare V3');
   assert.strictEqual(actualHome.heroBackground, 'rgb(229, 240, 235)', 'approved pale green CTA hero is not rendered');
   assert(/今天，從一題開始/.test(actualHome.heroTitle || ''), 'live renderHome still uses old copy');
   assert(actualHome.primaryHeight >= 48, 'primary CTA touch height is too small');
