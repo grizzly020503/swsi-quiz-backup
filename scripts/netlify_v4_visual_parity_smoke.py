@@ -15,7 +15,7 @@ def require(condition: bool, message: str) -> None:
 
 
 def style(html: str, tag: str, label: str) -> str:
-    pattern = re.compile(r'<style id="' + re.escape(tag) + r'">([\\s\\S]*?)</style>')
+    pattern = re.compile(r'<style id="' + re.escape(tag) + r'">(.*?)</style>', re.S)
     matches = pattern.findall(html)
     require(len(matches) == 1, f"{label}: expected exactly one {tag} stylesheet")
     return matches[0]
