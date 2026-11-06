@@ -604,6 +604,64 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       'navigation during OCR must not silently change the typed draft');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),
       navigationBaseline+2,'navigation OCR race must not trigger feedback calls');
+    // The feedback request can finish after closing and reopening the same
+    // essay. The old detached panel must never strand the new confirm button.
+    // A successful response must be shown from local feedback cache without
+    // a second paid provider call.
+    const rerenderBefore=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{
+      window.__feedbackQueue=[];
+      window.swsiFetchWithTimeout=async function(_url,opts){
+        window.__paperRequests.push(JSON.parse(opts.body));
+        return new Promise(resolve=>window.__feedbackQueue.push(resolve));
+      };
+    });
+    const navigationFeedbackAnswer='一、評估家庭需求與社會支持網絡，運用社會工作倫理維護服務使用者權益。\n二、釐清制度限制與社區可用資源，規劃處遇服務並持續追蹤成效。';
+    await page.locator('.swsi-paper-review textarea').fill(navigationFeedbackAnswer);
+    page.once('dialog',dialog=>dialog.accept());
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>window.__feedbackQueue?.length===1);
+    await page.evaluate(()=>closeEssay());
+    await page.locator('.swsi-paper-essay').waitFor({state:'detached'});
+    await page.evaluate(id=>toggleEssay(id),essayId);
+    await page.locator('.swsi-paper-essay').waitFor({timeout:12000});
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'reopened essay must keep confirmation locked during pending feedback');
+    await page.evaluate(()=>{
+      window.__feedbackQueue[0](new Response(JSON.stringify({
+        error:{code:'UPSTREAM_UNAVAILABLE',message:'暫時無法處理'}
+      }),{status:503,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(()=>document.querySelector('.swsi-paper-confirm')?.disabled===false &&
+      /回饋尚未完成/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),
+      null,{timeout:15000});
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),navigationFeedbackAnswer,
+      'reopened essay after failed AI response must keep its saved answer');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),rerenderBefore+1,
+      'failed feedback after navigation must spend only its original AI call');
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>window.__feedbackQueue?.length===2);
+    await page.evaluate(()=>closeEssay());
+    await page.locator('.swsi-paper-essay').waitFor({state:'detached'});
+    await page.evaluate(id=>toggleEssay(id),essayId);
+    await page.locator('.swsi-paper-essay').waitFor({timeout:12000});
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'reopened essay must stay locked until successful feedback returns');
+    await page.evaluate(()=>{
+      window.__feedbackQueue[1](new Response(JSON.stringify({
+        choices:[{message:{content:'一、方向正確，已指出社會支持與社工倫理。\n二、可補充制度資源連結與實務追蹤。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(()=>/回饋已完成/.test(
+      document.querySelector('.swsi-paper-review [role=status]')?.textContent||'') &&
+      /方向正確/.test(document.querySelector('[id^="airesult_"]')?.textContent||''),
+      null,{timeout:15000});
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'completed feedback must stay locked after navigation');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),rerenderBefore+2,
+      'restoring cached feedback after navigation must not make an extra AI request');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),navigationFeedbackAnswer,
+      'feedback completion after navigation must not replace corrected draft');
     console.log('HANDWRITTEN ESSAY OCR CONFIRM QA OK: photo OCR, correction, explicit diagnosis, typed fallback, truncation NO-GO');
   }finally{await browser.close();}
 })().catch(err=>{console.error(err);process.exitCode=1;});

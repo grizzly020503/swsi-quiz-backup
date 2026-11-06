@@ -4940,9 +4940,31 @@ function review(id,panel){
       if(input.isConnected)message.textContent='AI 回饋未完成；原稿已保存，稍後可直接重試。';
     }finally{
       session.feedbackPending=false;
-      // Switching paper -> typing -> paper recreates the review editor while
-      // feedback is pending. Refresh its *current* button, not the stale one.
-      if(sessions[id]===session&&mode(id)==='paper'&&panel.isConnected)review(id,panel);
+      // Reopening the same question builds a NEW panel while the original
+      // feedback request may still be running. Refresh the *live* panel,
+      // never its detached predecessor (which would leave confirm disabled).
+      if(sessions[id]===session&&mode(id)==='paper'){
+        var liveDraft=document.getElementById('ta_'+id);
+        var liveBox=liveDraft&&liveDraft.closest('.wbox');
+        var livePanel=liveBox&&liveBox.querySelector('.swsi-paper-essay');
+        if(livePanel&&livePanel.isConnected){
+          review(id,livePanel);
+          // The original AI response was rendered into a detached panel.
+          // A successful response is already stored by the trusted feedback
+          // layer in this question/answer cache. Display it in the new panel
+          // strictly from cache, without a second AI request.
+          if(livePanel!==panel&&session.confirmedText===answer&&
+             liveDraft.value.trim()===answer&&
+             typeof window.swsiGetAICache==='function'&&
+             window.swsiGetAICache(id,answer)&&
+             typeof window.runAIFeedback==='function'){
+            var liveResult=document.getElementById('airesult_'+id);
+            if(liveResult&&liveBox.contains(liveResult)&&!liveResult.textContent.trim()){
+              try{Promise.resolve(window.runAIFeedback(id)).catch(function(){});}catch(_e){}
+            }
+          }
+        }
+      }
     }
   });
   slot.append(label,input,help,send,message);
