@@ -353,3 +353,14 @@ jobs:
           node scripts/browser_interaction_smoke.js "${NETLIFY_PRODUCTION_URL}/?release_check=${GITHUB_RUN_ID}"
           node scripts/prelaunch_axe_accessibility_smoke.js "${NETLIFY_PRODUCTION_URL}/?release_check=${GITHUB_RUN_ID}"
           echo "NETLIFY CONTROLLED PRODUCTION BROWSER + AXE CHECK OK"
+
+      - name: Verify Cloudflare and Netlify published V4 home parity (read-only)
+        # Run only AFTER Netlify publish, exact-byte HTTP verification and Chromium smoke.
+        # GET/HEAD/OPTIONS only; scripts/dual_site_v4_parity_smoke.js blocks writes.
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.release_mode == 'deploy'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check scripts/dual_site_v4_parity_smoke.js
+          node scripts/dual_site_v4_parity_smoke.js
+          echo 'NETLIFY/CLOUDFLARE V4 HOMEPAGE PARITY OK' >> "$GITHUB_STEP_SUMMARY"
