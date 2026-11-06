@@ -23,6 +23,7 @@ on:
       - 'scripts/netlify_runtime_gate_selftest.py'
       - 'netlify.toml'
       - 'index.html'
+      - 'scripts/netlify_v4_visual_parity_smoke.py'
       - 'manifest.json'
       - 'sw.js'
       - 'apple-touch-icon.png'
@@ -145,6 +146,7 @@ jobs:
           print(command)
           PY
           bash /tmp/swsi-netlify-build.sh
+          python3 scripts/netlify_v4_visual_parity_smoke.py --site _site
 
       - name: Verify pre-deploy release contract
         if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.release_mode == 'deploy')
