@@ -21,6 +21,9 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.55.0-noble
       options: --user 1001
     timeout-minutes: 12
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v7
       - name: Install pinned browser driver
