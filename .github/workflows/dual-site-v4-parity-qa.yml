@@ -1,0 +1,37 @@
+name: Primary / Netlify Backup V4 UI Parity QA (READ ONLY)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/dual_site_v4_parity_smoke.js'
+      - '.github/workflows/dual-site-v4-parity-qa.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-dual-site-v4-parity-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hosted-v4-home-parity:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-noble
+      options: --user 1001
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install pinned browser driver
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: |
+          set -euo pipefail
+          npm install --no-save playwright@1.55.0
+          node -e 'const fs=require("fs"),pw=require("playwright");if(require("playwright/package.json").version!=="1.55.0")throw Error("Playwright version drift");if(!fs.existsSync(pw.chromium.executablePath()))throw Error("Chromium missing")'
+      - name: Compare actual published Cloudflare and Netlify V4 student homepage (GET only)
+        run: |
+          set -euo pipefail
+          node --check scripts/dual_site_v4_parity_smoke.js
+          node scripts/dual_site_v4_parity_smoke.js
