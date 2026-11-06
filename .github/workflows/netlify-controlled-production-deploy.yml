@@ -21,6 +21,7 @@ on:
       - 'scripts/netlify_auth_preflight.py'
       - 'scripts/netlify_auth_preflight_selftest.py'
       - 'scripts/netlify_runtime_gate_selftest.py'
+      - 'scripts/netlify_v3_live_parity_smoke.py'
       - 'netlify.toml'
       - 'index.html'
       - 'manifest.json'
@@ -94,6 +95,7 @@ jobs:
         run: |
           python3 scripts/netlify_auth_preflight_selftest.py
           python3 scripts/netlify_runtime_gate_selftest.py
+          python3 scripts/netlify_v3_live_parity_smoke.py --self-test
 
       - name: Require Netlify GitHub secrets
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
@@ -251,6 +253,7 @@ jobs:
             if fetch_prod / /tmp/prod-index.html \
               && grep -q "swsi-netlify-release\" content=\"${EXPECTED_RELEASE_MARKER}" /tmp/prod-index.html \
               && grep -Fq "${expected_patch_tag}" /tmp/prod-index.html \
+              && python3 scripts/netlify_v3_live_parity_smoke.py --expected _site/index.html --actual /tmp/prod-index.html \
               && fetch_prod /monthly_patch.js /tmp/prod-monthly-patch.js \
               && cmp -s _site/monthly_patch.js /tmp/prod-monthly-patch.js \
               && fetch_prod /sw.js /tmp/prod-sw.js \

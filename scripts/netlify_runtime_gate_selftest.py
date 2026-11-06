@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import shutil
 import subprocess
 import tempfile
 import textwrap
@@ -31,6 +32,7 @@ def extract_gate():
         'cmp -s _site/monthly_patch.js /tmp/prod-monthly-patch.js',
         'cmp -s _site/sw.js /tmp/prod-sw.js',
         'NETLIFY EXACT RUNTIME READY',
+        'netlify_v3_live_parity_smoke.py',
         'NO-GO',
         'exit 1',
     ):
@@ -40,21 +42,29 @@ def extract_gate():
 
 
 def run_fixture(root, name, gate, *, tag=True, js=True, sw=True,
-                marker=MARKER, missing_js=False):
+                marker=MARKER, missing_js=False, stale_v3=False, missing_v3=False):
     case = root / name
     remote = case / "remote"
     site = case / "_site"
     remote.mkdir(parents=True)
     site.mkdir()
+    scripts = case / "scripts"
+    scripts.mkdir()
+    shutil.copy2(ROOT / "scripts/netlify_v3_live_parity_smoke.py",
+                 scripts / "netlify_v3_live_parity_smoke.py")
+    v3 = '<style id="swsi-calm-learning-ui-v3">--paper:#F7F9F7;</style>'
+    (site / "index.html").write_text(v3, encoding="utf-8")
     patch = b"// new correct runtime\n"
     service_worker = b"const VERSION = 'v7';\n"
     (site / "monthly_patch.js").write_bytes(patch)
     (site / "sw.js").write_bytes(service_worker)
     digest = hashlib.sha256(patch).hexdigest()[:16]
     version = digest if tag else "deadbeefdeadbeef"
+    live_style = "" if missing_v3 else v3.replace("#F7F9F7", "#FFFFFF") if stale_v3 else v3
     (remote / "index.html").write_text(
         f'<meta name="swsi-netlify-release" content="{marker}">\n'
-        f'<script src="monthly_patch.js?v={version}"></script>\n',
+        f'<script src="monthly_patch.js?v={version}"></script>\n'
+        + live_style,
         encoding="utf-8",
     )
     if not missing_js:
@@ -102,6 +112,8 @@ def main():
         ("stale_service_worker_same_marker", {"sw": False}, False),
         ("wrong_marker", {"marker": "previous-release"}, False),
         ("missing_monthly_patch", {"missing_js": True}, False),
+        ("stale_v3_same_runtime", {"stale_v3": True}, False),
+        ("missing_v3_same_runtime", {"missing_v3": True}, False),
     )
     with tempfile.TemporaryDirectory(prefix="swsi-netlify-readiness-") as tmp:
         for name, opts, should_pass in cases:
@@ -117,7 +129,7 @@ def main():
                 assert "NO-GO" in result.stderr, (
                     f"{name} failed without exact-runtime NO-GO report: {result.stderr[-400:]}"
                 )
-    print("NETLIFY EXACT RUNTIME GATE SELFTEST OK: 1 matched + 5 strict NO-GO fixtures")
+    print("NETLIFY EXACT RUNTIME GATE SELFTEST OK: 1 matched + 7 strict NO-GO fixtures")
     return 0
 
 
