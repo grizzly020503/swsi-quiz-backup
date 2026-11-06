@@ -115,9 +115,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   // the actual computed color against the primary's V3 source, not an
   // obsolete pre-V3 token. Accessibility tests still check visible contrast.
   const primaryHtml = fs.readFileSync(path.resolve(__dirname, '../cdn/index.html'), 'utf8');
-  const v3Style = primaryHtml.match(/<style id="swsi-calm-learning-ui-v3">([\\s\\S]*?)<\\/style>/);
+  const v3Style = primaryHtml.match(/<style id="swsi-calm-learning-ui-v3">([\s\S]*?)<\/style>/);
   assert(v3Style, 'reviewed Cloudflare V3 stylesheet missing');
-  const v3Paper = v3Style[1].match(/--paper:\\s*(#[0-9A-Fa-f]{6})\\s*;/);
+  const v3Paper = v3Style[1].match(/--paper:\s*(#[0-9A-Fa-f]{6})\s*;/);
   assert(v3Paper, 'reviewed Cloudflare V3 paper token missing');
   assert.strictEqual(actualHome.paper, v3Paper[1].toUpperCase(),
     'Netlify V4 paper token differs from reviewed Cloudflare V3');
