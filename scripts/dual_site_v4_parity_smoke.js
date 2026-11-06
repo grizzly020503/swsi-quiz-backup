@@ -12,7 +12,7 @@ const { chromium } = require('playwright');
 // build must mirror it. Check live sites, not just their local build outputs.
 const reviewedHtml = fs.readFileSync(path.join(__dirname, '../cdn/index.html'), 'utf8');
 const reviewedStyles = [...reviewedHtml.matchAll(
-  /<style id="swsi-calm-learning-ui-v3">([\\s\\S]*?)<\/style>/g
+  /<style id="swsi-calm-learning-ui-v3">([\s\S]*?)<\/style>/g
 )];
 assert.equal(reviewedStyles.length, 1, 'reviewed CDN must contain exactly one V3 style');
 const reviewedV3Hash = crypto.createHash('sha256').update(reviewedStyles[0][1]).digest('hex');
