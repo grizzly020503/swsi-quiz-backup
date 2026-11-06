@@ -479,6 +479,64 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQ
       'cancelled OCR must never overwrite confirmed draft');
     assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),requestsBeforeStale+1,
       'cancelled OCR must not trigger AI diagnosis');
+    // A cancelled photo response completing AFTER a new photo request must
+    // not unlock the upload control or corrupt the second transcription.
+    // The same test proves returning to paper mode after cancel is usable.
+    const overlapBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{
+      window.__overlapPending=[];
+      window.__overlapDone=0;
+      const underlying=window.gradePhoto;
+      window.gradePhoto=function(id,input){
+        return Promise.resolve(underlying(id,input)).finally(()=>{window.__overlapDone++;});
+      };
+      window.swsiFetchWithTimeout=async function(_url,opts){
+        const payload=JSON.parse(opts.body);
+        window.__paperRequests.push(payload);
+        return new Promise(resolve=>window.__overlapPending.push(resolve));
+      };
+    });
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({
+      name:'overlap-old.png',mimeType:'image/png',buffer:png
+    });
+    await page.waitForFunction(()=>window.__overlapPending?.length===1);
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'first pending upload must lock the photo button');
+    await page.locator('.swsi-paper-mode-text').click();
+    await page.locator('.swsi-paper-mode-paper').click();
+    assert(await page.locator('[id^="aiphoto_"]').isEnabled(),
+      'cancelled OCR must release the camera button after returning to paper mode');
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({
+      name:'overlap-new.png',mimeType:'image/png',buffer:png
+    });
+    await page.waitForFunction(()=>window.__overlapPending?.length===2);
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'new photo request must lock the upload button');
+    const overlapResponse=text=>new Response(JSON.stringify({
+      choices:[{message:{content:'【我讀到的作答】\\n'+text},finish_reason:'stop'}]
+    }),{status:200,headers:{'Content-Type':'application/json'}});
+    await page.evaluate(()=>{
+      window.__overlapPending[0](new Response(JSON.stringify({
+        choices:[{message:{content:'【我讀到的作答】\\n舊照片請求必須忽略。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(()=>window.__overlapDone===1);
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'late cancelled OCR must not unlock a second pending photo upload');
+    await page.evaluate(()=>{
+      window.__overlapPending[1](new Response(JSON.stringify({
+        choices:[{message:{content:'【我讀到的作答】\\n新照片的轉錄文字應保留在目前編輯器。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(()=>window.__overlapDone===2);
+    assert(await page.locator('[id^="aiphoto_"]').isEnabled(),
+      'finished second OCR upload must release the photo control');
+    assert.match(await page.locator('.swsi-paper-review textarea').inputValue(),
+      /新照片的轉錄文字/, 'stale OCR must not overwrite second photo transcription');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeStale,
+      'interleaved photo uploads must not change confirmed draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),overlapBaseline+2,
+      'two OCR calls must not silently start a text-feedback request');
     console.log('HANDWRITTEN ESSAY OCR CONFIRM QA OK: photo OCR, correction, explicit diagnosis, typed fallback, truncation NO-GO');
   }finally{await browser.close();}
 })().catch(err=>{console.error(err);process.exitCode=1;});

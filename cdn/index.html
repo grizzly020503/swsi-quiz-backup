@@ -4955,7 +4955,13 @@ function updateMode(id,panel){
   var ta=document.getElementById('ta_'+id);if(ta)ta.hidden=paper;
   ['.fmtbar','.wmeta'].forEach(function(selector){var el=box.querySelector(selector);if(el)el.hidden=paper;});
   var typed=document.getElementById('aitype_'+id);if(typed)typed.hidden=paper;
-  var photo=document.getElementById('aiphoto_'+id);if(photo)photo.hidden=!paper;
+  var photo=document.getElementById('aiphoto_'+id);
+  if(photo){
+    photo.hidden=!paper;
+    // A cancelled upload must not leave the camera button locked, while
+    // selecting the paper tab again must not unlock a live upload.
+    photo.disabled=paper&&!!(sessions[id]&&sessions[id].photoPending);
+  }
   var result=document.getElementById('airesult_'+id);
   var target=panel.querySelector(paper?'.swsi-paper-result':'.swsi-type-result');
   if(result&&target&&result.parentNode!==target)target.appendChild(result);
@@ -4986,7 +4992,10 @@ function mount(){
   body.appendChild(elem('div','swsi-paper-result'));
   panel.append(body,elem('div','swsi-type-result'));box.prepend(panel);
   pbtn.addEventListener('click',function(){modes[id]='paper';updateMode(id,panel);});
-  tbtn.addEventListener('click',function(){if(sessions[id])sessions[id].seq=++requestSeq;modes[id]='type';updateMode(id,panel);ta.focus();});
+  tbtn.addEventListener('click',function(){
+    if(sessions[id]){sessions[id].seq=++requestSeq;sessions[id].photoPending=false;}
+    modes[id]='type';updateMode(id,panel);ta.focus();
+  });
   updateMode(id,panel);
 }
 // Replaces old photo behavior that graded in the same request before OCR confirmation.
@@ -5020,8 +5029,8 @@ async function photoOCR(id,inputEl){
   // image processing failure or timeout must not destroy unfinished work.
   var seq=++requestSeq;
   sessions[id]=previous&&typeof previous.ocr==='string'
-    ?{seq:seq,ocr:previous.ocr,confirmedText:previous.confirmedText,feedbackFailed:previous.feedbackFailed}
-    :{seq:seq};
+    ?{seq:seq,ocr:previous.ocr,confirmedText:previous.confirmedText,feedbackFailed:previous.feedbackFailed,photoPending:true}
+    :{seq:seq,photoPending:true};
   panel.querySelector('.swsi-paper-review').replaceChildren();
   var button=document.getElementById('aiphoto_'+id);if(button)button.disabled=true;
   status.textContent='正在手機上整理照片，尚未傳送照片或消耗 AI 額度。';
@@ -5101,10 +5110,15 @@ async function photoOCR(id,inputEl){
     // Restore the previous in-memory, student-edited OCR after an unsuccessful
     // upload. If a newer upload or page transition superseded this attempt,
     // never resurrect the stale review or touch its editor.
-    if(active(id,seq,panel)&&typeof sessions[id].ocr==='string'&&
-      !panel.querySelector('.swsi-paper-review textarea'))review(id,panel);
+    // An old request must NEVER re-enable the upload button while a newer
+    // photo is uploading. Mode switches invalidate the old sequence.
+    if(sessions[id]&&sessions[id].seq===seq){
+      sessions[id].photoPending=false;
+      if(active(id,seq,panel)&&typeof sessions[id].ocr==='string'&&
+        !panel.querySelector('.swsi-paper-review textarea'))review(id,panel);
+      if(button&&button.isConnected&&panel.contains(button))button.disabled=false;
+    }
     files.length=0;
-    if(button)button.disabled=false;
   }
 }
 function start(){
