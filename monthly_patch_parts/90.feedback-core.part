@@ -194,7 +194,7 @@
   function makeMini(cls){var b=document.createElement('button');b.type='button';b.className=cls||'swsi-report-mini';b.textContent='⚑ 回報問題';b.setAttribute('aria-label','回報目前內容的問題');b.onclick=function(){window.swsiOpenReport(b);};return b;}
 
   function ensureFooter(){
-    var f=document.querySelector('footer');if(!f||f.querySelector('.swsi-report-footer-btn'))return;
+    var f=document.querySelector('footer');if(!f||f.querySelector('.swsi-public-footer-brand')||f.querySelector('.swsi-report-footer-btn'))return;
     var b=makeMini('swsi-report-footer-btn');b.textContent='回報問題／提供建議';b.setAttribute('aria-label','回報網站問題或提供建議');f.appendChild(b);
   }
 
