@@ -113,7 +113,7 @@ def evaluate(event: dict, blocked_ids: set[str] | None = None) -> tuple[bool, st
     category = str(event.get("category") or "")
     if not event_id or event_id in (blocked_ids or set()):
         return False, "blocked_or_missing_identity"
-    if not (15 <= len(title) <= 230) or not summary:
+    if not (12 <= len(title) <= 230) or not summary:
         return False, "missing_event_details"
     if category not in CATEGORIES or not (set(event.get("exam_subject_axes") or event.get("subjects") or []) & SUBJECTS):
         return False, "not_social_work_exam_scope"
