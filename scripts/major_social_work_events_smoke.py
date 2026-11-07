@@ -76,7 +76,7 @@ def check() -> None:
         ("媒體乙", "news", "2026-11-02"),
     ])
     assert not evaluate(isolated_case)[0]
-    qualified_case = event(title="兒虐致死事件引發社工制度檢討", sources=[
+    qualified_case = event(title="兒虐致死事件引發社工制度全面檢討", sources=[
         ("媒體甲", "news", "2026-11-01"),
         ("媒體乙", "news", "2026-11-02"),
         ("媒體丙", "news", "2026-11-03"),
