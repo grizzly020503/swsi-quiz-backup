@@ -174,9 +174,14 @@ BLOCK = r'''
     law.forEach(function(n){parts.push(btn('law',n,'看相關法規／政策 · '+n));});
     theory.forEach(function(n){parts.push(btn('theory',n,'看相關理論 · '+n));});
     essays.forEach(function(e){parts.push(btn('essay',e.id,'練相關申論 · '+String(e.topic||e.q||'申論題').slice(0,28)));});
-    return '<details class="nlr-detail nlr-study-links"><summary>延伸學習 · 相關歷屆題與考點</summary>'+
+    var quick=[];
+    if(mc.length)quick.push(btn('question',mc[0].id,'練歷屆試題'));
+    if(essays.length)quick.push(btn('essay',essays[0].id,'練相關申論'));
+    if(law.length)quick.push(btn('law',law[0],'看相關法規'));
+    if(!quick.length&&theory.length)quick.push(btn('theory',theory[0],'看相關理論'));
+    return '<div class="nlr-study-actions" aria-label="國考練習"><div class="nlr-study-quick">'+quick.join('')+'</div><p class="nlr-study-note">這些是主題相關的舊考題，不代表考題曾考過此新聞事件；法規或修法草案的現況請依官方來源核對。</p><details class="nlr-detail nlr-study-links"><summary>更多相關題目與法規</summary>'+
       '<div class="nlr-study-list">'+parts.join('')+'</div>'+
-      '<p class="nlr-study-note">這些是主題相關的舊考題，不代表考題曾考過此新聞事件；法規或修法草案的現況請依官方來源核對。</p>'+'<p data-swsi-news-status role="status" class="nlr-study-note"></p></details>';
+      '</details>'+'<p data-swsi-news-status role="status" class="nlr-study-note"></p></div>';
   }
   function studyStatus(message){
     var el=document.getElementById('nl-live-radar');
@@ -257,7 +262,9 @@ BLOCK = r'''
     var signalHtml=(trendReady&&trendScore!=='')
       ?'<div class="nlr-signal"><b>趨勢訊號 '+E(trendScore)+'/10</b> ・ '+E(trendLabel(tr.trend_state))+'</div>'
       :'<div class="nlr-signal"><b>目前：單次觀察</b> ・ 尚不足以形成趨勢</div>';
-    var summaryText=trendReady?(ev.exam_point_summary||''):'目前證據仍是單一來源／單次觀察，先當作制度或議題複習素材；待跨來源或後續更新後，再判斷是否形成命題趨勢。';
+    var summaryText=trendReady?(ev.exam_point_summary||ev.summary||''):(ev.summary||'單一來源，先當作制度或議題複習素材。');
+    var lawTitle=String(ev.title||'');
+    var lawStage=/修正草案|修法草案/.test(lawTitle)?'修法草案・不等於已施行':(/修法|修正條文/.test(lawTitle)?'修法進度待核對':'');
     var evidenceLabel=sourceCount>=2?'多來源證據':'來源依據';
     var note=trendReady?'同事件跨來源只計一次；趨勢用來安排複習，不代表命題保證。':'目前只有單一來源或單次觀察；不以分數宣稱趨勢，事實請以原始來源為準。';
     var knowledge=knowledgeHtml((tr.knowledge_root||tr.subject_topics)?tr:ev);
@@ -266,17 +273,19 @@ BLOCK = r'''
       +'<div class="nlr-head"><span class="nlr-cat">'+E(ev.category||'時事')+'</span><span class="nlr-trend nlr-trend-'+E(displayTrendState)+'">'+E(displayTrendLabel)+'</span></div>'
       +'<div class="nlr-title">'+E(ev.title||'')+'</div>'
       +'<div class="nlr-meta">'+E(sourceCount)+' 個來源'+(officialCount?' ・ '+E(officialCount)+' 官方':'')+(fmtDate(ev.last_seen)?' ・ 更新 '+E(fmtDate(ev.last_seen)):'')+'</div>'
+      +(lawStage?'<div class="nlr-law-stage">'+E(lawStage)+'</div>':'')
+      +(summaryText?'<div class="nlr-preview">'+E(summaryText)+'</div>':'')
       +'<div class="nlr-subs">'+subjects+'</div>'
+      +links
+      +'<details class="nlr-detail nlr-deep"><summary>查看完整考點與來源</summary>'
       +signalHtml
-      +(summaryText?'<div class="nlr-signal-text">'+E(summaryText)+'</div>':'')
       +knowledge
       +(why?'<details class="nlr-detail"><summary>為什麼值得複習？</summary><ul>'+why+'</ul></details>':'')
       +(essay?'<details class="nlr-detail"><summary>值得練習的申論方向</summary><div class="nlr-exam">'+E(essay)+'</div></details>':'')
       +(mcq.length?'<details class="nlr-detail"><summary>選擇題可能抓哪些事實？</summary><div class="nlr-chips">'+mcq.slice(0,8).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('')+'</div></details>':'')
-      +links
       +(evidence?'<details class="nlr-detail"><summary>'+E(evidenceLabel)+'</summary><ul>'+evidence+'</ul></details>':'')
       +'<div class="nlr-note">'+E(note)+'</div>'
-      +'</div>';
+      +'</details></div>';
   }
   function liveCard(ev){
     var t=templateFor(ev.category);
@@ -291,18 +300,19 @@ BLOCK = r'''
       +'<div class="nlr-head"><span class="nlr-cat">'+E(ev.category||'時事')+'</span><span class="nlr-score">關聯 '+E(ev.relevance_score||'')+'/10</span></div>'
       +'<div class="nlr-title">'+E(ev.title)+'</div>'
       +'<div class="nlr-meta">'+E(ev.source_name||'')+(fmtDate(ev.published_at)?' ・ '+E(fmtDate(ev.published_at)):'')+'</div>'
-      +(summary?'<div class="nlr-summary">'+E(summary)+'</div>':'')
+      +(summary?'<div class="nlr-preview">'+E(summary)+'</div>':'')
       +'<div class="nlr-subs">'+subjects+'</div>'
+      +liveLinks
+      +'<details class="nlr-detail nlr-deep"><summary>查看完整考點與來源</summary>'
       +(tags?'<div class="nlr-chips">'+tags+'</div>':'')
       +liveKnowledge
       +(sig.signal_confidence?'<div class="nlr-signal"><b>命題訊號：'+E(sig.signal_confidence==='high'?'高':sig.signal_confidence==='medium'?'中':'低')+'</b>'+(sig.signal_score!=null?' ・ '+E(sig.signal_score)+'/10':'')+'</div>':'')
       +(sig.exam_point_summary?'<div class="nlr-signal-text">'+E(sig.exam_point_summary)+'</div>':'')
       +(sig.essay_direction?'<details class="nlr-detail"><summary>值得練習的申論方向</summary><div class="nlr-exam">'+E(sig.essay_direction)+'</div></details>':'')
       +(sig.mcq_focus&&sig.mcq_focus.length?'<details class="nlr-detail"><summary>選擇題可能抓哪些事實？</summary><div class="nlr-chips">'+sig.mcq_focus.slice(0,8).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('')+'</div></details>':'')
-      +liveLinks
       +'<details class="nlr-detail"><summary>此類事件常見的申論思考方向</summary><ul>'+pts+'</ul><div class="nlr-exam">'+E(t.exam)+'</div></details>'
       +'<a class="nlr-link" href="'+safeHref(ev.source_url)+'" target="_blank" rel="noopener noreferrer">查看原始來源 ↗</a>'
-      +'</div>';
+      +'</details></div>';
   }
   function ensureStyle(){
     if(document.getElementById('swsi-nlr-style')) return;
@@ -315,6 +325,7 @@ BLOCK = r'''
       +'.nlr-title{font-weight:800;line-height:1.45;margin:6px 0}.nlr-meta,.nlr-summary{font-size:.8rem;color:var(--muted,#666);line-height:1.55}.nlr-summary{margin-top:7px}'
       +'.nlr-subs,.nlr-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.nlr-sub,.nlr-chip{font-size:.7rem;border-radius:999px;padding:3px 7px;background:var(--soft,#f2f2f2)}'
       +'.nlr-study-list{display:grid;gap:7px;margin-top:9px}.nlr-study-link{width:100%;min-height:42px;cursor:pointer;border:1px solid #DCE6E0;border-radius:9px;background:#fff;color:#245D56;text-align:left;font:700 12.5px/1.5 sans-serif;padding:9px 11px}.nlr-study-link:focus-visible{outline:2px solid #245D56;outline-offset:2px}.nlr-study-link:disabled{opacity:.6}.nlr-study-note{font-size:11px;color:#64746E;line-height:1.65;margin:8px 0 0}'+'.nlr-detail{margin-top:9px;font-size:.8rem;line-height:1.55}.nlr-detail summary{cursor:pointer;font-weight:700}.nlr-detail ul{padding-left:20px;margin:7px 0}.nlr-exam{margin-top:6px}.nlr-signal{margin-top:9px;font-size:.8rem}.nlr-signal-text{margin-top:5px;font-size:.78rem;line-height:1.5}.nlr-link{display:inline-block;margin-top:9px;font-size:.78rem;text-decoration:none;font-weight:700}.nlr-empty{font-size:.82rem;color:var(--muted,#777);padding:8px 0}.nlr-knowledge-root{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;margin-top:8px}.nlr-knowledge-root span,.nlr-knowledge-label{font-size:.72rem;color:var(--muted,#777)}.nlr-knowledge-label{font-weight:700;margin-top:8px}.nlr-knowledge-subject{margin-top:8px}.nlr-knowledge-subject ul{margin:3px 0 0;padding-left:18px}'+'.nlr-trend{font-size:.72rem;font-weight:800;padding:3px 7px;border-radius:999px;background:var(--soft,#f2f2f2)}.nlr-trend-rising{font-weight:900}.nlr-trend-sustained{font-weight:800}.nlr-trend-cooling{opacity:.72}.nlr-note{font-size:.72rem;color:var(--muted,#777);line-height:1.45;margin-top:9px}';
+    st.textContent+=' .nlr-preview{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;margin-top:8px;font-size:var(--fs-b,.85rem);line-height:1.55}.nlr-study-actions{margin-top:10px}.nlr-study-quick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.nlr-study-quick .nlr-study-link{min-height:44px;font-family:inherit;font-size:var(--fs-s,.82rem)}.nlr-deep{border-top:1px solid var(--line,#ddd);padding-top:10px;margin-top:12px}.nlr-law-stage{display:inline-block;margin-top:7px;border:1px solid var(--line,#ddd);color:var(--pine,#466b63);border-radius:999px;padding:2px 8px;font-size:var(--fs-s,.75rem)}.nlr-detail summary:focus-visible{outline:2px solid var(--pine,#466b63);outline-offset:2px}@media(max-width:380px){.nlr-study-quick{grid-template-columns:1fr}}';
     document.head.appendChild(st);
   }
   function fetchJson(url){
@@ -353,7 +364,7 @@ BLOCK = r'''
     var box=document.createElement('section'); box.id='nl-live-radar'; box.className='nlr-box';
     box.innerHTML=useV2
       ?'<div class="nlr-top"><div class="nlr-h">🎯 目前 3 個國考重點</div><div class="nlr-badge">少量精選・證據分級</div></div>'
-        +'<div class="nlr-help">只顯示目前優先度最高的 3 個事件，從考點與證據出發安排複習；單一來源先當作議題素材，不直接宣稱形成趨勢。</div>'
+        +'<div class="nlr-help">只精選 3 個重點；可直接練題，完整考點與來源點開再看。單一來源不代表命題趨勢。</div>'
         +(list.length?'<div class="nlr-grid">'+list.map(eventCard).join('')+'</div>':'<div class="nlr-empty">這個科目目前沒有新的高關聯事件。</div>')
       :'<div class="nlr-top"><div class="nlr-h">🎯 目前 3 個國考重點</div><div class="nlr-badge">備援資料</div></div>'
         +'<div class="nlr-help">趨勢資料暫時不可用，先顯示最多 3 個高關聯時事；事實細節請以原始來源為準。</div>'
