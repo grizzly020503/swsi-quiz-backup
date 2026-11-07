@@ -1120,7 +1120,7 @@ function answerLabel(item){
     }).join('');
     var evidence=(ev.evidence||[]).slice(0,4).map(function(src){
       var url=String(src.source_url||'');
-      if(!/^https:\/\/[^"'<>\\s]+$/i.test(url))return '';
+      if(!/^https:\/\/[^"'<>\s]+$/i.test(url))return '';
       return '<a href="'+E(url)+'" target="_blank" rel="noopener noreferrer">'+E(src.source_name||'官方／新聞來源')+'</a>';
     }).filter(Boolean).join(' ・ ');
     return '<article class="nl-card nl-major-card">'
