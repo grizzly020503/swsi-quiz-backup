@@ -7,6 +7,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { chromium, webkit } = require('playwright');
+const { expectedPapers } = require('./future_exam_public_source_contract');
 const ORIGIN = 'https://wandering-wave-4418.c022050333.workers.dev';
 
 // PR checks exercise the CURRENT hosted site. On main/workflow_dispatch, additionally
@@ -181,12 +182,12 @@ const moexRegistry = JSON.parse(fs.readFileSync(
 assert.equal(moexRegistry.scope, 'source_identity_only_not_stem_answer_or_rubric_approval',
   'pinned registry scope changed unexpectedly');
 assert.equal(moexRegistry.records.length, 120, 'official registry must contain 120 papers');
-const moexExpected = moexRegistry.records.map(r => ({
-  session: r.session, subject: r.subject, code: r.exam_code,
-  c: String(r.c), s: String(r.s)
-}));
-
 async function verifyHostedOfficialSourceIdentity(page, label) {
+  // The pinned registry protects 120 historic papers. Additional sessions
+  // derive their official identities only from the reviewed 115-2 subject codes.
+  const liveManifest = await page.evaluate(() => window.SWSI_QB?.manifest);
+  const { papers: moexExpected, total: expectedTotal } =
+    expectedPapers(moexRegistry, liveManifest);
   const result = await page.evaluate(expected => {
     const rows = (typeof ALL !== 'undefined' && Array.isArray(ALL)) ? ALL : [];
     const byPaper = new Map(expected.map(p => [p.session + '|' + p.subject, p]));
@@ -240,11 +241,12 @@ async function verifyHostedOfficialSourceIdentity(page, label) {
       firstProblems: problems.slice(0, 12)
     };
   }, moexExpected);
-  assert.deepEqual(result, { total: 4800, papers: 120, uniqueIds: 4800,
-    problemCount: 0, firstProblems: [] },
+  assert.deepEqual(result, { total: expectedTotal, papers: moexExpected.length,
+    uniqueIds: expectedTotal, problemCount: 0, firstProblems: [] },
   label + ': hosted official-source misclassification/drift ' + JSON.stringify(result));
   console.log('CLOUDFLARE HOSTED OFFICIAL SOURCE TRUST OK ' + label +
-    ': 4800 official MCQs, 120/120 pinned papers, no invalid PDF identities');
+    ': ' + expectedTotal + ' official MCQs, ' + moexExpected.length +
+    ' official PDF identities including 120 pinned historical papers');
 }
 
 async function verifyHostedLocalGrading(page, label) {
@@ -400,7 +402,8 @@ async function verifyHostedSourceHoldQuarantine(page, label) {
         typeof swsiOfficialFigureReady !== 'function') {
       throw Error('deployed source-hold policy missing');
     }
-    if (typeof ALL === 'undefined' || !Array.isArray(ALL) || ALL.length !== 4800) {
+    if (typeof ALL === 'undefined' || !Array.isArray(ALL) ||
+        ALL.length !== window.SWSI_QB?.manifest?.total_questions) {
       throw Error('deployed official corpus not loaded');
     }
     return heldIds.map(id => {
@@ -705,10 +708,14 @@ async function verifyHostedPwaOffline() {
       console.error('CLOUDFLARE PWA FULL-CORPUS FAILURE DIAGNOSTIC ' + JSON.stringify(details));
       throw error;
     }
-    await page.waitForFunction(async () => {
+    const expectedBank = await page.evaluate(() =>
+      Number(window.SWSI_QB?.manifest?.total_questions || 0));
+    assert(Number.isInteger(expectedBank) && expectedBank >= 4800 &&
+      expectedBank % 200 === 0, 'PWA manifest expected total is invalid');
+    await page.waitForFunction(async expected => {
       try { const record = await loadOfflineQuestions();
-        return record?.rows?.length === 4800; } catch (_e) { return false; }
-    }, null, { timeout: 45000 });
+        return record?.rows?.length === expected; } catch (_e) { return false; }
+    }, expectedBank, { timeout: 45000 });
     const warm = await page.evaluate(async () => ({
       online: navigator.onLine,
       all: typeof ALL !== 'undefined' && Array.isArray(ALL) ? ALL.length : -1,
@@ -717,8 +724,8 @@ async function verifyHostedPwaOffline() {
       controlled: !!navigator.serviceWorker.controller
     }));
     assert.equal(warm.online, true, 'PWA warmup online flag wrong');
-    assert.equal(warm.all, 4800, 'PWA warmup question count');
-    assert.equal(warm.cached, 4800, 'PWA IndexedDB did not persist all questions');
+    assert.equal(warm.all, expectedBank, 'PWA warmup question count');
+    assert.equal(warm.cached, expectedBank, 'PWA IndexedDB did not persist all questions');
     assert(warm.controlled && warm.cacheNames.includes('swsi-shell-v7'),
       'PWA cache/SW missing after warm-up');
 
@@ -744,21 +751,21 @@ async function verifyHostedPwaOffline() {
         draft: localStorage.getItem('essay_draft_' + id) };
     }, draftId);
     assert.equal(offline.online, false, 'browser did not actually disconnect');
-    assert.equal(offline.cached, 4800, 'offline IndexedDB no longer has 4800 questions');
+    assert.equal(offline.cached, expectedBank, 'offline IndexedDB full question count changed');
     assert.equal(offline.draft, draft, 'offline reload lost handwritten-text draft');
     assert(offline.controlled, 'offline app lost Service Worker control');
     await page.evaluate(() => ensureAllQuestionsLoaded());
     const offlineCount = await page.evaluate(() =>
       typeof ALL !== 'undefined' && Array.isArray(ALL) ? ALL.length : -1);
-    assert.equal(offlineCount, 4800, 'offline reload could not load all questions');
+    assert.equal(offlineCount, expectedBank, 'offline reload could not load all questions');
 
     // A cached PWA must apply the same fail-closed source quarantine as the
     // online site. Use only the browser's already-persisted offline question
     // rows, with no official corpus write or AI/network request.
-    const offlineHoldResult = await page.evaluate(() => {
+    const offlineHoldResult = await page.evaluate(expectedTotal => {
       const heldIds = ['DS-104-1-22', 'DS-104-1-27', 'DS-104-1-29'];
       const releasedIds = ['R-107-2-40', 'SP111-2-34'];
-      if (typeof swsiSourceHeld !== 'function' || ALL.length !== 4800)
+      if (typeof swsiSourceHeld !== 'function' || ALL.length !== expectedTotal)
         throw Error('offline source quarantine/corpus missing');
       const beforeStorage = JSON.stringify(localStorage);
       const beforeHistory = loadHist().length;
@@ -811,7 +818,7 @@ async function verifyHostedPwaOffline() {
       return { online: navigator.onLine, cases, releasedCases,
         storageUnchanged: JSON.stringify(localStorage) === beforeStorage,
         historyUnchanged: loadHist().length === beforeHistory };
-    });
+    }, expectedBank);
     assert.equal(offlineHoldResult.online, false, 'offline hold test accidentally online');
     assert.equal(offlineHoldResult.cases.length, 3, 'offline held-source case count');
     assert(offlineHoldResult.cases.every(c => c.hidden && c.blocked &&
@@ -846,7 +853,7 @@ async function verifyHostedPwaOffline() {
       localStorage.getItem('essay_draft_' + id), draftId), draft,
       'online restoration overwrote saved draft');
     await page.evaluate(id => localStorage.removeItem('essay_draft_' + id), draftId);
-    console.log('CLOUDFLARE HOSTED PWA OFFLINE OK: SW v7 active, 4800/4800 IDB, offline reload, offline practice, essay draft persistence, online recovery, blockedWrites=' + blockedWrites);
+    console.log('CLOUDFLARE HOSTED PWA OFFLINE OK: SW v7 active, ' + expectedBank + '/' + expectedBank + ' IDB, offline reload, offline practice, essay draft persistence, online recovery, blockedWrites=' + blockedWrites);
   } finally {
     await context.close();
     await browser.close();
