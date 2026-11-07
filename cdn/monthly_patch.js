@@ -5040,6 +5040,11 @@ html[data-fs="2"]{
       .swsi-core-reason{margin:0 0 13px;padding:10px 11px;border-left:3px solid var(--pine);background:#F8FAF9;border-radius:0 10px 10px 0;font-family:'Noto Sans TC',sans-serif;color:#343C38;line-height:1.7;}
       .swsi-core-reason b{display:block;font-size:10.5px;letter-spacing:.04em;color:var(--pine);margin-bottom:2px;}
       .swsi-core-reason span{display:block;font-size:13px;font-weight:650;}
+      .swsi-law-update-notice{margin:2px 0 10px;padding:10px 12px;border:1px solid #DDE5DF;border-radius:10px;background:#FBFCFA;font-family:'Noto Sans TC',sans-serif;}
+      .swsi-law-update-title{font-size:12px;line-height:1.5;font-weight:800;color:var(--ink);}
+      .swsi-law-update-notice p{margin:4px 0 6px;font-size:12px;line-height:1.65;color:var(--ink-soft);overflow-wrap:anywhere;}
+      .swsi-law-update-foot{font-size:11px;line-height:1.6;color:var(--ink-soft);}
+      .swsi-law-update-notice a{display:inline-block;margin-top:7px;border-bottom:1px solid currentColor;font-size:11.5px;font-weight:700;color:var(--pine-deep);text-decoration:none;}
       .swsi-answer-trust{margin:0 0 10px;border:1px solid #E1E7E3;border-radius:10px;background:#FCFDFC;font-family:'Noto Sans TC',sans-serif;overflow:hidden;}
       .swsi-answer-trust summary{list-style:none;cursor:pointer;min-height:38px;padding:7px 9px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--ink-soft);font-size:11px;font-weight:700;}
       .swsi-answer-trust summary::-webkit-details-marker{display:none;}
@@ -5246,6 +5251,49 @@ html[data-fs="2"]{
     var a=document.createElement('a');a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.textContent=label+' ↗';links.appendChild(a);
   }
 
+
+  // Watcher-detected amendments do not equal reviewed legal content.
+  function currentOfficialLawHref(value){
+    var href=safeTrustHref(value);
+    if(!href)return '';
+    try{
+      var url=new URL(href),pcode=url.searchParams.get('pcode')||'';
+      return url.hostname==='law.moj.gov.tw'&&/^\/LawClass\/LawAll\.aspx$/i.test(url.pathname)&&/^[A-Za-z]\d{7}$/.test(pcode)?url.href:'';
+    }catch(_e){return '';}
+  }
+
+  function addLawUpdateNotice(exp,item){
+    if(!item||directChild(exp,'.swsi-law-update-notice'))return;
+    var status=String(item.legal_status||'').toLowerCase();
+    var raw=String(item.legal_note||'').replace(/\s+/g,' ').trim();
+    var officialHref=currentOfficialLawHref(item.legal_source_url);
+    // Explicit verified summary marker is never emitted by automatic legal monitoring.
+    var marker='【修法摘要已核對】';
+    var reviewed=status==='verified_current'&&raw.indexOf(marker)===0&&!!String(item.legal_checked_at||'').trim()&&!!officialHref;
+    if(status!=='changed'&&!reviewed)return;
+    var note=reviewed?raw.slice(marker.length).trim():raw;
+    var notice=document.createElement('section');
+    notice.className='swsi-law-update-notice';
+    notice.setAttribute('aria-label','法規更新提醒');
+    var title=document.createElement('div');title.className='swsi-law-update-title';
+    title.textContent=reviewed?'現行法更新重點・已核對':'法規更新提醒・待核對';
+    notice.appendChild(title);
+    var short=document.createElement('p');
+    short.textContent=note?(note.length>100?note.slice(0,100)+'…':note):'相關法規可能已有修正，尚待確認是否影響本題。';
+    notice.appendChild(short);
+    var foot=document.createElement('div');foot.className='swsi-law-update-foot';
+    foot.textContent=reviewed?'保留原考試答案；此摘要由 SWSI 核對，非考選部官方解析。':'保留原考試答案；偵測到修法不代表本題答案已改變。';
+    notice.appendChild(foot);
+    if(officialHref){
+      var link=document.createElement('a');
+      link.href=officialHref;link.target='_blank';link.rel='noopener noreferrer';
+      link.textContent='查看官方現行法規 ↗';
+      notice.appendChild(link);
+    }
+    var trust=directChild(exp,'.swsi-answer-trust');
+    if(trust)exp.insertBefore(notice,trust);else exp.appendChild(notice);
+  }
+
   function addQuestionTrust(exp,item){
     if(!item||directChild(exp,'.swsi-answer-trust'))return;
     var origin=questionOrigin(item),official=origin==='official',analysis=analysisTrust(item),legal=legalTrust(item);
@@ -5270,6 +5318,7 @@ html[data-fs="2"]{
     panel.appendChild(body);
     var more=directChild(exp,'.swsi-explanation-more'),next=directChild(exp,'.btn');
     if(more)exp.insertBefore(panel,more);else if(next)exp.insertBefore(panel,next);else exp.appendChild(panel);
+    addLawUpdateNotice(exp,item);
   }
 
   function collapseExplanation(){
