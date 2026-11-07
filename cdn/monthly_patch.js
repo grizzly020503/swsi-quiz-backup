@@ -3158,6 +3158,38 @@ html[data-fs="2"]{
     return out;
   }
 
+
+  // Explicit question metadata can link to a theory or law. A topic search
+  // remains a discovery aid, not a verified connection to each search hit.
+  function questionStudyRefs(item){
+    var empty={theories:[],laws:[],term:''};
+    if(!item||typeof item!=='object')return empty;
+    var topic=String(item.topic||'').trim();
+    var major=String(item.major||'').trim();
+    var theoryCandidates=A(item.theories).concat(A(item.theory)).map(N).filter(Boolean);
+    var lawCandidates=A(item.laws).concat(A(item.law)).map(N).filter(Boolean);
+    var nt=N(topic),theories=[],laws=[];
+    try{
+      theories=THEORIES.filter(function(t){
+        var key=N(t.n);
+        if(!key||key.length<5)return false;
+        if(theoryCandidates.some(function(c){return c===key;}))return true;
+        return nt.length>=5&&(nt===key||nt.indexOf(key)>=0||key.indexOf(nt)>=0);
+      }).slice(0,2);
+      laws=LAWS.filter(function(l){
+        var key=N(l.n);
+        return key.length>=5&&lawCandidates.some(function(c){
+          return c===key||(c.length>=key.length&&c.indexOf(key)>=0);
+        });
+      }).slice(0,2);
+    }catch(_e){}
+    var term='';
+    if(topic.length>=4&&topic.length<=52&&!/^(其他|未分類|綜合|基本概念|一般原則)/.test(topic))term=topic;
+    else if(major.length>=5&&major.length<=52&&!/^(其他|未分類|綜合)/.test(major))term=major;
+    return {theories:theories,laws:laws,term:term};
+  }
+  window.swsiQuestionStudyRefs=questionStudyRefs;
+
   window.swsiKnowledgeSearch=function(q){
     try{searchQ=String(q||'');}catch(_e){window.searchQ=String(q||'');}
     try{go('search');}catch(_e){try{view='search';render();}catch(_x){}}
@@ -5041,6 +5073,14 @@ html[data-fs="2"]{
       .swsi-core-reason{margin:0 0 13px;padding:10px 11px;border-left:3px solid var(--pine);background:#F8FAF9;border-radius:0 10px 10px 0;font-family:'Noto Sans TC',sans-serif;color:#343C38;line-height:1.7;}
       .swsi-core-reason b{display:block;font-size:10.5px;letter-spacing:.04em;color:var(--pine);margin-bottom:2px;}
       .swsi-core-reason span{display:block;font-size:13px;font-weight:650;}
+      .swsi-question-study-path{margin:0 0 10px;border:1px solid #E1E7E3;border-radius:10px;background:#FCFDFC;font-family:'Noto Sans TC',sans-serif;overflow:hidden;}
+      .swsi-question-study-path summary{min-height:40px;padding:9px 11px;color:var(--pine-deep);font-weight:750;font-size:12px;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;}
+      .swsi-question-study-path summary::-webkit-details-marker{display:none;}
+      .swsi-question-study-path summary:after{content:'＋';font-size:15px;color:var(--ink-3);}
+      .swsi-question-study-path[open] summary:after{content:'－';}
+      .swsi-question-study-body{padding:1px 11px 11px;border-top:1px solid #EDF0ED;display:grid;gap:7px;}
+      .swsi-question-study-body button{min-height:40px;text-align:left;font:700 12px/1.5 'Noto Sans TC',sans-serif;background:#fff;border:1px solid #DFE8E2;border-radius:9px;color:var(--pine-deep);padding:9px 11px;cursor:pointer;}
+      .swsi-question-study-foot{font-size:10.5px;line-height:1.5;color:var(--ink-soft);margin-top:2px;}
       .swsi-law-update-notice{margin:2px 0 10px;padding:10px 12px;border:1px solid #DDE5DF;border-radius:10px;background:#FBFCFA;font-family:'Noto Sans TC',sans-serif;}
       .swsi-law-update-title{font-size:12px;line-height:1.5;font-weight:800;color:var(--ink);}
       .swsi-law-update-notice p{margin:4px 0 6px;font-size:12px;line-height:1.65;color:var(--ink-soft);overflow-wrap:anywhere;}
@@ -5295,6 +5335,52 @@ html[data-fs="2"]{
     if(trust)exp.insertBefore(notice,trust);else exp.appendChild(notice);
   }
 
+
+  function addQuestionStudyPath(exp,item){
+    if(!item||directChild(exp,'.swsi-question-study-path'))return;
+    var resolve=window.swsiQuestionStudyRefs;
+    if(typeof resolve!=='function')return;
+    var refs;try{refs=resolve(item);}catch(_e){return;}
+    if(!refs||!(refs.theories.length||refs.laws.length||refs.term))return;
+    var panel=document.createElement('details');
+    panel.className='swsi-question-study-path';
+    panel.setAttribute('aria-label','相關考點延伸學習');
+    var summary=document.createElement('summary');
+    summary.textContent='延伸學習・相關考點';
+    panel.appendChild(summary);
+    var body=document.createElement('div');
+    body.className='swsi-question-study-body';
+    function action(text,handler){
+      var button=document.createElement('button');
+      button.type='button';
+      button.textContent=text;
+      button.addEventListener('click',function(ev){ev.stopPropagation();handler();});
+      body.appendChild(button);
+    }
+    refs.theories.forEach(function(t){
+      action('核心理論：'+String(t.n||''),function(){
+        if(typeof window.swsiOpenTheoryEncoded==='function')window.swsiOpenTheoryEncoded(encodeURIComponent(t.n));
+      });
+    });
+    refs.laws.forEach(function(l){
+      action('重點法規：'+String(l.n||''),function(){
+        if(typeof window.swsiOpenLawEncoded==='function')window.swsiOpenLawEncoded(encodeURIComponent(l.n));
+      });
+    });
+    if(refs.term){
+      action('搜尋同考點選擇題與申論：'+String(refs.term),function(){
+        if(typeof window.swsiKnowledgeSearch==='function')window.swsiKnowledgeSearch(refs.term);
+      });
+    }
+    var foot=document.createElement('div');
+    foot.className='swsi-question-study-foot';
+    foot.textContent='依題目分類與既有標籤延伸；搜尋結果不代表已逐題核對。';
+    body.appendChild(foot);
+    panel.appendChild(body);
+    var anchor=directChild(exp,'.swsi-answer-trust')||directChild(exp,'.swsi-explanation-more')||directChild(exp,'.btn');
+    if(anchor)exp.insertBefore(panel,anchor);else exp.appendChild(panel);
+  }
+
   function addQuestionTrust(exp,item){
     if(!item||directChild(exp,'.swsi-answer-trust'))return;
     var origin=questionOrigin(item),official=origin==='official',analysis=analysisTrust(item),legal=legalTrust(item);
@@ -5380,8 +5466,10 @@ html[data-fs="2"]{
         if(next) exp.insertBefore(details,next); else exp.appendChild(details);
       }
       addQuestionTrust(exp,item);
+      addQuestionStudyPath(exp,item);
     }else{
       addQuestionTrust(exp,currentItem);
+      addQuestionStudyPath(exp,currentItem);
     }
 
     /* Learning Loop adds the student's own reflection asynchronously. Keep that
