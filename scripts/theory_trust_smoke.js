@@ -53,10 +53,12 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert.strictEqual(await page.locator('#app .ecard.open .ehead').getAttribute('aria-expanded'), 'true');
   assert(/從理論接到考題/.test(await page.locator('#app .ecard.open').first().innerText()), 'existing linked-question section missing');
   const trust = page.locator('#app .ecard.open .swsi-theory-trust').first();
-  assert(/✓ 理論內容已逐卡核對/.test(await trust.locator('summary').innerText()), 'verification summary is still required');
-  assert.strictEqual(await trust.locator('.swsi-theory-trust-note').first().isVisible(), false, 'quality details should be collapsed initially');
-  await trust.locator('summary').click();
-  assert.strictEqual(await trust.locator('.swsi-theory-trust-note').first().isVisible(), true, 'verification details must remain accessible');
+  assert(/✓ 理論內容已逐卡核對/.test(await trust.locator('.swsi-theory-trust-status').innerText()), 'verification status is still required');
+  assert.strictEqual(await trust.locator('.swsi-theory-trust-note').first().isVisible(), true, 'important theory-specific cautions should remain visible');
+  const more=trust.locator('.swsi-theory-trust-more');
+  assert.strictEqual(await more.locator('.swsi-theory-trust-note').isVisible(), false, 'common disclaimer should be collapsed initially');
+  await more.locator('summary').click();
+  assert.strictEqual(await more.locator('.swsi-theory-trust-note').isVisible(), true, 'common disclaimer must remain accessible');
 
   // Search still filters the canonical cards and keeps their introductions.
   await page.evaluate(() => { theoryQ='增強權能'; theoryOpen=null; render(); });
