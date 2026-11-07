@@ -241,6 +241,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.waitForSelector('.swsi-answer-line');
   await page.waitForSelector('.swsi-self-cause');
   assert(/這題你為什麼會錯/.test(await page.locator('.swsi-self-cause').innerText()), 'wrong-cause prompt missing');
+  const causeDetails=page.locator('.swsi-cause-details');
+  assert.strictEqual(await causeDetails.evaluate(el=>el.open),false,'wrong-cause choices should start collapsed');
+  await causeDetails.locator('summary').click();
   await page.getByRole('button', { name: '概念不熟' }).click();
   await page.waitForFunction(() => {
     const b=[...document.querySelectorAll('.swsi-cause-chip')].find(x => /概念不熟/.test(x.textContent||''));

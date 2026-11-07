@@ -683,7 +683,7 @@ window.swsiEsc = swsiEsc;
         body+='<div class="pending">平台解析待複核，暫不顯示。'+swsiEsc(answerLabel(item))+'。</div>';
       }else if(item.exp&&(item.exp.why||item.exp.others||item.exp.trap)){
         if(item.exp.why) body+='<div class="exp-sec"><h4><span class="dot d-green"></span>為什麼對</h4><p>'+swsiEscLines(item.exp.why)+'</p></div>';
-        if(item.exp.others) body+='<div class="exp-sec"><h4><span class="dot d-red"></span>其他選項為什麼錯</h4><p>'+swsiEscLines(item.exp.others)+'</p></div>';
+        if(item.exp.others) body+='<div class="exp-sec"><h4><span class="dot d-red"></span>其他選項為什麼錯</h4><p>'+swsiEscLines(String(item.exp.others).replace(/([、，；;])\s*(?=[(（][A-D][)）])/g,'$1\n'))+'</p></div>';
         if(item.exp.trap) body+='<div class="exp-sec"><h4><span class="dot d-gold"></span>考場陷阱</h4><p>'+swsiEscLines(item.exp.trap)+'</p></div>';
       }else if(item.exp&&item.exp.raw){
         body+='<div class="exp-sec"><p>'+swsiEscLines(item.exp.raw)+'</p></div>';
