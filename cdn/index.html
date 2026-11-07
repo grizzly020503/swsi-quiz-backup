@@ -4051,9 +4051,9 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     if(essays.length)quick.push(btn('essay',essays[0].id,'練相關申論'));
     if(law.length)quick.push(btn('law',law[0],'看相關法規'));
     if(!quick.length&&theory.length)quick.push(btn('theory',theory[0],'看相關理論'));
-    return '<div class="nlr-study-actions" aria-label="國考練習"><div class="nlr-study-quick">'+quick.join('')+'</div><details class="nlr-detail nlr-study-links"><summary>更多相關題目與法規</summary>'+
+    return '<div class="nlr-study-actions" aria-label="國考練習"><div class="nlr-study-quick">'+quick.join('')+'</div><p class="nlr-study-note">這些是主題相關的舊考題，不代表考題曾考過此新聞事件；法規或修法草案的現況請依官方來源核對。</p><details class="nlr-detail nlr-study-links"><summary>更多相關題目與法規</summary>'+
       '<div class="nlr-study-list">'+parts.join('')+'</div>'+
-      '<p class="nlr-study-note">相關舊考題不代表曾考過本新聞；法規效力依官方來源核對。</p></details>'+'<p data-swsi-news-status role="status" class="nlr-study-note"></p></div>';
+      '</details>'+'<p data-swsi-news-status role="status" class="nlr-study-note"></p></div>';
   }
   function studyStatus(message){
     var el=document.getElementById('nl-live-radar');
