@@ -32,7 +32,8 @@
     if(!box){box=document.createElement('section');box.className='swsi-self-cause';var next=exp.querySelector(':scope > .btn');if(next)exp.insertBefore(box,next);else exp.appendChild(box);}
     /* Set marker BEFORE changing children so our MutationObserver cannot trigger itself forever. */
     box.dataset.swsiCauseKey=key;
-    var openBefore=!!cur||(box.querySelector('details.swsi-cause-details')||{}).open;
+    var priorDetails=(typeof box.querySelector==='function')?box.querySelector('details.swsi-cause-details'):null;
+    var openBefore=!!cur||!!(priorDetails&&priorDetails.open);
     box.innerHTML='<details class="swsi-cause-details"'+(openBefore?' open':'')+'><summary class="swsi-cause-title">這題你為什麼會錯？'+(cur?' · '+H(cur):'（選填）')+'</summary><div class="swsi-cause-help">依你的實際原因選擇，僅儲存在這台裝置。</div><div class="swsi-cause-row">'+CAUSES.map(function(c){return causeButton(item.id,c,cur);}).join('')+'</div></details>';
   }
   window.swsiSetWrongCause=function(id,cause){var m=loadCauses();if(m[id]&&m[id].cause===cause)delete m[id];else m[id]={cause:cause,ts:Date.now()};saveCauses(m);decorateWrongCause();};
