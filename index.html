@@ -1083,7 +1083,7 @@ function answerLabel(item){
      +'.nl-kw{display:flex;gap:6px;flex-wrap:wrap;}'
      +'.nl-kw span{font-size:var(--fs-s);padding:3px 9px;border-radius:7px;background:var(--paper,#EFF3F0);border:1px solid var(--line,#DCE4DF);color:var(--ink-soft,#757A75);}'
      +'.nl-exam{background:var(--correct-bg,#E3EDE9);border-radius:11px;padding:11px 13px;font-size:var(--fs-b);line-height:1.7;margin-top:12px;}'
-     +'.nl-note{font-size:var(--fs-s);color:var(--gold,#95988A);margin-top:8px;}';
+     +'.nl-note{font-size:var(--fs-s);color:var(--gold,#95988A);margin-top:8px;}'     +'.nl-deep{margin-top:8px;border-top:1px solid var(--line,#DCE4DF);padding-top:9px}.nl-deep summary{font-size:var(--fs-s);font-weight:800;color:var(--pine,#4F7E76);cursor:pointer}.nl-deep summary:focus-visible{outline:2px solid var(--pine,#4F7E76)}.nl-history-label{font-size:var(--fs-s);font-weight:800;color:var(--ink-soft,#757A75);margin-top:18px}';
     document.head.appendChild(style);
   }
 
@@ -1092,17 +1092,21 @@ function answerLabel(item){
     var pts=(ev.points||[]).map(function(p){return '<li>'+E(p)+'</li>';}).join('');
     var laws=(ev.laws||[]).map(function(l){return '<li>'+E(l)+'</li>';}).join('');
     var con=(ev.concepts||[]).map(function(c){return '<span>'+E(c)+'</span>';}).join('');
+    var fullSummary=String(ev.summary||'');
+    var preview=fullSummary.length>110?fullSummary.slice(0,110)+'…':fullSummary;
     return '<div class="nl-card">'
       +'<div class="nl-h">'+E(ev.title)+'</div>'
       +'<div class="nl-meta">🕒 '+E(ev.date)+'</div>'
       +'<div class="nl-tags">'+tags+'</div>'
-      +'<div class="nl-sum">'+E(ev.summary)+'</div>'
+      +'<div class="nl-sum">'+E(preview)+'</div>'
+      +'<details class="nl-deep"><summary>展開完整考點、法規與申論</summary>'
+      +(preview!==fullSummary?'<div class="nl-sum">'+E(fullSummary)+'</div>':'')
       +(pts?'<div class="nl-lab">考點重點</div><ul class="nl-ul">'+pts+'</ul>':'')
       +(con?'<div class="nl-lab">關鍵概念／理論</div><div class="nl-kw">'+con+'</div>':'')
       +(laws?'<div class="nl-lab">相關法規</div><ul class="nl-ul">'+laws+'</ul>':'')
       +(ev.exam?'<div class="nl-exam"><b style="color:var(--pine,#4F7E76)">可能怎麼考：</b>'+E(ev.exam)+'</div>':'')
       +(ev.note?'<div class="nl-note">👉 '+E(ev.note)+'</div>':'')
-      +'</div>';
+      +'</details></div>';
   }
 
   function render(){
@@ -1114,6 +1118,7 @@ function answerLabel(item){
       +'<div class="nl-top"><div class="nl-title">📰 時事庫</div><div style="display:flex;align-items:center;gap:10px">'+fc()+'<button class="nl-x" onclick="NL.close()">✕</button></div></div>'
       +'<div class="nl-intro">近三年（2023–2026）與社工國考相關的重大社會事件與修法。讀懂「發生什麼、牽涉哪些考點與法規、可能怎麼考」——申論最愛考時事＋修法。</div>'
       +'<div class="nl-chips">'+chips+'</div>'
+      +'<div class="nl-history-label">背景案例 · 延伸閱讀</div>'
       +(list.length?list.map(card).join(''):'<div class="nl-intro" style="margin-top:20px">這個科目目前沒有收錄事件。</div>')
       +'<div class="nl-intro" style="margin-top:18px;text-align:center">持續累積中——之後會再補上新事件。</div>'
       +'</div>';
