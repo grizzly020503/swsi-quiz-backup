@@ -28,7 +28,7 @@ def event(
         "last_seen": sources[-1][2] + "T00:00:00Z",
         "evidence": [{
             "source_name": n, "source_type": t,
-            "source_url": "https://example.test/" + str(i),
+            "source_url": "https://publisher" + str(i) + ".test/article/" + str(i),
             "published_at": day + "T10:00:00Z",
         } for i, (n, t, day) in enumerate(sources)],
     }
@@ -56,6 +56,23 @@ def check() -> None:
         row = {**good, **changes}
         passed, got = evaluate(row)
         assert not passed and got == reason, (changes, got)
+
+    # Distinct display names on the same publisher site cannot satisfy the
+    # two-independent-publishers gate. Check www/mobile and Taiwan gov aliases.
+    same_site = event()
+    same_site["evidence"][1]["source_url"] = "https://www.publisher0.test/second"
+    assert evaluate(same_site) == (False, "repackaged_same_publisher")
+    subdomain_alias = event()
+    subdomain_alias["evidence"][1]["source_url"] = "https://mobile.publisher0.test/second"
+    assert evaluate(subdomain_alias) == (False, "repackaged_same_publisher")
+    gov_alias = event()
+    gov_alias["evidence"][0]["source_url"] = "https://www.ey.gov.tw/first"
+    gov_alias["evidence"][1]["source_url"] = "https://news.ey.gov.tw/second"
+    assert evaluate(gov_alias) == (False, "repackaged_same_publisher")
+    independent_gov = event()
+    independent_gov["evidence"][0]["source_url"] = "https://www.ey.gov.tw/first"
+    independent_gov["evidence"][1]["source_url"] = "https://www.mohw.gov.tw/second"
+    assert evaluate(independent_gov)[0]
 
     same_press_cycle = event(title="社福機構服務制度啟動跨部會檢討")
     assert evaluate(same_press_cycle)[1] == "insufficient_time_or_formal_outcome"
