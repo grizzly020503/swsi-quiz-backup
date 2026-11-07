@@ -171,12 +171,12 @@ BLOCK = r'''
     }
     var parts=[];
     mc.forEach(function(q){parts.push(btn('question',q.id,'練歷屆選擇題 · '+(q.year||'')+'年 '+(q.subject||'')+' 第'+(q.qno||'')+'題'));});
-    law.forEach(function(n){parts.push(btn('law',n,'看相關法規 · '+n));});
+    law.forEach(function(n){parts.push(btn('law',n,'看相關法規／政策 · '+n));});
     theory.forEach(function(n){parts.push(btn('theory',n,'看相關理論 · '+n));});
     essays.forEach(function(e){parts.push(btn('essay',e.id,'練相關申論 · '+String(e.topic||e.q||'申論題').slice(0,28)));});
     return '<details class="nlr-detail nlr-study-links"><summary>延伸學習 · 相關歷屆題與考點</summary>'+
       '<div class="nlr-study-list">'+parts.join('')+'</div>'+
-      '<p class="nlr-study-note">這些是主題相關的舊考題，不代表考題曾考過此新聞事件；法規或修法草案的現況請依官方來源核對。</p></details>';
+      '<p class="nlr-study-note">這些是主題相關的舊考題，不代表考題曾考過此新聞事件；法規或修法草案的現況請依官方來源核對。</p>'+'<p data-swsi-news-status role="status" class="nlr-study-note"></p></details>';
   }
   function studyStatus(message){
     var el=document.getElementById('nl-live-radar');
