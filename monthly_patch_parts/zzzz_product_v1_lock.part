@@ -48,6 +48,10 @@
       .swsi-explanation-more[open] summary:after{content:'－';}
       .swsi-explanation-more .body{border-top:1px solid var(--line);padding:13px 11px 2px;}
       .swsi-explanation-more .body .exp-sec:last-child,.swsi-explanation-more .body .extra:last-child{margin-bottom:10px;}
+      /* Expanded notes replace the short reason to avoid showing the same text twice. */
+      .exp:has(.swsi-explanation-more[open])>.swsi-core-reason{display:none;}
+      .swsi-trust-status{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+      .swsi-answer-trust summary>.swsi-trust-origin{font-size:11px;color:#4F6A61;font-weight:700}
 
       .tabbar .ico.swsi-nav-ico{width:21px;height:21px;display:grid;place-items:center;font-size:0;line-height:1;}
       .tabbar .ico.swsi-nav-ico svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
@@ -236,12 +240,17 @@
     var origin=questionOrigin(item),official=origin==='official',analysis=analysisTrust(item),legal=legalTrust(item);
     var panel=document.createElement('details');panel.className='swsi-answer-trust';
     var summary=document.createElement('summary');summary.appendChild(document.createTextNode('題目來源與解析'));
-    function chip(text,warn){var s=document.createElement('span');s.className='swsi-trust-chip'+(warn?' warn':'');s.textContent=text;summary.appendChild(s);}
-    chip(official?'考選部歷屆試題':origin==='practice'?'平台自製練習題':'題目來源待確認',false);
-    chip(analysis.label,analysis.warn);
-    if(legal)chip(legal.label,legal.warn);
+    var originName=official?'考選部歷屆試題':origin==='practice'?'平台自製練習題':'題目來源待確認';
+    var originTag=document.createElement('span');originTag.className='swsi-trust-origin';originTag.textContent=originName;summary.appendChild(originTag);
+    function chip(place,text,warn){var s=document.createElement('span');s.className='swsi-trust-chip'+(warn?' warn':'');s.textContent=text;place.appendChild(s);}
+    if(analysis.warn)chip(summary,analysis.label,true);
+    if(legal&&legal.warn)chip(summary,legal.label,true);
     panel.appendChild(summary);
     var body=document.createElement('div');body.className='swsi-trust-body';
+    var status=document.createElement('div');status.className='swsi-trust-status';
+    chip(status,analysis.label,analysis.warn);
+    if(legal)chip(status,legal.label,legal.warn);
+    body.appendChild(status);
     var p1=document.createElement('p');p1.textContent=official?'本題為考選部歷屆試題；題目、選項、官方答案與特殊給分以考選部資料為準。SWSI 另外整理解析與延伸內容，並非考選部官方解析。':origin==='practice'?'本題是 SWSI 平台自製練習題，並非考選部歷屆試題；題目與解析由平台整理。':'題目來源資料目前未能完整確認，請重新載入或查看原始題庫；不能據此認定這是非官方題目。';body.appendChild(p1);
     var p2=document.createElement('p');p2.textContent=analysis.detail;body.appendChild(p2);
     if(legal){var p3=document.createElement('p');p3.textContent=legal.detail+(item.legal_checked_at?' 核對時間：'+String(item.legal_checked_at).slice(0,10)+'。':'');body.appendChild(p3);}
