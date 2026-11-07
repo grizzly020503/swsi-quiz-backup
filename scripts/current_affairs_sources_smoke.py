@@ -741,6 +741,22 @@ def main() -> int:
     )
     assert generic_world_news is None, generic_world_news
 
+    # Generic urban relocation and adult placement must not become child protection.
+    # The child-specific placement terms above remain eligible.
+    relocation = scored(
+        "內政部審議通過高雄都市計畫變更 加速大林蒲遷村與安置",
+        "因產業園區都市計畫調整，政府規劃住宅安置與遷村配套。",
+        "內政部新聞發布",
+    )
+    assert not relocation or relocation[1] != "兒少保護", relocation
+
+    child_placement = scored(
+        "衛福部啟動兒少安置服務新制 強化兒童保護",
+        "制度修正兒少安置的安全評估、社工服務與跨網絡協作。",
+        "衛生福利部焦點新聞",
+    )
+    assert child_placement and child_placement[1] == "兒少保護", child_placement
+
     noise_cases = [
         (
             "涉侵占1200萬買名牌包！甜美社工羈押禁見「3大理由曝」",
