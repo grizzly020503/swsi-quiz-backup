@@ -103,6 +103,38 @@
     return out;
   }
 
+
+  // Explicit question metadata can link to a theory or law. A topic search
+  // remains a discovery aid, not a verified connection to each search hit.
+  function questionStudyRefs(item){
+    var empty={theories:[],laws:[],term:''};
+    if(!item||typeof item!=='object')return empty;
+    var topic=String(item.topic||'').trim();
+    var major=String(item.major||'').trim();
+    var theoryCandidates=A(item.theories).concat(A(item.theory)).map(N).filter(Boolean);
+    var lawCandidates=A(item.laws).concat(A(item.law)).map(N).filter(Boolean);
+    var nt=N(topic),theories=[],laws=[];
+    try{
+      theories=THEORIES.filter(function(t){
+        var key=N(t.n);
+        if(!key||key.length<5)return false;
+        if(theoryCandidates.some(function(c){return c===key;}))return true;
+        return nt.length>=5&&(nt===key||nt.indexOf(key)>=0||key.indexOf(nt)>=0);
+      }).slice(0,2);
+      laws=LAWS.filter(function(l){
+        var key=N(l.n);
+        return key.length>=5&&lawCandidates.some(function(c){
+          return c===key||(c.length>=key.length&&c.indexOf(key)>=0);
+        });
+      }).slice(0,2);
+    }catch(_e){}
+    var term='';
+    if(topic.length>=4&&topic.length<=52&&!/^(其他|未分類|綜合|基本概念|一般原則)/.test(topic))term=topic;
+    else if(major.length>=5&&major.length<=52&&!/^(其他|未分類|綜合)/.test(major))term=major;
+    return {theories:theories,laws:laws,term:term};
+  }
+  window.swsiQuestionStudyRefs=questionStudyRefs;
+
   window.swsiKnowledgeSearch=function(q){
     try{searchQ=String(q||'');}catch(_e){window.searchQ=String(q||'');}
     try{go('search');}catch(_e){try{view='search';render();}catch(_x){}}
