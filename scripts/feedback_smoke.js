@@ -118,6 +118,8 @@ async function optionTexts(page) {
   await page.locator('.swsi-myhub-more > summary').click();
   const generalFeedback = page.locator('.swsi-myhub-more .swsi-myhub-row[onclick*="swsiOpenReport"]');
   await generalFeedback.waitFor({ state: 'visible', timeout: 10000 });
+  assert.strictEqual(await page.evaluate(() => window.SWSI_FEEDBACK.currentContext().context_type), 'general',
+    'learning hub must clear stale essay/theory/law context before general reporting');
   await generalFeedback.click();
   await page.waitForSelector('.swsi-report-dialog[data-swsi-compact="2"]');
   modalText = await page.locator('.swsi-report-dialog').innerText();
