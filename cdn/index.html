@@ -2061,6 +2061,7 @@ function answerLabel(item){
 (function(){
   var ov=null, style=null, flt='全部';
   var historyPane=null, historyFilter='全部', savedScrollTop=0;
+  var autoMajorEvents=[], autoMajorStatus='idle', autoMajorLoadVersion=0;
 
   /* ---- 事件資料（可持續累積）---- */
   var EVENTS=[
@@ -2191,7 +2192,7 @@ function answerLabel(item){
      +'.nl-kw{display:flex;gap:6px;flex-wrap:wrap;}'
      +'.nl-kw span{font-size:var(--fs-s);padding:3px 9px;border-radius:7px;background:var(--paper,#EFF3F0);border:1px solid var(--line,#DCE4DF);color:var(--ink-soft,#757A75);}'
      +'.nl-exam{background:var(--correct-bg,#E3EDE9);border-radius:11px;padding:11px 13px;font-size:var(--fs-b);line-height:1.7;margin-top:12px;}'
-     +'.nl-note{font-size:var(--fs-s);color:var(--gold,#95988A);margin-top:8px;}'     +'.nl-deep{margin-top:8px;border-top:1px solid var(--line,#DCE4DF);padding-top:9px}.nl-deep summary{font-size:var(--fs-s);font-weight:800;color:var(--pine,#4F7E76);cursor:pointer}.nl-deep summary:focus-visible{outline:2px solid var(--pine,#4F7E76)}.nl-history-entry{display:flex;align-items:center;gap:10px;width:100%;min-height:72px;padding:14px 16px;text-align:left;margin-top:18px;border-radius:14px;border:1px solid var(--line,#DCE4DF);background:var(--paper2,#F8FAF9);color:var(--ink,#2A2C2A);font-family:inherit;cursor:pointer}.nl-history-entry strong{display:block;font-size:var(--fs-b);line-height:1.5}.nl-history-entry small{display:block;font-size:var(--fs-s);color:var(--ink-soft,#757A75);font-weight:400;line-height:1.5;margin-top:2px}.nl-history-entry .nl-arrow{margin-left:auto;color:var(--pine,#4F7E76);font-size:24px}.nl-history-entry:focus-visible,.nl-back:focus-visible{outline:2px solid var(--pine,#4F7E76);outline-offset:2px}.nl-history-page{max-width:680px;margin:0 auto;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 72px)}.nl-back{font-family:inherit;font-size:var(--fs-b);font-weight:700;background:transparent;border:0;color:var(--pine,#4F7E76);cursor:pointer;min-height:44px}.nl-history-heading{font-size:var(--fs-h);font-weight:800;margin:16px 0 4px}.nl-history-subtitle{font-size:var(--fs-s);color:var(--ink-soft,#757A75);line-height:1.65;margin-bottom:15px}';
+     +'.nl-note{font-size:var(--fs-s);color:var(--gold,#95988A);margin-top:8px;}'     +'.nl-deep{margin-top:8px;border-top:1px solid var(--line,#DCE4DF);padding-top:9px}.nl-deep summary{font-size:var(--fs-s);font-weight:800;color:var(--pine,#4F7E76);cursor:pointer}.nl-deep summary:focus-visible{outline:2px solid var(--pine,#4F7E76)}.nl-history-entry{display:flex;align-items:center;gap:10px;width:100%;min-height:72px;padding:14px 16px;text-align:left;margin-top:18px;border-radius:14px;border:1px solid var(--line,#DCE4DF);background:var(--paper2,#F8FAF9);color:var(--ink,#2A2C2A);font-family:inherit;cursor:pointer}.nl-history-entry strong{display:block;font-size:var(--fs-b);line-height:1.5}.nl-history-entry small{display:block;font-size:var(--fs-s);color:var(--ink-soft,#757A75);font-weight:400;line-height:1.5;margin-top:2px}.nl-history-entry .nl-arrow{margin-left:auto;color:var(--pine,#4F7E76);font-size:24px}.nl-history-entry:focus-visible,.nl-back:focus-visible{outline:2px solid var(--pine,#4F7E76);outline-offset:2px}.nl-history-page{max-width:680px;margin:0 auto;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 72px)}.nl-back{font-family:inherit;font-size:var(--fs-b);font-weight:700;background:transparent;border:0;color:var(--pine,#4F7E76);cursor:pointer;min-height:44px}.nl-history-heading{font-size:var(--fs-h);font-weight:800;margin:16px 0 4px}.nl-history-subtitle{font-size:var(--fs-s);color:var(--ink-soft,#757A75);line-height:1.65;margin-bottom:15px}.nl-major-label{font-size:var(--fs-s);font-weight:800;color:var(--pine,#4F7E76);margin:16px 0 5px}.nl-major-card .nl-h{font-size:var(--fs-b)}.nl-major-source{font-size:var(--fs-s);line-height:1.7;color:var(--ink-soft,#757A75)}.nl-major-essay{margin:12px 0;padding:11px;border-radius:10px;background:var(--paper,#EFF3F0);font-size:var(--fs-b);line-height:1.7}.nl-major-essay b{display:block;margin-bottom:5px}.nl-major-essay details{font-size:var(--fs-s);margin-top:8px}.nl-major-note{font-size:var(--fs-s);color:var(--ink-soft,#757A75);line-height:1.6;margin-top:8px}';
     document.head.appendChild(style);
   }
 
@@ -2215,6 +2216,58 @@ function answerLabel(item){
       +(ev.exam?'<div class="nl-exam"><b style="color:var(--pine,#4F7E76)">可能怎麼考：</b>'+E(ev.exam)+'</div>':'')
       +(ev.note?'<div class="nl-note">👉 '+E(ev.note)+'</div>':'')
       +'</details></div>';
+  }
+
+  function majorCard(ev){
+    var subs=(ev.subjects||[]).map(function(x){return '<span class="nl-tag">'+E(SHORT[x]||x)+'</span>';}).join('');
+    var essay=(ev.practice_essays||[]).map(function(q,i){
+      var outline=(q.outline||[]).slice(0,6).map(function(t){return '<li>'+E(t)+'</li>';}).join('');
+      return '<div class="nl-major-essay"><b>自編申論練習 '+(i+1)+'（25 分）</b><div>'+E(q.question||'')+'</div>'
+        +'<details><summary>作答架構提示</summary><ul class="nl-ul">'+outline+'</ul></details></div>';
+    }).join('');
+    var evidence=(ev.evidence||[]).slice(0,4).map(function(src){
+      var url=String(src.source_url||'');
+      if(!/^https:\/\/[^"'<>\\s]+$/i.test(url))return '';
+      return '<a href="'+E(url)+'" target="_blank" rel="noopener noreferrer">'+E(src.source_name||'官方／新聞來源')+'</a>';
+    }).filter(Boolean).join(' ・ ');
+    return '<article class="nl-card nl-major-card">'
+      +'<div class="nl-h">'+E(ev.title||'')+'</div>'
+      +'<div class="nl-meta">經多來源核對 ・ '+E(String(ev.last_seen||'').slice(0,10))+'</div>'
+      +'<div class="nl-tags">'+subs+'</div>'
+      +'<div class="nl-sum">'+E(ev.summary||'')+'</div>'
+      +'<details class="nl-deep"><summary>申論練習與來源（共 '+(ev.practice_essays||[]).length+' 題）</summary>'
+      +'<p class="nl-major-note">平台依已核對事件產生的原創練習題，非考選部官方題目，也不代表命題預測；法規現況請查官方公告。</p>'
+      +essay
+      +(evidence?'<div class="nl-major-source">核對來源：'+evidence+'</div>':'')
+      +'</details></article>';
+  }
+
+  function loadMajorEvents(){
+    if(autoMajorStatus==='loading'||autoMajorStatus==='ready')return;
+    if(typeof fetch!=='function')return;
+    autoMajorStatus='loading';
+    var token=++autoMajorLoadVersion;
+    fetch('./auto/major_social_work_events.json',{cache:'no-store'}).then(function(response){
+      if(!response.ok)throw Error('major archive unavailable');
+      return response.json();
+    }).then(function(data){
+      if(token!==autoMajorLoadVersion)return;
+      if(!data||data.schema_version!==1||data.selection_method!=='major-social-work-v1'
+         ||!Array.isArray(data.events)||data.events.length!==Number(data.event_count)
+         ||!data.events.every(function(e){
+           return e&&e.admission_rule==='major-social-work-v1'
+             &&Array.isArray(e.evidence)&&e.evidence.length>=2
+             &&Array.isArray(e.practice_essays)&&e.practice_essays.length===2
+             &&e.practice_essays.every(function(q){return q&&q.type==='practice_only';});
+         }))throw Error('major archive contract mismatch');
+      autoMajorEvents=data.events.slice(0,60);
+      autoMajorStatus='ready';
+      if(historyPane)renderHistory();
+    }).catch(function(){
+      if(token!==autoMajorLoadVersion)return;
+      autoMajorStatus='unavailable';
+      if(historyPane)renderHistory();
+    });
   }
 
   function chipsHtml(active,action){
@@ -2245,12 +2298,16 @@ function answerLabel(item){
       if(CHIPS[i][0]===historyFilter){sel=CHIPS[i][1];break;}
     }
     var list=EVENTS.filter(function(ev){return !sel||(ev.subjects||[]).indexOf(sel)>=0;});
+    var verified=autoMajorEvents.filter(function(ev){return !sel||(ev.subjects||[]).indexOf(sel)>=0;});
     historyPane.innerHTML=
       '<div class="nl-top"><button type="button" class="nl-back" onclick="NL.back()">‹ 返回時事庫</button>'
       +'<div style="display:flex;align-items:center;gap:10px">'+fc()+'<button class="nl-x" onclick="NL.close()">✕</button></div></div>'
       +'<div class="nl-history-heading">歷年重大事件與經典案例</div>'
       +'<div class="nl-history-subtitle">背景案例供延伸閱讀，並非考題預測；涉及法規時請以主管機關現行公告為準。</div>'
       +'<div class="nl-chips" role="group" aria-label="篩選歷年案例">'+chipsHtml(historyFilter,'historyFilter')+'</div>'
+      +(verified.length?'<div class="nl-major-label">自動審核通過的重大事件</div>'+verified.map(majorCard).join(''):'')
+      +(autoMajorStatus==='unavailable'?'<p class="nl-major-note">近期重大事件資料暫時無法更新，以下經典案例仍可閱讀。</p>':'')
+      +'<div class="nl-major-label">經典案例</div>'
       +(list.length?list.map(card).join(''):'<p class="nl-intro">這個科目目前沒有背景案例。</p>');
   }
 
@@ -2273,6 +2330,8 @@ function answerLabel(item){
     close:function(){
       if(ov&&ov.parentNode)ov.parentNode.removeChild(ov);
       ov=null;historyPane=null;savedScrollTop=0;
+      ++autoMajorLoadVersion;
+      if(autoMajorStatus==='loading')autoMajorStatus='idle';
     },
     filter:function(f){flt=f;render();},
     history:function(){
@@ -2286,6 +2345,7 @@ function answerLabel(item){
       historyPane.className='nl-history-page';
       ov.appendChild(historyPane);
       renderHistory();
+      loadMajorEvents();
       ov.scrollTop=0;
       var back=historyPane.querySelector('.nl-back');
       if(back&&typeof back.focus==='function')back.focus();
