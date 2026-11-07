@@ -101,6 +101,24 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     });
     assert(layout, 'home/footer layout elements missing');
     assert(layout.gap <= 48, 'home leaves an artificial blank slab before footer: '+layout.gap+'px');
+    const footerInfo = await page.evaluate(() => {
+      const brand = document.querySelector('.swsi-public-footer-brand');
+      if (!brand) return null;
+      return {
+        title: brand.querySelector('strong')?.textContent || '',
+        tagline: brand.querySelector('.swsi-public-footer-tagline')?.textContent || '',
+        links: Array.from(brand.querySelectorAll('.swsi-public-footer-links button'))
+          .map(el => el.dataset.swsiPublicInfo),
+        legal: brand.querySelector('.swsi-public-footer-legal')?.textContent || ''
+      };
+    });
+    assert(footerInfo, 'compact public footer missing');
+    assert.strictEqual(footerInfo.title, 'SWSI 社工師國考', 'public footer title mismatch');
+    assert(footerInfo.tagline.includes('免費學習平台'), 'footer tagline missing');
+    assert.deepStrictEqual(footerInfo.links, ['about','sources','privacy','terms'],
+      'footer should show four concise public information links');
+    assert(/考選部/.test(footerInfo.legal) && /AI 回饋/.test(footerInfo.legal),
+      'official source and AI disclaimer must remain visible');
 
     // A late font/layout repaint can increase document height *after* the
     // first scroll. Re-scroll to the actual end, but retain the strict visual
@@ -137,9 +155,10 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await waitHome();
   await assertCompactHomeFooter();
 
-  // Public monitoring controls must remain clickable inside the modal.
+  // Monitoring stays available in the public information dialog, not the compact footer.
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  await page.getByRole('button', { name: '監測', exact: true }).click();
+  await page.locator('.swsi-public-footer-links [data-swsi-public-info="about"]').click();
+  await page.locator('#swsi-public-info-backdrop [data-swsi-info-nav="monitor"]').click();
   await page.waitForSelector('#swsi-public-monitor', { timeout: 10000 });
   await page.waitForFunction(() => {
     const root = document.querySelector('#swsi-public-monitor');
