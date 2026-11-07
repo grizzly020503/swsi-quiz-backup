@@ -33,6 +33,37 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
   await page.waitForFunction(() => Array.isArray(window.THEORIES) && window.SWSI_THEORY_TRUST && typeof window.SWSI_THEORY_TRUST.verifiedCount === 'function');
 
+  // Compact dictionary UI: overview is readable before opening; QA details are optional.
+  await page.evaluate(() => { theoryQ=''; theoryOpen=null; go('theories'); });
+  await page.waitForSelector('#app .swsi-theory-summary', { timeout: 30000 });
+  const summaries = page.locator('#app .swsi-theory-summary');
+  const totalTheoryCards = await page.locator('#app .ecard').count();
+  assert.strictEqual(await summaries.count(), totalTheoryCards, 'every theory card needs a one-line introduction');
+  assert.strictEqual(totalTheoryCards, 39, 'unexpected canonical theory card count');
+  const subtitle = await page.locator('#app .section-s').innerText();
+  assert.strictEqual(subtitle, '快速理解社工理論，連結歷屆試題。', 'dictionary subtitle should stay short');
+  assert(!/已逐卡核對|待逐卡複核/.test(subtitle), 'internal verification explanation should not crowd the list');
+  const firstSummary = await summaries.first().innerText();
+  assert(/家庭|學校|時代/.test(firstSummary), 'ecological theory summary is missing');
+  const firstCardHead = page.locator('#app .ecard').first().locator('.ehead');
+  assert(/相關試題/.test(await firstCardHead.innerText()), 'theory card should expose its existing question link');
+  assert.strictEqual(await firstCardHead.getAttribute('aria-expanded'), 'false');
+  await firstCardHead.press('Enter');
+  await page.waitForSelector('#app .ecard.open .swsi-theory-trust', { timeout: 30000 });
+  assert.strictEqual(await page.locator('#app .ecard.open .ehead').getAttribute('aria-expanded'), 'true');
+  assert(/從理論接到考題/.test(await page.locator('#app .ecard.open').first().innerText()), 'existing linked-question section missing');
+  const trust = page.locator('#app .ecard.open .swsi-theory-trust').first();
+  assert(/✓ 理論內容已逐卡核對/.test(await trust.locator('summary').innerText()), 'verification summary is still required');
+  assert.strictEqual(await trust.locator('.swsi-theory-trust-note').first().isVisible(), false, 'quality details should be collapsed initially');
+  await trust.locator('summary').click();
+  assert.strictEqual(await trust.locator('.swsi-theory-trust-note').first().isVisible(), true, 'verification details must remain accessible');
+
+  // Search still filters the canonical cards and keeps their introductions.
+  await page.evaluate(() => { theoryQ='增強權能'; theoryOpen=null; render(); });
+  await page.waitForSelector('#app .swsi-theory-summary');
+  assert((await page.locator('#app .ecard').count()) >= 1, 'filtered theory list empty');
+  assert(/資源/.test(await page.locator('#app .swsi-theory-summary').first().innerText()), 'filtered cards lost the summary');
+
   const stats = await page.evaluate(() => ({
     total: window.SWSI_THEORY_TRUST.totalCount(),
     verified: window.SWSI_THEORY_TRUST.verifiedCount(),
