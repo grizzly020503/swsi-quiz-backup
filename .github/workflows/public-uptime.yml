@@ -19,12 +19,14 @@ on:
       - 'scripts/public_uptime_smoke.py'
       - 'scripts/public_uptime_mode_selftest.py'
       - 'scripts/current_affairs_live_snapshot_parity.py'
+      - 'scripts/current_affairs_live_ui_parity.py'
   pull_request:
     paths:
       - '.github/workflows/public-uptime.yml'
       - 'scripts/public_uptime_smoke.py'
       - 'scripts/public_uptime_mode_selftest.py'
       - 'scripts/current_affairs_live_snapshot_parity.py'
+      - 'scripts/current_affairs_live_ui_parity.py'
 
 permissions:
   contents: read
@@ -55,9 +57,10 @@ jobs:
           python-version: '3.12'
       - name: Syntax check and independent probe regression (zero network)
         run: |
-          python -m py_compile scripts/public_uptime_smoke.py scripts/public_uptime_mode_selftest.py scripts/current_affairs_live_snapshot_parity.py
+          python -m py_compile scripts/public_uptime_smoke.py scripts/public_uptime_mode_selftest.py scripts/current_affairs_live_snapshot_parity.py scripts/current_affairs_live_ui_parity.py
           python scripts/public_uptime_mode_selftest.py
           python scripts/current_affairs_live_snapshot_parity.py --selftest
+          python scripts/current_affairs_live_ui_parity.py --selftest
       - name: Verify Cloudflare primary only (read-only)
         run: python scripts/public_uptime_smoke.py --monitoring-v2 --primary-only
 
@@ -85,6 +88,28 @@ jobs:
                   out.write('\n**Attention:** Cloudflare public snapshots are not proven identical to current main; a normal health-check success must not be treated as latest snapshot deployed.\n')
                   print('::warning title=SWSI snapshot freshness::Cloudflare current-affairs public snapshots are ' + status + ' relative to checked-out main; no deployment inferred.')
           print('SWSI MONITORING FRESHNESS DIAGNOSTIC:', status, '(does not contact Netlify)')
+          PY
+
+      - name: Diagnose actual Cloudflare current-affairs UI version (read-only, non-gating)
+        run: |
+          python scripts/current_affairs_live_ui_parity.py \
+            --live --cache-bust "$GITHUB_RUN_ID" \
+            --out /tmp/swsi-current-affairs-ui-live-parity.json
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          result=json.loads(Path('/tmp/swsi-current-affairs-ui-live-parity.json').read_text(encoding='utf-8'))
+          status=result['status']
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as out:
+              out.write('## Cloudflare current-affairs UI deployment parity (diagnostic)\n')
+              out.write('**' + status + '** — compares hosted UI renderer with current main; no deployment performed.\n\n')
+              for name, row in result.get('regions', {}).items():
+                  out.write('- ' + name + ': ' + row['status'] + '\n')
+              if status != 'MATCH':
+                  out.write('\n**Attention:** GitHub main UI is not proven deployed. Check Cloudflare build/version and publish through the controlled release path.\n')
+                  print('::warning title=SWSI UI deployment::Cloudflare current-affairs UI is ' + status + ' relative to checked-out main. No deployment inferred.')
+          print('SWSI UI DEPLOYMENT DIAGNOSTIC:', status)
           PY
 
       - name: Explain independent primary status
