@@ -41,6 +41,41 @@ def require_status(label: str, url: str, expected: int = 200, *, method: str = "
 
 
 
+def checked_question_manifest(value: object) -> tuple[int, int]:
+    """Current approved shape is 200 MCQs/session; historical 24 must remain.
+
+    Do not reject ROC 116+ just because the confirmed corpus grows beyond 4800.
+    This is a metadata check; publish QA independently hashes every shard.
+    """
+    if not isinstance(value, dict):
+        raise AssertionError("Question manifest: JSON object required")
+    shards = value.get("shards")
+    if not isinstance(shards, list) or len(shards) < 24:
+        raise AssertionError("Question manifest: historical shards missing")
+    if value.get("schema_version") != 1 or value.get("shard_count") != len(shards):
+        raise AssertionError("Question manifest: schema/shard_count mismatch")
+    if value.get("baseline_shard_count") != 24:
+        raise AssertionError("Question manifest: historical baseline count changed")
+    seen = set()
+    count = 0
+    for shard in shards:
+        if not isinstance(shard, dict):
+            raise AssertionError("Question manifest: shard record invalid")
+        name = shard.get("file")
+        if not isinstance(name, str) or not re.fullmatch(r"\d{3}-[12]\.json", name) or name in seen:
+            raise AssertionError("Question manifest: duplicate/invalid shard filename")
+        seen.add(name)
+        if shard.get("question_count") != 200:
+            raise AssertionError(f"Question manifest: incomplete approved session {name}")
+        count += 200
+    baseline = {f"{y}-{n}.json" for y in range(104, 116) for n in (1, 2)}
+    if not baseline.issubset(seen):
+        raise AssertionError("Question manifest: missing historical session")
+    if value.get("total_questions") != count or count < 4800:
+        raise AssertionError("Question manifest: total_questions/record count mismatch")
+    return count, len(shards)
+
+
 def expected_netlify_release_marker() -> str:
     source = Path(__file__).resolve().parents[1] / "index.html"
     html = source.read_text(encoding="utf-8")
@@ -106,13 +141,8 @@ def main() -> int:
 
         body, _ = require_status("Question manifest", PRIMARY + "/question-shards/manifest.json")
         questions = json.loads(body)
-        if int(questions.get("total_questions", -1)) != 4800:
-            raise AssertionError("Question manifest: total_questions != 4800")
-        if int(questions.get("shard_count", -1)) != 24:
-            raise AssertionError("Question manifest: shard_count != 24")
-        if len(questions.get("shards") or []) != 24:
-            raise AssertionError("Question manifest: shards length != 24")
-        checks.append("questions-4800-24")
+        question_total, session_total = checked_question_manifest(questions)
+        checks.append(f"questions-{question_total}-{session_total}")
 
         if args.monitoring_v2:
             body, _ = require_status("Current-affairs snapshot", PRIMARY + "/auto/current_affairs.json")
@@ -136,8 +166,9 @@ def main() -> int:
                 raise AssertionError("Current-affairs signals: schema_version != 1")
             if int(signals.get("item_count", -1)) != len(signal_items) or not signal_items:
                 raise AssertionError("Current-affairs signals: item_count mismatch or empty")
-            if int(signals.get("questions_loaded", -1)) != 4800:
-                raise AssertionError("Current-affairs signals: questions_loaded != 4800")
+            signal_count = int(signals.get("questions_loaded", -1))
+            if not 4800 <= signal_count <= question_total:
+                raise AssertionError("Current-affairs signals: historical baseline/available question count invalid")
             if signals.get("question_source") != "cdn/question-shards":
                 raise AssertionError("Current-affairs signals: unexpected question_source")
             if "不代表命題保證" not in str(signals.get("note") or ""):
@@ -161,7 +192,7 @@ def main() -> int:
                 breakdown = hist.get("match_breakdown") or {}
                 if set(breakdown) != {"strong", "medium", "concept"}:
                     raise AssertionError("Current-affairs signals: invalid historical match breakdown")
-            checks.append(f"signals-{len(signal_items)}/4800")
+            checks.append(f"signals-{len(signal_items)}/{signal_count}")
 
             body, _ = require_status("Current-affairs events", PRIMARY + "/auto/current_affairs_events.json")
             events = json.loads(body)
@@ -243,7 +274,7 @@ def main() -> int:
 
             body, _ = require_status("Question health", PRIMARY + "/auto/health.json")
             qhealth = json.loads(body)
-            if qhealth.get("status") != "ok" or int(qhealth.get("expected_total_questions", -1)) != 4800:
+            if qhealth.get("status") != "ok" or int(qhealth.get("expected_total_questions", -1)) != question_total:
                 raise AssertionError("Question health: contract mismatch")
             checks.append("question-health")
 

@@ -12,16 +12,29 @@ from unittest.mock import patch
 import public_uptime_smoke as uptime
 
 
-def fake_status(log):
+def fixture_manifest(*, future: bool = False) -> dict:
+    sessions = [(str(y), n) for y in range(104, 116) for n in (1, 2)]
+    if future:
+        sessions.append(("116", 1))
+    shards = [{"file": f"{year}-{rd}.json", "year": year,
+               "round": "第一次" if rd == 1 else "第二次", "question_count": 200}
+              for year, rd in sessions]
+    return {"schema_version": 1, "shard_count": len(shards),
+            "baseline_shard_count": 24, "total_questions": len(shards) * 200,
+            "shards": shards}
+
+
+def fake_status(log, *, future=False, manifest_override=None):
     def check(label, url, expected=200, *, method="GET", headers=None):
         log.append(label)
         mapping = {
             "Cloudflare home": b"<html>SWSI primary</html>",
             "PWA manifest": json.dumps({"display": "standalone", "start_url": "/"}).encode(),
             "Service Worker": b"const VERSION = 'v7';",
-            "Question manifest": json.dumps({
-                "total_questions": 4800, "shard_count": 24, "shards": [{}] * 24,
-            }).encode(),
+            "Question manifest": json.dumps(
+                manifest_override if manifest_override is not None
+                else fixture_manifest(future=future)
+            ).encode(),
             "AI preflight": b"",
             "Feedback preflight": b"",
             "Netlify fallback": b'<html><meta name="swsi-netlify-release" content="frozen-release">SWSI backup</html>',
@@ -51,6 +64,32 @@ def main() -> int:
     assert ok == 0 and "[primary]" in message, message
     assert "Cloudflare home" in primary and "AI preflight" in primary
     assert not any("Netlify" in name for name in primary), primary
+
+    # Legitimate ROC 116-1 must not trigger the historic 4800/24 false alarm.
+    next_exam = []
+    ok, message = run_mode(["--primary-only"], fake_status(next_exam, future=True))
+    assert ok == 0 and "questions-5000-25" in message, message
+    assert "Netlify fallback" not in next_exam
+
+    bad_manifest = fixture_manifest(future=True)
+    bad_manifest["shards"] = bad_manifest["shards"][1:]
+    bad_manifest["shard_count"] = 24
+    bad_manifest["total_questions"] = 4800
+    try:
+        run_mode(["--primary-only"], fake_status([], manifest_override=bad_manifest))
+    except AssertionError as exc:
+        assert "missing historical session" in str(exc), exc
+    else:
+        raise AssertionError("missing official historical session incorrectly passed")
+
+    duplicate = fixture_manifest()
+    duplicate["shards"][1]["file"] = duplicate["shards"][0]["file"]
+    try:
+        run_mode(["--primary-only"], fake_status([], manifest_override=duplicate))
+    except AssertionError as exc:
+        assert "duplicate/invalid shard" in str(exc), exc
+    else:
+        raise AssertionError("duplicate shard incorrectly passed")
 
     backup = []
     ok, message = run_mode(["--backup-only"], fake_status(backup))
