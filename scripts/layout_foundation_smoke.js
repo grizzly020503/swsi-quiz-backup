@@ -102,6 +102,8 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     if (options.focusedQuiz) {
       assert(s.tab && s.tab.rect, label + ': bottom nav element missing');
       assert.strictEqual(s.tab.display, 'none', label + ': focused quiz should hide bottom nav');
+      assert(s.wrap.paddingBottom >= 12 && s.wrap.paddingBottom <= 52,
+        label + ': quiz still reserves hidden bottom navigation space: ' + s.wrap.paddingBottom + 'px');
     } else {
       assertDocked(s, label);
     }
