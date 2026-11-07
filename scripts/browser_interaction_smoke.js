@@ -159,6 +159,10 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     assert(clearance, 'footer brand or bottom nav missing');
     assert(clearance.brandBottom <= clearance.tabTop + 1,
       'footer content is covered by fixed bottom navigation: brandBottom='+clearance.brandBottom+' tabTop='+clearance.tabTop);
+    assert(clearance.tabTop - clearance.brandBottom <= 32,
+      'home has an oversized empty slab below the footer: '+(clearance.tabTop-clearance.brandBottom)+'px');
+    assert(clearance.tabTop - clearance.brandBottom >= 8,
+      'home footer is too close to the fixed navigation: '+(clearance.tabTop-clearance.brandBottom)+'px');
     await page.evaluate(() => window.scrollTo(0, 0));
   }
 
