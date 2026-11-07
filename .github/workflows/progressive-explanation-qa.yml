@@ -9,9 +9,11 @@ on:
       - 'monthly_patch_parts/86.law-trust-ui.part'
       - 'monthly_patch_parts/88.theory-trust-ui.part'
       - 'monthly_patch_parts/zzzz_product_v1_lock.part'
+      - 'monthly_patch_parts/80.knowledge-path.part'
       - 'scripts/progressive_explanation_contract.py'
       - 'scripts/question_trust_labels_contract.py'
       - 'scripts/law_update_notice_smoke.js'
+      - 'scripts/question_study_links_smoke.js'
       - 'scripts/historical_law_student_surface_contract.py'
       - 'scripts/historical_law_student_surface_sync.py'
       - 'scripts/historical_law_evidence_adjudication.py'
@@ -52,6 +54,7 @@ jobs:
           python scripts/progressive_explanation_contract.py
           python scripts/question_trust_labels_contract.py
           node scripts/law_update_notice_smoke.js
+          node scripts/question_study_links_smoke.js
           python scripts/historical_law_student_surface_sync.py --check
           python scripts/historical_law_student_surface_contract.py
           python scripts/learning_loop_closed_contract.py
