@@ -37,9 +37,10 @@ def snapshot_publish_contract_smoke(workflow: str) -> None:
     expected = {
         "auto/current_affairs.json", "auto/current_affairs_signals.json",
         "auto/current_affairs_events.json", "auto/current_affairs_trends.json",
+        "auto/major_social_work_events.json",
         "auto/legal_watch.json", "cdn/auto/current_affairs.json",
         "cdn/auto/current_affairs_signals.json", "cdn/auto/current_affairs_events.json",
-        "cdn/auto/current_affairs_trends.json", "cdn/auto/legal_watch.json",
+        "cdn/auto/current_affairs_trends.json", "cdn/auto/major_social_work_events.json", "cdn/auto/legal_watch.json",
         "cdn/auto/health.json", "cdn/auto/sync_state.json",
     }
     with tempfile.TemporaryDirectory(prefix="swsi-monitoring-stage-") as tmp:
@@ -93,6 +94,17 @@ def main() -> int:
     news = read_json("auto/current_affairs.json")
     events = read_json("auto/current_affairs_events.json")
     trends = read_json("auto/current_affairs_trends.json")
+    major = read_json("auto/major_social_work_events.json")
+    cdn_major = read_json("cdn/auto/major_social_work_events.json")
+    assert major == cdn_major, "auto/CDN major archive mismatch"
+    assert major.get("schema_version") == 1
+    assert major.get("selection_method") == "major-social-work-v1"
+    assert int(major.get("event_count") or 0) == len(major.get("events") or [])
+    assert all(row.get("admission_rule") == "major-social-work-v1"
+               and len(row.get("evidence") or []) >= 2
+               and len(row.get("practice_essays") or []) == 2
+               and all(q.get("type") == "practice_only" for q in row["practice_essays"])
+               for row in (major.get("events") or []))
     laws = read_json("auto/legal_watch.json")
     health = read_json("auto/health.json")
     sync = read_json("auto/sync_state.json")
