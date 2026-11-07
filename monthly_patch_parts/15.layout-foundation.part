@@ -92,7 +92,7 @@
       }
       body[data-swsi-page="home"] footer{
         margin-top:12px!important;
-        padding-bottom:18px!important;
+        padding-bottom:8px!important;
       }
 
       /* Loading keeps the shell stable: the flexible main pushes attribution
@@ -118,7 +118,7 @@
         }
       }
       @media(max-width:420px){
-        :root{--swsi-tabbar-clearance:calc(88px + env(safe-area-inset-bottom,0px));}
+        :root{--swsi-tabbar-clearance:calc(80px + env(safe-area-inset-bottom,0px));}
       }
       html[data-fs="2"]{
         --swsi-tabbar-clearance:calc(94px + env(safe-area-inset-bottom,0px));
