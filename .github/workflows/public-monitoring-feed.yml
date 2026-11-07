@@ -37,6 +37,9 @@ on:
       - 'scripts/current_affairs_snapshot_smoke.py'
       - 'scripts/current_affairs_event_cluster.py'
       - 'scripts/build_current_affairs_events_snapshot.py'
+      - 'scripts/major_social_work_events.py'
+      - 'scripts/major_social_work_events_smoke.py'
+      - 'data/major_event_blocklist.json'
       - 'scripts/build_current_affairs_trends_snapshot.py'
       - 'scripts/analyze_current_affairs_signals.py'
       - 'scripts/build_current_affairs_signals_snapshot.py'
@@ -62,6 +65,9 @@ on:
       - 'scripts/current_affairs_snapshot_smoke.py'
       - 'scripts/current_affairs_event_cluster.py'
       - 'scripts/build_current_affairs_events_snapshot.py'
+      - 'scripts/major_social_work_events.py'
+      - 'scripts/major_social_work_events_smoke.py'
+      - 'data/major_event_blocklist.json'
       - 'scripts/build_current_affairs_trends_snapshot.py'
       - 'scripts/current_affairs_events_smoke.py'
       - 'scripts/analyze_current_affairs_signals.py'
@@ -78,6 +84,7 @@ on:
       - 'auto/current_affairs.json'
       - 'auto/current_affairs_signals.json'
       - 'auto/current_affairs_events.json'
+      - 'auto/major_social_work_events.json'
       - 'auto/current_affairs_trends.json'
       - 'cdn/question-shards/**'
       - 'auto/legal_watch.json'
@@ -136,6 +143,10 @@ jobs:
             --events /tmp/swsi-monitoring-pr/current_affairs_events.json \
             --output /tmp/swsi-monitoring-pr/current_affairs_trends.json \
             --limit 30
+          cp auto/major_social_work_events.json /tmp/swsi-monitoring-pr/major_social_work_events.json
+          python scripts/major_social_work_events.py \
+            --events /tmp/swsi-monitoring-pr/current_affairs_events.json \
+            --output /tmp/swsi-monitoring-pr/major_social_work_events.json
           python scripts/build_public_legal_watch_snapshot.py \
             --input data/legal_watch_report.json \
             --output /tmp/swsi-monitoring-pr/legal_watch.json
@@ -206,6 +217,8 @@ jobs:
             scripts/current_affairs_snapshot_smoke.py \
             scripts/current_affairs_event_cluster.py \
             scripts/build_current_affairs_events_snapshot.py \
+            scripts/major_social_work_events.py \
+            scripts/major_social_work_events_smoke.py \
             scripts/build_current_affairs_trends_snapshot.py \
             scripts/current_affairs_events_smoke.py \
             scripts/build_public_legal_watch_snapshot.py \
@@ -218,6 +231,7 @@ jobs:
           python scripts/current_affairs_degraded_guard.py --selftest
           python scripts/current_affairs_signals_smoke.py
           python scripts/current_affairs_events_smoke.py
+          python scripts/major_social_work_events_smoke.py
           python -m py_compile scripts/monitoring_snapshot_noop_guard.py
           python scripts/monitoring_snapshot_noop_guard.py --selftest
           git diff --check
@@ -313,6 +327,9 @@ jobs:
             --events auto/current_affairs_events.json \
             --output auto/current_affairs_trends.json \
             --limit 30
+          python scripts/major_social_work_events.py \
+            --events auto/current_affairs_events.json \
+            --output auto/major_social_work_events.json
           python scripts/build_public_legal_watch_snapshot.py \
             --input data/legal_watch_report.json \
             --output auto/legal_watch.json
@@ -322,6 +339,7 @@ jobs:
           cp auto/current_affairs_signals.json cdn/auto/current_affairs_signals.json
           cp auto/current_affairs_events.json cdn/auto/current_affairs_events.json
           cp auto/current_affairs_trends.json cdn/auto/current_affairs_trends.json
+          cp auto/major_social_work_events.json cdn/auto/major_social_work_events.json
           cp auto/legal_watch.json cdn/auto/legal_watch.json
           cp auto/health.json cdn/auto/health.json
           cp auto/sync_state.json cdn/auto/sync_state.json
@@ -339,6 +357,8 @@ jobs:
             scripts/current_affairs_snapshot_smoke.py \
             scripts/current_affairs_event_cluster.py \
             scripts/build_current_affairs_events_snapshot.py \
+            scripts/major_social_work_events.py \
+            scripts/major_social_work_events_smoke.py \
             scripts/build_current_affairs_trends_snapshot.py \
             scripts/current_affairs_events_smoke.py \
             scripts/build_public_legal_watch_snapshot.py \
@@ -351,6 +371,7 @@ jobs:
           python scripts/current_affairs_degraded_guard.py --selftest
           python scripts/current_affairs_signals_smoke.py
           python scripts/current_affairs_events_smoke.py
+          python scripts/major_social_work_events_smoke.py
           python -m py_compile scripts/monitoring_snapshot_noop_guard.py
           python scripts/monitoring_snapshot_noop_guard.py --selftest
           git diff --check
@@ -380,9 +401,9 @@ jobs:
           git config user.email 'actions@users.noreply.github.com'
           git add \
             auto/current_affairs.json auto/current_affairs_signals.json \
-            auto/current_affairs_events.json auto/current_affairs_trends.json auto/legal_watch.json \
+            auto/current_affairs_events.json auto/current_affairs_trends.json auto/major_social_work_events.json auto/legal_watch.json \
             cdn/auto/current_affairs.json cdn/auto/current_affairs_signals.json \
-            cdn/auto/current_affairs_events.json cdn/auto/current_affairs_trends.json cdn/auto/legal_watch.json \
+            cdn/auto/current_affairs_events.json cdn/auto/current_affairs_trends.json cdn/auto/major_social_work_events.json cdn/auto/legal_watch.json \
             cdn/auto/health.json cdn/auto/sync_state.json
           if git diff --cached --quiet; then
             echo 'Public monitoring snapshots unchanged.'
