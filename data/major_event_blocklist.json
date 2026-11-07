@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "blocked_event_ids": [],
+  "note": "若查證遭撤回、重大事實有爭議或不適合公開，將 canonical_event_id 加入此名單；不允許強制通過門檻。"
+}
