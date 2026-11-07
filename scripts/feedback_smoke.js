@@ -116,7 +116,7 @@ async function optionTexts(page) {
   await page.locator('#t-review').click();
   await page.waitForSelector('.swsi-myhub-more', { timeout: 10000 });
   await page.locator('.swsi-myhub-more > summary').click();
-  const generalFeedback = page.locator('.swsi-myhub-more .swsi-myhub-row[onclick*="swsiOpenReport"]');
+  const generalFeedback = page.locator('.swsi-myhub-more .swsi-myhub-row[onclick*="swsiOpenGeneralReport"]');
   await generalFeedback.waitFor({ state: 'visible', timeout: 10000 });
   assert.strictEqual(await page.evaluate(() => window.SWSI_FEEDBACK.currentContext().context_type), 'general',
     'learning hub must clear stale essay/theory/law context before general reporting');
