@@ -29,6 +29,12 @@ concurrency:
 
 jobs:
   publish:
+    # A failed MOEX import must not launch another shard rebuild or produce a
+    # misleading secondary production alert. Manual/main runs remain supported.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -50,6 +56,12 @@ jobs:
 
       - name: Build verified shards
         run: python scripts/build_question_shards.py --output-dir /tmp/question-shards
+
+      - name: Verify generated complete shards before possible publication
+        run: |
+          set -euo pipefail
+          python scripts/question_shard_release_acceptance.py --selftest
+          python scripts/question_shard_release_acceptance.py --local --root /tmp/question-shards
 
       - name: Resolve expected production revision
         id: revision
@@ -291,6 +303,19 @@ jobs:
           assert d.get('error',{}).get('message') == '最多一次上傳 3 張照片。', d
           print('AI public image guard runtime OK: fourth image -> 400')
           PY
+
+      - name: Verify ALL hosted exam shards including newly added sessions
+        # Only the owning publisher knows when its GITHUB_TOKEN commit deployed.
+        # The compare reads all public shard bytes and never writes student data.
+        if: >-
+          (github.event_name == 'workflow_run' &&
+           github.event.workflow_run.conclusion == 'success' &&
+           github.event.workflow_run.head_branch == 'main') ||
+          (github.event_name != 'workflow_run' && github.ref == 'refs/heads/main')
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          python scripts/question_shard_release_acceptance.py --live --check "$GITHUB_RUN_ID"
 
       # GITHUB_TOKEN-originated publisher commits do not trigger downstream push QA.
       # Therefore live auto snapshot verification MUST happen in this same owning
