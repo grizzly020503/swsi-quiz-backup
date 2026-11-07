@@ -124,6 +124,8 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       };
     });
     assert(footerInfo, 'compact public footer missing');
+    assert.strictEqual(await page.locator('.wrap > footer .swsi-report-footer-btn').count(), 0,
+      'standalone footer feedback row causes an unnecessary blank block');
     assert.strictEqual(footerInfo.title, 'SWSI 社工師國考', 'public footer title mismatch');
     assert(footerInfo.tagline.includes('免費學習平台'), 'footer tagline missing');
     assert.deepStrictEqual(footerInfo.links, ['about','sources','privacy','terms'],
