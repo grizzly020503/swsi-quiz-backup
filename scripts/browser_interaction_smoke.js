@@ -100,6 +100,17 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       return { gap: fr.top - ar.bottom, tabDisplay: getComputedStyle(tab).display };
     });
     assert(layout, 'home/footer layout elements missing');
+    const probe = await page.evaluate(() => {
+      const sel = s => document.querySelector(s);
+      const r = el => { const a=el.getBoundingClientRect();return {top:Math.round(a.top),bottom:Math.round(a.bottom),height:Math.round(a.height)}; };
+      const wrap=sel('.wrap'),app=sel('#app'),footer=sel('.wrap > footer'),nav=sel('.tabbar'),brand=sel('.swsi-public-footer-brand');
+      return {viewport:innerHeight,scrollHeight:document.scrollingElement.scrollHeight,
+        scrollY:scrollY,wrap:r(wrap),app:r(app),footer:r(footer),brand:r(brand),nav:r(nav),
+        wrapPadding:getComputedStyle(wrap).paddingBottom,footerMargin:getComputedStyle(footer).marginTop,
+        page:document.body.dataset.swsiPage};
+    });
+    console.log('SWSI HOME FOOTER GAP PROBE '+JSON.stringify(probe));
+
     assert(layout.gap <= 48, 'home leaves an artificial blank slab before footer: '+layout.gap+'px');
     const footerInfo = await page.evaluate(() => {
       const brand = document.querySelector('.swsi-public-footer-brand');
