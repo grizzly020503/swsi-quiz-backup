@@ -3652,11 +3652,16 @@ html[data-fs="2"]{
     var st=document.createElement('style');
     st.id=STYLE_ID;
     st.textContent=`
-      .swsi-public-footer-brand{font-family:'Noto Sans TC',sans-serif;font-size:10.8px;line-height:1.7;color:var(--ink-soft)}
-      .swsi-public-footer-brand strong{font-family:'Noto Serif TC',serif;color:var(--ink);font-size:11.5px}
-      .swsi-public-footer-links{display:flex;justify-content:center;align-items:center;gap:4px 10px;flex-wrap:wrap;margin-top:5px}
-      .swsi-public-footer-links button{border:0;background:transparent;color:#68736E;font:700 10.8px/1.45 'Noto Sans TC',sans-serif;cursor:pointer;padding:4px 2px;text-decoration:underline;text-decoration-color:#B9C2BD;text-underline-offset:3px}
-      .swsi-public-footer-links button:hover,.swsi-public-footer-links button:focus-visible{color:var(--pine-deep)}
+      .swsi-public-footer-brand{font-family:'Noto Sans TC',sans-serif;color:var(--ink-soft);font-size:11px;line-height:1.5;text-align:center;max-width:480px;margin:0 auto}
+      .swsi-public-footer-brand strong{display:block;font-family:'Noto Sans TC',sans-serif;color:var(--ink);font-weight:800;font-size:13px;line-height:1.5}
+      .swsi-public-footer-tagline{margin-top:3px;font-size:11px;line-height:1.6;color:var(--ink-soft)}
+      .swsi-public-footer-links{display:flex;justify-content:center;align-items:center;gap:0 10px;flex-wrap:wrap;margin-top:5px}
+      .swsi-public-footer-links button{border:0;background:transparent;color:#527167;font:700 11px/1.45 'Noto Sans TC',sans-serif;cursor:pointer;min-height:40px;padding:8px 2px;text-decoration:none}
+      .swsi-public-footer-links button+button:before{content:'·';display:inline-block;color:#9AA9A1;margin-right:12px}
+      .swsi-public-footer-links button:hover,.swsi-public-footer-links button:focus-visible{color:var(--pine-deep);text-decoration:underline;text-underline-offset:3px}
+      .swsi-public-footer-links button:focus-visible{outline:2px solid var(--pine);outline-offset:2px;border-radius:4px}
+      .swsi-public-footer-legal{font-size:10px;line-height:1.6;color:#78817B}
+      @media(max-width:370px){.swsi-public-footer-links{column-gap:7px}.swsi-public-footer-links button+button:before{margin-right:8px}}
       .swsi-public-info-backdrop{position:fixed;inset:0;z-index:990;background:rgba(25,31,28,.4);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px)}
       .swsi-public-info-dialog{width:min(100%,540px);max-height:min(86vh,760px);max-height:min(86dvh,760px);overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:20px;box-shadow:0 22px 60px rgba(25,31,28,.22);padding:19px 18px;color:var(--ink);font-family:'Noto Sans TC',sans-serif;overscroll-behavior:contain}
       .swsi-public-info-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
@@ -3782,18 +3787,15 @@ html[data-fs="2"]{
     var box=document.createElement('div');
     box.className='swsi-public-footer-brand';
     box.innerHTML=`
-      <strong>SWSI — Social Work Study Initiative</strong><br>
-      社工師國考免費學習平台<br>
-      免費公開學習工具 · AI 協作開發
+      <strong>SWSI 社工師國考</strong>
+      <div class="swsi-public-footer-tagline">免費學習平台 · 讓每一次練習，都更接近上榜</div>
       <div class="swsi-public-footer-links" aria-label="SWSI 公開資訊">
-        <button type="button" data-swsi-public-info="about">關於 SWSI</button>
+        <button type="button" data-swsi-public-info="about">關於</button>
         <button type="button" data-swsi-public-info="sources">資料來源</button>
-        <button type="button" data-swsi-public-info="monitor">監測</button>
         <button type="button" data-swsi-public-info="privacy">隱私</button>
         <button type="button" data-swsi-public-info="terms">使用條款</button>
       </div>
-      <div style="margin-top:3px">© 2026 SWSI · 免費公開學習工具</div>
-      <div>正式考題以考選部官方資料為準；AI 回饋僅供練習參考</div>
+      <div class="swsi-public-footer-legal">© 2026 SWSI · 正式考題以考選部為準，AI 回饋供參考</div>
     `;
     while(f.firstChild)f.removeChild(f.firstChild);
     f.appendChild(box);
