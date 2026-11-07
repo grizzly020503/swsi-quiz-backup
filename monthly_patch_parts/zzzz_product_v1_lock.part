@@ -387,7 +387,7 @@
     cleanFooter();
     enhanceHome();
     collapseExplanation();
-    if(typeof window.swsiDecorateLearningConnections==='function')window.swsiDecorateLearningConnections();
+    try{document.dispatchEvent(new Event('swsi:learning-surface-ready'));}catch(_e){}
   }
 
   enhance();
