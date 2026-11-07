@@ -51,6 +51,15 @@
       .swsi-k-net .swsi-k-question{background:transparent}
       .swsi-k-search-all{width:100%;min-height:42px;border:1px solid #CAD8D1;border-radius:10px;background:transparent;color:var(--pine-deep);font-family:'Noto Sans TC',sans-serif;font-size:12.5px;font-weight:800;cursor:pointer;margin-bottom:8px}
 
+
+      /* In-context learning links stay collapsed until the student asks for more. */
+      .swsi-related-learning{margin:12px 0;border:1px solid #DCE6E0;border-radius:12px;background:#FAFCFA;color:var(--ink);overflow:hidden}
+      .swsi-related-learning>summary{cursor:pointer;list-style-position:inside;padding:11px 12px;font:750 12.5px/1.65 'Noto Sans TC',sans-serif;color:var(--pine-deep)}
+      .swsi-related-learning .swsi-related-body{border-top:1px solid #E1E9E3;padding:11px 12px;display:grid;gap:7px}
+      .swsi-related-learning .swsi-related-note{font:400 11px/1.6 'Noto Sans TC',sans-serif;color:var(--ink-soft);margin:2px 0}
+      .swsi-related-learning button{display:block;width:100%;min-height:40px;border:1px solid #DFE8E2;border-radius:9px;background:#fff;padding:9px 11px;text-align:left;color:var(--pine-deep);font:700 12.5px/1.55 'Noto Sans TC',sans-serif;cursor:pointer}
+      .swsi-related-learning button:hover{border-color:#9ABAAF;background:#F7FAF8}
+      .swsi-related-learning button:focus-visible{outline:2px solid var(--pine-deep);outline-offset:2px}
       .swsi-k-pagelead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 12px;border-bottom:1px solid #E5E9E6;padding-bottom:7px}
       .swsi-k-pagelead button{border:none;background:none;color:var(--pine-deep);font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:700;cursor:pointer;padding:5px 0}
       @media(max-width:370px){.swsi-k-sec-h{display:block}.swsi-k-sec-h span{display:block;margin-top:2px}.swsi-k-counts{gap:9px}}
@@ -355,5 +364,129 @@
     }
     var sub=document.querySelector('#app .section-s');if(sub)sub.innerHTML='先理解理論，再直接看它和哪些歷屆選擇題、申論與法規連在一起。';
   };
+
+  /* SWSI RELATED LEARNING START 2026-11-07
+     Explicit metadata and exact topic matching only. No model-inferred links,
+     no edits to official question/answer data, and no extra network requests. */
+  function swsiRelatedTheory(item){
+    var label=String(item&&item.topic||'');
+    var keys=A(item&&item.keywords),explicit=A(item&&item.theories);
+    var candidates=[];
+    try{candidates=THEORIES.filter(function(t){
+      var name=N(t&&t.n);
+      return name.length>=4 && (
+        explicit.some(function(v){return N(v)===name;}) ||
+        (label&&N(label).indexOf(name)>=0) ||
+        keys.some(function(v){return N(v)===name;})
+      );
+    });}catch(_e){}
+    candidates.sort(function(a,b){return N(b.n).length-N(a.n).length;});
+    return candidates[0]||null;
+  }
+  function swsiRelatedLaw(item){
+    var tags=[String(item&&item.law||'')].concat(A(item&&item.laws));
+    var candidates=[];
+    try{candidates=LAWS.filter(function(l){
+      var name=N(l&&l.n);
+      return name.length>=4&&tags.some(function(v){
+        var tag=N(v);
+        return tag===name || (tag.length>name.length&&tag.indexOf(name)>=0);
+      });
+    });}catch(_e){}
+    candidates.sort(function(a,b){return N(b.n).length-N(a.n).length;});
+    return candidates[0]||null;
+  }
+  function swsiRelatedTopic(item){
+    var topic=N(item&&item.topic||'');
+    return topic.length>=6?topic:'';
+  }
+  function swsiRelatedMcqs(item,theory,law){
+    var topic=swsiRelatedTopic(item),key=String(item&&item.id||'');
+    var tn=theory?N(theory.n):'',ln=law?N(law.n):'',rows=[];
+    try{rows=ALL.filter(function(q){
+      if(!q||String(q.id||'')===key)return false;
+      if(ln&&N(q.law||'').indexOf(ln)>=0)return true;
+      if(tn&&((N(q.topic||'').indexOf(tn)>=0)||
+        A(q.keywords).some(function(v){return N(v)===tn;})))return true;
+      return topic&&N(q.topic||'')===topic;
+    });}catch(_e){}
+    return rows.sort(function(a,b){return yearNum(b.year)-yearNum(a.year);}).slice(0,60);
+  }
+  function swsiRelatedEssays(item,theory,law){
+    var topic=swsiRelatedTopic(item),key=String(item&&item.id||'');
+    var tn=theory?N(theory.n):'',ln=law?N(law.n):'',rows=[];
+    try{rows=ESSAYS.filter(function(e){
+      if(!e||String(e.id||'')===key)return false;
+      if(tn&&A(e.theories).some(function(v){return N(v)===tn;}))return true;
+      if(ln&&A(e.laws).some(function(v){return N(v)===ln;}))return true;
+      return topic&&N(e.topic||'')===topic;
+    });}catch(_e){}
+    return rows.sort(function(a,b){return yearNum(b.year)-yearNum(a.year);}).slice(0,30);
+  }
+  function swsiRelatedElement(item,kind){
+    var theory=swsiRelatedTheory(item),law=swsiRelatedLaw(item);
+    var mcqs=swsiRelatedMcqs(item,theory,law),essays=swsiRelatedEssays(item,theory,law);
+    if(!theory&&!law&&!mcqs.length&&!essays.length)return null;
+    var panel=document.createElement('details');
+    panel.className='swsi-related-learning';
+    panel.setAttribute('aria-label','延伸學習與相關考題');
+    var summary=document.createElement('summary');
+    summary.textContent='延伸學習 · 相關考題';
+    panel.appendChild(summary);
+    var body=document.createElement('div');body.className='swsi-related-body';
+    panel.appendChild(body);
+    function addButton(label,action){
+      var btn=document.createElement('button');btn.type='button';
+      btn.textContent=label;btn.addEventListener('click',function(ev){ev.stopPropagation();action();});
+      body.appendChild(btn);
+    }
+    if(theory)addButton('📘 看理論：'+theory.n,function(){window.swsiOpenTheoryEncoded(E(theory.n));});
+    if(law)addButton('⚖ 看法規：'+law.n,function(){window.swsiOpenLawEncoded(E(law.n));});
+    if(mcqs.length){
+      addButton('練同考點選擇題（'+mcqs.length+' 題）',function(){
+        if(kind==='mcq'){
+          try{
+            if(typeof confirm==='function'&&!confirm('將開始另一組題目，離開目前的練習，確定繼續？'))return;
+          }catch(_e){return;}
+        }
+        var ids=new Set(mcqs.map(function(x){return x.id;}));
+        if(typeof startQuiz==='function')startQuiz(function(q){return ids.has(q.id);},10);
+      });
+    }
+    essays.slice(0,2).forEach(function(e){
+      addButton('✍ 相關申論：'+sn(e.topic||e.q||'申論題',34),function(){
+        window.swsiOpenEssayEncoded(E(e.id),E(e.subject||'全部科目'));
+      });
+    });
+    var foot=document.createElement('p');foot.className='swsi-related-note';
+    foot.textContent='依題目標籤自動關聯，供延伸學習；不代表考選部認定的考點或已完成法規核對。';
+    body.appendChild(foot);
+    return panel;
+  }
+  window.swsiDecorateLearningConnections=function(){
+    try{
+      var exp=document.querySelector('#app .qcard .exp');
+      if(exp&&!exp.querySelector(':scope > .swsi-related-learning')){
+        var item=null;
+        try{if(typeof answered!=='undefined'&&answered&&typeof queue!=='undefined')item=queue[idx];}catch(_e){}
+        if(item){
+          var box=swsiRelatedElement(item,'mcq');
+          if(box){
+            var anchor=exp.querySelector(':scope > .swsi-answer-trust, :scope > .swsi-explanation-more, :scope > .btn');
+            if(anchor)exp.insertBefore(box,anchor);else exp.appendChild(box);
+          }
+        }
+      }
+      if(typeof view==='undefined'||view!=='essay'||typeof openEssay==='undefined'||!openEssay)return;
+      var essay=null;
+      try{essay=ESSAYS.find(function(e){return e&&e.id===openEssay;});}catch(_e){}
+      if(!essay)return;
+      var body=document.querySelector('#app .ecard.open .ebodywrap');
+      if(!body||body.querySelector(':scope > .swsi-related-learning'))return;
+      var extra=swsiRelatedElement(essay,'essay');
+      if(extra)body.appendChild(extra);
+    }catch(err){console.warn('[SWSI] related learning unavailable',err);}
+  };
+  /* SWSI RELATED LEARNING END */
 
 })();
