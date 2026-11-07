@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Read-only live parity check for SWSI Cloudflare production assets and Worker guards."""
+# Post-release #554: GitHub Actions invokes this same read-only contract against hosted main.
 
 from __future__ import annotations
 
