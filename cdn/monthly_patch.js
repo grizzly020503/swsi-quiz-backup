@@ -1298,15 +1298,6 @@ main [style*="font-size:15px"]{
         padding-bottom:8px!important;
       }
 
-      /* The focused quiz hides the fixed tab bar. Do not leave its 80px
-         reservation under the Next button; retain only the device safe area. */
-      body[data-swsi-page="quiz"] .wrap{
-        padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))!important;
-      }
-      body[data-swsi-page="quiz"] main{
-        padding-bottom:18px!important;
-      }
-
       /* Loading keeps the shell stable: the flexible main pushes attribution
          toward the lower part of the viewport without arbitrary spacer pixels. */
       body[data-swsi-page="loading"] main{flex:1 0 auto!important;}
