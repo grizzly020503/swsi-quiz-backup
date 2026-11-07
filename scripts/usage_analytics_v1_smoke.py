@@ -29,6 +29,8 @@ for forbidden in ['ip_address text', 'user_agent text', 'email text', 'name text
     assert forbidden not in migration.lower(), forbidden
 
 assert 'PRODUCTION_ORIGIN = "https://wandering-wave-4418.c022050333.workers.dev"' in usage_fn
+assert 'BACKUP_ORIGIN = "https://swsi-quiznetlify.netlify.app"' in usage_fn
+assert 'p_site_origin: origin' in usage_fn
 assert 'body.event !== "page_view"' in usage_fn
 assert 'sha256Hex(clientId)' in usage_fn
 assert 'User-Agent' not in usage_fn
@@ -38,7 +40,7 @@ assert 'analyticsRes.error ? "unavailable" : "enabled"' in admin_fn
 
 for text in [owner, cdn_patch]:
     assert 'SWSI Anonymous Usage Analytics V1 2026-09-02' in text
-    assert "if(location.origin!==PRODUCTION_ORIGIN)return;" in text
+    assert "if(location.origin!==PRODUCTION_ORIGIN&&location.origin!==BACKUP_ORIGIN)return;" in text
     assert "'X-SWSI-Client-ID':client" in text
     assert "body:'{\"event\":\"page_view\"}'" in text
     assert 'window.swsiGetClientId()' in text

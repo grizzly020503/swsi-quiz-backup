@@ -13,7 +13,7 @@ Provide operationally useful aggregate usage counts in the protected SWSI Admin 
 - Cumulative page views since activation
 - Daily users/page views for the latest 7 days
 
-A "user" is an anonymous browser identifier, not a verified human identity. One person using multiple browsers/devices can count more than once. Clearing site storage can create a new identifier.
+A "user" is an anonymous browser identifier, not a verified human identity. One person using multiple browsers/devices can count more than once. Clearing site storage can create a new identifier. Separate domains also create separate anonymous IDs, so the combined cross-site count is an estimate of site-browser pairs, not deduplicated humans.
 
 ## What is stored
 
@@ -22,6 +22,7 @@ The browser already has a random SWSI client ID for existing AI/feedback rate-li
 The analytics table stores only:
 
 - Taiwan usage date
+- Which official SWSI site received the page view
 - SHA-256 client hash
 - daily page-view count
 - first/last seen timestamps
@@ -30,13 +31,14 @@ It does not add fields for name, email, account ID, raw IP address, User-Agent, 
 
 ## Collection boundary
 
-The public runtime sends analytics only when `location.origin` exactly matches:
+The public runtime sends analytics only when `location.origin` exactly matches one of two deployed production origins:
 
-`https://wandering-wave-4418.c022050333.workers.dev`
+- Primary: `https://wandering-wave-4418.c022050333.workers.dev`
+- Backup: `https://swsi-quiznetlify.netlify.app`
 
-Cloudflare branch previews, Netlify, localhost and other origins do not send analytics. This prevents QA/preview traffic from inflating production counts.
+Cloudflare previews, Netlify deploy previews, localhost and all other origins do not send analytics. This prevents QA/preview traffic from inflating production counts.
 
-The Edge Function independently enforces the same production Origin and accepts only a small `page_view` event body plus the anonymous client ID header.
+The Edge Function independently enforces the allowlist and uses the browser's actual request Origin as the site label. The browser cannot choose a different site through the event body. The existing Cloudflare rows are preserved as primary-site history. Netlify history starts only after backup deployment.
 
 ## Accuracy and abuse boundary
 

@@ -2,11 +2,13 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const PRODUCTION_ORIGIN = "https://wandering-wave-4418.c022050333.workers.dev";
+const BACKUP_ORIGIN = "https://swsi-quiznetlify.netlify.app";
+const ALLOWED_ORIGINS = new Set([PRODUCTION_ORIGIN, BACKUP_ORIGIN]);
 const CLIENT_RE = /^[A-Za-z0-9_-]{16,128}$/;
 
 function cors(origin: string) {
   return {
-    "Access-Control-Allow-Origin": origin === PRODUCTION_ORIGIN ? origin : "",
+    "Access-Control-Allow-Origin": ALLOWED_ORIGINS.has(origin) ? origin : "",
     "Access-Control-Allow-Headers": "content-type, x-swsi-client-id",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Max-Age": "86400",
@@ -30,7 +32,7 @@ async function sha256Hex(input: string) {
 
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("Origin") || "";
-  if (origin !== PRODUCTION_ORIGIN) {
+  if (!ALLOWED_ORIGINS.has(origin)) {
     return new Response(JSON.stringify({ error: "forbidden_origin" }), {
       status: 403,
       headers: { "Content-Type": "application/json; charset=utf-8", "Vary": "Origin" },
@@ -75,7 +77,7 @@ Deno.serve(async (req: Request) => {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const { error } = await db.rpc("record_swsi_usage", { p_client_hash: clientHash });
+  const { error } = await db.rpc("record_swsi_usage", { p_client_hash: clientHash, p_site_origin: origin });
   if (error) {
     console.error("[swsi-usage] record failed", { code: String(error.code || "unknown") });
     return json(origin, { error: "record_failed" }, 503);

@@ -4614,8 +4614,9 @@ html[data-fs="2"]{
 (function(){
   'use strict';
   var PRODUCTION_ORIGIN='https://wandering-wave-4418.c022050333.workers.dev';
+  var BACKUP_ORIGIN='https://swsi-quiznetlify.netlify.app';
   var ENDPOINT='https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-usage';
-  if(location.origin!==PRODUCTION_ORIGIN)return;
+  if(location.origin!==PRODUCTION_ORIGIN&&location.origin!==BACKUP_ORIGIN)return;
 
   function recordPageView(){
     try{
