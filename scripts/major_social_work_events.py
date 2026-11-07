@@ -103,6 +103,23 @@ def source_evidence(event: dict) -> list[dict]:
     return rows
 
 
+def publisher_site(url: str) -> str:
+    """Conservatively group articles from one publishing site despite subdomain aliases.
+
+    This is not a full media-ownership registry: when two distinct source
+    labels point to one registered-looking domain, they are not corroboration.
+    """
+    host = (urlsplit(url).hostname or "").lower().rstrip(".")
+    labels = host.split(".")
+    if len(labels) < 2:
+        return host
+    # Two-level country-code suffixes such as gov.tw / com.tw / co.uk.
+    cc_second_level = {"com", "net", "org", "gov", "edu", "ac", "co", "or", "ne", "mil", "idv"}
+    depth = 3 if (len(labels) >= 3 and len(labels[-1]) == 2
+                  and labels[-2] in cc_second_level) else 2
+    return ".".join(labels[-depth:])
+
+
 def evaluate(event: dict, blocked_ids: set[str] | None = None) -> tuple[bool, str]:
     """Return fail-closed decision; no numeric ranking can override a failed gate."""
     if not isinstance(event, dict):
@@ -139,6 +156,11 @@ def evaluate(event: dict, blocked_ids: set[str] | None = None) -> tuple[bool, st
     if (independent < 2 or independent != int(event.get("source_count") or 0)
         or official != int(event.get("official_source_count") or 0)):
         return False, "inconsistent_or_single_source"
+    # Different labels on the same publisher's domain are not independent
+    # confirmation, even if the upstream cluster counts them separately.
+    publisher_sites = {publisher_site(r["source_url"]) for r in evidence}
+    if len(publisher_sites) < independent:
+        return False, "repackaged_same_publisher"
     observation_days = {r["published_at"][:10] for r in evidence}
     if official >= 1:
         # Same-day official policy may be major if there is an enacted outcome;
