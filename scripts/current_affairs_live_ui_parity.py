@@ -44,6 +44,13 @@ def regions(html: str) -> dict[str, str]:
     close = html.find("*/", end)
     if close < 0:
         raise ValueError("evergreen news renderer boundary missing")
+    evergreen = html[begin:close + 2]
+    # Verify the new archived-case route is present; older large-card lists
+    # must never silently pass as the latest student experience.
+    if not all(marker in evergreen for marker in (
+        "nl-history-entry", "NL.history()", "function renderHistory()",
+    )):
+        raise ValueError("evergreen single-entry navigation not installed")
     return {
         "dynamic_radar": html[first:script_end + len("</script>")],
         "evergreen_cases": html[begin:close + 2],
@@ -81,7 +88,8 @@ def compare(expected: str, hosted: str) -> dict:
 def selftest() -> None:
     sample = (
         "<!doctype html>" + RADAR_MARKER + "\n<script>(function(){return 1})()</script>"
-        + LEGACY_BEGIN + " CASES */" + LEGACY_END + " */"
+        + LEGACY_BEGIN + " nl-history-entry NL.history() function renderHistory() */"
+        + LEGACY_END + " */"
     )
     assert compare(sample, sample)["status"] == "MATCH"
     changed = sample.replace("return 1", "return 2")
@@ -91,6 +99,8 @@ def selftest() -> None:
     assert result["regions"]["evergreen_cases"]["status"] == "MATCH"
     missing = sample.replace(RADAR_MARKER, "")
     assert compare(sample, missing)["status"] == "STALE"
+    stale_history = sample.replace("NL.history()", "NL.legacy()")
+    assert compare(sample, stale_history)["status"] == "STALE"
     for bad in (missing, sample + RADAR_MARKER):
         try:
             regions(bad)
