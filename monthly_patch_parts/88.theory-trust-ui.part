@@ -69,7 +69,7 @@
     return '<details class="swsi-theory-trust">'
       +'<summary>'+E(statusText(t)+date)+'</summary>'
       +'<div class="swsi-theory-trust-note">'+E(note)+'</div>'
-      +'<div class="swsi-theory-trust-note">理論卡是 SWSI 學習整理，不是考選部官方答案；正式題目若指定特定理論、學者或階段，以題目要求為準。</div>'
+      +'<div class="swsi-theory-trust-note">理論卡不是考選部官方答案；這是 SWSI 學習整理。正式題目若指定特定理論、學者或階段，以題目要求為準。</div>'
       +'</details>';
   }
 
