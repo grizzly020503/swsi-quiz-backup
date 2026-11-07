@@ -4057,6 +4057,9 @@ html[data-fs="2"]{
 
   function currentContext(){
     var c={context_type:'general',context_id:null,context_title:'網站整體',source_kind:'swsi',subject:null,exam_year:null,exam_round:null,question_no:null};
+    // The learning hub is a general-purpose page. A previously selected essay,
+    // theory or law may still exist in router state after navigation.
+    if(document.querySelector('#app .swsi-myhub'))return c;
     try{
       var item=(typeof queue!=='undefined'&&Array.isArray(queue)&&typeof idx!=='undefined')?queue[idx]:null;
       if(item&&document.querySelector('#app .qcard')){
