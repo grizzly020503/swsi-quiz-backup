@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-06T19:19:33Z",
+  "generated_at": "2026-11-07T05:04:06Z",
   "event_count": 8,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -464,7 +464,7 @@
         "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制"
       ],
       "trend_state": "one-off",
-      "trend_score": 4.8,
+      "trend_score": 4.5,
       "why": [
         "1 個官方來源",
         "有政策／制度訊號",
@@ -484,7 +484,7 @@
         "persistence": 0.03,
         "essay_value": 1.1,
         "mcq_density": 0.45,
-        "recency": 1.0
+        "recency": 0.6
       },
       "source_count": 1,
       "official_source_count": 1,
