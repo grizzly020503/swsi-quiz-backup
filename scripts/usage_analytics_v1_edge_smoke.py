@@ -4,8 +4,10 @@ ROOT = Path(__file__).resolve().parents[1]
 usage = (ROOT / 'supabase/functions/swsi-usage/index.ts').read_text(encoding='utf-8')
 admin = (ROOT / 'supabase/functions/swsi-admin/index.ts').read_text(encoding='utf-8')
 
-# Collection endpoint must fail closed outside the single official production origin.
-assert 'origin !== PRODUCTION_ORIGIN' in usage
+# Collection endpoint must fail closed outside the two exact production origins.
+assert 'ALLOWED_ORIGINS.has(origin)' in usage
+assert 'new Set([PRODUCTION_ORIGIN, BACKUP_ORIGIN])' in usage
+assert 'origin !== PRODUCTION_ORIGIN' not in usage
 assert 'status: 403' in usage
 assert 'req.method === "OPTIONS"' in usage
 assert 'req.method !== "POST"' in usage
@@ -15,7 +17,7 @@ assert 'new TextEncoder().encode(raw).byteLength > 1024' in usage
 # Raw anonymous id must be hashed before the service-role RPC. Avoid regressions that
 # accidentally pass the browser id directly to Postgres.
 hash_pos = usage.index('const clientHash = await sha256Hex(clientId);')
-rpc_pos = usage.index('db.rpc("record_swsi_usage", { p_client_hash: clientHash })')
+rpc_pos = usage.index('db.rpc("record_swsi_usage", { p_client_hash: clientHash, p_site_origin: origin })')
 assert hash_pos < rpc_pos
 assert 'p_client_hash: clientId' not in usage
 
