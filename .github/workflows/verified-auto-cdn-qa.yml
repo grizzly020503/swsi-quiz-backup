@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'scripts/verified_auto_cdn_sync.py'
+      - 'scripts/question_shard_release_acceptance.py'
       - 'scripts/verified_essay_cdn_pending_sync.py'
       - 'scripts/test_verified_essay_cdn_pending_sync.py'
       - 'scripts/cloudflare_auto_mirror_live_smoke.py'
@@ -19,6 +20,7 @@ on:
       - main
     paths:
       - 'scripts/verified_auto_cdn_sync.py'
+      - 'scripts/question_shard_release_acceptance.py'
       - 'scripts/verified_essay_cdn_pending_sync.py'
       - 'scripts/test_verified_essay_cdn_pending_sync.py'
       - 'scripts/cloudflare_auto_mirror_live_smoke.py'
@@ -44,6 +46,8 @@ jobs:
           set -euo pipefail
           python -m py_compile scripts/verified_auto_cdn_sync.py
           python scripts/verified_auto_cdn_sync.py --selftest
+          python -m py_compile scripts/question_shard_release_acceptance.py
+          python scripts/question_shard_release_acceptance.py --selftest
           python -m py_compile scripts/cloudflare_auto_mirror_live_smoke.py
           python scripts/cloudflare_auto_mirror_live_smoke.py --selftest
           python -m py_compile scripts/verified_essay_cdn_pending_sync.py
@@ -51,6 +55,7 @@ jobs:
       - name: Verify actual tracked MOEX source against Supabase shards (read-only)
         run: |
           set -euo pipefail
+          python scripts/question_shard_release_acceptance.py --local
           python scripts/verified_auto_cdn_sync.py \
             --incoming incoming \
             --auto auto/questions_auto.json \

@@ -448,7 +448,14 @@ def parse_answers_pdf(data):
 def exam_exists(exam_code):
     # 考試頁只做存取檢查；真正類科與科目由每份官方 PDF 再做硬性驗證。
     r = requests.get(exam_url(exam_code), timeout=30, headers={"User-Agent": UA})
-    return r.status_code == 200 and len(r.content) > 1000
+    # A missing exam (404) is normal before MOEX publishes it. Permission,
+    # rate-limit and server failures are NOT proof that the exam is absent.
+    if r.status_code == 404:
+        return False
+    r.raise_for_status()
+    if r.status_code != 200:
+        raise RuntimeError(f"MOEX exam availability returned unexpected HTTP {r.status_code}")
+    return len(r.content) > 1000
 
 
 def build_exam(exam_code):

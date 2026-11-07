@@ -120,10 +120,17 @@ def main() -> int:
     expected_revision = str(expected_manifest.get("dataset_revision") or "")
     expected_total = int(expected_manifest.get("total_questions") or 0)
     expected_shards = int(expected_manifest.get("shard_count") or 0)
-    if not expected_revision or expected_total != 4800 or expected_shards != 24:
+    historical = {f"{y}-{n}.json" for y in range(104, 116) for n in (1, 2)}
+    entries = expected_manifest.get("shards") or []
+    declared_names = {row.get("file") for row in entries if isinstance(row, dict)}
+    if (not expected_revision or expected_total < 4800 or
+        expected_shards < 24 or expected_shards != len(entries) or
+        expected_total != expected_shards * 200 or
+        not historical.issubset(declared_names) or
+        expected_manifest.get("baseline_shard_count") != 24):
         raise SystemExit(
             f"Tracked question shard manifest contract invalid: revision={expected_revision!r} "
-            f"total={expected_total} shards={expected_shards}"
+            f"total={expected_total} shards={expected_shards}; historical baseline must remain complete"
         )
 
     # Two owner-approved question text repairs require exact hosted shard bytes.
@@ -198,8 +205,8 @@ def main() -> int:
                 "exam_label": b"swsi-exam-date-label" in live_patch,
                 "manifest_exact_bytes": sha(manifest_raw) == sha(expected_manifest_bytes),
                 "dataset_revision": live_manifest.get("dataset_revision") == expected_revision,
-                "question_total": live_manifest.get("total_questions") == 4800,
-                "shard_count": live_manifest.get("shard_count") == 24,
+                "question_total": live_manifest.get("total_questions") == expected_total,
+                "shard_count": live_manifest.get("shard_count") == expected_shards,
                 "shard_115_2_shape": (
                     isinstance(shard_questions, list)
                     and live_shard.get("year") == "115"
@@ -280,7 +287,7 @@ def main() -> int:
                 )
                 print(
                     "CLOUDFLARE PRODUCTION HTTP PARITY OK "
-                    f"dataset_revision={expected_revision} total=4800 shards=24"
+                    f"dataset_revision={expected_revision} total={expected_total} shards={expected_shards}"
                 )
                 return 0
             worker_last = ", ".join(f"{k}={v}" for k, v in checks.items())
