@@ -22,7 +22,7 @@ const env={
   LAWS:[{n:'家庭暴力防治法'}],ALL:[q1,q2,q3,distractor],
   ESSAYS:[e1,e2], N,A, E:encodeURIComponent,
   sn:(v,n)=>String(v||'').slice(0,n),yearNum:v=>Number.parseInt(v||'0',10)||0,
-  console:{warn(){}}, Set, document:null
+  console:{warn(){}}, Set, document:{addEventListener(){}}
 };
 vm.createContext(env);
 vm.runInContext(runtime+'\nwindow.probe={swsiRelatedTheory,swsiRelatedLaw,swsiRelatedMcqs,swsiRelatedEssays};',env);
@@ -39,9 +39,10 @@ assert.equal(p.swsiRelatedEssays(distractor,null,null).length,0);
 assert.equal(p.swsiRelatedTheory(e1)?.n,'生態系統理論','essay to theory reverse link');
 assert.equal(p.swsiRelatedLaw(e2)?.n,'家庭暴力防治法','essay to law reverse link');
 const owner=fs.readFileSync('monthly_patch_parts/zzzz_product_v1_lock.part','utf8');
-assert(owner.includes("window.swsiDecorateLearningConnections();"),'final question owner must call link decorator');
-assert(owner.indexOf('collapseExplanation();')<owner.lastIndexOf('window.swsiDecorateLearningConnections();'),'links follow answer expansion');
+assert(owner.includes("document.dispatchEvent(new Event('swsi:learning-surface-ready'))"),'final question owner must fire link event');
+assert(source.includes("document.addEventListener('swsi:learning-surface-ready',swsiDecorateLearningConnections)"),'learning module must subscribe to event');
+assert(owner.indexOf('collapseExplanation();')<owner.lastIndexOf("document.dispatchEvent(new Event('swsi:learning-surface-ready'))"),'links follow answer expansion');
 const build=fs.readFileSync('cdn/monthly_patch.js','utf8');
 assert(build.includes('SWSI RELATED LEARNING START 2026-11-07'),'production bundle includes connections');
-assert(build.includes("window.swsiDecorateLearningConnections();"),'production bundle wires runtime');
+assert(build.includes("document.dispatchEvent(new Event('swsi:learning-surface-ready'))"),'production bundle wires runtime');
 console.log('SWSI RELATED LEARNING SMOKE OK: verified metadata, distractor exclusion, bidirectional links, no duplicate claims');
