@@ -13,6 +13,10 @@ assert.equal(html.split(marker).length, 2, 'expected one current-affairs UI owne
 const match = html.split(marker)[1].match(/<script>([\s\S]*?)<\/script>/);
 assert(match, 'installed current-affairs script is missing');
 assert(match[1].includes('}).slice(0,3);'), 'student current-affairs view must cap the ranked list at three items');
+assert(match[1].includes('nlr-study-quick'), 'quick study actions must be available before full analysis');
+assert(match[1].includes('nlr-more'), 'long explanations must start collapsed');
+assert(match[1].includes('修法草案・非現行修正條文'), 'draft must not be presented as effective law');
+assert(html.includes('<details class="nl-full">'), 'legacy news details must start collapsed');
 const script = new vm.Script(match[1], { filename: 'installed-current-affairs-ui.js' });
 
 const news = {
