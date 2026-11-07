@@ -8,7 +8,7 @@ const after=source.split('/* SWSI RELATED LEARNING START 2026-11-07');
 assert.equal(after.length,2,'learning runtime marker must be unique');
 const beforeEnd=after[1].split('/* SWSI RELATED LEARNING END */');
 assert.equal(beforeEnd.length,2,'learning runtime end marker must be unique');
-const runtime=after[1].slice(after[1].indexOf('\n')+1,beforeEnd[0].length);
+const runtime=beforeEnd[0].slice(beforeEnd[0].indexOf('*/')+2);
 const N=v=>String(v==null?'':v).toLowerCase().replace(/[\s　（）()《》〈〉「」『』【】·・,，.。:：;；/\\_-]+/g,'');
 const A=v=>Array.isArray(v)?v:(v?String(v).split(/[、,，;；]/).filter(Boolean):[]);
 const q1={id:'q1',topic:'生態系統理論之系統層次定義',keywords:'生態系統理論,微視系統',year:'115'};
