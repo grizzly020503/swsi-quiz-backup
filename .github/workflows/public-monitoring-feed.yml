@@ -68,6 +68,8 @@ on:
       - 'scripts/build_current_affairs_signals_snapshot.py'
       - 'scripts/current_affairs_signals_smoke.py'
       - 'scripts/current_affairs_ui_smoke.js'
+      - 'scripts/current_affairs_topic_link_smoke.js'
+      - 'scripts/current_affairs_navigation_smoke.js'
       - 'scripts/install_current_affairs_ui.py'
       - 'scripts/build_public_legal_watch_snapshot.py'
       - 'scripts/public_monitoring_v2_smoke.py'
@@ -188,6 +190,8 @@ jobs:
           print('Current-affairs UI JavaScript syntax OK.')
           PY
           node scripts/current_affairs_ui_smoke.js
+          node scripts/current_affairs_topic_link_smoke.js
+          node scripts/current_affairs_navigation_smoke.js
 
       - name: Five-radar contract smoke
         run: |

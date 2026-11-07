@@ -118,6 +118,118 @@ BLOCK = r'''
       +subjectGroup('延伸考科',supporting)
       +'</details>';
   }
+
+  /* History is linked only by an evidence-scored question ID already in the
+     monitored snapshot. Never infer a completed exam from the current event. */
+  function reliableQuestions(rows){
+    if(!Array.isArray(rows))return [];
+    var seen={};
+    return rows.filter(function(q){
+      var id=String(q&&q.id||'');
+      if(!/^[A-Za-z0-9-]{5,64}$/.test(id)||seen[id]||!Number.isFinite(Number(q.match_score))||Number(q.match_score)<5)return false;
+      seen[id]=true;
+      return true;
+    }).slice(0,5);
+  }
+  function exactCatalogRows(name,list){
+    var key=String(name||'').trim();
+    return list.filter(function(x){return x&&String(x.n||'').trim()===key;});
+  }
+  function availableCatalog(type){
+    try{
+      if(type==='law'&&typeof LAWS!=='undefined'&&Array.isArray(LAWS))return LAWS;
+      if(type==='theory'&&typeof THEORIES!=='undefined'&&Array.isArray(THEORIES))return THEORIES;
+    }catch(_e){}
+    return [];
+  }
+  function studyLinks(rows,laws,topics){
+    var mc=reliableQuestions(rows),seen={},law=[],theory=[],essays=[];
+    (Array.isArray(laws)?laws:[]).forEach(function(n){
+      if(law.length>=2)return;
+      if(exactCatalogRows(n,availableCatalog('law')).length&&!seen['law:'+n]){
+        seen['law:'+n]=true;law.push(String(n));
+      }
+    });
+    (Array.isArray(topics)?topics:[]).forEach(function(n){
+      if(theory.length>=1)return;
+      if(exactCatalogRows(n,availableCatalog('theory')).length&&!seen['theory:'+n]){
+        seen['theory:'+n]=true;theory.push(String(n));
+      }
+    });
+    try{
+      if(typeof ESSAYS!=='undefined'&&Array.isArray(ESSAYS)){
+        essays=ESSAYS.filter(function(e){
+          if(!e||!e.id||!e.q)return false;
+          var ls=Array.isArray(e.laws)?e.laws:[],ts=Array.isArray(e.theories)?e.theories:[];
+          return law.some(function(n){return ls.indexOf(n)>=0;})||theory.some(function(n){return ts.indexOf(n)>=0;});
+        }).slice(0,2);
+      }
+    }catch(_e){}
+    if(!mc.length&&!law.length&&!theory.length&&!essays.length)return '';
+    function btn(action,value,label){
+      return '<button type="button" class="nlr-study-link" data-swsi-news-action="'+action+'" data-swsi-news-value="'+E(encodeURIComponent(String(value)))+'">'+E(label)+'</button>';
+    }
+    var parts=[];
+    mc.forEach(function(q){parts.push(btn('question',q.id,'練歷屆選擇題 · '+(q.year||'')+'年 '+(q.subject||'')+' 第'+(q.qno||'')+'題'));});
+    law.forEach(function(n){parts.push(btn('law',n,'看相關法規／政策 · '+n));});
+    theory.forEach(function(n){parts.push(btn('theory',n,'看相關理論 · '+n));});
+    essays.forEach(function(e){parts.push(btn('essay',e.id,'練相關申論 · '+String(e.topic||e.q||'申論題').slice(0,28)));});
+    return '<details class="nlr-detail nlr-study-links"><summary>延伸學習 · 相關歷屆題與考點</summary>'+
+      '<div class="nlr-study-list">'+parts.join('')+'</div>'+
+      '<p class="nlr-study-note">這些是主題相關的舊考題，不代表考題曾考過此新聞事件；法規或修法草案的現況請依官方來源核對。</p>'+'<p data-swsi-news-status role="status" class="nlr-study-note"></p></details>';
+  }
+  function studyStatus(message){
+    var el=document.getElementById('nl-live-radar');
+    if(!el)return;
+    var status=el.querySelector&&el.querySelector('[data-swsi-news-status]');
+    if(status)status.textContent=message;
+  }
+  async function followStudyLink(event,box){
+    var target=event&&event.target;
+    var button=target&&typeof target.closest==='function'?target.closest('button[data-swsi-news-action]'):null;
+    if(!button||(box.contains&&!box.contains(button)))return;
+    var kind=button.getAttribute('data-swsi-news-action');
+    var raw=button.getAttribute('data-swsi-news-value');
+    var value='';
+    try{value=decodeURIComponent(raw||'');}catch(_e){return;}
+    if(!value||value.length>128)return;
+    button.disabled=true;
+    try{
+      if(kind==='question'){
+        if(!/^[A-Za-z0-9-]{5,64}$/.test(value))return;
+        if(typeof ensureAllQuestionsLoadedWithUI==='function')await ensureAllQuestionsLoadedWithUI();
+        var question=null;
+        try{if(typeof ALL!=='undefined')question=ALL.find(function(q){return q&&q.id===value;});}catch(_e){}
+        if(!question){studyStatus('這題尚未載入，請稍後再試。');return;}
+        if(typeof window.swsiSourceHeld==='function'&&window.swsiSourceHeld(question)){
+          studyStatus('此題原卷資料仍在核對，暫時不開放作答。');return;
+        }
+        if(typeof window.swsiStudyOneEncoded!=='function'){
+          studyStatus('練題功能尚未準備完成，請重新開啟網站。');return;
+        }
+        if(window.NL&&typeof window.NL.close==='function')window.NL.close();
+        window.swsiStudyOneEncoded(encodeURIComponent(value));
+        return;
+      }
+      if(kind==='law'&&exactCatalogRows(value,availableCatalog('law')).length&&typeof window.swsiOpenLawEncoded==='function'){
+        if(window.NL&&typeof window.NL.close==='function')window.NL.close();
+        window.swsiOpenLawEncoded(encodeURIComponent(value));
+      }else if(kind==='theory'&&exactCatalogRows(value,availableCatalog('theory')).length&&typeof window.swsiOpenTheoryEncoded==='function'){
+        if(window.NL&&typeof window.NL.close==='function')window.NL.close();
+        window.swsiOpenTheoryEncoded(encodeURIComponent(value));
+      }else if(kind==='essay'){
+        var e=null;
+        try{if(typeof ESSAYS!=='undefined')e=ESSAYS.find(function(x){return x&&x.id===value;});}catch(_e){}
+        if(e&&typeof window.swsiOpenEssayEncoded==='function'){
+          if(window.NL&&typeof window.NL.close==='function')window.NL.close();
+          window.swsiOpenEssayEncoded(encodeURIComponent(e.id),encodeURIComponent(e.subject||'全部科目'));
+        }else studyStatus('相關申論題暫時未載入。');
+      }
+    }catch(err){
+      studyStatus('載入題目時遇到問題，請再試一次。');
+    }finally{button.disabled=false;}
+  }
+
   function eventCard(ev){
     var tr=trendFor(ev.canonical_event_id)||{};
     var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(x.replace('社會政策與社會立法','社政法').replace('社會工作直接服務','直接服務').replace('人類行為與社會環境','人行'))+'</span>';}).join('');
@@ -129,7 +241,7 @@ BLOCK = r'''
     var strongMatches=Number(tr.historical_high_confidence_match_count||0);
     var allRelated=tr.related_exam_questions||ev.related_exam_questions||[];
     var related=strongMatches>0?allRelated.filter(function(q){return Number(q.match_score||0)>=5;}):[];
-    if(strongMatches>0&&!related.length) related=allRelated.slice(0,Math.min(strongMatches,5));
+    // Do not promote lower-score keyword matches when no reliable match exists.
     var whyItems=trendReady?(tr.why||[]):[
       officialCount?'目前有官方來源，可作制度／議題複習依據':'目前只有單一來源，先保留觀察',
       '尚未有第二來源或後續日期支持，不視為趨勢'
@@ -149,6 +261,7 @@ BLOCK = r'''
     var evidenceLabel=sourceCount>=2?'多來源證據':'來源依據';
     var note=trendReady?'同事件跨來源只計一次；趨勢用來安排複習，不代表命題保證。':'目前只有單一來源或單次觀察；不以分數宣稱趨勢，事實請以原始來源為準。';
     var knowledge=knowledgeHtml((tr.knowledge_root||tr.subject_topics)?tr:ev);
+    var links=studyLinks(related,tr.related_laws||ev.related_laws,(ev.knowledge_topics||[]));
     return '<div class="nlr-card">'
       +'<div class="nlr-head"><span class="nlr-cat">'+E(ev.category||'時事')+'</span><span class="nlr-trend nlr-trend-'+E(displayTrendState)+'">'+E(displayTrendLabel)+'</span></div>'
       +'<div class="nlr-title">'+E(ev.title||'')+'</div>'
@@ -160,7 +273,7 @@ BLOCK = r'''
       +(why?'<details class="nlr-detail"><summary>為什麼值得複習？</summary><ul>'+why+'</ul></details>':'')
       +(essay?'<details class="nlr-detail"><summary>值得練習的申論方向</summary><div class="nlr-exam">'+E(essay)+'</div></details>':'')
       +(mcq.length?'<details class="nlr-detail"><summary>選擇題可能抓哪些事實？</summary><div class="nlr-chips">'+mcq.slice(0,8).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('')+'</div></details>':'')
-      +(related.length?'<details class="nlr-detail"><summary>歷屆相關題</summary><ul>'+related.slice(0,5).map(function(q){var label=(q.year||'')+'-'+(q.round||'')+'-'+(q.qno||'');return '<li><b>'+E(q.id||label)+'</b> '+E(q.subject||'')+(q.topic?' ・ '+E(q.topic):'')+'</li>';}).join('')+'</ul></details>':'')
+      +links
       +(evidence?'<details class="nlr-detail"><summary>'+E(evidenceLabel)+'</summary><ul>'+evidence+'</ul></details>':'')
       +'<div class="nlr-note">'+E(note)+'</div>'
       +'</div>';
@@ -173,6 +286,7 @@ BLOCK = r'''
     var subjects=(ev.subjects||[]).map(function(x){return '<span class="nlr-sub">'+E(x.replace('社會政策與社會立法','社政法').replace('社會工作直接服務','直接服務').replace('人類行為與社會環境','人行'))+'</span>';}).join('');
     var summary=String(ev.summary||''); if(summary.length>220) summary=summary.slice(0,220)+'…';
     var liveKnowledge=knowledgeHtml(ev);
+    var liveLinks=studyLinks(sig.related_exam_questions,ev.related_laws||sig.related_laws,ev.knowledge_topics||[]);
     return '<div class="nlr-card">'
       +'<div class="nlr-head"><span class="nlr-cat">'+E(ev.category||'時事')+'</span><span class="nlr-score">關聯 '+E(ev.relevance_score||'')+'/10</span></div>'
       +'<div class="nlr-title">'+E(ev.title)+'</div>'
@@ -185,7 +299,7 @@ BLOCK = r'''
       +(sig.exam_point_summary?'<div class="nlr-signal-text">'+E(sig.exam_point_summary)+'</div>':'')
       +(sig.essay_direction?'<details class="nlr-detail"><summary>值得練習的申論方向</summary><div class="nlr-exam">'+E(sig.essay_direction)+'</div></details>':'')
       +(sig.mcq_focus&&sig.mcq_focus.length?'<details class="nlr-detail"><summary>選擇題可能抓哪些事實？</summary><div class="nlr-chips">'+sig.mcq_focus.slice(0,8).map(function(x){return '<span class="nlr-chip">'+E(x)+'</span>';}).join('')+'</div></details>':'')
-      +(sig.related_exam_questions&&sig.related_exam_questions.length?'<details class="nlr-detail"><summary>歷屆相關題</summary><ul>'+sig.related_exam_questions.slice(0,4).map(function(q){var label=(q.year||'')+'-'+(q.round||'')+'-'+(q.qno||'');return '<li><b>'+E(q.id||label)+'</b> '+E(q.subject||'')+(q.topic?' ・ '+E(q.topic):'')+'</li>';}).join('')+'</ul></details>':'')
+      +liveLinks
       +'<details class="nlr-detail"><summary>此類事件常見的申論思考方向</summary><ul>'+pts+'</ul><div class="nlr-exam">'+E(t.exam)+'</div></details>'
       +'<a class="nlr-link" href="'+safeHref(ev.source_url)+'" target="_blank" rel="noopener noreferrer">查看原始來源 ↗</a>'
       +'</div>';
@@ -200,7 +314,7 @@ BLOCK = r'''
       +'.nlr-card{border:1px solid var(--line,#ddd);border-radius:13px;padding:12px;background:var(--bg,#fff)}.nlr-head{display:flex;justify-content:space-between;gap:8px}.nlr-cat{font-size:.75rem;font-weight:700}.nlr-score{font-size:.72rem;color:var(--muted,#777)}'
       +'.nlr-title{font-weight:800;line-height:1.45;margin:6px 0}.nlr-meta,.nlr-summary{font-size:.8rem;color:var(--muted,#666);line-height:1.55}.nlr-summary{margin-top:7px}'
       +'.nlr-subs,.nlr-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.nlr-sub,.nlr-chip{font-size:.7rem;border-radius:999px;padding:3px 7px;background:var(--soft,#f2f2f2)}'
-      +'.nlr-detail{margin-top:9px;font-size:.8rem;line-height:1.55}.nlr-detail summary{cursor:pointer;font-weight:700}.nlr-detail ul{padding-left:20px;margin:7px 0}.nlr-exam{margin-top:6px}.nlr-signal{margin-top:9px;font-size:.8rem}.nlr-signal-text{margin-top:5px;font-size:.78rem;line-height:1.5}.nlr-link{display:inline-block;margin-top:9px;font-size:.78rem;text-decoration:none;font-weight:700}.nlr-empty{font-size:.82rem;color:var(--muted,#777);padding:8px 0}.nlr-knowledge-root{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;margin-top:8px}.nlr-knowledge-root span,.nlr-knowledge-label{font-size:.72rem;color:var(--muted,#777)}.nlr-knowledge-label{font-weight:700;margin-top:8px}.nlr-knowledge-subject{margin-top:8px}.nlr-knowledge-subject ul{margin:3px 0 0;padding-left:18px}'+'.nlr-trend{font-size:.72rem;font-weight:800;padding:3px 7px;border-radius:999px;background:var(--soft,#f2f2f2)}.nlr-trend-rising{font-weight:900}.nlr-trend-sustained{font-weight:800}.nlr-trend-cooling{opacity:.72}.nlr-note{font-size:.72rem;color:var(--muted,#777);line-height:1.45;margin-top:9px}';
+      +'.nlr-study-list{display:grid;gap:7px;margin-top:9px}.nlr-study-link{width:100%;min-height:42px;cursor:pointer;border:1px solid #DCE6E0;border-radius:9px;background:#fff;color:#245D56;text-align:left;font:700 12.5px/1.5 sans-serif;padding:9px 11px}.nlr-study-link:focus-visible{outline:2px solid #245D56;outline-offset:2px}.nlr-study-link:disabled{opacity:.6}.nlr-study-note{font-size:11px;color:#64746E;line-height:1.65;margin:8px 0 0}'+'.nlr-detail{margin-top:9px;font-size:.8rem;line-height:1.55}.nlr-detail summary{cursor:pointer;font-weight:700}.nlr-detail ul{padding-left:20px;margin:7px 0}.nlr-exam{margin-top:6px}.nlr-signal{margin-top:9px;font-size:.8rem}.nlr-signal-text{margin-top:5px;font-size:.78rem;line-height:1.5}.nlr-link{display:inline-block;margin-top:9px;font-size:.78rem;text-decoration:none;font-weight:700}.nlr-empty{font-size:.82rem;color:var(--muted,#777);padding:8px 0}.nlr-knowledge-root{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;margin-top:8px}.nlr-knowledge-root span,.nlr-knowledge-label{font-size:.72rem;color:var(--muted,#777)}.nlr-knowledge-label{font-weight:700;margin-top:8px}.nlr-knowledge-subject{margin-top:8px}.nlr-knowledge-subject ul{margin:3px 0 0;padding-left:18px}'+'.nlr-trend{font-size:.72rem;font-weight:800;padding:3px 7px;border-radius:999px;background:var(--soft,#f2f2f2)}.nlr-trend-rising{font-weight:900}.nlr-trend-sustained{font-weight:800}.nlr-trend-cooling{opacity:.72}.nlr-note{font-size:.72rem;color:var(--muted,#777);line-height:1.45;margin-top:9px}';
     document.head.appendChild(st);
   }
   function fetchJson(url){
@@ -245,6 +359,7 @@ BLOCK = r'''
         +'<div class="nlr-help">趨勢資料暫時不可用，先顯示最多 3 個高關聯時事；事實細節請以原始來源為準。</div>'
         +(list.length?'<div class="nlr-grid">'+list.map(liveCard).join('')+'</div>':'<div class="nlr-empty">這個科目目前沒有新的高關聯時事。</div>');
     var chips=wrap.querySelector('.nl-chips');
+    if(typeof box.addEventListener==='function')box.addEventListener('click',function(ev){followStudyLink(ev,box);});
     if(chips) wrap.insertBefore(box,chips); else wrap.appendChild(box);
   }
   function hook(){
