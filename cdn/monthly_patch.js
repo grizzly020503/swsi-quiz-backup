@@ -2641,7 +2641,7 @@ html[data-fs="2"]{
       +row('源','資料來源','正式考題以官方資料為準',"swsiOpenPublicInfo('sources',this)")
       +row('隱','隱私說明','了解平台保存哪些資料',"swsiOpenPublicInfo('privacy',this)")
       +row('條','使用條款','免費分享與商業使用邊界',"swsiOpenPublicInfo('terms',this)")
-      +row('旗','回報問題／提供建議','協助改善網站或題目內容',"swsiOpenReport(this)")
+      +row('旗','回報問題／提供建議','協助改善網站或題目內容',"swsiOpenGeneralReport(this)")
       +'<button type="button" class="swsi-myhub-row admin-login" data-swsi-admin-login onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理者入口</span><span class="meta">僅管理者使用</span></span><span class="arrow">›</span></button>'
       +'</div></details></section>';
   }
@@ -4387,10 +4387,7 @@ html[data-fs="2"]{
     dialog.dataset.swsiCompact='2';
   }
 
-  function forceGeneralFooter(btn){
-    if(!btn || btn.dataset.swsiGeneralBound==='1')return;
-    btn.dataset.swsiGeneralBound='1';
-    btn.onclick=function(){
+  function openGeneralReport(btn){
       var qcards=Array.from(document.querySelectorAll('#app .qcard'));
       var saved=[];
       for(var i=0;i<qcards.length;i++){
@@ -4410,7 +4407,12 @@ html[data-fs="2"]{
         try{if(hasTheory)theoryOpen=saveTheory;}catch(_e){}
         try{if(hasLaw)lawOpen=saveLaw;}catch(_e){}
       }
-    };
+  }
+  window.swsiOpenGeneralReport=openGeneralReport;
+  function forceGeneralFooter(btn){
+    if(!btn || btn.dataset.swsiGeneralBound==='1')return;
+    btn.dataset.swsiGeneralBound='1';
+    btn.onclick=function(){openGeneralReport(btn);};
   }
 
   function scan(root){
