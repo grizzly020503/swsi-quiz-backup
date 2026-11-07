@@ -4,7 +4,7 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-migration = (ROOT / "supabase/migrations/20261107090000_split_usage_analytics_by_site.sql").read_text("utf-8").lower()
+migration = (ROOT / "supabase/migrations/20261107040053_split_usage_analytics_by_site.sql").read_text("utf-8").lower()
 edge = (ROOT / "supabase/functions/swsi-usage/index.ts").read_text("utf-8")
 owner = (ROOT / "monthly_patch_parts/99_p0_mobile_ai_guardrails.part").read_text("utf-8")
 cdn = (ROOT / "cdn/monthly_patch.js").read_text("utf-8")
