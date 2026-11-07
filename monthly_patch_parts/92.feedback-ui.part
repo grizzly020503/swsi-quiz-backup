@@ -193,7 +193,7 @@
         try{if(hasLaw)lawOpen=saveLaw;}catch(_e){}
       }
   }
-  window.swsiOpenGeneralReport=openGeneralReport;
+  if(window.SWSI_FEEDBACK)window.SWSI_FEEDBACK.openGeneral=openGeneralReport;
   function forceGeneralFooter(btn){
     if(!btn || btn.dataset.swsiGeneralBound==='1')return;
     btn.dataset.swsiGeneralBound='1';
