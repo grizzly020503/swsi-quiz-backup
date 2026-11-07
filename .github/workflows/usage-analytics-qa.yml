@@ -15,7 +15,7 @@ on:
       - 'scripts/usage_analytics_v1_smoke.py'
       - 'scripts/usage_analytics_v1_edge_smoke.py'
       - 'scripts/usage_analytics_v1_schema_smoke.py'
-      - 'supabase/migrations/20261107090000_split_usage_analytics_by_site.sql'
+      - 'supabase/migrations/20261107040053_split_usage_analytics_by_site.sql'
       - 'scripts/usage_analytics_dual_site_smoke.py'
   pull_request:
     paths:
@@ -30,7 +30,7 @@ on:
       - 'scripts/usage_analytics_v1_smoke.py'
       - 'scripts/usage_analytics_v1_edge_smoke.py'
       - 'scripts/usage_analytics_v1_schema_smoke.py'
-      - 'supabase/migrations/20261107090000_split_usage_analytics_by_site.sql'
+      - 'supabase/migrations/20261107040053_split_usage_analytics_by_site.sql'
       - 'scripts/usage_analytics_dual_site_smoke.py'
 
 permissions:
