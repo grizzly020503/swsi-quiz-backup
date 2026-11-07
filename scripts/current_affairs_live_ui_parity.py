@@ -108,7 +108,44 @@ def selftest() -> None:
             pass
         else:
             raise AssertionError("invalid source was accepted")
+    archive = json.dumps({
+        "schema_version": 1, "selection_method": "major-social-work-v1",
+        "event_count": 0, "events": [],
+    }, ensure_ascii=False).encode()
+    assert compare_major_archive(archive, archive)["status"] == "MATCH"
+    assert compare_major_archive(archive, archive + b" ")["status"] == "STALE"
+    try:
+        compare_major_archive(archive, b'{"schema_version":1,"events":[{"title":"unverified"}]}')
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("unverified major archive accepted")
     print("SWSI CURRENT AFFAIRS UI LIVE PARITY SELFTEST PASS")
+
+
+def compare_major_archive(expected_raw: bytes, hosted_raw: bytes) -> dict:
+    """Verify exact hosted bytes and the practice-only publication contract."""
+    expected, hosted = json.loads(expected_raw), json.loads(hosted_raw)
+    for data in (expected, hosted):
+        if (data.get("schema_version") != 1
+                or data.get("selection_method") != "major-social-work-v1"
+                or int(data.get("event_count", -1)) != len(data.get("events") or [])):
+            raise ValueError("major archive contract invalid")
+        for event in data.get("events") or []:
+            if (event.get("admission_rule") != "major-social-work-v1"
+                    or len(event.get("evidence") or []) < 2
+                    or len(event.get("practice_essays") or []) != 2
+                    or not all(q.get("type") == "practice_only"
+                               for q in event.get("practice_essays") or [])):
+                raise ValueError("major archive contains unverified event or official-like essay")
+    expected_sha = hashlib.sha256(expected_raw).hexdigest()
+    hosted_sha = hashlib.sha256(hosted_raw).hexdigest()
+    return {
+        "status": "MATCH" if expected_sha == hosted_sha else "STALE",
+        "source_sha256": expected_sha,
+        "live_sha256": hosted_sha,
+        "event_count": len(hosted.get("events") or []),
+    }
 
 
 def main() -> int:
@@ -149,6 +186,31 @@ def main() -> int:
             if len(hosted) > 3_000_000:
                 raise ValueError("hosted index exceeds 3MB")
             report = compare(source, hosted.decode("utf-8", "replace"))
+            local_major = (ROOT / "auto" / "major_social_work_events.json").read_bytes()
+            cdn_major = (ROOT / "cdn" / "auto" / "major_social_work_events.json").read_bytes()
+            if local_major != cdn_major:
+                raise ValueError("major archive auto/CDN source drift")
+            archive_url = (
+                ORIGIN + "/auto/major_social_work_events.json?ui_parity="
+                + str(args.cache_bust).replace("/", "")[:80]
+            )
+            archive_request = urllib.request.Request(
+                archive_url, headers={
+                    "User-Agent": "SWSI-Current-Affairs-UI-Parity/1.0",
+                    "Cache-Control": "no-cache",
+                    "Pragma": "no-cache",
+                },
+            )
+            with urllib.request.urlopen(archive_request, timeout=20) as response:
+                if response.status != 200:
+                    raise urllib.error.URLError(f"major archive HTTP {response.status}")
+                archive_bytes = response.read(2_000_001)
+            if len(archive_bytes) > 2_000_000:
+                raise ValueError("major archive too large")
+            archive_comparison = compare_major_archive(local_major, archive_bytes)
+            report["regions"]["major_event_archive"] = archive_comparison
+            if archive_comparison["status"] != "MATCH":
+                report["status"] = "STALE"
     except ValueError as exc:
         report = {"status": "SOURCE_DRIFT", "reason": str(exc)}
     except (OSError, urllib.error.URLError, TimeoutError) as exc:
@@ -162,6 +224,8 @@ def main() -> int:
     for name, item in report.get("regions", {}).items():
         print(name, item["status"], item.get("source_sha256", "")[:16],
               item.get("live_sha256", "")[:16])
+    if report.get("regions", {}).get("major_event_archive"):
+        print("major archive verified events:", report["regions"]["major_event_archive"]["event_count"])
     if report.get("reason"):
         print("diagnostic:", report["reason"])
     # Non-gating: a stale UI means deployment is pending, not that uptime failed.
