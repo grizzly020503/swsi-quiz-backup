@@ -27,6 +27,11 @@ def test_contract():
     assert "github.event_name == 'schedule'" in live
     assert "github.event_name == 'workflow_dispatch'" in live
     assert "contents: write" in live and "id-token: write" in live
+    # Protect future exam ingestion against silent old-parser regression.
+    assert "python scripts/moex_sync_guarded.py --output-dir incoming --probe-output-dir /tmp/moex-structure-probe" in live
+    assert "python scripts/moex_sync_v2.py --output-dir incoming" not in live
+    assert "Retain official-only intake diagnostics even when source parsing fails" in live
+    assert "path: /tmp/moex-structure-probe/" in live
     assert "Import only changed verified exams to Supabase with GitHub OIDC" in live
     assert "Sync essay teaching enrichment to Supabase with GitHub OIDC" in live
     assert "git push origin HEAD:main" in live
@@ -34,6 +39,8 @@ def test_contract():
     assert "  pull_request:" in get_event_section(checks)
     for path in (
         "scripts/moex_sync.py",
+        "scripts/moex_sync_guarded.py",
+        "scripts/moex_116_intake_rehearsal.py",
         ".github/workflows/moex-social-worker-sync.yml",
         "scripts/moex_sync_dispatch_guard_selftest.py",
     ):

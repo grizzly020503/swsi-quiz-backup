@@ -18,6 +18,9 @@ on:
       - 'scripts/moex_structure_probe_selftest.py'
       - 'scripts/moex_sync_guarded.py'
       - 'scripts/moex_sync_guarded_selftest.py'
+      - 'scripts/moex_116_intake_rehearsal.py'
+      - '.github/workflows/moex-social-worker-sync.yml'
+      - 'scripts/moex_sync.py'
       - 'incoming/**'
       - '.github/workflows/exam-scheme-versioning-qa.yml'
   push:
@@ -39,6 +42,9 @@ on:
       - 'scripts/moex_structure_probe_selftest.py'
       - 'scripts/moex_sync_guarded.py'
       - 'scripts/moex_sync_guarded_selftest.py'
+      - 'scripts/moex_116_intake_rehearsal.py'
+      - '.github/workflows/moex-social-worker-sync.yml'
+      - 'scripts/moex_sync.py'
       - 'incoming/**'
       - '.github/workflows/exam-scheme-versioning-qa.yml'
   workflow_dispatch:
@@ -82,6 +88,7 @@ jobs:
           python -m py_compile scripts/moex_structure_probe_selftest.py
           python -m py_compile scripts/moex_sync_guarded.py
           python -m py_compile scripts/moex_sync_guarded_selftest.py
+          python -m py_compile scripts/moex_116_intake_rehearsal.py
 
       - name: Run explicitly synthetic future-regime fixtures
         run: |
@@ -92,6 +99,7 @@ jobs:
         run: |
           python scripts/moex_structure_probe_selftest.py
           python scripts/moex_sync_guarded_selftest.py
+          python scripts/moex_116_intake_rehearsal.py
 
       - name: Gate every current incoming official payload
         run: |
