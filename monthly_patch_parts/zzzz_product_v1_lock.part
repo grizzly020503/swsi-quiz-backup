@@ -387,6 +387,7 @@
     cleanFooter();
     enhanceHome();
     collapseExplanation();
+    try{document.dispatchEvent(new Event('swsi:learning-surface-ready'));}catch(_e){}
   }
 
   enhance();
