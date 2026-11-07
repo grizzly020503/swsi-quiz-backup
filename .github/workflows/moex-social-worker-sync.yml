@@ -108,7 +108,16 @@ jobs:
 
       - name: Fetch official Social Worker exams
         # 正常排程每週重新抓當年度第一次/第二次官方 PDF；已知發布／更正窗口可手動加跑。
-        run: python scripts/moex_sync_v2.py --output-dir incoming
+        run: python scripts/moex_sync_guarded.py --output-dir incoming --probe-output-dir /tmp/moex-structure-probe
+
+      - name: Retain official-only intake diagnostics even when source parsing fails
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: moex-structure-probe
+          path: /tmp/moex-structure-probe/
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Remove timestamp-only rewrites
         # fetched_at 或既有普通題補 grading_mode=standard 不算官方內容更新。
