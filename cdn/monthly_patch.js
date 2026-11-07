@@ -3518,7 +3518,7 @@ html[data-fs="2"]{
     body.appendChild(foot);
     return panel;
   }
-  window.swsiDecorateLearningConnections=function(){
+  function swsiDecorateLearningConnections(){
     try{
       var exp=document.querySelector('#app .qcard .exp');
       if(exp&&!exp.querySelector(':scope > .swsi-related-learning')){
@@ -3541,7 +3541,8 @@ html[data-fs="2"]{
       var extra=swsiRelatedElement(essay,'essay');
       if(extra)body.appendChild(extra);
     }catch(err){console.warn('[SWSI] related learning unavailable',err);}
-  };
+  }
+  document.addEventListener('swsi:learning-surface-ready',swsiDecorateLearningConnections);
   /* SWSI RELATED LEARNING END */
 
 })();
@@ -5532,7 +5533,7 @@ html[data-fs="2"]{
     cleanFooter();
     enhanceHome();
     collapseExplanation();
-    if(typeof window.swsiDecorateLearningConnections==='function')window.swsiDecorateLearningConnections();
+    try{document.dispatchEvent(new Event('swsi:learning-surface-ready'));}catch(_e){}
   }
 
   enhance();
