@@ -683,7 +683,7 @@ window.swsiEsc = swsiEsc;
         body+='<div class="pending">平台解析待複核，暫不顯示。'+swsiEsc(answerLabel(item))+'。</div>';
       }else if(item.exp&&(item.exp.why||item.exp.others||item.exp.trap)){
         if(item.exp.why) body+='<div class="exp-sec"><h4><span class="dot d-green"></span>為什麼對</h4><p>'+swsiEscLines(item.exp.why)+'</p></div>';
-        if(item.exp.others) body+='<div class="exp-sec"><h4><span class="dot d-red"></span>其他選項為什麼錯</h4><p>'+swsiEscLines(item.exp.others)+'</p></div>';
+        if(item.exp.others) body+='<div class="exp-sec"><h4><span class="dot d-red"></span>其他選項為什麼錯</h4><p>'+swsiEscLines(String(item.exp.others).replace(/([、，；;])\s*(?=[(（][A-D][)）])/g,'$1\n'))+'</p></div>';
         if(item.exp.trap) body+='<div class="exp-sec"><h4><span class="dot d-gold"></span>考場陷阱</h4><p>'+swsiEscLines(item.exp.trap)+'</p></div>';
       }else if(item.exp&&item.exp.raw){
         body+='<div class="exp-sec"><p>'+swsiEscLines(item.exp.raw)+'</p></div>';
@@ -1296,6 +1296,15 @@ main [style*="font-size:15px"]{
       body[data-swsi-page="home"] footer{
         margin-top:12px!important;
         padding-bottom:8px!important;
+      }
+
+      /* The focused quiz hides the fixed tab bar. Do not leave its 80px
+         reservation under the Next button; retain only the device safe area. */
+      body[data-swsi-page="quiz"] .wrap{
+        padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))!important;
+      }
+      body[data-swsi-page="quiz"] main{
+        padding-bottom:18px!important;
       }
 
       /* Loading keeps the shell stable: the flexible main pushes attribution
