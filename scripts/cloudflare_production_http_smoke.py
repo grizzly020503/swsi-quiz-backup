@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Read-only live parity check for SWSI Cloudflare production assets and Worker guards."""
+# Post-PR-560 hosted PWA loader parity and live browser read-only acceptance.
 
 from __future__ import annotations
 
