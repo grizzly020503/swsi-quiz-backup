@@ -3874,9 +3874,6 @@ window.__SWSI_BOOT_DEFERRED__=true;
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
 </script>
 
-<!-- SWSI CURRENT AFFAIRS RADAR V1 -->'
-
-BLOCK = r'''
 <!-- SWSI CURRENT AFFAIRS RADAR V1 -->
 <script>
 (function(){
@@ -4046,9 +4043,16 @@ BLOCK = r'''
     essays.forEach(function(e){parts.push(btn('essay',e.id,'練相關申論 · '+String(e.topic||e.q||'申論題').slice(0,28)));});
     law.forEach(function(n){parts.push(btn('law',n,'看相關法規／政策 · '+n));});
     theory.forEach(function(n){parts.push(btn('theory',n,'看相關理論 · '+n));});
+    var featured=[],order=['question','essay','law','theory'];
+    order.forEach(function(kind){
+      if(featured.length>=2)return;
+      var match=parts.find(function(x){return x.indexOf('data-swsi-news-action="'+kind+'"')>=0;});
+      if(match)featured.push(match);
+    });
+    var extra=parts.filter(function(x){return featured.indexOf(x)<0;});
     return '<div class="nlr-study-quick"><div class="nlr-quick-label">開始複習</div>'
-      +'<div class="nlr-quick-actions">'+parts.slice(0,2).join('')+'</div>'
-      +(parts.length>2?'<details class="nlr-detail nlr-study-links"><summary>更多歷屆試題與法規</summary><div class="nlr-study-list">'+parts.slice(2).join('')+'</div></details>':'')
+      +'<div class="nlr-quick-actions">'+featured.join('')+'</div>'
+      +(extra.length?'<details class="nlr-detail nlr-study-links"><summary>更多歷屆試題與法規</summary><div class="nlr-study-list">'+extra.join('')+'</div></details>':'')
       +'<p class="nlr-study-note">這些是主題相關的舊考題，不代表考題曾考過此新聞事件；法規或修法草案的現況請依官方來源核對。</p>'
       +'<p data-swsi-news-status role="status" class="nlr-study-note"></p></div>';
   }
