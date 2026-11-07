@@ -178,6 +178,12 @@ async function scenario({
     assert(!content.includes('命題趨勢雷達'), 'student view should no longer present itself as a trend dashboard');
     const expectedEvent = singleSource ? oneOffEvent : event;
     assert(content.includes(expectedEvent.title), 'event card disappeared');
+    assert(content.includes('nlr-preview'), 'compact preview missing');
+    assert(content.includes('nlr-deep'), 'full analysis disclosure missing');
+    if (!singleSource) {
+      assert(content.includes('nlr-study-quick'), 'practice entry should be visible');
+      assert(content.indexOf('nlr-study-quick') < content.indexOf('nlr-deep'), 'practice precedes deep analysis');
+    }
     if (singleSource) {
       for (const value of [
         '單次觀察', '尚不足以形成趨勢', '來源依據',
