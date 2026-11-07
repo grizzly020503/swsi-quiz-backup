@@ -51,7 +51,7 @@ async function optionTexts(page) {
   await page.waitForFunction(() => window.SWSI_FEEDBACK && /Feedback V1/.test(window.SWSI_FEEDBACK.version || ''));
   await page.waitForFunction(() => window.SWSI_FEEDBACK_COMPACT && window.SWSI_FEEDBACK_COMPACT.version === 'V2');
 
-  assert((await page.locator('footer .swsi-report-footer-btn').count()) === 1, 'general feedback footer entry missing');
+  assert.strictEqual(await page.locator('footer .swsi-report-footer-btn').count(), 0, 'compact homepage should not have a separate footer feedback row');
 
   // Official MCQ: compact form, official trust note, and only question-related categories.
   await page.getByRole('button', { name: /開始刷題/ }).click();
@@ -111,15 +111,16 @@ async function optionTexts(page) {
   assert.deepStrictEqual(await optionTexts(page), ['答案好像不對', '解析有疑問', '題目顯示異常', '其他'], 'essay compact categories incorrect');
   await page.getByRole('button', { name: /關閉回報視窗/ }).click();
 
-  // General feature suggestions live in the public footer, and the layered shell
-  // intentionally exposes that footer on Home rather than repeating it on every
-  // internal study page. Return through the real navigation before testing it.
-  await page.locator('#t-home').click();
-  await page.waitForSelector('.swsi-focus-primary', { timeout: 30000 });
-  await page.waitForFunction(() => document.body.getAttribute('data-swsi-page') === 'home');
-  const footerFeedback = page.locator('footer .swsi-report-footer-btn');
-  await footerFeedback.waitFor({ state: 'visible', timeout: 10000 });
-  await footerFeedback.click();
+  // General website feedback is available under My > 更多與平台資訊.
+  // Keeping the entry out of Home removes the redundant line below the compact footer.
+  await page.locator('#t-review').click();
+  await page.waitForSelector('.swsi-myhub-more', { timeout: 10000 });
+  await page.locator('.swsi-myhub-more > summary').click();
+  const generalFeedback = page.locator('.swsi-myhub-more .swsi-myhub-row[onclick*="SWSI_FEEDBACK.openGeneral"]');
+  await generalFeedback.waitFor({ state: 'visible', timeout: 10000 });
+  assert.strictEqual(await page.evaluate(() => window.SWSI_FEEDBACK.currentContext().context_type), 'general',
+    'learning hub must clear stale essay/theory/law context before general reporting');
+  await generalFeedback.click();
   await page.waitForSelector('.swsi-report-dialog[data-swsi-compact="2"]');
   modalText = await page.locator('.swsi-report-dialog').innerText();
   assert(/回報／提供建議/.test(modalText), 'general feedback compact title missing');

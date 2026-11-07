@@ -100,6 +100,17 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       return { gap: fr.top - ar.bottom, tabDisplay: getComputedStyle(tab).display };
     });
     assert(layout, 'home/footer layout elements missing');
+    const probe = await page.evaluate(() => {
+      const sel = s => document.querySelector(s);
+      const r = el => { const a=el.getBoundingClientRect();return {top:Math.round(a.top),bottom:Math.round(a.bottom),height:Math.round(a.height)}; };
+      const wrap=sel('.wrap'),app=sel('#app'),footer=sel('.wrap > footer'),nav=sel('.tabbar'),brand=sel('.swsi-public-footer-brand');
+      return {viewport:innerHeight,scrollHeight:document.scrollingElement.scrollHeight,
+        scrollY:scrollY,wrap:r(wrap),app:r(app),footer:r(footer),brand:r(brand),nav:r(nav),
+        wrapPadding:getComputedStyle(wrap).paddingBottom,footerMargin:getComputedStyle(footer).marginTop,
+        page:document.body.dataset.swsiPage};
+    });
+    console.log('SWSI HOME FOOTER GAP PROBE '+JSON.stringify(probe));
+
     assert(layout.gap <= 48, 'home leaves an artificial blank slab before footer: '+layout.gap+'px');
     const footerInfo = await page.evaluate(() => {
       const brand = document.querySelector('.swsi-public-footer-brand');
@@ -113,6 +124,8 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       };
     });
     assert(footerInfo, 'compact public footer missing');
+    assert.strictEqual(await page.locator('.wrap > footer .swsi-report-footer-btn').count(), 0,
+      'standalone footer feedback row causes an unnecessary blank block');
     assert.strictEqual(footerInfo.title, 'SWSI 社工師國考', 'public footer title mismatch');
     assert(footerInfo.tagline.includes('免費學習平台'), 'footer tagline missing');
     assert.deepStrictEqual(footerInfo.links, ['about','sources','privacy','terms'],
@@ -148,6 +161,10 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     assert(clearance, 'footer brand or bottom nav missing');
     assert(clearance.brandBottom <= clearance.tabTop + 1,
       'footer content is covered by fixed bottom navigation: brandBottom='+clearance.brandBottom+' tabTop='+clearance.tabTop);
+    assert(clearance.tabTop - clearance.brandBottom <= 32,
+      'home has an oversized empty slab below the footer: '+(clearance.tabTop-clearance.brandBottom)+'px');
+    assert(clearance.tabTop - clearance.brandBottom >= 8,
+      'home footer is too close to the fixed navigation: '+(clearance.tabTop-clearance.brandBottom)+'px');
     await page.evaluate(() => window.scrollTo(0, 0));
   }
 

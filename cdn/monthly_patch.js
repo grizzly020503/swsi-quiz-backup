@@ -1295,7 +1295,7 @@ main [style*="font-size:15px"]{
       }
       body[data-swsi-page="home"] footer{
         margin-top:12px!important;
-        padding-bottom:18px!important;
+        padding-bottom:8px!important;
       }
 
       /* Loading keeps the shell stable: the flexible main pushes attribution
@@ -1321,7 +1321,7 @@ main [style*="font-size:15px"]{
         }
       }
       @media(max-width:420px){
-        :root{--swsi-tabbar-clearance:calc(88px + env(safe-area-inset-bottom,0px));}
+        :root{--swsi-tabbar-clearance:calc(80px + env(safe-area-inset-bottom,0px));}
       }
       html[data-fs="2"]{
         --swsi-tabbar-clearance:calc(94px + env(safe-area-inset-bottom,0px));
@@ -2641,6 +2641,7 @@ html[data-fs="2"]{
       +row('源','資料來源','正式考題以官方資料為準',"swsiOpenPublicInfo('sources',this)")
       +row('隱','隱私說明','了解平台保存哪些資料',"swsiOpenPublicInfo('privacy',this)")
       +row('條','使用條款','免費分享與商業使用邊界',"swsiOpenPublicInfo('terms',this)")
+      +row('旗','回報問題／提供建議','協助改善網站或題目內容',"SWSI_FEEDBACK.openGeneral(this)")
       +'<button type="button" class="swsi-myhub-row admin-login" data-swsi-admin-login onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理者入口</span><span class="meta">僅管理者使用</span></span><span class="arrow">›</span></button>'
       +'</div></details></section>';
   }
@@ -4056,6 +4057,9 @@ html[data-fs="2"]{
 
   function currentContext(){
     var c={context_type:'general',context_id:null,context_title:'網站整體',source_kind:'swsi',subject:null,exam_year:null,exam_round:null,question_no:null};
+    // The learning hub is a general-purpose page. A previously selected essay,
+    // theory or law may still exist in router state after navigation.
+    if(document.querySelector('#app .swsi-myhub'))return c;
     try{
       var item=(typeof queue!=='undefined'&&Array.isArray(queue)&&typeof idx!=='undefined')?queue[idx]:null;
       if(item&&document.querySelector('#app .qcard')){
@@ -4185,7 +4189,7 @@ html[data-fs="2"]{
   function makeMini(cls){var b=document.createElement('button');b.type='button';b.className=cls||'swsi-report-mini';b.textContent='⚑ 回報問題';b.setAttribute('aria-label','回報目前內容的問題');b.onclick=function(){window.swsiOpenReport(b);};return b;}
 
   function ensureFooter(){
-    var f=document.querySelector('footer');if(!f||f.querySelector('.swsi-report-footer-btn'))return;
+    var f=document.querySelector('footer');if(!f||f.querySelector('.swsi-public-footer-brand')||f.querySelector('.swsi-report-footer-btn'))return;
     var b=makeMini('swsi-report-footer-btn');b.textContent='回報問題／提供建議';b.setAttribute('aria-label','回報網站問題或提供建議');f.appendChild(b);
   }
 
@@ -4383,10 +4387,7 @@ html[data-fs="2"]{
     dialog.dataset.swsiCompact='2';
   }
 
-  function forceGeneralFooter(btn){
-    if(!btn || btn.dataset.swsiGeneralBound==='1')return;
-    btn.dataset.swsiGeneralBound='1';
-    btn.onclick=function(){
+  function openGeneralReport(btn){
       var qcards=Array.from(document.querySelectorAll('#app .qcard'));
       var saved=[];
       for(var i=0;i<qcards.length;i++){
@@ -4406,7 +4407,12 @@ html[data-fs="2"]{
         try{if(hasTheory)theoryOpen=saveTheory;}catch(_e){}
         try{if(hasLaw)lawOpen=saveLaw;}catch(_e){}
       }
-    };
+  }
+  if(window.SWSI_FEEDBACK)window.SWSI_FEEDBACK.openGeneral=openGeneralReport;
+  function forceGeneralFooter(btn){
+    if(!btn || btn.dataset.swsiGeneralBound==='1')return;
+    btn.dataset.swsiGeneralBound='1';
+    btn.onclick=function(){openGeneralReport(btn);};
   }
 
   function scan(root){
