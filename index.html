@@ -953,6 +953,7 @@ function answerLabel(item){
    要新增事件：在 EVENTS 陣列最後照同格式加一筆即可（subjects 用完整科目名）。 */
 (function(){
   var ov=null, style=null, flt='全部';
+  var historyPane=null, historyFilter='全部', savedScrollTop=0;
 
   /* ---- 事件資料（可持續累積）---- */
   var EVENTS=[
@@ -1083,7 +1084,7 @@ function answerLabel(item){
      +'.nl-kw{display:flex;gap:6px;flex-wrap:wrap;}'
      +'.nl-kw span{font-size:var(--fs-s);padding:3px 9px;border-radius:7px;background:var(--paper,#EFF3F0);border:1px solid var(--line,#DCE4DF);color:var(--ink-soft,#757A75);}'
      +'.nl-exam{background:var(--correct-bg,#E3EDE9);border-radius:11px;padding:11px 13px;font-size:var(--fs-b);line-height:1.7;margin-top:12px;}'
-     +'.nl-note{font-size:var(--fs-s);color:var(--gold,#95988A);margin-top:8px;}'     +'.nl-deep{margin-top:8px;border-top:1px solid var(--line,#DCE4DF);padding-top:9px}.nl-deep summary{font-size:var(--fs-s);font-weight:800;color:var(--pine,#4F7E76);cursor:pointer}.nl-deep summary:focus-visible{outline:2px solid var(--pine,#4F7E76)}.nl-history-label{font-size:var(--fs-s);font-weight:800;color:var(--ink-soft,#757A75);margin-top:18px}';
+     +'.nl-note{font-size:var(--fs-s);color:var(--gold,#95988A);margin-top:8px;}'     +'.nl-deep{margin-top:8px;border-top:1px solid var(--line,#DCE4DF);padding-top:9px}.nl-deep summary{font-size:var(--fs-s);font-weight:800;color:var(--pine,#4F7E76);cursor:pointer}.nl-deep summary:focus-visible{outline:2px solid var(--pine,#4F7E76)}.nl-history-entry{display:flex;align-items:center;gap:10px;width:100%;min-height:72px;padding:14px 16px;text-align:left;margin-top:18px;border-radius:14px;border:1px solid var(--line,#DCE4DF);background:var(--paper2,#F8FAF9);color:var(--ink,#2A2C2A);font-family:inherit;cursor:pointer}.nl-history-entry strong{display:block;font-size:var(--fs-b);line-height:1.5}.nl-history-entry small{display:block;font-size:var(--fs-s);color:var(--ink-soft,#757A75);font-weight:400;line-height:1.5;margin-top:2px}.nl-history-entry .nl-arrow{margin-left:auto;color:var(--pine,#4F7E76);font-size:24px}.nl-history-entry:focus-visible,.nl-back:focus-visible{outline:2px solid var(--pine,#4F7E76);outline-offset:2px}.nl-history-page{max-width:680px;margin:0 auto;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 72px)}.nl-back{font-family:inherit;font-size:var(--fs-b);font-weight:700;background:transparent;border:0;color:var(--pine,#4F7E76);cursor:pointer;min-height:44px}.nl-history-heading{font-size:var(--fs-h);font-weight:800;margin:16px 0 4px}.nl-history-subtitle{font-size:var(--fs-s);color:var(--ink-soft,#757A75);line-height:1.65;margin-bottom:15px}';
     document.head.appendChild(style);
   }
 
@@ -1109,26 +1110,90 @@ function answerLabel(item){
       +'</details></div>';
   }
 
+  function chipsHtml(active,action){
+    return CHIPS.map(function(c){
+      return '<button type="button" class="nl-chip'+(c[0]===active?' on':'')+'" onclick="NL.'+action+'(\''+c[0]+'\')">'+c[0]+'</button>';
+    }).join('');
+  }
+
   function render(){
-    var sel=''; for(var i=0;i<CHIPS.length;i++){ if(CHIPS[i][0]===flt){ sel=CHIPS[i][1]; break; } }
-    var list=EVENTS.filter(function(ev){ return !sel || (ev.subjects||[]).indexOf(sel)>=0; });
-    var chips=CHIPS.map(function(c){ return '<button class="nl-chip'+(c[0]===flt?' on':'')+'" onclick="NL.filter(\''+c[0]+'\')">'+c[0]+'</button>'; }).join('');
+    // Canonical page: fresh ranked events are injected above the subject chips
+    // by the existing radar hook. Evergreen cards live on another screen.
     ov.innerHTML=
       '<div class="nl-wrap">'
       +'<div class="nl-top"><div class="nl-title">📰 時事庫</div><div style="display:flex;align-items:center;gap:10px">'+fc()+'<button class="nl-x" onclick="NL.close()">✕</button></div></div>'
-      +'<div class="nl-intro">近三年（2023–2026）與社工國考相關的重大社會事件與修法。讀懂「發生什麼、牽涉哪些考點與法規、可能怎麼考」——申論最愛考時事＋修法。</div>'
-      +'<div class="nl-chips">'+chips+'</div>'
-      +'<div class="nl-history-label">背景案例 · 延伸閱讀</div>'
-      +(list.length?list.map(card).join(''):'<div class="nl-intro" style="margin-top:20px">這個科目目前沒有收錄事件。</div>')
-      +'<div class="nl-intro" style="margin-top:18px;text-align:center">持續累積中——之後會再補上新事件。</div>'
+      +'<div class="nl-intro">從近期重要社會事件複習國考考點，延伸到歷屆試題、申論與相關法規。</div>'
+      +'<div class="nl-chips">'+chipsHtml(flt,'filter')+'</div>'
+      +'<button type="button" class="nl-history-entry" onclick="NL.history()" aria-label="查看歷年重大事件與經典案例">'
+      +'<span><strong>歷年重大事件與經典案例</strong><small>兒少保護、重大災害、性平與福利修法等背景案例</small></span><span class="nl-arrow" aria-hidden="true">›</span></button>'
       +'</div>';
-    window.scrollTo(0,0);
+    // NL is a scrollable overlay; do not scroll the underlying exam page.
+    ov.scrollTop=0;
+  }
+
+  function renderHistory(){
+    if(!historyPane)return;
+    var sel='';
+    for(var i=0;i<CHIPS.length;i++){
+      if(CHIPS[i][0]===historyFilter){sel=CHIPS[i][1];break;}
+    }
+    var list=EVENTS.filter(function(ev){return !sel||(ev.subjects||[]).indexOf(sel)>=0;});
+    historyPane.innerHTML=
+      '<div class="nl-top"><button type="button" class="nl-back" onclick="NL.back()">‹ 返回時事庫</button>'
+      +'<div style="display:flex;align-items:center;gap:10px">'+fc()+'<button class="nl-x" onclick="NL.close()">✕</button></div></div>'
+      +'<div class="nl-history-heading">歷年重大事件與經典案例</div>'
+      +'<div class="nl-history-subtitle">背景案例供延伸閱讀，並非考題預測；涉及法規時請以主管機關現行公告為準。</div>'
+      +'<div class="nl-chips" role="group" aria-label="篩選歷年案例">'+chipsHtml(historyFilter,'historyFilter')+'</div>'
+      +(list.length?list.map(card).join(''):'<p class="nl-intro">這個科目目前沒有背景案例。</p>');
+  }
+
+  function hideHistory(){
+    if(!historyPane)return;
+    if(historyPane.parentNode)historyPane.parentNode.removeChild(historyPane);
+    historyPane=null;
+    var primary=ov&&ov.querySelector('.nl-wrap');
+    if(primary)primary.style.display='';
   }
 
   window.NL={
-    open:function(){ ensureStyle(); if(!ov){ ov=document.createElement('div'); ov.className='nl-ov'; document.body.appendChild(ov);} flt='全部'; render(); },
-    close:function(){ if(ov&&ov.parentNode)ov.parentNode.removeChild(ov); ov=null; },
-    filter:function(f){ flt=f; render(); }
+    open:function(){
+      ensureStyle();
+      if(!ov){ov=document.createElement('div');ov.className='nl-ov';document.body.appendChild(ov);}
+      hideHistory();
+      flt='全部';
+      render();
+    },
+    close:function(){
+      if(ov&&ov.parentNode)ov.parentNode.removeChild(ov);
+      ov=null;historyPane=null;savedScrollTop=0;
+    },
+    filter:function(f){flt=f;render();},
+    history:function(){
+      if(!ov||historyPane)return;
+      savedScrollTop=ov.scrollTop||0;
+      var primary=ov.querySelector('.nl-wrap');
+      if(!primary)return;
+      primary.style.display='none';
+      historyFilter='全部';
+      historyPane=document.createElement('section');
+      historyPane.className='nl-history-page';
+      ov.appendChild(historyPane);
+      renderHistory();
+      ov.scrollTop=0;
+      var back=historyPane.querySelector('.nl-back');
+      if(back&&typeof back.focus==='function')back.focus();
+    },
+    historyFilter:function(f){
+      if(!historyPane)return;
+      historyFilter=f;
+      renderHistory();
+      if(ov)ov.scrollTop=0;
+    },
+    back:function(){
+      if(!ov||!historyPane)return;
+      hideHistory();
+      ov.scrollTop=savedScrollTop;
+    }
   };
 })();
 /* ===== 時事庫注入 END ===== */
