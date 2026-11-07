@@ -15,6 +15,8 @@ on:
       - 'scripts/usage_analytics_v1_smoke.py'
       - 'scripts/usage_analytics_v1_edge_smoke.py'
       - 'scripts/usage_analytics_v1_schema_smoke.py'
+      - 'supabase/migrations/20261107090000_split_usage_analytics_by_site.sql'
+      - 'scripts/usage_analytics_dual_site_smoke.py'
   pull_request:
     paths:
       - '.github/workflows/usage-analytics-qa.yml'
@@ -28,6 +30,8 @@ on:
       - 'scripts/usage_analytics_v1_smoke.py'
       - 'scripts/usage_analytics_v1_edge_smoke.py'
       - 'scripts/usage_analytics_v1_schema_smoke.py'
+      - 'supabase/migrations/20261107090000_split_usage_analytics_by_site.sql'
+      - 'scripts/usage_analytics_dual_site_smoke.py'
 
 permissions:
   contents: read
@@ -54,7 +58,7 @@ jobs:
         run: |
           set -euo pipefail
           node --check cdn/monthly_patch.js
-          python -m py_compile scripts/usage_analytics_v1_smoke.py scripts/usage_analytics_v1_edge_smoke.py scripts/usage_analytics_v1_schema_smoke.py
+          python -m py_compile scripts/usage_analytics_v1_smoke.py scripts/usage_analytics_v1_edge_smoke.py scripts/usage_analytics_v1_schema_smoke.py scripts/usage_analytics_dual_site_smoke.py
           deno check supabase/functions/swsi-usage/index.ts
           deno check supabase/functions/swsi-admin/index.ts
 
@@ -69,6 +73,7 @@ jobs:
           python scripts/usage_analytics_v1_smoke.py
           python scripts/usage_analytics_v1_edge_smoke.py
           python scripts/usage_analytics_v1_schema_smoke.py
+          python scripts/usage_analytics_dual_site_smoke.py
 
       - name: Migration permission guard
         run: |
