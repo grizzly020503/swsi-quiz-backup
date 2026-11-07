@@ -66,11 +66,13 @@
     if(!t)return '';
     var date=t.theory_checked_at?(' · '+t.theory_checked_at):'';
     var note=t.theory_trust_note||'這是 SWSI 整理的學習卡；尚未完成本階段逐卡校正，請搭配課本與老師教材理解。';
-    return '<details class="swsi-theory-trust">'
-      +'<summary>'+E(statusText(t)+date)+'</summary>'
+    // Keep theory-specific school/accuracy distinctions visible, while folding the common disclaimer.
+    return '<section class="swsi-theory-trust">'
+      +'<div class="swsi-theory-trust-status">'+E(statusText(t)+date)+'</div>'
       +'<div class="swsi-theory-trust-note">'+E(note)+'</div>'
+      +'<details class="swsi-theory-trust-more"><summary>來源與使用提醒</summary>'
       +'<div class="swsi-theory-trust-note">理論卡不是考選部官方答案；這是 SWSI 學習整理。正式題目若指定特定理論、學者或階段，以題目要求為準。</div>'
-      +'</details>';
+      +'</details></section>';
   }
 
   if(!document.getElementById('swsi-theory-dictionary-compact-style')){
@@ -80,7 +82,8 @@
       '#app .swsi-theory-summary{font-size:13px;line-height:1.65;color:var(--ink-soft);font-weight:400;margin:7px 0 5px;}',
       '#app .swsi-theory-hint{font-size:12px;color:var(--pine-deep);margin-top:5px;}',
       '#app .swsi-theory-trust{border-top:1px solid var(--line);margin:16px 0 7px;padding-top:10px;font-family:"Noto Sans TC",sans-serif;}',
-      '#app .swsi-theory-trust summary{cursor:pointer;font-size:11.5px;color:var(--ink-soft);line-height:1.7;}',
+      '#app .swsi-theory-trust-status{font-size:11.5px;font-weight:700;color:var(--ink-soft);line-height:1.7;}',
+      '#app .swsi-theory-trust-more summary{cursor:pointer;font-size:11.5px;color:var(--ink-soft);line-height:1.7;margin-top:5px;}',
       '#app .swsi-theory-trust-note{font-size:11px;line-height:1.7;color:var(--ink-soft);padding:5px 0 0 13px;}',
       '#app .ehead[role="button"]:focus-visible{outline:2px solid var(--pine);outline-offset:2px;border-radius:9px;}'
     ].join('');
