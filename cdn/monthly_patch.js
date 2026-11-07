@@ -2463,7 +2463,8 @@ html[data-fs="2"]{
     if(!box){box=document.createElement('section');box.className='swsi-self-cause';var next=exp.querySelector(':scope > .btn');if(next)exp.insertBefore(box,next);else exp.appendChild(box);}
     /* Set marker BEFORE changing children so our MutationObserver cannot trigger itself forever. */
     box.dataset.swsiCauseKey=key;
-    box.innerHTML='<div class="swsi-cause-title">這題你為什麼會錯？</div><div class="swsi-cause-help">點一下就好，只存在這台裝置。之後錯題本會依你的原因整理。</div><div class="swsi-cause-row">'+CAUSES.map(function(c){return causeButton(item.id,c,cur);}).join('')+'</div>';
+    var openBefore=!!cur||(box.querySelector('details.swsi-cause-details')||{}).open;
+    box.innerHTML='<details class="swsi-cause-details"'+(openBefore?' open':'')+'><summary class="swsi-cause-title">這題你為什麼會錯？'+(cur?' · '+H(cur):'（選填）')+'</summary><div class="swsi-cause-help">依你的實際原因選擇，僅儲存在這台裝置。</div><div class="swsi-cause-row">'+CAUSES.map(function(c){return causeButton(item.id,c,cur);}).join('')+'</div></details>';
   }
   window.swsiSetWrongCause=function(id,cause){var m=loadCauses();if(m[id]&&m[id].cause===cause)delete m[id];else m[id]={cause:cause,ts:Date.now()};saveCauses(m);decorateWrongCause();};
 
@@ -2540,7 +2541,7 @@ html[data-fs="2"]{
 
   if(!document.getElementById('swsi-learning-loop-style')){var st=document.createElement('style');st.id='swsi-learning-loop-style';st.textContent=`
     /* Premium-calm review + progress: keep one meaningful action card, flatten the rest. */
-    .swsi-self-cause{margin:17px 0 13px;padding:16px 0;border:0;border-top:1px solid #E3E8E5;border-bottom:1px solid #E3E8E5;border-radius:0;background:transparent}.swsi-cause-title{font-size:var(--fs-b);font-weight:800;color:var(--ink);margin-bottom:4px}.swsi-cause-help{font-size:var(--fs-s);line-height:1.7;color:var(--ink-soft);margin-bottom:10px}.swsi-cause-row{display:flex;flex-wrap:wrap;gap:7px}.swsi-cause-chip{border:1px solid #D9E1DD;background:#fff;color:var(--ink-soft);border-radius:999px;padding:7px 10px;font-family:inherit;font-size:var(--fs-s);font-weight:700;cursor:pointer}.swsi-cause-chip.on{border-color:var(--pine);background:var(--correct-bg);color:var(--pine-deep)}
+    .swsi-self-cause{margin:12px 0;border-top:1px solid #E3E8E5;background:transparent}.swsi-cause-details>summary{cursor:pointer;list-style:none;min-height:46px;display:flex;align-items:center;gap:8px;padding:9px 2px;font-size:var(--fs-s);font-weight:800;color:var(--pine-deep)}.swsi-cause-details>summary::-webkit-details-marker{display:none}.swsi-cause-details>summary:after{content:'＋';margin-left:auto;color:var(--ink-soft);font-weight:600}.swsi-cause-details[open]>summary:after{content:'－'}.swsi-cause-details>summary:focus-visible{outline:2px solid var(--pine);outline-offset:2px}.swsi-cause-help{font-size:var(--fs-s);line-height:1.6;color:var(--ink-soft);margin:0 0 10px}.swsi-cause-row{display:flex;flex-wrap:wrap;gap:7px;padding-bottom:12px}.swsi-cause-chip{border:1px solid #D9E1DD;background:#fff;color:var(--ink-soft);border-radius:999px;padding:7px 10px;font-family:inherit;font-size:var(--fs-s);font-weight:700;cursor:pointer}.swsi-cause-chip.on{border-color:var(--pine);background:var(--correct-bg);color:var(--pine-deep)}
     .swsi-review-stats{margin:17px 0 18px;border-top:1px solid #E1E7E3;border-bottom:1px solid #E1E7E3;gap:0}.swsi-review-stats .stat{background:transparent;border:0;border-right:1px solid #E1E7E3;border-radius:0;padding:12px 6px}.swsi-review-stats .stat:last-child{border-right:0}.swsi-review-stats .v{font-size:20px}.swsi-review-stats .k{margin-top:2px}.swsi-calm-note{margin:12px 0 0;padding:12px 2px;border:0;border-top:1px solid #E4E9E6;border-bottom:1px solid #E4E9E6;border-radius:0;background:transparent;color:var(--ink-soft);font-size:13px;line-height:1.7}.swsi-learning-section{margin-top:24px;border-top:1px solid #E2E7E4;padding-top:16px}.swsi-learning-h{font-size:14px;font-weight:900;color:var(--ink);margin:0 0 10px}.swsi-learning-muted{font-size:12px;line-height:1.7;color:var(--ink-soft);padding:2px 2px 9px}.swsi-learning-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;border:0;border-bottom:1px solid #E5E9E6;background:transparent;border-radius:0;padding:13px 2px;margin:0;color:var(--ink);font-family:inherit;cursor:pointer}.swsi-learning-row:hover{background:#FAFBFA}.swsi-learning-row b{display:block;font-size:13.5px;line-height:1.5}.swsi-learning-row small{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:3px}
     .swsi-progress-hero{margin-top:16px;border:0;border-bottom:1px solid #E1E7E3;border-radius:0;background:transparent;padding:4px 0 18px}.swsi-progress-hero>div:first-child small{display:block;color:var(--ink-soft);font-size:12px}.swsi-progress-hero strong{display:block;font-size:38px;line-height:1.12;color:var(--pine-deep);margin:4px 0 15px}.swsi-progress-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid #E5E9E6}.swsi-progress-mini span{background:transparent;border-radius:0;padding:10px 6px 0;text-align:center;font-size:10.5px;color:var(--ink-soft)}.swsi-progress-mini span+span{border-left:1px solid #E5E9E6}.swsi-progress-mini b{display:block;color:var(--ink);font-size:14px;margin-bottom:1px}.swsi-progress-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:10px;border-top:1px solid #E1E7E3;border-bottom:1px solid #E1E7E3}.swsi-progress-strip>div{border:0;border-right:1px solid #E1E7E3;border-radius:0;background:transparent;padding:12px 7px;text-align:center}.swsi-progress-strip>div:last-child{border-right:0}.swsi-progress-strip b{display:block;font-size:17px;color:var(--ink)}.swsi-progress-strip span{display:block;font-size:10.5px;line-height:1.4;color:var(--ink-soft);margin-top:2px}
     .swsi-next-card{margin-top:20px;padding:17px 16px;border-radius:14px;background:#F5F8F6;border:1px solid #DDE7E2;box-shadow:none}.swsi-next-copy b{display:block;font-size:14px;color:var(--pine-deep);line-height:1.5}.swsi-next-copy span{display:block;font-size:12px;line-height:1.7;color:var(--ink-soft);margin:4px 0 12px}.swsi-next-card .btn{margin:0}.swsi-next-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.swsi-next-actions .btn{margin:0}.swsi-progress-subject{width:100%;border:0;border-bottom:1px solid #E5E9E6;background:transparent;padding:13px 2px;text-align:left;font-family:inherit;cursor:pointer}.swsi-progress-subject:hover{background:#FAFBFA}.swsi-progress-subject .top{display:flex;justify-content:space-between;gap:9px;font-size:13px}.swsi-progress-subject .top span{color:var(--ink-soft);white-space:nowrap}.swsi-progress-subject .accbar{margin:8px 0 4px}.swsi-progress-subject small{font-size:10.5px;color:var(--ink-3)}.swsi-cause-stat{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #E5E9E6;padding:12px 2px;font-size:13px}.swsi-cause-stat b{color:var(--ink-soft)}.swsi-progress-foot{margin-top:24px;border-top:1px solid #E2E7E4;padding-top:10px}.swsi-progress-foot .btn{margin-top:8px}.swsi-danger-link{display:block;width:100%;border:0;background:transparent;color:var(--wrong);font-family:inherit;font-size:12px;padding:16px 8px;cursor:pointer}
@@ -5031,6 +5032,10 @@ html[data-fs="2"]{
       .swsi-explanation-more[open] summary:after{content:'－';}
       .swsi-explanation-more .body{border-top:1px solid var(--line);padding:13px 11px 2px;}
       .swsi-explanation-more .body .exp-sec:last-child,.swsi-explanation-more .body .extra:last-child{margin-bottom:10px;}
+      /* Expanded notes replace the short reason to avoid showing the same text twice. */
+      .exp:has(.swsi-explanation-more[open])>.swsi-core-reason{display:none;}
+      .swsi-trust-status{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+      .swsi-answer-trust summary>.swsi-trust-origin{font-size:11px;color:#4F6A61;font-weight:700}
 
       .tabbar .ico.swsi-nav-ico{width:21px;height:21px;display:grid;place-items:center;font-size:0;line-height:1;}
       .tabbar .ico.swsi-nav-ico svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
@@ -5219,12 +5224,17 @@ html[data-fs="2"]{
     var origin=questionOrigin(item),official=origin==='official',analysis=analysisTrust(item),legal=legalTrust(item);
     var panel=document.createElement('details');panel.className='swsi-answer-trust';
     var summary=document.createElement('summary');summary.appendChild(document.createTextNode('題目來源與解析'));
-    function chip(text,warn){var s=document.createElement('span');s.className='swsi-trust-chip'+(warn?' warn':'');s.textContent=text;summary.appendChild(s);}
-    chip(official?'考選部歷屆試題':origin==='practice'?'平台自製練習題':'題目來源待確認',false);
-    chip(analysis.label,analysis.warn);
-    if(legal)chip(legal.label,legal.warn);
+    var originName=official?'考選部歷屆試題':origin==='practice'?'平台自製練習題':'題目來源待確認';
+    var originTag=document.createElement('span');originTag.className='swsi-trust-origin';originTag.textContent=originName;summary.appendChild(originTag);
+    function chip(place,text,warn){var s=document.createElement('span');s.className='swsi-trust-chip'+(warn?' warn':'');s.textContent=text;place.appendChild(s);}
+    if(analysis.warn)chip(summary,analysis.label,true);
+    if(legal&&legal.warn)chip(summary,legal.label,true);
     panel.appendChild(summary);
     var body=document.createElement('div');body.className='swsi-trust-body';
+    var status=document.createElement('div');status.className='swsi-trust-status';
+    chip(status,analysis.label,analysis.warn);
+    if(legal)chip(status,legal.label,legal.warn);
+    body.appendChild(status);
     var p1=document.createElement('p');p1.textContent=official?'本題為考選部歷屆試題；題目、選項、官方答案與特殊給分以考選部資料為準。SWSI 另外整理解析與延伸內容，並非考選部官方解析。':origin==='practice'?'本題是 SWSI 平台自製練習題，並非考選部歷屆試題；題目與解析由平台整理。':'題目來源資料目前未能完整確認，請重新載入或查看原始題庫；不能據此認定這是非官方題目。';body.appendChild(p1);
     var p2=document.createElement('p');p2.textContent=analysis.detail;body.appendChild(p2);
     if(legal){var p3=document.createElement('p');p3.textContent=legal.detail+(item.legal_checked_at?' 核對時間：'+String(item.legal_checked_at).slice(0,10)+'。':'');body.appendChild(p3);}
