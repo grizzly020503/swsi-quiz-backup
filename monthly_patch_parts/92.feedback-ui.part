@@ -172,10 +172,7 @@
     dialog.dataset.swsiCompact='2';
   }
 
-  function forceGeneralFooter(btn){
-    if(!btn || btn.dataset.swsiGeneralBound==='1')return;
-    btn.dataset.swsiGeneralBound='1';
-    btn.onclick=function(){
+  function openGeneralReport(btn){
       var qcards=Array.from(document.querySelectorAll('#app .qcard'));
       var saved=[];
       for(var i=0;i<qcards.length;i++){
@@ -195,7 +192,12 @@
         try{if(hasTheory)theoryOpen=saveTheory;}catch(_e){}
         try{if(hasLaw)lawOpen=saveLaw;}catch(_e){}
       }
-    };
+  }
+  window.swsiOpenGeneralReport=openGeneralReport;
+  function forceGeneralFooter(btn){
+    if(!btn || btn.dataset.swsiGeneralBound==='1')return;
+    btn.dataset.swsiGeneralBound='1';
+    btn.onclick=function(){openGeneralReport(btn);};
   }
 
   function scan(root){
