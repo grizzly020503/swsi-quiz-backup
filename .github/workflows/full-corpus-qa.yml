@@ -13,6 +13,7 @@ on:
       - 'scripts/full_corpus_qa.py'
       - 'scripts/ai_review_backlog_audit.py'
       - 'scripts/ai_review_backlog_audit_selftest.py'
+      - 'scripts/analysis_ready_content_guard.py'
       - 'scripts/official_option_scenario_guard.py'
       - 'scripts/official_option_scenario_guard_selftest.py'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
@@ -70,6 +71,7 @@ on:
       - 'scripts/full_corpus_qa.py'
       - 'scripts/ai_review_backlog_audit.py'
       - 'scripts/ai_review_backlog_audit_selftest.py'
+      - 'scripts/analysis_ready_content_guard.py'
       - 'scripts/official_option_scenario_guard.py'
       - 'scripts/official_option_scenario_guard_selftest.py'
       - 'scripts/official_shared_context_13row_integration_smoke.py'
@@ -155,6 +157,12 @@ jobs:
 
       - name: Run existing unified QA synthetic invariants
         run: python scripts/unified_question_qa_selftest.py
+
+      - name: Guard against empty 'ready' analysis (all 4,800 MCQs, read only)
+        run: |
+          python -m py_compile scripts/analysis_ready_content_guard.py
+          python scripts/analysis_ready_content_guard.py --selftest
+          python scripts/analysis_ready_content_guard.py
 
       - name: Validate read-only AI review backlog triage (synthetic, zero network)
         run: |
