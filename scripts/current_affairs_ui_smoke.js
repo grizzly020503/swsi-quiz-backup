@@ -15,6 +15,68 @@ assert(match, 'installed current-affairs script is missing');
 assert(match[1].includes('}).slice(0,3);'), 'student current-affairs view must cap the ranked list at three items');
 const script = new vm.Script(match[1], { filename: 'installed-current-affairs-ui.js' });
 
+// Evergreen history cases must stay off the main current-affairs screen.
+// Exercise real NL navigation in a tiny DOM stub, without a browser or network.
+(function verifyEvergreenHistoryNavigation() {
+  const from = html.indexOf('/* ===== 時事庫注入 START');
+  const to = html.indexOf('/* ===== 時事庫注入 END', from);
+  assert(from >= 0 && to > from, 'evergreen news module must exist');
+  const moduleSource = html.slice(from, to);
+  const moduleMatch = moduleSource.match(/\(function\(\)\{[\s\S]*?\}\)\(\);/);
+  assert(moduleMatch, 'evergreen module IIFE not found');
+
+  const primary = { style: {} };
+  function node(tag) {
+    return {
+      tag, className: '', style: {}, children: [], parentNode: null, innerHTML: '', scrollTop: 0,
+      appendChild(child) { child.parentNode = this; this.children.push(child); },
+      removeChild(child) {
+        const i = this.children.indexOf(child);
+        assert(i >= 0, 'attempted to remove a detached archive screen');
+        this.children.splice(i, 1); child.parentNode = null;
+      },
+      querySelector(selector) {
+        if (this.className === 'nl-ov' && selector === '.nl-wrap') return primary;
+        if (this.className === 'nl-history-page' && selector === '.nl-back') {
+          return { focus() {} };
+        }
+        return null;
+      },
+    };
+  }
+  const document = {
+    head: node('head'), body: node('body'), documentElement: { getAttribute() { return null; } },
+    createElement: node,
+  };
+  const window = { scrollTo() {} };
+  new vm.Script(moduleMatch[0], { filename: 'evergreen-history.js' }).runInNewContext({window, document});
+  window.NL.open();
+  const overlay = document.body.children[0];
+  assert(overlay, 'news overlay is missing');
+  assert(overlay.innerHTML.includes('NL.history()'), 'single history entry missing from main screen');
+  assert(!overlay.innerHTML.includes('class="nl-card"'), 'legacy article cards must not appear on main screen');
+  assert(overlay.innerHTML.includes('class="nl-chips"'), 'live radar filter hook must remain available');
+
+  overlay.scrollTop = 167;
+  window.NL.history();
+  assert.equal(primary.style.display, 'none', 'main screen should be hidden while reading archive');
+  assert.equal(overlay.children.length, 1, 'only one archive screen should be mounted');
+  const archive = overlay.children[0];
+  assert(archive.innerHTML.includes('class="nl-card"'), 'archived case cards disappeared');
+  assert(archive.innerHTML.includes('剴剴案'), 'child protection case was lost');
+  assert(archive.innerHTML.includes('NL.back()'), 'archive back action is missing');
+
+  window.NL.historyFilter('人類行為');
+  assert(archive.innerHTML.includes('nl-chip on'), 'archive subject filter did not update');
+  window.NL.back();
+  assert.equal(overlay.children.length, 0, 'archive screen must unmount on back');
+  assert.equal(primary.style.display, '', 'main screen should be restored');
+  assert.equal(overlay.scrollTop, 167, 'main reading position should be restored');
+  window.NL.close();
+  assert.equal(document.body.children.length, 0, 'closing news should remove the overlay');
+})();
+
+
 const news = {
   id: 'fixture-news', title: '兒少保護制度', source_name: 'Fixture source',
   source_url: 'https://example.test/news', category: '兒少保護',

@@ -31,6 +31,8 @@ on:
       - 'scripts/monthly_patch_build.py'
       - 'scripts/monthly_frontend_smoke.py'
       - 'scripts/browser_interaction_smoke.js'
+      - 'scripts/current_affairs_ui_smoke.js'
+      - 'scripts/current_affairs_history_smoke.js'
       - 'scripts/knowledge_path_smoke.js'
       - 'scripts/theory_trust_smoke.js'
       - 'scripts/theory_trust_batch2_smoke.js'
@@ -69,6 +71,8 @@ on:
       - 'scripts/monthly_patch_build.py'
       - 'scripts/monthly_frontend_smoke.py'
       - 'scripts/browser_interaction_smoke.js'
+      - 'scripts/current_affairs_ui_smoke.js'
+      - 'scripts/current_affairs_history_smoke.js'
       - 'scripts/knowledge_path_smoke.js'
       - 'scripts/theory_trust_smoke.js'
       - 'scripts/theory_trust_batch2_smoke.js'
@@ -123,6 +127,7 @@ jobs:
           node --check scripts/moex_importer_integrity_smoke.js
           node --check cloudflare/wandering-wave-4418/worker.js
           node --check scripts/browser_interaction_smoke.js
+          node --check scripts/current_affairs_ui_smoke.js
           node --check scripts/knowledge_path_smoke.js
           node --check scripts/theory_trust_smoke.js
           node --check scripts/theory_trust_batch2_smoke.js
@@ -132,6 +137,14 @@ jobs:
 
       - name: P0 frontend preflight
         run: node scripts/p0_frontend_preflight.js
+
+      - name: Current-affairs history entry and live radar regression
+        run: node scripts/current_affairs_ui_smoke.js
+
+      - name: Current-affairs case navigation regression
+        run: |
+          node --check scripts/current_affairs_history_smoke.js
+          node scripts/current_affairs_history_smoke.js
 
       - name: Manifest fallback fail-closed regression
         run: node scripts/manifest_fallback_smoke.js
