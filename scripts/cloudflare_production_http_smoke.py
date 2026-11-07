@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Read-only live parity check for SWSI Cloudflare production assets and Worker guards."""
+# Read-only post-#558 deployment verification: hosted assets and browser smoke.
 
 from __future__ import annotations
 
