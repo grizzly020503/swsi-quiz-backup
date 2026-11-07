@@ -386,6 +386,7 @@ window.ESSAY_GUIDES = {"社會工作-107-1-申論1": {"kao": "考社工面對倫
 
 
 </script>
+<script src="statistics_knowledge.js"></script>
 <script src="essay_guides.js"></script>
 <script>
 /* ============================================================
@@ -2278,6 +2279,7 @@ function renderQuiz(){
     if(item.mnemonic) extra+=`<div class="extra"><b>記憶法：</b>${item.mnemonic}</div>`;
     if(item.law) extra+=`<div class="extra"><b>法源：</b>${item.law}</div>`;
     expHTML=`<div class="exp"><div class="topic">考點：<b>${item.topic||item.major}</b></div>${body}${extra}
+      ${window.SWSI_STATS && typeof window.SWSI_STATS.html === "function" ? window.SWSI_STATS.html(item) : ""}
       ${wrong&&item.mistake?`<div class="mistake">這題錯因：${item.mistake}</div>`:''}
       <button class="btn" onclick="next()">${idx+1<queue.length?'下一題 →':'看結果 →'}</button></div>`;
   }
