@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "review_status": "DRAFT_NO_GO_INDEPENDENT_RELEASE_APPROVAL_REQUIRED",
+  "created_date": "2026-11-08",
+  "main_base_sha": "991d7d6b732ab7c8b0013c0151015666fa5d8661",
+  "official_source": {
+    "paper": "104年第一次社會工作師／社會工作直接服務／科目代號2110／卷面代號11020",
+    "pdf_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0602&t=Q",
+    "pdf_page_number_1_based": 3,
+    "printed_questions": [
+      22,
+      27,
+      29
+    ],
+    "answer_pdf_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?code=104030&t=A",
+    "official_answers": {
+      "DS-104-1-22": "A",
+      "DS-104-1-27": "B",
+      "DS-104-1-29": "D"
+    }
+  },
+  "candidate_only": true,
+  "production_db_changed": false,
+  "production_cdns_changed": false,
+  "backup_site_changed": false,
+  "unchanged_contracts": [
+    "200 questions in 104-1",
+    "4800 MCQ/24 shards",
+    "all question IDs",
+    "answer / accepted_answers / grading_mode for all 200",
+    "all explanation and analysis fields",
+    "all 23 other shards",
+    "essay corpus"
+  ],
+  "changes": [
+    {
+      "id": "DS-104-1-22",
+      "changed_fields": [
+        "question",
+        "opt_a",
+        "opt_b",
+        "opt_c",
+        "opt_d"
+      ],
+      "old_lock_sha256": "90172bdba8e56cffae279a7e9cfac3d9a12da7eb3bb1e248fdf9ed296985bfe7",
+      "new_lock_sha256": "2356a6ccc4ad3c45d9749cbc0e3a04cbdb05dacd94518a26e4eedf022b4fffcb",
+      "answer": "A",
+      "grading_mode": "standard"
+    },
+    {
+      "id": "DS-104-1-27",
+      "changed_fields": [
+        "question",
+        "opt_a",
+        "opt_b"
+      ],
+      "old_lock_sha256": "3bd9003a834708458ef15e1f8d465521234b724c7bdb7d53a311e92ceef57552",
+      "new_lock_sha256": "f19169cd57390dc9ebaa89fe20b58c883d591830e5327ec51c9b246fd182bd25",
+      "answer": "B",
+      "grading_mode": "standard"
+    },
+    {
+      "id": "DS-104-1-29",
+      "changed_fields": [
+        "question",
+        "opt_b",
+        "opt_c",
+        "opt_d"
+      ],
+      "old_lock_sha256": "7835ef0830c479a00627bb700c5cd4f4dbf26d32b14645ed325b26ef0a64fab9",
+      "new_lock_sha256": "6a94a474f41fbb208852c19647d107afb0ce922553306bc99ecef6276726bedb",
+      "answer": "D",
+      "grading_mode": "standard"
+    }
+  ],
+  "new_manifest_revision": "a10d1ede26d4679eef79",
+  "old_manifest_revision": "3b2081809838aede064a",
+  "new_shard_sha256": "515b87f0cd621672f299bcca84c051845cdd6286c24895dc80e6af6696746a4d",
+  "gates_before_merge": [
+    "independent source image review and owner approval",
+    "production DB row-level exact preimage + 37-column rollback plan",
+    "controlled Supabase 3-row source edit and shard publish with consistency evidence",
+    "fresh exact-head CI including Official Exam Read-only Guard and hosted artifact QA",
+    "Netlify backup must not be touched in this PR"
+  ],
+  "historical_428_review_flags": "Not auto-cleared; three source-backed candidates do not constitute blanket clearance"
+}
