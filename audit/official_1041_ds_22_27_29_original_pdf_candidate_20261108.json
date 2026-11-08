@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "DRAFT_SOURCE_EVIDENCE_HOLD_NO_PRODUCTION_WRITE",
+  "status": "DRAFT_SOURCE_VERIFIED_ANALYSIS_QUARANTINED_NO_PRODUCTION_WRITE",
   "review_date": "2026-11-08",
   "baseline_main_sha": "991d7d6b732ab7c8b0013c0151015666fa5d8661",
   "source": {
@@ -18,10 +18,34 @@
     "other_questions_changed": 0,
     "grading_changes": 0,
     "shard_old_bytes": 318202,
-    "shard_new_bytes": 318209,
+    "shard_new_bytes": 316873,
     "shard_old_sha256": "4e2a0ac71e2f35488fcd9fd2179a586ed910cae64993559cceb134b05002ad8d",
-    "shard_new_sha256": "515b87f0cd621672f299bcca84c051845cdd6286c24895dc80e6af6696746a4d",
-    "dataset_revision": "a10d1ede26d4679eef79"
+    "shard_new_sha256": "08164e4c24a3ed07a9879862a8fc5ab19642f126bd03a780a6f650ba7de60202",
+    "dataset_revision": "433ffcf0b1c1a846aa2d",
+    "analysis_quarantined_ids": [
+      "DS-104-1-22",
+      "DS-104-1-27",
+      "DS-104-1-29"
+    ],
+    "ai_state_after": {
+      "DS-104-1-22": "review",
+      "DS-104-1-27": "review",
+      "DS-104-1-29": "review"
+    },
+    "enrichment_fields_cleared": [
+      "major",
+      "topic",
+      "keywords",
+      "exp_why",
+      "exp_others",
+      "exp_trap",
+      "exp_raw",
+      "mnemonic",
+      "extension",
+      "law",
+      "mistake"
+    ],
+    "other_question_count_unchanged": 4797
   },
   "changes": [
     {
@@ -115,6 +139,8 @@
     "No answer, accepted_answers, grading_mode, explanation, analysis_status or database changes.",
     "428 historical PDF review holds remain; do not auto-clear.",
     "This is a draft; not a confirmed production deployment.",
-    "2026-11-08: dataset_revision restored to canonical build_question_shards.py SHA256(file:hash joined with newlines) contract; earlier manual candidate revision was inconsistent. No source text, count, shard SHA, grading, or production data changed."
+    "2026-11-08: dataset_revision restored to canonical build_question_shards.py SHA256(file:hash joined with newlines) contract; earlier manual candidate revision was inconsistent. No source text, count, shard SHA, grading, or production data changed.",
+    "2026-11-09: safety correction: initial PR kept ready analysis and stale enrichment for Q22/Q27 after changing Official Core text. Candidate now stages all three as review and clears existing AI explanation and derived learning metadata; this matches the previously isolated three-question release staging plan. Production stays untouched.",
+    "Production update reset trigger additionally resets attempts/errors/timestamps; those fields are not part of static CDN question shard and remain separately controlled/verified for any real deployment. NO GO until independent approval and DB/CDN release parity."
   ]
 }
