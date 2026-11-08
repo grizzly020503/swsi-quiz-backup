@@ -3741,6 +3741,49 @@ html[data-fs="2"]{
   var VERIFY_CHECKED='checked';
   var rows=window.THEORIES||[];
 
+  // Student-facing one-line summaries; detailed and verified concepts remain in canonical theory data.
+  var THEORY_LEADS={
+    "生態系統理論": "一個人的成長，會受到家庭、學校、社會制度與時代變化影響。",
+    "增強權能觀點": "看見案主面對的權力與資源障礙，協助他真正參與決定。",
+    "優勢觀點": "不只看問題，也找出案主的能力、支持與可用資源。",
+    "復原力觀點": "面對逆境時，人可以靠自身與環境支持逐步恢復與調整。",
+    "社會工作價值與專業倫理": "在尊嚴、保密、自主與安全等價值之間做負責任的判斷。",
+    "倫理兩難與抉擇": "當重要倫理責任相互衝突，要比較可行方案與可能傷害。",
+    "Erikson 心理社會發展理論": "人的一生有不同發展階段，每個階段都有需要面對的課題。",
+    "精神分析理論": "透過無意識衝突、防衛機轉與人格動力理解人的行為。",
+    "Piaget 認知發展理論": "人的思考方式會隨發展改變，也會透過經驗調整認知。",
+    "Kohlberg 道德發展理論": "道德判斷的重點，是一個人為什麼認為事情對或錯。",
+    "社會學習理論": "人會觀察別人的行為及其後果，學到新的做法。",
+    "依附理論": "早期照顧關係會影響對人與關係的期待，但不是命運。",
+    "綜融取向與四系統模型": "搞清楚誰求助、誰參與、誰需要改變，以及社工的角色。",
+    "任務中心模式": "和案主一起設定具體目標，再拆成可執行的小任務。",
+    "認知行為理論": "想法、情緒與行為彼此影響，可以透過練習逐步調整。",
+    "心理暨社會學派": "同時理解個人心理狀態與家庭、社會情境的影響。",
+    "危機介入模式": "遇到急性危機時，先評估安全，再穩定情緒並安排後續行動。",
+    "個案管理": "協助有多重需求的人連結資源、協調服務並持續追蹤。",
+    "Biestek 專業關係原則": "以接納、尊重自決、保密等原則建立專業助人關係。",
+    "家庭系統理論": "家庭成員的互動會彼此影響，不能只看單一成員的問題。",
+    "家庭生命週期理論": "家庭在不同生活階段，會面臨角色與關係的調整。",
+    "反壓迫觀點": "看見制度與權力如何造成不平等，並減少服務障礙。",
+    "女性主義觀點": "從性別與權力關係理解個人困境和社會結構。",
+    "文化能力": "尊重文化差異，也持續檢視自己的偏見與專業權力。",
+    "障礙的社會模式": "不只看個人身體差異，也要移除環境與制度造成的障礙。",
+    "結構社會工作／批判理論": "個人的困難可能和政策、勞動條件及社會權力結構有關。",
+    "Rothman 社區工作三模式": "社區工作可著重居民參與、專業規劃，或推動社會行動。",
+    "資產基礎社區發展 ABCD": "從居民已有的能力、關係與資源出發，共同發展社區。",
+    "團體發展階段理論": "團體關係會隨互動發展；不同學者有不同的階段模型。",
+    "社會學三大觀點": "從社會秩序、資源衝突與日常互動三個角度理解社會。",
+    "福利意識形態": "不同福利理念，對政府責任與市場角色有不同看法。",
+    "Titmuss 福利三模式": "從殘補、工作成就與制度再分配三種角度理解福利。",
+    "福利混合經濟與服務輸送": "國家、市場、社區與家庭都可能參與福利的提供。",
+    "資產累積與基本收入": "比較協助累積資產和定期發放基本收入兩種政策路徑。",
+    "社會投資觀點": "透過托育、教育與就業支持，提升長期生活機會。",
+    "Bowen 家庭系統理論": "看家庭情緒關係、自我分化與三角互動如何影響成員。",
+    "Minuchin 結構家庭治療": "從界限、次系統與家庭階層了解互動關係。",
+    "資產建構／資產累積理論": "經濟安全不只靠收入，也和累積資產的制度機會有關。",
+    "無條件基本收入 UBI": "定期向個人給付現金，不以所得或工作條件設限。"
+  };
+
   function E(v){
     if(typeof window.swsiEsc==='function')return window.swsiEsc(v);
     if(typeof window.esc==='function')return window.esc(v);
@@ -3753,15 +3796,30 @@ html[data-fs="2"]{
 
   function trustHTML(t){
     if(!t)return '';
-    var good=t.theory_verify_status===VERIFY_CHECKED;
-    var bg=good?'#EEF5F1':'#F7F4EA',bd=good?'#CFE0D8':'#E5DCC1',fg=good?'#3F6961':'#756E57';
     var date=t.theory_checked_at?(' · '+t.theory_checked_at):'';
     var note=t.theory_trust_note||'這是 SWSI 整理的學習卡；尚未完成本階段逐卡校正，請搭配課本與老師教材理解。';
-    return '<div class="swsi-theory-trust" style="margin:14px 0 10px;padding:12px 13px;border:1px solid '+bd+';border-radius:12px;background:'+bg+';font-family:\'Noto Sans TC\',sans-serif">'
-      +'<div style="font-size:12.5px;font-weight:700;color:'+fg+'">'+E(statusText(t)+date)+'</div>'
-      +'<div style="font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin-top:7px">'+E(note)+'</div>'
-      +'<div style="font-size:10.8px;line-height:1.6;color:var(--ink-soft);margin-top:6px">理論卡是 SWSI 學習整理，不是考選部官方答案；正式題目若指定特定理論、學者或階段，以題目要求為準。</div>'
-      +'</div>';
+    // Keep theory-specific school/accuracy distinctions visible, while folding the common disclaimer.
+    return '<section class="swsi-theory-trust">'
+      +'<div class="swsi-theory-trust-status">'+E(statusText(t)+date)+'</div>'
+      +'<div class="swsi-theory-trust-note">'+E(note)+'</div>'
+      +'<details class="swsi-theory-trust-more"><summary>來源與使用提醒</summary>'
+      +'<div class="swsi-theory-trust-note">理論卡不是考選部官方答案；這是 SWSI 學習整理。正式題目若指定特定理論、學者或階段，以題目要求為準。</div>'
+      +'</details></section>';
+  }
+
+  if(!document.getElementById('swsi-theory-dictionary-compact-style')){
+    var style=document.createElement('style');
+    style.id='swsi-theory-dictionary-compact-style';
+    style.textContent=[
+      '#app .swsi-theory-summary{font-size:13px;line-height:1.65;color:var(--ink-soft);font-weight:400;margin:7px 0 5px;}',
+      '#app .swsi-theory-hint{font-size:12px;color:var(--pine-deep);margin-top:5px;}',
+      '#app .swsi-theory-trust{border-top:1px solid var(--line);margin:16px 0 7px;padding-top:10px;font-family:"Noto Sans TC",sans-serif;}',
+      '#app .swsi-theory-trust-status{font-size:11.5px;font-weight:700;color:var(--ink-soft);line-height:1.7;}',
+      '#app .swsi-theory-trust-more summary{cursor:pointer;font-size:11.5px;color:var(--ink-soft);line-height:1.7;margin-top:5px;}',
+      '#app .swsi-theory-trust-note{font-size:11px;line-height:1.7;color:var(--ink-soft);padding:5px 0 0 13px;}',
+      '#app .ehead[role="button"]:focus-visible{outline:2px solid var(--pine);outline-offset:2px;border-radius:9px;}'
+    ].join('');
+    document.head.appendChild(style);
   }
 
   var previousRenderTheories=window.renderTheories||renderTheories;
@@ -3769,7 +3827,36 @@ html[data-fs="2"]{
     previousRenderTheories();
     try{
       var sub=document.querySelector('#app .section-s');
-      if(sub)sub.innerHTML='先理解理論，再直接看它和哪些歷屆選擇題、申論與法規連在一起。<br><span style="color:var(--ink-soft);font-size:12px">✓「已逐卡核對」代表這張 SWSI 理論摘要已重新拆解概念與學派；△「待逐卡複核」則還不能當成完成版。理論卡不是考選部官方答案。</span>';
+      if(sub)sub.textContent='快速理解社工理論，連結歷屆試題。';
+      // Reuse existing cards and knowledgeNetHTML links; no new feature or data source.
+      Array.prototype.forEach.call(document.querySelectorAll('#app .ecard'),function(card){
+        var head=card.querySelector('.ehead'),topic=card.querySelector('.etopic');
+        if(!head||!topic)return;
+        var name=(topic.textContent||'').trim();
+        var t=rows.find(function(x){return x&&x.n===name;});
+        if(!t)return;
+        var sentence=THEORY_LEADS[name]||String(t.c||'').split('。')[0].slice(0,62);
+        if(sentence&&!head.querySelector('.swsi-theory-summary')){
+          var p=document.createElement('p');
+          p.className='swsi-theory-summary';
+          p.textContent=sentence;
+          var hint=head.querySelector('.ehint:last-child');
+          if(hint&&/點開看核心概念/.test(hint.textContent||''))head.insertBefore(p,hint);
+          else head.appendChild(p);
+        }
+        var hint=head.querySelector('.ehint:last-child');
+        if(hint&&/點開看核心概念/.test(hint.textContent||'')){
+          hint.textContent='查看核心概念與相關試題 ›';
+          hint.classList.add('swsi-theory-hint');
+        }
+        // Existing clickable div gains keyboard access without changing its click handler.
+        head.setAttribute('role','button');
+        head.setAttribute('tabindex','0');
+        head.setAttribute('aria-expanded',card.classList.contains('open')?'true':'false');
+        head.addEventListener('keydown',function(event){
+          if(event.key==='Enter'||event.key===' '){event.preventDefault();head.click();}
+        });
+      });
       var t=null;
       try{if(typeof theoryOpen==='number'&&theoryOpen>=0)t=rows[theoryOpen]||null;}catch(_e){}
       var open=document.querySelector('#app .ecard.open .ebodywrap');
