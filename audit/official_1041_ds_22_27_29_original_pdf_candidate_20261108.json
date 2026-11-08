@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT_SOURCE_EVIDENCE_HOLD_NO_PRODUCTION_WRITE",
+  "review_date": "2026-11-08",
+  "baseline_main_sha": "991d7d6b732ab7c8b0013c0151015666fa5d8661",
+  "source": {
+    "exam_code": "104030",
+    "subject": "社會工作直接服務",
+    "paper_code": "2110",
+    "pdf_printed_page": "4-3",
+    "pdf_page_index": 2,
+    "pdf_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0602&t=Q",
+    "official_answer_correction_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?code=104030&t=A",
+    "answer_correction_note": "無更正紀錄"
+  },
+  "candidate": {
+    "official_mcq_changed": 3,
+    "other_questions_changed": 0,
+    "grading_changes": 0,
+    "shard_old_bytes": 318202,
+    "shard_new_bytes": 318209,
+    "shard_old_sha256": "4e2a0ac71e2f35488fcd9fd2179a586ed910cae64993559cceb134b05002ad8d",
+    "shard_new_sha256": "515b87f0cd621672f299bcca84c051845cdd6286c24895dc80e6af6696746a4d",
+    "dataset_revision": "c4bacb5e3e0bf5c6118a"
+  },
+  "changes": [
+    {
+      "question_id": "DS-104-1-22",
+      "answer_unchanged": "A",
+      "grading_mode_unchanged": "standard",
+      "official_pdf_page": "4-3 (PDF page 3)",
+      "modified_fields": [
+        "question",
+        "opt_a",
+        "opt_b",
+        "opt_c",
+        "opt_d"
+      ],
+      "before": {
+        "question": "團體工作紀錄可作為工作者檢視及評鑑團體運作的重要方式之一，下列有關團體紀 錄的敘述何者錯誤",
+        "opt_a": "「摘要式紀錄」較能具體且深人的呈現團體過程與內容，適用於量化的評鑑，所 花費的時間較多",
+        "opt_b": "團體紀錄可以檢視團體目標達成狀態及成員參與狀態等重要面向，是團體成效評 鑑工具之一",
+        "opt_c": "紀錄裡的文字內容、相片等，項遵守保密原則及匿名處理",
+        "opt_d": "任務性團體的紀錄•需在下次聚會前發給成員檢閱，並於下次會議開始前進行修止"
+      },
+      "after": {
+        "question": "團體工作紀錄可作為工作者檢視及評鑑團體運作的重要方式之一，下列有關團體紀錄的敘述何者錯誤？",
+        "opt_a": "「摘要式紀錄」較能具體且深入的呈現團體過程與內容，適用於量化的評鑑，所花費的時間較多",
+        "opt_b": "團體紀錄可以檢視團體目標達成狀態及成員參與狀態等重要面向，是團體成效評鑑工具之一",
+        "opt_c": "紀錄裡的文字內容、相片等，須遵守保密原則及匿名處理",
+        "opt_d": "任務性團體的紀錄，需在下次聚會前發給成員檢閱，並於下次會議開始前進行修正"
+      },
+      "old_official_lock_hash": "90172bdba8e56cffae279a7e9cfac3d9a12da7eb3bb1e248fdf9ed296985bfe7",
+      "new_official_lock_hash": "2356a6ccc4ad3c45d9749cbc0e3a04cbdb05dacd94518a26e4eedf022b4fffcb"
+    },
+    {
+      "question_id": "DS-104-1-27",
+      "answer_unchanged": "B",
+      "grading_mode_unchanged": "standard",
+      "official_pdf_page": "4-3 (PDF page 3)",
+      "modified_fields": [
+        "question",
+        "opt_a",
+        "opt_b"
+      ],
+      "before": {
+        "question": "當女性社會工作人員與男性案主第二次在機構進行會談時，會談過程中，案主不斷 稱讀社會工作人員，並對社會工作人員的建議言聽計從，此時該社會工作人員應該 合理懷疑這是下面那一種專業關係的反應？",
+        "opt_a": "反情感轉栘",
+        "opt_b": "情感轉栘"
+      },
+      "after": {
+        "question": "當女性社會工作人員與男性案主第二次在機構進行會談時，會談過程中，案主不斷稱讚社會工作人員，並對社會工作人員的建議言聽計從，此時該社會工作人員應該合理懷疑這是下面那一種專業關係的反應？",
+        "opt_a": "反情感轉移",
+        "opt_b": "情感轉移"
+      },
+      "old_official_lock_hash": "3bd9003a834708458ef15e1f8d465521234b724c7bdb7d53a311e92ceef57552",
+      "new_official_lock_hash": "f19169cd57390dc9ebaa89fe20b58c883d591830e5327ec51c9b246fd182bd25"
+    },
+    {
+      "question_id": "DS-104-1-29",
+      "answer_unchanged": "D",
+      "grading_mode_unchanged": "standard",
+      "official_pdf_page": "4-3 (PDF page 3)",
+      "modified_fields": [
+        "question",
+        "opt_b",
+        "opt_c",
+        "opt_d"
+      ],
+      "before": {
+        "question": "社會工作實務領域常運用「業務聯繫會報」與「個案研討會」等形式,由不同機構或 不同專業工作者, 一起討論個案工作的方法。這種類型的會議，社會工作者需要面對 的倫理議題為何?",
+        "opt_b": "不同專業間的價值與介入焦點不一致",
+        "opt_c": "不同機構間的代表權利分配的議題",
+        "opt_d": "資訊分享程度的保密拿捏的問題"
+      },
+      "after": {
+        "question": "社會工作實務領域常運用「業務聯繫會報」與「個案研討會」等形式，由不同機構或不同專業的工作者，一起討論個案工作的方法。這種類型的會議，社會工作者需要面對的倫理議題為何？",
+        "opt_b": "不同專業間的價值觀與介入焦點不一致",
+        "opt_c": "不同機構間的代表權力分配的議題",
+        "opt_d": "資訊分享程度與保密拿捏的問題"
+      },
+      "old_official_lock_hash": "7835ef0830c479a00627bb700c5cd4f4dbf26d32b14645ed325b26ef0a64fab9",
+      "new_official_lock_hash": "6a94a474f41fbb208852c19647d107afb0ce922553306bc99ecef6276726bedb"
+    }
+  ],
+  "release_gates": [
+    "independent_source_release_approval",
+    "exact_head_ci",
+    "production_37_column_preimage_and_rollback_rehearsal",
+    "controlled_public_questions_three_row_promotion",
+    "cdn_db_parity_and_live_smoke"
+  ],
+  "notes": [
+    "Do not merge with unrelated or stale official-review draft PRs.",
+    "No answer, accepted_answers, grading_mode, explanation, analysis_status or database changes.",
+    "428 historical PDF review holds remain; do not auto-clear.",
+    "This is a draft; not a confirmed production deployment."
+  ]
+}
