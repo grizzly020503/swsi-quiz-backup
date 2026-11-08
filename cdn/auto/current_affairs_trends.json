@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-08T05:55:17Z",
+  "generated_at": "2026-11-08T13:16:50Z",
   "event_count": 6,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -291,7 +291,7 @@
         "社會工作管理 > 規劃與政策執行 > 社會工作 > 高齡者權益與社區支持"
       ],
       "trend_state": "rising",
-      "trend_score": 5.5,
+      "trend_score": 5.2,
       "why": [
         "2 個來源交叉確認",
         "2 個官方來源",
@@ -311,7 +311,7 @@
         "persistence": 0.0,
         "essay_value": 0.55,
         "mcq_density": 0.9,
-        "recency": 1.0
+        "recency": 0.6
       },
       "source_count": 2,
       "official_source_count": 2,
@@ -868,7 +868,7 @@
         "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
       "trend_state": "one-off",
-      "trend_score": 3.3,
+      "trend_score": 3.0,
       "why": [
         "1 個官方來源",
         "有政策／制度訊號",
@@ -887,7 +887,7 @@
         "persistence": 0.0,
         "essay_value": 1.1,
         "mcq_density": 0.45,
-        "recency": 1.0
+        "recency": 0.6
       },
       "source_count": 1,
       "official_source_count": 1,
