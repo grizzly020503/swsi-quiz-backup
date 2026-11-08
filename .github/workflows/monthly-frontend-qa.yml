@@ -140,6 +140,11 @@ jobs:
       - name: P0 frontend preflight
         run: node scripts/p0_frontend_preflight.js
 
+      # Source-only UI edits must also refresh the tracked Cloudflare CDN bundle.
+      # Without this gate, browser tests can pass while production still serves old UI.
+      - name: Cloudflare runtime materialization parity
+        run: python scripts/materialize_cloudflare_runtime.py --check
+
       - name: Current-affairs history entry and live radar regression
         run: node scripts/current_affairs_ui_smoke.js
 
