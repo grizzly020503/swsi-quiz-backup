@@ -21,7 +21,7 @@
     "shard_new_bytes": 318209,
     "shard_old_sha256": "4e2a0ac71e2f35488fcd9fd2179a586ed910cae64993559cceb134b05002ad8d",
     "shard_new_sha256": "515b87f0cd621672f299bcca84c051845cdd6286c24895dc80e6af6696746a4d",
-    "dataset_revision": "c4bacb5e3e0bf5c6118a"
+    "dataset_revision": "a10d1ede26d4679eef79"
   },
   "changes": [
     {
@@ -114,6 +114,7 @@
     "Do not merge with unrelated or stale official-review draft PRs.",
     "No answer, accepted_answers, grading_mode, explanation, analysis_status or database changes.",
     "428 historical PDF review holds remain; do not auto-clear.",
-    "This is a draft; not a confirmed production deployment."
+    "This is a draft; not a confirmed production deployment.",
+    "2026-11-08: dataset_revision restored to canonical build_question_shards.py SHA256(file:hash joined with newlines) contract; earlier manual candidate revision was inconsistent. No source text, count, shard SHA, grading, or production data changed."
   ]
 }
