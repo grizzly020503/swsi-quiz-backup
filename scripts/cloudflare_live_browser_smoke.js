@@ -498,6 +498,51 @@ async function verifyHostedSourceHoldQuarantine(page, label) {
     ': ' + ids.length + ' official IDs hidden before/after stale grading, one hosted mock excluded 0/0');
 }
 
+// Read-only check of the hosted compact theory dictionary (no student writes).
+async function verifyHostedTheoryDictionary(page, label) {
+  const ready = await page.evaluate(() =>
+    Array.isArray(window.THEORIES) &&
+    window.SWSI_THEORY_TRUST?.allChecked() === true &&
+    typeof go === 'function');
+  assert(ready, label + ': canonical theory data or route missing');
+  await page.evaluate(() => { theoryQ = ''; theoryOpen = null; go('theories'); });
+  await page.waitForSelector('#app .swsi-theory-summary', { timeout: 15000 });
+  const cards = page.locator('#app .ecard');
+  const summaries = page.locator('#app .swsi-theory-summary');
+  assert.equal(await cards.count(), 39, label + ': canonical 39 cards missing');
+  assert.equal(await summaries.count(), 39, label + ': theory summaries incomplete');
+  assert.equal((await page.locator('#app .section-s').innerText()).trim(),
+    '快速理解社工理論，連結歷屆試題。', label + ': new dictionary intro missing');
+  const first = cards.first();
+  const header = first.locator('.ehead');
+  assert.match(await first.innerText(), /生態系統理論/, label + ': first theory missing');
+  assert.match(await summaries.first().innerText(), /家庭|學校|時代/, label + ': summary missing');
+  assert.match(await header.innerText(), /相關試題/, label + ': question-link hint missing');
+  assert.equal(await header.getAttribute('aria-expanded'), 'false', label + ': card not collapsed');
+  await header.press('Enter');
+  await page.waitForSelector('#app .ecard.open .swsi-theory-trust', { timeout: 10000 });
+  assert.equal(await page.locator('#app .ecard.open .ehead').getAttribute('aria-expanded'),
+    'true', label + ': keyboard expansion failed');
+  const opened = page.locator('#app .ecard.open').first();
+  assert.match(await opened.innerText(), /從理論接到考題/, label + ': linked questions missing');
+  const trust = opened.locator('.swsi-theory-trust');
+  assert.match(await trust.locator('.swsi-theory-trust-status').innerText(),
+    /理論內容已逐卡核對/, label + ': theory verification status missing');
+  const more = trust.locator('.swsi-theory-trust-more');
+  assert.equal(await more.locator('.swsi-theory-trust-note').isVisible(), false,
+    label + ': shared disclaimer must start collapsed');
+  await more.locator('summary').click();
+  assert.equal(await more.locator('.swsi-theory-trust-note').isVisible(), true,
+    label + ': shared disclaimer inaccessible');
+  const overflow = await page.evaluate(() =>
+    Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - innerWidth);
+  assert(overflow <= 3, label + ': horizontal overflow in dictionary ' + overflow);
+  await page.locator('#t-home').click();
+  await page.waitForSelector('#app .swsi-focus-primary', { timeout: 15000 });
+  console.log('CLOUDFLARE HOSTED THEORY DICTIONARY OK ' + label +
+    ': 39/39 summaries, keyboard, question links, trust details');
+}
+
 async function check(engine, label, width, height, practice) {
   const browser = await engine.launch({ headless: true });
   const context = await browser.newContext({
@@ -590,6 +635,8 @@ async function check(engine, label, width, height, practice) {
       const box = await nav.nth(i).boundingBox();
       assert(box && box.width >= 40 && box.height >= 40, label + ': tiny navigation target ' + i);
     }
+
+    await verifyHostedTheoryDictionary(page, label);
 
     // Public-info modal and real navigation clicks; no external writes.
     assert.equal(await page.evaluate(() => typeof window.swsiOpenPublicInfo), 'function', label + ': info opener');
