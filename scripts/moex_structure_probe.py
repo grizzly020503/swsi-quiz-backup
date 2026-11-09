@@ -164,8 +164,11 @@ def _subject_name(row: TableRow) -> str:
             continue
         pieces.append(value)
     text = _clean_text(" ".join(pieces))
-    # Anchor labels may be duplicated by accessible/mobile markup.
-    text = re.sub(r"(?:試題|答案)(?:\s*(?:試題|答案))*$", "", text).strip()
+    # Only known action labels at the end of a subject row are UI chrome.
+    # MOEX may add 「更正答案」 plus a 「更正」 badge after publishing a corrected
+    # answer sheet (e.g. 115100/0302). They are not part of the subject name.
+    # Unknown labels and substantive subject-name changes still fail closed.
+    text = re.sub(r"(?:\s*(?:更正答案|更正|試題|答案))+$", "", text).strip()
     return text
 
 
