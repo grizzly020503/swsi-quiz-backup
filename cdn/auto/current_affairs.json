@@ -5,29 +5,38 @@
   "optional_feed_error_count": 0,
   "items": [
     {
-      "knowledge_paths": [
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 高齡者權益與社區支持",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 高齡者權益與社區支持",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 高齡者權益與社區支持"
+      "fact_keys": [
+        "num:1220000000",
+        "num:40000000000"
       ],
-      "source_url": "https://www.mohw.gov.tw/cp-16-88384-1.html",
-      "concept_keys": [
-        "labor_rights"
-      ],
+      "region": "taiwan",
+      "category": "長照與高齡",
       "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "source_type": "official",
+      "knowledge_root": "社會工作管理",
+      "published_at": "2026-11-05T08:46:00Z",
       "summary": "衛生福利部今（5）日於行政院會說明《老人福利法》第22條修法各界意見評析，行政院長卓榮泰於聽取相關說明後表示，此次老福法修法，違反社會保險原則與世代正義、社會福利應優先補助弱勢原則，以及《憲法》與財政紀律，請衛福部在綜整各方意見之後，通盤研商及審慎評估各個受影響層面，並回歸量能負擔、確保弱勢補助，以及永續財政原則。 卓院長指出，長者福利照顧一向是政府重要政策，依現行機制，對於70歲以上低收入戶、中低收入戶長者，政府每年編列12.2億元預算補貼健保費，65歲至69歲低收入戶、中低收入戶長者，則由地方政府依其財政能力予以協助。 卓院長表示，此次修法將65歲以",
       "exam_subject_axes": [
         "社會政策與社會立法",
         "社會工作直接服務",
         "人類行為與社會環境",
         "社會工作"
+      ],
+      "source_url": "https://www.mohw.gov.tw/cp-16-88384-1.html",
+      "agency_keys": [],
+      "source_name": "綜合 2 個來源",
+      "title": "點明《老人福利法》修法三大問題 卓揆請衛福部通盤研商 回歸量能負擔、弱勢補助及永續財政原則",
+      "id": "topic:de820a9347269d2de045acfdbc71aada",
+      "concept_keys": [
+        "labor_rights"
+      ],
+      "relevance_score": 6,
+      "knowledge_topics": [
+        "長照與高齡",
+        "老人",
+        "修法",
+        "政策",
+        "制度"
       ],
       "subject_topics": {
         "社會政策與社會立法": [
@@ -43,9 +52,21 @@
           "高齡者權益與社區支持"
         ]
       },
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作直接服務"
+      "knowledge_paths": [
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 高齡者權益與社區支持",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 高齡者權益與社區支持",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 高齡者權益與社區支持"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作"
       ],
       "exam_tags": [
         "老人",
@@ -57,35 +78,14 @@
         "社會政策與社會立法",
         "社會工作直接服務"
       ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
       "management_domains": [
         "服務輸送與跨網絡",
         "方案與資源管理",
         "規劃與政策執行"
-      ],
-      "relevance_score": 6,
-      "title": "點明《老人福利法》修法三大問題 卓揆請衛福部通盤研商 回歸量能負擔、弱勢補助及永續財政原則",
-      "region": "taiwan",
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會工作"
-      ],
-      "source_name": "綜合 2 個來源",
-      "knowledge_root": "社會工作管理",
-      "category": "長照與高齡",
-      "fact_keys": [
-        "num:1220000000",
-        "num:40000000000"
-      ],
-      "source_type": "official",
-      "agency_keys": [],
-      "id": "topic:de820a9347269d2de045acfdbc71aada",
-      "published_at": "2026-11-05T08:46:00Z",
-      "knowledge_topics": [
-        "長照與高齡",
-        "老人",
-        "修法",
-        "政策",
-        "制度"
       ],
       "source_count": 2,
       "article_count": 2,
@@ -108,6 +108,140 @@
       "clustered": true
     },
     {
+      "fact_keys": [
+        "num:100000000",
+        "num:50000"
+      ],
+      "region": "taiwan",
+      "category": "勞動與社會保障",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "source_type": "official",
+      "knowledge_root": "社會工作管理",
+      "published_at": "2026-11-09T10:58:48Z",
+      "summary": "勞動部於今（ 9）日修正發布 《違反勞動基準法及最低工資法裁處罰鍰共通性原則》(以下簡稱共通性原則 )，納入最低工資法，增列按次累加裁罰金額及網站資訊公開機制，將於明（116）年1月1日正式生效上路。 勞動部說明，最低工資為勞工維持生活所必需，雇主給付勞工之工資，無論係按月、按日或按時計酬，均不得低於法定最低工資。考量最低工資法自 113年上路以來，政府持續輔導事業單位遵守最低工資法，為使全國地方政府有一致性裁罰基準，本次修正共通性原則，納入違反最低工資法，同時針對上市櫃公司、實收資本額逾1億元或醫學中心等特定對象，若違反最低工資或工時等重要規定，以新臺",
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作",
+        "社會工作直接服務"
+      ],
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/100074/",
+      "agency_keys": [],
+      "source_name": "勞動部新聞稿",
+      "title": "勞動部修正發布《違反勞動基準法及最低工資法裁處罰鍰共通性原則》，納入最低工資規範，違法按次累加罰鍰",
+      "id": "3fb75022eba9c0a77b9f8c41e98ba324",
+      "concept_keys": [],
+      "relevance_score": 5,
+      "knowledge_topics": [
+        "勞動與社會保障",
+        "最低工資",
+        "修正",
+        "給付"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社會保險、就業安全與勞動政策"
+        ],
+        "社會工作": [
+          "勞動權益、社會正義與弱勢支持"
+        ]
+      },
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 組織治理與責信",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 組織治理與責信 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 組織治理與責信 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務"
+      ],
+      "exam_tags": [
+        "最低工資",
+        "修正",
+        "給付"
+      ],
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障",
+        "組織治理與責信",
+        "方案與資源管理"
+      ],
+      "source_count": 1,
+      "article_count": 1,
+      "sources": [
+        {
+          "source_name": "勞動部新聞稿",
+          "source_url": "https://www.mol.gov.tw/1607/1632/1633/100074/",
+          "source_type": "official",
+          "published_at": "2026-11-09T10:58:48Z",
+          "title": "勞動部修正發布《違反勞動基準法及最低工資法裁處罰鍰共通性原則》，納入最低工資規範，違法按次累加罰鍰"
+        }
+      ],
+      "clustered": false
+    },
+    {
+      "fact_keys": [],
+      "region": "taiwan",
+      "category": "家暴與性暴力",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "source_type": "news",
+      "knowledge_root": "社會工作管理",
+      "published_at": "2026-11-06T02:36:55Z",
+      "summary": "臉書社團「家有中學生」的匿名貼文稱，一名母親描述女兒遭父親以生薑塞入肛門的方式體罰，引發網友眾怒。衛福部保護服務司司長郭彩榕表示，若確實發生即屬不當對待，並可能涉及性侵害；原貼文已遭刪除，管理員已保存紀錄、通報113及社政、警政單位，事件仍待調查。",
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "source_url": "https://ctinews.com/news/items/4bnbk8ZEWP",
+      "agency_keys": [],
+      "source_name": "中天新聞社會",
+      "title": "父親「薑罰」女兒涉性侵 衛福部：最重7年以上徒刑",
+      "id": "4f9cbd62e3d91a78593f7e9a64b9272d",
+      "concept_keys": [
+        "gender_violence"
+      ],
+      "relevance_score": 5,
+      "knowledge_topics": [
+        "家暴與性暴力",
+        "性侵",
+        "通報",
+        "保護",
+        "衛福部"
+      ],
+      "subject_topics": {
+        "社會工作直接服務": [
+          "危險評估與安全計畫",
+          "創傷知情與危機介入"
+        ],
+        "人類行為與社會環境": [
+          "創傷反應與家庭互動"
+        ],
+        "社會政策與社會立法": [
+          "家暴與性暴力防治制度",
+          "保護令與被害人權益"
+        ],
+        "社會工作": [
+          "被害人權利與專業倫理"
+        ]
+      },
       "knowledge_paths": [
         "社會工作管理 > 品質與風險管理",
         "社會工作管理 > 服務輸送與跨網絡",
@@ -127,36 +261,10 @@
         "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 保護令與被害人權益",
         "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 創傷反應與家庭互動"
       ],
-      "source_url": "https://ctinews.com/news/items/4bnbk8ZEWP",
-      "concept_keys": [
-        "gender_violence"
-      ],
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "summary": "臉書社團「家有中學生」的匿名貼文稱，一名母親描述女兒遭父親以生薑塞入肛門的方式體罰，引發網友眾怒。衛福部保護服務司司長郭彩榕表示，若確實發生即屬不當對待，並可能涉及性侵害；原貼文已遭刪除，管理員已保存紀錄、通報113及社政、警政單位，事件仍待調查。",
-      "exam_subject_axes": [
-        "社會工作直接服務",
+      "supporting_exam_subject_axes": [
         "人類行為與社會環境",
         "社會政策與社會立法",
         "社會工作"
-      ],
-      "subject_topics": {
-        "社會工作直接服務": [
-          "危險評估與安全計畫",
-          "創傷知情與危機介入"
-        ],
-        "人類行為與社會環境": [
-          "創傷反應與家庭互動"
-        ],
-        "社會政策與社會立法": [
-          "家暴與性暴力防治制度",
-          "保護令與被害人權益"
-        ],
-        "社會工作": [
-          "被害人權利與專業倫理"
-        ]
-      },
-      "primary_exam_subject_axes": [
-        "社會工作直接服務"
       ],
       "exam_tags": [
         "性侵",
@@ -168,33 +276,13 @@
         "社會工作直接服務",
         "社會政策與社會立法"
       ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務"
+      ],
       "management_domains": [
         "品質與風險管理",
         "服務輸送與跨網絡",
         "倫理與權利保障"
-      ],
-      "relevance_score": 5,
-      "title": "父親「薑罰」女兒涉性侵 衛福部：最重7年以上徒刑",
-      "region": "taiwan",
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "source_name": "中天新聞社會",
-      "knowledge_root": "社會工作管理",
-      "category": "家暴與性暴力",
-      "fact_keys": [],
-      "source_type": "news",
-      "agency_keys": [],
-      "id": "4f9cbd62e3d91a78593f7e9a64b9272d",
-      "published_at": "2026-11-06T02:36:55Z",
-      "knowledge_topics": [
-        "家暴與性暴力",
-        "性侵",
-        "通報",
-        "保護",
-        "衛福部"
       ],
       "source_count": 1,
       "article_count": 1,
@@ -210,28 +298,31 @@
       "clustered": false
     },
     {
-      "knowledge_paths": [
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估與資源連結",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會救助、所得保障與居住權"
-      ],
-      "source_url": "https://www.ilo.org/resource/news/global-conference-calls-renewed-action-universal-social-protection",
-      "concept_keys": [
-        "social_protection"
-      ],
+      "fact_keys": [],
+      "region": "international",
+      "category": "社會救助與居住",
       "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "source_type": "official",
+      "knowledge_root": "社會工作管理",
+      "published_at": "2026-11-06T00:00:00Z",
       "summary": "Participants at a conference convened under the Global Partnership for Universal Social Protection (USP2030) emphasized the urgent need for better social protection amid growing global challenges.",
       "exam_subject_axes": [
         "社會政策與社會立法",
         "社會工作",
         "社會工作直接服務"
+      ],
+      "source_url": "https://www.ilo.org/resource/news/global-conference-calls-renewed-action-universal-social-protection",
+      "agency_keys": [],
+      "source_name": "ILO Newsroom",
+      "title": "Global conference calls for renewed action on universal social protection",
+      "id": "0b13d1001d698749d7f99c764022ef1d",
+      "concept_keys": [
+        "social_protection"
+      ],
+      "relevance_score": 5,
+      "knowledge_topics": [
+        "社會救助與居住",
+        "社會保障"
       ],
       "subject_topics": {
         "社會政策與社會立法": [
@@ -244,8 +335,21 @@
           "需求評估與資源連結"
         ]
       },
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法"
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估與資源連結",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會救助、所得保障與居住權"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務"
       ],
       "exam_tags": [
         "社會保障"
@@ -254,29 +358,13 @@
         "社會政策與社會立法",
         "社會工作"
       ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
       "management_domains": [
         "規劃與政策執行",
         "方案與資源管理",
         "倫理與權利保障"
-      ],
-      "relevance_score": 5,
-      "title": "Global conference calls for renewed action on universal social protection",
-      "region": "international",
-      "supporting_exam_subject_axes": [
-        "社會工作",
-        "社會工作直接服務"
-      ],
-      "source_name": "ILO Newsroom",
-      "knowledge_root": "社會工作管理",
-      "category": "社會救助與居住",
-      "fact_keys": [],
-      "source_type": "official",
-      "agency_keys": [],
-      "id": "0b13d1001d698749d7f99c764022ef1d",
-      "published_at": "2026-11-06T00:00:00Z",
-      "knowledge_topics": [
-        "社會救助與居住",
-        "社會保障"
       ],
       "source_count": 1,
       "article_count": 1,
@@ -292,6 +380,47 @@
       "clustered": false
     },
     {
+      "fact_keys": [],
+      "region": "taiwan",
+      "category": "勞動與社會保障",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "source_type": "official",
+      "knowledge_root": "社會工作管理",
+      "published_at": "2026-11-05T09:55:20Z",
+      "summary": "勞動部於本（115）年11月4日舉辦APEC「運用AI解方促進職業安全衛生：預防及降低職場風險與意外」工作坊，邀請加拿大、日本、韓國、泰國、馬來西亞及智利等經濟體政府與專業機構代表，以及國際公共服務協會（PSI）與網際網路工會全球聯盟（UNI Global Union）等國際工會組織，與我國政府、企業、工會及專家學者共同參與，探討人工智慧（AI）應用於職業安全衛生領域所帶來的機會與挑戰，並分享運用AI進行職場危害辨識與預測、工作環境監測及職業災害預防的最佳範例與政策經驗，深化APEC區域經濟體間的交流與合作。 勞動部李健鴻政務次長於開幕致詞時表示，隨著A",
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作",
+        "社會工作研究方法"
+      ],
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/100035/",
+      "agency_keys": [],
+      "source_name": "勞動部新聞稿",
+      "title": "勞動部舉辦「運用AI解方促進職業安全衛生：預防及降低職場風險與意外」APEC工作坊，深化亞太區域職安衛合作",
+      "id": "336762ca1408a35f353d9ac4dcc91e28",
+      "concept_keys": [
+        "labor_rights"
+      ],
+      "relevance_score": 5,
+      "knowledge_topics": [
+        "勞動與社會保障",
+        "職業災害",
+        "勞工權益",
+        "政策",
+        "權益",
+        "保護"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社會保險、就業安全與勞動政策"
+        ],
+        "社會工作": [
+          "勞動權益、社會正義與弱勢支持"
+        ],
+        "社會工作研究方法": [
+          "研究證據判讀"
+        ]
+      },
       "knowledge_paths": [
         "社會工作管理 > 規劃與政策執行",
         "社會工作管理 > 倫理與權利保障",
@@ -309,31 +438,8 @@
         "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 勞動權益、社會正義與弱勢支持",
         "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
-      "source_url": "https://www.mol.gov.tw/1607/1632/1633/100035/",
-      "concept_keys": [
-        "labor_rights"
-      ],
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "summary": "勞動部於本（115）年11月4日舉辦APEC「運用AI解方促進職業安全衛生：預防及降低職場風險與意外」工作坊，邀請加拿大、日本、韓國、泰國、馬來西亞及智利等經濟體政府與專業機構代表，以及國際公共服務協會（PSI）與網際網路工會全球聯盟（UNI Global Union）等國際工會組織，與我國政府、企業、工會及專家學者共同參與，探討人工智慧（AI）應用於職業安全衛生領域所帶來的機會與挑戰，並分享運用AI進行職場危害辨識與預測、工作環境監測及職業災害預防的最佳範例與政策經驗，深化APEC區域經濟體間的交流與合作。 勞動部李健鴻政務次長於開幕致詞時表示，隨著A",
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作",
-        "社會工作研究方法"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "社會保險、就業安全與勞動政策"
-        ],
-        "社會工作": [
-          "勞動權益、社會正義與弱勢支持"
-        ],
-        "社會工作研究方法": [
-          "研究證據判讀"
-        ]
-      },
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作研究方法"
+      "supporting_exam_subject_axes": [
+        "社會工作"
       ],
       "exam_tags": [
         "職業災害",
@@ -346,34 +452,16 @@
         "社會政策與社會立法",
         "社會工作"
       ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作研究方法"
+      ],
       "management_domains": [
         "規劃與政策執行",
         "倫理與權利保障",
         "組織治理與責信",
         "人力與督導",
         "服務輸送與跨網絡"
-      ],
-      "relevance_score": 5,
-      "title": "勞動部舉辦「運用AI解方促進職業安全衛生：預防及降低職場風險與意外」APEC工作坊，深化亞太區域職安衛合作",
-      "region": "taiwan",
-      "supporting_exam_subject_axes": [
-        "社會工作"
-      ],
-      "source_name": "勞動部新聞稿",
-      "knowledge_root": "社會工作管理",
-      "category": "勞動與社會保障",
-      "fact_keys": [],
-      "source_type": "official",
-      "agency_keys": [],
-      "id": "336762ca1408a35f353d9ac4dcc91e28",
-      "published_at": "2026-11-05T09:55:20Z",
-      "knowledge_topics": [
-        "勞動與社會保障",
-        "職業災害",
-        "勞工權益",
-        "政策",
-        "權益",
-        "保護"
       ],
       "source_count": 1,
       "article_count": 1,
@@ -389,6 +477,49 @@
       "clustered": false
     },
     {
+      "fact_keys": [],
+      "region": "taiwan",
+      "category": "少年司法與犯罪防治",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "source_type": "official",
+      "knowledge_root": "社會工作管理",
+      "published_at": "2026-10-29T04:47:08Z",
+      "summary": "為適時回應社會對公共安全與被害人程序權益保障之關注，司法院擬具之「少年事件處理法」部分條文修正草案暨「少年事件處理法」第18條之2修正草案，已於今（29）日於行政院會通過同意會銜，其中「少年事件處理法」第18條之2有關成少共犯案件之相關司法程序，以及第81條有關少年犯之假釋程序事項，因法務部與司法院有不同意見，爰併列司法院版本及本院版本，將送請立法院審議。行政院長卓榮泰表示，為回應社會對少年事件與被害人權益保障的關注，兼顧保障少年自我成長及復歸社會的需要，同時也檢討當前成少共犯案件的移送程序，上述兩案之修正為司法少年制度重要的修法。卓院長指出，為修補現行",
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//f1ff74a8-06f3-45cc-b901-c63fce7d624c",
+      "agency_keys": [],
+      "source_name": "行政院本院新聞",
+      "title": "政院同意會銜司法院「少年事件處理法」部分條文修正草案及「少年事件處理法」第18條之2修正草案",
+      "id": "58ebef461dadb2197dd67a6087da19c1",
+      "concept_keys": [],
+      "relevance_score": 5,
+      "knowledge_topics": [
+        "少年司法與犯罪防治",
+        "少年事件",
+        "少年犯罪",
+        "修法",
+        "修正",
+        "制度"
+      ],
+      "subject_topics": {
+        "社會工作直接服務": [
+          "少年評估、家庭工作與社區處遇"
+        ],
+        "人類行為與社會環境": [
+          "青少年發展、偏差行為與環境因素"
+        ],
+        "社會政策與社會立法": [
+          "少年司法與保護處分制度"
+        ],
+        "社會工作": [
+          "去標籤、權利保障與社區復歸"
+        ]
+      },
       "knowledge_paths": [
         "社會工作管理 > 服務輸送與跨網絡",
         "社會工作管理 > 倫理與權利保障",
@@ -406,32 +537,10 @@
         "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 少年司法與保護處分制度",
         "社會工作管理 > 規劃與政策執行 > 社會工作 > 去標籤、權利保障與社區復歸"
       ],
-      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//f1ff74a8-06f3-45cc-b901-c63fce7d624c",
-      "concept_keys": [],
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "summary": "為適時回應社會對公共安全與被害人程序權益保障之關注，司法院擬具之「少年事件處理法」部分條文修正草案暨「少年事件處理法」第18條之2修正草案，已於今（29）日於行政院會通過同意會銜，其中「少年事件處理法」第18條之2有關成少共犯案件之相關司法程序，以及第81條有關少年犯之假釋程序事項，因法務部與司法院有不同意見，爰併列司法院版本及本院版本，將送請立法院審議。行政院長卓榮泰表示，為回應社會對少年事件與被害人權益保障的關注，兼顧保障少年自我成長及復歸社會的需要，同時也檢討當前成少共犯案件的移送程序，上述兩案之修正為司法少年制度重要的修法。卓院長指出，為修補現行",
-      "exam_subject_axes": [
-        "社會工作直接服務",
+      "supporting_exam_subject_axes": [
         "人類行為與社會環境",
         "社會政策與社會立法",
         "社會工作"
-      ],
-      "subject_topics": {
-        "社會工作直接服務": [
-          "少年評估、家庭工作與社區處遇"
-        ],
-        "人類行為與社會環境": [
-          "青少年發展、偏差行為與環境因素"
-        ],
-        "社會政策與社會立法": [
-          "少年司法與保護處分制度"
-        ],
-        "社會工作": [
-          "去標籤、權利保障與社區復歸"
-        ]
-      },
-      "primary_exam_subject_axes": [
-        "社會工作直接服務"
       ],
       "exam_tags": [
         "少年事件",
@@ -444,35 +553,14 @@
         "社會工作直接服務",
         "社會政策與社會立法"
       ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務"
+      ],
       "management_domains": [
         "服務輸送與跨網絡",
         "倫理與權利保障",
         "品質與風險管理",
         "規劃與政策執行"
-      ],
-      "relevance_score": 5,
-      "title": "政院同意會銜司法院「少年事件處理法」部分條文修正草案及「少年事件處理法」第18條之2修正草案",
-      "region": "taiwan",
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "source_name": "行政院本院新聞",
-      "knowledge_root": "社會工作管理",
-      "category": "少年司法與犯罪防治",
-      "fact_keys": [],
-      "source_type": "official",
-      "agency_keys": [],
-      "id": "58ebef461dadb2197dd67a6087da19c1",
-      "published_at": "2026-10-29T04:47:08Z",
-      "knowledge_topics": [
-        "少年司法與犯罪防治",
-        "少年事件",
-        "少年犯罪",
-        "修法",
-        "修正",
-        "制度"
       ],
       "source_count": 1,
       "article_count": 1,
@@ -483,107 +571,6 @@
           "source_type": "official",
           "published_at": "2026-10-29T04:47:08Z",
           "title": "政院同意會銜司法院「少年事件處理法」部分條文修正草案及「少年事件處理法」第18條之2修正草案"
-        }
-      ],
-      "clustered": false
-    },
-    {
-      "knowledge_paths": [
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 家庭政策、托育與性別制度",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 性別平等、照顧正義與家庭支持",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 性別平等、照顧正義與家庭支持",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭工作與照顧支持",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 家庭政策、托育與性別制度",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 家庭系統、性別角色與生命歷程",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 性別平等、照顧正義與家庭支持",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 家庭政策、托育與性別制度",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 家庭工作與照顧支持",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 性別平等、照顧正義與家庭支持",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 家庭政策、托育與性別制度",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭工作與照顧支持",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 性別平等、照顧正義與家庭支持"
-      ],
-      "source_url": "https://www.mohw.gov.tw/cp-16-88303-1.html",
-      "concept_keys": [
-        "family_policy"
-      ],
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "summary": "疾病管制署(下稱疾管署)今(2026)年10月27日公布國內新增1例腸病毒感染併發重症病例，為北部1名未滿10歲女童，9月下旬出現發燒症狀至醫院就醫後返家，之後反覆發燒且出現排尿困難、腹痛等情形再次就醫並收治住院，後續出現下肢無力等症狀，經臨床評估及通報檢驗，確認為感染克沙奇A6型併發重症，目前已出院返家休養。 疾管署表示，今年累計8例腸病毒感染併發重症確定病例(含1例死亡)，分別為感染腸病毒D68型5例，克沙奇A4型、克沙奇A6型及克沙奇A16型各1例；呼籲民眾留意嬰幼童健康狀況與腸病毒重症前兆病徵。依據疾管署監測資料顯示，腸病毒就診人次第42週(10",
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "人類行為與社會環境",
-        "社會工作",
-        "社會工作直接服務"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "家庭政策、托育與性別制度"
-        ],
-        "人類行為與社會環境": [
-          "家庭系統、性別角色與生命歷程"
-        ],
-        "社會工作": [
-          "性別平等、照顧正義與家庭支持"
-        ],
-        "社會工作直接服務": [
-          "家庭工作與照顧支持"
-        ]
-      },
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法"
-      ],
-      "exam_tags": [
-        "托育",
-        "通報"
-      ],
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障",
-        "方案與資源管理",
-        "服務輸送與跨網絡",
-        "品質與風險管理"
-      ],
-      "relevance_score": 5,
-      "title": "國內新增1例腸病毒感染併發重症病例 籲請家長及教托育機構人員留意學幼童健康情形 出現重症前兆病徵儘速就醫",
-      "region": "taiwan",
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會工作",
-        "社會工作直接服務"
-      ],
-      "source_name": "衛生福利部焦點新聞",
-      "knowledge_root": "社會工作管理",
-      "category": "性別與家庭政策",
-      "fact_keys": [
-        "pct:15.9"
-      ],
-      "source_type": "official",
-      "agency_keys": [],
-      "id": "2f8f4ceb5d839b073ffc60bd21b0ba82",
-      "published_at": "2026-10-27T07:01:00Z",
-      "knowledge_topics": [
-        "性別與家庭政策",
-        "托育",
-        "通報"
-      ],
-      "source_count": 1,
-      "article_count": 1,
-      "sources": [
-        {
-          "source_name": "衛生福利部焦點新聞",
-          "source_url": "https://www.mohw.gov.tw/cp-16-88303-1.html",
-          "source_type": "official",
-          "published_at": "2026-10-27T07:01:00Z",
-          "title": "國內新增1例腸病毒感染併發重症病例 籲請家長及教托育機構人員留意學幼童健康情形 出現重症前兆病徵儘速就醫"
         }
       ],
       "clustered": false
