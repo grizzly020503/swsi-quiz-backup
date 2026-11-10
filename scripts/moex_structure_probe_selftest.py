@@ -50,6 +50,27 @@ def main() -> int:
     assert len(current["observed_subjects"]) == 5
     assert {x["code"] for x in current["observed_subjects"]} == {x[0] for x in SUBJECTS}
 
+    # Official correction link (t=M) is a resource label, not a new subject.
+    corrected_row = row("0302", "社會工作直接服務").replace(
+        "</td></tr>",
+        '<a href="wHandExamQandA_File.ashx?c=103&code=115100&q=1&s=0302&t=M">更正答案</a>更正</td></tr>',
+    )
+    corrected_page = page(SUBJECTS).replace(row("0302", "社會工作直接服務"), corrected_row)
+    correction = compare_to_registry("115100", corrected_page, source_url="fixture://correction")
+    assert correction["status"] == "match", correction
+    assert correction["safe_to_parse_pdfs"] is True
+    corrected_links = next(item["links"] for item in correction["observed_subjects"] if item["code"] == "0302")
+    assert any("&t=M" in link for link in corrected_links), corrected_links
+
+    # A genuinely renamed subject remains quarantined even with correction text.
+    renamed_correction = compare_to_registry(
+        "115100",
+        corrected_page.replace("社會工作直接服務", "社會工作直接處遇"),
+        source_url="fixture://renamed-correction",
+    )
+    assert renamed_correction["status"] == "possible_scheme_change", renamed_correction
+    assert renamed_correction["safe_to_parse_pdfs"] is False
+
     missing = compare_to_registry("115100", page(SUBJECTS[:-1]), source_url="fixture://missing")
     assert missing["status"] == "possible_scheme_change", missing
     assert missing["safe_to_parse_pdfs"] is False
@@ -89,7 +110,7 @@ def main() -> int:
     assert bad["status"] == "possible_scheme_change", bad
     assert bad["requires_maintainer_decision"] is True
 
-    print("MOEX structure probe self-test: PASS (8 fail-closed scenarios)")
+    print("MOEX structure probe self-test: PASS (correction labels and fail-closed scenarios)")
     return 0
 
 
