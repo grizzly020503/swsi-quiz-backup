@@ -10,6 +10,7 @@ on:
       - 'audit/official_p0_option_order_pg17_synthetic_rollback_20261111.sql'
       - 'scripts/official_p0_option_order_candidate_selftest.py'
       - 'scripts/official_p0_option_order_release_rehearsal.py'
+      - 'scripts/official_p0_option_order_review_bundle.py'
       - '.github/workflows/official-p0-option-order-candidate-qa.yml'
       - 'cdn/question-shards/104-2.json'
       - 'cdn/question-shards/107-1.json'
@@ -33,6 +34,18 @@ jobs:
         run: python scripts/official_p0_option_order_candidate_selftest.py
       - name: Rehearse two-shard manifest and official lock projection, then byte-restore
         run: python scripts/official_p0_option_order_release_rehearsal.py
+      - name: Construct nondeployable source-review bundle with exact rollback
+        run: |
+          python -m py_compile scripts/official_p0_option_order_review_bundle.py
+          python scripts/official_p0_option_order_review_bundle.py --output "${RUNNER_TEMP}/swsi-p0-option-review-HOLD-NO-RELEASE.zip"
+      - name: Archive source-review bundle (never a production deployment)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-p0-option-review-HOLD-NO-RELEASE
+          path: ${{ runner.temp }}/swsi-p0-option-review-HOLD-NO-RELEASE.zip
+          retention-days: 14
+          if-no-files-found: error
       - name: Check immutable official corpus
         run: python scripts/official_exam_readonly_guard.py
       - name: Preserve human review gate
