@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-09T16:20:10Z",
-  "item_count": 6,
+  "generated_at": "2026-11-10T23:15:05Z",
+  "item_count": 8,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
   "law_link_rules_schema": 1,
@@ -352,6 +352,199 @@
       }
     },
     {
+      "id": "f26820b785ddd68721c05525560c1f5e",
+      "title": "鼓勵民間團體踴躍辦理職災預防及重建宣導，勞動部放寬補助規定",
+      "summary": "為鼓勵民間團體及醫療機構積極投入協助政府推動職業災害預防及職業災害勞工重建宣導工作，以落實減少職業災害及深化職災勞工保護之政策目標，勞動部今(10)日修正發布《職業災害預防及職業災害勞工重建補助辦法》，放寬申請宣導類計畫案相關規定，以強化公私部門合作，達成落實職場安全與職災勞工保護的政策目標。 勞動部表示，過往民間團體或醫療機構申請「職業災害預防及職業災害勞工重建之宣導」補助計畫時，依規定應於每年8月底提出申請，如果逾期則無法再行受理申請。考量新興職業災害類型預防技術日新月異，且職業災害勞工各項保護措施或法規應廣泛讓勞工朋友瞭解，確保其權益，政府應當更積",
+      "source_name": "勞動部新聞稿",
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/100082/",
+      "published_at": "2026-11-10T13:50:13Z",
+      "region": "taiwan",
+      "category": "勞動與社會保障",
+      "relevance_score": 5,
+      "exam_tags": [
+        "職業災害",
+        "職災",
+        "勞工權益",
+        "修正",
+        "政策",
+        "補助"
+      ],
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障",
+        "人力與督導",
+        "服務輸送與跨網絡",
+        "方案與資源管理"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社會保險、就業安全與勞動政策"
+        ],
+        "社會工作": [
+          "勞動權益、社會正義與弱勢支持"
+        ]
+      },
+      "knowledge_topics": [
+        "勞動與社會保障",
+        "職業災害",
+        "職災",
+        "勞工權益",
+        "修正",
+        "政策",
+        "補助"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 人力與督導",
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 人力與督導 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
+      ],
+      "policy_signal": "medium",
+      "essay_value": "medium",
+      "mcq_fact_density": "high",
+      "signal_confidence": "high",
+      "signal_score": 9,
+      "exam_point_summary": "鼓勵民間團體踴躍辦理職災預防及重建宣導，勞動部放寬補助規定。涉及「職業災害預防及職業災害勞工重建補助辦法」。政策／制度動向值得追蹤；申論可從社會保險、就業安全、勞動權益與弱勢就業支持切入；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，並結合「職業災害預防及職業災害勞工重建補助辦法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "勞動部",
+        "職業災害預防及職業災害勞工重建補助辦法",
+        "職業災害",
+        "職災",
+        "勞工權益",
+        "修正"
+      ],
+      "related_laws": [
+        "職業災害預防及職業災害勞工重建補助辦法"
+      ],
+      "related_policy_instruments": [],
+      "law_link_status": "law_linked",
+      "law_link_note": "已連到具體法律；規則僅表示制度關聯，不代表該法律因本事件而修正。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "related_exam_questions": [
+        {
+          "id": "SP115-1-26",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "26",
+          "major": "社會救助",
+          "topic": "社會救助法 > 有工作能力者服務",
+          "match_reason": "事件詞：修正",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-27",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "27",
+          "major": "社會救助",
+          "topic": "社會救助法 > 低收入戶福利",
+          "match_reason": "事件詞：修正",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-28",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "28",
+          "major": "其他社會立法與人權公約",
+          "topic": "社工師法 > 社會工作紀錄保存",
+          "match_reason": "事件詞：修正",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-32",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "32",
+          "major": "婦女與性別法規",
+          "topic": "性侵害犯罪防治法 > 主管機關權責",
+          "match_reason": "事件詞：修正",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP114-1-31",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第一次",
+          "qno": "31",
+          "major": "社會救助",
+          "topic": "社會救助法 > 生活扶助增額情形",
+          "match_reason": "事件詞：修正",
+          "match_score": 2.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 88,
+        "weighted_match_count": 1.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 88
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 8,
+          "社會政策與社會立法": 80
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
       "id": "336762ca1408a35f353d9ac4dcc91e28",
       "title": "勞動部舉辦「運用AI解方促進職業安全衛生：預防及降低職場風險與意外」APEC工作坊，深化亞太區域職安衛合作",
       "summary": "勞動部於本（115）年11月4日舉辦APEC「運用AI解方促進職業安全衛生：預防及降低職場風險與意外」工作坊，邀請加拿大、日本、韓國、泰國、馬來西亞及智利等經濟體政府與專業機構代表，以及國際公共服務協會（PSI）與網際網路工會全球聯盟（UNI Global Union）等國際工會組織，與我國政府、企業、工會及專家學者共同參與，探討人工智慧（AI）應用於職業安全衛生領域所帶來的機會與挑戰，並分享運用AI進行職場危害辨識與預測、工作環境監測及職業災害預防的最佳範例與政策經驗，深化APEC區域經濟體間的交流與合作。 勞動部李健鴻政務次長於開幕致詞時表示，隨著A",
@@ -480,203 +673,6 @@
           "社會政策與社會立法": 1
         },
         "subject_count": 1,
-        "law_match_count": 0,
-        "law_match_year_count": 0,
-        "law_match_years": [],
-        "high_confidence_match_count": 0,
-        "matching_method": "event-evidence-v2.2"
-      }
-    },
-    {
-      "id": "4f9cbd62e3d91a78593f7e9a64b9272d",
-      "title": "父親「薑罰」女兒涉性侵 衛福部：最重7年以上徒刑",
-      "summary": "臉書社團「家有中學生」的匿名貼文稱，一名母親描述女兒遭父親以生薑塞入肛門的方式體罰，引發網友眾怒。衛福部保護服務司司長郭彩榕表示，若確實發生即屬不當對待，並可能涉及性侵害；原貼文已遭刪除，管理員已保存紀錄、通報113及社政、警政單位，事件仍待調查。",
-      "source_name": "中天新聞社會",
-      "source_url": "https://ctinews.com/news/items/4bnbk8ZEWP",
-      "published_at": "2026-11-06T02:36:55Z",
-      "region": "taiwan",
-      "category": "家暴與性暴力",
-      "relevance_score": 5,
-      "exam_tags": [
-        "性侵",
-        "通報",
-        "保護",
-        "衛福部"
-      ],
-      "subjects": [
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "品質與風險管理",
-        "服務輸送與跨網絡",
-        "倫理與權利保障"
-      ],
-      "exam_subject_axes": [
-        "社會工作直接服務",
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "primary_exam_subject_axes": [
-        "社會工作直接服務"
-      ],
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "subject_topics": {
-        "社會工作直接服務": [
-          "危險評估與安全計畫",
-          "創傷知情與危機介入"
-        ],
-        "人類行為與社會環境": [
-          "創傷反應與家庭互動"
-        ],
-        "社會政策與社會立法": [
-          "家暴與性暴力防治制度",
-          "保護令與被害人權益"
-        ],
-        "社會工作": [
-          "被害人權利與專業倫理"
-        ]
-      },
-      "knowledge_topics": [
-        "家暴與性暴力",
-        "性侵",
-        "通報",
-        "保護",
-        "衛福部"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 危險評估與安全計畫",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 創傷知情與危機介入",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 被害人權利與專業倫理",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 危險評估與安全計畫",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 創傷知情與危機介入",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 被害人權利與專業倫理",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 家暴與性暴力防治制度",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 保護令與被害人權益",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 被害人權利與專業倫理",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 危險評估與安全計畫",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 創傷知情與危機介入",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 家暴與性暴力防治制度",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 保護令與被害人權益",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 創傷反應與家庭互動"
-      ],
-      "policy_signal": "medium",
-      "essay_value": "high",
-      "mcq_fact_density": "medium",
-      "signal_confidence": "high",
-      "signal_score": 8,
-      "exam_point_summary": "父親「薑罰」女兒涉性侵 衛福部：最重7年以上徒刑。政策／制度動向值得追蹤；申論可從危險評估、保護令、創傷知情與跨網絡合作切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「危險評估、保護令、創傷知情與跨網絡合作」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "衛福部",
-        "性侵",
-        "通報"
-      ],
-      "related_laws": [],
-      "related_policy_instruments": [],
-      "law_link_status": "unresolved",
-      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
-      "law_link_basis": [],
-      "law_link_rules_schema": 1,
-      "related_exam_questions": [
-        {
-          "id": "SP114-1-30",
-          "subject": "社會政策與社會立法",
-          "year": "114",
-          "round": "第一次",
-          "qno": "30",
-          "major": "其他社會立法與人權公約",
-          "topic": "家暴防治法 > 責任通報人員",
-          "match_reason": "事件詞：通報；共同概念：性別暴力",
-          "match_score": 4.2
-        },
-        {
-          "id": "SP113-1-29",
-          "subject": "社會政策與社會立法",
-          "year": "113",
-          "round": "第一次",
-          "qno": "29",
-          "major": "其他社會立法與人權公約",
-          "topic": "家暴防治法 > 責任通報時限",
-          "match_reason": "事件詞：通報；共同概念：性別暴力",
-          "match_score": 4.2
-        },
-        {
-          "id": "SP113-1-35",
-          "subject": "社會政策與社會立法",
-          "year": "113",
-          "round": "第一次",
-          "qno": "35",
-          "major": null,
-          "topic": null,
-          "match_reason": "事件詞：性侵、通報；共同概念：性別暴力",
-          "match_score": 4.2
-        },
-        {
-          "id": "SP112-1-36",
-          "subject": "社會政策與社會立法",
-          "year": "112",
-          "round": "第一次",
-          "qno": "36",
-          "major": "婦女與性別法規",
-          "topic": "性侵害犯罪防治法 > 加害人規定通報",
-          "match_reason": "事件詞：性侵、通報；共同概念：性別暴力",
-          "match_score": 4.2
-        },
-        {
-          "id": "SP106-1-03",
-          "subject": "社會政策與社會立法",
-          "year": "106",
-          "round": "第一次",
-          "qno": "3",
-          "major": "婦女與性別法規",
-          "topic": "性侵害犯罪防治法 > 通報時限",
-          "match_reason": "事件詞：性侵、通報；共同概念：性別暴力",
-          "match_score": 4.2
-        }
-      ],
-      "historical_exam_stats": {
-        "matched_question_count": 90,
-        "weighted_match_count": 4.0,
-        "match_breakdown": {
-          "strong": 0,
-          "medium": 7,
-          "concept": 83
-        },
-        "matched_year_count": 12,
-        "matched_years": [
-          104,
-          105,
-          106,
-          107,
-          108,
-          109,
-          110,
-          111,
-          112,
-          113,
-          114,
-          115
-        ],
-        "earliest_exam_year": 104,
-        "latest_exam_year": 115,
-        "corpus_latest_year": 115,
-        "years_since_last_exam": 0,
-        "subject_counts": {
-          "社會工作直接服務": 5,
-          "社會政策與社會立法": 85
-        },
-        "subject_count": 2,
         "law_match_count": 0,
         "law_match_year_count": 0,
         "law_match_years": [],
@@ -874,6 +870,388 @@
         "subject_counts": {
           "社會工作": 11,
           "社會政策與社會立法": 148
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
+      "id": "627258de649b6d5e155635aeaa56737f",
+      "title": "兼顧資安與實務 今年12月起實施長照資訊系統強化身分驗證機制",
+      "summary": "為強化長期照顧資訊安全，保障長照服務使用者的個人權益，衛生福利部推動「照顧服務管理資訊平台」及「長照機構暨長照人員相關管理資訊系統」改採自然人憑證或健保卡等實體卡證驗證登入，已於113年起多次行文地方政府宣導。目前考量地方政府及長照服務提供單位的實務作業需求，從今（115）年12月1日起實施，以利準備及銜接。 衛福部表示，長照相關資訊系統為本部重要核心資訊系統，涉及大量長照服務使用者個人資料及相關業務資訊。考量近年資安事件頻傳，有必要強化系統身分驗證機制，因此調整為透過自然人憑證或健保卡等實體卡證驗證方式登入，確保個案資料及系統資訊安全。 衛福部進一步說",
+      "source_name": "衛生福利部焦點新聞",
+      "source_url": "https://www.mohw.gov.tw/cp-16-88432-1.html",
+      "published_at": "2026-11-10T11:12:00Z",
+      "region": "taiwan",
+      "category": "長照與高齡",
+      "relevance_score": 5,
+      "exam_tags": [
+        "長照",
+        "制度",
+        "權益",
+        "福利"
+      ],
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "服務輸送與跨網絡",
+        "方案與資源管理",
+        "規劃與政策執行",
+        "品質與風險管理",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "長照制度、老人福利與社會保障"
+        ],
+        "社會工作直接服務": [
+          "長照個案管理與家庭照顧者支持"
+        ],
+        "人類行為與社會環境": [
+          "老化、失智與生命歷程"
+        ],
+        "社會工作": [
+          "高齡者權益與社區支持"
+        ]
+      },
+      "knowledge_topics": [
+        "長照與高齡",
+        "長照",
+        "制度",
+        "權益",
+        "福利"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 高齡者權益與社區支持",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 高齡者權益與社區支持",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 高齡者權益與社區支持",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 高齡者權益與社區支持",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 高齡者權益與社區支持",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 長照個案管理與家庭照顧者支持",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 老化、失智與生命歷程"
+      ],
+      "policy_signal": "low",
+      "essay_value": "medium",
+      "mcq_fact_density": "medium",
+      "signal_confidence": "medium",
+      "signal_score": 6,
+      "exam_point_summary": "兼顧資安與實務 今年12月起實施長照資訊系統強化身分驗證機制。尚未見明確制度變動，先作事件與專業議題觀察；申論可從在地老化、長照給付、家庭照顧者支持與服務輸送切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「在地老化、長照給付、家庭照顧者支持與服務輸送」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "衛福部",
+        "衛生福利部"
+      ],
+      "related_laws": [],
+      "related_policy_instruments": [],
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "related_exam_questions": [
+        {
+          "id": "SP115-1-37",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "37",
+          "major": "其他社會立法與人權公約",
+          "topic": "長照服務法 > 長照特種基金來源",
+          "match_reason": "同義考點：長期照顧",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP-115-2-038",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "38",
+          "major": "老人福利法規",
+          "topic": "長期照顧服務法 > 服務項目分類",
+          "match_reason": "同義考點：長期照顧",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP114-2-22",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第二次",
+          "qno": "22",
+          "major": "老人福利法規",
+          "topic": "老人福利法 > 長照經費補助標準",
+          "match_reason": "同義考點：長期照顧",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP114-1-39",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第一次",
+          "qno": "39",
+          "major": "其他社會立法與人權公約",
+          "topic": "長照服務法 > 長期照顧定義",
+          "match_reason": "同義考點：長期照顧",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP114-2-39",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第二次",
+          "qno": "39",
+          "major": "其他社會立法與人權公約",
+          "topic": "長照服務法 > 補助考量因素",
+          "match_reason": "同義考點：長期照顧",
+          "match_score": 3.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 37,
+        "weighted_match_count": 3.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 37,
+          "concept": 0
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作直接服務": 1,
+          "社會政策與社會立法": 36
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
+      "id": "4bad6c197057d5f4ad082160dc1d872e",
+      "title": "「我就爛」背後藏悲歌！邊緣少年遭利用 依托咪酯成癮難逆轉",
+      "summary": "未成年人涉入毒品問題日趨嚴重，警方發現幫派組織常以免費吃喝為誘餌，將尋求同儕認同的邊緣少年推向詐騙或運毒前線，其中俗稱「喪屍煙彈」的新興毒品依托咪酯混入電子煙後幾乎無色無味，讓查緝難度大幅攀升，儘管官方數字呈現下降趨勢，校安通報吸食電子煙人數卻逆勢暴增，顯示檯面下隱藏龐大黑數。",
+      "source_name": "TVBS新聞社會",
+      "source_url": "https://news.tvbs.com.tw/local/4048020",
+      "published_at": "2026-11-10T14:14:32Z",
+      "region": "taiwan",
+      "category": "心理健康與成癮",
+      "relevance_score": 5,
+      "exam_tags": [
+        "成癮",
+        "毒品",
+        "通報"
+      ],
+      "subjects": [
+        "人類行為與社會環境",
+        "社會工作直接服務"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "服務輸送與跨網絡",
+        "倫理與權利保障",
+        "品質與風險管理"
+      ],
+      "exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作直接服務",
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "primary_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "subject_topics": {
+        "人類行為與社會環境": [
+          "心理健康、精神疾病與成癮"
+        ],
+        "社會工作直接服務": [
+          "危機介入、個案管理與資源連結"
+        ],
+        "社會工作": [
+          "復元取向、去污名與權利保障"
+        ],
+        "社會政策與社會立法": [
+          "精神衛生與社區支持制度"
+        ]
+      },
+      "knowledge_topics": [
+        "心理健康與成癮",
+        "成癮",
+        "毒品",
+        "通報"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 危機介入、個案管理與資源連結",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 復元取向、去污名與權利保障",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 精神衛生與社區支持制度",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 復元取向、去污名與權利保障",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 危機介入、個案管理與資源連結",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 精神衛生與社區支持制度",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 心理健康、精神疾病與成癮",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 危機介入、個案管理與資源連結",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 復元取向、去污名與權利保障"
+      ],
+      "policy_signal": "low",
+      "essay_value": "high",
+      "mcq_fact_density": "low",
+      "signal_confidence": "medium",
+      "signal_score": 6,
+      "exam_point_summary": "「我就爛」背後藏悲歌！邊緣少年遭利用 依托咪酯成癮難逆轉。尚未見明確制度變動，先作事件與專業議題觀察；申論可從精神衛生、危機介入、復元取向與去污名切入。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「精神衛生、危機介入、復元取向與去污名」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "成癮",
+        "毒品",
+        "通報"
+      ],
+      "related_laws": [],
+      "related_policy_instruments": [],
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "related_exam_questions": [
+        {
+          "id": "HBSE-115-1-022",
+          "subject": "人類行為與社會環境",
+          "year": "115",
+          "round": "第一次",
+          "qno": "22",
+          "major": "心理健康與偏差",
+          "topic": "成癮物質 > 毒品分級",
+          "match_reason": "事件詞：成癮、毒品",
+          "match_score": 4.2
+        },
+        {
+          "id": "HBSE-110-2-025",
+          "subject": "人類行為與社會環境",
+          "year": "110",
+          "round": "第二次",
+          "qno": "25",
+          "major": "心理健康與偏差",
+          "topic": "成癮物質 > 毒品FM2",
+          "match_reason": "事件詞：成癮、毒品",
+          "match_score": 4.2
+        },
+        {
+          "id": "DS-115-1-11",
+          "subject": "社會工作直接服務",
+          "year": "115",
+          "round": "第一次",
+          "qno": "11",
+          "major": "評估與處遇計畫",
+          "topic": "多面向預估 > 物質使用與成癮",
+          "match_reason": "事件詞：成癮",
+          "match_score": 2.2
+        },
+        {
+          "id": "HBSE-114-1-032",
+          "subject": "人類行為與社會環境",
+          "year": "114",
+          "round": "第一次",
+          "qno": "32",
+          "major": "心理健康與偏差",
+          "topic": "成癮 > 共依",
+          "match_reason": "事件詞：成癮",
+          "match_score": 2.2
+        },
+        {
+          "id": "DS-112-2-11",
+          "subject": "社會工作直接服務",
+          "year": "112",
+          "round": "第二次",
+          "qno": "11",
+          "major": "會談與溝通技巧",
+          "topic": "同理 > 中高層次同理",
+          "match_reason": "事件詞：通報",
+          "match_score": 2.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 16,
+        "weighted_match_count": 2.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 2,
+          "concept": 14
+        },
+        "matched_year_count": 9,
+        "matched_years": [
+          105,
+          106,
+          108,
+          109,
+          110,
+          111,
+          112,
+          114,
+          115
+        ],
+        "earliest_exam_year": 105,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "人類行為與社會環境": 12,
+          "社會工作直接服務": 4
         },
         "subject_count": 2,
         "law_match_count": 0,
