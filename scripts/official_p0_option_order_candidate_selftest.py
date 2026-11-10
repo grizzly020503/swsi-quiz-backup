@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
 
 ROOT = Path(__file__).resolve().parents[1]
 PROOF_PATH = ROOT / "audit/official_p0_option_order_candidate_20261110.json"
@@ -66,6 +66,10 @@ def verify() -> int:
             u = urlsplit(entry[key])
             assert u.scheme == "https" and u.hostname == "wwwq.moex.gov.tw"
             assert u.path.endswith("/wHandExamQandA_File.ashx") and suffix in u.query
+        # A wrong exam code or subject URL must never certify an unrelated paper.
+        exam_code = "104100" if id_ == "SP104-2-37" else "107030"
+        assert parse_qs(urlsplit(entry["pdf_url"]).query).get("code") == [exam_code]
+        assert parse_qs(urlsplit(entry["official_answer_url"]).query).get("code") == [exam_code]
         sheet_answer = entry["official_answer_group_31_40"][entry["question_number"] - 31]
         assert sheet_answer == expected["answer"], (id_, "official answer sheet changed")
 
@@ -75,6 +79,8 @@ def verify() -> int:
         assert len(rows) == 1
         current = rows[0]
         assert [current[field] for field in OPTION_FIELDS] == entry["old_options"], (id_, "main changed")
+        assert current["source_exam_code"] == exam_code
+        assert parse_qs(urlsplit(current["source_url"]).query).get("code") == [exam_code]
         assert current["answer"] == expected["answer"]
         assert current.get("accepted_answers") is None
         assert current["grading_mode"] == "standard"
