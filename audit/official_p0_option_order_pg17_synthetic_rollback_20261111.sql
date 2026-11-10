@@ -2,7 +2,7 @@
 -- REQUIRES AN EPHEMERAL CI DATABASE. NEVER RUN AGAINST SUPABASE PRODUCTION.
 -- No private rows or credentials. NO official exam records are modified.
 -- Exact real production 37-column preimage hashes are protected by a SEPARATE
--- read-only preflight. This test checks synthetic UPDATE guards and ROLLBACK.
+-- read-only preflight. This test checks option-only UPDATE, synthetic reset-to-pending, queue trigger avoidance and ROLLBACK.
 
 CREATE TEMP TABLE swsi_p0_fixture (
   id text PRIMARY KEY,
@@ -22,20 +22,74 @@ CREATE TEMP TABLE swsi_p0_fixture (
 );
 
 INSERT INTO swsi_p0_fixture
-  (id, subject, year, "round", qno, question,
-   opt_a, opt_b, opt_c, opt_d, answer,
-   source_exam_code, source_url, analysis_status, grading_mode)
+ (id, subject, year, "round", qno, question,
+  opt_a, opt_b, opt_c, opt_d, answer, source_exam_code, source_url,
+  analysis_status, analysis_attempts, analysis_error, major, topic, exp_why, law, grading_mode)
 VALUES
-  ('SP104-2-37', '社會政策與社會立法', '104', '第二次', '37',
-   'SYNTHETIC_FIXTURE_ONLY',
-   '①②③', '①③⑤', '②③④', '③④⑤', 'C',
-   '104100', 'https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0604&t=Q',
-   'review', 'standard'),
-  ('SP107-1-40', '社會政策與社會立法', '107', '第一次', '40',
-   'SYNTHETIC_FIXTURE_ONLY',
-   '①②③④', '①③④⑤', '①②③⑤', '②③④⑤', 'B',
-   '107030', 'https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0604&t=Q',
-   'ready', 'standard');
+ ('SP104-2-37', '社會政策與社會立法', '104', '第二次', '37',
+  'SYNTHETIC_FIXTURE_ONLY', '①②③','①③⑤','②③④','③④⑤','C',
+  '104100','https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0604&t=Q',
+  'review', 3, 'SYNTHETIC_HTTP405', NULL, NULL, NULL, NULL, 'standard'),
+ ('SP107-1-40', '社會政策與社會立法', '107', '第一次', '40',
+  'SYNTHETIC_FIXTURE_ONLY', '①②③④','①③④⑤','①②③⑤','②③④⑤','B',
+  '107030','https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0604&t=Q',
+  'ready', 0, NULL, 'SYNTHETIC_MAJOR', 'SYNTHETIC_TOPIC',
+  'SYNTHETIC_STALE_AI_EXPLANATION', 'SYNTHETIC_STALE_LAW', 'standard');
+
+-- A deliberately *synthetic* minimum replica of the live canonical reset.
+-- It is not the complete Supabase trigger stack, so production parity is
+-- still a separate NO-GO gate. Source function was observed read-only.
+CREATE FUNCTION pg_temp.synthetic_official_change_reset()
+RETURNS trigger LANGUAGE plpgsql AS $reset$
+BEGIN
+  IF NEW.source_exam_code IS NOT NULL AND (
+       NEW.question IS DISTINCT FROM OLD.question
+    OR NEW.opt_a IS DISTINCT FROM OLD.opt_a
+    OR NEW.opt_b IS DISTINCT FROM OLD.opt_b
+    OR NEW.opt_c IS DISTINCT FROM OLD.opt_c
+    OR NEW.opt_d IS DISTINCT FROM OLD.opt_d
+    OR NEW.answer IS DISTINCT FROM OLD.answer
+    OR NEW.accepted_answers IS DISTINCT FROM OLD.accepted_answers
+    OR NEW.grading_mode IS DISTINCT FROM OLD.grading_mode
+  ) THEN
+    NEW.major := NULL;
+    NEW.topic := NULL;
+    NEW.keywords := NULL;
+    NEW.exp_why := NULL;
+    NEW.exp_others := NULL;
+    NEW.exp_trap := NULL;
+    NEW.exp_raw := NULL;
+    NEW.mnemonic := NULL;
+    NEW."extension" := NULL;
+    NEW.law := NULL;
+    NEW.mistake := NULL;
+    NEW.analysis_status := 'pending';
+    NEW.analysis_attempts := 0;
+    NEW.analysis_error := NULL;
+    NEW.analysis_started_at := NULL;
+    NEW.analysis_completed_at := NULL;
+    NEW.analysis_last_attempt_at := NULL;
+  END IF;
+  RETURN NEW;
+END $reset$;
+
+CREATE TRIGGER synthetic_official_reset
+BEFORE UPDATE OF question,opt_a,opt_b,opt_c,opt_d,answer,accepted_answers,grading_mode
+ON swsi_p0_fixture FOR EACH ROW
+EXECUTE FUNCTION pg_temp.synthetic_official_change_reset();
+
+-- A synthetic AFTER UPDATE OF analysis_status marker detects accidental
+-- explicit SET analysis_status, which could auto-enable production AI jobs.
+CREATE TEMP TABLE swsi_status_activation_marker (id text);
+CREATE FUNCTION pg_temp.synthetic_after_explicit_status_update()
+RETURNS trigger LANGUAGE plpgsql AS $activation$
+BEGIN
+  INSERT INTO swsi_status_activation_marker(id) VALUES (NEW.id);
+  RETURN NEW;
+END $activation$;
+CREATE TRIGGER synthetic_after_status
+AFTER UPDATE OF analysis_status ON swsi_p0_fixture FOR EACH ROW
+EXECUTE FUNCTION pg_temp.synthetic_after_explicit_status_update();
 
 -- Baseline survives transaction rollback, so exact 37-column rows can
 -- be compared after intentionally rolling back the candidate changes.
@@ -61,7 +115,7 @@ DO $tx$
 DECLARE updated_rows integer;
 BEGIN
   UPDATE swsi_p0_fixture SET
-    opt_b='①③④', opt_c='①③⑤', opt_d='②④⑤', analysis_status='review'
+    opt_b='①③④', opt_c='①③⑤', opt_d='②④⑤'
   WHERE id='SP104-2-37' AND
     opt_a='①②③' AND opt_b='①③⑤' AND opt_c='②③④' AND opt_d='③④⑤'
     AND answer='C' AND grading_mode='standard'
@@ -70,7 +124,7 @@ BEGIN
   IF updated_rows <> 1 THEN RAISE EXCEPTION '104-2 source preimage drift / wrong affected rows'; END IF;
 
   UPDATE swsi_p0_fixture SET
-    opt_c='②③④⑤', opt_d='②③④', analysis_status='review'
+    opt_c='②③④⑤', opt_d='②③④'
   WHERE id='SP107-1-40' AND
     opt_a='①②③④' AND opt_b='①③④⑤' AND opt_c='①②③⑤' AND opt_d='②③④⑤'
     AND answer='B' AND grading_mode='standard'
@@ -90,7 +144,7 @@ BEGIN
     CROSS JOIN LATERAL jsonb_each(to_jsonb(f)) AS field(key,value)
   WHERE f.id='SP104-2-37'
     AND field.value IS DISTINCT FROM (to_jsonb(b) -> field.key);
-  IF diff104 <> ARRAY['opt_b','opt_c','opt_d']::text[] THEN
+  IF diff104 <> ARRAY['analysis_attempts','analysis_error','analysis_status','opt_b','opt_c','opt_d']::text[] THEN
     RAISE EXCEPTION '104-2 unexpected full-row changes: %', diff104;
   END IF;
 
@@ -99,7 +153,7 @@ BEGIN
     CROSS JOIN LATERAL jsonb_each(to_jsonb(f)) AS field(key,value)
   WHERE f.id='SP107-1-40'
     AND field.value IS DISTINCT FROM (to_jsonb(b) -> field.key);
-  IF diff107 <> ARRAY['analysis_status','opt_c','opt_d']::text[] THEN
+  IF diff107 <> ARRAY['analysis_status','exp_why','law','major','opt_c','opt_d','topic']::text[] THEN
     RAISE EXCEPTION '107-1 unexpected full-row changes: %', diff107;
   END IF;
 
@@ -115,11 +169,20 @@ BEGIN
        OR f.accepted_answers IS DISTINCT FROM b.accepted_answers
        OR f.source_exam_code IS DISTINCT FROM b.source_exam_code
        OR f.source_url IS DISTINCT FROM b.source_url
-       OR f.analysis_status <> 'review'
+       OR f.analysis_status <> 'pending'
   ) THEN RAISE EXCEPTION 'Official grading / source or analysis quarantine changed'; END IF;
 
   IF (SELECT opt_c FROM swsi_p0_fixture WHERE id='SP104-2-37') <> '①③⑤' THEN
     RAISE EXCEPTION 'Correct 104-2 answer text not in C';
+  END IF;
+  IF EXISTS (SELECT 1 FROM swsi_p0_fixture
+             WHERE analysis_attempts <> 0 OR analysis_error IS NOT NULL
+                OR exp_why IS NOT NULL OR major IS NOT NULL OR topic IS NOT NULL
+                OR law IS NOT NULL) THEN
+     RAISE EXCEPTION 'Stale AI enrichment was not cleared by synthetic source-change trigger';
+  END IF;
+  IF EXISTS (SELECT 1 FROM swsi_status_activation_marker) THEN
+     RAISE EXCEPTION 'Unexpected explicit analysis_status UPDATE activated AI queue hook';
   END IF;
 END $verify$;
 ROLLBACK;

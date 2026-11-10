@@ -21,7 +21,9 @@
     "The 107-1 Q40 answer B is correctly displayed as ①③④⑤; C and D options are still historically wrong. No answer letter change needed.",
     "Original question PDFs and corrected-answer PDFs were compared as text; screenshot endpoint returned cache miss, so independent printed-page visual signoff remains pending.",
     "The source PDF batch flags remain 428 unresolved and are not automatically cleared. Do not keep an existing ready AI explanation after changing an official option.",
-    "Production full-row 37-column SHA-256 drift guard added. If any row changes, preflight MUST fail and the release must be re-evaluated, even when old option strings still match. This read-only query is not a production write, trigger rehearsal, approval or rollback."
+    "Production full-row 37-column SHA-256 drift guard added. If any row changes, preflight MUST fail and the release must be re-evaluated, even when old option strings still match. This read-only query is not a production write, trigger rehearsal, approval or rollback.",
+    "2026-11-11 read-only production trigger inspection: trg_reset_ai_on_official_change clears stale AI/derived fields and unconditionally changes analysis_status to pending, not review. Release SQL must SET option columns only and allow database-owned quarantine; avoid explicit SET analysis_status (it would invoke the separate AFTER UPDATE OF analysis_status queue automation).",
+    "The live AI job switch was disabled when checked, but this is dynamic configuration and is not treated as proof of future scheduling safety."
   ],
   "rows": [
     {
@@ -54,7 +56,7 @@
       "misgraded_displayed_correct_answer": true,
       "public_exam_pdf_page": "4-4",
       "official_answer_pdf_page": 9,
-      "proposed_analysis_status": "review",
+      "proposed_analysis_status": "pending",
       "production_full_37_column_sha256": "10ed64cb7f1343b45dabb025bf54c281ffb36ec35ccf1128d37f784ddecb7dfb"
     },
     {
@@ -86,12 +88,17 @@
       "misgraded_displayed_correct_answer": false,
       "public_exam_pdf_page": "4-4",
       "official_answer_pdf_page": 1,
-      "proposed_analysis_status": "review",
+      "proposed_analysis_status": "pending",
       "production_full_37_column_sha256": "588af4d0976c6758594e679110f210f4f14dadeebddb9c84a196889e6e7c101f"
     }
   ],
   "production_preflight_sql": "audit/official_p0_option_order_live_preflight_20261110.sql",
   "production_preflight_mode": "READ_ONLY_EXACT_ROW_CHECK_NOT_APPROVAL",
   "production_preflight_field_count": 37,
-  "production_preimage_source": "Supabase read-only public.questions SELECT using sha256(convert_to(to_jsonb(q)::text,'UTF8')) on 2026-11-10; hashes only, not a private table dump."
+  "production_preimage_source": "Supabase read-only public.questions SELECT using sha256(convert_to(to_jsonb(q)::text,'UTF8')) on 2026-11-10; hashes only, not a private table dump.",
+  "production_trigger_preflight_sql": "audit/official_p0_option_order_live_trigger_preflight_20261111.sql",
+  "official_change_trigger_state": "pending",
+  "official_change_trigger_clear_enrichment": true,
+  "option_only_update_required": true,
+  "trigger_test_scope": "PG17 synthetic trigger replicates key source-change reset rules; live trigger was inspected by SELECT only, not production-executed."
 }

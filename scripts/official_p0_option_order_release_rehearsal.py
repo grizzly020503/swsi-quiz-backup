@@ -18,7 +18,8 @@ import tempfile
 from pathlib import Path
 
 from official_exam_readonly_guard import MCQ_FIELDS, canonical_row, row_hash
-from official_p0_option_order_candidate_selftest import verify as verify_candidate
+from official_p0_option_order_candidate_selftest import (verify as verify_candidate,
+    simulate_official_reset, RESET_TO_NULL, TRIGGER_MUTABLE_FIELDS)
 
 ROOT = Path(__file__).resolve().parents[1]
 SHARD_DIR = ROOT / "cdn" / "question-shards"
@@ -125,14 +126,17 @@ def rehearse() -> None:
                 preimage = copy.deepcopy(row)
                 for field, new_value in zip(OPTIONS, candidate["proposed_options"]):
                     row[field] = new_value
-                row["analysis_status"] = "review"
+                row_update = simulate_official_reset(row)
+                row.clear()
+                row.update(row_update)
                 diff = {k for k in set(row) | set(preimage) if row.get(k) != preimage.get(k)}
-                expected_diff = set(candidate["changed_fields"])
-                if preimage["analysis_status"] != "review":
-                    expected_diff.add("analysis_status")
+                triggered = {k for k in TRIGGER_MUTABLE_FIELDS
+                             if k in preimage and preimage.get(k) != row.get(k)}
+                expected_diff = set(candidate["changed_fields"]) | triggered
                 assert diff == expected_diff, (ident, diff, expected_diff)
+                assert row["analysis_status"] == "pending", ident
+                assert all(row[k] is None for k in RESET_TO_NULL if k in row), ident
                 assert all(row.get(k) == preimage.get(k) for k in GRADING), ident
-                assert all(row.get(k) == preimage.get(k) for k in ENRICHMENT), ident
                 assert row["source_url"] == preimage["source_url"]
                 assert row["source_exam_code"] == preimage["source_exam_code"]
                 projected_lock["mcq"][ident] = row_hash(canonical_row(row, MCQ_FIELDS))
@@ -164,8 +168,10 @@ def rehearse() -> None:
         assert projected_lock["essays"] == lock["essays"]
         assert sum(projected_lock["mcq"][id_] != lock["mcq"][id_]
                    for id_ in lock["mcq"]) == 2
-        assert set(changed_fields["SP104-2-37"]) == {"opt_b", "opt_c", "opt_d"}
-        assert set(changed_fields["SP107-1-40"]) == {"opt_c", "opt_d", "analysis_status"}
+        assert set(changed_fields["SP104-2-37"]) >= {"opt_b", "opt_c", "opt_d", "analysis_status"}
+        assert set(changed_fields["SP107-1-40"]) >= {"opt_c", "opt_d", "analysis_status"}
+        for ident in TARGET_IDS:
+            assert set(changed_fields[ident]) <= set(target_rows[ident]["changed_fields"]) | TRIGGER_MUTABLE_FIELDS
 
         staged_questions = {id_: copy.deepcopy(row) for id_, row in original.items()}
         for name, raw in projection.items():

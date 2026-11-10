@@ -32,6 +32,47 @@ EXPECTED_ROWS = {
     },
 }
 OPTION_FIELDS = ["opt_a", "opt_b", "opt_c", "opt_d"]
+RESET_TO_NULL = ("major", "topic", "keywords", "exp_why", "exp_others",
+                 "exp_trap", "exp_raw", "mnemonic", "extension", "law",
+                 "mistake", "analysis_error", "analysis_started_at",
+                 "analysis_completed_at", "analysis_last_attempt_at")
+TRIGGER_MUTABLE_FIELDS = set(RESET_TO_NULL) | {"analysis_status", "analysis_attempts"}
+
+
+def simulate_official_reset(staged: dict) -> dict:
+    """Model public.reset_ai_analysis_on_official_change() on shard fields only.
+
+    This is *not* the full production trigger stack. In real Supabase the
+    BEFORE UPDATE trigger sets pending; avoid explicitly updating the status.
+    """
+    result = dict(staged)
+    for field in RESET_TO_NULL:
+        if field in result:
+            result[field] = None
+    if "analysis_attempts" in result:
+        result["analysis_attempts"] = 0
+    result["analysis_status"] = "pending"
+    return result
+
+
+def validate_live_trigger_preflight_sql(proof: dict) -> None:
+    path = "audit/official_p0_option_order_live_trigger_preflight_20261111.sql"
+    assert proof["production_trigger_preflight_sql"] == path
+    assert proof["official_change_trigger_state"] == "pending"
+    assert proof["official_change_trigger_clear_enrichment"] is True
+    assert proof["option_only_update_required"] is True
+    sql = (ROOT / path).read_text(encoding="utf-8")
+    statements = "\n".join(line for line in sql.splitlines()
+                           if not line.lstrip().startswith("--"))
+    assert statements.lstrip().upper().startswith("WITH SEEN")
+    assert statements.rstrip().endswith("FROM checks;")
+    assert statements.count(";") == 1
+    assert "trg_reset_ai_on_official_change" in statements
+    assert "trg_auto_enable_ai_pending" in statements
+    assert "new.analysis_status := ''pending''" in statements
+    assert "HOLD_TRIGGER_DRIFT" in statements
+    assert not re.search(r"(?im)^\s*(?:UPDATE|INSERT|DELETE|DROP|ALTER|CREATE|TRUNCATE|MERGE|CALL|COMMIT|ROLLBACK)\b", statements)
+
 PREIMAGE_DIGESTS = {
     "SP104-2-37": "10ed64cb7f1343b45dabb025bf54c281ffb36ec35ccf1128d37f784ddecb7dfb",
     "SP107-1-40": "588af4d0976c6758594e679110f210f4f14dadeebddb9c84a196889e6e7c101f",
@@ -86,6 +127,7 @@ def verify() -> int:
         assert proof[flag] is False, flag
     assert {x["id"] for x in proof["rows"]} == set(EXPECTED_ROWS)
     validate_live_preflight_sql(proof)
+    validate_live_trigger_preflight_sql(proof)
 
     for entry in proof["rows"]:
         id_ = entry["id"]
@@ -124,7 +166,7 @@ def verify() -> int:
         assert current.get("accepted_answers") is None
         assert current["grading_mode"] == "standard"
         assert current["analysis_status"] == entry["original_status"]
-        assert entry["proposed_analysis_status"] == "review"
+        assert entry["proposed_analysis_status"] == "pending"
 
         changed = {f for f, before, after in zip(OPTION_FIELDS, entry["old_options"], entry["proposed_options"]) if before != after}
         assert changed == expected["changed_fields"]
@@ -134,20 +176,27 @@ def verify() -> int:
         if id_ == "SP104-2-37":
             assert entry["old_options"][1] == entry["proposed_options"][2]
             assert entry["old_options"][2] != entry["proposed_options"][2]
-        # No auto-release: staged rows must quarantine any prior AI ready result.
+        # Supabase's canonical BEFORE UPDATE OF official core trigger will
+        # reset stale enrichment and set pending; our future SQL must not SET
+        # analysis_status explicitly, because an AFTER UPDATE OF that column
+        # can enable the AI analysis job.
         staged = dict(current)
         for field, value in zip(OPTION_FIELDS, entry["proposed_options"]):
             staged[field] = value
-        staged["analysis_status"] = "review"
+        staged = simulate_official_reset(staged)
+        assert staged["analysis_status"] == "pending"
         assert staged["answer"] == current["answer"]
         assert staged.get("accepted_answers") == current.get("accepted_answers")
         assert staged["grading_mode"] == current["grading_mode"]
-        assert {k for k in staged if staged[k] != current[k]} == expected["changed_fields"] | (
-            {"analysis_status"} if current["analysis_status"] != "review" else set()
-        )
+        assert all(staged[field] is None for field in RESET_TO_NULL if field in staged)
+        changed_full = {k for k in staged if staged[k] != current[k]}
+        expected_triggered = {k for k in TRIGGER_MUTABLE_FIELDS
+                              if k in current and current[k] != staged[k]}
+        assert changed_full == expected["changed_fields"] | expected_triggered
+        assert changed_full.intersection(OPTION_FIELDS) == expected["changed_fields"]
 
     print("P0 OPTION ORDER DRAFT QA OK: 2 exact main rows, 5 option corrections, "
-          "official answer sheet unchanged, 428 reviews held; NO RELEASE")
+          "official answer unchanged, trigger-owned AI pending; 428 source reviews held; NO RELEASE")
     return 0
 
 
