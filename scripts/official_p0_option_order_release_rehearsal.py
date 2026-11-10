@@ -152,8 +152,9 @@ def rehearse() -> None:
             # equivalent semantic fields, must be restored after a rollback.
             for row in data["questions"]:
                 if row["id"] in target_ids_here:
+                    original_id = row["id"]
                     row.clear()
-                    row.update(copy.deepcopy(original[row["id"]]))
+                    row.update(copy.deepcopy(original[original_id]))
             assert data == original_data
             assert encode(data) == physical[name], ("not byte-reversible", name)
 
