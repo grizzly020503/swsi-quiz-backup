@@ -88,5 +88,6 @@ jobs:
         if: always()
         run: |
           echo "## PG17 synthetic transaction rehearsal only" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Synthetic source-change trigger resets AI to pending; option-only SQL avoids AFTER UPDATE OF analysis_status."\n          echo "- All 37 columns of two synthetic rows restored after real SQL UPDATE and ROLLBACK." >> "$GITHUB_STEP_SUMMARY"
+          echo "- Synthetic source-change trigger resets AI to pending; option-only SQL avoids AFTER UPDATE OF analysis_status." >> "$GITHUB_STEP_SUMMARY"
+          echo "- All 37 columns of two synthetic rows restored after real SQL UPDATE and ROLLBACK." >> "$GITHUB_STEP_SUMMARY"
           echo "- No Supabase credentials, no production connection, no full trigger parity or release approval." >> "$GITHUB_STEP_SUMMARY"
