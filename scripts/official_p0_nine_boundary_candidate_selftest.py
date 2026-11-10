@@ -12,6 +12,7 @@ from __future__ import annotations
 import copy
 import json
 import re
+import unicodedata
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -67,6 +68,13 @@ def verify() -> int:
         assert entry["proposed_analysis_status"] == "review"
         assert entry["independent_human_approved"] is False
         assert re.fullmatch(r"[a-f0-9]{64}", entry["official_pdf_sha256"])
+        assert re.fullmatch(r"[a-f0-9]{64}", entry["pdf_layout_sha256"])
+        official_extract = entry["official_pdf_text_extraction"]
+        def normalized(text):
+            return re.sub(r"\\s+", "", unicodedata.normalize("NFKC", text))
+        assert normalized(entry["proposed_text"]) == normalized(official_extract), ("source packet mismatch", id_)
+        # Detect substantive edit even when the candidate is not released.
+        assert normalized(entry["old_text"]) != normalized(official_extract), ("no official PDF discrepancy", id_)
         url = urlparse(entry["original_pdf_url"])
         assert url.scheme == "https" and url.hostname == "wwwq.moex.gov.tw"
         assert url.path.endswith("/wHandExamQandA_File.ashx")
