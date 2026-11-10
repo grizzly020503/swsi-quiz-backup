@@ -32,6 +32,44 @@ EXPECTED_ROWS = {
     },
 }
 OPTION_FIELDS = ["opt_a", "opt_b", "opt_c", "opt_d"]
+PREIMAGE_DIGESTS = {
+    "SP104-2-37": "10ed64cb7f1343b45dabb025bf54c281ffb36ec35ccf1128d37f784ddecb7dfb",
+    "SP107-1-40": "588af4d0976c6758594e679110f210f4f14dadeebddb9c84a196889e6e7c101f",
+}
+SQL_PATH = "audit/official_p0_option_order_live_preflight_20261110.sql"
+
+
+def validate_live_preflight_sql(proof: dict) -> None:
+    # This is a static contract check, not a live database connection.
+    # Production preflight requires a separate authenticated READ-ONLY SELECT.
+    assert proof["production_preflight_sql"] == SQL_PATH
+    assert proof["production_preflight_mode"] == "READ_ONLY_EXACT_ROW_CHECK_NOT_APPROVAL"
+    assert proof["production_preflight_field_count"] == 37
+    assert set(PREIMAGE_DIGESTS) == {row["id"] for row in proof["rows"]}
+    sql = (ROOT / SQL_PATH).read_text(encoding="utf-8")
+    sql_code = "\n".join(line for line in sql.splitlines()
+                          if not line.lstrip().startswith("--"))
+    assert sql_code.lstrip().upper().startswith("WITH EXPECTED")
+    # Exactly one SELECT statement: no transaction, DML, or stored procedures.
+    assert sql_code.count(";") == 1 and sql_code.rstrip().endswith("ORDER BY id;")
+    assert not re.search(
+        r"\b(?:INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|MERGE|"
+        r"GRANT|REVOKE|COPY|EXECUTE|DO|CALL|PERFORM|SET|COMMIT)\b",
+        sql_code, flags=re.IGNORECASE,
+    )
+    assert "public.questions" in sql_code
+    assert "sha256(convert_to(to_jsonb(q)::text, 'UTF8'))" in sql_code
+    assert "column_count = 37" in sql_code
+    assert "total_questions" in sql_code
+    assert "HOLD_NO_RELEASE" in sql_code
+    for row in proof["rows"]:
+        ident = row["id"]
+        digest = PREIMAGE_DIGESTS[ident]
+        assert row["production_full_37_column_sha256"] == digest
+        assert re.fullmatch(r"[0-9a-f]{64}", digest)
+        assert sql_code.count(digest) == 1
+        assert sql_code.count("'" + ident + "'") == 1
+
 
 
 def verify() -> int:
@@ -47,6 +85,7 @@ def verify() -> int:
     ):
         assert proof[flag] is False, flag
     assert {x["id"] for x in proof["rows"]} == set(EXPECTED_ROWS)
+    validate_live_preflight_sql(proof)
 
     for entry in proof["rows"]:
         id_ = entry["id"]
