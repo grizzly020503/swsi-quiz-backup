@@ -71,7 +71,7 @@ def verify() -> int:
         assert re.fullmatch(r"[a-f0-9]{64}", entry["pdf_layout_sha256"])
         official_extract = entry["official_pdf_text_extraction"]
         def normalized(text):
-            return re.sub(r"\\s+", "", unicodedata.normalize("NFKC", text))
+            return re.sub(r"\s+", "", unicodedata.normalize("NFKC", text))
         assert normalized(entry["proposed_text"]) == normalized(official_extract), ("source packet mismatch", id_)
         # Detect substantive edit even when the candidate is not released.
         assert normalized(entry["old_text"]) != normalized(official_extract), ("no official PDF discrepancy", id_)
