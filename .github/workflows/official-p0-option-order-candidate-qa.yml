@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - 'audit/official_p0_option_order_candidate_20261110.json'
+      - 'audit/official_p0_option_order_live_preflight_20261110.sql'
       - 'scripts/official_p0_option_order_candidate_selftest.py'
       - '.github/workflows/official-p0-option-order-candidate-qa.yml'
       - 'cdn/question-shards/104-2.json'
@@ -25,7 +26,7 @@ jobs:
           python-version: '3.12'
       - name: Compile proof validator
         run: python -m py_compile scripts/official_p0_option_order_candidate_selftest.py
-      - name: Verify exact main rows and fixed official answer mapping
+      - name: Verify official options, exact production preimages, and read-only hold
         run: python scripts/official_p0_option_order_candidate_selftest.py
       - name: Check immutable official corpus
         run: python scripts/official_exam_readonly_guard.py
@@ -34,4 +35,5 @@ jobs:
         run: |
           echo "## TWO P0 OPTION-ORDER CANDIDATES — NOT PUBLISHED" >> "$GITHUB_STEP_SUMMARY"
           echo "- 2 records, 5 option corrections, official answer unchanged" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Read-only 37-column SHA-256 production preflight pinned (NOT executed by PR CI)" >> "$GITHUB_STEP_SUMMARY"
           echo "- Source-review queue: 428 unresolved; human/owner release approval: NO-GO" >> "$GITHUB_STEP_SUMMARY"
