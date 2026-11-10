@@ -1,0 +1,37 @@
+name: Official P0 Option Order Candidate QA
+
+# No production import, writes, sync, or owner approval.
+on:
+  pull_request:
+    paths:
+      - 'audit/official_p0_option_order_candidate_20261110.json'
+      - 'scripts/official_p0_option_order_candidate_selftest.py'
+      - '.github/workflows/official-p0-option-order-candidate-qa.yml'
+      - 'cdn/question-shards/104-2.json'
+      - 'cdn/question-shards/107-1.json'
+
+permissions:
+  contents: read
+
+jobs:
+  candidate:
+    name: Verify official answer and option mapping (draft only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile proof validator
+        run: python -m py_compile scripts/official_p0_option_order_candidate_selftest.py
+      - name: Verify exact main rows and fixed official answer mapping
+        run: python scripts/official_p0_option_order_candidate_selftest.py
+      - name: Check immutable official corpus
+        run: python scripts/official_exam_readonly_guard.py
+      - name: Preserve human review gate
+        if: always()
+        run: |
+          echo "## TWO P0 OPTION-ORDER CANDIDATES — NOT PUBLISHED" >> "$GITHUB_STEP_SUMMARY"
+          echo "- 2 records, 5 option corrections, official answer unchanged" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Source-review queue: 428 unresolved; human/owner release approval: NO-GO" >> "$GITHUB_STEP_SUMMARY"
