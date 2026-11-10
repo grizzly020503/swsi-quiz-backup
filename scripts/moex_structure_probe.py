@@ -158,14 +158,14 @@ def _subject_name(row: TableRow) -> str:
     pieces = []
     for value in row.texts:
         value = _clean_text(value)
-        if not value or value in {"試題", "答案"}:
+        if not value or value in {"試題", "答案", "更正答案", "更正"}:
             continue
         if "高考_" in value or "普考_" in value:
             continue
         pieces.append(value)
     text = _clean_text(" ".join(pieces))
     # Anchor labels may be duplicated by accessible/mobile markup.
-    text = re.sub(r"(?:試題|答案)(?:\s*(?:試題|答案))*$", "", text).strip()
+    text = re.sub(r"(?:\s*(?:更正答案|試題|答案|更正))+$", "", text).strip()
     return text
 
 
