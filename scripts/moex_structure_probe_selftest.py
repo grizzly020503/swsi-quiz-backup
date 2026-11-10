@@ -50,6 +50,23 @@ def main() -> int:
     assert len(current["observed_subjects"]) == 5
     assert {x["code"] for x in current["observed_subjects"]} == {x[0] for x in SUBJECTS}
 
+    # Real 115100/0302 carries an extra corrected-answer link and visible
+    # 「更正」 marker. It must not be mistaken for a sixth/renamed subject.
+    correction = (
+        '<a href="wHandExamQandA_File.ashx?c=103&code=115100&q=1&s=0302&t=M">更正答案</a>'
+        '<span>更正</span>'
+    )
+    original_row = row("0302", "社會工作直接服務")
+    corrected_row = original_row.replace("</td></tr>", correction + "</td></tr>")
+    corrected_html = page(SUBJECTS).replace(original_row, corrected_row)
+    corrected = compare_to_registry("115100", corrected_html, source_url="fixture://corrected-answer")
+    assert corrected["status"] == "match", corrected
+    assert corrected["safe_to_parse_pdfs"] is True
+    assert len(corrected["observed_subjects"]) == 5
+    direct = next(x for x in corrected["observed_subjects"] if x["code"] == "0302")
+    assert direct["name"] == "社會工作直接服務", direct
+    assert len(direct["links"]) == 3, direct
+
     missing = compare_to_registry("115100", page(SUBJECTS[:-1]), source_url="fixture://missing")
     assert missing["status"] == "possible_scheme_change", missing
     assert missing["safe_to_parse_pdfs"] is False
