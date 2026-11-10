@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT_NO_GO",
+  "purpose": "Repair two source-backed P0 official option permutations with no change to official answer letters or grading; candidate-only, not production release",
+  "baseline_main_sha": "c2e9dcb225d15cc16368f21985a9de4df04f8a5d",
+  "official_p0_queue": 428,
+  "official_pdf_batch_run_id": 42805413174,
+  "official_pdf_batch_artifact_id": 13757827298,
+  "changed_question_count": 2,
+  "changed_option_count": 5,
+  "official_answer_changed": false,
+  "grading_changed": false,
+  "independent_human_approval": false,
+  "owner_release_pin": false,
+  "repository_official_core_changed": false,
+  "production_db_written": false,
+  "cloudflare_deployed": false,
+  "netlify_deployed": false,
+  "notes": [
+    "The 104-2 Q37 official answer C points to ①③⑤; this combination is incorrectly shown as B on the current student site. Live option C is ②③④, so this causes actual misgrading relative to displayed choices.",
+    "The 107-1 Q40 answer B is correctly displayed as ①③④⑤; C and D options are still historically wrong. No answer letter change needed.",
+    "Original question PDFs and corrected-answer PDFs were compared as text; screenshot endpoint returned cache miss, so independent printed-page visual signoff remains pending.",
+    "The source PDF batch flags remain 428 unresolved and are not automatically cleared. Do not keep an existing ready AI explanation after changing an official option."
+  ],
+  "rows": [
+    {
+      "id": "SP104-2-37",
+      "shard": "cdn/question-shards/104-2.json",
+      "old_options": [
+        "①②③",
+        "①③⑤",
+        "②③④",
+        "③④⑤"
+      ],
+      "proposed_options": [
+        "①②③",
+        "①③④",
+        "①③⑤",
+        "②④⑤"
+      ],
+      "answer": "C",
+      "original_status": "review",
+      "pdf_sha": "dee0cba3e779ba11c751a3bac02fdeeb3168fc00fd6cc0e1be5e9b55f66c5743",
+      "pdf_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0604&t=Q",
+      "official_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?code=104100&t=A",
+      "official_answer_group_31_40": "CBCCBCCACD",
+      "question_number": 37,
+      "changed_fields": [
+        "opt_b",
+        "opt_c",
+        "opt_d"
+      ],
+      "misgraded_displayed_correct_answer": true,
+      "public_exam_pdf_page": "4-4",
+      "official_answer_pdf_page": 9,
+      "proposed_analysis_status": "review"
+    },
+    {
+      "id": "SP107-1-40",
+      "shard": "cdn/question-shards/107-1.json",
+      "old_options": [
+        "①②③④",
+        "①③④⑤",
+        "①②③⑤",
+        "②③④⑤"
+      ],
+      "proposed_options": [
+        "①②③④",
+        "①③④⑤",
+        "②③④⑤",
+        "②③④"
+      ],
+      "answer": "B",
+      "original_status": "ready",
+      "pdf_sha": "fd59d4ab9d2112e1af0850ef2c5f23e1d3f8c739700781f4bbce655ef342fc24",
+      "pdf_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0604&t=Q",
+      "official_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?code=107030&t=A",
+      "official_answer_group_31_40": "DBCDBBDCBB",
+      "question_number": 40,
+      "changed_fields": [
+        "opt_c",
+        "opt_d"
+      ],
+      "misgraded_displayed_correct_answer": false,
+      "public_exam_pdf_page": "4-4",
+      "official_answer_pdf_page": 1,
+      "proposed_analysis_status": "review"
+    }
+  ]
+}
