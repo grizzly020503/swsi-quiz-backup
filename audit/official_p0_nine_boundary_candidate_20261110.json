@@ -33,7 +33,9 @@
       "baseline_analysis_status": "ready",
       "proposed_analysis_status": "review",
       "evidence": "MOEX original PDF archived layout text + main shard + production SELECT, human review still required",
-      "independent_human_approved": false
+      "independent_human_approved": false,
+      "official_pdf_text_extraction": "餐飲服務",
+      "pdf_layout_sha256": "a50b044b7358e99313461c117c61a165353e8f222febcbb02643f0f5c3bc7b7c"
     },
     {
       "id": "SW-104-1-12",
@@ -50,7 +52,9 @@
       "baseline_analysis_status": "ready",
       "proposed_analysis_status": "review",
       "evidence": "MOEX original PDF archived layout text + main shard + production SELECT, human review still required",
-      "independent_human_approved": false
+      "independent_human_approved": false,
+      "official_pdf_text_extraction": "著重在於案主和工作者所共同設定的目標是否達成",
+      "pdf_layout_sha256": "a50b044b7358e99313461c117c61a165353e8f222febcbb02643f0f5c3bc7b7c"
     },
     {
       "id": "SW-104-1-35",
@@ -67,7 +71,9 @@
       "baseline_analysis_status": "ready",
       "proposed_analysis_status": "review",
       "evidence": "MOEX original PDF archived layout text + main shard + production SELECT, human review still required",
-      "independent_human_approved": false
+      "independent_human_approved": false,
+      "official_pdf_text_extraction": "案主有致命危險的傳染疾病時",
+      "pdf_layout_sha256": "a50b044b7358e99313461c117c61a165353e8f222febcbb02643f0f5c3bc7b7c"
     },
     {
       "id": "SW-106-2-09",
@@ -84,7 +90,9 @@
       "baseline_analysis_status": "ready",
       "proposed_analysis_status": "review",
       "evidence": "MOEX original PDF archived layout text + main shard + production SELECT, human review still required",
-      "independent_human_approved": false
+      "independent_human_approved": false,
+      "official_pdf_text_extraction": "「工具性日常生活活動功能」量表(Instrumental Activities of Daily Living, IADLs)是用以評估老人獨立 自主生活能力的評估工具,下列那一種功能不是評估項目之一?",
+      "pdf_layout_sha256": "e8847a1c3778419344354c780e2fdab6c5aa110af230af9ba7f734376dd3c09b"
     },
     {
       "id": "SW-106-2-21",
@@ -101,7 +109,9 @@
       "baseline_analysis_status": "ready",
       "proposed_analysis_status": "review",
       "evidence": "MOEX original PDF archived layout text + main shard + production SELECT, human review still required",
-      "independent_human_approved": false
+      "independent_human_approved": false,
+      "official_pdf_text_extraction": "權能可以透過社會互動增加衍生更多的權能",
+      "pdf_layout_sha256": "e8847a1c3778419344354c780e2fdab6c5aa110af230af9ba7f734376dd3c09b"
     },
     {
       "id": "SW-106-2-35",
@@ -118,7 +128,9 @@
       "baseline_analysis_status": "ready",
       "proposed_analysis_status": "review",
       "evidence": "MOEX original PDF archived layout text + main shard + production SELECT, human review still required",
-      "independent_human_approved": false
+      "independent_human_approved": false,
+      "official_pdf_text_extraction": "「史賓漢蘭制」也實施普及的食物量表,以家庭維持基本生計所需麵包價格為基準,來救濟貧民",
+      "pdf_layout_sha256": "e8847a1c3778419344354c780e2fdab6c5aa110af230af9ba7f734376dd3c09b"
     },
     {
       "id": "SW-107-2-11",
@@ -135,7 +147,9 @@
       "baseline_analysis_status": "ready",
       "proposed_analysis_status": "review",
       "evidence": "MOEX original PDF archived layout text + main shard + production SELECT, human review still required",
-      "independent_human_approved": false
+      "independent_human_approved": false,
+      "official_pdf_text_extraction": "社會正義取向的價值觀認為資本主義的缺失和種族主義與其他形式的壓迫,產生受剝奪的低下 階層。因此,必須進行基本的社會改革",
+      "pdf_layout_sha256": "b87d5dc4a9d7cee44a131db1a99ddbd2c4dc9cf7309f07954689612d1b85a2f8"
     },
     {
       "id": "SW-107-2-21",
@@ -152,7 +166,9 @@
       "baseline_analysis_status": "ready",
       "proposed_analysis_status": "review",
       "evidence": "MOEX original PDF archived layout text + main shard + production SELECT, human review still required",
-      "independent_human_approved": false
+      "independent_human_approved": false,
+      "official_pdf_text_extraction": "結束期",
+      "pdf_layout_sha256": "b87d5dc4a9d7cee44a131db1a99ddbd2c4dc9cf7309f07954689612d1b85a2f8"
     },
     {
       "id": "SW-107-2-35",
@@ -169,7 +185,11 @@
       "baseline_analysis_status": "ready",
       "proposed_analysis_status": "review",
       "evidence": "MOEX original PDF archived layout text + main shard + production SELECT, human review still required",
-      "independent_human_approved": false
+      "independent_human_approved": false,
+      "official_pdf_text_extraction": "保護令可分為暫時保護令、緊急保護令及通常保護令",
+      "pdf_layout_sha256": "b87d5dc4a9d7cee44a131db1a99ddbd2c4dc9cf7309f07954689612d1b85a2f8"
     }
-  ]
+  ],
+  "source_evidence_artifact_sha256": "77720f6b14da12a25aebf3e7246cef21d42741bddef2746dd3f30a99fcca9593",
+  "evidence_verification_method": "Review packet official_extraction field, original PDF/layout SHA256, latest main shard exact preimage and public.questions SELECT; NFKC+whitespace agreement is not independent printed-page review."
 }
