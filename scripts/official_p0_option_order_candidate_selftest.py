@@ -67,8 +67,10 @@ def validate_live_trigger_preflight_sql(proof: dict) -> None:
     assert "SECURITY DEFINER" in pg_sql and "SET search_path TO ''" in pg_sql
     assert "UPDATE swsi_p0_fixture SET" in pg_sql
     # Only options may appear in any SQL UPDATE target list, never analysis_status.
-    for match in re.finditer(r"UPDATE swsi_p0_fixture SET(.*?)\\bWHERE\\b", pg_sql, flags=re.S):
-        assert not re.search(r"\\banalysis_status\\s*=", match.group(1))
+    updates = list(re.finditer(r"UPDATE swsi_p0_fixture SET(.*?)\bWHERE\b", pg_sql, flags=re.S))
+    assert len(updates) == 3, "Expected exactly two guarded changes and one drift-negative update"
+    for match in updates:
+        assert not re.search(r"\banalysis_status\s*=", match.group(1)), "Explicit status update would enable AI job"
 
     assert proof["official_change_trigger_clear_enrichment"] is True
     assert proof["option_only_update_required"] is True
