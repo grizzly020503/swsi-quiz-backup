@@ -36,47 +36,53 @@ VALUES
   'ready', 0, NULL, 'SYNTHETIC_MAJOR', 'SYNTHETIC_TOPIC',
   'SYNTHETIC_STALE_AI_EXPLANATION', 'SYNTHETIC_STALE_LAW', 'standard');
 
--- A deliberately *synthetic* minimum replica of the live canonical reset.
--- It is not the complete Supabase trigger stack, so production parity is
--- still a separate NO-GO gate. Source function was observed read-only.
-CREATE FUNCTION pg_temp.synthetic_official_change_reset()
-RETURNS trigger LANGUAGE plpgsql AS $reset$
-BEGIN
-  IF NEW.source_exam_code IS NOT NULL AND (
-       NEW.question IS DISTINCT FROM OLD.question
-    OR NEW.opt_a IS DISTINCT FROM OLD.opt_a
-    OR NEW.opt_b IS DISTINCT FROM OLD.opt_b
-    OR NEW.opt_c IS DISTINCT FROM OLD.opt_c
-    OR NEW.opt_d IS DISTINCT FROM OLD.opt_d
-    OR NEW.answer IS DISTINCT FROM OLD.answer
-    OR NEW.accepted_answers IS DISTINCT FROM OLD.accepted_answers
-    OR NEW.grading_mode IS DISTINCT FROM OLD.grading_mode
-  ) THEN
-    NEW.major := NULL;
-    NEW.topic := NULL;
-    NEW.keywords := NULL;
-    NEW.exp_why := NULL;
-    NEW.exp_others := NULL;
-    NEW.exp_trap := NULL;
-    NEW.exp_raw := NULL;
-    NEW.mnemonic := NULL;
-    NEW."extension" := NULL;
-    NEW.law := NULL;
-    NEW.mistake := NULL;
-    NEW.analysis_status := 'pending';
-    NEW.analysis_attempts := 0;
-    NEW.analysis_error := NULL;
-    NEW.analysis_started_at := NULL;
-    NEW.analysis_completed_at := NULL;
-    NEW.analysis_last_attempt_at := NULL;
-  END IF;
-  RETURN NEW;
-END $reset$;
+-- Live production public.reset_ai_analysis_on_official_change() definition,
+-- captured using read-only pg_get_functiondef() and pinned by SHA-256 in
+-- official_p0_option_order_live_trigger_preflight_20261111.sql.
+-- This copy is installed ONLY in the GitHub CI postgres:17 disposable DB.
+CREATE OR REPLACE FUNCTION public.reset_ai_analysis_on_official_change()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+begin
+  if new.source_exam_code is not null and (
+       new.question is distinct from old.question
+    or new.opt_a is distinct from old.opt_a
+    or new.opt_b is distinct from old.opt_b
+    or new.opt_c is distinct from old.opt_c
+    or new.opt_d is distinct from old.opt_d
+    or new.answer is distinct from old.answer
+    or new.accepted_answers is distinct from old.accepted_answers
+    or new.grading_mode is distinct from old.grading_mode
+  ) then
+    new.major := null;
+    new.topic := null;
+    new.keywords := null;
+    new.exp_why := null;
+    new.exp_others := null;
+    new.exp_trap := null;
+    new.exp_raw := null;
+    new.mnemonic := null;
+    new.extension := null;
+    new.law := null;
+    new.mistake := null;
+    new.analysis_status := 'pending';
+    new.analysis_attempts := 0;
+    new.analysis_error := null;
+    new.analysis_started_at := null;
+    new.analysis_completed_at := null;
+    new.analysis_last_attempt_at := null;
+  end if;
+  return new;
+end;
+$function$;
 
 CREATE TRIGGER synthetic_official_reset
 BEFORE UPDATE OF question,opt_a,opt_b,opt_c,opt_d,answer,accepted_answers,grading_mode
 ON swsi_p0_fixture FOR EACH ROW
-EXECUTE FUNCTION pg_temp.synthetic_official_change_reset();
+EXECUTE FUNCTION public.reset_ai_analysis_on_official_change();
 
 -- A synthetic AFTER UPDATE OF analysis_status marker detects accidental
 -- explicit SET analysis_status, which could auto-enable production AI jobs.

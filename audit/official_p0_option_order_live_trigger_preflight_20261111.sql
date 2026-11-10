@@ -23,6 +23,7 @@ checks AS (
     AND fn LIKE '%new.analysis_status := ''pending''%'
     AND fn LIKE '%new.exp_why := null%'
     AND fn LIKE '%new.analysis_attempts := 0%'
+    AND encode(sha256(convert_to(fn,'UTF8')),'hex') = '729a9c8e5158ebe73c65504ce988126d9e6de95d65eff8ed5bec9d6cacac74f0'
     FROM seen WHERE tgname='trg_reset_ai_on_official_change'), FALSE)
      AS canonical_reset_sets_pending,
   coalesce((SELECT tgenabled='O'
@@ -35,6 +36,7 @@ checks AS (
 )
 SELECT *, CASE WHEN two_triggers_exist AND canonical_reset_sets_pending
     AND queue_enable_watches_explicit_status_updates
+    AND current_ai_job_enabled IS FALSE
     THEN 'PASS_READONLY_TRIGGER_CONTRACT'
     ELSE 'HOLD_TRIGGER_DRIFT'
   END AS source_change_preflight

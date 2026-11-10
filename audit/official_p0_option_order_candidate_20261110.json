@@ -23,7 +23,8 @@
     "The source PDF batch flags remain 428 unresolved and are not automatically cleared. Do not keep an existing ready AI explanation after changing an official option.",
     "Production full-row 37-column SHA-256 drift guard added. If any row changes, preflight MUST fail and the release must be re-evaluated, even when old option strings still match. This read-only query is not a production write, trigger rehearsal, approval or rollback.",
     "2026-11-11 read-only production trigger inspection: trg_reset_ai_on_official_change clears stale AI/derived fields and unconditionally changes analysis_status to pending, not review. Release SQL must SET option columns only and allow database-owned quarantine; avoid explicit SET analysis_status (it would invoke the separate AFTER UPDATE OF analysis_status queue automation).",
-    "The live AI job switch was disabled when checked, but this is dynamic configuration and is not treated as proof of future scheduling safety."
+    "The live AI job switch was disabled when checked, but this is dynamic configuration and is not treated as proof of future scheduling safety.",
+    "The isolated PG17 test now executes the exact read-only-observed production reset trigger function body (same function name and security definer search_path), while separately retaining a synthetic AFTER UPDATE OF analysis_status marker to detect forbidden explicit status column targets. No production function was modified."
   ],
   "rows": [
     {
@@ -100,5 +101,8 @@
   "official_change_trigger_state": "pending",
   "official_change_trigger_clear_enrichment": true,
   "option_only_update_required": true,
-  "trigger_test_scope": "PG17 synthetic trigger replicates key source-change reset rules; live trigger was inspected by SELECT only, not production-executed."
+  "trigger_test_scope": "PG17 synthetic trigger replicates key source-change reset rules; live trigger was inspected by SELECT only, not production-executed.",
+  "production_reset_trigger_source_sha256": "729a9c8e5158ebe73c65504ce988126d9e6de95d65eff8ed5bec9d6cacac74f0",
+  "production_reset_trigger_source_name": "public.reset_ai_analysis_on_official_change",
+  "production_reset_trigger_evidence": "Read-only pg_get_functiondef(public.reset_ai_analysis_on_official_change) and SHA256 from production Supabase public.questions at 2026-11-11; exact function body copied into isolated PostgreSQL 17 only."
 }

@@ -59,6 +59,17 @@ def validate_live_trigger_preflight_sql(proof: dict) -> None:
     path = "audit/official_p0_option_order_live_trigger_preflight_20261111.sql"
     assert proof["production_trigger_preflight_sql"] == path
     assert proof["official_change_trigger_state"] == "pending"
+    assert proof["production_reset_trigger_source_name"] == "public.reset_ai_analysis_on_official_change"
+    assert proof["production_reset_trigger_source_sha256"] == "729a9c8e5158ebe73c65504ce988126d9e6de95d65eff8ed5bec9d6cacac74f0"
+    pg_sql = (ROOT / "audit/official_p0_option_order_pg17_synthetic_rollback_20261111.sql").read_text(encoding="utf-8")
+    assert "CREATE OR REPLACE FUNCTION public.reset_ai_analysis_on_official_change()" in pg_sql
+    assert "EXECUTE FUNCTION public.reset_ai_analysis_on_official_change()" in pg_sql
+    assert "SECURITY DEFINER" in pg_sql and "SET search_path TO ''" in pg_sql
+    assert "UPDATE swsi_p0_fixture SET" in pg_sql
+    # Only options may appear in any SQL UPDATE target list, never analysis_status.
+    for match in re.finditer(r"UPDATE swsi_p0_fixture SET(.*?)\\bWHERE\\b", pg_sql, flags=re.S):
+        assert not re.search(r"\\banalysis_status\\s*=", match.group(1))
+
     assert proof["official_change_trigger_clear_enrichment"] is True
     assert proof["option_only_update_required"] is True
     sql = (ROOT / path).read_text(encoding="utf-8")
