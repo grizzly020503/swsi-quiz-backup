@@ -51,7 +51,7 @@ def render(pdf: Path, dest: Path, page: int) -> dict:
     subprocess.run(cmd,check=True,timeout=75,capture_output=True)
     img=dest.with_suffix(".png")
     raw=img.read_bytes()
-    assert raw.startswith(b"\\x89PNG\\r\\n\\x1a\\n"), "render did not produce PNG"
+    assert raw.startswith(b"\x89PNG\r\n\x1a\n"), "render did not produce PNG"
     assert len(raw)>10000, "suspiciously small image"
     return {"page_number_one_based":page,"image_sha256":sha(raw),"image_bytes":len(raw)}
 
