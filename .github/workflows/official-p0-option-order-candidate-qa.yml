@@ -11,6 +11,7 @@ on:
       - 'scripts/official_p0_option_order_candidate_selftest.py'
       - 'scripts/official_p0_option_order_release_rehearsal.py'
       - 'scripts/official_p0_option_order_review_bundle.py'
+      - 'scripts/official_p0_pdf_visual_capture.py'
       - '.github/workflows/official-p0-option-order-candidate-qa.yml'
       - 'cdn/question-shards/104-2.json'
       - 'cdn/question-shards/107-1.json'
@@ -104,3 +105,38 @@ jobs:
           echo "- Synthetic source-change trigger resets AI to pending; option-only SQL avoids AFTER UPDATE OF analysis_status." >> "$GITHUB_STEP_SUMMARY"
           echo "- All 37 columns of two synthetic rows restored after real SQL UPDATE and ROLLBACK." >> "$GITHUB_STEP_SUMMARY"
           echo "- No Supabase credentials, no production connection, no full trigger parity or release approval." >> "$GITHUB_STEP_SUMMARY"
+
+  official-pdf-page-capture:
+    name: Render exact MOEX Q37 and Q40 pages for independent review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PDF renderer (no OCR)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils
+      - name: Render MOEX question and answer pages (not approval)
+        run: |
+          python -m py_compile scripts/official_p0_pdf_visual_capture.py
+          python scripts/official_p0_pdf_visual_capture.py --out "$RUNNER_TEMP/swsi-p0-original-page-review"
+      - name: Upload human-reviewable pages, exclude raw PDFs
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swsi-p0-original-page-VISUAL-REVIEW-PENDING
+          path: |
+            ${{ runner.temp }}/swsi-p0-original-page-review/*.png
+            ${{ runner.temp }}/swsi-p0-original-page-review/VISUAL_REVIEW_PENDING_NO_GO.json
+          retention-days: 14
+          if-no-files-found: error
+      - name: Explicitly classify external source outage
+        if: always()
+        run: |
+          echo "## MOEX official PDF screenshot diagnostic (NO-GO)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Missing/failed external evidence is a review HOLD, never automatic acceptance." >> "$GITHUB_STEP_SUMMARY"
+          echo "- This job never writes to SWSI main, Supabase or any deployed website." >> "$GITHUB_STEP_SUMMARY"
