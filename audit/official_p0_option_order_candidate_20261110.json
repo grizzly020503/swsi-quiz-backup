@@ -19,12 +19,13 @@
   "notes": [
     "The 104-2 Q37 official answer C points to ①③⑤; this combination is incorrectly shown as B on the current student site. Live option C is ②③④, so this causes actual misgrading relative to displayed choices.",
     "The 107-1 Q40 answer B is correctly displayed as ①③④⑤; C and D options are still historically wrong. No answer letter change needed.",
-    "Original question PDFs and corrected-answer PDFs were compared as text; screenshot endpoint returned cache miss, so independent printed-page visual signoff remains pending.",
+    "Original PDF web screenshot endpoint returned cache miss; recovered source page images via GitHub Actions #42955027365 (4 official PNGs). Assistant visually inspected question page and corrected answer page for both questions; human approval remains false.",
     "The source PDF batch flags remain 428 unresolved and are not automatically cleared. Do not keep an existing ready AI explanation after changing an official option.",
     "Production full-row 37-column SHA-256 drift guard added. If any row changes, preflight MUST fail and the release must be re-evaluated, even when old option strings still match. This read-only query is not a production write, trigger rehearsal, approval or rollback.",
     "2026-11-11 read-only production trigger inspection: trg_reset_ai_on_official_change clears stale AI/derived fields and unconditionally changes analysis_status to pending, not review. Release SQL must SET option columns only and allow database-owned quarantine; avoid explicit SET analysis_status (it would invoke the separate AFTER UPDATE OF analysis_status queue automation).",
     "The live AI job switch was disabled when checked, but this is dynamic configuration and is not treated as proof of future scheduling safety.",
-    "The isolated PG17 test now executes the exact read-only-observed production reset trigger function body (same function name and security definer search_path), while separately retaining a synthetic AFTER UPDATE OF analysis_status marker to detect forbidden explicit status column targets. No production function was modified."
+    "The isolated PG17 test now executes the exact read-only-observed production reset trigger function body (same function name and security definer search_path), while separately retaining a synthetic AFTER UPDATE OF analysis_status marker to detect forbidden explicit status column targets. No production function was modified.",
+    "Rendered original PNG evidence confirms the expected 104-2 Q37 C and 107-1 Q40 B answer-option mappings; detailed source/page hashes pinned in rendered_original_pdf_page_evidence. No independent human signature or official release owner pin is inferred."
   ],
   "rows": [
     {
@@ -104,5 +105,50 @@
   "trigger_test_scope": "PG17 synthetic trigger replicates key source-change reset rules; live trigger was inspected by SELECT only, not production-executed.",
   "production_reset_trigger_source_sha256": "729a9c8e5158ebe73c65504ce988126d9e6de95d65eff8ed5bec9d6cacac74f0",
   "production_reset_trigger_source_name": "public.reset_ai_analysis_on_official_change",
-  "production_reset_trigger_evidence": "Read-only pg_get_functiondef(public.reset_ai_analysis_on_official_change) and SHA256 from production Supabase public.questions at 2026-11-11; exact function body copied into isolated PostgreSQL 17 only."
+  "production_reset_trigger_evidence": "Read-only pg_get_functiondef(public.reset_ai_analysis_on_official_change) and SHA256 from production Supabase public.questions at 2026-11-11; exact function body copied into isolated PostgreSQL 17 only.",
+  "rendered_original_pdf_page_evidence": {
+    "status": "ORIGINAL_PDF_PNG_RENDERED_AND_ASSISTANT_VISUALLY_INSPECTED__INDEPENDENT_HUMAN_SIGNOFF_PENDING",
+    "run_id": 42955027365,
+    "artifact_id": 13826642698,
+    "artifact_name": "swsi-p0-original-page-VISUAL-REVIEW-PENDING",
+    "artifact_link": "https://github.com/grizzly020503/swsi-quiz-backup/actions/runs/42955027365",
+    "visible_png_files": 4,
+    "production_modified": false,
+    "independent_human_approval": false,
+    "original_question_pdf_exact_hashes_verified": true,
+    "q1042": {
+      "id": "SP104-2-37",
+      "question_pdf_sha256": "dee0cba3e779ba11c751a3bac02fdeeb3168fc00fd6cc0e1be5e9b55f66c5743",
+      "answer_pdf_sha256": "92daeeb29319b43003369c180fa28d864e1abf60d5b2fea3a92a5c5fe85c87aa",
+      "question_page_png_sha256": "dfdf1a5f614092ac462bfb3956cf8536f7bccae33992a50e261ac3ee9af3bdd7",
+      "answer_page_png_sha256": "765374764c03e8967c7fe2e35057c9c5d38aae879a4a1e0ce41d66e4ff48a6be",
+      "official_question_page": 4,
+      "official_answer_page": 9,
+      "observed_options": [
+        "①②③",
+        "①③④",
+        "①③⑤",
+        "②④⑤"
+      ],
+      "observed_answer_group_31_40": "CBCCBCCACD",
+      "answer": "C"
+    },
+    "q1071": {
+      "id": "SP107-1-40",
+      "question_pdf_sha256": "fd59d4ab9d2112e1af0850ef2c5f23e1d3f8c739700781f4bbce655ef342fc24",
+      "answer_pdf_sha256": "de743e4c573a7dfe45980b6e2323770ea3d62a17f445f25abb1d3f086a3d2906",
+      "question_page_png_sha256": "8034f93fddc258feb1a9b76afd5b8dca4cecf2d7389188606e8586f5ad8cbbee",
+      "answer_page_png_sha256": "8eadcff209e6044ed0282f85b6fc4989737e0625bcf07cdb2d1a78c7bed6e881",
+      "official_question_page": 4,
+      "official_answer_page": 1,
+      "observed_options": [
+        "①②③④",
+        "①③④⑤",
+        "②③④⑤",
+        "②③④"
+      ],
+      "observed_answer_group_31_40": "DBCDBBDCBB",
+      "answer": "B"
+    }
+  }
 }

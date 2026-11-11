@@ -139,6 +139,27 @@ def verify() -> int:
     ):
         assert proof[flag] is False, flag
     assert {x["id"] for x in proof["rows"]} == set(EXPECTED_ROWS)
+    visual = proof["rendered_original_pdf_page_evidence"]
+    assert visual["status"].endswith("INDEPENDENT_HUMAN_SIGNOFF_PENDING")
+    assert visual["run_id"] == 42955027365
+    assert visual["artifact_id"] == 13826642698
+    assert visual["visible_png_files"] == 4
+    assert visual["production_modified"] is False
+    assert visual["independent_human_approval"] is False
+    assert visual["original_question_pdf_exact_hashes_verified"] is True
+    assert visual["q1042"]["id"] == "SP104-2-37"
+    assert visual["q1071"]["id"] == "SP107-1-40"
+    for key, ident in (("q1042","SP104-2-37"),("q1071","SP107-1-40")):
+        evidence = visual[key]
+        row = next(item for item in proof["rows"] if item["id"] == ident)
+        assert evidence["question_pdf_sha256"] == row["pdf_sha"]
+        assert evidence["observed_options"] == row["proposed_options"]
+        assert evidence["observed_answer_group_31_40"] == row["official_answer_group_31_40"]
+        assert evidence["answer"] == row["answer"]
+        assert evidence["observed_answer_group_31_40"][row["question_number"]-31] == row["answer"]
+        assert re.fullmatch(r"[0-9a-f]{64}", evidence["answer_pdf_sha256"])
+        assert re.fullmatch(r"[0-9a-f]{64}", evidence["question_page_png_sha256"])
+        assert re.fullmatch(r"[0-9a-f]{64}", evidence["answer_page_png_sha256"])
     validate_live_preflight_sql(proof)
     validate_live_trigger_preflight_sql(proof)
 
