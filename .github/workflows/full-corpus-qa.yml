@@ -24,6 +24,8 @@ on:
       - 'scripts/official_held_two_readonly_shadow_selftest.py'
       - 'scripts/official_held_two_option_stager.py'
       - 'scripts/official_two_source_owner_release_guard.py'
+      - 'scripts/official_p0_source_successor*.py'
+      - 'audit/official_p0_*20261112.json'
       - 'scripts/official_two_source_legacy_replay.py'
       - 'audit/official_two_owner_authorization_and_37_column_preimages_20261105.json'
       - 'audit/official_held_two_option_shadow_readonly_20261105.sql'
@@ -84,6 +86,8 @@ on:
       - 'scripts/official_held_two_readonly_shadow_selftest.py'
       - 'scripts/official_held_two_option_stager.py'
       - 'scripts/official_two_source_owner_release_guard.py'
+      - 'scripts/official_p0_source_successor*.py'
+      - 'audit/official_p0_*20261112.json'
       - 'scripts/official_two_source_legacy_replay.py'
       - 'audit/official_two_owner_authorization_and_37_column_preimages_20261105.json'
       - 'audit/official_held_two_option_shadow_readonly_20261105.sql'
@@ -202,6 +206,7 @@ jobs:
         run: |
           python -m py_compile scripts/official_two_source_owner_release_guard.py
           python scripts/official_two_source_owner_release_guard.py
+          python scripts/official_p0_source_successor_selftest.py
 
       - name: Preserve the original read-only 37-column transaction preflight evidence
         run: |
