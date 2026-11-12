@@ -32,7 +32,7 @@ def require(test,reason):
 def digest(data:bytes)->str:return hashlib.sha256(data).hexdigest()
 def inventory_digest(items):
  return digest('\n'.join(f'{k}:{v}' for k,v in sorted(items.items())).encode('utf-8'))
-def verify():
+def verify_predecessor():
  approval=json.loads(BACKUP.read_text(encoding='utf-8'))
  require(approval.get('owner_authorization_recorded_in_chat') is True,'owner scope authorization missing')
  require(approval.get('student_user_data_saved') is False and approval.get('netlify_backup_touched') is False,'student/backup protection')
@@ -98,4 +98,8 @@ def verify():
  for id in REMAIN:
   require(id in allrows and allrows[id]['analysis_status'] in ('ready','review'),'original three sources unexpectedly changed')
  print('MOEX TWO-SOURCE OWNER RELEASE STATIC QA PASS: 2 approved/5 held; 4798 other MCQ locks and 240 essays frozen; 22 unrelated shards untouched; no DB writes')
+def verify():
+ from official_p0_source_successor_guard import verify as verify_successor
+ verify_successor(verify_predecessor)
+
 if __name__=='__main__':verify()

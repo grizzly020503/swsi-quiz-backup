@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "approval_date": "2026-11-12",
+  "owner_approval": "User explicitly approved five option corrections in current conversation after reviewing the exact option table.",
+  "source_pr": 593,
+  "source_evidence_commit": "c161c405a5f776647511561a1c27439de0cc3550",
+  "official_source_approved": true,
+  "changes": {
+    "SP104-2-37": {
+      "opt_b": "①③④",
+      "opt_c": "①③⑤",
+      "opt_d": "②④⑤"
+    },
+    "SP107-1-40": {
+      "opt_c": "②③④⑤",
+      "opt_d": "②③④"
+    }
+  },
+  "unchanged_answers": {
+    "SP104-2-37": "C",
+    "SP107-1-40": "B"
+  },
+  "preimage_sha256": {
+    "SP104-2-37": "10ed64cb7f1343b45dabb025bf54c281ffb36ec35ccf1128d37f784ddecb7dfb",
+    "SP107-1-40": "588af4d0976c6758594e679110f210f4f14dadeebddb9c84a196889e6e7c101f"
+  },
+  "trigger_preflight": "PASS_READONLY_TRIGGER_CONTRACT",
+  "rehearsal": "PASS_NO_RELEASE; 4798 unrelated questions and all grading tuples unchanged",
+  "production_written": false,
+  "release_ready": false,
+  "remaining_gates": [
+    "Build versioned successor manifest and Official Core lock with exact predecessor proof",
+    "Validate full production trigger/rollback contract for controlled update",
+    "Integrated exact-head CI",
+    "Controlled database/CDN release and live grading acceptance"
+  ],
+  "source_review_queue_unresolved": 428
+}
