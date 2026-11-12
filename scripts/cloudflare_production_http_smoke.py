@@ -135,7 +135,7 @@ def main() -> int:
 
     # Two owner-approved question text repairs require exact hosted shard bytes.
     # A matching dataset revision alone cannot prove the corrected options are live.
-    approved_files = ("107-2.json", "111-2.json")
+    approved_files = ("104-2.json", "107-1.json", "107-2.json", "111-2.json")
     approved_sha = {}
     for filename in approved_files:
         entries = [row for row in expected_manifest.get("shards", [])

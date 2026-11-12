@@ -395,6 +395,17 @@ async function verifyHostedSourceHoldQuarantine(page, label) {
   const ids = await page.evaluate(() => Array.from(SWSI_SOURCE_HOLD_IDS));
   assert.deepEqual(ids, ids.length === 3 ? threeIds : fiveIds,
     label + ': deployed hold list differs from the approved baseline or P0 quarantine');
+  // Three holds are safe only with the exact approved successor options.
+  if (ids.length === 3) {
+    const corrected = await page.evaluate(() => ['SP104-2-37','SP107-1-40'].map(id => {
+      const q = ALL.find(x => x.id === id);
+      return {id, answer:q?.answer, options:q ? ['A','B','C','D'].map(k=>q.options[k]) : [], held:q ? swsiSourceHeld(q) : true};
+    }));
+    assert.deepEqual(corrected, [
+      {id:'SP104-2-37',answer:'C',options:['①②③','①③④','①③⑤','②④⑤'],held:false},
+      {id:'SP107-1-40',answer:'B',options:['①②③④','①③④⑤','②③④⑤','②③④'],held:false}
+    ], label + ': source quarantine removed before approved options were published');
+  }
   const result = await page.evaluate(heldIds => {
     if (typeof swsiSourceHeld !== 'function' ||
         typeof swsiOfficialFigureReady !== 'function') {
@@ -810,6 +821,7 @@ async function verifyHostedPwaOffline() {
     const offlineHoldResult = await page.evaluate(expectedTotal => {
       const heldIds = ['DS-104-1-22', 'DS-104-1-27', 'DS-104-1-29'];
       const releasedIds = ['R-107-2-40', 'SP111-2-34'];
+      if (SWSI_SOURCE_HOLD_IDS.length === 3) releasedIds.push('SP104-2-37','SP107-1-40');
       if (typeof swsiSourceHeld !== 'function' || ALL.length !== expectedTotal)
         throw Error('offline source quarantine/corpus missing');
       const beforeStorage = JSON.stringify(localStorage);
@@ -860,7 +872,7 @@ async function verifyHostedPwaOffline() {
       }
       view = 'home'; queue = []; selected = null; answered = false;
       render();
-      return { online: navigator.onLine, cases, releasedCases,
+      return { online: navigator.onLine, cases, releasedCases, expectedReleased: releasedIds.length,
         storageUnchanged: JSON.stringify(localStorage) === beforeStorage,
         historyUnchanged: loadHist().length === beforeHistory };
     }, expectedBank);
@@ -869,7 +881,7 @@ async function verifyHostedPwaOffline() {
     assert(offlineHoldResult.cases.every(c => c.hidden && c.blocked &&
       c.afterStaleAnswer && c.originalUnchanged),
       'offline PWA leaked an unapproved held question: ' + JSON.stringify(offlineHoldResult.cases));
-    assert.equal(offlineHoldResult.releasedCases.length, 2, 'offline approved-source case count');
+    assert.equal(offlineHoldResult.releasedCases.length, offlineHoldResult.expectedReleased, 'offline approved-source case count');
     assert(offlineHoldResult.releasedCases.every(c => c.answerable && c.originalUnchanged),
       'offline PWA still blocked an owner-approved source repair: ' +
       JSON.stringify(offlineHoldResult.releasedCases));

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "source_release_pr": 595,
+  "release_commit": "e667de8a690a49f4d1b2f5e19ec98e36dc01fd96",
+  "tested_head": "26f4ec5f2643a4553d55bb3c5fc635350a924428",
+  "dataset_revision": "6e0842458c9951c7f66c",
+  "production_transaction_committed": true,
+  "postimages_rechecked_after_commit": {
+    "SP104-2-37": "d57ed9a1ed1dcbd4047c360114e650233bbc5f26a6017d7a46a16a4b3d514c73",
+    "SP107-1-40": "30391428c0667c3b14c32d8637443ad4c68228cf6ab4d6c90ec0924aa7663e6f"
+  },
+  "ai_job_enabled_after_commit": false,
+  "unrelated_full_question_rows_changed": 0,
+  "cloudflare_workers_build": "success",
+  "hosted_manifest_parity_job": 131118537779,
+  "hosted_manifest_revision_verified": true,
+  "unquarantine_requires_final_ci_and_hosted_browser_acceptance": true,
+  "remaining_source_holds": [
+    "DS-104-1-22",
+    "DS-104-1-27",
+    "DS-104-1-29"
+  ],
+  "whole_platform_release_approved": false
+}
