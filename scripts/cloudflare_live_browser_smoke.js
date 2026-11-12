@@ -387,16 +387,14 @@ async function verifyHostedLocalGrading(page, label) {
 // malformed official imports, not only pass a local candidate smoke. This
 // never POSTs, writes student records, or marks a PDF source as approved.
 async function verifyHostedSourceHoldQuarantine(page, label) {
-  // Before this PR merges, production still correctly holds all five.
-  // Once deployed, only the three still-unapproved 104-1 sources may be held.
-  const oldIds = ['DS-104-1-22', 'DS-104-1-27', 'DS-104-1-29',
-    'R-107-2-40', 'SP111-2-34'];
+  // During rollout accept the current three source holds or the new five;
+  // never re-quarantine the two already owner-approved source repairs.
   const releasedIds = ['R-107-2-40', 'SP111-2-34'];
-  const threeIds = oldIds.slice(0, 3);
+  const threeIds = ['DS-104-1-22', 'DS-104-1-27', 'DS-104-1-29'];
+  const fiveIds = [...threeIds, 'SP104-2-37', 'SP107-1-40'];
   const ids = await page.evaluate(() => Array.from(SWSI_SOURCE_HOLD_IDS));
-  assert.deepEqual(ids.length === 5 ? ids : ids.length === 3 ? ids : [],
-    ids.length === 5 ? oldIds : threeIds,
-    label + ': deployed hold list is neither guarded pre-release nor approved post-release');
+  assert.deepEqual(ids, ids.length === 3 ? threeIds : fiveIds,
+    label + ': deployed hold list differs from the approved baseline or P0 quarantine');
   const result = await page.evaluate(heldIds => {
     if (typeof swsiSourceHeld !== 'function' ||
         typeof swsiOfficialFigureReady !== 'function') {
@@ -444,7 +442,7 @@ async function verifyHostedSourceHoldQuarantine(page, label) {
     label + ': live source-hold quiz leak ' + JSON.stringify(item));
   }
 
-  if (ids.length === 3) {
+  if (releasedIds.every(id => !ids.includes(id))) {
     const released = await page.evaluate(() => {
       const research = ALL.find(x => x.id === 'R-107-2-40');
       const policy = ALL.find(x => x.id === 'SP111-2-34');

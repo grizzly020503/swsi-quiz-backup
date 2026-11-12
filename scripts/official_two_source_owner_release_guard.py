@@ -93,9 +93,9 @@ def verify():
    if field in meta['options'] or field in META or field=='analysis_status':continue
    require(q[field]==before[field],'unapproved original field drift '+id+'/'+field)
  html=HTML.read_text(encoding='utf-8')
- hold="const SWSI_SOURCE_HOLD_IDS=Object.freeze(['DS-104-1-22','DS-104-1-27','DS-104-1-29']);"
- require(html.count(hold)==1,'only three unapproved holds may remain')
+ hold="const SWSI_SOURCE_HOLD_IDS=Object.freeze(['DS-104-1-22','DS-104-1-27','DS-104-1-29','SP104-2-37','SP107-1-40']);"
+ require(html.count(hold)==1,'exact three original plus two option-source holds required')
  for id in REMAIN:
   require(id in allrows and allrows[id]['analysis_status'] in ('ready','review'),'original three sources unexpectedly changed')
- print('MOEX TWO-SOURCE OWNER RELEASE STATIC QA PASS: 2 approved/3 held; 4798 other MCQ locks and 240 essays frozen; 22 unrelated shards untouched; no DB writes')
+ print('MOEX TWO-SOURCE OWNER RELEASE STATIC QA PASS: 2 approved/5 held; 4798 other MCQ locks and 240 essays frozen; 22 unrelated shards untouched; no DB writes')
 if __name__=='__main__':verify()

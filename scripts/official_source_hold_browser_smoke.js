@@ -5,9 +5,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
 const {chromium,webkit}=require('playwright');
 const base=process.argv[2]||'http://127.0.0.1:4176/';
 const origin=new URL(base).origin;
-const corpus=['104-1','107-2','111-2'].flatMap(stem=>
+const corpus=['104-1','104-2','107-1','107-2','111-2'].flatMap(stem=>
   JSON.parse(fs.readFileSync('cdn/question-shards/'+stem+'.json')).questions);
-const ids=['DS-104-1-22','DS-104-1-27','DS-104-1-29'];
+const ids=['DS-104-1-22','DS-104-1-27','DS-104-1-29','SP104-2-37','SP107-1-40'];
 (async()=>{
 for(const type of [chromium,webkit]){
  const browser=await type.launch();
@@ -29,7 +29,7 @@ for(const type of [chromium,webkit]){
   const normalized=rows.map(normalize);
   ALL=normalized; SUBJECTS=[...new Set(normalized.map(q=>q.subject))];
   window.SWSI_QB.allComplete=true;
-  const held=['DS-104-1-22','DS-104-1-27','DS-104-1-29'];
+  const held=['DS-104-1-22','DS-104-1-27','DS-104-1-29','SP104-2-37','SP107-1-40'];
   const ordinary=normalized.find(q=>q.id==='DS-104-1-01');
   if(!ordinary)throw Error('ordinary control missing');
   const searchLeaks=held.filter(id=>{
