@@ -42,6 +42,14 @@ def project(before, candidate):
 
 def main():
     verify_current()
+    from official_1041_live_preflight_sql_selftest import validate
+    sql = (ROOT/'audit/official_1041_current_preflight_readonly_20261113.sql').read_text()
+    validate(sql)
+    assert 'ex.pending=2 AND ap.exact_postimages=2 AND ex.analyzing=0' in sql
+    receipt = json.loads((ROOT/'audit/official_p0_production_receipt_20261112.json').read_text())
+    for ident, digest in receipt['postimages_rechecked_after_commit'].items():
+        assert "id='"+ident+"'" in sql and digest in sql
+    assert "FROM public.questions q WHERE analysis_status='pending'" in sql
     audit = json.loads((ROOT/'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json').read_text())
     assert audit['independent_human_approval'] is False and audit['release_approved'] is False
     changes = {c['id']: c for c in audit['proposed_changes']}
