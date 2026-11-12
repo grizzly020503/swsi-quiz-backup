@@ -80,10 +80,15 @@ def verify(predecessor_guard):
         (directory/'lock.json').write_bytes(lock_raw)
         # Original implementation and all its absolute hashes remain unchanged.
         scope = predecessor_guard.__globals__
-        saved = {key: scope[key] for key in ('SHARDS', 'M', 'LOCK')}
+        saved = {key: scope[key] for key in ('SHARDS', 'M', 'LOCK', 'HTML')}
+        html = scope['HTML'].read_text()
+        three = "const SWSI_SOURCE_HOLD_IDS=Object.freeze(['DS-104-1-22','DS-104-1-27','DS-104-1-29']);"
+        five = "const SWSI_SOURCE_HOLD_IDS=Object.freeze(['DS-104-1-22','DS-104-1-27','DS-104-1-29','SP104-2-37','SP107-1-40']);"
+        assert html.count(three) == 1, 'exact three unresolved source holds required'
+        (directory/'index.html').write_text(html.replace(three, five))
         try:
-            scope.update(SHARDS=directory, M=directory/'manifest.json', LOCK=directory/'lock.json')
+            scope.update(SHARDS=directory, M=directory/'manifest.json', LOCK=directory/'lock.json', HTML=directory/'index.html')
             predecessor_guard()
         finally:
             scope.update(saved)
-    print('P0 SUCCESSOR PASS: exactly 5 approved options; 4798 rows/240 essays/4800 grading tuples unchanged; exact predecessor replayed; 5 holds retained pending live acceptance')
+    print('P0 SUCCESSOR PASS: exactly 5 approved options; 4798 rows/240 essays/4800 grading tuples unchanged; exact predecessor replayed; 3 unresolved source holds retained')

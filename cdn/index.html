@@ -3325,7 +3325,7 @@ const SWSI_OFFICIAL_FIGURES=Object.freeze({
 // Keep the three original source holds plus the two option-mapping defects in PR #593 isolated.
 // Source correction approval is separate from this reversible student protection.
 // Cloudflare-only policy: do not change official rows, answers or saved records.
-const SWSI_SOURCE_HOLD_IDS=Object.freeze(['DS-104-1-22','DS-104-1-27','DS-104-1-29','SP104-2-37','SP107-1-40']);
+const SWSI_SOURCE_HOLD_IDS=Object.freeze(['DS-104-1-22','DS-104-1-27','DS-104-1-29']);
 function swsiSourceHeld(q){return !!q&&SWSI_SOURCE_HOLD_IDS.includes(q.id);}
 function swsiSourceHoldQuiz(q){return '<div class="card" data-source-hold="'+q.id+'"><h3>本題暫停作答</h3><p role="status">'+q.id+'：題目文字正在依官方原卷覆核，暫不顯示題幹、選項與解析，也不列入計分。</p><button class="btn" onclick="next()">略過待覆核題（不計分）→</button></div>';}
 const SWSI_FIGURE_STATUS=Object.create(null);
