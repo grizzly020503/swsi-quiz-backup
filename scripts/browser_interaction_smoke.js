@@ -294,8 +294,22 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.locator('#app .gcard').first().click();
   await page.waitForSelector('#app [onclick^="toggleEssay("]', { timeout: 30000 });
   await page.locator('#app [onclick^="toggleEssay("]').first().click();
-  await page.waitForSelector('.wta', { timeout: 30000 });
-  const textarea = page.locator('.wta').first();
+  // Current main uses a typing-first editor. The unapproved handwriting
+  // candidate intentionally opens in paper-first mode and hides .wta until
+  // the student chooses the explicit keyboard tab. Test BOTH safe paths.
+  if (await page.locator('.swsi-paper-essay').count()) {
+    assert.strictEqual(
+      await page.locator('.swsi-paper-mode-paper').getAttribute('aria-pressed'),
+      'true', 'handwriting entry must default to paper mode');
+    assert.strictEqual(await page.locator('.wta').first().isVisible(), false,
+      'paper mode must hide the typed editor');
+    await page.getByRole('button', { name: /鍵盤打字/ }).click();
+    assert.strictEqual(
+      await page.locator('.swsi-paper-mode-text').getAttribute('aria-pressed'),
+      'true', 'explicit keyboard fallback did not activate');
+  }
+  await page.waitForSelector('.wta:visible', { timeout: 30000 });
+  const textarea = page.locator('.wta:visible').first();
   await textarea.fill('一、測試作答\n（一）測試內容');
   assert((await textarea.inputValue()).includes('測試作答'), 'essay textarea did not accept input');
 
