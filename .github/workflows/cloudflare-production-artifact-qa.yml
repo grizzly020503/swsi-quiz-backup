@@ -9,7 +9,7 @@ on:
       - 'cdn/sw.js'
       - 'cdn/_headers'
       - 'cdn/question-shards/**'
-      - 'cloudflare/wandering-wave-4418/worker.js'
+      - 'cloudflare/wandering-wave-4418/*.js'
       - 'wrangler.jsonc'
       - 'scripts/cloudflare_release_artifact_smoke.py'
       - 'scripts/cloudflare_production_http_smoke.py'
@@ -27,7 +27,7 @@ on:
       - 'cdn/sw.js'
       - 'cdn/_headers'
       - 'cdn/question-shards/**'
-      - 'cloudflare/wandering-wave-4418/worker.js'
+      - 'cloudflare/wandering-wave-4418/*.js'
       - 'wrangler.jsonc'
       - 'scripts/cloudflare_release_artifact_smoke.py'
       - 'scripts/cloudflare_production_http_smoke.py'
@@ -78,7 +78,7 @@ jobs:
             cdn/sw.js \
             cdn/_headers \
             cdn/question-shards \
-            cloudflare/wandering-wave-4418/worker.js \
+            cloudflare/wandering-wave-4418 \
             wrangler.jsonc; then
             echo 'run=true' >> "$GITHUB_OUTPUT"
           else

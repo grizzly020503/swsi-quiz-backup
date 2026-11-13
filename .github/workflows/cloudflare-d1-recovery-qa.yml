@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/cloudflare-d1-recovery-qa.yml'
       - 'cloudflare/wandering-wave-4418/d1/**'
-      - 'cloudflare/wandering-wave-4418/worker.js'
+      - 'cloudflare/wandering-wave-4418/*.js'
       - 'scripts/cloudflare_d1_recovery_smoke.py'
 
 permissions:
