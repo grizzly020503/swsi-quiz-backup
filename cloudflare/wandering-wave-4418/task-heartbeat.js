@@ -34,7 +34,22 @@ async function heartbeatRuns(task) {
   // Workers supports manual/follow only; reject 3xx through !ok without following.
   const response=await fetch(url,{method:'GET',redirect:'manual',signal:AbortSignal.timeout(10000),
     headers:{'User-Agent':'swsi-cloudflare-task-heartbeat','Accept':'application/vnd.github+json'}});
-  if (!response.ok) throw Error('github_http_'+response.status);
+  if (!response.ok) {
+    const error=Error('github_http_'+response.status);
+    // Only bounded numeric rate metadata; never persist upstream bodies/headers wholesale.
+    const rate={};
+    for (const [header,key,max] of [
+      ['x-ratelimit-remaining','remaining',1000000000],
+      ['x-ratelimit-reset','reset_epoch',9999999999],
+      ['retry-after','retry_after_seconds',86400],
+    ]) {
+      const value=response.headers.get(header);
+      if(value!==null && /^\d{1,10}$/.test(value) && Number(value)<=max) rate[key]=Number(value);
+    }
+    error.rate=rate;
+    await response.body?.cancel().catch(()=>{});
+    throw error;
+  }
   if (Number(response.headers.get('content-length')||0)>1000000) throw Error('response_too_large');
   const reader=response.body.getReader();let bytes=0;const chunks=[];
   try {
@@ -58,7 +73,8 @@ export async function runTaskHeartbeat(env, scheduledTime) {
       const message=String(error?.message||'');
       const failure=/^github_http_\d{3}$/.test(message)?message:
         ['response_too_large','invalid_response'].includes(message)?message:'source_unavailable';
-      return {id:task.id,workflow_file:task.workflow_file,max_age_hours:task.max_age_hours,status:'error',failure_class:failure};
+      return {id:task.id,workflow_file:task.workflow_file,max_age_hours:task.max_age_hours,status:'error',failure_class:failure,
+        ...(/^github_http_\d{3}$/.test(message) && error.rate ? {upstream_rate:error.rate} : {})};
     }
   }));
   const unhealthy=tasks.filter(t=>t.status!=='healthy');

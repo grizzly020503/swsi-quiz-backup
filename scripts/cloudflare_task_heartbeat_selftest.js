@@ -66,6 +66,16 @@ const env={AI_QUOTA_DB:{prepare(sql){
  await context.worker.scheduled({cron:'*/15 * * * *',scheduledTime:now+1},env);
  assert.equal(stored.tasks[0].failure_class,'github_http_429');
  assert(!JSON.stringify(stored).includes('private error body'));
+ context.fetch=async()=>new Response('secret upstream body',{status:403,headers:{
+   'x-ratelimit-remaining':'0','x-ratelimit-reset':'1794600000','retry-after':'60','x-private':'secret'}});
+ await context.worker.scheduled({cron:'*/15 * * * *',scheduledTime:now},env);
+ assert.equal(stored.tasks[0].failure_class,'github_http_403');
+ assert.deepEqual(stored.tasks[0].upstream_rate,{remaining:0,reset_epoch:1794600000,retry_after_seconds:60});
+ assert(!JSON.stringify(stored).includes('secret'));
+ context.fetch=async()=>new Response(null,{status:403,headers:{
+   'x-ratelimit-remaining':'secret','x-ratelimit-reset':'-1','retry-after':'9999999999'}});
+ await context.worker.scheduled({cron:'*/15 * * * *',scheduledTime:now},env);
+ assert.deepEqual(stored.tasks[0].upstream_rate,{});
  context.fetch=async()=>{throw Error('secret must not leak');};
  await context.worker.scheduled({cron:'*/15 * * * *',scheduledTime:now+2},env);
  assert.equal(stored.tasks[0].failure_class,'source_unavailable');
