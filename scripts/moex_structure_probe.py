@@ -16,6 +16,7 @@ import argparse
 import hashlib
 import json
 import re
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from html.parser import HTMLParser
@@ -288,13 +289,26 @@ def compare_to_registry(exam_code: str, html: str, *, source_url: str | None = N
 
 
 def fetch_official_html(exam_code: str, *, timeout: int = 30) -> tuple[str, str]:
+    """Bounded retries for transport failures only; never retry away scheme drift."""
     url = exam_url(exam_code)
-    response = requests.get(url, timeout=timeout, headers={"User-Agent": UA})
-    response.raise_for_status()
-    if len(response.content) < 1000:
-        raise ProbeError(f"official page unexpectedly small: {len(response.content)} bytes")
-    response.encoding = response.apparent_encoding or response.encoding or "utf-8"
-    return response.text, url
+    retryable_http = {408, 429, 500, 502, 503, 504}
+    for attempt in range(3):
+        try:
+            response = requests.get(url, timeout=timeout, headers={"User-Agent": UA})
+            response.raise_for_status()
+            if len(response.content) < 1000:
+                raise ProbeError(f"official page unexpectedly small: {len(response.content)} bytes")
+            response.encoding = response.apparent_encoding or response.encoding or "utf-8"
+            return response.text, url
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+            if attempt == 2:
+                raise
+        except requests.exceptions.HTTPError as exc:
+            status = getattr(exc.response, "status_code", None)
+            if status not in retryable_http or attempt == 2:
+                raise
+        time.sleep(2 ** attempt)
+    raise AssertionError("unreachable transport retry state")
 
 
 def probe_live(exam_code: str, *, timeout: int = 30) -> dict[str, Any]:
