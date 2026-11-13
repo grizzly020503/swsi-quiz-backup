@@ -31,7 +31,8 @@ function heartbeatTask(task, runs, now) {
 async function heartbeatRuns(task) {
   const url='https://api.github.com/repos/grizzly020503/swsi-quiz-backup/actions/workflows/'+
     encodeURIComponent(task.workflow_file)+'/runs?event=schedule&branch=main&status=completed&per_page=10';
-  const response=await fetch(url,{method:'GET',redirect:'error',signal:AbortSignal.timeout(10000),
+  // Workers supports manual/follow only; reject 3xx through !ok without following.
+  const response=await fetch(url,{method:'GET',redirect:'manual',signal:AbortSignal.timeout(10000),
     headers:{'User-Agent':'swsi-cloudflare-task-heartbeat','Accept':'application/vnd.github+json'}});
   if (!response.ok) throw Error('github_http_'+response.status);
   if (Number(response.headers.get('content-length')||0)>1000000) throw Error('response_too_large');

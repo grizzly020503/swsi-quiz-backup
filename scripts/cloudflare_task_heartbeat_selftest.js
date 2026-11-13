@@ -39,7 +39,7 @@ const env={AI_QUOTA_DB:{prepare(sql){
  assert.equal(statements.length,0);assert.equal(forwarded,3);
  context.fetch=async(url,options)=>{
    network++;
-   assert.equal(options.method,'GET');assert.equal(options.redirect,'error');
+   assert.equal(options.method,'GET');assert.equal(options.redirect,'manual');
    assert(!options.headers.Authorization);assert.equal(new URL(url).hostname,'api.github.com');
    assert.equal(new URL(url).searchParams.get('event'),'schedule');
    return Response.json({workflow_runs:[row()]});
@@ -54,6 +54,14 @@ const env={AI_QUOTA_DB:{prepare(sql){
  stored.generated_at=new Date(now-46*60000).toISOString();
  res=await context.worker.fetch(req(),env);assert.equal(res.status,503);
  assert.equal((await res.json()).independent_monitoring_active,false);
+ for(const status of [301,302,303,307,308]) {
+   let calls=0;
+   context.fetch=async(url,options)=>{calls++;assert.equal(options.redirect,'manual');return new Response(null,{status,headers:{Location:'https://untrusted.example/secret'}});};
+   await context.worker.scheduled({cron:'*/15 * * * *',scheduledTime:now},env);
+   assert.equal(calls,6,'redirect destinations must not be fetched');
+   assert(stored.tasks.every(t=>t.failure_class==='github_http_'+status));
+   assert(!JSON.stringify(stored).includes('untrusted'));
+ }
  context.fetch=async()=>new Response('private error body',{status:429});
  await context.worker.scheduled({cron:'*/15 * * * *',scheduledTime:now+1},env);
  assert.equal(stored.tasks[0].failure_class,'github_http_429');
