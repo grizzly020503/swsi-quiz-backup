@@ -154,6 +154,8 @@ def main() -> int:
         assert failed_row["run_id"] == 7, failed_row
         assert failed_row["last_failure_at"] == "2026-10-02T05:40:00Z"
         assert failed_row["last_success_at"] is None
+        assert failed_row["incident_key"].startswith("ops-"), failed_row
+        assert next(row for row in report["tasks"] if row["id"] == "healthy")["incident_key"] is None
         assert report["independent_of_github_actions"] is False
 
         validate = run(["--registry", str(registry_path), "--validate-only"])
@@ -247,6 +249,19 @@ def main() -> int:
         rows, watchdog.parse_time("2026-10-02T06:00:00Z")
     )
     assert check["status"] == "failed" and check["run_id"] == 90, check
+    key = watchdog.incident_fingerprint(check)
+    assert key and key == watchdog.incident_fingerprint({
+        **check, "age_hours": 12.0,
+    }), "same unresolved run must keep the same incident key"
+    assert key != watchdog.incident_fingerprint({
+        **check, "run_id": 91,
+    }), "a new failed run must be detectable"
+    assert key != watchdog.incident_fingerprint({
+        **check, "status": "stale",
+    }), "status transitions must be distinct incidents"
+    assert watchdog.incident_fingerprint({
+        **check, "status": "healthy",
+    }) is None
 
     def mismatched_event(request, timeout=20):
         return io.BytesIO(json.dumps({"workflow_runs": [
@@ -298,19 +313,15 @@ def main() -> int:
             else:
                 raise AssertionError(f"{key} mismatch must fail closed")
 
-    # Production monitoring must not fan out on every PR Full Corpus QA.
-    # Keep the six-hour fail-closed schedule and immediate *main* completions.
+    # Production checks remain six-hour scheduled, without redundant
+    # workflow_run fan-out after each unrelated Full Corpus QA completion.
     workflow = (ROOT / ".github/workflows/ops-task-watchdog.yml").read_text(encoding="utf-8")
     assert "- cron: '45 */6 * * *'" in workflow, "six-hour watchdog schedule missing"
-    trigger = workflow.split("  workflow_run:\n", 1)[1].split("  pull_request:\n", 1)[0]
-    assert "      - Full Corpus Question QA" in trigger, "full corpus completion watch missing"
-    assert "    types:\n      - completed" in trigger, "completion-only event guard missing"
-    assert "    branches:\n      - main" in trigger, "PR QA could fan out watchdog runs"
+    assert "  workflow_run:\n" not in workflow, "redundant QA fan-out must stay disabled"
+    assert "  pull_request:\n" in workflow, "PR contract validation must remain"
     live_job = workflow.split("  freshness:\n", 1)[1]
-    assert "github.event_name != 'pull_request'" in live_job, "PR live query guard missing"
-    assert "github.event.workflow_run.head_branch == 'main'" in live_job, "main head guard missing"
-    assert "github.event.workflow_run.head_repository.full_name == github.repository" in live_job, "fork guard missing"
-    assert "github.event.workflow_run.event != 'pull_request'" in live_job, "PR workflow_run guard missing"
+    assert "if: github.event_name != 'pull_request'" in live_job, "PR live query guard missing"
+    assert "--fail-on-stale" in live_job, "actual unresolved blockers must remain visible"
 
     # Backup is a separate *medium* degraded-redundancy signal, not evidence
     # that Cloudflare primary production is unavailable.

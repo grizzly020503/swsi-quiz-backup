@@ -11,6 +11,7 @@ not an independent external heartbeat.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -362,6 +363,27 @@ def evaluate_task(task: dict, runs: list[dict], now: datetime) -> dict:
     }
 
 
+def incident_fingerprint(row: dict[str, Any]) -> str | None:
+    """Stable incident identity for downstream deduplication, not suppression.
+
+    A repeated watchdog check of the same failed workflow run retains its key;
+    a new failing run, status transition, or a different API error gets a new
+    key. Never report an unresolved failure as healthy merely to avoid alerts.
+    """
+    status = row.get("status")
+    if status not in {"stale", "missing", "failed", "error"}:
+        return None
+    identity = {
+        "task_id": row.get("id"),
+        "status": status,
+        "run_id": row.get("run_id"),
+    }
+    if status == "error":
+        identity["error"] = row.get("message")
+    raw = json.dumps(identity, ensure_ascii=False, sort_keys=True)
+    return "ops-" + hashlib.sha256(raw.encode("utf-8")).hexdigest()[:20]
+
+
 def build_report(tasks: list[dict], fetcher: Callable[[str], list[dict]], now: datetime,
                  ledger_state: Any | None = None) -> dict:
     results: list[dict] = []
@@ -385,6 +407,7 @@ def build_report(tasks: list[dict], fetcher: Callable[[str], list[dict]], now: d
 
     counts: dict[str, int] = {}
     for row in results:
+        row["incident_key"] = incident_fingerprint(row)
         counts[row["status"]] = counts.get(row["status"], 0) + 1
     blocking = [
         row

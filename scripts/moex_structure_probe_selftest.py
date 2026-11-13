@@ -3,6 +3,10 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
+import requests
+import moex_structure_probe as probe
 from moex_structure_probe import compare_to_registry, extract_social_worker_subjects
 
 
@@ -43,7 +47,56 @@ def page(subjects, *, include_target: bool = True, include_neighbors: bool = Tru
     return "".join(parts)
 
 
+def assert_transient_source_retry() -> None:
+    """Transient HTTP errors retry; authorization/schema errors fail closed."""
+    class Response:
+        def __init__(self, status: int, html: str = ""):
+            self.status_code = status
+            self.content = html.encode("utf-8")
+            self.text = html
+            self.encoding = "utf-8"
+            self.apparent_encoding = "utf-8"
+
+        def raise_for_status(self):
+            if self.status_code >= 400:
+                raise requests.exceptions.HTTPError(
+                    f"HTTP {self.status_code}", response=self
+                )
+
+    valid_html = page(SUBJECTS) + " " * 1200
+    with (
+        patch.object(probe.requests, "get", side_effect=[
+            Response(429), Response(200, valid_html),
+        ]) as get,
+        patch.object(probe.time, "sleep") as sleep,
+    ):
+        html, _url = probe.fetch_official_html("115100")
+        assert html == valid_html and get.call_count == 2
+        sleep.assert_called_once_with(1)
+
+    with (
+        patch.object(probe.requests, "get", return_value=Response(403)) as get,
+        patch.object(probe.time, "sleep") as sleep,
+    ):
+        result = probe.probe_live("115100")
+        assert result["status"] == "source_error"
+        assert result["safe_to_parse_pdfs"] is False
+        assert get.call_count == 1
+        sleep.assert_not_called()
+
+    with (
+        patch.object(probe.requests, "get", return_value=Response(503)) as get,
+        patch.object(probe.time, "sleep") as sleep,
+    ):
+        result = probe.probe_live("115100")
+        assert result["status"] == "source_error"
+        assert result["safe_to_parse_pdfs"] is False
+        assert get.call_count == 3
+        assert sleep.call_count == 2
+
+
 def main() -> int:
+    assert_transient_source_retry()
     current = compare_to_registry("115100", page(SUBJECTS), source_url="fixture://current")
     assert current["status"] == "match", current
     assert current["safe_to_parse_pdfs"] is True
@@ -106,7 +159,7 @@ def main() -> int:
     assert bad["status"] == "possible_scheme_change", bad
     assert bad["requires_maintainer_decision"] is True
 
-    print("MOEX structure probe self-test: PASS (8 fail-closed scenarios)")
+    print("MOEX structure probe self-test: PASS (fail-closed structure + bounded transport retry)")
     return 0
 
 
