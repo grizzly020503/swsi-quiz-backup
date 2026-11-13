@@ -22,8 +22,11 @@ import argparse
 import json
 import re
 import sys
+import time
 from pathlib import Path
 from typing import Any, Callable
+
+import requests
 
 from exam_scheme import compare_payload
 from moex_ops_event_contract import classify_payload, classify_probe
@@ -53,10 +56,26 @@ def _production_base_module():
 
 
 def _default_exam_exists(exam_code: str) -> bool:
-    # Preserve the proven sync distinction between "not published yet" and an
-    # already published page whose structure is unexpected. The structure probe
-    # runs only after this availability check succeeds.
-    return bool(_production_base_module().exam_exists(exam_code))
+    """Retry transient MOEX availability failures, never an unpublished exam.
+
+    HTTP 404 / a legitimate unpublished short page returns False immediately.
+    Permanent HTTP failures (such as 403), unexpected response shapes, and
+    persistent transient failures remain visible rather than pretending that
+    the official exam does not exist.
+    """
+    retryable_http = {408, 429, 500, 502, 503, 504}
+    for attempt in range(3):
+        try:
+            return bool(_production_base_module().exam_exists(exam_code))
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+            if attempt == 2:
+                raise
+        except requests.exceptions.HTTPError as exc:
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            if status not in retryable_http or attempt == 2:
+                raise
+        time.sleep(2 ** attempt)
+    raise AssertionError("unreachable availability retry state")
 
 
 def _default_build_exam(exam_code: str) -> dict[str, Any]:
