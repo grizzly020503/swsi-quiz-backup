@@ -1,9 +1,11 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const source=fs.readFileSync('cloudflare/wandering-wave-4418/worker.js','utf8');
+const source=fs.readFileSync('cloudflare/wandering-wave-4418/task-heartbeat.js','utf8');
+const entry=fs.readFileSync('cloudflare/wandering-wave-4418/entry.js','utf8');
 const context={Response,Request,URL,AbortSignal,TextDecoder,Uint8Array,Date,console,
   fetch:async()=>{throw Error('unexpected network');}};
-vm.createContext(context);vm.runInContext(source.replace(/^export default /,'globalThis.worker = '),context);
+vm.createContext(context);vm.runInContext(source.replace(/^export /gm,''),context);
+vm.runInContext(entry.replace(/^import .*;\n/gm,'').replace('export default ','globalThis.worker = '),context);
 const tasks=JSON.parse(vm.runInContext('JSON.stringify(HEARTBEAT_TASKS)',context));
 const registry=JSON.parse(fs.readFileSync('data/ops_task_registry.v1.json')).tasks;
 assert.deepEqual(tasks,registry.map(({id,workflow_file,max_age_hours,accepted_events})=>({id,workflow_file,max_age_hours,accepted_events})));
@@ -26,12 +28,15 @@ const env={AI_QUOTA_DB:{prepare(sql){
  async first(){return stored?{payload:JSON.stringify(stored)}:null;}};
 }}};
 (async()=>{
+ let forwarded=0,expectedRequest;context.aiWorker={fetch(request,passedEnv,ctx){assert.equal(request,expectedRequest);assert.equal(passedEnv,env);assert.equal(ctx,'context');forwarded++;return new Response('unchanged');}};
+ for(const method of ['GET','POST','OPTIONS']){const request=new Request('https://example.test/ai',{method});expectedRequest=request;const response=await context.worker.fetch(request,env,'context');assert.equal(await response.text(),'unchanged');}
+ assert.equal(forwarded,3);
  const req=()=>new Request('https://example.test/ops/task-heartbeat');
  assert.equal((await context.worker.fetch(req(),env)).status,503);
  assert(!statements.some(s=>/CREATE|INSERT|UPDATE/.test(s)));
  statements.length=0;
  assert.equal((await context.worker.fetch(new Request(req(),{method:'POST'}),env)).status,405);
- assert.equal(statements.length,0);
+ assert.equal(statements.length,0);assert.equal(forwarded,3);
  context.fetch=async(url,options)=>{
    network++;
    assert.equal(options.method,'GET');assert.equal(options.redirect,'error');

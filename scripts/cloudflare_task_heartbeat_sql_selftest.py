@@ -5,7 +5,7 @@ import sqlite3
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
-source = (root/'cloudflare/wandering-wave-4418/worker.js').read_text()
+source = (root/'cloudflare/wandering-wave-4418/task-heartbeat.js').read_text()
 db = sqlite3.connect(':memory:')
 db.executescript((root/'cloudflare/wandering-wave-4418/d1/recovery_schema.sql').read_text())
 create = re.search(r'const HEARTBEAT_SCHEMA = `([^`]+)`', source).group(1)

@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "wandering-wave-4418",
-  "main": "cloudflare/wandering-wave-4418/worker.js",
+  "main": "cloudflare/wandering-wave-4418/entry.js",
   "compatibility_date": "2026-08-25",
   "triggers": { "crons": ["*/15 * * * *"] },
   "assets": {

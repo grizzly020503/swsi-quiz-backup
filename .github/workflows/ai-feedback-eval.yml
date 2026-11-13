@@ -18,6 +18,8 @@ on:
       - 'scripts/ai_feedback_candidate_gate_selftest.py'
       - 'monthly_patch_parts/99z.essay-trust-layer.part'
       - 'cloudflare/wandering-wave-4418/worker.js'
+      - 'cloudflare/wandering-wave-4418/entry.js'
+      - 'cloudflare/wandering-wave-4418/task-heartbeat.js'
 
 permissions:
   contents: read
