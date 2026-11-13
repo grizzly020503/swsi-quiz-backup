@@ -11,11 +11,15 @@ const ids=['DS-104-1-22','DS-104-1-27','DS-104-1-29'];
 (async()=>{
 for(const type of [chromium,webkit]){
  const browser=await type.launch();
- try{for(const width of [390,1366]){
+ try{for(const width of [390,1366]){for(const syntheticHold of [false,true]){
  const context=await browser.newContext({viewport:{width,height:900},serviceWorkers:'block'});
  const page=await context.newPage();page.on('dialog',d=>d.accept());
  await page.route('**/*',r=>{
   const u=new URL(r.request().url());
+  if(u.origin===origin && (u.pathname==='/'||u.pathname==='/index.html') && syntheticHold){
+   const html=fs.readFileSync('cdn/index.html','utf8').replace('const SWSI_SOURCE_HOLD_IDS=Object.freeze([]);', "const SWSI_SOURCE_HOLD_IDS=Object.freeze(['DS-104-1-22','DS-104-1-27','DS-104-1-29']);");
+   return r.fulfill({status:200,contentType:'text/html',body:html});
+  }
   if(u.origin===origin)return r.continue();
   if(u.hostname==='wandering-wave-4418.c022050333.workers.dev'&&u.pathname==='/question-shards/manifest.json')return r.fulfill({status:200,contentType:'application/json',body:fs.readFileSync('cdn/question-shards/manifest.json')});
   return r.abort();
@@ -25,11 +29,12 @@ for(const type of [chromium,webkit]){
  // Verify that held official text cannot leak into search results, random
  // practice, or a student's *existing* due-review schedule. Old saved review
  // records are preserved, not deleted, so they can reappear after approval.
- const entrances=await page.evaluate(rows=>{
+ const entrances=await page.evaluate(({rows,syntheticHold})=>{
   const normalized=rows.map(normalize);
   ALL=normalized; SUBJECTS=[...new Set(normalized.map(q=>q.subject))];
   window.SWSI_QB.allComplete=true;
-  const held=['DS-104-1-22','DS-104-1-27','DS-104-1-29'];
+  const held=syntheticHold ? ['DS-104-1-22','DS-104-1-27','DS-104-1-29'] : [];
+  const reviewId='DS-104-1-22';
   const ordinary=normalized.find(q=>q.id==='DS-104-1-01');
   if(!ordinary)throw Error('ordinary control missing');
   const searchLeaks=held.filter(id=>{
@@ -46,14 +51,14 @@ for(const type of [chromium,webkit]){
     held.every(id=>!selectedIds.includes(id))&&selectedIds.includes(ordinary.id);
   const originalReviewRaw=localStorage.getItem(REVIEW_KEY);
   const state=loadReviewState();state.migratedFromHistory=true;
-  state.items[held[0]]={id:held[0],mastered:false,dueAt:0};
+  state.items[reviewId]={id:reviewId,mastered:false,dueAt:0};
   state.items[ordinary.id]={id:ordinary.id,mastered:false,dueAt:0};
   let reviewHeldVisible=false,reviewOrdinaryVisible=false,preserved=false;
   try{
    localStorage.setItem(REVIEW_KEY,JSON.stringify(state));
    const before=localStorage.getItem(REVIEW_KEY);
    const summary=reviewSummary();
-   reviewHeldVisible=summary.activeIds.includes(held[0])||summary.dueIds.includes(held[0]);
+   reviewHeldVisible=summary.activeIds.includes(reviewId)||summary.dueIds.includes(reviewId);
    reviewOrdinaryVisible=summary.activeIds.includes(ordinary.id)&&summary.dueIds.includes(ordinary.id);
    preserved=localStorage.getItem(REVIEW_KEY)===before;
   }finally{
@@ -62,14 +67,14 @@ for(const type of [chromium,webkit]){
   }
   return {searchLeaks,normalSearch,randomPracticeNoHeld,
     reviewHeldVisible,reviewOrdinaryVisible,preserved};
- },corpus);
+ },{rows:corpus,syntheticHold});
  assert.deepEqual(entrances.searchLeaks,[], 'held official text exposed by search');
  assert(entrances.normalSearch&&entrances.randomPracticeNoHeld,
    'healthy questions must remain searchable/practicable while holds are excluded: '+JSON.stringify(entrances));
- assert(!entrances.reviewHeldVisible&&entrances.reviewOrdinaryVisible&&entrances.preserved,
+ assert(entrances.reviewHeldVisible===!syntheticHold&&entrances.reviewOrdinaryVisible&&entrances.preserved,
    'held historical due review not suppressed without deleting saved progress: '+JSON.stringify(entrances));
- console.log(type.name(),width,'held-source search + random practice + due review PASS');
- for(const id of ids){
+ console.log(type.name(),width,syntheticHold?'synthetic quarantine':'approved release','search + random practice + due review PASS');
+ for(const id of (syntheticHold ? ids : [])){
   const raw=corpus.find(q=>q.id===id);assert(raw,id);
   const result=await page.evaluate(raw=>{
    const before=JSON.stringify(localStorage);
@@ -99,8 +104,8 @@ for(const type of [chromium,webkit]){
   console.log(type.name(),width,id,'quiz + stale cache + mock PASS');
  }
  // Owner-approved exact-source Q40 and SP34 must now be visible, answerable
- // and correctly graded; only the other three 104-1 OCR cases are quarantined.
- for(const id of ['R-107-2-40','SP111-2-34','SP104-2-37','SP107-1-40']){
+ // and correctly graded; the synthetic fixture separately proves quarantine safety.
+ for(const id of ['R-107-2-40','SP111-2-34','SP104-2-37','SP107-1-40',...(syntheticHold ? [] : ids)]){
   const raw=corpus.find(q=>q.id===id);assert(raw,id);
   const result=await page.evaluate(raw=>{
     const q=normalize(raw);
@@ -117,6 +122,14 @@ for(const type of [chromium,webkit]){
   },raw);
   assert(result.safe&&result.done===1&&result.correct===1,
     'owner-approved official question must be re-enabled safely '+id+' '+JSON.stringify(result));
+  await page.evaluate(async raw=>{
+    ALL=[normalize(raw)];SUBJECTS=[raw.subject];window.SWSI_QB.allComplete=true;
+    await MK.open();MK.setMode('exam');MK.setPaper(raw.year+'|'+raw.round);MK.beginExam();
+  },raw);
+  assert.equal(await page.locator('.mk-ov .mk-opt').count(),4);
+  await page.evaluate(answer=>{MK.pick(answer);MK.submit();},raw.answer);
+  assert.equal((await page.locator('.mk-ov .mk-score .big').innerText()).trim(),'1 / 1');
+  await page.evaluate(()=>MK.close());
   console.log(type.name(),width,id,'approved source visible and correctly graded PASS');
  }
  // An ordinary official question remains answerable and scores normally.
@@ -127,7 +140,7 @@ for(const type of [chromium,webkit]){
  },raw);
  assert.deepEqual(good,{done:1,correct:1});
  await context.close();
- }}finally{await browser.close();}
+ }}}finally{await browser.close();}
 }
 console.log('SOURCE HOLD BROWSER QA PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});

@@ -36,7 +36,12 @@ def verify(old_verify, selftest=False):
         root=Path(tmp);directory=root/'cdn/question-shards';directory.mkdir(parents=True)
         (root/'data').mkdir()
         (root/'audit').symlink_to(ROOT/'audit',target_is_directory=True)
-        (root/'cdn/index.html').symlink_to(ROOT/'cdn/index.html')
+        import official_two_source_owner_release_guard as owner
+        html = owner.HTML.read_text()
+        zero = 'const SWSI_SOURCE_HOLD_IDS=Object.freeze([]);'
+        three = "const SWSI_SOURCE_HOLD_IDS=Object.freeze(['DS-104-1-22','DS-104-1-27','DS-104-1-29']);"
+        assert html.count(zero) == 1, 'approved three source holds must be released'
+        (root/'cdn/index.html').write_text(html.replace(zero, three))
         for name in ('official_p0_source_successor_20261112.json',):
             assert (root/'audit'/name).exists()
         for old, entry in zip(proof['manifest']['shards'],expected['shards']):
@@ -60,14 +65,17 @@ def verify(old_verify, selftest=False):
         (root/'data/official_exam_readonly.lock.json').write_bytes(old_lock_raw)
         import official_p0_source_successor_guard as previous
         saved=previous.ROOT
+        saved_html=owner.HTML
         try:
             previous.ROOT=root
+            owner.HTML=root/'cdn/index.html'
             previous.verify(old_verify)
             if selftest:
                 import official_p0_source_successor_selftest
                 official_p0_source_successor_selftest.main()
         finally:
             previous.ROOT=saved
+            owner.HTML=saved_html
     print('DS OWNER RELEASE PASS: 3 exact approved repairs; 4797 full rows/4800 grades/240 essays unchanged; exact P0 predecessor replayed')
 
 def verify_transition(rows, live=False):
@@ -75,13 +83,10 @@ def verify_transition(rows, live=False):
     assert proof['owner_approved'] is True
     assert len(rows)==3 and {r['id'] for r in rows}==set(CORES)
     if live:
-        pre=json.loads((ROOT/'audit/official_ds_full_preimages_20261113.json').read_text())
-        before={e['id']:e['row'] for e in pre['rows']}
         after=proof['expected_full_postimages']
-        is_before=all(r==before[r['id']] for r in rows)
         is_after=all(r==after[r['id']] for r in rows)
-        assert is_before or is_after, 'mixed/unknown production transition'
-        return 'EXACT_PRE_RELEASE' if is_before else 'EXACT_RELEASED_POSTIMAGES'
+        assert is_after, 'production must contain all three approved full postimages'
+        return 'EXACT_RELEASED_POSTIMAGES'
     for row in rows:
         assert row_hash(canonical_row(row,MCQ_FIELDS))==CORES[row['id']]
         assert row['analysis_status']=='pending'
