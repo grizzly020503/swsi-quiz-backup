@@ -25,3 +25,11 @@ CREATE TABLE IF NOT EXISTS ai_daily_global_usage (
   photo_count INTEGER NOT NULL DEFAULT 0 CHECK (photo_count >= 0),
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Public bounded operational observation; one row, no student or AI usage data.
+CREATE TABLE IF NOT EXISTS ops_task_heartbeat (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  scheduled_at TEXT NOT NULL,
+  observed_at TEXT NOT NULL,
+  payload TEXT NOT NULL
+);
