@@ -36,8 +36,8 @@ def verify(old_verify, selftest=False):
         root=Path(tmp);directory=root/'cdn/question-shards';directory.mkdir(parents=True)
         (root/'data').mkdir()
         (root/'audit').symlink_to(ROOT/'audit',target_is_directory=True)
-        import official_two_source_owner_release_guard as owner
-        html = owner.HTML.read_text()
+        scope = old_verify.__globals__
+        html = scope['HTML'].read_text()
         zero = 'const SWSI_SOURCE_HOLD_IDS=Object.freeze([]);'
         three = "const SWSI_SOURCE_HOLD_IDS=Object.freeze(['DS-104-1-22','DS-104-1-27','DS-104-1-29']);"
         assert html.count(zero) == 1, 'approved three source holds must be released'
@@ -65,17 +65,17 @@ def verify(old_verify, selftest=False):
         (root/'data/official_exam_readonly.lock.json').write_bytes(old_lock_raw)
         import official_p0_source_successor_guard as previous
         saved=previous.ROOT
-        saved_html=owner.HTML
+        saved_html=scope['HTML']
         try:
             previous.ROOT=root
-            owner.HTML=root/'cdn/index.html'
+            scope['HTML']=root/'cdn/index.html'
             previous.verify(old_verify)
             if selftest:
                 import official_p0_source_successor_selftest
                 official_p0_source_successor_selftest.main()
         finally:
             previous.ROOT=saved
-            owner.HTML=saved_html
+            scope['HTML']=saved_html
     print('DS OWNER RELEASE PASS: 3 exact approved repairs; 4797 full rows/4800 grades/240 essays unchanged; exact P0 predecessor replayed')
 
 def verify_transition(rows, live=False):
