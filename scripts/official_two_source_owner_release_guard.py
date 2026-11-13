@@ -99,7 +99,7 @@ def verify_predecessor():
   require(id in allrows and allrows[id]['analysis_status'] in ('ready','review'),'original three sources unexpectedly changed')
  print('MOEX TWO-SOURCE OWNER RELEASE STATIC QA PASS: 2 approved/5 held; 4798 other MCQ locks and 240 essays frozen; 22 unrelated shards untouched; no DB writes')
 def verify():
- from official_p0_source_successor_guard import verify as verify_successor
+ from official_ds_owner_release_guard import verify as verify_successor
  verify_successor(verify_predecessor)
 
 if __name__=='__main__':verify()
