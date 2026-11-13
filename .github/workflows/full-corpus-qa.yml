@@ -35,6 +35,8 @@ on:
       - 'audit/official_1041_live_release_preflight_readonly_20261101.sql'
       - 'scripts/official_1041_ds_release_candidate_builder.py'
       - 'scripts/official_1041_current_rehearsal.py'
+      - 'scripts/official_ds_owner_release_guard.py'
+      - 'audit/official_ds_*20261113.*'
       - 'audit/official_1041_current_preflight_readonly_20261113.sql'
       - 'scripts/official_1041_ds_successor_overlay_smoke.py'
       - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
@@ -99,6 +101,8 @@ on:
       - 'audit/official_1041_live_release_preflight_readonly_20261101.sql'
       - 'scripts/official_1041_ds_release_candidate_builder.py'
       - 'scripts/official_1041_current_rehearsal.py'
+      - 'scripts/official_ds_owner_release_guard.py'
+      - 'audit/official_ds_*20261113.*'
       - 'audit/official_1041_current_preflight_readonly_20261113.sql'
       - 'scripts/official_1041_ds_successor_overlay_smoke.py'
       - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
@@ -210,8 +214,8 @@ jobs:
         run: |
           python -m py_compile scripts/official_two_source_owner_release_guard.py
           python scripts/official_two_source_owner_release_guard.py
-          python scripts/official_p0_source_successor_selftest.py
-          python scripts/official_1041_current_rehearsal.py
+          python scripts/official_ds_owner_release_guard.py --selftest
+          python scripts/official_ds_owner_release_selftest.py
 
       - name: Preserve the original read-only 37-column transaction preflight evidence
         run: |

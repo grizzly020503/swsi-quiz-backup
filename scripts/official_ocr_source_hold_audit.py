@@ -154,7 +154,7 @@ def live_rows() -> list[dict]:
 
 
 def synthetic_selftest(proof: dict) -> None:
-    base = local_rows()
+    base = list(pinned_live_preimages().values())
     result = classify(base, proof)
     assert result["questions_checked"] == 3
     assert result["precorrection_text_fields"] == 12, result
@@ -219,11 +219,10 @@ def main() -> int:
         synthetic_selftest(proof)
         return 0
     rows = live_rows() if args.live else local_rows()
-    result = classify(rows, proof)
-    if args.live:
-        result["exact_live_37column_preimages"] = verify_live_full_rows(rows)
-    print(json.dumps(result, ensure_ascii=False, sort_keys=True))
-    return 0  # Known defects explicitly HOLD; unexpected source drift FAILS.
+    from official_ds_owner_release_guard import verify_transition
+    print(verify_transition(rows, live=args.live))
+    return 0
+
 
 
 if __name__ == "__main__":
