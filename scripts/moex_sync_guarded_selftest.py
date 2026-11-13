@@ -5,6 +5,9 @@ from __future__ import annotations
 
 import sys
 from types import SimpleNamespace
+from unittest.mock import patch
+
+import requests
 
 from moex_sync_guarded import (
     GuardedIntakeBlocked,
@@ -49,6 +52,53 @@ def assert_v2_contract() -> None:
         assert _default_exam_exists("116030") is True
         assert _default_exam_exists("116100") is False
 
+        def transient_then_success(code):
+            transient_then_success.calls += 1
+            if transient_then_success.calls == 1:
+                raise requests.exceptions.HTTPError(
+                    "HTTP 503", response=SimpleNamespace(status_code=503)
+                )
+            return availability[code]
+
+        transient_then_success.calls = 0
+        fake_base.exam_exists = transient_then_success
+        with patch("moex_sync_guarded.time.sleep") as sleep:
+            assert _default_exam_exists("116030") is True
+            assert transient_then_success.calls == 2
+            sleep.assert_called_once_with(1)
+
+        fake_base.exam_exists = lambda code: False
+        with patch("moex_sync_guarded.time.sleep") as sleep:
+            assert _default_exam_exists("116100") is False
+            sleep.assert_not_called()
+
+        fake_base.exam_exists = lambda code: (_ for _ in ()).throw(
+            requests.exceptions.HTTPError(
+                "HTTP 403", response=SimpleNamespace(status_code=403)
+            )
+        )
+        with patch("moex_sync_guarded.time.sleep") as sleep:
+            try:
+                _default_exam_exists("116030")
+            except requests.exceptions.HTTPError:
+                pass
+            else:
+                raise AssertionError("HTTP 403 must never be retried or masked")
+            sleep.assert_not_called()
+
+        fake_base.exam_exists = lambda code: (_ for _ in ()).throw(
+            requests.exceptions.Timeout("temporary MOEX timeout")
+        )
+        with patch("moex_sync_guarded.time.sleep") as sleep:
+            try:
+                _default_exam_exists("116030")
+            except requests.exceptions.Timeout:
+                pass
+            else:
+                raise AssertionError("exhausted source timeout must stay blocking")
+            assert sleep.call_count == 2
+
+        fake_base.exam_exists = lambda code: availability.get(code, False)
         fake_base.parse_mc = object()
         try:
             _production_base_module()
