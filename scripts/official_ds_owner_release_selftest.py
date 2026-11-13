@@ -49,7 +49,18 @@ def main():
                     path.write_bytes(raw)
         finally:
             guard.ROOT = original_root
-    print('DS RELEASE NEGATIVES PASS: 5 unauthorized changes rejected')
+    proof=json.loads((guard.ROOT/'audit/official_ds_owner_release_20261113.json').read_text())
+    rows=list(proof['expected_full_postimages'].values())
+    assert guard.verify_transition(rows,live=True)=='EXACT_RELEASED_POSTIMAGES'
+    for field in ('question','answer','analysis_status','legal_note'):
+        bad=copy.deepcopy(rows);bad[0][field]='UNAPPROVED'
+        try:
+            guard.verify_transition(bad,live=True)
+        except AssertionError:
+            pass
+        else:
+            raise AssertionError('live full postimage drift accepted: '+field)
+    print('DS RELEASE NEGATIVES PASS: 5 corpus mutations and 4 live full-row mutations rejected')
 
 if __name__ == '__main__':
     main()

@@ -18,6 +18,7 @@ const designId = sourceHtml.includes('<style id="swsi-calm-learning-ui-v3">') ? 
 const cssMatches = [...sourceHtml.matchAll(new RegExp('<style id="' + designId + '">([\\s\\S]*?)</style>', 'g'))];
 assert(cssMatches.length <= 1, 'duplicate reviewed calm design CSS in CDN source');
 const expectedCalmCss = cssMatches.length ? cssMatches[0][1] : null;
+const expectedSourceHolds = JSON.parse(sourceHtml.match(/const SWSI_SOURCE_HOLD_IDS=Object.freeze\((\[[^;]*\])\);/)[1].replace(/'/g,'"'));
 const requireCalmParity = process.env.GITHUB_EVENT_NAME !== 'pull_request' && expectedCalmCss !== null;
 
 async function awaitReviewedDesign(page, label) {
@@ -33,17 +34,18 @@ async function awaitReviewedDesign(page, label) {
       const style = document.getElementById(id);
       return {
         css: style ? style.textContent : null,
+        sourceHolds: typeof SWSI_SOURCE_HOLD_IDS==='undefined' ? null : Array.from(SWSI_SOURCE_HOLD_IDS),
         paper: getComputedStyle(document.body).backgroundColor,
         pine: getComputedStyle(document.documentElement).getPropertyValue('--pine-deep').trim()
       };
     }, designId);
-    if (deployed.css === expectedCalmCss) {
+    if (deployed.css === expectedCalmCss && JSON.stringify(deployed.sourceHolds)===JSON.stringify(expectedSourceHolds)) {
       assert.equal(deployed.paper, designId.endsWith('v3') ? 'rgb(247, 249, 247)' : 'rgb(244, 247, 245)', label + ': new body background not applied');
       assert.equal(deployed.pine.toUpperCase(), designId.endsWith('v3') ? '#204F48' : '#1F544B', label + ': new CTA palette not applied');
       console.log('LIVE REVIEWED DESIGN PARITY OK ' + label + ' refreshes=' + attempts);
       return;
     }
-    last = deployed.css === null ? 'new design marker absent' : 'live CSS differs from reviewed CDN source';
+    last = deployed.css === null ? 'new design marker absent' : 'live CSS or source holds differ from reviewed CDN source';
     attempts++;
     await page.waitForTimeout(7000);
     const next = await page.goto(ORIGIN + '/?swsi_ui_acceptance=' +
@@ -387,16 +389,16 @@ async function verifyHostedLocalGrading(page, label) {
 // malformed official imports, not only pass a local candidate smoke. This
 // never POSTs, writes student records, or marks a PDF source as approved.
 async function verifyHostedSourceHoldQuarantine(page, label) {
-  // During rollout accept the current three source holds or the new five;
-  // never re-quarantine the two already owner-approved source repairs.
+  // During rollout accept the current three source holds or the approved release;
+  // require the exact approved source rows before accepting zero holds.
   const releasedIds = ['R-107-2-40', 'SP111-2-34'];
   const threeIds = ['DS-104-1-22', 'DS-104-1-27', 'DS-104-1-29'];
-  const fiveIds = [...threeIds, 'SP104-2-37', 'SP107-1-40'];
+
   const ids = await page.evaluate(() => Array.from(SWSI_SOURCE_HOLD_IDS));
-  assert.deepEqual(ids, ids.length === 3 ? threeIds : fiveIds,
+  assert.deepEqual(ids, ids.length === 3 ? threeIds : [],
     label + ': deployed hold list differs from the approved baseline or P0 quarantine');
   // Three holds are safe only with the exact approved successor options.
-  if (ids.length === 3) {
+  if (ids.length === 3 || ids.length === 0) {
     const corrected = await page.evaluate(() => ['SP104-2-37','SP107-1-40'].map(id => {
       const q = ALL.find(x => x.id === id);
       return {id, answer:q?.answer, options:q ? ['A','B','C','D'].map(k=>q.options[k]) : [], held:q ? swsiSourceHeld(q) : true};
@@ -405,6 +407,20 @@ async function verifyHostedSourceHoldQuarantine(page, label) {
       {id:'SP104-2-37',answer:'C',options:['①②③','①③④','①③⑤','②④⑤'],held:false},
       {id:'SP107-1-40',answer:'B',options:['①②③④','①③④⑤','②③④⑤','②③④'],held:false}
     ], label + ': source quarantine removed before approved options were published');
+  }
+  if (ids.length === 0) {
+    const expected = JSON.parse(require('node:fs').readFileSync('audit/official_ds_owner_release_20261113.json','utf8')).expected_full_postimages;
+    const approved = await page.evaluate(ids=>ids.map(id=>{
+      const q=ALL.find(x=>x.id===id);
+      return {id,question:q?.q,answer:q?.answer,options:q?.options,held:q?swsiSourceHeld(q):true};
+    }),threeIds);
+    for(const q of approved){
+      const row=expected[q.id];
+      assert.equal(q.question,row.question,label+': exact approved stem');
+      assert.equal(q.answer,row.answer,label+': unchanged official answer');
+      assert.equal(q.held,false);
+      for(const key of ['A','B','C','D']) assert.equal(q.options[key],row['opt_'+key.toLowerCase()],label+': exact approved option');
+    }
   }
   const result = await page.evaluate(heldIds => {
     if (typeof swsiSourceHeld !== 'function' ||
@@ -490,6 +506,7 @@ async function verifyHostedSourceHoldQuarantine(page, label) {
     MK.setPaper(item.year + '|' + item.round);
     MK.beginExam();
   });
+  if (ids.length) {
   assert.equal(await page.locator('.mk-ov .mk-opt').count(), 0,
     label + ': held official item exposed mock options');
   assert((await page.locator('.mk-ov').innerText()).includes('待官方原卷覆核'),
@@ -502,9 +519,14 @@ async function verifyHostedSourceHoldQuarantine(page, label) {
     label + ': held source question not explicitly excluded from scoring');
   assert.equal(await page.evaluate(() => JSON.stringify(localStorage)), before,
     label + ': held mock leaked into student records');
+  } else {
+    assert.equal(await page.locator('.mk-ov .mk-opt').count(),4);
+    await page.evaluate(()=>{MK.pick('A');MK.submit();});
+    assert.equal((await page.locator('.mk-ov .mk-score .big').innerText()).trim(),'1 / 1');
+  }
   await page.evaluate(() => MK.close());
   console.log('CLOUDFLARE HOSTED SOURCE HOLDS OK ' + label +
-    ': ' + ids.length + ' official IDs hidden before/after stale grading, one hosted mock excluded 0/0');
+    ': ' + ids.length + ' held IDs; hosted mock score ' + (ids.length ? '0/0' : '1/1'));
 }
 
 // Read-only check of the hosted compact theory dictionary (no student writes).
@@ -819,9 +841,10 @@ async function verifyHostedPwaOffline() {
     // online site. Use only the browser's already-persisted offline question
     // rows, with no official corpus write or AI/network request.
     const offlineHoldResult = await page.evaluate(expectedTotal => {
-      const heldIds = ['DS-104-1-22', 'DS-104-1-27', 'DS-104-1-29'];
+      const heldIds = Array.from(SWSI_SOURCE_HOLD_IDS);
       const releasedIds = ['R-107-2-40', 'SP111-2-34'];
-      if (SWSI_SOURCE_HOLD_IDS.length === 3) releasedIds.push('SP104-2-37','SP107-1-40');
+      releasedIds.push('SP104-2-37','SP107-1-40');
+      if (!heldIds.length) releasedIds.push('DS-104-1-22','DS-104-1-27','DS-104-1-29');
       if (typeof swsiSourceHeld !== 'function' || ALL.length !== expectedTotal)
         throw Error('offline source quarantine/corpus missing');
       const beforeStorage = JSON.stringify(localStorage);
@@ -872,12 +895,13 @@ async function verifyHostedPwaOffline() {
       }
       view = 'home'; queue = []; selected = null; answered = false;
       render();
-      return { online: navigator.onLine, cases, releasedCases, expectedReleased: releasedIds.length,
+      return { online: navigator.onLine, cases, expectedHeld:heldIds.length, releasedCases, expectedReleased: releasedIds.length,
         storageUnchanged: JSON.stringify(localStorage) === beforeStorage,
         historyUnchanged: loadHist().length === beforeHistory };
     }, expectedBank);
     assert.equal(offlineHoldResult.online, false, 'offline hold test accidentally online');
-    assert.equal(offlineHoldResult.cases.length, 3, 'offline held-source case count');
+    assert([0,3].includes(offlineHoldResult.expectedHeld));
+    assert.equal(offlineHoldResult.cases.length, offlineHoldResult.expectedHeld, 'offline held-source case count');
     assert(offlineHoldResult.cases.every(c => c.hidden && c.blocked &&
       c.afterStaleAnswer && c.originalUnchanged),
       'offline PWA leaked an unapproved held question: ' + JSON.stringify(offlineHoldResult.cases));
@@ -888,7 +912,7 @@ async function verifyHostedPwaOffline() {
     assert(offlineHoldResult.storageUnchanged && offlineHoldResult.historyUnchanged,
       'offline source check mutated student progress or attempt history');
     console.log('CLOUDFLARE HOSTED PWA OFFLINE SOURCE HOLDS OK: ' +
-      '3/3 unapproved held stems blocked; 2/2 owner-approved questions answerable; zero history writes');
+      offlineHoldResult.cases.length + ' held stems blocked; ' + offlineHoldResult.releasedCases.length + ' owner-approved questions answerable; zero history writes');
 
     await page.locator('#t-essay').click();
     await page.waitForFunction(id => {
