@@ -1,0 +1,15 @@
+{
+  "candidate": "9f8de4d218484b102efd80b8812392e0f5461e7b",
+  "base": "dba7b83701ca4918760150041ade6fbac08166bb",
+  "workflow_run": 43649084222,
+  "artifact_id": 14135935062,
+  "date_utc": "2026-11-14",
+  "capture": "Playwright Chromium 1.55.0; localhost fixtures; 900px viewport height",
+  "derivation": "Before and after PNGs paired without cropping; compressed WebP quality 90. Three-directions screenshot from static HTML, not production UI.",
+  "widths": [
+    390,
+    768,
+    1024,
+    1440
+  ]
+}
