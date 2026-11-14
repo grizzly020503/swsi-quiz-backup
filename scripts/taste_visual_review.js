@@ -33,8 +33,12 @@ fs.mkdirSync(out,{recursive:true});
    await page.getByRole('button',{name:'大字',exact:true}).click();
    const original=await page.locator('.qtext').textContent();
    await page.locator('.qtext').evaluate(el=>el.textContent=el.textContent.repeat(6));
+   const option = page.locator('.qcard .opt').first();
+   const optionHtml = await option.innerHTML();
+   await option.evaluate(el => el.append(document.createTextNode(' 展示用長選項：應先理解服務使用者的需求，確認服務目標與專業倫理。'.repeat(12))));
    await page.screenshot({path:`${out}/${label}-long-large-${width}.png`,fullPage:true});
-   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'long question overflows');
+   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'long question or option overflows');
+   await option.evaluate((el, html) => el.innerHTML = html, optionHtml);
    await page.locator('.qtext').evaluate((el,text)=>el.textContent=text,original);
    await page.getByRole('button',{name:'小字',exact:true}).click();
   }
@@ -48,12 +52,18 @@ fs.mkdirSync(out,{recursive:true});
   ]) {
    await page.evaluate(action);
    await page.waitForTimeout(250);
+   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${name} overflows at ${width}`);
    await page.screenshot({path:`${out}/${label}-${name}-${width}.png`,fullPage:true});
   }
   report.push({width,overflow,errors});
   assert(!overflow,`horizontal overflow at ${width}`);
   assert.deepStrictEqual(errors,[],`browser errors at ${width}`);
   await ctx.close();
+ }
+ if(label==='after'){
+  const concept=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
+  await concept.goto('file://'+path.resolve('docs/design/taste-review/directions.html'));
+  await concept.screenshot({path:`${out}/three-directions.png`,fullPage:true});
  }
  await browser.close();fs.writeFileSync(`docs/design/taste-review/${label}-visual.json`,JSON.stringify(report,null,2));
  console.log(JSON.stringify(report,null,2));
