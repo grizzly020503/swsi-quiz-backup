@@ -1,0 +1,35 @@
+name: Taste Second Round Concepts (NO DEPLOY)
+on:
+  pull_request:
+    paths:
+      - 'docs/design/taste-review/round2/**'
+      - 'scripts/taste_concept_review.js'
+      - '.github/workflows/taste-concepts.yml'
+permissions:
+  contents: read
+jobs:
+  concepts:
+    runs-on: ubuntu-24.04
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-noble
+      options: --user 1001
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --package-lock=false playwright@1.55.0
+      - name: Test three real interactive designs in four viewports
+        run: |
+          python3 -m http.server 4175 --bind 127.0.0.1 --directory docs/design/taste-review/round2 >/tmp/swsi-concepts.log 2>&1 &
+          node scripts/taste_concept_review.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: swsi-second-round-concepts
+          path: docs/design/taste-review/round2/
+          retention-days: 14

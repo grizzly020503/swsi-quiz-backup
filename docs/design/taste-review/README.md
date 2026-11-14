@@ -1,5 +1,7 @@
 # SWSI UI/UX review candidate — not approved for release
 
+> **Owner 已否決本頁第一輪視覺方向。** 以下保留為工程與歷史比較證據，不代表設計核准。請看 [第二輪三方向互動稿](round2/README.md)。PR 維持 Draft，不得合併或部署。
+
 This branch is a design review only. No merge or deployment is authorized.
 
 ## Design diagnosis and direction
