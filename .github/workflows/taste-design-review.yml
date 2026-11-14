@@ -14,6 +14,12 @@ permissions:
 jobs:
   browser-review:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-noble
+      options: --user 1001
+    defaults:
+      run:
+        shell: bash
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +29,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save --package-lock=false playwright@1.55.0
-      - run: npx playwright install --with-deps chromium
+      - run: node -e "require('fs').accessSync(require('playwright').chromium.executablePath())"
       - name: Build unchanged comparison from PR base
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}

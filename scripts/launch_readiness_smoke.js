@@ -111,11 +111,11 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       v4Installed: !!document.getElementById('swsi-calm-navigation-v4')
     };
   });
-  assert.strictEqual(actualHome.paper, '#F7F9F7', 'Netlify V4 paper must match the reviewed Cloudflare V3 palette');
-  assert.strictEqual(actualHome.heroBackground, 'rgb(229, 240, 235)', 'approved pale green CTA hero is not rendered');
+  assert.strictEqual(actualHome.paper, '#F7F6F2', 'reading-room paper token must match reviewed candidate');
+  assert.strictEqual(actualHome.heroBackground, 'rgba(0, 0, 0, 0)', 'reading-room welcome must remain unboxed');
   assert(/今天，從一題開始/.test(actualHome.heroTitle || ''), 'live renderHome still uses old copy');
   assert(actualHome.primaryHeight >= 48, 'primary CTA touch height is too small');
-  assert.strictEqual(actualHome.wrapMaxWidth, '660px', 'mobile reading width regressed');
+  assert.strictEqual(actualHome.wrapMaxWidth, '800px', 'shared maximum reading width regressed');
   assert(actualHome.v4Installed, 'V4 navigation owner missing');
   assert.deepStrictEqual(actualHome.tabs, ['首頁','刷題','申論','我的'], 'mobile navigation has wrong labels/order');
   await visual('01-home-mobile');
@@ -245,7 +245,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await waitHome();
   await page.setViewportSize({ width: 1365, height: 900 });
   assert.strictEqual(await page.locator('.wrap').evaluate(el => getComputedStyle(el).maxWidth),
-    '790px', 'desktop reading surface unexpectedly narrow');
+    '800px', 'desktop reading surface unexpectedly narrow');
   const desktopNav = await page.evaluate(() => {
     const nav = document.querySelector('#tabbar');
     const wrap = document.querySelector('.wrap');
