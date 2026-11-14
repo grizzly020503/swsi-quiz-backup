@@ -1,0 +1,58 @@
+name: Taste UI Design Review (NO DEPLOY)
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'cdn/index.html'
+      - 'cdn/monthly_patch.js'
+      - 'monthly_patch_parts/**'
+      - 'scripts/taste_visual_review.js'
+      - 'docs/design/taste-review/**'
+      - '.github/workflows/taste-design-review.yml'
+permissions:
+  contents: read
+jobs:
+  browser-review:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-noble
+      options: --user 1001
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --package-lock=false playwright@1.55.0
+      - run: node -e "require('fs').accessSync(require('playwright').chromium.executablePath())"
+      - name: Build unchanged comparison from PR base
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          mkdir -p /tmp/swsi-ui-before
+          git archive "$BASE_SHA" cdn | tar -x -C /tmp/swsi-ui-before
+      - name: Start local fixtures
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory cdn >/tmp/swsi-after.log 2>&1 &
+          python3 -m http.server 4174 --bind 127.0.0.1 --directory /tmp/swsi-ui-before/cdn >/tmp/swsi-before.log 2>&1 &
+      - name: Compare four viewports
+        run: |
+          node scripts/taste_visual_review.js http://127.0.0.1:4174/ before
+          node scripts/taste_visual_review.js http://127.0.0.1:4173/ after
+      - name: Existing interaction regression
+        run: node scripts/browser_interaction_smoke.js http://127.0.0.1:4173/ chromium
+      - name: Existing grading and offline integrity regression
+        run: |
+          node scripts/grading_contract_smoke.js http://127.0.0.1:4173/
+          node scripts/shard_integrity_browser_smoke.js http://127.0.0.1:4173/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: swsi-taste-ui-review
+          path: docs/design/taste-review/
+          retention-days: 14

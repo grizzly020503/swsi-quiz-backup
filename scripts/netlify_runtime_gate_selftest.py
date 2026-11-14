@@ -52,7 +52,7 @@ def run_fixture(root, name, gate, *, tag=True, js=True, sw=True,
     scripts.mkdir()
     shutil.copy2(ROOT / "scripts/netlify_v3_live_parity_smoke.py",
                  scripts / "netlify_v3_live_parity_smoke.py")
-    v3 = '<style id="swsi-calm-learning-ui-v3">--paper:#F7F9F7;</style>'
+    v3 = '<style id="swsi-calm-student-design-v2">--paper:#F7F9F7;</style>'
     (site / "index.html").write_text(v3, encoding="utf-8")
     patch = b"// new correct runtime\n"
     service_worker = b"const VERSION = 'v7';\n"

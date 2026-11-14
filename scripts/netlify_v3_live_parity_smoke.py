@@ -1,36 +1,36 @@
 #!/usr/bin/env python3
-"""Fail-closed read-only exact V3 stylesheet parity for Netlify releases."""
+"""Fail-closed read-only exact shared design stylesheet parity for Netlify releases."""
 from __future__ import annotations
 
 import argparse
 import re
 from pathlib import Path
 
-STYLE = re.compile(r'<style id="swsi-calm-learning-ui-v3">(.*?)</style>', re.DOTALL)
+STYLE = re.compile(r'<style id="swsi-calm-student-design-v2">(.*?)</style>', re.DOTALL)
 
 
 def extract(html: str) -> str:
     found = STYLE.findall(html)
     if len(found) != 1:
-        raise ValueError(f"expected exactly one V3 style, got {len(found)}")
+        raise ValueError(f"expected exactly one shared design style, got {len(found)}")
     return found[0]
 
 
 def verify(expected: str, actual: str) -> None:
     if extract(expected) != extract(actual):
-        raise ValueError("hosted V3 stylesheet differs from approved build")
+        raise ValueError("hosted shared design stylesheet differs from approved build")
 
 
 def self_test() -> None:
-    good = '<style id="swsi-calm-learning-ui-v3">--paper:#F7F9F7;</style>'
+    good = '<style id="swsi-calm-student-design-v2">--paper:#F7F9F7;</style>'
     verify(good, good)
     for bad in (good.replace("#F7F9F7", "#FFFFFF"), "<html>old</html>", good + good):
         try:
             verify(good, bad)
         except ValueError:
             continue
-        raise AssertionError("stale, missing or duplicate V3 CSS was accepted")
-    print("NETLIFY V3 STYLE PARITY SELFTEST OK")
+        raise AssertionError("stale, missing or duplicate shared design CSS was accepted")
+    print("NETLIFY shared design STYLE PARITY SELFTEST OK")
 
 
 def main() -> int:
@@ -49,8 +49,8 @@ def main() -> int:
         verify(args.expected.read_text(encoding="utf-8"),
                args.actual.read_text(encoding="utf-8"))
     except (ValueError, UnicodeError, OSError) as exc:
-        raise SystemExit("NETLIFY LIVE V3 STYLE PARITY NO-GO: " + str(exc)) from None
-    print("NETLIFY LIVE V3 STYLE PARITY OK: exact reviewed CSS")
+        raise SystemExit("NETLIFY LIVE shared design STYLE PARITY NO-GO: " + str(exc)) from None
+    print("NETLIFY LIVE shared design STYLE PARITY OK: exact reviewed CSS")
     return 0
 
 
