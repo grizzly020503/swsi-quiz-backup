@@ -791,15 +791,15 @@ window.swsiEsc = swsiEsc;
     const fT=(c)=>{const r=c/maxCnt,t=r>=0.4?'高頻':(r>=0.15?'中頻':'低頻'),col=r>=0.4?'background:var(--pine);color:#fff':(r>=0.15?'background:var(--correct-bg);color:var(--pine)':'background:#ECE6D6;color:var(--ink-soft)');return '<span class="tag" style="margin-left:6px;'+col+'">'+t+'</span>';};
     const cards=sorted.map(([name,cnt],i)=>'<div class="gcard" onclick="practiceTopic('+i+')"><div><div class="name">'+swsiEsc(name)+'</div><div class="cnt">'+cnt+' 題'+fT(cnt)+'</div></div><span class="arrow">›</span></div>').join('');
     const eOpen=topicsOpen==='essay',mOpen=topicsOpen==='mcq';
-    app.innerHTML='<div class="section-h">考點</div><div class="section-s">挑一個主題開始：申論自己練、選擇題一鍵開。理論、法規、時事與讀書指南也能直接查。</div>'+ 
-      '<div class="gcard" onclick="go(\'theories\')" style="background:var(--pine);border-color:var(--pine)"><div><div class="name" style="color:#fff">📖 核心理論小辭典</div><div class="cnt" style="color:#cfe3da">'+THEORIES.length+' 個申論必備理論</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="go(\'laws\')" style="background:var(--gold);border-color:var(--gold)"><div><div class="name" style="color:#fff">📜 重點法規速查</div><div class="cnt" style="color:#f5e9cf">'+LAWS.length+' 部常用法規 · 含修法動態</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="NL.open()" style="background:var(--pine-deep);border-color:var(--pine-deep)"><div><div class="name" style="color:#fff">📰 時事庫</div><div class="cnt" style="color:#cfe3da">近期社會事件 · 考點／理論／法規／可能怎麼考</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="SG.open()" style="background:#7E7A66;border-color:#7E7A66"><div><div class="name" style="color:#fff">📖 讀書指南</div><div class="cnt" style="color:#ece9da">學長姊應考心得 · 各科速查 · 申論策略</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="go(\'progress\')"><div><div class="name">📊 我的進度</div><div class="cnt">各科正確率、常錯考點與錯因分布</div></div><span class="arrow">›</span></div>'+ 
-      '<div class="gcard" onclick="toggleTopics(\'essay\')" style="margin-top:14px'+(eOpen?';border-color:var(--pine);border-width:1.5px':'')+'"><div><div class="name">✍️ 申論題 · 依主題練</div><div class="cnt">'+clusters.length+' 個主題'+(eOpen?'（點我收合）':'')+'</div></div><span class="arrow">'+(eOpen?'▾':'›')+'</span></div>'+ 
+    app.innerHTML='<div class="section-h">考點</div><div class="section-s">挑一個主題開始：申論自己練、選擇題一鍵開。理論、法規、時事與讀書指南也能直接查。</div>'+
+      '<div class="gcard" onclick="go(\'theories\')"><div><div class="name">核心理論小辭典</div><div class="cnt">'+THEORIES.length+' 個申論必備理論</div></div><span class="arrow">›</span></div>'+
+      '<div class="gcard" onclick="go(\'laws\')"><div><div class="name">重點法規速查</div><div class="cnt">'+LAWS.length+' 部常用法規 · 含修法動態</div></div><span class="arrow">›</span></div>'+
+      '<div class="gcard" onclick="NL.open()"><div><div class="name">時事庫</div><div class="cnt">近期社會事件 · 考點／理論／法規／可能怎麼考</div></div><span class="arrow">›</span></div>'+
+      '<div class="gcard" onclick="SG.open()"><div><div class="name">讀書指南</div><div class="cnt">學長姊應考心得 · 各科速查 · 申論策略</div></div><span class="arrow">›</span></div>'+
+      '<div class="gcard" onclick="go(\'progress\')"><div><div class="name">我的進度</div><div class="cnt">各科正確率、常錯考點與錯因分布</div></div><span class="arrow">›</span></div>'+
+      '<div class="gcard" onclick="toggleTopics(\'essay\')" style="margin-top:14px'+(eOpen?';border-color:var(--pine);border-width:1.5px':'')+'"><div><div class="name">申論題 · 依主題練</div><div class="cnt">'+clusters.length+' 個主題'+(eOpen?'（點我收合）':'')+'</div></div><span class="arrow">'+(eOpen?'▾':'›')+'</span></div>'+
       (eOpen?'<div style="margin-top:8px">'+clCards+'</div>':'')+
-      '<div class="gcard" onclick="toggleTopics(\'mcq\')" style="margin-top:10px'+(mOpen?';border-color:var(--pine);border-width:1.5px':'')+'"><div><div class="name">📝 選擇題 · 依大類練</div><div class="cnt">'+sorted.length+' 個大類'+(mOpen?'（點我收合）':'')+'</div></div><span class="arrow">'+(mOpen?'▾':'›')+'</span></div>'+ 
+      '<div class="gcard" onclick="toggleTopics(\'mcq\')" style="margin-top:10px'+(mOpen?';border-color:var(--pine);border-width:1.5px':'')+'"><div><div class="name">選擇題 · 依大類練</div><div class="cnt">'+sorted.length+' 個大類'+(mOpen?'（點我收合）':'')+'</div></div><span class="arrow">'+(mOpen?'▾':'›')+'</span></div>'+
       (mOpen?'<div style="margin-top:8px"><select class="subj" aria-label="選擇科目" onchange="subjFilter=this.value;render()">'+opts+'</select>'+cards+'</div>':'');
   };
 
@@ -1496,7 +1496,8 @@ main [style*="font-size:15px"]{
 .swsi-v4-hero h1{font:750 var(--swsi-ui-hero)/1.4 var(--swsi-font);letter-spacing:-.03em;color:var(--ink);margin:0 0 12px;}
 .swsi-v4-hero p{font:400 var(--swsi-ui-body)/1.8 var(--swsi-font);color:var(--ink-soft);margin:0 0 24px;}
 .swsi-v4-start{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:52px;background:var(--pine-deep);color:#FFF;border:1px solid var(--pine-deep);border-radius:10px;font:650 var(--swsi-ui-control)/1.5 var(--swsi-font);cursor:pointer;}
-.swsi-v4-start span{font-size:20px;}
+.swsi-v4-start span{display:flex;}
+.swsi-v4-hero svg,.swsi-v4-study-paths svg,.swsi-v4-tools svg{display:block;width:22px;height:22px;}
 .swsi-v4-section-heading{font:700 var(--swsi-ui-heading)/1.5 var(--swsi-font);margin:0 0 16px;color:var(--ink);}
 .swsi-v4-study-paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:28px;}
 .swsi-v4-path{display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;min-height:144px;padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--paper2);color:var(--ink);cursor:pointer;font-family:var(--swsi-font);}
@@ -1550,17 +1551,17 @@ main [style*="font-size:15px"]{
     try{if(window.SWSI_QB&&window.SWSI_QB.usingOffline)offlineNote='<div style="margin-bottom:9px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:var(--swsi-ui-small);color:var(--ink-soft)">目前使用這台裝置已儲存的離線題庫。</div>';}catch(_e){}
 
     app.innerHTML=offlineNote+
-      '<section class="swsi-focus-hero swsi-focus-primary swsi-v4-hero"><div class="kicker">你的學習空間</div><h1>今天，從一題開始。</h1><p>選擇自己的步調，持續累積實力。</p><button class="swsi-v4-start" type="button" onclick="swsiStartNow()"><span aria-hidden="true">▷</span> 開始刷題</button></section>'+
+      '<section class="swsi-focus-hero swsi-focus-primary swsi-v4-hero"><div class="kicker">你的學習空間</div><h1>今天，從一題開始。</h1><p>選擇自己的步調，持續累積實力。</p><button class="swsi-v4-start" type="button" onclick="swsiStartNow()"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m8 5 11 7-11 7z"/></svg></span> 開始刷題</button></section>'+
       '<h2 class="swsi-v4-section-heading">想從哪裡開始？</h2>'+
       '<div class="swsi-v4-study-paths">'+
-        '<button type="button" class="swsi-v4-path" onclick="toggleHomeQuiz()" aria-expanded="'+(homeQuizOpen?'true':'false')+'"><span class="swsi-v4-path-icon" aria-hidden="true">▤</span><span class="swsi-v4-path-title">歷屆試題</span><span class="swsi-v4-path-sub">依年份、科目練習</span></button>'+
-        '<button type="button" class="swsi-v4-path" onclick="go(\'essay\')"><span class="swsi-v4-path-icon" aria-hidden="true">✎</span><span class="swsi-v4-path-title">申論練習</span><span class="swsi-v4-path-sub">歷屆申論與 AI 回饋</span></button>'+
+        '<button type="button" class="swsi-v4-path" onclick="toggleHomeQuiz()" aria-expanded="'+(homeQuizOpen?'true':'false')+'"><span class="swsi-v4-path-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/></svg></span><span class="swsi-v4-path-title">歷屆試題</span><span class="swsi-v4-path-sub">依年份、科目練習</span></button>'+
+        '<button type="button" class="swsi-v4-path" onclick="go(\'essay\')"><span class="swsi-v4-path-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m5 19 4-1L20 7l-3-3L6 15zM14 7l3 3M4 22h16"/></svg></span><span class="swsi-v4-path-title">申論練習</span><span class="swsi-v4-path-sub">歷屆申論與 AI 回饋</span></button>'+
       '</div>'+
       (homeQuizOpen?('<section class="swsi-focus-custom"><div class="field-label">範圍</div><select class="subj" aria-label="刷題範圍" onchange="setHomeQuizScope(this.value)" style="margin-bottom:9px"><option value="smart" '+(homeQuizScope==='smart'?'selected':'')+'>智慧推薦</option><option value="recent3" '+(homeQuizScope==='recent3'?'selected':'')+'>近 3 年</option><option value="recent5" '+(homeQuizScope==='recent5'?'selected':'')+'>近 5 年</option><option value="specific" '+(homeQuizScope==='specific'?'selected':'')+'>指定歷屆</option><option value="all" '+(homeQuizScope==='all'?'selected':'')+'>全部題庫</option></select>'+(specific?('<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="subj" aria-label="考試年度" onchange="setHomeQuizYear(this.value)" style="margin-bottom:9px">'+yearOpts+'</select><select class="subj" aria-label="考試考次" onchange="setHomeQuizRound(this.value)" style="margin-bottom:9px"><option value="all" '+(homeQuizRound==='all'?'selected':'')+'>全部考次</option><option value="1" '+(homeQuizRound==='1'?'selected':'')+'>第一次</option><option value="2" '+(homeQuizRound==='2'?'selected':'')+'>第二次</option></select></div>'):'')+'<div class="field-label">科目</div><select class="subj" aria-label="科目" onchange="subjFilter=this.value;render()" style="margin-bottom:9px">'+subjOpts+'</select><div class="field-label">題數</div><select class="subj" aria-label="題數" onchange="setHomeQuizCount(this.value)" style="margin-bottom:7px"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="40" '+(homeQuizCount===40?'selected':'')+'>40 題</option></select><div class="hint">'+swsiEsc(scopeHint)+'</div><button class="btn" onclick="startFocusedQuiz()" style="margin-top:2px">開始這組題目</button></section>'):'')+
       '<section class="swsi-v4-tools"><div class="swsi-v4-tools-head"><h2>其他學習工具</h2><button type="button" onclick="go(\'topics\')" aria-label="查看其他學習工具">›</button></div><div class="swsi-v4-tool-grid">'+
-        '<button type="button" onclick="MK.open()"><span aria-hidden="true">◷</span><span>模擬考</span></button>'+
-        '<button type="button" onclick="swsiOpenHomeReview()"><span aria-hidden="true">▣</span><span>錯題本'+(rv.dueCount?' · '+rv.dueCount:'')+'</span></button>'+
-        '<button type="button" onclick="go(\'progress\')"><span aria-hidden="true">▥</span><span>弱點分析</span></button>'+
+        '<button type="button" onclick="MK.open()"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg></span><span>模擬考</span></button>'+
+        '<button type="button" onclick="swsiOpenHomeReview()"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h4"/></svg></span><span>錯題本'+(rv.dueCount?' · '+rv.dueCount:'')+'</span></button>'+
+        '<button type="button" onclick="go(\'progress\')"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V11h4v10M10 21V3h4v18M16 21V7h4v14"/></svg></span><span>弱點分析</span></button>'+
       '</div></section>';
 
     if(typeof relabelTabs==='function')try{relabelTabs();}catch(_e){}
@@ -1613,7 +1614,7 @@ body:has(#app .qcard) header{box-shadow:none;border-bottom:1px solid rgba(220,22
 
 /* Primary action stays strong; secondary action stays quiet. */
 #app .qcard > .btn,#app .qcard .btn{font-family:var(--swsi-font);letter-spacing:0;font-size:var(--fs-b);font-weight:750;border-radius:11px;min-height:49px;margin-top:13px;box-shadow:none;}
-#app .qcard .btn:not(.ghost){background:var(--pine-deep);}
+#app .qcard .btn:not(.ghost):not(:disabled){background:var(--pine-deep);}
 #app .qcard .btn.ghost{background:transparent;border:1px solid #C9D7D1;color:var(--pine-deep);}
 
 /* Explanation reads like notes separated by whitespace and hairlines, not nested cards. */
@@ -2510,20 +2511,20 @@ html[data-fs="2"]{
     st.textContent=`
       .swsi-myhub{margin:0 0 18px;display:grid;gap:0}
       .swsi-myhub-card{background:transparent;border:0;border-radius:0;padding:8px 2px 18px;box-shadow:none}
-      .swsi-myhub-kicker{font:800 10.5px/1.3 'Noto Sans TC',sans-serif;letter-spacing:1.5px;color:#486F68;margin-bottom:7px}
-      .swsi-myhub-title{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:900;line-height:1.38;letter-spacing:-.15px;color:#202724;margin:0}
-      .swsi-myhub-sub{font:500 12px/1.72 'Noto Sans TC',sans-serif;color:#66716C;margin-top:6px;max-width:38em}
-      .swsi-myhub-primary{width:100%;margin-top:17px;border:1px solid var(--pine-deep);border-radius:11px;background:var(--pine-deep);color:#fff;min-height:52px;padding:12px 14px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;box-shadow:none}
+      .swsi-myhub-kicker{font:800 10.5px/1.3 var(--swsi-font);letter-spacing:1.5px;color:#486F68;margin-bottom:7px}
+      .swsi-myhub-title{font-family:var(--swsi-font);font-size:22px;font-weight:900;line-height:1.38;letter-spacing:-.15px;color:#202724;margin:0}
+      .swsi-myhub-sub{font:500 12px/1.72 var(--swsi-font);color:#66716C;margin-top:6px;max-width:38em}
+      .swsi-myhub-primary{width:100%;margin-top:17px;border:1px solid var(--pine-deep);border-radius:11px;background:var(--pine-deep);color:#fff;min-height:52px;padding:12px 14px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;font-family:var(--swsi-font);box-shadow:none}
       .swsi-myhub-primary b{display:block;font-size:14px;line-height:1.45}.swsi-myhub-primary small{display:block;font-size:10.8px;line-height:1.5;opacity:.92;margin-top:2px}.swsi-myhub-primary .arrow{font-size:20px;opacity:.88}
       .swsi-myhub-primary:hover{filter:brightness(.97)}
       .swsi-myhub-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:17px;border-top:1px solid #E2E7E4;border-bottom:1px solid #E2E7E4}
-      .swsi-myhub-stat{background:transparent;border:0;border-radius:0;padding:12px 8px;text-align:center}.swsi-myhub-stat+.swsi-myhub-stat{border-left:1px solid #E2E7E4}.swsi-myhub-stat b{display:block;font:850 18px/1.1 'Noto Sans TC',sans-serif;color:#242B28}.swsi-myhub-stat span{display:block;margin-top:4px;font:650 10px/1.35 'Noto Sans TC',sans-serif;color:#66716C}
+      .swsi-myhub-stat{background:transparent;border:0;border-radius:0;padding:12px 8px;text-align:center}.swsi-myhub-stat+.swsi-myhub-stat{border-left:1px solid #E2E7E4}.swsi-myhub-stat b{display:block;font:850 18px/1.1 var(--swsi-font);color:#242B28}.swsi-myhub-stat span{display:block;margin-top:4px;font:650 10px/1.35 var(--swsi-font);color:#66716C}
       .swsi-myhub-list{display:grid;margin-top:14px;border:0;border-top:1px solid #E2E7E4;border-bottom:1px solid #E2E7E4;border-radius:0;overflow:visible;background:transparent}
-      .swsi-myhub-row{border:0;border-bottom:1px solid #E7EBE8;background:transparent;min-height:58px;padding:11px 2px;display:flex;align-items:center;gap:11px;width:100%;text-align:left;color:var(--ink);cursor:pointer;font-family:'Noto Sans TC',sans-serif}.swsi-myhub-row:last-child{border-bottom:0}.swsi-myhub-row:hover{background:#F8FAF9}.swsi-myhub-row .ico{width:28px;height:28px;border-radius:0;background:transparent;color:#486F68;display:grid;place-items:center;font-weight:850;flex:0 0 auto}.swsi-myhub-row .copy{min-width:0;flex:1}.swsi-myhub-row .label{display:block;font-size:13px;font-weight:800;line-height:1.4}.swsi-myhub-row .meta{display:block;font-size:10.6px;line-height:1.5;color:#66716C;margin-top:2px}.swsi-myhub-row .arrow{color:#87918C;font-size:18px}
-      .swsi-myhub-more{margin-top:12px;border:0;border-top:1px solid #E2E7E4;border-bottom:1px solid #E2E7E4;border-radius:0;background:transparent;overflow:visible}.swsi-myhub-more>summary{list-style:none;min-height:48px;padding:10px 2px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font:750 11.5px/1.4 'Noto Sans TC',sans-serif;color:#66716C}.swsi-myhub-more>summary::-webkit-details-marker{display:none}.swsi-myhub-more>summary::after{content:'＋';color:var(--ink-3);font-size:16px}.swsi-myhub-more[open]>summary::after{content:'－'}.swsi-myhub-more .swsi-myhub-list{margin:0;border:0;border-top:1px solid #E7EBE8;border-radius:0}
+      .swsi-myhub-row{border:0;border-bottom:1px solid #E7EBE8;background:transparent;min-height:58px;padding:11px 2px;display:flex;align-items:center;gap:11px;width:100%;text-align:left;color:var(--ink);cursor:pointer;font-family:var(--swsi-font)}.swsi-myhub-row:last-child{border-bottom:0}.swsi-myhub-row:hover{background:#F8FAF9}.swsi-myhub-row .ico{width:28px;height:28px;border-radius:0;background:transparent;color:#486F68;display:grid;place-items:center;font-weight:850;flex:0 0 auto}.swsi-myhub-row .copy{min-width:0;flex:1}.swsi-myhub-row .label{display:block;font-size:13px;font-weight:800;line-height:1.4}.swsi-myhub-row .meta{display:block;font-size:10.6px;line-height:1.5;color:#66716C;margin-top:2px}.swsi-myhub-row .arrow{color:#87918C;font-size:18px}
+      .swsi-myhub-more{margin-top:12px;border:0;border-top:1px solid #E2E7E4;border-bottom:1px solid #E2E7E4;border-radius:0;background:transparent;overflow:visible}.swsi-myhub-more>summary{list-style:none;min-height:48px;padding:10px 2px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font:750 11.5px/1.4 var(--swsi-font);color:#66716C}.swsi-myhub-more>summary::-webkit-details-marker{display:none}.swsi-myhub-more>summary::after{content:'＋';color:var(--ink-3);font-size:16px}.swsi-myhub-more[open]>summary::after{content:'－'}.swsi-myhub-more .swsi-myhub-list{margin:0;border:0;border-top:1px solid #E7EBE8;border-radius:0}
       .swsi-myhub-row.admin{background:transparent}.swsi-myhub-row.admin .label{color:#2747A3}.swsi-myhub-row.admin-login{background:transparent}.swsi-myhub-row.admin-login .label{font-weight:650;color:#667085}.swsi-myhub-row[hidden]{display:none!important}
-      .swsi-myhub-toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:980;background:#27322D;color:#fff;border-radius:999px;padding:9px 13px;font:650 12px/1.3 'Noto Sans TC',sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.2)}
-      .swsi-admin-layer{position:fixed;inset:0;z-index:1200;background:#F5F7FB;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}.swsi-admin-layer[hidden]{display:none!important}.swsi-admin-bar{min-height:54px;display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #E5E7EB;background:#fff;box-shadow:0 2px 10px rgba(20,32,51,.05);font-family:'Noto Sans TC',sans-serif}.swsi-admin-back{border:1px solid #D7DCE3;background:#fff;color:#27322D;border-radius:11px;padding:8px 11px;font-weight:750;cursor:pointer}.swsi-admin-title{font-weight:800;color:#18202A;font-size:14px}.swsi-admin-note{margin-left:auto;color:#667085;font-size:11px}.swsi-admin-frame{border:0;width:100%;flex:1;min-height:0;background:#F5F7FB}body.swsi-admin-open{overflow:hidden}
+      .swsi-myhub-toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:980;background:#27322D;color:#fff;border-radius:999px;padding:9px 13px;font:650 12px/1.3 var(--swsi-font);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+      .swsi-admin-layer{position:fixed;inset:0;z-index:1200;background:#F5F7FB;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}.swsi-admin-layer[hidden]{display:none!important}.swsi-admin-bar{min-height:54px;display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #E5E7EB;background:#fff;box-shadow:0 2px 10px rgba(20,32,51,.05);font-family:var(--swsi-font)}.swsi-admin-back{border:1px solid #D7DCE3;background:#fff;color:#27322D;border-radius:11px;padding:8px 11px;font-weight:750;cursor:pointer}.swsi-admin-title{font-weight:800;color:#18202A;font-size:14px}.swsi-admin-note{margin-left:auto;color:#667085;font-size:11px}.swsi-admin-frame{border:0;width:100%;flex:1;min-height:0;background:#F5F7FB}body.swsi-admin-open{overflow:hidden}
       @media(max-width:430px){.swsi-myhub-card{padding:6px 0 17px}.swsi-admin-note{display:none}}
     `;
     document.head.appendChild(st);
@@ -2680,10 +2681,10 @@ html[data-fs="2"]{
   if(!document.getElementById(STYLE_ID)){
     var st=document.createElement('style');st.id=STYLE_ID;
     st.textContent=`
-      .swsi-launch-guide{margin:-2px 0 10px;border:1px solid #D7E2DC;background:#FBFCFB;border-radius:12px;padding:9px 10px;display:flex;align-items:flex-start;gap:8px;font-family:'Noto Sans TC',sans-serif;color:var(--ink)}
+      .swsi-launch-guide{margin:-2px 0 10px;border:1px solid #D7E2DC;background:#FBFCFB;border-radius:12px;padding:9px 10px;display:flex;align-items:flex-start;gap:8px;font-family:var(--swsi-font);color:var(--ink)}
       .swsi-launch-guide .copy{min-width:0;flex:1}.swsi-launch-guide b{display:block;font-size:11.5px;line-height:1.45;color:var(--ink)}.swsi-launch-guide span{display:block;font-size:10.5px;line-height:1.55;color:#6E746E;margin-top:1px}.swsi-launch-guide-close{flex:0 0 auto;border:0;background:transparent;color:#7C8781;width:28px;height:28px;border-radius:50%;font-size:17px;cursor:pointer}
-      .swsi-exam-reminder{margin-top:10px;border:1px solid var(--line);background:#F8FAF9;border-radius:11px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-family:'Noto Sans TC',sans-serif}.swsi-exam-reminder-copy{min-width:0;flex:1;font-size:10.7px;line-height:1.5;color:var(--ink-soft)}.swsi-exam-reminder-copy b{color:var(--ink);font-weight:800}.swsi-exam-reminder-btn{flex:0 0 auto;border:1px solid #CBD8D1;background:#fff;color:var(--pine-deep);border-radius:9px;min-height:34px;padding:6px 9px;font:750 10.5px/1.2 'Noto Sans TC',sans-serif;cursor:pointer}
-      .swsi-exam-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(25,31,28,.38);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px);overflow:auto}.swsi-exam-dialog{width:min(100%,480px);max-height:calc(100dvh - 28px - env(safe-area-inset-bottom));overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:19px;padding:17px 16px 16px;box-shadow:0 22px 60px rgba(25,31,28,.22);font-family:'Noto Sans TC',sans-serif;color:var(--ink)}.swsi-exam-dialog h2{font-family:'Noto Serif TC',serif;font-size:19px;margin:0 0 5px}.swsi-exam-dialog p{font-size:11.5px;line-height:1.65;color:#6E746E;margin:0 0 13px}.swsi-exam-date-label{display:block;font-size:11.5px;line-height:1.45;font-weight:800;color:var(--ink);margin:0 0 5px}.swsi-exam-dialog input{width:100%;box-sizing:border-box;min-height:46px;border:1px solid #CCD7D1;border-radius:11px;background:#fff;color:var(--ink);font:700 14px 'Noto Sans TC',sans-serif;padding:10px 11px}.swsi-exam-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px;margin-top:12px}.swsi-exam-actions button{min-height:43px;border-radius:10px;font:800 12.5px 'Noto Sans TC',sans-serif;cursor:pointer}.swsi-exam-clear{background:#fff;border:1px solid var(--line);color:#6E746E}.swsi-exam-save{background:var(--pine-deep);border:0;color:#fff}body.swsi-modal-open{overflow:hidden}
+      .swsi-exam-reminder{margin-top:10px;border:1px solid var(--line);background:#F8FAF9;border-radius:11px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-family:var(--swsi-font)}.swsi-exam-reminder-copy{min-width:0;flex:1;font-size:10.7px;line-height:1.5;color:var(--ink-soft)}.swsi-exam-reminder-copy b{color:var(--ink);font-weight:800}.swsi-exam-reminder-btn{flex:0 0 auto;border:1px solid #CBD8D1;background:#fff;color:var(--pine-deep);border-radius:9px;min-height:34px;padding:6px 9px;font:750 10.5px/1.2 var(--swsi-font);cursor:pointer}
+      .swsi-exam-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(25,31,28,.38);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px);overflow:auto}.swsi-exam-dialog{width:min(100%,480px);max-height:calc(100dvh - 28px - env(safe-area-inset-bottom));overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:19px;padding:17px 16px 16px;box-shadow:0 22px 60px rgba(25,31,28,.22);font-family:var(--swsi-font);color:var(--ink)}.swsi-exam-dialog h2{font-family:var(--swsi-font);font-size:19px;margin:0 0 5px}.swsi-exam-dialog p{font-size:11.5px;line-height:1.65;color:#6E746E;margin:0 0 13px}.swsi-exam-date-label{display:block;font-size:11.5px;line-height:1.45;font-weight:800;color:var(--ink);margin:0 0 5px}.swsi-exam-dialog input{width:100%;box-sizing:border-box;min-height:46px;border:1px solid #CCD7D1;border-radius:11px;background:#fff;color:var(--ink);font:700 14px var(--swsi-font);padding:10px 11px}.swsi-exam-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px;margin-top:12px}.swsi-exam-actions button{min-height:43px;border-radius:10px;font:800 12.5px var(--swsi-font);cursor:pointer}.swsi-exam-clear{background:#fff;border:1px solid var(--line);color:#6E746E}.swsi-exam-save{background:var(--pine-deep);border:0;color:#fff}body.swsi-modal-open{overflow:hidden}
       @media(min-width:620px){.swsi-exam-backdrop{align-items:center}}@media(max-width:390px){.swsi-exam-actions{grid-template-columns:1fr}}
     `;
     document.head.appendChild(st);
@@ -2697,7 +2698,7 @@ html[data-fs="2"]{
 
   window.swsiDismissLaunchGuide=function(){try{localStorage.setItem(GUIDE_KEY,'1');}catch(_e){}var el=document.querySelector('.swsi-launch-guide');if(el)el.remove();};
   function guideDismissed(){try{return localStorage.getItem(GUIDE_KEY)==='1';}catch(_e){return false;}}
-  function decorateHome(){if(guideDismissed())return;var hero=document.querySelector('#app .swsi-focus-hero');if(!hero||document.querySelector('#app .swsi-launch-guide'))return;var box=document.createElement('section');box.className='swsi-launch-guide';box.setAttribute('aria-label','第一次使用 SWSI');box.innerHTML='<div class="copy"><b>第一次來？不用先學整個平台。</b><span>「練題」直接刷題；「學習」看錯題與進度；「申論」專心練申論。</span></div><button type="button" class="swsi-launch-guide-close" aria-label="不再顯示首次使用說明" onclick="swsiDismissLaunchGuide()">×</button>';hero.insertAdjacentElement('afterend',box);}
+  function decorateHome(){if(guideDismissed())return;var hero=document.querySelector('#app .swsi-focus-hero');if(!hero||document.querySelector('#app .swsi-launch-guide'))return;var box=document.createElement('section');box.className='swsi-launch-guide';box.setAttribute('aria-label','第一次使用 SWSI');box.innerHTML='<div class="copy"><b>第一次來？不用先學整個平台。</b><span>「刷題」直接練習；「我的」看錯題與進度；「申論」專心練申論。</span></div><button type="button" class="swsi-launch-guide-close" aria-label="不再顯示首次使用說明" onclick="swsiDismissLaunchGuide()">×</button>';hero.insertAdjacentElement('afterend',box);}
 
   function onExamKeydown(ev){if(ev.key==='Escape')window.swsiCloseExamDate();}
   window.swsiOpenExamDate=function(){
@@ -3811,31 +3812,31 @@ html[data-fs="2"]{
     var st=document.createElement('style');
     st.id=STYLE_ID;
     st.textContent=`
-      .swsi-public-footer-brand{font-family:'Noto Sans TC',sans-serif;color:var(--ink-soft);font-size:11px;line-height:1.5;text-align:center;max-width:480px;margin:0 auto}
-      .swsi-public-footer-brand strong{display:block;font-family:'Noto Sans TC',sans-serif;color:var(--ink);font-weight:800;font-size:13px;line-height:1.5}
+      .swsi-public-footer-brand{font-family:var(--swsi-font);color:var(--ink-soft);font-size:11px;line-height:1.5;text-align:center;max-width:480px;margin:0 auto}
+      .swsi-public-footer-brand strong{display:block;font-family:var(--swsi-font);color:var(--ink);font-weight:800;font-size:13px;line-height:1.5}
       .swsi-public-footer-tagline{margin-top:3px;font-size:11px;line-height:1.6;color:var(--ink-soft)}
       .swsi-public-footer-links{display:flex;justify-content:center;align-items:center;gap:0 10px;flex-wrap:wrap;margin-top:5px}
-      .swsi-public-footer-links button{border:0;background:transparent;color:#527167;font:700 11px/1.45 'Noto Sans TC',sans-serif;cursor:pointer;min-height:40px;padding:8px 2px;text-decoration:none}
+      .swsi-public-footer-links button{border:0;background:transparent;color:#527167;font:700 11px/1.45 var(--swsi-font);cursor:pointer;min-height:40px;padding:8px 2px;text-decoration:none}
       .swsi-public-footer-links button+button:before{content:'·';display:inline-block;color:#9AA9A1;margin-right:12px}
       .swsi-public-footer-links button:hover,.swsi-public-footer-links button:focus-visible{color:var(--pine-deep);text-decoration:underline;text-underline-offset:3px}
       .swsi-public-footer-links button:focus-visible{outline:2px solid var(--pine);outline-offset:2px;border-radius:4px}
       .swsi-public-footer-legal{font-size:10px;line-height:1.6;color:#5A665F}
       @media(max-width:370px){.swsi-public-footer-links{column-gap:7px}.swsi-public-footer-links button+button:before{margin-right:8px}}
       .swsi-public-info-backdrop{position:fixed;inset:0;z-index:990;background:rgba(25,31,28,.4);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px)}
-      .swsi-public-info-dialog{width:min(100%,540px);max-height:min(86vh,760px);max-height:min(86dvh,760px);overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:20px;box-shadow:0 22px 60px rgba(25,31,28,.22);padding:19px 18px;color:var(--ink);font-family:'Noto Sans TC',sans-serif;overscroll-behavior:contain}
+      .swsi-public-info-dialog{width:min(100%,540px);max-height:min(86vh,760px);max-height:min(86dvh,760px);overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:20px;box-shadow:0 22px 60px rgba(25,31,28,.22);padding:19px 18px;color:var(--ink);font-family:var(--swsi-font);overscroll-behavior:contain}
       .swsi-public-info-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
-      .swsi-public-info-head h2{font-family:'Noto Serif TC',serif;font-size:21px;line-height:1.35;margin:0}
+      .swsi-public-info-head h2{font-family:var(--swsi-font);font-size:21px;line-height:1.35;margin:0}
       .swsi-public-info-head p{font-size:11.5px;line-height:1.6;color:#6E746E;margin:3px 0 0}
       .swsi-public-info-close{margin-left:auto;flex:0 0 auto;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--ink-soft);font-size:19px;cursor:pointer}
       .swsi-public-info-body{font-size:13px;line-height:1.85;color:#414743}
-      .swsi-public-info-body h3{font-family:'Noto Serif TC',serif;color:var(--pine-deep);font-size:15px;margin:17px 0 5px}
+      .swsi-public-info-body h3{font-family:var(--swsi-font);color:var(--pine-deep);font-size:15px;margin:17px 0 5px}
       .swsi-public-info-body h3:first-child{margin-top:0}
       .swsi-public-info-body p{margin:0 0 10px}
       .swsi-public-info-body ul{margin:5px 0 11px 20px;padding:0}
       .swsi-public-info-body li{margin:3px 0}
       .swsi-public-info-note{background:#F3F7F5;border-left:3px solid #91A9A0;border-radius:0 10px 10px 0;padding:10px 11px;margin:10px 0;color:#5D6762}
       .swsi-public-info-nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px;margin:0 0 14px}
-      .swsi-public-info-nav button{border:1px solid var(--line);background:#fff;color:#6E746E;border-radius:9px;min-height:36px;font:700 11px/1.3 'Noto Sans TC',sans-serif;cursor:pointer;padding:6px 3px}
+      .swsi-public-info-nav button{border:1px solid var(--line);background:#fff;color:#6E746E;border-radius:9px;min-height:36px;font:700 11px/1.3 var(--swsi-font);cursor:pointer;padding:6px 3px}
       .swsi-public-info-nav button.on{background:var(--pine);border-color:var(--pine);color:#fff}
       .swsi-monitor-summary{border:1px solid #D7E0DB;border-radius:14px;padding:12px 13px;background:#F7FAF8;margin-bottom:12px}
       .swsi-monitor-summary strong{display:block;font-size:15px;color:var(--pine-deep);margin-bottom:3px}
@@ -3845,7 +3846,7 @@ html[data-fs="2"]{
       .swsi-monitor-dot.ok{background:#16845B}.swsi-monitor-dot.warn{background:#D18B16}.swsi-monitor-dot.bad{background:#C13F3F}
       .swsi-monitor-label{font-weight:800;color:#303833}.swsi-monitor-detail{font-size:11.5px;line-height:1.55;color:var(--ink-soft);margin-top:2px}
       .swsi-monitor-meta{font-size:11px;line-height:1.6;color:var(--ink-soft);margin-top:8px}
-      .swsi-monitor-refresh{width:100%;min-height:42px;border:1px solid var(--pine);border-radius:11px;background:#fff;color:var(--pine-deep);font:800 12px/1.4 'Noto Sans TC',sans-serif;cursor:pointer}
+      .swsi-monitor-refresh{width:100%;min-height:42px;border:1px solid var(--pine);border-radius:11px;background:#fff;color:var(--pine-deep);font:800 12px/1.4 var(--swsi-font);cursor:pointer}
       .swsi-monitor-links{display:grid;gap:5px;margin-top:7px}
       .swsi-monitor-links a{color:var(--pine-deep);font-size:11.5px;line-height:1.5;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}
       .swsi-monitor-cadence{display:flex;gap:5px 9px;flex-wrap:wrap;margin:8px 0 2px;color:var(--ink-soft);font-size:10.8px;line-height:1.5}
@@ -5160,23 +5161,23 @@ html[data-fs="2"]{
       .swsi-essay-action-card .sub,footer{color:#636B67!important;}
 
       .swsi-essay-action-card{background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:15px 16px;margin:0 0 9px;}
-      .swsi-essay-action-card .title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:var(--swsi-ui-title,15px);line-height:1.4;color:var(--ink);}
-      .swsi-essay-action-card .sub{font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-small,11.5px);line-height:1.6;margin-top:3px;}
+      .swsi-essay-action-card .title{font-family:var(--swsi-font);font-weight:900;font-size:var(--swsi-ui-title,15px);line-height:1.4;color:var(--ink);}
+      .swsi-essay-action-card .sub{font-family:var(--swsi-font);font-size:var(--swsi-ui-small,11.5px);line-height:1.6;margin-top:3px;}
       .swsi-essay-action-card .actions{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:8px;margin-top:11px;}
-      .swsi-essay-action-card button{min-height:44px;border-radius:11px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,14px);font-weight:800;cursor:pointer;}
+      .swsi-essay-action-card button{min-height:44px;border-radius:11px;font-family:var(--swsi-font);font-size:var(--swsi-ui-control,14px);font-weight:800;cursor:pointer;}
       .swsi-essay-action-card .go{border:none;background:var(--pine-deep);color:#fff;}
       .swsi-essay-action-card .choose{border:1px solid var(--line);background:#fff;color:var(--pine-deep);}
 
-      .swsi-answer-line{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);line-height:1.55;color:var(--pine-deep);font-weight:800;background:#F1F6F4;border:1px solid #D8E5DF;border-radius:10px;padding:8px 10px;margin:0 0 13px;}
-      .swsi-core-reason{margin:0 0 13px;padding:10px 11px;border-left:3px solid var(--pine);background:#F8FAF9;border-radius:0 10px 10px 0;font-family:'Noto Sans TC',sans-serif;color:#343C38;line-height:1.7;}
+      .swsi-answer-line{font-family:var(--swsi-font);font-size:var(--fs-s);line-height:1.55;color:var(--pine-deep);font-weight:800;background:#F1F6F4;border:1px solid #D8E5DF;border-radius:10px;padding:8px 10px;margin:0 0 13px;}
+      .swsi-core-reason{margin:0 0 13px;padding:10px 11px;border-left:3px solid var(--pine);background:#F8FAF9;border-radius:0 10px 10px 0;font-family:var(--swsi-font);color:#343C38;line-height:1.7;}
       .swsi-core-reason b{display:block;font-size:10.5px;letter-spacing:.04em;color:var(--pine);margin-bottom:2px;}
       .swsi-core-reason span{display:block;font-size:13px;font-weight:650;}
-      .swsi-law-update-notice{margin:2px 0 10px;padding:10px 12px;border:1px solid #DDE5DF;border-radius:10px;background:#FBFCFA;font-family:'Noto Sans TC',sans-serif;}
+      .swsi-law-update-notice{margin:2px 0 10px;padding:10px 12px;border:1px solid #DDE5DF;border-radius:10px;background:#FBFCFA;font-family:var(--swsi-font);}
       .swsi-law-update-title{font-size:12px;line-height:1.5;font-weight:800;color:var(--ink);}
       .swsi-law-update-notice p{margin:4px 0 6px;font-size:12px;line-height:1.65;color:var(--ink-soft);overflow-wrap:anywhere;}
       .swsi-law-update-foot{font-size:11px;line-height:1.6;color:var(--ink-soft);}
       .swsi-law-update-notice a{display:inline-block;margin-top:7px;border-bottom:1px solid currentColor;font-size:11.5px;font-weight:700;color:var(--pine-deep);text-decoration:none;}
-      .swsi-answer-trust{margin:0 0 10px;border:1px solid #E1E7E3;border-radius:10px;background:#FCFDFC;font-family:'Noto Sans TC',sans-serif;overflow:hidden;}
+      .swsi-answer-trust{margin:0 0 10px;border:1px solid #E1E7E3;border-radius:10px;background:#FCFDFC;font-family:var(--swsi-font);overflow:hidden;}
       .swsi-answer-trust summary{list-style:none;cursor:pointer;min-height:38px;padding:7px 9px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--ink-soft);font-size:11px;font-weight:700;}
       .swsi-answer-trust summary::-webkit-details-marker{display:none;}
       .swsi-answer-trust summary:after{content:'＋';margin-left:auto;color:var(--ink-3);font-size:14px;}
@@ -5189,7 +5190,7 @@ html[data-fs="2"]{
       .swsi-trust-links{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;}
       .swsi-trust-links a{display:inline-block;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--pine-deep);padding:5px 8px;text-decoration:none;font-size:10.8px;font-weight:700;}
       .swsi-explanation-more{margin:12px 0 3px;border:1px solid var(--line);border-radius:11px;background:#FBFCFB;overflow:hidden;}
-      .swsi-explanation-more summary{list-style:none;cursor:pointer;min-height:43px;padding:9px 11px;display:flex;align-items:center;font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:800;color:var(--pine-deep);}
+      .swsi-explanation-more summary{list-style:none;cursor:pointer;min-height:43px;padding:9px 11px;display:flex;align-items:center;font-family:var(--swsi-font);font-size:var(--fs-s);font-weight:800;color:var(--pine-deep);}
       .swsi-explanation-more summary::-webkit-details-marker{display:none;}
       .swsi-explanation-more summary:after{content:'＋';margin-left:auto;color:var(--ink-3);font-size:16px;}
       .swsi-explanation-more[open] summary:after{content:'－';}
@@ -5202,9 +5203,9 @@ html[data-fs="2"]{
 
       .tabbar .ico.swsi-nav-ico{width:21px;height:21px;display:grid;place-items:center;font-size:0;line-height:1;}
       .tabbar .ico.swsi-nav-ico svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
-      .tabbar .swsi-nav-label{font-family:'Noto Sans TC',sans-serif;line-height:1.1;}
+      .tabbar .swsi-nav-label{font-family:var(--swsi-font);line-height:1.1;}
 
-      .swsi-data-version{margin:10px 4px 0;border-top:1px solid rgba(220,228,223,.85);padding-top:7px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-small,11.5px);line-height:1.6;}
+      .swsi-data-version{margin:10px 4px 0;border-top:1px solid rgba(220,228,223,.85);padding-top:7px;font-family:var(--swsi-font);font-size:var(--swsi-ui-small,11.5px);line-height:1.6;}
       .swsi-data-version summary{cursor:pointer;list-style:none;min-height:36px;display:flex;align-items:center;justify-content:center;text-align:center;color:#636B67;font-weight:700;}
       .swsi-data-version summary::-webkit-details-marker{display:none;}
       .swsi-data-version summary:after{content:'＋';margin-left:6px;color:var(--ink-3);}
@@ -5212,7 +5213,7 @@ html[data-fs="2"]{
       .swsi-data-version .body{text-align:center;padding:2px 8px 5px;color:#69716D;}
 
       footer.swsi-footer-clean{padding-top:10px!important;line-height:1.65!important;}
-      footer.swsi-footer-clean .sub{font-family:'Noto Sans TC',sans-serif;font-size:11px;color:#737A76;margin-top:2px;}
+      footer.swsi-footer-clean .sub{font-family:var(--swsi-font);font-size:11px;color:#737A76;margin-top:2px;}
       @media(max-width:370px){.swsi-essay-action-card .actions{grid-template-columns:1fr;}}
     `;
     document.head.appendChild(style);

@@ -2398,14 +2398,14 @@ function renderTopics(){
   const eOpen=topicsOpen==='essay', mOpen=topicsOpen==='mcq';
   app.innerHTML=`<div class="section-h">考點</div>
     <div class="section-s">挑一個主題開始：申論自己練、選擇題一鍵開。理論、法規、時事與讀書指南也能直接查。</div>
-    <div class="gcard" onclick="go('theories')" style="background:var(--pine);border-color:var(--pine)"><div><div class="name" style="color:#fff">📖 核心理論小辭典</div><div class="cnt" style="color:#cfe3da">${THEORIES.length} 個申論必備理論</div></div><span class="arrow" style="color:#fff">›</span></div>
-    <div class="gcard" onclick="go('laws')" style="background:var(--gold);border-color:var(--gold)"><div><div class="name" style="color:#fff">📜 重點法規速查</div><div class="cnt" style="color:#f5e9cf">${LAWS.length} 部常用法規 · 含修法動態</div></div><span class="arrow" style="color:#fff">›</span></div>
-    <div class="gcard" onclick="NL.open()" style="background:var(--pine-deep);border-color:var(--pine-deep)"><div><div class="name" style="color:#fff">📰 時事庫</div><div class="cnt" style="color:#cfe3da">近三年社會事件 · 考點/理論/法規/可能怎麼考</div></div><span class="arrow" style="color:#fff">›</span></div>
-    <div class="gcard" onclick="SG.open()" style="background:#7E7A66;border-color:#7E7A66"><div><div class="name" style="color:#fff">📖 讀書指南</div><div class="cnt" style="color:#ece9da">學長姊應考心得 · 各科速查 · 申論策略</div></div><span class="arrow" style="color:#fff">›</span></div>
-    <div class="gcard" onclick="go('progress')"><div><div class="name">📊 我的進度</div><div class="cnt">各科正確率、常錯考點與錯因分布</div></div><span class="arrow">›</span></div>
-    <div class="gcard" onclick="toggleTopics('essay')" style="margin-top:14px${eOpen?';border-color:var(--pine);border-width:1.5px':''}"><div><div class="name">✍️ 申論題 · 依主題練</div><div class="cnt">${clusters.length} 個主題${eOpen?'　（點我收合）':''}</div></div><span class="arrow">${eOpen?'▾':'›'}</span></div>
+    <div class="gcard" onclick="go('theories')"><div><div class="name">核心理論小辭典</div><div class="cnt">${THEORIES.length} 個申論必備理論</div></div><span class="arrow">›</span></div>
+    <div class="gcard" onclick="go('laws')"><div><div class="name">重點法規速查</div><div class="cnt">${LAWS.length} 部常用法規 · 含修法動態</div></div><span class="arrow">›</span></div>
+    <div class="gcard" onclick="NL.open()"><div><div class="name">時事庫</div><div class="cnt">近三年社會事件 · 考點/理論/法規/可能怎麼考</div></div><span class="arrow">›</span></div>
+    <div class="gcard" onclick="SG.open()"><div><div class="name">讀書指南</div><div class="cnt">學長姊應考心得 · 各科速查 · 申論策略</div></div><span class="arrow">›</span></div>
+    <div class="gcard" onclick="go('progress')"><div><div class="name">我的進度</div><div class="cnt">各科正確率、常錯考點與錯因分布</div></div><span class="arrow">›</span></div>
+    <div class="gcard" onclick="toggleTopics('essay')" style="margin-top:14px${eOpen?';border-color:var(--pine);border-width:1.5px':''}"><div><div class="name">申論題 · 依主題練</div><div class="cnt">${clusters.length} 個主題${eOpen?'　（點我收合）':''}</div></div><span class="arrow">${eOpen?'▾':'›'}</span></div>
     ${eOpen?`<div style="margin-top:8px">${clCards}</div>`:''}
-    <div class="gcard" onclick="toggleTopics('mcq')" style="margin-top:10px${mOpen?';border-color:var(--pine);border-width:1.5px':''}"><div><div class="name">📝 選擇題 · 依大類練</div><div class="cnt">${sorted.length} 個大類${mOpen?'　（點我收合）':''}</div></div><span class="arrow">${mOpen?'▾':'›'}</span></div>
+    <div class="gcard" onclick="toggleTopics('mcq')" style="margin-top:10px${mOpen?';border-color:var(--pine);border-width:1.5px':''}"><div><div class="name">選擇題 · 依大類練</div><div class="cnt">${sorted.length} 個大類${mOpen?'　（點我收合）':''}</div></div><span class="arrow">${mOpen?'▾':'›'}</span></div>
     ${mOpen?`<div style="margin-top:8px"><select class="subj" onchange="subjFilter=this.value;render()">${opts}</select>${cards}</div>`:''}`;
 }
 function toggleTopics(which){ topicsOpen=(topicsOpen===which?null:which); render(); }
@@ -3532,7 +3532,7 @@ body .tabbar button.on::before{display:none;}
 body :is(.btn,.ux-btn-main,.ux-btn-soft,.fbtn,.gbtn){min-height:var(--ux-touch);border-radius:10px;font-family:var(--swsi-font);box-shadow:none;letter-spacing:0;}
 body :is(.btn:not(.ghost),.ux-btn-main){background:var(--pine-deep);border:1px solid var(--pine-deep);color:#FFF;font-weight:700;}
 body :is(.btn.ghost,.ux-btn-soft){background:var(--paper2);border:1px solid var(--line);color:var(--pine-deep);}
-body #app .btn:disabled{background:#E7EBE5;border-color:#CCD5CB;color:#536153;opacity:1;cursor:not-allowed;box-shadow:none;}
+body #app .btn:disabled{background:#E5ECE7;border-color:#BED0C4;color:#3E554A;opacity:1;cursor:not-allowed;box-shadow:none;}
 body select.subj,body .wta{background-color:var(--paper2);border:1px solid #AAB9AF;border-radius:10px;color:var(--ink);min-height:48px;}
 body select.subj{padding:12px 40px 12px 14px;}
 body .wta{padding:20px;line-height:1.85;}

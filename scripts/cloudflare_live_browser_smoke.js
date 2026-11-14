@@ -632,7 +632,7 @@ async function check(engine, label, width, height, practice) {
     });
     assert.equal(homeV4.heroCount, 1, label + ': missing/duplicate V4 primary hero');
     assert.equal(homeV4.headline, '今天，從一題開始。', label + ': old homepage renderer active');
-    assert.equal(homeV4.heroColor, 'rgb(229, 240, 235)', label + ': approved pale-green hero missing');
+    assert.equal(homeV4.heroColor, requireCalmParity ? 'rgba(0, 0, 0, 0)' : 'rgb(229, 240, 235)', label + ': approved pale-green hero missing');
     assert.deepEqual(homeV4.paths, ['歷屆試題', '申論練習'], label + ': V4 study paths');
     assert.equal(homeV4.tools.length, 3, label + ': V4 study tools count');
     assert(homeV4.tools[0] === '模擬考' &&

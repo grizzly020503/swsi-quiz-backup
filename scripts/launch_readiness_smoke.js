@@ -261,6 +261,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       visibleButtons: Array.from(nav.querySelectorAll('button'))
         .filter(btn => getComputedStyle(btn).display !== 'none').length,
       wrapRight: w.right,
+      wrapLeft: w.left,
       viewportWidth: innerWidth,
       minButtonHeight: Math.min(...Array.from(nav.querySelectorAll('button'))
         .filter(btn => getComputedStyle(btn).display !== 'none')
@@ -270,9 +271,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await visual('05-home-desktop');
   console.log('SWSI DESKTOP NAV GEOMETRY ' + JSON.stringify(desktopNav));
   assert.strictEqual(desktopNav.layout, 'column', 'wide-screen navigation still uses the mobile bottom bar');
-  assert(desktopNav.left >= desktopNav.wrapRight + 8,
+  assert(desktopNav.right <= desktopNav.wrapLeft - 8,
     'desktop navigation overlaps the main reading surface: ' + JSON.stringify(desktopNav));
-  assert(desktopNav.right <= desktopNav.viewportWidth - 12,
+  assert(desktopNav.left >= 12 && desktopNav.right <= desktopNav.viewportWidth - 12,
     'desktop navigation clips off the right edge');
   assert(desktopNav.top >= 85, 'desktop navigation overlaps the header');
   assert(desktopNav.height >= 48 * desktopNav.visibleButtons &&

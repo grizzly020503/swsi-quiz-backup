@@ -43,7 +43,7 @@ body:has(#app .qcard) header{box-shadow:none;border-bottom:1px solid rgba(220,22
 
 /* Primary action stays strong; secondary action stays quiet. */
 #app .qcard > .btn,#app .qcard .btn{font-family:var(--swsi-font);letter-spacing:0;font-size:var(--fs-b);font-weight:750;border-radius:11px;min-height:49px;margin-top:13px;box-shadow:none;}
-#app .qcard .btn:not(.ghost){background:var(--pine-deep);}
+#app .qcard .btn:not(.ghost):not(:disabled){background:var(--pine-deep);}
 #app .qcard .btn.ghost{background:transparent;border:1px solid #C9D7D1;color:var(--pine-deep);}
 
 /* Explanation reads like notes separated by whitespace and hairlines, not nested cards. */

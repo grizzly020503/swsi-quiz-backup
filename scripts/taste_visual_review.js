@@ -29,13 +29,22 @@ fs.mkdirSync(out,{recursive:true});
   await page.locator('.swsi-v4-start').click();await page.locator('.qcard .opt').first().waitFor();
   await page.screenshot({path:`${out}/${label}-quiz-${width}.png`,fullPage:true});
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);
+  if(label==='after'){
+   await page.getByRole('button',{name:'大字',exact:true}).click();
+   const original=await page.locator('.qtext').textContent();
+   await page.locator('.qtext').evaluate(el=>el.textContent=el.textContent.repeat(6));
+   await page.screenshot({path:`${out}/${label}-long-large-${width}.png`,fullPage:true});
+   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'long question overflows');
+   await page.locator('.qtext').evaluate((el,text)=>el.textContent=text,original);
+   await page.getByRole('button',{name:'小字',exact:true}).click();
+  }
   await page.locator('.opt').first().click();
   await page.getByRole('button',{name:'送出答案',exact:true}).click();
   await page.locator('.exp').waitFor();
   await page.screenshot({path:`${out}/${label}-answer-${width}.png`,fullPage:true});
   for (const [name,action] of [
    ['review',()=>go('review')],['learning',()=>swsiOpenLearningCenter()],
-   ['essay',()=>go('essay')],['resources',()=>go('topics')],['simulation',()=>MK.open()]
+   ['essay',()=>go('essay')],['resources',()=>go('topics')],['laws',()=>go('laws')],['news',()=>NL.open()],['simulation',()=>{NL.close();MK.open();}]
   ]) {
    await page.evaluate(action);
    await page.waitForTimeout(250);
