@@ -40,8 +40,8 @@ async function awaitReviewedDesign(page, label) {
       };
     }, designId);
     if (deployed.css === expectedCalmCss && JSON.stringify(deployed.sourceHolds)===JSON.stringify(expectedSourceHolds)) {
-      assert.equal(deployed.paper, designId.endsWith('v3') ? 'rgb(247, 249, 247)' : 'rgb(244, 247, 245)', label + ': new body background not applied');
-      assert.equal(deployed.pine.toUpperCase(), designId.endsWith('v3') ? '#204F48' : '#1F544B', label + ': new CTA palette not applied');
+      assert.equal(deployed.paper, designId.endsWith('v3') ? 'rgb(247, 249, 247)' : 'rgb(247, 246, 242)', label + ': new body background not applied');
+      assert.equal(deployed.pine.toUpperCase(), designId.endsWith('v3') ? '#204F48' : '#214D43', label + ': new CTA palette not applied');
       console.log('LIVE REVIEWED DESIGN PARITY OK ' + label + ' refreshes=' + attempts);
       return;
     }

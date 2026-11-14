@@ -11,128 +11,32 @@
     var style=document.createElement('style');
     style.id='swsi-product-philosophy-style';
     style.textContent=`
-      /* Premium-calm visual foundation: hierarchy and whitespace first, decoration last. */
-      .swsi-focus-hero{background:transparent;color:var(--ink);border:0;border-bottom:1px solid rgba(218,225,221,.9);border-radius:0;padding:10px 2px 22px;margin:0 0 18px;box-shadow:none}
-      .swsi-focus-hero .kicker{font-size:var(--swsi-ui-small,11px);font-weight:800;letter-spacing:1.6px;color:var(--pine);opacity:1;margin-bottom:8px}
-      .swsi-focus-hero h1{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-hero,25px);font-weight:900;line-height:1.34;letter-spacing:-.25px;margin:0;color:#202724}
-      .swsi-focus-hero p{font-size:var(--swsi-ui-body,13px);line-height:1.75;color:#66716C;opacity:1;margin:8px 0 0;max-width:38em}
-
-      .swsi-focus-primary{background:#F8FAF9;border:1px solid #E2E9E5;border-radius:16px;padding:20px 18px;margin:0 0 14px;box-shadow:none}
-      .swsi-focus-primary .label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:#486F68;letter-spacing:1px;margin-bottom:5px}
-      .swsi-focus-primary h2{font-family:'Noto Serif TC',serif;font-size:var(--swsi-ui-title,16px);line-height:1.4;margin:0;font-weight:900;color:#242B28}
-      .swsi-focus-primary p{font-size:var(--swsi-ui-small,11.5px);line-height:1.7;color:#68716C;margin:5px 0 0}
-      .swsi-focus-actions{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:9px;margin-top:16px}
-      .swsi-focus-actions button{min-height:49px;border-radius:11px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,14px);font-weight:800;cursor:pointer;box-shadow:none}
-      .swsi-focus-actions .go{border:1px solid var(--pine-deep);background:var(--pine-deep);color:#fff}
-      .swsi-focus-actions .choose{border:1px solid #D7E0DB;background:#fff;color:var(--pine-deep)}
-      .swsi-focus-actions .go:hover{filter:brightness(.97)}
-      .swsi-focus-actions .choose:hover{border-color:#BFCFC8;background:#FCFDFC}
-
-      .swsi-focus-custom{background:transparent;border:0;border-bottom:1px solid #E1E7E3;border-radius:0;padding:4px 2px 18px;margin:0 0 14px}
-      .swsi-focus-custom .field-label{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--ink-soft);margin:0 0 6px}.swsi-focus-custom .hint{font-size:var(--swsi-ui-small,11px);line-height:1.65;color:var(--ink-soft);margin:3px 0 10px}
-
-      .swsi-study-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:transparent;border:0;border-bottom:1px solid #E5E9E6;border-radius:0;padding:15px 2px;margin:0;cursor:pointer;color:var(--ink);font-family:inherit}
-      .swsi-study-card.due{border-color:#E1D7D3;background:transparent}.swsi-study-card .copy{min-width:0}.swsi-study-card .title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:var(--swsi-ui-title,15px);line-height:1.4}.swsi-study-card .sub{font-size:var(--swsi-ui-small,11.5px);color:var(--ink-soft);line-height:1.6;margin-top:3px}.swsi-study-card .aside{flex:0 0 auto;color:var(--ink-3);font-size:20px}.swsi-study-card .count{font-size:var(--swsi-ui-small,11px);font-weight:800;color:var(--wrong);background:transparent;border-radius:0;padding:0;white-space:nowrap}
-
-      .swsi-home-quick{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:2px 0 2px;border-top:1px solid #E2E7E4;border-bottom:1px solid #E2E7E4}
-      .swsi-home-quick button{min-height:58px;border:0;border-radius:0;background:transparent;color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,13.5px);font-weight:800;cursor:pointer;padding:10px 12px}
-      .swsi-home-quick button+button{border-left:1px solid #E2E7E4}
-      .swsi-home-quick button:hover{background:#F8FAF9}
-      .swsi-home-quick button.due{border-color:#E2E7E4;background:transparent;color:#5F4B45}
-      .swsi-home-quick .count{display:inline-block;margin-left:5px;font-size:11px;color:var(--wrong)}
-      .swsi-home-resource{width:100%;min-height:48px;margin:6px 0 0;border:0;background:transparent;color:var(--ink-soft);font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-small,11.5px);font-weight:750;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}.swsi-home-resource span{color:var(--ink-3);font-size:16px}
-      .swsi-home-resource:hover{color:var(--pine-deep)}
-
-      @media(max-width:370px){
-        .swsi-focus-actions{grid-template-columns:1fr}
-        .swsi-focus-hero{padding:8px 0 19px;margin-bottom:15px}
-        .swsi-focus-primary{padding:18px 16px}
-        .swsi-home-quick{grid-template-columns:1fr 1fr}
-      }
-
-      /* V4: the live renderer follows the approved mobile concept, not just the CSS tokens. */
-      html body #app .swsi-v4-hero{
-        background:#E5F0EB;border:1px solid #D4E4D9;border-radius:20px;
-        margin:0 0 23px;padding:25px 23px;box-shadow:none;color:#245D56;
-        display:block;
-      }
-      html body #app .swsi-v4-hero .kicker{
-        color:#3E655B;font-family:'Noto Sans TC',system-ui,sans-serif;
-        font-size:13px;font-weight:750;letter-spacing:.25px;margin-bottom:15px;
-      }
-      html body #app .swsi-v4-hero h1{
-        color:#204E48;font-family:'Noto Sans TC',system-ui,sans-serif;
-        font-size:clamp(24px,5vw,29px);font-weight:850;line-height:1.42;
-        margin:0 0 10px;letter-spacing:0;
-      }
-      html body #app .swsi-v4-hero p{color:#49685E;font-size:14px;line-height:1.7;margin:0 0 20px;}
-      html body #app .swsi-v4-start{
-        display:flex;align-items:center;justify-content:center;gap:10px;
-        width:100%;min-height:55px;border:1px solid #245D56;border-radius:13px;
-        background:#245D56;color:#fff;cursor:pointer;box-shadow:none;
-        font:750 17px/1.3 'Noto Sans TC',system-ui,sans-serif;
-        transition:background-color .18s ease,transform .16s ease;
-      }
-      html body #app .swsi-v4-start span{font-size:23px;line-height:1;}
-      html body #app .swsi-v4-start:active{transform:translateY(1px);}
-      html body #app .swsi-v4-section-heading{
-        margin:0 0 15px;font:800 20px/1.5 'Noto Sans TC',system-ui,sans-serif;
-        color:#273B34;
-      }
-      html body #app .swsi-v4-study-paths{
-        display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
-        margin:0 0 16px;
-      }
-      html body #app .swsi-v4-path{
-        display:flex;flex-direction:column;align-items:flex-start;gap:0;text-align:left;
-        min-width:0;min-height:134px;padding:17px 16px;border:1px solid #E0E9E3;
-        border-radius:17px;background:#fff;color:#254E46;box-shadow:none;
-        cursor:pointer;font-family:'Noto Sans TC',system-ui,sans-serif;
-      }
-      html body #app .swsi-v4-path-icon{font-size:24px;line-height:1.2;margin-bottom:12px;color:#245D56;}
-      html body #app .swsi-v4-path-title{font-size:17px;font-weight:800;color:#273B34;line-height:1.4;}
-      html body #app .swsi-v4-path-sub{font-size:12px;font-weight:500;color:#63756E;line-height:1.55;margin-top:5px;}
-      html body #app .swsi-v4-tools{
-        background:#fff;border:1px solid #E2EAE4;border-radius:18px;padding:18px;
-        margin:0 0 12px;
-      }
-      html body #app .swsi-v4-tools-head{
-        display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px;
-      }
-      html body #app .swsi-v4-tools-head h2{margin:0;color:#273B34;font:800 20px/1.5 'Noto Sans TC',system-ui,sans-serif;}
-      html body #app .swsi-v4-tools-head button{
-        border:0;background:transparent;color:#5C766D;min-width:44px;min-height:44px;
-        font:500 29px/1 sans-serif;cursor:pointer;
-      }
-      html body #app .swsi-v4-tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
-      html body #app .swsi-v4-tool-grid button{
-        min-width:0;min-height:83px;padding:11px 4px;display:flex;flex-direction:column;
-        align-items:center;justify-content:center;gap:7px;
-        border:1px solid #EDF2EE;border-radius:12px;background:#F7F9F7;color:#315C51;
-        font:700 12px/1.4 'Noto Sans TC',system-ui,sans-serif;cursor:pointer;
-      }
-      html body #app .swsi-v4-tool-grid button span:first-child{font-size:24px;line-height:1.1;}
-      html body #app .swsi-focus-custom{
-        margin:0 0 16px;padding:15px;background:#fff;border:1px solid #E0E9E3;border-radius:15px;
-      }
-      html body #app :is(.swsi-v4-start,.swsi-v4-path,.swsi-v4-tools button):focus-visible{
-        outline:3px solid #245D56;outline-offset:3px;
-      }
-      @media(hover:hover){
-        html body #app .swsi-v4-start:hover{background:#1C4E47;}
-        html body #app .swsi-v4-path:hover,html body #app .swsi-v4-tool-grid button:hover{border-color:#9FC8AE;}
-      }
-      @media(max-width:360px){
-        html body #app .swsi-v4-hero{padding:20px 18px;}
-        html body #app .swsi-v4-path{padding:15px 12px;}
-        html body #app .swsi-v4-path-title{font-size:15px;}
-        html body #app .swsi-v4-tool-grid{gap:6px;}
-        html body #app .swsi-v4-tool-grid button{font-size:11px;}
-      }
-      @media(prefers-reduced-motion:reduce){
-        html body #app .swsi-v4-start{animation:none;transition:none;}
-      }
-    `;
+.swsi-v4-hero{padding:28px 0 32px;margin:0 0 28px;border:0;border-bottom:1px solid var(--line);background:transparent;box-shadow:none;color:var(--ink);}
+.swsi-v4-hero .kicker{font:650 var(--swsi-ui-small)/1.5 var(--swsi-font);color:var(--pine);letter-spacing:.08em;margin-bottom:16px;}
+.swsi-v4-hero h1{font:750 var(--swsi-ui-hero)/1.4 var(--swsi-font);letter-spacing:-.03em;color:var(--ink);margin:0 0 12px;}
+.swsi-v4-hero p{font:400 var(--swsi-ui-body)/1.8 var(--swsi-font);color:var(--ink-soft);margin:0 0 24px;}
+.swsi-v4-start{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:52px;background:var(--pine-deep);color:#FFF;border:1px solid var(--pine-deep);border-radius:10px;font:650 var(--swsi-ui-control)/1.5 var(--swsi-font);cursor:pointer;}
+.swsi-v4-start span{font-size:20px;}
+.swsi-v4-section-heading{font:700 var(--swsi-ui-heading)/1.5 var(--swsi-font);margin:0 0 16px;color:var(--ink);}
+.swsi-v4-study-paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:28px;}
+.swsi-v4-path{display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;min-height:144px;padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--paper2);color:var(--ink);cursor:pointer;font-family:var(--swsi-font);}
+.swsi-v4-path-icon{font-size:22px;line-height:1;margin-bottom:16px;color:var(--pine);}
+.swsi-v4-path-title{font-size:var(--swsi-ui-title);font-weight:700;line-height:1.5;}
+.swsi-v4-path-sub{font-size:var(--swsi-ui-small);color:var(--ink-soft);line-height:1.65;margin-top:5px;}
+.swsi-v4-tools{border:0;background:transparent;padding:0;margin-bottom:16px;}
+.swsi-v4-tools-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px;}
+.swsi-v4-tools-head h2{font:700 var(--swsi-ui-heading)/1.5 var(--swsi-font);color:var(--ink);}
+.swsi-v4-tools-head button{border:0;background:transparent;color:var(--ink-soft);min-width:44px;min-height:44px;font-size:26px;cursor:pointer;}
+.swsi-v4-tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.swsi-v4-tool-grid button{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 8px;min-height:56px;min-width:0;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--pine-deep);font:600 var(--swsi-ui-small)/1.5 var(--swsi-font);cursor:pointer;}
+.swsi-v4-tool-grid button span:first-child{font-size:20px;}
+.swsi-focus-custom{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:20px;margin:0 0 24px;}
+.swsi-focus-custom .field-label{font-size:var(--swsi-ui-small);font-weight:700;margin-bottom:8px;}
+.swsi-focus-custom .hint{font-size:var(--swsi-ui-small);color:var(--ink-soft);line-height:1.7;margin:8px 0 16px;}
+@media(min-width:768px){.swsi-v4-hero{padding-top:36px;padding-bottom:40px;}.swsi-v4-start{max-width:280px;}.swsi-v4-path{padding:24px;}}
+@media(max-width:420px){.swsi-v4-path{padding:16px;}.swsi-v4-study-paths{gap:12px;}.swsi-v4-tool-grid button{flex-direction:column;}}
+@media(hover:hover){.swsi-v4-path:hover,.swsi-v4-tool-grid button:hover{border-color:var(--pine);background:var(--correct-bg);}.swsi-v4-start:hover{background:#173E34;}}
+`;
     document.head.appendChild(style);
   }
 
@@ -170,7 +74,7 @@
       '<h2 class="swsi-v4-section-heading">想從哪裡開始？</h2>'+
       '<div class="swsi-v4-study-paths">'+
         '<button type="button" class="swsi-v4-path" onclick="toggleHomeQuiz()" aria-expanded="'+(homeQuizOpen?'true':'false')+'"><span class="swsi-v4-path-icon" aria-hidden="true">▤</span><span class="swsi-v4-path-title">歷屆試題</span><span class="swsi-v4-path-sub">依年份、科目練習</span></button>'+
-        '<button type="button" class="swsi-v4-path" onclick="go(\'essay\')"><span class="swsi-v4-path-icon" aria-hidden="true">✎</span><span class="swsi-v4-path-title">申論練習</span><span class="swsi-v4-path-sub">手寫上傳與 AI 回饋</span></button>'+
+        '<button type="button" class="swsi-v4-path" onclick="go(\'essay\')"><span class="swsi-v4-path-icon" aria-hidden="true">✎</span><span class="swsi-v4-path-title">申論練習</span><span class="swsi-v4-path-sub">歷屆申論與 AI 回饋</span></button>'+
       '</div>'+
       (homeQuizOpen?('<section class="swsi-focus-custom"><div class="field-label">範圍</div><select class="subj" aria-label="刷題範圍" onchange="setHomeQuizScope(this.value)" style="margin-bottom:9px"><option value="smart" '+(homeQuizScope==='smart'?'selected':'')+'>智慧推薦</option><option value="recent3" '+(homeQuizScope==='recent3'?'selected':'')+'>近 3 年</option><option value="recent5" '+(homeQuizScope==='recent5'?'selected':'')+'>近 5 年</option><option value="specific" '+(homeQuizScope==='specific'?'selected':'')+'>指定歷屆</option><option value="all" '+(homeQuizScope==='all'?'selected':'')+'>全部題庫</option></select>'+(specific?('<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="subj" aria-label="考試年度" onchange="setHomeQuizYear(this.value)" style="margin-bottom:9px">'+yearOpts+'</select><select class="subj" aria-label="考試考次" onchange="setHomeQuizRound(this.value)" style="margin-bottom:9px"><option value="all" '+(homeQuizRound==='all'?'selected':'')+'>全部考次</option><option value="1" '+(homeQuizRound==='1'?'selected':'')+'>第一次</option><option value="2" '+(homeQuizRound==='2'?'selected':'')+'>第二次</option></select></div>'):'')+'<div class="field-label">科目</div><select class="subj" aria-label="科目" onchange="subjFilter=this.value;render()" style="margin-bottom:9px">'+subjOpts+'</select><div class="field-label">題數</div><select class="subj" aria-label="題數" onchange="setHomeQuizCount(this.value)" style="margin-bottom:7px"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="40" '+(homeQuizCount===40?'selected':'')+'>40 題</option></select><div class="hint">'+swsiEsc(scopeHint)+'</div><button class="btn" onclick="startFocusedQuiz()" style="margin-top:2px">開始這組題目</button></section>'):'')+
       '<section class="swsi-v4-tools"><div class="swsi-v4-tools-head"><h2>其他學習工具</h2><button type="button" onclick="go(\'topics\')" aria-label="查看其他學習工具">›</button></div><div class="swsi-v4-tool-grid">'+

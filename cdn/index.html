@@ -255,6 +255,7 @@ button:focus-visible,.opt:focus-visible,a:focus-visible,input:focus-visible{ out
 </style>
 </head>
 <body>
+<a class="swsi-skip" href="#app">跳到學習內容</a>
 <div class="wrap">
   <header>
     <div class="logo">SWSI 社工師國考<small>讓每一次練習，都更接近上榜</small></div>
@@ -267,7 +268,7 @@ button:focus-visible,.opt:focus-visible,a:focus-visible,input:focus-visible{ out
       <button class="gear" onclick="go('search')" title="搜尋" aria-label="搜尋"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="vertical-align:middle"><circle cx="11" cy="11" r="7"></circle><line x1="20.5" y1="20.5" x2="16.4" y2="16.4"></line></svg></button>
     </div>
   </header>
-  <main id="app"><div class="empty" aria-busy="true"><h3>正在開啟 SWSI</h3><p style="margin-top:8px">介面先顯示，題庫資料會在背景準備。</p></div></main>
+  <main tabindex="-1" id="app"><div class="empty" aria-busy="true"><h3>正在開啟 SWSI</h3><p style="margin-top:8px">介面先顯示，題庫資料會在背景準備。</p></div></main>
   <footer style="text-align:center;padding:16px 22px 2px;font-size:10.5px;line-height:1.8;color:var(--ink-soft);border-top:1px solid var(--line);margin-top:8px">
     © 2026 熊品澄 · 免費公開學習工具<br>社工師國考題目以考選部官方資料為準；AI 回饋僅供練習參考，不作為官方評分
   </footer>
@@ -4559,7 +4560,7 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
 </script>
 <!-- SWSI UIUX V1 END -->
 <script>window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP={"version":"2026-08-27.canonical-build.v1","laws":{"count":24,"sha256":"bb946b67af633ea371550dc1b074dbca530ccb50f47e561c7590ff0e5ea89dfc"},"theories":{"count":39,"sha256":"1a74d39a9611caf002383527390dd3d7e5cc0b6665b6b7f89494f2a0d58ead4d"}};</script>
-<script src="monthly_patch.js?v=41cb67e341e8576f"></script>
+<script src="monthly_patch.js?v=7e5e27af66bad31f"></script>
 <!-- Cloudflare-only source-hold due-review guard. Do not change the shared
      monthly_patch_parts/Netlify backup. The monthly patch overrides the
      earlier reviewSummary at runtime; reapply the fail-closed rule AFTER it. -->
@@ -4598,526 +4599,56 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
 </script>
 <!-- SWSI CALM STUDENT DESIGN V2 START -->
 <style id="swsi-calm-student-design-v2">
-/*
- * SWSI calm student experience (visual CSS only).
- * Clear next action > progressive disclosure > trust. No grading/data/AI changes.
- * Token contrast on white: ink-soft >= 6:1, pine-deep >= 8:1.
- */
+/* SWSI reading-room system. Replaces V2/V3; no extra runtime override layer. */
 :root{
-  --paper:#F4F7F5;
-  --paper2:#FFFFFF;
-  --ink:#23302C;
-  --ink-soft:#52615C;
-  --ink-3:#63716C;
-  --line:#DCE6DF;
-  --pine:#28685D;
-  --pine-deep:#1F544B;
-  --gold:#85704C;
-  --correct:#256B59;
-  --correct-bg:#EDF7F1;
-  --wrong:#A2443F;
-  --wrong-bg:#FFF2F0;
-  --ux-radius:18px;
-  --ux-touch:48px;
-  --swsi-calm-surface:#FFFFFF;
-  --swsi-calm-shadow:0 3px 12px rgba(28,60,49,.035),0 12px 32px rgba(28,60,49,.035);
+ --paper:#F7F6F2;--paper2:#FFFFFF;--ink:#25332F;--ink-soft:#58645F;--ink-3:#69756E;
+ --line:#DCE1DA;--pine:#285C50;--pine-deep:#214D43;--gold:#80613A;
+ --correct:#25634D;--correct-bg:#EDF5EE;--wrong:#A14139;--wrong-bg:#FCF0ED;
+ --ux-radius:12px;--ux-touch:48px;--swsi-calm-surface:#FFF;--swsi-calm-shadow:none;
+ --swsi-font:system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
 }
-body{
-  font-family:'Noto Sans TC',system-ui,sans-serif;
-  background:#F4F7F5;
-  background-image:radial-gradient(75% 40% at 100% 0%,rgba(56,131,107,.065),transparent 65%);
-  color:var(--ink);
-  line-height:1.7;
-}
-body .wrap{max-width:660px;}
-body header{
-  align-items:center;
-  padding:calc(13px + env(safe-area-inset-top)) 20px 12px;
-  background:rgba(244,247,245,.94);
-  border-bottom:1px solid rgba(220,230,223,.72);
-  box-shadow:0 2px 12px rgba(24,51,42,.025);
-}
-body .logo{font-size:19px;letter-spacing:.15px;color:#203A31;}
-body .logo small{letter-spacing:1.5px;color:var(--ink-soft);}
-body .logo::after{width:48px;height:2px;margin-top:7px;background:var(--pine);opacity:.75;}
-body .gear{color:var(--pine-deep);opacity:1;min-width:44px;min-height:44px;border-radius:12px;}
-body .fontctl{background:#FFF;border:1px solid var(--line);border-radius:12px;padding:3px;}
-body .fontctl button{width:38px;min-width:38px;height:38px;color:var(--ink-soft);}
-body .fontctl button.on{background:var(--pine-deep);color:white;box-shadow:0 2px 6px rgba(31,84,75,.14);}
-body main{padding:24px 20px 36px;}
-body .wrap{padding-bottom:calc(82px + env(safe-area-inset-bottom));}
-body .tabbar{
-  max-width:660px;
-  padding:5px 7px env(safe-area-inset-bottom);
-  background:rgba(255,255,255,.975);
-  border:1px solid var(--line);
-  border-bottom:0;
-  border-radius:18px 18px 0 0;
-  box-shadow:0 -7px 28px rgba(33,58,49,.065);
-}
-body .tabbar button{
-  min-width:0;min-height:60px;
-  padding:8px 5px 10px;border-radius:11px;
-  font-family:'Noto Sans TC',sans-serif;font-size:12px;
-  color:var(--ink-soft);
-}
-body .tabbar button.on{background:#EDF6F0;color:var(--pine-deep);font-weight:800;}
-body .tabbar .ico{font-size:20px;}
-body .tabbar .swsi-nav-label{font-size:12px;line-height:1.3;}
-
-/* The first screen is a calm decision surface, not a saturated dashboard. */
-body .ux-home-intro,body .hero{
-  background:linear-gradient(130deg,#FFFFFF 3%,#F0F6F1 100%);
-  color:var(--ink);
-  border:1px solid #D5E6DB;
-  border-left:5px solid var(--pine);
-  border-radius:21px;
-  padding:27px 23px;
-  box-shadow:var(--swsi-calm-shadow);
-  margin-bottom:20px;
-}
-body .ux-home-intro h1,body .hero h1{font-size:clamp(24px,4.5vw,30px);line-height:1.38;letter-spacing:0;font-weight:900;color:#213E34;}
-body .ux-home-intro .eyebrow{color:#35695B;opacity:1;letter-spacing:1.2px;}
-body .ux-home-intro p,body .hero .tagline{color:var(--ink-soft);opacity:1;font-size:14px;line-height:1.7;}
-body .ux-home-meta span,body .hero .chip{
-  background:#F4F8F5;
-  border:1px solid #DCEAE0;
-  color:#37584B;
-  font-size:12px;
-  font-weight:700;
-  border-radius:999px;
-}
-body .swsi-focus-primary,body .ux-main-card.primary{
-  background:#FFFFFF;
-  border:1.5px solid #B9D5C5;
-  border-radius:21px;
-  box-shadow:0 4px 24px rgba(24,78,58,.075);
-}
-body .swsi-focus-primary{padding:21px;}
-body .ux-main-card{background:white;border:1px solid var(--line);border-radius:19px;padding:21px;}
-body .ux-card-title{color:var(--ink);font-size:18px;letter-spacing:0;}
-body .ux-card-sub,body .ux-link-card .sub,body .ux-page-head p{font-size:13px;color:var(--ink-soft);line-height:1.7;}
-body .ux-link-card,body .gcard,body .ecard,body .swsi-study-card,body .swsi-essay-action-card{
-  background:var(--swsi-calm-surface);
-  border:1px solid var(--line);
-  border-radius:18px;
-  box-shadow:var(--swsi-calm-shadow);
-}
-body .ux-link-card{min-height:78px;padding:18px 19px;margin-bottom:12px;}
-body .ux-link-card.hot{border-color:#E7C6C1;background:#FFF8F7;}
-body .ux-link-card .title{font-size:16px;letter-spacing:0;color:var(--ink);}
-body .ux-link-card .arrow{color:var(--pine);font-size:20px;}
-body .ux-badge{color:var(--wrong);background:var(--wrong-bg);}
-body .ux-custom,body .ux-review-rule{background:#FFF;border-color:var(--line);border-radius:17px;}
-body .ux-page-head h2,body .section-h{color:var(--ink);letter-spacing:0;line-height:1.4;}
-body .ux-tools{gap:11px;margin-top:16px;}
-body .ux-tools button,body .swsi-home-quick button{
-  min-height:48px;
-  background:#FFF;color:var(--pine-deep);
-  border:1px solid #C7D8CE;
-  border-radius:13px;font-weight:750;
-}
-body .ux-btn-main,body .btn:not(.ghost),body .swsi-essay-action-card button.go{
-  min-height:var(--ux-touch);
-  background:var(--pine-deep);
-  border:1px solid var(--pine-deep);
-  color:white;
-  border-radius:13px;
-  letter-spacing:0;
-  font-weight:800;
-  box-shadow:0 3px 10px rgba(24,78,61,.12);
-}
-body .btn:disabled{background:#C2CDC6;border-color:#C2CDC6;box-shadow:none;color:#43564C;}
-/* A disabled answer action must be visibly inactive AND readable (WCAG AA). */
-body #app .qcard .btn:not(.ghost):disabled{
-  background:#E5ECE7;
-  border-color:#BED0C4;
-  color:#3E554A;
-  opacity:1;
-  box-shadow:none;
-  cursor:not-allowed;
-}
-body .btn.ghost,body .ux-btn-soft,body .swsi-essay-action-card button.choose{
-  background:#FFF;
-  color:var(--pine-deep);
-  border:1.5px solid #A6C4B3;
-  border-radius:13px;
-  box-shadow:none;
-}
-body select.subj,body .wta{
-  background-color:#FFFFFF;
-  border:1.5px solid #B8CFC1;
-  border-radius:13px;
-  color:var(--ink);
-  min-height:var(--ux-touch);
-}
-body select.subj{padding-top:12px;padding-bottom:12px;}
-body .qcard{
-  background:#FFF;
-  border:1px solid var(--line);
-  border-radius:20px;
-  padding:23px 21px;
-  box-shadow:var(--swsi-calm-shadow);
-}
-body .qmeta{margin-bottom:18px;gap:8px;}
-body .tag{font-size:11px;border-radius:8px;padding:5px 9px;}
-body .tag.subj{background:#E9F4EE;color:var(--pine-deep);}
-body .tag.year{background:#F3F4EE;color:#655D43;}
-body .qtext{font-size:var(--fs-q);font-weight:650;line-height:1.82;margin-bottom:21px;letter-spacing:0;}
-body .opt{
-  display:flex;min-height:58px;
-  padding:15px 16px;
-  margin-bottom:11px;
-  background:#FFFFFF;
-  border:1.5px solid #D7E1DA;
-  border-radius:14px;
-  line-height:1.7;
-  color:var(--ink);
-}
-body .opt .lab{color:var(--pine-deep);font-weight:800;}
-body .opt.sel{border-color:var(--pine);background:#F0F7F2;}
-body .opt.correct{border-color:var(--correct);background:var(--correct-bg);}
-body .opt.wrong{border-color:var(--wrong);background:var(--wrong-bg);}
-body .pbar{height:8px;background:#E0E9E2;}
-body .pbar i{background:var(--pine);}
-body .pcount{color:var(--ink-soft);font-size:13px;font-weight:700;}
-body .quit{color:var(--ink-soft);min-height:44px;text-underline-offset:3px;}
-body .exp{border-top:1px solid #DCE7DE;padding-top:19px;}
-body .exp-sec h4{color:var(--pine-deep);letter-spacing:0;}
-body .exp-sec p,body .ebody,body .gtext,body .glist li{color:var(--ink);line-height:1.78;}
-body .swsi-answer-line{background:#ECF6EF;color:var(--pine-deep);border-color:#C9E0CF;}
-body .swsi-core-reason{background:#F4F8F5;border-left-color:var(--pine);}
-body .swsi-explanation-more,body .swsi-answer-trust{
-  background:#FFF;border:1px solid var(--line);border-radius:13px;
-}
-body .swsi-explanation-more summary,body .swsi-answer-trust summary{min-height:46px;color:var(--pine-deep);}
-body .stat,body .sumcard{background:#FFF;border:1px solid var(--line);border-radius:15px;box-shadow:none;}
-body .stat .k,body .gcard .cnt,body .section-s{color:var(--ink-soft);}
-body .wta{padding:15px 16px;line-height:1.85;}
-body .fbtn,body .gbtn{min-height:44px;border-radius:11px;}
-body .pending,body .extra{border-color:var(--line);background:#F7F9F7;color:var(--ink-soft);}
-body .ux-note,body .ux-subhead{color:var(--ink-soft);}
-body .swsi-data-version summary{color:#52615C;}
-
-/* Live product-philosophy homepage: these are the ACTIVE Cloudflare DOM classes. */
-body .swsi-focus-hero{
-  padding:25px 24px;
-  margin:0 0 17px;
-  background:linear-gradient(135deg,#FFFFFF 8%,#F1F7F2 100%);
-  border:1px solid #D6E7DD;
-  border-left:4px solid var(--pine);
-  border-radius:19px;
-  box-shadow:none;
-}
-body .swsi-focus-hero .kicker{font-size:12px;letter-spacing:1px;color:var(--pine-deep);}
-body .swsi-focus-hero h1{font-size:clamp(24px,5vw,30px);font-weight:900;color:var(--ink);line-height:1.42;}
-body .swsi-focus-hero p{font-size:14px;line-height:1.75;color:var(--ink-soft);max-width:44em;}
-body .swsi-focus-primary .label{color:var(--pine-deep);font-size:12px;letter-spacing:.6px;}
-body .swsi-focus-primary h2{font-size:19px;color:var(--ink);line-height:1.4;}
-body .swsi-focus-primary p{font-size:13px;color:var(--ink-soft);line-height:1.7;}
-body .swsi-focus-actions{gap:10px;margin-top:18px;}
-body .swsi-focus-actions button{min-height:52px;border-radius:13px;font-size:14px;}
-body .swsi-focus-actions .go{background:var(--pine-deep);color:#FFF;border-color:var(--pine-deep);box-shadow:0 4px 11px rgba(29,77,59,.12);}
-body .swsi-focus-actions .choose{background:#FFF;color:var(--pine-deep);border:1.5px solid #B8D0C1;}
-body .swsi-focus-custom{background:#FFF;border:1px solid var(--line);border-radius:17px;padding:18px 18px 20px;margin:0 0 16px;}
-body .swsi-focus-custom .field-label,body .swsi-focus-custom .hint{color:var(--ink-soft);}
-body .swsi-study-card{padding:18px 17px;margin:0 0 11px;border:1px solid var(--line);border-radius:16px;}
-body .swsi-study-card.due{border-color:#E5CBC5;background:#FFFAF8;}
-body .swsi-study-card .title{font-size:16px;color:var(--ink);}
-body .swsi-study-card .sub{font-size:12.5px;color:var(--ink-soft);line-height:1.65;}
-body .swsi-study-card .aside{color:var(--pine);}
-body .swsi-home-quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0 12px;border:0;}
-body .swsi-home-quick button{min-height:56px;padding:12px 11px;font-size:13.5px;background:#FFF;color:var(--pine-deep);border:1px solid #C7D8CE;border-radius:14px;}
-body .swsi-home-quick button+button{border-left:1px solid #C7D8CE;}
-body .swsi-home-quick button.due{border-color:#E1C3BA;background:#FFF8F5;color:#874438;}
-body .swsi-home-resource{min-height:48px;color:var(--ink-soft);font-size:12.5px;}
-body :is(button,a,summary,select,input,textarea,[role="button"]):focus-visible{
-  outline:3px solid #227866;
-  outline-offset:3px;
-}
-@media (hover:hover){
-  body .ux-link-card:hover,body .gcard:hover,body .ecard:hover{border-color:#AACDB8;box-shadow:0 8px 28px rgba(25,80,59,.075);}
-  body .opt:hover:not(.correct):not(.wrong){border-color:#8FBBA2;background:#F7FBF8;}
-  body .ux-btn-main:hover,body .btn:not(.ghost):not(:disabled):hover{background:#153F38;}
-}
-@media (min-width:768px){
-  body .wrap{max-width:790px;}
-  body header{padding:17px 30px 16px;}
-  body main{padding:30px 36px 56px;}
-  body .tabbar{max-width:520px;bottom:14px;border:1px solid var(--line);border-radius:18px;padding:5px 8px;box-shadow:0 9px 38px rgba(22,62,44,.12);}
-  body .wrap{padding-bottom:104px;}
-  body .ux-home-intro,body .hero{padding:31px 34px;}
-  body .ux-main-card{padding:25px 26px;}
-  body .ux-link-card{padding:20px 24px;}
-  body .qcard{padding:30px 34px;}
-  body .swsi-home-quick{gap:14px;}
-}
-@media (min-width:1240px){
-  /* Give laptop/desktop users a proper side navigation; keep the mobile tab bar unchanged. */
-  body .tabbar{
-    left:calc(50% + 435px)!important;
-    right:auto;
-    top:114px;
-    /* Legacy mobile bottom constraints can stretch a fixed top-positioned nav. */
-    bottom:auto!important;
-    height:max-content!important;
-    min-height:0!important;
-    max-height:calc(100vh - 132px);
-    overflow-y:auto;
-    transform:none!important;
-    width:154px!important;
-    max-width:154px!important;
-    display:flex;
-    flex-direction:column;
-    align-items:stretch;
-    padding:8px;
-    background:#FFFFFF;
-    border:1px solid var(--line);
-    border-radius:18px;
-    box-shadow:0 8px 24px rgba(22,62,44,.065);
-  }
-  body .tabbar button{
-    width:100%;
-    flex:0 0 auto;
-    display:flex;
-    flex-direction:row;
-    justify-content:flex-start;
-    align-items:center;
-    gap:11px;
-    min-height:48px;
-    padding:9px 12px;
-    text-align:left;
-  }
-  body .tabbar .ico{flex:0 0 auto;font-size:18px;}
-  body .wrap{padding-bottom:28px;}
-}
-@media (max-width:370px){
-  body header{padding-left:12px;padding-right:12px;}
-  body main{padding-left:14px;padding-right:14px;}
-  body .ux-home-intro,body .hero{padding:20px 18px;}
-  body .ux-actions{grid-template-columns:minmax(0,1fr);}
-  body .ux-link-card{padding:16px;}
-  body .qcard{padding:18px 15px;}
-}
-@media (prefers-reduced-motion:reduce){
-  body .opt,body .gcard,body .ux-link-card,body .btn{transition:none;animation:none;}
-}
+body{font-family:var(--swsi-font);background:var(--paper);background-image:none;color:var(--ink);line-height:1.75;}
+body header{align-items:center;background:var(--paper);border-bottom:1px solid var(--line);box-shadow:none;padding:16px 24px;gap:12px;}
+body .logo{font-family:var(--swsi-font);font-size:18px;letter-spacing:0;font-weight:750;color:var(--pine-deep);}
+body .logo small{font-family:var(--swsi-font);font-size:11px;letter-spacing:.4px;}
+body .logo::after{display:none;}
+body .hdr-right{gap:8px;}
+body .gear{min-width:44px;min-height:44px;opacity:1;color:var(--ink-soft);border-radius:8px;}
+body .fontctl{background:var(--paper2);padding:2px;border:1px solid var(--line);border-radius:10px;gap:0;}
+body .fontctl button{font-family:var(--swsi-font);width:44px;height:44px;border-radius:7px;color:var(--ink-soft);}
+body .fontctl button.on{background:var(--pine-deep);color:white;}
+body main{padding:28px 24px 32px;}
+body .tabbar{background:var(--paper2);border:1px solid var(--line);box-shadow:none;}
+body .tabbar button{font-family:var(--swsi-font);color:var(--ink-soft);border-radius:8px;}
+body .tabbar button.on{background:var(--correct-bg);color:var(--pine-deep);}
+body .tabbar button.on::before{display:none;}
+body :is(.btn,.ux-btn-main,.ux-btn-soft,.fbtn,.gbtn){min-height:var(--ux-touch);border-radius:10px;font-family:var(--swsi-font);box-shadow:none;letter-spacing:0;}
+body :is(.btn:not(.ghost),.ux-btn-main){background:var(--pine-deep);border:1px solid var(--pine-deep);color:#FFF;font-weight:700;}
+body :is(.btn.ghost,.ux-btn-soft){background:var(--paper2);border:1px solid var(--line);color:var(--pine-deep);}
+body #app .btn:disabled{background:#E7EBE5;border-color:#CCD5CB;color:#536153;opacity:1;cursor:not-allowed;box-shadow:none;}
+body select.subj,body .wta{background-color:var(--paper2);border:1px solid #AAB9AF;border-radius:10px;color:var(--ink);min-height:48px;}
+body select.subj{padding:12px 40px 12px 14px;}
+body .wta{padding:20px;line-height:1.85;}
+body :is(.gcard,.ecard,.ux-link-card,.swsi-study-card,.swsi-essay-action-card){border:1px solid var(--line);border-radius:12px;background:var(--paper2);box-shadow:none;}
+body :is(.section-h,.ask,.ux-page-head h2,.gcard .name,.etopic,.ux-card-title){font-family:var(--swsi-font);color:var(--ink);letter-spacing:0;line-height:1.5;}
+body :is(.section-s,.gcard .cnt,.ux-card-sub,.ux-note,.ux-subhead){color:var(--ink-soft);}
+body :is(.stat,.sumcard){border:1px solid var(--line);border-radius:12px;background:var(--paper2);box-shadow:none;}
+body .stat .k{color:var(--ink-soft);}
+body :is(.pending,.extra){background:var(--paper2);border-color:var(--line);color:var(--ink-soft);}
+body .empty{padding:48px 16px;}
+body .empty h3{font-family:var(--swsi-font);font-size:var(--fs-h);}
+body .empty p{font-family:var(--swsi-font);font-size:var(--fs-b);line-height:1.8;color:var(--ink-soft);}
+body :is(button,a,summary,select,input,textarea,[role="button"],[role="radio"]):focus-visible{outline:3px solid var(--pine);outline-offset:3px;}
+.swsi-skip{position:fixed;top:8px;left:16px;z-index:1000;padding:10px 16px;background:#FFF;color:var(--pine-deep);transform:translateY(-150%);border-radius:8px;}
+.swsi-skip:focus{transform:none;}
+@media(hover:hover){body :is(.gcard,.ecard,.ux-link-card):hover{border-color:#8FA798;box-shadow:none;}body .btn:not(.ghost):not(:disabled):hover{background:#173E34;}}
+@media(min-width:768px){body main{padding:36px 40px;}body header{padding-left:40px;padding-right:40px;}}
+@media(max-width:420px){body header{padding-left:16px;padding-right:16px;flex-wrap:wrap;}body main{padding:24px 18px;}body .logo{font-size:16px;}body .logo small{font-size:10px;}body .hdr-right{gap:2px;}body .fontctl button{width:44px;}body .logo small{max-width:150px;}}
+@media(prefers-reduced-motion:reduce){body *,body *::before,body *::after{scroll-behavior:auto!important;animation:none!important;transition:none!important;}}
 </style>
 <!-- SWSI CALM STUDENT DESIGN V2 END -->
 
-<!-- SWSI CALM LEARNING UI V3 START -->
-<style id="swsi-calm-learning-ui-v3">
-/*
- * Visual-only refinement, 2026-11-05.
- * Keep student interactions, official answers, data flows, OCR, and backup unchanged.
- * Prioritize one primary action; quiet surfaces; readable question text.
- */
-:root {
-  --paper:#F7F9F7;
-  --paper2:#FFFFFF;
-  --ink:#23352F;
-  --ink-soft:#52655D;
-  --ink-3:#687A72;
-  --line:#DFE8E1;
-  --pine:#245D56;
-  --pine-deep:#204F48;
-  --gold:#8D6631;
-  --correct:#236B57;
-  --correct-bg:#E5F0EB;
-  --wrong:#A54F4B;
-  --wrong-bg:#F9EFED;
-  --swsi-calm-shadow:none;
-  --ux-radius:16px;
-}
-body {background:#F7F9F7;background-image:none;line-height:1.7;}
-body header {
-  background:rgba(247,249,247,.97);
-  border-bottom:1px solid #E5EDE7;
-  box-shadow:none;
-}
-body .logo::after{display:none;}
-body .gear{opacity:1;}
-body main{padding-top:22px;}
-/* One soft welcome surface instead of an additional visual banner. */
-body .ux-home-intro,body .hero,body .swsi-focus-hero{
-  background:#E5F0EB;
-  border:1px solid #D4E3D9;
-  border-left:1px solid #D4E3D9;
-  border-radius:19px;
-  box-shadow:none;
-  padding:25px 22px;
-  margin-bottom:17px;
-}
-body .hero::before,body .hero::after{display:none;}
-body .ux-home-intro h1,body .hero h1,body .swsi-focus-hero h1{
-  color:#204F48;
-  font-weight:800;
-  font-size:clamp(23px,4.6vw,29px);
-  line-height:1.35;
-  letter-spacing:0;
-}
-body .ux-home-intro p,body .hero .tagline,body .swsi-focus-hero p{
-  color:#4F685D;
-  line-height:1.7;
-  font-size:14px;
-}
-body .ux-home-meta span,body .hero .chip{
-  background:rgba(255,255,255,.60);
-  color:#32594E;
-  border:1px solid #D1E1D5;
-  box-shadow:none;
-}
-body .ux-main-card.primary,body .swsi-focus-primary{
-  background:#FFFFFF;
-  border:1px solid #D4E3D9;
-  border-radius:18px;
-  box-shadow:none;
-  padding:20px;
-}
-body .ux-card-title,body .swsi-focus-primary h2{
-  color:#213A32;
-  font-size:19px;
-  font-weight:800;
-  letter-spacing:0;
-}
-body .ux-main-card .ux-card-sub,body .swsi-focus-primary p{
-  color:var(--ink-soft);line-height:1.65;
-}
-body .ux-link-card,body .gcard,body .ecard,body .swsi-study-card,body .swsi-essay-action-card{
-  background:#FFFFFF;
-  border:1px solid #E1E9E3;
-  box-shadow:none;
-  border-radius:15px;
-}
-body .ux-link-card,body .swsi-study-card{padding:17px;margin-bottom:10px;}
-body .ux-link-card.hot,body .swsi-study-card.due{
-  background:#FFF8F6;
-  border-color:#ECD8D3;
-}
-body .ux-tools{margin-top:12px;}
-body .ux-tools button,body .swsi-home-quick button{
-  background:#FFFFFF;
-  color:var(--pine-deep);
-  border:1px solid #D2E0D6;
-  box-shadow:none;
-}
-body .ux-btn-main,body .btn:not(.ghost),body .swsi-focus-actions .go,
-body .swsi-essay-action-card button.go{
-  background:var(--pine);
-  color:white;
-  border-color:var(--pine);
-  border-radius:12px;
-  box-shadow:none;
-  letter-spacing:0;
-  font-weight:700;
-  transition:background-color .18s ease,transform .15s ease;
-}
-body .ux-btn-soft,body .btn.ghost,body .swsi-focus-actions .choose,
-body .swsi-essay-action-card button.choose{
-  background:#FFFFFF;
-  border:1px solid #C7D9CB;
-  box-shadow:none;
-  color:var(--pine-deep);
-}
-body .qcard,body .sumcard{
-  background:#FFFFFF;
-  border:1px solid #E0E9E3;
-  border-radius:18px;
-  box-shadow:none;
-}
-body .qmeta{gap:7px;}
-body .tag.subj{background:#E5F0EB;color:#204F48;}
-body .tag.year{background:#F5F4EF;color:#6E644D;}
-body .qtext{
-  color:#23352F;
-  font-weight:650;
-  line-height:1.83;
-  letter-spacing:0;
-}
-body .opt{
-  border:1.5px solid #DFE8E1;
-  background:#FFFFFF;
-  border-radius:12px;
-  margin-bottom:10px;
-  transition:background-color .18s ease,border-color .18s ease,transform .15s ease;
-}
-body .opt.sel{border-color:var(--pine);background:#EEF6F0;}
-body .opt.correct{border-color:var(--correct);background:var(--correct-bg);}
-body .opt.wrong{border-color:var(--wrong);background:var(--wrong-bg);}
-body .pbar{background:#E1EAE3;}
-body .pbar i{background:var(--pine);}
-body .exp{border-top:1px solid #E0E9E3;animation:swsi-v3-reveal .24s ease both;}
-body .tabbar{
-  background:rgba(255,255,255,.98);
-  border-color:#E1E9E3;
-  box-shadow:none;
-}
-body .tabbar button.on{
-  color:var(--pine);
-  background:#E5F0EB;
-}
-body .tabbar button.on::before{background:var(--pine);height:2px;}
-body .stat,body .sumcard,body .swsi-focus-custom,body .ux-custom{
-  box-shadow:none;
-  border-color:#E1E9E3;
-}
-body .swsi-home-resource{color:var(--ink-soft);}
-body :is(button,a,summary,select,input,textarea,[role="button"],[role="radio"]):focus-visible{
-  outline:3px solid #245D56;
-  outline-offset:3px;
-}
-@keyframes swsi-v3-reveal{
-  from{opacity:.65;transform:translateY(5px);}
-  to{opacity:1;transform:translateY(0);}
-}
-@media (hover:hover){
-  body .ux-link-card:hover,body .gcard:hover,body .ecard:hover,body .swsi-study-card:hover{
-    box-shadow:none;
-    border-color:#B4D2BF;
-  }
-  body .opt:hover:not(.correct):not(.wrong){border-color:#90B7A1;background:#F6FAF6;}
-  body .ux-btn-main:hover,body .btn:not(.ghost):not(:disabled):hover{background:#193E38;}
-}
-@media (max-width:370px){
-  body .ux-home-intro,body .hero,body .swsi-focus-hero{padding:20px 17px;}
-  body .ux-main-card.primary,body .swsi-focus-primary{padding:17px;}
-}
-@media (prefers-reduced-motion:reduce){
-  body .exp,body .opt,body .ux-btn-main,body .btn,
-  body .ux-link-card,body .gcard,body .ecard{animation:none!important;transition:none!important;}
-}
 
-/* Two equal secondary learning paths; primary CTA stays visually dominant. */
-body .swsi-v3-shortcuts{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
-  margin:16px 0 0;
-}
-body .swsi-v3-shortcuts .ux-link-card{
-  display:flex;
-  min-height:106px;
-  margin:0;
-  padding:17px 15px;
-  align-items:flex-start;
-}
-body .swsi-v3-shortcuts .ux-link-card .left{min-width:0;}
-body .swsi-v3-shortcuts .ux-link-card .title{font-size:16px;font-weight:750;}
-body .swsi-v3-shortcuts .ux-link-card .sub{font-size:12px;line-height:1.6;}
-body .swsi-v3-shortcuts .ux-link-card .arrow{flex-shrink:0;}
-body .ux-main-card.primary{margin-bottom:0;}
-body .ux-main-card.primary .ux-btn-main:active,
-body .btn:not(:disabled):active{transform:translateY(1px);}
-@media(max-width:410px){
- body .swsi-v3-shortcuts{grid-template-columns:1fr;gap:10px;}
- body .swsi-v3-shortcuts .ux-link-card{min-height:76px;align-items:center;}
-}
-@media(prefers-reduced-motion:reduce){
- body .ux-main-card.primary .ux-btn-main,body .btn{transform:none;transition:none;}
-}
-
-</style>
-<!-- SWSI CALM LEARNING UI V3 END -->
 
 </body>
 </html>

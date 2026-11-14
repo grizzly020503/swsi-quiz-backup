@@ -32,8 +32,8 @@ FONT_OLD = '''<link rel="preconnect" href="https://fonts.googleapis.com">
 FONT_NEW = '<meta name="swsi-font-policy" content="system-font-first">'
 SUPABASE_SDK_OLD = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>'
 SUPABASE_SDK_NEW = '<script>window.__SWSI_STUDENT_REST_ONLY__=true;</script>'
-INITIAL_APP_OLD = '<main id="app"><div class="empty"><div class="spinner"></div><p style="margin-top:16px">載入題庫中…</p></div></main>'
-INITIAL_APP_NEW = '''<main id="app"><div class="empty" aria-busy="true"><h3>正在開啟 SWSI</h3><p style="margin-top:8px">介面先顯示，題庫資料會在背景準備。</p></div></main>'''
+INITIAL_APP_OLD = '<main tabindex="-1" id="app"><div class="empty"><div class="spinner"></div><p style="margin-top:16px">載入題庫中…</p></div></main>'
+INITIAL_APP_NEW = '''<main tabindex="-1" id="app"><div class="empty" aria-busy="true"><h3>正在開啟 SWSI</h3><p style="margin-top:8px">介面先顯示，題庫資料會在背景準備。</p></div></main>'''
 
 MK_GRADE_OLD = '''    var correct=0, answered=0, bySubj={}, wrong=[];
     Q.forEach(function(q,i){
