@@ -26,14 +26,14 @@ fs.mkdirSync(out,{recursive:true});
   const page=await ctx.newPage(); const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base);await page.locator('.swsi-v4-start').waitFor();
   await page.screenshot({path:`${out}/${label}-home-${width}.png`,fullPage:true});
-  await page.locator('.swsi-v4-start').click();await page.locator('.qcard .opt').first().waitFor();
+  await page.locator('.swsi-v4-start').click();await page.locator('.qcard .opt').first().locator('span').nth(1).waitFor();
   await page.screenshot({path:`${out}/${label}-quiz-${width}.png`,fullPage:true});
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);
   if(label==='after'){
    await page.getByRole('button',{name:'大字',exact:true}).click();
    const original=await page.locator('.qtext').textContent();
    await page.locator('.qtext').evaluate(el=>el.textContent=el.textContent.repeat(6));
-   const option = page.locator('.qcard .opt').first();
+   const option = page.locator('.qcard .opt').first().locator('span').nth(1);
    const optionHtml = await option.innerHTML();
    await option.evaluate(el => el.append(document.createTextNode(' 展示用長選項：應先理解服務使用者的需求，確認服務目標與專業倫理。'.repeat(12))));
    await page.screenshot({path:`${out}/${label}-long-large-${width}.png`,fullPage:true});
