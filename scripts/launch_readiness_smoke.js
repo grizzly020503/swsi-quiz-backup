@@ -83,7 +83,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert.strictEqual(await guide.count(), 1, 'first-use guide missing on fresh localStorage');
   const guideText = await guide.innerText();
   assert(/不用先學整個平台/.test(guideText), 'compact first-use guide copy missing');
-  assert(/練題/.test(guideText) && /學習/.test(guideText) && /申論/.test(guideText), 'first-use guide does not explain the three primary areas');
+  assert(/刷題/.test(guideText) && /我的/.test(guideText) && /申論/.test(guideText), 'first-use guide does not explain the three primary areas');
   await guide.getByRole('button', { name: /不再顯示首次使用說明/ }).click();
   await page.waitForFunction(() => !document.querySelector('.swsi-launch-guide'));
   assert.strictEqual(await page.evaluate(() => localStorage.getItem('swsi_launch_guide_dismissed_v2')), '1', 'guide dismissal was not persisted');

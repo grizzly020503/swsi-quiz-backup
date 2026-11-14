@@ -12,7 +12,7 @@ const { chromium } = require('playwright');
 // build must mirror it. Check live sites, not just their local build outputs.
 const reviewedHtml = fs.readFileSync(path.join(__dirname, '../cdn/index.html'), 'utf8');
 const reviewedStyles = [...reviewedHtml.matchAll(
-  /<style id="swsi-calm-student-design-v2">([\s\S]*?)<\/style>/g
+  /<style id="swsi-calm-learning-ui-v3">([\s\S]*?)<\/style>/g
 )];
 assert.equal(reviewedStyles.length, 1, 'reviewed CDN must contain exactly one V3 style');
 const reviewedV3Hash = crypto.createHash('sha256').update(reviewedStyles[0][1]).digest('hex');
@@ -82,7 +82,7 @@ async function examine(browser, name, origin) {
     });
     // Previously the backup V4 home passed while its base visual stylesheet
     // was still older than Cloudflare. Verify the *hosted* inline V3 CSS hash.
-    const styles = await page.locator('style#swsi-calm-student-design-v2').allTextContents();
+    const styles = await page.locator('style#swsi-calm-learning-ui-v3').allTextContents();
     assert.equal(styles.length, 1, name + ': V3 stylesheet absent/duplicated on hosted site');
     const hostedV3Hash = crypto.createHash('sha256').update(styles[0]).digest('hex');
     assert.equal(hostedV3Hash, reviewedV3Hash,
@@ -93,7 +93,7 @@ async function examine(browser, name, origin) {
 
     assert.equal(got.heroCount, 1, name + ': V4 hero must exist exactly once');
     assert.equal(got.headline, '今天，從一題開始。', name + ': homepage renderer is stale');
-    assert.equal(got.heroColor, 'rgba(0, 0, 0, 0)', name + ': approved hero color drift');
+    assert.equal(got.heroColor, 'rgb(229, 240, 235)', name + ': approved hero color drift');
     assert(got.primaryAction.includes('開始刷題'), name + ': primary action missing');
     assert.deepEqual(got.paths, EXPECTED_PATHS, name + ': V4 study paths mismatch');
     assert.equal(got.tools.length, 3, name + ': V4 tools count');
