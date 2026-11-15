@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-15T06:20:37Z",
+  "generated_at": "2026-11-15T18:47:25Z",
   "event_count": 8,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -754,7 +754,7 @@
         "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
         "社會工作管理 > 規劃與政策執行 > 社會工作 > 高齡者權益與社區支持"
       ],
-      "trend_state": "rising",
+      "trend_state": "cooling",
       "trend_score": 4.9,
       "why": [
         "2 個來源交叉確認",
@@ -1330,7 +1330,7 @@
         "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 勞動權益、社會正義與弱勢支持",
         "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
-      "trend_state": "one-off",
+      "trend_state": "cooling",
       "trend_score": 2.7,
       "why": [
         "1 個官方來源",
