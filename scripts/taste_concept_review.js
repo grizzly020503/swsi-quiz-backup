@@ -42,5 +42,21 @@ fs.mkdirSync(out,{recursive:true});
   await page.locator('main [data-action=quiz]').click();await page.waitForTimeout(800);await page.locator('label[for=answer-0]').click();await page.waitForTimeout(500);await page.locator('[data-action=submit]').click();await page.waitForTimeout(1000);
   const video=page.video();await ctx.close();await video.saveAs(`${out}/${theme}-motion.webm`);
  }
+ for(const width of [390,768,1024,1440]){
+  const ctx=await browser.newContext({viewport:{width,height:900},reducedMotion:width===390?'no-preference':'reduce',...(width===390?{recordVideo:{dir:out,size:{width:390,height:900}}}:{})});
+  await ctx.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());
+  const page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('http://127.0.0.1:4175/flow.html');await page.evaluate(()=>document.fonts.ready);
+  async function shot(state){assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`flow/${width}/${state} overflow`);await page.screenshot({path:`${out}/flow-${state}-${width}.png`,fullPage:true});}
+  await shot('home');await page.waitForTimeout(900);await page.locator('[data-action=start]').click();await page.waitForTimeout(700);await shot('quiz');
+  assert(await page.locator('[data-action=submit]').isDisabled());
+  await page.locator('label[for=o2]').click();await page.waitForTimeout(400);await page.locator('[data-action=submit]').click();await page.waitForTimeout(800);await shot('feedback');
+  assert(await page.locator('.feedback.wrong').count()===1);
+  await page.locator('[data-action=next]').click();await page.waitForTimeout(700);
+  await page.locator('label[for=o1]').click();await page.locator('[data-action=submit]').click();await page.waitForTimeout(800);await page.locator('[data-action=next]').click();await page.waitForTimeout(1200);await shot('result');
+  assert.equal(await page.locator('.result-stats strong').nth(1).innerText(),'1 / 2');
+  assert.deepEqual(errors,[]);report.push({design:'continuous-flow',width,errors,result:'1 / 2 correct verified'});
+  const video=page.video();await ctx.close();if(video)await video.saveAs(`${out}/flow-motion.webm`);
+ }
  fs.writeFileSync(`${out}/results.json`,JSON.stringify(report,null,2));await browser.close();console.log('SECOND ROUND CONCEPTS PASS: 3 designs x 4 widths, font, answer flow, long text and motion videos');
 })().catch(e=>{console.error(e);process.exit(1)});
