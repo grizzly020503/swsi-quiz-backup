@@ -1,0 +1,22 @@
+# 連續學習互動研究稿
+
+Owner 已否決前兩輪的制式外觀。本稿依後續研究重新探索完整操作體驗，**不是已獲准的全站版本**。不修改正式環境、題庫、判分或登入。
+
+## 參考與轉化
+
+- [Brilliant / ustwo](https://ustwo.com/work/brilliant/)：借鏡學習、操作與回饋的一體化設計。案例包含參考設計，不代表全部已在現行產品上線。
+- [Brilliant / Paige Ormiston](https://www.paigeormiston.com/brilliant)：借鏡一致的作答／繼續位置和清楚的回饋區。
+- [Duolingo 動畫案例](https://blog.duolingo.com/world-character-visemes/)：借鏡由操作狀態觸發回饋，不複製角色、不加入無關動畫。
+- [Headspace / Nexus Studios](https://nexusstudios.com/work/headspace/)：借鏡統一造型語言。本稿用兩片交錯的閱讀頁形狀，連結品牌記號與完成動畫；沒有使用他人的圖像資產。
+
+## 實際互動
+
+開啟 `flow.html`。首頁直接預覽題目；開始時，同一個閱讀面透過 View Transitions 延續到答題。選取後啟用送出；送出保留題目位置，展開解析與重點標示。下一題採內容轉場。結果依兩次真實示範選答計算，不顯示虛構紀錄。
+
+動畫約 180–700ms，沒有迴圈或閱讀中的背景動畫。減少動態偏好停用動畫；不支援 View Transitions 的瀏覽器使用淡入替代，基本流程不依賴它。包含標準／放大字級。退出後重新開始會清除本次示範，無 localStorage 或 API 寫入。
+
+## 界限
+
+兩道題皆為自訂展示題，不是官方題庫，不呼叫 AI。其他功能入口僅說明研究稿範圍。此稿用於審查完整動態感受，還沒有整合全站。字型為 Noto Sans CJK TC 展示文字子集，授權見 FONT-LICENSE.txt，不能作為正式題庫完整字集。
+
+四尺寸 Chromium 驗證：首頁、作答、答錯解析、下一題、答對、結果 1 / 2，以及 pageerror／橫向溢出。390px 錄製正常動畫，其餘尺寸使用 reduced motion。此驗收不等於真機、全站或正式發布驗收。
