@@ -317,7 +317,8 @@ async function verifyHostedLocalGrading(page, label) {
   await page.waitForSelector('#app .swsi-focus-primary', { timeout: 16000 });
 
   // Actual 20-question timed-mock engine: select one answer, leave others
-  // unanswered, explicitly confirm partial submission, view 0/1 out of 20.
+  // unanswered, explicitly confirm partial submission. Random papers may
+  // contain official all_credit questions that score even when unanswered.
   await page.evaluate(() => MK.open());
   await page.waitForSelector('.mk-ov .mk-toggle', { timeout: 12000 });
   await page.evaluate(() => { MK.toggleTimed(); MK.begin(20); });
@@ -335,6 +336,30 @@ async function verifyHostedLocalGrading(page, label) {
   await page.locator('.mk-ov .mk-opt').first().click();
   assert.equal(await page.locator('.mk-ov .mk-opt.sel').count(), 1,
     label + ': mock answer not selected');
+
+  // Observe the *actual* random paper's grading calls without changing any
+  // return value. Independently audit all_credit / any_answer / standard rules
+  // rather than assuming one answered question means at most one point.
+  await page.evaluate(() => {
+    const original = window.isCorrectAnswer;
+    if (typeof original !== 'function' || typeof window.gradingMode !== 'function')
+      throw Error('hosted official grading helpers unavailable');
+    window.__swsiMockGradeOriginal = original;
+    window.__swsiMockGradeObservations = [];
+    window.isCorrectAnswer = function(q, picked) {
+      const result = original.call(this, q, picked);
+      window.__swsiMockGradeObservations.push({
+        id: String(q?.id || ''),
+        mode: String(q?.grading_mode || window.gradingMode(q)),
+        picked: picked == null ? null : String(picked).trim().toUpperCase(),
+        answer: String(q?.answer || '').trim().toUpperCase(),
+        accepted: Array.isArray(q?.accepted_answers)
+          ? q.accepted_answers.map(x => String(x).trim().toUpperCase()) : null,
+        result: !!result
+      });
+      return result;
+    };
+  });
   // There must be a confirm dialog when a student attempts to hand in
   // an incomplete paper. Accept it; all scoring is purely in the browser.
   let confirmed = false;
@@ -358,11 +383,37 @@ async function verifyHostedLocalGrading(page, label) {
     : 0;
   assert(Number.isInteger(excluded) && excluded >= 0 && excluded < 20,
     label + ': invalid explicitly reported exclusion count: ' + notices.join(' | '));
-  const expectedScore = new RegExp('^[01] / ' + (20 - excluded) + '$');
-  assert(expectedScore.test(score),
-    label + ': mock score should count exactly one answer of ' +
-    (20 - excluded) + ' eligible questions (20 minus ' + excluded +
-    ' visibly excluded), got ' + score);
+  const graded = await page.evaluate(() => {
+    const observed = window.__swsiMockGradeObservations || [];
+    window.isCorrectAnswer = window.__swsiMockGradeOriginal;
+    delete window.__swsiMockGradeOriginal;
+    delete window.__swsiMockGradeObservations;
+    return observed;
+  });
+  assert.equal(graded.length, 20 - excluded,
+    label + ': mock grader did not check each eligible question exactly once');
+  assert.equal(new Set(graded.map(row => row.id)).size, graded.length,
+    label + ': duplicate mock question grading calls');
+  assert.equal(graded.filter(row => row.picked != null).length, 1,
+    label + ': exactly one actual answer should be recorded');
+  const expectedCorrect = graded.reduce((points, row) => {
+    let shouldCredit;
+    if (row.mode === 'all_credit') {
+      shouldCredit = true; // Official 一律給分: blank answers receive credit.
+    } else if (row.mode === 'any_answer') {
+      shouldCredit = row.picked != null && /^[ABCD]$/.test(row.picked);
+    } else if (row.mode === 'standard') {
+      const allowed = row.accepted?.length ? row.accepted : [row.answer];
+      shouldCredit = row.picked != null && allowed.includes(row.picked);
+    } else {
+      throw Error(label + ': unsupported official grading mode ' + row.mode + ' for ' + row.id);
+    }
+    assert.equal(row.result, shouldCredit,
+      label + ': actual grader disagrees with official ' + row.mode + ' rule for ' + row.id);
+    return points + (shouldCredit ? 1 : 0);
+  }, 0);
+  assert.equal(score, expectedCorrect + ' / ' + (20 - excluded),
+    label + ': mock total/score inconsistent with independently checked official grading modes');
   assert.match(await page.locator('.mk-ov .mk-score .pct').innerText(),
     /作答 1 題/, label + ': mock answered count');
   // The deployed monthly_patch Unified Grading Contract deliberately

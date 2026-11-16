@@ -2,7 +2,10 @@ name: Official PDF Batch Pipeline
 on:
   workflow_dispatch:
   schedule:
-    - cron: '17 3 * * *'
+    # Pinned immutable review packet set was 428/428 prepared, 0 new after 2026-11-16.
+    # Review-only weekly Sunday 03:17 UTC; operator can dispatch when source review
+    # actually changes. New MOEX exam detection remains in its separate weekly sync.
+    - cron: '17 3 * * 0'
   pull_request:
     paths:
       - '.github/workflows/official-pdf-batch-pipeline.yml'
@@ -12,7 +15,37 @@ concurrency:
   group: official-pdf-batch-${{ github.ref }}
   cancel-in-progress: false
 jobs:
+  schedule-contract:
+    # A workflow-only PR must not repeatedly download/rebuild 428 already
+    # prepared PDF packets. Production schedule/dispatch still runs source-audit.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate weekly review cadence and watchdog registry
+        run: |
+          python scripts/ops_task_watchdog.py --validate-only
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+          workflow = Path('.github/workflows/official-pdf-batch-pipeline.yml').read_text()
+          registry = json.loads(Path('data/ops_task_registry.v1.json').read_text())
+          crons = re.findall(r"(?m)^\s+- cron: '([^']+)'$", workflow)
+          assert crons == ['17 3 * * 0'], 'review schedule changed unexpectedly'
+          entries = [r for r in registry['tasks'] if r['id'] == 'official-pdf-batch-pipeline']
+          assert len(entries) == 1
+          review = entries[0]
+          assert review['workflow_file'] == 'official-pdf-batch-pipeline.yml'
+          assert review['accepted_events'] == ['schedule']
+          assert review['expected_interval_hours'] == 168
+          assert review['max_age_hours'] == 192
+          print('PINNED PDF REVIEW WEEKLY SCHEDULE CONTRACT OK; NO SOURCE DOWNLOAD')
+          PY
+
   source-audit:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

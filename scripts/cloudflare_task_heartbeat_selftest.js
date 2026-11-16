@@ -21,6 +21,17 @@ for(const patch of [{event:'pull_request'},{event:'workflow_dispatch'},{head_bra
 assert.equal(evaluate([row({run_started_at:new Date(now-9*3600000).toISOString()})]).status,'stale');
 assert.equal(evaluate([row({run_started_at:new Date(now+3600000).toISOString()})]).status,'error');
 assert.equal(evaluate([row({run_started_at:'invalid'})]).status,'error');
+
+const pdfTask=tasks.find(t=>t.id==='official-pdf-batch-pipeline');
+assert(pdfTask,'the weekly official PDF review must remain independently monitored');
+assert.equal(pdfTask.max_age_hours,192);
+const pdfRow=(date,patch={})=>row({id:555,run_started_at:date,...patch});
+const atLimit=new Date(now-192*3600000).toISOString();
+const overLimit=new Date(now-192*3600000-60000).toISOString();
+assert.equal(context.heartbeatTask(pdfTask,[pdfRow(atLimit)],now).status,'healthy');
+assert.equal(context.heartbeatTask(pdfTask,[pdfRow(overLimit)],now).status,'stale');
+assert.equal(context.heartbeatTask(pdfTask,[pdfRow(atLimit,{conclusion:'failure'})],now).status,'failed');
+assert.equal(context.heartbeatTask(pdfTask,[pdfRow(atLimit,{event:'workflow_dispatch'})],now).status,'missing');
 const statements=[];let stored=null,network=0;
 const env={AI_QUOTA_DB:{prepare(sql){
  statements.push(sql);return {bind(...args){this.args=args;return this;},

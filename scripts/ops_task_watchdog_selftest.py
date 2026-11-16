@@ -451,37 +451,42 @@ def main() -> int:
         else:
             raise AssertionError(f"invalid bootstrap gate was accepted: {invalid}")
 
-    # Daily Official PDF batch is a real scheduled source audit, not a PR
+    # Weekly pinned Official PDF review is a real scheduled source audit, not a PR
     # or manual run. A green manual dispatch must not conceal missed cron work.
     live_tasks = watchdog.validate_registry(watchdog.read_json(watchdog.DEFAULT_REGISTRY))
     pdf_tasks = [t for t in live_tasks if t["id"] == "official-pdf-batch-pipeline"]
-    assert len(pdf_tasks) == 1, "official PDF daily job is missing from watchdog registry"
+    assert len(pdf_tasks) == 1, "official PDF weekly job is missing from watchdog registry"
     pdf_task = pdf_tasks[0]
     assert pdf_task["workflow_file"] == "official-pdf-batch-pipeline.yml"
     assert pdf_task["accepted_events"] == ["schedule"], "manual/PR audit runs must not mask missed cron"
-    assert pdf_task["expected_interval_hours"] == 24
-    assert pdf_task["max_age_hours"] == 36
+    assert pdf_task["expected_interval_hours"] == 168
+    assert pdf_task["max_age_hours"] == 192
     assert pdf_task["criticality"] == "high"
     pdf_workflow = (ROOT / ".github/workflows/official-pdf-batch-pipeline.yml").read_text(encoding="utf-8")
-    assert "- cron: '17 3 * * *'" in pdf_workflow, "daily PDF schedule drifted without a watchdog policy update"
+    assert "- cron: '17 3 * * 0'" in pdf_workflow, "weekly PDF schedule drifted without a watchdog policy update"
+    assert "- cron: '17 3 * * *'" not in pdf_workflow, "old daily PDF schedule reappeared"
     pdf_runs = [
         {"id": 201, "event": "schedule", "conclusion": "success",
-         "run_started_at": "2026-10-29T03:17:00Z"},
+         "run_started_at": "2026-11-01T03:17:00Z"},
         {"id": 202, "event": "workflow_dispatch", "conclusion": "success",
-         "run_started_at": "2026-10-30T05:59:00Z"},
+         "run_started_at": "2026-11-02T05:59:00Z"},
     ]
-    fresh_pdf = watchdog.evaluate_task(pdf_task, pdf_runs, watchdog.parse_time("2026-10-30T06:00:00Z"))
+    fresh_pdf = watchdog.evaluate_task(pdf_task, pdf_runs, watchdog.parse_time("2026-11-02T06:00:00Z"))
     assert fresh_pdf["status"] == "healthy" and fresh_pdf["run_id"] == 201, fresh_pdf
-    stale_pdf = watchdog.evaluate_task(pdf_task, pdf_runs, watchdog.parse_time("2026-10-31T16:00:00Z"))
+    # At 192 hours the last *scheduled* success is still acceptable. One minute
+    # beyond the maximum age must fail even if a manual run succeeded.
+    boundary_pdf = watchdog.evaluate_task(pdf_task, pdf_runs, watchdog.parse_time("2026-11-09T03:17:00Z"))
+    assert boundary_pdf["status"] == "healthy" and boundary_pdf["run_id"] == 201, boundary_pdf
+    stale_pdf = watchdog.evaluate_task(pdf_task, pdf_runs, watchdog.parse_time("2026-11-09T03:18:00Z"))
     assert stale_pdf["status"] == "stale" and stale_pdf["run_id"] == 201, stale_pdf
     failed_pdf = watchdog.evaluate_task(pdf_task, pdf_runs + [
         {"id": 203, "event": "schedule", "conclusion": "failure",
-         "run_started_at": "2026-10-30T03:17:00Z"}
-    ], watchdog.parse_time("2026-10-30T06:00:00Z"))
+         "run_started_at": "2026-11-08T03:17:00Z"}
+    ], watchdog.parse_time("2026-11-08T06:00:00Z"))
     assert failed_pdf["status"] == "failed" and failed_pdf["run_id"] == 203, failed_pdf
-    missing_pdf = watchdog.evaluate_task(pdf_task, pdf_runs[1:], watchdog.parse_time("2026-10-30T06:00:00Z"))
+    missing_pdf = watchdog.evaluate_task(pdf_task, pdf_runs[1:], watchdog.parse_time("2026-11-02T06:00:00Z"))
     assert missing_pdf["status"] == "missing", missing_pdf
-    pdf_report = watchdog.build_report([pdf_task], lambda _: pdf_runs, watchdog.parse_time("2026-10-31T16:00:00Z"))
+    pdf_report = watchdog.build_report([pdf_task], lambda _: pdf_runs, watchdog.parse_time("2026-11-09T03:18:00Z"))
     assert pdf_report["summary"]["blocking"] == 1, pdf_report
 
     print("OPS TASK WATCHDOG SELFTEST OK")
