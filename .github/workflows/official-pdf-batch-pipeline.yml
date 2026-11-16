@@ -32,7 +32,7 @@ jobs:
           from pathlib import Path
           workflow = Path('.github/workflows/official-pdf-batch-pipeline.yml').read_text()
           registry = json.loads(Path('data/ops_task_registry.v1.json').read_text())
-          crons = re.findall(r"(?m)^\\s+- cron: '([^']+)'$", workflow)
+          crons = re.findall(r"(?m)^\s+- cron: '([^']+)'$", workflow)
           assert crons == ['17 3 * * 0'], 'review schedule changed unexpectedly'
           entries = [r for r in registry['tasks'] if r['id'] == 'official-pdf-batch-pipeline']
           assert len(entries) == 1
