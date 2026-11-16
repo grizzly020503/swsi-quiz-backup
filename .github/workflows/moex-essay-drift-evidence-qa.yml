@@ -1,0 +1,72 @@
+name: MOEX Essay Extraction Drift Evidence QA (NO DEPLOY)
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/moex_essay_drift_preflight.py'
+      - '.github/workflows/moex-social-worker-sync.yml'
+      - '.github/workflows/moex-essay-drift-evidence-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile and deterministic selftest
+        run: |
+          python -m py_compile scripts/moex_essay_drift_preflight.py
+          python scripts/moex_essay_drift_preflight.py --selftest
+
+      - name: Existing official essays must match the committed HEAD
+        run: |
+          python scripts/moex_essay_drift_preflight.py \
+            --baseline-ref HEAD \
+            --incoming-dir incoming \
+            --out /tmp/essay-drift-positive.json \
+            --fail-on-drift
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('/tmp/essay-drift-positive.json').read_text())
+          assert report['blocking'] == 0, report
+          assert '115100.json' in report['checked_exam_files'], report
+          PY
+
+      - name: An injected real wording change must fail closed
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('incoming/115100.json')
+          payload=json.loads(p.read_text(encoding='utf-8'))
+          row=next(x for x in payload['essays'] if x['id']=='E-115-2-HBSE-1')
+          row['q'] += '（故意測試新增字）'
+          p.write_text(json.dumps(payload, ensure_ascii=False), encoding='utf-8')
+          PY
+          if python scripts/moex_essay_drift_preflight.py \
+              --baseline-ref HEAD --incoming-dir incoming \
+              --out /tmp/essay-drift-negative.json --fail-on-drift; then
+            echo 'ERROR: changed official wording was accepted' >&2
+            exit 1
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload=json.loads(Path('/tmp/essay-drift-negative.json').read_text())
+          assert payload['blocking']==1, payload
+          issue=payload['findings'][0]
+          assert issue['id']=='E-115-2-HBSE-1' and 'q' in issue['fields'], issue
+          assert issue['fields']['q']['possible_layout_whitespace_only'] is False, issue
+          PY
