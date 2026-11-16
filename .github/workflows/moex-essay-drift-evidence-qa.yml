@@ -78,6 +78,10 @@ jobs:
 
   live-source-observation:
     name: Read-only 115-2 HBSE source comparison (NO DEPLOY)
+    # Keep ordinary PR validation deterministic and free of repeated MOEX
+    # downloads. The live source was independently observed in PR run
+    # 43857157280; recheck only via an explicit manual evidence request.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
