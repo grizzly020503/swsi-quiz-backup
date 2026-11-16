@@ -50,7 +50,9 @@ fs.mkdirSync(out,{recursive:true});
   async function shot(state){assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`flow/${width}/${state} overflow`);await page.screenshot({path:`${out}/flow-${state}-${width}.png`,fullPage:true,animations:'disabled'});}
   await shot('home');await page.waitForTimeout(900);await page.locator('[data-action=start]').click();await page.waitForTimeout(700);await shot('quiz');
   assert(await page.locator('[data-action=submit]').isDisabled());
-  await page.locator('label[for=o2]').click();await page.waitForTimeout(400);await page.locator('[data-action=submit]').click();await page.waitForTimeout(800);await shot('feedback');
+  await page.locator('label[for=o2]').click();await page.waitForTimeout(400);await page.locator('[data-action=submit]').click();await page.waitForTimeout(800);
+  assert(await page.evaluate(()=>{const f=document.querySelector('.feedback').getBoundingClientRect(),a=document.querySelector('.actions').getBoundingClientRect();return f.bottom<=a.top+1;}),'feedback obscured by sticky actions');
+  await shot('feedback');
   assert(await page.locator('.feedback.wrong').count()===1);
   await page.locator('[data-action=next]').click();await page.waitForTimeout(700);
   await page.locator('label[for=o1]').click();await page.locator('[data-action=submit]').click();await page.waitForTimeout(800);await page.locator('[data-action=next]').click();await page.waitForTimeout(1200);await shot('result');
