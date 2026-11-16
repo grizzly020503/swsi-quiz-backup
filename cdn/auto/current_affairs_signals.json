@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-16T06:19:09Z",
-  "item_count": 8,
+  "generated_at": "2026-11-16T21:57:40Z",
+  "item_count": 9,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
   "law_link_rules_schema": 1,
@@ -780,6 +780,194 @@
       }
     },
     {
+      "id": "03e0a6ba856c21ff2150127ac6472314",
+      "title": "社福爭議爆不完！蔣萬安忙選戰取消社工座談 工會無奈致歉",
+      "summary": "台北市長蔣萬安上任後，發生多起重大兒虐事件、兒少安置及托育監督缺失，也有案件遭監察院糾正，前陣子更爆出社工盜領長者財產爭議，屢次引起外界關注社會安全網及社工制度問題。台北市社會...…",
+      "source_name": "自由時報生活",
+      "source_url": "https://news.ltn.com.tw/news/life/breakingnews/5643043",
+      "published_at": "2026-11-16T15:28:29Z",
+      "region": "taiwan",
+      "category": "社工專業與社福制度",
+      "relevance_score": 6,
+      "exam_tags": [
+        "社工",
+        "社福",
+        "制度",
+        "安置",
+        "監察"
+      ],
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "組織治理與責信",
+        "倫理與權利保障",
+        "規劃與政策執行",
+        "品質與風險管理"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作直接服務"
+      ],
+      "subject_topics": {
+        "社會工作": [
+          "專業倫理、專業責任與社會工作價值"
+        ],
+        "社會政策與社會立法": [
+          "社福服務體系、專業規範與制度責信"
+        ]
+      },
+      "knowledge_topics": [
+        "社工專業與社福制度",
+        "社工",
+        "社福",
+        "制度",
+        "安置",
+        "監察"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 組織治理與責信",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 組織治理與責信 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 組織治理與責信 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理、專業責任與社會工作價值"
+      ],
+      "policy_signal": "medium",
+      "essay_value": "high",
+      "mcq_fact_density": "medium",
+      "signal_confidence": "high",
+      "signal_score": 8,
+      "exam_point_summary": "社福爭議爆不完！蔣萬安忙選戰取消社工座談 工會無奈致歉。政策／制度動向值得追蹤；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "社福",
+        "安置",
+        "監察"
+      ],
+      "related_laws": [],
+      "related_policy_instruments": [],
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "related_exam_questions": [
+        {
+          "id": "DS-115-2-015",
+          "subject": "社會工作直接服務",
+          "year": "115",
+          "round": "第二次",
+          "qno": "15",
+          "major": "社會工作倫理",
+          "topic": "倫理原則 > 倫理困境與決策",
+          "match_reason": "事件詞：安置、社福",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP115-1-21",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "21",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家式托育服務",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP112-1-23",
+          "subject": "社會政策與社會立法",
+          "year": "112",
+          "round": "第一次",
+          "qno": "23",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 托嬰中心監視設備",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP110-2-28",
+          "subject": "社會政策與社會立法",
+          "year": "110",
+          "round": "第二次",
+          "qno": "28",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家式托育服務",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP109-1-22",
+          "subject": "社會政策與社會立法",
+          "year": "109",
+          "round": "第一次",
+          "qno": "22",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家托育服務資格",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 73,
+        "weighted_match_count": 4.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 9,
+          "concept": 64
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 27,
+          "社會工作直接服務": 8,
+          "社會政策與社會立法": 38
+        },
+        "subject_count": 3,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2"
+      }
+    },
+    {
       "id": "336762ca1408a35f353d9ac4dcc91e28",
       "title": "勞動部舉辦「運用AI解方促進職業安全衛生：預防及降低職場風險與意外」APEC工作坊，深化亞太區域職安衛合作",
       "summary": "勞動部於本（115）年11月4日舉辦APEC「運用AI解方促進職業安全衛生：預防及降低職場風險與意外」工作坊，邀請加拿大、日本、韓國、泰國、馬來西亞及智利等經濟體政府與專業機構代表，以及國際公共服務協會（PSI）與網際網路工會全球聯盟（UNI Global Union）等國際工會組織，與我國政府、企業、工會及專家學者共同參與，探討人工智慧（AI）應用於職業安全衛生領域所帶來的機會與挑戰，並分享運用AI進行職場危害辨識與預測、工作環境監測及職業災害預防的最佳範例與政策經驗，深化APEC區域經濟體間的交流與合作。 勞動部李健鴻政務次長於開幕致詞時表示，隨著A",
@@ -1312,77 +1500,92 @@
       }
     },
     {
-      "id": "0b13d1001d698749d7f99c764022ef1d",
-      "title": "Global conference calls for renewed action on universal social protection",
-      "summary": "Participants at a conference convened under the Global Partnership for Universal Social Protection (USP2030) emphasized the urgent need for better social protection amid growing global challenges.",
-      "source_name": "ILO Newsroom",
-      "source_url": "https://www.ilo.org/resource/news/global-conference-calls-renewed-action-universal-social-protection",
-      "published_at": "2026-11-06T00:00:00Z",
+      "id": "4e8909f9a7762c2c17335d15edbdeb23",
+      "title": "WHO calls for migrant-inclusive primary health care to strengthen health systems for all",
+      "summary": "Developed by the WHO Health and Migration Programme in collaboration with WHO’s Service Delivery and Primary Health Care Unit, the report examines how primary health care-oriented responses can improve access, continuity and quality of care for people on the move, while strengthe",
+      "source_name": "WHO Newsroom",
+      "source_url": "https://www.who.int/news/item/12-11-2026-who-calls-for-migrant-inclusive-primary-health-care-to-strengthen-health-systems-for-all",
+      "published_at": "2026-11-12T14:32:50Z",
       "region": "international",
-      "category": "社會救助與居住",
+      "category": "移工與新住民",
       "relevance_score": 5,
       "exam_tags": [
-        "社會保障"
+        "移民與難民"
       ],
       "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
+        "社會工作",
+        "社會政策與社會立法"
       ],
       "knowledge_root": "社會工作管理",
       "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
       "management_domains": [
+        "倫理與權利保障",
+        "服務輸送與跨網絡",
         "規劃與政策執行",
         "方案與資源管理",
-        "倫理與權利保障"
+        "品質與風險管理"
       ],
       "exam_subject_axes": [
-        "社會政策與社會立法",
         "社會工作",
-        "社會工作直接服務"
+        "社會政策與社會立法",
+        "社會工作直接服務",
+        "人類行為與社會環境"
       ],
       "primary_exam_subject_axes": [
-        "社會政策與社會立法"
+        "社會工作"
       ],
       "supporting_exam_subject_axes": [
-        "社會工作",
-        "社會工作直接服務"
+        "社會政策與社會立法",
+        "社會工作直接服務",
+        "人類行為與社會環境"
       ],
       "subject_topics": {
-        "社會政策與社會立法": [
-          "社會救助、所得保障與居住權"
-        ],
         "社會工作": [
-          "貧窮、社會排除與社會正義"
+          "文化能力、反歧視與權利倡導"
+        ],
+        "社會政策與社會立法": [
+          "移民、勞動與社會權益制度"
         ],
         "社會工作直接服務": [
-          "需求評估與資源連結"
+          "跨文化評估與資源連結"
+        ],
+        "人類行為與社會環境": [
+          "遷移、適應與家庭社會環境"
         ]
       },
       "knowledge_topics": [
-        "社會救助與居住",
-        "社會保障"
+        "移工與新住民",
+        "移民與難民"
       ],
       "knowledge_paths": [
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 服務輸送與跨網絡",
         "社會工作管理 > 規劃與政策執行",
         "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估與資源連結",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會救助、所得保障與居住權"
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 文化能力、反歧視與權利倡導",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 跨文化評估與資源連結",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 移民、勞動與社會權益制度",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 遷移、適應與家庭社會環境",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 跨文化評估與資源連結",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 文化能力、反歧視與權利倡導",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 移民、勞動與社會權益制度",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 移民、勞動與社會權益制度",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 文化能力、反歧視與權利倡導",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 文化能力、反歧視與權利倡導",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 移民、勞動與社會權益制度",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 跨文化評估與資源連結",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 文化能力、反歧視與權利倡導"
       ],
       "policy_signal": "low",
       "essay_value": "low",
       "mcq_fact_density": "low",
       "signal_confidence": "low",
       "signal_score": 4,
-      "exam_point_summary": "Global conference calls for renewed action on un…。尚未見明確制度變動，先作事件與專業議題觀察。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「最低生活保障、貧窮結構因素與居住權」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "exam_point_summary": "WHO calls for migrant-inclusive primary health c…。尚未見明確制度變動，先作事件與專業議題觀察。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「文化能力、勞動與社會權益、反歧視」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
-        "社會保障"
+        "移民與難民"
       ],
       "related_laws": [],
       "related_policy_instruments": [],
@@ -1392,91 +1595,85 @@
       "law_link_rules_schema": 1,
       "related_exam_questions": [
         {
-          "id": "SP-115-2-021",
-          "subject": "社會政策與社會立法",
+          "id": "SW-115-2-017",
+          "subject": "社會工作",
           "year": "115",
           "round": "第二次",
-          "qno": "21",
-          "major": "社會救助",
-          "topic": "社會救助 > 中低收入老人生活津貼性質",
-          "match_reason": "共同概念：社會保障",
+          "qno": "17",
+          "major": "社會工作理論",
+          "topic": "優勢觀點 > 優勢分類",
+          "match_reason": "共同概念：移民與難民",
           "match_score": 2.2
         },
         {
-          "id": "SP115-1-26",
+          "id": "SP114-2-32",
           "subject": "社會政策與社會立法",
-          "year": "115",
+          "year": "114",
+          "round": "第二次",
+          "qno": "32",
+          "major": "社會救助",
+          "topic": "社會救助法 > 責任通報人員",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-114-2-34",
+          "subject": "社會工作",
+          "year": "114",
+          "round": "第二次",
+          "qno": "34",
+          "major": "多元文化能力",
+          "topic": "移民服務 > 倡導者角色",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP113-1-29",
+          "subject": "社會政策與社會立法",
+          "year": "113",
           "round": "第一次",
-          "qno": "26",
-          "major": "社會救助",
-          "topic": "社會救助法 > 有工作能力者服務",
-          "match_reason": "共同概念：社會保障",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP115-1-27",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "27",
-          "major": "社會救助",
-          "topic": "社會救助法 > 低收入戶福利",
-          "match_reason": "共同概念：社會保障",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP-115-2-028",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第二次",
-          "qno": "28",
-          "major": "社會救助",
-          "topic": "社會救助法 > 救助種類與適用對象",
-          "match_reason": "共同概念：社會保障",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP-115-2-029",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第二次",
           "qno": "29",
-          "major": "社會救助",
-          "topic": "社會救助法 > 工作收入認定",
-          "match_reason": "共同概念：社會保障",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 責任通報時限",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-113-2-32",
+          "subject": "社會工作",
+          "year": "113",
+          "round": "第二次",
+          "qno": "32",
+          "major": "多元文化能力",
+          "topic": "移民服務 > 移民適應方式",
+          "match_reason": "共同概念：移民與難民",
           "match_score": 2.2
         }
       ],
       "historical_exam_stats": {
-        "matched_question_count": 90,
+        "matched_question_count": 8,
         "weighted_match_count": 1.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
-          "concept": 90
+          "concept": 8
         },
-        "matched_year_count": 12,
+        "matched_year_count": 6,
         "matched_years": [
-          104,
-          105,
-          106,
-          107,
           108,
-          109,
           110,
           111,
-          112,
           113,
           114,
           115
         ],
-        "earliest_exam_year": 104,
+        "earliest_exam_year": 108,
         "latest_exam_year": 115,
         "corpus_latest_year": 115,
         "years_since_last_exam": 0,
         "subject_counts": {
-          "社會工作": 13,
-          "社會政策與社會立法": 77
+          "社會工作": 5,
+          "社會政策與社會立法": 3
         },
         "subject_count": 2,
         "law_match_count": 0,

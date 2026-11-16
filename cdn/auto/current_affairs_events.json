@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-16T06:19:09Z",
-  "source_item_count": 8,
-  "event_count": 8,
+  "generated_at": "2026-11-16T21:57:40Z",
+  "source_item_count": 9,
+  "event_count": 9,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
   "events": [
     {
@@ -1249,6 +1249,216 @@
       "law_link_note": "事件已連到具體法律；相關法律表示制度關聯，不代表本事件發生修法。"
     },
     {
+      "canonical_event_id": "76c3be5eb9a5f75d4a43a0f2",
+      "title": "社福爭議爆不完！蔣萬安忙選戰取消社工座談 工會無奈致歉",
+      "summary": "台北市長蔣萬安上任後，發生多起重大兒虐事件、兒少安置及托育監督缺失，也有案件遭監察院糾正，前陣子更爆出社工盜領長者財產爭議，屢次引起外界關注社會安全網及社工制度問題。台北市社會...…",
+      "category": "社工專業與社福制度",
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "組織治理與責信",
+        "倫理與權利保障",
+        "規劃與政策執行",
+        "品質與風險管理"
+      ],
+      "exam_subject_axes": [
+        "社會工作",
+        "社會政策與社會立法",
+        "社會工作直接服務"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作直接服務"
+      ],
+      "subject_topics": {
+        "社會工作": [
+          "專業倫理、專業責任與社會工作價值"
+        ],
+        "社會政策與社會立法": [
+          "社福服務體系、專業規範與制度責信"
+        ]
+      },
+      "knowledge_topics": [
+        "社工專業與社福制度",
+        "社工",
+        "社福",
+        "制度",
+        "安置",
+        "監察"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 組織治理與責信",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 組織治理與責信 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 組織治理與責信 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 專業倫理、專業責任與社會工作價值",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理、專業責任與社會工作價值"
+      ],
+      "exam_tags": [
+        "制度",
+        "安置",
+        "監察",
+        "社工",
+        "社福"
+      ],
+      "related_laws": [],
+      "concept_keys": [
+        "child_protection",
+        "family_policy"
+      ],
+      "agency_keys": [],
+      "fact_keys": [],
+      "source_count": 1,
+      "official_source_count": 0,
+      "sources": [
+        "自由時報生活"
+      ],
+      "evidence": [
+        {
+          "source_name": "自由時報生活",
+          "source_url": "https://news.ltn.com.tw/news/life/breakingnews/5643043",
+          "source_type": "news",
+          "published_at": "2026-11-16T15:28:29Z",
+          "item_id": "03e0a6ba856c21ff2150127ac6472314"
+        }
+      ],
+      "first_seen": "2026-11-16T15:28:29Z",
+      "last_seen": "2026-11-16T15:28:29Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-11-16"
+      ],
+      "policy_signal": "medium",
+      "essay_value": "high",
+      "mcq_fact_density": "medium",
+      "signal_confidence": "high",
+      "signal_score": 8,
+      "exam_point_summary": "社福爭議爆不完！蔣萬安忙選戰取消社工座談 工會無奈致歉。政策／制度動向值得追蹤；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "社福",
+        "安置",
+        "監察"
+      ],
+      "related_exam_questions": [
+        {
+          "id": "DS-115-2-015",
+          "subject": "社會工作直接服務",
+          "year": "115",
+          "round": "第二次",
+          "qno": "15",
+          "major": "社會工作倫理",
+          "topic": "倫理原則 > 倫理困境與決策",
+          "match_reason": "事件詞：安置、社福",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP115-1-21",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "21",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家式托育服務",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP112-1-23",
+          "subject": "社會政策與社會立法",
+          "year": "112",
+          "round": "第一次",
+          "qno": "23",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 托嬰中心監視設備",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP110-2-28",
+          "subject": "社會政策與社會立法",
+          "year": "110",
+          "round": "第二次",
+          "qno": "28",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家式托育服務",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP109-1-22",
+          "subject": "社會政策與社會立法",
+          "year": "109",
+          "round": "第一次",
+          "qno": "22",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家托育服務資格",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 73,
+        "weighted_match_count": 4.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 9,
+          "concept": 64
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 27,
+          "社會工作直接服務": 8,
+          "社會政策與社會立法": 38
+        },
+        "subject_count": 3,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
+      },
+      "related_policy_instruments": [],
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
+    },
+    {
       "canonical_event_id": "4badfc5478b2cc15fcd39f4f",
       "title": "兼顧資安與實務 今年12月起實施長照資訊系統強化身分驗證機制",
       "summary": "為強化長期照顧資訊安全，保障長照服務使用者的個人權益，衛生福利部推動「照顧服務管理資訊平台」及「長照機構暨長照人員相關管理資訊系統」改採自然人憑證或健保卡等實體卡證驗證登入，已於113年起多次行文地方政府宣導。目前考量地方政府及長照服務提供單位的實務作業需求，從今（115）年12月1日起實施，以利準備及銜接。 衛福部表示，長照相關資訊系統為本部重要核心資訊系統，涉及大量長照服務使用者個人資料及相關業務資訊。考量近年資安事件頻傳，有必要強化系統身分驗證機制，因此調整為透過自然人憑證或健保卡等實體卡證驗證方式登入，確保個案資料及系統資訊安全。 衛福部進一步說",
@@ -1467,10 +1677,10 @@
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
     },
     {
-      "canonical_event_id": "68bde336ee1958c12fcc416d",
-      "title": "Global conference calls for renewed action on universal social protection",
-      "summary": "Participants at a conference convened under the Global Partnership for Universal Social Protection (USP2030) emphasized the urgent need for better social protection amid growing global challenges.",
-      "category": "社會救助與居住",
+      "canonical_event_id": "1c01a00a2ce4f3271a37169e",
+      "title": "WHO calls for migrant-inclusive primary health care to strengthen health systems for all",
+      "summary": "Developed by the WHO Health and Migration Programme in collaboration with WHO’s Service Delivery and Primary Health Care Unit, the report examines how primary health care-oriented responses can improve access, continuity and quality of care for people on the move, while strengthe",
+      "category": "移工與新住民",
       "subjects": [
         "社會工作",
         "社會政策與社會立法"
@@ -1478,175 +1688,186 @@
       "knowledge_root": "社會工作管理",
       "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
       "management_domains": [
+        "倫理與權利保障",
+        "服務輸送與跨網絡",
         "規劃與政策執行",
         "方案與資源管理",
-        "倫理與權利保障"
+        "品質與風險管理"
       ],
       "exam_subject_axes": [
-        "社會政策與社會立法",
         "社會工作",
-        "社會工作直接服務"
+        "社會政策與社會立法",
+        "社會工作直接服務",
+        "人類行為與社會環境"
       ],
       "primary_exam_subject_axes": [
-        "社會政策與社會立法"
+        "社會工作"
       ],
       "supporting_exam_subject_axes": [
-        "社會工作",
-        "社會工作直接服務"
+        "社會政策與社會立法",
+        "社會工作直接服務",
+        "人類行為與社會環境"
       ],
       "subject_topics": {
-        "社會政策與社會立法": [
-          "社會救助、所得保障與居住權"
-        ],
         "社會工作": [
-          "貧窮、社會排除與社會正義"
+          "文化能力、反歧視與權利倡導"
+        ],
+        "社會政策與社會立法": [
+          "移民、勞動與社會權益制度"
         ],
         "社會工作直接服務": [
-          "需求評估與資源連結"
+          "跨文化評估與資源連結"
+        ],
+        "人類行為與社會環境": [
+          "遷移、適應與家庭社會環境"
         ]
       },
       "knowledge_topics": [
-        "社會救助與居住",
-        "社會保障"
+        "移工與新住民",
+        "移民與難民"
       ],
       "knowledge_paths": [
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 服務輸送與跨網絡",
         "社會工作管理 > 規劃與政策執行",
         "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估與資源連結",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會救助、所得保障與居住權"
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 文化能力、反歧視與權利倡導",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 跨文化評估與資源連結",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 移民、勞動與社會權益制度",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 遷移、適應與家庭社會環境",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 跨文化評估與資源連結",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 文化能力、反歧視與權利倡導",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 移民、勞動與社會權益制度",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 移民、勞動與社會權益制度",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 文化能力、反歧視與權利倡導",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 文化能力、反歧視與權利倡導",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 移民、勞動與社會權益制度",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 跨文化評估與資源連結",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 文化能力、反歧視與權利倡導"
       ],
       "exam_tags": [
-        "社會保障"
+        "移民與難民"
       ],
       "related_laws": [],
       "concept_keys": [
-        "social_protection"
+        "refugees_migration"
       ],
-      "agency_keys": [],
+      "agency_keys": [
+        "who"
+      ],
       "fact_keys": [],
       "source_count": 1,
       "official_source_count": 1,
       "sources": [
-        "ILO Newsroom"
+        "WHO Newsroom"
       ],
       "evidence": [
         {
-          "source_name": "ILO Newsroom",
-          "source_url": "https://www.ilo.org/resource/news/global-conference-calls-renewed-action-universal-social-protection",
+          "source_name": "WHO Newsroom",
+          "source_url": "https://www.who.int/news/item/12-11-2026-who-calls-for-migrant-inclusive-primary-health-care-to-strengthen-health-systems-for-all",
           "source_type": "official",
-          "published_at": "2026-11-06T00:00:00Z",
-          "item_id": "0b13d1001d698749d7f99c764022ef1d"
+          "published_at": "2026-11-12T14:32:50Z",
+          "item_id": "4e8909f9a7762c2c17335d15edbdeb23"
         }
       ],
-      "first_seen": "2026-11-06T00:00:00Z",
-      "last_seen": "2026-11-06T00:00:00Z",
+      "first_seen": "2026-11-12T14:32:50Z",
+      "last_seen": "2026-11-12T14:32:50Z",
       "observation_count": 1,
       "observation_dates": [
-        "2026-11-06"
+        "2026-11-12"
       ],
       "policy_signal": "low",
       "essay_value": "low",
       "mcq_fact_density": "low",
       "signal_confidence": "low",
       "signal_score": 4,
-      "exam_point_summary": "Global conference calls for renewed action on un…。尚未見明確制度變動，先作事件與專業議題觀察。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「最低生活保障、貧窮結構因素與居住權」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "exam_point_summary": "WHO calls for migrant-inclusive primary health c…。尚未見明確制度變動，先作事件與專業議題觀察。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「文化能力、勞動與社會權益、反歧視」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
-        "社會保障"
+        "移民與難民"
       ],
       "related_exam_questions": [
         {
-          "id": "SP-115-2-021",
-          "subject": "社會政策與社會立法",
+          "id": "SW-115-2-017",
+          "subject": "社會工作",
           "year": "115",
           "round": "第二次",
-          "qno": "21",
-          "major": "社會救助",
-          "topic": "社會救助 > 中低收入老人生活津貼性質",
-          "match_reason": "共同概念：社會保障",
+          "qno": "17",
+          "major": "社會工作理論",
+          "topic": "優勢觀點 > 優勢分類",
+          "match_reason": "共同概念：移民與難民",
           "match_score": 2.2
         },
         {
-          "id": "SP115-1-26",
+          "id": "SP114-2-32",
           "subject": "社會政策與社會立法",
-          "year": "115",
+          "year": "114",
+          "round": "第二次",
+          "qno": "32",
+          "major": "社會救助",
+          "topic": "社會救助法 > 責任通報人員",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-114-2-34",
+          "subject": "社會工作",
+          "year": "114",
+          "round": "第二次",
+          "qno": "34",
+          "major": "多元文化能力",
+          "topic": "移民服務 > 倡導者角色",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP113-1-29",
+          "subject": "社會政策與社會立法",
+          "year": "113",
           "round": "第一次",
-          "qno": "26",
-          "major": "社會救助",
-          "topic": "社會救助法 > 有工作能力者服務",
-          "match_reason": "共同概念：社會保障",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP115-1-27",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "27",
-          "major": "社會救助",
-          "topic": "社會救助法 > 低收入戶福利",
-          "match_reason": "共同概念：社會保障",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP-115-2-028",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第二次",
-          "qno": "28",
-          "major": "社會救助",
-          "topic": "社會救助法 > 救助種類與適用對象",
-          "match_reason": "共同概念：社會保障",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP-115-2-029",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第二次",
           "qno": "29",
-          "major": "社會救助",
-          "topic": "社會救助法 > 工作收入認定",
-          "match_reason": "共同概念：社會保障",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 責任通報時限",
+          "match_reason": "共同概念：移民與難民",
+          "match_score": 2.2
+        },
+        {
+          "id": "SW-113-2-32",
+          "subject": "社會工作",
+          "year": "113",
+          "round": "第二次",
+          "qno": "32",
+          "major": "多元文化能力",
+          "topic": "移民服務 > 移民適應方式",
+          "match_reason": "共同概念：移民與難民",
           "match_score": 2.2
         }
       ],
       "historical_exam_stats": {
-        "matched_question_count": 90,
+        "matched_question_count": 8,
         "weighted_match_count": 1.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 0,
-          "concept": 90
+          "concept": 8
         },
-        "matched_year_count": 12,
+        "matched_year_count": 6,
         "matched_years": [
-          104,
-          105,
-          106,
-          107,
           108,
-          109,
           110,
           111,
-          112,
           113,
           114,
           115
         ],
-        "earliest_exam_year": 104,
+        "earliest_exam_year": 108,
         "latest_exam_year": 115,
         "corpus_latest_year": 115,
         "years_since_last_exam": 0,
         "subject_counts": {
-          "社會工作": 13,
-          "社會政策與社會立法": 77
+          "社會工作": 5,
+          "社會政策與社會立法": 3
         },
         "subject_count": 2,
         "law_match_count": 0,
