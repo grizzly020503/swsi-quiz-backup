@@ -119,6 +119,25 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Audit regenerated official essay wording before any sync
+        # Exact prior official essay text stays locked. Public PDF-extraction
+        # whitespace hints are diagnostic only, never automatic approval.
+        run: |
+          python scripts/moex_essay_drift_preflight.py \
+            --baseline-ref HEAD \
+            --incoming-dir incoming \
+            --out /tmp/moex-essay-drift.json \
+            --fail-on-drift
+
+      - name: Retain public official essay extraction drift evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: moex-essay-drift
+          path: /tmp/moex-essay-drift.json
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Remove timestamp-only rewrites
         # fetched_at 或既有普通題補 grading_mode=standard 不算官方內容更新。
         # 特殊給分題若缺 grading_mode 則不能猜，仍保留差異讓後續驗證/匯入處理。
