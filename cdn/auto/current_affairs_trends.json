@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-15T18:47:25Z",
+  "generated_at": "2026-11-16T06:19:09Z",
   "event_count": 8,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -1467,7 +1467,7 @@
         "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估與資源連結",
         "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會救助、所得保障與居住權"
       ],
-      "trend_state": "one-off",
+      "trend_state": "cooling",
       "trend_score": 1.5,
       "why": [
         "1 個官方來源",
