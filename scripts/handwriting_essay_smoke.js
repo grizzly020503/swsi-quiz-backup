@@ -1,0 +1,727 @@
+#!/usr/bin/env node
+'use strict';
+// No provider calls or real student data; synthetic 1x1 image and mocked replies only.
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const {chromium} = require('playwright');
+const base = process.argv[2] || 'http://127.0.0.1:4173/';
+const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/Sc9NxQAAAABJRU5ErkJggg==','base64');
+(async function(){
+  const browser=await chromium.launch({headless:true});
+  const page=await browser.newPage({viewport:{width:390,height:844}});
+  try{
+    const origin=new URL(base).origin;
+    // Exercise the real local question-shard bootstrap without network calls.
+    // Aborting every CDN shard made boot fail asynchronously, replacing the OCR
+    // editor with a transient "題庫無法載入" screen and causing flaky QA.
+    const SHARD_ORIGIN='wandering-wave-4418.c022050333.workers.dev';
+    const SHARD_PREFIX='/question-shards/';
+    const shardDir=path.resolve(process.cwd(),'cdn/question-shards');
+    await page.route('**/*',route=>{
+      const url=new URL(route.request().url());
+      if(url.hostname===SHARD_ORIGIN&&url.pathname.startsWith(SHARD_PREFIX)){
+        const name=decodeURIComponent(url.pathname.slice(SHARD_PREFIX.length));
+        if(!name||path.basename(name)!==name)return route.fulfill({status:404,body:'not found'});
+        const file=path.join(shardDir,name);
+        if(!fs.existsSync(file))return route.fulfill({status:404,body:'not found'});
+        return route.fulfill({status:200,contentType:'application/json; charset=utf-8',body:fs.readFileSync(file)});
+      }
+      return url.origin===origin?route.continue():route.abort();
+    });
+    await page.goto(base,{waitUntil:'domcontentloaded'});
+    // A real student can use navigation only after the CDN manifest and essay
+    // bootstrap finish. Calling the quick action before the tab bar becomes
+    // visible races boot's final go('home') and falsely resets the test route.
+    // This is a concrete readiness condition, not a fixed sleep or test skip.
+    await page.locator('#tabbar').waitFor({state:'visible',timeout:20000});
+    // The newer V3 homepage has intentionally shorter copy. An arbitrary
+    // >150 character threshold falsely times out on a valid landing screen.
+    // The real hosted release QA uses this visible stable primary CTA instead.
+    try {
+      await page.locator('#app .swsi-focus-primary').waitFor({state:'visible',timeout:20000});
+      await page.waitForFunction(()=>typeof view!=='undefined'&&view==='home',
+        null,{timeout:10000});
+    } catch (error) {
+      const boot=await page.evaluate(()=>({
+        view:typeof view==='undefined'?'undefined':view,
+        appLength:document.getElementById('app')?.textContent?.trim().length||0,
+        focus:!!document.querySelector('#app .swsi-focus-primary'),
+        tabbar:document.getElementById('tabbar')?.style.display,
+        essayCount:Array.isArray(window.ESSAYS)?window.ESSAYS.length:-1,
+        publicVersion:window.SWSI_PAPER_ESSAY_VERSION||'missing'
+      }));
+      throw new Error('V3 stable homepage not ready: '+JSON.stringify(boot)+'; '+String(error));
+    }
+    // Use the canonical quick-essay navigation (same as real mobile students)
+    // rather than calling legacy openEssayCard before navigation settles.
+    await page.waitForFunction(()=>typeof window.swsiStartEssayNow==='function'&&
+      Array.isArray(window.ESSAYS)&&window.ESSAYS.some(e=>e&&e.id&&e.q));
+    await page.evaluate(async()=>{await window.swsiStartEssayNow();});
+    try {
+      await page.locator('.swsi-paper-essay').waitFor({timeout:20000});
+    } catch(err) {
+      const state=await page.evaluate(()=>({
+        app:document.getElementById('app')?.textContent?.slice(0,1100),
+        box:!!document.querySelector('#app .wbox'),
+        editor:!!document.querySelector('#app textarea.wta'),
+        essayCount:window.ESSAYS?.length||0,
+        view:typeof view==='undefined'?'unavailable':view,
+        opened:typeof openEssay==='undefined'?'unavailable':openEssay,
+        paperVersion:window.SWSI_PAPER_ESSAY_VERSION||'missing'
+      }));
+      throw new Error('paper-first UI not mounted after canonical essay navigation: '+JSON.stringify(state)+'; '+String(err));
+    }
+    if (process.env.SWSI_HANDWRITING_EVIDENCE_DIR) {
+      fs.mkdirSync(process.env.SWSI_HANDWRITING_EVIDENCE_DIR,{recursive:true});
+      await page.screenshot({path:path.join(process.env.SWSI_HANDWRITING_EVIDENCE_DIR,'paper-first-mobile-390px.png'),fullPage:true});
+    }
+    assert.strictEqual(await page.locator('.swsi-paper-mode-paper').getAttribute('aria-pressed'),'true');
+    assert.strictEqual(await page.locator('textarea.wta').evaluate(el=>getComputedStyle(el).display),'none');
+    await page.evaluate(()=>{
+      window.__paperRequests=[];
+      window.__paperRequestHeaders=[];
+      window.swsiRecordAITelemetry=()=>{};
+      window.__nativeFetch=window.fetch.bind(window);
+      window.fetch=async function(url,options){
+        if(!String(url).includes('/api/ai'))return window.__nativeFetch(url,options);
+        const req=JSON.parse(options.body);
+        window.__paperRequests.push(req);
+        window.__paperRequestHeaders.push(Object.fromEntries(new Headers(options.headers||{}).entries()));
+        const isPhoto=Array.isArray(req.messages[0].content);
+        if(!isPhoto&&window.__textHoldOnce){
+          window.__textHoldOnce=false;
+          return new Promise(resolve=>{
+            window.__resolveHeldFeedback=()=>resolve(new Response(
+              JSON.stringify({error:{code:'UPSTREAM_UNAVAILABLE',message:'AI 服務暫時不可用'}}),
+              {status:503,headers:{'Content-Type':'application/json'}}));
+          });
+        }
+        if(!isPhoto&&window.__textFailureOnce){
+          window.__textFailureOnce=false;
+          return new Response(JSON.stringify({error:{code:'UPSTREAM_UNAVAILABLE',message:'AI 服務暫時不可用'}}),{status:503,headers:{'Content-Type':'application/json'}});
+        }
+        // Model-access failures and model-supplied grading text are not valid OCR.
+        if(isPhoto&&window.__ocrRejectOnce){
+          window.__ocrRejectOnce=false;
+          return new Response(JSON.stringify({error:{code:'FORBIDDEN',message:'OCR 測試存取被拒絕'}}),
+            {status:403,headers:{'Content-Type':'application/json'}});
+        }
+        if(isPhoto&&window.__ocrInjectedFeedbackOnce){
+          window.__ocrInjectedFeedbackOnce=false;
+          return new Response(JSON.stringify({choices:[{message:{
+            content:'【我讀到的作答】\\n一、這是模擬辨識稿。\\n【練習回饋】不得隱藏批改文字。'
+          },finish_reason:'stop'}]}),{status:200,headers:{'Content-Type':'application/json'}});
+        }
+        const answer=isPhoto?'【我讀到的作答】\n一、社會工作要尊重當事人的自決，運用◌了解需求。\n二、還要完成評估、資源連結、執行處遇與後續追蹤。':'一、可補上具體理論。\n二、題目要求要逐項回應。';
+        return new Response(JSON.stringify({choices:[{message:{content:answer},finish_reason:(isPhoto&&window.__ocrReturnNoFinish)?undefined:
+          ((isPhoto&&window.__ocrReturnTruncated)?'length':'stop')}]}),{status:200,headers:{'Content-Type':'application/json'}});
+      };
+    });
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'paper.png',mimeType:'image/png',buffer:png});
+    try {
+      await page.locator('.swsi-paper-review textarea').waitFor({timeout:12000});
+    } catch(err) {
+      // Diagnostic-only; do not silently downgrade the OCR confirmation gate.
+      const snapshot=await page.evaluate(()=>({
+        appText:document.querySelector('#app')?.textContent?.slice(-900),
+        ocrStatus:document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent,
+        result:document.querySelector('[id^="airesult_"]')?.textContent?.slice(-1200),
+        requests:window.__paperRequests?.map(r=>({model:r.model,isPhoto:Array.isArray(r.messages?.[0]?.content)})),
+        publicModel:(typeof GROQ_MODEL==='string'?GROQ_MODEL:'UNAVAILABLE'),
+        gradePhotoType:typeof window.gradePhoto,
+        photoInputVisible:!!document.querySelector('input[id^="photo_"]'),
+        reviewElements:document.querySelectorAll('.swsi-paper-review textarea').length
+      }));
+      throw new Error('OCR confirmation editor was not displayed: '+JSON.stringify(snapshot)+'; '+String(err));
+    }
+    if (process.env.SWSI_HANDWRITING_EVIDENCE_DIR) {
+      await page.screenshot({path:path.join(process.env.SWSI_HANDWRITING_EVIDENCE_DIR,'ocr-review-before-confirm-390px.png'),fullPage:true});
+    }
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),1);
+    assert(await page.evaluate(()=>Array.isArray(window.__paperRequests[0].messages[0].content)));
+    const photoClientId=await page.evaluate(()=>window.__paperRequestHeaders[0]['x-swsi-client-id']);
+    assert.match(photoClientId,/^[A-Za-z0-9_-]{16,128}$/,
+      'real SWSI transport wrapper must set a valid photo OCR client ID');
+    assert((await page.evaluate(()=>new TextEncoder().encode(JSON.stringify(window.__paperRequests[0])).byteLength)) <= 3800000,
+      'OCR request exceeded safe Worker payload limit');
+    // Unconfirmed OCR is kept only in browser memory, not localStorage.
+    // Navigating to the list or another question must not discard the text
+    // within the current tab, submit grading, or leak it into another essay.
+    const essayId=(await page.locator('#app textarea.wta').getAttribute('id')).slice(3);
+    const unconfirmedOCR=await page.locator('.swsi-paper-review textarea').inputValue();
+    const draftBeforeNav=await page.locator('textarea.wta').inputValue();
+    // Invalid selections are rejected *before* replacing the existing OCR
+    // session, so a student who mis-selects four photos keeps corrections.
+    const rejectedBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles(
+      Array.from({length:4},(_,i)=>({name:'invalid-'+i+'.png',mimeType:'image/png',buffer:png}))
+    );
+    await page.waitForFunction(()=>/一次只允許 1–3 張/.test(
+      document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:12000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),unconfirmedOCR,
+      'invalid photo count must preserve the unconfirmed OCR review');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeNav,
+      'invalid photo count must not alter the typed draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),rejectedBaseline,
+      'invalid photo count must not spend AI quota');
+    // SVG may declare image/* yet is not a photographic raster input. Reject
+    // it before decoding, without consuming quota or clearing OCR corrections.
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({
+      name:'not-a-photo.svg',mimeType:'image/svg+xml',
+      buffer:Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5"/>')
+    });
+    await page.waitForFunction(()=>/不接受 SVG/.test(
+      document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:12000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),unconfirmedOCR,
+      'SVG rejection must preserve manually corrected OCR');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeNav,
+      'SVG rejection must not overwrite typed draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),rejectedBaseline,
+      'SVG rejection must not call provider or spend photo quota');
+    // Even when a filename/MIME is allowed, an empty file is not a valid photo.
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({
+      name:'empty.png',mimeType:'image/png',buffer:Buffer.alloc(0)
+    });
+    await page.waitForFunction(()=>/空白檔案/.test(
+      document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:12000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),unconfirmedOCR,
+      'empty image must preserve corrected OCR');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeNav,
+      'empty image must preserve original draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),rejectedBaseline,
+      'empty photo must not call the provider');
+    const requestsBeforeNav=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>closeEssay());
+    await page.locator('.swsi-paper-essay').waitFor({state:'detached'});
+    const otherEssayId=await page.evaluate(id=>window.ESSAYS.find(e=>e&&e.id&&e.id!==id)?.id||'',essayId);
+    if(otherEssayId){
+      await page.evaluate(id=>toggleEssay(id),otherEssayId);
+      await page.locator('.swsi-paper-essay').waitFor({timeout:12000});
+      assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,
+        'unconfirmed OCR text must not leak across essay questions');
+      // Simulate a delayed file-picker callback from the *previous* essay
+      // while the new essay is open. It must be rejected before any AI call,
+      // and must not inject the previous question's OCR into this editor.
+      const crossBaseline=await page.evaluate(()=>window.__paperRequests.length);
+      await page.evaluate(async ({previousId,png64})=>{
+        const bytes=Uint8Array.from(atob(png64),c=>c.charCodeAt(0));
+        const staleInput={files:[new File([bytes],'late-previous-question.png',{type:'image/png'})],value:'stale'};
+        await window.gradePhoto(previousId,staleInput);
+      },{previousId:essayId,png64:png.toString('base64')});
+      assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),crossBaseline,
+        'stale photo selection from a different essay must not call AI');
+      assert.strictEqual(await page.locator('.swsi-paper-review textarea').count(),0,
+        'old essay OCR must not appear in the new essay review panel');
+      await page.evaluate(()=>closeEssay());
+    }
+    await page.evaluate(id=>toggleEssay(id),essayId);
+    await page.locator('.swsi-paper-review textarea').waitFor({timeout:12000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),unconfirmedOCR,
+      'unconfirmed OCR must survive same-tab essay navigation');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeNav,
+      'unconfirmed OCR must not overwrite the student draft on navigation');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),requestsBeforeNav,
+      'navigating questions must not consume AI quota');
+    await page.locator('.swsi-paper-confirm').click();
+    assert.match(await page.locator('.swsi-paper-review [role=status]').innerText(),/辨識不清/);
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),1,'unconfirmed OCR cannot trigger grading');
+    // OCR providers may emit multiple unreadable-character conventions.
+    // Every one must require explicit repair, not trigger a feedback call.
+    const originalOCR=await page.locator('.swsi-paper-review textarea').inputValue();
+    for(const marker of ['□','�','（看不清）','[無法辨識]','［無法辨識］']){
+      await page.locator('.swsi-paper-review textarea').fill(originalOCR.replace('◌',marker));
+      await page.locator('.swsi-paper-confirm').click();
+      assert.match(await page.locator('.swsi-paper-review [role=status]').innerText(),/辨識不清/);
+      assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),1,
+        'alternate unreadable marker bypassed OCR confirmation');
+    }
+    await page.locator('.swsi-paper-review textarea').fill('一、應尊重案主自決並說明社會工作倫理及核心概念，結合理論評估其處境。\n二、提出資源連結、處遇計畫、後續追蹤及實務反思。');
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>window.__paperRequests.length===2);
+    await page.waitForFunction(()=>/回饋已完成/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>typeof window.__paperRequests[1].messages[0].content),'string');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequestHeaders[0]['x-swsi-client-id']),
+      await page.evaluate(()=>window.__paperRequestHeaders[1]['x-swsi-client-id']),
+      'OCR and confirmed text-feedback request must use the same real transport client ID');
+    await page.locator('.swsi-paper-mode-text').click();
+    assert.strictEqual(await page.locator('.swsi-paper-mode-text').getAttribute('aria-pressed'),'true');
+    assert(await page.locator('textarea.wta').isVisible());
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),2,'switching input must not contact AI');
+    // A provider length-limited OCR response cannot become editable 'complete' text,
+    // cannot replace an existing confirmed draft, and must never auto-call feedback.
+    await page.locator('.swsi-paper-mode-paper').click();
+    assert.match(await page.locator('.swsi-paper-review textarea').inputValue(),/應尊重案主自決/,
+      'switching between typing and paper must preserve already reviewed OCR text');
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'switching back to a confirmed OCR answer must not re-enable a duplicate feedback call');
+    await page.locator('.swsi-paper-confirm').evaluate(button=>button.click());
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),2,
+      're-entering paper mode must not silently consume a second text feedback call');
+    const reviewed=await page.locator('.swsi-paper-review textarea').inputValue();
+    await page.locator('.swsi-paper-review textarea').fill(reviewed+'\n（待修訂）');
+    assert(await page.locator('.swsi-paper-confirm').isEnabled(),
+      'a genuinely edited transcription must be eligible for new confirmation');
+    await page.locator('.swsi-paper-review textarea').fill(reviewed);
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'restoring already-confirmed transcription must disable duplicate submission');
+    const previousDraft=await page.locator('textarea.wta').inputValue();
+    await page.evaluate(()=>{window.__ocrReturnTruncated=true;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'long-handwriting.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(()=>/辨識文字被截斷/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),reviewed,'truncated replacement must retain the prior confirmed transcript');
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),'truncation must not unlock already confirmed text');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,'truncated OCR overwrote a verified draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),3,'truncated OCR must not trigger a feedback request');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.filter(r=>typeof r.messages[0].content==='string').length),1,'only explicitly confirmed answer may invoke text diagnosis');
+    // A response without an explicit successful finish_reason must never
+    // be treated as complete OCR, even if it contains plausible transcript text.
+    await page.evaluate(()=>{window.__ocrReturnTruncated=false;window.__ocrReturnNoFinish=true;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'missing-finish.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(()=>/辨識沒有完整結束/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),reviewed,'missing finish_reason must retain the prior confirmed transcript');
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),'incomplete OCR must not unlock already confirmed text');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,'unconfirmed OCR overwrote saved draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),4,'missing OCR finish_reason caused unsolicited feedback');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.filter(r=>typeof r.messages[0].content==='string').length),1,'only manually confirmed text can be diagnosed');
+    await page.evaluate(()=>{window.__ocrReturnNoFinish=false;});
+    // A denied private-model path (403) must fail closed: no confirmed OCR,
+    // no grading, no draft overwrite, and the upload button must recover.
+    const denyBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{window.__ocrRejectOnce=true;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'provider-denied.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(()=>document.querySelector('[id^="aiphoto_"]')?.disabled===false &&
+      !/正在辨識文字/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),denyBaseline+1,
+      'provider denial must not retry or send text feedback');
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),reviewed,
+      'provider denial must keep only the previous confirmed transcript');
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),'denial must not unlock previous confirmed text');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,
+      'provider denial must not overwrite the verified answer');
+    // A provider could return a nominally completed OCR response containing a
+    // grading section. That is NOT an OCR-only answer and cannot be confirmed.
+    const injectedBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{window.__ocrInjectedFeedbackOnce=true;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'mixed-ocr-feedback.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(()=>/辨識結果不可靠/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),injectedBaseline+1,
+      'provider-generated grading text must not cause an unsolicited feedback call');
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),reviewed,
+      'provider-generated grading text must not replace the previous transcript');
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),'injected grading must not unlock previous confirmed text');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,
+      'model-injected grading text must not alter the confirmed draft');
+    // Real correction work must survive a *valid* replacement photo whose OCR
+    // provider later rejects it. This differs from an invalid 4-photo picker.
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'old-ocr-before-failure.png',mimeType:'image/png',buffer:png});
+    await page.locator('.swsi-paper-review textarea').waitFor({timeout:12000});
+    const preservedOCR='一、這是學生已自行校正的既有手寫辨識稿，請勿因重新拍照失敗而刪除。\\n二、仍有◌需要人工對照原稿，不能自動送去批改。';
+    await page.locator('.swsi-paper-review textarea').fill(preservedOCR);
+    const preservedTypedDraft=await page.locator('textarea.wta').inputValue();
+    const beforeFailedReplacement=await page.evaluate(()=>window.__paperRequests.length);
+    const feedbackBeforeReplacement=await page.evaluate(()=>
+      window.__paperRequests.filter(r=>typeof r.messages[0].content==='string').length);
+    await page.evaluate(()=>{window.__ocrRejectOnce=true;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'valid-photo-denied-by-provider.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(expected=>window.__paperRequests.length===expected+1 &&
+      document.querySelector('[id^="aiphoto_"]')?.disabled===false &&
+      !!document.querySelector('.swsi-paper-review textarea'),beforeFailedReplacement,{timeout:15000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),preservedOCR,
+      'HTTP 403 on a valid replacement photo must restore edited unconfirmed OCR');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),preservedTypedDraft,
+      'failed replacement photo must preserve the saved typed answer');
+    assert.strictEqual(await page.evaluate(()=>
+      window.__paperRequests.filter(r=>typeof r.messages[0].content==='string').length),
+      feedbackBeforeReplacement,'OCR replacement failure must not spend feedback quota');
+    const beforeTruncatedReplacement=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{window.__ocrReturnTruncated=true;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'valid-photo-truncated-by-provider.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(()=>/辨識文字被截斷/.test(
+      document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||'') &&
+      document.querySelector('[id^="aiphoto_"]')?.disabled===false &&
+      !!document.querySelector('.swsi-paper-review textarea'),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),beforeTruncatedReplacement+1,
+      'truncated replacement should consume only its attempted OCR request');
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),preservedOCR,
+      'truncated replacement must preserve the previous manually edited OCR');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),preservedTypedDraft,
+      'truncated replacement must not overwrite the student draft');
+    await page.evaluate(()=>{window.__ocrReturnTruncated=false;});
+    // A huge encoded body must be blocked BEFORE reaching the AI service.
+    // Reject by encoded request bytes, not by JPEG's binary size estimate.
+    const sentBeforeOversize=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{
+      window.__originalShrink=window.shrinkImage;
+      window.__resizeLimits=[];
+      window.shrinkImage=async function(_file,maxDim){
+        window.__resizeLimits.push(maxDim);
+        return 'data:image/jpeg;base64,'+'A'.repeat(4000000);
+      };
+    });
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'oversize-paper.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(()=>/超過整份上傳容量上限/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:20000});
+    assert.deepStrictEqual(await page.evaluate(()=>window.__resizeLimits),[1800,1600,1400],
+      'image size reduction must be bounded to legibility floor');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),sentBeforeOversize,
+      'oversize photographs must not spend AI quota');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),previousDraft,'oversize photo must not affect saved answer');
+    await page.evaluate(()=>{window.shrinkImage=window.__originalShrink;});
+    // >25 MiB original file should fail before browser decoding or provider call.
+    const giant=Buffer.alloc(25*1024*1024+1,0);
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'too-large-original.jpg',mimeType:'image/jpeg',buffer:giant});
+    await page.waitForFunction(()=>/每張 25 MB/.test(document.querySelector('.swsi-paper-body>.swsi-paper-status')?.textContent||''),null,{timeout:12000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),sentBeforeOversize,
+      'original-file size failure must not make AI calls');
+    // The same confirmed transcription must be retryable when the text-feedback
+    // provider returns 503. Failed feedback must not force another paid OCR call.
+    const retryBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    const photoBeforeRetry=await page.evaluate(()=>window.__paperRequests.filter(x=>Array.isArray(x.messages[0].content)).length);
+    await page.evaluate(()=>{window.__textFailureOnce=true;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'retry-feedback.png',mimeType:'image/png',buffer:png});
+    await page.locator('.swsi-paper-review textarea').waitFor({timeout:12000});
+    const retryText='一、政策討論要指出現況與制度限制，說明問題背景及影響。\\n二、提出可行政策與實務分析，兼顧當事人自主、家庭支持及福利資源連結。';
+    await page.locator('.swsi-paper-review textarea').fill(retryText);
+    page.once('dialog',dialog=>dialog.accept());
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>document.querySelector('.swsi-paper-review .swsi-paper-confirm')?.disabled===false
+      &&/回饋尚未完成/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),retryBaseline+2,
+      'initial retry case should make exactly one OCR and one failed text-feedback request');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),retryText,
+      'failed text-feedback must preserve the manually confirmed draft');
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>document.querySelector('.swsi-paper-review .swsi-paper-confirm')?.disabled===true
+      &&/回饋已完成/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),retryBaseline+3,
+      'recovery must use only one additional text-feedback call; no new OCR call');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.filter(x=>Array.isArray(x.messages[0].content)).length),photoBeforeRetry+1,
+      'recovery should not upload the photograph a second time');
+    const requestsAfterSuccess=await page.evaluate(()=>window.__paperRequests.length);
+    await page.locator('.swsi-paper-confirm').evaluate(button=>button.click());
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),requestsAfterSuccess,
+      'successful retry must not be repeated from stale confirmation UI');
+    // Switching typing/paper while a feedback request is pending re-creates
+    // the review button. A 503 must unblock the *new* button, not only the stale one.
+    const duringModeBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{window.__textHoldOnce=true;window.__resolveHeldFeedback=null;});
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'mode-switch-feedback.png',mimeType:'image/png',buffer:png});
+    await page.locator('.swsi-paper-review textarea').waitFor({timeout:12000});
+    const newText='一、分析國家政策與社會生活條件，注意家庭選擇與照顧負擔。\\n二、建立社會支持並評估福利措施是否符合需求。';
+    await page.locator('.swsi-paper-review textarea').fill(newText);
+    page.once('dialog',dialog=>dialog.accept());
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>typeof window.__resolveHeldFeedback==='function',null,{timeout:12000});
+    await page.locator('.swsi-paper-mode-text').click();
+    await page.locator('.swsi-paper-mode-paper').click();
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'new review button must remain disabled while feedback is pending');
+    await page.evaluate(()=>window.__resolveHeldFeedback());
+    await page.waitForFunction(()=>document.querySelector('.swsi-paper-review .swsi-paper-confirm')?.disabled===false
+      &&/回饋尚未完成/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),duringModeBaseline+2,
+      'switching input modes during failed feedback must not duplicate OCR or text calls');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),newText,
+      'failed feedback after mode switch must preserve the confirmed answer');
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>document.querySelector('.swsi-paper-review .swsi-paper-confirm')?.disabled===true
+      &&/已確認/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),duringModeBaseline+3,
+      'retry should make only one new text request without another photo upload');
+    // Re-photographing an already confirmed answer consumes one OCR call,
+    // but if the student corrects it back to the *same* confirmed transcript,
+    // the platform must not spend another text-feedback call.
+    const retakeBefore=await page.evaluate(()=>window.__paperRequests.length);
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'same-answer-retake.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(expected=>window.__paperRequests.length===expected+1 &&
+      !!document.querySelector('.swsi-paper-review textarea'),retakeBefore,{timeout:12000});
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),newText,
+      'successful retake must not overwrite confirmed student draft');
+    await page.locator('.swsi-paper-review textarea').fill(newText);
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'retake of the same corrected answer must preserve completed-feedback lock');
+    await page.locator('.swsi-paper-confirm').evaluate(button=>button.click());
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),retakeBefore+1,
+      'reconfirming the same answer after a new OCR call must not spend feedback quota');
+    await page.locator('.swsi-paper-review textarea').fill(newText+'（增加一段新論述）');
+    assert(await page.locator('.swsi-paper-confirm').isEnabled(),
+      'a genuinely revised answer must remain eligible for explicit new confirmation');
+    await page.locator('.swsi-paper-review textarea').fill(newText);
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'restoring the prior confirmed answer must reapply duplicate-feedback lock');
+    // Switching away must cancel an in-flight OCR session permanently,
+    // even if the student switches back before the old provider reply arrives.
+    const draftBeforeStale=await page.locator('textarea.wta').inputValue();
+    const requestsBeforeStale=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{
+      window.__staleOCRResolve=null;
+      window.swsiFetchWithTimeout=async function(_url,opts){
+        const payload=JSON.parse(opts.body);
+        window.__paperRequests.push(payload);
+        return await new Promise(resolve=>{
+          window.__staleOCRResolve=()=>resolve(new Response(JSON.stringify({
+            choices:[{message:{content:'【我讀到的作答】\\n一、舊照片內容不得回填。\\n二、舊資料不得覆蓋新草稿。'},finish_reason:'stop'}]
+          }),{status:200,headers:{'Content-Type':'application/json'}}));
+        });
+      };
+    });
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({name:'stale-ocr.png',mimeType:'image/png',buffer:png});
+    await page.waitForFunction(()=>typeof window.__staleOCRResolve==='function');
+    await page.locator('.swsi-paper-mode-text').click();
+    await page.locator('.swsi-paper-mode-paper').click();
+    await page.evaluate(()=>window.__staleOCRResolve());
+    await page.waitForTimeout(100);
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),newText,
+      'cancelled OCR must not replace the previously confirmed transcript');
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'cancelled OCR must not unlock the previous approved text for duplicate feedback');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeStale,
+      'cancelled OCR must never overwrite confirmed draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),requestsBeforeStale+1,
+      'cancelled OCR must not trigger AI diagnosis');
+    // A cancelled photo response completing AFTER a new photo request must
+    // not unlock the upload control or corrupt the second transcription.
+    // The same test proves returning to paper mode after cancel is usable.
+    const overlapBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{
+      window.__overlapPending=[];
+      window.__overlapDone=0;
+      const underlying=window.gradePhoto;
+      window.__realPhotoOCR=underlying;
+      window.gradePhoto=function(id,input){
+        return Promise.resolve(underlying(id,input)).finally(()=>{window.__overlapDone++;});
+      };
+      window.swsiFetchWithTimeout=async function(_url,opts){
+        const payload=JSON.parse(opts.body);
+        window.__paperRequests.push(payload);
+        return new Promise(resolve=>window.__overlapPending.push(resolve));
+      };
+    });
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({
+      name:'overlap-old.png',mimeType:'image/png',buffer:png
+    });
+    await page.waitForFunction(()=>window.__overlapPending?.length===1);
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'first pending upload must lock the photo button');
+    // Duplicate input change events can still call the global handler even
+    // while the visible camera button is disabled. This must not consume
+    // another photo quota or replace the active OCR review/session.
+    const duplicateCalls=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(async id=>{
+      await window.__realPhotoOCR(id,{files:[new File(['x'],'duplicate.png',{type:'image/png'})],value:'fake'});
+    },essayId);
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),duplicateCalls,
+      'duplicate file-picker event while OCR pending must not call the provider');
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'rejected duplicate must keep the real upload pending');
+    assert.match(await page.locator('.swsi-paper-body>.swsi-paper-status').innerText(),
+      /仍在辨識中/, 'duplicate upload must explain that the first upload is active');
+    await page.locator('.swsi-paper-mode-text').click();
+    await page.locator('.swsi-paper-mode-paper').click();
+    assert(await page.locator('[id^="aiphoto_"]').isEnabled(),
+      'cancelled OCR must release the camera button after returning to paper mode');
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({
+      name:'overlap-new.png',mimeType:'image/png',buffer:png
+    });
+    await page.waitForFunction(()=>window.__overlapPending?.length===2);
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'new photo request must lock the upload button');
+    const overlapResponse=text=>new Response(JSON.stringify({
+      choices:[{message:{content:'【我讀到的作答】\\n'+text},finish_reason:'stop'}]
+    }),{status:200,headers:{'Content-Type':'application/json'}});
+    await page.evaluate(()=>{
+      window.__overlapPending[0](new Response(JSON.stringify({
+        choices:[{message:{content:'【我讀到的作答】\\n舊照片請求必須忽略。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(()=>window.__overlapDone===1);
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'late cancelled OCR must not unlock a second pending photo upload');
+    await page.evaluate(()=>{
+      window.__overlapPending[1](new Response(JSON.stringify({
+        choices:[{message:{content:'【我讀到的作答】\\n新照片的轉錄文字應保留在目前編輯器。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(()=>window.__overlapDone===2);
+    assert(await page.locator('[id^="aiphoto_"]').isEnabled(),
+      'finished second OCR upload must release the photo control');
+    assert.match(await page.locator('.swsi-paper-review textarea').inputValue(),
+      /新照片的轉錄文字/, 'stale OCR must not overwrite second photo transcription');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeStale,
+      'interleaved photo uploads must not change confirmed draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),overlapBaseline+2,
+      'two OCR calls must not silently start a text-feedback request');
+    // Closing and reopening the same essay while OCR is pending creates a
+    // NEW DOM panel. The old request must not disable the fresh upload button
+    // until timeout, nor may its late reply overwrite a new photo session.
+    const navigationBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    const navigationDoneBaseline=await page.evaluate(()=>window.__overlapDone);
+    await page.evaluate(()=>{
+      window.__navigationPending=[];
+      window.swsiFetchWithTimeout=async function(_url,opts){
+        window.__paperRequests.push(JSON.parse(opts.body));
+        return new Promise(resolve=>window.__navigationPending.push(resolve));
+      };
+    });
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({
+      name:'navigation-old.png',mimeType:'image/png',buffer:png
+    });
+    await page.waitForFunction(()=>window.__navigationPending?.length===1);
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'pending OCR must disable camera before navigation');
+    await page.evaluate(()=>closeEssay());
+    await page.locator('.swsi-paper-essay').waitFor({state:'detached'});
+    await page.evaluate(id=>toggleEssay(id),essayId);
+    await page.locator('.swsi-paper-essay').waitFor({timeout:12000});
+    assert(await page.locator('[id^="aiphoto_"]').isEnabled(),
+      'reopening same essay must cancel old detached OCR and re-enable camera');
+    await page.locator('input[type=file][id^="photo_"]').setInputFiles({
+      name:'navigation-new.png',mimeType:'image/png',buffer:png
+    });
+    await page.waitForFunction(()=>window.__navigationPending?.length===2);
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'new OCR must lock the new camera control');
+    await page.evaluate(()=>{
+      window.__navigationPending[0](new Response(JSON.stringify({
+        choices:[{message:{content:'【我讀到的作答】\\n已取消的上一個題目畫面。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(n=>window.__overlapDone===n+1,navigationDoneBaseline);
+    assert(await page.locator('[id^="aiphoto_"]').isDisabled(),
+      'stale detached-panel response must not unlock the newer upload');
+    await page.evaluate(()=>{
+      window.__navigationPending[1](new Response(JSON.stringify({
+        choices:[{message:{content:'【我讀到的作答】\\n再次開啟題目後的新照片文字。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(n=>window.__overlapDone===n+2,navigationDoneBaseline);
+    assert(await page.locator('[id^="aiphoto_"]').isEnabled(),
+      'new photo completion must restore the reopened camera control');
+    assert.match(await page.locator('.swsi-paper-review textarea').inputValue(),
+      /再次開啟題目後的新照片文字/,
+      'late detached-panel OCR must not overwrite the re-opened editor');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),draftBeforeStale,
+      'navigation during OCR must not silently change the typed draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),
+      navigationBaseline+2,'navigation OCR race must not trigger feedback calls');
+    // The feedback request can finish after closing and reopening the same
+    // essay. The old detached panel must never strand the new confirm button.
+    // A successful response must be shown from local feedback cache without
+    // a second paid provider call.
+    const rerenderBefore=await page.evaluate(()=>window.__paperRequests.length);
+    await page.evaluate(()=>{
+      window.__feedbackQueue=[];
+      window.swsiFetchWithTimeout=async function(_url,opts){
+        window.__paperRequests.push(JSON.parse(opts.body));
+        return new Promise(resolve=>window.__feedbackQueue.push(resolve));
+      };
+    });
+    const navigationFeedbackAnswer='一、評估家庭需求與社會支持網絡，運用社會工作倫理維護服務使用者權益。\n二、釐清制度限制與社區可用資源，規劃處遇服務並持續追蹤成效。';
+    await page.locator('.swsi-paper-review textarea').fill(navigationFeedbackAnswer);
+    page.once('dialog',dialog=>dialog.accept());
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>window.__feedbackQueue?.length===1);
+    await page.evaluate(()=>closeEssay());
+    await page.locator('.swsi-paper-essay').waitFor({state:'detached'});
+    await page.evaluate(id=>toggleEssay(id),essayId);
+    await page.locator('.swsi-paper-essay').waitFor({timeout:12000});
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'reopened essay must keep confirmation locked during pending feedback');
+    await page.evaluate(()=>{
+      window.__feedbackQueue[0](new Response(JSON.stringify({
+        error:{code:'UPSTREAM_UNAVAILABLE',message:'暫時無法處理'}
+      }),{status:503,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(()=>document.querySelector('.swsi-paper-confirm')?.disabled===false &&
+      /回饋尚未完成/.test(document.querySelector('.swsi-paper-review [role=status]')?.textContent||''),
+      null,{timeout:15000});
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),navigationFeedbackAnswer,
+      'reopened essay after failed AI response must keep its saved answer');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),rerenderBefore+1,
+      'failed feedback after navigation must spend only its original AI call');
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>window.__feedbackQueue?.length===2);
+    await page.evaluate(()=>closeEssay());
+    await page.locator('.swsi-paper-essay').waitFor({state:'detached'});
+    await page.evaluate(id=>toggleEssay(id),essayId);
+    await page.locator('.swsi-paper-essay').waitFor({timeout:12000});
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'reopened essay must stay locked until successful feedback returns');
+    await page.evaluate(()=>{
+      window.__feedbackQueue[1](new Response(JSON.stringify({
+        choices:[{message:{content:'一、方向正確，已指出社會支持與社工倫理。\n二、可補充制度資源連結與實務追蹤。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(()=>/回饋已完成/.test(
+      document.querySelector('.swsi-paper-review [role=status]')?.textContent||'') &&
+      /方向正確/.test(document.querySelector('[id^="airesult_"]')?.textContent||''),
+      null,{timeout:15000});
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'completed feedback must stay locked after navigation');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),rerenderBefore+2,
+      'restoring cached feedback after navigation must not make an extra AI request');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),navigationFeedbackAnswer,
+      'feedback completion after navigation must not replace corrected draft');
+    // The student can edit the OCR review while feedback for the earlier
+    // confirmed text is pending. Never label the old answer's feedback as
+    // belonging to the new transcription; keep both drafts intact.
+    const staleFeedbackBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    const answerWaiting='一、先評估家庭和社區的資源限制，再釐清當事人需求與服務目標。\n二、採取跨專業協作並建立處遇與追蹤機制，持續檢視成果。';
+    const answerUpdated='一、釐清需求並尊重案主自決，列出具體社區資源與福利支持方向。\n二、設計符合家庭處境的服務計畫，追蹤成效並反思倫理。';
+    await page.locator('.swsi-paper-review textarea').fill(answerWaiting);
+    page.once('dialog',dialog=>dialog.accept());
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>window.__feedbackQueue?.length===3);
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'feedback request must lock the confirmation control');
+    await page.locator('.swsi-paper-review textarea').fill(answerUpdated);
+    await page.evaluate(()=>{
+      window.__feedbackQueue[2](new Response(JSON.stringify({
+        choices:[{message:{content:'舊作答專屬回饋不可顯示為新版答案的評語。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(()=>/回饋對應先前確認的舊文字/.test(
+      document.querySelector('[id^="airesult_"]')?.textContent||''),null,{timeout:15000});
+    assert.strictEqual(await page.locator('.swsi-paper-review textarea').inputValue(),answerUpdated,
+      'new OCR edits must survive the earlier response');
+    assert(!(await page.locator('[id^="airesult_"]').innerText()).includes('舊作答專屬回饋'),
+      'old cached feedback must not be displayed for a newly edited OCR answer');
+    assert(await page.locator('.swsi-paper-confirm').isEnabled(),
+      'edited answer must be eligible for fresh explicit confirmation');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),staleFeedbackBaseline+1,
+      'editing while feedback pending must not automatically submit again');
+    page.once('dialog',dialog=>dialog.accept());
+    await page.locator('.swsi-paper-confirm').click();
+    await page.waitForFunction(()=>window.__feedbackQueue?.length===4);
+    await page.evaluate(()=>{
+      window.__feedbackQueue[3](new Response(JSON.stringify({
+        choices:[{message:{content:'新的確認文字回饋：需求評估與追蹤方向正確。'},finish_reason:'stop'}]
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    });
+    await page.waitForFunction(()=>/新的確認文字回饋/.test(
+      document.querySelector('[id^="airesult_"]')?.textContent||''),null,{timeout:15000});
+    assert(await page.locator('.swsi-paper-confirm').isDisabled(),
+      'freshly graded amended text must now be locked from duplicate feedback');
+    assert.strictEqual(await page.locator('textarea.wta').inputValue(),answerUpdated,
+      'reconfirmation must preserve the newer, corrected draft');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),staleFeedbackBaseline+2,
+      're-confirmed updated text should cost only one new text feedback call');
+    // After successful confirmation, a subsequent OCR-editor keystroke must
+    // hide the earlier graded answer immediately, without another AI call.
+    const finalEditBaseline=await page.evaluate(()=>window.__paperRequests.length);
+    assert.match(await page.locator('[id^="airesult_"]').innerText(),/新的確認文字回饋/,
+      'prior confirmed feedback is visible before changing the text');
+    await page.locator('.swsi-paper-review textarea').fill(
+      answerUpdated+'\n三、補充新的社區資源與家庭介入措施。');
+    const latestPanelText=await page.locator('[id^="airesult_"]').innerText();
+    assert.match(latestPanelText,/回饋對應先前確認的舊文字/,
+      'editing a completed OCR transcript must hide previous-answer AI feedback instantly');
+    assert(!latestPanelText.includes('新的確認文字回饋'),
+      'outdated grading must not remain visible after confirmed text is edited');
+    assert(await page.locator('.swsi-paper-confirm').isEnabled(),
+      'edited OCR text should be eligible for manual confirmation');
+    assert.strictEqual(await page.evaluate(()=>window.__paperRequests.length),finalEditBaseline,
+      'editing a confirmed OCR response must not auto-submit another AI call');
+    console.log('HANDWRITTEN ESSAY OCR CONFIRM QA OK: photo OCR, correction, explicit diagnosis, typed fallback, truncation NO-GO');
+  }finally{await browser.close();}
+})().catch(err=>{console.error(err);process.exitCode=1;});
