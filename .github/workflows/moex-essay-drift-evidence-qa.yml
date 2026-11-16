@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'scripts/moex_essay_drift_preflight.py'
+      - 'scripts/moex_essay_source_readonly_probe.py'
       - '.github/workflows/moex-social-worker-sync.yml'
       - '.github/workflows/moex-essay-drift-evidence-qa.yml'
   workflow_dispatch:
@@ -70,3 +71,34 @@ jobs:
           assert issue['id']=='E-115-2-HBSE-1' and 'q' in issue['fields'], issue
           assert issue['fields']['q']['possible_layout_whitespace_only'] is False, issue
           PY
+
+  live-source-observation:
+    name: Read-only 115-2 HBSE source comparison (NO DEPLOY)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install public PDF parser dependencies
+        run: python -m pip install --disable-pip-version-check requests pypdf pdfplumber
+
+      - name: Compare one official PDF to exact committed essay text
+        run: |
+          python scripts/moex_essay_source_readonly_probe.py \
+            --baseline-ref HEAD \
+            --out /tmp/moex-1152-hbse-source-evidence.json
+
+      - name: Retain source hash and bounded diff evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: moex-1152-hbse-readonly-source-proof
+          path: /tmp/moex-1152-hbse-source-evidence.json
+          if-no-files-found: ignore
+          retention-days: 14
