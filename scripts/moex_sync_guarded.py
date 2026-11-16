@@ -31,6 +31,7 @@ import requests
 from exam_scheme import compare_payload
 from moex_ops_event_contract import classify_payload, classify_probe
 from moex_structure_probe import exam_url, probe_live
+from moex_known_hbse_layout_preserve import preserve_exact_prior_q
 
 
 class GuardedIntakeBlocked(RuntimeError):
@@ -198,6 +199,18 @@ def main() -> int:
 
         try:
             data = _default_build_exam(code)
+            # Preserve only the previously locked 115-2 HBSE wording when
+            # the exact known one-space extraction drift AND independently
+            # verified official PDF SHA both match. Never refresh a lock or
+            # silently accept any other Official Core edit.
+            if code == "115100" and out.exists():
+                base = _production_base_module()
+                restored = preserve_exact_prior_q(
+                    data, out,
+                    pdf_supplier=lambda: base.get_bytes(base.pdf_url(code, "0304", "Q")),
+                )
+                if restored:
+                    print("115100 HBSE-1: exact PDF SHA + one-space layout drift; preserved locked wording")
             scheme = compare_payload(data)
         except Exception as exc:
             print(f"{code}: {exc}", file=sys.stderr)
