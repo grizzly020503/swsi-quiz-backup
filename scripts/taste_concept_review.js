@@ -47,7 +47,7 @@ fs.mkdirSync(out,{recursive:true});
   await ctx.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());
   const page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:4175/flow.html');await page.evaluate(()=>document.fonts.ready);
-  async function shot(state){assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`flow/${width}/${state} overflow`);await page.screenshot({path:`${out}/flow-${state}-${width}.png`,fullPage:true});}
+  async function shot(state){assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`flow/${width}/${state} overflow`);await page.screenshot({path:`${out}/flow-${state}-${width}.png`,fullPage:true,animations:'disabled'});}
   await shot('home');await page.waitForTimeout(900);await page.locator('[data-action=start]').click();await page.waitForTimeout(700);await shot('quiz');
   assert(await page.locator('[data-action=submit]').isDisabled());
   await page.locator('label[for=o2]').click();await page.waitForTimeout(400);await page.locator('[data-action=submit]').click();await page.waitForTimeout(800);await shot('feedback');
