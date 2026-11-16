@@ -59,7 +59,7 @@ def delta_hint(old: object, new: object) -> dict:
         "after_length": len(right),
         # Forensics only: this indicator never makes a change acceptable.
         "possible_layout_whitespace_only": (
-            left != right and re.sub(r"\\s+", "", left) == re.sub(r"\\s+", "", right)
+            left != right and re.sub(r"\s+", "", left) == re.sub(r"\s+", "", right)
         ),
         "edit_count": len(spans),
         "edit_samples": samples,
