@@ -61,6 +61,12 @@ fs.mkdirSync(out,{recursive:true});
   await page.locator('.question h1').evaluate(el=>el.textContent=el.textContent.repeat(5));
   await page.locator('label[for=o0] > span:nth-child(2)').evaluate(el=>el.textContent=el.textContent.repeat(10));
   await shot('long-large');
+  await page.locator('label[for=o0]').click();
+  await page.locator('[data-action=submit]').click();
+  assert(await page.locator('.feedback').isVisible());
+  await page.locator('[data-action=next]').click();await page.waitForTimeout(600);
+  assert.equal(await page.locator('.question h1').innerText(), '在服務過程中，如何讓服務使用者參與目標設定？');
+
 
   assert.deepEqual(errors,[]);report.push({design:'continuous-flow',width,errors,result:'1 / 2 correct verified'});
   const video=page.video();await ctx.close();if(video)await video.saveAs(`${out}/flow-motion.webm`);
