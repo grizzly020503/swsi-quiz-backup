@@ -55,6 +55,13 @@ fs.mkdirSync(out,{recursive:true});
   await page.locator('[data-action=next]').click();await page.waitForTimeout(700);
   await page.locator('label[for=o1]').click();await page.locator('[data-action=submit]').click();await page.waitForTimeout(800);await page.locator('[data-action=next]').click();await page.waitForTimeout(1200);await shot('result');
   assert.equal(await page.locator('.result-stats strong').nth(1).innerText(),'1 / 2');
+  await page.locator('main [data-action=home]').click();await page.waitForTimeout(600);
+  await page.locator('[data-action=start]').click();await page.waitForTimeout(600);
+  await page.locator('[data-action=large]').click();
+  await page.locator('.question h1').evaluate(el=>el.textContent=el.textContent.repeat(5));
+  await page.locator('label[for=o0] > span:nth-child(2)').evaluate(el=>el.textContent=el.textContent.repeat(10));
+  await shot('long-large');
+
   assert.deepEqual(errors,[]);report.push({design:'continuous-flow',width,errors,result:'1 / 2 correct verified'});
   const video=page.video();await ctx.close();if(video)await video.saveAs(`${out}/flow-motion.webm`);
  }
