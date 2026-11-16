@@ -5,6 +5,9 @@ on:
     paths:
       - 'scripts/moex_essay_drift_preflight.py'
       - 'scripts/moex_essay_source_readonly_probe.py'
+      - 'scripts/moex_known_hbse_layout_preserve.py'
+      - 'scripts/moex_known_hbse_layout_preserve_selftest.py'
+      - 'scripts/moex_sync_guarded.py'
       - '.github/workflows/moex-social-worker-sync.yml'
       - '.github/workflows/moex-essay-drift-evidence-qa.yml'
   workflow_dispatch:
@@ -27,8 +30,9 @@ jobs:
 
       - name: Compile and deterministic selftest
         run: |
-          python -m py_compile scripts/moex_essay_drift_preflight.py
+          python -m py_compile scripts/moex_essay_drift_preflight.py scripts/moex_known_hbse_layout_preserve.py scripts/moex_sync_guarded.py
           python scripts/moex_essay_drift_preflight.py --selftest
+          python scripts/moex_known_hbse_layout_preserve_selftest.py
 
       - name: Existing official essays must match the committed HEAD
         run: |
