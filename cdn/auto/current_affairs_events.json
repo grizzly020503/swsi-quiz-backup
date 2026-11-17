@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-16T21:57:40Z",
-  "source_item_count": 9,
-  "event_count": 9,
+  "generated_at": "2026-11-17T07:49:29Z",
+  "source_item_count": 10,
+  "event_count": 10,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
   "events": [
     {
@@ -235,7 +235,7 @@
     {
       "canonical_event_id": "dc093a30ddbf7e883858ea52",
       "title": "點明《老人福利法》修法三大問題 卓揆請衛福部通盤研商 回歸量能負擔、弱勢補助及永續財政原則",
-      "summary": "衛生福利部今（5）日於行政院會說明《老人福利法》第22條修法各界意見評析，行政院長卓榮泰於聽取相關說明後表示，此次老福法修法，違反社會保險原則與世代正義、社會福利應優先補助弱勢原則，以及《憲法》與財政紀律，請衛福部在綜整各方意見之後，通盤研商及審慎評估各個受影響層面，並回歸量能負擔、確保弱勢補助，以及永續財政原則。 卓院長指出，長者福利照顧一向是政府重要政策，依現行機制，對於70歲以上低收入戶、中低收入戶長者，政府每年編列12.2億元預算補貼健保費，65歲至69歲低收入戶、中低收入戶長者，則由地方政府依其財政能力予以協助。 卓院長表示，此次修法將65歲以",
+      "summary": "衛生福利部今（5）日於行政院會說明《老人福利法》第22條修法各界意見評析，行政院長卓榮泰於聽取相關說明後表示，此次老福法修法，違反社會保險原則與世代正義、社會福利應優先補助弱勢原則，以及《憲法》與財政紀律，請衛福部在綜整各方意見之後，通盤研商及審慎評估各個受影響層面，並回歸量能負擔、確保弱勢補助，以及永續財政原則。卓院長指出，長者福利照顧一向是政府重要政策，依現行機制，對於70歲以上低收入戶、中低收入戶長者，政府每年編列12.2億元預算補貼健保費，65歲至69歲低收入戶、中低收入戶長者，則由地方政府依其財政能力予以協助。卓院長表示，此次修法將65歲以上長",
       "category": "長照與高齡",
       "subjects": [
         "社會工作直接服務",
@@ -313,26 +313,18 @@
         "num:1220000000",
         "num:40000000000"
       ],
-      "source_count": 2,
-      "official_source_count": 2,
+      "source_count": 1,
+      "official_source_count": 1,
       "sources": [
-        "行政院本院新聞",
-        "衛生福利部焦點新聞"
+        "行政院本院新聞"
       ],
       "evidence": [
-        {
-          "source_name": "衛生福利部焦點新聞",
-          "source_url": "https://www.mohw.gov.tw/cp-16-88384-1.html",
-          "source_type": "official",
-          "published_at": "2026-11-05T08:46:00Z",
-          "item_id": "topic:de820a9347269d2de045acfdbc71aada"
-        },
         {
           "source_name": "行政院本院新聞",
           "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//92740cf4-2585-4cc7-8593-d6d9ffd90f9b",
           "source_type": "official",
           "published_at": "2026-11-05T08:34:12Z",
-          "item_id": "topic:de820a9347269d2de045acfdbc71aada"
+          "item_id": "5a443f7ec7fb6cc9f65888a5ae78ccb7"
         }
       ],
       "first_seen": "2026-11-05T08:34:12Z",
@@ -705,17 +697,25 @@
       "evidence": [
         {
           "source_name": "勞動部新聞稿",
+          "source_url": "https://www.mol.gov.tw/1607/1632/1633/101248/",
+          "source_type": "official",
+          "published_at": "2026-11-17T11:22:42Z",
+          "item_id": "topic:8a78c45fb12f0b68f8bab75f0c793f6a"
+        },
+        {
+          "source_name": "勞動部新聞稿",
           "source_url": "https://www.mol.gov.tw/1607/1632/1633/100107/",
           "source_type": "official",
           "published_at": "2026-11-13T16:25:32Z",
-          "item_id": "8a78c45fb12f0b68f8bab75f0c793f6a"
+          "item_id": "topic:8a78c45fb12f0b68f8bab75f0c793f6a"
         }
       ],
       "first_seen": "2026-11-13T16:25:32Z",
-      "last_seen": "2026-11-13T16:25:32Z",
-      "observation_count": 1,
+      "last_seen": "2026-11-17T11:22:42Z",
+      "observation_count": 2,
       "observation_dates": [
-        "2026-11-13"
+        "2026-11-13",
+        "2026-11-17"
       ],
       "policy_signal": "high",
       "essay_value": "medium",
@@ -1249,216 +1249,6 @@
       "law_link_note": "事件已連到具體法律；相關法律表示制度關聯，不代表本事件發生修法。"
     },
     {
-      "canonical_event_id": "76c3be5eb9a5f75d4a43a0f2",
-      "title": "社福爭議爆不完！蔣萬安忙選戰取消社工座談 工會無奈致歉",
-      "summary": "台北市長蔣萬安上任後，發生多起重大兒虐事件、兒少安置及托育監督缺失，也有案件遭監察院糾正，前陣子更爆出社工盜領長者財產爭議，屢次引起外界關注社會安全網及社工制度問題。台北市社會...…",
-      "category": "社工專業與社福制度",
-      "subjects": [
-        "社會工作",
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "組織治理與責信",
-        "倫理與權利保障",
-        "規劃與政策執行",
-        "品質與風險管理"
-      ],
-      "exam_subject_axes": [
-        "社會工作",
-        "社會政策與社會立法",
-        "社會工作直接服務"
-      ],
-      "primary_exam_subject_axes": [
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會工作直接服務"
-      ],
-      "subject_topics": {
-        "社會工作": [
-          "專業倫理、專業責任與社會工作價值"
-        ],
-        "社會政策與社會立法": [
-          "社福服務體系、專業規範與制度責信"
-        ]
-      },
-      "knowledge_topics": [
-        "社工專業與社福制度",
-        "社工",
-        "社福",
-        "制度",
-        "安置",
-        "監察"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 組織治理與責信",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 組織治理與責信 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 組織治理與責信 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社福服務體系、專業規範與制度責信",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 專業倫理、專業責任與社會工作價值",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理、專業責任與社會工作價值"
-      ],
-      "exam_tags": [
-        "制度",
-        "安置",
-        "監察",
-        "社工",
-        "社福"
-      ],
-      "related_laws": [],
-      "concept_keys": [
-        "child_protection",
-        "family_policy"
-      ],
-      "agency_keys": [],
-      "fact_keys": [],
-      "source_count": 1,
-      "official_source_count": 0,
-      "sources": [
-        "自由時報生活"
-      ],
-      "evidence": [
-        {
-          "source_name": "自由時報生活",
-          "source_url": "https://news.ltn.com.tw/news/life/breakingnews/5643043",
-          "source_type": "news",
-          "published_at": "2026-11-16T15:28:29Z",
-          "item_id": "03e0a6ba856c21ff2150127ac6472314"
-        }
-      ],
-      "first_seen": "2026-11-16T15:28:29Z",
-      "last_seen": "2026-11-16T15:28:29Z",
-      "observation_count": 1,
-      "observation_dates": [
-        "2026-11-16"
-      ],
-      "policy_signal": "medium",
-      "essay_value": "high",
-      "mcq_fact_density": "medium",
-      "signal_confidence": "high",
-      "signal_score": 8,
-      "exam_point_summary": "社福爭議爆不完！蔣萬安忙選戰取消社工座談 工會無奈致歉。政策／制度動向值得追蹤；申論可從專業角色倫理、服務輸送、人力督導與政策落差切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「專業角色倫理、服務輸送、人力督導與政策落差」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "社福",
-        "安置",
-        "監察"
-      ],
-      "related_exam_questions": [
-        {
-          "id": "DS-115-2-015",
-          "subject": "社會工作直接服務",
-          "year": "115",
-          "round": "第二次",
-          "qno": "15",
-          "major": "社會工作倫理",
-          "topic": "倫理原則 > 倫理困境與決策",
-          "match_reason": "事件詞：安置、社福",
-          "match_score": 4.2
-        },
-        {
-          "id": "SP115-1-21",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "21",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP112-1-23",
-          "subject": "社會政策與社會立法",
-          "year": "112",
-          "round": "第一次",
-          "qno": "23",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 托嬰中心監視設備",
-          "match_reason": "同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP110-2-28",
-          "subject": "社會政策與社會立法",
-          "year": "110",
-          "round": "第二次",
-          "qno": "28",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP109-1-22",
-          "subject": "社會政策與社會立法",
-          "year": "109",
-          "round": "第一次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家托育服務資格",
-          "match_reason": "同義考點：托育",
-          "match_score": 3.2
-        }
-      ],
-      "historical_exam_stats": {
-        "matched_question_count": 73,
-        "weighted_match_count": 4.0,
-        "match_breakdown": {
-          "strong": 0,
-          "medium": 9,
-          "concept": 64
-        },
-        "matched_year_count": 12,
-        "matched_years": [
-          104,
-          105,
-          106,
-          107,
-          108,
-          109,
-          110,
-          111,
-          112,
-          113,
-          114,
-          115
-        ],
-        "earliest_exam_year": 104,
-        "latest_exam_year": 115,
-        "corpus_latest_year": 115,
-        "years_since_last_exam": 0,
-        "subject_counts": {
-          "社會工作": 27,
-          "社會工作直接服務": 8,
-          "社會政策與社會立法": 38
-        },
-        "subject_count": 3,
-        "law_match_count": 0,
-        "law_match_year_count": 0,
-        "law_match_years": [],
-        "high_confidence_match_count": 0,
-        "matching_method": "event-evidence-v2.2",
-        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      },
-      "related_policy_instruments": [],
-      "law_link_basis": [],
-      "law_link_rules_schema": 1,
-      "law_link_status": "unresolved",
-      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
-    },
-    {
       "canonical_event_id": "4badfc5478b2cc15fcd39f4f",
       "title": "兼顧資安與實務 今年12月起實施長照資訊系統強化身分驗證機制",
       "summary": "為強化長期照顧資訊安全，保障長照服務使用者的個人權益，衛生福利部推動「照顧服務管理資訊平台」及「長照機構暨長照人員相關管理資訊系統」改採自然人憑證或健保卡等實體卡證驗證登入，已於113年起多次行文地方政府宣導。目前考量地方政府及長照服務提供單位的實務作業需求，從今（115）年12月1日起實施，以利準備及銜接。 衛福部表示，長照相關資訊系統為本部重要核心資訊系統，涉及大量長照服務使用者個人資料及相關業務資訊。考量近年資安事件頻傳，有必要強化系統身分驗證機制，因此調整為透過自然人憑證或健保卡等實體卡證驗證方式登入，確保個案資料及系統資訊安全。 衛福部進一步說",
@@ -1661,6 +1451,427 @@
         "subject_counts": {
           "社會工作直接服務": 1,
           "社會政策與社會立法": 36
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
+      },
+      "related_policy_instruments": [],
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
+    },
+    {
+      "canonical_event_id": "fe882be86a6b13a25cb09931",
+      "title": "發布修正之「精神疾病嚴重病人強制處置費用支付作業要點第十點及第四點附表」",
+      "summary": "修正「精神疾病嚴重病人強制處置費用支付作業要點」第十點及第四點附表，並至中華民國一百十五年九月一日生效。",
+      "category": "心理健康與成癮",
+      "subjects": [
+        "人類行為與社會環境",
+        "社會工作直接服務"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "服務輸送與跨網絡",
+        "倫理與權利保障",
+        "品質與風險管理",
+        "規劃與政策執行"
+      ],
+      "exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作直接服務",
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "primary_exam_subject_axes": [
+        "人類行為與社會環境"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作直接服務",
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "subject_topics": {
+        "人類行為與社會環境": [
+          "心理健康、精神疾病與成癮"
+        ],
+        "社會工作直接服務": [
+          "危機介入、個案管理與資源連結"
+        ],
+        "社會工作": [
+          "復元取向、去污名與權利保障"
+        ],
+        "社會政策與社會立法": [
+          "精神衛生與社區支持制度"
+        ]
+      },
+      "knowledge_topics": [
+        "心理健康與成癮",
+        "精神疾病",
+        "修正",
+        "要點"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 危機介入、個案管理與資源連結",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 復元取向、去污名與權利保障",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 精神衛生與社區支持制度",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 復元取向、去污名與權利保障",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 危機介入、個案管理與資源連結",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 精神衛生與社區支持制度",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 心理健康、精神疾病與成癮",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 危機介入、個案管理與資源連結",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 復元取向、去污名與權利保障",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 精神衛生與社區支持制度",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 復元取向、去污名與權利保障"
+      ],
+      "exam_tags": [
+        "修正",
+        "精神疾病",
+        "要點"
+      ],
+      "related_laws": [],
+      "concept_keys": [],
+      "agency_keys": [],
+      "fact_keys": [],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "衛生福利部公告訊息"
+      ],
+      "evidence": [
+        {
+          "source_name": "衛生福利部公告訊息",
+          "source_url": "https://www.mohw.gov.tw/cp-18-88500-1.html",
+          "source_type": "official",
+          "published_at": "2026-11-17T06:41:00Z",
+          "item_id": "9bbd5a5cb09be11df3f0ae1fc08d5aab"
+        }
+      ],
+      "first_seen": "2026-11-17T06:41:00Z",
+      "last_seen": "2026-11-17T06:41:00Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-11-17"
+      ],
+      "policy_signal": "high",
+      "essay_value": "low",
+      "mcq_fact_density": "low",
+      "signal_confidence": "medium",
+      "signal_score": 6,
+      "exam_point_summary": "發布修正之「精神疾病嚴重病人強制處置費用支付作業要點第十點及第四點附表」。制度或給付已有明確變動。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「精神衛生、危機介入、復元取向與去污名」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "精神疾病",
+        "修正",
+        "要點"
+      ],
+      "related_exam_questions": [
+        {
+          "id": "HBSE-114-2-032",
+          "subject": "人類行為與社會環境",
+          "year": "114",
+          "round": "第二次",
+          "qno": "32",
+          "major": "心理健康與偏差",
+          "topic": "精神疾病 > 思覺失調症",
+          "match_reason": "事件詞：精神疾病",
+          "match_score": 2.2
+        },
+        {
+          "id": "HBSE-112-2-010",
+          "subject": "人類行為與社會環境",
+          "year": "112",
+          "round": "第二次",
+          "qno": "10",
+          "major": "家庭與社會",
+          "topic": "性別議題 > 後現代女性主義",
+          "match_reason": "事件詞：修正",
+          "match_score": 2.2
+        },
+        {
+          "id": "HBSE-112-2-011",
+          "subject": "人類行為與社會環境",
+          "year": "112",
+          "round": "第二次",
+          "qno": "11",
+          "major": "發展理論",
+          "topic": "學習理論 > 行為修正策略",
+          "match_reason": "事件詞：修正",
+          "match_score": 2.2
+        },
+        {
+          "id": "DS-112-2-06",
+          "subject": "社會工作直接服務",
+          "year": "112",
+          "round": "第二次",
+          "qno": "6",
+          "major": "處遇模式與理論",
+          "topic": "危機介入 > 危機干預階段",
+          "match_reason": "事件詞：要點",
+          "match_score": 2.2
+        },
+        {
+          "id": "DS-111-2-25",
+          "subject": "社會工作直接服務",
+          "year": "111",
+          "round": "第二次",
+          "qno": "25",
+          "major": "團體工作",
+          "topic": "團體組成 > 團體目標",
+          "match_reason": "事件詞：修正",
+          "match_score": 2.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 12,
+        "weighted_match_count": 1.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 12
+        },
+        "matched_year_count": 7,
+        "matched_years": [
+          104,
+          108,
+          109,
+          110,
+          111,
+          112,
+          114
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 114,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 1,
+        "subject_counts": {
+          "人類行為與社會環境": 8,
+          "社會工作直接服務": 4
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
+      },
+      "related_policy_instruments": [],
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
+    },
+    {
+      "canonical_event_id": "853e10cb1eec8151cc2b221f",
+      "title": "「甜心議員」林穎孟被家暴最新！誠泰少東林致光遭判刑定讞",
+      "summary": "前台北市議員林穎孟與誠泰銀行少東林致光的婚姻不到2年便告終；林致光因違反保護令遭判拘役40日，高等法院17日駁回上訴，全案定讞。案件源於兩人因手機錄影發生爭執，林穎孟撤回傷害告訴後，法院仍認定林致光違反保護令。",
+      "category": "家暴與性暴力",
+      "subjects": [
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "品質與風險管理",
+        "服務輸送與跨網絡",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會工作直接服務": [
+          "危險評估與安全計畫",
+          "創傷知情與危機介入"
+        ],
+        "人類行為與社會環境": [
+          "創傷反應與家庭互動"
+        ],
+        "社會政策與社會立法": [
+          "家暴與性暴力防治制度",
+          "保護令與被害人權益"
+        ],
+        "社會工作": [
+          "被害人權利與專業倫理"
+        ]
+      },
+      "knowledge_topics": [
+        "家暴與性暴力",
+        "家暴",
+        "保護令",
+        "保護"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 創傷反應與家庭互動"
+      ],
+      "exam_tags": [
+        "保護",
+        "保護令",
+        "家暴"
+      ],
+      "related_laws": [],
+      "concept_keys": [
+        "gender_violence"
+      ],
+      "agency_keys": [],
+      "fact_keys": [],
+      "source_count": 1,
+      "official_source_count": 0,
+      "sources": [
+        "中天新聞社會"
+      ],
+      "evidence": [
+        {
+          "source_name": "中天新聞社會",
+          "source_url": "https://ctinews.com/news/items/4bnbkLb9WP",
+          "source_type": "news",
+          "published_at": "2026-11-17T07:31:22Z",
+          "item_id": "81f8381b9fcaf41ae642523afa5e9a11"
+        }
+      ],
+      "first_seen": "2026-11-17T07:31:22Z",
+      "last_seen": "2026-11-17T07:31:22Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-11-17"
+      ],
+      "policy_signal": "low",
+      "essay_value": "high",
+      "mcq_fact_density": "low",
+      "signal_confidence": "medium",
+      "signal_score": 6,
+      "exam_point_summary": "「甜心議員」林穎孟被家暴最新！誠泰少東林致光遭判刑定讞。尚未見明確制度變動，先作事件與專業議題觀察；申論可從危險評估、保護令、創傷知情與跨網絡合作切入。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「危險評估、保護令、創傷知情與跨網絡合作」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "家暴",
+        "保護令"
+      ],
+      "related_exam_questions": [
+        {
+          "id": "SP115-1-11",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "11",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 保護令聲請",
+          "match_reason": "事件詞：保護令、家暴；共同概念：性別暴力",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP-115-2-027",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "27",
+          "major": "其他社會立法與人權公約",
+          "topic": "家庭暴力防治法 > 保護令聲請管轄",
+          "match_reason": "事件詞：保護令；共同概念：性別暴力",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP114-1-29",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第一次",
+          "qno": "29",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 急迫危險保護令",
+          "match_reason": "事件詞：保護令、家暴；共同概念：性別暴力",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP114-2-30",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第二次",
+          "qno": "30",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 通常保護令",
+          "match_reason": "事件詞：保護令、家暴；共同概念：性別暴力",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP113-1-12",
+          "subject": "社會政策與社會立法",
+          "year": "113",
+          "round": "第一次",
+          "qno": "12",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 保護令核發機關",
+          "match_reason": "事件詞：保護令、家暴；共同概念：性別暴力",
+          "match_score": 4.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 77,
+        "weighted_match_count": 4.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 22,
+          "concept": 55
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作直接服務": 2,
+          "社會政策與社會立法": 75
         },
         "subject_count": 2,
         "law_match_count": 0,
