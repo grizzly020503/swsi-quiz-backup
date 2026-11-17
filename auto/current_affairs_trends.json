@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-17T07:49:29Z",
+  "generated_at": "2026-11-17T20:50:42Z",
   "event_count": 10,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -910,7 +910,7 @@
         "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
       "trend_state": "one-off",
-      "trend_score": 3.8,
+      "trend_score": 3.5,
       "why": [
         "1 個官方來源",
         "有政策／制度訊號",
@@ -931,7 +931,7 @@
         "persistence": 0.0,
         "essay_value": 0.55,
         "mcq_density": 0.9,
-        "recency": 0.6
+        "recency": 0.2
       },
       "source_count": 1,
       "official_source_count": 1,
@@ -1537,7 +1537,7 @@
         "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 老化、失智與生命歷程"
       ],
       "trend_state": "one-off",
-      "trend_score": 3.3,
+      "trend_score": 3.0,
       "why": [
         "1 個官方來源",
         "歷屆同概念／事件詞關聯 37 題，跨 12 個年度；強 0／中 37／概念 0",
@@ -1556,7 +1556,7 @@
         "persistence": 0.0,
         "essay_value": 0.55,
         "mcq_density": 0.45,
-        "recency": 0.6
+        "recency": 0.2
       },
       "source_count": 1,
       "official_source_count": 1,
