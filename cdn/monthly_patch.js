@@ -2526,16 +2526,17 @@ html[data-fs="2"]{
   };
 
   function progressData(){
-    var h=loadHist(),now=Date.now(),recent=h.filter(function(x){return Number(x.ts||0)>=now-7*DAY;}),bySubj={},wrongTopic={},byCause={},unique=new Set();
+    var records=loadHist(),h=records.filter(function(x){return x&&x.answered===true;}),unanswered=records.filter(function(x){return x&&x.answered===false;}).length,legacy=records.filter(function(x){return x&&typeof x.answered!=='boolean';}).length,now=Date.now(),recent=h.filter(function(x){return Number(x.ts||0)>=now-7*DAY;}),bySubj={},wrongTopic={},byCause={},unique=new Set();
     h.forEach(function(x){if(x&&x.id)unique.add(x.id);var s=x.subject||'未分類';if(!bySubj[s])bySubj[s]={t:0,c:0};bySubj[s].t++;if(x.correct)bySubj[s].c++;if(!x.correct){var q=null;try{q=ALL.find(function(z){return z.id===x.id;});}catch(_e){}var t=(q&&(q.topic||q.major))||x.major||'未分類';wrongTopic[t]=(wrongTopic[t]||0)+1;}});
     var cm=loadCauses();Object.keys(cm).forEach(function(id){var c=cm[id]&&cm[id].cause;if(c)byCause[c]=(byCause[c]||0)+1;});
-    return {hist:h,recent:recent,bySubj:bySubj,wrongTopic:wrongTopic,byCause:byCause,unique:unique};
+    return {hist:h,unanswered:unanswered,legacy:legacy,recent:recent,bySubj:bySubj,wrongTopic:wrongTopic,byCause:byCause,unique:unique};
   }
   function pct(c,t){return t?Math.round(c/t*100):0;}
 
   renderProgress=function(){
     var p=progressData(),total=p.hist.length,rv=reviewSummary(),essays=draftCount();
-    if(!total){app.innerHTML='<div class="empty"><div class="ico">◴</div><h3>還沒有刷題紀錄</h3><p>開始刷題後，這裡會告訴你哪一科比較弱、最近有沒有進步，以及下一步建議做什麼。</p><button class="btn" style="max-width:200px;margin:22px auto 0" onclick="swsiStartRecommended20()">先刷 20 題</button>'+(essays?'<div style="margin-top:14px;color:var(--ink-soft);font-size:13px">這台裝置目前有 '+essays+' 題申論作答草稿。</div>':'')+'</div>';return;}
+    var recordNote='<p class="swsi-learning-muted">未作答紀錄 '+p.unanswered+' 次；舊紀錄 '+p.legacy+' 次無法區分是否作答，均不納入以下正確率、覆蓋率與弱科建議。模擬考成績與待複習題仍保留。</p>';
+    if(!total){app.innerHTML=recordNote+'<div class="empty"><div class="ico">◴</div><h3>還沒有可分析的作答紀錄</h3><p>開始刷題後，這裡會告訴你哪一科比較弱、最近有沒有進步，以及下一步建議做什麼。</p><button class="btn" style="max-width:200px;margin:22px auto 0" onclick="swsiStartRecommended20()">先刷 20 題</button>'+(essays?'<div style="margin-top:14px;color:var(--ink-soft);font-size:13px">這台裝置目前有 '+essays+' 題申論作答草稿。</div>':'')+'</div>';return;}
     var correct=p.hist.filter(function(x){return x.correct;}).length,rate=pct(correct,total),rc=p.recent.filter(function(x){return x.correct;}).length,rr=p.recent.length?pct(rc,p.recent.length):null;
     var allCount=0;try{allCount=ALL.length||0;}catch(_e){}var coverage=allCount?Math.min(100,Math.round(p.unique.size/allCount*100)):0;
     var subjects=Object.entries(p.bySubj).map(function(x){return {name:x[0],t:x[1].t,c:x[1].c,r:pct(x[1].c,x[1].t)};}).sort(function(a,b){return a.r-b.r||b.t-a.t;});
@@ -2547,9 +2548,10 @@ html[data-fs="2"]{
     else if(weak)action='<div class="swsi-next-copy"><b>目前最值得補：'+H(weak.name)+'</b><span>你在這科目前 '+weak.r+'%（'+weak.c+'/'+weak.t+'）。先用 20 題再確認一次。</span></div><button class="btn" onclick="swsiPracticeSubject('+actionArg(weak.name)+',20)">練 '+H(weak.name)+' 20 題</button>';
     else action='<div class="swsi-next-copy"><b>繼續累積一點資料。</b><span>再刷 20 題後，弱點判斷會更有參考價值。</span></div><button class="btn" onclick="swsiStartRecommended20()">繼續刷 20 題</button>';
     var subjHTML=subjects.map(function(s){var col=s.r>=70?'var(--correct)':s.r>=50?'var(--gold)':'var(--wrong)';return '<button class="swsi-progress-subject" onclick="swsiPracticeSubject('+actionArg(s.name)+',20)"><div class="top"><b>'+H(s.name)+'</b><span>'+s.r+'%　('+s.c+'/'+s.t+')</span></div><div class="accbar"><i style="width:'+s.r+'%;background:'+col+'"></i></div><small>點一下練這科 20 題</small></button>';}).join('');
-    var h='<div class="section-h">我的學習進度</div><div class="section-s">只看能幫你決定下一步的數據。重複作答會算進正確率；「題庫覆蓋」則同一題只算一次。</div>';
-    h+='<section class="swsi-progress-hero"><div><small>總正確率</small><strong>'+rate+'%</strong></div><div class="swsi-progress-mini"><span><b>'+total+'</b>作答次數</span><span><b>'+p.unique.size+'</b>不同題目</span><span><b>'+coverage+'%</b>題庫覆蓋</span></div></section>';
-    h+='<div class="swsi-progress-strip"><div><b>'+(rr==null?'—':rr+'%')+'</b><span>最近 7 天'+(p.recent.length?' · '+p.recent.length+' 題':' · 尚無紀錄')+'</span></div><div><b>'+rv.activeCount+'</b><span>未熟練錯題</span></div><div><b>'+essays+'</b><span>申論草稿</span></div></div>';
+    var h='<div class="section-h">我的學習進度</div><div class="section-s">只看能幫你決定下一步的數據。只計實際作答；重複作答會算進正確率，「題庫覆蓋」同一題只算一次。</div>';
+    h+=recordNote;
+    h+='<section class="swsi-progress-hero"><div><small>已作答正確率</small><strong>'+rate+'%</strong></div><div class="swsi-progress-mini"><span><b>'+total+'</b>作答次數</span><span><b>'+p.unique.size+'</b>不同題目</span><span><b>'+coverage+'%</b>題庫覆蓋</span></div></section>';
+    h+='<div class="swsi-progress-strip"><div><b>'+(rr==null?'—':rr+'%')+'</b><span>最近 7 天'+(p.recent.length?' · '+p.recent.length+' 題':' · 尚無紀錄')+'</span></div><div><b>'+rv.activeCount+'</b><span>待複習（含未作答）</span></div><div><b>'+essays+'</b><span>申論草稿</span></div></div>';
     h+='<section class="swsi-next-card"><div class="swsi-learning-h">今天下一步</div>'+action+'</section><section class="swsi-learning-section"><div class="swsi-learning-h">各科狀況</div>'+subjHTML+'</section>';
     if(topTopics.length)h+='<section class="swsi-learning-section"><div class="swsi-learning-h">最常答錯的考點</div>'+topTopics.map(function(x){return '<button class="swsi-learning-row" onclick="swsiPracticeTopic('+actionArg(x[0])+',5)"><span><b>'+H(x[0])+'</b><small>累計錯 '+x[1]+' 次 · 練 5 題確認</small></span><span>›</span></button>';}).join('')+'</section>';
     if(causeRows.length)h+='<section class="swsi-learning-section"><div class="swsi-learning-h">你自己標記的錯因</div>'+causeRows.map(function(x){return '<div class="swsi-cause-stat"><span>'+H(x[0])+'</span><b>'+x[1]+' 題</b></div>';}).join('')+'</section>';
@@ -3280,12 +3282,10 @@ html[data-fs="2"]{
 
   function lawShortName(l){return N(l&&l.n).replace(/(施行細則|條例|辦法|規則|法)$/,'');}
   function lawMcqScore(q,l){
-    var blob=N((q.q||'')+' '+(q.topic||'')+' '+(q.major||'')+' '+(q.keywords||'')+' '+(q.law||''));
-    var full=N(l.n),short=lawShortName(l),score=0;
-    if(full&&blob.indexOf(full)>=0)score+=10;
-    else if(short.length>=4&&blob.indexOf(short)>=0)score+=5;
-    A(l.k).forEach(function(k){var nk=N(k);if(nk.length>=3&&blob.indexOf(nk)>=0)score++;});
-    return score;
+    // A profession name or generic keyword is not evidence of a law question.
+    // Only the full law title in the examination text qualifies for this practice set.
+    var blob=N([q.q].concat(['A','B','C','D'].map(function(k){return q.options&&q.options[k]||'';})).join(' ')),full=N(l&&l.n);
+    return full&&blob.indexOf(full)>=0?10:0;
   }
   function lawMcqs(l){
     var list=[];try{list=ALL.filter(function(q){return lawMcqScore(q,l)>=2;});}catch(_e){}

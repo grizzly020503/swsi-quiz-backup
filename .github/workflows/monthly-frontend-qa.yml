@@ -111,6 +111,11 @@ jobs:
         with:
           deno-version: v2.x
 
+      - name: Learning flow regressions (offline)
+        run: |
+          node scripts/learning_flow_regression.js
+          node scripts/learning_loop_action_smoke.js
+
       - name: JavaScript syntax
         run: |
           cat monthly_patch_parts/*.part > /tmp/monthly_patch.js

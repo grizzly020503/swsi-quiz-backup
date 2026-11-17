@@ -225,12 +225,10 @@
 
   function lawShortName(l){return N(l&&l.n).replace(/(施行細則|條例|辦法|規則|法)$/,'');}
   function lawMcqScore(q,l){
-    var blob=N((q.q||'')+' '+(q.topic||'')+' '+(q.major||'')+' '+(q.keywords||'')+' '+(q.law||''));
-    var full=N(l.n),short=lawShortName(l),score=0;
-    if(full&&blob.indexOf(full)>=0)score+=10;
-    else if(short.length>=4&&blob.indexOf(short)>=0)score+=5;
-    A(l.k).forEach(function(k){var nk=N(k);if(nk.length>=3&&blob.indexOf(nk)>=0)score++;});
-    return score;
+    // A profession name or generic keyword is not evidence of a law question.
+    // Only the full law title in the examination text qualifies for this practice set.
+    var blob=N([q.q].concat(['A','B','C','D'].map(function(k){return q.options&&q.options[k]||'';})).join(' ')),full=N(l&&l.n);
+    return full&&blob.indexOf(full)>=0?10:0;
   }
   function lawMcqs(l){
     var list=[];try{list=ALL.filter(function(q){return lawMcqScore(q,l)>=2;});}catch(_e){}

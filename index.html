@@ -1471,7 +1471,7 @@ function markStorageSaved(){
 }
 function saveHist(h){ try{localStorage.setItem(LS_KEY,JSON.stringify(h)); markStorageSaved(); }catch(e){ markStorageFailure(); } }
 function record(item,picked,correct){ const h=loadHist();
-  h.push({id:item.id,subject:item.subject,major:item.major,mistake:item.mistake||'',correct,ts:Date.now()}); saveHist(h);
+  h.push({id:item.id,subject:item.subject,major:item.major,mistake:item.mistake||'',answered:/^[ABCD]$/.test(String(picked||'')),correct,ts:Date.now()}); saveHist(h);
   updateReviewSchedule(item,correct); }
 
 /* ===== 間隔複習 2.0 START ===== */
@@ -2579,8 +2579,16 @@ function essayRows(pool,showSubject){
 function pickEssaySubj(s){ essaySubj=s; essayCluster=null; openEssay=null; window.scrollTo(0,0); render(); }
 function closeEssay(){ openEssay=null; guideOpen=null; dissectOpen=null; window.scrollTo(0,0); render(); }
 function toggleEssay(id){ openEssay = (openEssay===id)?null:id; guideOpen=null; dissectOpen=null; window.scrollTo(0,0); render(); }
-function toggleDissect(id){ dissectOpen=(dissectOpen===id)?null:id; render(); }
-function showGuide(id){ guideOpen = id; render(); }
+// Keep the live AI section, including pending request targets, when revealing study aids.
+function renderEssayAid(id){
+  const result=document.getElementById('airesult_'+id);
+  const section=result&&result.parentElement;
+  render();
+  const replacement=document.getElementById('airesult_'+id);
+  if(section&&replacement) replacement.parentElement.replaceWith(section);
+}
+function toggleDissect(id){ dissectOpen=(dissectOpen===id)?null:id; renderEssayAid(id); }
+function showGuide(id){ guideOpen = id; renderEssayAid(id); }
 function guideHTML(g){
   return `<div class="guide">
     <div class="gsec"><div class="glabel">考點</div><div class="gtext">${esc(g.kao)}</div></div>
