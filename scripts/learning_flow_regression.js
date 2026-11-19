@@ -33,7 +33,10 @@ for(const file of ['index.html','cdn/index.html']){
 }
 const history=[{id:'correct',subject:'已作答科',answered:true,correct:true,ts:Date.now()},...Array.from({length:19},(_,i)=>({id:'blank'+i,subject:'未作答科',answered:false,correct:false,ts:Date.now()})),{id:'old',subject:'舊科',correct:false,ts:1}];
 const ctx={app:{innerHTML:''},ALL:[],loadHist:()=>history,reviewSummary:()=>({dueCount:0,activeCount:19,masteredCount:0}),localStorage:{length:0,getItem:()=>null,key:()=>null},document:{getElementById:()=>({}),querySelector:()=>null},renderProgress(){},renderReview(){},view:'none'};ctx.window=ctx;vm.createContext(ctx);vm.runInContext(read('monthly_patch_parts/70.learning-loop.part'),ctx);ctx.renderProgress();
-assert(ctx.app.innerHTML.includes('<strong>100%</strong>'));assert(ctx.app.innerHTML.includes('未作答紀錄 19 次'));assert(ctx.app.innerHTML.includes('舊紀錄 1 次'));
-assert(!ctx.app.innerHTML.includes('未作答科'));assert(!ctx.app.innerHTML.includes('舊科'));
-history.splice(0,1);ctx.renderProgress();assert(ctx.app.innerHTML.includes('還沒有可分析的作答紀錄'));assert(!ctx.app.innerHTML.includes('<strong>0%</strong>'));
-console.log(`LEARNING FLOW REGRESSION OK: AI section identity/pending callback, attempt metadata, 19 blanks + legacy exclusion; ${matching.length} explicit-title law candidates across ${all.length} questions.`);
+// Legacy rows (no answered flag) keep pre-release counting so existing students' progress does not reset.
+assert(ctx.app.innerHTML.includes('<strong>50%</strong>'));assert(ctx.app.innerHTML.includes('另有 19 次模擬考未作答'));
+assert(!ctx.app.innerHTML.includes('未作答科'));assert(ctx.app.innerHTML.includes('舊科'));
+history.splice(0,1);history.pop();ctx.renderProgress();assert(ctx.app.innerHTML.includes('還沒有可分析的作答紀錄'));assert(!ctx.app.innerHTML.includes('<strong>0%</strong>'));
+history.length=0;ctx.renderProgress();assert(!ctx.app.innerHTML.includes('模擬考未作答'),'zero-count note should be hidden');
+history.push({id:'old2',subject:'舊科',correct:true,ts:1});ctx.renderProgress();assert(ctx.app.innerHTML.includes('<strong>100%</strong>'),'legacy-only history must not reset progress');
+console.log(`LEARNING FLOW REGRESSION OK: AI section identity/pending callback, attempt metadata, 19 blanks excluded, legacy retained, zero note hidden; ${matching.length} explicit-title law candidates across ${all.length} questions.`);
