@@ -416,7 +416,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       };
       const pendingPromise = runAIFeedback(id);
       const pendingNode = document.getElementById('airesult_' + id);
-      const pendingShown = !!pendingNode && pendingNode.textContent.includes('AI 批改中');
+      const pendingShown = !!pendingNode && /AI (?:正在閱讀題目與你的作答|批改中)/.test(pendingNode.textContent || '');
       if (typeof release !== 'function') throw new Error('mock AI request not issued');
       showGuide(id);
       toggleDissect(id);
