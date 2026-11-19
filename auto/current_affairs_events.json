@@ -1,237 +1,10 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-17T20:50:42Z",
-  "source_item_count": 10,
-  "event_count": 10,
+  "generated_at": "2026-11-19T20:30:02Z",
+  "source_item_count": 12,
+  "event_count": 12,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
   "events": [
-    {
-      "canonical_event_id": "edf010aa7905ab7d2ed52e6c",
-      "title": "政院同意會銜司法院「少年事件處理法」部分條文修正草案及「少年事件處理法」第18條之2修正草案",
-      "summary": "為適時回應社會對公共安全與被害人程序權益保障之關注，司法院擬具之「少年事件處理法」部分條文修正草案暨「少年事件處理法」第18條之2修正草案，已於今（29）日於行政院會通過同意會銜，其中「少年事件處理法」第18條之2有關成少共犯案件之相關司法程序，以及第81條有關少年犯之假釋程序事項，因法務部與司法院有不同意見，爰併列司法院版本及本院版本，將送請立法院審議。行政院長卓榮泰表示，為回應社會對少年事件與被害人權益保障的關注，兼顧保障少年自我成長及復歸社會的需要，同時也檢討當前成少共犯案件的移送程序，上述兩案之修正為司法少年制度重要的修法。卓院長指出，為修補現行",
-      "category": "少年司法與犯罪防治",
-      "subjects": [
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "服務輸送與跨網絡",
-        "倫理與權利保障",
-        "品質與風險管理",
-        "規劃與政策執行"
-      ],
-      "exam_subject_axes": [
-        "社會工作直接服務",
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "primary_exam_subject_axes": [
-        "社會工作直接服務"
-      ],
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "subject_topics": {
-        "社會工作直接服務": [
-          "少年評估、家庭工作與社區處遇"
-        ],
-        "人類行為與社會環境": [
-          "青少年發展、偏差行為與環境因素"
-        ],
-        "社會政策與社會立法": [
-          "少年司法與保護處分制度"
-        ],
-        "社會工作": [
-          "去標籤、權利保障與社區復歸"
-        ]
-      },
-      "knowledge_topics": [
-        "少年司法與犯罪防治",
-        "少年事件",
-        "少年犯罪",
-        "修法",
-        "修正",
-        "制度"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 少年評估、家庭工作與社區處遇",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 去標籤、權利保障與社區復歸",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 少年司法與保護處分制度",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 去標籤、權利保障與社區復歸",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 少年評估、家庭工作與社區處遇",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 少年司法與保護處分制度",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 青少年發展、偏差行為與環境因素",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 少年評估、家庭工作與社區處遇",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 去標籤、權利保障與社區復歸",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 少年司法與保護處分制度",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 去標籤、權利保障與社區復歸"
-      ],
-      "exam_tags": [
-        "修正",
-        "修法",
-        "制度",
-        "少年事件",
-        "少年犯罪"
-      ],
-      "related_laws": [
-        "少年事件處理法"
-      ],
-      "concept_keys": [],
-      "agency_keys": [],
-      "fact_keys": [],
-      "source_count": 1,
-      "official_source_count": 1,
-      "sources": [
-        "行政院本院新聞"
-      ],
-      "evidence": [
-        {
-          "source_name": "行政院本院新聞",
-          "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//f1ff74a8-06f3-45cc-b901-c63fce7d624c",
-          "source_type": "official",
-          "published_at": "2026-10-29T04:47:08Z",
-          "item_id": "58ebef461dadb2197dd67a6087da19c1"
-        }
-      ],
-      "first_seen": "2026-10-29T04:47:08Z",
-      "last_seen": "2026-10-29T04:47:08Z",
-      "observation_count": 1,
-      "observation_dates": [
-        "2026-10-29"
-      ],
-      "policy_signal": "high",
-      "essay_value": "high",
-      "mcq_fact_density": "medium",
-      "signal_confidence": "high",
-      "signal_score": 10,
-      "exam_point_summary": "政院同意會銜司法院「少年事件處理法」部分條文修正草案及「少年事件處理法」第18條之2修正草案。涉及「少年事件處理法」。制度或給付已有明確變動；申論可從保護優先、去標籤、家庭學校社區支持切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「保護優先、去標籤、家庭學校社區支持」切入，並結合「少年事件處理法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "第18條",
-        "第81條",
-        "法務部",
-        "行政院",
-        "少年事件處理法",
-        "少年事件",
-        "少年犯罪",
-        "修法"
-      ],
-      "related_exam_questions": [
-        {
-          "id": "SP108-2-22",
-          "subject": "社會政策與社會立法",
-          "year": "108",
-          "round": "第二次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "少年事件處理法 > 少年法院裁定處置",
-          "match_reason": "事件詞：少年事件；同法規「少年事件處理法」",
-          "match_score": 5.2
-        },
-        {
-          "id": "SP107-2-23",
-          "subject": "社會政策與社會立法",
-          "year": "107",
-          "round": "第二次",
-          "qno": "23",
-          "major": "兒少福利法規",
-          "topic": "少年事件處理法 > 保護管束感化教育期限",
-          "match_reason": "事件詞：少年事件；同法規「少年事件處理法」",
-          "match_score": 5.2
-        },
-        {
-          "id": "SP106-1-04",
-          "subject": "社會政策與社會立法",
-          "year": "106",
-          "round": "第一次",
-          "qno": "4",
-          "major": "兒少福利法規",
-          "topic": "少年事件處理法 > 虞犯事件處理",
-          "match_reason": "事件詞：少年事件；同法規「少年事件處理法」",
-          "match_score": 5.2
-        },
-        {
-          "id": "SP115-1-26",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "26",
-          "major": "社會救助",
-          "topic": "社會救助法 > 有工作能力者服務",
-          "match_reason": "事件詞：修正",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP115-1-27",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "27",
-          "major": "社會救助",
-          "topic": "社會救助法 > 低收入戶福利",
-          "match_reason": "事件詞：修正",
-          "match_score": 2.2
-        }
-      ],
-      "historical_exam_stats": {
-        "matched_question_count": 84,
-        "weighted_match_count": 4.0,
-        "match_breakdown": {
-          "strong": 3,
-          "medium": 0,
-          "concept": 81
-        },
-        "matched_year_count": 12,
-        "matched_years": [
-          104,
-          105,
-          106,
-          107,
-          108,
-          109,
-          110,
-          111,
-          112,
-          113,
-          114,
-          115
-        ],
-        "earliest_exam_year": 104,
-        "latest_exam_year": 115,
-        "corpus_latest_year": 115,
-        "years_since_last_exam": 0,
-        "subject_counts": {
-          "社會工作直接服務": 2,
-          "社會政策與社會立法": 82
-        },
-        "subject_count": 2,
-        "law_match_count": 4,
-        "law_match_year_count": 4,
-        "law_match_years": [
-          106,
-          107,
-          108,
-          109
-        ],
-        "high_confidence_match_count": 3,
-        "matching_method": "event-evidence-v2.2",
-        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      },
-      "related_policy_instruments": [],
-      "law_link_basis": [],
-      "law_link_rules_schema": 1,
-      "law_link_status": "law_linked",
-      "law_link_note": "事件已連到具體法律；相關法律表示制度關聯，不代表本事件發生修法。"
-    },
     {
       "canonical_event_id": "dc093a30ddbf7e883858ea52",
       "title": "點明《老人福利法》修法三大問題 卓揆請衛福部通盤研商 回歸量能負擔、弱勢補助及永續財政原則",
@@ -699,7 +472,7 @@
           "source_name": "勞動部新聞稿",
           "source_url": "https://www.mol.gov.tw/1607/1632/1633/101248/",
           "source_type": "official",
-          "published_at": "2026-11-17T11:22:42Z",
+          "published_at": "2026-11-18T17:02:12Z",
           "item_id": "topic:8a78c45fb12f0b68f8bab75f0c793f6a"
         },
         {
@@ -711,11 +484,12 @@
         }
       ],
       "first_seen": "2026-11-13T16:25:32Z",
-      "last_seen": "2026-11-17T11:22:42Z",
-      "observation_count": 2,
+      "last_seen": "2026-11-18T17:02:12Z",
+      "observation_count": 3,
       "observation_dates": [
         "2026-11-13",
-        "2026-11-17"
+        "2026-11-17",
+        "2026-11-18"
       ],
       "policy_signal": "high",
       "essay_value": "medium",
@@ -866,6 +640,229 @@
           "article": "第23條"
         }
       ],
+      "law_link_rules_schema": 1,
+      "law_link_status": "law_linked",
+      "law_link_note": "事件已連到具體法律；相關法律表示制度關聯，不代表本事件發生修法。"
+    },
+    {
+      "canonical_event_id": "abe0748efe85975223f0630a",
+      "title": "卓揆：儘速完成《性別平等工作法》及《就業保險法》子法及配套措施 確保116年元旦勞工與軍公教同步上路",
+      "summary": "行政院長卓榮泰今（19）日在行政院會聽取勞動部與行政院人事行政總處「《性別平等工作法》及《就業保險法》三讀後新制內容」報告後表示，《性別平等工作法》及《就業保險法》修正草案於11月13日三讀通過，本次修法讓「台灣人口對策新戰略-家庭支持篇」往前邁進一大步。首先，在《性別平等工作法》修正部分，卓院長指出，產假由8週增加為14週，這是歷經超過40年，首度對產假天數進行大幅度修正；陪產檢及陪產假也由原本的7日增加為14日；育兒留職停薪及育兒假的子女年齡由「滿3歲前」提高至「8歲以下，滿9歲前」，現行30日以日育嬰留停升級加倍為60日育兒假。卓院長進一步表示，《",
+      "category": "勞動與社會保障",
+      "subjects": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障",
+        "人力與督導",
+        "方案與資源管理"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社會保險、就業安全與勞動政策"
+        ],
+        "社會工作": [
+          "勞動權益、社會正義與弱勢支持"
+        ]
+      },
+      "knowledge_topics": [
+        "勞動與社會保障",
+        "就業保險",
+        "性別平等工作法",
+        "修法",
+        "修正",
+        "政策"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 人力與督導",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 人力與督導 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
+      ],
+      "exam_tags": [
+        "修正",
+        "修法",
+        "就業保險",
+        "性別平等工作法",
+        "政策"
+      ],
+      "related_laws": [
+        "就業保險法",
+        "性別平等工作法"
+      ],
+      "concept_keys": [
+        "family_policy"
+      ],
+      "agency_keys": [],
+      "fact_keys": [],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "行政院本院新聞"
+      ],
+      "evidence": [
+        {
+          "source_name": "行政院本院新聞",
+          "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//719d0cf2-564f-4894-a0fd-31e12081cbe7",
+          "source_type": "official",
+          "published_at": "2026-11-19T04:11:59Z",
+          "item_id": "b253527af54c65346c98f64684a2a692"
+        }
+      ],
+      "first_seen": "2026-11-19T04:11:59Z",
+      "last_seen": "2026-11-19T04:11:59Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-11-19"
+      ],
+      "policy_signal": "high",
+      "essay_value": "medium",
+      "mcq_fact_density": "medium",
+      "signal_confidence": "high",
+      "signal_score": 9,
+      "exam_point_summary": "卓揆：儘速完成《性別平等工作法》及《就業保險法》子法及配套措施 確保116年元旦勞工與軍公教同步…。涉及「性別平等工作法、就業保險法」。制度或給付已有明確變動；申論可從社會保險、就業安全、勞動權益與弱勢就業支持切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，並結合「性別平等工作法、就業保險法」的制度與實務影響分析；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "勞動部",
+        "行政院",
+        "性別平等工作法",
+        "就業保險法",
+        "就業保險",
+        "修法",
+        "修正"
+      ],
+      "related_exam_questions": [
+        {
+          "id": "SP104-2-05",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第二次",
+          "qno": "5",
+          "major": "婦女與性別法規",
+          "topic": "社會立法沿革 > 法案修正",
+          "match_reason": "事件詞：修正、性別平等工作法；同法規「性別平等工作法」",
+          "match_score": 7.2
+        },
+        {
+          "id": "SP115-1-34",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "34",
+          "major": "婦女與性別法規",
+          "topic": "性別工作平等法 > 申訴報復罰則",
+          "match_reason": "事件詞：性別平等工作法；同法規「性別平等工作法」",
+          "match_score": 5.2
+        },
+        {
+          "id": "SP-115-2-035",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "35",
+          "major": "婦女與性別法規",
+          "topic": "性別平等工作法 > 產檢假權益",
+          "match_reason": "事件詞：性別平等工作法；同法規「性別平等工作法」",
+          "match_score": 5.2
+        },
+        {
+          "id": "SP114-2-04",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第二次",
+          "qno": "4",
+          "major": "福利意識形態與理論",
+          "topic": "女性主義 > 自由主義女性主義",
+          "match_reason": "事件詞：性別平等工作法；同法規「性別平等工作法」",
+          "match_score": 5.2
+        },
+        {
+          "id": "SP114-2-09",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第二次",
+          "qno": "9",
+          "major": "福利國家與體制",
+          "topic": "福利體制 > 勞動再商品化",
+          "match_reason": "事件詞：就業保險；同法規「就業保險法」",
+          "match_score": 5.2
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 112,
+        "weighted_match_count": 9.0,
+        "match_breakdown": {
+          "strong": 25,
+          "medium": 0,
+          "concept": 87
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 9,
+          "社會政策與社會立法": 103
+        },
+        "subject_count": 2,
+        "law_match_count": 26,
+        "law_match_year_count": 12,
+        "law_match_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "high_confidence_match_count": 25,
+        "matching_method": "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
+      },
+      "related_policy_instruments": [],
+      "law_link_basis": [],
       "law_link_rules_schema": 1,
       "law_link_status": "law_linked",
       "law_link_note": "事件已連到具體法律；相關法律表示制度關聯，不代表本事件發生修法。"
@@ -1247,6 +1244,306 @@
       "law_link_rules_schema": 1,
       "law_link_status": "law_linked",
       "law_link_note": "事件已連到具體法律；相關法律表示制度關聯，不代表本事件發生修法。"
+    },
+    {
+      "canonical_event_id": "013914bda3724e0a53937aa8",
+      "title": "教育部持續強化學生住宿支持措施，減輕住宿負擔並保障學生居住權益",
+      "summary": "針對今（18）日青年團體及國立臺灣大學、國立政治大學、國立臺灣師範大學學生會公布學生租屋調查結果，反映校內宿舍供給不足及宿舍抽籤等問題，教育部向來重視學生就學期間之住宿需求及居住權益，會持續透過新宿舍運動及校外租屋協助等多元措施，減輕學生住宿負擔，並將參考學生所提建議持續檢討精進。 教育部自108年起推動「新世代學生住宿環境提升計畫」（新宿舍運動），並自113年起精進推動第二期計畫，目前已核定約5.5萬床宿舍改善計畫。雖依現行法規，學生宿舍因具有收取住宿費之自償性質，原則上應由學校自行籌措興建經費，惟本部考量學生宿舍不僅是居住空間，更具有促進學習、同儕交",
+      "category": "社會救助與居住",
+      "subjects": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "規劃與政策執行",
+        "方案與資源管理",
+        "倫理與權利保障",
+        "品質與風險管理",
+        "成效評估與證據"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作",
+        "社會工作直接服務",
+        "社會工作研究方法"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作研究方法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社會救助、所得保障與居住權"
+        ],
+        "社會工作": [
+          "貧窮、社會排除與社會正義"
+        ],
+        "社會工作直接服務": [
+          "需求評估與資源連結"
+        ],
+        "社會工作研究方法": [
+          "統計與資料解讀"
+        ]
+      },
+      "knowledge_topics": [
+        "社會救助與居住",
+        "租屋",
+        "居住權",
+        "補助",
+        "權益",
+        "法規"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 成效評估與證據",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 方案與資源管理 > 社會工作研究方法 > 統計與資料解讀",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估與資源連結",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 需求評估與資源連結",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 品質與風險管理 > 社會工作研究方法 > 統計與資料解讀",
+        "社會工作管理 > 成效評估與證據 > 社會工作研究方法 > 統計與資料解讀",
+        "社會工作管理 > 成效評估與證據 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 成效評估與證據 > 社會政策與社會立法 > 社會救助、所得保障與居住權"
+      ],
+      "exam_tags": [
+        "居住權",
+        "權益",
+        "法規",
+        "租屋",
+        "補助"
+      ],
+      "related_laws": [],
+      "concept_keys": [],
+      "agency_keys": [],
+      "fact_keys": [
+        "num:104000",
+        "num:42000",
+        "num:52000",
+        "num:55000",
+        "num:84000"
+      ],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "教育部即時新聞"
+      ],
+      "evidence": [
+        {
+          "source_name": "教育部即時新聞",
+          "source_url": "https://www.edu.tw/News_Content.aspx?n=9E7AC85F1954DDA8&s=F0B3571EB94A86F5",
+          "source_type": "official",
+          "published_at": "2026-11-18T11:02:00Z",
+          "item_id": "2dcd14cccd12dc2aaf8f0110129a551e"
+        }
+      ],
+      "first_seen": "2026-11-18T11:02:00Z",
+      "last_seen": "2026-11-18T11:02:00Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-11-18"
+      ],
+      "policy_signal": "high",
+      "essay_value": "high",
+      "mcq_fact_density": "medium",
+      "signal_confidence": "high",
+      "signal_score": 8,
+      "exam_point_summary": "教育部持續強化學生住宿支持措施，減輕住宿負擔並保障學生居住權益。制度或給付已有明確變動；申論可從最低生活保障、貧窮結構因素與居住權切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「最低生活保障、貧窮結構因素與居住權」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "教育部",
+        "租屋",
+        "居住權"
+      ],
+      "related_exam_questions": [],
+      "historical_exam_stats": {
+        "matched_question_count": 0,
+        "weighted_match_count": 0.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 0
+        },
+        "matched_year_count": 0,
+        "matched_years": [],
+        "earliest_exam_year": null,
+        "latest_exam_year": null,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": null,
+        "subject_counts": {},
+        "subject_count": 0,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
+      },
+      "related_policy_instruments": [],
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
+    },
+    {
+      "canonical_event_id": "a30165bb30ed8d5976e4495f",
+      "title": "夏莉絲虐童案業者拒出席調解 北市府啟動行政調查、研議團體訴訟",
+      "summary": "台北市夏莉絲幼兒園虐童案延燒，園方業者以負責人身體不佳、等待刑事偵查結果為由，拒絕出席原訂11月27日的調解會議。北市法務局今（19）日宣布調解延期，並嚴正譴責業者消極迴避協商的態度，宣告將啟動行政調查程序，協助受害家長爭取權益。",
+      "category": "兒少保護",
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "品質與風險管理",
+        "服務輸送與跨網絡",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會工作直接服務": [
+          "兒少保護風險評估",
+          "家庭評估與危機介入"
+        ],
+        "人類行為與社會環境": [
+          "兒童發展、依附與創傷",
+          "家庭系統與風險保護因子"
+        ],
+        "社會政策與社會立法": [
+          "兒少福利與保護法制",
+          "責任通報與保護體系"
+        ],
+        "社會工作": [
+          "專業倫理與兒童最佳利益",
+          "權利倡導與社會正義"
+        ]
+      },
+      "knowledge_topics": [
+        "兒少保護",
+        "虐童",
+        "權益"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 兒少福利與保護法制",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 責任通報與保護體系",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 責任通報與保護體系",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 兒童發展、依附與創傷"
+      ],
+      "exam_tags": [
+        "權益",
+        "虐童"
+      ],
+      "related_laws": [],
+      "concept_keys": [
+        "child_protection"
+      ],
+      "agency_keys": [],
+      "fact_keys": [],
+      "source_count": 1,
+      "official_source_count": 0,
+      "sources": [
+        "中天新聞生活"
+      ],
+      "evidence": [
+        {
+          "source_name": "中天新聞生活",
+          "source_url": "https://ctinews.com/news/items/bKxrMBPja9",
+          "source_type": "news",
+          "published_at": "2026-11-19T08:30:58Z",
+          "item_id": "a27f4bd7a7d3998a4ebbca807d392b35"
+        }
+      ],
+      "first_seen": "2026-11-19T08:30:58Z",
+      "last_seen": "2026-11-19T08:30:58Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-11-19"
+      ],
+      "policy_signal": "medium",
+      "essay_value": "high",
+      "mcq_fact_density": "medium",
+      "signal_confidence": "medium",
+      "signal_score": 7,
+      "exam_point_summary": "夏莉絲虐童案業者拒出席調解 北市府啟動行政調查、研議團體訴訟。政策／制度動向值得追蹤；申論可從兒少最佳利益、責任通報、跨網絡合作與制度漏洞切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "虐童"
+      ],
+      "related_exam_questions": [],
+      "historical_exam_stats": {
+        "matched_question_count": 0,
+        "weighted_match_count": 0.0,
+        "match_breakdown": {
+          "strong": 0,
+          "medium": 0,
+          "concept": 0
+        },
+        "matched_year_count": 0,
+        "matched_years": [],
+        "earliest_exam_year": null,
+        "latest_exam_year": null,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": null,
+        "subject_counts": {},
+        "subject_count": 0,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 0,
+        "matching_method": "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
+      },
+      "related_policy_instruments": [],
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
     },
     {
       "canonical_event_id": "4badfc5478b2cc15fcd39f4f",
