@@ -18,7 +18,8 @@ assert.equal(evaluate([row()]).status,'healthy');
 assert.equal(evaluate([row({conclusion:'failure'}),row({id:124,event:'workflow_dispatch'})]).status,'failed');
 for(const patch of [{event:'pull_request'},{event:'workflow_dispatch'},{head_branch:'topic'},{status:'in_progress'},
  {head_repository:{full_name:'other/repo'}}]) assert.equal(evaluate([row(patch)]).status,'missing');
-assert.equal(evaluate([row({run_started_at:new Date(now-9*3600000).toISOString()})]).status,'stale');
+assert.equal(evaluate([row({run_started_at:new Date(now-(task.max_age_hours+1)*3600000).toISOString()})]).status,'stale');
+assert.equal(evaluate([row({run_started_at:new Date(now-(task.max_age_hours-1)*3600000).toISOString()})]).status,'healthy');
 assert.equal(evaluate([row({run_started_at:new Date(now+3600000).toISOString()})]).status,'error');
 assert.equal(evaluate([row({run_started_at:'invalid'})]).status,'error');
 

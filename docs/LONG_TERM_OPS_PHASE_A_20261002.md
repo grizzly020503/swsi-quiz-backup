@@ -22,7 +22,7 @@
 
 新增 `data/ops_task_registry.v1.json`，先登錄：
 
-- Public Monitoring Feed：預期每 6 小時，8 小時視為 stale。
+- Public Monitoring Feed：cron 每 6 小時，但 2026-11 實測 GitHub 排程約 10–16 小時才執行一次；registry 改為預期 12 小時、20 小時視為 stale（失敗仍立即阻擋）。
 - Public Uptime Sentinel：預期每日，30 小時視為 stale。
 - MOEX Social Worker Exam Sync：預期每週，192 小時視為 stale。
 - Full Corpus Question QA：預期每月，840 小時視為 stale。
