@@ -1,0 +1,52 @@
+name: Official P0 OCR Boundary Candidate QA
+
+# Review-only proof checks. No authenticated external services, no source edits,
+# no release/promotion and no owner-approval bypass.
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/official-p0-boundary-candidate-qa.yml'
+      - 'audit/official_p0_nine_boundary_candidate_20261110.json'
+      - 'scripts/official_p0_nine_boundary_candidate_selftest.py'
+      - 'cdn/question-shards/104-1.json'
+      - 'cdn/question-shards/106-2.json'
+      - 'cdn/question-shards/107-2.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/official-p0-boundary-candidate-qa.yml'
+      - 'audit/official_p0_nine_boundary_candidate_20261110.json'
+      - 'scripts/official_p0_nine_boundary_candidate_selftest.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swsi-p0-ocr-boundary-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  candidate:
+    name: Verify exact preimages and NO-GO hold
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout PR candidate
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile review-only validator
+        run: python -m py_compile scripts/official_p0_nine_boundary_candidate_selftest.py
+      - name: Verify nine current-shard exact preimages and grading hold
+        run: python scripts/official_p0_nine_boundary_candidate_selftest.py
+      - name: Recheck immutable Official Core
+        run: python scripts/official_exam_readonly_guard.py
+      - name: Print non-release verdict
+        if: always()
+        run: |
+          echo "## P0 OCR boundary candidate (review-only)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Candidate rows: 9; source review queue: 428 unresolved" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Approval: **NO-GO**; this QA does not certify human PDF review." >> "$GITHUB_STEP_SUMMARY"
+          echo "- No import, SQL write, deployment or official corpus modification." >> "$GITHUB_STEP_SUMMARY"
