@@ -37,6 +37,9 @@ jobs:
           node --check cloudflare/wandering-wave-4418/task-heartbeat.js
           node scripts/cloudflare_worker_smoke.js
           node scripts/cloudflare_task_heartbeat_selftest.js
+          # The live-check parser is validated offline in PRs; no external GET
+          # and no 32-minute deploy wait until the actual post-merge schedule.
+          python3 scripts/cloudflare_task_heartbeat_live.py --selftest
           python3 scripts/cloudflare_task_heartbeat_sql_selftest.py
           python3 scripts/cloudflare_d1_recovery_smoke.py
   actual-schedule:
