@@ -299,6 +299,54 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await textarea.fill('一、測試作答\n（一）測試內容');
   assert((await textarea.inputValue()).includes('測試作答'), 'essay textarea did not accept input');
 
+  // Regression for #608: actual-browser DOM ownership when essay aids rerender.
+  // Synthetic text stands in for a completed or pending AI response; no AI calls.
+  const essayAidProof = await page.evaluate(() => {
+    const ta = document.querySelector('.wta');
+    const id = ta && ta.id.slice(3);
+    const out = id && document.getElementById('airesult_' + id);
+    if (!out) return { error: 'essay AI result target missing' };
+    const marker = 'LOCAL_BRO​WSER_AI_FEEDBACK_PROOF'.replace(/\u200b/g, '');
+    out.textContent = marker;
+    const parent = out.parentElement;
+    const controlsBefore = parent.querySelectorAll('button').length;
+    showGuide(id);
+    const guideOutput = document.getElementById('airesult_' + id);
+    const guidePreserved = guideOutput === out && out.textContent === marker;
+    toggleDissect(id);
+    const dissectOutput = document.getElementById('airesult_' + id);
+    const dissectPreserved = dissectOutput === out && out.textContent === marker;
+    // Emulate an already-in-flight callback writing to its retained DOM node.
+    out.textContent = marker + '_COMPLETED';
+    return {
+      guidePreserved,
+      dissectPreserved,
+      pendingTargetPreserved: document.getElementById('airesult_' + id) === out &&
+        document.getElementById('airesult_' + id).textContent.endsWith('_COMPLETED'),
+      controlsPreserved: out.parentElement.querySelectorAll('button').length === controlsBefore,
+      dissectVisible: !!document.querySelector('.dsteps'),
+      draftPreserved: document.querySelector('.wta')?.value.includes('測試作答') === true
+    };
+  });
+  assert.deepStrictEqual(essayAidProof, {
+    guidePreserved: true,
+    dissectPreserved: true,
+    pendingTargetPreserved: true,
+    controlsPreserved: true,
+    dissectVisible: true,
+    draftPreserved: true
+  }, 'essay guide or dissection discarded the actual AI response DOM');
+
+  // Check the revised essay controls remain within the viewport at each target width.
+  for (const width of [390, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const rect = await page.locator('.wbox').boundingBox();
+    assert(rect && rect.x >= -1 && rect.x + rect.width <= width + 1,
+      'essay writing box overflows viewport at ' + width + 'px: ' + JSON.stringify(rect));
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  console.log('ESSAY AI AID BROWSER RETENTION OK: response/pending DOM and 390/768/1024/1440 widths');
+
   let sawConfirm = false;
   page.once('dialog', async dialog => {
     sawConfirm = true;
