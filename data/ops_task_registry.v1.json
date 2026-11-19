@@ -25,8 +25,8 @@
       "accepted_events": [
         "schedule"
       ],
-      "expected_interval_hours": 6,
-      "max_age_hours": 8,
+      "expected_interval_hours": 12,
+      "max_age_hours": 20,
       "criticality": "high"
     },
     {
