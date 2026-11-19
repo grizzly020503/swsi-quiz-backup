@@ -51,7 +51,13 @@ def verify_observation(data: object, registry_tasks: list) -> dict:
     tasks = data.get('tasks')
     if not isinstance(tasks, list) or len(tasks) != len(registry_tasks) or len(tasks) != 6:
         raise AssertionError('task_count_mismatch')
-    checked = (data.get('components') or {}).get('task_heartbeat', {}).get('detail', {}).get('tasks_checked')
+    components = data.get('components')
+    if not isinstance(components, dict):
+        raise AssertionError('invalid_components')
+    beat = components.get('task_heartbeat')
+    if not isinstance(beat, dict) or not isinstance(beat.get('detail'), dict):
+        raise AssertionError('invalid_components')
+    checked = beat['detail'].get('tasks_checked')
     if checked != 6:
         raise AssertionError('observed_count_mismatch')
     if any(not isinstance(row, dict) or
@@ -79,7 +85,7 @@ def classify_failure(error: Exception) -> str:
         if msg.startswith('hosted heartbeat schedule policy does not match main registry: '):
             return 'hosted_policy_drift'
         return msg if msg in {
-            'invalid_payload', 'wrong_producer', 'not_independent', 'observer_inactive',
+            'invalid_payload', 'invalid_components', 'wrong_producer', 'not_independent', 'observer_inactive',
             'observer_not_fresh', 'task_count_mismatch', 'observed_count_mismatch',
             'invalid_task_status', 'github_source_error'
         } else 'observation_contract_error'
@@ -125,7 +131,8 @@ def selftest() -> None:
         ({**baseline, 'tasks': [{**baseline['tasks'][0], 'status': 'error'}, *baseline['tasks'][1:]]}, 'github_source_error'),
         ({**baseline, 'tasks': [{**baseline['tasks'][0], 'max_age_hours': 36}, *baseline['tasks'][1:]]}, 'hosted_policy_drift'),
         ({**baseline, 'tasks': baseline['tasks'][:-1]}, 'task_count_mismatch'),
-        ({**baseline, 'producer': 'untrusted'}, 'wrong_producer')
+        ({**baseline, 'producer': 'untrusted'}, 'wrong_producer'),
+        ({**baseline, 'components': []}, 'invalid_components')
     ]
     for payload, expected in changes:
         try:
