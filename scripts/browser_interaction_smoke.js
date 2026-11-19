@@ -285,6 +285,51 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/不同題目/.test(progressText), 'unique-question progress missing');
   assert(/題庫覆蓋/.test(progressText), 'coverage progress missing');
 
+  // #608: real progress screen must ignore blanks and unidentified legacy history.
+  // Only synthetic localStorage rows are used; preserve/restore the local fixture.
+  const blankProgressProof = await page.evaluate(() => {
+    const initial = loadHist();
+    const countAnswered = rows => rows.filter(r => r && r.answered === true).length;
+    const countUnanswered = rows => rows.filter(r => r && r.answered === false).length;
+    const countLegacy = rows => rows.filter(r => r && typeof r.answered !== 'boolean').length;
+    const totalBefore = document.querySelector('.swsi-progress-mini b')?.textContent?.trim();
+    const rateBefore = document.querySelector('.swsi-progress-hero strong')?.textContent?.trim();
+    const blanks = Array.from({ length: 19 }, (_, i) => ({
+      id: 'swsi-local-unanswered-' + i, subject: '未作答測試科',
+      answered: false, correct: false, ts: Date.now()
+    }));
+    const legacy = { id: 'swsi-legacy-unidentified', subject: '舊紀錄測試科',
+      correct: false, ts: Date.now() };
+    let result;
+    try {
+      saveHist(initial.concat(blanks, [legacy]));
+      renderProgress();
+      const html = document.querySelector('#app')?.textContent || '';
+      const totalAfter = document.querySelector('.swsi-progress-mini b')?.textContent?.trim();
+      const rateAfter = document.querySelector('.swsi-progress-hero strong')?.textContent?.trim();
+      result = {
+        answeredCountPreserved: totalAfter === totalBefore &&
+          Number(totalAfter) === countAnswered(initial),
+        accuracyPreserved: rateAfter === rateBefore,
+        blanksDisclosed: html.includes('未作答紀錄 ' + (countUnanswered(initial) + 19) + ' 次'),
+        legacyDisclosed: html.includes('舊紀錄 ' + (countLegacy(initial) + 1) + ' 次'),
+        excludedFromWeakness: !html.includes('未作答測試科') && !html.includes('舊紀錄測試科')
+      };
+    } finally {
+      saveHist(initial);
+      renderProgress();
+    }
+    return result;
+  });
+  assert.deepStrictEqual(blankProgressProof, {
+    answeredCountPreserved: true,
+    accuracyPreserved: true,
+    blanksDisclosed: true,
+    legacyDisclosed: true,
+    excludedFromWeakness: true
+  }, 'unanswered or legacy attempts polluted visible progress');
+  console.log('PROGRESS UNANSWERED BROWSER FILTER OK: 19 blanks + 1 unidentified legacy excluded');
+
   await page.locator('#t-home').click();
   await waitHome();
 
