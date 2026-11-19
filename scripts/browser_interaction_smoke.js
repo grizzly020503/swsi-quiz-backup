@@ -306,7 +306,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     const id = ta && ta.id.slice(3);
     const out = id && document.getElementById('airesult_' + id);
     if (!out) return { error: 'essay AI result target missing' };
-    const marker = 'LOCAL_BRO​WSER_AI_FEEDBACK_PROOF'.replace(/\u200b/g, '');
+    const marker = 'LOCAL_BROWSER_AI_FEEDBACK_PROOF';
     out.textContent = marker;
     const parent = out.parentElement;
     const controlsBefore = parent.querySelectorAll('button').length;
