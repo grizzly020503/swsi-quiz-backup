@@ -285,6 +285,48 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert(/不同題目/.test(progressText), 'unique-question progress missing');
   assert(/題庫覆蓋/.test(progressText), 'coverage progress missing');
 
+  // #608: real progress screen must ignore blanks and unidentified legacy history.
+  // Only synthetic localStorage rows are used; preserve/restore the local fixture.
+  const blankProgressProof = await page.evaluate(() => {
+    const initial = loadHist();
+    const countAnswered = rows => rows.filter(r => r && r.answered === true).length;
+    const countUnanswered = rows => rows.filter(r => r && r.answered === false).length;
+    const countLegacy = rows => rows.filter(r => r && typeof r.answered !== 'boolean').length;
+    const totalBefore = document.querySelector('.swsi-progress-mini b')?.textContent?.trim();
+    const blanks = Array.from({ length: 19 }, (_, i) => ({
+      id: 'swsi-local-unanswered-' + i, subject: '未作答測試科',
+      answered: false, correct: false, ts: Date.now()
+    }));
+    const legacy = { id: 'swsi-legacy-unidentified', subject: '舊紀錄測試科',
+      correct: false, ts: Date.now() };
+    let result;
+    try {
+      saveHist(initial.concat(blanks, [legacy]));
+      renderProgress();
+      const html = document.querySelector('#app')?.textContent || '';
+      const totalAfter = document.querySelector('.swsi-progress-mini b')?.textContent?.trim();
+      result = {
+        // Legacy rows without the answered flag keep pre-release counting (+1 attempt).
+        answeredCountPreserved: Number(totalAfter) === Number(totalBefore) + 1 &&
+          Number(totalAfter) === countAnswered(initial) + countLegacy(initial) + 1,
+        legacyCounted: html.includes('舊紀錄測試科'),
+        blanksDisclosed: html.includes('另有 ' + (countUnanswered(initial) + 19) + ' 次模擬考未作答'),
+        blanksExcludedFromWeakness: !html.includes('未作答測試科')
+      };
+    } finally {
+      saveHist(initial);
+      renderProgress();
+    }
+    return result;
+  });
+  assert.deepStrictEqual(blankProgressProof, {
+    answeredCountPreserved: true,
+    legacyCounted: true,
+    blanksDisclosed: true,
+    blanksExcludedFromWeakness: true
+  }, 'unanswered attempts polluted progress, or legacy history was dropped');
+  console.log('PROGRESS UNANSWERED BROWSER FILTER OK: 19 blanks excluded, 1 legacy record retained');
+
   await page.locator('#t-home').click();
   await waitHome();
 
@@ -298,6 +340,113 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   const textarea = page.locator('.wta').first();
   await textarea.fill('一、測試作答\n（一）測試內容');
   assert((await textarea.inputValue()).includes('測試作答'), 'essay textarea did not accept input');
+
+  // Regression for #608: actual-browser DOM ownership when essay aids rerender.
+  // Synthetic text stands in for a completed or pending AI response; no AI calls.
+  const essayAidProof = await page.evaluate(() => {
+    const ta = document.querySelector('.wta');
+    const id = ta && ta.id.slice(3);
+    const out = id && document.getElementById('airesult_' + id);
+    if (!out) return { error: 'essay AI result target missing' };
+    const marker = 'LOCAL_BROWSER_AI_FEEDBACK_PROOF';
+    out.textContent = marker;
+    const parent = out.parentElement;
+    const controlsBefore = parent.querySelectorAll('button').length;
+    showGuide(id);
+    const guideOutput = document.getElementById('airesult_' + id);
+    const guidePreserved = guideOutput === out && out.textContent === marker;
+    toggleDissect(id);
+    const dissectOutput = document.getElementById('airesult_' + id);
+    const dissectPreserved = dissectOutput === out && out.textContent === marker;
+    // Emulate an already-in-flight callback writing to its retained DOM node.
+    out.textContent = marker + '_COMPLETED';
+    return {
+      guidePreserved,
+      dissectPreserved,
+      pendingTargetPreserved: document.getElementById('airesult_' + id) === out &&
+        document.getElementById('airesult_' + id).textContent.endsWith('_COMPLETED'),
+      controlsPreserved: out.parentElement.querySelectorAll('button').length === controlsBefore,
+      dissectVisible: !!document.querySelector('.dsteps'),
+      draftPreserved: document.querySelector('.wta')?.value.includes('測試作答') === true
+    };
+  });
+  assert.deepStrictEqual(essayAidProof, {
+    guidePreserved: true,
+    dissectPreserved: true,
+    pendingTargetPreserved: true,
+    controlsPreserved: true,
+    dissectVisible: true,
+    draftPreserved: true
+  }, 'essay guide or dissection discarded the actual AI response DOM');
+
+  // Check the revised essay controls remain within the viewport at each target width.
+  for (const width of [390, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const rect = await page.locator('.wbox').boundingBox();
+    assert(rect && rect.x >= -1 && rect.x + rect.width <= width + 1,
+      'essay writing box overflows viewport at ' + width + 'px: ' + JSON.stringify(rect));
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  console.log('ESSAY AI AID BROWSER RETENTION OK: response/pending DOM and 390/768/1024/1440 widths');
+
+  // Exercise the real async AI feedback handler with an explicitly synthetic
+  // completion. Never send an actual request or spend production AI quota.
+  const asyncEssayProof = await page.evaluate(async () => {
+    const ta = document.querySelector('.wta');
+    if (!ta) return { error: 'essay textbox missing' };
+    const id = ta.id.slice(3), originalValue = ta.value;
+    const originalFetch = window.fetch;
+    let release, calls = 0;
+    try {
+      ta.value = '一、測試作答：社會工作者應先評估個案需求、家庭系統與支持資源，並依倫理原則擬定處遇目標。';
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+      window.fetch = (input, options) => {
+        const url = typeof input === 'string' ? input : input.url;
+        if (url !== AI_PROXY_URL) throw new Error('unexpected network call in AI fixture');
+        if (options?.method !== 'POST') throw new Error('AI fixture did not POST');
+        calls++;
+        return new Promise(resolve => {
+          release = () => resolve(new Response(JSON.stringify({
+            choices: [{ message: { content: '合成批改回饋：架構完整，請再補上理論。' } }]
+          }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        });
+      };
+      const pendingPromise = runAIFeedback(id);
+      const pendingNode = document.getElementById('airesult_' + id);
+      const pendingShown = !!pendingNode && /AI (?:正在閱讀題目與你的作答|批改中)/.test(pendingNode.textContent || '');
+      if (typeof release !== 'function') throw new Error('mock AI request not issued');
+      showGuide(id);
+      toggleDissect(id);
+      const samePendingNode = document.getElementById('airesult_' + id) === pendingNode;
+      release();
+      await pendingPromise;
+      const completedNode = document.getElementById('airesult_' + id);
+      return {
+        calls,
+        pendingShown,
+        samePendingNode,
+        completedOnSameNode: completedNode === pendingNode,
+        completedFeedbackVisible: completedNode?.textContent.includes('合成批改回饋') === true,
+        essayDraftPreserved: document.getElementById('ta_' + id)?.value.includes('測試作答') === true
+      };
+    } finally {
+      window.fetch = originalFetch;
+      const current = document.getElementById('ta_' + id);
+      if (current) {
+        current.value = originalValue;
+        saveDraft(id);
+      }
+    }
+  });
+  assert.deepStrictEqual(asyncEssayProof, {
+    calls: 1,
+    pendingShown: true,
+    samePendingNode: true,
+    completedOnSameNode: true,
+    completedFeedbackVisible: true,
+    essayDraftPreserved: true
+  }, 'real async AI handler did not preserve result through essay guide/dissection toggles');
+  console.log('ESSAY MOCK AI ASYNC BROWSER OK: pending request, guide/dissection and completed feedback');
 
   let sawConfirm = false;
   page.once('dialog', async dialog => {

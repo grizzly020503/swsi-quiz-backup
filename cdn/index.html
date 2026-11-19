@@ -2521,7 +2521,7 @@ function markStorageSaved(){
 }
 function saveHist(h){ try{localStorage.setItem(LS_KEY,JSON.stringify(h)); markStorageSaved(); }catch(e){ markStorageFailure(); } }
 function record(item,picked,correct){ const h=loadHist();
-  h.push({id:item.id,subject:item.subject,major:item.major,mistake:item.mistake||'',correct,ts:Date.now()}); saveHist(h);
+  h.push({id:item.id,subject:item.subject,major:item.major,mistake:item.mistake||'',answered:/^[ABCD]$/.test(String(picked||'')),correct,ts:Date.now()}); saveHist(h);
   updateReviewSchedule(item,correct); }
 
 /* ===== 間隔複習 2.0 START ===== */
@@ -3635,8 +3635,16 @@ function essayRows(pool,showSubject){
 function pickEssaySubj(s){ essaySubj=s; essayCluster=null; openEssay=null; window.scrollTo(0,0); render(); }
 function closeEssay(){ openEssay=null; guideOpen=null; dissectOpen=null; window.scrollTo(0,0); render(); }
 function toggleEssay(id){ openEssay = (openEssay===id)?null:id; guideOpen=null; dissectOpen=null; window.scrollTo(0,0); render(); }
-function toggleDissect(id){ dissectOpen=(dissectOpen===id)?null:id; render(); }
-function showGuide(id){ guideOpen = id; render(); }
+// Keep the live AI section, including pending request targets, when revealing study aids.
+function renderEssayAid(id){
+  const result=document.getElementById('airesult_'+id);
+  const section=result&&result.parentElement;
+  render();
+  const replacement=document.getElementById('airesult_'+id);
+  if(section&&replacement) replacement.parentElement.replaceWith(section);
+}
+function toggleDissect(id){ dissectOpen=(dissectOpen===id)?null:id; renderEssayAid(id); }
+function showGuide(id){ guideOpen = id; renderEssayAid(id); }
 function guideHTML(g){
   return `<div class="guide">
     <div class="gsec"><div class="glabel">考點</div><div class="gtext">${esc(g.kao)}</div></div>
@@ -4559,7 +4567,7 @@ select.subj{font-family:'Noto Sans TC',sans-serif;min-height:var(--ux-touch);fon
 </script>
 <!-- SWSI UIUX V1 END -->
 <script>window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP={"version":"2026-08-27.canonical-build.v1","laws":{"count":24,"sha256":"bb946b67af633ea371550dc1b074dbca530ccb50f47e561c7590ff0e5ea89dfc"},"theories":{"count":39,"sha256":"1a74d39a9611caf002383527390dd3d7e5cc0b6665b6b7f89494f2a0d58ead4d"}};</script>
-<script src="monthly_patch.js?v=41cb67e341e8576f"></script>
+<script src="monthly_patch.js?v=0668b9786bb37533"></script>
 <!-- Cloudflare-only source-hold due-review guard. Do not change the shared
      monthly_patch_parts/Netlify backup. The monthly patch overrides the
      earlier reviewSummary at runtime; reapply the fail-closed rule AFTER it. -->

@@ -28,8 +28,8 @@ function runFixture(topic, subject) {
   const q = { id: 'TEST-Q-001', subject };
   if (topic !== '未分類') q.topic = topic;
   const history = [
-    { id: q.id, subject, correct: false, ts: Date.now() },
-    { id: q.id, subject, correct: false, ts: Date.now() }
+    { id: q.id, subject, answered: true, correct: false, ts: Date.now() },
+    { id: q.id, subject, answered: true, correct: false, ts: Date.now() }
   ];
   const sandbox = {
     app: { innerHTML: '' },
