@@ -388,9 +388,28 @@ window.swsiEsc = swsiEsc;
     return {schema_version:1,year,round,question_count:200,questions:data};
   }
 
+  // The legacy init() resets ALL and its own loader state, but not this patch's
+  // SWSI_QB. A shard merged before that reset would stay "loaded" with its rows
+  // gone, leaving the full bank short (e.g. 4600/4800). Treat such a shard as
+  // unloaded so it is fetched/verified again instead of failing permanently.
+  function shardRowsPresent(file){
+    const present = new Set(ALL.map(q=>q && q.id));
+    let owned = 0, missing = false;
+    QB.questionOwners.forEach((owner,id)=>{
+      if(owner !== file) return;
+      owned++;
+      if(!present.has(id)) missing = true;
+    });
+    if(owned && !missing) return true;
+    QB.loadedFiles.delete(file);
+    QB.questionOwners.forEach((owner,id)=>{ if(owner === file) QB.questionOwners.delete(id); });
+    QB.allComplete = false;
+    return false;
+  }
+
   async function loadQuestionShard(meta){
     if(!meta || !meta.file) throw new Error('缺少題庫 shard metadata');
-    if(QB.loadedFiles.has(meta.file)) return;
+    if(QB.loadedFiles.has(meta.file) && shardRowsPresent(meta.file)) return;
     if(QB.loading.has(meta.file)) return QB.loading.get(meta.file);
 
     const p = (async()=>{
