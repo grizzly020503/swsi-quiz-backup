@@ -35,6 +35,57 @@ def verify_hosted_policy(tasks: object, registry_tasks: object) -> dict:
     return dict(sorted((ident, max_age) for ident, (_, max_age) in expected.items()))
 
 
+
+def verify_observation(data: object, registry_tasks: list) -> dict:
+    """Validate hosted independent schedule evidence; never require all tasks green."""
+    if not isinstance(data, dict):
+        raise AssertionError('invalid_payload')
+    if data.get('producer') != 'cloudflare-cron':
+        raise AssertionError('wrong_producer')
+    if data.get('independent_of') != 'github-actions':
+        raise AssertionError('not_independent')
+    if data.get('independent_monitoring_active') is not True:
+        raise AssertionError('observer_inactive')
+    if data.get('observer_status') != 'fresh':
+        raise AssertionError('observer_not_fresh')
+    tasks = data.get('tasks')
+    if not isinstance(tasks, list) or len(tasks) != len(registry_tasks) or len(tasks) != 6:
+        raise AssertionError('task_count_mismatch')
+    checked = (data.get('components') or {}).get('task_heartbeat', {}).get('detail', {}).get('tasks_checked')
+    if checked != 6:
+        raise AssertionError('observed_count_mismatch')
+    if any(not isinstance(row, dict) or
+           row.get('status') not in ('healthy', 'failed', 'stale', 'missing', 'error')
+           for row in tasks):
+        raise AssertionError('invalid_task_status')
+    # Running observer != healthy source observations; failures/stale remain visible.
+    if any(row['status'] == 'error' for row in tasks):
+        raise AssertionError('github_source_error')
+    return verify_hosted_policy(tasks, registry_tasks)
+
+
+def classify_failure(error: Exception) -> str:
+    """Bounded safe diagnoses; never print public upstream bodies, URLs, or credentials."""
+    if isinstance(error, urllib.error.HTTPError):
+        return 'http_' + str(error.code) if 400 <= error.code <= 599 else 'http_unexpected'
+    if isinstance(error, urllib.error.URLError):
+        return 'network_unavailable'
+    if isinstance(error, TimeoutError):
+        return 'network_timeout'
+    if isinstance(error, json.JSONDecodeError):
+        return 'invalid_json'
+    if isinstance(error, AssertionError):
+        msg = str(error)
+        if msg.startswith('hosted heartbeat schedule policy does not match main registry: '):
+            return 'hosted_policy_drift'
+        return msg if msg in {
+            'invalid_payload', 'wrong_producer', 'not_independent', 'observer_inactive',
+            'observer_not_fresh', 'task_count_mismatch', 'observed_count_mismatch',
+            'invalid_task_status', 'github_source_error'
+        } else 'observation_contract_error'
+    return 'invalid_observation_data'
+
+
 def selftest() -> None:
     registry = json.loads(REGISTRY.read_text(encoding='utf-8'))['tasks']
     hosted = [{'id': r['id'], 'workflow_file': r['workflow_file'],
@@ -57,31 +108,52 @@ def selftest() -> None:
             pass
         else:
             raise AssertionError('unsafe hosted task policy accepted by selftest')
-    print('CLOUDFLARE LIVE POLICY SELFTEST OK: exact six tasks, 192h, drift/missing/duplicate rejected')
+    # Realistic synthetic observation: failed/stale jobs are accepted as *visible*
+    # health signals, while source errors, stale observations and config drift fail.
+    baseline = {
+        'producer': 'cloudflare-cron', 'independent_of': 'github-actions',
+        'independent_monitoring_active': True, 'observer_status': 'fresh',
+        'tasks': [{**row, 'status': 'healthy'} for row in hosted],
+        'components': {'task_heartbeat': {'detail': {'tasks_checked': 6}}}
+    }
+    assert len(verify_observation(baseline, registry)) == 6
+    failed = {**baseline, 'tasks': [dict(row) for row in baseline['tasks']]}
+    failed['tasks'][0]['status'] = 'failed'
+    assert verify_observation(failed, registry)
+    changes = [
+        ({**baseline, 'observer_status': 'stale'}, 'observer_not_fresh'),
+        ({**baseline, 'tasks': [{**baseline['tasks'][0], 'status': 'error'}, *baseline['tasks'][1:]]}, 'github_source_error'),
+        ({**baseline, 'tasks': [{**baseline['tasks'][0], 'max_age_hours': 36}, *baseline['tasks'][1:]]}, 'hosted_policy_drift'),
+        ({**baseline, 'tasks': baseline['tasks'][:-1]}, 'task_count_mismatch'),
+        ({**baseline, 'producer': 'untrusted'}, 'wrong_producer')
+    ]
+    for payload, expected in changes:
+        try:
+            verify_observation(payload, registry)
+        except AssertionError as exc:
+            assert classify_failure(exc) == expected, (expected, classify_failure(exc))
+        else:
+            raise AssertionError('unsafe hosted observation accepted: ' + expected)
+    assert classify_failure(urllib.error.HTTPError(URL, 503, '', {}, None)) == 'http_503'
+    assert classify_failure(urllib.error.URLError('synthetic')) == 'network_unavailable'
+    assert classify_failure(TimeoutError()) == 'network_timeout'
+    print('CLOUDFLARE LIVE POLICY SELFTEST OK: six tasks, 192h, drift/missing/source-error/stale rejected')
 
 
 def observe() -> None:
     registry = json.loads(REGISTRY.read_text(encoding='utf-8'))['tasks']
-    # Retain the documented Cloudflare deployment and next 15-minute Cron window.
+    # Keep the post-merge deployment and next 15-minute Cloudflare Cron window.
     deadline = time.monotonic() + 32 * 60
+    attempts = 0
+    last_reason = 'not_started'
     while True:
+        attempts += 1
         try:
             req = urllib.request.Request(
                 URL, headers={'User-Agent': 'swsi-independent-heartbeat-acceptance'})
             with urllib.request.urlopen(req, timeout=15) as response:
                 data = json.load(response)
-            assert data['producer'] == 'cloudflare-cron'
-            assert data['independent_of'] == 'github-actions'
-            assert data['independent_monitoring_active'] is True
-            assert data['observer_status'] == 'fresh'
-            assert len(data['tasks']) == len(registry) == 6
-            assert data['components']['task_heartbeat']['detail']['tasks_checked'] == 6
-            assert all(row['status'] in ('healthy','failed','stale','missing','error')
-                       for row in data['tasks'])
-            # A running observer is not proof that every monitored task is healthy.
-            # API failures must not count as healthy source observations.
-            assert all(row['status'] != 'error' for row in data['tasks'])
-            policy = verify_hosted_policy(data['tasks'], registry)
+            policy = verify_observation(data, registry)
             print('CLOUDFLARE CRON ACTUALLY OBSERVED ' + json.dumps({
                 'scheduled_at': data['scheduled_at'],
                 'observed_at': data['generated_at'],
@@ -91,11 +163,18 @@ def observe() -> None:
             return
         except (urllib.error.URLError, ValueError, KeyError, AssertionError,
                 TypeError, TimeoutError) as error:
+            reason = classify_failure(error)
+            # Emit first/new reason, then a bounded heartbeat every ten attempts.
+            # Do not flood public Actions logs or leak raw response bodies.
+            if attempts == 1 or reason != last_reason or attempts % 10 == 0:
+                print('CLOUDFLARE HEARTBEAT WAIT reason=' + reason +
+                      ' attempts=' + str(attempts), flush=True)
+            last_reason = reason
             if time.monotonic() >= deadline:
                 raise SystemExit(
-                    'Cloudflare heartbeat unavailable or hosted policy not aligned '
-                    'with reviewed registry within 32 minutes') from error
-            print('Awaiting Cloudflare schedule / exact hosted policy evidence', flush=True)
+                    'CLOUDFLARE HEARTBEAT ACCEPTANCE FAILED after 32 minutes'
+                    ' last_reason=' + reason + ' attempts=' + str(attempts)
+                ) from None
             time.sleep(30)
 
 
