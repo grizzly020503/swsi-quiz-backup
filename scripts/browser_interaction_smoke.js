@@ -392,6 +392,65 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await page.setViewportSize({ width: 390, height: 844 });
   console.log('ESSAY AI AID BROWSER RETENTION OK: response/pending DOM and 390/768/1024/1440 widths');
 
+  // Exercise the real async AI feedback handler with an explicitly synthetic
+  // completion. Never send an actual request or spend production AI quota.
+  const asyncEssayProof = await page.evaluate(async () => {
+    const ta = document.querySelector('.wta');
+    if (!ta) return { error: 'essay textbox missing' };
+    const id = ta.id.slice(3), originalValue = ta.value;
+    const originalFetch = window.fetch;
+    let release, calls = 0;
+    try {
+      ta.value = '一、測試作答：社會工作者應先評估個案需求、家庭系統與支持資源，並依倫理原則擬定處遇目標。';
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+      window.fetch = (input, options) => {
+        const url = typeof input === 'string' ? input : input.url;
+        if (url !== AI_PROXY_URL) throw new Error('unexpected network call in AI fixture');
+        if (options?.method !== 'POST') throw new Error('AI fixture did not POST');
+        calls++;
+        return new Promise(resolve => {
+          release = () => resolve(new Response(JSON.stringify({
+            choices: [{ message: { content: '合成批改回饋：架構完整，請再補上理論。' } }]
+          }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        });
+      };
+      const pendingPromise = runAIFeedback(id);
+      const pendingNode = document.getElementById('airesult_' + id);
+      const pendingShown = !!pendingNode && pendingNode.textContent.includes('AI 批改中');
+      if (typeof release !== 'function') throw new Error('mock AI request not issued');
+      showGuide(id);
+      toggleDissect(id);
+      const samePendingNode = document.getElementById('airesult_' + id) === pendingNode;
+      release();
+      await pendingPromise;
+      const completedNode = document.getElementById('airesult_' + id);
+      return {
+        calls,
+        pendingShown,
+        samePendingNode,
+        completedOnSameNode: completedNode === pendingNode,
+        completedFeedbackVisible: completedNode?.textContent.includes('合成批改回饋') === true,
+        essayDraftPreserved: document.getElementById('ta_' + id)?.value.includes('測試作答') === true
+      };
+    } finally {
+      window.fetch = originalFetch;
+      const current = document.getElementById('ta_' + id);
+      if (current) {
+        current.value = originalValue;
+        saveDraft(id);
+      }
+    }
+  });
+  assert.deepStrictEqual(asyncEssayProof, {
+    calls: 1,
+    pendingShown: true,
+    samePendingNode: true,
+    completedOnSameNode: true,
+    completedFeedbackVisible: true,
+    essayDraftPreserved: true
+  }, 'real async AI handler did not preserve result through essay guide/dissection toggles');
+  console.log('ESSAY MOCK AI ASYNC BROWSER OK: pending request, guide/dissection and completed feedback');
+
   let sawConfirm = false;
   page.once('dialog', async dialog => {
     sawConfirm = true;
