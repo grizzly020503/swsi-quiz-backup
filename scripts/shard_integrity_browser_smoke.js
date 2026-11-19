@@ -23,6 +23,40 @@ assert.strictEqual(
   'checked-in shard bytes do not match the checked-in manifest'
 );
 
+// Regression: legacy init() clears ALL but not the patch loader state. A shard
+// merged before that reset must be re-fetched, not left "loaded" with no rows.
+async function runResetCase(browser) {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const localOrigin = new URL(base).origin;
+  await page.route('**/*', route => {
+    const requestUrl = new URL(route.request().url());
+    if (requestUrl.hostname === cdnHost && requestUrl.pathname.startsWith(cdnPrefix)) {
+      const name = decodeURIComponent(requestUrl.pathname.slice(cdnPrefix.length));
+      if (!/^[\w.-]+\.json$/.test(name)) return route.fulfill({status:404,body:'{}'});
+      return route.fulfill({status:200,contentType:'application/json; charset=utf-8',
+        body:fs.readFileSync(path.join(shardDir, name))});
+    }
+    if (requestUrl.origin !== localOrigin) return route.abort();
+    return route.continue();
+  });
+  await page.goto(base, {waitUntil:'commit',timeout:20000});
+  await page.waitForFunction(() => typeof window.ensureAllQuestionsLoaded === 'function' &&
+    typeof init === 'function' && window.SWSI_QB && window.SWSI_QB.manifest, null, {timeout:30000});
+  const result = await page.evaluate(async () => {
+    const m = window.SWSI_QB.manifest;
+    await window.loadQuestionShard(m.shards[0]);
+    await init();
+    const afterReset = {all: ALL.length, patchLoaded: window.SWSI_QB.loadedFiles.size};
+    let error = '';
+    try { await window.ensureAllQuestionsLoaded(); } catch (err) { error = String(err && err.message || err); }
+    return {afterReset, error, all: ALL.length, total: Number(m.total_questions),
+      unique: new Set(ALL.map(q => q && q.id)).size};
+  });
+  await context.close();
+  return result;
+}
+
 async function runCase(browser, options = {}) {
   const { tampered = false, offlineShard = false, seedLegacyCache = false } = options;
   const context = await browser.newContext();
@@ -156,6 +190,14 @@ async function runCase(browser, options = {}) {
     assert.strictEqual(legacy.recordExists, true, 'legacy fixture was not seeded');
     assert.strictEqual(legacy.integrityVersion, undefined, 'legacy fixture unexpectedly acquired verified provenance');
     assert.strictEqual(legacy.rawByteLength, undefined, 'legacy fixture unexpectedly acquired source bytes');
+
+    const reset = await runResetCase(browser);
+    assert.strictEqual(reset.afterReset.all, 0, 'reset fixture did not clear ALL');
+    assert.strictEqual(reset.afterReset.patchLoaded, 1, 'reset fixture did not leave stale patch state');
+    assert.strictEqual(reset.error, '', 'full bank failed after legacy init reset: ' + reset.error);
+    assert.strictEqual(reset.all, reset.total, 'full bank short after legacy init reset');
+    assert.strictEqual(reset.unique, reset.total, 'duplicate IDs after legacy init reset');
+    console.log('SHARD RESET RECONCILE OK: stale shard re-fetched, ' + reset.all + '/' + reset.total);
   } finally {
     await browser.close();
   }

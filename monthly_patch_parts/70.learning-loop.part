@@ -69,16 +69,17 @@
   };
 
   function progressData(){
-    var records=loadHist(),h=records.filter(function(x){return x&&x.answered===true;}),unanswered=records.filter(function(x){return x&&x.answered===false;}).length,legacy=records.filter(function(x){return x&&typeof x.answered!=='boolean';}).length,now=Date.now(),recent=h.filter(function(x){return Number(x.ts||0)>=now-7*DAY;}),bySubj={},wrongTopic={},byCause={},unique=new Set();
+    var records=loadHist(),h=records.filter(function(x){return x&&x.answered!==false;}),unanswered=records.filter(function(x){return x&&x.answered===false;}).length,now=Date.now(),recent=h.filter(function(x){return Number(x.ts||0)>=now-7*DAY;}),bySubj={},wrongTopic={},byCause={},unique=new Set();
     h.forEach(function(x){if(x&&x.id)unique.add(x.id);var s=x.subject||'未分類';if(!bySubj[s])bySubj[s]={t:0,c:0};bySubj[s].t++;if(x.correct)bySubj[s].c++;if(!x.correct){var q=null;try{q=ALL.find(function(z){return z.id===x.id;});}catch(_e){}var t=(q&&(q.topic||q.major))||x.major||'未分類';wrongTopic[t]=(wrongTopic[t]||0)+1;}});
     var cm=loadCauses();Object.keys(cm).forEach(function(id){var c=cm[id]&&cm[id].cause;if(c)byCause[c]=(byCause[c]||0)+1;});
-    return {hist:h,unanswered:unanswered,legacy:legacy,recent:recent,bySubj:bySubj,wrongTopic:wrongTopic,byCause:byCause,unique:unique};
+    return {hist:h,unanswered:unanswered,recent:recent,bySubj:bySubj,wrongTopic:wrongTopic,byCause:byCause,unique:unique};
   }
   function pct(c,t){return t?Math.round(c/t*100):0;}
 
   renderProgress=function(){
     var p=progressData(),total=p.hist.length,rv=reviewSummary(),essays=draftCount();
-    var recordNote='<p class="swsi-learning-muted">未作答紀錄 '+p.unanswered+' 次；舊紀錄 '+p.legacy+' 次無法區分是否作答，均不納入以下正確率、覆蓋率與弱科建議。模擬考成績與待複習題仍保留。</p>';
+    // Records saved before the answered flag existed keep their original counting; only explicit blanks are excluded.
+    var recordNote=p.unanswered?'<p class="swsi-learning-muted">另有 '+p.unanswered+' 次模擬考未作答，不計入以下正確率、覆蓋率與弱科建議；待複習題仍保留。</p>':'';
     if(!total){app.innerHTML=recordNote+'<div class="empty"><div class="ico">◴</div><h3>還沒有可分析的作答紀錄</h3><p>開始刷題後，這裡會告訴你哪一科比較弱、最近有沒有進步，以及下一步建議做什麼。</p><button class="btn" style="max-width:200px;margin:22px auto 0" onclick="swsiStartRecommended20()">先刷 20 題</button>'+(essays?'<div style="margin-top:14px;color:var(--ink-soft);font-size:13px">這台裝置目前有 '+essays+' 題申論作答草稿。</div>':'')+'</div>';return;}
     var correct=p.hist.filter(function(x){return x.correct;}).length,rate=pct(correct,total),rc=p.recent.filter(function(x){return x.correct;}).length,rr=p.recent.length?pct(rc,p.recent.length):null;
     var allCount=0;try{allCount=ALL.length||0;}catch(_e){}var coverage=allCount?Math.min(100,Math.round(p.unique.size/allCount*100)):0;

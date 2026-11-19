@@ -293,7 +293,6 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     const countUnanswered = rows => rows.filter(r => r && r.answered === false).length;
     const countLegacy = rows => rows.filter(r => r && typeof r.answered !== 'boolean').length;
     const totalBefore = document.querySelector('.swsi-progress-mini b')?.textContent?.trim();
-    const rateBefore = document.querySelector('.swsi-progress-hero strong')?.textContent?.trim();
     const blanks = Array.from({ length: 19 }, (_, i) => ({
       id: 'swsi-local-unanswered-' + i, subject: '未作答測試科',
       answered: false, correct: false, ts: Date.now()
@@ -306,14 +305,13 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       renderProgress();
       const html = document.querySelector('#app')?.textContent || '';
       const totalAfter = document.querySelector('.swsi-progress-mini b')?.textContent?.trim();
-      const rateAfter = document.querySelector('.swsi-progress-hero strong')?.textContent?.trim();
       result = {
-        answeredCountPreserved: totalAfter === totalBefore &&
-          Number(totalAfter) === countAnswered(initial),
-        accuracyPreserved: rateAfter === rateBefore,
-        blanksDisclosed: html.includes('未作答紀錄 ' + (countUnanswered(initial) + 19) + ' 次'),
-        legacyDisclosed: html.includes('舊紀錄 ' + (countLegacy(initial) + 1) + ' 次'),
-        excludedFromWeakness: !html.includes('未作答測試科') && !html.includes('舊紀錄測試科')
+        // Legacy rows without the answered flag keep pre-release counting (+1 attempt).
+        answeredCountPreserved: Number(totalAfter) === Number(totalBefore) + 1 &&
+          Number(totalAfter) === countAnswered(initial) + countLegacy(initial) + 1,
+        legacyCounted: html.includes('舊紀錄測試科'),
+        blanksDisclosed: html.includes('另有 ' + (countUnanswered(initial) + 19) + ' 次模擬考未作答'),
+        blanksExcludedFromWeakness: !html.includes('未作答測試科')
       };
     } finally {
       saveHist(initial);
@@ -323,12 +321,11 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   });
   assert.deepStrictEqual(blankProgressProof, {
     answeredCountPreserved: true,
-    accuracyPreserved: true,
+    legacyCounted: true,
     blanksDisclosed: true,
-    legacyDisclosed: true,
-    excludedFromWeakness: true
-  }, 'unanswered or legacy attempts polluted visible progress');
-  console.log('PROGRESS UNANSWERED BROWSER FILTER OK: 19 blanks + 1 unidentified legacy excluded');
+    blanksExcludedFromWeakness: true
+  }, 'unanswered attempts polluted progress, or legacy history was dropped');
+  console.log('PROGRESS UNANSWERED BROWSER FILTER OK: 19 blanks excluded, 1 legacy record retained');
 
   await page.locator('#t-home').click();
   await waitHome();
