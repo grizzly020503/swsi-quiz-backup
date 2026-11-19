@@ -2,17 +2,20 @@
 """Dry-run route planner between production analyzer candidates and enrichment QA.
 
 This is deliberately NOT imported by the deployed Edge Function. It proves the
-future routing contract without changing production behavior or writing data.
+routing contract without writing data.
 
 Input boundary:
 - official question row is immutable evidence;
 - analyzer candidate may contain exactly the v12 FIELDS payload and must not
   contain question/options/answer/grading/source fields;
 - deterministic enrichment decision chooses ready / sanitized-ready / review;
-- current legal-watch projection is opt-in and never historical-law proof.
+- current legal-watch projection is opt-in and never historical-law proof;
+- a legal-risk candidate may auto-publish only when separate exam-time
+  historical evidence has already been verified.
 """
 from __future__ import annotations
 
+import argparse
 import copy
 import json
 from pathlib import Path
@@ -61,6 +64,7 @@ OFFICIAL_CORE_FIELDS = {
     "source_url",
 }
 ALLOWED_FIELD_ACTIONS = {"law": {"drop"}}
+LEGAL_EVIDENCE_RULE = "ENRICHMENT_LEGAL_EVIDENCE_REQUIRED"
 
 
 def clean(value: Any) -> str:
@@ -142,6 +146,16 @@ def review_patch(decision: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _base_requires_legal_evidence(report: dict[str, Any]) -> bool:
+    items = report.get("items") or []
+    if len(items) != 1 or not isinstance(items[0], dict):
+        return False
+    return any(
+        isinstance(finding, dict) and finding.get("rule") == LEGAL_EVIDENCE_RULE
+        for finding in items[0].get("findings") or []
+    )
+
+
 def build_route_plan(
     question: dict[str, Any],
     candidate: dict[str, Any],
@@ -150,25 +164,39 @@ def build_route_plan(
     question_policy: dict[str, Any],
     legal_watch: dict[str, Any] | None = None,
     trust_current_legal_watch: bool = False,
+    historical_version_checked: bool = False,
 ) -> dict[str, Any]:
     candidate = validate_candidate(question, candidate)
     qid = clean(question.get("id"))
     merged = merged_evaluation_row(question, candidate)
 
-    report = build_report(
+    base_report = build_report(
         [merged],
         policy=policy,
         question_policy=question_policy,
         source=f"analyzer-candidate:{qid}",
     )
+    report = base_report
+    current_projection: dict[str, Any] | None = None
+
     if trust_current_legal_watch:
         if legal_watch is None:
             raise ValueError("trusted current legal-watch mode requires legal_watch data")
-        report = apply_trusted_current_legal_watch(
-            report,
+        projected = apply_trusted_current_legal_watch(
+            base_report,
             watch=legal_watch,
             policy=policy,
         )
+        current_projection = projected.get("current_legal_watch")
+        # Current-law evidence is only one prerequisite. If the base decision
+        # required legal provenance, exam-time historical verification remains
+        # mandatory before current-law projection may clear that review reason.
+        if historical_version_checked or not _base_requires_legal_evidence(base_report):
+            report = projected
+        else:
+            report = copy.deepcopy(base_report)
+            report["current_legal_watch"] = current_projection
+            report["current_legal_watch"]["historical_version_proof"] = False
     elif legal_watch is not None:
         raise ValueError(
             "legal_watch data supplied without explicit trust_current_legal_watch opt-in"
@@ -234,6 +262,7 @@ def build_route_plan(
         "proposed_update_patch": proposed_patch,
         "sanitized_candidate": sanitized_candidate,
         "current_legal_watch": report.get("current_legal_watch"),
+        "historical_version_checked": historical_version_checked,
         "safety": {
             "official_core_modified": False,
             "production_write_performed": False,
@@ -253,6 +282,7 @@ def main() -> int:
     parser.add_argument("--question-policy", type=Path, default=DEFAULT_QUESTION_POLICY)
     parser.add_argument("--legal-watch", type=Path)
     parser.add_argument("--trust-current-legal-watch", action="store_true")
+    parser.add_argument("--historical-version-checked", action="store_true")
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
 
@@ -269,6 +299,7 @@ def main() -> int:
         question_policy=read_json(args.question_policy),
         legal_watch=legal_watch,
         trust_current_legal_watch=args.trust_current_legal_watch,
+        historical_version_checked=args.historical_version_checked,
     )
     rendered = json.dumps(plan, ensure_ascii=False, indent=2) + "\n"
     if args.out:
