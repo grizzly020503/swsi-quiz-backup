@@ -40,8 +40,8 @@ async function awaitReviewedDesign(page, label) {
       };
     }, designId);
     if (deployed.css === expectedCalmCss && JSON.stringify(deployed.sourceHolds)===JSON.stringify(expectedSourceHolds)) {
-      assert.equal(deployed.paper, designId.endsWith('v3') ? 'rgb(247, 249, 247)' : 'rgb(244, 247, 245)', label + ': new body background not applied');
-      assert.equal(deployed.pine.toUpperCase(), designId.endsWith('v3') ? '#204F48' : '#1F544B', label + ': new CTA palette not applied');
+      assert.equal(deployed.paper, designId.endsWith('v3') ? 'rgb(247, 249, 247)' : 'rgb(247, 246, 242)', label + ': new body background not applied');
+      assert.equal(deployed.pine.toUpperCase(), designId.endsWith('v3') ? '#204F48' : '#214D43', label + ': new CTA palette not applied');
       console.log('LIVE REVIEWED DESIGN PARITY OK ' + label + ' refreshes=' + attempts);
       return;
     }
@@ -683,7 +683,7 @@ async function check(engine, label, width, height, practice) {
     });
     assert.equal(homeV4.heroCount, 1, label + ': missing/duplicate V4 primary hero');
     assert.equal(homeV4.headline, '今天，從一題開始。', label + ': old homepage renderer active');
-    assert.equal(homeV4.heroColor, 'rgb(229, 240, 235)', label + ': approved pale-green hero missing');
+    assert.equal(homeV4.heroColor, requireCalmParity ? 'rgba(0, 0, 0, 0)' : 'rgb(229, 240, 235)', label + ': approved pale-green hero missing');
     assert.deepEqual(homeV4.paths, ['歷屆試題', '申論練習'], label + ': V4 study paths');
     assert.equal(homeV4.tools.length, 3, label + ': V4 study tools count');
     assert(homeV4.tools[0] === '模擬考' &&

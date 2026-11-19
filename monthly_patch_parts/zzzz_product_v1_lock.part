@@ -18,23 +18,23 @@
       .swsi-essay-action-card .sub,footer{color:#636B67!important;}
 
       .swsi-essay-action-card{background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:15px 16px;margin:0 0 9px;}
-      .swsi-essay-action-card .title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:var(--swsi-ui-title,15px);line-height:1.4;color:var(--ink);}
-      .swsi-essay-action-card .sub{font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-small,11.5px);line-height:1.6;margin-top:3px;}
+      .swsi-essay-action-card .title{font-family:var(--swsi-font);font-weight:900;font-size:var(--swsi-ui-title,15px);line-height:1.4;color:var(--ink);}
+      .swsi-essay-action-card .sub{font-family:var(--swsi-font);font-size:var(--swsi-ui-small,11.5px);line-height:1.6;margin-top:3px;}
       .swsi-essay-action-card .actions{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:8px;margin-top:11px;}
-      .swsi-essay-action-card button{min-height:44px;border-radius:11px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-control,14px);font-weight:800;cursor:pointer;}
+      .swsi-essay-action-card button{min-height:44px;border-radius:11px;font-family:var(--swsi-font);font-size:var(--swsi-ui-control,14px);font-weight:800;cursor:pointer;}
       .swsi-essay-action-card .go{border:none;background:var(--pine-deep);color:#fff;}
       .swsi-essay-action-card .choose{border:1px solid var(--line);background:#fff;color:var(--pine-deep);}
 
-      .swsi-answer-line{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);line-height:1.55;color:var(--pine-deep);font-weight:800;background:#F1F6F4;border:1px solid #D8E5DF;border-radius:10px;padding:8px 10px;margin:0 0 13px;}
-      .swsi-core-reason{margin:0 0 13px;padding:10px 11px;border-left:3px solid var(--pine);background:#F8FAF9;border-radius:0 10px 10px 0;font-family:'Noto Sans TC',sans-serif;color:#343C38;line-height:1.7;}
+      .swsi-answer-line{font-family:var(--swsi-font);font-size:var(--fs-s);line-height:1.55;color:var(--pine-deep);font-weight:800;background:#F1F6F4;border:1px solid #D8E5DF;border-radius:10px;padding:8px 10px;margin:0 0 13px;}
+      .swsi-core-reason{margin:0 0 13px;padding:10px 11px;border-left:3px solid var(--pine);background:#F8FAF9;border-radius:0 10px 10px 0;font-family:var(--swsi-font);color:#343C38;line-height:1.7;}
       .swsi-core-reason b{display:block;font-size:10.5px;letter-spacing:.04em;color:var(--pine);margin-bottom:2px;}
       .swsi-core-reason span{display:block;font-size:13px;font-weight:650;}
-      .swsi-law-update-notice{margin:2px 0 10px;padding:10px 12px;border:1px solid #DDE5DF;border-radius:10px;background:#FBFCFA;font-family:'Noto Sans TC',sans-serif;}
+      .swsi-law-update-notice{margin:2px 0 10px;padding:10px 12px;border:1px solid #DDE5DF;border-radius:10px;background:#FBFCFA;font-family:var(--swsi-font);}
       .swsi-law-update-title{font-size:12px;line-height:1.5;font-weight:800;color:var(--ink);}
       .swsi-law-update-notice p{margin:4px 0 6px;font-size:12px;line-height:1.65;color:var(--ink-soft);overflow-wrap:anywhere;}
       .swsi-law-update-foot{font-size:11px;line-height:1.6;color:var(--ink-soft);}
       .swsi-law-update-notice a{display:inline-block;margin-top:7px;border-bottom:1px solid currentColor;font-size:11.5px;font-weight:700;color:var(--pine-deep);text-decoration:none;}
-      .swsi-answer-trust{margin:0 0 10px;border:1px solid #E1E7E3;border-radius:10px;background:#FCFDFC;font-family:'Noto Sans TC',sans-serif;overflow:hidden;}
+      .swsi-answer-trust{margin:0 0 10px;border:1px solid #E1E7E3;border-radius:10px;background:#FCFDFC;font-family:var(--swsi-font);overflow:hidden;}
       .swsi-answer-trust summary{list-style:none;cursor:pointer;min-height:38px;padding:7px 9px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--ink-soft);font-size:11px;font-weight:700;}
       .swsi-answer-trust summary::-webkit-details-marker{display:none;}
       .swsi-answer-trust summary:after{content:'＋';margin-left:auto;color:var(--ink-3);font-size:14px;}
@@ -47,7 +47,7 @@
       .swsi-trust-links{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;}
       .swsi-trust-links a{display:inline-block;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--pine-deep);padding:5px 8px;text-decoration:none;font-size:10.8px;font-weight:700;}
       .swsi-explanation-more{margin:12px 0 3px;border:1px solid var(--line);border-radius:11px;background:#FBFCFB;overflow:hidden;}
-      .swsi-explanation-more summary{list-style:none;cursor:pointer;min-height:43px;padding:9px 11px;display:flex;align-items:center;font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:800;color:var(--pine-deep);}
+      .swsi-explanation-more summary{list-style:none;cursor:pointer;min-height:43px;padding:9px 11px;display:flex;align-items:center;font-family:var(--swsi-font);font-size:var(--fs-s);font-weight:800;color:var(--pine-deep);}
       .swsi-explanation-more summary::-webkit-details-marker{display:none;}
       .swsi-explanation-more summary:after{content:'＋';margin-left:auto;color:var(--ink-3);font-size:16px;}
       .swsi-explanation-more[open] summary:after{content:'－';}
@@ -60,9 +60,9 @@
 
       .tabbar .ico.swsi-nav-ico{width:21px;height:21px;display:grid;place-items:center;font-size:0;line-height:1;}
       .tabbar .ico.swsi-nav-ico svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
-      .tabbar .swsi-nav-label{font-family:'Noto Sans TC',sans-serif;line-height:1.1;}
+      .tabbar .swsi-nav-label{font-family:var(--swsi-font);line-height:1.1;}
 
-      .swsi-data-version{margin:10px 4px 0;border-top:1px solid rgba(220,228,223,.85);padding-top:7px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-small,11.5px);line-height:1.6;}
+      .swsi-data-version{margin:10px 4px 0;border-top:1px solid rgba(220,228,223,.85);padding-top:7px;font-family:var(--swsi-font);font-size:var(--swsi-ui-small,11.5px);line-height:1.6;}
       .swsi-data-version summary{cursor:pointer;list-style:none;min-height:36px;display:flex;align-items:center;justify-content:center;text-align:center;color:#636B67;font-weight:700;}
       .swsi-data-version summary::-webkit-details-marker{display:none;}
       .swsi-data-version summary:after{content:'＋';margin-left:6px;color:var(--ink-3);}
@@ -70,13 +70,14 @@
       .swsi-data-version .body{text-align:center;padding:2px 8px 5px;color:#69716D;}
 
       footer.swsi-footer-clean{padding-top:10px!important;line-height:1.65!important;}
-      footer.swsi-footer-clean .sub{font-family:'Noto Sans TC',sans-serif;font-size:11px;color:#737A76;margin-top:2px;}
+      footer.swsi-footer-clean .sub{font-family:var(--swsi-font);font-size:11px;color:#737A76;margin-top:2px;}
       @media(max-width:370px){.swsi-essay-action-card .actions{grid-template-columns:1fr;}}
     `;
     document.head.appendChild(style);
   }
 
   function icon(kind){
+    if(kind==='quiz') return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1V6Zm0 0c3-2 6-2 9-1v14c-3-1-6-1-9 1"/></svg></span>';
     if(kind==='home') return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20H7v-7h10v7"></path><path d="M9 20v-7h6"></path></svg></span>';
     if(kind==='review') return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5"></path><path d="M19 12a7.5 7.5 0 1 1-2.2-5.3L20 9"></path></svg></span>';
     return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 19 3.8-.8L19 8a2.1 2.1 0 0 0-3-3L5.8 15.2 5 19Z"></path><path d="m14.8 6.2 3 3"></path><path d="M4 21h16"></path></svg></span>';
@@ -90,7 +91,7 @@
     var currentLabel=el.querySelector('.swsi-nav-label');
     var currentText=(el.textContent||'').trim();
     var hasLabel=currentLabel ? currentLabel.textContent===label : currentText.slice(-label.length)===label;
-    if(!hasLabel){
+    if(!hasLabel || !el.querySelector('svg')){
       el.innerHTML=icon(kind)+'<span class="swsi-nav-label">'+label+'</span>';
     }
     if(el.getAttribute('aria-label')!==label) el.setAttribute('aria-label',label);

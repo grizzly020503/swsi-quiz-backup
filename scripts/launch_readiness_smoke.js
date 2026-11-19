@@ -83,7 +83,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert.strictEqual(await guide.count(), 1, 'first-use guide missing on fresh localStorage');
   const guideText = await guide.innerText();
   assert(/不用先學整個平台/.test(guideText), 'compact first-use guide copy missing');
-  assert(/練題/.test(guideText) && /學習/.test(guideText) && /申論/.test(guideText), 'first-use guide does not explain the three primary areas');
+  assert(/刷題/.test(guideText) && /我的/.test(guideText) && /申論/.test(guideText), 'first-use guide does not explain the three primary areas');
   await guide.getByRole('button', { name: /不再顯示首次使用說明/ }).click();
   await page.waitForFunction(() => !document.querySelector('.swsi-launch-guide'));
   assert.strictEqual(await page.evaluate(() => localStorage.getItem('swsi_launch_guide_dismissed_v2')), '1', 'guide dismissal was not persisted');
@@ -111,11 +111,11 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       v4Installed: !!document.getElementById('swsi-calm-navigation-v4')
     };
   });
-  assert.strictEqual(actualHome.paper, '#F7F9F7', 'Netlify V4 paper must match the reviewed Cloudflare V3 palette');
-  assert.strictEqual(actualHome.heroBackground, 'rgb(229, 240, 235)', 'approved pale green CTA hero is not rendered');
+  assert.strictEqual(actualHome.paper, '#F7F6F2', 'reading-room paper token must match reviewed candidate');
+  assert.strictEqual(actualHome.heroBackground, 'rgba(0, 0, 0, 0)', 'reading-room welcome must remain unboxed');
   assert(/今天，從一題開始/.test(actualHome.heroTitle || ''), 'live renderHome still uses old copy');
   assert(actualHome.primaryHeight >= 48, 'primary CTA touch height is too small');
-  assert.strictEqual(actualHome.wrapMaxWidth, '660px', 'mobile reading width regressed');
+  assert.strictEqual(actualHome.wrapMaxWidth, '800px', 'shared maximum reading width regressed');
   assert(actualHome.v4Installed, 'V4 navigation owner missing');
   assert.deepStrictEqual(actualHome.tabs, ['首頁','刷題','申論','我的'], 'mobile navigation has wrong labels/order');
   await visual('01-home-mobile');
@@ -245,7 +245,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await waitHome();
   await page.setViewportSize({ width: 1365, height: 900 });
   assert.strictEqual(await page.locator('.wrap').evaluate(el => getComputedStyle(el).maxWidth),
-    '790px', 'desktop reading surface unexpectedly narrow');
+    '800px', 'desktop reading surface unexpectedly narrow');
   const desktopNav = await page.evaluate(() => {
     const nav = document.querySelector('#tabbar');
     const wrap = document.querySelector('.wrap');
@@ -261,6 +261,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       visibleButtons: Array.from(nav.querySelectorAll('button'))
         .filter(btn => getComputedStyle(btn).display !== 'none').length,
       wrapRight: w.right,
+      wrapLeft: w.left,
       viewportWidth: innerWidth,
       minButtonHeight: Math.min(...Array.from(nav.querySelectorAll('button'))
         .filter(btn => getComputedStyle(btn).display !== 'none')
@@ -270,9 +271,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   await visual('05-home-desktop');
   console.log('SWSI DESKTOP NAV GEOMETRY ' + JSON.stringify(desktopNav));
   assert.strictEqual(desktopNav.layout, 'column', 'wide-screen navigation still uses the mobile bottom bar');
-  assert(desktopNav.left >= desktopNav.wrapRight + 8,
+  assert(desktopNav.right <= desktopNav.wrapLeft - 8,
     'desktop navigation overlaps the main reading surface: ' + JSON.stringify(desktopNav));
-  assert(desktopNav.right <= desktopNav.viewportWidth - 12,
+  assert(desktopNav.left >= 12 && desktopNav.right <= desktopNav.viewportWidth - 12,
     'desktop navigation clips off the right edge');
   assert(desktopNav.top >= 85, 'desktop navigation overlaps the header');
   assert(desktopNav.height >= 48 * desktopNav.visibleButtons &&

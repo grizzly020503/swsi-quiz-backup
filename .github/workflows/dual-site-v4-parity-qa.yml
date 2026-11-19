@@ -25,7 +25,10 @@ jobs:
       run:
         shell: bash
     steps:
+      # Hosted parity compares the released baseline, not an unshipped PR design.
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
       - name: Install pinned browser driver
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'

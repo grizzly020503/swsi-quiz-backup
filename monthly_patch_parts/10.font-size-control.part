@@ -9,25 +9,25 @@
   style.id='swsi-font-size-control-fix';
   style.textContent=`
 :root{
-  --swsi-ui-hero:25px;
+  --swsi-ui-hero:30px;
   --swsi-ui-heading:18px;
-  --swsi-ui-title:15px;
-  --swsi-ui-body:14px;
-  --swsi-ui-small:11.5px;
-  --swsi-ui-control:14px;
-  --swsi-ui-tab:12px;
-}
-html[data-fs="1"]{
-  --swsi-ui-hero:29px;
-  --swsi-ui-heading:20px;
   --swsi-ui-title:17px;
   --swsi-ui-body:16px;
   --swsi-ui-small:13px;
   --swsi-ui-control:16px;
+  --swsi-ui-tab:12px;
+}
+html[data-fs="1"]{
+  --swsi-ui-hero:34px;
+  --swsi-ui-heading:20px;
+  --swsi-ui-title:19px;
+  --swsi-ui-body:17px;
+  --swsi-ui-small:14px;
+  --swsi-ui-control:17px;
   --swsi-ui-tab:14px;
 }
 html[data-fs="2"]{
-  --swsi-ui-hero:33px;
+  --swsi-ui-hero:38px;
   --swsi-ui-heading:23px;
   --swsi-ui-title:20px;
   --swsi-ui-body:18px;
