@@ -58,6 +58,7 @@ PR #263 第一版雖然 24/24 sessions 綠燈，但報表只有 4,810 items。�
 仍缺：
 
 1. **獨立於 GitHub Actions 的 heartbeat。** 現在 watchdog 自己仍跑在 GitHub Actions；如果整個 Actions 停擺，它不能靠自己偵測自己。P1-6 仍需外部／不同失效域的監測來源。
+   - 2026-11-19：Cloudflare Cron heartbeat 未帶身分查 GitHub API 時，會和 Cloudflare 其他用戶共用每 IP 每小時 60 次額度，實測被用盡（`github_source_error`，HTTP 403 rate limit）。Worker 現可選用 secret `GITHUB_HEARTBEAT_TOKEN`：fine-grained token、僅 public repositories 唯讀、不勾任何權限、設到期日。token 只放 Worker secret，不得進 repo、log、D1 或公開輸出；未設定時維持未授權模式。token 到期會回報 `github_http_401`，需換新。
 2. **考制版本化。** 現有 `data/question_qa_policy_v1.json` 仍代表目前 5 科 × 40 選擇／5 科 × 2 申論的既有契約；未來 116+ 制度變更辨識要另做正式 exam-format registry 與 candidate quarantine。
 3. **持久 job queue / lease / checkpoint。** 本批先建立 task freshness registry；尚未建立統一跨工作 persistent queue。
 4. **長期證據庫。** Actions artifact 有保留期限；後續需把重要非敏感證據保存到版本化、可校驗的 repo/source 或其他長期位置。

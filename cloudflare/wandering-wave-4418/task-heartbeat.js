@@ -28,12 +28,21 @@ function heartbeatTask(task, runs, now) {
     age_hours:Math.round(age*100)/100,failure_class:status==='healthy'?'none':status};
 }
 
-async function heartbeatRuns(task) {
+// Optional read-only token (Worker secret GITHUB_HEARTBEAT_TOKEN): fine-grained,
+// public-repo read only, no permissions. It moves the cron off the shared
+// per-IP unauthenticated quota. Never logged, stored or published.
+function heartbeatAuth(env) {
+  const token=typeof env?.GITHUB_HEARTBEAT_TOKEN==='string'?env.GITHUB_HEARTBEAT_TOKEN.trim():'';
+  return /^[A-Za-z0-9_]{20,255}$/.test(token)?{'Authorization':'Bearer '+token}:{};
+}
+
+async function heartbeatRuns(task, auth={}) {
   const url='https://api.github.com/repos/grizzly020503/swsi-quiz-backup/actions/workflows/'+
     encodeURIComponent(task.workflow_file)+'/runs?event=schedule&branch=main&status=completed&per_page=10';
   // Workers supports manual/follow only; reject 3xx through !ok without following.
   const response=await fetch(url,{method:'GET',redirect:'manual',signal:AbortSignal.timeout(10000),
-    headers:{'User-Agent':'swsi-cloudflare-task-heartbeat','Accept':'application/vnd.github+json'}});
+    headers:{'User-Agent':'swsi-cloudflare-task-heartbeat','Accept':'application/vnd.github+json',
+      'X-GitHub-Api-Version':'2022-11-28',...auth}});
   if (!response.ok) {
     const error=Error('github_http_'+response.status);
     // Only bounded numeric rate metadata; never persist upstream bodies/headers wholesale.
@@ -66,8 +75,9 @@ export async function runTaskHeartbeat(env, scheduledTime) {
   const now=Date.now();
   if (!Number.isFinite(scheduledTime)||scheduledTime>now+300000) throw Error('invalid_schedule');
   const observed=new Date(now).toISOString(), scheduled=new Date(scheduledTime).toISOString();
+  const auth=heartbeatAuth(env);
   const tasks=await Promise.all(HEARTBEAT_TASKS.map(async task=>{
-    try {return heartbeatTask(task,await heartbeatRuns(task),now);}
+    try {return heartbeatTask(task,await heartbeatRuns(task,auth),now);}
     catch (error) {
       // Publish only bounded classifications; URLs, upstream bodies and secrets never leave this handler.
       const message=String(error?.message||'');

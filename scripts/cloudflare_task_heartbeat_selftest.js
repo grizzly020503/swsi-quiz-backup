@@ -92,7 +92,29 @@ const env={AI_QUOTA_DB:{prepare(sql){
  await context.worker.scheduled({cron:'*/15 * * * *',scheduledTime:now+2},env);
  assert.equal(stored.tasks[0].failure_class,'source_unavailable');
  assert(!JSON.stringify(stored).includes('secret'));
+ // Optional read-only token: sent only as a Bearer header, never stored or published.
+ const token='github_pat_'+'A'.repeat(40), seen=[];
+ const tokenEnv={...env,GITHUB_HEARTBEAT_TOKEN:token};
+ context.fetch=async(url,options)=>{seen.push(options.headers.Authorization);
+   assert.equal(new URL(url).hostname,'api.github.com');assert.equal(options.redirect,'manual');
+   return Response.json({workflow_runs:[row()]});};
+ await context.worker.scheduled({cron:'*/15 * * * *',scheduledTime:now+3},tokenEnv);
+ assert.equal(seen.length,6);assert(seen.every(h=>h==='Bearer '+token));
+ assert.equal(stored.components.task_heartbeat.status,'healthy');
+ res=await context.worker.fetch(req(),tokenEnv);
+ assert(!JSON.stringify(stored).includes(token)&&!(await res.text()).includes(token));
+ context.fetch=async(url,options)=>{seen.push(options.headers.Authorization);
+   return new Response('Bad credentials '+token,{status:401});};
+ await context.worker.scheduled({cron:'*/15 * * * *',scheduledTime:now+4},tokenEnv);
+ assert(stored.tasks.every(t=>t.status==='error'&&t.failure_class==='github_http_401'));
+ assert(!JSON.stringify(stored).includes(token));
+ for(const bad of ['', '  ', 'short', 'has space '+'A'.repeat(30), 'A'.repeat(20)+'\nX', 42]){
+   seen.length=0;
+   context.fetch=async(url,options)=>{seen.push(options.headers.Authorization);return Response.json({workflow_runs:[row()]});};
+   await context.worker.scheduled({cron:'*/15 * * * *',scheduledTime:now+5},{...env,GITHUB_HEARTBEAT_TOKEN:bad});
+   assert(seen.length===6&&seen.every(h=>h===undefined),'malformed token must not be sent');
+ }
  await assert.rejects(context.worker.scheduled({cron:'wrong',scheduledTime:now},env));
  const config=fs.readFileSync('wrangler.jsonc','utf8');assert(config.includes('"crons": ["*/15 * * * *"]'));
- console.log('INDEPENDENT HEARTBEAT CONTRACT PASS: schedule-only history, failure/staleness, 6 bounded GETs, no public probe/write, sanitized errors, monotonic one-row storage');
+ console.log('INDEPENDENT HEARTBEAT CONTRACT PASS: schedule-only history, failure/staleness, 6 bounded GETs, no public probe/write, sanitized errors, optional read-only token never published, monotonic one-row storage');
 })().catch(e=>{console.error(e);process.exitCode=1;});
