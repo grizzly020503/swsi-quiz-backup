@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-20T07:05:28Z",
-  "source_item_count": 12,
-  "event_count": 12,
+  "generated_at": "2026-11-21T19:09:18Z",
+  "source_item_count": 11,
+  "event_count": 11,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
   "events": [
     {
@@ -1400,152 +1400,6 @@
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
     },
     {
-      "canonical_event_id": "a30165bb30ed8d5976e4495f",
-      "title": "夏莉絲虐童案業者拒出席調解 北市府啟動行政調查、研議團體訴訟",
-      "summary": "台北市夏莉絲幼兒園虐童案延燒，園方業者以負責人身體不佳、等待刑事偵查結果為由，拒絕出席原訂11月27日的調解會議。北市法務局今（19）日宣布調解延期，並嚴正譴責業者消極迴避協商的態度，宣告將啟動行政調查程序，協助受害家長爭取權益。",
-      "category": "兒少保護",
-      "subjects": [
-        "社會工作",
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "品質與風險管理",
-        "服務輸送與跨網絡",
-        "倫理與權利保障"
-      ],
-      "exam_subject_axes": [
-        "社會工作直接服務",
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "primary_exam_subject_axes": [
-        "社會工作直接服務"
-      ],
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "subject_topics": {
-        "社會工作直接服務": [
-          "兒少保護風險評估",
-          "家庭評估與危機介入"
-        ],
-        "人類行為與社會環境": [
-          "兒童發展、依附與創傷",
-          "家庭系統與風險保護因子"
-        ],
-        "社會政策與社會立法": [
-          "兒少福利與保護法制",
-          "責任通報與保護體系"
-        ],
-        "社會工作": [
-          "專業倫理與兒童最佳利益",
-          "權利倡導與社會正義"
-        ]
-      },
-      "knowledge_topics": [
-        "兒少保護",
-        "虐童",
-        "權益"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 兒少福利與保護法制",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 責任通報與保護體系",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 責任通報與保護體系",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 兒童發展、依附與創傷"
-      ],
-      "exam_tags": [
-        "權益",
-        "虐童"
-      ],
-      "related_laws": [],
-      "concept_keys": [
-        "child_protection"
-      ],
-      "agency_keys": [],
-      "fact_keys": [],
-      "source_count": 1,
-      "official_source_count": 0,
-      "sources": [
-        "中天新聞生活"
-      ],
-      "evidence": [
-        {
-          "source_name": "中天新聞生活",
-          "source_url": "https://ctinews.com/news/items/bKxrMBPja9",
-          "source_type": "news",
-          "published_at": "2026-11-19T08:30:58Z",
-          "item_id": "a27f4bd7a7d3998a4ebbca807d392b35"
-        }
-      ],
-      "first_seen": "2026-11-19T08:30:58Z",
-      "last_seen": "2026-11-19T08:30:58Z",
-      "observation_count": 1,
-      "observation_dates": [
-        "2026-11-19"
-      ],
-      "policy_signal": "medium",
-      "essay_value": "high",
-      "mcq_fact_density": "medium",
-      "signal_confidence": "medium",
-      "signal_score": 7,
-      "exam_point_summary": "夏莉絲虐童案業者拒出席調解 北市府啟動行政調查、研議團體訴訟。政策／制度動向值得追蹤；申論可從兒少最佳利益、責任通報、跨網絡合作與制度漏洞切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "虐童"
-      ],
-      "related_exam_questions": [],
-      "historical_exam_stats": {
-        "matched_question_count": 0,
-        "weighted_match_count": 0.0,
-        "match_breakdown": {
-          "strong": 0,
-          "medium": 0,
-          "concept": 0
-        },
-        "matched_year_count": 0,
-        "matched_years": [],
-        "earliest_exam_year": null,
-        "latest_exam_year": null,
-        "corpus_latest_year": 115,
-        "years_since_last_exam": null,
-        "subject_counts": {},
-        "subject_count": 0,
-        "law_match_count": 0,
-        "law_match_year_count": 0,
-        "law_match_years": [],
-        "high_confidence_match_count": 0,
-        "matching_method": "event-evidence-v2.2",
-        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
-      },
-      "related_policy_instruments": [],
-      "law_link_basis": [],
-      "law_link_rules_schema": 1,
-      "law_link_status": "unresolved",
-      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
-    },
-    {
       "canonical_event_id": "4badfc5478b2cc15fcd39f4f",
       "title": "兼顧資安與實務 今年12月起實施長照資訊系統強化身分驗證機制",
       "summary": "為強化長期照顧資訊安全，保障長照服務使用者的個人權益，衛生福利部推動「照顧服務管理資訊平台」及「長照機構暨長照人員相關管理資訊系統」改採自然人憑證或健保卡等實體卡證驗證登入，已於113年起多次行文地方政府宣導。目前考量地方政府及長照服務提供單位的實務作業需求，從今（115）年12月1日起實施，以利準備及銜接。 衛福部表示，長照相關資訊系統為本部重要核心資訊系統，涉及大量長照服務使用者個人資料及相關業務資訊。考量近年資安事件頻傳，有必要強化系統身分驗證機制，因此調整為透過自然人憑證或健保卡等實體卡證驗證方式登入，確保個案資料及系統資訊安全。 衛福部進一步說",
@@ -1970,9 +1824,9 @@
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
     },
     {
-      "canonical_event_id": "853e10cb1eec8151cc2b221f",
-      "title": "「甜心議員」林穎孟被家暴最新！誠泰少東林致光遭判刑定讞",
-      "summary": "前台北市議員林穎孟與誠泰銀行少東林致光的婚姻不到2年便告終；林致光因違反保護令遭判拘役40日，高等法院17日駁回上訴，全案定讞。案件源於兩人因手機錄影發生爭執，林穎孟撤回傷害告訴後，法院仍認定林致光違反保護令。",
+      "canonical_event_id": "0dc778f8e2c36c946678ad46",
+      "title": "拜訪憂鬱少女卻乘機性侵2次 男網友分期賠20萬獲緩刑",
+      "summary": "陳姓男子透過臉書結識家住基隆的少女，去年7月間，陳男前往少女住處拜訪時，趁其因服用精神疾病藥物意識模糊、不知抗拒時，兩次下手性侵。直至少女發現垃圾桶的保險套及血跡方知被陳男侵犯...…",
       "category": "家暴與性暴力",
       "subjects": [
         "社會工作直接服務",
@@ -2017,9 +1871,8 @@
       },
       "knowledge_topics": [
         "家暴與性暴力",
-        "家暴",
-        "保護令",
-        "保護"
+        "性侵",
+        "保險"
       ],
       "knowledge_paths": [
         "社會工作管理 > 品質與風險管理",
@@ -2041,46 +1894,47 @@
         "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 創傷反應與家庭互動"
       ],
       "exam_tags": [
-        "保護",
-        "保護令",
-        "家暴"
+        "保險",
+        "性侵"
       ],
       "related_laws": [],
       "concept_keys": [
         "gender_violence"
       ],
       "agency_keys": [],
-      "fact_keys": [],
+      "fact_keys": [
+        "num:200000"
+      ],
       "source_count": 1,
       "official_source_count": 0,
       "sources": [
-        "中天新聞社會"
+        "自由時報社會"
       ],
       "evidence": [
         {
-          "source_name": "中天新聞社會",
-          "source_url": "https://ctinews.com/news/items/4bnbkLb9WP",
+          "source_name": "自由時報社會",
+          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5648412",
           "source_type": "news",
-          "published_at": "2026-11-17T07:31:22Z",
-          "item_id": "81f8381b9fcaf41ae642523afa5e9a11"
+          "published_at": "2026-11-21T03:10:49Z",
+          "item_id": "ca88894e72d577c214270c0072023ab9"
         }
       ],
-      "first_seen": "2026-11-17T07:31:22Z",
-      "last_seen": "2026-11-17T07:31:22Z",
+      "first_seen": "2026-11-21T03:10:49Z",
+      "last_seen": "2026-11-21T03:10:49Z",
       "observation_count": 1,
       "observation_dates": [
-        "2026-11-17"
+        "2026-11-21"
       ],
       "policy_signal": "low",
-      "essay_value": "high",
+      "essay_value": "medium",
       "mcq_fact_density": "low",
-      "signal_confidence": "medium",
-      "signal_score": 6,
-      "exam_point_summary": "「甜心議員」林穎孟被家暴最新！誠泰少東林致光遭判刑定讞。尚未見明確制度變動，先作事件與專業議題觀察；申論可從危險評估、保護令、創傷知情與跨網絡合作切入。此為命題訊號，非命題保證。",
+      "signal_confidence": "low",
+      "signal_score": 5,
+      "exam_point_summary": "拜訪憂鬱少女卻乘機性侵2次 男網友分期賠20萬獲緩刑。尚未見明確制度變動，先作事件與專業議題觀察；申論可從危險評估、保護令、創傷知情與跨網絡合作切入。此為命題訊號，非命題保證。",
       "essay_direction": "可從「危險評估、保護令、創傷知情與跨網絡合作」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
-        "家暴",
-        "保護令"
+        "性侵",
+        "保險"
       ],
       "related_exam_questions": [
         {
@@ -2091,61 +1945,61 @@
           "qno": "11",
           "major": "其他社會立法與人權公約",
           "topic": "家暴防治法 > 保護令聲請",
-          "match_reason": "事件詞：保護令、家暴；共同概念：性別暴力",
-          "match_score": 4.2
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
         },
         {
-          "id": "SP-115-2-027",
+          "id": "DS-115-2-011",
+          "subject": "社會工作直接服務",
+          "year": "115",
+          "round": "第二次",
+          "qno": "11",
+          "major": "專業關係",
+          "topic": "情感反轉移的處理原則",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-13",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "13",
+          "major": "社會保險",
+          "topic": "年金制度 > 確定給付與確定提撥制",
+          "match_reason": "事件詞：保險",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-16",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "16",
+          "major": "社會保險",
+          "topic": "社會保險 > 社會保險特性",
+          "match_reason": "事件詞：保險",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP-115-2-019",
           "subject": "社會政策與社會立法",
           "year": "115",
           "round": "第二次",
-          "qno": "27",
-          "major": "其他社會立法與人權公約",
-          "topic": "家庭暴力防治法 > 保護令聲請管轄",
-          "match_reason": "事件詞：保護令；共同概念：性別暴力",
-          "match_score": 4.2
-        },
-        {
-          "id": "SP114-1-29",
-          "subject": "社會政策與社會立法",
-          "year": "114",
-          "round": "第一次",
-          "qno": "29",
-          "major": "其他社會立法與人權公約",
-          "topic": "家暴防治法 > 急迫危險保護令",
-          "match_reason": "事件詞：保護令、家暴；共同概念：性別暴力",
-          "match_score": 4.2
-        },
-        {
-          "id": "SP114-2-30",
-          "subject": "社會政策與社會立法",
-          "year": "114",
-          "round": "第二次",
-          "qno": "30",
-          "major": "其他社會立法與人權公約",
-          "topic": "家暴防治法 > 通常保護令",
-          "match_reason": "事件詞：保護令、家暴；共同概念：性別暴力",
-          "match_score": 4.2
-        },
-        {
-          "id": "SP113-1-12",
-          "subject": "社會政策與社會立法",
-          "year": "113",
-          "round": "第一次",
-          "qno": "12",
-          "major": "其他社會立法與人權公約",
-          "topic": "家暴防治法 > 保護令核發機關",
-          "match_reason": "事件詞：保護令、家暴；共同概念：性別暴力",
-          "match_score": 4.2
+          "qno": "19",
+          "major": "社會保險",
+          "topic": "年金制度與財源籌措",
+          "match_reason": "事件詞：保險",
+          "match_score": 2.2
         }
       ],
       "historical_exam_stats": {
-        "matched_question_count": 77,
-        "weighted_match_count": 4.0,
+        "matched_question_count": 164,
+        "weighted_match_count": 1.0,
         "match_breakdown": {
           "strong": 0,
-          "medium": 22,
-          "concept": 55
+          "medium": 0,
+          "concept": 164
         },
         "matched_year_count": 12,
         "matched_years": [
@@ -2168,7 +2022,7 @@
         "years_since_last_exam": 0,
         "subject_counts": {
           "社會工作直接服務": 2,
-          "社會政策與社會立法": 75
+          "社會政策與社會立法": 162
         },
         "subject_count": 2,
         "law_match_count": 0,

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-20T07:05:28Z",
-  "event_count": 12,
+  "generated_at": "2026-11-21T19:09:18Z",
+  "event_count": 11,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
   "trends": [
@@ -71,7 +71,7 @@
         "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 家庭政策、托育與性別制度"
       ],
       "trend_state": "sustained",
-      "trend_score": 7.5,
+      "trend_score": 7.2,
       "why": [
         "1 個官方來源",
         "有政策／制度訊號",
@@ -94,7 +94,7 @@
         "persistence": 1.15,
         "essay_value": 0.55,
         "mcq_density": 0.45,
-        "recency": 1.0
+        "recency": 0.6
       },
       "source_count": 1,
       "official_source_count": 1,
@@ -844,145 +844,6 @@
       ]
     },
     {
-      "canonical_event_id": "013914bda3724e0a53937aa8",
-      "title": "教育部持續強化學生住宿支持措施，減輕住宿負擔並保障學生居住權益",
-      "category": "社會救助與居住",
-      "subjects": [
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "規劃與政策執行",
-        "方案與資源管理",
-        "倫理與權利保障",
-        "品質與風險管理",
-        "成效評估與證據"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作",
-        "社會工作直接服務",
-        "社會工作研究方法"
-      ],
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作研究方法"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會工作",
-        "社會工作直接服務"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "社會救助、所得保障與居住權"
-        ],
-        "社會工作": [
-          "貧窮、社會排除與社會正義"
-        ],
-        "社會工作直接服務": [
-          "需求評估與資源連結"
-        ],
-        "社會工作研究方法": [
-          "統計與資料解讀"
-        ]
-      },
-      "knowledge_topics": [
-        "社會救助與居住",
-        "租屋",
-        "居住權",
-        "補助",
-        "權益",
-        "法規"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 成效評估與證據",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
-        "社會工作管理 > 方案與資源管理 > 社會工作研究方法 > 統計與資料解讀",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估與資源連結",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 需求評估與資源連結",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 品質與風險管理 > 社會工作研究方法 > 統計與資料解讀",
-        "社會工作管理 > 成效評估與證據 > 社會工作研究方法 > 統計與資料解讀",
-        "社會工作管理 > 成效評估與證據 > 社會工作 > 貧窮、社會排除與社會正義",
-        "社會工作管理 > 成效評估與證據 > 社會政策與社會立法 > 社會救助、所得保障與居住權"
-      ],
-      "trend_state": "one-off",
-      "trend_score": 3.8,
-      "why": [
-        "1 個官方來源",
-        "有政策／制度訊號"
-      ],
-      "factors": {
-        "cross_source": 0.0,
-        "official_evidence": 0.7,
-        "policy_change": 1.8,
-        "historical_frequency": 0.0,
-        "historical_year_breadth": 0.0,
-        "recent_exam_support": 0.0,
-        "historical_subject_breadth": 0.0,
-        "law_relevance": 0.0,
-        "persistence": 0.0,
-        "essay_value": 1.1,
-        "mcq_density": 0.45,
-        "recency": 1.0
-      },
-      "source_count": 1,
-      "official_source_count": 1,
-      "observation_count": 1,
-      "first_seen": "2026-11-18T11:02:00Z",
-      "last_seen": "2026-11-18T11:02:00Z",
-      "related_laws": [],
-      "related_policy_instruments": [],
-      "law_link_status": "unresolved",
-      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
-      "law_link_basis": [],
-      "law_link_rules_schema": 1,
-      "historical_question_count": 0,
-      "historical_weighted_match_count": 0.0,
-      "historical_match_breakdown": {
-        "strong": 0,
-        "medium": 0,
-        "concept": 0
-      },
-      "historical_exam_years": [],
-      "latest_related_exam_year": null,
-      "corpus_latest_exam_year": 115,
-      "years_since_last_related_exam": null,
-      "historical_subject_counts": {},
-      "historical_subject_count": 0,
-      "historical_law_match_count": 0,
-      "historical_law_match_years": [],
-      "historical_high_confidence_match_count": 0,
-      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
-      "related_exam_questions": [],
-      "essay_direction": "可從「最低生活保障、貧窮結構因素與居住權」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "教育部",
-        "租屋",
-        "居住權"
-      ],
-      "evidence": [
-        {
-          "source_name": "教育部即時新聞",
-          "source_url": "https://www.edu.tw/News_Content.aspx?n=9E7AC85F1954DDA8&s=F0B3571EB94A86F5",
-          "source_type": "official",
-          "published_at": "2026-11-18T11:02:00Z",
-          "item_id": "2dcd14cccd12dc2aaf8f0110129a551e"
-        }
-      ]
-    },
-    {
       "canonical_event_id": "db1a4a1bf35814b91a57cc5a",
       "title": "鼓勵民間團體踴躍辦理職災預防及重建宣導，勞動部放寬補助規定",
       "category": "勞動與社會保障",
@@ -1042,7 +903,7 @@
         "社會工作管理 > 方案與資源管理 > 社會工作 > 勞動權益、社會正義與弱勢支持",
         "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
-      "trend_state": "one-off",
+      "trend_state": "cooling",
       "trend_score": 3.5,
       "why": [
         "1 個官方來源",
@@ -1189,209 +1050,141 @@
       ]
     },
     {
-      "canonical_event_id": "853e10cb1eec8151cc2b221f",
-      "title": "「甜心議員」林穎孟被家暴最新！誠泰少東林致光遭判刑定讞",
-      "category": "家暴與性暴力",
+      "canonical_event_id": "013914bda3724e0a53937aa8",
+      "title": "教育部持續強化學生住宿支持措施，減輕住宿負擔並保障學生居住權益",
+      "category": "社會救助與居住",
       "subjects": [
-        "社會工作直接服務",
+        "社會工作",
         "社會政策與社會立法"
       ],
       "knowledge_root": "社會工作管理",
       "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
       "management_domains": [
+        "規劃與政策執行",
+        "方案與資源管理",
+        "倫理與權利保障",
         "品質與風險管理",
-        "服務輸送與跨網絡",
-        "倫理與權利保障"
+        "成效評估與證據"
       ],
       "exam_subject_axes": [
-        "社會工作直接服務",
-        "人類行為與社會環境",
         "社會政策與社會立法",
-        "社會工作"
+        "社會工作",
+        "社會工作直接服務",
+        "社會工作研究方法"
       ],
       "primary_exam_subject_axes": [
-        "社會工作直接服務",
-        "社會政策與社會立法"
+        "社會政策與社會立法",
+        "社會工作研究方法"
       ],
       "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會工作"
+        "社會工作",
+        "社會工作直接服務"
       ],
       "subject_topics": {
-        "社會工作直接服務": [
-          "危險評估與安全計畫",
-          "創傷知情與危機介入"
-        ],
-        "人類行為與社會環境": [
-          "創傷反應與家庭互動"
-        ],
         "社會政策與社會立法": [
-          "家暴與性暴力防治制度",
-          "保護令與被害人權益"
+          "社會救助、所得保障與居住權"
         ],
         "社會工作": [
-          "被害人權利與專業倫理"
+          "貧窮、社會排除與社會正義"
+        ],
+        "社會工作直接服務": [
+          "需求評估與資源連結"
+        ],
+        "社會工作研究方法": [
+          "統計與資料解讀"
         ]
       },
       "knowledge_topics": [
-        "家暴與性暴力",
-        "家暴",
-        "保護令",
-        "保護"
+        "社會救助與居住",
+        "租屋",
+        "居住權",
+        "補助",
+        "權益",
+        "法規"
       ],
       "knowledge_paths": [
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 方案與資源管理",
         "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 危險評估與安全計畫",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 創傷知情與危機介入",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 被害人權利與專業倫理",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 危險評估與安全計畫",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 創傷知情與危機介入",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 被害人權利與專業倫理",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 家暴與性暴力防治制度",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 保護令與被害人權益",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 被害人權利與專業倫理",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 危險評估與安全計畫",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 創傷知情與危機介入",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 家暴與性暴力防治制度",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 保護令與被害人權益",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 創傷反應與家庭互動"
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 成效評估與證據",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 方案與資源管理 > 社會工作研究方法 > 統計與資料解讀",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 需求評估與資源連結",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會救助、所得保障與居住權",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 需求評估與資源連結",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 品質與風險管理 > 社會工作研究方法 > 統計與資料解讀",
+        "社會工作管理 > 成效評估與證據 > 社會工作研究方法 > 統計與資料解讀",
+        "社會工作管理 > 成效評估與證據 > 社會工作 > 貧窮、社會排除與社會正義",
+        "社會工作管理 > 成效評估與證據 > 社會政策與社會立法 > 社會救助、所得保障與居住權"
       ],
       "trend_state": "one-off",
-      "trend_score": 3.4,
+      "trend_score": 3.5,
       "why": [
-        "歷屆同概念／事件詞關聯 77 題，跨 12 個年度；強 0／中 22／概念 55",
-        "最近相關題為 115 年（距題庫最新年度 0 年）",
-        "歷屆分布 2 個考科"
+        "1 個官方來源",
+        "有政策／制度訊號"
       ],
       "factors": {
         "cross_source": 0.0,
-        "official_evidence": 0.0,
-        "policy_change": 0.0,
-        "historical_frequency": 1.12,
-        "historical_year_breadth": 0.52,
-        "recent_exam_support": 0.52,
-        "historical_subject_breadth": 0.25,
+        "official_evidence": 0.7,
+        "policy_change": 1.8,
+        "historical_frequency": 0.0,
+        "historical_year_breadth": 0.0,
+        "recent_exam_support": 0.0,
+        "historical_subject_breadth": 0.0,
         "law_relevance": 0.0,
         "persistence": 0.0,
         "essay_value": 1.1,
-        "mcq_density": 0.0,
-        "recency": 1.0
+        "mcq_density": 0.45,
+        "recency": 0.6
       },
       "source_count": 1,
-      "official_source_count": 0,
+      "official_source_count": 1,
       "observation_count": 1,
-      "first_seen": "2026-11-17T07:31:22Z",
-      "last_seen": "2026-11-17T07:31:22Z",
+      "first_seen": "2026-11-18T11:02:00Z",
+      "last_seen": "2026-11-18T11:02:00Z",
       "related_laws": [],
       "related_policy_instruments": [],
       "law_link_status": "unresolved",
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
       "law_link_basis": [],
       "law_link_rules_schema": 1,
-      "historical_question_count": 77,
-      "historical_weighted_match_count": 4.0,
+      "historical_question_count": 0,
+      "historical_weighted_match_count": 0.0,
       "historical_match_breakdown": {
         "strong": 0,
-        "medium": 22,
-        "concept": 55
+        "medium": 0,
+        "concept": 0
       },
-      "historical_exam_years": [
-        104,
-        105,
-        106,
-        107,
-        108,
-        109,
-        110,
-        111,
-        112,
-        113,
-        114,
-        115
-      ],
-      "latest_related_exam_year": 115,
+      "historical_exam_years": [],
+      "latest_related_exam_year": null,
       "corpus_latest_exam_year": 115,
-      "years_since_last_related_exam": 0,
-      "historical_subject_counts": {
-        "社會工作直接服務": 2,
-        "社會政策與社會立法": 75
-      },
-      "historical_subject_count": 2,
+      "years_since_last_related_exam": null,
+      "historical_subject_counts": {},
+      "historical_subject_count": 0,
       "historical_law_match_count": 0,
       "historical_law_match_years": [],
       "historical_high_confidence_match_count": 0,
       "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
-      "related_exam_questions": [
-        {
-          "id": "SP115-1-11",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "11",
-          "major": "其他社會立法與人權公約",
-          "topic": "家暴防治法 > 保護令聲請",
-          "match_reason": "事件詞：保護令、家暴；共同概念：性別暴力",
-          "match_score": 4.2
-        },
-        {
-          "id": "SP-115-2-027",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第二次",
-          "qno": "27",
-          "major": "其他社會立法與人權公約",
-          "topic": "家庭暴力防治法 > 保護令聲請管轄",
-          "match_reason": "事件詞：保護令；共同概念：性別暴力",
-          "match_score": 4.2
-        },
-        {
-          "id": "SP114-1-29",
-          "subject": "社會政策與社會立法",
-          "year": "114",
-          "round": "第一次",
-          "qno": "29",
-          "major": "其他社會立法與人權公約",
-          "topic": "家暴防治法 > 急迫危險保護令",
-          "match_reason": "事件詞：保護令、家暴；共同概念：性別暴力",
-          "match_score": 4.2
-        },
-        {
-          "id": "SP114-2-30",
-          "subject": "社會政策與社會立法",
-          "year": "114",
-          "round": "第二次",
-          "qno": "30",
-          "major": "其他社會立法與人權公約",
-          "topic": "家暴防治法 > 通常保護令",
-          "match_reason": "事件詞：保護令、家暴；共同概念：性別暴力",
-          "match_score": 4.2
-        },
-        {
-          "id": "SP113-1-12",
-          "subject": "社會政策與社會立法",
-          "year": "113",
-          "round": "第一次",
-          "qno": "12",
-          "major": "其他社會立法與人權公約",
-          "topic": "家暴防治法 > 保護令核發機關",
-          "match_reason": "事件詞：保護令、家暴；共同概念：性別暴力",
-          "match_score": 4.2
-        }
-      ],
-      "essay_direction": "可從「危險評估、保護令、創傷知情與跨網絡合作」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "related_exam_questions": [],
+      "essay_direction": "可從「最低生活保障、貧窮結構因素與居住權」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
-        "家暴",
-        "保護令"
+        "教育部",
+        "租屋",
+        "居住權"
       ],
       "evidence": [
         {
-          "source_name": "中天新聞社會",
-          "source_url": "https://ctinews.com/news/items/4bnbkLb9WP",
-          "source_type": "news",
-          "published_at": "2026-11-17T07:31:22Z",
-          "item_id": "81f8381b9fcaf41ae642523afa5e9a11"
+          "source_name": "教育部即時新聞",
+          "source_url": "https://www.edu.tw/News_Content.aspx?n=9E7AC85F1954DDA8&s=F0B3571EB94A86F5",
+          "source_type": "official",
+          "published_at": "2026-11-18T11:02:00Z",
+          "item_id": "2dcd14cccd12dc2aaf8f0110129a551e"
         }
       ]
     },
@@ -1669,7 +1462,7 @@
         "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 長照制度、老人福利與社會保障",
         "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 老化、失智與生命歷程"
       ],
-      "trend_state": "one-off",
+      "trend_state": "cooling",
       "trend_score": 3.0,
       "why": [
         "1 個官方來源",
@@ -1956,11 +1749,10 @@
       ]
     },
     {
-      "canonical_event_id": "a30165bb30ed8d5976e4495f",
-      "title": "夏莉絲虐童案業者拒出席調解 北市府啟動行政調查、研議團體訴訟",
-      "category": "兒少保護",
+      "canonical_event_id": "0dc778f8e2c36c946678ad46",
+      "title": "拜訪憂鬱少女卻乘機性侵2次 男網友分期賠20萬獲緩刑",
+      "category": "家暴與性暴力",
       "subjects": [
-        "社會工作",
         "社會工作直接服務",
         "社會政策與社會立法"
       ],
@@ -1978,117 +1770,187 @@
         "社會工作"
       ],
       "primary_exam_subject_axes": [
-        "社會工作直接服務"
+        "社會工作直接服務",
+        "社會政策與社會立法"
       ],
       "supporting_exam_subject_axes": [
         "人類行為與社會環境",
-        "社會政策與社會立法",
         "社會工作"
       ],
       "subject_topics": {
         "社會工作直接服務": [
-          "兒少保護風險評估",
-          "家庭評估與危機介入"
+          "危險評估與安全計畫",
+          "創傷知情與危機介入"
         ],
         "人類行為與社會環境": [
-          "兒童發展、依附與創傷",
-          "家庭系統與風險保護因子"
+          "創傷反應與家庭互動"
         ],
         "社會政策與社會立法": [
-          "兒少福利與保護法制",
-          "責任通報與保護體系"
+          "家暴與性暴力防治制度",
+          "保護令與被害人權益"
         ],
         "社會工作": [
-          "專業倫理與兒童最佳利益",
-          "權利倡導與社會正義"
+          "被害人權利與專業倫理"
         ]
       },
       "knowledge_topics": [
-        "兒少保護",
-        "虐童",
-        "權益"
+        "家暴與性暴力",
+        "性侵",
+        "保險"
       ],
       "knowledge_paths": [
         "社會工作管理 > 品質與風險管理",
         "社會工作管理 > 服務輸送與跨網絡",
         "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 兒少福利與保護法制",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 責任通報與保護體系",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 責任通報與保護體系",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 兒童發展、依附與創傷"
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 被害人權利與專業倫理",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 危險評估與安全計畫",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 創傷知情與危機介入",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 家暴與性暴力防治制度",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 保護令與被害人權益",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 創傷反應與家庭互動"
       ],
       "trend_state": "one-off",
-      "trend_score": 2.6,
+      "trend_score": 2.0,
       "why": [
-        "有政策／制度訊號"
+        "歷屆廣義概念關聯 164 題，跨 12 個年度；強 0／中 0／概念 164（僅作低權重背景）",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 2 個考科"
       ],
       "factors": {
         "cross_source": 0.0,
         "official_evidence": 0.0,
-        "policy_change": 0.9,
-        "historical_frequency": 0.0,
-        "historical_year_breadth": 0.0,
-        "recent_exam_support": 0.0,
-        "historical_subject_breadth": 0.0,
+        "policy_change": 0.0,
+        "historical_frequency": 0.28,
+        "historical_year_breadth": 0.28,
+        "recent_exam_support": 0.28,
+        "historical_subject_breadth": 0.25,
         "law_relevance": 0.0,
         "persistence": 0.0,
-        "essay_value": 1.1,
-        "mcq_density": 0.45,
+        "essay_value": 0.55,
+        "mcq_density": 0.0,
         "recency": 1.0
       },
       "source_count": 1,
       "official_source_count": 0,
       "observation_count": 1,
-      "first_seen": "2026-11-19T08:30:58Z",
-      "last_seen": "2026-11-19T08:30:58Z",
+      "first_seen": "2026-11-21T03:10:49Z",
+      "last_seen": "2026-11-21T03:10:49Z",
       "related_laws": [],
       "related_policy_instruments": [],
       "law_link_status": "unresolved",
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
       "law_link_basis": [],
       "law_link_rules_schema": 1,
-      "historical_question_count": 0,
-      "historical_weighted_match_count": 0.0,
+      "historical_question_count": 164,
+      "historical_weighted_match_count": 1.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 0,
-        "concept": 0
+        "concept": 164
       },
-      "historical_exam_years": [],
-      "latest_related_exam_year": null,
+      "historical_exam_years": [
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
       "corpus_latest_exam_year": 115,
-      "years_since_last_related_exam": null,
-      "historical_subject_counts": {},
-      "historical_subject_count": 0,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會工作直接服務": 2,
+        "社會政策與社會立法": 162
+      },
+      "historical_subject_count": 2,
       "historical_law_match_count": 0,
       "historical_law_match_years": [],
       "historical_high_confidence_match_count": 0,
       "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
-      "related_exam_questions": [],
-      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "related_exam_questions": [
+        {
+          "id": "SP115-1-11",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "11",
+          "major": "其他社會立法與人權公約",
+          "topic": "家暴防治法 > 保護令聲請",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "DS-115-2-011",
+          "subject": "社會工作直接服務",
+          "year": "115",
+          "round": "第二次",
+          "qno": "11",
+          "major": "專業關係",
+          "topic": "情感反轉移的處理原則",
+          "match_reason": "共同概念：性別暴力",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-13",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "13",
+          "major": "社會保險",
+          "topic": "年金制度 > 確定給付與確定提撥制",
+          "match_reason": "事件詞：保險",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP115-1-16",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "16",
+          "major": "社會保險",
+          "topic": "社會保險 > 社會保險特性",
+          "match_reason": "事件詞：保險",
+          "match_score": 2.2
+        },
+        {
+          "id": "SP-115-2-019",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第二次",
+          "qno": "19",
+          "major": "社會保險",
+          "topic": "年金制度與財源籌措",
+          "match_reason": "事件詞：保險",
+          "match_score": 2.2
+        }
+      ],
+      "essay_direction": "可從「危險評估、保護令、創傷知情與跨網絡合作」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
-        "虐童"
+        "性侵",
+        "保險"
       ],
       "evidence": [
         {
-          "source_name": "中天新聞生活",
-          "source_url": "https://ctinews.com/news/items/bKxrMBPja9",
+          "source_name": "自由時報社會",
+          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5648412",
           "source_type": "news",
-          "published_at": "2026-11-19T08:30:58Z",
-          "item_id": "a27f4bd7a7d3998a4ebbca807d392b35"
+          "published_at": "2026-11-21T03:10:49Z",
+          "item_id": "ca88894e72d577c214270c0072023ab9"
         }
       ]
     },
