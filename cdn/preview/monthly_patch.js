@@ -279,6 +279,33 @@ window.swsiEsc = swsiEsc;
     return [...new Set(QB.manifest.shards.map(x=>parseInt(x.year,10)).filter(Number.isFinite))].sort((a,b)=>b-a);
   }
 
+  // Official Core stays intact. Suppress unverified student-only explanations
+  // at the shared normalization boundary for CDN, DB fallback and offline.
+  const SWSI_ANALYSIS_REVIEW_QUARANTINE = new Set(['SP-115-2-040']);
+  function swsiShouldMaskAnalysis(item){
+    if(!item) return false;
+    const id=swsiText(item.id).trim();
+    if(SWSI_ANALYSIS_REVIEW_QUARANTINE.has(id)) return true;
+    const code=swsiText(item.source_exam_code).trim();
+    // An official question ID can survive in old offline cache without its source metadata.
+    const official=/^\d{6}$/.test(code) || /^[A-Z]{2,6}-\d{3}-[12]-\d{3}$/.test(id);
+    return official && swsiText(item.analysis_status).trim().toLowerCase()!=='ready';
+  }
+  // Shared review-only gate for independent mock-exam results.
+  QB.shouldMaskAnalysis = swsiShouldMaskAnalysis;
+  function swsiMaskStudentAnalysis(item){
+    if(!swsiShouldMaskAnalysis(item)) return item;
+    // Display-only quarantine; no modification of input row or official answer fields.
+    if(SWSI_ANALYSIS_REVIEW_QUARANTINE.has(swsiText(item.id).trim())) item.analysis_status='review';
+    item.exp={why:'',others:'',trap:'',raw:''};
+    item.mnemonic='';
+    item.extension='';
+    item.law='';
+    item.topic='';
+    item.mistake='';
+    return item;
+  }
+
   // normalize must retain official grading metadata from Supabase/CDN.
   const legacyNormalize = normalize;
   normalize = function(r){
@@ -300,7 +327,7 @@ window.swsiEsc = swsiEsc;
     q.extension = swsiCleanPUA(q.extension);
     q.law = swsiCleanPUA(q.law);
     q.mistake = swsiCleanPUA(q.mistake);
-    return q;
+    return swsiMaskStudentAnalysis(q);
   };
 
   // Clean the current auto-essay payload after it is merged; future parser versions also normalize at source.
@@ -361,9 +388,28 @@ window.swsiEsc = swsiEsc;
     return {schema_version:1,year,round,question_count:200,questions:data};
   }
 
+  // The legacy init() resets ALL and its own loader state, but not this patch's
+  // SWSI_QB. A shard merged before that reset would stay "loaded" with its rows
+  // gone, leaving the full bank short (e.g. 4600/4800). Treat such a shard as
+  // unloaded so it is fetched/verified again instead of failing permanently.
+  function shardRowsPresent(file){
+    const present = new Set(ALL.map(q=>q && q.id));
+    let owned = 0, missing = false;
+    QB.questionOwners.forEach((owner,id)=>{
+      if(owner !== file) return;
+      owned++;
+      if(!present.has(id)) missing = true;
+    });
+    if(owned && !missing) return true;
+    QB.loadedFiles.delete(file);
+    QB.questionOwners.forEach((owner,id)=>{ if(owner === file) QB.questionOwners.delete(id); });
+    QB.allComplete = false;
+    return false;
+  }
+
   async function loadQuestionShard(meta){
     if(!meta || !meta.file) throw new Error('缺少題庫 shard metadata');
-    if(QB.loadedFiles.has(meta.file)) return;
+    if(QB.loadedFiles.has(meta.file) && shardRowsPresent(meta.file)) return;
     if(QB.loading.has(meta.file)) return QB.loading.get(meta.file);
 
     const p = (async()=>{
@@ -482,13 +528,39 @@ window.swsiEsc = swsiEsc;
       }
       SUBJECTS = SWSI_CORE_SUBJECTS.slice();
       QB.allComplete = QB.loadedFiles.size === QB.manifest.shards.length ? assertCompleteBank() : false;
+      QB.error = null;
       window._usingOfflineBackup = QB.usingOffline;
       return;
     }catch(err){
-      console.warn('Manifest-first 啟動失敗，退回舊完整題庫備援。',err);
-      await legacyLoadAll();
-      QB.allComplete = true;
-      QB.usingOffline = !!window._usingOfflineBackup;
+      // Manifest integrity failure must never silently become a legacy
+      // full-bank success, even when an older cached backup is present.
+      if(QB.manifest || QB.loadedFiles.size > 0){
+        QB.allComplete = false;
+        QB.error = err;
+        throw err;
+      }
+      console.warn('題庫目錄無法取得，嘗試舊版完整題庫備援。',err);
+      try{
+        await legacyLoadAll();
+        // No manifest is available: require the last known official baseline
+        // and unique, nonempty IDs before accepting a legacy offline cache.
+        if(!Array.isArray(ALL) || ALL.length !== 4800)
+          throw new Error('舊版備援題庫題數不完整，禁止當作完整題庫');
+        const ids = new Set();
+        for(const row of ALL){
+          const id = swsiText(row && row.id).trim();
+          if(!id || ids.has(id))
+            throw new Error('舊版備援題庫含空白或重複 ID，禁止當作完整題庫');
+          ids.add(id);
+        }
+        QB.allComplete = true;
+        QB.error = null;
+        QB.usingOffline = !!window._usingOfflineBackup;
+      }catch(fallbackErr){
+        QB.allComplete = false;
+        QB.error = fallbackErr;
+        throw fallbackErr;
+      }
     }
   };
 
@@ -615,11 +687,26 @@ window.swsiEsc = swsiEsc;
 
   // ---------- Secure question rendering + official grading ----------
   renderQuiz = function(){
+    var ic=function(n){return typeof swsiIcon==='function'?swsiIcon(n):'';};
+    // Answer feedback: one result bar pinned to the bottom of the viewport with the
+    // only next action. Message follows the official grading mode; never re-grades.
+    function resultBar(item,mode,wrong){
+      var special=mode==='all_credit'||mode==='any_answer';
+      var ok=!wrong;
+      var title=special?'本題依官方規定給分':ok?'答對了！':'答錯了';
+      var sub=special?'解析僅供理解題意':ok?'看一下解析，加深印象':'先看解析，弄懂為什麼';
+      var last=idx+1>=queue.length;
+      return '<div class="swsi-result-bar '+(ok?'is-ok':'is-no')+'" role="status" aria-live="polite">'+
+        '<div class="swsi-result-msg"><span class="swsi-result-ico">'+ic(ok?'check':'cross')+'</span><span><b>'+title+'</b><small>'+sub+'</small></span></div>'+
+        '<button type="button" class="btn swsi-result-next" onclick="next()">'+(last?'看結果':'下一題')+ic('arrow')+'</button></div>';
+    }
     if(!queue.length){
       app.innerHTML='<div class="empty"><div class="ico">∅</div><h3>沒有符合的題目</h3><button class="btn" style="max-width:200px;margin:18px auto 0" onclick="go(\'home\')">回首頁</button></div>';
       return;
     }
-    const item=queue[idx], pct=Math.round((idx/queue.length)*100), mode=gradingMode(item), accepted=acceptedAnswers(item);
+    const item=queue[idx], pct=Math.round(((idx+(answered?1:0))/queue.length)*100), mode=gradingMode(item), accepted=acceptedAnswers(item);
+    if(typeof window.swsiSourceHeld==='function'&&window.swsiSourceHeld(item)){app.innerHTML=window.swsiSourceHoldQuiz(item);return;}
+    const figureReady=swsiOfficialFigureReady(item);
     let optHTML='';
     for(const k of ['A','B','C','D']){
       if(!item.options[k]) continue;
@@ -639,16 +726,22 @@ window.swsiEsc = swsiEsc;
         ' onclick="pick(\''+k+'\')" style="width:100%;text-align:left;font-family:inherit;color:inherit"><span class="lab">'+k+'</span><span>'+
         swsiEscLines(item.options[k])+'</span>'+marker+'</button>';
     }
+    // Runtime owner overrides the legacy renderer; never expose answer options
+    // until a required MOEX source figure has loaded successfully.
+    if(!figureReady)optHTML='<div class="pending" role="status">原圖未載入，本題不可作答；可略過且不計分。</div>';
 
     let expHTML='';
     if(answered){
       const wrong=!isCorrectAnswer(item,selected);
+      const analysisHidden=swsiShouldMaskAnalysis(item);
       let body='';
       if(mode==='all_credit') body+='<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 官方一律給分：</b>這題即使未作答也計分；解析僅供理解題意。</div>';
       else if(mode==='any_answer') body+='<div class="pending" style="background:var(--correct-bg);color:var(--pine)"><b>⚖ 官方特殊給分：</b>A～D 任一作答皆給分，但未作答不給分。</div>';
-      if(item.exp&&(item.exp.why||item.exp.others||item.exp.trap)){
+      if(analysisHidden){
+        body+='<div class="pending">平台解析待複核，暫不顯示。'+swsiEsc(answerLabel(item))+'。</div>';
+      }else if(item.exp&&(item.exp.why||item.exp.others||item.exp.trap)){
         if(item.exp.why) body+='<div class="exp-sec"><h4><span class="dot d-green"></span>為什麼對</h4><p>'+swsiEscLines(item.exp.why)+'</p></div>';
-        if(item.exp.others) body+='<div class="exp-sec"><h4><span class="dot d-red"></span>其他選項為什麼錯</h4><p>'+swsiEscLines(item.exp.others)+'</p></div>';
+        if(item.exp.others) body+='<div class="exp-sec"><h4><span class="dot d-red"></span>其他選項為什麼錯</h4><p>'+swsiEscLines(String(item.exp.others).replace(/([、，；;])\s*(?=[(（][A-D][)）])/g,'$1\n'))+'</p></div>';
         if(item.exp.trap) body+='<div class="exp-sec"><h4><span class="dot d-gold"></span>考場陷阱</h4><p>'+swsiEscLines(item.exp.trap)+'</p></div>';
       }else if(item.exp&&item.exp.raw){
         body+='<div class="exp-sec"><p>'+swsiEscLines(item.exp.raw)+'</p></div>';
@@ -656,25 +749,25 @@ window.swsiEsc = swsiEsc;
         body+='<div class="pending">此題<b>解析生成中</b>。'+swsiEsc(answerLabel(item))+'，先記下來，詳解之後補上。</div>';
       }
       let extra='';
-      if(item.mnemonic) extra+='<div class="extra"><b>記憶法：</b>'+swsiEscLines(item.mnemonic)+'</div>';
-      if(item.law) extra+='<div class="extra"><b>法源：</b>'+swsiEscLines(item.law)+'</div>';
+      if(!analysisHidden && item.mnemonic) extra+='<div class="extra"><b>記憶法：</b>'+swsiEscLines(item.mnemonic)+'</div>';
+      if(!analysisHidden && item.law) extra+='<div class="extra"><b>法源：</b>'+swsiEscLines(item.law)+'</div>';
       if(mode==='standard' && accepted.size>1) extra='<div class="extra"><b>'+swsiEsc(answerLabel(item))+'</b></div>'+extra;
-      expHTML='<div class="exp"><div class="topic">考點：<b>'+swsiEsc(item.topic||item.major)+'</b></div>'+body+extra+
-        (wrong&&item.mistake?'<div class="mistake">這題錯因：'+swsiEsc(item.mistake)+'</div>':'')+
-        '<button class="btn" onclick="next()">'+(idx+1<queue.length?'下一題 →':'看結果 →')+'</button></div>';
+      expHTML='<div class="exp">'+(analysisHidden?'':'<div class="topic">考點：<b>'+swsiEsc(item.topic||item.major)+'</b></div>')+body+extra+
+        (wrong&&!analysisHidden&&item.mistake?'<div class="mistake">這題錯因：'+swsiEsc(item.mistake)+'</div>':'')+
+        resultBar(item,mode,wrong)+'</div>';
     }
 
-    app.innerHTML='<button class="quit" onclick="go(\'home\')">← 結束這次練習</button>'+
-      '<div class="pstrip"><div class="pbar"><i style="width:'+pct+'%"></i></div><span class="pcount">'+(idx+1)+' / '+queue.length+'</span></div>'+
+    app.innerHTML='<div class="swsi-quizbar"><button type="button" class="quit" onclick="go(\'home\')" aria-label="結束這次練習">'+ic('close')+'</button>'+
+      '<div class="pstrip"><div class="pbar" role="progressbar" aria-label="練習進度" aria-valuemin="0" aria-valuemax="'+queue.length+'" aria-valuenow="'+(idx+(answered?1:0))+'"><i style="width:'+pct+'%"></i></div><span class="pcount">'+(idx+1)+' / '+queue.length+'</span></div></div>'+
       '<div class="qcard"><div class="qmeta"><span class="tag subj">'+swsiEsc(item.subject)+'</span><span class="tag year">'+swsiEsc(item.year)+'年 '+swsiEsc(item.round)+'</span>'+
       (yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':'')+
       ((maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':'')+
-      legalBadge(item)+'</div>'+legalNotice(item)+'<div class="qtext">'+swsiEscLines(item.q)+'</div>'+optHTML+
-      (!answered?'<button class="btn" '+(selected?'':'disabled')+' onclick="submit()">送出答案</button>':'')+expHTML+'</div>';
+      legalBadge(item)+'</div>'+legalNotice(item)+'<div class="qtext">'+swsiEscLines(swsiOfficialFigureQuestion(item))+'</div>'+swsiOfficialFigureMarkup(item)+optHTML+
+      (!answered?(figureReady?'<button class="btn" '+(selected?'':'disabled')+' onclick="submit()">送出答案</button>':'<button class="btn ghost" onclick="next()">略過缺圖題（不計分）→</button>'):'')+expHTML+'</div>';
   };
 
   submit = function(){
-    if(!selected) return;
+    if(!selected || !swsiOfficialFigureReady(queue[idx])) return;
     answered=true;
     const item=queue[idx], correct=isCorrectAnswer(item,selected);
     sessionStats.done++;
@@ -730,15 +823,21 @@ window.swsiEsc = swsiEsc;
     const fT=(c)=>{const r=c/maxCnt,t=r>=0.4?'高頻':(r>=0.15?'中頻':'低頻'),col=r>=0.4?'background:var(--pine);color:#fff':(r>=0.15?'background:var(--correct-bg);color:var(--pine)':'background:#ECE6D6;color:var(--ink-soft)');return '<span class="tag" style="margin-left:6px;'+col+'">'+t+'</span>';};
     const cards=sorted.map(([name,cnt],i)=>'<div class="gcard" onclick="practiceTopic('+i+')"><div><div class="name">'+swsiEsc(name)+'</div><div class="cnt">'+cnt+' 題'+fT(cnt)+'</div></div><span class="arrow">›</span></div>').join('');
     const eOpen=topicsOpen==='essay',mOpen=topicsOpen==='mcq';
-    app.innerHTML='<div class="section-h">考點</div><div class="section-s">挑一個主題開始：申論自己練、選擇題一鍵開。理論、法規、時事與讀書指南也能直接查。</div>'+ 
-      '<div class="gcard" onclick="go(\'theories\')" style="background:var(--pine);border-color:var(--pine)"><div><div class="name" style="color:#fff">📖 核心理論小辭典</div><div class="cnt" style="color:#cfe3da">'+THEORIES.length+' 個申論必備理論</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="go(\'laws\')" style="background:var(--gold);border-color:var(--gold)"><div><div class="name" style="color:#fff">📜 重點法規速查</div><div class="cnt" style="color:#f5e9cf">'+LAWS.length+' 部常用法規 · 含修法動態</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="NL.open()" style="background:var(--pine-deep);border-color:var(--pine-deep)"><div><div class="name" style="color:#fff">📰 時事庫</div><div class="cnt" style="color:#cfe3da">近期社會事件 · 考點／理論／法規／可能怎麼考</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="SG.open()" style="background:#7E7A66;border-color:#7E7A66"><div><div class="name" style="color:#fff">📖 讀書指南</div><div class="cnt" style="color:#ece9da">學長姊應考心得 · 各科速查 · 申論策略</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="go(\'progress\')"><div><div class="name">📊 我的進度</div><div class="cnt">各科正確率、常錯考點與錯因分布</div></div><span class="arrow">›</span></div>'+ 
-      '<div class="gcard" onclick="toggleTopics(\'essay\')" style="margin-top:14px'+(eOpen?';border-color:var(--pine);border-width:1.5px':'')+'"><div><div class="name">✍️ 申論題 · 依主題練</div><div class="cnt">'+clusters.length+' 個主題'+(eOpen?'（點我收合）':'')+'</div></div><span class="arrow">'+(eOpen?'▾':'›')+'</span></div>'+ 
-      (eOpen?'<div style="margin-top:8px">'+clCards+'</div>':'')+
-      '<div class="gcard" onclick="toggleTopics(\'mcq\')" style="margin-top:10px'+(mOpen?';border-color:var(--pine);border-width:1.5px':'')+'"><div><div class="name">📝 選擇題 · 依大類練</div><div class="cnt">'+sorted.length+' 個大類'+(mOpen?'（點我收合）':'')+'</div></div><span class="arrow">'+(mOpen?'▾':'›')+'</span></div>'+ 
+    const ti=n=>typeof swsiIcon==='function'?'<span class="swsi-gcard-ico">'+swsiIcon(n)+'</span>':'';
+    const chev=typeof swsiIcon==='function'?swsiIcon('arrow'):'›';
+    const trow=(icon,name,cnt,onclick,extra)=>'<div class="gcard swsi-gcard-row" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();this.click()}" onclick="'+onclick+'"'+(extra||'')+'>'+ti(icon)+'<div><div class="name">'+name+'</div><div class="cnt">'+cnt+'</div></div><span class="arrow">'+chev+'</span></div>';
+    app.innerHTML='<div class="section-h">考點</div><div class="section-s">挑一個主題開始：申論自己練、選擇題一鍵開。理論、法規、時事與讀書指南也能直接查。</div>'+
+      '<div class="swsi-gcard-group">'+
+      trow('bulb','核心理論小辭典',THEORIES.length+' 個申論必備理論',"go(\'theories\')")+
+      trow('law','重點法規速查',LAWS.length+' 部常用法規 · 含修法動態',"go(\'laws\')")+
+      trow('papers','時事庫','近期社會事件 · 考點／理論／法規／可能怎麼考','NL.open()')+
+      trow('review','讀書指南','學長姊應考心得 · 各科速查 · 申論策略','SG.open()')+
+      trow('chart','我的進度','各科正確率、常錯考點與錯因分布',"go(\'progress\')")+
+      '</div><div class="swsi-gcard-group">'+
+      trow('essay','申論題 · 依主題練',clusters.length+' 個主題'+(eOpen?'（點我收合）':''),"toggleTopics(\'essay\')",' aria-expanded="'+eOpen+'"')+
+      (eOpen?'</div><div style="margin:-16px 0 24px">'+clCards+'</div><div class="swsi-gcard-group">':'')+
+      trow('quiz','選擇題 · 依大類練',sorted.length+' 個大類'+(mOpen?'（點我收合）':''),"toggleTopics(\'mcq\')",' aria-expanded="'+mOpen+'"')+
+      '</div>'+
       (mOpen?'<div style="margin-top:8px"><select class="subj" aria-label="選擇科目" onchange="subjFilter=this.value;render()">'+opts+'</select>'+cards+'</div>':'');
   };
 
@@ -1067,32 +1166,33 @@ window.swsiEsc = swsiEsc;
   var style=document.createElement('style');
   style.id='swsi-font-size-control-fix';
   style.textContent=`
+/* Large reading scale (Owner choice 2026-11-22: 簡單大字). */
 :root{
-  --swsi-ui-hero:25px;
-  --swsi-ui-heading:18px;
-  --swsi-ui-title:15px;
-  --swsi-ui-body:14px;
-  --swsi-ui-small:11.5px;
-  --swsi-ui-control:14px;
-  --swsi-ui-tab:12px;
+  --swsi-ui-hero:32px;
+  --swsi-ui-heading:28px;
+  --swsi-ui-title:19px;
+  --swsi-ui-body:17px;
+  --swsi-ui-small:15px;
+  --swsi-ui-control:18px;
+  --swsi-ui-tab:13px;
 }
 html[data-fs="1"]{
-  --swsi-ui-hero:29px;
-  --swsi-ui-heading:20px;
-  --swsi-ui-title:17px;
-  --swsi-ui-body:16px;
-  --swsi-ui-small:13px;
-  --swsi-ui-control:16px;
+  --swsi-ui-hero:36px;
+  --swsi-ui-heading:31px;
+  --swsi-ui-title:21px;
+  --swsi-ui-body:19px;
+  --swsi-ui-small:17px;
+  --swsi-ui-control:20px;
   --swsi-ui-tab:14px;
 }
 html[data-fs="2"]{
-  --swsi-ui-hero:33px;
-  --swsi-ui-heading:23px;
-  --swsi-ui-title:20px;
-  --swsi-ui-body:18px;
-  --swsi-ui-small:15px;
-  --swsi-ui-control:18px;
-  --swsi-ui-tab:16px;
+  --swsi-ui-hero:40px;
+  --swsi-ui-heading:34px;
+  --swsi-ui-title:23px;
+  --swsi-ui-body:21px;
+  --swsi-ui-small:19px;
+  --swsi-ui-control:22px;
+  --swsi-ui-tab:15px;
 }
 main .hero h1,
 main .ux-home-intro h1{
@@ -1172,6 +1272,38 @@ main [style*="font-size:15px"]{
    Layer 2: page templates are expressed only through body[data-swsi-page].
    Layer 3: feature modules own their cards/components, never the global shell.
 */
+/* SWSI icon set 2026-11-22: the only icon source for the student UI.
+   One 24px grid, 1.9 stroke, round caps. Text glyphs and emoji are not used
+   as interface icons. Every caller marks the icon aria-hidden. */
+(function(){
+  'use strict';
+  var P={
+    home:'<path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
+    quiz:'<path d="M12 6.5C9.5 4.8 6.5 4.6 4 5.3v13.5c2.5-.7 5.5-.5 8 1.2 2.5-1.7 5.5-1.9 8-1.2V5.3c-2.5-.7-5.5-.5-8 1.2Z"/><path d="M12 6.5V20"/>',
+    essay:'<path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17v3Z"/><path d="m14.5 7.5 3 3"/>',
+    mine:'<circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>',
+    review:'<path d="M20 5v5h-5"/><path d="M19.4 14A7.5 7.5 0 1 1 17.8 7L20 10"/>',
+    timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/>',
+    papers:'<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M10 12h6M10 16h6"/><path d="M4 7v15h11"/>',
+    chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+    bookmark:'<path d="M6 3h12v18l-6-4-6 4z"/>',
+    flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+    close:'<path d="M6 6l12 12M18 6 6 18"/>',
+    check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+    cross:'<path d="M7 7l10 10M17 7 7 17"/>',
+    arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+    back:'<path d="M19 12H5M11 6l-6 6 6 6"/>',
+    play:'<path d="M8 5.5v13l10-6.5z"/>',
+    search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+    bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/>',
+    target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6"/>',
+    law:'<path d="M12 4v16M6 20h12M4 8h16M7 8l-3 6a3 3 0 0 0 6 0zM17 8l-3 6a3 3 0 0 0 6 0z"/>'
+  };
+  window.swsiIcon=function(name,cls){
+    var body=P[name]||P.arrow;
+    return '<svg class="swsi-i'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+body+'</svg>';
+  };
+})();
 (function(){
   'use strict';
 
@@ -1260,7 +1392,7 @@ main [style*="font-size:15px"]{
       }
       body[data-swsi-page="home"] footer{
         margin-top:12px!important;
-        padding-bottom:18px!important;
+        padding-bottom:8px!important;
       }
 
       /* Loading keeps the shell stable: the flexible main pushes attribution
@@ -1286,7 +1418,7 @@ main [style*="font-size:15px"]{
         }
       }
       @media(max-width:420px){
-        :root{--swsi-tabbar-clearance:calc(88px + env(safe-area-inset-bottom,0px));}
+        :root{--swsi-tabbar-clearance:calc(80px + env(safe-area-inset-bottom,0px));}
       }
       html[data-fs="2"]{
         --swsi-tabbar-clearance:calc(94px + env(safe-area-inset-bottom,0px));
@@ -1352,6 +1484,62 @@ main [style*="font-size:15px"]{
   window.addEventListener('pageshow',syncLayout);
   window.addEventListener('focus',syncLayout);
 })();
+/* SWSI Calm Learning V4 — final navigation owner.
+   Four visible routes reflect the approved mobile concept while preserving
+   existing home, essay and Learning Center route owners.
+   No grading, user-state, API, or security changes. */
+(function(){
+  'use strict';
+  var bar=document.getElementById('tabbar');
+  if(!bar || document.getElementById('swsi-calm-navigation-v4'))return;
+  var symbols={home:swsiIcon('home'),quiz:swsiIcon('quiz'),essay:swsiIcon('essay'),mine:swsiIcon('mine')};
+  var s=document.createElement('style');
+  s.id='swsi-calm-navigation-v4';
+  s.textContent=[
+    'body #tabbar #t-topics,body #tabbar #t-progress{display:none!important;}',
+    'body #tabbar{gap:0;}',
+    'body #tabbar button{font-family:var(--swsi-font);font-size:13px;}',
+    'body #tabbar button .ico{display:grid;place-items:center;width:24px;height:24px;font-size:22px;line-height:1;}',
+    'body #tabbar button .ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}',
+    'body #tabbar button .swsi-nav-label{font-size:13px;font-weight:700;line-height:1.35;}',
+    'body #tabbar button.on{color:var(--brand);}',
+    '@media(max-width:390px){body #tabbar button{padding-left:2px;padding-right:2px;}}',
+    '@media(prefers-reduced-motion:reduce){body #tabbar button{transition:none!important;}}'
+  ].join('');
+  document.head.appendChild(s);
+  function format(button,icon,label,action){
+    if(!button)return;
+    var html='<span class="ico">'+symbols[icon]+'</span><span class="swsi-nav-label">'+label+'</span>';
+    if(button.innerHTML!==html)button.innerHTML=html;
+    if(button.getAttribute('onclick')!==action)button.setAttribute('onclick',action);
+    if(button.getAttribute('aria-label')!==label)button.setAttribute('aria-label',label);
+  }
+  function syncNav(){
+    var home=document.getElementById('t-home');
+    var essay=document.getElementById('t-essay');
+    var mine=document.getElementById('t-review');
+    var topics=document.getElementById('t-topics');
+    var progress=document.getElementById('t-progress');
+    if(!home||!essay||!mine)return;
+    var quiz=document.getElementById('swsi-v4-tab-quiz');
+    if(!quiz){quiz=document.createElement('button');quiz.id='swsi-v4-tab-quiz';quiz.type='button';}
+    format(home,'home','首頁',"go('home')");
+    format(quiz,'quiz','刷題',"swsiStartNow()");
+    format(essay,'essay','申論',"go('essay')");
+    format(mine,'mine','我的',"return swsiOpenLearningCenter(event)");
+    var order=[home,quiz,essay,mine,topics,progress].filter(Boolean);
+    order.forEach(function(node,i){
+      if(bar.children[i]!==node)bar.insertBefore(node,bar.children[i]||null);
+    });
+    if(topics&&topics.style.display!=='none')topics.style.display='none';
+    if(progress&&progress.style.display!=='none')progress.style.display='none';
+  }
+  // Navigation is reconciled by the existing late product owner.
+  // Never observe the nav subtree from an early part: it would trigger
+  // competing microtask observers and starve DOMContentLoaded on iOS/Chromium.
+  syncNav();
+})();
+
 /* SWSI Focused Study Home V2 2026-08-29
    UX simplification preview: one clear study action at a time.
    No grading, question-bank, AI or storage contract changes.
@@ -1402,6 +1590,59 @@ main [style*="font-size:15px"]{
         .swsi-focus-primary{padding:18px 16px}
         .swsi-home-quick{grid-template-columns:1fr 1fr}
       }
+
+      /* V4: the live renderer follows the approved mobile concept, not just the CSS tokens. */
+      /* SWSI home 2026-11-22 (簡單大字): one large title, one action, grouped lists.
+         Tokens from swsi-calm-learning-ui-v3. */
+      html body #app .swsi-v4-hero{position:relative;margin:0 0 32px;padding:8px 0 0;border:0;border-radius:0;background:transparent;color:var(--ink);box-shadow:none;}
+      html body #app .swsi-v4-hero .kicker{display:block;margin:0 0 6px;padding:0;background:transparent;font-size:16px;font-weight:600;letter-spacing:0;color:var(--ink-3);}
+      html body #app .swsi-v4-hero .kicker b{color:var(--brand);font-weight:700;}
+      html body #app .swsi-v4-hero h1{margin:0 0 10px;font:700 clamp(30px,8.4vw,36px)/1.25 var(--swsi-font);letter-spacing:0;color:var(--ink);}
+      html body #app .swsi-v4-hero p{margin:0 0 24px;max-width:30em;font-size:18px;line-height:1.7;color:var(--ink-soft);}
+      html body #app .swsi-v4-start{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:60px;border:0;border-radius:var(--r-md);background:var(--brand);color:var(--brand-ink);font:600 20px/1 var(--swsi-font);box-shadow:none;cursor:pointer;transition:opacity 90ms var(--press),background-color 150ms;}
+      html body #app .swsi-v4-start .swsi-i{width:22px;height:22px;fill:currentColor;}
+      html body #app .swsi-v4-start:active{opacity:.78;}
+      html body #app .swsi-v4-section-heading,html body #app .swsi-v4-tools-head h2{margin:0 0 8px;padding:0 4px;font:600 16px/1.4 var(--swsi-font);color:var(--ink-3);}
+      /* Grouped lists: white rounded group, hairlines inset after the icon. */
+      html body #app .swsi-v4-study-paths,html body #app .swsi-v4-tool-grid{display:block;margin:0 0 32px;border-radius:var(--r-lg);background:var(--paper2);overflow:hidden;}
+      html body #app .swsi-v4-tool-grid{margin:0;}
+      html body #app .swsi-v4-path,html body #app .swsi-v4-tool-grid button{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-height:64px;margin:0;padding:12px 16px;border:0;border-radius:0;background:transparent;color:var(--ink);text-align:left;box-shadow:none;font:500 18px/1.4 var(--swsi-font);cursor:pointer;transition:background-color 150ms;}
+      html body #app .swsi-v4-path + .swsi-v4-path::before,html body #app .swsi-v4-tool-grid button + button::before{content:'';position:absolute;top:0;left:66px;right:0;height:1px;background:var(--line);}
+      html body #app .swsi-v4-path:active,html body #app .swsi-v4-tool-grid button:active{background:var(--fill);}
+      html body #app .swsi-v4-path{min-height:76px;}
+      html body #app .swsi-v4-path-icon,html body #app .swsi-v4-tool-grid button > .swsi-i:first-child{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;margin:0;border-radius:10px;background:var(--brand-soft);color:var(--brand);}
+      html body #app .swsi-v4-tool-grid button > .swsi-i:first-child{padding:7px;box-sizing:border-box;}
+      html body #app .swsi-v4-path-icon .swsi-i{width:22px;height:22px;}
+      html body #app .swsi-v4-path-copy{display:flex;flex-direction:column;flex:1;min-width:0;}
+      html body #app .swsi-v4-path-title{font-size:18px;font-weight:600;line-height:1.35;color:var(--ink);}
+      html body #app .swsi-v4-path-sub{margin-top:2px;font-size:15px;font-weight:400;line-height:1.45;color:var(--ink-3);}
+      html body #app .swsi-v4-tool-grid button > span:not(.swsi-v4-chev){flex:1;min-width:0;}
+      html body #app .swsi-v4-chev{display:grid;place-items:center;flex:0 0 auto;margin-left:auto;color:var(--line-2);}
+      html body #app .swsi-v4-chev .swsi-i{width:18px;height:18px;stroke-width:2.4;}
+      html body #app .swsi-v4-tools{margin:0 0 8px;padding:0;border:0;background:transparent;box-shadow:none;}
+      html body #app .swsi-v4-tools-head{display:flex;align-items:center;justify-content:space-between;margin:0;}
+      html body #app .swsi-v4-tools-head button{display:inline-flex;align-items:center;gap:2px;min-height:44px;margin:-12px 0 0;padding:0 4px;border:0;background:transparent;color:var(--brand);font:500 16px/1 var(--swsi-font);cursor:pointer;}
+      html body #app .swsi-v4-tools-head button .swsi-i{width:16px;height:16px;}
+      html body #app .swsi-focus-custom{margin:-20px 0 32px;padding:20px;background:var(--paper2);border:0;border-radius:var(--r-lg);}
+      html body #app .swsi-focus-custom .field-label{font-size:15px;font-weight:600;color:var(--ink-3);}
+      html body #app .swsi-focus-custom select{min-height:50px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);font-size:17px;color:var(--ink);}
+      html body #app .swsi-focus-custom .hint{font-size:15px;}
+      html body #app :is(.swsi-v4-start,.swsi-v4-path,.swsi-v4-tools button):focus-visible{outline:3px solid var(--brand);outline-offset:-3px;}
+      html body #app .swsi-v4-start:focus-visible{outline-offset:3px;}
+      @media(hover:hover) and (pointer:fine){
+        html body #app .swsi-v4-start:hover{background:var(--brand-deep);}
+        html body #app .swsi-v4-path:hover,html body #app .swsi-v4-tool-grid button:hover{background:#FBFAF7;}
+        html body #app .swsi-v4-tools-head button:hover{text-decoration:underline;}
+      }
+      @media(min-width:700px){
+        html body #app .swsi-v4-hero{padding-top:24px;margin-bottom:40px;}
+        html body #app .swsi-v4-start{display:inline-flex;width:auto;min-width:260px;padding:0 36px;}
+      }
+      @media(max-width:360px){
+        html body #app .swsi-v4-path,html body #app .swsi-v4-tool-grid button{padding:12px 14px;gap:12px;}
+        html body #app .swsi-v4-path + .swsi-v4-path::before,html body #app .swsi-v4-tool-grid button + button::before{left:62px;}
+      }
+      @media(prefers-reduced-motion:reduce){html body #app .swsi-v4-start{transition:none;}}
     `;
     document.head.appendChild(style);
   }
@@ -1424,6 +1665,7 @@ main [style*="font-size:15px"]{
   renderHome=function(){
     installStyle();
     var rv=safeReviewSummary();
+    var doneToday=0;try{var t0=new Date();t0.setHours(0,0,0,0);doneToday=loadHist().filter(function(x){return x&&x.answered!==false&&Number(x.ts||0)>=t0.getTime();}).length;}catch(_e){}
     var years=examYears();
     if(!homeQuizYear&&years.length) homeQuizYear=String(years[0]);
     homeQuizRound=homeQuizRound==='all'?'all':canonicalRound(homeQuizRound);
@@ -1436,11 +1678,18 @@ main [style*="font-size:15px"]{
     try{if(window.SWSI_QB&&window.SWSI_QB.usingOffline)offlineNote='<div style="margin-bottom:9px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:var(--swsi-ui-small);color:var(--ink-soft)">目前使用這台裝置已儲存的離線題庫。</div>';}catch(_e){}
 
     app.innerHTML=offlineNote+
-      '<section class="swsi-focus-hero"><div class="kicker">SWSI · 免費社工師國考學習平台</div><h1>今天先做一件事</h1><p>先用約 10 分鐘練 10 題；要複習錯題或做完整模擬考，就選下面兩個入口。</p></section>'+
-      '<section class="swsi-focus-primary"><div class="label">現在開始</div><h2>10 題今日練習</h2><p>直接開始；想指定年度、考次、科目或題數，再打開範圍設定。</p><div class="swsi-focus-actions"><button class="go" onclick="swsiStartNow()">直接開始 10 題</button><button class="choose" onclick="toggleHomeQuiz()">'+(homeQuizOpen?'收起設定':'自己選範圍')+'</button></div></section>'+
+      '<section class="swsi-focus-hero swsi-focus-primary swsi-v4-hero"><div class="kicker">'+(doneToday?'今天已練 <b>'+doneToday+'</b> 題':'今天還沒練題')+'</div><h1>'+(doneToday?'再練 10 題，穩穩累積。':'今天，從一題開始。')+'</h1><p>系統從近年考題和高頻考點幫你挑題，做完馬上看解析。</p><button class="swsi-v4-start" type="button" onclick="swsiStartNow()">'+swsiIcon('play')+'<span>開始刷題</span></button></section>'+
+      '<h2 class="swsi-v4-section-heading">想從哪裡開始？</h2>'+
+      '<div class="swsi-v4-study-paths">'+
+        '<button type="button" class="swsi-v4-path" onclick="toggleHomeQuiz()" aria-expanded="'+(homeQuizOpen?'true':'false')+'"><span class="swsi-v4-path-icon">'+swsiIcon('papers')+'</span><span class="swsi-v4-path-copy"><span class="swsi-v4-path-title">歷屆試題</span><span class="swsi-v4-path-sub">依年份、科目練習</span></span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
+        '<button type="button" class="swsi-v4-path" onclick="go(\'essay\')"><span class="swsi-v4-path-icon">'+swsiIcon('essay')+'</span><span class="swsi-v4-path-copy"><span class="swsi-v4-path-title">申論練習</span><span class="swsi-v4-path-sub">手寫上傳，AI 給你回饋</span></span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
+      '</div>'+
       (homeQuizOpen?('<section class="swsi-focus-custom"><div class="field-label">範圍</div><select class="subj" aria-label="刷題範圍" onchange="setHomeQuizScope(this.value)" style="margin-bottom:9px"><option value="smart" '+(homeQuizScope==='smart'?'selected':'')+'>智慧推薦</option><option value="recent3" '+(homeQuizScope==='recent3'?'selected':'')+'>近 3 年</option><option value="recent5" '+(homeQuizScope==='recent5'?'selected':'')+'>近 5 年</option><option value="specific" '+(homeQuizScope==='specific'?'selected':'')+'>指定歷屆</option><option value="all" '+(homeQuizScope==='all'?'selected':'')+'>全部題庫</option></select>'+(specific?('<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="subj" aria-label="考試年度" onchange="setHomeQuizYear(this.value)" style="margin-bottom:9px">'+yearOpts+'</select><select class="subj" aria-label="考試考次" onchange="setHomeQuizRound(this.value)" style="margin-bottom:9px"><option value="all" '+(homeQuizRound==='all'?'selected':'')+'>全部考次</option><option value="1" '+(homeQuizRound==='1'?'selected':'')+'>第一次</option><option value="2" '+(homeQuizRound==='2'?'selected':'')+'>第二次</option></select></div>'):'')+'<div class="field-label">科目</div><select class="subj" aria-label="科目" onchange="subjFilter=this.value;render()" style="margin-bottom:9px">'+subjOpts+'</select><div class="field-label">題數</div><select class="subj" aria-label="題數" onchange="setHomeQuizCount(this.value)" style="margin-bottom:7px"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="40" '+(homeQuizCount===40?'selected':'')+'>40 題</option></select><div class="hint">'+swsiEsc(scopeHint)+'</div><button class="btn" onclick="startFocusedQuiz()" style="margin-top:2px">開始這組題目</button></section>'):'')+
-      '<div class="swsi-home-quick"><button class="'+(rv.dueCount?'due':'')+'" onclick="swsiOpenHomeReview()">'+reviewLabel+'</button><button onclick="MK.open()">完整模擬考</button></div>'+
-      '<button type="button" class="swsi-home-resource" onclick="go(\'topics\')">更多學習工具 <span aria-hidden="true">›</span></button>';
+      '<section class="swsi-v4-tools"><div class="swsi-v4-tools-head"><h2>其他學習工具</h2><button type="button" onclick="go(\'topics\')" aria-label="查看其他學習工具">全部'+swsiIcon('arrow')+'</button></div><div class="swsi-v4-tool-grid">'+
+        '<button type="button" onclick="MK.open()">'+swsiIcon('timer')+'<span>模擬考</span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
+        '<button type="button" onclick="swsiOpenHomeReview()">'+swsiIcon('bookmark')+'<span>錯題本'+(rv.dueCount?' · '+rv.dueCount:'')+'</span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
+        '<button type="button" onclick="go(\'progress\')">'+swsiIcon('chart')+'<span>弱點分析</span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
+      '</div></section>';
 
     if(typeof relabelTabs==='function')try{relabelTabs();}catch(_e){}
   };
@@ -1456,65 +1705,113 @@ main [style*="font-size:15px"]{
   var style=document.createElement('style');
   style.id='swsi-focused-quiz-style';
   style.textContent=`
-/* When a quiz is open, remove unrelated navigation noise. */
+/* SWSI quiz components 2026-11-22 (owner of practice, answers and feedback).
+   Tokens come from the shared system (swsi-calm-learning-ui-v3).
+   Large calm reading: white option rows on warm paper, no shadows. */
 body:has(#app .qcard) .tabbar{display:none!important;}
-body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
-body:has(#app .qcard) header{box-shadow:none;border-bottom:1px solid rgba(220,228,223,.7);}
+body:has(#app .qcard) .wrap{padding-bottom:32px!important;}
+body:has(#app .swsi-result-bar) .wrap{padding-bottom:calc(200px + env(safe-area-inset-bottom,0px))!important;}
 
-/* Progress = quiet orientation, not competition. */
-#app .pstrip{gap:11px;margin:3px 0 15px;}
-#app .pbar{height:2px;background:#E5EAE7;}
-#app .pbar i{background:var(--pine);box-shadow:none;}
-#app .pcount{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:500;color:var(--ink-soft);}
-#app .quit{font-family:'Noto Sans TC',sans-serif;text-decoration:none;color:var(--ink-soft);opacity:.82;margin-bottom:12px;}
-#app .quit:hover{color:var(--ink);}
+/* Top bar: close, progress, count. */
+#app .swsi-quizbar{display:flex;align-items:center;gap:12px;margin:0 0 24px;}
+#app .quit{display:grid;place-items:center;flex:0 0 auto;width:44px;height:44px;margin:0 0 0 -8px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--ink-3);cursor:pointer;opacity:1;}
+#app .quit .swsi-i{width:24px;height:24px;}
+#app .quit:active{background:var(--fill);}
+#app .pstrip{flex:1;display:flex;align-items:center;gap:12px;margin:0;}
+#app .pbar{flex:1;height:6px;border-radius:999px;background:var(--line);overflow:hidden;}
+#app .pbar i{display:block;height:100%;border-radius:999px;background:var(--brand);transition:width 400ms var(--press);}
+#app .pcount{font-size:15px;font-weight:600;color:var(--ink-soft);font-variant-numeric:tabular-nums;}
+@media (hover:hover) and (pointer:fine){#app .quit:hover{background:var(--fill);color:var(--ink);}}
 
-/* Let the question live on the page instead of inside another large card. */
-#app .qcard{background:transparent;border:0;border-radius:0;padding:13px 2px 22px;box-shadow:none;}
-#app .qmeta{gap:10px;margin-bottom:15px;}
-#app .tag{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:700;line-height:1.25;padding:0;border-radius:0;background:transparent!important;}
-#app .tag.subj{color:var(--pine-deep);}
-#app .tag.year{color:var(--ink-soft);}
-#app .qtext{font-family:'Noto Serif TC',serif;font-weight:650;line-height:1.9;margin:0 0 24px;color:#202522;letter-spacing:.005em;}
+/* Question. */
+#app .qcard{background:transparent;border:0;border-radius:0;padding:0 0 24px;box-shadow:none;}
+#app .qmeta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:0 0 12px;}
+#app .tag{font-size:15px;font-weight:600;line-height:1.4;padding:0;border-radius:0;background:transparent!important;border:0;color:var(--ink-3);}
+#app .tag.subj{color:var(--brand);}
+#app .qtext{font-family:var(--swsi-font);font-size:var(--fs-q);font-weight:600;line-height:1.75;margin:0 0 28px;color:var(--ink);letter-spacing:0;}
 
-/* Answers are large reading rows with only one visual boundary. */
-#app .opt{position:relative;background:#fff;border:1px solid #E0E6E2;border-radius:12px;padding:15px 15px 15px 13px;margin-bottom:9px;gap:12px;min-height:56px;align-items:flex-start;line-height:1.68;box-shadow:none;transition:border-color .14s ease,background .14s ease;}
-#app .opt:hover{border-color:#BACAC3;background:#FBFCFB;}
-#app .opt .lab{display:grid;place-items:center;flex:0 0 auto;width:27px;height:27px;margin-top:0;border:1px solid #D5DDD9;border-radius:50%;font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:750;color:#68716D;background:#fff;}
-#app .opt.sel{border-color:#7FA398;background:#F4F8F6;}
-#app .opt.sel .lab{border-color:var(--pine);background:var(--pine);color:#fff;}
-#app .opt.correct{border-color:#AFCAC0;background:#F3F8F6;}
-#app .opt.correct .lab{border-color:var(--correct);background:var(--correct);color:#fff;}
-#app .opt.wrong{border-color:#D9C0B9;background:#FBF5F3;}
-#app .opt.wrong .lab{border-color:var(--wrong);background:var(--wrong);color:#fff;}
-#app .opt .mk{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:600;}
-#app .ck{width:18px;height:18px;font-size:10px;}
+/* Options: white rows, a filled letter when chosen; markers wrap below the text. */
+#app .opt{position:relative;display:flex;flex-wrap:wrap;align-items:flex-start;gap:16px;width:100%;min-height:68px;margin:0 0 12px;padding:16px 18px;background:var(--paper2);border:2px solid transparent;border-radius:var(--r-md);box-shadow:none;font-size:var(--fs-b);line-height:1.65;color:var(--ink);text-align:left;cursor:pointer;transition:border-color 150ms,background-color 150ms;}
+#app .opt:active:not(:disabled){background:var(--fill);}
+#app .opt .lab{display:grid;place-items:center;flex:0 0 auto;width:36px;height:36px;margin:0;border:0;border-radius:50%;font-size:17px;font-weight:700;color:var(--ink-soft);background:var(--fill);}
+#app .opt > span:not(.lab):not(.mk){flex:1 1 calc(100% - 60px);min-width:0;padding-top:3px;}
+#app .opt.sel{border-color:var(--brand);background:var(--paper2);}
+#app .opt.sel .lab{background:var(--brand);color:#fff;}
+#app .opt.correct{border-color:var(--ok);background:var(--ok-soft);}
+#app .opt.correct .lab{background:var(--ok);color:#fff;}
+#app .opt.wrong{border-color:var(--no);background:var(--no-soft);}
+#app .opt.wrong .lab{background:var(--no);color:#fff;}
+#app .opt:disabled{cursor:default;}
+#app .opt:disabled:not(.correct):not(.wrong){opacity:.6;}
+#app .opt .mk{display:inline-flex;align-items:center;gap:6px;flex:0 0 100%;margin:0 0 0 52px;font-size:15px;font-weight:700;}
+#app .opt.correct .mk{color:var(--ok);}
+#app .opt.wrong .mk{color:var(--no);}
+#app .ck{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font-size:12px;color:#fff;}
+#app .ck.ok{background:var(--ok);}
+#app .ck.no{background:var(--no);}
+@media (hover:hover) and (pointer:fine){#app .opt:hover:not(:disabled):not(.sel){border-color:var(--line-2);}}
 
-/* Primary action stays strong; secondary action stays quiet. */
-#app .qcard > .btn,#app .qcard .btn{font-family:'Noto Sans TC',sans-serif;letter-spacing:0;font-size:var(--fs-b);font-weight:750;border-radius:11px;min-height:49px;margin-top:13px;box-shadow:none;}
-#app .qcard .btn:not(.ghost){background:var(--pine-deep);}
-#app .qcard .btn.ghost{background:transparent;border:1px solid #C9D7D1;color:var(--pine-deep);}
+/* Submit and secondary actions in the card. */
+#app .qcard > .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:58px;margin-top:20px;font-size:19px;}
+#app .qcard .btn .swsi-i{width:20px;height:20px;}
+html body #app .qcard .btn:not(.ghost):disabled{background:var(--off-bg);border-color:var(--off-bg);color:var(--off-ink);opacity:1;box-shadow:none;cursor:not-allowed;}
 
-/* Explanation reads like notes separated by whitespace and hairlines, not nested cards. */
-#app .exp{margin-top:25px;padding-top:22px;border-top:1px solid #E2E8E4;animation:none;}
-#app .exp .topic{font-family:'Noto Sans TC',sans-serif;color:var(--ink-soft);margin-bottom:16px;}
-#app .exp-sec{margin:0 0 19px;}
-#app .exp-sec h4{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-h);font-weight:800;color:#34443E;letter-spacing:0;margin-bottom:8px;gap:0;}
+/* Result bar: translucent sheet pinned to the bottom, carries the only next action. */
+#app .swsi-result-bar{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:40;width:100%;max-width:var(--swsi-shell-max,540px);display:flex;flex-direction:column;gap:14px;padding:18px 20px calc(18px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:rgba(255,255,255,.88);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);animation:swsi-rise 240ms var(--press) both;}
+#app .swsi-result-msg{display:flex;align-items:center;gap:14px;}
+#app .swsi-result-msg b{display:block;font-size:22px;font-weight:700;line-height:1.3;}
+#app .is-ok .swsi-result-msg b{color:var(--ok);}
+#app .is-no .swsi-result-msg b{color:var(--no);}
+#app .swsi-result-msg small{display:block;margin-top:2px;font-size:16px;font-weight:500;color:var(--ink-soft);}
+#app .swsi-result-ico{display:grid;place-items:center;flex:0 0 auto;width:44px;height:44px;border-radius:50%;color:#fff;}
+#app .is-ok .swsi-result-ico{background:var(--ok);}
+#app .is-no .swsi-result-ico{background:var(--no);}
+#app .swsi-result-ico .swsi-i{width:24px;height:24px;stroke-width:2.6;}
+#app .swsi-result-bar .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;margin:0;border:0;font-size:19px;outline-offset:3px;}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#app .swsi-result-bar{background:var(--paper2);}}
+@keyframes swsi-rise{from{transform:translate(-50%,24px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+@media (min-width:700px){
+  #app .swsi-result-bar{flex-direction:row;align-items:center;justify-content:space-between;width:min(760px,calc(100% - 32px));max-width:none;padding-left:28px;padding-right:28px;border-radius:var(--r-lg) var(--r-lg) 0 0;border:1px solid var(--line);border-bottom:0;}
+  #app .swsi-result-bar .btn{width:auto;min-width:180px;padding:0 28px;}
+}
+
+/* Explanation: one reading column, one card style, one disclosure style. */
+#app .exp{margin-top:28px;padding:0;border-top:0;animation:none;}
+#app .exp .topic{display:inline-block;margin:0 0 12px;padding:0;background:transparent;border:0;font-size:15px;color:var(--ink-3);}
+#app .exp .topic b{color:var(--ink-soft);}
+#app .swsi-answer-line{margin:0 0 12px;padding:0;background:transparent;border:0;font-size:var(--fs-h);font-weight:700;color:var(--ink);}
+#app .swsi-core-reason{display:block;margin:0 0 16px;padding:20px;border:0;border-radius:var(--r-lg);background:var(--paper2);}
+#app .swsi-core-reason b{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:15px;font-weight:700;color:var(--brand);}
+#app .swsi-core-reason span{display:block;font-size:var(--fs-b);line-height:1.8;color:var(--ink);font-weight:400;}
+#app .mistake{display:inline-block;margin:0 0 14px;padding:6px 12px;border-radius:999px;background:var(--no-soft);color:var(--no);font-size:15px;font-weight:600;}
+#app .exp-sec{margin:0 0 20px;}
+#app .exp-sec h4{display:block;font-size:var(--fs-h);font-weight:700;color:var(--ink);margin:0 0 6px;}
 #app .exp-sec h4 .dot{display:none;}
-#app .exp-sec p{font-family:'Noto Sans TC',sans-serif;color:#363D39;line-height:1.86;}
-#app .pending{background:#F8F9F7;border:1px solid #E3E7E4;color:var(--ink-soft);border-radius:10px;}
-#app .extra{background:transparent;border:0;border-top:1px solid #E7EBE8;border-radius:0;padding-left:0;padding-right:0;}
-#app .mistake{font-family:'Noto Sans TC',sans-serif;border-radius:6px;padding:5px 8px;background:#F7EEEB;font-weight:600;}
+#app .exp-sec p{color:var(--ink);line-height:1.85;font-size:var(--fs-b);}
+#app .extra{margin:0 0 12px;padding:12px 0 0;background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;color:var(--ink);}
+#app .pending{background:var(--paper2);border:0;color:var(--ink-soft);border-radius:var(--r-md);padding:16px 18px;}
+#app .exp details{margin:0 0 12px;border:0;border-radius:var(--r-lg);background:var(--paper2);overflow:hidden;}
+#app .exp details > summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:0 20px;font-size:17px;font-weight:600;color:var(--ink);cursor:pointer;list-style:none;}
+#app .exp details > summary::-webkit-details-marker{display:none;}
+#app .exp details > summary::after{content:'';width:9px;height:9px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(45deg) translate(-2px,-2px);transition:transform 150ms var(--press);}
+#app .exp details[open] > summary::after{transform:rotate(-135deg) translate(-2px,-2px);}
+#app .exp details > :not(summary){padding:0 20px 18px;}
+#app .exp details .body{padding:0 20px 18px;}
 
-/* Result page informs without turning into a dashboard. */
-#app .sumcard{background:transparent;border:0;border-radius:0;box-shadow:none;padding-left:0;padding-right:0;}
-#app .sumcard .big{font-size:38px;color:var(--ink);}
-#app .stat{background:transparent;border-color:#E4E8E5;}
-#app .weak{background:#FBF6F4;}
+/* Session result page. */
+#app .sumcard{background:var(--paper2);border:0;border-radius:var(--r-lg);box-shadow:none;padding:28px 24px;}
+#app .sumcard .big{font-size:48px;font-weight:700;color:var(--ink);}
+#app .stat{background:var(--paper2);border:0;border-radius:var(--r-md);}
+#app .weak{background:var(--no-soft);border-radius:var(--r-md);}
 
 @media (max-width:370px){
-  #app .qcard{padding:11px 0 20px;}
-  #app .opt{padding:14px 12px;gap:10px;}
+  #app .opt{padding:14px;gap:12px;}
+  #app .opt .mk{margin-left:48px;}
+  #app .swsi-result-bar{padding-left:16px;padding-right:16px;}
+}
+@media (prefers-reduced-motion:reduce){
+  #app .swsi-result-bar{animation:none;}
+  #app .opt,#app .pbar i{transition:none;}
 }
 `;
   document.head.appendChild(style);
@@ -1533,22 +1830,23 @@ body:has(#app .qcard) header{box-shadow:none;border-bottom:1px solid rgba(220,22
   style.id='swsi-mobile-reading-polish';
   style.textContent=`
 html{
-  --fs-q:13pt;
-  --fs-h:12pt;
-  --fs-b:11pt;
-  --fs-s:10pt;
+  /* Large, calm reading scale (Owner choice 2026-11-22: 簡單大字). */
+  --fs-q:21px;
+  --fs-h:19px;
+  --fs-b:18px;
+  --fs-s:15px;
 }
 html[data-fs="1"]{
-  --fs-q:14.5pt;
-  --fs-h:13pt;
-  --fs-b:12pt;
-  --fs-s:11pt;
+  --fs-q:24px;
+  --fs-h:21px;
+  --fs-b:20px;
+  --fs-s:17px;
 }
 html[data-fs="2"]{
-  --fs-q:16.5pt;
-  --fs-h:14.5pt;
-  --fs-b:13.5pt;
-  --fs-s:12.5pt;
+  --fs-q:27px;
+  --fs-h:23px;
+  --fs-b:22px;
+  --fs-s:19px;
 }
 
 #app .qtext{line-height:1.72;}
@@ -1776,16 +2074,16 @@ html[data-fs="2"]{
   border:0;
 }
 #app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)) .etopic{
-  font-family:'Noto Serif TC',serif;
-  font-size:15.5px;
-  font-weight:800;
+  font-family:var(--swsi-font);
+  font-size:18px;
+  font-weight:600;
   line-height:1.58;
-  color:#202724;
+  color:var(--ink);
 }
 #app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)) .ehint{
   margin-top:5px;
   font-family:'Noto Sans TC',sans-serif;
-  font-size:11.5px;
+  font-size:15px;
   font-weight:600;
   line-height:1.55;
   color:#6A746F;
@@ -1810,7 +2108,7 @@ html[data-fs="2"]{
   border-radius:999px;
   background:transparent;
   color:#5B6761;
-  font-size:10.5px;
+  font-size:14px;
   font-weight:700;
 }
 #app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .ecollapse{
@@ -1829,11 +2127,11 @@ html[data-fs="2"]{
   padding:0!important;
   border:0!important;
   background:transparent!important;
-  color:#68736D!important;
-  font-family:'Noto Sans TC',sans-serif!important;
-  font-size:11px!important;
-  font-weight:800!important;
-  letter-spacing:.04em;
+  color:var(--ink-3)!important;
+  font-family:var(--swsi-font)!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  letter-spacing:0;
 }
 
 /* Current affairs: present event -> exam point -> possible question direction ->
@@ -2255,12 +2553,16 @@ html[data-fs="2"]{
   var DAY=24*60*60*1000;
 
   function H(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  // HTML-escape a JSON JS string literal for use inside a double-quoted onclick attribute.
+  // Escaping the visible label alone is not enough: HTML entities decode BEFORE JS runs.
+  function actionArg(v){return H(JSON.stringify(String(v==null?'':v)));}
+
   function loadCauses(){try{var x=JSON.parse(localStorage.getItem(CAUSE_KEY)||'{}');return x&&typeof x==='object'?x:{};}catch(_e){return {};}}
   function saveCauses(x){try{localStorage.setItem(CAUSE_KEY,JSON.stringify(x));}catch(_e){}}
   function draftCount(){var n=0;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('essay_draft_')===0&&(localStorage.getItem(k)||'').trim())n++;}}catch(_e){}return n;}
   function questionCorrect(item,picked){try{if(typeof isCorrectAnswer==='function')return !!isCorrectAnswer(item,picked);}catch(_e){}try{if(typeof ansCorrect==='function')return !!ansCorrect(picked,item.answer);}catch(_e){}return String(picked||'')===String(item&&item.answer||'');}
 
-  function causeButton(id,cause,current){var on=current===cause;return '<button type="button" class="swsi-cause-chip'+(on?' on':'')+'" onclick="swsiSetWrongCause(\''+H(id)+'\',\''+H(cause)+'\')">'+H(cause)+(on?' ✓':'')+'</button>';}
+  function causeButton(id,cause,current){var on=current===cause;return '<button type="button" class="swsi-cause-chip'+(on?' on':'')+'" onclick="swsiSetWrongCause('+actionArg(id)+','+actionArg(cause)+')">'+H(cause)+(on?' ✓':'')+'</button>';}
   function decorateWrongCause(){
     var exp=document.querySelector('#app .qcard .exp'); if(!exp)return;
     var item=null,picked=null,isAnswered=false;
@@ -2273,14 +2575,16 @@ html[data-fs="2"]{
     if(!box){box=document.createElement('section');box.className='swsi-self-cause';var next=exp.querySelector(':scope > .btn');if(next)exp.insertBefore(box,next);else exp.appendChild(box);}
     /* Set marker BEFORE changing children so our MutationObserver cannot trigger itself forever. */
     box.dataset.swsiCauseKey=key;
-    box.innerHTML='<div class="swsi-cause-title">這題你為什麼會錯？</div><div class="swsi-cause-help">點一下就好，只存在這台裝置。之後錯題本會依你的原因整理。</div><div class="swsi-cause-row">'+CAUSES.map(function(c){return causeButton(item.id,c,cur);}).join('')+'</div>';
+    var priorDetails=(typeof box.querySelector==='function')?box.querySelector('details.swsi-cause-details'):null;
+    var openBefore=!!cur||!!(priorDetails&&priorDetails.open);
+    box.innerHTML='<details class="swsi-cause-details"'+(openBefore?' open':'')+'><summary class="swsi-cause-title">這題你為什麼會錯？'+(cur?' · '+H(cur):'（選填）')+'</summary><div class="swsi-cause-help">依你的實際原因選擇，僅儲存在這台裝置。</div><div class="swsi-cause-row">'+CAUSES.map(function(c){return causeButton(item.id,c,cur);}).join('')+'</div></details>';
   }
   window.swsiSetWrongCause=function(id,cause){var m=loadCauses();if(m[id]&&m[id].cause===cause)delete m[id];else m[id]={cause:cause,ts:Date.now()};saveCauses(m);decorateWrongCause();};
 
   function setFromIds(ids){var s=new Set(ids||[]);startQuiz(function(q){return s.has(q.id);},0);}
   window.swsiPracticeReviewSet=function(i){var sets=window._swsiReviewSets||[];if(sets[i])setFromIds(sets[i].ids);};
   window.swsiPracticeSubject=function(subj,n){startQuiz(function(q){return q.subject===subj;},n||20);};
-  window.swsiPracticeTopic=function(topic,n){startQuiz(function(q){return (q.topic||q.major||'')===topic;},n||15);};
+  window.swsiPracticeTopic=function(topic,n){startQuiz(function(q){return (q.topic||q.major||'未分類')===topic;},n||15);};
   window.swsiStartRecommended20=function(){startQuiz(function(){return true;},20);};
   function questionMap(ids){return (ids||[]).map(function(id){try{return ALL.find(function(q){return q.id===id;});}catch(_e){return null;}}).filter(Boolean);}
   function groupPush(obj,key,q){key=key||'未分類';(obj[key]=obj[key]||[]).push(q);}
@@ -2308,16 +2612,18 @@ html[data-fs="2"]{
   };
 
   function progressData(){
-    var h=loadHist(),now=Date.now(),recent=h.filter(function(x){return Number(x.ts||0)>=now-7*DAY;}),bySubj={},wrongTopic={},byCause={},unique=new Set();
+    var records=loadHist(),h=records.filter(function(x){return x&&x.answered!==false;}),unanswered=records.filter(function(x){return x&&x.answered===false;}).length,now=Date.now(),recent=h.filter(function(x){return Number(x.ts||0)>=now-7*DAY;}),bySubj={},wrongTopic={},byCause={},unique=new Set();
     h.forEach(function(x){if(x&&x.id)unique.add(x.id);var s=x.subject||'未分類';if(!bySubj[s])bySubj[s]={t:0,c:0};bySubj[s].t++;if(x.correct)bySubj[s].c++;if(!x.correct){var q=null;try{q=ALL.find(function(z){return z.id===x.id;});}catch(_e){}var t=(q&&(q.topic||q.major))||x.major||'未分類';wrongTopic[t]=(wrongTopic[t]||0)+1;}});
     var cm=loadCauses();Object.keys(cm).forEach(function(id){var c=cm[id]&&cm[id].cause;if(c)byCause[c]=(byCause[c]||0)+1;});
-    return {hist:h,recent:recent,bySubj:bySubj,wrongTopic:wrongTopic,byCause:byCause,unique:unique};
+    return {hist:h,unanswered:unanswered,recent:recent,bySubj:bySubj,wrongTopic:wrongTopic,byCause:byCause,unique:unique};
   }
   function pct(c,t){return t?Math.round(c/t*100):0;}
 
   renderProgress=function(){
     var p=progressData(),total=p.hist.length,rv=reviewSummary(),essays=draftCount();
-    if(!total){app.innerHTML='<div class="empty"><div class="ico">◴</div><h3>還沒有刷題紀錄</h3><p>開始刷題後，這裡會告訴你哪一科比較弱、最近有沒有進步，以及下一步建議做什麼。</p><button class="btn" style="max-width:200px;margin:22px auto 0" onclick="swsiStartRecommended20()">先刷 20 題</button>'+(essays?'<div style="margin-top:14px;color:var(--ink-soft);font-size:13px">這台裝置目前有 '+essays+' 題申論作答草稿。</div>':'')+'</div>';return;}
+    // Records saved before the answered flag existed keep their original counting; only explicit blanks are excluded.
+    var recordNote=p.unanswered?'<p class="swsi-learning-muted">另有 '+p.unanswered+' 次模擬考未作答，不計入以下正確率、覆蓋率與弱科建議；待複習題仍保留。</p>':'';
+    if(!total){app.innerHTML=recordNote+'<div class="empty"><div class="ico">◴</div><h3>還沒有可分析的作答紀錄</h3><p>開始刷題後，這裡會告訴你哪一科比較弱、最近有沒有進步，以及下一步建議做什麼。</p><button class="btn" style="max-width:200px;margin:22px auto 0" onclick="swsiStartRecommended20()">先刷 20 題</button>'+(essays?'<div style="margin-top:14px;color:var(--ink-soft);font-size:13px">這台裝置目前有 '+essays+' 題申論作答草稿。</div>':'')+'</div>';return;}
     var correct=p.hist.filter(function(x){return x.correct;}).length,rate=pct(correct,total),rc=p.recent.filter(function(x){return x.correct;}).length,rr=p.recent.length?pct(rc,p.recent.length):null;
     var allCount=0;try{allCount=ALL.length||0;}catch(_e){}var coverage=allCount?Math.min(100,Math.round(p.unique.size/allCount*100)):0;
     var subjects=Object.entries(p.bySubj).map(function(x){return {name:x[0],t:x[1].t,c:x[1].c,r:pct(x[1].c,x[1].t)};}).sort(function(a,b){return a.r-b.r||b.t-a.t;});
@@ -2325,15 +2631,16 @@ html[data-fs="2"]{
     var topTopics=Object.entries(p.wrongTopic).sort(function(a,b){return b[1]-a[1];}).slice(0,5),focusTopic=topTopics.find(function(x){return x[1]>=2;})||null,causeRows=Object.entries(p.byCause).sort(function(a,b){return b[1]-a[1];});
     var action='';
     if(rv.dueCount)action='<div class="swsi-next-copy"><b>先把今天到期的錯題處理掉。</b><span>間隔複習比再刷一堆新題更值得。</span></div><button class="btn" onclick="startDueReview()">複習 '+rv.dueCount+' 題</button>';
-    else if(focusTopic)action='<div class="swsi-next-copy"><b>這個考點已累計錯 '+focusTopic[1]+' 次：'+H(focusTopic[0])+'</b><span>先看相關法規／理論／歷屆連結，再用 5 題確認。這是依你的錯題紀錄產生，不是黑箱 AI 推薦。</span></div><div class="swsi-next-actions"><button class="btn ghost" onclick="swsiKnowledgeSearch(\''+H(focusTopic[0])+'\')">先看相關教材</button><button class="btn" onclick="swsiPracticeTopic(\''+H(focusTopic[0])+'\',5)">練 5 題確認</button></div>';
-    else if(weak)action='<div class="swsi-next-copy"><b>目前最值得補：'+H(weak.name)+'</b><span>你在這科目前 '+weak.r+'%（'+weak.c+'/'+weak.t+'）。先用 20 題再確認一次。</span></div><button class="btn" onclick="swsiPracticeSubject(\''+H(weak.name)+'\',20)">練 '+H(weak.name)+' 20 題</button>';
+    else if(focusTopic)action='<div class="swsi-next-copy"><b>這個考點已累計錯 '+focusTopic[1]+' 次：'+H(focusTopic[0])+'</b><span>先看相關法規／理論／歷屆連結，再用 5 題確認。這是依你的錯題紀錄產生，不是黑箱 AI 推薦。</span></div><div class="swsi-next-actions"><button class="btn ghost" onclick="swsiKnowledgeSearch('+actionArg(focusTopic[0])+')">先看相關教材</button><button class="btn" onclick="swsiPracticeTopic('+actionArg(focusTopic[0])+',5)">練 5 題確認</button></div>';
+    else if(weak)action='<div class="swsi-next-copy"><b>目前最值得補：'+H(weak.name)+'</b><span>你在這科目前 '+weak.r+'%（'+weak.c+'/'+weak.t+'）。先用 20 題再確認一次。</span></div><button class="btn" onclick="swsiPracticeSubject('+actionArg(weak.name)+',20)">練 '+H(weak.name)+' 20 題</button>';
     else action='<div class="swsi-next-copy"><b>繼續累積一點資料。</b><span>再刷 20 題後，弱點判斷會更有參考價值。</span></div><button class="btn" onclick="swsiStartRecommended20()">繼續刷 20 題</button>';
-    var subjHTML=subjects.map(function(s){var col=s.r>=70?'var(--correct)':s.r>=50?'var(--gold)':'var(--wrong)';return '<button class="swsi-progress-subject" onclick="swsiPracticeSubject(\''+H(s.name)+'\',20)"><div class="top"><b>'+H(s.name)+'</b><span>'+s.r+'%　('+s.c+'/'+s.t+')</span></div><div class="accbar"><i style="width:'+s.r+'%;background:'+col+'"></i></div><small>點一下練這科 20 題</small></button>';}).join('');
-    var h='<div class="section-h">我的學習進度</div><div class="section-s">只看能幫你決定下一步的數據。重複作答會算進正確率；「題庫覆蓋」則同一題只算一次。</div>';
-    h+='<section class="swsi-progress-hero"><div><small>總正確率</small><strong>'+rate+'%</strong></div><div class="swsi-progress-mini"><span><b>'+total+'</b>作答次數</span><span><b>'+p.unique.size+'</b>不同題目</span><span><b>'+coverage+'%</b>題庫覆蓋</span></div></section>';
-    h+='<div class="swsi-progress-strip"><div><b>'+(rr==null?'—':rr+'%')+'</b><span>最近 7 天'+(p.recent.length?' · '+p.recent.length+' 題':' · 尚無紀錄')+'</span></div><div><b>'+rv.activeCount+'</b><span>未熟練錯題</span></div><div><b>'+essays+'</b><span>申論草稿</span></div></div>';
+    var subjHTML=subjects.map(function(s){var col=s.r>=70?'var(--correct)':s.r>=50?'var(--gold)':'var(--wrong)';return '<button class="swsi-progress-subject" onclick="swsiPracticeSubject('+actionArg(s.name)+',20)"><div class="top"><b>'+H(s.name)+'</b><span>'+s.r+'%　('+s.c+'/'+s.t+')</span></div><div class="accbar"><i style="width:'+s.r+'%;background:'+col+'"></i></div><small>點一下練這科 20 題</small></button>';}).join('');
+    var h='<div class="section-h">我的學習進度</div><div class="section-s">只看能幫你決定下一步的數據。只計實際作答；重複作答會算進正確率，「題庫覆蓋」同一題只算一次。</div>';
+    h+=recordNote;
+    h+='<section class="swsi-progress-hero"><div><small>已作答正確率</small><strong>'+rate+'%</strong></div><div class="swsi-progress-mini"><span><b>'+total+'</b>作答次數</span><span><b>'+p.unique.size+'</b>不同題目</span><span><b>'+coverage+'%</b>題庫覆蓋</span></div></section>';
+    h+='<div class="swsi-progress-strip"><div><b>'+(rr==null?'—':rr+'%')+'</b><span>最近 7 天'+(p.recent.length?' · '+p.recent.length+' 題':' · 尚無紀錄')+'</span></div><div><b>'+rv.activeCount+'</b><span>待複習（含未作答）</span></div><div><b>'+essays+'</b><span>申論草稿</span></div></div>';
     h+='<section class="swsi-next-card"><div class="swsi-learning-h">今天下一步</div>'+action+'</section><section class="swsi-learning-section"><div class="swsi-learning-h">各科狀況</div>'+subjHTML+'</section>';
-    if(topTopics.length)h+='<section class="swsi-learning-section"><div class="swsi-learning-h">最常答錯的考點</div>'+topTopics.map(function(x){return '<button class="swsi-learning-row" onclick="swsiPracticeTopic(\''+H(x[0])+'\',5)"><span><b>'+H(x[0])+'</b><small>累計錯 '+x[1]+' 次 · 練 5 題確認</small></span><span>›</span></button>';}).join('')+'</section>';
+    if(topTopics.length)h+='<section class="swsi-learning-section"><div class="swsi-learning-h">最常答錯的考點</div>'+topTopics.map(function(x){return '<button class="swsi-learning-row" onclick="swsiPracticeTopic('+actionArg(x[0])+',5)"><span><b>'+H(x[0])+'</b><small>累計錯 '+x[1]+' 次 · 練 5 題確認</small></span><span>›</span></button>';}).join('')+'</section>';
     if(causeRows.length)h+='<section class="swsi-learning-section"><div class="swsi-learning-h">你自己標記的錯因</div>'+causeRows.map(function(x){return '<div class="swsi-cause-stat"><span>'+H(x[0])+'</span><b>'+x[1]+' 題</b></div>';}).join('')+'</section>';
     h+='<div class="swsi-progress-foot"><button class="btn ghost" onclick="go(\'review\')">回錯題複習</button><button class="btn ghost" onclick="exportDrafts()">備份申論草稿</button><button class="swsi-danger-link" onclick="if(confirm(\'清除所有刷題、間隔複習與自訂錯因紀錄？無法復原。\')){localStorage.removeItem(LS_KEY);localStorage.removeItem(REVIEW_KEY);localStorage.removeItem(\''+CAUSE_KEY+'\');render();}">清除學習紀錄</button></div>';app.innerHTML=h;
   };
@@ -2350,7 +2657,7 @@ html[data-fs="2"]{
 
   if(!document.getElementById('swsi-learning-loop-style')){var st=document.createElement('style');st.id='swsi-learning-loop-style';st.textContent=`
     /* Premium-calm review + progress: keep one meaningful action card, flatten the rest. */
-    .swsi-self-cause{margin:17px 0 13px;padding:16px 0;border:0;border-top:1px solid #E3E8E5;border-bottom:1px solid #E3E8E5;border-radius:0;background:transparent}.swsi-cause-title{font-size:var(--fs-b);font-weight:800;color:var(--ink);margin-bottom:4px}.swsi-cause-help{font-size:var(--fs-s);line-height:1.7;color:var(--ink-soft);margin-bottom:10px}.swsi-cause-row{display:flex;flex-wrap:wrap;gap:7px}.swsi-cause-chip{border:1px solid #D9E1DD;background:#fff;color:var(--ink-soft);border-radius:999px;padding:7px 10px;font-family:inherit;font-size:var(--fs-s);font-weight:700;cursor:pointer}.swsi-cause-chip.on{border-color:var(--pine);background:var(--correct-bg);color:var(--pine-deep)}
+    .swsi-self-cause{margin:12px 0;border-top:1px solid #E3E8E5;background:transparent}.swsi-cause-details>summary{cursor:pointer;list-style:none;min-height:46px;display:flex;align-items:center;gap:8px;padding:9px 2px;font-size:var(--fs-s);font-weight:800;color:var(--pine-deep)}.swsi-cause-details>summary::-webkit-details-marker{display:none}.swsi-cause-details>summary:after{content:'＋';margin-left:auto;color:var(--ink-soft);font-weight:600}.swsi-cause-details[open]>summary:after{content:'－'}.swsi-cause-details>summary:focus-visible{outline:2px solid var(--pine);outline-offset:2px}.swsi-cause-help{font-size:var(--fs-s);line-height:1.6;color:var(--ink-soft);margin:0 0 10px}.swsi-cause-row{display:flex;flex-wrap:wrap;gap:7px;padding-bottom:12px}.swsi-cause-chip{border:1px solid #D9E1DD;background:#fff;color:var(--ink-soft);border-radius:999px;padding:7px 10px;font-family:inherit;font-size:var(--fs-s);font-weight:700;cursor:pointer}.swsi-cause-chip.on{border-color:var(--pine);background:var(--correct-bg);color:var(--pine-deep)}
     .swsi-review-stats{margin:17px 0 18px;border-top:1px solid #E1E7E3;border-bottom:1px solid #E1E7E3;gap:0}.swsi-review-stats .stat{background:transparent;border:0;border-right:1px solid #E1E7E3;border-radius:0;padding:12px 6px}.swsi-review-stats .stat:last-child{border-right:0}.swsi-review-stats .v{font-size:20px}.swsi-review-stats .k{margin-top:2px}.swsi-calm-note{margin:12px 0 0;padding:12px 2px;border:0;border-top:1px solid #E4E9E6;border-bottom:1px solid #E4E9E6;border-radius:0;background:transparent;color:var(--ink-soft);font-size:13px;line-height:1.7}.swsi-learning-section{margin-top:24px;border-top:1px solid #E2E7E4;padding-top:16px}.swsi-learning-h{font-size:14px;font-weight:900;color:var(--ink);margin:0 0 10px}.swsi-learning-muted{font-size:12px;line-height:1.7;color:var(--ink-soft);padding:2px 2px 9px}.swsi-learning-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;border:0;border-bottom:1px solid #E5E9E6;background:transparent;border-radius:0;padding:13px 2px;margin:0;color:var(--ink);font-family:inherit;cursor:pointer}.swsi-learning-row:hover{background:#FAFBFA}.swsi-learning-row b{display:block;font-size:13.5px;line-height:1.5}.swsi-learning-row small{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:3px}
     .swsi-progress-hero{margin-top:16px;border:0;border-bottom:1px solid #E1E7E3;border-radius:0;background:transparent;padding:4px 0 18px}.swsi-progress-hero>div:first-child small{display:block;color:var(--ink-soft);font-size:12px}.swsi-progress-hero strong{display:block;font-size:38px;line-height:1.12;color:var(--pine-deep);margin:4px 0 15px}.swsi-progress-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid #E5E9E6}.swsi-progress-mini span{background:transparent;border-radius:0;padding:10px 6px 0;text-align:center;font-size:10.5px;color:var(--ink-soft)}.swsi-progress-mini span+span{border-left:1px solid #E5E9E6}.swsi-progress-mini b{display:block;color:var(--ink);font-size:14px;margin-bottom:1px}.swsi-progress-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:10px;border-top:1px solid #E1E7E3;border-bottom:1px solid #E1E7E3}.swsi-progress-strip>div{border:0;border-right:1px solid #E1E7E3;border-radius:0;background:transparent;padding:12px 7px;text-align:center}.swsi-progress-strip>div:last-child{border-right:0}.swsi-progress-strip b{display:block;font-size:17px;color:var(--ink)}.swsi-progress-strip span{display:block;font-size:10.5px;line-height:1.4;color:var(--ink-soft);margin-top:2px}
     .swsi-next-card{margin-top:20px;padding:17px 16px;border-radius:14px;background:#F5F8F6;border:1px solid #DDE7E2;box-shadow:none}.swsi-next-copy b{display:block;font-size:14px;color:var(--pine-deep);line-height:1.5}.swsi-next-copy span{display:block;font-size:12px;line-height:1.7;color:var(--ink-soft);margin:4px 0 12px}.swsi-next-card .btn{margin:0}.swsi-next-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.swsi-next-actions .btn{margin:0}.swsi-progress-subject{width:100%;border:0;border-bottom:1px solid #E5E9E6;background:transparent;padding:13px 2px;text-align:left;font-family:inherit;cursor:pointer}.swsi-progress-subject:hover{background:#FAFBFA}.swsi-progress-subject .top{display:flex;justify-content:space-between;gap:9px;font-size:13px}.swsi-progress-subject .top span{color:var(--ink-soft);white-space:nowrap}.swsi-progress-subject .accbar{margin:8px 0 4px}.swsi-progress-subject small{font-size:10.5px;color:var(--ink-3)}.swsi-cause-stat{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #E5E9E6;padding:12px 2px;font-size:13px}.swsi-cause-stat b{color:var(--ink-soft)}.swsi-progress-foot{margin-top:24px;border-top:1px solid #E2E7E4;padding-top:10px}.swsi-progress-foot .btn{margin-top:8px}.swsi-danger-link{display:block;width:100%;border:0;background:transparent;color:var(--wrong);font-family:inherit;font-size:12px;padding:16px 8px;cursor:pointer}
@@ -2397,6 +2704,28 @@ html[data-fs="2"]{
       .swsi-myhub-row.admin{background:transparent}.swsi-myhub-row.admin .label{color:#2747A3}.swsi-myhub-row.admin-login{background:transparent}.swsi-myhub-row.admin-login .label{font-weight:650;color:#667085}.swsi-myhub-row[hidden]{display:none!important}
       .swsi-myhub-toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:980;background:#27322D;color:#fff;border-radius:999px;padding:9px 13px;font:650 12px/1.3 'Noto Sans TC',sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.2)}
       .swsi-admin-layer{position:fixed;inset:0;z-index:1200;background:#F5F7FB;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}.swsi-admin-layer[hidden]{display:none!important}.swsi-admin-bar{min-height:54px;display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #E5E7EB;background:#fff;box-shadow:0 2px 10px rgba(20,32,51,.05);font-family:'Noto Sans TC',sans-serif}.swsi-admin-back{border:1px solid #D7DCE3;background:#fff;color:#27322D;border-radius:11px;padding:8px 11px;font-weight:750;cursor:pointer}.swsi-admin-title{font-weight:800;color:#18202A;font-size:14px}.swsi-admin-note{margin-left:auto;color:#667085;font-size:11px}.swsi-admin-frame{border:0;width:100%;flex:1;min-height:0;background:#F5F7FB}body.swsi-admin-open{overflow:hidden}
+      /* 2026-11-22 system (簡單大字): large title, one action, iOS-style grouped lists. Tokens from swsi-calm-learning-ui-v3. */
+      .swsi-myhub-card{padding:8px 0}
+      .swsi-myhub-kicker{font:600 16px/1.3 var(--swsi-font);letter-spacing:0;color:var(--ink-3);margin-bottom:6px}
+      .swsi-myhub-title{font:700 30px/1.25 var(--swsi-font);letter-spacing:0;color:var(--ink)}
+      .swsi-myhub-sub{font:400 17px/1.65 var(--swsi-font);color:var(--ink-soft);margin-top:8px}
+      .swsi-myhub-primary{margin-top:20px;border:0;border-radius:var(--r-md);background:var(--brand);min-height:68px;padding:14px 20px;font-family:var(--swsi-font);box-shadow:none;transition:opacity 90ms var(--press)}
+      .swsi-myhub-primary:active{opacity:.78}
+      .swsi-myhub-primary b{font-size:19px;font-weight:600}.swsi-myhub-primary small{font-size:15px;opacity:.92}.swsi-myhub-primary .arrow{opacity:1}.swsi-myhub-primary .arrow .swsi-i{width:22px;height:22px}
+      .swsi-myhub-stats{gap:0;margin-top:16px;border:0;border-radius:var(--r-lg);background:var(--paper2);overflow:hidden}
+      .swsi-myhub-stat{background:transparent;border:0!important;padding:16px 8px}.swsi-myhub-stat+.swsi-myhub-stat{box-shadow:inset 1px 0 0 var(--line)}.swsi-myhub-stat b{font:700 28px/1.1 var(--swsi-font);color:var(--ink)}.swsi-myhub-stat span{font:500 15px/1.35 var(--swsi-font);color:var(--ink-3)}
+      .swsi-myhub-list{gap:0;margin-top:24px;border:0;border-radius:var(--r-lg);background:var(--paper2);overflow:hidden}
+      .swsi-myhub-row{position:relative;min-height:68px;padding:12px 16px;gap:14px;border:0!important;border-radius:0;background:transparent;font-family:var(--swsi-font);transition:background-color 150ms}
+      .swsi-myhub-row+.swsi-myhub-row::before{content:'';position:absolute;top:0;left:66px;right:0;height:1px;background:var(--line)}
+      .swsi-myhub-row:active{background:var(--fill)}
+      .swsi-myhub-row .ico{display:grid;place-items:center;flex:0 0 auto;width:36px;height:36px;border-radius:10px;background:var(--brand-soft);color:var(--brand)}
+      .swsi-myhub-row .ico .swsi-i{width:22px;height:22px}
+      .swsi-myhub-row .label{font-size:18px;font-weight:500;color:var(--ink)}.swsi-myhub-row .meta{font-size:15px;color:var(--ink-3)}
+      .swsi-myhub-row .arrow{color:var(--line-2);font-size:18px}.swsi-myhub-row .arrow .swsi-i{width:18px;height:18px;stroke-width:2.4}
+      .swsi-myhub-more{margin-top:24px;border:0;border-radius:var(--r-lg);background:var(--paper2);overflow:hidden}
+      .swsi-myhub-more>summary{min-height:56px;padding:0 16px;font:500 17px/1.4 var(--swsi-font);color:var(--ink)}
+      .swsi-myhub-more .swsi-myhub-list{margin:0;border-radius:0;box-shadow:inset 0 1px 0 var(--line)}
+      @media(hover:hover) and (pointer:fine){.swsi-myhub-row:hover{background:#FBFAF7}.swsi-myhub-primary:hover{background:var(--brand-deep);filter:none}}
       @media(max-width:430px){.swsi-myhub-card{padding:6px 0 17px}.swsi-admin-note{display:none}}
     `;
     document.head.appendChild(st);
@@ -2422,7 +2751,7 @@ html[data-fs="2"]{
   window.swsiOpenAdminCenter=function(){var layer=ensureAdminLayer();var frame=layer.querySelector('iframe');if(frame&&!frame.getAttribute('src'))frame.setAttribute('src',adminUrl());layer.hidden=false;document.body.classList.add('swsi-admin-open');};
   window.swsiCloseAdminCenter=function(){var layer=document.getElementById('swsi-admin-layer');if(layer)layer.hidden=true;document.body.classList.remove('swsi-admin-open');verifyAdminAccess();};
 
-  function row(icon,label,meta,onclick,extraClass,attrs){return '<button type="button" class="swsi-myhub-row'+(extraClass?' '+extraClass:'')+'" '+(attrs||'')+' onclick="'+onclick+'"><span class="ico">'+icon+'</span><span class="copy"><span class="label">'+label+'</span><span class="meta">'+meta+'</span></span><span class="arrow">›</span></button>';}
+  function row(icon,label,meta,onclick,extraClass,attrs){return '<button type="button" class="swsi-myhub-row'+(extraClass?' '+extraClass:'')+'" '+(attrs||'')+' onclick="'+onclick+'"><span class="ico">'+icon+'</span><span class="copy"><span class="label">'+label+'</span><span class="meta">'+meta+'</span></span><span class="arrow">'+swsiIcon('arrow')+'</span></button>';}
 
   function recommendation(rv,drafts){
     if(rv.due>0)return {title:'先複習今天到期的 '+rv.due+' 題',sub:'到期錯題比再刷一批新題更值得。',onclick:"swsiLearningAction('due')"};
@@ -2435,23 +2764,24 @@ html[data-fs="2"]{
     var rv=reviewMeta(),drafts=draftCount(),rec=recommendation(rv,drafts);
     return '<section class="swsi-myhub" aria-label="學習中心">'
       +'<div class="swsi-myhub-card"><div class="swsi-myhub-kicker">學習中心</div><h2 class="swsi-myhub-title">你現在想做什麼？</h2><div class="swsi-myhub-sub">直接照你現在的時間和需求選一個，不用先理解平台功能名稱。</div>'
-      +'<button type="button" class="swsi-myhub-primary" onclick="'+rec.onclick+'"><span><b>'+rec.title+'</b><small>'+rec.sub+'</small></span><span class="arrow">›</span></button>'
+      +'<button type="button" class="swsi-myhub-primary" onclick="'+rec.onclick+'"><span><b>'+rec.title+'</b><small>'+rec.sub+'</small></span><span class="arrow">'+swsiIcon('arrow')+'</span></button>'
       +'<div class="swsi-myhub-stats"><div class="swsi-myhub-stat"><b>'+rv.due+'</b><span>今天到期</span></div><div class="swsi-myhub-stat"><b>'+rv.active+'</b><span>還沒熟</span></div><div class="swsi-myhub-stat"><b>'+rv.mastered+'</b><span>已掌握</span></div></div>'
       +'<div class="swsi-myhub-list" data-swsi-learning-scenarios>'
-      +row('10','我只有 10 分鐘','快速刷題：直接做 10 題今日練習',"swsiLearningAction('short')",'', 'data-swsi-scenario="short"')
-      +row('弱','我要補最弱科','先看各科表現，再練目前最需要補的科目',"swsiLearningAction('weak')",'', 'data-swsi-scenario="weak"')
-      +row('卷','我要做完整考卷','進入計時模擬考，完成後再看結果',"swsiLearningAction('mock')",'', 'data-swsi-scenario="mock"')
-      +row('✎','我要練申論',drafts?('申論練習：這台裝置有 '+drafts+' 份草稿可接著寫'):'申論練習：歷屆申論與 AI 回饋',"swsiLearningAction('essay')",'', 'data-swsi-scenario="essay"')
-      +row('↻','我要複習錯題',rv.due?('錯題複習：今天 '+rv.due+' 題到期'):(rv.active?('錯題複習：尚有 '+rv.active+' 題未熟練'):'錯題複習：目前沒有待複習題'),"swsiLearningAction('review')",'', 'data-swsi-scenario="review"')
+      +row(swsiIcon('play'),'我只有 10 分鐘','快速刷題：直接做 10 題今日練習',"swsiLearningAction('short')",'', 'data-swsi-scenario="short"')
+      +row(swsiIcon('target'),'我要補最弱科','先看各科表現，再練目前最需要補的科目',"swsiLearningAction('weak')",'', 'data-swsi-scenario="weak"')
+      +row(swsiIcon('papers'),'我要做完整考卷','進入計時模擬考，完成後再看結果',"swsiLearningAction('mock')",'', 'data-swsi-scenario="mock"')
+      +row(swsiIcon('essay'),'我要練申論',drafts?('申論練習：這台裝置有 '+drafts+' 份草稿可接著寫'):'申論練習：歷屆申論與 AI 回饋',"swsiLearningAction('essay')",'', 'data-swsi-scenario="essay"')
+      +row(swsiIcon('review'),'我要複習錯題',rv.due?('錯題複習：今天 '+rv.due+' 題到期'):(rv.active?('錯題複習：尚有 '+rv.active+' 題未熟練'):'錯題複習：目前沒有待複習題'),"swsiLearningAction('review')",'', 'data-swsi-scenario="review"')
       +'</div></div>'
       +'<details class="swsi-myhub-more"><summary>更多與平台資訊</summary><div class="swsi-myhub-list">'
-      +'<button type="button" class="swsi-myhub-row admin" data-swsi-admin-entry hidden onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理中心</span><span class="meta">管理者專用</span></span><span class="arrow">›</span></button>'
-      +row('↗','分享 SWSI','分享官方公開網址','swsiSharePlatform()')
-      +row('i','關於 SWSI','平台目的與使用方式',"swsiOpenPublicInfo('about',this)")
-      +row('源','資料來源','正式考題以官方資料為準',"swsiOpenPublicInfo('sources',this)")
-      +row('隱','隱私說明','了解平台保存哪些資料',"swsiOpenPublicInfo('privacy',this)")
-      +row('條','使用條款','免費分享與商業使用邊界',"swsiOpenPublicInfo('terms',this)")
-      +'<button type="button" class="swsi-myhub-row admin-login" data-swsi-admin-login onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理者入口</span><span class="meta">僅管理者使用</span></span><span class="arrow">›</span></button>'
+      +'<button type="button" class="swsi-myhub-row admin" data-swsi-admin-entry hidden onclick="swsiOpenAdminCenter()"><span class="ico">'+swsiIcon('chart')+'</span><span class="copy"><span class="label">管理中心</span><span class="meta">管理者專用</span></span><span class="arrow">'+swsiIcon('arrow')+'</span></button>'
+      +row(swsiIcon('arrow'),'分享 SWSI','分享官方公開網址','swsiSharePlatform()')
+      +row(swsiIcon('bulb'),'關於 SWSI','平台目的與使用方式',"swsiOpenPublicInfo('about',this)")
+      +row(swsiIcon('papers'),'資料來源','正式考題以官方資料為準',"swsiOpenPublicInfo('sources',this)")
+      +row(swsiIcon('mine'),'隱私說明','了解平台保存哪些資料',"swsiOpenPublicInfo('privacy',this)")
+      +row(swsiIcon('law'),'使用條款','免費分享與商業使用邊界',"swsiOpenPublicInfo('terms',this)")
+      +row('旗','回報問題／提供建議','協助改善網站或題目內容',"SWSI_FEEDBACK.openGeneral(this)")
+      +'<button type="button" class="swsi-myhub-row admin-login" data-swsi-admin-login onclick="swsiOpenAdminCenter()"><span class="ico">'+swsiIcon('mine')+'</span><span class="copy"><span class="label">管理者入口</span><span class="meta">僅管理者使用</span></span><span class="arrow">'+swsiIcon('arrow')+'</span></button>'
       +'</div></details></section>';
   }
 
@@ -2493,9 +2823,11 @@ html[data-fs="2"]{
 
   function installLearningTab(){
     var home=document.getElementById('t-home'),learning=document.getElementById('t-review'),essay=document.getElementById('t-essay'),progress=document.getElementById('t-progress');
-    if(home)home.innerHTML='<span class="ico">◎</span>練題';
-    if(learning){learning.innerHTML='<span class="ico">↻</span>學習';learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');learning.setAttribute('aria-label','學習中心');}
-    if(essay)essay.innerHTML='<span class="ico">✒</span>申論';
+    // Same markup as the navigation owner in 15.layout-foundation, so owners never rewrite each other.
+    var nav=function(el,icon,label){var html='<span class="ico">'+swsiIcon(icon)+'</span><span class="swsi-nav-label">'+label+'</span>';if(el&&el.innerHTML!==html)el.innerHTML=html;};
+    nav(home,'home','首頁');
+    if(learning){nav(learning,'mine','我的');learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');learning.setAttribute('aria-label','我的');}
+    nav(essay,'essay','申論');
     if(progress)progress.style.display='none';
     if(window.__SWSI_LEARNING_CENTER_OPEN__)setLearningNavActive();
   }
@@ -2525,9 +2857,9 @@ html[data-fs="2"]{
     var st=document.createElement('style');
     st.id=STYLE_ID;
     st.textContent=`
-      .swsi-myhub-row.admin-login{opacity:.72;background:#FAFBFA!important}
-      .swsi-myhub-row.admin-login .label{font-size:12px!important;font-weight:600!important}
-      .swsi-myhub-row.admin-login .meta{font-size:10px!important}
+      .swsi-myhub-row.admin-login{background:transparent!important}.swsi-myhub-row.admin-login .ico{background:var(--fill);color:var(--ink-3)}
+      .swsi-myhub-row.admin-login .label{font-size:16px!important;font-weight:400!important;color:var(--ink-soft)}
+      .swsi-myhub-row.admin-login .meta{font-size:14px!important}
       @media(max-width:720px){
         .swsi-public-footer-brand{padding-left:8px;padding-right:8px}
         .swsi-myhub{gap:9px;margin-bottom:18px}
@@ -2552,9 +2884,9 @@ html[data-fs="2"]{
   if(!document.getElementById(STYLE_ID)){
     var st=document.createElement('style');st.id=STYLE_ID;
     st.textContent=`
-      .swsi-launch-guide{margin:-2px 0 10px;border:1px solid #D7E2DC;background:#FBFCFB;border-radius:12px;padding:9px 10px;display:flex;align-items:flex-start;gap:8px;font-family:'Noto Sans TC',sans-serif;color:var(--ink)}
-      .swsi-launch-guide .copy{min-width:0;flex:1}.swsi-launch-guide b{display:block;font-size:11.5px;line-height:1.45;color:var(--ink)}.swsi-launch-guide span{display:block;font-size:10.5px;line-height:1.55;color:#6E746E;margin-top:1px}.swsi-launch-guide-close{flex:0 0 auto;border:0;background:transparent;color:#7C8781;width:28px;height:28px;border-radius:50%;font-size:17px;cursor:pointer}
-      .swsi-exam-reminder{margin-top:10px;border:1px solid var(--line);background:#F8FAF9;border-radius:11px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-family:'Noto Sans TC',sans-serif}.swsi-exam-reminder-copy{min-width:0;flex:1;font-size:10.7px;line-height:1.5;color:var(--ink-soft)}.swsi-exam-reminder-copy b{color:var(--ink);font-weight:800}.swsi-exam-reminder-btn{flex:0 0 auto;border:1px solid #CBD8D1;background:#fff;color:var(--pine-deep);border-radius:9px;min-height:34px;padding:6px 9px;font:750 10.5px/1.2 'Noto Sans TC',sans-serif;cursor:pointer}
+      .swsi-launch-guide{margin:0 0 24px;border:2px solid var(--line);background:var(--paper2);border-radius:var(--r-lg);padding:14px 12px 14px 16px;display:flex;align-items:flex-start;gap:8px;font-family:var(--swsi-font);font-size:15px;line-height:1.6;color:var(--ink)}
+      .swsi-launch-guide .copy{min-width:0;flex:1}.swsi-launch-guide b{display:block;font-size:16px;line-height:1.5;font-weight:800;color:var(--ink)}.swsi-launch-guide span{display:block;font-size:15px;line-height:1.6;color:var(--ink-soft);margin-top:2px}.swsi-launch-guide-close{flex:0 0 auto;border:0;background:transparent;color:var(--ink-3);width:44px;height:44px;margin:-10px -6px 0 0;border-radius:50%;font-size:20px;cursor:pointer}
+      .swsi-exam-reminder{margin-top:16px;border:0;background:var(--paper2);border-radius:var(--r-lg,16px);min-height:64px;padding:12px 16px;display:flex;align-items:center;gap:12px;font-family:var(--swsi-font)}.swsi-exam-reminder-copy{min-width:0;flex:1;font-size:15px;line-height:1.55;color:var(--ink-3)}.swsi-exam-reminder-copy b{display:block;font-size:17px;color:var(--ink);font-weight:600}.swsi-exam-reminder-btn{flex:0 0 auto;border:0;background:var(--brand-soft);color:var(--brand-deep);border-radius:999px;min-height:44px;padding:0 16px;font:600 16px/1.2 var(--swsi-font);cursor:pointer}
       .swsi-exam-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(25,31,28,.38);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px);overflow:auto}.swsi-exam-dialog{width:min(100%,480px);max-height:calc(100dvh - 28px - env(safe-area-inset-bottom));overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:19px;padding:17px 16px 16px;box-shadow:0 22px 60px rgba(25,31,28,.22);font-family:'Noto Sans TC',sans-serif;color:var(--ink)}.swsi-exam-dialog h2{font-family:'Noto Serif TC',serif;font-size:19px;margin:0 0 5px}.swsi-exam-dialog p{font-size:11.5px;line-height:1.65;color:#6E746E;margin:0 0 13px}.swsi-exam-date-label{display:block;font-size:11.5px;line-height:1.45;font-weight:800;color:var(--ink);margin:0 0 5px}.swsi-exam-dialog input{width:100%;box-sizing:border-box;min-height:46px;border:1px solid #CCD7D1;border-radius:11px;background:#fff;color:var(--ink);font:700 14px 'Noto Sans TC',sans-serif;padding:10px 11px}.swsi-exam-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px;margin-top:12px}.swsi-exam-actions button{min-height:43px;border-radius:10px;font:800 12.5px 'Noto Sans TC',sans-serif;cursor:pointer}.swsi-exam-clear{background:#fff;border:1px solid var(--line);color:#6E746E}.swsi-exam-save{background:var(--pine-deep);border:0;color:#fff}body.swsi-modal-open{overflow:hidden}
       @media(min-width:620px){.swsi-exam-backdrop{align-items:center}}@media(max-width:390px){.swsi-exam-actions{grid-template-columns:1fr}}
     `;
@@ -2569,7 +2901,7 @@ html[data-fs="2"]{
 
   window.swsiDismissLaunchGuide=function(){try{localStorage.setItem(GUIDE_KEY,'1');}catch(_e){}var el=document.querySelector('.swsi-launch-guide');if(el)el.remove();};
   function guideDismissed(){try{return localStorage.getItem(GUIDE_KEY)==='1';}catch(_e){return false;}}
-  function decorateHome(){if(guideDismissed())return;var hero=document.querySelector('#app .swsi-focus-hero');if(!hero||document.querySelector('#app .swsi-launch-guide'))return;var box=document.createElement('section');box.className='swsi-launch-guide';box.setAttribute('aria-label','第一次使用 SWSI');box.innerHTML='<div class="copy"><b>第一次來？不用先學整個平台。</b><span>「練題」直接刷題；「學習」看錯題與進度；「申論」專心練申論。</span></div><button type="button" class="swsi-launch-guide-close" aria-label="不再顯示首次使用說明" onclick="swsiDismissLaunchGuide()">×</button>';hero.insertAdjacentElement('afterend',box);}
+  function decorateHome(){if(guideDismissed())return;var hero=document.querySelector('#app .swsi-focus-hero');if(!hero||document.querySelector('#app .swsi-launch-guide'))return;var box=document.createElement('section');box.className='swsi-launch-guide';box.setAttribute('aria-label','第一次使用 SWSI');box.innerHTML='<div class="copy"><b>第一次來？不用先學整個平台。</b><span>下方「刷題」直接開始；「申論」練寫作；「我的」看錯題與進度。</span></div><button type="button" class="swsi-launch-guide-close" aria-label="不再顯示首次使用說明" onclick="swsiDismissLaunchGuide()">×</button>';hero.insertAdjacentElement('afterend',box);}
 
   function onExamKeydown(ev){if(ev.key==='Escape')window.swsiCloseExamDate();}
   window.swsiOpenExamDate=function(){
@@ -2578,7 +2910,7 @@ html[data-fs="2"]{
     var ov=document.createElement('div');ov.id='swsi-exam-backdrop';ov.className='swsi-exam-backdrop';
     ov.innerHTML='<div class="swsi-exam-dialog" role="dialog" aria-modal="true" aria-labelledby="swsi-exam-title" onclick="event.stopPropagation()"><h2 id="swsi-exam-title">設定考試日期</h2><p>日期只儲存在這台裝置，用來顯示倒數。這個預覽版不會要求通知權限，也不會把日期上傳。</p><label class="swsi-exam-date-label" for="swsi-exam-date-input">考試日期</label><input id="swsi-exam-date-input" type="date" value="'+getExamDate()+'"><div class="swsi-exam-actions"><button type="button" class="swsi-exam-clear" onclick="swsiClearExamDate()">清除日期</button><button type="button" class="swsi-exam-save" onclick="swsiSaveExamDate()">儲存日期</button></div></div>';
     ov.addEventListener('click',window.swsiCloseExamDate);document.body.appendChild(ov);document.body.classList.add('swsi-modal-open');document.addEventListener('keydown',onExamKeydown);
-    var input=ov.querySelector('#swsi-exam-date-input');if(input)setTimeout(function(){try{input.focus();}catch(_e){}},0);
+    var input=ov.querySelector('#swsi-exam-date-input');if(input){try{input.focus({preventScroll:true});}catch(_e){try{input.focus();}catch(_e2){}}}
   };
   window.swsiCloseExamDate=function(){var ov=document.getElementById('swsi-exam-backdrop');if(ov)ov.remove();document.body.classList.remove('swsi-modal-open');document.removeEventListener('keydown',onExamKeydown);var opener=lastExamOpener;lastExamOpener=null;if(opener&&document.contains(opener))setTimeout(function(){try{opener.focus();}catch(_e){}},0);};
   window.swsiSaveExamDate=function(){var input=document.getElementById('swsi-exam-date-input');setExamDate(input?input.value:'');window.swsiCloseExamDate();decorateReminder(true);};
@@ -2726,7 +3058,9 @@ html[data-fs="2"]{
       lastFocus=document.activeElement;
       openOriginal.apply(this,arguments);
       lock();
-      requestAnimationFrame(focusInitial);
+      // The original opener synchronously mounts the dialog; avoid a later
+      // animation-frame focus() stealing keyboard focus after the user tabs.
+      focusInitial();
     };
     openWrapped.__swsiResilienceWrapped=true;
     window.swsiOpenExamDate=openWrapped;
@@ -2777,17 +3111,17 @@ html[data-fs="2"]{
   st.textContent=`
     /* Learning Center hub: preserve the current visual hierarchy at the default
        size, but make every user-facing text tier respond to html[data-fs]. */
-    .swsi-myhub-kicker{font-size:calc(var(--fs-s) - 4px)!important}
-    .swsi-myhub-title{font-size:calc(var(--fs-h) + 2px)!important}
-    .swsi-myhub-sub{font-size:calc(var(--fs-s) - 3px)!important}
-    .swsi-myhub-primary b{font-size:calc(var(--fs-b) - 2px)!important}
-    .swsi-myhub-primary small{font-size:calc(var(--fs-s) - 4px)!important}
-    .swsi-myhub-stat b{font-size:var(--fs-h)!important}
-    .swsi-myhub-stat span{font-size:calc(var(--fs-s) - 5px)!important}
-    .swsi-myhub-row .label{font-size:calc(var(--fs-b) - 3px)!important}
-    .swsi-myhub-row .meta{font-size:calc(var(--fs-s) - 4px)!important}
-    .swsi-myhub-more>summary{font-size:calc(var(--fs-s) - 3px)!important}
-    .swsi-myhub-toast{font-size:calc(var(--fs-s) - 2px)!important}
+    .swsi-myhub-kicker{font-size:calc(var(--fs-s) + 1px)!important}
+    .swsi-myhub-title{font-size:calc(var(--fs-h) + 11px)!important}
+    .swsi-myhub-sub{font-size:var(--fs-b)!important}
+    .swsi-myhub-primary b{font-size:var(--fs-b)!important}
+    .swsi-myhub-primary small{font-size:var(--fs-s)!important}
+    .swsi-myhub-stat b{font-size:calc(var(--fs-h) + 9px)!important}
+    .swsi-myhub-stat span{font-size:var(--fs-s)!important}
+    .swsi-myhub-row .label{font-size:var(--fs-b)!important}
+    .swsi-myhub-row .meta{font-size:var(--fs-s)!important}
+    .swsi-myhub-more>summary{font-size:var(--fs-b)!important}
+    .swsi-myhub-toast{font-size:var(--fs-s)!important}
 
     /* Wrong-answer review / learning progress. */
     body[data-swsi-page="learning-detail"] .section-h{
@@ -2803,31 +3137,31 @@ html[data-fs="2"]{
       font-size:calc(var(--fs-h) + 2px)!important;
     }
     body[data-swsi-page="learning-detail"] .empty p{
-      font-size:calc(var(--fs-b) - 3px)!important;
+      font-size:var(--fs-b)!important;
     }
     .swsi-review-stats .stat .v{font-size:calc(var(--fs-h) + 5px)!important}
-    .swsi-review-stats .stat .k{font-size:calc(var(--fs-s) - 3px)!important}
-    .swsi-calm-note{font-size:calc(var(--fs-b) - 3px)!important}
-    .swsi-learning-h{font-size:calc(var(--fs-b) - 2px)!important}
-    .swsi-learning-muted{font-size:calc(var(--fs-s) - 2px)!important}
-    .swsi-learning-row b{font-size:calc(var(--fs-b) - 2px)!important}
-    .swsi-learning-row small{font-size:calc(var(--fs-s) - 3px)!important}
-    .swsi-progress-hero>div:first-child small{font-size:calc(var(--fs-s) - 2px)!important}
+    .swsi-review-stats .stat .k{font-size:var(--fs-s)!important}
+    .swsi-calm-note{font-size:var(--fs-b)!important}
+    .swsi-learning-h{font-size:var(--fs-b)!important}
+    .swsi-learning-muted{font-size:var(--fs-s)!important}
+    .swsi-learning-row b{font-size:var(--fs-b)!important}
+    .swsi-learning-row small{font-size:var(--fs-s)!important}
+    .swsi-progress-hero>div:first-child small{font-size:var(--fs-s)!important}
     .swsi-progress-hero strong{font-size:calc(var(--fs-q) + 17px)!important}
-    .swsi-progress-mini span{font-size:calc(var(--fs-s) - 4px)!important}
-    .swsi-progress-mini b{font-size:calc(var(--fs-b) - 2px)!important}
+    .swsi-progress-mini span{font-size:var(--fs-s)!important}
+    .swsi-progress-mini b{font-size:var(--fs-b)!important}
     .swsi-progress-strip b{font-size:var(--fs-h)!important}
-    .swsi-progress-strip span{font-size:calc(var(--fs-s) - 4px)!important}
-    .swsi-next-copy b{font-size:calc(var(--fs-b) - 2px)!important}
-    .swsi-next-copy span{font-size:calc(var(--fs-s) - 2px)!important}
-    .swsi-progress-subject .top{font-size:calc(var(--fs-b) - 3px)!important}
-    .swsi-progress-subject small{font-size:calc(var(--fs-s) - 4px)!important}
-    .swsi-cause-stat{font-size:calc(var(--fs-b) - 3px)!important}
-    .swsi-danger-link{font-size:calc(var(--fs-s) - 2px)!important}
+    .swsi-progress-strip span{font-size:var(--fs-s)!important}
+    .swsi-next-copy b{font-size:var(--fs-b)!important}
+    .swsi-next-copy span{font-size:var(--fs-s)!important}
+    .swsi-progress-subject .top{font-size:var(--fs-b)!important}
+    .swsi-progress-subject small{font-size:var(--fs-s)!important}
+    .swsi-cause-stat{font-size:var(--fs-b)!important}
+    .swsi-danger-link{font-size:var(--fs-s)!important}
 
     /* Text generated by the learning loop with an inline legacy 13px size. */
     body[data-swsi-page="learning-detail"] .empty [style*="font-size:13px"]{
-      font-size:calc(var(--fs-b) - 3px)!important;
+      font-size:var(--fs-b)!important;
     }
   `;
   document.head.appendChild(st);
@@ -2885,8 +3219,50 @@ html[data-fs="2"]{
       .swsi-k-net .swsi-k-question{background:transparent}
       .swsi-k-search-all{width:100%;min-height:42px;border:1px solid #CAD8D1;border-radius:10px;background:transparent;color:var(--pine-deep);font-family:'Noto Sans TC',sans-serif;font-size:12.5px;font-weight:800;cursor:pointer;margin-bottom:8px}
 
+
+      /* In-context learning links stay collapsed until the student asks for more. */
+      .swsi-related-learning{margin:12px 0;border:1px solid #DCE6E0;border-radius:12px;background:#FAFCFA;color:var(--ink);overflow:hidden}
+      .swsi-related-learning>summary{cursor:pointer;list-style-position:inside;padding:11px 12px;font:750 12.5px/1.65 'Noto Sans TC',sans-serif;color:var(--pine-deep)}
+      .swsi-related-learning .swsi-related-body{border-top:1px solid #E1E9E3;padding:11px 12px;display:grid;gap:7px}
+      .swsi-related-learning .swsi-related-note{font:400 11px/1.6 'Noto Sans TC',sans-serif;color:var(--ink-soft);margin:2px 0}
+      .swsi-related-learning button{display:block;width:100%;min-height:40px;border:1px solid #DFE8E2;border-radius:9px;background:#fff;padding:9px 11px;text-align:left;color:var(--pine-deep);font:700 12.5px/1.55 'Noto Sans TC',sans-serif;cursor:pointer}
+      .swsi-related-learning button:hover{border-color:#9ABAAF;background:#F7FAF8}
+      .swsi-related-learning button:focus-visible{outline:2px solid var(--pine-deep);outline-offset:2px}
       .swsi-k-pagelead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 12px;border-bottom:1px solid #E5E9E6;padding-bottom:7px}
       .swsi-k-pagelead button{border:none;background:none;color:var(--pine-deep);font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:700;cursor:pointer;padding:5px 0}
+      /* 2026-11-22 system (簡單大字): system font, readable sizes, warm tokens. */
+      .swsi-k-searchbox{font-family:var(--swsi-font);font-size:17px;min-height:52px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--paper2)}
+      .swsi-k-searchbox:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+      .swsi-k-empty{font-family:var(--swsi-font);font-size:var(--fs-b)}
+      .swsi-k-examples button,.swsi-k-related button{min-height:40px;border:0;background:var(--brand-soft);color:var(--brand-deep);padding:8px 14px;font-family:var(--swsi-font);font-size:15px;font-weight:500}
+      .swsi-k-path{border:0;border-radius:var(--r-lg);background:var(--paper2);padding:18px 20px}
+      .swsi-k-path b,.swsi-k-sec-h b,.swsi-k-card .name,.swsi-k-net-title{font-family:var(--swsi-font);color:var(--ink)}
+      .swsi-k-path b{font-size:19px;font-weight:700}
+      .swsi-k-path span,.swsi-k-card .desc,.swsi-k-muted,.swsi-k-more{font-family:var(--swsi-font);font-size:15px;color:var(--ink-3)}
+      .swsi-k-counts i,.swsi-k-sec-h span,.swsi-k-question .meta,.swsi-k-related-label{font-family:var(--swsi-font);font-size:14px;color:var(--ink-3)}
+      .swsi-k-sec{border-top:0}
+      .swsi-k-sec-h b{font-size:19px;font-weight:700}
+      .swsi-k-card{border-bottom:1px solid var(--line);padding:16px 2px;font-family:var(--swsi-font)}
+      .swsi-k-card .type{font-family:var(--swsi-font);font-size:14px;font-weight:600;letter-spacing:0;color:var(--brand)}
+      .swsi-k-card.law .type{color:var(--ink-3)}
+      .swsi-k-card .name{font-size:18px;font-weight:600}
+      .swsi-k-card:hover,.swsi-k-question:hover{background:transparent}
+      .swsi-k-question{border-bottom:1px solid var(--line);padding:16px 2px}
+      .swsi-k-question .q{font-size:var(--fs-b)}
+      .swsi-k-action{min-height:52px;border-radius:var(--r-md);background:var(--brand);font-family:var(--swsi-font);font-size:17px;font-weight:600}
+      .swsi-k-action.ghost{border:0;background:var(--brand-soft);color:var(--brand-deep)}
+      .swsi-k-net{border-top:1px solid var(--line)}
+      .swsi-k-net-title{font-size:18px;font-weight:700}
+      .swsi-k-search-all{min-height:48px;border:0;border-radius:var(--r-md);background:var(--brand-soft);color:var(--brand-deep);font-family:var(--swsi-font);font-size:16px;font-weight:600}
+      .swsi-related-learning{border:0;border-radius:var(--r-lg);background:var(--paper2)}
+      .swsi-related-learning>summary{min-height:52px;padding:14px 16px;font:600 16px/1.5 var(--swsi-font);color:var(--brand-deep)}
+      .swsi-related-learning .swsi-related-body{border-top:1px solid var(--line);padding:12px 16px}
+      .swsi-related-learning .swsi-related-note{font:400 14px/1.6 var(--swsi-font)}
+      .swsi-related-learning button{min-height:48px;border:0;border-radius:var(--r-sm);background:var(--paper);padding:10px 14px;color:var(--ink);font:500 16px/1.5 var(--swsi-font)}
+      .swsi-related-learning button:hover{border-color:transparent;background:var(--fill)}
+      .swsi-related-learning button:focus-visible{outline:3px solid var(--brand)}
+      .swsi-k-pagelead{border-bottom:0;margin:0 0 16px;padding:0}
+      .swsi-k-pagelead button{min-height:44px;padding:0;color:var(--brand);font-family:var(--swsi-font);font-size:17px;font-weight:500}
       @media(max-width:370px){.swsi-k-sec-h{display:block}.swsi-k-sec-h span{display:block;margin-top:2px}.swsi-k-counts{gap:9px}}
     `;
     document.head.appendChild(st);
@@ -3050,12 +3426,10 @@ html[data-fs="2"]{
 
   function lawShortName(l){return N(l&&l.n).replace(/(施行細則|條例|辦法|規則|法)$/,'');}
   function lawMcqScore(q,l){
-    var blob=N((q.q||'')+' '+(q.topic||'')+' '+(q.major||'')+' '+(q.keywords||'')+' '+(q.law||''));
-    var full=N(l.n),short=lawShortName(l),score=0;
-    if(full&&blob.indexOf(full)>=0)score+=10;
-    else if(short.length>=4&&blob.indexOf(short)>=0)score+=5;
-    A(l.k).forEach(function(k){var nk=N(k);if(nk.length>=3&&blob.indexOf(nk)>=0)score++;});
-    return score;
+    // A profession name or generic keyword is not evidence of a law question.
+    // Only the full law title in the examination text qualifies for this practice set.
+    var blob=N([q.q].concat(['A','B','C','D'].map(function(k){return q.options&&q.options[k]||'';})).join(' ')),full=N(l&&l.n);
+    return full&&blob.indexOf(full)>=0?10:0;
   }
   function lawMcqs(l){
     var list=[];try{list=ALL.filter(function(q){return lawMcqScore(q,l)>=2;});}catch(_e){}
@@ -3189,6 +3563,131 @@ html[data-fs="2"]{
     }
     var sub=document.querySelector('#app .section-s');if(sub)sub.innerHTML='先理解理論，再直接看它和哪些歷屆選擇題、申論與法規連在一起。';
   };
+
+  /* SWSI RELATED LEARNING START 2026-11-07
+     Explicit metadata and exact topic matching only. No model-inferred links,
+     no edits to official question/answer data, and no extra network requests. */
+  function swsiRelatedTheory(item){
+    var label=String(item&&item.topic||'');
+    var keys=A(item&&item.keywords),explicit=A(item&&item.theories);
+    var candidates=[];
+    try{candidates=THEORIES.filter(function(t){
+      var name=N(t&&t.n);
+      return name.length>=4 && (
+        explicit.some(function(v){return N(v)===name;}) ||
+        (label&&N(label).indexOf(name)>=0) ||
+        keys.some(function(v){return N(v)===name;})
+      );
+    });}catch(_e){}
+    candidates.sort(function(a,b){return N(b.n).length-N(a.n).length;});
+    return candidates[0]||null;
+  }
+  function swsiRelatedLaw(item){
+    var tags=[String(item&&item.law||'')].concat(A(item&&item.laws));
+    var candidates=[];
+    try{candidates=LAWS.filter(function(l){
+      var name=N(l&&l.n);
+      return name.length>=4&&tags.some(function(v){
+        var tag=N(v);
+        return tag===name || (tag.length>name.length&&tag.indexOf(name)>=0);
+      });
+    });}catch(_e){}
+    candidates.sort(function(a,b){return N(b.n).length-N(a.n).length;});
+    return candidates[0]||null;
+  }
+  function swsiRelatedTopic(item){
+    var topic=N(item&&item.topic||'');
+    return topic.length>=6?topic:'';
+  }
+  function swsiRelatedMcqs(item,theory,law){
+    var topic=swsiRelatedTopic(item),key=String(item&&item.id||'');
+    var tn=theory?N(theory.n):'',ln=law?N(law.n):'',rows=[];
+    try{rows=ALL.filter(function(q){
+      if(!q||String(q.id||'')===key)return false;
+      if(ln&&N(q.law||'').indexOf(ln)>=0)return true;
+      if(tn&&((N(q.topic||'').indexOf(tn)>=0)||
+        A(q.keywords).some(function(v){return N(v)===tn;})))return true;
+      return topic&&N(q.topic||'')===topic;
+    });}catch(_e){}
+    return rows.sort(function(a,b){return yearNum(b.year)-yearNum(a.year);}).slice(0,60);
+  }
+  function swsiRelatedEssays(item,theory,law){
+    var topic=swsiRelatedTopic(item),key=String(item&&item.id||'');
+    var tn=theory?N(theory.n):'',ln=law?N(law.n):'',rows=[];
+    try{rows=ESSAYS.filter(function(e){
+      if(!e||String(e.id||'')===key)return false;
+      if(tn&&A(e.theories).some(function(v){return N(v)===tn;}))return true;
+      if(ln&&A(e.laws).some(function(v){return N(v)===ln;}))return true;
+      return topic&&N(e.topic||'')===topic;
+    });}catch(_e){}
+    return rows.sort(function(a,b){return yearNum(b.year)-yearNum(a.year);}).slice(0,30);
+  }
+  function swsiRelatedElement(item,kind){
+    var theory=swsiRelatedTheory(item),law=swsiRelatedLaw(item);
+    var mcqs=swsiRelatedMcqs(item,theory,law),essays=swsiRelatedEssays(item,theory,law);
+    if(!theory&&!law&&!mcqs.length&&!essays.length)return null;
+    var panel=document.createElement('details');
+    panel.className='swsi-related-learning';
+    panel.setAttribute('aria-label','延伸學習與相關考題');
+    var summary=document.createElement('summary');
+    summary.textContent='延伸學習 · 相關考題';
+    panel.appendChild(summary);
+    var body=document.createElement('div');body.className='swsi-related-body';
+    panel.appendChild(body);
+    function addButton(label,action){
+      var btn=document.createElement('button');btn.type='button';
+      btn.textContent=label;btn.addEventListener('click',function(ev){ev.stopPropagation();action();});
+      body.appendChild(btn);
+    }
+    if(theory)addButton('📘 看理論：'+theory.n,function(){window.swsiOpenTheoryEncoded(E(theory.n));});
+    if(law)addButton('⚖ 看法規：'+law.n,function(){window.swsiOpenLawEncoded(E(law.n));});
+    if(mcqs.length){
+      addButton('練同考點選擇題（'+mcqs.length+' 題）',function(){
+        if(kind==='mcq'){
+          try{
+            if(typeof confirm==='function'&&!confirm('將開始另一組題目，離開目前的練習，確定繼續？'))return;
+          }catch(_e){return;}
+        }
+        var ids=new Set(mcqs.map(function(x){return x.id;}));
+        if(typeof startQuiz==='function')startQuiz(function(q){return ids.has(q.id);},10);
+      });
+    }
+    essays.slice(0,2).forEach(function(e){
+      addButton('✍ 相關申論：'+sn(e.topic||e.q||'申論題',34),function(){
+        window.swsiOpenEssayEncoded(E(e.id),E(e.subject||'全部科目'));
+      });
+    });
+    var foot=document.createElement('p');foot.className='swsi-related-note';
+    foot.textContent='依題目標籤自動關聯，供延伸學習；不代表考選部認定的考點或已完成法規核對。';
+    body.appendChild(foot);
+    return panel;
+  }
+  function swsiDecorateLearningConnections(){
+    try{
+      var exp=document.querySelector('#app .qcard .exp');
+      if(exp&&!exp.querySelector(':scope > .swsi-related-learning')){
+        var item=null;
+        try{if(typeof answered!=='undefined'&&answered&&typeof queue!=='undefined')item=queue[idx];}catch(_e){}
+        if(item){
+          var box=swsiRelatedElement(item,'mcq');
+          if(box){
+            var anchor=exp.querySelector(':scope > .swsi-answer-trust, :scope > .swsi-explanation-more, :scope > .btn');
+            if(anchor)exp.insertBefore(box,anchor);else exp.appendChild(box);
+          }
+        }
+      }
+      if(typeof view==='undefined'||view!=='essay'||typeof openEssay==='undefined'||!openEssay)return;
+      var essay=null;
+      try{essay=ESSAYS.find(function(e){return e&&e.id===openEssay;});}catch(_e){}
+      if(!essay)return;
+      var body=document.querySelector('#app .ecard.open .ebodywrap');
+      if(!body||body.querySelector(':scope > .swsi-related-learning'))return;
+      var extra=swsiRelatedElement(essay,'essay');
+      if(extra)body.appendChild(extra);
+    }catch(err){console.warn('[SWSI] related learning unavailable',err);}
+  }
+  document.addEventListener('swsi:learning-surface-ready',swsiDecorateLearningConnections);
+  /* SWSI RELATED LEARNING END */
 
 })();
 /* SWSI Law Trust UI Contract 2026-08-27
@@ -3386,6 +3885,49 @@ html[data-fs="2"]{
   var VERIFY_CHECKED='checked';
   var rows=window.THEORIES||[];
 
+  // Student-facing one-line summaries; detailed and verified concepts remain in canonical theory data.
+  var THEORY_LEADS={
+    "生態系統理論": "一個人的成長，會受到家庭、學校、社會制度與時代變化影響。",
+    "增強權能觀點": "看見案主面對的權力與資源障礙，協助他真正參與決定。",
+    "優勢觀點": "不只看問題，也找出案主的能力、支持與可用資源。",
+    "復原力觀點": "面對逆境時，人可以靠自身與環境支持逐步恢復與調整。",
+    "社會工作價值與專業倫理": "在尊嚴、保密、自主與安全等價值之間做負責任的判斷。",
+    "倫理兩難與抉擇": "當重要倫理責任相互衝突，要比較可行方案與可能傷害。",
+    "Erikson 心理社會發展理論": "人的一生有不同發展階段，每個階段都有需要面對的課題。",
+    "精神分析理論": "透過無意識衝突、防衛機轉與人格動力理解人的行為。",
+    "Piaget 認知發展理論": "人的思考方式會隨發展改變，也會透過經驗調整認知。",
+    "Kohlberg 道德發展理論": "道德判斷的重點，是一個人為什麼認為事情對或錯。",
+    "社會學習理論": "人會觀察別人的行為及其後果，學到新的做法。",
+    "依附理論": "早期照顧關係會影響對人與關係的期待，但不是命運。",
+    "綜融取向與四系統模型": "搞清楚誰求助、誰參與、誰需要改變，以及社工的角色。",
+    "任務中心模式": "和案主一起設定具體目標，再拆成可執行的小任務。",
+    "認知行為理論": "想法、情緒與行為彼此影響，可以透過練習逐步調整。",
+    "心理暨社會學派": "同時理解個人心理狀態與家庭、社會情境的影響。",
+    "危機介入模式": "遇到急性危機時，先評估安全，再穩定情緒並安排後續行動。",
+    "個案管理": "協助有多重需求的人連結資源、協調服務並持續追蹤。",
+    "Biestek 專業關係原則": "以接納、尊重自決、保密等原則建立專業助人關係。",
+    "家庭系統理論": "家庭成員的互動會彼此影響，不能只看單一成員的問題。",
+    "家庭生命週期理論": "家庭在不同生活階段，會面臨角色與關係的調整。",
+    "反壓迫觀點": "看見制度與權力如何造成不平等，並減少服務障礙。",
+    "女性主義觀點": "從性別與權力關係理解個人困境和社會結構。",
+    "文化能力": "尊重文化差異，也持續檢視自己的偏見與專業權力。",
+    "障礙的社會模式": "不只看個人身體差異，也要移除環境與制度造成的障礙。",
+    "結構社會工作／批判理論": "個人的困難可能和政策、勞動條件及社會權力結構有關。",
+    "Rothman 社區工作三模式": "社區工作可著重居民參與、專業規劃，或推動社會行動。",
+    "資產基礎社區發展 ABCD": "從居民已有的能力、關係與資源出發，共同發展社區。",
+    "團體發展階段理論": "團體關係會隨互動發展；不同學者有不同的階段模型。",
+    "社會學三大觀點": "從社會秩序、資源衝突與日常互動三個角度理解社會。",
+    "福利意識形態": "不同福利理念，對政府責任與市場角色有不同看法。",
+    "Titmuss 福利三模式": "從殘補、工作成就與制度再分配三種角度理解福利。",
+    "福利混合經濟與服務輸送": "國家、市場、社區與家庭都可能參與福利的提供。",
+    "資產累積與基本收入": "比較協助累積資產和定期發放基本收入兩種政策路徑。",
+    "社會投資觀點": "透過托育、教育與就業支持，提升長期生活機會。",
+    "Bowen 家庭系統理論": "看家庭情緒關係、自我分化與三角互動如何影響成員。",
+    "Minuchin 結構家庭治療": "從界限、次系統與家庭階層了解互動關係。",
+    "資產建構／資產累積理論": "經濟安全不只靠收入，也和累積資產的制度機會有關。",
+    "無條件基本收入 UBI": "定期向個人給付現金，不以所得或工作條件設限。"
+  };
+
   function E(v){
     if(typeof window.swsiEsc==='function')return window.swsiEsc(v);
     if(typeof window.esc==='function')return window.esc(v);
@@ -3398,15 +3940,30 @@ html[data-fs="2"]{
 
   function trustHTML(t){
     if(!t)return '';
-    var good=t.theory_verify_status===VERIFY_CHECKED;
-    var bg=good?'#EEF5F1':'#F7F4EA',bd=good?'#CFE0D8':'#E5DCC1',fg=good?'#3F6961':'#756E57';
     var date=t.theory_checked_at?(' · '+t.theory_checked_at):'';
     var note=t.theory_trust_note||'這是 SWSI 整理的學習卡；尚未完成本階段逐卡校正，請搭配課本與老師教材理解。';
-    return '<div class="swsi-theory-trust" style="margin:14px 0 10px;padding:12px 13px;border:1px solid '+bd+';border-radius:12px;background:'+bg+';font-family:\'Noto Sans TC\',sans-serif">'
-      +'<div style="font-size:12.5px;font-weight:700;color:'+fg+'">'+E(statusText(t)+date)+'</div>'
-      +'<div style="font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin-top:7px">'+E(note)+'</div>'
-      +'<div style="font-size:10.8px;line-height:1.6;color:var(--ink-soft);margin-top:6px">理論卡是 SWSI 學習整理，不是考選部官方答案；正式題目若指定特定理論、學者或階段，以題目要求為準。</div>'
-      +'</div>';
+    // Keep theory-specific school/accuracy distinctions visible, while folding the common disclaimer.
+    return '<section class="swsi-theory-trust">'
+      +'<div class="swsi-theory-trust-status">'+E(statusText(t)+date)+'</div>'
+      +'<div class="swsi-theory-trust-note">'+E(note)+'</div>'
+      +'<details class="swsi-theory-trust-more"><summary>來源與使用提醒</summary>'
+      +'<div class="swsi-theory-trust-note">理論卡不是考選部官方答案；這是 SWSI 學習整理。正式題目若指定特定理論、學者或階段，以題目要求為準。</div>'
+      +'</details></section>';
+  }
+
+  if(!document.getElementById('swsi-theory-dictionary-compact-style')){
+    var style=document.createElement('style');
+    style.id='swsi-theory-dictionary-compact-style';
+    style.textContent=[
+      '#app .swsi-theory-summary{font-size:var(--fs-s);line-height:1.65;color:var(--ink-soft);font-weight:400;margin:8px 0 6px;}',
+      '#app .swsi-theory-hint{font-size:15px;color:var(--brand);margin-top:6px;}',
+      '#app .swsi-theory-trust{border-top:1px solid var(--line);margin:16px 0 7px;padding-top:10px;font-family:"Noto Sans TC",sans-serif;}',
+      '#app .swsi-theory-trust-status{font-size:11.5px;font-weight:700;color:var(--ink-soft);line-height:1.7;}',
+      '#app .swsi-theory-trust-more summary{cursor:pointer;font-size:11.5px;color:var(--ink-soft);line-height:1.7;margin-top:5px;}',
+      '#app .swsi-theory-trust-note{font-size:11px;line-height:1.7;color:var(--ink-soft);padding:5px 0 0 13px;}',
+      '#app .ehead[role="button"]:focus-visible{outline:2px solid var(--pine);outline-offset:2px;border-radius:9px;}'
+    ].join('');
+    document.head.appendChild(style);
   }
 
   var previousRenderTheories=window.renderTheories||renderTheories;
@@ -3414,7 +3971,36 @@ html[data-fs="2"]{
     previousRenderTheories();
     try{
       var sub=document.querySelector('#app .section-s');
-      if(sub)sub.innerHTML='先理解理論，再直接看它和哪些歷屆選擇題、申論與法規連在一起。<br><span style="color:var(--ink-soft);font-size:12px">✓「已逐卡核對」代表這張 SWSI 理論摘要已重新拆解概念與學派；△「待逐卡複核」則還不能當成完成版。理論卡不是考選部官方答案。</span>';
+      if(sub)sub.textContent='快速理解社工理論，連結歷屆試題。';
+      // Reuse existing cards and knowledgeNetHTML links; no new feature or data source.
+      Array.prototype.forEach.call(document.querySelectorAll('#app .ecard'),function(card){
+        var head=card.querySelector('.ehead'),topic=card.querySelector('.etopic');
+        if(!head||!topic)return;
+        var name=(topic.textContent||'').trim();
+        var t=rows.find(function(x){return x&&x.n===name;});
+        if(!t)return;
+        var sentence=THEORY_LEADS[name]||String(t.c||'').split('。')[0].slice(0,62);
+        if(sentence&&!head.querySelector('.swsi-theory-summary')){
+          var p=document.createElement('p');
+          p.className='swsi-theory-summary';
+          p.textContent=sentence;
+          var hint=head.querySelector('.ehint:last-child');
+          if(hint&&/點開看核心概念/.test(hint.textContent||''))head.insertBefore(p,hint);
+          else head.appendChild(p);
+        }
+        var hint=head.querySelector('.ehint:last-child');
+        if(hint&&/點開看核心概念/.test(hint.textContent||'')){
+          hint.textContent='查看核心概念與相關試題 ›';
+          hint.classList.add('swsi-theory-hint');
+        }
+        // Existing clickable div gains keyboard access without changing its click handler.
+        head.setAttribute('role','button');
+        head.setAttribute('tabindex','0');
+        head.setAttribute('aria-expanded',card.classList.contains('open')?'true':'false');
+        head.addEventListener('keydown',function(event){
+          if(event.key==='Enter'||event.key===' '){event.preventDefault();head.click();}
+        });
+      });
       var t=null;
       try{if(typeof theoryOpen==='number'&&theoryOpen>=0)t=rows[theoryOpen]||null;}catch(_e){}
       var open=document.querySelector('#app .ecard.open .ebodywrap');
@@ -3460,27 +4046,32 @@ html[data-fs="2"]{
     var st=document.createElement('style');
     st.id=STYLE_ID;
     st.textContent=`
-      .swsi-public-footer-brand{font-family:'Noto Sans TC',sans-serif;font-size:10.8px;line-height:1.7;color:var(--ink-soft)}
-      .swsi-public-footer-brand strong{font-family:'Noto Serif TC',serif;color:var(--ink);font-size:11.5px}
-      .swsi-public-footer-links{display:flex;justify-content:center;align-items:center;gap:4px 10px;flex-wrap:wrap;margin-top:5px}
-      .swsi-public-footer-links button{border:0;background:transparent;color:#68736E;font:700 10.8px/1.45 'Noto Sans TC',sans-serif;cursor:pointer;padding:4px 2px;text-decoration:underline;text-decoration-color:#B9C2BD;text-underline-offset:3px}
-      .swsi-public-footer-links button:hover,.swsi-public-footer-links button:focus-visible{color:var(--pine-deep)}
-      .swsi-public-info-backdrop{position:fixed;inset:0;z-index:990;background:rgba(25,31,28,.4);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px)}
-      .swsi-public-info-dialog{width:min(100%,540px);max-height:min(86vh,760px);max-height:min(86dvh,760px);overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:20px;box-shadow:0 22px 60px rgba(25,31,28,.22);padding:19px 18px;color:var(--ink);font-family:'Noto Sans TC',sans-serif;overscroll-behavior:contain}
+      .swsi-public-footer-brand{font-family:var(--swsi-font);color:var(--ink-soft);font-size:15px;line-height:1.6;text-align:center;max-width:480px;margin:0 auto}
+      .swsi-public-footer-brand strong{display:block;font-family:var(--swsi-font);color:var(--ink);font-weight:700;font-size:16px;line-height:1.5}
+      .swsi-public-footer-tagline{margin-top:4px;font-size:15px;line-height:1.6;color:var(--ink-3)}
+      .swsi-public-footer-links{display:flex;justify-content:center;align-items:center;gap:0 4px;flex-wrap:wrap;margin-top:8px}
+      .swsi-public-footer-links button{border:0;background:transparent;color:var(--brand);font:500 15px/1.45 var(--swsi-font);cursor:pointer;min-height:44px;padding:10px 6px;text-decoration:none}
+      .swsi-public-footer-links button+button:before{content:'·';display:inline-block;color:var(--line-2);margin-right:10px}
+      .swsi-public-footer-links button:hover,.swsi-public-footer-links button:focus-visible{color:var(--brand-deep);text-decoration:underline;text-underline-offset:3px}
+      .swsi-public-footer-links button:focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:6px}
+      .swsi-public-footer-legal{font-size:14px;line-height:1.6;color:var(--ink-3)}
+      @media(max-width:370px){.swsi-public-footer-links{column-gap:7px}.swsi-public-footer-links button+button:before{margin-right:8px}}
+      .swsi-public-info-backdrop{position:fixed;inset:0;z-index:990;background:rgba(29,27,24,.4);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px)}
+      .swsi-public-info-dialog{width:min(100%,540px);max-height:min(86vh,760px);max-height:min(86dvh,760px);overflow:auto;background:var(--paper2);border:0;border-radius:20px;box-shadow:0 22px 60px rgba(29,27,24,.18);padding:22px 20px;color:var(--ink);font-family:var(--swsi-font);overscroll-behavior:contain}
       .swsi-public-info-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
-      .swsi-public-info-head h2{font-family:'Noto Serif TC',serif;font-size:21px;line-height:1.35;margin:0}
-      .swsi-public-info-head p{font-size:11.5px;line-height:1.6;color:#6E746E;margin:3px 0 0}
-      .swsi-public-info-close{margin-left:auto;flex:0 0 auto;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--ink-soft);font-size:19px;cursor:pointer}
-      .swsi-public-info-body{font-size:13px;line-height:1.85;color:#414743}
-      .swsi-public-info-body h3{font-family:'Noto Serif TC',serif;color:var(--pine-deep);font-size:15px;margin:17px 0 5px}
+      .swsi-public-info-head h2{font-family:var(--swsi-font);font-size:24px;font-weight:700;line-height:1.35;margin:0}
+      .swsi-public-info-head p{font-size:15px;line-height:1.6;color:var(--ink-3);margin:3px 0 0}
+      .swsi-public-info-close{margin-left:auto;flex:0 0 auto;width:44px;height:44px;border:0;border-radius:50%;background:var(--fill);color:var(--ink-soft);font-size:19px;cursor:pointer}
+      .swsi-public-info-body{font-size:17px;line-height:1.8;color:var(--ink)}
+      .swsi-public-info-body h3{font-family:var(--swsi-font);color:var(--ink);font-size:19px;margin:17px 0 5px}
       .swsi-public-info-body h3:first-child{margin-top:0}
       .swsi-public-info-body p{margin:0 0 10px}
       .swsi-public-info-body ul{margin:5px 0 11px 20px;padding:0}
       .swsi-public-info-body li{margin:3px 0}
-      .swsi-public-info-note{background:#F3F7F5;border-left:3px solid #91A9A0;border-radius:0 10px 10px 0;padding:10px 11px;margin:10px 0;color:#5D6762}
+      .swsi-public-info-note{background:var(--paper);border-left:3px solid var(--brand);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0;color:var(--ink-soft)}
       .swsi-public-info-nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px;margin:0 0 14px}
-      .swsi-public-info-nav button{border:1px solid var(--line);background:#fff;color:#6E746E;border-radius:9px;min-height:36px;font:700 11px/1.3 'Noto Sans TC',sans-serif;cursor:pointer;padding:6px 3px}
-      .swsi-public-info-nav button.on{background:var(--pine);border-color:var(--pine);color:#fff}
+      .swsi-public-info-nav button{border:0;background:var(--fill);color:var(--ink-soft);border-radius:999px;min-height:44px;font:500 15px/1.3 var(--swsi-font);cursor:pointer;padding:6px 3px}
+      .swsi-public-info-nav button.on{background:var(--brand);color:#fff}
       .swsi-monitor-summary{border:1px solid #D7E0DB;border-radius:14px;padding:12px 13px;background:#F7FAF8;margin-bottom:12px}
       .swsi-monitor-summary strong{display:block;font-size:15px;color:var(--pine-deep);margin-bottom:3px}
       .swsi-monitor-grid{display:grid;gap:8px;margin:10px 0 12px}
@@ -3590,18 +4181,15 @@ html[data-fs="2"]{
     var box=document.createElement('div');
     box.className='swsi-public-footer-brand';
     box.innerHTML=`
-      <strong>SWSI — Social Work Study Initiative</strong><br>
-      社工師國考免費學習平台<br>
-      免費公開學習工具 · AI 協作開發
+      <strong>SWSI 社工師國考</strong>
+      <div class="swsi-public-footer-tagline">免費學習平台 · 讓每一次練習，都更接近上榜</div>
       <div class="swsi-public-footer-links" aria-label="SWSI 公開資訊">
-        <button type="button" data-swsi-public-info="about">關於 SWSI</button>
+        <button type="button" data-swsi-public-info="about">關於</button>
         <button type="button" data-swsi-public-info="sources">資料來源</button>
-        <button type="button" data-swsi-public-info="monitor">監測</button>
         <button type="button" data-swsi-public-info="privacy">隱私</button>
         <button type="button" data-swsi-public-info="terms">使用條款</button>
       </div>
-      <div style="margin-top:3px">© 2026 SWSI · 免費公開學習工具</div>
-      <div>正式考題以考選部官方資料為準；AI 回饋僅供練習參考</div>
+      <div class="swsi-public-footer-legal">© 2026 SWSI · 正式考題以考選部為準，AI 回饋供參考</div>
     `;
     while(f.firstChild)f.removeChild(f.firstChild);
     f.appendChild(box);
@@ -3862,6 +4450,9 @@ html[data-fs="2"]{
 
   function currentContext(){
     var c={context_type:'general',context_id:null,context_title:'網站整體',source_kind:'swsi',subject:null,exam_year:null,exam_round:null,question_no:null};
+    // The learning hub is a general-purpose page. A previously selected essay,
+    // theory or law may still exist in router state after navigation.
+    if(document.querySelector('#app .swsi-myhub'))return c;
     try{
       var item=(typeof queue!=='undefined'&&Array.isArray(queue)&&typeof idx!=='undefined')?queue[idx]:null;
       if(item&&document.querySelector('#app .qcard')){
@@ -3991,7 +4582,7 @@ html[data-fs="2"]{
   function makeMini(cls){var b=document.createElement('button');b.type='button';b.className=cls||'swsi-report-mini';b.textContent='⚑ 回報問題';b.setAttribute('aria-label','回報目前內容的問題');b.onclick=function(){window.swsiOpenReport(b);};return b;}
 
   function ensureFooter(){
-    var f=document.querySelector('footer');if(!f||f.querySelector('.swsi-report-footer-btn'))return;
+    var f=document.querySelector('footer');if(!f||f.querySelector('.swsi-public-footer-brand')||f.querySelector('.swsi-report-footer-btn'))return;
     var b=makeMini('swsi-report-footer-btn');b.textContent='回報問題／提供建議';b.setAttribute('aria-label','回報網站問題或提供建議');f.appendChild(b);
   }
 
@@ -4189,10 +4780,7 @@ html[data-fs="2"]{
     dialog.dataset.swsiCompact='2';
   }
 
-  function forceGeneralFooter(btn){
-    if(!btn || btn.dataset.swsiGeneralBound==='1')return;
-    btn.dataset.swsiGeneralBound='1';
-    btn.onclick=function(){
+  function openGeneralReport(btn){
       var qcards=Array.from(document.querySelectorAll('#app .qcard'));
       var saved=[];
       for(var i=0;i<qcards.length;i++){
@@ -4212,7 +4800,12 @@ html[data-fs="2"]{
         try{if(hasTheory)theoryOpen=saveTheory;}catch(_e){}
         try{if(hasLaw)lawOpen=saveLaw;}catch(_e){}
       }
-    };
+  }
+  if(window.SWSI_FEEDBACK)window.SWSI_FEEDBACK.openGeneral=openGeneralReport;
+  function forceGeneralFooter(btn){
+    if(!btn || btn.dataset.swsiGeneralBound==='1')return;
+    btn.dataset.swsiGeneralBound='1';
+    btn.onclick=function(){openGeneralReport(btn);};
   }
 
   function scan(root){
@@ -4386,8 +4979,9 @@ html[data-fs="2"]{
 (function(){
   'use strict';
   var PRODUCTION_ORIGIN='https://wandering-wave-4418.c022050333.workers.dev';
+  var BACKUP_ORIGIN='https://swsi-quiznetlify.netlify.app';
   var ENDPOINT='https://yumjtrdctaxyczpspuyo.supabase.co/functions/v1/swsi-usage';
-  if(location.origin!==PRODUCTION_ORIGIN)return;
+  if(location.origin!==PRODUCTION_ORIGIN&&location.origin!==BACKUP_ORIGIN)return;
 
   function recordPageView(){
     try{
@@ -4812,6 +5406,11 @@ html[data-fs="2"]{
       .swsi-core-reason{margin:0 0 13px;padding:10px 11px;border-left:3px solid var(--pine);background:#F8FAF9;border-radius:0 10px 10px 0;font-family:'Noto Sans TC',sans-serif;color:#343C38;line-height:1.7;}
       .swsi-core-reason b{display:block;font-size:10.5px;letter-spacing:.04em;color:var(--pine);margin-bottom:2px;}
       .swsi-core-reason span{display:block;font-size:13px;font-weight:650;}
+      .swsi-law-update-notice{margin:2px 0 10px;padding:10px 12px;border:1px solid #DDE5DF;border-radius:10px;background:#FBFCFA;font-family:'Noto Sans TC',sans-serif;}
+      .swsi-law-update-title{font-size:12px;line-height:1.5;font-weight:800;color:var(--ink);}
+      .swsi-law-update-notice p{margin:4px 0 6px;font-size:12px;line-height:1.65;color:var(--ink-soft);overflow-wrap:anywhere;}
+      .swsi-law-update-foot{font-size:11px;line-height:1.6;color:var(--ink-soft);}
+      .swsi-law-update-notice a{display:inline-block;margin-top:7px;border-bottom:1px solid currentColor;font-size:11.5px;font-weight:700;color:var(--pine-deep);text-decoration:none;}
       .swsi-answer-trust{margin:0 0 10px;border:1px solid #E1E7E3;border-radius:10px;background:#FCFDFC;font-family:'Noto Sans TC',sans-serif;overflow:hidden;}
       .swsi-answer-trust summary{list-style:none;cursor:pointer;min-height:38px;padding:7px 9px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--ink-soft);font-size:11px;font-weight:700;}
       .swsi-answer-trust summary::-webkit-details-marker{display:none;}
@@ -4831,12 +5430,16 @@ html[data-fs="2"]{
       .swsi-explanation-more[open] summary:after{content:'－';}
       .swsi-explanation-more .body{border-top:1px solid var(--line);padding:13px 11px 2px;}
       .swsi-explanation-more .body .exp-sec:last-child,.swsi-explanation-more .body .extra:last-child{margin-bottom:10px;}
+      /* Expanded notes replace the short reason to avoid showing the same text twice. */
+      .exp:has(.swsi-explanation-more[open])>.swsi-core-reason{display:none;}
+      .swsi-trust-status{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+      .swsi-answer-trust summary>.swsi-trust-origin{font-size:11px;color:#4F6A61;font-weight:700}
 
       .tabbar .ico.swsi-nav-ico{width:21px;height:21px;display:grid;place-items:center;font-size:0;line-height:1;}
       .tabbar .ico.swsi-nav-ico svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
       .tabbar .swsi-nav-label{font-family:'Noto Sans TC',sans-serif;line-height:1.1;}
 
-      .swsi-data-version{margin:10px 4px 0;border-top:1px solid rgba(220,228,223,.85);padding-top:7px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-small,11.5px);line-height:1.6;}
+      .swsi-data-version{margin:10px 4px 0;border-top:1px solid rgba(220,228,223,.85);padding-top:7px;font-family:var(--swsi-font);font-size:var(--swsi-ui-small,15px);line-height:1.6;}
       .swsi-data-version summary{cursor:pointer;list-style:none;min-height:36px;display:flex;align-items:center;justify-content:center;text-align:center;color:#636B67;font-weight:700;}
       .swsi-data-version summary::-webkit-details-marker{display:none;}
       .swsi-data-version summary:after{content:'＋';margin-left:6px;color:var(--ink-3);}
@@ -4844,16 +5447,14 @@ html[data-fs="2"]{
       .swsi-data-version .body{text-align:center;padding:2px 8px 5px;color:#69716D;}
 
       footer.swsi-footer-clean{padding-top:10px!important;line-height:1.65!important;}
-      footer.swsi-footer-clean .sub{font-family:'Noto Sans TC',sans-serif;font-size:11px;color:#737A76;margin-top:2px;}
+      footer.swsi-footer-clean .sub{font-family:var(--swsi-font);font-size:14px;color:var(--ink-3);margin-top:2px;}
       @media(max-width:370px){.swsi-essay-action-card .actions{grid-template-columns:1fr;}}
     `;
     document.head.appendChild(style);
   }
 
   function icon(kind){
-    if(kind==='home') return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20H7v-7h10v7"></path><path d="M9 20v-7h6"></path></svg></span>';
-    if(kind==='review') return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5"></path><path d="M19 12a7.5 7.5 0 1 1-2.2-5.3L20 9"></path></svg></span>';
-    return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 19 3.8-.8L19 8a2.1 2.1 0 0 0-3-3L5.8 15.2 5 19Z"></path><path d="m14.8 6.2 3 3"></path><path d="M4 21h16"></path></svg></span>';
+    return '<span class="ico">'+swsiIcon(kind==='home'?'home':kind==='review'?'mine':'essay')+'</span>';
   }
 
   function setNavButton(id,kind,label,route){
@@ -4885,9 +5486,19 @@ html[data-fs="2"]{
   };
 
   function polishNav(){
-    setNavButton('t-home','home','練題',"go('home')");
-    setNavButton('t-review','review','學習',"swsiOpenLearningCenter()");
+    setNavButton('t-home','home','首頁',"go('home')");
+    setNavButton('swsi-v4-tab-quiz','quiz','刷題',"swsiStartNow()");
+    setNavButton('t-review','review','我的',"return swsiOpenLearningCenter(event)");
     setNavButton('t-essay','essay','申論',"go('essay')");
+    // Older renderHome/relabelTabs appends the three legacy tabs and disturbs
+    // DOM order. Reconcile in this existing final owner (no separate observer).
+    var bar=document.getElementById('tabbar');
+    if(bar){
+      ['t-home','swsi-v4-tab-quiz','t-essay','t-review','t-topics','t-progress'].forEach(function(id,i){
+        var item=document.getElementById(id);
+        if(item&&bar.children[i]!==item)bar.insertBefore(item,bar.children[i]||null);
+      });
+    }
   }
 
   /* Essay navigation is owned by zzz_fix_essay_navigation.part. */
@@ -5004,17 +5615,65 @@ html[data-fs="2"]{
     var a=document.createElement('a');a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.textContent=label+' ↗';links.appendChild(a);
   }
 
+
+  // Watcher-detected amendments do not equal reviewed legal content.
+  function currentOfficialLawHref(value){
+    var href=safeTrustHref(value);
+    if(!href)return '';
+    try{
+      var url=new URL(href),pcode=url.searchParams.get('pcode')||'';
+      return url.hostname==='law.moj.gov.tw'&&/^\/LawClass\/LawAll\.aspx$/i.test(url.pathname)&&/^[A-Za-z]\d{7}$/.test(pcode)?url.href:'';
+    }catch(_e){return '';}
+  }
+
+  function addLawUpdateNotice(exp,item){
+    if(!item||directChild(exp,'.swsi-law-update-notice'))return;
+    var status=String(item.legal_status||'').toLowerCase();
+    var raw=String(item.legal_note||'').replace(/\s+/g,' ').trim();
+    var officialHref=currentOfficialLawHref(item.legal_source_url);
+    // Explicit verified summary marker is never emitted by automatic legal monitoring.
+    var marker='【修法摘要已核對】';
+    var reviewed=status==='verified_current'&&raw.indexOf(marker)===0&&!!String(item.legal_checked_at||'').trim()&&!!officialHref;
+    if(status!=='changed'&&!reviewed)return;
+    var note=reviewed?raw.slice(marker.length).trim():raw;
+    var notice=document.createElement('section');
+    notice.className='swsi-law-update-notice';
+    notice.setAttribute('aria-label','法規更新提醒');
+    var title=document.createElement('div');title.className='swsi-law-update-title';
+    title.textContent=reviewed?'現行法更新重點・已核對':'法規更新提醒・待核對';
+    notice.appendChild(title);
+    var short=document.createElement('p');
+    short.textContent=note?(note.length>100?note.slice(0,100)+'…':note):'相關法規可能已有修正，尚待確認是否影響本題。';
+    notice.appendChild(short);
+    var foot=document.createElement('div');foot.className='swsi-law-update-foot';
+    foot.textContent=reviewed?'保留原考試答案；此摘要由 SWSI 核對，非考選部官方解析。':'保留原考試答案；偵測到修法不代表本題答案已改變。';
+    notice.appendChild(foot);
+    if(officialHref){
+      var link=document.createElement('a');
+      link.href=officialHref;link.target='_blank';link.rel='noopener noreferrer';
+      link.textContent='查看官方現行法規 ↗';
+      notice.appendChild(link);
+    }
+    var trust=directChild(exp,'.swsi-answer-trust');
+    if(trust)exp.insertBefore(notice,trust);else exp.appendChild(notice);
+  }
+
   function addQuestionTrust(exp,item){
     if(!item||directChild(exp,'.swsi-answer-trust'))return;
     var origin=questionOrigin(item),official=origin==='official',analysis=analysisTrust(item),legal=legalTrust(item);
     var panel=document.createElement('details');panel.className='swsi-answer-trust';
     var summary=document.createElement('summary');summary.appendChild(document.createTextNode('題目來源與解析'));
-    function chip(text,warn){var s=document.createElement('span');s.className='swsi-trust-chip'+(warn?' warn':'');s.textContent=text;summary.appendChild(s);}
-    chip(official?'考選部歷屆試題':origin==='practice'?'平台自製練習題':'題目來源待確認',false);
-    chip(analysis.label,analysis.warn);
-    if(legal)chip(legal.label,legal.warn);
+    var originName=official?'考選部歷屆試題':origin==='practice'?'平台自製練習題':'題目來源待確認';
+    var originTag=document.createElement('span');originTag.className='swsi-trust-origin';originTag.textContent=originName;summary.appendChild(originTag);
+    function chip(place,text,warn){var s=document.createElement('span');s.className='swsi-trust-chip'+(warn?' warn':'');s.textContent=text;place.appendChild(s);}
+    if(analysis.warn)chip(summary,analysis.label,true);
+    if(legal&&legal.warn)chip(summary,legal.label,true);
     panel.appendChild(summary);
     var body=document.createElement('div');body.className='swsi-trust-body';
+    var status=document.createElement('div');status.className='swsi-trust-status';
+    chip(status,analysis.label,analysis.warn);
+    if(legal)chip(status,legal.label,legal.warn);
+    body.appendChild(status);
     var p1=document.createElement('p');p1.textContent=official?'本題為考選部歷屆試題；題目、選項、官方答案與特殊給分以考選部資料為準。SWSI 另外整理解析與延伸內容，並非考選部官方解析。':origin==='practice'?'本題是 SWSI 平台自製練習題，並非考選部歷屆試題；題目與解析由平台整理。':'題目來源資料目前未能完整確認，請重新載入或查看原始題庫；不能據此認定這是非官方題目。';body.appendChild(p1);
     var p2=document.createElement('p');p2.textContent=analysis.detail;body.appendChild(p2);
     if(legal){var p3=document.createElement('p');p3.textContent=legal.detail+(item.legal_checked_at?' 核對時間：'+String(item.legal_checked_at).slice(0,10)+'。':'');body.appendChild(p3);}
@@ -5023,6 +5682,7 @@ html[data-fs="2"]{
     panel.appendChild(body);
     var more=directChild(exp,'.swsi-explanation-more'),next=directChild(exp,'.btn');
     if(more)exp.insertBefore(panel,more);else if(next)exp.insertBefore(panel,next);else exp.appendChild(panel);
+    addLawUpdateNotice(exp,item);
   }
 
   function collapseExplanation(){
@@ -5102,6 +5762,7 @@ html[data-fs="2"]{
     cleanFooter();
     enhanceHome();
     collapseExplanation();
+    try{document.dispatchEvent(new Event('swsi:learning-surface-ready'));}catch(_e){}
   }
 
   enhance();
@@ -5216,7 +5877,7 @@ html[data-fs="2"]{
     var learning=document.getElementById('t-review');
     if(learning){
       if(learning.getAttribute('onclick')!==route)learning.setAttribute('onclick',route);
-      if(learning.getAttribute('aria-label')!=='學習中心')learning.setAttribute('aria-label','學習中心');
+      if(learning.getAttribute('aria-label')!=='我的')learning.setAttribute('aria-label','我的');
     }
 
     /* Home also exposes a Learning Center card. Keep it on the same direct local
@@ -5679,6 +6340,15 @@ html[data-fs="2"]{
   function gradeMode(q){return typeof window.gradingMode==='function'?window.gradingMode(q):'invalid';}
   function correct(q,picked){return typeof window.isCorrectAnswer==='function'?window.isCorrectAnswer(q,picked):false;}
   function label(q){return typeof window.answerLabel==='function'?window.answerLabel(q):('正確答案：'+E(q&&q.answer||''));}
+  // Image-dependent questions must fail closed when image helpers are unavailable.
+  function figureReady(q){return typeof window.swsiOfficialFigureReady==='function'
+    ?window.swsiOfficialFigureReady(q)
+    :!(q&&(q.id==='DS-113-2-13'||q.id==='R-114-2-12'));}
+  function sourceHeld(q){return typeof window.swsiSourceHeld==='function'&&window.swsiSourceHeld(q);}
+  function figureMarkup(q){return typeof window.swsiOfficialFigureMarkup==='function'
+    ?window.swsiOfficialFigureMarkup(q):'';}
+  function figureStem(q){if(sourceHeld(q))return '題目文字待官方原卷覆核，暫停作答';return typeof window.swsiOfficialFigureQuestion==='function'
+    ?window.swsiOfficialFigureQuestion(q):figureReady(q)?String(q&&q.q||''):'官方原圖不可用，暫停作答';}
 
   async function prepareLegacyStyle(){
     if(legacyStyleReady)return;
@@ -5690,7 +6360,7 @@ html[data-fs="2"]{
     }catch(_e){}
     if(!document.getElementById('mk-style')){
       var st=document.createElement('style');st.id='mk-style';
-      st.textContent='.mk-ov{position:fixed;inset:0;z-index:9999;background:#F7F9F7;overflow-y:auto;font-family:inherit;color:var(--ink,#2A2C2A)}.mk-wrap{max-width:720px;margin:0 auto;padding:18px 18px 84px}.mk-top{position:sticky;top:0;background:rgba(247,249,247,.96);padding:11px 0 13px;border-bottom:1px solid #DDE5E0;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:5}.mk-timer{font-size:20px;font-weight:800;color:var(--pine-deep,#355A52);font-variant-numeric:tabular-nums}.mk-timer.warn{color:var(--wrong,#9E6155)}.mk-prog,.mk-sub{font-size:var(--fs-b);color:#626D67;line-height:1.65}.mk-x{background:none;border:none;font-size:21px;cursor:pointer;color:var(--ink-soft,#757A75);padding:8px}.mk-btn{font-family:inherit;border:none;border-radius:11px;padding:13px 18px;font-size:var(--fs-h);font-weight:750;cursor:pointer;box-shadow:none}.mk-btn.go{background:var(--pine-deep,#355A52);color:#fff}.mk-btn.ghost{background:transparent;border:1px solid #CCD8D2;color:var(--pine-deep,#355A52)}.mk-btn:disabled{opacity:.4}.mk-h1{font-family:\'Noto Serif TC\',serif;font-size:26px;line-height:1.35;font-weight:900;margin:24px 0 7px;color:#202724}.mk-lab{font-size:var(--fs-b);font-weight:800;color:#4F5B55;margin:22px 0 9px}.mk-sel{width:100%;font-family:inherit;font-size:var(--fs-h);padding:13px 14px;border:1px solid #D6E0DB;border-radius:11px;background:#fff;color:var(--ink,#2A2C2A)}.mk-row{display:flex;gap:9px;flex-wrap:wrap}.mk-pill{flex:1;min-width:90px;text-align:center;background:#fff;border:1px solid #DDE5E1;border-radius:11px;padding:15px 10px;cursor:pointer;box-shadow:none}.mk-pill:hover{border-color:#BFCFC8;background:#FBFCFB}.mk-pill .b{font-size:var(--fs-q);font-weight:800;color:var(--pine-deep,#355A52);display:block}.mk-pill .s{font-size:var(--fs-s);color:#66716B;line-height:1.5}.mk-toggle{display:inline-flex;border:1px solid #D4DED9;border-radius:999px;padding:9px 15px;background:#fff;cursor:pointer;color:#4D5A54}.mk-qcard{background:transparent;border:0;border-radius:0;padding:15px 2px 22px;margin-top:16px}.mk-qmeta{font-size:var(--fs-s);font-weight:650;color:#66716B;margin-bottom:14px}.mk-q{font-family:\'Noto Serif TC\',serif;font-size:var(--fs-q);line-height:1.9;font-weight:650;margin-bottom:24px;color:#202522}.mk-opt{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #DFE6E2;border-radius:12px;padding:15px 14px;margin-bottom:9px;cursor:pointer;line-height:1.68}.mk-opt:hover{border-color:#BACAC3;background:#FBFCFB}.mk-opt.sel{border-color:#7FA398;background:#F4F8F6}.mk-nav{display:flex;gap:10px;margin-top:15px}.mk-nav .mk-btn{flex:1}.mk-pal{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin-top:20px;padding-top:18px;border-top:1px solid #E1E7E3}.mk-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid #DCE4DF;border-radius:8px;background:#fff;cursor:pointer;font-size:var(--fs-s)}.mk-cell.done{background:var(--pine-deep,#355A52);border-color:var(--pine-deep,#355A52);color:#fff}.mk-cell.cur{outline:2px solid var(--pine,#4F7E76);outline-offset:1px}.mk-score{text-align:center;background:transparent;border:0;border-bottom:1px solid #E1E7E3;border-radius:0;padding:26px 2px 24px;margin-top:8px}.mk-score .big{font-size:46px;font-weight:850;color:#202724}.mk-score .pct{font-size:var(--fs-h);color:#626D67;line-height:1.7}.mk-bar{height:5px;border-radius:3px;background:#E2E8E4;overflow:hidden;margin-top:6px}.mk-bar i{display:block;height:100%;background:var(--pine,#4F7E76)}.mk-rev{background:transparent;border:0;border-bottom:1px solid #E3E8E5;border-radius:0;padding:15px 2px 17px;margin:0}.mk-rev .rq{font-size:var(--fs-b);font-weight:650;line-height:1.7}.mk-rev .ln{font-size:var(--fs-b);line-height:1.75;margin:5px 0;color:#39413D}.mk-tag{display:inline-block;font-size:var(--fs-s);padding:3px 7px;border-radius:6px;margin-right:6px}.mk-tag.w{background:var(--wrong-bg,#F3EBE7);color:var(--wrong,#9E6155)}.mk-tag.n{background:#F0F3F1;color:#59645E}@media(max-width:420px){.mk-wrap{padding:14px 14px 76px}.mk-top{gap:7px}.mk-prog{font-size:var(--fs-s)}.mk-qcard{padding-left:0;padding-right:0}.mk-pal{grid-template-columns:repeat(6,1fr)}.mk-row{gap:8px}}';
+      st.textContent='.mk-ov{position:fixed;inset:0;z-index:9999;background:var(--paper);overflow-y:auto;font-family:inherit;color:var(--ink,#2A2C2A)}.mk-wrap{max-width:720px;margin:0 auto;padding:18px 18px 84px}.mk-top{position:sticky;top:0;background:var(--glass);padding:11px 0 13px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:5}.mk-timer{font-size:20px;font-weight:800;color:var(--pine-deep,#355A52);font-variant-numeric:tabular-nums}.mk-timer.warn{color:var(--wrong,#9E6155)}.mk-prog,.mk-sub{font-size:var(--fs-b);color:var(--ink-3);line-height:1.65}.mk-x{background:none;border:none;font-size:21px;cursor:pointer;color:var(--ink-soft,#757A75);padding:8px}.mk-btn{font-family:inherit;border:none;border-radius:11px;padding:13px 18px;font-size:var(--fs-h);font-weight:750;cursor:pointer;box-shadow:none}.mk-btn.go{background:var(--pine-deep,#355A52);color:#fff}.mk-btn.ghost{background:transparent;border:1px solid var(--line);color:var(--pine-deep,#355A52)}.mk-btn:disabled{opacity:.4}.mk-h1{font-family:var(--swsi-font);font-size:30px;line-height:1.25;font-weight:700;margin:24px 0 7px;color:var(--ink)}.mk-lab{font-size:var(--fs-b);font-weight:800;color:var(--ink-soft);margin:22px 0 9px}.mk-sel{width:100%;font-family:inherit;font-size:var(--fs-h);padding:13px 14px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink,#2A2C2A)}.mk-row{display:flex;gap:9px;flex-wrap:wrap}.mk-pill{flex:1;min-width:90px;text-align:center;background:#fff;border:1px solid var(--line);border-radius:11px;padding:15px 10px;cursor:pointer;box-shadow:none}.mk-pill:hover{border-color:var(--line-2);background:#FBFAF7}.mk-pill .b{font-size:var(--fs-q);font-weight:800;color:var(--pine-deep,#355A52);display:block}.mk-pill .s{font-size:var(--fs-s);color:var(--ink-3);line-height:1.5}.mk-toggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:9px 15px;background:#fff;cursor:pointer;color:var(--ink-soft)}.mk-qcard{background:transparent;border:0;border-radius:0;padding:15px 2px 22px;margin-top:16px}.mk-qmeta{font-size:var(--fs-s);font-weight:650;color:var(--ink-3);margin-bottom:14px}.mk-q{font-family:var(--swsi-font);font-size:var(--fs-q);line-height:1.9;font-weight:650;margin-bottom:24px;color:var(--ink)}.mk-opt{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 14px;margin-bottom:9px;cursor:pointer;line-height:1.68}.mk-opt:hover{border-color:var(--line-2);background:#FBFAF7}.mk-opt.sel{border-color:var(--brand);background:var(--brand-soft)}.mk-nav{display:flex;gap:10px;margin-top:15px}.mk-nav .mk-btn{flex:1}.mk-pal{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}.mk-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-size:var(--fs-s)}.mk-cell.done{background:var(--pine-deep,#355A52);border-color:var(--pine-deep,#355A52);color:#fff}.mk-cell.cur{outline:2px solid var(--pine,#4F7E76);outline-offset:1px}.mk-score{text-align:center;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:26px 2px 24px;margin-top:8px}.mk-score .big{font-size:46px;font-weight:850;color:var(--ink)}.mk-score .pct{font-size:var(--fs-h);color:var(--ink-3);line-height:1.7}.mk-bar{height:5px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:6px}.mk-bar i{display:block;height:100%;background:var(--pine,#4F7E76)}.mk-rev{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:15px 2px 17px;margin:0}.mk-rev .rq{font-size:var(--fs-b);font-weight:650;line-height:1.7}.mk-rev .ln{font-size:var(--fs-b);line-height:1.75;margin:5px 0;color:var(--ink-soft)}.mk-tag{display:inline-block;font-size:var(--fs-s);padding:3px 7px;border-radius:6px;margin-right:6px}.mk-tag.w{background:var(--wrong-bg,#F3EBE7);color:var(--wrong,#9E6155)}.mk-tag.n{background:var(--fill);color:var(--ink-3)}@media(max-width:420px){.mk-wrap{padding:14px 14px 76px}.mk-top{gap:7px}.mk-prog{font-size:var(--fs-s)}.mk-qcard{padding-left:0;padding-right:0}.mk-pal{grid-template-columns:repeat(6,1fr)}.mk-row{gap:8px}}';
       document.head.appendChild(st);
     }
   }
@@ -5719,7 +6389,7 @@ html[data-fs="2"]{
   function setup(){
     if(timer){clearInterval(timer);timer=null;}running=false;
     var opts=['全部科目'].concat(subs()).map(function(s){return '<option '+(s===scope?'selected':'')+'>'+E(s)+'</option>';}).join('');
-    var modeRow='<div class="mk-row"><div class="mk-pill" style="'+(mode==='random'?'border-color:var(--pine);background:var(--correct-bg)':'')+'" onclick="MK.setMode(\'random\')"><span class="b" style="font-size:var(--fs-h)">🎲 隨機抽題</span><span class="s">從可判分題庫隨機出</span></div><div class="mk-pill" style="'+(mode==='exam'?'border-color:var(--pine);background:var(--correct-bg)':'')+'" onclick="MK.setMode(\'exam\')"><span class="b" style="font-size:var(--fs-h)">📅 指定歷屆</span><span class="s">寫某年整卷</span></div></div>';
+    var modeRow='<div class="mk-row"><div class="mk-pill" style="'+(mode==='random'?'border-color:var(--brand);background:var(--brand-soft)':'')+'" onclick="MK.setMode(\'random\')"><span class="b" style="font-size:var(--fs-h)">隨機抽題</span><span class="s">從可判分題庫隨機出</span></div><div class="mk-pill" style="'+(mode==='exam'?'border-color:var(--brand);background:var(--brand-soft)':'')+'" onclick="MK.setMode(\'exam\')"><span class="b" style="font-size:var(--fs-h)">指定歷屆</span><span class="s">寫某年整卷</span></div></div>';
     var bottom='';
     if(mode==='exam'){
       var ps=papers();if((!exYear||!ps.some(function(p){return p.year===exYear&&p.round===exRound;}))&&ps.length){exYear=ps[0].year;exRound=ps[0].round;}
@@ -5729,14 +6399,14 @@ html[data-fs="2"]{
     }else{
       bottom='<div class="mk-lab">選擇題數</div><div class="mk-row"><div class="mk-pill" onclick="MK.begin(20)"><span class="b">20</span><span class="s">題</span></div><div class="mk-pill" onclick="MK.begin(40)"><span class="b">40</span><span class="s">題</span></div><div class="mk-pill" onclick="MK.begin(80)"><span class="b">80</span><span class="s">題</span></div></div>';
     }
-    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">📝 計時模擬考</div><button class="mk-x" onclick="MK.close()">✕</button></div><div class="mk-h1">設定這場模擬考</div><div class="mk-sub">所有模式都使用與一般刷題相同的官方 grading contract；特殊給分資料不完整時不猜答案。</div><div class="mk-lab">考試範圍</div><select class="mk-sel" onchange="MK.setScope(this.value)">'+opts+'</select><div class="mk-lab">出題方式</div>'+modeRow+'<div class="mk-lab">時間模式</div><div class="mk-toggle" onclick="MK.toggleTimed()"><span id="mk-tg">'+(limited?'⏱ 倒數計時':'∞ 不限時')+'</span></div>'+bottom+'</div>';
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">計時模擬考</div><button class="mk-x" onclick="MK.close()">✕</button></div><div class="mk-h1">設定這場模擬考</div><div class="mk-sub">所有模式都依考選部公布的答案計分，和平常刷題一樣。</div><div class="mk-lab">考試範圍</div><select class="mk-sel" onchange="MK.setScope(this.value)">'+opts+'</select><div class="mk-lab">出題方式</div>'+modeRow+'<div class="mk-lab">時間模式</div><div class="mk-toggle" onclick="MK.toggleTimed()"><span id="mk-tg">'+(limited?'倒數計時':'不限時')+'</span></div>'+bottom+'</div>';
   }
 
   function run(){
     var q=Q[idx],letters=['A','B','C','D'];
-    var options=letters.map(function(L){var t=q.options&&q.options[L];if(t==null||t==='')return '';return '<div class="mk-opt'+(ans[idx]===L?' sel':'')+'" id="mk-opt-'+L+'" onclick="MK.pick(\''+L+'\')"><span class="lab">('+L+')</span><span>'+E(t)+'</span></div>';}).join('');
+    var options=figureReady(q)?letters.map(function(L){var t=q.options&&q.options[L];if(t==null||t==='')return '';return '<div class="mk-opt'+(ans[idx]===L?' sel':'')+'" id="mk-opt-'+L+'" onclick="MK.pick(\''+L+'\')"><span class="lab">('+L+')</span><span>'+E(t)+'</span></div>';}).join(''):'<div class="mk-sub" role="status">'+(sourceHeld(q)?'題目文字待官方原卷覆核，本題不可作答且不計分。':'原圖未載入，這題不可作答；缺圖時交卷不計分。')+'</div>';
     var pal=Q.map(function(_,i){return '<div class="mk-cell'+(ans[i]!=null?' done':'')+(i===idx?' cur':'')+'" onclick="MK.jump('+i+')">'+(i+1)+'</div>';}).join('');
-    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer'+(limited&&left<=60?' warn':'')+'" id="mk-timer">'+(limited?fmt(left):'∞')+'</div><div class="mk-prog">第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length+'</div><button class="mk-btn go" onclick="MK.submit()">交卷</button></div><div class="mk-qcard"><div class="mk-qmeta">'+E(q.subject||'')+'　'+E(q.year||'')+' '+E(q.round||'')+'</div><div class="mk-q">'+E(q.q||'').replace(/\n/g,'<br>')+'</div>'+options+'</div><div class="mk-nav"><button class="mk-btn ghost" onclick="MK.go(-1)" '+(idx===0?'disabled':'')+'>‹ 上一題</button><button class="mk-btn ghost" onclick="MK.go(1)" '+(idx===Q.length-1?'disabled':'')+'>下一題 ›</button></div><div class="mk-pal">'+pal+'</div><button class="mk-btn go" style="width:100%;margin-top:18px" onclick="MK.submit()">交卷看結果</button></div>';
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer'+(limited&&left<=60?' warn':'')+'" id="mk-timer">'+(limited?fmt(left):'∞')+'</div><div class="mk-prog">第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length+'</div><button class="mk-btn go" onclick="MK.submit()">交卷</button></div><div class="mk-qcard"><div class="mk-qmeta">'+E(q.subject||'')+'　'+E(q.year||'')+' '+E(q.round||'')+'</div><div class="mk-q">'+E(figureStem(q)).replace(/\n/g,'<br>')+'</div>'+figureMarkup(q)+options+'</div><div class="mk-nav"><button class="mk-btn ghost" onclick="MK.go(-1)" '+(idx===0?'disabled':'')+'>‹ 上一題</button><button class="mk-btn ghost" onclick="MK.go(1)" '+(idx===Q.length-1?'disabled':'')+'>下一題 ›</button></div><div class="mk-pal">'+pal+'</div><button class="mk-btn go" style="width:100%;margin-top:18px" onclick="MK.submit()">交卷看結果</button></div>';
     window.scrollTo(0,0);
   }
   function tick(){left--;var el=document.getElementById('mk-timer');if(el){el.textContent=fmt(left);if(left<=60)el.classList.add('warn');}if(left<=0){if(timer)clearInterval(timer);timer=null;grade(true);}}
@@ -5744,12 +6414,14 @@ html[data-fs="2"]{
   function evaluateMockAnswers(items,answers){
     var rows=Array.isArray(items)?items:[];
     var picks=answers&&typeof answers==='object'?answers:{};
-    var invalid=rows.filter(function(q){return gradeMode(q)==='invalid';});
+    var excluded=rows.filter(function(q){return !figureReady(q);}).length;
+    var invalid=rows.filter(function(q){return figureReady(q)&&gradeMode(q)==='invalid';});
     if(invalid.length){
       return {blocked:true,total:rows.length,correct:0,answered:0,bySubj:{},wrong:[],results:[],invalidIds:invalid.map(function(q){return q&&q.id||'';})};
     }
-    var out={blocked:false,total:rows.length,correct:0,answered:0,bySubj:{},wrong:[],results:[],invalidIds:[]};
+    var out={blocked:false,total:rows.length-excluded,excluded:excluded,correct:0,answered:0,bySubj:{},wrong:[],results:[],invalidIds:[]};
     rows.forEach(function(q,i){
+      if(!figureReady(q))return;
       var picked=picks[i]!=null?picks[i]:null;
       var gm=gradeMode(q),ok=correct(q,picked);
       if(picked!=null)out.answered++;
@@ -5789,9 +6461,9 @@ html[data-fs="2"]{
       if(exp.others)ex+='<div class="ln"><b>其他選項：</b>'+E(exp.others)+'</div>';
       if(exp.trap)ex+='<div class="ln"><b>考場陷阱：</b>'+E(exp.trap)+'</div>';
       var tag=p!=null?'<span class="mk-tag w">你選 '+E(p)+'</span>':'<span class="mk-tag n">未作答</span>';
-      return '<div class="mk-rev"><div class="rq">'+E(q.q||'').slice(0,140)+'</div><div class="ln">'+tag+'<span class="mk-tag n">'+E(w.dataError?'給分資料異常':label(q))+'</span></div>'+ex+'</div>';
+      return '<div class="mk-rev"><div class="rq">'+E(figureStem(q)).slice(0,140)+'</div><div class="ln">'+tag+'<span class="mk-tag n">'+E(w.dataError?'給分資料異常':label(q))+'</span></div>'+ex+'</div>';
     }).join('');
-    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">模擬考結果</div><button class="mk-x" onclick="MK.close()">✕</button></div>'+(auto?'<div class="mk-sub" style="color:var(--wrong);margin-top:14px">⏰ 時間到，已自動交卷。</div>':'')+'<div class="mk-score"><div class="big">'+scored.correct+' / '+scored.total+'</div><div class="pct">答對率 '+pct+'%　·　實際作答 '+scored.answered+' 題　·　用時 '+fmt(used)+'</div></div><div class="mk-lab">各科表現（未作答也列入分母）</div>'+subjHtml+(revHtml?'<div class="mk-lab">錯題與未作答（'+scored.wrong.length+' 題）</div>'+revHtml:'<div class="mk-sub" style="margin-top:16px">🎉 全部計分正確！</div>')+'<div class="mk-nav"><button class="mk-btn ghost" onclick="MK.retry()">再考一次</button><button class="mk-btn go" onclick="MK.close()">完成</button></div></div>';
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">模擬考結果</div><button class="mk-x" onclick="MK.close()">✕</button></div>'+(auto?'<div class="mk-sub" style="color:var(--wrong);margin-top:14px">時間到，已自動交卷。</div>':'')+'<div class="mk-score"><div class="big">'+scored.correct+' / '+scored.total+'</div><div class="pct">答對率 '+pct+'%　·　實際作答 '+scored.answered+' 題　·　用時 '+fmt(used)+'</div></div>'+(scored.excluded?'<div class="mk-sub" role="status" style="margin-top:12px">'+scored.excluded+(Q.some(sourceHeld)?' 題待覆核或原圖未載入，已排除計分。':' 題原圖未載入，已排除計分。')+'</div>':'')+'<div class="mk-lab">各科表現（未作答也列入分母）</div>'+subjHtml+(revHtml?'<div class="mk-lab">錯題與未作答（'+scored.wrong.length+' 題）</div>'+revHtml:'<div class="mk-sub" style="margin-top:16px">全部計分正確！</div>')+'<div class="mk-nav"><button class="mk-btn ghost" onclick="MK.retry()">再考一次</button><button class="mk-btn go" onclick="MK.close()">完成</button></div></div>';
     window.scrollTo(0,0);
   }
 
@@ -5805,13 +6477,13 @@ html[data-fs="2"]{
     setScope:function(v){scope=v;if(mode==='exam')setup();},
     setMode:function(v){mode=v;setup();},
     setPaper:function(v){var p=String(v).split('|');exYear=p[0];exRound=p.slice(1).join('|');setup();},
-    toggleTimed:function(){limited=!limited;var el=document.getElementById('mk-tg');if(el)el.textContent=limited?'⏱ 倒數計時':'∞ 不限時';},
+    toggleTimed:function(){limited=!limited;var el=document.getElementById('mk-tg');if(el)el.textContent=limited?'倒數計時':'不限時';},
     begin:function(n){var pool=build(n);if(!pool.length){alert('這個範圍目前沒有可安全判分的題目。');return;}Q=pool;idx=0;ans={};running=true;t0=Date.now();left=Math.round(Q.length*1.2)*60;if(timer)clearInterval(timer);timer=limited?setInterval(tick,1000):null;run();},
     beginExam:function(){var raw=rawExam(),bad=raw.filter(function(q){return gradeMode(q)==='invalid';});if(!raw.length){alert('這份考卷目前沒有題目。');return;}if(bad.length){alert('這份考卷有 '+bad.length+' 題官方給分資料不完整。為避免算錯分，修正前暫不開放整卷模擬。');return;}Q=raw;idx=0;ans={};running=true;t0=Date.now();left=Math.round(Q.length*1.2)*60;if(timer)clearInterval(timer);timer=limited?setInterval(tick,1000):null;run();},
-    pick:function(L){ans[idx]=L;['A','B','C','D'].forEach(function(x){var el=document.getElementById('mk-opt-'+x);if(el)el.classList.toggle('sel',x===L);});var cells=ov.querySelectorAll('.mk-cell');if(cells[idx])cells[idx].classList.add('done');var pr=ov.querySelector('.mk-prog');if(pr)pr.textContent='第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length;},
+    pick:function(L){if(!figureReady(Q[idx]))return;ans[idx]=L;['A','B','C','D'].forEach(function(x){var el=document.getElementById('mk-opt-'+x);if(el)el.classList.toggle('sel',x===L);});var cells=ov.querySelectorAll('.mk-cell');if(cells[idx])cells[idx].classList.add('done');var pr=ov.querySelector('.mk-prog');if(pr)pr.textContent='第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length;},
     go:function(d){var n=idx+d;if(n<0||n>=Q.length)return;idx=n;run();},
     jump:function(i){if(i<0||i>=Q.length)return;idx=i;run();},
-    submit:function(){var un=Q.length-Object.keys(ans).length;if(un>0&&!confirm('還有 '+un+' 題未作答，確定交卷？未作答普通題會計為錯誤。'))return;grade(false);},
+    submit:function(){var un=Q.reduce(function(n,q,i){return n+(figureReady(q)&&ans[i]==null?1:0);},0);if(un>0&&!confirm('還有 '+un+' 題未作答，確定交卷？未作答普通題會計為錯誤。'))return;grade(false);},
     retry:function(){setup();}
   };
 })();
