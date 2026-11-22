@@ -485,7 +485,7 @@
       });
     }
     essays.slice(0,2).forEach(function(e){
-      addButton('✍ 相關申論：'+sn(e.topic||e.q||'申論題',34),function(){
+      addButton('相關申論：'+sn(e.topic||e.q||'申論題',34),function(){
         window.swsiOpenEssayEncoded(E(e.id),E(e.subject||'全部科目'));
       });
     });

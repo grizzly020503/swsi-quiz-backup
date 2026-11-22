@@ -49,8 +49,8 @@ html[data-fs="2"]{
   margin:0 0 9px!important;
   padding:5px 0!important;
   text-align:left!important;
-  color:#5F6964!important;
-  font-family:'Noto Sans TC',sans-serif!important;
+  color:var(--ink-3)!important;
+  font-family:var(--swsi-font)!important;
   font-weight:700!important;
   text-decoration:none;
 }
@@ -69,24 +69,24 @@ html[data-fs="2"]{
   border:0;
   border-radius:0;
   background:transparent!important;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-size:var(--fs-s);
   font-weight:700;
 }
 #app .ecard.open:has(.wbox) .emeta .tag.subj{color:var(--pine-deep);}
-#app .ecard.open:has(.wbox) .emeta .tag.year{color:#5F6964;}
+#app .ecard.open:has(.wbox) .emeta .tag.year{color:var(--ink-3);}
 #app .ecard.open:has(.wbox) .etopic{
-  font-family:'Noto Serif TC',serif;
+  font-family:var(--swsi-font);
   font-size:var(--fs-q);
   font-weight:800;
   line-height:1.72;
   letter-spacing:.005em;
-  color:#202522;
+  color:var(--ink);
 }
 #app .ecard.open:has(.wbox) .ehint{
   margin-top:8px;
-  font-family:'Noto Sans TC',sans-serif;
-  color:#5F6964!important;
+  font-family:var(--swsi-font);
+  color:var(--ink-3)!important;
   font-weight:500!important;
   line-height:1.65;
 }
@@ -94,18 +94,18 @@ html[data-fs="2"]{
 #app .ecard.open:has(.wbox) .ebody{
   margin-top:0;
   padding:18px 0 2px;
-  border-top:1px solid #E2E8E4;
-  font-family:'Noto Sans TC',sans-serif;
+  border-top:1px solid var(--line);
+  font-family:var(--swsi-font);
   font-size:var(--fs-b);
   line-height:1.88;
-  color:#323936;
+  color:var(--ink);
 }
 #app .ecard.open:has(.wbox) .dbtn{
   min-height:42px;
   margin-top:12px;
   padding:6px 0;
-  color:#486F68;
-  font-family:'Noto Sans TC',sans-serif;
+  color:var(--brand);
+  font-family:var(--swsi-font);
   font-weight:700;
   text-decoration:none;
 }
@@ -114,76 +114,76 @@ html[data-fs="2"]{
   padding:14px 0 4px;
   gap:9px;
   background:transparent;
-  border-top:1px solid #E5EAE7;
+  border-top:1px solid var(--line);
   border-radius:0;
 }
-#app .ecard.open:has(.wbox) .dstep{line-height:1.75;color:#343B37;}
-#app .ecard.open:has(.wbox) .dstep b{color:#486F68;}
+#app .ecard.open:has(.wbox) .dstep{line-height:1.75;color:var(--ink);}
+#app .ecard.open:has(.wbox) .dstep b{color:var(--brand);}
 #app .ecard.open:has(.wbox) .wbox{
   margin:22px 0 8px;
   padding-top:20px;
-  border-top:1px solid #E2E8E4;
+  border-top:1px solid var(--line);
 }
 #app .ecard.open:has(.wbox) .wlabel{
   margin-bottom:8px;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-size:var(--fs-b);
   font-weight:800;
-  color:#29312D;
+  color:var(--ink);
 }
 #app .ecard.open:has(.wbox) .fmtbar{gap:6px;margin-bottom:10px;}
 #app .ecard.open:has(.wbox) .fmtbar .fbtn{
   min-height:38px;
   padding:6px 10px;
-  border:1px solid #D6DEDA;
+  border:1px solid var(--line);
   border-radius:8px;
   background:#fff;
-  color:#486F68;
+  color:var(--brand);
   box-shadow:none;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-weight:750;
 }
-#app .ecard.open:has(.wbox) .fmtbar .fbtn:hover{border-color:#AFC2BA;background:#F8FAF9;}
+#app .ecard.open:has(.wbox) .fmtbar .fbtn:hover{border-color:var(--line-2);background:var(--paper2);}
 #app .ecard.open:has(.wbox) .wta{
   min-height:220px;
   padding:15px;
-  border:1px solid #D8E0DC;
+  border:1px solid var(--line);
   border-radius:10px;
   background:#fff;
   box-shadow:none;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   line-height:1.82;
 }
-#app .ecard.open:has(.wbox) .wta:focus{outline:none;border-color:#7FA398;box-shadow:0 0 0 2px rgba(79,126,118,.08);}
-#app .ecard.open:has(.wbox) .wmeta{margin-top:6px;color:#5F6964;font-family:'Noto Sans TC',sans-serif;}
+#app .ecard.open:has(.wbox) .wta:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 2px rgba(79,126,118,.08);}
+#app .ecard.open:has(.wbox) .wmeta{margin-top:6px;color:var(--ink-3);font-family:var(--swsi-font);}
 #app .ecard.open:has(.wbox) .gbtn{
   margin-top:14px;
   min-height:46px;
-  border:1px solid #C9D7D1;
+  border:1px solid var(--line-2);
   border-radius:10px;
   background:transparent;
   color:var(--pine-deep);
   box-shadow:none;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-weight:750;
 }
-#app .ecard.open:has(.wbox) .gbtn:hover{background:#F8FAF9;color:var(--pine-deep);border-color:#AFC2BA;}
+#app .ecard.open:has(.wbox) .gbtn:hover{background:var(--paper2);color:var(--pine-deep);border-color:var(--line-2);}
 #app .ecard.open:has(.wbox) .guide{margin-top:18px;gap:17px;}
 #app .ecard.open:has(.wbox) .glabel{
   padding:0;
   border-radius:0;
   background:transparent;
-  color:#486F68;
-  font-family:'Noto Sans TC',sans-serif;
+  color:var(--brand);
+  font-family:var(--swsi-font);
   font-weight:800;
 }
 #app .ecard.open:has(.wbox) .gtext,
-#app .ecard.open:has(.wbox) .glist li{color:#343B37;line-height:1.82;}
+#app .ecard.open:has(.wbox) .glist li{color:var(--ink);line-height:1.82;}
 
 #app .wbox{margin-bottom:6px;}
 #app .wlabel{margin-bottom:7px;}
 #app .swsi-fmt-help{
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-size:var(--fs-s);
   color:var(--ink-soft);
   line-height:1.5;
@@ -211,7 +211,7 @@ html[data-fs="2"]{
   margin:0 0 10px;
   border:1px solid var(--line);
   border-radius:10px;
-  background:#FBFCFB;
+  background:var(--paper2);
   overflow:hidden;
 }
 #app .swsi-ai-privacy summary{
@@ -222,7 +222,7 @@ html[data-fs="2"]{
   display:flex;
   align-items:center;
   gap:7px;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-size:var(--fs-s);
   font-weight:700;
   color:var(--ink-soft);
@@ -233,7 +233,7 @@ html[data-fs="2"]{
 #app .swsi-ai-privacy .swsi-ai-privacy-body{
   border-top:1px solid var(--line);
   padding:10px 12px 11px;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-size:var(--fs-s);
   line-height:1.7;
   color:var(--ink-soft);
@@ -246,7 +246,7 @@ html[data-fs="2"]{
   margin:0;
   padding:0;
   border:0;
-  border-bottom:1px solid #E2E8E4;
+  border-bottom:1px solid var(--line);
   border-radius:0;
   background:transparent;
   box-shadow:none;
@@ -265,17 +265,17 @@ html[data-fs="2"]{
 }
 #app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)) .ehint{
   margin-top:5px;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-size:15px;
   font-weight:600;
   line-height:1.55;
-  color:#6A746F;
+  color:var(--ink-3);
 }
 #app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .ehead{padding-bottom:12px;}
 #app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .ebodywrap{
   margin:0;
   padding:16px 2px 20px;
-  border-top:1px solid #E5EAE7;
+  border-top:1px solid var(--line);
   background:transparent;
 }
 #app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .kws{
@@ -287,10 +287,10 @@ html[data-fs="2"]{
 #app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .kw{
   margin:0;
   padding:3px 7px;
-  border:1px solid #D9E1DD;
+  border:1px solid var(--line);
   border-radius:999px;
   background:transparent;
-  color:#5B6761;
+  color:var(--ink-3);
   font-size:14px;
   font-weight:700;
 }
@@ -300,8 +300,8 @@ html[data-fs="2"]{
   padding:5px 0;
   border:0;
   background:transparent;
-  color:#55766F;
-  font-family:'Noto Sans TC',sans-serif;
+  color:var(--brand);
+  font-family:var(--swsi-font);
   font-weight:700;
   box-shadow:none;
 }
@@ -330,25 +330,25 @@ html[data-fs="2"]{
 .nlr-top{
   margin:0 0 8px!important;
   padding:0 2px 11px;
-  border-bottom:1px solid #E2E8E4;
+  border-bottom:1px solid var(--line);
 }
 .nlr-h{
-  font-family:'Noto Serif TC',serif;
+  font-family:var(--swsi-font);
   font-size:18px!important;
   font-weight:900!important;
-  color:#202724;
+  color:var(--ink);
 }
 .nlr-badge{
   padding:0!important;
   border:0!important;
   border-radius:0!important;
   background:transparent!important;
-  color:#66716B;
+  color:var(--ink-3);
   font-weight:700;
 }
 .nlr-help{
   margin:8px 2px 16px!important;
-  color:#626D67!important;
+  color:var(--ink-3)!important;
   line-height:1.7!important;
 }
 .nlr-grid{gap:0!important;}
@@ -356,14 +356,14 @@ html[data-fs="2"]{
   margin:0!important;
   padding:17px 2px 19px!important;
   border:0!important;
-  border-bottom:1px solid #E3E8E5!important;
+  border-bottom:1px solid var(--line)!important;
   border-radius:0!important;
   background:transparent!important;
   box-shadow:none!important;
 }
 .nlr-head{align-items:baseline;}
 .nlr-cat{
-  color:#55766F;
+  color:var(--brand);
   font-weight:800!important;
   letter-spacing:.02em;
 }
@@ -372,19 +372,19 @@ html[data-fs="2"]{
   border:0!important;
   border-radius:0!important;
   background:transparent!important;
-  color:#69736E!important;
+  color:var(--ink-3)!important;
 }
-.nlr-trend-rising{color:#355A52!important;}
+.nlr-trend-rising{color:var(--brand)!important;}
 .nlr-title{
   margin:7px 0 5px!important;
-  font-family:'Noto Serif TC',serif;
+  font-family:var(--swsi-font);
   font-size:16px;
   font-weight:850!important;
   line-height:1.62!important;
-  color:#202724;
+  color:var(--ink);
 }
 .nlr-meta,.nlr-summary{
-  color:#66716B!important;
+  color:var(--ink-3)!important;
   line-height:1.7!important;
 }
 .nlr-summary{margin-top:8px!important;}
@@ -394,34 +394,34 @@ html[data-fs="2"]{
   border:0!important;
   border-radius:0!important;
   background:transparent!important;
-  color:#55766F;
+  color:var(--brand);
   font-weight:750;
 }
 .nlr-chips{gap:6px!important;}
 .nlr-chip{
-  border:1px solid #D8E1DC;
+  border:1px solid var(--line);
   background:transparent!important;
-  color:#5E6A64;
+  color:var(--ink-3);
 }
 .nlr-signal{
   margin-top:12px!important;
   padding-top:11px;
-  border-top:1px solid #E7ECE9;
-  color:#46534D;
+  border-top:1px solid var(--line);
+  color:var(--ink-soft);
   line-height:1.65!important;
 }
 .nlr-signal-text{
   margin-top:6px!important;
-  color:#59645E;
+  color:var(--ink-3);
   line-height:1.7!important;
 }
 .nlr-detail{
   margin-top:13px!important;
   padding-top:11px;
-  border-top:1px solid #E8ECEA;
+  border-top:1px solid var(--line);
   line-height:1.72!important;
 }
-.nlr-detail summary{color:#496E66;font-weight:800!important;}
+.nlr-detail summary{color:var(--brand);font-weight:800!important;}
 .nlr-detail ul{margin:8px 0!important;}
 .nlr-exam{margin-top:8px!important;line-height:1.78;}
 .nlr-knowledge-root{
@@ -429,15 +429,15 @@ html[data-fs="2"]{
   padding:0!important;
   background:transparent!important;
 }
-.nlr-knowledge-label{margin-top:11px!important;color:#68736D!important;}
+.nlr-knowledge-label{margin-top:11px!important;color:var(--ink-3)!important;}
 .nlr-knowledge-subject{margin-top:10px!important;}
-.nlr-link{color:#496E66!important;}
+.nlr-link{color:var(--brand)!important;}
 .nlr-note{
   margin-top:12px!important;
-  color:#707A75!important;
+  color:var(--ink-3)!important;
   line-height:1.6!important;
 }
-.nlr-empty{padding:15px 2px!important;color:#69736E!important;}
+.nlr-empty{padding:15px 2px!important;color:var(--ink-3)!important;}
 
 @media (max-width:370px){
   #app .fmtbar{gap:5px;}
@@ -488,7 +488,7 @@ html[data-fs="2"]{
 
       var details=document.createElement('details');
       details.className='swsi-ai-privacy';
-      details.innerHTML='<summary>🔒 使用 AI 回饋前請先閱讀隱私說明</summary>'+
+      details.innerHTML='<summary>使用 AI 回饋前請先閱讀隱私說明</summary>'+
         '<div class="swsi-ai-privacy-body"><b>照片與文字會送至外部 AI 服務處理。</b> 請勿輸入或上傳可識別真實個案或個人的資料；需要舉例時請先匿名化。<br>'+swsiEsc(official)+'</div>';
       node.dataset.swsiPrivacyHandled='1';
       node.replaceWith(details);
