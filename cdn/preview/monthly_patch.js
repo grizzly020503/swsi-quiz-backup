@@ -1723,7 +1723,7 @@ main [style*="font-size:15px"]{
    Large calm reading: white option rows on warm paper, no shadows. */
 body:has(#app .qcard) .tabbar{display:none!important;}
 body:has(#app .qcard) .wrap{padding-bottom:32px!important;}
-body:has(#app .swsi-result-bar) .wrap{padding-bottom:calc(200px + env(safe-area-inset-bottom,0px))!important;}
+body:has(#app .swsi-result-bar) .wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important;}
 
 /* Top bar: close, progress, count. */
 #app .swsi-quizbar{display:flex;align-items:center;gap:12px;margin:0 0 24px;}
@@ -1783,6 +1783,18 @@ html body #app .qcard .btn:not(.ghost):disabled{background:var(--off-bg);border-
 #app .swsi-result-ico .swsi-i{width:24px;height:24px;stroke-width:2.6;}
 #app .swsi-result-bar .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;margin:0;border:0;font-size:19px;outline-offset:3px;}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#app .swsi-result-bar{background:var(--paper2);}}
+/* Phones: one row (verdict left, next right) so the bar does not cover the explanation.
+   The encouragement line stays in the DOM for screen readers. */
+@media (max-width:699px){
+  #app .swsi-result-bar{flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));}
+  #app .swsi-result-msg{gap:10px;min-width:0;}
+  #app .swsi-result-msg small{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  #app .swsi-result-msg b{font-size:20px;white-space:nowrap;}
+  #app .swsi-result-ico{width:36px;height:36px;}
+  #app .swsi-result-ico .swsi-i{width:20px;height:20px;}
+  #app .swsi-result-bar .btn{flex:0 0 auto;width:auto;min-width:140px;min-height:52px;padding:0 22px;font-size:18px;}
+}
+
 @keyframes swsi-rise{from{transform:translate(-50%,24px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 @media (min-width:700px){
   #app .swsi-result-bar{flex-direction:row;align-items:center;justify-content:space-between;width:min(760px,calc(100% - 32px));max-width:none;padding-left:28px;padding-right:28px;border-radius:var(--r-lg) var(--r-lg) 0 0;border:1px solid var(--line);border-bottom:0;}
@@ -1809,6 +1821,11 @@ html body #app .qcard .btn:not(.ghost):disabled{background:var(--off-bg);border-
 #app .exp details > summary::-webkit-details-marker{display:none;}
 #app .exp details > summary::after{content:'';width:9px;height:9px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(45deg) translate(-2px,-2px);transition:transform 150ms var(--press);}
 #app .exp details[open] > summary::after{transform:rotate(-135deg) translate(-2px,-2px);}
+/* Source row: title + one meta line, chevron centred on the right (same height as siblings). */
+#app .exp details.swsi-answer-trust > summary{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:12px;row-gap:0;line-height:1.45;padding:12px 20px;}
+#app .exp details.swsi-answer-trust > summary > .swsi-trust-title{grid-column:1;grid-row:1;}
+#app .exp details.swsi-answer-trust > summary > .swsi-trust-meta{grid-column:1;grid-row:2;}
+#app .exp details.swsi-answer-trust > summary::after{grid-column:2;grid-row:1 / span 2;margin:0;}
 #app .exp details > :not(summary){padding:0 20px 18px;}
 #app .exp details .body{padding:0 20px 18px;}
 
@@ -5430,13 +5447,13 @@ html[data-fs="2"]{
       .swsi-answer-trust summary::-webkit-details-marker{display:none;}
       .swsi-answer-trust summary:after{content:'＋';margin-left:auto;color:var(--ink-3);font-size:14px;}
       .swsi-answer-trust[open] summary:after{content:'－';}
-      .swsi-trust-chip{display:inline-flex;align-items:center;min-height:24px;padding:2px 7px;border:1px solid #D7E2DC;border-radius:999px;background:#fff;color:#456A61;font-size:10.5px;font-weight:800;}
-      .swsi-trust-chip.warn{border-color:#E5DCC1;color:#756E57;background:#FFFDF7;}
-      .swsi-trust-body{border-top:1px solid #E7ECE9;padding:9px 10px 10px;color:var(--ink-soft);font-size:11px;line-height:1.65;}
+      .swsi-trust-chip{display:inline-flex;align-items:center;min-height:28px;padding:2px 10px;border:0;border-radius:999px;background:var(--fill);color:var(--ink-soft);font-size:14px;font-weight:500;}
+      .swsi-trust-chip.warn{color:var(--brand-deep);background:var(--brand-soft);}
+      .swsi-trust-body{border-top:1px solid var(--line);padding:12px 0 4px;color:var(--ink-soft);font-size:16px;line-height:1.7;}
       .swsi-trust-body p{margin:0 0 6px;}
       .swsi-trust-body p:last-child{margin-bottom:0;}
       .swsi-trust-links{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;}
-      .swsi-trust-links a{display:inline-block;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--pine-deep);padding:5px 8px;text-decoration:none;font-size:10.8px;font-weight:700;}
+      .swsi-trust-links a{display:inline-flex;align-items:center;min-height:44px;border:0;border-radius:999px;background:var(--brand-soft);color:var(--brand-deep);padding:0 16px;text-decoration:none;font-size:15px;font-weight:500;}
       .swsi-explanation-more{margin:12px 0 3px;border:1px solid var(--line);border-radius:11px;background:#FBFCFB;overflow:hidden;}
       .swsi-explanation-more summary{list-style:none;cursor:pointer;min-height:43px;padding:9px 11px;display:flex;align-items:center;font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:800;color:var(--pine-deep);}
       .swsi-explanation-more summary::-webkit-details-marker{display:none;}
@@ -5447,7 +5464,10 @@ html[data-fs="2"]{
       /* Expanded notes replace the short reason to avoid showing the same text twice. */
       .exp:has(.swsi-explanation-more[open])>.swsi-core-reason{display:none;}
       .swsi-trust-status{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-      .swsi-answer-trust summary>.swsi-trust-origin{font-size:11px;color:#4F6A61;font-weight:700}
+      .swsi-trust-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin-top:2px;font-size:14px;font-weight:400;color:var(--ink-3);}
+      .swsi-trust-meta .swsi-trust-chip{min-height:0;padding:0;background:transparent;font-size:14px;}
+      .swsi-trust-meta .swsi-trust-chip.warn{color:var(--brand-deep);}
+      .swsi-trust-meta>*+*:before{content:'·';margin-right:10px;color:var(--line-2);}
 
       .tabbar .ico.swsi-nav-ico{width:21px;height:21px;display:grid;place-items:center;font-size:0;line-height:1;}
       .tabbar .ico.swsi-nav-ico svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
@@ -5676,12 +5696,16 @@ html[data-fs="2"]{
     if(!item||directChild(exp,'.swsi-answer-trust'))return;
     var origin=questionOrigin(item),official=origin==='official',analysis=analysisTrust(item),legal=legalTrust(item);
     var panel=document.createElement('details');panel.className='swsi-answer-trust';
-    var summary=document.createElement('summary');summary.appendChild(document.createTextNode('題目來源與解析'));
+    var summary=document.createElement('summary');
+    var sumTitle=document.createElement('span');sumTitle.className='swsi-trust-title';sumTitle.textContent='題目來源與解析';summary.appendChild(sumTitle);
+    // One quiet meta line under the title: origin first, then any warning, so the row
+    // keeps the same height as the other disclosures.
+    var sumMeta=document.createElement('span');sumMeta.className='swsi-trust-meta';summary.appendChild(sumMeta);
     var originName=official?'考選部歷屆試題':origin==='practice'?'平台自製練習題':'題目來源待確認';
-    var originTag=document.createElement('span');originTag.className='swsi-trust-origin';originTag.textContent=originName;summary.appendChild(originTag);
+    var originTag=document.createElement('span');originTag.className='swsi-trust-origin';originTag.textContent=originName;sumMeta.appendChild(originTag);
     function chip(place,text,warn){var s=document.createElement('span');s.className='swsi-trust-chip'+(warn?' warn':'');s.textContent=text;place.appendChild(s);}
-    if(analysis.warn)chip(summary,analysis.label,true);
-    if(legal&&legal.warn)chip(summary,legal.label,true);
+    if(analysis.warn)chip(sumMeta,analysis.label,true);
+    if(legal&&legal.warn)chip(sumMeta,legal.label,true);
     panel.appendChild(summary);
     var body=document.createElement('div');body.className='swsi-trust-body';
     var status=document.createElement('div');status.className='swsi-trust-status';
