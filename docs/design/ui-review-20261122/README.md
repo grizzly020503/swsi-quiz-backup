@@ -28,6 +28,7 @@
 | 我的 | 大標題、分組清單、統計列、考試倒數列 | `71`、`73`、`75` |
 | 考點／法規／理論／搜尋 | 彩色大卡改成分組清單；小字（10–13px）提高到 14–18px；系統字 | `00.part`、`80.knowledge-path`、`88.theory-trust-ui`、`40` |
 | 模擬考 | 舊綠色與襯線字改用 token | `mk_grading_contract` |
+| 答題回饋（考生視角修正） | 選中改用深墨色，不再用主色；答錯紅改為玫瑰紅 `#C0283F`，和陶土色分開；答錯後自動捲動，讓官方答案露在結果列上方 | `swsi-calm-learning-ui-v3`、`30`、`00.part` |
 | 頁尾與資訊視窗 | 字級 14–16px、連結改主色、按鈕 44px | `89.public-branding-info`、`zzzz_product_v1_lock` |
 | 測試 | `launch_readiness_smoke` 改讀 token：首頁主按鈕＝`--brand`、停用按鈕＝`--off-bg`／`--off-ink` | `scripts/launch_readiness_smoke.js` |
 
