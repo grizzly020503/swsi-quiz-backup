@@ -764,6 +764,19 @@ window.swsiEsc = swsiEsc;
       ((maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':'')+
       legalBadge(item)+'</div>'+legalNotice(item)+'<div class="qtext">'+swsiEscLines(swsiOfficialFigureQuestion(item))+'</div>'+swsiOfficialFigureMarkup(item)+optHTML+
       (!answered?(figureReady?'<button class="btn" '+(selected?'':'disabled')+' onclick="submit()">送出答案</button>':'<button class="btn ghost" onclick="next()">略過缺圖題（不計分）→</button>'):'')+expHTML+'</div>';
+    // After grading, bring the graded options (official answer included) above the
+    // pinned result bar so the student never has to scroll to find the answer.
+    if(answered){try{(window.requestAnimationFrame||setTimeout)(function(){
+      var bar=document.querySelector('#app .swsi-result-bar');
+      var marked=document.querySelectorAll('#app .opt.correct, #app .opt.wrong');
+      if(!bar||!marked.length)return;
+      var top=Infinity,bottom=-Infinity;
+      for(var i=0;i<marked.length;i++){var r=marked[i].getBoundingClientRect();top=Math.min(top,r.top);bottom=Math.max(bottom,r.bottom);}
+      // Use the bar's resting height, not its rect: it is still sliding in here.
+      var need=bottom-(window.innerHeight-bar.offsetHeight-16), room=top-72;
+      var by=Math.min(need,room);
+      if(by>0){var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;window.scrollBy({top:by,behavior:calm?'auto':'smooth'});}
+    });}catch(_e){}}
   };
 
   submit = function(){
@@ -1735,8 +1748,9 @@ body:has(#app .swsi-result-bar) .wrap{padding-bottom:calc(200px + env(safe-area-
 #app .opt:active:not(:disabled){background:var(--fill);}
 #app .opt .lab{display:grid;place-items:center;flex:0 0 auto;width:36px;height:36px;margin:0;border:0;border-radius:50%;font-size:17px;font-weight:700;color:var(--ink-soft);background:var(--fill);}
 #app .opt > span:not(.lab):not(.mk){flex:1 1 calc(100% - 60px);min-width:0;padding-top:3px;}
-#app .opt.sel{border-color:var(--brand);background:var(--paper2);}
-#app .opt.sel .lab{background:var(--brand);color:#fff;}
+/* Chosen = ink, never the accent: terracotta must not read as "wrong" before grading. */
+#app .opt.sel{border-color:var(--ink);background:var(--paper2);}
+#app .opt.sel .lab{background:var(--ink);color:#fff;}
 #app .opt.correct{border-color:var(--ok);background:var(--ok-soft);}
 #app .opt.correct .lab{background:var(--ok);color:#fff;}
 #app .opt.wrong{border-color:var(--no);background:var(--no-soft);}
