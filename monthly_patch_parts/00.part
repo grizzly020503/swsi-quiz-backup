@@ -680,18 +680,31 @@ window.swsiEsc = swsiEsc;
         '<div class="ux-custom-label">題數</div><select class="subj" aria-label="題數" onchange="setHomeQuizCount(this.value)" style="margin-bottom:9px"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="40" '+(homeQuizCount===40?'selected':'')+'>40 題</option></select>'+
         '<div class="ux-custom-hint">'+swsiEsc(scopeHint)+'</div><button class="ux-btn-main" style="width:100%;margin-top:10px" onclick="startFocusedQuiz()">開始這組題目</button></div>'):'')+
       '<div class="ux-link-card '+(rv.dueCount?'hot':'')+'" onclick="'+(rv.dueCount?'startDueReview()':"go('review')")+'"><div class="left"><div class="title">🧠 今日複習</div><div class="sub">'+swsiEsc(reviewSub)+'</div></div>'+(rv.dueCount?'<span class="ux-badge">'+rv.dueCount+' 題</span>':'<span class="arrow">›</span>')+'</div>'+
-      '<div class="ux-link-card" onclick="go(\'essay\')"><div class="left"><div class="title">✍️ 申論練習</div><div class="sub">歷屆申論、時事題材與 AI 作答回饋</div></div><span class="arrow">›</span></div>'+
+      '<div class="ux-link-card" onclick="go(\'essay\')"><div class="left"><div class="title">申論練習</div><div class="sub">歷屆申論、時事題材與 AI 作答回饋</div></div><span class="arrow">›</span></div>'+
       '<div class="ux-tools"><button onclick="MK.open()">計時模擬考</button><button onclick="go(\'topics\')">學習工具</button></div>';
     if(typeof relabelTabs === 'function') try{ relabelTabs(); }catch(_e){}
   };
 
   // ---------- Secure question rendering + official grading ----------
   renderQuiz = function(){
+    var ic=function(n){return typeof swsiIcon==='function'?swsiIcon(n):'';};
+    // Answer feedback: one result bar pinned to the bottom of the viewport with the
+    // only next action. Message follows the official grading mode; never re-grades.
+    function resultBar(item,mode,wrong){
+      var special=mode==='all_credit'||mode==='any_answer';
+      var ok=!wrong;
+      var title=special?'本題依官方規定給分':ok?'答對了！':'答錯了';
+      var sub=special?'解析僅供理解題意':ok?'看一下解析，加深印象':'先看解析，弄懂為什麼';
+      var last=idx+1>=queue.length;
+      return '<div class="swsi-result-bar '+(ok?'is-ok':'is-no')+'" role="status" aria-live="polite">'+
+        '<div class="swsi-result-msg"><span class="swsi-result-ico">'+ic(ok?'check':'cross')+'</span><span><b>'+title+'</b><small>'+sub+'</small></span></div>'+
+        '<button type="button" class="btn swsi-result-next" onclick="next()">'+(last?'看結果':'下一題')+ic('arrow')+'</button></div>';
+    }
     if(!queue.length){
       app.innerHTML='<div class="empty"><div class="ico">∅</div><h3>沒有符合的題目</h3><button class="btn" style="max-width:200px;margin:18px auto 0" onclick="go(\'home\')">回首頁</button></div>';
       return;
     }
-    const item=queue[idx], pct=Math.round((idx/queue.length)*100), mode=gradingMode(item), accepted=acceptedAnswers(item);
+    const item=queue[idx], pct=Math.round(((idx+(answered?1:0))/queue.length)*100), mode=gradingMode(item), accepted=acceptedAnswers(item);
     if(typeof window.swsiSourceHeld==='function'&&window.swsiSourceHeld(item)){app.innerHTML=window.swsiSourceHoldQuiz(item);return;}
     const figureReady=swsiOfficialFigureReady(item);
     let optHTML='';
@@ -741,16 +754,29 @@ window.swsiEsc = swsiEsc;
       if(mode==='standard' && accepted.size>1) extra='<div class="extra"><b>'+swsiEsc(answerLabel(item))+'</b></div>'+extra;
       expHTML='<div class="exp">'+(analysisHidden?'':'<div class="topic">考點：<b>'+swsiEsc(item.topic||item.major)+'</b></div>')+body+extra+
         (wrong&&!analysisHidden&&item.mistake?'<div class="mistake">這題錯因：'+swsiEsc(item.mistake)+'</div>':'')+
-        '<button class="btn" onclick="next()">'+(idx+1<queue.length?'下一題 →':'看結果 →')+'</button></div>';
+        resultBar(item,mode,wrong)+'</div>';
     }
 
-    app.innerHTML='<button class="quit" onclick="go(\'home\')">← 結束這次練習</button>'+
-      '<div class="pstrip"><div class="pbar"><i style="width:'+pct+'%"></i></div><span class="pcount">'+(idx+1)+' / '+queue.length+'</span></div>'+
+    app.innerHTML='<div class="swsi-quizbar"><button type="button" class="quit" onclick="go(\'home\')" aria-label="結束這次練習">'+ic('close')+'</button>'+
+      '<div class="pstrip"><div class="pbar" role="progressbar" aria-label="練習進度" aria-valuemin="0" aria-valuemax="'+queue.length+'" aria-valuenow="'+(idx+(answered?1:0))+'"><i style="width:'+pct+'%"></i></div><span class="pcount">'+(idx+1)+' / '+queue.length+'</span></div></div>'+
       '<div class="qcard"><div class="qmeta"><span class="tag subj">'+swsiEsc(item.subject)+'</span><span class="tag year">'+swsiEsc(item.year)+'年 '+swsiEsc(item.round)+'</span>'+
       (yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':'')+
       ((maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':'')+
       legalBadge(item)+'</div>'+legalNotice(item)+'<div class="qtext">'+swsiEscLines(swsiOfficialFigureQuestion(item))+'</div>'+swsiOfficialFigureMarkup(item)+optHTML+
       (!answered?(figureReady?'<button class="btn" '+(selected?'':'disabled')+' onclick="submit()">送出答案</button>':'<button class="btn ghost" onclick="next()">略過缺圖題（不計分）→</button>'):'')+expHTML+'</div>';
+    // After grading, bring the graded options (official answer included) above the
+    // pinned result bar so the student never has to scroll to find the answer.
+    if(answered){try{(window.requestAnimationFrame||setTimeout)(function(){
+      var bar=document.querySelector('#app .swsi-result-bar');
+      var marked=document.querySelectorAll('#app .opt.correct, #app .opt.wrong');
+      if(!bar||!marked.length)return;
+      var top=Infinity,bottom=-Infinity;
+      for(var i=0;i<marked.length;i++){var r=marked[i].getBoundingClientRect();top=Math.min(top,r.top);bottom=Math.max(bottom,r.bottom);}
+      // Use the bar's resting height, not its rect: it is still sliding in here.
+      var need=bottom-(window.innerHeight-bar.offsetHeight-16), room=top-72;
+      var by=Math.min(need,room);
+      if(by>0){var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;window.scrollBy({top:by,behavior:calm?'auto':'smooth'});}
+    });}catch(_e){}}
   };
 
   submit = function(){
@@ -810,15 +836,21 @@ window.swsiEsc = swsiEsc;
     const fT=(c)=>{const r=c/maxCnt,t=r>=0.4?'高頻':(r>=0.15?'中頻':'低頻'),col=r>=0.4?'background:var(--pine);color:#fff':(r>=0.15?'background:var(--correct-bg);color:var(--pine)':'background:#ECE6D6;color:var(--ink-soft)');return '<span class="tag" style="margin-left:6px;'+col+'">'+t+'</span>';};
     const cards=sorted.map(([name,cnt],i)=>'<div class="gcard" onclick="practiceTopic('+i+')"><div><div class="name">'+swsiEsc(name)+'</div><div class="cnt">'+cnt+' 題'+fT(cnt)+'</div></div><span class="arrow">›</span></div>').join('');
     const eOpen=topicsOpen==='essay',mOpen=topicsOpen==='mcq';
-    app.innerHTML='<div class="section-h">考點</div><div class="section-s">挑一個主題開始：申論自己練、選擇題一鍵開。理論、法規、時事與讀書指南也能直接查。</div>'+ 
-      '<div class="gcard" onclick="go(\'theories\')" style="background:var(--pine);border-color:var(--pine)"><div><div class="name" style="color:#fff">📖 核心理論小辭典</div><div class="cnt" style="color:#cfe3da">'+THEORIES.length+' 個申論必備理論</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="go(\'laws\')" style="background:var(--gold);border-color:var(--gold)"><div><div class="name" style="color:#fff">📜 重點法規速查</div><div class="cnt" style="color:#f5e9cf">'+LAWS.length+' 部常用法規 · 含修法動態</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="NL.open()" style="background:var(--pine-deep);border-color:var(--pine-deep)"><div><div class="name" style="color:#fff">📰 時事庫</div><div class="cnt" style="color:#cfe3da">近期社會事件 · 考點／理論／法規／可能怎麼考</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="SG.open()" style="background:#7E7A66;border-color:#7E7A66"><div><div class="name" style="color:#fff">📖 讀書指南</div><div class="cnt" style="color:#ece9da">學長姊應考心得 · 各科速查 · 申論策略</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="go(\'progress\')"><div><div class="name">📊 我的進度</div><div class="cnt">各科正確率、常錯考點與錯因分布</div></div><span class="arrow">›</span></div>'+ 
-      '<div class="gcard" onclick="toggleTopics(\'essay\')" style="margin-top:14px'+(eOpen?';border-color:var(--pine);border-width:1.5px':'')+'"><div><div class="name">✍️ 申論題 · 依主題練</div><div class="cnt">'+clusters.length+' 個主題'+(eOpen?'（點我收合）':'')+'</div></div><span class="arrow">'+(eOpen?'▾':'›')+'</span></div>'+ 
-      (eOpen?'<div style="margin-top:8px">'+clCards+'</div>':'')+
-      '<div class="gcard" onclick="toggleTopics(\'mcq\')" style="margin-top:10px'+(mOpen?';border-color:var(--pine);border-width:1.5px':'')+'"><div><div class="name">📝 選擇題 · 依大類練</div><div class="cnt">'+sorted.length+' 個大類'+(mOpen?'（點我收合）':'')+'</div></div><span class="arrow">'+(mOpen?'▾':'›')+'</span></div>'+ 
+    const ti=n=>typeof swsiIcon==='function'?'<span class="swsi-gcard-ico">'+swsiIcon(n)+'</span>':'';
+    const chev=typeof swsiIcon==='function'?swsiIcon('arrow'):'›';
+    const trow=(icon,name,cnt,onclick,extra)=>'<div class="gcard swsi-gcard-row" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();this.click()}" onclick="'+onclick+'"'+(extra||'')+'>'+ti(icon)+'<div><div class="name">'+name+'</div><div class="cnt">'+cnt+'</div></div><span class="arrow">'+chev+'</span></div>';
+    app.innerHTML='<div class="section-h">考點</div><div class="section-s">挑一個主題開始：申論自己練、選擇題一鍵開。理論、法規、時事與讀書指南也能直接查。</div>'+
+      '<div class="swsi-gcard-group">'+
+      trow('bulb','核心理論小辭典',THEORIES.length+' 個申論必備理論',"go(\'theories\')")+
+      trow('law','重點法規速查',LAWS.length+' 部常用法規 · 含修法動態',"go(\'laws\')")+
+      trow('papers','時事庫','近期社會事件 · 考點／理論／法規／可能怎麼考','NL.open()')+
+      trow('review','讀書指南','學長姊應考心得 · 各科速查 · 申論策略','SG.open()')+
+      trow('chart','我的進度','各科正確率、常錯考點與錯因分布',"go(\'progress\')")+
+      '</div><div class="swsi-gcard-group">'+
+      trow('essay','申論題 · 依主題練',clusters.length+' 個主題'+(eOpen?'（點我收合）':''),"toggleTopics(\'essay\')",' aria-expanded="'+eOpen+'"')+
+      (eOpen?'</div><div style="margin:-16px 0 24px">'+clCards+'</div><div class="swsi-gcard-group">':'')+
+      trow('quiz','選擇題 · 依大類練',sorted.length+' 個大類'+(mOpen?'（點我收合）':''),"toggleTopics(\'mcq\')",' aria-expanded="'+mOpen+'"')+
+      '</div>'+
       (mOpen?'<div style="margin-top:8px"><select class="subj" aria-label="選擇科目" onchange="subjFilter=this.value;render()">'+opts+'</select>'+cards+'</div>':'');
   };
 
@@ -1004,11 +1036,11 @@ window.swsiEsc = swsiEsc;
 
   aiFeedbackHTML=function(id){
     return '<div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">'+
-      '<div class="aihelp" style="color:var(--wrong);margin-bottom:9px;background:var(--wrong-bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px">🔒 照片／文字會送至外部 AI 服務處理；請勿輸入或上傳可識別真實個案或個人的資料。需要舉例時請先匿名化。</div>'+
+      '<div class="aihelp" style="color:var(--wrong);margin-bottom:9px;background:var(--wrong-bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px">照片／文字會送至外部 AI 服務處理；請勿輸入或上傳可識別真實個案或個人的資料。需要舉例時請先匿名化。</div>'+
       '<div class="aihelp" style="color:var(--ink-soft);margin-bottom:9px;background:#FBF8EF;border:1px solid var(--line);border-radius:8px;padding:9px 12px">💡 平台提供的是申論練習回饋，並非考選部官方評分。</div>'+
-      '<button class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600" onclick="runAIFeedback(\''+swsiEsc(id)+'\')">🤖 我用打字的 · 請 AI 批改</button>'+
+      '<button class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600" onclick="runAIFeedback(\''+swsiEsc(id)+'\')">我用打字的 · 請 AI 批改</button>'+
       '<input type="file" id="photo_'+swsiEsc(id)+'" accept="image/*" multiple style="display:none" onchange="gradePhoto(\''+swsiEsc(id)+'\',this)">'+
-      '<button class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600;margin-top:8px" onclick="document.getElementById(\'photo_'+swsiEsc(id)+'\').click()">📷 我用手寫的 · 拍照上傳給 AI 批改</button>'+
+      '<button class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600;margin-top:8px" onclick="document.getElementById(\'photo_'+swsiEsc(id)+'\').click()">我用手寫的 · 拍照上傳給 AI 批改</button>'+
       '<div class="aihelp" style="color:var(--ink-soft);margin-top:7px">一次最多 3 張。光線充足、字跡清楚、整頁入鏡會讀得更準；AI 會先顯示辨識到的文字供你核對。</div><div id="airesult_'+swsiEsc(id)+'"></div></div>';
   };
 
@@ -1028,7 +1060,7 @@ window.swsiEsc = swsiEsc;
       '嚴格規則：\n- 這是練習回饋、不是官方評分；不要給分數、不要自稱官方標準。\n- 不要自行編造法條條號、數字或學者。\n- 若作答空白、亂打或與題目無關，只提醒先用拆題五步建立架構。\n- 繁體中文、分點、約 300 字內。\n'+
       '回饋結構：\n一、方向與架構\n二、可以補強\n三、一句鼓勵。';
     const user='【題目】'+(e.q||'')+'（'+(e.points||20)+'分）\n【平台參考骨架與關鍵字】\n'+skel+'\n【學生作答】\n'+ans;
-    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 批改中…</div>';
+    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">AI 批改中…</div>';
     try{
       const r=await fetch(AI_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json','X-SWSI-Client-ID':getAIClientId()},body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0.5,max_tokens:1200,messages:[{role:'user',content:sys+'\n\n'+user}]})});
       if(!r.ok){
@@ -1055,7 +1087,7 @@ window.swsiEsc = swsiEsc;
       if(inputEl) inputEl.value='';
       return;
     }
-    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">📷 照片處理中…（'+files.length+' 張）</div>';
+    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">照片處理中…（'+files.length+' 張）</div>';
     const imgs=[];
     try{ for(const f of files) imgs.push(await shrinkImage(f,1200,0.8)); }
     catch(err){ out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong)">有照片讀取失敗，請改用相機重拍。</div>'; if(inputEl) inputEl.value=''; return; }
@@ -1067,7 +1099,7 @@ window.swsiEsc = swsiEsc;
     const user='【題目】'+(e.q||'')+'（'+(e.points||20)+'分）\n【平台參考骨架與關鍵字】\n'+skel;
     const content=[{type:'text',text:sys+'\n\n'+user}];
     imgs.forEach(u=>content.push({type:'image_url',image_url:{url:u}}));
-    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 正在讀 '+imgs.length+' 張照片並批改…</div>';
+    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">AI 正在讀 '+imgs.length+' 張照片並批改…</div>';
     try{
       const r=await fetch(AI_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json','X-SWSI-Client-ID':getAIClientId()},body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0.4,max_tokens:1100,messages:[{role:'user',content}]})});
       if(!r.ok){

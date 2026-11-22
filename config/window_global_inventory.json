@@ -260,6 +260,9 @@
     "swsiGradingContractVersion": [
       "monthly_patch_parts/zzzzzzzzzzzzzzzzzzzzzzzzzz_code_health_p0.part"
     ],
+    "swsiIcon": [
+      "monthly_patch_parts/15.layout-foundation.part"
+    ],
     "swsiKnowledgeSearch": [
       "monthly_patch_parts/80.knowledge-path.part"
     ],

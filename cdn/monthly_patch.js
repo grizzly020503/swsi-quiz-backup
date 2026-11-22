@@ -680,18 +680,31 @@ window.swsiEsc = swsiEsc;
         '<div class="ux-custom-label">題數</div><select class="subj" aria-label="題數" onchange="setHomeQuizCount(this.value)" style="margin-bottom:9px"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="40" '+(homeQuizCount===40?'selected':'')+'>40 題</option></select>'+
         '<div class="ux-custom-hint">'+swsiEsc(scopeHint)+'</div><button class="ux-btn-main" style="width:100%;margin-top:10px" onclick="startFocusedQuiz()">開始這組題目</button></div>'):'')+
       '<div class="ux-link-card '+(rv.dueCount?'hot':'')+'" onclick="'+(rv.dueCount?'startDueReview()':"go('review')")+'"><div class="left"><div class="title">🧠 今日複習</div><div class="sub">'+swsiEsc(reviewSub)+'</div></div>'+(rv.dueCount?'<span class="ux-badge">'+rv.dueCount+' 題</span>':'<span class="arrow">›</span>')+'</div>'+
-      '<div class="ux-link-card" onclick="go(\'essay\')"><div class="left"><div class="title">✍️ 申論練習</div><div class="sub">歷屆申論、時事題材與 AI 作答回饋</div></div><span class="arrow">›</span></div>'+
+      '<div class="ux-link-card" onclick="go(\'essay\')"><div class="left"><div class="title">申論練習</div><div class="sub">歷屆申論、時事題材與 AI 作答回饋</div></div><span class="arrow">›</span></div>'+
       '<div class="ux-tools"><button onclick="MK.open()">計時模擬考</button><button onclick="go(\'topics\')">學習工具</button></div>';
     if(typeof relabelTabs === 'function') try{ relabelTabs(); }catch(_e){}
   };
 
   // ---------- Secure question rendering + official grading ----------
   renderQuiz = function(){
+    var ic=function(n){return typeof swsiIcon==='function'?swsiIcon(n):'';};
+    // Answer feedback: one result bar pinned to the bottom of the viewport with the
+    // only next action. Message follows the official grading mode; never re-grades.
+    function resultBar(item,mode,wrong){
+      var special=mode==='all_credit'||mode==='any_answer';
+      var ok=!wrong;
+      var title=special?'本題依官方規定給分':ok?'答對了！':'答錯了';
+      var sub=special?'解析僅供理解題意':ok?'看一下解析，加深印象':'先看解析，弄懂為什麼';
+      var last=idx+1>=queue.length;
+      return '<div class="swsi-result-bar '+(ok?'is-ok':'is-no')+'" role="status" aria-live="polite">'+
+        '<div class="swsi-result-msg"><span class="swsi-result-ico">'+ic(ok?'check':'cross')+'</span><span><b>'+title+'</b><small>'+sub+'</small></span></div>'+
+        '<button type="button" class="btn swsi-result-next" onclick="next()">'+(last?'看結果':'下一題')+ic('arrow')+'</button></div>';
+    }
     if(!queue.length){
       app.innerHTML='<div class="empty"><div class="ico">∅</div><h3>沒有符合的題目</h3><button class="btn" style="max-width:200px;margin:18px auto 0" onclick="go(\'home\')">回首頁</button></div>';
       return;
     }
-    const item=queue[idx], pct=Math.round((idx/queue.length)*100), mode=gradingMode(item), accepted=acceptedAnswers(item);
+    const item=queue[idx], pct=Math.round(((idx+(answered?1:0))/queue.length)*100), mode=gradingMode(item), accepted=acceptedAnswers(item);
     if(typeof window.swsiSourceHeld==='function'&&window.swsiSourceHeld(item)){app.innerHTML=window.swsiSourceHoldQuiz(item);return;}
     const figureReady=swsiOfficialFigureReady(item);
     let optHTML='';
@@ -741,16 +754,29 @@ window.swsiEsc = swsiEsc;
       if(mode==='standard' && accepted.size>1) extra='<div class="extra"><b>'+swsiEsc(answerLabel(item))+'</b></div>'+extra;
       expHTML='<div class="exp">'+(analysisHidden?'':'<div class="topic">考點：<b>'+swsiEsc(item.topic||item.major)+'</b></div>')+body+extra+
         (wrong&&!analysisHidden&&item.mistake?'<div class="mistake">這題錯因：'+swsiEsc(item.mistake)+'</div>':'')+
-        '<button class="btn" onclick="next()">'+(idx+1<queue.length?'下一題 →':'看結果 →')+'</button></div>';
+        resultBar(item,mode,wrong)+'</div>';
     }
 
-    app.innerHTML='<button class="quit" onclick="go(\'home\')">← 結束這次練習</button>'+
-      '<div class="pstrip"><div class="pbar"><i style="width:'+pct+'%"></i></div><span class="pcount">'+(idx+1)+' / '+queue.length+'</span></div>'+
+    app.innerHTML='<div class="swsi-quizbar"><button type="button" class="quit" onclick="go(\'home\')" aria-label="結束這次練習">'+ic('close')+'</button>'+
+      '<div class="pstrip"><div class="pbar" role="progressbar" aria-label="練習進度" aria-valuemin="0" aria-valuemax="'+queue.length+'" aria-valuenow="'+(idx+(answered?1:0))+'"><i style="width:'+pct+'%"></i></div><span class="pcount">'+(idx+1)+' / '+queue.length+'</span></div></div>'+
       '<div class="qcard"><div class="qmeta"><span class="tag subj">'+swsiEsc(item.subject)+'</span><span class="tag year">'+swsiEsc(item.year)+'年 '+swsiEsc(item.round)+'</span>'+
       (yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':'')+
       ((maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':'')+
       legalBadge(item)+'</div>'+legalNotice(item)+'<div class="qtext">'+swsiEscLines(swsiOfficialFigureQuestion(item))+'</div>'+swsiOfficialFigureMarkup(item)+optHTML+
       (!answered?(figureReady?'<button class="btn" '+(selected?'':'disabled')+' onclick="submit()">送出答案</button>':'<button class="btn ghost" onclick="next()">略過缺圖題（不計分）→</button>'):'')+expHTML+'</div>';
+    // After grading, bring the graded options (official answer included) above the
+    // pinned result bar so the student never has to scroll to find the answer.
+    if(answered){try{(window.requestAnimationFrame||setTimeout)(function(){
+      var bar=document.querySelector('#app .swsi-result-bar');
+      var marked=document.querySelectorAll('#app .opt.correct, #app .opt.wrong');
+      if(!bar||!marked.length)return;
+      var top=Infinity,bottom=-Infinity;
+      for(var i=0;i<marked.length;i++){var r=marked[i].getBoundingClientRect();top=Math.min(top,r.top);bottom=Math.max(bottom,r.bottom);}
+      // Use the bar's resting height, not its rect: it is still sliding in here.
+      var need=bottom-(window.innerHeight-bar.offsetHeight-16), room=top-72;
+      var by=Math.min(need,room);
+      if(by>0){var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;window.scrollBy({top:by,behavior:calm?'auto':'smooth'});}
+    });}catch(_e){}}
   };
 
   submit = function(){
@@ -810,15 +836,21 @@ window.swsiEsc = swsiEsc;
     const fT=(c)=>{const r=c/maxCnt,t=r>=0.4?'高頻':(r>=0.15?'中頻':'低頻'),col=r>=0.4?'background:var(--pine);color:#fff':(r>=0.15?'background:var(--correct-bg);color:var(--pine)':'background:#ECE6D6;color:var(--ink-soft)');return '<span class="tag" style="margin-left:6px;'+col+'">'+t+'</span>';};
     const cards=sorted.map(([name,cnt],i)=>'<div class="gcard" onclick="practiceTopic('+i+')"><div><div class="name">'+swsiEsc(name)+'</div><div class="cnt">'+cnt+' 題'+fT(cnt)+'</div></div><span class="arrow">›</span></div>').join('');
     const eOpen=topicsOpen==='essay',mOpen=topicsOpen==='mcq';
-    app.innerHTML='<div class="section-h">考點</div><div class="section-s">挑一個主題開始：申論自己練、選擇題一鍵開。理論、法規、時事與讀書指南也能直接查。</div>'+ 
-      '<div class="gcard" onclick="go(\'theories\')" style="background:var(--pine);border-color:var(--pine)"><div><div class="name" style="color:#fff">📖 核心理論小辭典</div><div class="cnt" style="color:#cfe3da">'+THEORIES.length+' 個申論必備理論</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="go(\'laws\')" style="background:var(--gold);border-color:var(--gold)"><div><div class="name" style="color:#fff">📜 重點法規速查</div><div class="cnt" style="color:#f5e9cf">'+LAWS.length+' 部常用法規 · 含修法動態</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="NL.open()" style="background:var(--pine-deep);border-color:var(--pine-deep)"><div><div class="name" style="color:#fff">📰 時事庫</div><div class="cnt" style="color:#cfe3da">近期社會事件 · 考點／理論／法規／可能怎麼考</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="SG.open()" style="background:#7E7A66;border-color:#7E7A66"><div><div class="name" style="color:#fff">📖 讀書指南</div><div class="cnt" style="color:#ece9da">學長姊應考心得 · 各科速查 · 申論策略</div></div><span class="arrow" style="color:#fff">›</span></div>'+ 
-      '<div class="gcard" onclick="go(\'progress\')"><div><div class="name">📊 我的進度</div><div class="cnt">各科正確率、常錯考點與錯因分布</div></div><span class="arrow">›</span></div>'+ 
-      '<div class="gcard" onclick="toggleTopics(\'essay\')" style="margin-top:14px'+(eOpen?';border-color:var(--pine);border-width:1.5px':'')+'"><div><div class="name">✍️ 申論題 · 依主題練</div><div class="cnt">'+clusters.length+' 個主題'+(eOpen?'（點我收合）':'')+'</div></div><span class="arrow">'+(eOpen?'▾':'›')+'</span></div>'+ 
-      (eOpen?'<div style="margin-top:8px">'+clCards+'</div>':'')+
-      '<div class="gcard" onclick="toggleTopics(\'mcq\')" style="margin-top:10px'+(mOpen?';border-color:var(--pine);border-width:1.5px':'')+'"><div><div class="name">📝 選擇題 · 依大類練</div><div class="cnt">'+sorted.length+' 個大類'+(mOpen?'（點我收合）':'')+'</div></div><span class="arrow">'+(mOpen?'▾':'›')+'</span></div>'+ 
+    const ti=n=>typeof swsiIcon==='function'?'<span class="swsi-gcard-ico">'+swsiIcon(n)+'</span>':'';
+    const chev=typeof swsiIcon==='function'?swsiIcon('arrow'):'›';
+    const trow=(icon,name,cnt,onclick,extra)=>'<div class="gcard swsi-gcard-row" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();this.click()}" onclick="'+onclick+'"'+(extra||'')+'>'+ti(icon)+'<div><div class="name">'+name+'</div><div class="cnt">'+cnt+'</div></div><span class="arrow">'+chev+'</span></div>';
+    app.innerHTML='<div class="section-h">考點</div><div class="section-s">挑一個主題開始：申論自己練、選擇題一鍵開。理論、法規、時事與讀書指南也能直接查。</div>'+
+      '<div class="swsi-gcard-group">'+
+      trow('bulb','核心理論小辭典',THEORIES.length+' 個申論必備理論',"go(\'theories\')")+
+      trow('law','重點法規速查',LAWS.length+' 部常用法規 · 含修法動態',"go(\'laws\')")+
+      trow('papers','時事庫','近期社會事件 · 考點／理論／法規／可能怎麼考','NL.open()')+
+      trow('review','讀書指南','學長姊應考心得 · 各科速查 · 申論策略','SG.open()')+
+      trow('chart','我的進度','各科正確率、常錯考點與錯因分布',"go(\'progress\')")+
+      '</div><div class="swsi-gcard-group">'+
+      trow('essay','申論題 · 依主題練',clusters.length+' 個主題'+(eOpen?'（點我收合）':''),"toggleTopics(\'essay\')",' aria-expanded="'+eOpen+'"')+
+      (eOpen?'</div><div style="margin:-16px 0 24px">'+clCards+'</div><div class="swsi-gcard-group">':'')+
+      trow('quiz','選擇題 · 依大類練',sorted.length+' 個大類'+(mOpen?'（點我收合）':''),"toggleTopics(\'mcq\')",' aria-expanded="'+mOpen+'"')+
+      '</div>'+
       (mOpen?'<div style="margin-top:8px"><select class="subj" aria-label="選擇科目" onchange="subjFilter=this.value;render()">'+opts+'</select>'+cards+'</div>':'');
   };
 
@@ -1004,11 +1036,11 @@ window.swsiEsc = swsiEsc;
 
   aiFeedbackHTML=function(id){
     return '<div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">'+
-      '<div class="aihelp" style="color:var(--wrong);margin-bottom:9px;background:var(--wrong-bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px">🔒 照片／文字會送至外部 AI 服務處理；請勿輸入或上傳可識別真實個案或個人的資料。需要舉例時請先匿名化。</div>'+
+      '<div class="aihelp" style="color:var(--wrong);margin-bottom:9px;background:var(--wrong-bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px">照片／文字會送至外部 AI 服務處理；請勿輸入或上傳可識別真實個案或個人的資料。需要舉例時請先匿名化。</div>'+
       '<div class="aihelp" style="color:var(--ink-soft);margin-bottom:9px;background:#FBF8EF;border:1px solid var(--line);border-radius:8px;padding:9px 12px">💡 平台提供的是申論練習回饋，並非考選部官方評分。</div>'+
-      '<button class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600" onclick="runAIFeedback(\''+swsiEsc(id)+'\')">🤖 我用打字的 · 請 AI 批改</button>'+
+      '<button class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600" onclick="runAIFeedback(\''+swsiEsc(id)+'\')">我用打字的 · 請 AI 批改</button>'+
       '<input type="file" id="photo_'+swsiEsc(id)+'" accept="image/*" multiple style="display:none" onchange="gradePhoto(\''+swsiEsc(id)+'\',this)">'+
-      '<button class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600;margin-top:8px" onclick="document.getElementById(\'photo_'+swsiEsc(id)+'\').click()">📷 我用手寫的 · 拍照上傳給 AI 批改</button>'+
+      '<button class="fbtn" style="width:100%;padding:11px;font-size:14px;color:var(--pine);font-weight:600;margin-top:8px" onclick="document.getElementById(\'photo_'+swsiEsc(id)+'\').click()">我用手寫的 · 拍照上傳給 AI 批改</button>'+
       '<div class="aihelp" style="color:var(--ink-soft);margin-top:7px">一次最多 3 張。光線充足、字跡清楚、整頁入鏡會讀得更準；AI 會先顯示辨識到的文字供你核對。</div><div id="airesult_'+swsiEsc(id)+'"></div></div>';
   };
 
@@ -1028,7 +1060,7 @@ window.swsiEsc = swsiEsc;
       '嚴格規則：\n- 這是練習回饋、不是官方評分；不要給分數、不要自稱官方標準。\n- 不要自行編造法條條號、數字或學者。\n- 若作答空白、亂打或與題目無關，只提醒先用拆題五步建立架構。\n- 繁體中文、分點、約 300 字內。\n'+
       '回饋結構：\n一、方向與架構\n二、可以補強\n三、一句鼓勵。';
     const user='【題目】'+(e.q||'')+'（'+(e.points||20)+'分）\n【平台參考骨架與關鍵字】\n'+skel+'\n【學生作答】\n'+ans;
-    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 批改中…</div>';
+    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">AI 批改中…</div>';
     try{
       const r=await fetch(AI_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json','X-SWSI-Client-ID':getAIClientId()},body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0.5,max_tokens:1200,messages:[{role:'user',content:sys+'\n\n'+user}]})});
       if(!r.ok){
@@ -1055,7 +1087,7 @@ window.swsiEsc = swsiEsc;
       if(inputEl) inputEl.value='';
       return;
     }
-    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">📷 照片處理中…（'+files.length+' 張）</div>';
+    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">照片處理中…（'+files.length+' 張）</div>';
     const imgs=[];
     try{ for(const f of files) imgs.push(await shrinkImage(f,1200,0.8)); }
     catch(err){ out.innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--wrong)">有照片讀取失敗，請改用相機重拍。</div>'; if(inputEl) inputEl.value=''; return; }
@@ -1067,7 +1099,7 @@ window.swsiEsc = swsiEsc;
     const user='【題目】'+(e.q||'')+'（'+(e.points||20)+'分）\n【平台參考骨架與關鍵字】\n'+skel;
     const content=[{type:'text',text:sys+'\n\n'+user}];
     imgs.forEach(u=>content.push({type:'image_url',image_url:{url:u}}));
-    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">🤖 AI 正在讀 '+imgs.length+' 張照片並批改…</div>';
+    out.innerHTML='<div style="margin-top:12px;font-size:14px;color:var(--ink-soft)">AI 正在讀 '+imgs.length+' 張照片並批改…</div>';
     try{
       const r=await fetch(AI_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json','X-SWSI-Client-ID':getAIClientId()},body:JSON.stringify({model:GROQ_MODEL,reasoning_effort:'none',temperature:0.4,max_tokens:1100,messages:[{role:'user',content}]})});
       if(!r.ok){
@@ -1147,32 +1179,33 @@ window.swsiEsc = swsiEsc;
   var style=document.createElement('style');
   style.id='swsi-font-size-control-fix';
   style.textContent=`
+/* Large reading scale (Owner choice 2026-11-22: 簡單大字). */
 :root{
-  --swsi-ui-hero:25px;
-  --swsi-ui-heading:18px;
-  --swsi-ui-title:15px;
-  --swsi-ui-body:14px;
-  --swsi-ui-small:11.5px;
-  --swsi-ui-control:14px;
-  --swsi-ui-tab:12px;
+  --swsi-ui-hero:32px;
+  --swsi-ui-heading:28px;
+  --swsi-ui-title:19px;
+  --swsi-ui-body:17px;
+  --swsi-ui-small:15px;
+  --swsi-ui-control:18px;
+  --swsi-ui-tab:13px;
 }
 html[data-fs="1"]{
-  --swsi-ui-hero:29px;
-  --swsi-ui-heading:20px;
-  --swsi-ui-title:17px;
-  --swsi-ui-body:16px;
-  --swsi-ui-small:13px;
-  --swsi-ui-control:16px;
+  --swsi-ui-hero:36px;
+  --swsi-ui-heading:31px;
+  --swsi-ui-title:21px;
+  --swsi-ui-body:19px;
+  --swsi-ui-small:17px;
+  --swsi-ui-control:20px;
   --swsi-ui-tab:14px;
 }
 html[data-fs="2"]{
-  --swsi-ui-hero:33px;
-  --swsi-ui-heading:23px;
-  --swsi-ui-title:20px;
-  --swsi-ui-body:18px;
-  --swsi-ui-small:15px;
-  --swsi-ui-control:18px;
-  --swsi-ui-tab:16px;
+  --swsi-ui-hero:40px;
+  --swsi-ui-heading:34px;
+  --swsi-ui-title:23px;
+  --swsi-ui-body:21px;
+  --swsi-ui-small:19px;
+  --swsi-ui-control:22px;
+  --swsi-ui-tab:15px;
 }
 main .hero h1,
 main .ux-home-intro h1{
@@ -1252,6 +1285,38 @@ main [style*="font-size:15px"]{
    Layer 2: page templates are expressed only through body[data-swsi-page].
    Layer 3: feature modules own their cards/components, never the global shell.
 */
+/* SWSI icon set 2026-11-22: the only icon source for the student UI.
+   One 24px grid, 1.9 stroke, round caps. Text glyphs and emoji are not used
+   as interface icons. Every caller marks the icon aria-hidden. */
+(function(){
+  'use strict';
+  var P={
+    home:'<path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
+    quiz:'<path d="M12 6.5C9.5 4.8 6.5 4.6 4 5.3v13.5c2.5-.7 5.5-.5 8 1.2 2.5-1.7 5.5-1.9 8-1.2V5.3c-2.5-.7-5.5-.5-8 1.2Z"/><path d="M12 6.5V20"/>',
+    essay:'<path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17v3Z"/><path d="m14.5 7.5 3 3"/>',
+    mine:'<circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>',
+    review:'<path d="M20 5v5h-5"/><path d="M19.4 14A7.5 7.5 0 1 1 17.8 7L20 10"/>',
+    timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/>',
+    papers:'<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M10 12h6M10 16h6"/><path d="M4 7v15h11"/>',
+    chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+    bookmark:'<path d="M6 3h12v18l-6-4-6 4z"/>',
+    flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+    close:'<path d="M6 6l12 12M18 6 6 18"/>',
+    check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+    cross:'<path d="M7 7l10 10M17 7 7 17"/>',
+    arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+    back:'<path d="M19 12H5M11 6l-6 6 6 6"/>',
+    play:'<path d="M8 5.5v13l10-6.5z"/>',
+    search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+    bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/>',
+    target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6"/>',
+    law:'<path d="M12 4v16M6 20h12M4 8h16M7 8l-3 6a3 3 0 0 0 6 0zM17 8l-3 6a3 3 0 0 0 6 0z"/>'
+  };
+  window.swsiIcon=function(name,cls){
+    var body=P[name]||P.arrow;
+    return '<svg class="swsi-i'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+body+'</svg>';
+  };
+})();
 (function(){
   'use strict';
 
@@ -1440,22 +1505,17 @@ main [style*="font-size:15px"]{
   'use strict';
   var bar=document.getElementById('tabbar');
   if(!bar || document.getElementById('swsi-calm-navigation-v4'))return;
-  var symbols={
-    home:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>',
-    quiz:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1V6Zm0 0c3-2 6-2 9-1v14c-3-1-6-1-9 1"/></svg>',
-    essay:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9M16 4l4 4-11 11-4 1 1-4z"/></svg>',
-    mine:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>'
-  };
+  var symbols={home:swsiIcon('home'),quiz:swsiIcon('quiz'),essay:swsiIcon('essay'),mine:swsiIcon('mine')};
   var s=document.createElement('style');
   s.id='swsi-calm-navigation-v4';
   s.textContent=[
     'body #tabbar #t-topics,body #tabbar #t-progress{display:none!important;}',
     'body #tabbar{gap:0;}',
-    "body #tabbar button{font-family:'Noto Sans TC',system-ui,sans-serif;font-size:12px;}",
+    'body #tabbar button{font-family:var(--swsi-font);font-size:13px;}',
     'body #tabbar button .ico{display:grid;place-items:center;width:24px;height:24px;font-size:22px;line-height:1;}',
     'body #tabbar button .ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}',
-    'body #tabbar button .swsi-nav-label{font-size:12px;font-weight:650;line-height:1.35;}',
-    'body #tabbar button.on{color:#245D56;}',
+    'body #tabbar button .swsi-nav-label{font-size:13px;font-weight:700;line-height:1.35;}',
+    'body #tabbar button.on{color:var(--brand);}',
     '@media(max-width:390px){body #tabbar button{padding-left:2px;padding-right:2px;}}',
     '@media(prefers-reduced-motion:reduce){body #tabbar button{transition:none!important;}}'
   ].join('');
@@ -1545,87 +1605,57 @@ main [style*="font-size:15px"]{
       }
 
       /* V4: the live renderer follows the approved mobile concept, not just the CSS tokens. */
-      html body #app .swsi-v4-hero{
-        background:#E5F0EB;border:1px solid #D4E4D9;border-radius:20px;
-        margin:0 0 23px;padding:25px 23px;box-shadow:none;color:#245D56;
-        display:block;
+      /* SWSI home 2026-11-22 (簡單大字): one large title, one action, grouped lists.
+         Tokens from swsi-calm-learning-ui-v3. */
+      html body #app .swsi-v4-hero{position:relative;margin:0 0 32px;padding:8px 0 0;border:0;border-radius:0;background:transparent;color:var(--ink);box-shadow:none;}
+      html body #app .swsi-v4-hero .kicker{display:block;margin:0 0 6px;padding:0;background:transparent;font-size:calc(var(--fs-s) + 1px);font-weight:600;letter-spacing:0;color:var(--ink-3);}
+      html body #app .swsi-v4-hero .kicker b{color:var(--brand);font-weight:700;}
+      html body #app .swsi-v4-hero h1{margin:0 0 10px;font:700 calc(var(--fs-q) + 11px)/1.25 var(--swsi-font);letter-spacing:0;color:var(--ink);}
+      html body #app .swsi-v4-hero p{margin:0 0 24px;max-width:30em;font-size:var(--fs-b);line-height:1.7;color:var(--ink-soft);}
+      html body #app .swsi-v4-start{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:60px;border:0;border-radius:var(--r-md);background:var(--brand);color:var(--brand-ink);font:600 calc(var(--fs-h) + 1px)/1 var(--swsi-font);box-shadow:none;cursor:pointer;transition:opacity 90ms var(--press),background-color 150ms;}
+      html body #app .swsi-v4-start .swsi-i{width:22px;height:22px;fill:currentColor;}
+      html body #app .swsi-v4-start:active{opacity:.78;}
+      html body #app .swsi-v4-section-heading,html body #app .swsi-v4-tools-head h2{margin:0 0 8px;padding:0 4px;font:600 calc(var(--fs-s) + 1px)/1.4 var(--swsi-font);color:var(--ink-3);}
+      /* Grouped lists: white rounded group, hairlines inset after the icon. */
+      html body #app .swsi-v4-study-paths,html body #app .swsi-v4-tool-grid{display:block;margin:0 0 32px;border-radius:var(--r-lg);background:var(--paper2);overflow:hidden;}
+      html body #app .swsi-v4-tool-grid{margin:0;}
+      html body #app .swsi-v4-path,html body #app .swsi-v4-tool-grid button{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-height:64px;margin:0;padding:12px 16px;border:0;border-radius:0;background:transparent;color:var(--ink);text-align:left;box-shadow:none;font:500 var(--fs-b)/1.4 var(--swsi-font);cursor:pointer;transition:background-color 150ms;}
+      html body #app .swsi-v4-path + .swsi-v4-path::before,html body #app .swsi-v4-tool-grid button + button::before{content:'';position:absolute;top:0;left:66px;right:0;height:1px;background:var(--line);}
+      html body #app .swsi-v4-path:active,html body #app .swsi-v4-tool-grid button:active{background:var(--fill);}
+      html body #app .swsi-v4-path{min-height:76px;}
+      html body #app .swsi-v4-path-icon,html body #app .swsi-v4-tool-grid button > .swsi-i:first-child{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;margin:0;border-radius:10px;background:var(--brand-soft);color:var(--brand);}
+      html body #app .swsi-v4-tool-grid button > .swsi-i:first-child{padding:7px;box-sizing:border-box;}
+      html body #app .swsi-v4-path-icon .swsi-i{width:22px;height:22px;}
+      html body #app .swsi-v4-path-copy{display:flex;flex-direction:column;flex:1;min-width:0;}
+      html body #app .swsi-v4-path-title{font-size:var(--fs-b);font-weight:600;line-height:1.35;color:var(--ink);}
+      html body #app .swsi-v4-path-sub{margin-top:2px;font-size:var(--fs-s);font-weight:400;line-height:1.45;color:var(--ink-3);}
+      html body #app .swsi-v4-tool-grid button > span:not(.swsi-v4-chev){flex:1;min-width:0;}
+      html body #app .swsi-v4-chev{display:grid;place-items:center;flex:0 0 auto;margin-left:auto;color:var(--line-2);}
+      html body #app .swsi-v4-chev .swsi-i{width:18px;height:18px;stroke-width:2.4;}
+      html body #app .swsi-v4-tools{margin:0 0 8px;padding:0;border:0;background:transparent;box-shadow:none;}
+      html body #app .swsi-v4-tools-head{display:flex;align-items:center;justify-content:space-between;margin:0;}
+      html body #app .swsi-v4-tools-head button{display:inline-flex;align-items:center;gap:2px;min-height:44px;margin:-12px 0 0;padding:0 4px;border:0;background:transparent;color:var(--brand);font:500 calc(var(--fs-s) + 1px)/1 var(--swsi-font);cursor:pointer;}
+      html body #app .swsi-v4-tools-head button .swsi-i{width:16px;height:16px;}
+      html body #app .swsi-focus-custom{margin:-20px 0 32px;padding:20px;background:var(--paper2);border:0;border-radius:var(--r-lg);}
+      html body #app .swsi-focus-custom .field-label{font-size:15px;font-weight:600;color:var(--ink-3);}
+      html body #app .swsi-focus-custom select{min-height:50px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);font-size:17px;color:var(--ink);}
+      html body #app .swsi-focus-custom .hint{font-size:15px;}
+      html body #app :is(.swsi-v4-start,.swsi-v4-path,.swsi-v4-tools button):focus-visible{outline:3px solid var(--brand);outline-offset:-3px;}
+      html body #app .swsi-v4-start:focus-visible{outline-offset:3px;}
+      @media(hover:hover) and (pointer:fine){
+        html body #app .swsi-v4-start:hover{background:var(--brand-deep);}
+        html body #app .swsi-v4-path:hover,html body #app .swsi-v4-tool-grid button:hover{background:#FBFAF7;}
+        html body #app .swsi-v4-tools-head button:hover{text-decoration:underline;}
       }
-      html body #app .swsi-v4-hero .kicker{
-        color:#3E655B;font-family:'Noto Sans TC',system-ui,sans-serif;
-        font-size:13px;font-weight:750;letter-spacing:.25px;margin-bottom:15px;
-      }
-      html body #app .swsi-v4-hero h1{
-        color:#204E48;font-family:'Noto Sans TC',system-ui,sans-serif;
-        font-size:clamp(24px,5vw,29px);font-weight:850;line-height:1.42;
-        margin:0 0 10px;letter-spacing:0;
-      }
-      html body #app .swsi-v4-hero p{color:#49685E;font-size:14px;line-height:1.7;margin:0 0 20px;}
-      html body #app .swsi-v4-start{
-        display:flex;align-items:center;justify-content:center;gap:10px;
-        width:100%;min-height:55px;border:1px solid #245D56;border-radius:13px;
-        background:#245D56;color:#fff;cursor:pointer;box-shadow:none;
-        font:750 17px/1.3 'Noto Sans TC',system-ui,sans-serif;
-        transition:background-color .18s ease,transform .16s ease;
-      }
-      html body #app .swsi-v4-start span{font-size:23px;line-height:1;}
-      html body #app .swsi-v4-start:active{transform:translateY(1px);}
-      html body #app .swsi-v4-section-heading{
-        margin:0 0 15px;font:800 20px/1.5 'Noto Sans TC',system-ui,sans-serif;
-        color:#273B34;
-      }
-      html body #app .swsi-v4-study-paths{
-        display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
-        margin:0 0 16px;
-      }
-      html body #app .swsi-v4-path{
-        display:flex;flex-direction:column;align-items:flex-start;gap:0;text-align:left;
-        min-width:0;min-height:134px;padding:17px 16px;border:1px solid #E0E9E3;
-        border-radius:17px;background:#fff;color:#254E46;box-shadow:none;
-        cursor:pointer;font-family:'Noto Sans TC',system-ui,sans-serif;
-      }
-      html body #app .swsi-v4-path-icon{font-size:24px;line-height:1.2;margin-bottom:12px;color:#245D56;}
-      html body #app .swsi-v4-path-title{font-size:17px;font-weight:800;color:#273B34;line-height:1.4;}
-      html body #app .swsi-v4-path-sub{font-size:12px;font-weight:500;color:#63756E;line-height:1.55;margin-top:5px;}
-      html body #app .swsi-v4-tools{
-        background:#fff;border:1px solid #E2EAE4;border-radius:18px;padding:18px;
-        margin:0 0 12px;
-      }
-      html body #app .swsi-v4-tools-head{
-        display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px;
-      }
-      html body #app .swsi-v4-tools-head h2{margin:0;color:#273B34;font:800 20px/1.5 'Noto Sans TC',system-ui,sans-serif;}
-      html body #app .swsi-v4-tools-head button{
-        border:0;background:transparent;color:#5C766D;min-width:44px;min-height:44px;
-        font:500 29px/1 sans-serif;cursor:pointer;
-      }
-      html body #app .swsi-v4-tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
-      html body #app .swsi-v4-tool-grid button{
-        min-width:0;min-height:83px;padding:11px 4px;display:flex;flex-direction:column;
-        align-items:center;justify-content:center;gap:7px;
-        border:1px solid #EDF2EE;border-radius:12px;background:#F7F9F7;color:#315C51;
-        font:700 12px/1.4 'Noto Sans TC',system-ui,sans-serif;cursor:pointer;
-      }
-      html body #app .swsi-v4-tool-grid button span:first-child{font-size:24px;line-height:1.1;}
-      html body #app .swsi-focus-custom{
-        margin:0 0 16px;padding:15px;background:#fff;border:1px solid #E0E9E3;border-radius:15px;
-      }
-      html body #app :is(.swsi-v4-start,.swsi-v4-path,.swsi-v4-tools button):focus-visible{
-        outline:3px solid #245D56;outline-offset:3px;
-      }
-      @media(hover:hover){
-        html body #app .swsi-v4-start:hover{background:#1C4E47;}
-        html body #app .swsi-v4-path:hover,html body #app .swsi-v4-tool-grid button:hover{border-color:#9FC8AE;}
+      @media(min-width:700px){
+        html body #app .swsi-v4-hero{padding-top:24px;margin-bottom:40px;}
+        html body #app .swsi-v4-start{display:inline-flex;width:auto;min-width:260px;padding:0 36px;}
       }
       @media(max-width:360px){
-        html body #app .swsi-v4-hero{padding:20px 18px;}
-        html body #app .swsi-v4-path{padding:15px 12px;}
-        html body #app .swsi-v4-path-title{font-size:15px;}
-        html body #app .swsi-v4-tool-grid{gap:6px;}
-        html body #app .swsi-v4-tool-grid button{font-size:11px;}
+        html body #app .swsi-v4-path,html body #app .swsi-v4-tool-grid button{padding:12px 14px;gap:12px;}
+        html body #app .swsi-v4-path + .swsi-v4-path::before,html body #app .swsi-v4-tool-grid button + button::before{left:62px;}
       }
-      @media(prefers-reduced-motion:reduce){
-        html body #app .swsi-v4-start{animation:none;transition:none;}
-      }
+      @media(prefers-reduced-motion:reduce){html body #app .swsi-v4-start{transition:none;}}
     `;
     document.head.appendChild(style);
   }
@@ -1648,6 +1678,7 @@ main [style*="font-size:15px"]{
   renderHome=function(){
     installStyle();
     var rv=safeReviewSummary();
+    var doneToday=0;try{var t0=new Date();t0.setHours(0,0,0,0);doneToday=loadHist().filter(function(x){return x&&x.answered!==false&&Number(x.ts||0)>=t0.getTime();}).length;}catch(_e){}
     var years=examYears();
     if(!homeQuizYear&&years.length) homeQuizYear=String(years[0]);
     homeQuizRound=homeQuizRound==='all'?'all':canonicalRound(homeQuizRound);
@@ -1660,17 +1691,17 @@ main [style*="font-size:15px"]{
     try{if(window.SWSI_QB&&window.SWSI_QB.usingOffline)offlineNote='<div style="margin-bottom:9px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:var(--swsi-ui-small);color:var(--ink-soft)">目前使用這台裝置已儲存的離線題庫。</div>';}catch(_e){}
 
     app.innerHTML=offlineNote+
-      '<section class="swsi-focus-hero swsi-focus-primary swsi-v4-hero"><div class="kicker">你的學習空間</div><h1>今天，從一題開始。</h1><p>選擇自己的步調，持續累積實力。</p><button class="swsi-v4-start" type="button" onclick="swsiStartNow()"><span aria-hidden="true">▷</span> 開始刷題</button></section>'+
+      '<section class="swsi-focus-hero swsi-focus-primary swsi-v4-hero"><div class="kicker">'+(doneToday?'今天已練 <b>'+doneToday+'</b> 題':'今天還沒練題')+'</div><h1>'+(doneToday?'再練 10 題，穩穩累積。':'今天，從一題開始。')+'</h1><p>系統從近年考題和高頻考點幫你挑題，做完馬上看解析。</p><button class="swsi-v4-start" type="button" onclick="swsiStartNow()">'+swsiIcon('play')+'<span>開始刷題</span></button></section>'+
       '<h2 class="swsi-v4-section-heading">想從哪裡開始？</h2>'+
       '<div class="swsi-v4-study-paths">'+
-        '<button type="button" class="swsi-v4-path" onclick="toggleHomeQuiz()" aria-expanded="'+(homeQuizOpen?'true':'false')+'"><span class="swsi-v4-path-icon" aria-hidden="true">▤</span><span class="swsi-v4-path-title">歷屆試題</span><span class="swsi-v4-path-sub">依年份、科目練習</span></button>'+
-        '<button type="button" class="swsi-v4-path" onclick="go(\'essay\')"><span class="swsi-v4-path-icon" aria-hidden="true">✎</span><span class="swsi-v4-path-title">申論練習</span><span class="swsi-v4-path-sub">手寫上傳與 AI 回饋</span></button>'+
+        '<button type="button" class="swsi-v4-path" onclick="toggleHomeQuiz()" aria-expanded="'+(homeQuizOpen?'true':'false')+'"><span class="swsi-v4-path-icon">'+swsiIcon('papers')+'</span><span class="swsi-v4-path-copy"><span class="swsi-v4-path-title">歷屆試題</span><span class="swsi-v4-path-sub">依年份、科目練習</span></span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
+        '<button type="button" class="swsi-v4-path" onclick="go(\'essay\')"><span class="swsi-v4-path-icon">'+swsiIcon('essay')+'</span><span class="swsi-v4-path-copy"><span class="swsi-v4-path-title">申論練習</span><span class="swsi-v4-path-sub">手寫上傳，AI 給你回饋</span></span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
       '</div>'+
       (homeQuizOpen?('<section class="swsi-focus-custom"><div class="field-label">範圍</div><select class="subj" aria-label="刷題範圍" onchange="setHomeQuizScope(this.value)" style="margin-bottom:9px"><option value="smart" '+(homeQuizScope==='smart'?'selected':'')+'>智慧推薦</option><option value="recent3" '+(homeQuizScope==='recent3'?'selected':'')+'>近 3 年</option><option value="recent5" '+(homeQuizScope==='recent5'?'selected':'')+'>近 5 年</option><option value="specific" '+(homeQuizScope==='specific'?'selected':'')+'>指定歷屆</option><option value="all" '+(homeQuizScope==='all'?'selected':'')+'>全部題庫</option></select>'+(specific?('<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="subj" aria-label="考試年度" onchange="setHomeQuizYear(this.value)" style="margin-bottom:9px">'+yearOpts+'</select><select class="subj" aria-label="考試考次" onchange="setHomeQuizRound(this.value)" style="margin-bottom:9px"><option value="all" '+(homeQuizRound==='all'?'selected':'')+'>全部考次</option><option value="1" '+(homeQuizRound==='1'?'selected':'')+'>第一次</option><option value="2" '+(homeQuizRound==='2'?'selected':'')+'>第二次</option></select></div>'):'')+'<div class="field-label">科目</div><select class="subj" aria-label="科目" onchange="subjFilter=this.value;render()" style="margin-bottom:9px">'+subjOpts+'</select><div class="field-label">題數</div><select class="subj" aria-label="題數" onchange="setHomeQuizCount(this.value)" style="margin-bottom:7px"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="40" '+(homeQuizCount===40?'selected':'')+'>40 題</option></select><div class="hint">'+swsiEsc(scopeHint)+'</div><button class="btn" onclick="startFocusedQuiz()" style="margin-top:2px">開始這組題目</button></section>'):'')+
-      '<section class="swsi-v4-tools"><div class="swsi-v4-tools-head"><h2>其他學習工具</h2><button type="button" onclick="go(\'topics\')" aria-label="查看其他學習工具">›</button></div><div class="swsi-v4-tool-grid">'+
-        '<button type="button" onclick="MK.open()"><span aria-hidden="true">◷</span><span>模擬考</span></button>'+
-        '<button type="button" onclick="swsiOpenHomeReview()"><span aria-hidden="true">▣</span><span>錯題本'+(rv.dueCount?' · '+rv.dueCount:'')+'</span></button>'+
-        '<button type="button" onclick="go(\'progress\')"><span aria-hidden="true">▥</span><span>弱點分析</span></button>'+
+      '<section class="swsi-v4-tools"><div class="swsi-v4-tools-head"><h2>其他學習工具</h2><button type="button" onclick="go(\'topics\')" aria-label="查看其他學習工具">全部'+swsiIcon('arrow')+'</button></div><div class="swsi-v4-tool-grid">'+
+        '<button type="button" onclick="MK.open()">'+swsiIcon('timer')+'<span>模擬考</span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
+        '<button type="button" onclick="swsiOpenHomeReview()">'+swsiIcon('bookmark')+'<span>錯題本'+(rv.dueCount?' · '+rv.dueCount:'')+'</span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
+        '<button type="button" onclick="go(\'progress\')">'+swsiIcon('chart')+'<span>弱點分析</span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
       '</div></section>';
 
     if(typeof relabelTabs==='function')try{relabelTabs();}catch(_e){}
@@ -1687,65 +1718,131 @@ main [style*="font-size:15px"]{
   var style=document.createElement('style');
   style.id='swsi-focused-quiz-style';
   style.textContent=`
-/* When a quiz is open, remove unrelated navigation noise. */
+/* SWSI quiz components 2026-11-22 (owner of practice, answers and feedback).
+   Tokens come from the shared system (swsi-calm-learning-ui-v3).
+   Large calm reading: white option rows on warm paper, no shadows. */
 body:has(#app .qcard) .tabbar{display:none!important;}
-body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
-body:has(#app .qcard) header{box-shadow:none;border-bottom:1px solid rgba(220,228,223,.7);}
+body:has(#app .qcard) .wrap{padding-bottom:32px!important;}
+body:has(#app .swsi-result-bar) .wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important;}
 
-/* Progress = quiet orientation, not competition. */
-#app .pstrip{gap:11px;margin:3px 0 15px;}
-#app .pbar{height:2px;background:#E5EAE7;}
-#app .pbar i{background:var(--pine);box-shadow:none;}
-#app .pcount{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:500;color:var(--ink-soft);}
-#app .quit{font-family:'Noto Sans TC',sans-serif;text-decoration:none;color:var(--ink-soft);opacity:.82;margin-bottom:12px;}
-#app .quit:hover{color:var(--ink);}
+/* Top bar: close, progress, count. */
+#app .swsi-quizbar{display:flex;align-items:center;gap:12px;margin:0 0 24px;}
+#app .quit{display:grid;place-items:center;flex:0 0 auto;width:44px;height:44px;margin:0 0 0 -8px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--ink-3);cursor:pointer;opacity:1;}
+#app .quit .swsi-i{width:24px;height:24px;}
+#app .quit:active{background:var(--fill);}
+#app .pstrip{flex:1;display:flex;align-items:center;gap:12px;margin:0;}
+#app .pbar{flex:1;height:6px;border-radius:999px;background:var(--line);overflow:hidden;}
+#app .pbar i{display:block;height:100%;border-radius:999px;background:var(--brand);transition:width 400ms var(--press);}
+#app .pcount{font-size:15px;font-weight:600;color:var(--ink-soft);font-variant-numeric:tabular-nums;}
+@media (hover:hover) and (pointer:fine){#app .quit:hover{background:var(--fill);color:var(--ink);}}
 
-/* Let the question live on the page instead of inside another large card. */
-#app .qcard{background:transparent;border:0;border-radius:0;padding:13px 2px 22px;box-shadow:none;}
-#app .qmeta{gap:10px;margin-bottom:15px;}
-#app .tag{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:700;line-height:1.25;padding:0;border-radius:0;background:transparent!important;}
-#app .tag.subj{color:var(--pine-deep);}
-#app .tag.year{color:var(--ink-soft);}
-#app .qtext{font-family:'Noto Serif TC',serif;font-weight:650;line-height:1.9;margin:0 0 24px;color:#202522;letter-spacing:.005em;}
+/* Question. */
+#app .qcard{background:transparent;border:0;border-radius:0;padding:0 0 24px;box-shadow:none;}
+#app .qmeta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:0 0 12px;}
+#app .tag{font-size:15px;font-weight:600;line-height:1.4;padding:0;border-radius:0;background:transparent!important;border:0;color:var(--ink-3);}
+#app .tag.subj{color:var(--brand);}
+#app .qtext{font-family:var(--swsi-font);font-size:var(--fs-q);font-weight:600;line-height:1.75;margin:0 0 28px;color:var(--ink);letter-spacing:0;}
 
-/* Answers are large reading rows with only one visual boundary. */
-#app .opt{position:relative;background:#fff;border:1px solid #E0E6E2;border-radius:12px;padding:15px 15px 15px 13px;margin-bottom:9px;gap:12px;min-height:56px;align-items:flex-start;line-height:1.68;box-shadow:none;transition:border-color .14s ease,background .14s ease;}
-#app .opt:hover{border-color:#BACAC3;background:#FBFCFB;}
-#app .opt .lab{display:grid;place-items:center;flex:0 0 auto;width:27px;height:27px;margin-top:0;border:1px solid #D5DDD9;border-radius:50%;font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:750;color:#68716D;background:#fff;}
-#app .opt.sel{border-color:#7FA398;background:#F4F8F6;}
-#app .opt.sel .lab{border-color:var(--pine);background:var(--pine);color:#fff;}
-#app .opt.correct{border-color:#AFCAC0;background:#F3F8F6;}
-#app .opt.correct .lab{border-color:var(--correct);background:var(--correct);color:#fff;}
-#app .opt.wrong{border-color:#D9C0B9;background:#FBF5F3;}
-#app .opt.wrong .lab{border-color:var(--wrong);background:var(--wrong);color:#fff;}
-#app .opt .mk{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:600;}
-#app .ck{width:18px;height:18px;font-size:10px;}
+/* Options: white rows, a filled letter when chosen; markers wrap below the text. */
+#app .opt{position:relative;display:flex;flex-wrap:wrap;align-items:flex-start;gap:16px;width:100%;min-height:68px;margin:0 0 12px;padding:16px 18px;background:var(--paper2);border:2px solid transparent;border-radius:var(--r-md);box-shadow:none;font-size:var(--fs-b);line-height:1.65;color:var(--ink);text-align:left;cursor:pointer;transition:border-color 150ms,background-color 150ms;}
+#app .opt:active:not(:disabled){background:var(--fill);}
+#app .opt .lab{display:grid;place-items:center;flex:0 0 auto;width:36px;height:36px;margin:0;border:0;border-radius:50%;font-size:17px;font-weight:700;color:var(--ink-soft);background:var(--fill);}
+#app .opt > span:not(.lab):not(.mk){flex:1 1 calc(100% - 60px);min-width:0;padding-top:3px;}
+/* Chosen = ink, never the accent: terracotta must not read as "wrong" before grading. */
+#app .opt.sel{border-color:var(--ink);background:var(--paper2);}
+#app .opt.sel .lab{background:var(--ink);color:#fff;}
+#app .opt.correct{border-color:var(--ok);background:var(--ok-soft);}
+#app .opt.correct .lab{background:var(--ok);color:#fff;}
+#app .opt.wrong{border-color:var(--no);background:var(--no-soft);}
+#app .opt.wrong .lab{background:var(--no);color:#fff;}
+#app .opt:disabled{cursor:default;}
+#app .opt:disabled:not(.correct):not(.wrong){opacity:.6;}
+#app .opt .mk{display:inline-flex;align-items:center;gap:6px;flex:0 0 100%;margin:0 0 0 52px;font-size:15px;font-weight:700;}
+#app .opt.correct .mk{color:var(--ok);}
+#app .opt.wrong .mk{color:var(--no);}
+#app .ck{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font-size:12px;color:#fff;}
+#app .ck.ok{background:var(--ok);}
+#app .ck.no{background:var(--no);}
+@media (hover:hover) and (pointer:fine){#app .opt:hover:not(:disabled):not(.sel){border-color:var(--line-2);}}
 
-/* Primary action stays strong; secondary action stays quiet. */
-#app .qcard > .btn,#app .qcard .btn{font-family:'Noto Sans TC',sans-serif;letter-spacing:0;font-size:var(--fs-b);font-weight:750;border-radius:11px;min-height:49px;margin-top:13px;box-shadow:none;}
-#app .qcard .btn:not(.ghost){background:var(--pine-deep);}
-#app .qcard .btn.ghost{background:transparent;border:1px solid #C9D7D1;color:var(--pine-deep);}
+/* Submit and secondary actions in the card. */
+#app .qcard > .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:58px;margin-top:20px;font-size:19px;}
+#app .qcard .btn .swsi-i{width:20px;height:20px;}
+html body #app .qcard .btn:not(.ghost):disabled{background:var(--off-bg);border-color:var(--off-bg);color:var(--off-ink);opacity:1;box-shadow:none;cursor:not-allowed;}
 
-/* Explanation reads like notes separated by whitespace and hairlines, not nested cards. */
-#app .exp{margin-top:25px;padding-top:22px;border-top:1px solid #E2E8E4;animation:none;}
-#app .exp .topic{font-family:'Noto Sans TC',sans-serif;color:var(--ink-soft);margin-bottom:16px;}
-#app .exp-sec{margin:0 0 19px;}
-#app .exp-sec h4{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-h);font-weight:800;color:#34443E;letter-spacing:0;margin-bottom:8px;gap:0;}
+/* Result bar: translucent sheet pinned to the bottom, carries the only next action. */
+#app .swsi-result-bar{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:40;width:100%;max-width:var(--swsi-shell-max,540px);display:flex;flex-direction:column;gap:14px;padding:18px 20px calc(18px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:rgba(255,255,255,.88);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);animation:swsi-rise 240ms var(--press) both;}
+#app .swsi-result-msg{display:flex;align-items:center;gap:14px;}
+#app .swsi-result-msg b{display:block;font-size:22px;font-weight:700;line-height:1.3;}
+#app .is-ok .swsi-result-msg b{color:var(--ok);}
+#app .is-no .swsi-result-msg b{color:var(--no);}
+#app .swsi-result-msg small{display:block;margin-top:2px;font-size:16px;font-weight:500;color:var(--ink-soft);}
+#app .swsi-result-ico{display:grid;place-items:center;flex:0 0 auto;width:44px;height:44px;border-radius:50%;color:#fff;}
+#app .is-ok .swsi-result-ico{background:var(--ok);}
+#app .is-no .swsi-result-ico{background:var(--no);}
+#app .swsi-result-ico .swsi-i{width:24px;height:24px;stroke-width:2.6;}
+#app .swsi-result-bar .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;margin:0;border:0;font-size:19px;outline-offset:3px;}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#app .swsi-result-bar{background:var(--paper2);}}
+/* Phones: one row (verdict left, next right) so the bar does not cover the explanation.
+   The encouragement line stays in the DOM for screen readers. */
+@media (max-width:699px){
+  #app .swsi-result-bar{flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));}
+  #app .swsi-result-msg{gap:10px;min-width:0;}
+  #app .swsi-result-msg small{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  #app .swsi-result-msg b{font-size:20px;white-space:nowrap;}
+  #app .swsi-result-ico{width:36px;height:36px;}
+  #app .swsi-result-ico .swsi-i{width:20px;height:20px;}
+  #app .swsi-result-bar .btn{flex:0 0 auto;width:auto;min-width:140px;min-height:52px;padding:0 22px;font-size:18px;}
+}
+
+@keyframes swsi-rise{from{transform:translate(-50%,24px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+@media (min-width:700px){
+  #app .swsi-result-bar{flex-direction:row;align-items:center;justify-content:space-between;width:min(760px,calc(100% - 32px));max-width:none;padding-left:28px;padding-right:28px;border-radius:var(--r-lg) var(--r-lg) 0 0;border:1px solid var(--line);border-bottom:0;}
+  #app .swsi-result-bar .btn{width:auto;min-width:180px;padding:0 28px;}
+}
+
+/* Explanation: one reading column, one card style, one disclosure style. */
+#app .exp{margin-top:28px;padding:0;border-top:0;animation:none;}
+#app .exp .topic{display:inline-block;margin:0 0 12px;padding:0;background:transparent;border:0;font-size:15px;color:var(--ink-3);}
+#app .exp .topic b{color:var(--ink-soft);}
+#app .swsi-answer-line{margin:0 0 12px;padding:0;background:transparent;border:0;font-size:var(--fs-h);font-weight:700;color:var(--ink);}
+#app .swsi-core-reason{display:block;margin:0 0 16px;padding:20px;border:0;border-radius:var(--r-lg);background:var(--paper2);}
+#app .swsi-core-reason b{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:15px;font-weight:700;color:var(--brand);}
+#app .swsi-core-reason span{display:block;font-size:var(--fs-b);line-height:1.8;color:var(--ink);font-weight:400;}
+#app .mistake{display:inline-block;margin:0 0 14px;padding:6px 12px;border-radius:999px;background:var(--no-soft);color:var(--no);font-size:15px;font-weight:600;}
+#app .exp-sec{margin:0 0 20px;}
+#app .exp-sec h4{display:block;font-size:var(--fs-h);font-weight:700;color:var(--ink);margin:0 0 6px;}
 #app .exp-sec h4 .dot{display:none;}
-#app .exp-sec p{font-family:'Noto Sans TC',sans-serif;color:#363D39;line-height:1.86;}
-#app .pending{background:#F8F9F7;border:1px solid #E3E7E4;color:var(--ink-soft);border-radius:10px;}
-#app .extra{background:transparent;border:0;border-top:1px solid #E7EBE8;border-radius:0;padding-left:0;padding-right:0;}
-#app .mistake{font-family:'Noto Sans TC',sans-serif;border-radius:6px;padding:5px 8px;background:#F7EEEB;font-weight:600;}
+#app .exp-sec p{color:var(--ink);line-height:1.85;font-size:var(--fs-b);}
+#app .extra{margin:0 0 12px;padding:12px 0 0;background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;color:var(--ink);}
+#app .pending{background:var(--paper2);border:0;color:var(--ink-soft);border-radius:var(--r-md);padding:16px 18px;}
+#app .exp details{margin:0 0 12px;border:0;border-radius:var(--r-lg);background:var(--paper2);overflow:hidden;}
+#app .exp details > summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:0 20px;font-size:17px;font-weight:600;color:var(--ink);cursor:pointer;list-style:none;}
+#app .exp details > summary::-webkit-details-marker{display:none;}
+#app .exp details > summary::after{content:'';width:9px;height:9px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(45deg) translate(-2px,-2px);transition:transform 150ms var(--press);}
+#app .exp details[open] > summary::after{transform:rotate(-135deg) translate(-2px,-2px);}
+/* Source row: title + one meta line, chevron centred on the right (same height as siblings). */
+#app .exp details.swsi-answer-trust > summary{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:12px;row-gap:0;line-height:1.45;padding:12px 20px;}
+#app .exp details.swsi-answer-trust > summary > .swsi-trust-title{grid-column:1;grid-row:1;}
+#app .exp details.swsi-answer-trust > summary > .swsi-trust-meta{grid-column:1;grid-row:2;}
+#app .exp details.swsi-answer-trust > summary::after{grid-column:2;grid-row:1 / span 2;margin:0;}
+#app .exp details > :not(summary){padding:0 20px 18px;}
+#app .exp details .body{padding:0 20px 18px;}
 
-/* Result page informs without turning into a dashboard. */
-#app .sumcard{background:transparent;border:0;border-radius:0;box-shadow:none;padding-left:0;padding-right:0;}
-#app .sumcard .big{font-size:38px;color:var(--ink);}
-#app .stat{background:transparent;border-color:#E4E8E5;}
-#app .weak{background:#FBF6F4;}
+/* Session result page. */
+#app .sumcard{background:var(--paper2);border:0;border-radius:var(--r-lg);box-shadow:none;padding:28px 24px;}
+#app .sumcard .big{font-size:48px;font-weight:700;color:var(--ink);}
+#app .stat{background:var(--paper2);border:0;border-radius:var(--r-md);}
+#app .weak{background:var(--no-soft);border-radius:var(--r-md);}
 
 @media (max-width:370px){
-  #app .qcard{padding:11px 0 20px;}
-  #app .opt{padding:14px 12px;gap:10px;}
+  #app .opt{padding:14px;gap:12px;}
+  #app .opt .mk{margin-left:48px;}
+  #app .swsi-result-bar{padding-left:16px;padding-right:16px;}
+}
+@media (prefers-reduced-motion:reduce){
+  #app .swsi-result-bar{animation:none;}
+  #app .opt,#app .pbar i{transition:none;}
 }
 `;
   document.head.appendChild(style);
@@ -1764,22 +1861,23 @@ body:has(#app .qcard) header{box-shadow:none;border-bottom:1px solid rgba(220,22
   style.id='swsi-mobile-reading-polish';
   style.textContent=`
 html{
-  --fs-q:13pt;
-  --fs-h:12pt;
-  --fs-b:11pt;
-  --fs-s:10pt;
+  /* Large, calm reading scale (Owner choice 2026-11-22: 簡單大字). */
+  --fs-q:21px;
+  --fs-h:19px;
+  --fs-b:18px;
+  --fs-s:15px;
 }
 html[data-fs="1"]{
-  --fs-q:14.5pt;
-  --fs-h:13pt;
-  --fs-b:12pt;
-  --fs-s:11pt;
+  --fs-q:24px;
+  --fs-h:21px;
+  --fs-b:20px;
+  --fs-s:17px;
 }
 html[data-fs="2"]{
-  --fs-q:16.5pt;
-  --fs-h:14.5pt;
-  --fs-b:13.5pt;
-  --fs-s:12.5pt;
+  --fs-q:27px;
+  --fs-h:23px;
+  --fs-b:22px;
+  --fs-s:19px;
 }
 
 #app .qtext{line-height:1.72;}
@@ -1799,8 +1897,8 @@ html[data-fs="2"]{
   margin:0 0 9px!important;
   padding:5px 0!important;
   text-align:left!important;
-  color:#5F6964!important;
-  font-family:'Noto Sans TC',sans-serif!important;
+  color:var(--ink-3)!important;
+  font-family:var(--swsi-font)!important;
   font-weight:700!important;
   text-decoration:none;
 }
@@ -1819,24 +1917,24 @@ html[data-fs="2"]{
   border:0;
   border-radius:0;
   background:transparent!important;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-size:var(--fs-s);
   font-weight:700;
 }
 #app .ecard.open:has(.wbox) .emeta .tag.subj{color:var(--pine-deep);}
-#app .ecard.open:has(.wbox) .emeta .tag.year{color:#5F6964;}
+#app .ecard.open:has(.wbox) .emeta .tag.year{color:var(--ink-3);}
 #app .ecard.open:has(.wbox) .etopic{
-  font-family:'Noto Serif TC',serif;
+  font-family:var(--swsi-font);
   font-size:var(--fs-q);
   font-weight:800;
   line-height:1.72;
   letter-spacing:.005em;
-  color:#202522;
+  color:var(--ink);
 }
 #app .ecard.open:has(.wbox) .ehint{
   margin-top:8px;
-  font-family:'Noto Sans TC',sans-serif;
-  color:#5F6964!important;
+  font-family:var(--swsi-font);
+  color:var(--ink-3)!important;
   font-weight:500!important;
   line-height:1.65;
 }
@@ -1844,18 +1942,18 @@ html[data-fs="2"]{
 #app .ecard.open:has(.wbox) .ebody{
   margin-top:0;
   padding:18px 0 2px;
-  border-top:1px solid #E2E8E4;
-  font-family:'Noto Sans TC',sans-serif;
+  border-top:1px solid var(--line);
+  font-family:var(--swsi-font);
   font-size:var(--fs-b);
   line-height:1.88;
-  color:#323936;
+  color:var(--ink);
 }
 #app .ecard.open:has(.wbox) .dbtn{
   min-height:42px;
   margin-top:12px;
   padding:6px 0;
-  color:#486F68;
-  font-family:'Noto Sans TC',sans-serif;
+  color:var(--brand);
+  font-family:var(--swsi-font);
   font-weight:700;
   text-decoration:none;
 }
@@ -1864,76 +1962,76 @@ html[data-fs="2"]{
   padding:14px 0 4px;
   gap:9px;
   background:transparent;
-  border-top:1px solid #E5EAE7;
+  border-top:1px solid var(--line);
   border-radius:0;
 }
-#app .ecard.open:has(.wbox) .dstep{line-height:1.75;color:#343B37;}
-#app .ecard.open:has(.wbox) .dstep b{color:#486F68;}
+#app .ecard.open:has(.wbox) .dstep{line-height:1.75;color:var(--ink);}
+#app .ecard.open:has(.wbox) .dstep b{color:var(--brand);}
 #app .ecard.open:has(.wbox) .wbox{
   margin:22px 0 8px;
   padding-top:20px;
-  border-top:1px solid #E2E8E4;
+  border-top:1px solid var(--line);
 }
 #app .ecard.open:has(.wbox) .wlabel{
   margin-bottom:8px;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-size:var(--fs-b);
   font-weight:800;
-  color:#29312D;
+  color:var(--ink);
 }
 #app .ecard.open:has(.wbox) .fmtbar{gap:6px;margin-bottom:10px;}
 #app .ecard.open:has(.wbox) .fmtbar .fbtn{
   min-height:38px;
   padding:6px 10px;
-  border:1px solid #D6DEDA;
+  border:1px solid var(--line);
   border-radius:8px;
   background:#fff;
-  color:#486F68;
+  color:var(--brand);
   box-shadow:none;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-weight:750;
 }
-#app .ecard.open:has(.wbox) .fmtbar .fbtn:hover{border-color:#AFC2BA;background:#F8FAF9;}
+#app .ecard.open:has(.wbox) .fmtbar .fbtn:hover{border-color:var(--line-2);background:var(--paper2);}
 #app .ecard.open:has(.wbox) .wta{
   min-height:220px;
   padding:15px;
-  border:1px solid #D8E0DC;
+  border:1px solid var(--line);
   border-radius:10px;
   background:#fff;
   box-shadow:none;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   line-height:1.82;
 }
-#app .ecard.open:has(.wbox) .wta:focus{outline:none;border-color:#7FA398;box-shadow:0 0 0 2px rgba(79,126,118,.08);}
-#app .ecard.open:has(.wbox) .wmeta{margin-top:6px;color:#5F6964;font-family:'Noto Sans TC',sans-serif;}
+#app .ecard.open:has(.wbox) .wta:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 2px rgba(79,126,118,.08);}
+#app .ecard.open:has(.wbox) .wmeta{margin-top:6px;color:var(--ink-3);font-family:var(--swsi-font);}
 #app .ecard.open:has(.wbox) .gbtn{
   margin-top:14px;
   min-height:46px;
-  border:1px solid #C9D7D1;
+  border:1px solid var(--line-2);
   border-radius:10px;
   background:transparent;
   color:var(--pine-deep);
   box-shadow:none;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-weight:750;
 }
-#app .ecard.open:has(.wbox) .gbtn:hover{background:#F8FAF9;color:var(--pine-deep);border-color:#AFC2BA;}
+#app .ecard.open:has(.wbox) .gbtn:hover{background:var(--paper2);color:var(--pine-deep);border-color:var(--line-2);}
 #app .ecard.open:has(.wbox) .guide{margin-top:18px;gap:17px;}
 #app .ecard.open:has(.wbox) .glabel{
   padding:0;
   border-radius:0;
   background:transparent;
-  color:#486F68;
-  font-family:'Noto Sans TC',sans-serif;
+  color:var(--brand);
+  font-family:var(--swsi-font);
   font-weight:800;
 }
 #app .ecard.open:has(.wbox) .gtext,
-#app .ecard.open:has(.wbox) .glist li{color:#343B37;line-height:1.82;}
+#app .ecard.open:has(.wbox) .glist li{color:var(--ink);line-height:1.82;}
 
 #app .wbox{margin-bottom:6px;}
 #app .wlabel{margin-bottom:7px;}
 #app .swsi-fmt-help{
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-size:var(--fs-s);
   color:var(--ink-soft);
   line-height:1.5;
@@ -1941,8 +2039,13 @@ html[data-fs="2"]{
 }
 #app .fmtbar{align-items:center;margin-bottom:9px;}
 #app .fmtbar .fbtn{min-height:38px;padding:6px 10px;}
-#app .fmtbar .fbtn.clear,
-#app .fmtbar .swsi-clear-btn{
+/* Clear lives on the save line, away from the level buttons (it still asks to confirm). */
+#app .wmeta{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+#app .wbox .fbtn.clear,
+#app .wbox .swsi-clear-btn{
+  min-height:44px;
+  padding:0 4px;
+  font-size:var(--fs-s);
   margin-left:auto;
   color:var(--wrong)!important;
   background:transparent!important;
@@ -1950,18 +2053,31 @@ html[data-fs="2"]{
   font-weight:600!important;
   white-space:nowrap;
 }
-#app .fmtbar .fbtn.clear:hover,
-#app .fmtbar .swsi-clear-btn:hover{
+#app .wbox .fbtn.clear:hover,
+#app .wbox .swsi-clear-btn:hover{
   background:var(--wrong-bg)!important;
   border-color:rgba(158,97,85,.25)!important;
 }
 #app .wta{line-height:1.78;min-height:190px;}
+#app .fmtbar .fbtn{min-height:44px;min-width:48px;font-size:var(--fs-s);border:0;border-radius:10px;background:var(--fill);color:var(--ink);}
+
+/* AI actions (markup owned by the AI-contract layer; only presentation here).
+   Handwriting photo is the primary path, typed text the secondary one. */
+#app div:has(> [id^="aitype_"]){display:flex;flex-direction:column;}
+#app div:has(> [id^="aitype_"]) > [id^="aiphoto_"]{order:1;}
+#app div:has(> [id^="aitype_"]) > [id^="aitype_"]{order:2;}
+#app div:has(> [id^="aitype_"]) > [id^="aiphoto_"] ~ .aihelp{order:3;}
+#app div:has(> [id^="aitype_"]) > [id^="airesult_"]{order:4;}
+#app [id^="aiphoto_"],#app [id^="aitype_"]{min-height:56px!important;margin:0 0 10px!important;padding:0 16px!important;border:0!important;border-radius:var(--r-md)!important;font-family:var(--swsi-font)!important;font-size:var(--fs-h)!important;font-weight:600!important;}
+#app [id^="aiphoto_"]{background:var(--brand)!important;color:var(--brand-ink)!important;}
+#app [id^="aitype_"]{background:var(--brand-soft)!important;color:var(--brand-deep)!important;}
+#app [id^="aiphoto_"]:disabled,#app [id^="aitype_"]:disabled{background:var(--off-bg)!important;color:var(--off-ink)!important;}
 
 #app .swsi-ai-privacy{
   margin:0 0 10px;
   border:1px solid var(--line);
   border-radius:10px;
-  background:#FBFCFB;
+  background:var(--paper2);
   overflow:hidden;
 }
 #app .swsi-ai-privacy summary{
@@ -1972,7 +2088,7 @@ html[data-fs="2"]{
   display:flex;
   align-items:center;
   gap:7px;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-size:var(--fs-s);
   font-weight:700;
   color:var(--ink-soft);
@@ -1983,7 +2099,7 @@ html[data-fs="2"]{
 #app .swsi-ai-privacy .swsi-ai-privacy-body{
   border-top:1px solid var(--line);
   padding:10px 12px 11px;
-  font-family:'Noto Sans TC',sans-serif;
+  font-family:var(--swsi-font);
   font-size:var(--fs-s);
   line-height:1.7;
   color:var(--ink-soft);
@@ -1996,7 +2112,7 @@ html[data-fs="2"]{
   margin:0;
   padding:0;
   border:0;
-  border-bottom:1px solid #E2E8E4;
+  border-bottom:1px solid var(--line);
   border-radius:0;
   background:transparent;
   box-shadow:none;
@@ -2007,25 +2123,25 @@ html[data-fs="2"]{
   border:0;
 }
 #app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)) .etopic{
-  font-family:'Noto Serif TC',serif;
-  font-size:15.5px;
-  font-weight:800;
+  font-family:var(--swsi-font);
+  font-size:var(--fs-b);
+  font-weight:600;
   line-height:1.58;
-  color:#202724;
+  color:var(--ink);
 }
 #app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)) .ehint{
   margin-top:5px;
-  font-family:'Noto Sans TC',sans-serif;
-  font-size:11.5px;
+  font-family:var(--swsi-font);
+  font-size:var(--fs-s);
   font-weight:600;
   line-height:1.55;
-  color:#6A746F;
+  color:var(--ink-3);
 }
 #app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .ehead{padding-bottom:12px;}
 #app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .ebodywrap{
   margin:0;
   padding:16px 2px 20px;
-  border-top:1px solid #E5EAE7;
+  border-top:1px solid var(--line);
   background:transparent;
 }
 #app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .kws{
@@ -2037,11 +2153,11 @@ html[data-fs="2"]{
 #app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .kw{
   margin:0;
   padding:3px 7px;
-  border:1px solid #D9E1DD;
+  border:1px solid var(--line);
   border-radius:999px;
   background:transparent;
-  color:#5B6761;
-  font-size:10.5px;
+  color:var(--ink-3);
+  font-size:14px;
   font-weight:700;
 }
 #app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .ecollapse{
@@ -2050,8 +2166,8 @@ html[data-fs="2"]{
   padding:5px 0;
   border:0;
   background:transparent;
-  color:#55766F;
-  font-family:'Noto Sans TC',sans-serif;
+  color:var(--brand);
+  font-family:var(--swsi-font);
   font-weight:700;
   box-shadow:none;
 }
@@ -2060,11 +2176,11 @@ html[data-fs="2"]{
   padding:0!important;
   border:0!important;
   background:transparent!important;
-  color:#68736D!important;
-  font-family:'Noto Sans TC',sans-serif!important;
-  font-size:11px!important;
-  font-weight:800!important;
-  letter-spacing:.04em;
+  color:var(--ink-3)!important;
+  font-family:var(--swsi-font)!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  letter-spacing:0;
 }
 
 /* Current affairs: present event -> exam point -> possible question direction ->
@@ -2080,25 +2196,25 @@ html[data-fs="2"]{
 .nlr-top{
   margin:0 0 8px!important;
   padding:0 2px 11px;
-  border-bottom:1px solid #E2E8E4;
+  border-bottom:1px solid var(--line);
 }
 .nlr-h{
-  font-family:'Noto Serif TC',serif;
+  font-family:var(--swsi-font);
   font-size:18px!important;
   font-weight:900!important;
-  color:#202724;
+  color:var(--ink);
 }
 .nlr-badge{
   padding:0!important;
   border:0!important;
   border-radius:0!important;
   background:transparent!important;
-  color:#66716B;
+  color:var(--ink-3);
   font-weight:700;
 }
 .nlr-help{
   margin:8px 2px 16px!important;
-  color:#626D67!important;
+  color:var(--ink-3)!important;
   line-height:1.7!important;
 }
 .nlr-grid{gap:0!important;}
@@ -2106,14 +2222,14 @@ html[data-fs="2"]{
   margin:0!important;
   padding:17px 2px 19px!important;
   border:0!important;
-  border-bottom:1px solid #E3E8E5!important;
+  border-bottom:1px solid var(--line)!important;
   border-radius:0!important;
   background:transparent!important;
   box-shadow:none!important;
 }
 .nlr-head{align-items:baseline;}
 .nlr-cat{
-  color:#55766F;
+  color:var(--brand);
   font-weight:800!important;
   letter-spacing:.02em;
 }
@@ -2122,19 +2238,19 @@ html[data-fs="2"]{
   border:0!important;
   border-radius:0!important;
   background:transparent!important;
-  color:#69736E!important;
+  color:var(--ink-3)!important;
 }
-.nlr-trend-rising{color:#355A52!important;}
+.nlr-trend-rising{color:var(--brand)!important;}
 .nlr-title{
   margin:7px 0 5px!important;
-  font-family:'Noto Serif TC',serif;
+  font-family:var(--swsi-font);
   font-size:16px;
   font-weight:850!important;
   line-height:1.62!important;
-  color:#202724;
+  color:var(--ink);
 }
 .nlr-meta,.nlr-summary{
-  color:#66716B!important;
+  color:var(--ink-3)!important;
   line-height:1.7!important;
 }
 .nlr-summary{margin-top:8px!important;}
@@ -2144,34 +2260,34 @@ html[data-fs="2"]{
   border:0!important;
   border-radius:0!important;
   background:transparent!important;
-  color:#55766F;
+  color:var(--brand);
   font-weight:750;
 }
 .nlr-chips{gap:6px!important;}
 .nlr-chip{
-  border:1px solid #D8E1DC;
+  border:1px solid var(--line);
   background:transparent!important;
-  color:#5E6A64;
+  color:var(--ink-3);
 }
 .nlr-signal{
   margin-top:12px!important;
   padding-top:11px;
-  border-top:1px solid #E7ECE9;
-  color:#46534D;
+  border-top:1px solid var(--line);
+  color:var(--ink-soft);
   line-height:1.65!important;
 }
 .nlr-signal-text{
   margin-top:6px!important;
-  color:#59645E;
+  color:var(--ink-3);
   line-height:1.7!important;
 }
 .nlr-detail{
   margin-top:13px!important;
   padding-top:11px;
-  border-top:1px solid #E8ECEA;
+  border-top:1px solid var(--line);
   line-height:1.72!important;
 }
-.nlr-detail summary{color:#496E66;font-weight:800!important;}
+.nlr-detail summary{color:var(--brand);font-weight:800!important;}
 .nlr-detail ul{margin:8px 0!important;}
 .nlr-exam{margin-top:8px!important;line-height:1.78;}
 .nlr-knowledge-root{
@@ -2179,15 +2295,15 @@ html[data-fs="2"]{
   padding:0!important;
   background:transparent!important;
 }
-.nlr-knowledge-label{margin-top:11px!important;color:#68736D!important;}
+.nlr-knowledge-label{margin-top:11px!important;color:var(--ink-3)!important;}
 .nlr-knowledge-subject{margin-top:10px!important;}
-.nlr-link{color:#496E66!important;}
+.nlr-link{color:var(--brand)!important;}
 .nlr-note{
   margin-top:12px!important;
-  color:#707A75!important;
+  color:var(--ink-3)!important;
   line-height:1.6!important;
 }
-.nlr-empty{padding:15px 2px!important;color:#69736E!important;}
+.nlr-empty{padding:15px 2px!important;color:var(--ink-3)!important;}
 
 @media (max-width:370px){
   #app .fmtbar{gap:5px;}
@@ -2213,7 +2329,7 @@ html[data-fs="2"]{
         help.textContent='點一下插入答題層級';
         bar.parentNode.insertBefore(help,bar);
       }
-      var clear=box.querySelector('.fmtbar .fbtn.clear');
+      var clear=box.querySelector('.fbtn.clear');
       if(clear){
         if(!clear.classList.contains('swsi-clear-btn')) clear.classList.add('swsi-clear-btn');
         /* textContent mutates child nodes even when the text is identical. Guard it so
@@ -2238,7 +2354,7 @@ html[data-fs="2"]{
 
       var details=document.createElement('details');
       details.className='swsi-ai-privacy';
-      details.innerHTML='<summary>🔒 使用 AI 回饋前請先閱讀隱私說明</summary>'+
+      details.innerHTML='<summary>使用 AI 回饋前請先閱讀隱私說明</summary>'+
         '<div class="swsi-ai-privacy-body"><b>照片與文字會送至外部 AI 服務處理。</b> 請勿輸入或上傳可識別真實個案或個人的資料；需要舉例時請先匿名化。<br>'+swsiEsc(official)+'</div>';
       node.dataset.swsiPrivacyHandled='1';
       node.replaceWith(details);
@@ -2534,7 +2650,7 @@ html[data-fs="2"]{
     var topicBase=1+causeGroups.length;
     topicGroups.forEach(function(x){window._swsiReviewSets.push({label:x[0],ids:x[1].map(function(q){return q.id;})});});
     var h='<div class="section-h">錯題複習</div><div class="section-s">先處理今天到期的，再看看自己到底為什麼常錯。沒有排行榜，也不用追連勝。</div>';
-    h+='<div class="statrow swsi-review-stats"><div class="stat"><div class="v" style="color:var(--wrong)">'+rv.dueCount+'</div><div class="k">今天到期</div></div><div class="stat"><div class="v">'+rv.activeCount+'</div><div class="k">還沒熟</div></div><div class="stat"><div class="v" style="color:var(--correct)">'+rv.masteredCount+'</div><div class="k">已掌握</div></div></div>';
+    h+='<div class="statrow swsi-review-stats"><div class="stat"><div class="v"'+(rv.dueCount?' style="color:var(--wrong)"':'')+'>'+rv.dueCount+'</div><div class="k">今天到期</div></div><div class="stat"><div class="v">'+rv.activeCount+'</div><div class="k">還沒熟</div></div><div class="stat"><div class="v" style="color:var(--correct)">'+rv.masteredCount+'</div><div class="k">已掌握</div></div></div>';
     if(rv.dueCount)h+='<button class="btn" onclick="startDueReview()">先複習今天這 '+rv.dueCount+' 題</button>';else if(rv.nextDueAt)h+='<div class="swsi-calm-note">✓ 今天沒有到期題，下一批 '+H(reviewDueLabel(rv.nextDueAt))+'。</div>';
     if(wrongQs.length)h+='<button class="btn ghost" onclick="swsiPracticeReviewSet(0)" style="margin-top:9px">重練全部未熟練錯題（'+wrongQs.length+' 題）</button>';
     h+='<section class="swsi-learning-section"><div class="swsi-learning-h">你自己標記的錯因</div>';
@@ -2637,6 +2753,28 @@ html[data-fs="2"]{
       .swsi-myhub-row.admin{background:transparent}.swsi-myhub-row.admin .label{color:#2747A3}.swsi-myhub-row.admin-login{background:transparent}.swsi-myhub-row.admin-login .label{font-weight:650;color:#667085}.swsi-myhub-row[hidden]{display:none!important}
       .swsi-myhub-toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:980;background:#27322D;color:#fff;border-radius:999px;padding:9px 13px;font:650 12px/1.3 'Noto Sans TC',sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.2)}
       .swsi-admin-layer{position:fixed;inset:0;z-index:1200;background:#F5F7FB;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}.swsi-admin-layer[hidden]{display:none!important}.swsi-admin-bar{min-height:54px;display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #E5E7EB;background:#fff;box-shadow:0 2px 10px rgba(20,32,51,.05);font-family:'Noto Sans TC',sans-serif}.swsi-admin-back{border:1px solid #D7DCE3;background:#fff;color:#27322D;border-radius:11px;padding:8px 11px;font-weight:750;cursor:pointer}.swsi-admin-title{font-weight:800;color:#18202A;font-size:14px}.swsi-admin-note{margin-left:auto;color:#667085;font-size:11px}.swsi-admin-frame{border:0;width:100%;flex:1;min-height:0;background:#F5F7FB}body.swsi-admin-open{overflow:hidden}
+      /* 2026-11-22 system (簡單大字): large title, one action, iOS-style grouped lists. Tokens from swsi-calm-learning-ui-v3. */
+      .swsi-myhub-card{padding:8px 0}
+      .swsi-myhub-kicker{font:600 16px/1.3 var(--swsi-font);letter-spacing:0;color:var(--ink-3);margin-bottom:6px}
+      .swsi-myhub-title{font:700 30px/1.25 var(--swsi-font);letter-spacing:0;color:var(--ink)}
+      .swsi-myhub-sub{font:400 17px/1.65 var(--swsi-font);color:var(--ink-soft);margin-top:8px}
+      .swsi-myhub-primary{margin-top:20px;border:0;border-radius:var(--r-md);background:var(--brand);min-height:68px;padding:14px 20px;font-family:var(--swsi-font);box-shadow:none;transition:opacity 90ms var(--press)}
+      .swsi-myhub-primary:active{opacity:.78}
+      .swsi-myhub-primary b{font-size:19px;font-weight:600}.swsi-myhub-primary small{font-size:15px;opacity:.92}.swsi-myhub-primary .arrow{opacity:1}.swsi-myhub-primary .arrow .swsi-i{width:22px;height:22px}
+      .swsi-myhub-stats{gap:0;margin-top:16px;border:0;border-radius:var(--r-lg);background:var(--paper2);overflow:hidden}
+      .swsi-myhub-stat{background:transparent;border:0!important;padding:16px 8px}.swsi-myhub-stat+.swsi-myhub-stat{box-shadow:inset 1px 0 0 var(--line)}.swsi-myhub-stat b{font:700 28px/1.1 var(--swsi-font);color:var(--ink)}.swsi-myhub-stat span{font:500 15px/1.35 var(--swsi-font);color:var(--ink-3)}
+      .swsi-myhub-list{gap:0;margin-top:24px;border:0;border-radius:var(--r-lg);background:var(--paper2);overflow:hidden}
+      .swsi-myhub-row{position:relative;min-height:68px;padding:12px 16px;gap:14px;border:0!important;border-radius:0;background:transparent;font-family:var(--swsi-font);transition:background-color 150ms}
+      .swsi-myhub-row+.swsi-myhub-row::before{content:'';position:absolute;top:0;left:66px;right:0;height:1px;background:var(--line)}
+      .swsi-myhub-row:active{background:var(--fill)}
+      .swsi-myhub-row .ico{display:grid;place-items:center;flex:0 0 auto;width:36px;height:36px;border-radius:10px;background:var(--brand-soft);color:var(--brand)}
+      .swsi-myhub-row .ico .swsi-i{width:22px;height:22px}
+      .swsi-myhub-row .label{font-size:18px;font-weight:500;color:var(--ink)}.swsi-myhub-row .meta{font-size:15px;color:var(--ink-3)}
+      .swsi-myhub-row .arrow{color:var(--line-2);font-size:18px}.swsi-myhub-row .arrow .swsi-i{width:18px;height:18px;stroke-width:2.4}
+      .swsi-myhub-more{margin-top:24px;border:0;border-radius:var(--r-lg);background:var(--paper2);overflow:hidden}
+      .swsi-myhub-more>summary{min-height:56px;padding:0 16px;font:500 17px/1.4 var(--swsi-font);color:var(--ink)}
+      .swsi-myhub-more .swsi-myhub-list{margin:0;border-radius:0;box-shadow:inset 0 1px 0 var(--line)}
+      @media(hover:hover) and (pointer:fine){.swsi-myhub-row:hover{background:#FBFAF7}.swsi-myhub-primary:hover{background:var(--brand-deep);filter:none}}
       @media(max-width:430px){.swsi-myhub-card{padding:6px 0 17px}.swsi-admin-note{display:none}}
     `;
     document.head.appendChild(st);
@@ -2662,7 +2800,7 @@ html[data-fs="2"]{
   window.swsiOpenAdminCenter=function(){var layer=ensureAdminLayer();var frame=layer.querySelector('iframe');if(frame&&!frame.getAttribute('src'))frame.setAttribute('src',adminUrl());layer.hidden=false;document.body.classList.add('swsi-admin-open');};
   window.swsiCloseAdminCenter=function(){var layer=document.getElementById('swsi-admin-layer');if(layer)layer.hidden=true;document.body.classList.remove('swsi-admin-open');verifyAdminAccess();};
 
-  function row(icon,label,meta,onclick,extraClass,attrs){return '<button type="button" class="swsi-myhub-row'+(extraClass?' '+extraClass:'')+'" '+(attrs||'')+' onclick="'+onclick+'"><span class="ico">'+icon+'</span><span class="copy"><span class="label">'+label+'</span><span class="meta">'+meta+'</span></span><span class="arrow">›</span></button>';}
+  function row(icon,label,meta,onclick,extraClass,attrs){return '<button type="button" class="swsi-myhub-row'+(extraClass?' '+extraClass:'')+'" '+(attrs||'')+' onclick="'+onclick+'"><span class="ico">'+icon+'</span><span class="copy"><span class="label">'+label+'</span><span class="meta">'+meta+'</span></span><span class="arrow">'+swsiIcon('arrow')+'</span></button>';}
 
   function recommendation(rv,drafts){
     if(rv.due>0)return {title:'先複習今天到期的 '+rv.due+' 題',sub:'到期錯題比再刷一批新題更值得。',onclick:"swsiLearningAction('due')"};
@@ -2675,24 +2813,24 @@ html[data-fs="2"]{
     var rv=reviewMeta(),drafts=draftCount(),rec=recommendation(rv,drafts);
     return '<section class="swsi-myhub" aria-label="學習中心">'
       +'<div class="swsi-myhub-card"><div class="swsi-myhub-kicker">學習中心</div><h2 class="swsi-myhub-title">你現在想做什麼？</h2><div class="swsi-myhub-sub">直接照你現在的時間和需求選一個，不用先理解平台功能名稱。</div>'
-      +'<button type="button" class="swsi-myhub-primary" onclick="'+rec.onclick+'"><span><b>'+rec.title+'</b><small>'+rec.sub+'</small></span><span class="arrow">›</span></button>'
+      +'<button type="button" class="swsi-myhub-primary" onclick="'+rec.onclick+'"><span><b>'+rec.title+'</b><small>'+rec.sub+'</small></span><span class="arrow">'+swsiIcon('arrow')+'</span></button>'
       +'<div class="swsi-myhub-stats"><div class="swsi-myhub-stat"><b>'+rv.due+'</b><span>今天到期</span></div><div class="swsi-myhub-stat"><b>'+rv.active+'</b><span>還沒熟</span></div><div class="swsi-myhub-stat"><b>'+rv.mastered+'</b><span>已掌握</span></div></div>'
       +'<div class="swsi-myhub-list" data-swsi-learning-scenarios>'
-      +row('10','我只有 10 分鐘','快速刷題：直接做 10 題今日練習',"swsiLearningAction('short')",'', 'data-swsi-scenario="short"')
-      +row('弱','我要補最弱科','先看各科表現，再練目前最需要補的科目',"swsiLearningAction('weak')",'', 'data-swsi-scenario="weak"')
-      +row('卷','我要做完整考卷','進入計時模擬考，完成後再看結果',"swsiLearningAction('mock')",'', 'data-swsi-scenario="mock"')
-      +row('✎','我要練申論',drafts?('申論練習：這台裝置有 '+drafts+' 份草稿可接著寫'):'申論練習：歷屆申論與 AI 回饋',"swsiLearningAction('essay')",'', 'data-swsi-scenario="essay"')
-      +row('↻','我要複習錯題',rv.due?('錯題複習：今天 '+rv.due+' 題到期'):(rv.active?('錯題複習：尚有 '+rv.active+' 題未熟練'):'錯題複習：目前沒有待複習題'),"swsiLearningAction('review')",'', 'data-swsi-scenario="review"')
+      +row(swsiIcon('play'),'我只有 10 分鐘','快速刷題：直接做 10 題今日練習',"swsiLearningAction('short')",'', 'data-swsi-scenario="short"')
+      +row(swsiIcon('target'),'我要補最弱科','先看各科表現，再練目前最需要補的科目',"swsiLearningAction('weak')",'', 'data-swsi-scenario="weak"')
+      +row(swsiIcon('papers'),'我要做完整考卷','進入計時模擬考，完成後再看結果',"swsiLearningAction('mock')",'', 'data-swsi-scenario="mock"')
+      +row(swsiIcon('essay'),'我要練申論',drafts?('申論練習：這台裝置有 '+drafts+' 份草稿可接著寫'):'申論練習：歷屆申論與 AI 回饋',"swsiLearningAction('essay')",'', 'data-swsi-scenario="essay"')
+      +row(swsiIcon('review'),'我要複習錯題',rv.due?('錯題複習：今天 '+rv.due+' 題到期'):(rv.active?('錯題複習：尚有 '+rv.active+' 題未熟練'):'錯題複習：目前沒有待複習題'),"swsiLearningAction('review')",'', 'data-swsi-scenario="review"')
       +'</div></div>'
       +'<details class="swsi-myhub-more"><summary>更多與平台資訊</summary><div class="swsi-myhub-list">'
-      +'<button type="button" class="swsi-myhub-row admin" data-swsi-admin-entry hidden onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理中心</span><span class="meta">管理者專用</span></span><span class="arrow">›</span></button>'
-      +row('↗','分享 SWSI','分享官方公開網址','swsiSharePlatform()')
-      +row('i','關於 SWSI','平台目的與使用方式',"swsiOpenPublicInfo('about',this)")
-      +row('源','資料來源','正式考題以官方資料為準',"swsiOpenPublicInfo('sources',this)")
-      +row('隱','隱私說明','了解平台保存哪些資料',"swsiOpenPublicInfo('privacy',this)")
-      +row('條','使用條款','免費分享與商業使用邊界',"swsiOpenPublicInfo('terms',this)")
+      +'<button type="button" class="swsi-myhub-row admin" data-swsi-admin-entry hidden onclick="swsiOpenAdminCenter()"><span class="ico">'+swsiIcon('chart')+'</span><span class="copy"><span class="label">管理中心</span><span class="meta">管理者專用</span></span><span class="arrow">'+swsiIcon('arrow')+'</span></button>'
+      +row(swsiIcon('arrow'),'分享 SWSI','分享官方公開網址','swsiSharePlatform()')
+      +row(swsiIcon('bulb'),'關於 SWSI','平台目的與使用方式',"swsiOpenPublicInfo('about',this)")
+      +row(swsiIcon('papers'),'資料來源','正式考題以官方資料為準',"swsiOpenPublicInfo('sources',this)")
+      +row(swsiIcon('mine'),'隱私說明','了解平台保存哪些資料',"swsiOpenPublicInfo('privacy',this)")
+      +row(swsiIcon('law'),'使用條款','免費分享與商業使用邊界',"swsiOpenPublicInfo('terms',this)")
       +row('旗','回報問題／提供建議','協助改善網站或題目內容',"SWSI_FEEDBACK.openGeneral(this)")
-      +'<button type="button" class="swsi-myhub-row admin-login" data-swsi-admin-login onclick="swsiOpenAdminCenter()"><span class="ico">⚙</span><span class="copy"><span class="label">管理者入口</span><span class="meta">僅管理者使用</span></span><span class="arrow">›</span></button>'
+      +'<button type="button" class="swsi-myhub-row admin-login" data-swsi-admin-login onclick="swsiOpenAdminCenter()"><span class="ico">'+swsiIcon('mine')+'</span><span class="copy"><span class="label">管理者入口</span><span class="meta">僅管理者使用</span></span><span class="arrow">'+swsiIcon('arrow')+'</span></button>'
       +'</div></details></section>';
   }
 
@@ -2734,9 +2872,11 @@ html[data-fs="2"]{
 
   function installLearningTab(){
     var home=document.getElementById('t-home'),learning=document.getElementById('t-review'),essay=document.getElementById('t-essay'),progress=document.getElementById('t-progress');
-    if(home)home.innerHTML='<span class="ico">◎</span>首頁';
-    if(learning){learning.innerHTML='<span class="ico">↻</span>我的';learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');learning.setAttribute('aria-label','我的');}
-    if(essay)essay.innerHTML='<span class="ico">✒</span>申論';
+    // Same markup as the navigation owner in 15.layout-foundation, so owners never rewrite each other.
+    var nav=function(el,icon,label){var html='<span class="ico">'+swsiIcon(icon)+'</span><span class="swsi-nav-label">'+label+'</span>';if(el&&el.innerHTML!==html)el.innerHTML=html;};
+    nav(home,'home','首頁');
+    if(learning){nav(learning,'mine','我的');learning.setAttribute('onclick','return swsiOpenLearningCenter(event)');learning.setAttribute('aria-label','我的');}
+    nav(essay,'essay','申論');
     if(progress)progress.style.display='none';
     if(window.__SWSI_LEARNING_CENTER_OPEN__)setLearningNavActive();
   }
@@ -2766,9 +2906,9 @@ html[data-fs="2"]{
     var st=document.createElement('style');
     st.id=STYLE_ID;
     st.textContent=`
-      .swsi-myhub-row.admin-login{opacity:.72;background:#FAFBFA!important}
-      .swsi-myhub-row.admin-login .label{font-size:12px!important;font-weight:600!important}
-      .swsi-myhub-row.admin-login .meta{font-size:10px!important}
+      .swsi-myhub-row.admin-login{background:transparent!important}.swsi-myhub-row.admin-login .ico{background:var(--fill);color:var(--ink-3)}
+      .swsi-myhub-row.admin-login .label{font-size:16px!important;font-weight:400!important;color:var(--ink-soft)}
+      .swsi-myhub-row.admin-login .meta{font-size:14px!important}
       @media(max-width:720px){
         .swsi-public-footer-brand{padding-left:8px;padding-right:8px}
         .swsi-myhub{gap:9px;margin-bottom:18px}
@@ -2793,9 +2933,9 @@ html[data-fs="2"]{
   if(!document.getElementById(STYLE_ID)){
     var st=document.createElement('style');st.id=STYLE_ID;
     st.textContent=`
-      .swsi-launch-guide{margin:-2px 0 10px;border:1px solid #D7E2DC;background:#FBFCFB;border-radius:12px;padding:9px 10px;display:flex;align-items:flex-start;gap:8px;font-family:'Noto Sans TC',sans-serif;color:var(--ink)}
-      .swsi-launch-guide .copy{min-width:0;flex:1}.swsi-launch-guide b{display:block;font-size:11.5px;line-height:1.45;color:var(--ink)}.swsi-launch-guide span{display:block;font-size:10.5px;line-height:1.55;color:#6E746E;margin-top:1px}.swsi-launch-guide-close{flex:0 0 auto;border:0;background:transparent;color:#7C8781;width:28px;height:28px;border-radius:50%;font-size:17px;cursor:pointer}
-      .swsi-exam-reminder{margin-top:10px;border:1px solid var(--line);background:#F8FAF9;border-radius:11px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-family:'Noto Sans TC',sans-serif}.swsi-exam-reminder-copy{min-width:0;flex:1;font-size:10.7px;line-height:1.5;color:var(--ink-soft)}.swsi-exam-reminder-copy b{color:var(--ink);font-weight:800}.swsi-exam-reminder-btn{flex:0 0 auto;border:1px solid #CBD8D1;background:#fff;color:var(--pine-deep);border-radius:9px;min-height:34px;padding:6px 9px;font:750 10.5px/1.2 'Noto Sans TC',sans-serif;cursor:pointer}
+      .swsi-launch-guide{margin:0 0 24px;border:2px solid var(--line);background:var(--paper2);border-radius:var(--r-lg);padding:14px 12px 14px 16px;display:flex;align-items:flex-start;gap:8px;font-family:var(--swsi-font);font-size:15px;line-height:1.6;color:var(--ink)}
+      .swsi-launch-guide .copy{min-width:0;flex:1}.swsi-launch-guide b{display:block;font-size:16px;line-height:1.5;font-weight:800;color:var(--ink)}.swsi-launch-guide span{display:block;font-size:15px;line-height:1.6;color:var(--ink-soft);margin-top:2px}.swsi-launch-guide-close{flex:0 0 auto;border:0;background:transparent;color:var(--ink-3);width:44px;height:44px;margin:-10px -6px 0 0;border-radius:50%;font-size:20px;cursor:pointer}
+      .swsi-exam-reminder{margin-top:16px;border:0;background:var(--paper2);border-radius:var(--r-lg,16px);min-height:64px;padding:12px 16px;display:flex;align-items:center;gap:12px;font-family:var(--swsi-font)}.swsi-exam-reminder-copy{min-width:0;flex:1;font-size:15px;line-height:1.55;color:var(--ink-3)}.swsi-exam-reminder-copy b{display:block;font-size:17px;color:var(--ink);font-weight:600}.swsi-exam-reminder-btn{flex:0 0 auto;border:0;background:var(--brand-soft);color:var(--brand-deep);border-radius:999px;min-height:44px;padding:0 16px;font:600 16px/1.2 var(--swsi-font);cursor:pointer}
       .swsi-exam-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(25,31,28,.38);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px);overflow:auto}.swsi-exam-dialog{width:min(100%,480px);max-height:calc(100dvh - 28px - env(safe-area-inset-bottom));overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:19px;padding:17px 16px 16px;box-shadow:0 22px 60px rgba(25,31,28,.22);font-family:'Noto Sans TC',sans-serif;color:var(--ink)}.swsi-exam-dialog h2{font-family:'Noto Serif TC',serif;font-size:19px;margin:0 0 5px}.swsi-exam-dialog p{font-size:11.5px;line-height:1.65;color:#6E746E;margin:0 0 13px}.swsi-exam-date-label{display:block;font-size:11.5px;line-height:1.45;font-weight:800;color:var(--ink);margin:0 0 5px}.swsi-exam-dialog input{width:100%;box-sizing:border-box;min-height:46px;border:1px solid #CCD7D1;border-radius:11px;background:#fff;color:var(--ink);font:700 14px 'Noto Sans TC',sans-serif;padding:10px 11px}.swsi-exam-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px;margin-top:12px}.swsi-exam-actions button{min-height:43px;border-radius:10px;font:800 12.5px 'Noto Sans TC',sans-serif;cursor:pointer}.swsi-exam-clear{background:#fff;border:1px solid var(--line);color:#6E746E}.swsi-exam-save{background:var(--pine-deep);border:0;color:#fff}body.swsi-modal-open{overflow:hidden}
       @media(min-width:620px){.swsi-exam-backdrop{align-items:center}}@media(max-width:390px){.swsi-exam-actions{grid-template-columns:1fr}}
     `;
@@ -2810,7 +2950,7 @@ html[data-fs="2"]{
 
   window.swsiDismissLaunchGuide=function(){try{localStorage.setItem(GUIDE_KEY,'1');}catch(_e){}var el=document.querySelector('.swsi-launch-guide');if(el)el.remove();};
   function guideDismissed(){try{return localStorage.getItem(GUIDE_KEY)==='1';}catch(_e){return false;}}
-  function decorateHome(){if(guideDismissed())return;var hero=document.querySelector('#app .swsi-focus-hero');if(!hero||document.querySelector('#app .swsi-launch-guide'))return;var box=document.createElement('section');box.className='swsi-launch-guide';box.setAttribute('aria-label','第一次使用 SWSI');box.innerHTML='<div class="copy"><b>第一次來？不用先學整個平台。</b><span>「練題」直接刷題；「學習」看錯題與進度；「申論」專心練申論。</span></div><button type="button" class="swsi-launch-guide-close" aria-label="不再顯示首次使用說明" onclick="swsiDismissLaunchGuide()">×</button>';hero.insertAdjacentElement('afterend',box);}
+  function decorateHome(){if(guideDismissed())return;var hero=document.querySelector('#app .swsi-focus-hero');if(!hero||document.querySelector('#app .swsi-launch-guide'))return;var box=document.createElement('section');box.className='swsi-launch-guide';box.setAttribute('aria-label','第一次使用 SWSI');box.innerHTML='<div class="copy"><b>第一次來？不用先學整個平台。</b><span>下方「刷題」直接開始；「申論」練寫作；「我的」看錯題與進度。</span></div><button type="button" class="swsi-launch-guide-close" aria-label="不再顯示首次使用說明" onclick="swsiDismissLaunchGuide()">×</button>';hero.insertAdjacentElement('afterend',box);}
 
   function onExamKeydown(ev){if(ev.key==='Escape')window.swsiCloseExamDate();}
   window.swsiOpenExamDate=function(){
@@ -3020,17 +3160,17 @@ html[data-fs="2"]{
   st.textContent=`
     /* Learning Center hub: preserve the current visual hierarchy at the default
        size, but make every user-facing text tier respond to html[data-fs]. */
-    .swsi-myhub-kicker{font-size:calc(var(--fs-s) - 4px)!important}
-    .swsi-myhub-title{font-size:calc(var(--fs-h) + 2px)!important}
-    .swsi-myhub-sub{font-size:calc(var(--fs-s) - 3px)!important}
-    .swsi-myhub-primary b{font-size:calc(var(--fs-b) - 2px)!important}
-    .swsi-myhub-primary small{font-size:calc(var(--fs-s) - 4px)!important}
-    .swsi-myhub-stat b{font-size:var(--fs-h)!important}
-    .swsi-myhub-stat span{font-size:calc(var(--fs-s) - 5px)!important}
-    .swsi-myhub-row .label{font-size:calc(var(--fs-b) - 3px)!important}
-    .swsi-myhub-row .meta{font-size:calc(var(--fs-s) - 4px)!important}
-    .swsi-myhub-more>summary{font-size:calc(var(--fs-s) - 3px)!important}
-    .swsi-myhub-toast{font-size:calc(var(--fs-s) - 2px)!important}
+    .swsi-myhub-kicker{font-size:calc(var(--fs-s) + 1px)!important}
+    .swsi-myhub-title{font-size:calc(var(--fs-h) + 11px)!important}
+    .swsi-myhub-sub{font-size:var(--fs-b)!important}
+    .swsi-myhub-primary b{font-size:var(--fs-b)!important}
+    .swsi-myhub-primary small{font-size:var(--fs-s)!important}
+    .swsi-myhub-stat b{font-size:calc(var(--fs-h) + 9px)!important}
+    .swsi-myhub-stat span{font-size:var(--fs-s)!important}
+    .swsi-myhub-row .label{font-size:var(--fs-b)!important}
+    .swsi-myhub-row .meta{font-size:var(--fs-s)!important}
+    .swsi-myhub-more>summary{font-size:var(--fs-b)!important}
+    .swsi-myhub-toast{font-size:var(--fs-s)!important}
 
     /* Wrong-answer review / learning progress. */
     body[data-swsi-page="learning-detail"] .section-h{
@@ -3046,31 +3186,31 @@ html[data-fs="2"]{
       font-size:calc(var(--fs-h) + 2px)!important;
     }
     body[data-swsi-page="learning-detail"] .empty p{
-      font-size:calc(var(--fs-b) - 3px)!important;
+      font-size:var(--fs-b)!important;
     }
     .swsi-review-stats .stat .v{font-size:calc(var(--fs-h) + 5px)!important}
-    .swsi-review-stats .stat .k{font-size:calc(var(--fs-s) - 3px)!important}
-    .swsi-calm-note{font-size:calc(var(--fs-b) - 3px)!important}
-    .swsi-learning-h{font-size:calc(var(--fs-b) - 2px)!important}
-    .swsi-learning-muted{font-size:calc(var(--fs-s) - 2px)!important}
-    .swsi-learning-row b{font-size:calc(var(--fs-b) - 2px)!important}
-    .swsi-learning-row small{font-size:calc(var(--fs-s) - 3px)!important}
-    .swsi-progress-hero>div:first-child small{font-size:calc(var(--fs-s) - 2px)!important}
+    .swsi-review-stats .stat .k{font-size:var(--fs-s)!important}
+    .swsi-calm-note{font-size:var(--fs-b)!important}
+    .swsi-learning-h{font-size:var(--fs-b)!important}
+    .swsi-learning-muted{font-size:var(--fs-s)!important}
+    .swsi-learning-row b{font-size:var(--fs-b)!important}
+    .swsi-learning-row small{font-size:var(--fs-s)!important}
+    .swsi-progress-hero>div:first-child small{font-size:var(--fs-s)!important}
     .swsi-progress-hero strong{font-size:calc(var(--fs-q) + 17px)!important}
-    .swsi-progress-mini span{font-size:calc(var(--fs-s) - 4px)!important}
-    .swsi-progress-mini b{font-size:calc(var(--fs-b) - 2px)!important}
+    .swsi-progress-mini span{font-size:var(--fs-s)!important}
+    .swsi-progress-mini b{font-size:var(--fs-b)!important}
     .swsi-progress-strip b{font-size:var(--fs-h)!important}
-    .swsi-progress-strip span{font-size:calc(var(--fs-s) - 4px)!important}
-    .swsi-next-copy b{font-size:calc(var(--fs-b) - 2px)!important}
-    .swsi-next-copy span{font-size:calc(var(--fs-s) - 2px)!important}
-    .swsi-progress-subject .top{font-size:calc(var(--fs-b) - 3px)!important}
-    .swsi-progress-subject small{font-size:calc(var(--fs-s) - 4px)!important}
-    .swsi-cause-stat{font-size:calc(var(--fs-b) - 3px)!important}
-    .swsi-danger-link{font-size:calc(var(--fs-s) - 2px)!important}
+    .swsi-progress-strip span{font-size:var(--fs-s)!important}
+    .swsi-next-copy b{font-size:var(--fs-b)!important}
+    .swsi-next-copy span{font-size:var(--fs-s)!important}
+    .swsi-progress-subject .top{font-size:var(--fs-b)!important}
+    .swsi-progress-subject small{font-size:var(--fs-s)!important}
+    .swsi-cause-stat{font-size:var(--fs-b)!important}
+    .swsi-danger-link{font-size:var(--fs-s)!important}
 
     /* Text generated by the learning loop with an inline legacy 13px size. */
     body[data-swsi-page="learning-detail"] .empty [style*="font-size:13px"]{
-      font-size:calc(var(--fs-b) - 3px)!important;
+      font-size:var(--fs-b)!important;
     }
   `;
   document.head.appendChild(st);
@@ -3139,6 +3279,39 @@ html[data-fs="2"]{
       .swsi-related-learning button:focus-visible{outline:2px solid var(--pine-deep);outline-offset:2px}
       .swsi-k-pagelead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 12px;border-bottom:1px solid #E5E9E6;padding-bottom:7px}
       .swsi-k-pagelead button{border:none;background:none;color:var(--pine-deep);font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:700;cursor:pointer;padding:5px 0}
+      /* 2026-11-22 system (簡單大字): system font, readable sizes, warm tokens. */
+      .swsi-k-searchbox{font-family:var(--swsi-font);font-size:max(16px,calc(var(--fs-b) - 1px));min-height:52px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--paper2)}
+      .swsi-k-searchbox:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+      .swsi-k-empty{font-family:var(--swsi-font);font-size:var(--fs-b)}
+      .swsi-k-examples button,.swsi-k-related button{min-height:40px;border:0;background:var(--brand-soft);color:var(--brand-deep);padding:8px 14px;font-family:var(--swsi-font);font-size:15px;font-weight:500}
+      .swsi-k-path{border:0;border-radius:var(--r-lg);background:var(--paper2);padding:18px 20px}
+      .swsi-k-path b,.swsi-k-sec-h b,.swsi-k-card .name,.swsi-k-net-title{font-family:var(--swsi-font);color:var(--ink)}
+      .swsi-k-path b{font-size:var(--fs-h);font-weight:700}
+      .swsi-k-path span,.swsi-k-card .desc,.swsi-k-muted,.swsi-k-more{font-family:var(--swsi-font);font-size:var(--fs-s);color:var(--ink-3)}
+      .swsi-k-counts i,.swsi-k-sec-h span,.swsi-k-question .meta,.swsi-k-related-label{font-family:var(--swsi-font);font-size:14px;color:var(--ink-3)}
+      .swsi-k-sec{border-top:0}
+      .swsi-k-sec-h b{font-size:var(--fs-h);font-weight:700}
+      .swsi-k-card{border-bottom:1px solid var(--line);padding:16px 2px;font-family:var(--swsi-font)}
+      .swsi-k-card .type{font-family:var(--swsi-font);font-size:14px;font-weight:600;letter-spacing:0;color:var(--brand)}
+      .swsi-k-card.law .type{color:var(--ink-3)}
+      .swsi-k-card .name{font-size:var(--fs-b);font-weight:600}
+      .swsi-k-card:hover,.swsi-k-question:hover{background:transparent}
+      .swsi-k-question{border-bottom:1px solid var(--line);padding:16px 2px}
+      .swsi-k-question .q{font-size:var(--fs-b)}
+      .swsi-k-action{min-height:52px;border-radius:var(--r-md);background:var(--brand);font-family:var(--swsi-font);font-size:17px;font-weight:600}
+      .swsi-k-action.ghost{border:0;background:var(--brand-soft);color:var(--brand-deep)}
+      .swsi-k-net{border-top:1px solid var(--line)}
+      .swsi-k-net-title{font-size:18px;font-weight:700}
+      .swsi-k-search-all{min-height:48px;border:0;border-radius:var(--r-md);background:var(--brand-soft);color:var(--brand-deep);font-family:var(--swsi-font);font-size:16px;font-weight:600}
+      .swsi-related-learning{border:0;border-radius:var(--r-lg);background:var(--paper2)}
+      .swsi-related-learning>summary{min-height:52px;padding:14px 16px;font:600 16px/1.5 var(--swsi-font);color:var(--brand-deep)}
+      .swsi-related-learning .swsi-related-body{border-top:1px solid var(--line);padding:12px 16px}
+      .swsi-related-learning .swsi-related-note{font:400 14px/1.6 var(--swsi-font)}
+      .swsi-related-learning button{min-height:48px;border:0;border-radius:var(--r-sm);background:var(--paper);padding:10px 14px;color:var(--ink);font:500 16px/1.5 var(--swsi-font)}
+      .swsi-related-learning button:hover{border-color:transparent;background:var(--fill)}
+      .swsi-related-learning button:focus-visible{outline:3px solid var(--brand)}
+      .swsi-k-pagelead{border-bottom:0;margin:0 0 16px;padding:0}
+      .swsi-k-pagelead button{min-height:44px;padding:0;color:var(--brand);font-family:var(--swsi-font);font-size:calc(var(--fs-b) - 1px);font-weight:500}
       @media(max-width:370px){.swsi-k-sec-h{display:block}.swsi-k-sec-h span{display:block;margin-top:2px}.swsi-k-counts{gap:9px}}
     `;
     document.head.appendChild(st);
@@ -3529,7 +3702,7 @@ html[data-fs="2"]{
       });
     }
     essays.slice(0,2).forEach(function(e){
-      addButton('✍ 相關申論：'+sn(e.topic||e.q||'申論題',34),function(){
+      addButton('相關申論：'+sn(e.topic||e.q||'申論題',34),function(){
         window.swsiOpenEssayEncoded(E(e.id),E(e.subject||'全部科目'));
       });
     });
@@ -3831,8 +4004,8 @@ html[data-fs="2"]{
     var style=document.createElement('style');
     style.id='swsi-theory-dictionary-compact-style';
     style.textContent=[
-      '#app .swsi-theory-summary{font-size:13px;line-height:1.65;color:var(--ink-soft);font-weight:400;margin:7px 0 5px;}',
-      '#app .swsi-theory-hint{font-size:12px;color:var(--pine-deep);margin-top:5px;}',
+      '#app .swsi-theory-summary{font-size:var(--fs-s);line-height:1.65;color:var(--ink-soft);font-weight:400;margin:8px 0 6px;}',
+      '#app .swsi-theory-hint{font-size:15px;color:var(--brand);margin-top:6px;}',
       '#app .swsi-theory-trust{border-top:1px solid var(--line);margin:16px 0 7px;padding-top:10px;font-family:"Noto Sans TC",sans-serif;}',
       '#app .swsi-theory-trust-status{font-size:11.5px;font-weight:700;color:var(--ink-soft);line-height:1.7;}',
       '#app .swsi-theory-trust-more summary{cursor:pointer;font-size:11.5px;color:var(--ink-soft);line-height:1.7;margin-top:5px;}',
@@ -3922,32 +4095,32 @@ html[data-fs="2"]{
     var st=document.createElement('style');
     st.id=STYLE_ID;
     st.textContent=`
-      .swsi-public-footer-brand{font-family:'Noto Sans TC',sans-serif;color:var(--ink-soft);font-size:11px;line-height:1.5;text-align:center;max-width:480px;margin:0 auto}
-      .swsi-public-footer-brand strong{display:block;font-family:'Noto Sans TC',sans-serif;color:var(--ink);font-weight:800;font-size:13px;line-height:1.5}
-      .swsi-public-footer-tagline{margin-top:3px;font-size:11px;line-height:1.6;color:var(--ink-soft)}
-      .swsi-public-footer-links{display:flex;justify-content:center;align-items:center;gap:0 10px;flex-wrap:wrap;margin-top:5px}
-      .swsi-public-footer-links button{border:0;background:transparent;color:#527167;font:700 11px/1.45 'Noto Sans TC',sans-serif;cursor:pointer;min-height:40px;padding:8px 2px;text-decoration:none}
-      .swsi-public-footer-links button+button:before{content:'·';display:inline-block;color:#9AA9A1;margin-right:12px}
-      .swsi-public-footer-links button:hover,.swsi-public-footer-links button:focus-visible{color:var(--pine-deep);text-decoration:underline;text-underline-offset:3px}
-      .swsi-public-footer-links button:focus-visible{outline:2px solid var(--pine);outline-offset:2px;border-radius:4px}
-      .swsi-public-footer-legal{font-size:10px;line-height:1.6;color:#5A665F}
+      .swsi-public-footer-brand{font-family:var(--swsi-font);color:var(--ink-soft);font-size:15px;line-height:1.6;text-align:center;max-width:480px;margin:0 auto}
+      .swsi-public-footer-brand strong{display:block;font-family:var(--swsi-font);color:var(--ink);font-weight:700;font-size:16px;line-height:1.5}
+      .swsi-public-footer-tagline{margin-top:4px;font-size:15px;line-height:1.6;color:var(--ink-3)}
+      .swsi-public-footer-links{display:flex;justify-content:center;align-items:center;gap:0 4px;flex-wrap:wrap;margin-top:8px}
+      .swsi-public-footer-links button{border:0;background:transparent;color:var(--brand);font:500 15px/1.45 var(--swsi-font);cursor:pointer;min-height:44px;padding:10px 6px;text-decoration:none}
+      .swsi-public-footer-links button+button:before{content:'·';display:inline-block;color:var(--line-2);margin-right:10px}
+      .swsi-public-footer-links button:hover,.swsi-public-footer-links button:focus-visible{color:var(--brand-deep);text-decoration:underline;text-underline-offset:3px}
+      .swsi-public-footer-links button:focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:6px}
+      .swsi-public-footer-legal{font-size:14px;line-height:1.6;color:var(--ink-3)}
       @media(max-width:370px){.swsi-public-footer-links{column-gap:7px}.swsi-public-footer-links button+button:before{margin-right:8px}}
-      .swsi-public-info-backdrop{position:fixed;inset:0;z-index:990;background:rgba(25,31,28,.4);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px)}
-      .swsi-public-info-dialog{width:min(100%,540px);max-height:min(86vh,760px);max-height:min(86dvh,760px);overflow:auto;background:#FDFEFD;border:1px solid #D7E0DB;border-radius:20px;box-shadow:0 22px 60px rgba(25,31,28,.22);padding:19px 18px;color:var(--ink);font-family:'Noto Sans TC',sans-serif;overscroll-behavior:contain}
+      .swsi-public-info-backdrop{position:fixed;inset:0;z-index:990;background:rgba(29,27,24,.4);display:flex;align-items:flex-end;justify-content:center;padding:14px 10px calc(14px + env(safe-area-inset-bottom));backdrop-filter:blur(2px)}
+      .swsi-public-info-dialog{width:min(100%,540px);max-height:min(86vh,760px);max-height:min(86dvh,760px);overflow:auto;background:var(--paper2);border:0;border-radius:20px;box-shadow:0 22px 60px rgba(29,27,24,.18);padding:22px 20px;color:var(--ink);font-family:var(--swsi-font);overscroll-behavior:contain}
       .swsi-public-info-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
-      .swsi-public-info-head h2{font-family:'Noto Serif TC',serif;font-size:21px;line-height:1.35;margin:0}
-      .swsi-public-info-head p{font-size:11.5px;line-height:1.6;color:#6E746E;margin:3px 0 0}
-      .swsi-public-info-close{margin-left:auto;flex:0 0 auto;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--ink-soft);font-size:19px;cursor:pointer}
-      .swsi-public-info-body{font-size:13px;line-height:1.85;color:#414743}
-      .swsi-public-info-body h3{font-family:'Noto Serif TC',serif;color:var(--pine-deep);font-size:15px;margin:17px 0 5px}
+      .swsi-public-info-head h2{font-family:var(--swsi-font);font-size:24px;font-weight:700;line-height:1.35;margin:0}
+      .swsi-public-info-head p{font-size:15px;line-height:1.6;color:var(--ink-3);margin:3px 0 0}
+      .swsi-public-info-close{margin-left:auto;flex:0 0 auto;width:44px;height:44px;border:0;border-radius:50%;background:var(--fill);color:var(--ink-soft);font-size:19px;cursor:pointer}
+      .swsi-public-info-body{font-size:17px;line-height:1.8;color:var(--ink)}
+      .swsi-public-info-body h3{font-family:var(--swsi-font);color:var(--ink);font-size:19px;margin:17px 0 5px}
       .swsi-public-info-body h3:first-child{margin-top:0}
       .swsi-public-info-body p{margin:0 0 10px}
       .swsi-public-info-body ul{margin:5px 0 11px 20px;padding:0}
       .swsi-public-info-body li{margin:3px 0}
-      .swsi-public-info-note{background:#F3F7F5;border-left:3px solid #91A9A0;border-radius:0 10px 10px 0;padding:10px 11px;margin:10px 0;color:#5D6762}
+      .swsi-public-info-note{background:var(--paper);border-left:3px solid var(--brand);border-radius:0 12px 12px 0;padding:12px 14px;margin:12px 0;color:var(--ink-soft)}
       .swsi-public-info-nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px;margin:0 0 14px}
-      .swsi-public-info-nav button{border:1px solid var(--line);background:#fff;color:#6E746E;border-radius:9px;min-height:36px;font:700 11px/1.3 'Noto Sans TC',sans-serif;cursor:pointer;padding:6px 3px}
-      .swsi-public-info-nav button.on{background:var(--pine);border-color:var(--pine);color:#fff}
+      .swsi-public-info-nav button{border:0;background:var(--fill);color:var(--ink-soft);border-radius:999px;min-height:44px;font:500 15px/1.3 var(--swsi-font);cursor:pointer;padding:6px 3px}
+      .swsi-public-info-nav button.on{background:var(--brand);color:#fff}
       .swsi-monitor-summary{border:1px solid #D7E0DB;border-radius:14px;padding:12px 13px;background:#F7FAF8;margin-bottom:12px}
       .swsi-monitor-summary strong{display:block;font-size:15px;color:var(--pine-deep);margin-bottom:3px}
       .swsi-monitor-grid{display:grid;gap:8px;margin:10px 0 12px}
@@ -4760,13 +4933,12 @@ html[data-fs="2"]{
   window.writeBoxHTML=function(id){
     var saved=getDraft(id);
     return `<div class="wbox">
-      <div class="wlabel">✍ 我的作答（自動儲存在這台裝置）</div>
+      <div class="wlabel">我的作答（自動儲存在這台裝置）</div>
       <div class="fmtbar">
         ${[['cn','一、'],['cnp','（一）'],['num','1、'],['lat','a.'],['rom','(i)']].map(function(p){return `<button class="fbtn" onclick="insertFmt('${id}','${p[0]}')">${p[1]}</button>`;}).join('')}
-        <button class="fbtn clear" onclick="clearDraft('${id}')">清空</button>
       </div>
       <textarea id="ta_${id}" class="wta" placeholder="先別看骨架，自己試著寫。寫不出來就點上面的「拆題五步」。" oninput="saveDraft('${id}')">${esc(saved)}</textarea>
-      <div class="wmeta"><span id="save_${id}">已儲存在這台裝置</span> · <span id="wc_${id}">${saved.length}</span> 字</div>
+      <div class="wmeta"><span><span id="save_${id}">已儲存在這台裝置</span> · <span id="wc_${id}">${saved.length}</span> 字</span><button class="fbtn clear" onclick="clearDraft('${id}')">清空</button></div>
       ${aiFeedbackHTML(id)}
     </div>`;
   };
@@ -4784,8 +4956,8 @@ html[data-fs="2"]{
 
   window.swsiSetAIBusy=function(id,busy,mode){
     var t=document.getElementById('aitype_'+id),p=document.getElementById('aiphoto_'+id),f=document.getElementById('photo_'+id);
-    if(t){t.disabled=!!busy;t.style.opacity=busy?'.55':'';t.style.cursor=busy?'not-allowed':'';t.textContent=(busy&&mode==='text')?'⏳ AI 回饋中…':'🤖 請 AI 看我的作答';}
-    if(p){p.disabled=!!busy;p.style.opacity=busy?'.55':'';p.style.cursor=busy?'not-allowed':'';p.textContent=(busy&&mode==='photo')?'⏳ 照片處理／回饋中…':'📷 手寫作答 · 拍照請 AI 看';}
+    if(t){t.disabled=!!busy;t.style.opacity=busy?'.55':'';t.style.cursor=busy?'not-allowed':'';t.textContent=(busy&&mode==='text')?'AI 回饋中…':'請 AI 看我的作答';}
+    if(p){p.disabled=!!busy;p.style.opacity=busy?'.55':'';p.style.cursor=busy?'not-allowed':'';p.textContent=(busy&&mode==='photo')?'照片處理／回饋中…':'手寫作答 · 拍照請 AI 看';}
     if(f)f.disabled=!!busy;
   };
 
@@ -5292,13 +5464,13 @@ html[data-fs="2"]{
       .swsi-answer-trust summary::-webkit-details-marker{display:none;}
       .swsi-answer-trust summary:after{content:'＋';margin-left:auto;color:var(--ink-3);font-size:14px;}
       .swsi-answer-trust[open] summary:after{content:'－';}
-      .swsi-trust-chip{display:inline-flex;align-items:center;min-height:24px;padding:2px 7px;border:1px solid #D7E2DC;border-radius:999px;background:#fff;color:#456A61;font-size:10.5px;font-weight:800;}
-      .swsi-trust-chip.warn{border-color:#E5DCC1;color:#756E57;background:#FFFDF7;}
-      .swsi-trust-body{border-top:1px solid #E7ECE9;padding:9px 10px 10px;color:var(--ink-soft);font-size:11px;line-height:1.65;}
+      .swsi-trust-chip{display:inline-flex;align-items:center;min-height:28px;padding:2px 10px;border:0;border-radius:999px;background:var(--fill);color:var(--ink-soft);font-size:14px;font-weight:500;}
+      .swsi-trust-chip.warn{color:var(--brand-deep);background:var(--brand-soft);}
+      .swsi-trust-body{border-top:1px solid var(--line);padding:12px 0 4px;color:var(--ink-soft);font-size:16px;line-height:1.7;}
       .swsi-trust-body p{margin:0 0 6px;}
       .swsi-trust-body p:last-child{margin-bottom:0;}
       .swsi-trust-links{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;}
-      .swsi-trust-links a{display:inline-block;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--pine-deep);padding:5px 8px;text-decoration:none;font-size:10.8px;font-weight:700;}
+      .swsi-trust-links a{display:inline-flex;align-items:center;min-height:44px;border:0;border-radius:999px;background:var(--brand-soft);color:var(--brand-deep);padding:0 16px;text-decoration:none;font-size:15px;font-weight:500;}
       .swsi-explanation-more{margin:12px 0 3px;border:1px solid var(--line);border-radius:11px;background:#FBFCFB;overflow:hidden;}
       .swsi-explanation-more summary{list-style:none;cursor:pointer;min-height:43px;padding:9px 11px;display:flex;align-items:center;font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:800;color:var(--pine-deep);}
       .swsi-explanation-more summary::-webkit-details-marker{display:none;}
@@ -5309,13 +5481,16 @@ html[data-fs="2"]{
       /* Expanded notes replace the short reason to avoid showing the same text twice. */
       .exp:has(.swsi-explanation-more[open])>.swsi-core-reason{display:none;}
       .swsi-trust-status{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-      .swsi-answer-trust summary>.swsi-trust-origin{font-size:11px;color:#4F6A61;font-weight:700}
+      .swsi-trust-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin-top:2px;font-size:14px;font-weight:400;color:var(--ink-3);}
+      .swsi-trust-meta .swsi-trust-chip{min-height:0;padding:0;background:transparent;font-size:14px;}
+      .swsi-trust-meta .swsi-trust-chip.warn{color:var(--brand-deep);}
+      .swsi-trust-meta>*+*:before{content:'·';margin-right:10px;color:var(--line-2);}
 
       .tabbar .ico.swsi-nav-ico{width:21px;height:21px;display:grid;place-items:center;font-size:0;line-height:1;}
       .tabbar .ico.swsi-nav-ico svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
       .tabbar .swsi-nav-label{font-family:'Noto Sans TC',sans-serif;line-height:1.1;}
 
-      .swsi-data-version{margin:10px 4px 0;border-top:1px solid rgba(220,228,223,.85);padding-top:7px;font-family:'Noto Sans TC',sans-serif;font-size:var(--swsi-ui-small,11.5px);line-height:1.6;}
+      .swsi-data-version{margin:10px 4px 0;border-top:1px solid rgba(220,228,223,.85);padding-top:7px;font-family:var(--swsi-font);font-size:var(--swsi-ui-small,15px);line-height:1.6;}
       .swsi-data-version summary{cursor:pointer;list-style:none;min-height:36px;display:flex;align-items:center;justify-content:center;text-align:center;color:#636B67;font-weight:700;}
       .swsi-data-version summary::-webkit-details-marker{display:none;}
       .swsi-data-version summary:after{content:'＋';margin-left:6px;color:var(--ink-3);}
@@ -5323,16 +5498,14 @@ html[data-fs="2"]{
       .swsi-data-version .body{text-align:center;padding:2px 8px 5px;color:#69716D;}
 
       footer.swsi-footer-clean{padding-top:10px!important;line-height:1.65!important;}
-      footer.swsi-footer-clean .sub{font-family:'Noto Sans TC',sans-serif;font-size:11px;color:#737A76;margin-top:2px;}
+      footer.swsi-footer-clean .sub{font-family:var(--swsi-font);font-size:14px;color:var(--ink-3);margin-top:2px;}
       @media(max-width:370px){.swsi-essay-action-card .actions{grid-template-columns:1fr;}}
     `;
     document.head.appendChild(style);
   }
 
   function icon(kind){
-    if(kind==='home') return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20H7v-7h10v7"></path><path d="M9 20v-7h6"></path></svg></span>';
-    if(kind==='review') return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5"></path><path d="M19 12a7.5 7.5 0 1 1-2.2-5.3L20 9"></path></svg></span>';
-    return '<span class="ico swsi-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 19 3.8-.8L19 8a2.1 2.1 0 0 0-3-3L5.8 15.2 5 19Z"></path><path d="m14.8 6.2 3 3"></path><path d="M4 21h16"></path></svg></span>';
+    return '<span class="ico">'+swsiIcon(kind==='home'?'home':kind==='review'?'mine':'essay')+'</span>';
   }
 
   function setNavButton(id,kind,label,route){
@@ -5540,12 +5713,16 @@ html[data-fs="2"]{
     if(!item||directChild(exp,'.swsi-answer-trust'))return;
     var origin=questionOrigin(item),official=origin==='official',analysis=analysisTrust(item),legal=legalTrust(item);
     var panel=document.createElement('details');panel.className='swsi-answer-trust';
-    var summary=document.createElement('summary');summary.appendChild(document.createTextNode('題目來源與解析'));
+    var summary=document.createElement('summary');
+    var sumTitle=document.createElement('span');sumTitle.className='swsi-trust-title';sumTitle.textContent='題目來源與解析';summary.appendChild(sumTitle);
+    // One quiet meta line under the title: origin first, then any warning, so the row
+    // keeps the same height as the other disclosures.
+    var sumMeta=document.createElement('span');sumMeta.className='swsi-trust-meta';summary.appendChild(sumMeta);
     var originName=official?'考選部歷屆試題':origin==='practice'?'平台自製練習題':'題目來源待確認';
-    var originTag=document.createElement('span');originTag.className='swsi-trust-origin';originTag.textContent=originName;summary.appendChild(originTag);
+    var originTag=document.createElement('span');originTag.className='swsi-trust-origin';originTag.textContent=originName;sumMeta.appendChild(originTag);
     function chip(place,text,warn){var s=document.createElement('span');s.className='swsi-trust-chip'+(warn?' warn':'');s.textContent=text;place.appendChild(s);}
-    if(analysis.warn)chip(summary,analysis.label,true);
-    if(legal&&legal.warn)chip(summary,legal.label,true);
+    if(analysis.warn)chip(sumMeta,analysis.label,true);
+    if(legal&&legal.warn)chip(sumMeta,legal.label,true);
     panel.appendChild(summary);
     var body=document.createElement('div');body.className='swsi-trust-body';
     var status=document.createElement('div');status.className='swsi-trust-status';
@@ -6238,8 +6415,21 @@ html[data-fs="2"]{
     }catch(_e){}
     if(!document.getElementById('mk-style')){
       var st=document.createElement('style');st.id='mk-style';
-      st.textContent='.mk-ov{position:fixed;inset:0;z-index:9999;background:#F7F9F7;overflow-y:auto;font-family:inherit;color:var(--ink,#2A2C2A)}.mk-wrap{max-width:720px;margin:0 auto;padding:18px 18px 84px}.mk-top{position:sticky;top:0;background:rgba(247,249,247,.96);padding:11px 0 13px;border-bottom:1px solid #DDE5E0;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:5}.mk-timer{font-size:20px;font-weight:800;color:var(--pine-deep,#355A52);font-variant-numeric:tabular-nums}.mk-timer.warn{color:var(--wrong,#9E6155)}.mk-prog,.mk-sub{font-size:var(--fs-b);color:#626D67;line-height:1.65}.mk-x{background:none;border:none;font-size:21px;cursor:pointer;color:var(--ink-soft,#757A75);padding:8px}.mk-btn{font-family:inherit;border:none;border-radius:11px;padding:13px 18px;font-size:var(--fs-h);font-weight:750;cursor:pointer;box-shadow:none}.mk-btn.go{background:var(--pine-deep,#355A52);color:#fff}.mk-btn.ghost{background:transparent;border:1px solid #CCD8D2;color:var(--pine-deep,#355A52)}.mk-btn:disabled{opacity:.4}.mk-h1{font-family:\'Noto Serif TC\',serif;font-size:26px;line-height:1.35;font-weight:900;margin:24px 0 7px;color:#202724}.mk-lab{font-size:var(--fs-b);font-weight:800;color:#4F5B55;margin:22px 0 9px}.mk-sel{width:100%;font-family:inherit;font-size:var(--fs-h);padding:13px 14px;border:1px solid #D6E0DB;border-radius:11px;background:#fff;color:var(--ink,#2A2C2A)}.mk-row{display:flex;gap:9px;flex-wrap:wrap}.mk-pill{flex:1;min-width:90px;text-align:center;background:#fff;border:1px solid #DDE5E1;border-radius:11px;padding:15px 10px;cursor:pointer;box-shadow:none}.mk-pill:hover{border-color:#BFCFC8;background:#FBFCFB}.mk-pill .b{font-size:var(--fs-q);font-weight:800;color:var(--pine-deep,#355A52);display:block}.mk-pill .s{font-size:var(--fs-s);color:#66716B;line-height:1.5}.mk-toggle{display:inline-flex;border:1px solid #D4DED9;border-radius:999px;padding:9px 15px;background:#fff;cursor:pointer;color:#4D5A54}.mk-qcard{background:transparent;border:0;border-radius:0;padding:15px 2px 22px;margin-top:16px}.mk-qmeta{font-size:var(--fs-s);font-weight:650;color:#66716B;margin-bottom:14px}.mk-q{font-family:\'Noto Serif TC\',serif;font-size:var(--fs-q);line-height:1.9;font-weight:650;margin-bottom:24px;color:#202522}.mk-opt{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #DFE6E2;border-radius:12px;padding:15px 14px;margin-bottom:9px;cursor:pointer;line-height:1.68}.mk-opt:hover{border-color:#BACAC3;background:#FBFCFB}.mk-opt.sel{border-color:#7FA398;background:#F4F8F6}.mk-nav{display:flex;gap:10px;margin-top:15px}.mk-nav .mk-btn{flex:1}.mk-pal{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin-top:20px;padding-top:18px;border-top:1px solid #E1E7E3}.mk-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid #DCE4DF;border-radius:8px;background:#fff;cursor:pointer;font-size:var(--fs-s)}.mk-cell.done{background:var(--pine-deep,#355A52);border-color:var(--pine-deep,#355A52);color:#fff}.mk-cell.cur{outline:2px solid var(--pine,#4F7E76);outline-offset:1px}.mk-score{text-align:center;background:transparent;border:0;border-bottom:1px solid #E1E7E3;border-radius:0;padding:26px 2px 24px;margin-top:8px}.mk-score .big{font-size:46px;font-weight:850;color:#202724}.mk-score .pct{font-size:var(--fs-h);color:#626D67;line-height:1.7}.mk-bar{height:5px;border-radius:3px;background:#E2E8E4;overflow:hidden;margin-top:6px}.mk-bar i{display:block;height:100%;background:var(--pine,#4F7E76)}.mk-rev{background:transparent;border:0;border-bottom:1px solid #E3E8E5;border-radius:0;padding:15px 2px 17px;margin:0}.mk-rev .rq{font-size:var(--fs-b);font-weight:650;line-height:1.7}.mk-rev .ln{font-size:var(--fs-b);line-height:1.75;margin:5px 0;color:#39413D}.mk-tag{display:inline-block;font-size:var(--fs-s);padding:3px 7px;border-radius:6px;margin-right:6px}.mk-tag.w{background:var(--wrong-bg,#F3EBE7);color:var(--wrong,#9E6155)}.mk-tag.n{background:#F0F3F1;color:#59645E}@media(max-width:420px){.mk-wrap{padding:14px 14px 76px}.mk-top{gap:7px}.mk-prog{font-size:var(--fs-s)}.mk-qcard{padding-left:0;padding-right:0}.mk-pal{grid-template-columns:repeat(6,1fr)}.mk-row{gap:8px}}';
+      st.textContent='.mk-ov{position:fixed;inset:0;z-index:9999;background:var(--paper);overflow-y:auto;font-family:inherit;color:var(--ink,#2A2C2A)}.mk-wrap{max-width:720px;margin:0 auto;padding:18px 18px 84px}.mk-top{position:sticky;top:0;background:var(--glass);padding:11px 0 13px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:5}.mk-timer{font-size:20px;font-weight:800;color:var(--pine-deep,#355A52);font-variant-numeric:tabular-nums}.mk-timer.warn{color:var(--wrong,#9E6155)}.mk-prog,.mk-sub{font-size:var(--fs-b);color:var(--ink-3);line-height:1.65}.mk-x{background:none;border:none;font-size:21px;cursor:pointer;color:var(--ink-soft,#757A75);padding:8px}.mk-btn{font-family:inherit;border:none;border-radius:11px;padding:13px 18px;font-size:var(--fs-h);font-weight:750;cursor:pointer;box-shadow:none}.mk-btn.go{background:var(--pine-deep,#355A52);color:#fff}.mk-btn.ghost{background:transparent;border:1px solid var(--line);color:var(--pine-deep,#355A52)}.mk-btn:disabled{opacity:.4}.mk-h1{font-family:var(--swsi-font);font-size:30px;line-height:1.25;font-weight:700;margin:24px 0 7px;color:var(--ink)}.mk-lab{font-size:var(--fs-b);font-weight:800;color:var(--ink-soft);margin:22px 0 9px}.mk-sel{width:100%;font-family:inherit;font-size:var(--fs-h);padding:13px 14px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink,#2A2C2A)}.mk-row{display:flex;gap:9px;flex-wrap:wrap}.mk-pill{flex:1;min-width:90px;text-align:center;background:#fff;border:1px solid var(--line);border-radius:11px;padding:15px 10px;cursor:pointer;box-shadow:none}.mk-pill:hover{border-color:var(--line-2);background:#FBFAF7}.mk-pill .b{font-size:var(--fs-q);font-weight:800;color:var(--pine-deep,#355A52);display:block}.mk-pill .s{font-size:var(--fs-s);color:var(--ink-3);line-height:1.5}.mk-toggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:9px 15px;background:#fff;cursor:pointer;color:var(--ink-soft)}.mk-qcard{background:transparent;border:0;border-radius:0;padding:15px 2px 22px;margin-top:16px}.mk-qmeta{font-size:var(--fs-s);font-weight:650;color:var(--ink-3);margin-bottom:14px}.mk-q{font-family:var(--swsi-font);font-size:var(--fs-q);line-height:1.9;font-weight:650;margin-bottom:24px;color:var(--ink)}.mk-opt{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 14px;margin-bottom:9px;cursor:pointer;line-height:1.68}.mk-opt:hover{border-color:var(--line-2);background:#FBFAF7}.mk-opt.sel{border-color:var(--brand);background:var(--brand-soft)}.mk-nav{display:flex;gap:10px;margin-top:15px}.mk-nav .mk-btn{flex:1}.mk-pal{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}.mk-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-size:var(--fs-s)}.mk-cell.done{background:var(--pine-deep,#355A52);border-color:var(--pine-deep,#355A52);color:#fff}.mk-cell.cur{outline:2px solid var(--pine,#4F7E76);outline-offset:1px}.mk-score{text-align:center;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:26px 2px 24px;margin-top:8px}.mk-score .big{font-size:46px;font-weight:850;color:var(--ink)}.mk-score .pct{font-size:var(--fs-h);color:var(--ink-3);line-height:1.7}.mk-bar{height:5px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:6px}.mk-bar i{display:block;height:100%;background:var(--pine,#4F7E76)}.mk-rev{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:15px 2px 17px;margin:0}.mk-rev .rq{font-size:var(--fs-b);font-weight:650;line-height:1.7}.mk-rev .ln{font-size:var(--fs-b);line-height:1.75;margin:5px 0;color:var(--ink-soft)}.mk-tag{display:inline-block;font-size:var(--fs-s);padding:3px 7px;border-radius:6px;margin-right:6px}.mk-tag.w{background:var(--wrong-bg,#F3EBE7);color:var(--wrong,#9E6155)}.mk-tag.n{background:var(--fill);color:var(--ink-3)}@media(max-width:420px){.mk-wrap{padding:14px 14px 76px}.mk-top{gap:7px}.mk-prog{font-size:var(--fs-s)}.mk-qcard{padding-left:0;padding-right:0}.mk-pal{grid-template-columns:repeat(6,1fr)}.mk-row{gap:8px}}';
       document.head.appendChild(st);
+    }
+    /* 2026-11-22 system alignment. The legacy core may have installed #mk-style
+       first (so the block above is skipped); this small block always applies the
+       shared tokens: chosen = ink (same as practice), system font, no green tints. */
+    if(!document.getElementById('mk-style-system')){
+      var sys=document.createElement('style');sys.id='mk-style-system';
+      sys.textContent='.mk-ov{background:var(--paper);font-family:var(--swsi-font)}.mk-ov .mk-top{background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}'
+        +'.mk-ov .mk-h1,.mk-ov .mk-q{font-family:var(--swsi-font)}'
+        +'.mk-ov .mk-opt{border:2px solid transparent;border-radius:14px;background:var(--paper2);color:var(--ink)}'
+        +'.mk-ov .mk-opt.sel{border-color:var(--ink);background:var(--paper2);color:var(--ink)}.mk-ov .mk-opt.sel *{color:inherit}'
+        +'.mk-ov .mk-cell{border-color:var(--line);background:var(--paper2)}.mk-ov .mk-cell.done{background:var(--ink);border-color:var(--ink);color:#fff}.mk-ov .mk-cell.cur{outline:2px solid var(--brand)}'
+        +'.mk-ov .mk-pill.on,.mk-ov .mk-pill.sel{border-color:var(--brand);background:var(--brand-soft)}';
+      document.head.appendChild(sys);
     }
   }
   function mount(){if(!ov){ov=document.createElement('div');ov.className='mk-ov';document.body.appendChild(ov);}}
@@ -6267,7 +6457,7 @@ html[data-fs="2"]{
   function setup(){
     if(timer){clearInterval(timer);timer=null;}running=false;
     var opts=['全部科目'].concat(subs()).map(function(s){return '<option '+(s===scope?'selected':'')+'>'+E(s)+'</option>';}).join('');
-    var modeRow='<div class="mk-row"><div class="mk-pill" style="'+(mode==='random'?'border-color:var(--pine);background:var(--correct-bg)':'')+'" onclick="MK.setMode(\'random\')"><span class="b" style="font-size:var(--fs-h)">🎲 隨機抽題</span><span class="s">從可判分題庫隨機出</span></div><div class="mk-pill" style="'+(mode==='exam'?'border-color:var(--pine);background:var(--correct-bg)':'')+'" onclick="MK.setMode(\'exam\')"><span class="b" style="font-size:var(--fs-h)">📅 指定歷屆</span><span class="s">寫某年整卷</span></div></div>';
+    var modeRow='<div class="mk-row"><div class="mk-pill" style="'+(mode==='random'?'border-color:var(--brand);background:var(--brand-soft)':'')+'" onclick="MK.setMode(\'random\')"><span class="b" style="font-size:var(--fs-h)">隨機抽題</span><span class="s">從可判分題庫隨機出</span></div><div class="mk-pill" style="'+(mode==='exam'?'border-color:var(--brand);background:var(--brand-soft)':'')+'" onclick="MK.setMode(\'exam\')"><span class="b" style="font-size:var(--fs-h)">指定歷屆</span><span class="s">寫某年整卷</span></div></div>';
     var bottom='';
     if(mode==='exam'){
       var ps=papers();if((!exYear||!ps.some(function(p){return p.year===exYear&&p.round===exRound;}))&&ps.length){exYear=ps[0].year;exRound=ps[0].round;}
@@ -6277,7 +6467,7 @@ html[data-fs="2"]{
     }else{
       bottom='<div class="mk-lab">選擇題數</div><div class="mk-row"><div class="mk-pill" onclick="MK.begin(20)"><span class="b">20</span><span class="s">題</span></div><div class="mk-pill" onclick="MK.begin(40)"><span class="b">40</span><span class="s">題</span></div><div class="mk-pill" onclick="MK.begin(80)"><span class="b">80</span><span class="s">題</span></div></div>';
     }
-    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">📝 計時模擬考</div><button class="mk-x" onclick="MK.close()">✕</button></div><div class="mk-h1">設定這場模擬考</div><div class="mk-sub">所有模式都使用與一般刷題相同的官方 grading contract；特殊給分資料不完整時不猜答案。</div><div class="mk-lab">考試範圍</div><select class="mk-sel" onchange="MK.setScope(this.value)">'+opts+'</select><div class="mk-lab">出題方式</div>'+modeRow+'<div class="mk-lab">時間模式</div><div class="mk-toggle" onclick="MK.toggleTimed()"><span id="mk-tg">'+(limited?'⏱ 倒數計時':'∞ 不限時')+'</span></div>'+bottom+'</div>';
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">計時模擬考</div><button class="mk-x" onclick="MK.close()">✕</button></div><div class="mk-h1">設定這場模擬考</div><div class="mk-sub">所有模式都依考選部公布的答案計分，和平常刷題一樣。</div><div class="mk-lab">考試範圍</div><select class="mk-sel" onchange="MK.setScope(this.value)">'+opts+'</select><div class="mk-lab">出題方式</div>'+modeRow+'<div class="mk-lab">時間模式</div><div class="mk-toggle" onclick="MK.toggleTimed()"><span id="mk-tg">'+(limited?'倒數計時':'不限時')+'</span></div>'+bottom+'</div>';
   }
 
   function run(){
@@ -6341,7 +6531,7 @@ html[data-fs="2"]{
       var tag=p!=null?'<span class="mk-tag w">你選 '+E(p)+'</span>':'<span class="mk-tag n">未作答</span>';
       return '<div class="mk-rev"><div class="rq">'+E(figureStem(q)).slice(0,140)+'</div><div class="ln">'+tag+'<span class="mk-tag n">'+E(w.dataError?'給分資料異常':label(q))+'</span></div>'+ex+'</div>';
     }).join('');
-    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">模擬考結果</div><button class="mk-x" onclick="MK.close()">✕</button></div>'+(auto?'<div class="mk-sub" style="color:var(--wrong);margin-top:14px">⏰ 時間到，已自動交卷。</div>':'')+'<div class="mk-score"><div class="big">'+scored.correct+' / '+scored.total+'</div><div class="pct">答對率 '+pct+'%　·　實際作答 '+scored.answered+' 題　·　用時 '+fmt(used)+'</div></div>'+(scored.excluded?'<div class="mk-sub" role="status" style="margin-top:12px">'+scored.excluded+(Q.some(sourceHeld)?' 題待覆核或原圖未載入，已排除計分。':' 題原圖未載入，已排除計分。')+'</div>':'')+'<div class="mk-lab">各科表現（未作答也列入分母）</div>'+subjHtml+(revHtml?'<div class="mk-lab">錯題與未作答（'+scored.wrong.length+' 題）</div>'+revHtml:'<div class="mk-sub" style="margin-top:16px">🎉 全部計分正確！</div>')+'<div class="mk-nav"><button class="mk-btn ghost" onclick="MK.retry()">再考一次</button><button class="mk-btn go" onclick="MK.close()">完成</button></div></div>';
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">模擬考結果</div><button class="mk-x" onclick="MK.close()">✕</button></div>'+(auto?'<div class="mk-sub" style="color:var(--wrong);margin-top:14px">時間到，已自動交卷。</div>':'')+'<div class="mk-score"><div class="big">'+scored.correct+' / '+scored.total+'</div><div class="pct">答對率 '+pct+'%　·　實際作答 '+scored.answered+' 題　·　用時 '+fmt(used)+'</div></div>'+(scored.excluded?'<div class="mk-sub" role="status" style="margin-top:12px">'+scored.excluded+(Q.some(sourceHeld)?' 題待覆核或原圖未載入，已排除計分。':' 題原圖未載入，已排除計分。')+'</div>':'')+'<div class="mk-lab">各科表現（未作答也列入分母）</div>'+subjHtml+(revHtml?'<div class="mk-lab">錯題與未作答（'+scored.wrong.length+' 題）</div>'+revHtml:'<div class="mk-sub" style="margin-top:16px">全部計分正確！</div>')+'<div class="mk-nav"><button class="mk-btn ghost" onclick="MK.retry()">再考一次</button><button class="mk-btn go" onclick="MK.close()">完成</button></div></div>';
     window.scrollTo(0,0);
   }
 
@@ -6355,7 +6545,7 @@ html[data-fs="2"]{
     setScope:function(v){scope=v;if(mode==='exam')setup();},
     setMode:function(v){mode=v;setup();},
     setPaper:function(v){var p=String(v).split('|');exYear=p[0];exRound=p.slice(1).join('|');setup();},
-    toggleTimed:function(){limited=!limited;var el=document.getElementById('mk-tg');if(el)el.textContent=limited?'⏱ 倒數計時':'∞ 不限時';},
+    toggleTimed:function(){limited=!limited;var el=document.getElementById('mk-tg');if(el)el.textContent=limited?'倒數計時':'不限時';},
     begin:function(n){var pool=build(n);if(!pool.length){alert('這個範圍目前沒有可安全判分的題目。');return;}Q=pool;idx=0;ans={};running=true;t0=Date.now();left=Math.round(Q.length*1.2)*60;if(timer)clearInterval(timer);timer=limited?setInterval(tick,1000):null;run();},
     beginExam:function(){var raw=rawExam(),bad=raw.filter(function(q){return gradeMode(q)==='invalid';});if(!raw.length){alert('這份考卷目前沒有題目。');return;}if(bad.length){alert('這份考卷有 '+bad.length+' 題官方給分資料不完整。為避免算錯分，修正前暫不開放整卷模擬。');return;}Q=raw;idx=0;ans={};running=true;t0=Date.now();left=Math.round(Q.length*1.2)*60;if(timer)clearInterval(timer);timer=limited?setInterval(tick,1000):null;run();},
     pick:function(L){if(!figureReady(Q[idx]))return;ans[idx]=L;['A','B','C','D'].forEach(function(x){var el=document.getElementById('mk-opt-'+x);if(el)el.classList.toggle('sel',x===L);});var cells=ov.querySelectorAll('.mk-cell');if(cells[idx])cells[idx].classList.add('done');var pr=ov.querySelector('.mk-prog');if(pr)pr.textContent='第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length;},

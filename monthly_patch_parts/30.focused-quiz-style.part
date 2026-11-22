@@ -7,65 +7,131 @@
   var style=document.createElement('style');
   style.id='swsi-focused-quiz-style';
   style.textContent=`
-/* When a quiz is open, remove unrelated navigation noise. */
+/* SWSI quiz components 2026-11-22 (owner of practice, answers and feedback).
+   Tokens come from the shared system (swsi-calm-learning-ui-v3).
+   Large calm reading: white option rows on warm paper, no shadows. */
 body:has(#app .qcard) .tabbar{display:none!important;}
-body:has(#app .qcard) .wrap{padding-bottom:28px!important;}
-body:has(#app .qcard) header{box-shadow:none;border-bottom:1px solid rgba(220,228,223,.7);}
+body:has(#app .qcard) .wrap{padding-bottom:32px!important;}
+body:has(#app .swsi-result-bar) .wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important;}
 
-/* Progress = quiet orientation, not competition. */
-#app .pstrip{gap:11px;margin:3px 0 15px;}
-#app .pbar{height:2px;background:#E5EAE7;}
-#app .pbar i{background:var(--pine);box-shadow:none;}
-#app .pcount{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:500;color:var(--ink-soft);}
-#app .quit{font-family:'Noto Sans TC',sans-serif;text-decoration:none;color:var(--ink-soft);opacity:.82;margin-bottom:12px;}
-#app .quit:hover{color:var(--ink);}
+/* Top bar: close, progress, count. */
+#app .swsi-quizbar{display:flex;align-items:center;gap:12px;margin:0 0 24px;}
+#app .quit{display:grid;place-items:center;flex:0 0 auto;width:44px;height:44px;margin:0 0 0 -8px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--ink-3);cursor:pointer;opacity:1;}
+#app .quit .swsi-i{width:24px;height:24px;}
+#app .quit:active{background:var(--fill);}
+#app .pstrip{flex:1;display:flex;align-items:center;gap:12px;margin:0;}
+#app .pbar{flex:1;height:6px;border-radius:999px;background:var(--line);overflow:hidden;}
+#app .pbar i{display:block;height:100%;border-radius:999px;background:var(--brand);transition:width 400ms var(--press);}
+#app .pcount{font-size:15px;font-weight:600;color:var(--ink-soft);font-variant-numeric:tabular-nums;}
+@media (hover:hover) and (pointer:fine){#app .quit:hover{background:var(--fill);color:var(--ink);}}
 
-/* Let the question live on the page instead of inside another large card. */
-#app .qcard{background:transparent;border:0;border-radius:0;padding:13px 2px 22px;box-shadow:none;}
-#app .qmeta{gap:10px;margin-bottom:15px;}
-#app .tag{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:700;line-height:1.25;padding:0;border-radius:0;background:transparent!important;}
-#app .tag.subj{color:var(--pine-deep);}
-#app .tag.year{color:var(--ink-soft);}
-#app .qtext{font-family:'Noto Serif TC',serif;font-weight:650;line-height:1.9;margin:0 0 24px;color:#202522;letter-spacing:.005em;}
+/* Question. */
+#app .qcard{background:transparent;border:0;border-radius:0;padding:0 0 24px;box-shadow:none;}
+#app .qmeta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:0 0 12px;}
+#app .tag{font-size:15px;font-weight:600;line-height:1.4;padding:0;border-radius:0;background:transparent!important;border:0;color:var(--ink-3);}
+#app .tag.subj{color:var(--brand);}
+#app .qtext{font-family:var(--swsi-font);font-size:var(--fs-q);font-weight:600;line-height:1.75;margin:0 0 28px;color:var(--ink);letter-spacing:0;}
 
-/* Answers are large reading rows with only one visual boundary. */
-#app .opt{position:relative;background:#fff;border:1px solid #E0E6E2;border-radius:12px;padding:15px 15px 15px 13px;margin-bottom:9px;gap:12px;min-height:56px;align-items:flex-start;line-height:1.68;box-shadow:none;transition:border-color .14s ease,background .14s ease;}
-#app .opt:hover{border-color:#BACAC3;background:#FBFCFB;}
-#app .opt .lab{display:grid;place-items:center;flex:0 0 auto;width:27px;height:27px;margin-top:0;border:1px solid #D5DDD9;border-radius:50%;font-family:'Noto Sans TC',sans-serif;font-size:12px;font-weight:750;color:#68716D;background:#fff;}
-#app .opt.sel{border-color:#7FA398;background:#F4F8F6;}
-#app .opt.sel .lab{border-color:var(--pine);background:var(--pine);color:#fff;}
-#app .opt.correct{border-color:#AFCAC0;background:#F3F8F6;}
-#app .opt.correct .lab{border-color:var(--correct);background:var(--correct);color:#fff;}
-#app .opt.wrong{border-color:#D9C0B9;background:#FBF5F3;}
-#app .opt.wrong .lab{border-color:var(--wrong);background:var(--wrong);color:#fff;}
-#app .opt .mk{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-s);font-weight:600;}
-#app .ck{width:18px;height:18px;font-size:10px;}
+/* Options: white rows, a filled letter when chosen; markers wrap below the text. */
+#app .opt{position:relative;display:flex;flex-wrap:wrap;align-items:flex-start;gap:16px;width:100%;min-height:68px;margin:0 0 12px;padding:16px 18px;background:var(--paper2);border:2px solid transparent;border-radius:var(--r-md);box-shadow:none;font-size:var(--fs-b);line-height:1.65;color:var(--ink);text-align:left;cursor:pointer;transition:border-color 150ms,background-color 150ms;}
+#app .opt:active:not(:disabled){background:var(--fill);}
+#app .opt .lab{display:grid;place-items:center;flex:0 0 auto;width:36px;height:36px;margin:0;border:0;border-radius:50%;font-size:17px;font-weight:700;color:var(--ink-soft);background:var(--fill);}
+#app .opt > span:not(.lab):not(.mk){flex:1 1 calc(100% - 60px);min-width:0;padding-top:3px;}
+/* Chosen = ink, never the accent: terracotta must not read as "wrong" before grading. */
+#app .opt.sel{border-color:var(--ink);background:var(--paper2);}
+#app .opt.sel .lab{background:var(--ink);color:#fff;}
+#app .opt.correct{border-color:var(--ok);background:var(--ok-soft);}
+#app .opt.correct .lab{background:var(--ok);color:#fff;}
+#app .opt.wrong{border-color:var(--no);background:var(--no-soft);}
+#app .opt.wrong .lab{background:var(--no);color:#fff;}
+#app .opt:disabled{cursor:default;}
+#app .opt:disabled:not(.correct):not(.wrong){opacity:.6;}
+#app .opt .mk{display:inline-flex;align-items:center;gap:6px;flex:0 0 100%;margin:0 0 0 52px;font-size:15px;font-weight:700;}
+#app .opt.correct .mk{color:var(--ok);}
+#app .opt.wrong .mk{color:var(--no);}
+#app .ck{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font-size:12px;color:#fff;}
+#app .ck.ok{background:var(--ok);}
+#app .ck.no{background:var(--no);}
+@media (hover:hover) and (pointer:fine){#app .opt:hover:not(:disabled):not(.sel){border-color:var(--line-2);}}
 
-/* Primary action stays strong; secondary action stays quiet. */
-#app .qcard > .btn,#app .qcard .btn{font-family:'Noto Sans TC',sans-serif;letter-spacing:0;font-size:var(--fs-b);font-weight:750;border-radius:11px;min-height:49px;margin-top:13px;box-shadow:none;}
-#app .qcard .btn:not(.ghost){background:var(--pine-deep);}
-#app .qcard .btn.ghost{background:transparent;border:1px solid #C9D7D1;color:var(--pine-deep);}
+/* Submit and secondary actions in the card. */
+#app .qcard > .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:58px;margin-top:20px;font-size:19px;}
+#app .qcard .btn .swsi-i{width:20px;height:20px;}
+html body #app .qcard .btn:not(.ghost):disabled{background:var(--off-bg);border-color:var(--off-bg);color:var(--off-ink);opacity:1;box-shadow:none;cursor:not-allowed;}
 
-/* Explanation reads like notes separated by whitespace and hairlines, not nested cards. */
-#app .exp{margin-top:25px;padding-top:22px;border-top:1px solid #E2E8E4;animation:none;}
-#app .exp .topic{font-family:'Noto Sans TC',sans-serif;color:var(--ink-soft);margin-bottom:16px;}
-#app .exp-sec{margin:0 0 19px;}
-#app .exp-sec h4{font-family:'Noto Sans TC',sans-serif;font-size:var(--fs-h);font-weight:800;color:#34443E;letter-spacing:0;margin-bottom:8px;gap:0;}
+/* Result bar: translucent sheet pinned to the bottom, carries the only next action. */
+#app .swsi-result-bar{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:40;width:100%;max-width:var(--swsi-shell-max,540px);display:flex;flex-direction:column;gap:14px;padding:18px 20px calc(18px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:rgba(255,255,255,.88);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);animation:swsi-rise 240ms var(--press) both;}
+#app .swsi-result-msg{display:flex;align-items:center;gap:14px;}
+#app .swsi-result-msg b{display:block;font-size:22px;font-weight:700;line-height:1.3;}
+#app .is-ok .swsi-result-msg b{color:var(--ok);}
+#app .is-no .swsi-result-msg b{color:var(--no);}
+#app .swsi-result-msg small{display:block;margin-top:2px;font-size:16px;font-weight:500;color:var(--ink-soft);}
+#app .swsi-result-ico{display:grid;place-items:center;flex:0 0 auto;width:44px;height:44px;border-radius:50%;color:#fff;}
+#app .is-ok .swsi-result-ico{background:var(--ok);}
+#app .is-no .swsi-result-ico{background:var(--no);}
+#app .swsi-result-ico .swsi-i{width:24px;height:24px;stroke-width:2.6;}
+#app .swsi-result-bar .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;margin:0;border:0;font-size:19px;outline-offset:3px;}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#app .swsi-result-bar{background:var(--paper2);}}
+/* Phones: one row (verdict left, next right) so the bar does not cover the explanation.
+   The encouragement line stays in the DOM for screen readers. */
+@media (max-width:699px){
+  #app .swsi-result-bar{flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));}
+  #app .swsi-result-msg{gap:10px;min-width:0;}
+  #app .swsi-result-msg small{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  #app .swsi-result-msg b{font-size:20px;white-space:nowrap;}
+  #app .swsi-result-ico{width:36px;height:36px;}
+  #app .swsi-result-ico .swsi-i{width:20px;height:20px;}
+  #app .swsi-result-bar .btn{flex:0 0 auto;width:auto;min-width:140px;min-height:52px;padding:0 22px;font-size:18px;}
+}
+
+@keyframes swsi-rise{from{transform:translate(-50%,24px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+@media (min-width:700px){
+  #app .swsi-result-bar{flex-direction:row;align-items:center;justify-content:space-between;width:min(760px,calc(100% - 32px));max-width:none;padding-left:28px;padding-right:28px;border-radius:var(--r-lg) var(--r-lg) 0 0;border:1px solid var(--line);border-bottom:0;}
+  #app .swsi-result-bar .btn{width:auto;min-width:180px;padding:0 28px;}
+}
+
+/* Explanation: one reading column, one card style, one disclosure style. */
+#app .exp{margin-top:28px;padding:0;border-top:0;animation:none;}
+#app .exp .topic{display:inline-block;margin:0 0 12px;padding:0;background:transparent;border:0;font-size:15px;color:var(--ink-3);}
+#app .exp .topic b{color:var(--ink-soft);}
+#app .swsi-answer-line{margin:0 0 12px;padding:0;background:transparent;border:0;font-size:var(--fs-h);font-weight:700;color:var(--ink);}
+#app .swsi-core-reason{display:block;margin:0 0 16px;padding:20px;border:0;border-radius:var(--r-lg);background:var(--paper2);}
+#app .swsi-core-reason b{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:15px;font-weight:700;color:var(--brand);}
+#app .swsi-core-reason span{display:block;font-size:var(--fs-b);line-height:1.8;color:var(--ink);font-weight:400;}
+#app .mistake{display:inline-block;margin:0 0 14px;padding:6px 12px;border-radius:999px;background:var(--no-soft);color:var(--no);font-size:15px;font-weight:600;}
+#app .exp-sec{margin:0 0 20px;}
+#app .exp-sec h4{display:block;font-size:var(--fs-h);font-weight:700;color:var(--ink);margin:0 0 6px;}
 #app .exp-sec h4 .dot{display:none;}
-#app .exp-sec p{font-family:'Noto Sans TC',sans-serif;color:#363D39;line-height:1.86;}
-#app .pending{background:#F8F9F7;border:1px solid #E3E7E4;color:var(--ink-soft);border-radius:10px;}
-#app .extra{background:transparent;border:0;border-top:1px solid #E7EBE8;border-radius:0;padding-left:0;padding-right:0;}
-#app .mistake{font-family:'Noto Sans TC',sans-serif;border-radius:6px;padding:5px 8px;background:#F7EEEB;font-weight:600;}
+#app .exp-sec p{color:var(--ink);line-height:1.85;font-size:var(--fs-b);}
+#app .extra{margin:0 0 12px;padding:12px 0 0;background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;color:var(--ink);}
+#app .pending{background:var(--paper2);border:0;color:var(--ink-soft);border-radius:var(--r-md);padding:16px 18px;}
+#app .exp details{margin:0 0 12px;border:0;border-radius:var(--r-lg);background:var(--paper2);overflow:hidden;}
+#app .exp details > summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:0 20px;font-size:17px;font-weight:600;color:var(--ink);cursor:pointer;list-style:none;}
+#app .exp details > summary::-webkit-details-marker{display:none;}
+#app .exp details > summary::after{content:'';width:9px;height:9px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(45deg) translate(-2px,-2px);transition:transform 150ms var(--press);}
+#app .exp details[open] > summary::after{transform:rotate(-135deg) translate(-2px,-2px);}
+/* Source row: title + one meta line, chevron centred on the right (same height as siblings). */
+#app .exp details.swsi-answer-trust > summary{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:12px;row-gap:0;line-height:1.45;padding:12px 20px;}
+#app .exp details.swsi-answer-trust > summary > .swsi-trust-title{grid-column:1;grid-row:1;}
+#app .exp details.swsi-answer-trust > summary > .swsi-trust-meta{grid-column:1;grid-row:2;}
+#app .exp details.swsi-answer-trust > summary::after{grid-column:2;grid-row:1 / span 2;margin:0;}
+#app .exp details > :not(summary){padding:0 20px 18px;}
+#app .exp details .body{padding:0 20px 18px;}
 
-/* Result page informs without turning into a dashboard. */
-#app .sumcard{background:transparent;border:0;border-radius:0;box-shadow:none;padding-left:0;padding-right:0;}
-#app .sumcard .big{font-size:38px;color:var(--ink);}
-#app .stat{background:transparent;border-color:#E4E8E5;}
-#app .weak{background:#FBF6F4;}
+/* Session result page. */
+#app .sumcard{background:var(--paper2);border:0;border-radius:var(--r-lg);box-shadow:none;padding:28px 24px;}
+#app .sumcard .big{font-size:48px;font-weight:700;color:var(--ink);}
+#app .stat{background:var(--paper2);border:0;border-radius:var(--r-md);}
+#app .weak{background:var(--no-soft);border-radius:var(--r-md);}
 
 @media (max-width:370px){
-  #app .qcard{padding:11px 0 20px;}
-  #app .opt{padding:14px 12px;gap:10px;}
+  #app .opt{padding:14px;gap:12px;}
+  #app .opt .mk{margin-left:48px;}
+  #app .swsi-result-bar{padding-left:16px;padding-right:16px;}
+}
+@media (prefers-reduced-motion:reduce){
+  #app .swsi-result-bar{animation:none;}
+  #app .opt,#app .pbar i{transition:none;}
 }
 `;
   document.head.appendChild(style);

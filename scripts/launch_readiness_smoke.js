@@ -83,7 +83,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   assert.strictEqual(await guide.count(), 1, 'first-use guide missing on fresh localStorage');
   const guideText = await guide.innerText();
   assert(/不用先學整個平台/.test(guideText), 'compact first-use guide copy missing');
-  assert(/練題/.test(guideText) && /學習/.test(guideText) && /申論/.test(guideText), 'first-use guide does not explain the three primary areas');
+  assert(/刷題/.test(guideText) && /我的/.test(guideText) && /申論/.test(guideText), 'first-use guide does not explain the three primary areas (names must match the tab bar)');
   await guide.getByRole('button', { name: /不再顯示首次使用說明/ }).click();
   await page.waitForFunction(() => !document.querySelector('.swsi-launch-guide'));
   assert.strictEqual(await page.evaluate(() => localStorage.getItem('swsi_launch_guide_dismissed_v2')), '1', 'guide dismissal was not persisted');
@@ -102,7 +102,7 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     const wrap = document.querySelector('.wrap');
     return {
       paper: getComputedStyle(document.documentElement).getPropertyValue('--paper').trim().toUpperCase(),
-      heroBackground: hero && getComputedStyle(hero).backgroundColor,
+      primaryBackground: primary && getComputedStyle(primary).backgroundColor,
       heroTitle: hero && hero.querySelector('h1')?.textContent,
       primaryHeight: primary && primary.getBoundingClientRect().height,
       navMaxWidth: nav && getComputedStyle(nav).maxWidth,
@@ -111,8 +111,16 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
       v4Installed: !!document.getElementById('swsi-calm-navigation-v4')
     };
   });
-  assert.strictEqual(actualHome.paper, '#F7F9F7', 'Netlify V4 paper must match the reviewed Cloudflare V3 palette');
-  assert.strictEqual(actualHome.heroBackground, 'rgb(229, 240, 235)', 'approved pale green CTA hero is not rendered');
+  // Compare against the reviewed design system source (swsi-calm-learning-ui-v3),
+  // not a hard-coded colour, so a late override cannot silently repaint the page.
+  const systemCss = (require('fs').readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8')
+    .match(/<style id="swsi-calm-learning-ui-v3">([\s\S]*?)<\/style>/) || [])[1] || '';
+  const token = name => ((systemCss.match(new RegExp('--' + name + ':\\s*(#[0-9A-Fa-f]{6})')) || [])[1] || '').toUpperCase();
+  const rgb = hex => 'rgb(' + [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).join(', ') + ')';
+  assert(token('paper') && token('brand'), 'reviewed design tokens missing from swsi-calm-learning-ui-v3');
+  assert.strictEqual(actualHome.paper, token('paper'), 'rendered paper must match the reviewed design system');
+  // The calm large-type home has no coloured hero block; its one primary action carries the brand colour.
+  assert.strictEqual(actualHome.primaryBackground, rgb(token('brand')), 'home primary action must use the reviewed brand token');
   assert(/今天，從一題開始/.test(actualHome.heroTitle || ''), 'live renderHome still uses old copy');
   assert(actualHome.primaryHeight >= 48, 'primary CTA touch height is too small');
   assert.strictEqual(actualHome.wrapMaxWidth, '660px', 'mobile reading width regressed');
@@ -147,8 +155,9 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
     ink: getComputedStyle(el).color,
     opacity: getComputedStyle(el).opacity
   }));
-  assert.strictEqual(disabledStyle.bg, 'rgb(229, 236, 231)', 'disabled submit background is not visibly inactive');
-  assert.strictEqual(disabledStyle.ink, 'rgb(62, 85, 74)', 'disabled submit label is not readable');
+  // Reviewed inactive tokens (--off-ink on --off-bg is 6.2:1) from swsi-calm-learning-ui-v3.
+  assert.strictEqual(disabledStyle.bg, rgb(token('off-bg')), 'disabled submit background is not visibly inactive');
+  assert.strictEqual(disabledStyle.ink, rgb(token('off-ink')), 'disabled submit label is not readable');
   assert.strictEqual(disabledStyle.opacity, '1', 'disabled submit label is faded by opacity');
   await visual('02-question-mobile');
   await page.getByRole('button', { name: /結束這次練習/ }).click();

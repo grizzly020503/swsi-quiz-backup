@@ -1,0 +1,19 @@
+:root{--brand:#2563EB!important;--brand-deep:#1D4ED8!important;--brand-soft:#EFF4FF!important;--paper:#FFFFFF!important;--paper2:#FFFFFF!important;--ink:#111827!important;--ink-soft:#4B5563!important;--line:#E5E7EB!important;--line-2:#D1D5DB!important;--r-lg:14px!important;--r-md:12px!important;}
+body{background:#FFFFFF!important}
+html body #app .swsi-v4-hero{background:#F7F8FA!important;color:var(--ink)!important;box-shadow:none!important;border:0!important;padding:28px 24px!important}
+html body #app .swsi-v4-hero::after{display:none!important}
+html body #app .swsi-v4-hero .kicker{background:transparent!important;padding:0!important;color:var(--ink-soft)!important}
+html body #app .swsi-v4-hero .kicker b{color:var(--brand)!important}
+html body #app .swsi-v4-hero h1{color:var(--ink)!important;font-weight:700!important}
+html body #app .swsi-v4-hero p{color:var(--ink-soft)!important}
+html body #app .swsi-v4-start{background:var(--ink)!important;color:#fff!important;box-shadow:none!important;border-radius:12px!important}
+html body #app .swsi-v4-path,html body #app .swsi-v4-tool-grid button,#app .opt,body .btn,body .btn.ghost,#app .swsi-result-bar .btn,body .swsi-myhub-row,#app .swsi-core-reason,#app .exp details{box-shadow:none!important;border-width:1px!important}
+#app .opt:active,body .btn:active{transform:none!important}
+#app .opt .lab{border-width:1px!important;border-radius:50%!important}
+#app .opt.sel,#app .opt.correct,#app .opt.wrong{box-shadow:none!important;border-width:1.5px!important}
+#app .pbar{height:4px!important}
+#app .pbar i{box-shadow:none!important}
+#app .tag{border:0!important;background:#F3F4F6!important}
+#app .qtext{font-weight:600!important}
+#app .swsi-result-bar{background:#FFFFFF!important;border-top:1px solid var(--line)!important;box-shadow:0 -4px 20px rgba(0,0,0,.06)!important}
+#app .swsi-result-bar .btn{background:var(--ink)!important}

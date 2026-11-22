@@ -363,10 +363,10 @@ BLOCK = r'''
     if(!source.length) return;
     var box=document.createElement('section'); box.id='nl-live-radar'; box.className='nlr-box';
     box.innerHTML=useV2
-      ?'<div class="nlr-top"><div class="nlr-h">🎯 目前 3 個國考重點</div><div class="nlr-badge">少量精選・證據分級</div></div>'
+      ?'<div class="nlr-top"><div class="nlr-h">目前 3 個國考重點</div><div class="nlr-badge">少量精選・證據分級</div></div>'
         +'<div class="nlr-help">只精選 3 個重點；可直接練題，完整考點與來源點開再看。單一來源不代表命題趨勢。</div>'
         +(list.length?'<div class="nlr-grid">'+list.map(eventCard).join('')+'</div>':'<div class="nlr-empty">這個科目目前沒有新的高關聯事件。</div>')
-      :'<div class="nlr-top"><div class="nlr-h">🎯 目前 3 個國考重點</div><div class="nlr-badge">備援資料</div></div>'
+      :'<div class="nlr-top"><div class="nlr-h">目前 3 個國考重點</div><div class="nlr-badge">備援資料</div></div>'
         +'<div class="nlr-help">趨勢資料暫時不可用，先顯示最多 3 個高關聯時事；事實細節請以原始來源為準。</div>'
         +(list.length?'<div class="nlr-grid">'+list.map(liveCard).join('')+'</div>':'<div class="nlr-empty">這個科目目前沒有新的高關聯時事。</div>');
     var chips=wrap.querySelector('.nl-chips');
