@@ -5028,8 +5028,8 @@ body #app .gcard{display:flex;align-items:center;gap:14px;min-height:68px;margin
 body #app .swsi-gcard-group .gcard{position:relative;margin:0;border-radius:0;background:transparent;}
 body #app .swsi-gcard-group .gcard + .gcard::before{content:'';position:absolute;top:0;left:66px;right:0;height:1px;background:var(--line);}
 body #app .gcard > div{flex:1;min-width:0;}
-body #app .gcard .name{font-size:18px;font-weight:500;line-height:1.4;color:var(--ink);}
-body #app .gcard .cnt{margin-top:2px;font-size:15px;line-height:1.45;color:var(--ink-3);}
+body #app .gcard .name{font-size:var(--fs-b);font-weight:500;line-height:1.4;color:var(--ink);}
+body #app .gcard .cnt{margin-top:2px;font-size:var(--fs-s);line-height:1.45;color:var(--ink-3);}
 body #app .gcard .arrow{flex:0 0 auto;color:var(--line-2);font-size:20px;}
 body #app .gcard .arrow .swsi-i{width:18px;height:18px;stroke-width:2.4;}
 body #app .swsi-gcard-ico{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:10px;background:var(--brand-soft);color:var(--brand);}
@@ -5037,9 +5037,9 @@ body #app .swsi-gcard-ico .swsi-i{width:22px;height:22px;}
 body #app .gcard .tag{font-size:13px;}
 @media (hover:hover) and (pointer:fine){body #app .gcard:hover{background:#FBFAF7;}}
 body .section-h{font-size:30px;line-height:1.25;letter-spacing:0;margin-bottom:8px;}
-body .section-s{font-size:17px;line-height:1.65;margin-bottom:24px;}
+body .section-s{font-size:calc(var(--fs-b) - 1px);line-height:1.65;margin-bottom:24px;}
 body .subj-pill{font-size:14px;font-weight:600;color:var(--ink-3);background:transparent;padding:0 4px;margin:24px 0 8px;}
-body .ehint{font-size:15px;color:var(--brand);}
+body .ehint{font-size:var(--fs-s);color:var(--brand);}
 body .empty p{font-size:var(--fs-b);line-height:1.7;}
 body select.subj{min-height:50px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper2);font-size:17px;color:var(--ink);}
 
@@ -5065,6 +5065,6 @@ body .swsi-i{width:20px;height:20px;flex:0 0 auto;vertical-align:middle;}
 <!-- SWSI CALM LEARNING UI V3 END -->
 
 <script>window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP={"version":"2026-08-27.canonical-build.v1","laws":{"count":24,"sha256":"bb946b67af633ea371550dc1b074dbca530ccb50f47e561c7590ff0e5ea89dfc"},"theories":{"count":39,"sha256":"1a74d39a9611caf002383527390dd3d7e5cc0b6665b6b7f89494f2a0d58ead4d"}};</script>
-<script src="monthly_patch.js?v=preview-code-health-p0-20260826-2&amp;b=1e432ad13eaf"></script>
+<script src="monthly_patch.js?v=preview-code-health-p0-20260826-2&amp;b=35e0a97c29d6"></script>
 </body>
 </html>
