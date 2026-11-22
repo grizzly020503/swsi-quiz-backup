@@ -18,6 +18,10 @@ const designId = sourceHtml.includes('<style id="swsi-calm-learning-ui-v3">') ? 
 const cssMatches = [...sourceHtml.matchAll(new RegExp('<style id="' + designId + '">([\\s\\S]*?)</style>', 'g'))];
 assert(cssMatches.length <= 1, 'duplicate reviewed calm design CSS in CDN source');
 const expectedCalmCss = cssMatches.length ? cssMatches[0][1] : null;
+// Expected colours come from the reviewed token source, not hard-coded values, so a
+// reviewed redesign cannot be reported as "not applied" by a stale literal.
+const calmToken = name => (((expectedCalmCss || '').match(new RegExp('--' + name + ':\\s*(#[0-9A-Fa-f]{6})')) || [])[1] || '').toUpperCase();
+const hexToRgb = hex => 'rgb(' + [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).join(', ') + ')';
 const expectedSourceHolds = JSON.parse(sourceHtml.match(/const SWSI_SOURCE_HOLD_IDS=Object.freeze\((\[[^;]*\])\);/)[1].replace(/'/g,'"'));
 const requireCalmParity = process.env.GITHUB_EVENT_NAME !== 'pull_request' && expectedCalmCss !== null;
 
@@ -36,12 +40,12 @@ async function awaitReviewedDesign(page, label) {
         css: style ? style.textContent : null,
         sourceHolds: typeof SWSI_SOURCE_HOLD_IDS==='undefined' ? null : Array.from(SWSI_SOURCE_HOLD_IDS),
         paper: getComputedStyle(document.body).backgroundColor,
-        pine: getComputedStyle(document.documentElement).getPropertyValue('--pine-deep').trim()
+        brandDeep: getComputedStyle(document.documentElement).getPropertyValue(document.getElementById('swsi-calm-learning-ui-v3') ? '--brand-deep' : '--pine-deep').trim()
       };
     }, designId);
     if (deployed.css === expectedCalmCss && JSON.stringify(deployed.sourceHolds)===JSON.stringify(expectedSourceHolds)) {
-      assert.equal(deployed.paper, designId.endsWith('v3') ? 'rgb(247, 249, 247)' : 'rgb(244, 247, 245)', label + ': new body background not applied');
-      assert.equal(deployed.pine.toUpperCase(), designId.endsWith('v3') ? '#204F48' : '#1F544B', label + ': new CTA palette not applied');
+      assert.equal(deployed.paper, designId.endsWith('v3') ? hexToRgb(calmToken('paper')) : 'rgb(244, 247, 245)', label + ': new body background not applied');
+      assert.equal(deployed.brandDeep.toUpperCase(), designId.endsWith('v3') ? calmToken('brand-deep') : '#1F544B', label + ': new CTA palette not applied');
       console.log('LIVE REVIEWED DESIGN PARITY OK ' + label + ' refreshes=' + attempts);
       return;
     }
@@ -667,7 +671,7 @@ async function check(engine, label, width, height, practice) {
       const paths = [...document.querySelectorAll('#app .swsi-v4-study-paths > .swsi-v4-path')]
         .map(el => el.querySelector('.swsi-v4-path-title')?.textContent?.trim() || '');
       const tools = [...document.querySelectorAll('#app .swsi-v4-tool-grid > button')]
-        .map(el => el.querySelector('span:last-child')?.textContent?.trim() || '');
+        .map(el => el.querySelector('span:not(.swsi-v4-chev)')?.textContent?.trim() || '');
       const nav = [...document.querySelectorAll('#tabbar button')].filter(el => {
         const style = getComputedStyle(el);
         const box = el.getBoundingClientRect();
@@ -678,12 +682,15 @@ async function check(engine, label, width, height, practice) {
         heroCount: document.querySelectorAll('#app .swsi-v4-hero').length,
         headline: hero?.querySelector('h1')?.textContent?.trim() || '',
         heroColor: hero ? getComputedStyle(hero).backgroundColor : '',
+        startColor: (hero && hero.querySelector('.swsi-v4-start')) ? getComputedStyle(hero.querySelector('.swsi-v4-start')).backgroundColor : '',
         paths, tools, nav
       };
     });
     assert.equal(homeV4.heroCount, 1, label + ': missing/duplicate V4 primary hero');
     assert.equal(homeV4.headline, '今天，從一題開始。', label + ': old homepage renderer active');
-    assert.equal(homeV4.heroColor, 'rgb(229, 240, 235)', label + ': approved pale-green hero missing');
+    // Large-type system (2026-11-22): no coloured hero block; the one primary action carries the brand token.
+    if (calmToken('brand')) assert.equal(homeV4.startColor, hexToRgb(calmToken('brand')), label + ': reviewed primary action colour missing');
+    else assert.equal(homeV4.heroColor, 'rgb(229, 240, 235)', label + ': approved pale-green hero missing');
     assert.deepEqual(homeV4.paths, ['歷屆試題', '申論練習'], label + ': V4 study paths');
     assert.equal(homeV4.tools.length, 3, label + ': V4 study tools count');
     assert(homeV4.tools[0] === '模擬考' &&
