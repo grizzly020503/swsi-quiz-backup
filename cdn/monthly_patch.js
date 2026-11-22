@@ -2039,8 +2039,13 @@ html[data-fs="2"]{
 }
 #app .fmtbar{align-items:center;margin-bottom:9px;}
 #app .fmtbar .fbtn{min-height:38px;padding:6px 10px;}
-#app .fmtbar .fbtn.clear,
-#app .fmtbar .swsi-clear-btn{
+/* Clear lives on the save line, away from the level buttons (it still asks to confirm). */
+#app .wmeta{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+#app .wbox .fbtn.clear,
+#app .wbox .swsi-clear-btn{
+  min-height:44px;
+  padding:0 4px;
+  font-size:var(--fs-s);
   margin-left:auto;
   color:var(--wrong)!important;
   background:transparent!important;
@@ -2048,12 +2053,25 @@ html[data-fs="2"]{
   font-weight:600!important;
   white-space:nowrap;
 }
-#app .fmtbar .fbtn.clear:hover,
-#app .fmtbar .swsi-clear-btn:hover{
+#app .wbox .fbtn.clear:hover,
+#app .wbox .swsi-clear-btn:hover{
   background:var(--wrong-bg)!important;
   border-color:rgba(158,97,85,.25)!important;
 }
 #app .wta{line-height:1.78;min-height:190px;}
+#app .fmtbar .fbtn{min-height:44px;min-width:48px;font-size:var(--fs-s);border:0;border-radius:10px;background:var(--fill);color:var(--ink);}
+
+/* AI actions (markup owned by the AI-contract layer; only presentation here).
+   Handwriting photo is the primary path, typed text the secondary one. */
+#app div:has(> [id^="aitype_"]){display:flex;flex-direction:column;}
+#app div:has(> [id^="aitype_"]) > [id^="aiphoto_"]{order:1;}
+#app div:has(> [id^="aitype_"]) > [id^="aitype_"]{order:2;}
+#app div:has(> [id^="aitype_"]) > [id^="aiphoto_"] ~ .aihelp{order:3;}
+#app div:has(> [id^="aitype_"]) > [id^="airesult_"]{order:4;}
+#app [id^="aiphoto_"],#app [id^="aitype_"]{min-height:56px!important;margin:0 0 10px!important;padding:0 16px!important;border:0!important;border-radius:var(--r-md)!important;font-family:var(--swsi-font)!important;font-size:var(--fs-h)!important;font-weight:600!important;}
+#app [id^="aiphoto_"]{background:var(--brand)!important;color:var(--brand-ink)!important;}
+#app [id^="aitype_"]{background:var(--brand-soft)!important;color:var(--brand-deep)!important;}
+#app [id^="aiphoto_"]:disabled,#app [id^="aitype_"]:disabled{background:var(--off-bg)!important;color:var(--off-ink)!important;}
 
 #app .swsi-ai-privacy{
   margin:0 0 10px;
@@ -2311,7 +2329,7 @@ html[data-fs="2"]{
         help.textContent='點一下插入答題層級';
         bar.parentNode.insertBefore(help,bar);
       }
-      var clear=box.querySelector('.fmtbar .fbtn.clear');
+      var clear=box.querySelector('.fbtn.clear');
       if(clear){
         if(!clear.classList.contains('swsi-clear-btn')) clear.classList.add('swsi-clear-btn');
         /* textContent mutates child nodes even when the text is identical. Guard it so
@@ -4918,10 +4936,9 @@ html[data-fs="2"]{
       <div class="wlabel">我的作答（自動儲存在這台裝置）</div>
       <div class="fmtbar">
         ${[['cn','一、'],['cnp','（一）'],['num','1、'],['lat','a.'],['rom','(i)']].map(function(p){return `<button class="fbtn" onclick="insertFmt('${id}','${p[0]}')">${p[1]}</button>`;}).join('')}
-        <button class="fbtn clear" onclick="clearDraft('${id}')">清空</button>
       </div>
       <textarea id="ta_${id}" class="wta" placeholder="先別看骨架，自己試著寫。寫不出來就點上面的「拆題五步」。" oninput="saveDraft('${id}')">${esc(saved)}</textarea>
-      <div class="wmeta"><span id="save_${id}">已儲存在這台裝置</span> · <span id="wc_${id}">${saved.length}</span> 字</div>
+      <div class="wmeta"><span><span id="save_${id}">已儲存在這台裝置</span> · <span id="wc_${id}">${saved.length}</span> 字</span><button class="fbtn clear" onclick="clearDraft('${id}')">清空</button></div>
       ${aiFeedbackHTML(id)}
     </div>`;
   };

@@ -21,10 +21,9 @@
       <div class="wlabel">我的作答（自動儲存在這台裝置）</div>
       <div class="fmtbar">
         ${[['cn','一、'],['cnp','（一）'],['num','1、'],['lat','a.'],['rom','(i)']].map(function(p){return `<button class="fbtn" onclick="insertFmt('${id}','${p[0]}')">${p[1]}</button>`;}).join('')}
-        <button class="fbtn clear" onclick="clearDraft('${id}')">清空</button>
       </div>
       <textarea id="ta_${id}" class="wta" placeholder="先別看骨架，自己試著寫。寫不出來就點上面的「拆題五步」。" oninput="saveDraft('${id}')">${esc(saved)}</textarea>
-      <div class="wmeta"><span id="save_${id}">已儲存在這台裝置</span> · <span id="wc_${id}">${saved.length}</span> 字</div>
+      <div class="wmeta"><span><span id="save_${id}">已儲存在這台裝置</span> · <span id="wc_${id}">${saved.length}</span> 字</span><button class="fbtn clear" onclick="clearDraft('${id}')">清空</button></div>
       ${aiFeedbackHTML(id)}
     </div>`;
   };
