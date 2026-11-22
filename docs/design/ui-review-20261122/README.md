@@ -30,7 +30,7 @@
 | 模擬考 | 舊綠色與襯線字改用 token | `mk_grading_contract` |
 | 答題回饋（考生視角修正） | 選中改用深墨色，不再用主色；答錯紅改為玫瑰紅 `#C0283F`，和陶土色分開；答錯後自動捲動，讓官方答案露在結果列上方 | `swsi-calm-learning-ui-v3`、`30`、`00.part` |
 | 解析區（Owner 手機實測回饋） | 手機上結果列縮成一行（約 77px，鼓勵文字只留給讀屏）；「題目來源與解析」改成標題＋一行小字，舊綠色標籤改用 token | `30`、`zzzz_product_v1_lock` |
-| 上線前補看（申論／模擬考／錯題本） | 申論作答頁移除表情符號、舊綠色與襯線字改 token；模擬考選中改深墨色（舊核心先建立 `#mk-style`，owner 另補 `#mk-style-system` 小區塊）；「今天到期」為 0 時不用紅色 | `40`、`00.part`、`99_p0`、`99z`、`80`、`mk_grading_contract`、`70.learning-loop` |
+| 上線前補看（申論／模擬考／錯題本） | 申論作答頁移除表情符號（AI 區塊的 🔒🤖📷 除外：`99z.essay-trust-layer` 受 AI 回饋合約保護，改動需重新擷取並人工評分模型輸出，本 PR 不動）、舊綠色與襯線字改 token；模擬考選中改深墨色（舊核心先建立 `#mk-style`，owner 另補 `#mk-style-system` 小區塊）；「今天到期」為 0 時不用紅色 | `40`、`00.part`、`99_p0`、`99z`、`80`、`mk_grading_contract`、`70.learning-loop` |
 | 頁尾與資訊視窗 | 字級 14–16px、連結改主色、按鈕 44px | `89.public-branding-info`、`zzzz_product_v1_lock` |
 | 測試 | `launch_readiness_smoke` 改讀 token：首頁主按鈕＝`--brand`、停用按鈕＝`--off-bg`／`--off-ink` | `scripts/launch_readiness_smoke.js` |
 
