@@ -131,7 +131,7 @@
     try{if(window.SWSI_QB&&window.SWSI_QB.usingOffline)offlineNote='<div style="margin-bottom:9px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:var(--swsi-ui-small);color:var(--ink-soft)">目前使用這台裝置已儲存的離線題庫。</div>';}catch(_e){}
 
     app.innerHTML=offlineNote+
-      '<section class="swsi-focus-hero swsi-focus-primary swsi-v4-hero"><div class="kicker">'+(doneToday?'今天已練 <b>'+doneToday+'</b> 題':'今天還沒練題')+'</div><h1>'+(doneToday?'再來 10 題，繼續累積。':'今天，從 10 題開始。')+'</h1><p>系統從近年考題和高頻考點幫你挑題，做完馬上看解析。</p><button class="swsi-v4-start" type="button" onclick="swsiStartNow()">'+swsiIcon('play')+'<span>開始刷題</span></button></section>'+
+      '<section class="swsi-focus-hero swsi-focus-primary swsi-v4-hero"><div class="kicker">'+(doneToday?'今天已練 <b>'+doneToday+'</b> 題':'今天還沒練題')+'</div><h1>'+(doneToday?'再練 10 題，穩穩累積。':'今天，從一題開始。')+'</h1><p>系統從近年考題和高頻考點幫你挑題，做完馬上看解析。</p><button class="swsi-v4-start" type="button" onclick="swsiStartNow()">'+swsiIcon('play')+'<span>開始刷題</span></button></section>'+
       '<h2 class="swsi-v4-section-heading">想從哪裡開始？</h2>'+
       '<div class="swsi-v4-study-paths">'+
         '<button type="button" class="swsi-v4-path" onclick="toggleHomeQuiz()" aria-expanded="'+(homeQuizOpen?'true':'false')+'"><span class="swsi-v4-path-icon">'+swsiIcon('papers')+'</span><span class="swsi-v4-path-title">歷屆試題</span><span class="swsi-v4-path-sub">依年份、科目練習</span></button>'+

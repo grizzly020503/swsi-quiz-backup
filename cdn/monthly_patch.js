@@ -685,21 +685,21 @@ window.swsiEsc = swsiEsc;
     if(typeof relabelTabs === 'function') try{ relabelTabs(); }catch(_e){}
   };
 
-  // Answer feedback: one result bar pinned to the bottom of the viewport with the
-  // only next action. Message follows the official grading mode; never re-grades.
-  function resultBar(item,mode,wrong){
-    var special=mode==='all_credit'||mode==='any_answer';
-    var ok=!wrong;
-    var title=special?'本題依官方規定給分':ok?'答對了！':'答錯了';
-    var sub=special?'解析僅供理解題意':ok?'看一下解析，加深印象':'先看解析，弄懂為什麼';
-    var last=idx+1>=queue.length;
-    return '<div class="swsi-result-bar '+(ok?'is-ok':'is-no')+'" role="status" aria-live="polite">'+
-      '<div class="swsi-result-msg"><span class="swsi-result-ico">'+swsiIcon(ok?'check':'cross')+'</span><span><b>'+title+'</b><small>'+sub+'</small></span></div>'+
-      '<button type="button" class="btn swsi-result-next" onclick="next()">'+(last?'看結果':'下一題')+swsiIcon('arrow')+'</button></div>';
-  }
-
   // ---------- Secure question rendering + official grading ----------
   renderQuiz = function(){
+    var ic=function(n){return typeof swsiIcon==='function'?swsiIcon(n):'';};
+    // Answer feedback: one result bar pinned to the bottom of the viewport with the
+    // only next action. Message follows the official grading mode; never re-grades.
+    function resultBar(item,mode,wrong){
+      var special=mode==='all_credit'||mode==='any_answer';
+      var ok=!wrong;
+      var title=special?'本題依官方規定給分':ok?'答對了！':'答錯了';
+      var sub=special?'解析僅供理解題意':ok?'看一下解析，加深印象':'先看解析，弄懂為什麼';
+      var last=idx+1>=queue.length;
+      return '<div class="swsi-result-bar '+(ok?'is-ok':'is-no')+'" role="status" aria-live="polite">'+
+        '<div class="swsi-result-msg"><span class="swsi-result-ico">'+ic(ok?'check':'cross')+'</span><span><b>'+title+'</b><small>'+sub+'</small></span></div>'+
+        '<button type="button" class="btn swsi-result-next" onclick="next()">'+(last?'看結果':'下一題')+ic('arrow')+'</button></div>';
+    }
     if(!queue.length){
       app.innerHTML='<div class="empty"><div class="ico">∅</div><h3>沒有符合的題目</h3><button class="btn" style="max-width:200px;margin:18px auto 0" onclick="go(\'home\')">回首頁</button></div>';
       return;
@@ -757,7 +757,7 @@ window.swsiEsc = swsiEsc;
         resultBar(item,mode,wrong)+'</div>';
     }
 
-    app.innerHTML='<div class="swsi-quizbar"><button type="button" class="quit" onclick="go(\'home\')" aria-label="結束這次練習">'+swsiIcon('close')+'</button>'+
+    app.innerHTML='<div class="swsi-quizbar"><button type="button" class="quit" onclick="go(\'home\')" aria-label="結束這次練習">'+ic('close')+'</button>'+
       '<div class="pstrip"><div class="pbar" role="progressbar" aria-label="練習進度" aria-valuemin="0" aria-valuemax="'+queue.length+'" aria-valuenow="'+(idx+(answered?1:0))+'"><i style="width:'+pct+'%"></i></div><span class="pcount">'+(idx+1)+' / '+queue.length+'</span></div></div>'+
       '<div class="qcard"><div class="qmeta"><span class="tag subj">'+swsiEsc(item.subject)+'</span><span class="tag year">'+swsiEsc(item.year)+'年 '+swsiEsc(item.round)+'</span>'+
       (yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':'')+
@@ -1665,7 +1665,7 @@ main [style*="font-size:15px"]{
     try{if(window.SWSI_QB&&window.SWSI_QB.usingOffline)offlineNote='<div style="margin-bottom:9px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:var(--swsi-ui-small);color:var(--ink-soft)">目前使用這台裝置已儲存的離線題庫。</div>';}catch(_e){}
 
     app.innerHTML=offlineNote+
-      '<section class="swsi-focus-hero swsi-focus-primary swsi-v4-hero"><div class="kicker">'+(doneToday?'今天已練 <b>'+doneToday+'</b> 題':'今天還沒練題')+'</div><h1>'+(doneToday?'再來 10 題，繼續累積。':'今天，從 10 題開始。')+'</h1><p>系統從近年考題和高頻考點幫你挑題，做完馬上看解析。</p><button class="swsi-v4-start" type="button" onclick="swsiStartNow()">'+swsiIcon('play')+'<span>開始刷題</span></button></section>'+
+      '<section class="swsi-focus-hero swsi-focus-primary swsi-v4-hero"><div class="kicker">'+(doneToday?'今天已練 <b>'+doneToday+'</b> 題':'今天還沒練題')+'</div><h1>'+(doneToday?'再練 10 題，穩穩累積。':'今天，從一題開始。')+'</h1><p>系統從近年考題和高頻考點幫你挑題，做完馬上看解析。</p><button class="swsi-v4-start" type="button" onclick="swsiStartNow()">'+swsiIcon('play')+'<span>開始刷題</span></button></section>'+
       '<h2 class="swsi-v4-section-heading">想從哪裡開始？</h2>'+
       '<div class="swsi-v4-study-paths">'+
         '<button type="button" class="swsi-v4-path" onclick="toggleHomeQuiz()" aria-expanded="'+(homeQuizOpen?'true':'false')+'"><span class="swsi-v4-path-icon">'+swsiIcon('papers')+'</span><span class="swsi-v4-path-title">歷屆試題</span><span class="swsi-v4-path-sub">依年份、科目練習</span></button>'+
