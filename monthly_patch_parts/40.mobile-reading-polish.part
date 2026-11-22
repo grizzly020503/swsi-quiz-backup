@@ -258,7 +258,7 @@ html[data-fs="2"]{
 }
 #app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)) .etopic{
   font-family:var(--swsi-font);
-  font-size:18px;
+  font-size:var(--fs-b);
   font-weight:600;
   line-height:1.58;
   color:var(--ink);
@@ -266,7 +266,7 @@ html[data-fs="2"]{
 #app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)) .ehint{
   margin-top:5px;
   font-family:var(--swsi-font);
-  font-size:15px;
+  font-size:var(--fs-s);
   font-weight:600;
   line-height:1.55;
   color:var(--ink-3);

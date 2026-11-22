@@ -54,18 +54,18 @@
       /* SWSI home 2026-11-22 (簡單大字): one large title, one action, grouped lists.
          Tokens from swsi-calm-learning-ui-v3. */
       html body #app .swsi-v4-hero{position:relative;margin:0 0 32px;padding:8px 0 0;border:0;border-radius:0;background:transparent;color:var(--ink);box-shadow:none;}
-      html body #app .swsi-v4-hero .kicker{display:block;margin:0 0 6px;padding:0;background:transparent;font-size:16px;font-weight:600;letter-spacing:0;color:var(--ink-3);}
+      html body #app .swsi-v4-hero .kicker{display:block;margin:0 0 6px;padding:0;background:transparent;font-size:calc(var(--fs-s) + 1px);font-weight:600;letter-spacing:0;color:var(--ink-3);}
       html body #app .swsi-v4-hero .kicker b{color:var(--brand);font-weight:700;}
-      html body #app .swsi-v4-hero h1{margin:0 0 10px;font:700 clamp(30px,8.4vw,36px)/1.25 var(--swsi-font);letter-spacing:0;color:var(--ink);}
-      html body #app .swsi-v4-hero p{margin:0 0 24px;max-width:30em;font-size:18px;line-height:1.7;color:var(--ink-soft);}
-      html body #app .swsi-v4-start{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:60px;border:0;border-radius:var(--r-md);background:var(--brand);color:var(--brand-ink);font:600 20px/1 var(--swsi-font);box-shadow:none;cursor:pointer;transition:opacity 90ms var(--press),background-color 150ms;}
+      html body #app .swsi-v4-hero h1{margin:0 0 10px;font:700 calc(var(--fs-q) + 11px)/1.25 var(--swsi-font);letter-spacing:0;color:var(--ink);}
+      html body #app .swsi-v4-hero p{margin:0 0 24px;max-width:30em;font-size:var(--fs-b);line-height:1.7;color:var(--ink-soft);}
+      html body #app .swsi-v4-start{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:60px;border:0;border-radius:var(--r-md);background:var(--brand);color:var(--brand-ink);font:600 calc(var(--fs-h) + 1px)/1 var(--swsi-font);box-shadow:none;cursor:pointer;transition:opacity 90ms var(--press),background-color 150ms;}
       html body #app .swsi-v4-start .swsi-i{width:22px;height:22px;fill:currentColor;}
       html body #app .swsi-v4-start:active{opacity:.78;}
-      html body #app .swsi-v4-section-heading,html body #app .swsi-v4-tools-head h2{margin:0 0 8px;padding:0 4px;font:600 16px/1.4 var(--swsi-font);color:var(--ink-3);}
+      html body #app .swsi-v4-section-heading,html body #app .swsi-v4-tools-head h2{margin:0 0 8px;padding:0 4px;font:600 calc(var(--fs-s) + 1px)/1.4 var(--swsi-font);color:var(--ink-3);}
       /* Grouped lists: white rounded group, hairlines inset after the icon. */
       html body #app .swsi-v4-study-paths,html body #app .swsi-v4-tool-grid{display:block;margin:0 0 32px;border-radius:var(--r-lg);background:var(--paper2);overflow:hidden;}
       html body #app .swsi-v4-tool-grid{margin:0;}
-      html body #app .swsi-v4-path,html body #app .swsi-v4-tool-grid button{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-height:64px;margin:0;padding:12px 16px;border:0;border-radius:0;background:transparent;color:var(--ink);text-align:left;box-shadow:none;font:500 18px/1.4 var(--swsi-font);cursor:pointer;transition:background-color 150ms;}
+      html body #app .swsi-v4-path,html body #app .swsi-v4-tool-grid button{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-height:64px;margin:0;padding:12px 16px;border:0;border-radius:0;background:transparent;color:var(--ink);text-align:left;box-shadow:none;font:500 var(--fs-b)/1.4 var(--swsi-font);cursor:pointer;transition:background-color 150ms;}
       html body #app .swsi-v4-path + .swsi-v4-path::before,html body #app .swsi-v4-tool-grid button + button::before{content:'';position:absolute;top:0;left:66px;right:0;height:1px;background:var(--line);}
       html body #app .swsi-v4-path:active,html body #app .swsi-v4-tool-grid button:active{background:var(--fill);}
       html body #app .swsi-v4-path{min-height:76px;}
@@ -73,14 +73,14 @@
       html body #app .swsi-v4-tool-grid button > .swsi-i:first-child{padding:7px;box-sizing:border-box;}
       html body #app .swsi-v4-path-icon .swsi-i{width:22px;height:22px;}
       html body #app .swsi-v4-path-copy{display:flex;flex-direction:column;flex:1;min-width:0;}
-      html body #app .swsi-v4-path-title{font-size:18px;font-weight:600;line-height:1.35;color:var(--ink);}
-      html body #app .swsi-v4-path-sub{margin-top:2px;font-size:15px;font-weight:400;line-height:1.45;color:var(--ink-3);}
+      html body #app .swsi-v4-path-title{font-size:var(--fs-b);font-weight:600;line-height:1.35;color:var(--ink);}
+      html body #app .swsi-v4-path-sub{margin-top:2px;font-size:var(--fs-s);font-weight:400;line-height:1.45;color:var(--ink-3);}
       html body #app .swsi-v4-tool-grid button > span:not(.swsi-v4-chev){flex:1;min-width:0;}
       html body #app .swsi-v4-chev{display:grid;place-items:center;flex:0 0 auto;margin-left:auto;color:var(--line-2);}
       html body #app .swsi-v4-chev .swsi-i{width:18px;height:18px;stroke-width:2.4;}
       html body #app .swsi-v4-tools{margin:0 0 8px;padding:0;border:0;background:transparent;box-shadow:none;}
       html body #app .swsi-v4-tools-head{display:flex;align-items:center;justify-content:space-between;margin:0;}
-      html body #app .swsi-v4-tools-head button{display:inline-flex;align-items:center;gap:2px;min-height:44px;margin:-12px 0 0;padding:0 4px;border:0;background:transparent;color:var(--brand);font:500 16px/1 var(--swsi-font);cursor:pointer;}
+      html body #app .swsi-v4-tools-head button{display:inline-flex;align-items:center;gap:2px;min-height:44px;margin:-12px 0 0;padding:0 4px;border:0;background:transparent;color:var(--brand);font:500 calc(var(--fs-s) + 1px)/1 var(--swsi-font);cursor:pointer;}
       html body #app .swsi-v4-tools-head button .swsi-i{width:16px;height:16px;}
       html body #app .swsi-focus-custom{margin:-20px 0 32px;padding:20px;background:var(--paper2);border:0;border-radius:var(--r-lg);}
       html body #app .swsi-focus-custom .field-label{font-size:15px;font-weight:600;color:var(--ink-3);}
