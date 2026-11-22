@@ -1,0 +1,48 @@
+:root,html,html[data-fs="0"]{--fs-q:21px!important;--fs-h:19px!important;--fs-b:18px!important;--fs-s:15px!important}
+html[data-fs="1"]{--fs-q:24px!important;--fs-h:21px!important;--fs-b:20px!important;--fs-s:17px!important}
+html[data-fs="2"]{--fs-q:27px!important;--fs-h:23px!important;--fs-b:22px!important;--fs-s:19px!important}
+:root{--brand:#1F4FA3!important;--brand-deep:#173E82!important;--brand-soft:#EDF2FB!important;--spark:#1F4FA3!important;--paper:#FAF9F5!important;--paper2:#FFFFFF!important;--ink:#1B1D21!important;--ink-soft:#4A4E57!important;--ink-3:#6A6E77!important;--line:#E7E4DC!important;--line-2:#D6D2C6!important;--r-lg:16px!important;--r-md:14px!important}
+body{background:#FAF9F5!important}
+body header{background:#FAF9F5!important;border-bottom:1px solid var(--line)!important}
+body .btn,body .btn.ghost,#app .opt,html body #app .swsi-v4-path,html body #app .swsi-v4-tool-grid button,body .swsi-myhub-row,#app .swsi-core-reason,#app .exp details,#app .swsi-result-bar .btn,html body #app .swsi-v4-start{box-shadow:none!important}
+body .btn:active,#app .opt:active,html body #app .swsi-v4-start:active{transform:none!important;opacity:.85}
+/* home: no coloured block, one big title, one action */
+html body #app .swsi-v4-hero{background:transparent!important;color:var(--ink)!important;border:0!important;border-radius:0!important;padding:8px 2px 4px!important;margin-bottom:24px!important}
+html body #app .swsi-v4-hero::after{display:none!important}
+html body #app .swsi-v4-hero .kicker{background:transparent!important;padding:0!important;font-size:16px!important;color:var(--ink-soft)!important}
+html body #app .swsi-v4-hero .kicker b{color:var(--brand)!important}
+html body #app .swsi-v4-hero h1{color:var(--ink)!important;font-size:32px!important;line-height:1.3!important}
+html body #app .swsi-v4-hero p{color:var(--ink-soft)!important;font-size:18px!important;line-height:1.7!important}
+html body #app .swsi-v4-start{background:var(--brand)!important;color:#fff!important;min-height:64px!important;font-size:21px!important;border-radius:16px!important}
+/* paths + tools become one single-column list */
+html body #app .swsi-v4-section-heading,html body #app .swsi-v4-tools-head h2{font-size:19px!important;color:var(--ink-soft)!important;font-weight:700!important}
+html body #app .swsi-v4-study-paths,html body #app .swsi-v4-tool-grid{grid-template-columns:1fr!important;gap:10px!important}
+html body #app .swsi-v4-path,html body #app .swsi-v4-tool-grid button{display:grid!important;grid-template-columns:44px 1fr!important;column-gap:16px!important;align-items:center!important;text-align:left!important;justify-content:start!important;min-height:76px!important;padding:14px 18px!important;border:1px solid var(--line)!important;font-size:19px!important}
+html body #app .swsi-v4-path-icon{grid-row:1 / span 2;margin:0!important;background:transparent!important;color:var(--brand)!important}
+html body #app .swsi-v4-path-title{font-size:20px!important}
+html body #app .swsi-v4-path-sub{font-size:16px!important;margin:0!important}
+html body #app .swsi-v4-tool-grid button .swsi-i{width:28px!important;height:28px!important;justify-self:center}
+/* quiz: reading first */
+#app .swsi-quizbar{margin-bottom:24px!important}
+#app .pbar{height:6px!important}
+#app .pbar i{box-shadow:none!important}
+#app .tag{border:0!important;background:transparent!important;padding:0!important;font-size:15px!important}
+#app .tag.subj{color:var(--brand)!important}
+#app .qtext{font-weight:600!important;line-height:1.75!important;margin-bottom:28px!important}
+#app .opt{border:1px solid var(--line)!important;padding:18px 18px!important;gap:16px!important;min-height:68px!important;margin-bottom:12px!important}
+#app .opt .lab{border:0!important;background:var(--paper)!important;width:36px!important;height:36px!important;font-size:18px!important}
+#app .opt.sel{border:2px solid var(--brand)!important}
+#app .opt.correct{border:2px solid var(--ok)!important}
+#app .opt.wrong{border:2px solid var(--no)!important}
+#app .qcard > .btn{min-height:60px!important;font-size:19px!important}
+#app .swsi-result-bar{border-top-width:1px!important}
+#app .swsi-result-msg b{font-size:22px!important}
+#app .swsi-result-bar .btn{min-height:58px!important;font-size:19px!important}
+body .tabbar button .swsi-nav-label{font-size:14px!important}
+#app .opt.sel .lab{background:var(--brand)!important;color:#fff!important}
+#app .opt.correct .lab{background:var(--ok)!important;color:#fff!important}
+#app .opt.wrong .lab{background:var(--no)!important;color:#fff!important}
+html body #app .swsi-v4-start{border:0!important}
+#app .opt{flex-wrap:wrap!important}
+#app .opt > span:not(.lab):not(.mk){flex:1 1 calc(100% - 60px)!important}
+#app .opt .mk{flex-basis:100%!important;margin:4px 0 0 52px!important;font-size:15px!important}

@@ -78,7 +78,7 @@
   function setup(){
     if(timer){clearInterval(timer);timer=null;}running=false;
     var opts=['全部科目'].concat(subs()).map(function(s){return '<option '+(s===scope?'selected':'')+'>'+E(s)+'</option>';}).join('');
-    var modeRow='<div class="mk-row"><div class="mk-pill" style="'+(mode==='random'?'border-color:var(--pine);background:var(--correct-bg)':'')+'" onclick="MK.setMode(\'random\')"><span class="b" style="font-size:var(--fs-h)">🎲 隨機抽題</span><span class="s">從可判分題庫隨機出</span></div><div class="mk-pill" style="'+(mode==='exam'?'border-color:var(--pine);background:var(--correct-bg)':'')+'" onclick="MK.setMode(\'exam\')"><span class="b" style="font-size:var(--fs-h)">📅 指定歷屆</span><span class="s">寫某年整卷</span></div></div>';
+    var modeRow='<div class="mk-row"><div class="mk-pill" style="'+(mode==='random'?'border-color:var(--brand);background:var(--brand-soft)':'')+'" onclick="MK.setMode(\'random\')"><span class="b" style="font-size:var(--fs-h)">隨機抽題</span><span class="s">從可判分題庫隨機出</span></div><div class="mk-pill" style="'+(mode==='exam'?'border-color:var(--brand);background:var(--brand-soft)':'')+'" onclick="MK.setMode(\'exam\')"><span class="b" style="font-size:var(--fs-h)">指定歷屆</span><span class="s">寫某年整卷</span></div></div>';
     var bottom='';
     if(mode==='exam'){
       var ps=papers();if((!exYear||!ps.some(function(p){return p.year===exYear&&p.round===exRound;}))&&ps.length){exYear=ps[0].year;exRound=ps[0].round;}
@@ -88,7 +88,7 @@
     }else{
       bottom='<div class="mk-lab">選擇題數</div><div class="mk-row"><div class="mk-pill" onclick="MK.begin(20)"><span class="b">20</span><span class="s">題</span></div><div class="mk-pill" onclick="MK.begin(40)"><span class="b">40</span><span class="s">題</span></div><div class="mk-pill" onclick="MK.begin(80)"><span class="b">80</span><span class="s">題</span></div></div>';
     }
-    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">📝 計時模擬考</div><button class="mk-x" onclick="MK.close()">✕</button></div><div class="mk-h1">設定這場模擬考</div><div class="mk-sub">所有模式都使用與一般刷題相同的官方 grading contract；特殊給分資料不完整時不猜答案。</div><div class="mk-lab">考試範圍</div><select class="mk-sel" onchange="MK.setScope(this.value)">'+opts+'</select><div class="mk-lab">出題方式</div>'+modeRow+'<div class="mk-lab">時間模式</div><div class="mk-toggle" onclick="MK.toggleTimed()"><span id="mk-tg">'+(limited?'⏱ 倒數計時':'∞ 不限時')+'</span></div>'+bottom+'</div>';
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">計時模擬考</div><button class="mk-x" onclick="MK.close()">✕</button></div><div class="mk-h1">設定這場模擬考</div><div class="mk-sub">所有模式都依考選部公布的答案計分，和平常刷題一樣。</div><div class="mk-lab">考試範圍</div><select class="mk-sel" onchange="MK.setScope(this.value)">'+opts+'</select><div class="mk-lab">出題方式</div>'+modeRow+'<div class="mk-lab">時間模式</div><div class="mk-toggle" onclick="MK.toggleTimed()"><span id="mk-tg">'+(limited?'倒數計時':'不限時')+'</span></div>'+bottom+'</div>';
   }
 
   function run(){
@@ -152,7 +152,7 @@
       var tag=p!=null?'<span class="mk-tag w">你選 '+E(p)+'</span>':'<span class="mk-tag n">未作答</span>';
       return '<div class="mk-rev"><div class="rq">'+E(figureStem(q)).slice(0,140)+'</div><div class="ln">'+tag+'<span class="mk-tag n">'+E(w.dataError?'給分資料異常':label(q))+'</span></div>'+ex+'</div>';
     }).join('');
-    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">模擬考結果</div><button class="mk-x" onclick="MK.close()">✕</button></div>'+(auto?'<div class="mk-sub" style="color:var(--wrong);margin-top:14px">⏰ 時間到，已自動交卷。</div>':'')+'<div class="mk-score"><div class="big">'+scored.correct+' / '+scored.total+'</div><div class="pct">答對率 '+pct+'%　·　實際作答 '+scored.answered+' 題　·　用時 '+fmt(used)+'</div></div>'+(scored.excluded?'<div class="mk-sub" role="status" style="margin-top:12px">'+scored.excluded+(Q.some(sourceHeld)?' 題待覆核或原圖未載入，已排除計分。':' 題原圖未載入，已排除計分。')+'</div>':'')+'<div class="mk-lab">各科表現（未作答也列入分母）</div>'+subjHtml+(revHtml?'<div class="mk-lab">錯題與未作答（'+scored.wrong.length+' 題）</div>'+revHtml:'<div class="mk-sub" style="margin-top:16px">🎉 全部計分正確！</div>')+'<div class="mk-nav"><button class="mk-btn ghost" onclick="MK.retry()">再考一次</button><button class="mk-btn go" onclick="MK.close()">完成</button></div></div>';
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer" style="color:var(--ink)">模擬考結果</div><button class="mk-x" onclick="MK.close()">✕</button></div>'+(auto?'<div class="mk-sub" style="color:var(--wrong);margin-top:14px">時間到，已自動交卷。</div>':'')+'<div class="mk-score"><div class="big">'+scored.correct+' / '+scored.total+'</div><div class="pct">答對率 '+pct+'%　·　實際作答 '+scored.answered+' 題　·　用時 '+fmt(used)+'</div></div>'+(scored.excluded?'<div class="mk-sub" role="status" style="margin-top:12px">'+scored.excluded+(Q.some(sourceHeld)?' 題待覆核或原圖未載入，已排除計分。':' 題原圖未載入，已排除計分。')+'</div>':'')+'<div class="mk-lab">各科表現（未作答也列入分母）</div>'+subjHtml+(revHtml?'<div class="mk-lab">錯題與未作答（'+scored.wrong.length+' 題）</div>'+revHtml:'<div class="mk-sub" style="margin-top:16px">全部計分正確！</div>')+'<div class="mk-nav"><button class="mk-btn ghost" onclick="MK.retry()">再考一次</button><button class="mk-btn go" onclick="MK.close()">完成</button></div></div>';
     window.scrollTo(0,0);
   }
 
@@ -166,7 +166,7 @@
     setScope:function(v){scope=v;if(mode==='exam')setup();},
     setMode:function(v){mode=v;setup();},
     setPaper:function(v){var p=String(v).split('|');exYear=p[0];exRound=p.slice(1).join('|');setup();},
-    toggleTimed:function(){limited=!limited;var el=document.getElementById('mk-tg');if(el)el.textContent=limited?'⏱ 倒數計時':'∞ 不限時';},
+    toggleTimed:function(){limited=!limited;var el=document.getElementById('mk-tg');if(el)el.textContent=limited?'倒數計時':'不限時';},
     begin:function(n){var pool=build(n);if(!pool.length){alert('這個範圍目前沒有可安全判分的題目。');return;}Q=pool;idx=0;ans={};running=true;t0=Date.now();left=Math.round(Q.length*1.2)*60;if(timer)clearInterval(timer);timer=limited?setInterval(tick,1000):null;run();},
     beginExam:function(){var raw=rawExam(),bad=raw.filter(function(q){return gradeMode(q)==='invalid';});if(!raw.length){alert('這份考卷目前沒有題目。');return;}if(bad.length){alert('這份考卷有 '+bad.length+' 題官方給分資料不完整。為避免算錯分，修正前暫不開放整卷模擬。');return;}Q=raw;idx=0;ans={};running=true;t0=Date.now();left=Math.round(Q.length*1.2)*60;if(timer)clearInterval(timer);timer=limited?setInterval(tick,1000):null;run();},
     pick:function(L){if(!figureReady(Q[idx]))return;ans[idx]=L;['A','B','C','D'].forEach(function(x){var el=document.getElementById('mk-opt-'+x);if(el)el.classList.toggle('sel',x===L);});var cells=ov.querySelectorAll('.mk-cell');if(cells[idx])cells[idx].classList.add('done');var pr=ov.querySelector('.mk-prog');if(pr)pr.textContent='第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length;},

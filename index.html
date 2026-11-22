@@ -3823,214 +3823,105 @@ body :is(button,a,summary,select,input,textarea,[role="button"]):focus-visible{
 <!-- SWSI CALM LEARNING UI V3 START -->
 <style id="swsi-calm-learning-ui-v3">
 /*
- * Visual-only refinement, 2026-11-05.
- * Keep student interactions, official answers, data flows, OCR, and backup unchanged.
- * Prioritize one primary action; quiet surfaces; readable question text.
+ * SWSI learning UI system, 2026-11-22. The single visual owner for tokens and
+ * shared surfaces (header, buttons, cards, bottom navigation). Quiz components
+ * live in 30.focused-quiz-style, the home page in 20.product-philosophy.
+ * Visual only: questions, answers, grading, data and routes are unchanged.
+ * Element id kept for the existing release/live parity checks.
  */
 :root {
-  --paper:#F7F9F7;
+  /* Brand: one action colour, its tint and its pressed edge. */
+  --brand:#1769E0;
+  --brand-deep:#0F4FAF;
+  --brand-soft:#E9F1FD;
+  --brand-ink:#FFFFFF;
+  --spark:#FFB020;
+  /* Answer states: always shown with an icon and words, never colour alone. */
+  --ok:#14864D;
+  --ok-soft:#E5F5EC;
+  --ok-line:#7BC9A0;
+  --no:#D2393F;
+  --no-soft:#FDECEC;
+  --no-line:#F0A3A6;
+  /* Neutrals. Body text 13:1, secondary 7:1, meta 4.6:1 on --paper2. */
+  --paper:#F5F6F8;
   --paper2:#FFFFFF;
-  --ink:#23352F;
-  --ink-soft:#52655D;
-  --ink-3:#687A72;
-  --line:#DFE8E1;
-  --pine:#245D56;
-  --pine-deep:#204F48;
-  --gold:#8D6631;
-  --correct:#236B57;
-  --correct-bg:#E5F0EB;
-  --wrong:#A54F4B;
-  --wrong-bg:#F9EFED;
+  --ink:#18202B;
+  --ink-soft:#465264;
+  --ink-3:#66717F;
+  --line:#E1E5EB;
+  --line-2:#CCD3DC;
+  /* Legacy names now resolve to the same system. */
+  --pine:var(--brand);
+  --pine-deep:var(--brand-deep);
+  --gold:var(--spark);
+  --correct:var(--ok);
+  --correct-bg:var(--ok-soft);
+  --wrong:var(--no);
+  --wrong-bg:var(--no-soft);
   --swsi-calm-shadow:none;
-  --ux-radius:16px;
+  /* Shape and space. */
+  --r-sm:10px;
+  --r-md:14px;
+  --r-lg:20px;
+  --ux-radius:var(--r-lg);
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;
+  --press:cubic-bezier(.2,.8,.2,1);
+  --swsi-font:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei","Heiti TC",system-ui,sans-serif;
 }
-body {background:#F7F9F7;background-image:none;line-height:1.7;}
-body header {
-  background:rgba(247,249,247,.97);
-  border-bottom:1px solid #E5EDE7;
-  box-shadow:none;
-}
+html,body,button,input,select,textarea{font-family:var(--swsi-font);}
+body{background:var(--paper);background-image:none;color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased;}
+body h1,body h2,body h3,body h4,body .hero h1,body .etopic,body .logo,body .fontctl button{font-family:var(--swsi-font);letter-spacing:0;}
+body ::selection{background:var(--brand-soft);}
+body :focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:var(--r-sm);}
+
+/* Header: one quiet bar. */
+body header{background:var(--paper2);border-bottom:1px solid var(--line);box-shadow:none;}
+body .logo{font-weight:800;font-size:20px;color:var(--ink);}
+body .logo small{font-family:var(--swsi-font);font-size:13px;letter-spacing:0;color:var(--ink-3);font-weight:500;}
 body .logo::after{display:none;}
-body .gear{opacity:1;}
-body main{padding-top:22px;}
-/* One soft welcome surface instead of an additional visual banner. */
-body .ux-home-intro,body .hero,body .swsi-focus-hero{
-  background:#E5F0EB;
-  border:1px solid #D4E3D9;
-  border-left:1px solid #D4E3D9;
-  border-radius:19px;
-  box-shadow:none;
-  padding:25px 22px;
-  margin-bottom:17px;
+body .fontctl{background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:none;}
+body .fontctl button{color:var(--ink-soft);border-radius:9px;font-weight:700;}
+body .fontctl button.on,body .fontctl button[aria-pressed="true"]{background:var(--ink);color:#fff;}
+body main{padding-top:20px;}
+body.swsi-question-active header .logo small,body.swsi-question-active header .gear{display:none;}
+
+/* Buttons: one filled action per view, one quiet secondary. */
+body .btn{font-family:var(--swsi-font);background:var(--brand);color:var(--brand-ink);border:0;border-radius:var(--r-md);min-height:52px;font-size:17px;font-weight:750;letter-spacing:0;box-shadow:0 4px 0 var(--brand-deep);transition:transform 90ms var(--press),box-shadow 90ms var(--press),background-color 150ms;}
+body .btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--brand-deep);}
+body .btn:disabled,body .btn[disabled]{background:var(--line);color:var(--ink-3);box-shadow:none;cursor:not-allowed;}
+body .btn.ghost{background:var(--paper2);color:var(--ink);border:2px solid var(--line);box-shadow:0 3px 0 var(--line);}
+body .btn.ghost:active{box-shadow:0 1px 0 var(--line);}
+@media (hover:hover) and (pointer:fine){
+  body .btn:hover:not(:disabled){filter:brightness(1.06);}
+  body .btn.ghost:hover{border-color:var(--line-2);}
 }
-body .hero::before,body .hero::after{display:none;}
-body .ux-home-intro h1,body .hero h1,body .swsi-focus-hero h1{
-  color:#204F48;
-  font-weight:800;
-  font-size:clamp(23px,4.6vw,29px);
-  line-height:1.35;
-  letter-spacing:0;
-}
-body .ux-home-intro p,body .hero .tagline,body .swsi-focus-hero p{
-  color:#4F685D;
-  line-height:1.7;
-  font-size:14px;
-}
-body .ux-home-meta span,body .hero .chip{
-  background:rgba(255,255,255,.60);
-  color:#32594E;
-  border:1px solid #D1E1D5;
-  box-shadow:none;
-}
-body .ux-main-card.primary,body .swsi-focus-primary{
-  background:#FFFFFF;
-  border:1px solid #D4E3D9;
-  border-radius:18px;
-  box-shadow:none;
-  padding:20px;
-}
-body .ux-card-title,body .swsi-focus-primary h2{
-  color:#213A32;
-  font-size:19px;
-  font-weight:800;
-  letter-spacing:0;
-}
-body .ux-main-card .ux-card-sub,body .swsi-focus-primary p{
-  color:var(--ink-soft);line-height:1.65;
-}
-body .ux-link-card,body .gcard,body .ecard,body .swsi-study-card,body .swsi-essay-action-card{
-  background:#FFFFFF;
-  border:1px solid #E1E9E3;
-  box-shadow:none;
-  border-radius:15px;
-}
-body .ux-link-card,body .swsi-study-card{padding:17px;margin-bottom:10px;}
-body .ux-link-card.hot,body .swsi-study-card.due{
-  background:#FFF8F6;
-  border-color:#ECD8D3;
-}
-body .ux-tools{margin-top:12px;}
-body .ux-tools button,body .swsi-home-quick button{
-  background:#FFFFFF;
-  color:var(--pine-deep);
-  border:1px solid #D2E0D6;
-  box-shadow:none;
-}
-body .ux-btn-main,body .btn:not(.ghost),body .swsi-focus-actions .go,
-body .swsi-essay-action-card button.go{
-  background:var(--pine);
-  color:white;
-  border-color:var(--pine);
-  border-radius:12px;
-  box-shadow:none;
-  letter-spacing:0;
-  font-weight:700;
-  transition:background-color .18s ease,transform .15s ease;
-}
-body .ux-btn-soft,body .btn.ghost,body .swsi-focus-actions .choose,
-body .swsi-essay-action-card button.choose{
-  background:#FFFFFF;
-  border:1px solid #C7D9CB;
-  box-shadow:none;
-  color:var(--pine-deep);
-}
-body .qcard,body .sumcard{
-  background:#FFFFFF;
-  border:1px solid #E0E9E3;
-  border-radius:18px;
-  box-shadow:none;
-}
-body .qmeta{gap:7px;}
-body .tag.subj{background:#E5F0EB;color:#204F48;}
-body .tag.year{background:#F5F4EF;color:#6E644D;}
-body .qtext{
-  color:#23352F;
-  font-weight:650;
-  line-height:1.83;
-  letter-spacing:0;
-}
-body .opt{
-  border:1.5px solid #DFE8E1;
-  background:#FFFFFF;
-  border-radius:12px;
-  margin-bottom:10px;
-  transition:background-color .18s ease,border-color .18s ease,transform .15s ease;
-}
-body .opt.sel{border-color:var(--pine);background:#EEF6F0;}
-body .opt.correct{border-color:var(--correct);background:var(--correct-bg);}
-body .opt.wrong{border-color:var(--wrong);background:var(--wrong-bg);}
-body .pbar{background:#E1EAE3;}
-body .pbar i{background:var(--pine);}
-body .exp{border-top:1px solid #E0E9E3;animation:swsi-v3-reveal .24s ease both;}
-body .tabbar{
-  background:rgba(255,255,255,.98);
-  border-color:#E1E9E3;
-  box-shadow:none;
-}
-body .tabbar button.on{
-  color:var(--pine);
-  background:#E5F0EB;
-}
-body .tabbar button.on::before{background:var(--pine);height:2px;}
-body .stat,body .sumcard,body .swsi-focus-custom,body .ux-custom{
-  box-shadow:none;
-  border-color:#E1E9E3;
-}
-body .swsi-home-resource{color:var(--ink-soft);}
-body :is(button,a,summary,select,input,textarea,[role="button"],[role="radio"]):focus-visible{
-  outline:3px solid #245D56;
-  outline-offset:3px;
-}
-@keyframes swsi-v3-reveal{
-  from{opacity:.65;transform:translateY(5px);}
-  to{opacity:1;transform:translateY(0);}
-}
-@media (hover:hover){
-  body .ux-link-card:hover,body .gcard:hover,body .ecard:hover,body .swsi-study-card:hover{
-    box-shadow:none;
-    border-color:#B4D2BF;
-  }
-  body .opt:hover:not(.correct):not(.wrong){border-color:#90B7A1;background:#F6FAF6;}
-  body .ux-btn-main:hover,body .btn:not(.ghost):not(:disabled):hover{background:#193E38;}
-}
-@media (max-width:370px){
-  body .ux-home-intro,body .hero,body .swsi-focus-hero{padding:20px 17px;}
-  body .ux-main-card.primary,body .swsi-focus-primary{padding:17px;}
-}
+
+/* Surfaces: white, one 2px hairline, a 3px base edge when it can be pressed. */
+body .gcard,body .swsi-myhub-row,body .ux-main-card,body .scard,body .sumcard,body .ecard{background:var(--paper2);border:2px solid var(--line);border-radius:var(--r-lg);box-shadow:none;}
+body button.gcard,body .gcard[onclick],body button.swsi-myhub-row{box-shadow:0 3px 0 var(--line);transition:transform 90ms var(--press),box-shadow 90ms var(--press),border-color 150ms;}
+body button.gcard:active,body .gcard[onclick]:active,body button.swsi-myhub-row:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line);}
+body .section-h,body .swsi-learning-h{color:var(--ink);font-weight:800;}
+body .section-s,body .hint,body .swsi-learning-muted{color:var(--ink-soft);font-size:15px;}
+body .empty h3{color:var(--ink);font-weight:800;}
+body .empty p{color:var(--ink-soft);}
+body .empty .ico{color:var(--brand);}
+
+/* Bottom navigation. */
+body .tabbar{background:var(--paper2);border-top:1px solid var(--line);box-shadow:none;}
+body .tabbar button{color:var(--ink-3);font-family:var(--swsi-font);}
+body .tabbar button .swsi-nav-label{font-size:13px;font-weight:700;}
+body .tabbar button.on{color:var(--brand);background:transparent;}
+body .tabbar button.on .ico{background:var(--brand-soft);border-radius:999px;}
+body #tabbar button .ico{width:56px;height:30px;}
+body #tabbar button .ico svg,body .tabbar .swsi-i{width:22px;height:22px;}
+
+/* Shared icon sizing. */
+body .swsi-i{width:20px;height:20px;flex:0 0 auto;vertical-align:middle;}
+
 @media (prefers-reduced-motion:reduce){
-  body .exp,body .opt,body .ux-btn-main,body .btn,
-  body .ux-link-card,body .gcard,body .ecard{animation:none!important;transition:none!important;}
+  body *,body *::before,body *::after{transition-duration:0s!important;animation-duration:0s!important;animation-iteration-count:1!important;}
 }
-
-/* Two equal secondary learning paths; primary CTA stays visually dominant. */
-body .swsi-v3-shortcuts{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
-  margin:16px 0 0;
-}
-body .swsi-v3-shortcuts .ux-link-card{
-  display:flex;
-  min-height:106px;
-  margin:0;
-  padding:17px 15px;
-  align-items:flex-start;
-}
-body .swsi-v3-shortcuts .ux-link-card .left{min-width:0;}
-body .swsi-v3-shortcuts .ux-link-card .title{font-size:16px;font-weight:750;}
-body .swsi-v3-shortcuts .ux-link-card .sub{font-size:12px;line-height:1.6;}
-body .swsi-v3-shortcuts .ux-link-card .arrow{flex-shrink:0;}
-body .ux-main-card.primary{margin-bottom:0;}
-body .ux-main-card.primary .ux-btn-main:active,
-body .btn:not(:disabled):active{transform:translateY(1px);}
-@media(max-width:410px){
- body .swsi-v3-shortcuts{grid-template-columns:1fr;gap:10px;}
- body .swsi-v3-shortcuts .ux-link-card{min-height:76px;align-items:center;}
-}
-@media(prefers-reduced-motion:reduce){
- body .ux-main-card.primary .ux-btn-main,body .btn{transform:none;transition:none;}
-}
-
 </style>
 <!-- SWSI CALM LEARNING UI V3 END -->
 

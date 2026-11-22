@@ -685,13 +685,26 @@ window.swsiEsc = swsiEsc;
     if(typeof relabelTabs === 'function') try{ relabelTabs(); }catch(_e){}
   };
 
+  // Answer feedback: one result bar pinned to the bottom of the viewport with the
+  // only next action. Message follows the official grading mode; never re-grades.
+  function resultBar(item,mode,wrong){
+    var special=mode==='all_credit'||mode==='any_answer';
+    var ok=!wrong;
+    var title=special?'本題依官方規定給分':ok?'答對了！':'答錯了';
+    var sub=special?'解析僅供理解題意':ok?'看一下解析，加深印象':'先看解析，弄懂為什麼';
+    var last=idx+1>=queue.length;
+    return '<div class="swsi-result-bar '+(ok?'is-ok':'is-no')+'" role="status" aria-live="polite">'+
+      '<div class="swsi-result-msg"><span class="swsi-result-ico">'+swsiIcon(ok?'check':'cross')+'</span><span><b>'+title+'</b><small>'+sub+'</small></span></div>'+
+      '<button type="button" class="btn swsi-result-next" onclick="next()">'+(last?'看結果':'下一題')+swsiIcon('arrow')+'</button></div>';
+  }
+
   // ---------- Secure question rendering + official grading ----------
   renderQuiz = function(){
     if(!queue.length){
       app.innerHTML='<div class="empty"><div class="ico">∅</div><h3>沒有符合的題目</h3><button class="btn" style="max-width:200px;margin:18px auto 0" onclick="go(\'home\')">回首頁</button></div>';
       return;
     }
-    const item=queue[idx], pct=Math.round((idx/queue.length)*100), mode=gradingMode(item), accepted=acceptedAnswers(item);
+    const item=queue[idx], pct=Math.round(((idx+(answered?1:0))/queue.length)*100), mode=gradingMode(item), accepted=acceptedAnswers(item);
     if(typeof window.swsiSourceHeld==='function'&&window.swsiSourceHeld(item)){app.innerHTML=window.swsiSourceHoldQuiz(item);return;}
     const figureReady=swsiOfficialFigureReady(item);
     let optHTML='';
@@ -741,11 +754,11 @@ window.swsiEsc = swsiEsc;
       if(mode==='standard' && accepted.size>1) extra='<div class="extra"><b>'+swsiEsc(answerLabel(item))+'</b></div>'+extra;
       expHTML='<div class="exp">'+(analysisHidden?'':'<div class="topic">考點：<b>'+swsiEsc(item.topic||item.major)+'</b></div>')+body+extra+
         (wrong&&!analysisHidden&&item.mistake?'<div class="mistake">這題錯因：'+swsiEsc(item.mistake)+'</div>':'')+
-        '<button class="btn" onclick="next()">'+(idx+1<queue.length?'下一題 →':'看結果 →')+'</button></div>';
+        resultBar(item,mode,wrong)+'</div>';
     }
 
-    app.innerHTML='<button class="quit" onclick="go(\'home\')">← 結束這次練習</button>'+
-      '<div class="pstrip"><div class="pbar"><i style="width:'+pct+'%"></i></div><span class="pcount">'+(idx+1)+' / '+queue.length+'</span></div>'+
+    app.innerHTML='<div class="swsi-quizbar"><button type="button" class="quit" onclick="go(\'home\')" aria-label="結束這次練習">'+swsiIcon('close')+'</button>'+
+      '<div class="pstrip"><div class="pbar" role="progressbar" aria-label="練習進度" aria-valuemin="0" aria-valuemax="'+queue.length+'" aria-valuenow="'+(idx+(answered?1:0))+'"><i style="width:'+pct+'%"></i></div><span class="pcount">'+(idx+1)+' / '+queue.length+'</span></div></div>'+
       '<div class="qcard"><div class="qmeta"><span class="tag subj">'+swsiEsc(item.subject)+'</span><span class="tag year">'+swsiEsc(item.year)+'年 '+swsiEsc(item.round)+'</span>'+
       (yearTier(item)==='高'?'<span class="tag year" style="background:var(--correct-bg);color:var(--pine)">近年</span>':'')+
       ((maxExamYear()-(parseInt(item.year)||0)>9)?'<span class="tag year" style="background:#ECE6D6;color:var(--ink-soft)">歷史參考</span>':'')+
