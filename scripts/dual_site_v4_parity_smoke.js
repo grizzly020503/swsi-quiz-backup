@@ -16,6 +16,9 @@ const reviewedStyles = [...reviewedHtml.matchAll(
 )];
 assert.equal(reviewedStyles.length, 1, 'reviewed CDN must contain exactly one V3 style');
 const reviewedV3Hash = crypto.createHash('sha256').update(reviewedStyles[0][1]).digest('hex');
+// Expected colours come from the reviewed token source, not hard-coded values.
+const reviewedToken = name => ((reviewedStyles[0][1].match(new RegExp('--' + name + ':\\s*(#[0-9A-Fa-f]{6})')) || [])[1] || '').toUpperCase();
+const hexToRgb = hex => 'rgb(' + [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).join(', ') + ')';
 
 const SITES = Object.freeze({
   primary: 'https://wandering-wave-4418.c022050333.workers.dev',
@@ -72,10 +75,11 @@ async function examine(browser, name, origin) {
         headline: hero?.querySelector('h1')?.textContent?.trim() || '',
         heroColor: hero ? getComputedStyle(hero).backgroundColor : '',
         primaryAction: hero?.querySelector('.swsi-v4-start')?.textContent?.trim() || '',
+        primaryColor: hero?.querySelector('.swsi-v4-start') ? getComputedStyle(hero.querySelector('.swsi-v4-start')).backgroundColor : '',
         paths: [...document.querySelectorAll('#app .swsi-v4-study-paths > .swsi-v4-path')]
           .map(el => el.querySelector('.swsi-v4-path-title')?.textContent?.trim() || ''),
         tools: [...document.querySelectorAll('#app .swsi-v4-tool-grid > button')]
-          .map(el => el.querySelector('span:last-child')?.textContent?.trim() || ''),
+          .map(el => el.querySelector('span:not(.swsi-v4-chev)')?.textContent?.trim() || ''),
         nav: [...document.querySelectorAll('#tabbar button')].filter(visible)
           .map(el => el.getAttribute('aria-label') || el.textContent.trim()),
       };
@@ -93,7 +97,9 @@ async function examine(browser, name, origin) {
 
     assert.equal(got.heroCount, 1, name + ': V4 hero must exist exactly once');
     assert.equal(got.headline, '今天，從一題開始。', name + ': homepage renderer is stale');
-    assert.equal(got.heroColor, 'rgb(229, 240, 235)', name + ': approved hero color drift');
+    // Large-type system (2026-11-22): no coloured hero block; the one primary action carries --brand.
+    if (reviewedToken('brand')) assert.equal(got.primaryColor, hexToRgb(reviewedToken('brand')), name + ': approved primary action colour drift');
+    else assert.equal(got.heroColor, 'rgb(229, 240, 235)', name + ': approved hero color drift');
     assert(got.primaryAction.includes('開始刷題'), name + ': primary action missing');
     assert.deepEqual(got.paths, EXPECTED_PATHS, name + ': V4 study paths mismatch');
     assert.equal(got.tools.length, 3, name + ': V4 tools count');
