@@ -2281,7 +2281,7 @@ function answerLabel(item){
     // by the existing radar hook. Evergreen cards live on another screen.
     ov.innerHTML=
       '<div class="nl-wrap">'
-      +'<div class="nl-top"><div class="nl-title">📰 時事庫</div><div style="display:flex;align-items:center;gap:10px">'+fc()+'<button class="nl-x" onclick="NL.close()">✕</button></div></div>'
+      +'<div class="nl-top"><div class="nl-title">時事庫</div><div style="display:flex;align-items:center;gap:10px">'+fc()+'<button class="nl-x" onclick="NL.close()">✕</button></div></div>'
       +'<div class="nl-intro">從近期重要社會事件複習國考考點，延伸到歷屆試題、申論與相關法規。</div>'
       +'<div class="nl-chips">'+chipsHtml(flt,'filter')+'</div>'
       +'<button type="button" class="nl-history-entry" onclick="NL.history()" aria-label="查看歷年重大事件與經典案例">'
@@ -2416,7 +2416,7 @@ function answerLabel(item){
     ]
   };
 
-  var TABS=[['策略','📋 應考策略'],['計畫','🗓️ 讀書計畫'],['速查','📚 各科速查'],['打氣','🌿 打氣小語']];
+  var TABS=[['策略','應考策略'],['計畫','讀書計畫'],['速查','各科速查'],['打氣','打氣小語']];
 
   function E(s){ try{ return (typeof esc==='function')?esc(s):String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }catch(e){ return String(s==null?'':s); } }
 
@@ -2460,9 +2460,9 @@ function answerLabel(item){
       if(b.h) return '<div class="sg-h">'+E(b.h)+'</div>';
       if(b.p) return '<div class="sg-p">'+E(b.p)+'</div>';
       if(b.ul) return '<ul class="sg-ul">'+b.ul.map(function(x){return '<li>'+E(x)+'</li>';}).join('')+'</ul>';
-      if(b.fix) return '<div class="sg-box sg-fix"><span class="bl">✎ 更正補充</span>'+E(b.fix)+'</div>';
-      if(b.warn) return '<div class="sg-box sg-warn"><span class="bl">⚠ 更新提醒</span>'+E(b.warn)+'</div>';
-      if(b.link) return '<div class="sg-box sg-link"><span class="bl">🔗 平台對應功能</span>'+E(b.link)+'</div>';
+      if(b.fix) return '<div class="sg-box sg-fix"><span class="bl">更正補充</span>'+E(b.fix)+'</div>';
+      if(b.warn) return '<div class="sg-box sg-warn"><span class="bl">更新提醒</span>'+E(b.warn)+'</div>';
+      if(b.link) return '<div class="sg-box sg-link"><span class="bl">平台對應功能</span>'+E(b.link)+'</div>';
       if(b.quote) return '<div class="sg-quote">「'+E(b.quote)+'」</div>';
       return '';
     }).join('');
@@ -2472,7 +2472,7 @@ function answerLabel(item){
     var chips=TABS.map(function(t){ return '<button class="sg-tab'+(t[0]===tab?' on':'')+'" onclick="SG.tab(\''+t[0]+'\')">'+t[1]+'</button>'; }).join('');
     ov.innerHTML=
       '<div class="sg-wrap">'
-      +'<div class="sg-top"><div class="sg-title">📖 讀書指南</div><div style="display:flex;align-items:center;gap:10px">'+fc()+'<button class="sg-x" onclick="SG.close()">✕</button></div></div>'
+      +'<div class="sg-top"><div class="sg-title">讀書指南</div><div style="display:flex;align-items:center;gap:10px">'+fc()+'<button class="sg-x" onclick="SG.close()">✕</button></div></div>'
       +'<div class="sg-intro">SWSI 自編的國考準備指南。用平台功能安排刷題、複習、申論與法規查核。</div>'
       +'<div class="sg-tabs">'+chips+'</div>'
       +'<div class="sg-card">'+renderBlocks(DATA[tab]||[])+'</div>'
@@ -4369,10 +4369,10 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     if(!source.length) return;
     var box=document.createElement('section'); box.id='nl-live-radar'; box.className='nlr-box';
     box.innerHTML=useV2
-      ?'<div class="nlr-top"><div class="nlr-h">🎯 目前 3 個國考重點</div><div class="nlr-badge">少量精選・證據分級</div></div>'
+      ?'<div class="nlr-top"><div class="nlr-h">目前 3 個國考重點</div><div class="nlr-badge">少量精選・證據分級</div></div>'
         +'<div class="nlr-help">只精選 3 個重點；可直接練題，完整考點與來源點開再看。單一來源不代表命題趨勢。</div>'
         +(list.length?'<div class="nlr-grid">'+list.map(eventCard).join('')+'</div>':'<div class="nlr-empty">這個科目目前沒有新的高關聯事件。</div>')
-      :'<div class="nlr-top"><div class="nlr-h">🎯 目前 3 個國考重點</div><div class="nlr-badge">備援資料</div></div>'
+      :'<div class="nlr-top"><div class="nlr-h">目前 3 個國考重點</div><div class="nlr-badge">備援資料</div></div>'
         +'<div class="nlr-help">趨勢資料暫時不可用，先顯示最多 3 個高關聯時事；事實細節請以原始來源為準。</div>'
         +(list.length?'<div class="nlr-grid">'+list.map(liveCard).join('')+'</div>':'<div class="nlr-empty">這個科目目前沒有新的高關聯時事。</div>');
     var chips=wrap.querySelector('.nl-chips');
@@ -5028,6 +5028,32 @@ body .subj-pill{font-size:14px;font-weight:600;color:var(--ink-3);background:tra
 body .ehint{font-size:var(--fs-s);color:var(--brand);}
 body .empty p{font-size:var(--fs-b);line-height:1.7;}
 body select.subj{min-height:50px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper2);font-size:17px;color:var(--ink);}
+
+/* Current affairs (NL) and study guide (SG) overlays: same system, content unchanged. */
+body .nl-ov,body .sg-ov{background:var(--paper);font-family:var(--swsi-font);}
+body .nl-top,body .sg-top{background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line);}
+body .nl-title,body .sg-title{font-size:calc(var(--fs-q) + 3px);font-weight:700;}
+body .nl-x,body .sg-x{display:grid;place-items:center;width:44px;height:44px;padding:0;border-radius:50%;background:var(--fill);color:var(--ink-soft);font-size:18px;}
+body .nl-chip,body .sg-tab{min-height:44px;border:0;background:var(--fill);color:var(--ink-soft);font-weight:500;box-shadow:none;}
+body .nl-chip.on,body .sg-tab.on{background:var(--brand);color:var(--brand-ink);box-shadow:none;}
+body .nl-card,body .sg-card,body .nlr-box{border:0;border-radius:var(--r-lg);background:var(--paper2);box-shadow:none;}
+body .nlr-card{border:1px solid var(--line);border-radius:var(--r-md);background:var(--paper2);}
+body .nl-tag,body .nlr-cat,body .nlr-sub,body .nlr-chip,body .nlr-badge{background:var(--fill);color:var(--ink-soft);border:0;font-size:13px;}
+body .nl-lab,body .sg-fix .bl,body .sg-h{color:var(--brand);}
+body .sg-h::before,body .sg-ul li::before{background:var(--brand);}
+body .sg-fix{background:var(--brand-soft);border-left-color:var(--brand);}
+body .sg-link{background:var(--fill);border-left-color:var(--line-2);color:var(--ink-soft);}
+body .sg-link .bl{color:var(--ink-soft);}
+body .nl-exam{background:var(--fill);}
+body .nlr-h{font-size:var(--fs-h);font-weight:700;}
+body .nlr-help,body .nlr-meta,body .nlr-summary,body .nlr-detail,body .nlr-signal,body .nlr-signal-text,body .nlr-empty,body .nlr-study-note{font-size:var(--fs-s);color:var(--ink-3);line-height:1.6;}
+body .nlr-title{font-size:var(--fs-b);}
+body .nlr-preview{font-size:var(--fs-s);}
+body .nlr-score{font-size:13px;}
+body .nlr-link{font-size:var(--fs-s);color:var(--brand);}
+body .nlr-study-link{min-height:48px;border:0;border-radius:var(--r-sm);background:var(--brand-soft);color:var(--brand-deep);font:500 var(--fs-s)/1.4 var(--swsi-font);}
+body .nlr-study-link:focus-visible,body .nlr-detail summary:focus-visible{outline:3px solid var(--brand);}
+body .nlr-law-stage{color:var(--ink-soft);border-color:var(--line);}
 
 /* Bottom navigation: translucent, icon over label, accent for the current tab. */
 body .tabbar{background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--line);box-shadow:none;}

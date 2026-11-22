@@ -33,6 +33,7 @@
 | 上線前補看（申論／模擬考／錯題本） | 申論作答頁移除表情符號（AI 區塊的 🔒🤖📷 除外：`99z.essay-trust-layer` 受 AI 回饋合約保護，改動需重新擷取並人工評分模型輸出，本 PR 不動）、舊綠色與襯線字改 token；模擬考選中改深墨色（舊核心先建立 `#mk-style`，owner 另補 `#mk-style-system` 小區塊）；「今天到期」為 0 時不用紅色 | `40`、`00.part`、`99_p0`、`99z`、`80`、`mk_grading_contract`、`70.learning-loop` |
 | A／A／A 字級（Owner 手機回報無效） | 首頁、考點清單、法規／理論頁改用 `--fs-*` 變數，三段字級都會跟著放大（首頁標題 32→35→38px） | `20`、`80`、`40`、`swsi-calm-learning-ui-v3` |
 | 申論作答頁（Owner 回饋） | 拍照請 AI 看改為實心主按鈕、打字為次要淺色按鈕（只用 CSS，不動 AI 合約層）；「清空」移到儲存字數那一行，遠離層級按鈕（原本就會再次確認） | `40`、`99_p0` |
+| 時事庫、讀書指南 | 移除標題與分頁表情符號；小字（約 11–13px）改用 `--fs-s`；分頁、按鈕、卡片改用 token。內容與文字不變（「目前 3 個國考重點」仍保留給上線檢查）；同步更新 `install_current_affairs_ui.py`，避免建置時被舊版蓋回 | 兩個 HTML、`scripts/install_current_affairs_ui.py` |
 | 頁尾與資訊視窗 | 字級 14–16px、連結改主色、按鈕 44px | `89.public-branding-info`、`zzzz_product_v1_lock` |
 | 測試 | `launch_readiness_smoke` 改讀 token：首頁主按鈕＝`--brand`、停用按鈕＝`--off-bg`／`--off-ink` | `scripts/launch_readiness_smoke.js` |
 
