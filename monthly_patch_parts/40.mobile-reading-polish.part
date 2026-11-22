@@ -13,22 +13,23 @@
   style.id='swsi-mobile-reading-polish';
   style.textContent=`
 html{
-  --fs-q:13pt;
-  --fs-h:12pt;
-  --fs-b:11pt;
-  --fs-s:10pt;
+  /* Large, calm reading scale (Owner choice 2026-11-22: 簡單大字). */
+  --fs-q:21px;
+  --fs-h:19px;
+  --fs-b:18px;
+  --fs-s:15px;
 }
 html[data-fs="1"]{
-  --fs-q:14.5pt;
-  --fs-h:13pt;
-  --fs-b:12pt;
-  --fs-s:11pt;
+  --fs-q:24px;
+  --fs-h:21px;
+  --fs-b:20px;
+  --fs-s:17px;
 }
 html[data-fs="2"]{
-  --fs-q:16.5pt;
-  --fs-h:14.5pt;
-  --fs-b:13.5pt;
-  --fs-s:12.5pt;
+  --fs-q:27px;
+  --fs-h:23px;
+  --fs-b:22px;
+  --fs-s:19px;
 }
 
 #app .qtext{line-height:1.72;}
@@ -256,16 +257,16 @@ html[data-fs="2"]{
   border:0;
 }
 #app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)) .etopic{
-  font-family:'Noto Serif TC',serif;
-  font-size:15.5px;
-  font-weight:800;
+  font-family:var(--swsi-font);
+  font-size:18px;
+  font-weight:600;
   line-height:1.58;
-  color:#202724;
+  color:var(--ink);
 }
 #app:has(> .swsi-k-pagelead) .ecard:not(:has(.wbox)) .ehint{
   margin-top:5px;
   font-family:'Noto Sans TC',sans-serif;
-  font-size:11.5px;
+  font-size:15px;
   font-weight:600;
   line-height:1.55;
   color:#6A746F;
@@ -290,7 +291,7 @@ html[data-fs="2"]{
   border-radius:999px;
   background:transparent;
   color:#5B6761;
-  font-size:10.5px;
+  font-size:14px;
   font-weight:700;
 }
 #app:has(> .swsi-k-pagelead) .ecard.open:not(:has(.wbox)) .ecollapse{
@@ -309,11 +310,11 @@ html[data-fs="2"]{
   padding:0!important;
   border:0!important;
   background:transparent!important;
-  color:#68736D!important;
-  font-family:'Noto Sans TC',sans-serif!important;
-  font-size:11px!important;
-  font-weight:800!important;
-  letter-spacing:.04em;
+  color:var(--ink-3)!important;
+  font-family:var(--swsi-font)!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  letter-spacing:0;
 }
 
 /* Current affairs: present event -> exam point -> possible question direction ->

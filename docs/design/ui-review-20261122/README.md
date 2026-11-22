@@ -2,34 +2,37 @@
 
 這次直接改在**真網站**上，題目也是正式題庫的真題，不是示意稿。Owner 之前否決過幾輪，主要原因有四個：顏色、看起來像模板、只是示意稿、不夠好用。這一輪就是針對這四點重做。
 
-## 這個分支實際改了什麼（目前程式＝風格 3「活力學習」）
+## Owner 選定方向（2026-11-22）
 
-| 問題 | 修正 | 負責的檔案 |
+風格 4「簡單大字」，加上 Apple 的簡潔高雅和社工的溫暖。已直接寫進程式本體，不是預覽：
+
+| 要的感覺 | 做法 |
+|---|---|
+| 簡單大字 | 題目 21px、內文 18px、說明 15px；A／A／A 放大到 24／27px；首頁大標題 32px＋一顆按鈕 |
+| Apple 的高雅 | 入口改成 iPhone「設定」式分組清單（白色圓角、細分隔線、右側小箭頭）；頁首、底部分頁、答題結果列用半透明毛玻璃；不用陰影、不用立體按鈕 |
+| 社工的溫暖 | 米白底 `#F7F5F0`、偏暖的灰字、陶土主色 `#A9532B`（白字對比 5.3:1）；陪伴口吻文案 |
+
+主色候選：`images/accent-compare.webp`（A 暖陶，目前程式預設；B 沉穩藍 `#1F4FA3`）。只需改 `--brand` 系列 token 即可切換。
+
+## 這個分支實際改了什麼
+
+| 範圍 | 修正 | 負責的檔案 |
 |---|---|---|
-| 圖示有三套：文字符號、表情符號、SVG | 全站只用一套 SVG 圖示 `swsiIcon()`；三個導覽 owner 輸出相同 markup，不再互相覆寫 | `15.layout-foundation`、`71`、`zzzz_product_v1_lock` |
-| 字體混用：題目是襯線粗體 | 改用系統無襯線字（PingFang／Noto Sans／微軟正黑），不需下載字型 | `swsi-calm-learning-ui-v3` |
-| 答題沒有回饋感 | 結果列固定在畫面底部（答對／答錯＋唯一的「下一題」）；進度條在作答後前進 | `00.part`、`30.focused-quiz-style` |
-| 解析有 6 種區塊樣式 | 統一成一種卡片和一種展開樣式；保留既有 DOM 結構與測試 hook | `30.focused-quiz-style` |
-| 答題時頂部太雜 | 精簡答題列：關閉、進度、題號 | `00.part` |
-| 標籤字只有約 10px | 字級縮放 owner 改成最小 13px；正文 16px | `75.learning-font-scale` |
-| 學生看到工程用語 | 模擬考說明改成「都依考選部公布的答案計分」；移除表情符號標籤 | `mk_grading_contract` |
-| 新手提示名稱與分頁不一致 | 改成「刷題」「申論」「我的」 | `73` |
-| 首頁 | 品牌主卡、今天已練題數（讀取既有紀錄，未新增儲存）、統一的入口卡片 | `20.product-philosophy` |
+| 設計 token | 單一來源：顏色、字型、圓角、半透明材質、停用狀態 | `swsi-calm-learning-ui-v3`（兩個 HTML） |
+| 字級 | 閱讀字級與介面字級改成大字基準 | `40.mobile-reading-polish`、`10.font-size-control`、`75.learning-font-scale` |
+| 圖示 | 全站一套 SVG `swsiIcon()`，移除文字符號與表情符號 | `15.layout-foundation`、`71`、`zzzz_product_v1_lock`、`00.part`（考點頁） |
+| 首頁 | 大標題＋一顆按鈕＋兩組分組清單；今天已練題數（讀既有紀錄） | `20.product-philosophy` |
+| 答題 | 白色選項列、選中填色字母、答對／答錯標示移到選項文字下方；結果列固定在底部並帶唯一的「下一題」 | `00.part`、`30.focused-quiz-style` |
+| 我的 | 大標題、分組清單、統計列、考試倒數列 | `71`、`73`、`75` |
+| 考點／法規／理論／搜尋 | 彩色大卡改成分組清單；小字（10–13px）提高到 14–18px；系統字 | `00.part`、`80.knowledge-path`、`88.theory-trust-ui`、`40` |
+| 模擬考 | 舊綠色與襯線字改用 token | `mk_grading_contract` |
+| 測試 | `launch_readiness_smoke` 改讀 token：首頁主按鈕＝`--brand`、停用按鈕＝`--off-bg`／`--off-ink` | `scripts/launch_readiness_smoke.js` |
 
-沒有新增後置覆寫層。全部改在原本負責的 owner 檔案裡（maintainability smoke 通過）。`swsi-calm-learning-ui-v3` 的 id 保留，讓既有的 release／live parity 檢查繼續有效，內容則改寫為唯一的設計 token 來源。
+沒有新增後置覆寫層；都改在原本負責的 owner 裡。`swsi-calm-learning-ui-v3` 的 id 保留給 release／live parity 檢查。
 
-## 風格比較（等 Owner 選擇）
+## 歷史比較
 
-`images/four-styles.webp`：四種風格都套在同一個真網站上，由上到下為首頁、選好答案、答錯後。
-
-| 風格 | 檔案 | 說明 |
-|---|---|---|
-| 1 溫暖陪伴 | `styles/1-warm.css` | 米白紙感、深藍字、芥末黃按鈕、柔和陰影 |
-| 2 清爽專業 | `styles/2-clean.css` | 白底細線、黑色主按鈕、沒有立體效果 |
-| 3 活力學習 | 已實作在程式中 | 藍色主卡、立體按鈕 |
-| 4 簡單大字 | `styles/4-simple-large.css` | 題目 21px、選項 18px、首頁改成單欄清單、無裝飾；依 Owner 回饋「字大、簡單」製作 |
-
-`styles/*.css` 只是預覽用的覆寫，不會被網站載入。Owner 選定後，會把選定的風格正式寫進上表的 owner 檔案，再擴充到其他頁面。
+`images/four-styles.webp`：先前讓 Owner 挑選的四種風格。`styles/*.css` 只是當時的預覽覆寫，不會被網站載入。
 
 ## Taste Skill
 
@@ -37,9 +40,10 @@
 
 ## 驗證（本機）
 
-- static：cloudflare_release_artifact、maintainability、p0 preflight、monthly_frontend、learning_flow、learning_loop 全部 OK。
-- Playwright 預裝 Chromium：grading_contract、shard_integrity、browser_interaction、knowledge_path、theory_trust ×3、feedback、service_worker_upgrade 全部 OK。
-- 截圖寬度 390 與 1440px。768／1024px、申論詳細頁、法規與時事頁尚待完成。
+- static：cloudflare_release_artifact、maintainability、monthly_frontend、student_home_ia、window_global_inventory、progressive_explanation、learning_loop_closed、p0 preflight、review_analysis_quarantine、runtime_owner、learning_flow、learning_loop_action 全部 OK。
+- Playwright（預裝 Chromium）：launch_readiness、layout_foundation、prelaunch_deadend、browser_interaction、storage_degradation、slow_network、pwa_resilience 全部 OK。
+- 本機無法跑：prelaunch_webkit（未安裝 WebKit）；error_states、accessibility_touch、axe 在未修改的 main 上本機也失敗（環境問題）。以上交給 CI。
+- 截圖：390／768／1024／1440px（`images/four-widths.webp`），console 無錯誤。
 
 ## 邊界
 

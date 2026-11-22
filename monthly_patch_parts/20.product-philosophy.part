@@ -51,49 +51,55 @@
       }
 
       /* V4: the live renderer follows the approved mobile concept, not just the CSS tokens. */
-      /* SWSI home 2026-11-22: tokens from swsi-calm-learning-ui-v3. */
-      html body #app .swsi-v4-hero{position:relative;overflow:hidden;margin:0 0 28px;padding:28px 24px 24px;border:0;border-radius:var(--r-lg);background:var(--brand);color:var(--brand-ink);box-shadow:0 5px 0 var(--brand-deep);}
-      html body #app .swsi-v4-hero::after{content:'';position:absolute;right:-48px;top:-48px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.10);pointer-events:none;}
-      html body #app .swsi-v4-hero .kicker{display:inline-flex;align-items:center;gap:6px;margin:0 0 12px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.16);font-size:14px;font-weight:700;letter-spacing:0;color:var(--brand-ink);}
-      html body #app .swsi-v4-hero .kicker b{color:var(--spark);font-weight:800;}
-      html body #app .swsi-v4-hero h1{position:relative;margin:0 0 8px;font:800 clamp(26px,7vw,32px)/1.3 var(--swsi-font);color:var(--brand-ink);}
-      html body #app .swsi-v4-hero p{position:relative;margin:0 0 22px;font-size:16px;line-height:1.6;color:rgba(255,255,255,.88);}
-      html body #app .swsi-v4-start{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px;border:0;border-radius:var(--r-md);background:#fff;color:var(--brand-deep);font:800 19px/1 var(--swsi-font);box-shadow:0 4px 0 rgba(0,0,0,.22);cursor:pointer;transition:transform 90ms var(--press),box-shadow 90ms var(--press);}
+      /* SWSI home 2026-11-22 (簡單大字): one large title, one action, grouped lists.
+         Tokens from swsi-calm-learning-ui-v3. */
+      html body #app .swsi-v4-hero{position:relative;margin:0 0 32px;padding:8px 0 0;border:0;border-radius:0;background:transparent;color:var(--ink);box-shadow:none;}
+      html body #app .swsi-v4-hero .kicker{display:block;margin:0 0 6px;padding:0;background:transparent;font-size:16px;font-weight:600;letter-spacing:0;color:var(--ink-3);}
+      html body #app .swsi-v4-hero .kicker b{color:var(--brand);font-weight:700;}
+      html body #app .swsi-v4-hero h1{margin:0 0 10px;font:700 clamp(30px,8.4vw,36px)/1.25 var(--swsi-font);letter-spacing:0;color:var(--ink);}
+      html body #app .swsi-v4-hero p{margin:0 0 24px;max-width:30em;font-size:18px;line-height:1.7;color:var(--ink-soft);}
+      html body #app .swsi-v4-start{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:60px;border:0;border-radius:var(--r-md);background:var(--brand);color:var(--brand-ink);font:600 20px/1 var(--swsi-font);box-shadow:none;cursor:pointer;transition:opacity 90ms var(--press),background-color 150ms;}
       html body #app .swsi-v4-start .swsi-i{width:22px;height:22px;fill:currentColor;}
-      html body #app .swsi-v4-start:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.22);}
-      html body #app .swsi-v4-section-heading{margin:0 0 12px;font:800 20px/1.4 var(--swsi-font);color:var(--ink);}
-      html body #app .swsi-v4-study-paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 28px;}
-      html body #app .swsi-v4-path,html body #app .swsi-v4-tool-grid button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:132px;padding:18px 16px;border:2px solid var(--line);border-radius:var(--r-lg);background:var(--paper2);color:var(--ink);box-shadow:0 3px 0 var(--line);cursor:pointer;transition:transform 90ms var(--press),box-shadow 90ms var(--press),border-color 150ms;}
-      html body #app .swsi-v4-path:active,html body #app .swsi-v4-tool-grid button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line);}
-      html body #app .swsi-v4-path-icon{display:grid;place-items:center;width:44px;height:44px;margin:0 0 14px;border-radius:12px;background:var(--brand-soft);color:var(--brand);}
-      html body #app .swsi-v4-path-icon .swsi-i{width:24px;height:24px;}
-      html body #app .swsi-v4-path-title{font-size:18px;font-weight:800;line-height:1.35;color:var(--ink);}
-      html body #app .swsi-v4-path-sub{margin-top:4px;font-size:14px;font-weight:500;line-height:1.5;color:var(--ink-soft);}
+      html body #app .swsi-v4-start:active{opacity:.78;}
+      html body #app .swsi-v4-section-heading,html body #app .swsi-v4-tools-head h2{margin:0 0 8px;padding:0 4px;font:600 16px/1.4 var(--swsi-font);color:var(--ink-3);}
+      /* Grouped lists: white rounded group, hairlines inset after the icon. */
+      html body #app .swsi-v4-study-paths,html body #app .swsi-v4-tool-grid{display:block;margin:0 0 32px;border-radius:var(--r-lg);background:var(--paper2);overflow:hidden;}
+      html body #app .swsi-v4-tool-grid{margin:0;}
+      html body #app .swsi-v4-path,html body #app .swsi-v4-tool-grid button{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-height:64px;margin:0;padding:12px 16px;border:0;border-radius:0;background:transparent;color:var(--ink);text-align:left;box-shadow:none;font:500 18px/1.4 var(--swsi-font);cursor:pointer;transition:background-color 150ms;}
+      html body #app .swsi-v4-path + .swsi-v4-path::before,html body #app .swsi-v4-tool-grid button + button::before{content:'';position:absolute;top:0;left:66px;right:0;height:1px;background:var(--line);}
+      html body #app .swsi-v4-path:active,html body #app .swsi-v4-tool-grid button:active{background:var(--fill);}
+      html body #app .swsi-v4-path{min-height:76px;}
+      html body #app .swsi-v4-path-icon,html body #app .swsi-v4-tool-grid button > .swsi-i:first-child{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;margin:0;border-radius:10px;background:var(--brand-soft);color:var(--brand);}
+      html body #app .swsi-v4-tool-grid button > .swsi-i:first-child{padding:7px;box-sizing:border-box;}
+      html body #app .swsi-v4-path-icon .swsi-i{width:22px;height:22px;}
+      html body #app .swsi-v4-path-copy{display:flex;flex-direction:column;flex:1;min-width:0;}
+      html body #app .swsi-v4-path-title{font-size:18px;font-weight:600;line-height:1.35;color:var(--ink);}
+      html body #app .swsi-v4-path-sub{margin-top:2px;font-size:15px;font-weight:400;line-height:1.45;color:var(--ink-3);}
+      html body #app .swsi-v4-tool-grid button > span:not(.swsi-v4-chev){flex:1;min-width:0;}
+      html body #app .swsi-v4-chev{display:grid;place-items:center;flex:0 0 auto;margin-left:auto;color:var(--line-2);}
+      html body #app .swsi-v4-chev .swsi-i{width:18px;height:18px;stroke-width:2.4;}
       html body #app .swsi-v4-tools{margin:0 0 8px;padding:0;border:0;background:transparent;box-shadow:none;}
-      html body #app .swsi-v4-tools-head{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;}
-      html body #app .swsi-v4-tools-head h2{margin:0;font:800 20px/1.4 var(--swsi-font);color:var(--ink);}
-      html body #app .swsi-v4-tools-head button{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:var(--ink-soft);cursor:pointer;}
-      html body #app .swsi-v4-tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
-      html body #app .swsi-v4-tool-grid button{min-height:96px;align-items:center;justify-content:center;gap:8px;padding:14px 8px;text-align:center;font-size:15px;font-weight:800;}
-      html body #app .swsi-v4-tool-grid button .swsi-i{width:26px;height:26px;color:var(--brand);}
-      html body #app .swsi-focus-custom{margin:0 0 20px;padding:18px;background:var(--paper2);border:2px solid var(--line);border-radius:var(--r-lg);}
-      html body #app .swsi-focus-custom .field-label{font-size:14px;font-weight:800;color:var(--ink-soft);}
-      html body #app .swsi-focus-custom select{min-height:48px;border:2px solid var(--line);border-radius:var(--r-sm);background:var(--paper2);font-size:16px;}
-      html body #app :is(.swsi-v4-start,.swsi-v4-path,.swsi-v4-tools button):focus-visible{outline:3px solid var(--spark);outline-offset:3px;}
+      html body #app .swsi-v4-tools-head{display:flex;align-items:center;justify-content:space-between;margin:0;}
+      html body #app .swsi-v4-tools-head button{display:inline-flex;align-items:center;gap:2px;min-height:44px;margin:-12px 0 0;padding:0 4px;border:0;background:transparent;color:var(--brand);font:500 16px/1 var(--swsi-font);cursor:pointer;}
+      html body #app .swsi-v4-tools-head button .swsi-i{width:16px;height:16px;}
+      html body #app .swsi-focus-custom{margin:-20px 0 32px;padding:20px;background:var(--paper2);border:0;border-radius:var(--r-lg);}
+      html body #app .swsi-focus-custom .field-label{font-size:15px;font-weight:600;color:var(--ink-3);}
+      html body #app .swsi-focus-custom select{min-height:50px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);font-size:17px;color:var(--ink);}
+      html body #app .swsi-focus-custom .hint{font-size:15px;}
+      html body #app :is(.swsi-v4-start,.swsi-v4-path,.swsi-v4-tools button):focus-visible{outline:3px solid var(--brand);outline-offset:-3px;}
+      html body #app .swsi-v4-start:focus-visible{outline-offset:3px;}
       @media(hover:hover) and (pointer:fine){
-        html body #app .swsi-v4-start:hover{filter:brightness(.98);}
-        html body #app .swsi-v4-path:hover,html body #app .swsi-v4-tool-grid button:hover{border-color:var(--line-2);}
-        html body #app .swsi-v4-tools-head button:hover{background:var(--line);}
+        html body #app .swsi-v4-start:hover{background:var(--brand-deep);}
+        html body #app .swsi-v4-path:hover,html body #app .swsi-v4-tool-grid button:hover{background:#FBFAF7;}
+        html body #app .swsi-v4-tools-head button:hover{text-decoration:underline;}
       }
       @media(min-width:700px){
-        html body #app .swsi-v4-hero{padding:36px 36px 32px;}
-        html body #app .swsi-v4-start{width:auto;min-width:240px;padding:0 32px;display:inline-flex;}
+        html body #app .swsi-v4-hero{padding-top:24px;margin-bottom:40px;}
+        html body #app .swsi-v4-start{display:inline-flex;width:auto;min-width:260px;padding:0 36px;}
       }
       @media(max-width:360px){
-        html body #app .swsi-v4-hero{padding:22px 18px 20px;}
-        html body #app .swsi-v4-path{padding:14px 12px;}
-        html body #app .swsi-v4-tool-grid{gap:8px;}
-        html body #app .swsi-v4-tool-grid button{font-size:14px;}
+        html body #app .swsi-v4-path,html body #app .swsi-v4-tool-grid button{padding:12px 14px;gap:12px;}
+        html body #app .swsi-v4-path + .swsi-v4-path::before,html body #app .swsi-v4-tool-grid button + button::before{left:62px;}
       }
       @media(prefers-reduced-motion:reduce){html body #app .swsi-v4-start{transition:none;}}
     `;
@@ -134,14 +140,14 @@
       '<section class="swsi-focus-hero swsi-focus-primary swsi-v4-hero"><div class="kicker">'+(doneToday?'今天已練 <b>'+doneToday+'</b> 題':'今天還沒練題')+'</div><h1>'+(doneToday?'再練 10 題，穩穩累積。':'今天，從一題開始。')+'</h1><p>系統從近年考題和高頻考點幫你挑題，做完馬上看解析。</p><button class="swsi-v4-start" type="button" onclick="swsiStartNow()">'+swsiIcon('play')+'<span>開始刷題</span></button></section>'+
       '<h2 class="swsi-v4-section-heading">想從哪裡開始？</h2>'+
       '<div class="swsi-v4-study-paths">'+
-        '<button type="button" class="swsi-v4-path" onclick="toggleHomeQuiz()" aria-expanded="'+(homeQuizOpen?'true':'false')+'"><span class="swsi-v4-path-icon">'+swsiIcon('papers')+'</span><span class="swsi-v4-path-title">歷屆試題</span><span class="swsi-v4-path-sub">依年份、科目練習</span></button>'+
-        '<button type="button" class="swsi-v4-path" onclick="go(\'essay\')"><span class="swsi-v4-path-icon">'+swsiIcon('essay')+'</span><span class="swsi-v4-path-title">申論練習</span><span class="swsi-v4-path-sub">手寫上傳與 AI 回饋</span></button>'+
+        '<button type="button" class="swsi-v4-path" onclick="toggleHomeQuiz()" aria-expanded="'+(homeQuizOpen?'true':'false')+'"><span class="swsi-v4-path-icon">'+swsiIcon('papers')+'</span><span class="swsi-v4-path-copy"><span class="swsi-v4-path-title">歷屆試題</span><span class="swsi-v4-path-sub">依年份、科目練習</span></span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
+        '<button type="button" class="swsi-v4-path" onclick="go(\'essay\')"><span class="swsi-v4-path-icon">'+swsiIcon('essay')+'</span><span class="swsi-v4-path-copy"><span class="swsi-v4-path-title">申論練習</span><span class="swsi-v4-path-sub">手寫上傳，AI 給你回饋</span></span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
       '</div>'+
       (homeQuizOpen?('<section class="swsi-focus-custom"><div class="field-label">範圍</div><select class="subj" aria-label="刷題範圍" onchange="setHomeQuizScope(this.value)" style="margin-bottom:9px"><option value="smart" '+(homeQuizScope==='smart'?'selected':'')+'>智慧推薦</option><option value="recent3" '+(homeQuizScope==='recent3'?'selected':'')+'>近 3 年</option><option value="recent5" '+(homeQuizScope==='recent5'?'selected':'')+'>近 5 年</option><option value="specific" '+(homeQuizScope==='specific'?'selected':'')+'>指定歷屆</option><option value="all" '+(homeQuizScope==='all'?'selected':'')+'>全部題庫</option></select>'+(specific?('<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="subj" aria-label="考試年度" onchange="setHomeQuizYear(this.value)" style="margin-bottom:9px">'+yearOpts+'</select><select class="subj" aria-label="考試考次" onchange="setHomeQuizRound(this.value)" style="margin-bottom:9px"><option value="all" '+(homeQuizRound==='all'?'selected':'')+'>全部考次</option><option value="1" '+(homeQuizRound==='1'?'selected':'')+'>第一次</option><option value="2" '+(homeQuizRound==='2'?'selected':'')+'>第二次</option></select></div>'):'')+'<div class="field-label">科目</div><select class="subj" aria-label="科目" onchange="subjFilter=this.value;render()" style="margin-bottom:9px">'+subjOpts+'</select><div class="field-label">題數</div><select class="subj" aria-label="題數" onchange="setHomeQuizCount(this.value)" style="margin-bottom:7px"><option value="10" '+(homeQuizCount===10?'selected':'')+'>10 題</option><option value="20" '+(homeQuizCount===20?'selected':'')+'>20 題</option><option value="40" '+(homeQuizCount===40?'selected':'')+'>40 題</option></select><div class="hint">'+swsiEsc(scopeHint)+'</div><button class="btn" onclick="startFocusedQuiz()" style="margin-top:2px">開始這組題目</button></section>'):'')+
-      '<section class="swsi-v4-tools"><div class="swsi-v4-tools-head"><h2>其他學習工具</h2><button type="button" onclick="go(\'topics\')" aria-label="查看其他學習工具">'+swsiIcon('arrow')+'</button></div><div class="swsi-v4-tool-grid">'+
-        '<button type="button" onclick="MK.open()">'+swsiIcon('timer')+'<span>模擬考</span></button>'+
-        '<button type="button" onclick="swsiOpenHomeReview()">'+swsiIcon('bookmark')+'<span>錯題本'+(rv.dueCount?' · '+rv.dueCount:'')+'</span></button>'+
-        '<button type="button" onclick="go(\'progress\')">'+swsiIcon('chart')+'<span>弱點分析</span></button>'+
+      '<section class="swsi-v4-tools"><div class="swsi-v4-tools-head"><h2>其他學習工具</h2><button type="button" onclick="go(\'topics\')" aria-label="查看其他學習工具">全部'+swsiIcon('arrow')+'</button></div><div class="swsi-v4-tool-grid">'+
+        '<button type="button" onclick="MK.open()">'+swsiIcon('timer')+'<span>模擬考</span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
+        '<button type="button" onclick="swsiOpenHomeReview()">'+swsiIcon('bookmark')+'<span>錯題本'+(rv.dueCount?' · '+rv.dueCount:'')+'</span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
+        '<button type="button" onclick="go(\'progress\')">'+swsiIcon('chart')+'<span>弱點分析</span>'+'<span class="swsi-v4-chev">'+swsiIcon('arrow')+'</span>'+'</button>'+
       '</div></section>';
 
     if(typeof relabelTabs==='function')try{relabelTabs();}catch(_e){}
