@@ -116,6 +116,7 @@ html body #app .qcard .btn:not(.ghost):disabled{background:var(--off-bg);border-
 #app .exp details.swsi-answer-trust > summary > .swsi-trust-meta{grid-column:1;grid-row:2;}
 #app .exp details.swsi-answer-trust > summary::after{grid-column:2;grid-row:1 / span 2;margin:0;}
 #app .exp details > :not(summary){padding:0 20px 18px;}
+#app .exp details.swsi-answer-trust > .swsi-trust-body{padding-top:14px;}
 #app .exp details .body{padding:0 20px 18px;}
 
 /* Session result page. */

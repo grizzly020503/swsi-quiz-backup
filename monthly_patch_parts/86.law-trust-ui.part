@@ -68,8 +68,8 @@
     var h='<div class="swsi-law-trust" style="margin:14px 0 3px;padding:12px 13px;border:1px solid '+bd+';border-radius:12px;background:'+bg+';font-family:\'Noto Sans TC\',sans-serif">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><b style="font-size:12.5px;color:'+fg+'">'+statusText(x)+checked+'</b><span style="font-size:10.5px;border:1px solid '+bd+';background:#fff;border-radius:999px;padding:3px 8px;color:'+fg+'">'+kindLabel(x.source_kind)+'</span></div>';
     if(x.trust_note)h+='<div style="font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin-top:7px">'+H(x.trust_note)+'</div>';
-    if(sourceUrl)h+='<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><a href="'+sourceUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">開啟'+H(x.source_label||'官方來源')+' ↗</a>'+
-      (secondaryUrl?'<a href="'+secondaryUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">'+H(x.secondary_label||'官方補充')+' ↗</a>':'')+'</div>';
+    if(sourceUrl)h+='<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><a href="'+sourceUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">開啟'+H(x.source_label||'官方來源')+' ↗&#xFE0E;</a>'+
+      (secondaryUrl?'<a href="'+secondaryUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">'+H(x.secondary_label||'官方補充')+' ↗&#xFE0E;</a>':'')+'</div>';
     return h+'</div>';
   }
 
@@ -103,9 +103,9 @@
       '<div style="font-size:10.8px;line-height:1.65;color:var(--ink-soft);margin-top:6px">'+H(copy.detail)+'</div>';
     if(versionUrl||historyUrl||examUrl){
       h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">';
-      if(versionUrl)h+='<a href="'+versionUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">考試時點法規 ↗</a>';
-      if(historyUrl)h+='<a href="'+historyUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">法規沿革 ↗</a>';
-      if(examUrl)h+='<a href="'+examUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">考試日期 ↗</a>';
+      if(versionUrl)h+='<a href="'+versionUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">考試時點法規 ↗&#xFE0E;</a>';
+      if(historyUrl)h+='<a href="'+historyUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">法規沿革 ↗&#xFE0E;</a>';
+      if(examUrl)h+='<a href="'+examUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">考試日期 ↗&#xFE0E;</a>';
       h+='</div>';
     }
     return h+'</div>';
