@@ -1827,6 +1827,7 @@ html body #app .qcard .btn:not(.ghost):disabled{background:var(--off-bg);border-
 #app .exp details.swsi-answer-trust > summary > .swsi-trust-meta{grid-column:1;grid-row:2;}
 #app .exp details.swsi-answer-trust > summary::after{grid-column:2;grid-row:1 / span 2;margin:0;}
 #app .exp details > :not(summary){padding:0 20px 18px;}
+#app .exp details.swsi-answer-trust > .swsi-trust-body{padding-top:14px;}
 #app .exp details .body{padding:0 20px 18px;}
 
 /* Session result page. */
@@ -3809,8 +3810,8 @@ html[data-fs="2"]{
     var h='<div class="swsi-law-trust" style="margin:14px 0 3px;padding:12px 13px;border:1px solid '+bd+';border-radius:12px;background:'+bg+';font-family:\'Noto Sans TC\',sans-serif">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><b style="font-size:12.5px;color:'+fg+'">'+statusText(x)+checked+'</b><span style="font-size:10.5px;border:1px solid '+bd+';background:#fff;border-radius:999px;padding:3px 8px;color:'+fg+'">'+kindLabel(x.source_kind)+'</span></div>';
     if(x.trust_note)h+='<div style="font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin-top:7px">'+H(x.trust_note)+'</div>';
-    if(sourceUrl)h+='<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><a href="'+sourceUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">開啟'+H(x.source_label||'官方來源')+' ↗</a>'+
-      (secondaryUrl?'<a href="'+secondaryUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">'+H(x.secondary_label||'官方補充')+' ↗</a>':'')+'</div>';
+    if(sourceUrl)h+='<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><a href="'+sourceUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">開啟'+H(x.source_label||'官方來源')+' ↗&#xFE0E;</a>'+
+      (secondaryUrl?'<a href="'+secondaryUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:700">'+H(x.secondary_label||'官方補充')+' ↗&#xFE0E;</a>':'')+'</div>';
     return h+'</div>';
   }
 
@@ -3844,9 +3845,9 @@ html[data-fs="2"]{
       '<div style="font-size:10.8px;line-height:1.65;color:var(--ink-soft);margin-top:6px">'+H(copy.detail)+'</div>';
     if(versionUrl||historyUrl||examUrl){
       h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">';
-      if(versionUrl)h+='<a href="'+versionUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">考試時點法規 ↗</a>';
-      if(historyUrl)h+='<a href="'+historyUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">法規沿革 ↗</a>';
-      if(examUrl)h+='<a href="'+examUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">考試日期 ↗</a>';
+      if(versionUrl)h+='<a href="'+versionUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">考試時點法規 ↗&#xFE0E;</a>';
+      if(historyUrl)h+='<a href="'+historyUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">法規沿革 ↗&#xFE0E;</a>';
+      if(examUrl)h+='<a href="'+examUrl+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--pine-deep);border-radius:8px;padding:5px 8px;font-size:10.8px;font-weight:700">考試日期 ↗&#xFE0E;</a>';
       h+='</div>';
     }
     return h+'</div>';
@@ -5465,7 +5466,7 @@ html[data-fs="2"]{
       .swsi-answer-trust summary:after{content:'＋';margin-left:auto;color:var(--ink-3);font-size:14px;}
       .swsi-answer-trust[open] summary:after{content:'－';}
       .swsi-trust-chip{display:inline-flex;align-items:center;min-height:28px;padding:2px 10px;border:0;border-radius:999px;background:var(--fill);color:var(--ink-soft);font-size:14px;font-weight:500;}
-      .swsi-trust-chip.warn{color:var(--brand-deep);background:var(--brand-soft);}
+      .swsi-trust-chip.warn{color:var(--ink);background:var(--fill);font-weight:600;}
       .swsi-trust-body{border-top:1px solid var(--line);padding:12px 0 4px;color:var(--ink-soft);font-size:16px;line-height:1.7;}
       .swsi-trust-body p{margin:0 0 6px;}
       .swsi-trust-body p:last-child{margin-bottom:0;}
@@ -5483,7 +5484,7 @@ html[data-fs="2"]{
       .swsi-trust-status{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
       .swsi-trust-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin-top:2px;font-size:14px;font-weight:400;color:var(--ink-3);}
       .swsi-trust-meta .swsi-trust-chip{min-height:0;padding:0;background:transparent;font-size:14px;}
-      .swsi-trust-meta .swsi-trust-chip.warn{color:var(--brand-deep);}
+      .swsi-trust-meta .swsi-trust-chip.warn{color:var(--ink-soft);font-weight:600;}
       .swsi-trust-meta>*+*:before{content:'·';margin-right:10px;color:var(--line-2);}
 
       .tabbar .ico.swsi-nav-ico{width:21px;height:21px;display:grid;place-items:center;font-size:0;line-height:1;}
@@ -5663,7 +5664,7 @@ html[data-fs="2"]{
     var href=safeTrustHref(url); if(!href)return;
     var links=box.querySelector('.swsi-trust-links');
     if(!links){links=document.createElement('div');links.className='swsi-trust-links';box.appendChild(links);}
-    var a=document.createElement('a');a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.textContent=label+' ↗';links.appendChild(a);
+    var a=document.createElement('a');a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.textContent=label+' ↗\uFE0E';links.appendChild(a);
   }
 
 
@@ -5702,7 +5703,7 @@ html[data-fs="2"]{
     if(officialHref){
       var link=document.createElement('a');
       link.href=officialHref;link.target='_blank';link.rel='noopener noreferrer';
-      link.textContent='查看官方現行法規 ↗';
+      link.textContent='查看官方現行法規 ↗\uFE0E';
       notice.appendChild(link);
     }
     var trust=directChild(exp,'.swsi-answer-trust');
@@ -5725,10 +5726,7 @@ html[data-fs="2"]{
     if(legal&&legal.warn)chip(sumMeta,legal.label,true);
     panel.appendChild(summary);
     var body=document.createElement('div');body.className='swsi-trust-body';
-    var status=document.createElement('div');status.className='swsi-trust-status';
-    chip(status,analysis.label,analysis.warn);
-    if(legal)chip(status,legal.label,legal.warn);
-    body.appendChild(status);
+    // Labels already sit on the summary line; the body keeps only the full explanation.
     var p1=document.createElement('p');p1.textContent=official?'本題為考選部歷屆試題；題目、選項、官方答案與特殊給分以考選部資料為準。SWSI 另外整理解析與延伸內容，並非考選部官方解析。':origin==='practice'?'本題是 SWSI 平台自製練習題，並非考選部歷屆試題；題目與解析由平台整理。':'題目來源資料目前未能完整確認，請重新載入或查看原始題庫；不能據此認定這是非官方題目。';body.appendChild(p1);
     var p2=document.createElement('p');p2.textContent=analysis.detail;body.appendChild(p2);
     if(legal){var p3=document.createElement('p');p3.textContent=legal.detail+(item.legal_checked_at?' 核對時間：'+String(item.legal_checked_at).slice(0,10)+'。':'');body.appendChild(p3);}
