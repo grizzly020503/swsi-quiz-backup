@@ -12,7 +12,9 @@
 | Apple 的高雅 | 入口改成 iPhone「設定」式分組清單（白色圓角、細分隔線、右側小箭頭）；頁首、底部分頁、答題結果列用半透明毛玻璃；不用陰影、不用立體按鈕 |
 | 社工的溫暖 | 米白底 `#F7F5F0`、偏暖的灰字、陶土主色 `#A9532B`（白字對比 5.3:1）；陪伴口吻文案 |
 
-主色候選：`images/accent-compare.webp`（A 暖陶，目前程式預設；B 沉穩藍 `#1F4FA3`）。只需改 `--brand` 系列 token 即可切換。
+主色：Owner 選定 **暖陶**（比較圖 `images/accent-compare.webp`，B 沉穩藍 `#1F4FA3` 未採用）。
+
+頁尾與「關於／資料來源／隱私／使用條款」視窗：文字與連結不變，只改成同一套字級與顏色（連結 15px、觸控 44px）。
 
 ## 這個分支實際改了什麼
 
@@ -26,6 +28,7 @@
 | 我的 | 大標題、分組清單、統計列、考試倒數列 | `71`、`73`、`75` |
 | 考點／法規／理論／搜尋 | 彩色大卡改成分組清單；小字（10–13px）提高到 14–18px；系統字 | `00.part`、`80.knowledge-path`、`88.theory-trust-ui`、`40` |
 | 模擬考 | 舊綠色與襯線字改用 token | `mk_grading_contract` |
+| 頁尾與資訊視窗 | 字級 14–16px、連結改主色、按鈕 44px | `89.public-branding-info`、`zzzz_product_v1_lock` |
 | 測試 | `launch_readiness_smoke` 改讀 token：首頁主按鈕＝`--brand`、停用按鈕＝`--off-bg`／`--off-ink` | `scripts/launch_readiness_smoke.js` |
 
 沒有新增後置覆寫層；都改在原本負責的 owner 裡。`swsi-calm-learning-ui-v3` 的 id 保留給 release／live parity 檢查。
