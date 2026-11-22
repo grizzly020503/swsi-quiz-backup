@@ -12,7 +12,7 @@
    Large calm reading: white option rows on warm paper, no shadows. */
 body:has(#app .qcard) .tabbar{display:none!important;}
 body:has(#app .qcard) .wrap{padding-bottom:32px!important;}
-body:has(#app .swsi-result-bar) .wrap{padding-bottom:calc(200px + env(safe-area-inset-bottom,0px))!important;}
+body:has(#app .swsi-result-bar) .wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important;}
 
 /* Top bar: close, progress, count. */
 #app .swsi-quizbar{display:flex;align-items:center;gap:12px;margin:0 0 24px;}
@@ -72,6 +72,18 @@ html body #app .qcard .btn:not(.ghost):disabled{background:var(--off-bg);border-
 #app .swsi-result-ico .swsi-i{width:24px;height:24px;stroke-width:2.6;}
 #app .swsi-result-bar .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;margin:0;border:0;font-size:19px;outline-offset:3px;}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#app .swsi-result-bar{background:var(--paper2);}}
+/* Phones: one row (verdict left, next right) so the bar does not cover the explanation.
+   The encouragement line stays in the DOM for screen readers. */
+@media (max-width:699px){
+  #app .swsi-result-bar{flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));}
+  #app .swsi-result-msg{gap:10px;min-width:0;}
+  #app .swsi-result-msg small{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  #app .swsi-result-msg b{font-size:20px;white-space:nowrap;}
+  #app .swsi-result-ico{width:36px;height:36px;}
+  #app .swsi-result-ico .swsi-i{width:20px;height:20px;}
+  #app .swsi-result-bar .btn{flex:0 0 auto;width:auto;min-width:140px;min-height:52px;padding:0 22px;font-size:18px;}
+}
+
 @keyframes swsi-rise{from{transform:translate(-50%,24px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 @media (min-width:700px){
   #app .swsi-result-bar{flex-direction:row;align-items:center;justify-content:space-between;width:min(760px,calc(100% - 32px));max-width:none;padding-left:28px;padding-right:28px;border-radius:var(--r-lg) var(--r-lg) 0 0;border:1px solid var(--line);border-bottom:0;}
@@ -98,6 +110,11 @@ html body #app .qcard .btn:not(.ghost):disabled{background:var(--off-bg);border-
 #app .exp details > summary::-webkit-details-marker{display:none;}
 #app .exp details > summary::after{content:'';width:9px;height:9px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(45deg) translate(-2px,-2px);transition:transform 150ms var(--press);}
 #app .exp details[open] > summary::after{transform:rotate(-135deg) translate(-2px,-2px);}
+/* Source row: title + one meta line, chevron centred on the right (same height as siblings). */
+#app .exp details.swsi-answer-trust > summary{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:12px;row-gap:0;line-height:1.45;padding:12px 20px;}
+#app .exp details.swsi-answer-trust > summary > .swsi-trust-title{grid-column:1;grid-row:1;}
+#app .exp details.swsi-answer-trust > summary > .swsi-trust-meta{grid-column:1;grid-row:2;}
+#app .exp details.swsi-answer-trust > summary::after{grid-column:2;grid-row:1 / span 2;margin:0;}
 #app .exp details > :not(summary){padding:0 20px 18px;}
 #app .exp details .body{padding:0 20px 18px;}
 
