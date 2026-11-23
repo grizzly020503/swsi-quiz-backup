@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-23T07:27:38Z",
-  "event_count": 11,
+  "generated_at": "2026-11-23T23:49:18Z",
+  "event_count": 10,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
   "trends": [
@@ -1539,215 +1539,117 @@
       ]
     },
     {
-      "canonical_event_id": "159edb6714cbae17a38c5189",
-      "title": "破「5F自拍」、揪虐嬰真凶 女檢察官許亞文奪「紫絲帶獎」",
-      "category": "兒少保護",
+      "canonical_event_id": "e6d9aab9dd4b77dbd53be0d6",
+      "title": "AI transforming social security services in China, new ILO report finds",
+      "category": "勞動與社會保障",
       "subjects": [
         "社會工作",
-        "社會工作直接服務",
         "社會政策與社會立法"
       ],
       "knowledge_root": "社會工作管理",
       "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
       "management_domains": [
-        "品質與風險管理",
+        "規劃與政策執行",
+        "倫理與權利保障",
         "服務輸送與跨網絡",
-        "倫理與權利保障"
+        "成效評估與證據"
       ],
       "exam_subject_axes": [
-        "社會工作直接服務",
-        "人類行為與社會環境",
         "社會政策與社會立法",
         "社會工作"
       ],
       "primary_exam_subject_axes": [
-        "社會工作直接服務"
+        "社會政策與社會立法"
       ],
       "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會政策與社會立法",
         "社會工作"
       ],
       "subject_topics": {
-        "社會工作直接服務": [
-          "兒少保護風險評估",
-          "家庭評估與危機介入"
-        ],
-        "人類行為與社會環境": [
-          "兒童發展、依附與創傷",
-          "家庭系統與風險保護因子"
-        ],
         "社會政策與社會立法": [
-          "兒少福利與保護法制",
-          "責任通報與保護體系"
+          "社會保險、就業安全與勞動政策"
         ],
         "社會工作": [
-          "專業倫理與兒童最佳利益",
-          "權利倡導與社會正義"
+          "勞動權益、社會正義與弱勢支持"
         ]
       },
       "knowledge_topics": [
-        "兒少保護",
-        "兒少",
-        "保護"
+        "勞動與社會保障",
+        "勞動權益"
       ],
       "knowledge_paths": [
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 規劃與政策執行",
         "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 兒少福利與保護法制",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 責任通報與保護體系",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 責任通報與保護體系",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 兒童發展、依附與創傷"
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 成效評估與證據",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 成效評估與證據 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 成效評估與證據 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
-      "trend_state": "one-off",
-      "trend_score": 2.6,
+      "trend_state": "sustained",
+      "trend_score": 1.8,
       "why": [
-        "歷屆廣義概念關聯 166 題，跨 12 個年度；強 0／中 0／概念 166（僅作低權重背景）",
-        "最近相關題為 115 年（距題庫最新年度 0 年）",
-        "歷屆分布 3 個考科"
+        "1 個官方來源",
+        "已跨 2 個證據日期持續觀察"
       ],
       "factors": {
         "cross_source": 0.0,
-        "official_evidence": 0.0,
+        "official_evidence": 0.7,
         "policy_change": 0.0,
-        "historical_frequency": 0.28,
-        "historical_year_breadth": 0.28,
-        "recent_exam_support": 0.28,
-        "historical_subject_breadth": 0.45,
+        "historical_frequency": 0.0,
+        "historical_year_breadth": 0.0,
+        "recent_exam_support": 0.0,
+        "historical_subject_breadth": 0.0,
         "law_relevance": 0.0,
-        "persistence": 0.0,
-        "essay_value": 1.1,
+        "persistence": 0.65,
+        "essay_value": 0.0,
         "mcq_density": 0.0,
         "recency": 1.0
       },
       "source_count": 1,
-      "official_source_count": 0,
-      "observation_count": 1,
-      "first_seen": "2026-11-23T04:57:33Z",
-      "last_seen": "2026-11-23T04:57:33Z",
+      "official_source_count": 1,
+      "observation_count": 2,
+      "first_seen": "2026-11-19T00:00:00Z",
+      "last_seen": "2026-11-23T00:00:00Z",
       "related_laws": [],
       "related_policy_instruments": [],
       "law_link_status": "unresolved",
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
       "law_link_basis": [],
       "law_link_rules_schema": 1,
-      "historical_question_count": 166,
-      "historical_weighted_match_count": 1.0,
+      "historical_question_count": 0,
+      "historical_weighted_match_count": 0.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 0,
-        "concept": 166
+        "concept": 0
       },
-      "historical_exam_years": [
-        104,
-        105,
-        106,
-        107,
-        108,
-        109,
-        110,
-        111,
-        112,
-        113,
-        114,
-        115
-      ],
-      "latest_related_exam_year": 115,
+      "historical_exam_years": [],
+      "latest_related_exam_year": null,
       "corpus_latest_exam_year": 115,
-      "years_since_last_related_exam": 0,
-      "historical_subject_counts": {
-        "社會工作": 57,
-        "社會工作直接服務": 4,
-        "社會政策與社會立法": 105
-      },
-      "historical_subject_count": 3,
+      "years_since_last_related_exam": null,
+      "historical_subject_counts": {},
+      "historical_subject_count": 0,
       "historical_law_match_count": 0,
       "historical_law_match_years": [],
       "historical_high_confidence_match_count": 0,
       "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
-      "related_exam_questions": [
-        {
-          "id": "SP115-1-20",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "20",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 出生通報",
-          "match_reason": "事件詞：兒少",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP115-1-21",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "21",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "事件詞：兒少",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP-115-2-022",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第二次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒童及少年福利與權益保障法 > 收養程序與媒合",
-          "match_reason": "事件詞：兒少",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP-115-2-023",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第二次",
-          "qno": "23",
-          "major": "兒少福利法規",
-          "topic": "兒童及少年福利與權益保障法 > 調查統計機制",
-          "match_reason": "事件詞：兒少",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP115-1-29",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "29",
-          "major": "兒少福利法規",
-          "topic": "兒少性剝削防制條例 > 親職教育輔導時數",
-          "match_reason": "事件詞：兒少",
-          "match_score": 2.2
-        }
-      ],
-      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "related_exam_questions": [],
+      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
-        "兒少保護",
-        "兒少"
+        "勞動權益"
       ],
       "evidence": [
         {
-          "source_name": "自由時報生活",
-          "source_url": "https://news.ltn.com.tw/news/life/breakingnews/5650407",
-          "source_type": "news",
-          "published_at": "2026-11-23T04:57:33Z",
-          "item_id": "529489af78a25c11f722333365ceff74"
+          "source_name": "ILO Newsroom",
+          "source_url": "https://www.ilo.org/resource/news/ai-transforming-social-security-services-china-new-ilo-report-finds",
+          "source_type": "official",
+          "published_at": "2026-11-23T00:00:00Z",
+          "item_id": "02a20f58fd9306e760e39d78bb17311d"
         }
       ]
     },
@@ -1948,120 +1850,6 @@
           "source_type": "official",
           "published_at": "2026-11-12T14:32:50Z",
           "item_id": "4e8909f9a7762c2c17335d15edbdeb23"
-        }
-      ]
-    },
-    {
-      "canonical_event_id": "e6d9aab9dd4b77dbd53be0d6",
-      "title": "AI transforming social security services in China, new ILO report finds",
-      "category": "勞動與社會保障",
-      "subjects": [
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障",
-        "服務輸送與跨網絡",
-        "成效評估與證據"
-      ],
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法"
-      ],
-      "supporting_exam_subject_axes": [
-        "社會工作"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "社會保險、就業安全與勞動政策"
-        ],
-        "社會工作": [
-          "勞動權益、社會正義與弱勢支持"
-        ]
-      },
-      "knowledge_topics": [
-        "勞動與社會保障",
-        "勞動權益"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 成效評估與證據",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
-        "社會工作管理 > 成效評估與證據 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 成效評估與證據 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
-      ],
-      "trend_state": "one-off",
-      "trend_score": 1.0,
-      "why": [
-        "1 個官方來源"
-      ],
-      "factors": {
-        "cross_source": 0.0,
-        "official_evidence": 0.7,
-        "policy_change": 0.0,
-        "historical_frequency": 0.0,
-        "historical_year_breadth": 0.0,
-        "recent_exam_support": 0.0,
-        "historical_subject_breadth": 0.0,
-        "law_relevance": 0.0,
-        "persistence": 0.0,
-        "essay_value": 0.0,
-        "mcq_density": 0.0,
-        "recency": 0.6
-      },
-      "source_count": 1,
-      "official_source_count": 1,
-      "observation_count": 1,
-      "first_seen": "2026-11-19T00:00:00Z",
-      "last_seen": "2026-11-19T00:00:00Z",
-      "related_laws": [],
-      "related_policy_instruments": [],
-      "law_link_status": "unresolved",
-      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
-      "law_link_basis": [],
-      "law_link_rules_schema": 1,
-      "historical_question_count": 0,
-      "historical_weighted_match_count": 0.0,
-      "historical_match_breakdown": {
-        "strong": 0,
-        "medium": 0,
-        "concept": 0
-      },
-      "historical_exam_years": [],
-      "latest_related_exam_year": null,
-      "corpus_latest_exam_year": 115,
-      "years_since_last_related_exam": null,
-      "historical_subject_counts": {},
-      "historical_subject_count": 0,
-      "historical_law_match_count": 0,
-      "historical_law_match_years": [],
-      "historical_high_confidence_match_count": 0,
-      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
-      "related_exam_questions": [],
-      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "勞動權益"
-      ],
-      "evidence": [
-        {
-          "source_name": "ILO Newsroom",
-          "source_url": "https://www.ilo.org/resource/news/ai-transforming-social-security-services-china-new-ilo-report-finds",
-          "source_type": "official",
-          "published_at": "2026-11-19T00:00:00Z",
-          "item_id": "02a20f58fd9306e760e39d78bb17311d"
         }
       ]
     }

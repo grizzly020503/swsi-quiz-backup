@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-23T07:27:38Z",
-  "item_count": 11,
+  "generated_at": "2026-11-23T23:49:18Z",
+  "item_count": 10,
   "questions_loaded": 4800,
   "question_source": "cdn/question-shards",
   "law_link_rules_schema": 1,
@@ -1425,206 +1425,6 @@
       }
     },
     {
-      "id": "529489af78a25c11f722333365ceff74",
-      "title": "破「5F自拍」、揪虐嬰真凶 女檢察官許亞文奪「紫絲帶獎」",
-      "summary": "橋頭地檢署檢察官許亞文長期投入婦幼與兒少保護，跨域整合科技偵查瓦解散布兒少性影像網站「5F自拍」，聯手高醫團隊迅速揪出虐待5個月大嬰兒的真凶，讓惡徒在起訴後不到2個月即判刑，榮...…",
-      "source_name": "自由時報生活",
-      "source_url": "https://news.ltn.com.tw/news/life/breakingnews/5650407",
-      "published_at": "2026-11-23T04:57:33Z",
-      "region": "taiwan",
-      "category": "兒少保護",
-      "relevance_score": 5,
-      "exam_tags": [
-        "兒少保護",
-        "兒少",
-        "保護"
-      ],
-      "subjects": [
-        "社會工作直接服務",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "品質與風險管理",
-        "服務輸送與跨網絡",
-        "倫理與權利保障"
-      ],
-      "exam_subject_axes": [
-        "社會工作直接服務",
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "primary_exam_subject_axes": [
-        "社會工作直接服務"
-      ],
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "subject_topics": {
-        "社會工作直接服務": [
-          "兒少保護風險評估",
-          "家庭評估與危機介入"
-        ],
-        "人類行為與社會環境": [
-          "兒童發展、依附與創傷",
-          "家庭系統與風險保護因子"
-        ],
-        "社會政策與社會立法": [
-          "兒少福利與保護法制",
-          "責任通報與保護體系"
-        ],
-        "社會工作": [
-          "專業倫理與兒童最佳利益",
-          "權利倡導與社會正義"
-        ]
-      },
-      "knowledge_topics": [
-        "兒少保護",
-        "兒少",
-        "保護"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 兒少福利與保護法制",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 責任通報與保護體系",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 責任通報與保護體系",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 兒童發展、依附與創傷"
-      ],
-      "policy_signal": "low",
-      "essay_value": "high",
-      "mcq_fact_density": "low",
-      "signal_confidence": "medium",
-      "signal_score": 6,
-      "exam_point_summary": "破「5F自拍」、揪虐嬰真凶 女檢察官許亞文奪「紫絲帶獎」。尚未見明確制度變動，先作事件與專業議題觀察；申論可從兒少最佳利益、責任通報、跨網絡合作與制度漏洞切入。此為命題訊號，非命題保證。",
-      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "兒少保護",
-        "兒少"
-      ],
-      "related_laws": [],
-      "related_policy_instruments": [],
-      "law_link_status": "unresolved",
-      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
-      "law_link_basis": [],
-      "law_link_rules_schema": 1,
-      "related_exam_questions": [
-        {
-          "id": "SP115-1-20",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "20",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 出生通報",
-          "match_reason": "事件詞：兒少",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP115-1-21",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "21",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "事件詞：兒少",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP-115-2-022",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第二次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒童及少年福利與權益保障法 > 收養程序與媒合",
-          "match_reason": "事件詞：兒少",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP-115-2-023",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第二次",
-          "qno": "23",
-          "major": "兒少福利法規",
-          "topic": "兒童及少年福利與權益保障法 > 調查統計機制",
-          "match_reason": "事件詞：兒少",
-          "match_score": 2.2
-        },
-        {
-          "id": "SP115-1-29",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "29",
-          "major": "兒少福利法規",
-          "topic": "兒少性剝削防制條例 > 親職教育輔導時數",
-          "match_reason": "事件詞：兒少",
-          "match_score": 2.2
-        }
-      ],
-      "historical_exam_stats": {
-        "matched_question_count": 166,
-        "weighted_match_count": 1.0,
-        "match_breakdown": {
-          "strong": 0,
-          "medium": 0,
-          "concept": 166
-        },
-        "matched_year_count": 12,
-        "matched_years": [
-          104,
-          105,
-          106,
-          107,
-          108,
-          109,
-          110,
-          111,
-          112,
-          113,
-          114,
-          115
-        ],
-        "earliest_exam_year": 104,
-        "latest_exam_year": 115,
-        "corpus_latest_year": 115,
-        "years_since_last_exam": 0,
-        "subject_counts": {
-          "社會工作": 57,
-          "社會工作直接服務": 4,
-          "社會政策與社會立法": 105
-        },
-        "subject_count": 3,
-        "law_match_count": 0,
-        "law_match_year_count": 0,
-        "law_match_years": [],
-        "high_confidence_match_count": 0,
-        "matching_method": "event-evidence-v2.2"
-      }
-    },
-    {
       "id": "4e8909f9a7762c2c17335d15edbdeb23",
       "title": "WHO calls for migrant-inclusive primary health care to strengthen health systems for all",
       "summary": "Developed by the WHO Health and Migration Programme in collaboration with WHO’s Service Delivery and Primary Health Care Unit, the report examines how primary health care-oriented responses can improve access, continuity and quality of care for people on the move, while strengthe",
@@ -1814,7 +1614,7 @@
       "summary": "AI and social security service Research highlights how artificial intelligence is improving access to social security services and administrative efficiency, while underscoring the need for human oversight, data protection and inclusive service delivery.",
       "source_name": "ILO Newsroom",
       "source_url": "https://www.ilo.org/resource/news/ai-transforming-social-security-services-china-new-ilo-report-finds",
-      "published_at": "2026-11-19T00:00:00Z",
+      "published_at": "2026-11-23T00:00:00Z",
       "region": "international",
       "category": "勞動與社會保障",
       "relevance_score": 5,
