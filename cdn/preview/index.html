@@ -5069,6 +5069,11 @@ body .nlr-study-link{min-height:48px;border:0;border-radius:var(--r-sm);backgrou
 body .nlr-study-link:focus-visible,body .nlr-detail summary:focus-visible{outline:3px solid var(--brand);}
 body .nlr-law-stage{color:var(--ink-soft);border-color:var(--line);}
 
+/* Inactive actions show fill, ink and cursor, not opacity alone. */
+body .nlr-study-link:disabled{opacity:1;background:var(--off-bg);color:var(--off-ink);cursor:not-allowed;}
+/* Headings wrap into even lines instead of leaving one or two characters alone. */
+body h1,body h2,body h3,body .section-h,body .swsi-myhub-title,body .nl-title,body .sg-title,body .mk-h1,body #app .qtext{text-wrap:balance;}
+
 /* Bottom navigation: translucent, icon over label, accent for the current tab. */
 body .tabbar{background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--line);box-shadow:none;}
 body .tabbar button{color:var(--ink-3);font-family:var(--swsi-font);}
@@ -5091,6 +5096,6 @@ body .swsi-i{width:20px;height:20px;flex:0 0 auto;vertical-align:middle;}
 <!-- SWSI CALM LEARNING UI V3 END -->
 
 <script>window.SWSI_KNOWLEDGE_CANONICAL_BOOTSTRAP={"version":"2026-08-27.canonical-build.v1","laws":{"count":24,"sha256":"bb946b67af633ea371550dc1b074dbca530ccb50f47e561c7590ff0e5ea89dfc"},"theories":{"count":39,"sha256":"1a74d39a9611caf002383527390dd3d7e5cc0b6665b6b7f89494f2a0d58ead4d"}};</script>
-<script src="monthly_patch.js?v=preview-code-health-p0-20260826-2&amp;b=705ef82d940b"></script>
+<script src="monthly_patch.js?v=preview-code-health-p0-20260826-2&amp;b=a0919261605c"></script>
 </body>
 </html>
