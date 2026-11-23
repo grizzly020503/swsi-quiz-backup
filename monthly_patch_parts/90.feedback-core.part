@@ -44,7 +44,7 @@
       .swsi-report-actions button{min-height:45px;border-radius:11px;font-family:'Noto Sans TC',sans-serif;font-size:13.5px;font-weight:800;cursor:pointer}
       .swsi-report-cancel{background:#fff;color:#6E746E;border:1px solid var(--line)}
       .swsi-report-submit{background:var(--pine-deep);color:#fff;border:0}
-      .swsi-report-submit:disabled{opacity:.55;cursor:wait}
+      .swsi-report-submit:disabled{opacity:1;background:var(--off-bg);color:var(--off-ink);border-color:var(--off-bg);cursor:wait}
       .swsi-report-status{min-height:20px;margin-top:9px;font-size:11.5px;line-height:1.55;color:var(--ink-soft)}
       .swsi-report-status.err{color:#92584E}.swsi-report-status.ok{color:var(--pine-deep);font-weight:700}
       .swsi-report-receipt{padding:18px 5px 4px;text-align:center}

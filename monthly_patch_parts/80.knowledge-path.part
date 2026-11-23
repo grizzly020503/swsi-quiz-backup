@@ -471,8 +471,8 @@
       btn.textContent=label;btn.addEventListener('click',function(ev){ev.stopPropagation();action();});
       body.appendChild(btn);
     }
-    if(theory)addButton('📘 看理論：'+theory.n,function(){window.swsiOpenTheoryEncoded(E(theory.n));});
-    if(law)addButton('⚖ 看法規：'+law.n,function(){window.swsiOpenLawEncoded(E(law.n));});
+    if(theory)addButton('看理論：'+theory.n,function(){window.swsiOpenTheoryEncoded(E(theory.n));});
+    if(law)addButton('看法規：'+law.n,function(){window.swsiOpenLawEncoded(E(law.n));});
     if(mcqs.length){
       addButton('練同考點選擇題（'+mcqs.length+' 題）',function(){
         if(kind==='mcq'){

@@ -3689,8 +3689,8 @@ html[data-fs="2"]{
       btn.textContent=label;btn.addEventListener('click',function(ev){ev.stopPropagation();action();});
       body.appendChild(btn);
     }
-    if(theory)addButton('📘 看理論：'+theory.n,function(){window.swsiOpenTheoryEncoded(E(theory.n));});
-    if(law)addButton('⚖ 看法規：'+law.n,function(){window.swsiOpenLawEncoded(E(law.n));});
+    if(theory)addButton('看理論：'+theory.n,function(){window.swsiOpenTheoryEncoded(E(theory.n));});
+    if(law)addButton('看法規：'+law.n,function(){window.swsiOpenLawEncoded(E(law.n));});
     if(mcqs.length){
       addButton('練同考點選擇題（'+mcqs.length+' 題）',function(){
         if(kind==='mcq'){
@@ -4479,7 +4479,7 @@ html[data-fs="2"]{
       .swsi-report-actions button{min-height:45px;border-radius:11px;font-family:'Noto Sans TC',sans-serif;font-size:13.5px;font-weight:800;cursor:pointer}
       .swsi-report-cancel{background:#fff;color:#6E746E;border:1px solid var(--line)}
       .swsi-report-submit{background:var(--pine-deep);color:#fff;border:0}
-      .swsi-report-submit:disabled{opacity:.55;cursor:wait}
+      .swsi-report-submit:disabled{opacity:1;background:var(--off-bg);color:var(--off-ink);border-color:var(--off-bg);cursor:wait}
       .swsi-report-status{min-height:20px;margin-top:9px;font-size:11.5px;line-height:1.55;color:var(--ink-soft)}
       .swsi-report-status.err{color:#92584E}.swsi-report-status.ok{color:var(--pine-deep);font-weight:700}
       .swsi-report-receipt{padding:18px 5px 4px;text-align:center}
@@ -6426,7 +6426,8 @@ html[data-fs="2"]{
         +'.mk-ov .mk-opt{border:2px solid transparent;border-radius:14px;background:var(--paper2);color:var(--ink)}'
         +'.mk-ov .mk-opt.sel{border-color:var(--ink);background:var(--paper2);color:var(--ink)}.mk-ov .mk-opt.sel *{color:inherit}'
         +'.mk-ov .mk-cell{border-color:var(--line);background:var(--paper2)}.mk-ov .mk-cell.done{background:var(--ink);border-color:var(--ink);color:#fff}.mk-ov .mk-cell.cur{outline:2px solid var(--brand)}'
-        +'.mk-ov .mk-pill.on,.mk-ov .mk-pill.sel{border-color:var(--brand);background:var(--brand-soft)}';
+        +'.mk-ov .mk-pill.on,.mk-ov .mk-pill.sel{border-color:var(--brand);background:var(--brand-soft)}'
+        +'.mk-ov .mk-nav .mk-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px}.mk-ov .mk-nav .swsi-i{width:18px;height:18px}.mk-ov .mk-btn:disabled{opacity:1;background:var(--off-bg);color:var(--off-ink);border-color:var(--off-bg);cursor:not-allowed}';
       document.head.appendChild(sys);
     }
   }
@@ -6472,7 +6473,7 @@ html[data-fs="2"]{
     var q=Q[idx],letters=['A','B','C','D'];
     var options=figureReady(q)?letters.map(function(L){var t=q.options&&q.options[L];if(t==null||t==='')return '';return '<div class="mk-opt'+(ans[idx]===L?' sel':'')+'" id="mk-opt-'+L+'" onclick="MK.pick(\''+L+'\')"><span class="lab">('+L+')</span><span>'+E(t)+'</span></div>';}).join(''):'<div class="mk-sub" role="status">'+(sourceHeld(q)?'題目文字待官方原卷覆核，本題不可作答且不計分。':'原圖未載入，這題不可作答；缺圖時交卷不計分。')+'</div>';
     var pal=Q.map(function(_,i){return '<div class="mk-cell'+(ans[i]!=null?' done':'')+(i===idx?' cur':'')+'" onclick="MK.jump('+i+')">'+(i+1)+'</div>';}).join('');
-    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer'+(limited&&left<=60?' warn':'')+'" id="mk-timer">'+(limited?fmt(left):'∞')+'</div><div class="mk-prog">第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length+'</div><button class="mk-btn go" onclick="MK.submit()">交卷</button></div><div class="mk-qcard"><div class="mk-qmeta">'+E(q.subject||'')+'　'+E(q.year||'')+' '+E(q.round||'')+'</div><div class="mk-q">'+E(figureStem(q)).replace(/\n/g,'<br>')+'</div>'+figureMarkup(q)+options+'</div><div class="mk-nav"><button class="mk-btn ghost" onclick="MK.go(-1)" '+(idx===0?'disabled':'')+'>‹ 上一題</button><button class="mk-btn ghost" onclick="MK.go(1)" '+(idx===Q.length-1?'disabled':'')+'>下一題 ›</button></div><div class="mk-pal">'+pal+'</div><button class="mk-btn go" style="width:100%;margin-top:18px" onclick="MK.submit()">交卷看結果</button></div>';
+    ov.innerHTML='<div class="mk-wrap"><div class="mk-top"><div class="mk-timer'+(limited&&left<=60?' warn':'')+'" id="mk-timer">'+(limited?fmt(left):'∞')+'</div><div class="mk-prog">第 '+(idx+1)+' / '+Q.length+' 題　已答 '+Object.keys(ans).length+'</div><button class="mk-btn go" onclick="MK.submit()">交卷</button></div><div class="mk-qcard"><div class="mk-qmeta">'+E(q.subject||'')+'　'+E(q.year||'')+' '+E(q.round||'')+'</div><div class="mk-q">'+E(figureStem(q)).replace(/\n/g,'<br>')+'</div>'+figureMarkup(q)+options+'</div><div class="mk-nav"><button class="mk-btn ghost" onclick="MK.go(-1)" '+(idx===0?'disabled':'')+'>'+(typeof swsiIcon==='function'?swsiIcon('back'):'')+'上一題</button><button class="mk-btn ghost" onclick="MK.go(1)" '+(idx===Q.length-1?'disabled':'')+'>下一題'+(typeof swsiIcon==='function'?swsiIcon('arrow'):'')+'</button></div><div class="mk-pal">'+pal+'</div><button class="mk-btn go" style="width:100%;margin-top:18px" onclick="MK.submit()">交卷看結果</button></div>';
     window.scrollTo(0,0);
   }
   function tick(){left--;var el=document.getElementById('mk-timer');if(el){el.textContent=fmt(left);if(left<=60)el.classList.add('warn');}if(left<=0){if(timer)clearInterval(timer);timer=null;grade(true);}}
