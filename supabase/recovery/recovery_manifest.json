@@ -31,6 +31,7 @@
     "supabase/migrations/20261002045108_ai_queue_fair_retry_rotation.sql",
     "supabase/migrations/20261002112000_create_ops_task_ledger.sql",
     "supabase/migrations/20261002112100_add_ops_review_rpcs.sql",
+    "supabase/migrations/20261124120000_reset_ai_ignore_whitespace_only_changes.sql",
     "supabase/recovery/production_acl_alignment.sql"
   ],
   "expected": {
