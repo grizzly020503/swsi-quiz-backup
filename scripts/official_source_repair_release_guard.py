@@ -127,10 +127,59 @@ def negative_selftest() -> None:
     print(f'SOURCE REPAIR NEGATIVES PASS: {cases} unauthorized changes rejected')
 
 
+LIVE_FIELDS = ('id', 'question', 'opt_a', 'opt_b', 'opt_c', 'opt_d', 'answer', 'accepted_answers', 'grading_mode',
+               'exp_why', 'exp_others', 'exp_trap', 'analysis_status')
+
+
+def live_state(rows: list[dict]) -> str:
+    """Classify production: all 14 rows at preimage (not yet applied) or postimage (released)."""
+    proof = json.loads((ROOT / PROOF).read_text(encoding='utf-8'))
+    ids = proof['source_repair_ids'] + proof['moex_sync_followup_ids']
+    require(sorted(r['id'] for r in rows) == sorted(ids), 'live row set mismatch')
+    def same(row, ref):
+        return all(row.get(k) == ref.get(k) for k in LIVE_FIELDS if k != 'id')
+    after = all(same(r, proof['rows'][r['id']]['after']) for r in rows)
+    if after:
+        return 'LIVE_RELEASED_POSTIMAGES'
+    # Before the guarded SQL: source rows equal their recorded preimage; HBSE-115-2-026
+    # carries the MOEX text with the cleared explanation (shard state of 2026-11-23).
+    before = all(all(r.get(k) == proof['rows'][r['id']]['before'].get(k) for k in ('question', 'opt_a', 'opt_b', 'opt_c', 'opt_d', 'answer'))
+                 for r in rows if r['id'] in proof['source_repair_ids'])
+    require(before, 'production differs from both the recorded preimage and the approved postimage')
+    return 'LIVE_NOT_YET_APPLIED'
+
+
+def live_rows() -> list[dict]:
+    """One bounded public-anon SELECT of the 14 release rows; GET only, no service role."""
+    import requests
+    from build_question_shards import frontend_config
+    proof = json.loads((ROOT / PROOF).read_text(encoding='utf-8'))
+    ids = sorted(proof['source_repair_ids'] + proof['moex_sync_followup_ids'])
+    base, key = frontend_config()
+    response = requests.get(
+        base + '/rest/v1/questions',
+        headers={'apikey': key, 'Authorization': 'Bearer ' + key, 'Accept': 'application/json',
+                 'User-Agent': 'SWSI-Source-Repair-GET/1.0'},
+        params={'select': ','.join(LIVE_FIELDS), 'id': 'in.(' + ','.join(ids) + ')', 'order': 'id.asc', 'limit': str(len(ids))},
+        timeout=30,
+    )
+    response.raise_for_status()
+    rows = response.json()
+    require(isinstance(rows, list), 'malformed live rows')
+    return rows
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--selftest', action='store_true')
+    parser.add_argument('--live', action='store_true', help='report whether production has the released rows (GET only)')
+    parser.add_argument('--require-released', action='store_true')
     args = parser.parse_args()
+    if args.live:
+        state = live_state(live_rows())
+        print('SOURCE REPAIR LIVE STATE:', state)
+        require(state == 'LIVE_RELEASED_POSTIMAGES' or not args.require_released, 'production does not yet contain the released rows')
+        raise SystemExit(0)
     replay(ROOT, args.selftest)
     if args.selftest:
         negative_selftest()
