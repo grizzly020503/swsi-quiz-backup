@@ -28,7 +28,10 @@ DEFAULT_POLICY = ROOT / "data" / "question_qa_policy_v1.json"
 STATUS_RANK = {"passed": 0, "needs_review": 1, "blocked": 2}
 RISK_RANK = {"low": 0, "medium": 1, "high": 2, "critical": 3}
 READY_ANALYSIS_STATES = {"ready", "done", "reviewed", "verified", "complete"}
-CHECKED_LEGAL_STATES = {"current", "checked", "verified", "historical_checked"}
+# Keep in sync with data/enrichment_decision_policy.v1.json checked_legal_states
+# and the production questions_legal_status_check constraint, whose only
+# reviewed state is "verified_current".
+CHECKED_LEGAL_STATES = {"current", "checked", "verified", "verified_current", "historical_checked"}
 
 
 def read_json(path: Path) -> Any:
