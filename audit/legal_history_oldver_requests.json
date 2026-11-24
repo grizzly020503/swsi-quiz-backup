@@ -58,17 +58,35 @@
   {
    "law": "家庭暴力防治法",
    "pcode": "D0050071",
-   "lnndate": "20090429"
+   "lnndate": "20090429",
+   "fetched": true
   },
   {
    "law": "家庭暴力防治法",
    "pcode": "D0050071",
-   "lnndate": "20150204"
+   "lnndate": "20150204",
+   "fetched": true
   },
   {
    "law": "家庭暴力防治法",
    "pcode": "D0050071",
-   "lnndate": "20210127"
+   "lnndate": "20210127",
+   "fetched": true
+  },
+  {
+   "law": "社會工作師法",
+   "pcode": "D0050125",
+   "lnndate": "20090527"
+  },
+  {
+   "law": "社會工作師法",
+   "pcode": "D0050125",
+   "lnndate": "20181219"
+  },
+  {
+   "law": "社會工作師法",
+   "pcode": "D0050125",
+   "lnndate": "20200115"
   }
  ]
 }
