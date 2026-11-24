@@ -161,6 +161,45 @@ insert into public.questions(
   'DR-QUEUE-RESET', '社會工作', '998', '原題', 'A', 'standard', 'DR-FAIRNESS',
   'review', 2, now()
 );
+-- 2026-11-24: whitespace-only official edits (MOEX spacing normalisation) must
+-- keep the SWSI explanation; any visible character change must still reset it.
+insert into public.questions(
+  id, subject, qno, question, opt_a, opt_d, answer, grading_mode, source_exam_code,
+  exp_why, analysis_status, analysis_attempts
+) values (
+  'DR-WS-KEEP', '社會工作', '997', '社會 系統紀錄法', 'Role（社會角色）', '敘事治療（narrative therapy ）', 'A', 'standard', 'DR-FAIRNESS',
+  '保留的解析', 'ready', 1
+);
+update public.questions
+   set question = E'社會系統　紀錄法\n', opt_a = E' Role（社會角色） ', opt_d = '敘事治療（narrative therapy）'
+ where id = 'DR-WS-KEEP';
+do $$
+begin
+  if (select exp_why from public.questions where id='DR-WS-KEEP') is distinct from '保留的解析'
+     or (select analysis_status from public.questions where id='DR-WS-KEEP') <> 'ready' then
+    raise exception 'whitespace-only official edit cleared the explanation';
+  end if;
+end
+$$;
+update public.questions set opt_d = '敘事治療（narrative therapy）。' where id = 'DR-WS-KEEP';
+do $$
+begin
+  if (select exp_why from public.questions where id='DR-WS-KEEP') is not null
+     or (select analysis_status from public.questions where id='DR-WS-KEEP') <> 'pending' then
+    raise exception 'visible official-text change did not reset the explanation';
+  end if;
+end
+$$;
+update public.questions set exp_why = '新解析', analysis_status = 'ready' where id = 'DR-WS-KEEP';
+update public.questions set answer = 'B' where id = 'DR-WS-KEEP';
+do $$
+begin
+  if (select analysis_status from public.questions where id='DR-WS-KEEP') <> 'pending' then
+    raise exception 'answer change did not reset the explanation';
+  end if;
+end
+$$;
+
 update public.questions set question='更正後題目' where id='DR-QUEUE-RESET';
 do $$
 begin
