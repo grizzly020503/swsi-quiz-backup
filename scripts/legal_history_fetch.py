@@ -23,7 +23,7 @@ UA = 'swsi-legal-history-fetch/1.0 (+educational question bank)'
 
 def download(url):
     last = None
-    for attempt in range(4):
+    for attempt in range(6):
         try:
             r = requests.get(url, timeout=300, headers={'User-Agent': UA})
             r.raise_for_status()
@@ -32,8 +32,9 @@ def download(url):
                 assert len(names) == 1, names
                 return json.loads(z.read(names[0]).decode('utf-8-sig'))
         except Exception as exc:  # noqa: BLE001
+            # MOJ intermittently returns an HTML page instead of the ZIP; wait and retry.
             last = exc
-            time.sleep(2 ** attempt)
+            time.sleep(15 * (attempt + 1))
     raise last
 
 
