@@ -101,7 +101,7 @@ def verify_predecessor():
 def verify():
  # The current corpus is verified by the newest owner-approved release guard,
  # which rebuilds each exact predecessor and replays this chain against it.
- from official_source_repair_release_b_guard import ROOT as current_root, replay
+ from official_essay_source_release_guard import ROOT as current_root, replay
  replay(current_root, False)
 
 if __name__=='__main__':verify()

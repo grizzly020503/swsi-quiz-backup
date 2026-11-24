@@ -8,6 +8,7 @@ on:
   pull_request:
     paths:
       - 'audit/official_source_repair_candidates_*.json'
+      - 'audit/official_essay_source_candidates_*.json'
       - 'scripts/official_source_repair_pdf_verify.py'
       - '.github/workflows/official-source-repair-verify.yml'
 
@@ -30,7 +31,7 @@ jobs:
       - name: Verify candidates against official PDFs
         run: |
           set -euo pipefail
-          for f in audit/official_source_repair_candidates_*.json; do
+          for f in audit/official_source_repair_candidates_*.json audit/official_essay_source_candidates_*.json; do
             echo "== $f"
             python scripts/official_source_repair_pdf_verify.py "$f" --out "/tmp/$(basename "$f" .json)-verify.json"
           done
@@ -39,6 +40,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: official-source-repair-verify
-          path: /tmp/official_source_repair_candidates_*-verify.json
+          path: /tmp/official_*_candidates_*-verify.json
           if-no-files-found: ignore
           retention-days: 30

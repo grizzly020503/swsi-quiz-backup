@@ -10,6 +10,7 @@ Verdicts per row:
   VERIFIED          every proposed field is in the paper
   NEEDS_VISUAL      the paper has no usable text layer (scanned image)
   MISMATCH          a proposed field is not in a text-layer paper
+  WORDING_DIFF      (source_attribution mode) right paper, stored wording differs
   LAYOUT_CONFIRMED  not provable from the text layer (column order, glyphs) but
                     covered by a recorded column-preserving layout review
 Exit status is 1 if any row is MISMATCH or a PDF hash differs, else 0.
@@ -24,6 +25,7 @@ import json
 import re
 import sys
 import time
+import unicodedata
 from pathlib import Path
 
 PUNCT = {
@@ -35,7 +37,9 @@ CIRCLED = {chr(0x2460 + i): f"({i + 1})" for i in range(20)}
 
 
 def norm(text: str) -> str:
-    s = str(text or "")
+    # NFKC folds Kangxi radicals (e.g. U+2F93 ⾓), CJK compatibility ideographs
+    # and full-width forms that MOEX PDFs and older rows use for ordinary characters.
+    s = unicodedata.normalize("NFKC", str(text or ""))
     s = "".join(chr(ord(c) - 0xFEE0) if "！" <= c <= "～" else c for c in s)
     s = "".join(PUNCT.get(c, CIRCLED.get(c, c)) for c in s)
     s = s.replace("χ²", "χ2").replace("χ 2", "χ2")
@@ -94,6 +98,10 @@ def layout_excerpt(data: bytes, stem: str, lines: int = 16) -> str | None:
     for i, line in enumerate(rows):
         if key and key in norm(" ".join(rows[i:i + 2])):
             return "\n".join(rows[max(0, i - 1):i + lines])
+    # Not found: show the paper's essay section (lines starting with 一、/二、).
+    heads = [i for i, line in enumerate(rows) if line.strip().startswith(("一、", "二、"))]
+    if heads:
+        return "(stem not found; essay section of this paper)\n" + "\n".join(rows[heads[0]:heads[0] + lines])
     return None
 
 
@@ -122,16 +130,26 @@ def main() -> int:
             entry.update(verdict="DOWNLOAD_FAILED", error=paper["error"])
             failed = True
         else:
-            entry["sha_match"] = paper["sha256"] == row.get("question_pdf_sha256")
+            recorded = row.get("question_pdf_sha256")
+            entry["sha256"] = paper["sha256"]
+            # A candidate without a recorded hash (new provenance) records it here.
+            entry["sha_match"] = True if not recorded else paper["sha256"] == recorded
             if not entry["sha_match"]:
                 entry["sha256"] = paper["sha256"]
                 failed = True
             fields = {}
             for name, pair in row["fields"].items():
+                prop = norm(pair["proposed"])
                 fields[name] = {
-                    "proposed_in_pdf": norm(pair["proposed"]) in paper["norm"],
+                    "proposed_in_pdf": prop in paper["norm"],
                     "current_in_pdf": bool(norm(pair["current"])) and norm(pair["current"]) in paper["norm"],
                 }
+                if not fields[name]["proposed_in_pdf"] and len(prop) >= 24:
+                    # Share of 12-character windows found in the paper: high means the
+                    # right paper with a wording difference, low means a wrong paper.
+                    grams = [prop[i:i + 12] for i in range(0, len(prop) - 11, 6)]
+                    fields[name]["window_coverage"] = round(sum(g in paper["norm"] for g in grams) / len(grams), 2)
+                    fields[name]["missing_windows"] = [g for g in grams if g not in paper["norm"]][:6]
             entry["fields"] = fields
             # Option order: from the stem, the proposed A-D must appear in order.
             stem = norm(row["fields"].get("question", {}).get("proposed") or row.get("stem") or "")
@@ -140,7 +158,7 @@ def main() -> int:
             hay = paper.get("layout_norm") or paper["norm"]
             start = hay.find(stem) + len(stem) if stem and stem in hay else -1
             order_ok = None
-            if start >= 0:
+            if start >= 0 and row.get("proposed_options"):
                 pos, order_ok = start, True
                 for key in ("opt_a", "opt_b", "opt_c", "opt_d"):
                     val = norm(row["proposed_options"][key])
@@ -155,6 +173,10 @@ def main() -> int:
                 entry["verdict"] = "NEEDS_VISUAL"
             elif all(f["proposed_in_pdf"] for f in fields.values()) and order_ok is not False:
                 entry["verdict"] = "VERIFIED"
+            elif doc.get("verify_mode") == "source_attribution" and all(
+                    f["proposed_in_pdf"] or f.get("window_coverage", 0) >= 0.5 for f in fields.values()):
+                # The paper is confirmed; the stored wording differs and is listed for review.
+                entry["verdict"] = "WORDING_DIFF"
             else:
                 entry["verdict"] = "MISMATCH"
                 failed = True
@@ -167,7 +189,9 @@ def main() -> int:
             failed = any(e.get("verdict") in ("MISMATCH", "DOWNLOAD_FAILED") or e.get("sha_match") is False for e in report)
         report.append(entry)
         f = entry.get("fields", {})
-        detail = " ".join(f"{k}:{'Y' if v['proposed_in_pdf'] else 'N'}/{'y' if v['current_in_pdf'] else 'n'}" for k, v in f.items())
+        detail = " ".join(f"{k}:{'Y' if v['proposed_in_pdf'] else 'N'}/{'y' if v['current_in_pdf'] else 'n'}"
+                          + (f" cov={v['window_coverage']} miss={v.get('missing_windows')}" if "window_coverage" in v else "")
+                          for k, v in f.items())
         print(f"{entry['verdict']:<16} {row['id']:<14} sha={'ok' if entry.get('sha_match') else 'DIFF'} order={entry.get('option_order_ok')} {detail}")
         if entry["verdict"] != "VERIFIED" or entry.get("option_order_ok") is None:
             view = layout_excerpt(paper.get("data", b""), row.get("stem") or "")

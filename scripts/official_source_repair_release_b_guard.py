@@ -190,8 +190,9 @@ if __name__ == '__main__':
         print('SOURCE REPAIR B LIVE STATE:', state)
         require(state == 'LIVE_RELEASED_POSTIMAGES' or not args.require_released, 'production does not yet contain the released rows')
         raise SystemExit(0)
-    replay(ROOT, args.selftest)
-    if args.selftest:
-        negative_selftest()
+    # A later owner-approved release moved the current corpus; the newest
+    # guard rebuilds this release's exact successor state and replays it.
+    from official_essay_source_release_guard import replay as replay_newest
+    replay_newest(ROOT, args.selftest)
     print('SOURCE REPAIR B RELEASE PASS: 29 PDF-verified source repairs (7 explanations kept, 22 regenerated); '
           '0 answer/grading changes; exact predecessor and full earlier release chain replayed')
