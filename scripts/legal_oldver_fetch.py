@@ -18,6 +18,8 @@ URL = 'https://law.moj.gov.tw/LawClass/LawOldVer.aspx?pcode={pcode}&lnndate={lnn
 UA = 'swsi-legal-oldver-fetch/1.0 (+educational question bank)'
 HEAD = re.compile(r'<div[^>]*class="[^"]*\bcol-no\b[^"]*"[^>]*>\s*(?:<a[^>]*>)?\s*第\s*([^<]+?)\s*條', re.S)
 BODY = re.compile(r'<div[^>]*class="[^"]*\blaw-article\b[^"]*"[^>]*>(.*?)</div>\s*</div>', re.S)
+# Older LawOldVer pages: <div class="col-no">第 1 條</div><div class="col-data text-pre">...</div></div>
+BODY_OLD = re.compile(r'^\s*</div>\s*<div[^>]*class="[^"]*\bcol-data\b[^"]*"[^>]*>(.*?)</div>\s*</div>', re.S)
 
 
 def text(fragment):
@@ -52,7 +54,7 @@ def main():
         arts = []
         for i, m in enumerate(heads):
             seg = page[m.end(): heads[i + 1].start() if i + 1 < len(heads) else len(page)]
-            b = BODY.search(seg)
+            b = BODY.search(seg) or BODY_OLD.search(seg)
             if b:
                 arts.append({'no': m.group(1).strip().replace(' ', ''), 'text': text(b.group(1))})
         title = re.search(r'<title[^>]*>(.*?)</title>', page, re.S)
