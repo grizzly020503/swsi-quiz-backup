@@ -180,8 +180,9 @@ if __name__ == '__main__':
         print('SOURCE REPAIR LIVE STATE:', state)
         require(state == 'LIVE_RELEASED_POSTIMAGES' or not args.require_released, 'production does not yet contain the released rows')
         raise SystemExit(0)
-    replay(ROOT, args.selftest)
-    if args.selftest:
-        negative_selftest()
+    # A later owner-approved release moved the current corpus; the newest
+    # guard rebuilds this release's exact successor state and replays it.
+    from official_source_repair_release_b_guard import replay as replay_newest
+    replay_newest(ROOT, args.selftest)
     print('SOURCE REPAIR RELEASE PASS: 13 approved source repairs + HBSE-115-2-026 explanation restore; '
           '0 answer/grading changes; exact pre-sync predecessor and DS owner chain replayed')

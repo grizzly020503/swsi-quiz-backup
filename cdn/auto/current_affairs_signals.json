@@ -560,7 +560,7 @@
         "years_since_last_exam": null,
         "subject_counts": {},
         "subject_count": 0,
-        "law_match_count": 64,
+        "law_match_count": 63,
         "law_match_year_count": 12,
         "law_match_years": [
           104,
@@ -1070,12 +1070,12 @@
         }
       ],
       "historical_exam_stats": {
-        "matched_question_count": 159,
+        "matched_question_count": 160,
         "weighted_match_count": 4.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 7,
-          "concept": 152
+          "concept": 153
         },
         "matched_year_count": 12,
         "matched_years": [
@@ -1098,7 +1098,7 @@
         "years_since_last_exam": 0,
         "subject_counts": {
           "社會工作": 11,
-          "社會政策與社會立法": 148
+          "社會政策與社會立法": 149
         },
         "subject_count": 2,
         "law_match_count": 0,

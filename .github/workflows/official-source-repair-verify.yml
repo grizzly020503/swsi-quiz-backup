@@ -1,0 +1,44 @@
+name: Official Source Repair PDF Verify
+
+# Read-only: downloads official MOEX question PDFs and checks candidate
+# source-text repairs against their text layer. No repository, database
+# or website writes.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'audit/official_source_repair_candidates_*.json'
+      - 'scripts/official_source_repair_pdf_verify.py'
+      - '.github/workflows/official-source-repair-verify.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PDF text extraction
+        run: |
+          python -m pip install --disable-pip-version-check 'requests==2.32.5' 'pdfminer.six==20240706'
+          sudo apt-get install -y -qq poppler-utils >/dev/null
+      - name: Verify candidates against official PDFs
+        run: |
+          set -euo pipefail
+          for f in audit/official_source_repair_candidates_*.json; do
+            echo "== $f"
+            python scripts/official_source_repair_pdf_verify.py "$f" --out "/tmp/$(basename "$f" .json)-verify.json"
+          done
+      - name: Keep verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-source-repair-verify
+          path: /tmp/official_source_repair_candidates_*-verify.json
+          if-no-files-found: ignore
+          retention-days: 30

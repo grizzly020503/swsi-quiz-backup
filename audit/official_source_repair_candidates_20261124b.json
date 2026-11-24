@@ -1,0 +1,969 @@
+{
+ "schema_version": 1,
+ "purpose": "Candidate source-text repairs carried from draft PR #447, re-based on main 2026-11-24; verify against the official MOEX question PDFs before release.",
+ "base_commit": "35881ac098190cf8a87a4adb5f384c31194d48e3",
+ "rows": [
+  {
+   "id": "SW-109-1-05",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=109030&c=107&s=0601&q=1",
+   "question_pdf_sha256": "6acb77114fae7a7a424516edd1eb476ce98f1214c81134845b2178ff40b9f885",
+   "page": 2,
+   "answer": "D",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "某家庭的主要照顧者突然死亡導致家庭功能受損，頓時陷入困境。如選擇使用危機干預的工作模式來協助，下列何者不是該模式的工作方法？",
+     "proposed": "在刑事司法領域中，社會工作的工作範圍涵蓋相當廣泛，有關犯罪相關理論之敘述，下列何者正 確？①個人化理論認為罪犯是社會的受害者，認為社會需要改變 ②社會學觀點認為個人需要對 犯罪行為負責，但是結構性的社會問題亦需要解決 ③嚇阻理論認為犯罪者無法自制，可以運用 懲罰阻止犯罪 ④生物決定論認為犯罪者是遺傳造成，無法自制，因此要監禁犯罪者 ⑤行為主 義認為偏差和犯罪行為是不當的學習反應"
+    },
+    "opt_a": {
+     "current": "為解決突發事件，應快速辨識問題，暫不處理案家感受及情緒",
+     "proposed": "①③④"
+    },
+    "opt_b": {
+     "current": "因應實務運作之所需，採取折衷取向來進行危機干預",
+     "proposed": "②③④"
+    },
+    "opt_c": {
+     "current": "考量案家的安全性與需求，進行心理社會評量（assessment）",
+     "proposed": "①②③"
+    },
+    "opt_d": {
+     "current": "運用同理與支持，讓案主在混亂中仍保有自我控制感",
+     "proposed": "②④⑤"
+    }
+   },
+   "stem": "在刑事司法領域中，社會工作的工作範圍涵蓋相當廣泛，有關犯罪相關理論之敘述，下列何者正 確？①個人化理論認為罪犯是社會的受害者，認為社會需要改變 ②社會學觀點認為個人需要對 犯罪行為負責，但是結構性的社會問題亦需要解決 ③嚇阻理論認為犯罪者無法自制，可以運用 懲罰阻止犯罪 ④生物決定論認為犯罪者是遺傳造成，無法自制，因此要監禁犯罪者 ⑤行為主 義認為偏差和犯罪行為是不當的學習反應",
+   "proposed_options": {
+    "opt_a": "①③④",
+    "opt_b": "②③④",
+    "opt_c": "①②③",
+    "opt_d": "②④⑤"
+   }
+  },
+  {
+   "id": "SP113-1-30",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0304&q=1",
+   "question_pdf_sha256": "3085dd703d382376fe20cbcaebefb413671c2e773ce21e733aee90a616683750",
+   "page": 3,
+   "answer": "D",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "opt_b": {
+     "current": "將經濟上之騷擾、控制、脅迫列入家庭暴力範疇",
+     "proposed": "將經濟上之騷擾、控制、脅迫納入家庭暴力之範疇"
+    },
+    "opt_c": {
+     "current": "對於加害人之處遇要求親職教育",
+     "proposed": "對於加害人之處遇要求親職教育輔導"
+    },
+    "opt_d": {
+     "current": "將通常保護令有效期限延長",
+     "proposed": "將通常保護令有效期限延長為 5 年，且延長期間為 2 年"
+    }
+   },
+   "stem": "依據家庭暴力防治法規定，下列敘述何者錯誤？",
+   "proposed_options": {
+    "opt_a": "將目睹家暴的兒少列入保護對象",
+    "opt_b": "將經濟上之騷擾、控制、脅迫納入家庭暴力之範疇",
+    "opt_c": "對於加害人之處遇要求親職教育輔導",
+    "opt_d": "將通常保護令有效期限延長為 5 年，且延長期間為 2 年"
+   }
+  },
+  {
+   "id": "SP113-1-31",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0304&q=1",
+   "question_pdf_sha256": "3085dd703d382376fe20cbcaebefb413671c2e773ce21e733aee90a616683750",
+   "page": 4,
+   "answer": "D",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "依據社會工作師法之規定，下列何者錯誤？",
+     "proposed": "有關「現金給付」之特性說明，下列何者錯誤？"
+    },
+    "opt_a": {
+     "current": "社會工作師執業，應向所在地直轄市或縣（市）主管機關送驗社會工作師證書申請登記，發給執業執照始得為之",
+     "proposed": "現金給付最大優點是自由"
+    },
+    "opt_b": {
+     "current": "社會工作師應加入所在地直轄市或縣（市）社會工作師公會，社會工作師公會不得拒絕其加入",
+     "proposed": "福利需求者自行到市場購買，往往可以獲得最大效用的滿足"
+    },
+    "opt_c": {
+     "current": "社會工作師事務所之申請設立應由社會工作師執行社會工作業務2年以上，並得有工作證明者，始得為之",
+     "proposed": "易於儲存及攜帶，行政相當簡便"
+    },
+    "opt_d": {
+     "current": "社會工作師執行業務時，應撰製社會工作紀錄",
+     "proposed": "選擇性少，易有較大烙印效果"
+    }
+   },
+   "stem": "有關「現金給付」之特性說明，下列何者錯誤？",
+   "proposed_options": {
+    "opt_a": "現金給付最大優點是自由",
+    "opt_b": "福利需求者自行到市場購買，往往可以獲得最大效用的滿足",
+    "opt_c": "易於儲存及攜帶，行政相當簡便",
+    "opt_d": "選擇性少，易有較大烙印效果"
+   }
+  },
+  {
+   "id": "SP113-1-32",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0304&q=1",
+   "question_pdf_sha256": "3085dd703d382376fe20cbcaebefb413671c2e773ce21e733aee90a616683750",
+   "page": 4,
+   "answer": "D",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "依社會救助法之規定，當低收入戶或中低收入戶於一定期間及額度內因就業而增加之收入，得免計入家庭總收入，最長以幾年為限？",
+     "proposed": "依社會救助法或其他法令，每人每月所領取政府核發之救助總金額，不得超過下列那一項當年政 府公告的標準？"
+    },
+    "opt_a": {
+     "current": "1年",
+     "proposed": "最低生活費"
+    },
+    "opt_b": {
+     "current": "2年",
+     "proposed": "失業給付"
+    },
+    "opt_c": {
+     "current": "3年",
+     "proposed": "中央勞工主管機關公布之最近一次各業初任人員每月平均經常性薪資"
+    },
+    "opt_d": {
+     "current": "5年",
+     "proposed": "基本工資"
+    }
+   },
+   "stem": "依社會救助法或其他法令，每人每月所領取政府核發之救助總金額，不得超過下列那一項當年政 府公告的標準？",
+   "proposed_options": {
+    "opt_a": "最低生活費",
+    "opt_b": "失業給付",
+    "opt_c": "中央勞工主管機關公布之最近一次各業初任人員每月平均經常性薪資",
+    "opt_d": "基本工資"
+   }
+  },
+  {
+   "id": "SP113-1-33",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0304&q=1",
+   "question_pdf_sha256": "3085dd703d382376fe20cbcaebefb413671c2e773ce21e733aee90a616683750",
+   "page": 4,
+   "answer": "D",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "依據兒童及少年性剝削防制條例之規定，下列何者錯誤？",
+     "proposed": "依據社會工作師法規定，社會工作師因業務上重大過失行為而移付懲戒程序之敘述，下列何者錯誤？"
+    },
+    "opt_a": {
+     "current": "中央主管機關每4年對兒童及少年性剝削事件，應進行調查及統計",
+     "proposed": "社會工作師移付懲戒事件，由社會工作師懲戒委員會處理之"
+    },
+    "opt_b": {
+     "current": "高級中等以下學校每學年應辦理兒童及少年性剝削防制教育課程或教育宣導",
+     "proposed": "社會工作師懲戒委員會應將移付懲戒事件，通知被付懲戒之社會工作師，並限其於通知送達之 翌日起 20 日內提出答辯或於指定期日到會陳述"
+    },
+    "opt_c": {
+     "current": "網際網路平臺提供者、網際網路應用服務提供者及電信事業，知悉或透過網路內容防護機構、其他機關、主管機關而知有第36條第1項至第3項之犯罪嫌疑情事，應先行限制瀏覽、移除有關之網頁資料",
+     "proposed": "被懲戒人對於社會工作師懲戒委員會之決議有不服者，得於決議書送達之翌日起 20 日內，向 社會工作師懲戒覆審委員會請求覆審"
+    },
+    "opt_d": {
+     "current": "被害人遭受拘禁、毆打、性虐待，且非屬本條例第18條第1項各款之情形，應由直轄市、縣（市）主管機關緊急安置",
+     "proposed": "社會工作師懲戒委員會之委員，應就不具民意代表身分之社會工作、法學專家學者及社會人士 遴聘之，其中法學專家學者及社會人士之比例不得少於二分之一"
+    }
+   },
+   "stem": "依據社會工作師法規定，社會工作師因業務上重大過失行為而移付懲戒程序之敘述，下列何者錯誤？",
+   "proposed_options": {
+    "opt_a": "社會工作師移付懲戒事件，由社會工作師懲戒委員會處理之",
+    "opt_b": "社會工作師懲戒委員會應將移付懲戒事件，通知被付懲戒之社會工作師，並限其於通知送達之 翌日起 20 日內提出答辯或於指定期日到會陳述",
+    "opt_c": "被懲戒人對於社會工作師懲戒委員會之決議有不服者，得於決議書送達之翌日起 20 日內，向 社會工作師懲戒覆審委員會請求覆審",
+    "opt_d": "社會工作師懲戒委員會之委員，應就不具民意代表身分之社會工作、法學專家學者及社會人士 遴聘之，其中法學專家學者及社會人士之比例不得少於二分之一"
+   }
+  },
+  {
+   "id": "SP113-1-34",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0304&q=1",
+   "question_pdf_sha256": "3085dd703d382376fe20cbcaebefb413671c2e773ce21e733aee90a616683750",
+   "page": 4,
+   "answer": "B",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "依特殊境遇家庭扶助條例之規定，特殊境遇家庭扶助包括的項目，下列何者錯誤？",
+     "proposed": "依據公益勸募條例規定，針對勸募活動所得財物使用，下列敘述何者正確？"
+    },
+    "opt_a": {
+     "current": "緊急生活扶助",
+     "proposed": "勸募團體在勸募計畫許可後，仍可依勸募團體之設立宗旨使用"
+    },
+    "opt_b": {
+     "current": "創業貸款補助",
+     "proposed": "應依主管機關許可的使用計畫使用，不得移作他用"
+    },
+    "opt_c": {
+     "current": "子女教育補助",
+     "proposed": "依主管機關許可的使用計畫原則彈性使用，但需事後報告主管機關"
+    },
+    "opt_d": {
+     "current": "子女就業補助",
+     "proposed": "賸餘款項再執行期限，不得超過 5 年"
+    }
+   },
+   "stem": "依據公益勸募條例規定，針對勸募活動所得財物使用，下列敘述何者正確？",
+   "proposed_options": {
+    "opt_a": "勸募團體在勸募計畫許可後，仍可依勸募團體之設立宗旨使用",
+    "opt_b": "應依主管機關許可的使用計畫使用，不得移作他用",
+    "opt_c": "依主管機關許可的使用計畫原則彈性使用，但需事後報告主管機關",
+    "opt_d": "賸餘款項再執行期限，不得超過 5 年"
+   }
+  },
+  {
+   "id": "SP113-1-35",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0304&q=1",
+   "question_pdf_sha256": "3085dd703d382376fe20cbcaebefb413671c2e773ce21e733aee90a616683750",
+   "page": 4,
+   "answer": "A",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "依據性侵害犯罪防治法第8條規定，下列何者不屬於必須通報的人員？",
+     "proposed": "特殊境遇家庭扶助條例所稱特殊境遇家庭，指申請人其家庭總收入按全家人口平均分配，每人每 月未超過政府當年公布最低生活費 2.5 倍及臺灣地區平均每人每月消費支出 1.5 倍，且家庭財產 未超過中央主管機關公告之一定金額，並具有下列何種情形之一者？"
+    },
+    "opt_a": {
+     "current": "警察人員",
+     "proposed": "家庭暴力受害"
+    },
+    "opt_b": {
+     "current": "移民業務人員",
+     "proposed": "65 歲以上，其配偶死亡"
+    },
+    "opt_c": {
+     "current": "宗教人員",
+     "proposed": "懷胎 3 個月以上之已婚婦女"
+    },
+    "opt_d": {
+     "current": "勞政人員",
+     "proposed": "本人曾入獄服刑 1 年以上或受拘束人身自由之保安處分 1 年以上"
+    }
+   },
+   "stem": "特殊境遇家庭扶助條例所稱特殊境遇家庭，指申請人其家庭總收入按全家人口平均分配，每人每 月未超過政府當年公布最低生活費 2.5 倍及臺灣地區平均每人每月消費支出 1.5 倍，且家庭財產 未超過中央主管機關公告之一定金額，並具有下列何種情形之一者？",
+   "proposed_options": {
+    "opt_a": "家庭暴力受害",
+    "opt_b": "65 歲以上，其配偶死亡",
+    "opt_c": "懷胎 3 個月以上之已婚婦女",
+    "opt_d": "本人曾入獄服刑 1 年以上或受拘束人身自由之保安處分 1 年以上"
+   }
+  },
+  {
+   "id": "SP113-1-37",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0304&q=1",
+   "question_pdf_sha256": "3085dd703d382376fe20cbcaebefb413671c2e773ce21e733aee90a616683750",
+   "page": 4,
+   "answer": "B",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "依志願服務法之規定，下列敘述何者錯誤？",
+     "proposed": "依據志願服務法規定，下列何者屬於志工的義務？"
+    },
+    "opt_a": {
+     "current": "本法所稱主管機關，在中央為衛生福利部",
+     "proposed": "一視同仁，尊重其自由、尊嚴、隱私及信仰"
+    },
+    "opt_b": {
+     "current": "志願服務運用單位應為志工辦理意外事故保險",
+     "proposed": "遵守志願服務運用單位訂定之規章"
+    },
+    "opt_c": {
+     "current": "志工服務年資滿3年，服務時數達300小時以上者，得檢具證明文件向地方主管機關申請核發志願服務榮譽卡",
+     "proposed": "獲得從事服務之完整資訊"
+    },
+    "opt_d": {
+     "current": "地方主管機關應至少每3年舉辦志願服務調查研究，並出版統計報告",
+     "proposed": "依據工作之性質與特點，確保在適當之安全與衛生條件下從事工作"
+    }
+   },
+   "stem": "依據志願服務法規定，下列何者屬於志工的義務？",
+   "proposed_options": {
+    "opt_a": "一視同仁，尊重其自由、尊嚴、隱私及信仰",
+    "opt_b": "遵守志願服務運用單位訂定之規章",
+    "opt_c": "獲得從事服務之完整資訊",
+    "opt_d": "依據工作之性質與特點，確保在適當之安全與衛生條件下從事工作"
+   }
+  },
+  {
+   "id": "SP113-1-38",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0304&q=1",
+   "question_pdf_sha256": "3085dd703d382376fe20cbcaebefb413671c2e773ce21e733aee90a616683750",
+   "page": 4,
+   "answer": "A",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "依據國民年金法規定，被保險人發生保險事故時，得依規定請領的給付，下列何者錯誤？",
+     "proposed": "依據國民年金法規定，當隔代教養之服務家庭，被保險人案祖父或祖母身亡且無其他親屬，下列 被扶養之孫子女，何者無法請領遺屬年金給付？"
+    },
+    "opt_a": {
+     "current": "老年年金給付",
+     "proposed": "19 歲高中畢業後，擔任汽修技師培訓人員每月賺取基本工資之收入"
+    },
+    "opt_b": {
+     "current": "生育給付",
+     "proposed": "21 歲正就讀大學，在加油站打工每月賺取未達基本工資之收入"
+    },
+    "opt_c": {
+     "current": "喪葬給付",
+     "proposed": "23 歲正就讀研究所，擔任家教與餐飲店打工，每月賺取未達基本工資之收入"
+    },
+    "opt_d": {
+     "current": "失業給付",
+     "proposed": "應受被保險人扶養而無謀生能力者"
+    }
+   },
+   "stem": "依據國民年金法規定，當隔代教養之服務家庭，被保險人案祖父或祖母身亡且無其他親屬，下列 被扶養之孫子女，何者無法請領遺屬年金給付？",
+   "proposed_options": {
+    "opt_a": "19 歲高中畢業後，擔任汽修技師培訓人員每月賺取基本工資之收入",
+    "opt_b": "21 歲正就讀大學，在加油站打工每月賺取未達基本工資之收入",
+    "opt_c": "23 歲正就讀研究所，擔任家教與餐飲店打工，每月賺取未達基本工資之收入",
+    "opt_d": "應受被保險人扶養而無謀生能力者"
+   }
+  },
+  {
+   "id": "SP113-1-39",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0304&q=1",
+   "question_pdf_sha256": "3085dd703d382376fe20cbcaebefb413671c2e773ce21e733aee90a616683750",
+   "page": 4,
+   "answer": "C",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "依據長期照顧服務法規定，下列何者不是該法第3條的「長照人員」？",
+     "proposed": "依據長期照顧服務法規定，有關長照服務提供方式之敘述，下列何者正確？"
+    },
+    "opt_a": {
+     "current": "從事長照服務並支領薪資之社工師",
+     "proposed": "按民眾獨居狀況核定其長照需要等級"
+    },
+    "opt_b": {
+     "current": "從事長照服務並支領薪資之護理師",
+     "proposed": "按民眾失能程度核定自行負擔的額度"
+    },
+    "opt_c": {
+     "current": "從事長照服務並支領薪資之物理治療師",
+     "proposed": "長照服務提供方式分為居家式、社區式、機構住宿式及家庭照顧者支持服務"
+    },
+    "opt_d": {
+     "current": "從事居家照顧服務之外籍看護工",
+     "proposed": "低收入戶要負擔一定比例的自付費用"
+    }
+   },
+   "stem": "依據長期照顧服務法規定，有關長照服務提供方式之敘述，下列何者正確？",
+   "proposed_options": {
+    "opt_a": "按民眾獨居狀況核定其長照需要等級",
+    "opt_b": "按民眾失能程度核定自行負擔的額度",
+    "opt_c": "長照服務提供方式分為居家式、社區式、機構住宿式及家庭照顧者支持服務",
+    "opt_d": "低收入戶要負擔一定比例的自付費用"
+   }
+  },
+  {
+   "id": "SP113-1-40",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113030&c=103&s=0304&q=1",
+   "question_pdf_sha256": "3085dd703d382376fe20cbcaebefb413671c2e773ce21e733aee90a616683750",
+   "page": 4,
+   "answer": "B",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "依長期照顧服務機構法人條例規定，下列敘述何者錯誤？",
+     "proposed": "依據長期照顧服務機構法人條例，長照機構法人之董事會至少多久時間須召開 1 次會議？"
+    },
+    "opt_a": {
+     "current": "長照機構法人經主管機關許可，除設立長照機構外，並得設立社會福利機構",
+     "proposed": "至少 3 個月 1 次"
+    },
+    "opt_b": {
+     "current": "長照機構財團法人之捐助章程應載明事項",
+     "proposed": "至少 6 個月 1 次"
+    },
+    "opt_c": {
+     "current": "長照機構社團法人，由社員組成，社員人數不得少於3人",
+     "proposed": "至少 1 年 1 次"
+    },
+    "opt_d": {
+     "current": "長照機構法人之關係企業總投資額，不得超過長照機構法人總額20%",
+     "proposed": "至少 2 年 3 次"
+    }
+   },
+   "stem": "依據長期照顧服務機構法人條例，長照機構法人之董事會至少多久時間須召開 1 次會議？",
+   "proposed_options": {
+    "opt_a": "至少 3 個月 1 次",
+    "opt_b": "至少 6 個月 1 次",
+    "opt_c": "至少 1 年 1 次",
+    "opt_d": "至少 2 年 3 次"
+   }
+  },
+  {
+   "id": "DS-115-1-18",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=115030&c=103&s=0302&q=1",
+   "question_pdf_sha256": "e447ab42c767dd8ba3e6d07a284a5b8b74efdf279eab455abd1c8fd7f0dba491",
+   "page": 3,
+   "answer": "A",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "下列有關團體工作紀錄的敘述，何者正確？",
+     "proposed": "下列有關團體工作紀錄的敘述，何者正確？①團體工作紀錄可以評估團體動力與團體工作的進度 ②撰 寫團體工作紀錄可以精進團體工作者的專業能力 ③團體工作紀錄由觀察員記錄，團體領導者不需撰寫 紀錄，以減輕負擔 ④在督導或訓練團體工作者時，摘要式紀錄比過程式紀錄更適合做為督導素材"
+    },
+    "opt_a": {
+     "current": "團體工作紀錄可以評估團體動力與團體工作的進度",
+     "proposed": "①②"
+    },
+    "opt_b": {
+     "current": "撰寫團體工作紀錄可以精進團",
+     "proposed": "②④"
+    },
+    "opt_c": {
+     "current": "團體工作紀錄由觀察員記錄，團體領導者不需撰寫紀錄，以減",
+     "proposed": "③④"
+    },
+    "opt_d": {
+     "current": "在督導或訓練團體工作者時，摘要式紀錄比過程式紀錄更適合做為督導素材",
+     "proposed": "①③"
+    }
+   },
+   "stem": "下列有關團體工作紀錄的敘述，何者正確？①團體工作紀錄可以評估團體動力與團體工作的進度 ②撰 寫團體工作紀錄可以精進團體工作者的專業能力 ③團體工作紀錄由觀察員記錄，團體領導者不需撰寫 紀錄，以減輕負擔 ④在督導或訓練團體工作者時，摘要式紀錄比過程式紀錄更適合做為督導素材",
+   "proposed_options": {
+    "opt_a": "①②",
+    "opt_b": "②④",
+    "opt_c": "③④",
+    "opt_d": "①③"
+   }
+  },
+  {
+   "id": "DS-115-1-22",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=115030&c=103&s=0302&q=1",
+   "question_pdf_sha256": "e447ab42c767dd8ba3e6d07a284a5b8b74efdf279eab455abd1c8fd7f0dba491",
+   "page": 3,
+   "answer": "A",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "有關處遇性團體進入中間階段的團體動力，下列何者正確？",
+     "proposed": "有關處遇性團體進入中間階段的團體動力，下列何者正確？①成員對於越來越深入的自我揭露都 會感到焦慮 ②團體開始面臨防衛與抗拒的衝突，同時也理解團體是可信任的 ③直接進入穩定 的工作階段 ④成員彼此建立起較親密的關係，不會再感到焦慮不安"
+    },
+    "opt_a": {
+     "current": "成員對於越來越深入的自我揭露都會感到焦慮",
+     "proposed": "①②"
+    },
+    "opt_b": {
+     "current": "團體開始面臨防衛與抗拒的衝突，",
+     "proposed": "②③"
+    },
+    "opt_c": {
+     "current": "直接進入穩定的工作階段",
+     "proposed": "③④"
+    },
+    "opt_d": {
+     "current": "成員彼此建立起較親密的 關係，不會再感到焦慮不安",
+     "proposed": "②④"
+    }
+   },
+   "stem": "有關處遇性團體進入中間階段的團體動力，下列何者正確？①成員對於越來越深入的自我揭露都 會感到焦慮 ②團體開始面臨防衛與抗拒的衝突，同時也理解團體是可信任的 ③直接進入穩定 的工作階段 ④成員彼此建立起較親密的關係，不會再感到焦慮不安",
+   "proposed_options": {
+    "opt_a": "①②",
+    "opt_b": "②③",
+    "opt_c": "③④",
+    "opt_d": "②④"
+   }
+  },
+  {
+   "id": "SW-106-1-40",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106030&c=107&s=0601&q=1",
+   "question_pdf_sha256": "86a2d3ef50bfbbb3df71cda6fd3215ce39def303e43b22bf9cfaa48e5ecb4951",
+   "page": 4,
+   "answer": "C",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "opt_b": {
+     "current": "同住之前夫",
+     "proposed": "不同住之前夫"
+    }
+   },
+   "stem": "下列何者非家庭暴力防治法所規定之家庭成員?",
+   "proposed_options": {
+    "opt_a": "不同住之女婿",
+    "opt_b": "不同住之前夫",
+    "opt_c": "不同住之堂外甥",
+    "opt_d": "同住之子女"
+   }
+  },
+  {
+   "id": "R-105-1-24",
+   "source_audit": "PR#447 audit/official_mcq_corrections_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=105030&c=107&s=0606&q=1",
+   "question_pdf_sha256": "e219347d5b1bbe4ffa539bebf656ce196b72e569437e386fad078b37d7745687",
+   "page": 3,
+   "answer": "A",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "opt_b": {
+     "current": "更不可能發生歷史效應",
+     "proposed": "更可能發生歷史效應"
+    },
+    "opt_d": {
+     "current": "更不可能發生統計迴歸效應",
+     "proposed": "更可能發生統計迴歸效應"
+    }
+   },
+   "stem": "研究者盡量將實驗的前測與後測時間縮短時，其可能避免何種內在效度的威脅？",
+   "proposed_options": {
+    "opt_a": "更不可能發生成熟效應",
+    "opt_b": "更可能發生歷史效應",
+    "opt_c": "更不可能發生測量效應",
+    "opt_d": "更可能發生統計迴歸效應"
+   }
+  },
+  {
+   "id": "DS-106-1-10",
+   "source_audit": "PR#447 audit/official_mcq_corrections_additional_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106030&c=107&s=0602&q=1",
+   "question_pdf_sha256": "9f6d1a64364b25387606e32b8f0a89142ad42fa8e1474c64f712b7e3fad9179c",
+   "page": 2,
+   "answer": "B",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "opt_c": {
+     "current": "資源運用或分配並不公平，違背社會工作正義的倫理原則，應該避免 原則，應該避免",
+     "proposed": "資源運用或分配並不公平，違背社會工作正義的倫理原則，應該避免"
+    },
+    "opt_d": {
+     "current": "這是團體效能和資源公平分配的倫理兩難議題，怎麼決定都不正確 兩難議題，怎麼決定都不正確",
+     "proposed": "這是團體效能和資源公平分配的倫理兩難議題，怎麼決定都不正確"
+    }
+   },
+   "stem": "為了讓特定的成員能夠在團體暢談敏感的議題（例如：少女的交友、家庭暴力受害經 驗），團體的組成以特定的年齡或性別為考量，排除其他特徵者，有關這樣的作法，下 列何者正確？",
+   "proposed_options": {
+    "opt_a": "因為排除其他特徵者，有歧視這些特徵者之嫌，應該避免",
+    "opt_b": "因為考量團體的目標和運用的需求，這樣做很合理",
+    "opt_c": "資源運用或分配並不公平，違背社會工作正義的倫理原則，應該避免",
+    "opt_d": "這是團體效能和資源公平分配的倫理兩難議題，怎麼決定都不正確"
+   }
+  },
+  {
+   "id": "DS-106-1-37",
+   "source_audit": "PR#447 audit/official_mcq_corrections_additional_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106030&c=107&s=0602&q=1",
+   "question_pdf_sha256": "9f6d1a64364b25387606e32b8f0a89142ad42fa8e1474c64f712b7e3fad9179c",
+   "page": 4,
+   "answer": "C",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "在救災過程中，許多的資源湧入災區，請問你（妳）會如何進行資源的管理？ ？",
+     "proposed": "在救災過程中，許多的資源湧入災區，請問你（妳）會如何進行資源的管理？"
+    },
+    "opt_c": {
+     "current": "資源募集與管理應考量特殊族群的不同需求 應考量特殊族群的不同需求",
+     "proposed": "資源募集與管理應考量特殊族群的不同需求"
+    }
+   },
+   "stem": "在救災過程中，許多的資源湧入災區，請問你（妳）會如何進行資源的管理？",
+   "proposed_options": {
+    "opt_a": "資源募集越多越好",
+    "opt_b": "資源盤點過度繁雜，直接快速捐出即可",
+    "opt_c": "資源募集與管理應考量特殊族群的不同需求",
+    "opt_d": "不要讓資源進入災區以免造成混亂"
+   }
+  },
+  {
+   "id": "DS-110-2-14",
+   "source_audit": "PR#447 audit/official_mcq_corrections_additional_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110111&c=105&s=0402&q=1",
+   "question_pdf_sha256": "a646c688e2bc1d1f439b76f27ba9ee840282798cc055d28e38f79f8a65249cbc",
+   "page": 2,
+   "answer": "C",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "opt_d": {
+     "current": "社區參與程度不平衡",
+     "proposed": "受助者必須為其未來的幸福與改變而努力"
+    }
+   },
+   "stem": "下列何者不屬於湯恩比館對社區工作推動的重要啟示?",
+   "proposed_options": {
+    "opt_a": "強調助人者與受助者一同生活一同工作",
+    "opt_b": "強調激發受助者改變困境的盼望",
+    "opt_c": "按既定工作計畫、發展及需要而定",
+    "opt_d": "受助者必須為其未來的幸福與改變而努力"
+   }
+  },
+  {
+   "id": "DS-104-1-25",
+   "source_audit": "PR#447 audit/official_mcq_corrections_additional_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=104030&c=110&s=0602&q=1",
+   "question_pdf_sha256": "979233d2cb316565c4eed2b5c5289e89e5d21c0bb2b2076a7443887cd24ffadc",
+   "page": 3,
+   "answer": "A",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "opt_a": {
+     "current": "人是上限",
+     "proposed": "15 人是上限"
+    }
+   },
+   "stem": "帶領老人團體時，下列何者是錯誤的作法？",
+   "proposed_options": {
+    "opt_a": "15 人是上限",
+    "opt_b": "活動進度要較緩慢",
+    "opt_c": "領導者要較活躍",
+    "opt_d": "不要安排在太晚的時間"
+   }
+  },
+  {
+   "id": "SP106-2-25",
+   "source_audit": "PR#447 audit/official_mcq_corrections_additional_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106110&c=107&s=0604&q=1",
+   "question_pdf_sha256": "92eeae94ee2c3025422f75de78b38abf6158e3225ae1f72b757c3aca7283d9aa",
+   "page": 4,
+   "answer": "A",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "opt_a": {
+     "current": "50 人",
+     "proposed": "100 人"
+    },
+    "opt_b": {
+     "current": "200 人",
+     "proposed": "50 人"
+    },
+    "opt_c": {
+     "current": "300 人",
+     "proposed": "200 人"
+    },
+    "opt_d": {
+     "current": "100 人",
+     "proposed": "300 人"
+    }
+   },
+   "stem": "性別工作平等法第23 條規定，僱用幾人以上受僱者之雇主，應提供哺（集）乳室、托兒 設施或適當之托兒措施？",
+   "proposed_options": {
+    "opt_a": "100 人",
+    "opt_b": "50 人",
+    "opt_c": "200 人",
+    "opt_d": "300 人"
+   }
+  },
+  {
+   "id": "SP106-2-35",
+   "source_audit": "PR#447 audit/official_mcq_corrections_additional_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106110&c=107&s=0604&q=1",
+   "question_pdf_sha256": "92eeae94ee2c3025422f75de78b38abf6158e3225ae1f72b757c3aca7283d9aa",
+   "page": 4,
+   "answer": "A",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "opt_a": {
+     "current": "立即處理 12",
+     "proposed": "立即處理"
+    },
+    "opt_b": {
+     "current": "小時內處理 24",
+     "proposed": "12 小時內處理"
+    },
+    "opt_c": {
+     "current": "小時內處理 48",
+     "proposed": "24 小時內處理"
+    },
+    "opt_d": {
+     "current": "小時內處理",
+     "proposed": "48 小時內處理"
+    }
+   },
+   "stem": "直轄市、縣（市）主管機關接獲老人保護通報後，應於多少時間內處理？",
+   "proposed_options": {
+    "opt_a": "立即處理",
+    "opt_b": "12 小時內處理",
+    "opt_c": "24 小時內處理",
+    "opt_d": "48 小時內處理"
+   }
+  },
+  {
+   "id": "SP111-2-37",
+   "source_audit": "PR#447 audit/official_mcq_corrections_additional_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111110&c=105&s=0404&q=1",
+   "question_pdf_sha256": "9a4afe4df13a7b88582efa0bb3950ccdb3780ec5c7e3380afabe8b0e8f2e3a0d",
+   "page": 6,
+   "answer": "C",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "opt_a": {
+     "current": "3 年",
+     "proposed": "2 年"
+    },
+    "opt_b": {
+     "current": "4 年",
+     "proposed": "3 年"
+    },
+    "opt_c": {
+     "current": "5 年",
+     "proposed": "4 年"
+    },
+    "opt_d": {
+     "current": "2 年",
+     "proposed": "5 年"
+    }
+   },
+   "stem": "依據精神衛生法第4 條規定，中央主管機關應每幾年公布一次相關之國家心理衛生報告？",
+   "proposed_options": {
+    "opt_a": "2 年",
+    "opt_b": "3 年",
+    "opt_c": "4 年",
+    "opt_d": "5 年"
+   }
+  },
+  {
+   "id": "R-106-2-02",
+   "source_audit": "PR#447 audit/official_mcq_corrections_additional_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106110&c=107&s=0606&q=1",
+   "question_pdf_sha256": "a76570be5537192ca405d97050b80dfb92a259deb46732215d6658bea417313c",
+   "page": 1,
+   "answer": "C",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "opt_c": {
+     "current": "檢定",
+     "proposed": "χ² 檢定"
+    }
+   },
+   "stem": "下列那一個統計方法，適合處理「次數資料」的假設檢定？",
+   "proposed_options": {
+    "opt_a": "F 檢定",
+    "opt_b": "t 檢定",
+    "opt_c": "χ² 檢定",
+    "opt_d": "U 檢定"
+   }
+  },
+  {
+   "id": "R-113-2-30",
+   "source_audit": "PR#447 audit/official_mcq_corrections_additional_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=113100&c=103&s=0306&q=1",
+   "question_pdf_sha256": "bce6bb1e6054c1bfcd5c94672f5149d23556d327fb65f7609b9a64f66115a937",
+   "page": 3,
+   "answer": "C",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "opt_a": {
+     "current": "當分析者企圖由先拆解文本，將文本視為可供測量的單位（字眼、表現、陳述等），從而",
+     "proposed": "當分析者企圖由先拆解文本，將文本視為可供測量的單位（字眼、表現、陳述等），從而建立文本的意義時，事實上已不夠客觀"
+    },
+    "opt_b": {
+     "current": "建立文本的意義時，事實上已不夠客觀",
+     "proposed": "採用內容分析法，基本上需要對概念加以量化，但是並非每一個概念都能夠量化"
+    },
+    "opt_c": {
+     "current": "採用內容分析法，基本上需要對概念加以量化，但是並非每一個概念都能夠量化",
+     "proposed": "研究者測量時會受到測量行動本身的干擾，被觀察的內容會察覺被觀察，因此其反應會不穩定"
+    },
+    "opt_d": {
+     "current": "研究者測量時會受到測量行動本身的干擾，被觀察的內容會察覺被觀察，因此其反應會",
+     "proposed": "「內容」的定義時常含糊不清"
+    }
+   },
+   "stem": "對於內容分析法可能產生的限制，下列敘述何者錯誤？",
+   "proposed_options": {
+    "opt_a": "當分析者企圖由先拆解文本，將文本視為可供測量的單位（字眼、表現、陳述等），從而建立文本的意義時，事實上已不夠客觀",
+    "opt_b": "採用內容分析法，基本上需要對概念加以量化，但是並非每一個概念都能夠量化",
+    "opt_c": "研究者測量時會受到測量行動本身的干擾，被觀察的內容會察覺被觀察，因此其反應會不穩定",
+    "opt_d": "「內容」的定義時常含糊不清"
+   }
+  },
+  {
+   "id": "SW-105-2-25",
+   "source_audit": "PR#447 audit/official_mcq_corrections_additional_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=105090&c=107&s=0601&q=1",
+   "question_pdf_sha256": "6cb957f74ae14d66bb2c0d83a8a61ec741d520e9c5cec08e0c008eb5a0238332",
+   "page": 3,
+   "answer": "B",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "每一門專業都有其核心的社會使命要去完成，有關Morales & Sheafor（1988）提出的社會工 作存在的三個使命（3C’s），下列何者正確？①照顧（caring）②改變社會（changing the society）③慈善（charity）",
+     "proposed": "每一門專業都有其核心的社會使命要去完成，有關Morales & Sheafor（1998）提出的社會工 作存在的三個使命（3C’s），下列何者正確？①照顧（caring）②改變社會（changing the society）③慈善（charity）④治療（curing）"
+    },
+    "opt_a": {
+     "current": "治療（curing） ①②③",
+     "proposed": "①②③"
+    },
+    "opt_b": {
+     "current": "①②",
+     "proposed": "①②④"
+    },
+    "opt_c": {
+     "current": "①③",
+     "proposed": "①③④"
+    },
+    "opt_d": {
+     "current": "②③",
+     "proposed": "②③④"
+    }
+   },
+   "stem": "每一門專業都有其核心的社會使命要去完成，有關Morales & Sheafor（1998）提出的社會工 作存在的三個使命（3C’s），下列何者正確？①照顧（caring）②改變社會（changing the society）③慈善（charity）④治療（curing）",
+   "proposed_options": {
+    "opt_a": "①②③",
+    "opt_b": "①②④",
+    "opt_c": "①③④",
+    "opt_d": "②③④"
+   }
+  },
+  {
+   "id": "DS-109-2-23",
+   "source_audit": "PR#447 audit/official_mcq_corrections_additional_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=109110&c=107&s=0602&q=1",
+   "question_pdf_sha256": "0351cc6a62bfc1f922ed58cea35cde6b20dde02db4d9768379273ba6baf9798e",
+   "page": 3,
+   "answer": "C",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "opt_a": {
+     "current": "當成員因上下班延遲出席半小時，導致領導者延遲半小時開始，也應該延後半小時結束，以彌補短缺的時間",
+     "proposed": "當成員因上下班延遲出席半小時,導致領導者延遲半小時開始,也應該延後半小時結束,以彌補短缺的時間,讓所有團體內容能被執行"
+    },
+    "opt_b": {
+     "current": "團體結束前，成員之一突然大哭，說在昨晚約會時被性侵，儘管預定结束時間已到，領導者認為情況特殊不該貿然讓其離開，決定延長團體的時間安撫其情緒",
+     "proposed": "團體結束前,成員之一突然大哭,說在昨晚約會時被性侵,其遭遇讓成員既震驚又不平,儘管預定結束時間已到,領導者認為情況特殊不該貿然讓其離開,決定延長團體的時間安撫其情緒"
+    }
+   },
+   "stem": "下列何者最符合結構性團體的設計精神？",
+   "proposed_options": {
+    "opt_a": "當成員因上下班延遲出席半小時,導致領導者延遲半小時開始,也應該延後半小時結束,以彌補短缺的時間,讓所有團體內容能被執行",
+    "opt_b": "團體結束前,成員之一突然大哭,說在昨晚約會時被性侵,其遭遇讓成員既震驚又不平,儘管預定結束時間已到,領導者認為情況特殊不該貿然讓其離開,決定延長團體的時間安撫其情緒",
+    "opt_c": "領導者在設計活動時會考量每位成員都能平均參與",
+    "opt_d": "高結構的團體目標最有利於成員發展凝聚力"
+   }
+  },
+  {
+   "id": "SW-108-2-01",
+   "source_audit": "PR#447 audit/official_mcq_corrections_additional_20261025.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=108110&c=107&s=0601&q=1",
+   "question_pdf_sha256": "89543185cee74523e23139c31e41440c606919699cb8f2cf0de2285ebc1edfbe",
+   "page": 1,
+   "answer": "A",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "opt_c": {
+     "current": "臺灣社會工作員制度法制化文字出現於1976 年「中華民國臺灣經濟建設六年計畫」 1971",
+     "proposed": "臺灣社會工作員制度法制化文字出現於1976 年「中華民國臺灣經濟建設六年計畫」"
+    },
+    "opt_d": {
+     "current": "年政府通過設置社會工作員實驗計畫，聘用10 名社會工作員，負責平價住宅業務",
+     "proposed": "1971 年政府通過設置社會工作員實驗計畫，聘用10 名社會工作員，負責平價住宅業務"
+    }
+   },
+   "stem": "臺灣社會工作專業發展過程有很多有意義的首次，下列何者錯誤？",
+   "proposed_options": {
+    "opt_a": "臺灣世界展望會是臺灣第一個聘用社會工作員的民間社福單位",
+    "opt_b": "臺灣最早聘用社會工作員的是醫院",
+    "opt_c": "臺灣社會工作員制度法制化文字出現於1976 年「中華民國臺灣經濟建設六年計畫」",
+    "opt_d": "1971 年政府通過設置社會工作員實驗計畫，聘用10 名社會工作員，負責平價住宅業務"
+   }
+  },
+  {
+   "id": "R-106-2-01",
+   "source_audit": "PR#447 audit/official_pdf_stem_repairs_20261029.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106110&c=107&s=0606&q=1",
+   "question_pdf_sha256": "a76570be5537192ca405d97050b80dfb92a259deb46732215d6658bea417313c",
+   "page": "4-1",
+   "answer": "B",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "概念或變項，必須經過形成概念與測量的過程，下列那一過程正確？",
+     "proposed": "在研究過程中，透過研究工具如問卷或訪問稿蒐集資料，這是一系列從無到有的過程，如果要測量一些概念或變項，必須經過形成概念與測量的過程，下列那一過程正確？"
+    }
+   },
+   "stem": "在研究過程中，透過研究工具如問卷或訪問稿蒐集資料，這是一系列從無到有的過程，如果要測量一些概念或變項，必須經過形成概念與測量的過程，下列那一過程正確？",
+   "proposed_options": {
+    "opt_a": "抽象構念→操作定義→概念化→名目定義→實際測量",
+    "opt_b": "抽象構念→概念化→名目定義→操作定義→實際測量",
+    "opt_c": "抽象構念→名目定義→操作定義→概念化→實際測量",
+    "opt_d": "抽象構念→名目定義→概念化→操作定義→實際測量"
+   }
+  },
+  {
+   "id": "SW-110-1-33",
+   "source_audit": "PR#447 audit/official_pdf_stem_repairs_20261029.json",
+   "question_source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110030&c=105&s=0401&q=1",
+   "question_pdf_sha256": "89d9fb0e87e37c7e943da19e9a10c2e16dfc816b905fba57222e888f2753b536",
+   "page": "4-4",
+   "answer": "D",
+   "accepted_answers": null,
+   "grading_mode": "standard",
+   "fields": {
+    "question": {
+     "current": "關於身心障礙的敘述，下列何者正確？①障礙的分類是固定不變的 ②中世紀歐洲因慈善理念進行貧民與障礙者的分類收容救濟，是將障礙者機構化的第一步 ③文藝復興時期的歐洲開始將貧窮與障礙議題分開處理 19 ④世紀啟蒙時代視障礙者為病人的醫療觀點，讓障礙者逐漸被社會所排除 1950 ⑤年代機構式缺乏人性的照顧機制備受關注，開始西方的去機構化運動",
+     "proposed": "關於身心障礙的敘述，下列何者正確？①障礙的分類是固定不變的 ②中世紀歐洲因慈善理念進行貧民與障礙者的分類收容救濟，是將障礙者機構化的第一步 ③文藝復興時期的歐洲開始將貧窮與障礙議題分開處理 ④19 世紀啟蒙時代視障礙者為病人的醫療觀點，讓障礙者逐漸被社會所排除 ⑤1950 年代機構式缺乏人性的照顧機制備受關注，開始西方的去機構化運動"
+    }
+   },
+   "stem": "關於身心障礙的敘述，下列何者正確？①障礙的分類是固定不變的 ②中世紀歐洲因慈善理念進行貧民與障礙者的分類收容救濟，是將障礙者機構化的第一步 ③文藝復興時期的歐洲開始將貧窮與障礙議題分開處理 ④19 世紀啟蒙時代視障礙者為病人的醫療觀點，讓障礙者逐漸被社會所排除 ⑤1950 年代機構式缺乏人性的照顧機制備受關注，開始西方的去機構化運動",
+   "proposed_options": {
+    "opt_a": "①②③",
+    "opt_b": "②④⑤",
+    "opt_c": "①③⑤",
+    "opt_d": "③④⑤"
+   }
+  }
+ ],
+ "layout_review": {
+  "method": "pdftotext -layout excerpt printed by this workflow (column-preserving) and read row by row; recorded 2026-11-24 for rows the plain text layer cannot order",
+  "rows": {
+   "SW-109-1-05": "Q5 on printed page 4-2; options row reads ①③④ | ②③④ | ①②③ | ②④⑤ = proposed A-D",
+   "DS-115-1-22": "Q22 options row reads ①② | ②③ | ③④ | ②④ = proposed A-D",
+   "DS-106-1-37": "Q37 2x2 grid: A 資源募集越多越好, B 資源盤點過度繁雜，直接快速捐出即可, C 考量特殊族群, D 不要讓資源進入災區; proposed only removes duplicated fragments",
+   "SP106-2-35": "Q35 options row reads 立即處理 | 12 小時內處理 | 24 小時內處理 | 48 小時內處理 = proposed A-D",
+   "R-106-2-02": "Q2 options row reads F 檢定 | t 檢定 | χ 2 檢定 | U 檢定; superscript 2 extracted separately, proposed C = χ² 檢定",
+   "SW-105-2-25": "Q25 stem confirms Morales & Sheafor (1998) and items ①caring ②changing ③charity ④curing; option glyphs render as ①①① in the text layer, so A-D combinations come from the #447 visual transcription and agree with official answer B = ①②④ (3C: caring, curing, changing)"
+  }
+ }
+}
