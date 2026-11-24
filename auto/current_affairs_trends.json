@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-23T23:49:18Z",
+  "generated_at": "2026-11-24T09:47:55Z",
   "event_count": 10,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
@@ -1256,7 +1256,7 @@
         "社會工作管理 > 規劃與政策執行 > 社會工作 > 復元取向、去污名與權利保障"
       ],
       "trend_state": "one-off",
-      "trend_score": 3.2,
+      "trend_score": 2.9,
       "why": [
         "1 個官方來源",
         "有政策／制度訊號",
@@ -1276,7 +1276,7 @@
         "persistence": 0.0,
         "essay_value": 0.0,
         "mcq_density": 0.0,
-        "recency": 0.6
+        "recency": 0.2
       },
       "source_count": 1,
       "official_source_count": 1,
