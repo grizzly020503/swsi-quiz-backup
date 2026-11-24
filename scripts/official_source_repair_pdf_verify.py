@@ -122,7 +122,10 @@ def main() -> int:
             entry.update(verdict="DOWNLOAD_FAILED", error=paper["error"])
             failed = True
         else:
-            entry["sha_match"] = paper["sha256"] == row.get("question_pdf_sha256")
+            recorded = row.get("question_pdf_sha256")
+            entry["sha256"] = paper["sha256"]
+            # A candidate without a recorded hash (new provenance) records it here.
+            entry["sha_match"] = True if not recorded else paper["sha256"] == recorded
             if not entry["sha_match"]:
                 entry["sha256"] = paper["sha256"]
                 failed = True
@@ -140,7 +143,7 @@ def main() -> int:
             hay = paper.get("layout_norm") or paper["norm"]
             start = hay.find(stem) + len(stem) if stem and stem in hay else -1
             order_ok = None
-            if start >= 0:
+            if start >= 0 and row.get("proposed_options"):
                 pos, order_ok = start, True
                 for key in ("opt_a", "opt_b", "opt_c", "opt_d"):
                     val = norm(row["proposed_options"][key])
