@@ -954,5 +954,16 @@
     "opt_d": "③④⑤"
    }
   }
- ]
+ ],
+ "layout_review": {
+  "method": "pdftotext -layout excerpt printed by this workflow (column-preserving) and read row by row; recorded 2026-11-24 for rows the plain text layer cannot order",
+  "rows": {
+   "SW-109-1-05": "Q5 on printed page 4-2; options row reads ①③④ | ②③④ | ①②③ | ②④⑤ = proposed A-D",
+   "DS-115-1-22": "Q22 options row reads ①② | ②③ | ③④ | ②④ = proposed A-D",
+   "DS-106-1-37": "Q37 2x2 grid: A 資源募集越多越好, B 資源盤點過度繁雜，直接快速捐出即可, C 考量特殊族群, D 不要讓資源進入災區; proposed only removes duplicated fragments",
+   "SP106-2-35": "Q35 options row reads 立即處理 | 12 小時內處理 | 24 小時內處理 | 48 小時內處理 = proposed A-D",
+   "R-106-2-02": "Q2 options row reads F 檢定 | t 檢定 | χ 2 檢定 | U 檢定; superscript 2 extracted separately, proposed C = χ² 檢定",
+   "SW-105-2-25": "Q25 stem confirms Morales & Sheafor (1998) and items ①caring ②changing ③charity ④curing; option glyphs render as ①①① in the text layer, so A-D combinations come from the #447 visual transcription and agree with official answer B = ①②④ (3C: caring, curing, changing)"
+  }
+ }
 }

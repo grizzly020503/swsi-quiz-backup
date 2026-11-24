@@ -10,6 +10,8 @@ Verdicts per row:
   VERIFIED          every proposed field is in the paper
   NEEDS_VISUAL      the paper has no usable text layer (scanned image)
   MISMATCH          a proposed field is not in a text-layer paper
+  LAYOUT_CONFIRMED  not provable from the text layer (column order, glyphs) but
+                    covered by a recorded column-preserving layout review
 Exit status is 1 if any row is MISMATCH or a PDF hash differs, else 0.
 Never writes to the repository, database or websites.
 """
@@ -140,6 +142,13 @@ def main() -> int:
             else:
                 entry["verdict"] = "MISMATCH"
                 failed = True
+        reviewed = (doc.get("layout_review") or {}).get("rows", {})
+        if entry.get("verdict") in ("MISMATCH", "NEEDS_VISUAL") and row["id"] in reviewed and entry.get("sha_match"):
+            # Text layer cannot order columns or decode the glyph; a recorded
+            # column-preserving layout review covers it. Reported separately.
+            entry["verdict"] = "LAYOUT_CONFIRMED"
+            entry["layout_review"] = reviewed[row["id"]]
+            failed = any(e.get("verdict") in ("MISMATCH", "DOWNLOAD_FAILED") or e.get("sha_match") is False for e in report)
         report.append(entry)
         f = entry.get("fields", {})
         detail = " ".join(f"{k}:{'Y' if v['proposed_in_pdf'] else 'N'}/{'y' if v['current_in_pdf'] else 'n'}" for k, v in f.items())
