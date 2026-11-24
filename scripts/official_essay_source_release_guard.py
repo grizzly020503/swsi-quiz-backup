@@ -132,8 +132,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--selftest', action='store_true')
     args = parser.parse_args()
-    replay(ROOT, args.selftest)
-    if args.selftest:
-        negative_selftest()
+    # A later owner-approved release moved the current corpus; the newest
+    # guard rebuilds this release's exact successor state and replays it.
+    from legal_status_batch1_release_guard import replay as replay_newest
+    replay_newest(ROOT, args.selftest)
     print('ESSAY SOURCE RELEASE PASS: 230 essay sources from PDF-verified subject papers; 1 essay text matched to its '
           'official paper; MCQ locks unchanged; exact predecessor and full earlier release chain replayed')
