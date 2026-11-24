@@ -38,6 +38,10 @@
       .swsi-k-question:hover{background:#FAFBFA}
       .swsi-k-question .q{font-size:13.5px;line-height:1.68;color:var(--ink)}
       .swsi-k-question .meta{font-family:'Noto Sans TC',sans-serif;font-size:11px;color:#69736E;line-height:1.55;margin-top:5px}
+      .swsi-k-hl{background:var(--brand-soft,#F6ECE5);color:var(--brand-deep,#8A4122);font-weight:700;border-radius:3px;padding:0 1px}
+      .swsi-k-question .hit{font-family:'Noto Sans TC',sans-serif;font-size:12.5px;line-height:1.6;color:var(--ink-soft);margin-top:5px}
+      .swsi-k-question .hit span{display:inline-block;margin-right:6px;font-weight:700;color:var(--ink)}
+      .swsi-k-partial{font-family:'Noto Sans TC',sans-serif;font-size:12.5px;line-height:1.7;color:var(--ink-soft);background:var(--fill,#EFEBE3);border-radius:10px;padding:10px 12px;margin:0 0 10px}
       .swsi-k-more{font-family:'Noto Sans TC',sans-serif;font-size:11.5px;color:var(--ink-soft);margin:9px 2px 4px}
       .swsi-k-muted{border:0;border-top:1px solid #E5E9E6;border-bottom:1px solid #E5E9E6;border-radius:0;padding:12px 2px;font-family:'Noto Sans TC',sans-serif;font-size:12px;line-height:1.7;color:#68726D;background:transparent}
       .swsi-k-action{width:100%;min-height:44px;border:none;border-radius:11px;background:var(--pine-deep);color:#fff;font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:800;cursor:pointer;margin:8px 0 7px}
@@ -81,6 +85,8 @@
       .swsi-k-card:hover,.swsi-k-question:hover{background:transparent}
       .swsi-k-question{border-bottom:1px solid var(--line);padding:16px 2px}
       .swsi-k-question .q{font-size:var(--fs-b)}
+      .swsi-k-question .hit,.swsi-k-partial{font-family:var(--swsi-font);font-size:var(--fs-s);color:var(--ink-soft)}
+      .swsi-k-partial{background:var(--fill);border-radius:var(--r-md)}
       .swsi-k-action{min-height:52px;border-radius:var(--r-md);background:var(--brand);font-family:var(--swsi-font);font-size:17px;font-weight:600}
       .swsi-k-action.ghost{border:0;background:var(--brand-soft);color:var(--brand-deep)}
       .swsi-k-net{border-top:1px solid var(--line)}
@@ -120,6 +126,80 @@
     '生態系統':['生態系統理論','生態觀點']
   };
 
+  // ===== Question search engine (2026-11-24) =====
+  // Students search like a search engine: by any remembered phrase (stem,
+  // topic, keyword, law or an option), sometimes in simplified Chinese, and
+  // expect the best match first with the matched words visible.
+  var S2T_PAIRS='万萬与與丑醜专專业業丛叢东東丝絲丢丟两兩严嚴丧喪个個丰豐临臨为為丽麗举舉么麼义義乌烏乐樂乔喬习習乡鄉书書买買乱亂争爭于於亏虧云雲亚亞产產亲親亵褻亿億仅僅仆僕从從仓倉仪儀们們价價众眾优優会會伞傘伟偉传傳伤傷伦倫伪偽体體余餘佣傭侣侶侥僥侦偵侧側侨僑侪儕俭儉债債倾傾偿償储儲儿兒党黨兰蘭关關兴興兹茲养養册冊写寫军軍农農冲衝冻凍净淨凉涼减減凑湊几幾凤鳳凭憑凯凱击擊划劃则則刚剛创創删刪刹剎剀剴剂劑剥剝剧劇劝勸办辦务務动動励勵劳勞势勢匮匱区區医醫华華协協单單卖賣卫衛却卻厂廠厅廳历歷厉厲压壓厌厭厕廁厘釐厦廈县縣参參双雙发發变變叙敘叠疊叶葉号號叹嘆吁籲后後吓嚇吗嗎听聽启啟吴吳员員咨諮咽嚥响響哔嗶唠嘮唤喚喂餵嘘噓嘱囑团團园園围圍国國图圖圆圓圣聖场場坏壞坚堅坛壇坝壩坠墜垄壟垒壘垫墊堕墮墙牆壮壯声聲壳殼处處备備复復够夠头頭夸誇夹夾夺奪奋奮奖獎妆妝妇婦妈媽娇嬌娱娛婴嬰嬷嬤孙孫学學宁寧宝寶实實宠寵审審宪憲宫宮宽寬宾賓对對寻尋导導寿壽将將尔爾尘塵尝嘗尧堯尴尷尽儘层層届屆属屬岁歲崭嶄巩鞏币幣师師帐帳带帶帮幫并並广廣库庫应應庙廟庞龐废廢开開异異弃棄张張弥彌弹彈强強归歸当當录錄彻徹径徑忆憶忧憂怀懷态態怜憐总總怼懟恋戀恤卹恳懇恶惡恸慟恼惱悦悅悬懸惊驚惧懼惩懲惫憊惯慣愤憤愿願懒懶戏戲战戰户戶扑撲执執扩擴扫掃扬揚扰擾抚撫抛拋抢搶护護报報担擔拟擬拥擁拦攔拨撥择擇挂掛挛攣挡擋挣掙挤擠挥揮损損据據掴摑掺摻揽攬搁擱携攜摄攝摆擺摇搖摊攤撑撐撷擷敌敵敛斂数數断斷无無旧舊时時显顯晋晉晒曬晓曉晕暈晖暉暂暫暧曖术術朴樸机機杀殺杂雜权權条條来來杰傑松鬆极極构構枢樞枪槍柜櫃标標栏欄树樹栖棲栗慄样樣档檔桥橋桦樺梁樑梦夢检檢棱稜槛檻槟檳横橫橥櫫欢歡欧歐残殘殓殮殡殯殴毆毁毀毕畢气氣汇彙汉漢汤湯汹洶沟溝没沒泞濘泼潑洁潔浅淺测測济濟浏瀏浓濃涌湧涛濤润潤涨漲渊淵渎瀆渐漸渔漁渗滲温溫湾灣溃潰滚滾滞滯满滿滤濾滥濫潜潛灭滅灯燈灵靈灾災炉爐点點炼煉烟菸烦煩烧燒烫燙热熱爱愛爷爺牵牽牺犧状狀犹猶独獨狭狹狱獄猫貓献獻玛瑪环環现現琐瑣电電画畫畅暢畴疇疗療疡瘍疯瘋痉痙痒癢痪瘓瘫癱瘾癮癫癲监監盖蓋盗盜盘盤瞒瞞矫矯矿礦码碼础礎硕碩确確碍礙碱鹼礼禮祸禍禅禪离離种種积積称稱税稅稳穩穷窮窃竊窜竄窝窩窥窺窦竇竞競笔筆笼籠筑築筛篩筹籌签籤简簡篱籬类類粮糧紧緊纠糾红紅纤纖约約级級纪紀纯純纲綱纳納纵縱纷紛纸紙纹紋纽紐纾紓线線练練组組细細织織终終绊絆绍紹绎繹经經绑綁绕繞绘繪给給绝絕绣繡继繼绩績续續绳繩绷繃综綜绽綻绿綠缉緝缓緩缔締编編缘緣缚縛缜縝缝縫缠纏缩縮缮繕缴繳网網罗羅罚罰羁羈羡羨翘翹耻恥聂聶职職联聯聪聰肠腸肤膚肮骯肾腎肿腫胀脹胁脅胆膽胜勝胶膠脉脈脏臟脑腦脚腳脱脫脸臉腊臘腻膩艰艱艺藝节節苏蘇苹蘋范範茎莖茧繭荐薦荡盪荣榮药藥莱萊莲蓮获獲萤螢营營萧蕭萨薩蓝藍蕴蘊虑慮虚虛虱蝨虽雖蚀蝕蜕蛻蝉蟬衅釁衔銜补補袭襲裤褲见見观觀规規觅覓视視览覽觉覺觞觴触觸誉譽誊謄计計订訂认認讨討让讓讫訖训訓议議讯訊记記讲講讳諱许許论論讼訟讽諷设設访訪诀訣证證评評识識诈詐诉訴诊診词詞译譯试試诘詰诚誠话話诞誕诟詬诠詮询詢该該详詳诫誡语語误誤诱誘说說诵誦请請诸諸诺諾读讀诽誹课課谁誰调調谅諒谈談谊誼谋謀谎謊谐諧谑謔谓謂谙諳谢謝谣謠谤謗谦謙谨謹谬謬谱譜谴譴谵譫贝貝负負贡貢责責贤賢败敗货貨质質贩販贪貪贫貧贬貶购購贯貫贱賤贴貼贵貴贷貸贸貿费費贺賀贼賊贿賄赂賂赃贓资資赈賑赋賦赌賭赎贖赏賞赔賠赖賴赚賺赛賽赞贊赠贈赢贏赶趕趋趨跃躍践踐跷蹺踊踴踌躊踪蹤躯軀车車轨軌轩軒转轉轮輪软軟轴軸轻輕载載轾輊较較辅輔辈輩辍輟辑輯输輸辖轄辗輾辞辭辟闢辩辯边邊达達迁遷过過迈邁运運还還这這进進远遠违違连連迟遲迳逕适適选選逊遜递遞逻邏遗遺邮郵邻鄰郁鬱酝醞酿釀释釋鉴鑑针針钉釘钙鈣钝鈍钟鐘钥鑰钦欽钩鉤钮鈕钱錢钻鑽铁鐵铨銓银銀铸鑄铺鋪链鏈销銷锁鎖锋鋒锐銳错錯键鍵锯鋸锾鍰镇鎮镖鏢镜鏡镳鑣长長门門闪閃闭閉问問闯闖闲閒间間闷悶闹鬧闻聞阂閡阅閱阈閾阉閹阐闡阔闊队隊阳陽阴陰阵陣阶階际際陆陸陈陳险險隐隱隶隸难難雏雛雾霧静靜韦韋韧韌页頁顶頂项項顺順须須顾顧顿頓颁頒预預领領颇頗颈頸颊頰频頻颗顆题題颜顏额額颞顳颠顛颤顫风風飘飄飞飛饥飢饪飪饭飯饮飲饰飾饱飽饼餅饿餓馆館馈饋马馬驭馭驰馳驱驅驳駁驶駛驻駐驾駕骂罵骄驕验驗骑騎骗騙骚騷骤驟鲁魯鲜鮮鸟鳥鸡雞鸣鳴鸦鴉鸿鴻鹃鵑鹰鷹麦麥黄黃齐齊齿齒龄齡龙龍';
+  var S2T={};for(var si=0;si+1<S2T_PAIRS.length;si+=2)S2T[S2T_PAIRS.charAt(si)]=S2T_PAIRS.charAt(si+1);
+  function toTrad(v){return String(v==null?'':v).replace(/[一-鿿]/g,function(c){return S2T[c]||c;});}
+  function queryTerms(q){var out=[];toTrad(q).trim().split(/\s+/).forEach(function(w){var n=N(w);if(n&&out.indexOf(n)<0)out.push(n);});return out;}
+  var MCQ_FIELDS=[['q',10,''],['topic',8,'考點'],['keywords',6,'關鍵字'],['law',6,'法規'],['A',4,'選項 A'],['B',4,'選項 B'],['C',4,'選項 C'],['D',4,'選項 D'],['major',3,'分類']];
+  function rawField(x,f){return /^[ABCD]$/.test(f)?String(((x&&x.options)||{})[f]||''):String((x&&x[f])||'');}
+  function normFields(x){
+    if(!x._snf){x._snf={};MCQ_FIELDS.forEach(function(fd){x._snf[fd[0]]=N(rawField(x,fd[0]));});x._snf.meta=N((x.subject||'')+' '+(x.year||'')+'年');}
+    return x._snf;
+  }
+  function scoreMcq(x,terms,phrase){
+    var nf=normFields(x),score=0,matched=[],best=null,inStem=false;
+    terms.forEach(function(t){
+      var hit=null;
+      MCQ_FIELDS.forEach(function(fd){if(nf[fd[0]].indexOf(t)>=0&&(!hit||fd[1]>hit[1]))hit=fd;});
+      if(!hit&&nf.meta.indexOf(t)>=0)hit=['meta',2,''];
+      if(!hit)return;
+      matched.push(t);score+=hit[1];
+      if(hit[0]==='q')inStem=true;
+      else if(hit[0]!=='meta'&&(!best||hit[1]>best[1]))best=hit;
+    });
+    if(!best&&inStem)best=MCQ_FIELDS[0];
+    if(phrase&&terms.length>1&&nf.q.indexOf(phrase)>=0)score+=15;
+    if(matched.length&&matched.length===terms.length)score+=20;
+    return {score:score,matched:matched,hit:best};
+  }
+  function bankRows(){try{return Array.isArray(ALL)?ALL:[];}catch(_e){return [];}}
+  function searchMcq(q){
+    var terms=queryTerms(q),res={full:[],partial:[],terms:terms};
+    if(!terms.length)return res;
+    var phrase=N(toTrad(q));
+    bankRows().forEach(function(x){
+      try{if(typeof swsiSourceHeld==='function'&&swsiSourceHeld(x))return;}catch(_e){}
+      var s=scoreMcq(x,terms,phrase);if(!s.matched.length)return;
+      var rec={x:x,score:s.score,matched:s.matched,hit:s.hit,missing:terms.filter(function(t){return s.matched.indexOf(t)<0;})};
+      (s.matched.length===terms.length?res.full:res.partial).push(rec);
+    });
+    function byScore(a,b){return b.score-a.score||yearNum(b.x.year)-yearNum(a.x.year);}
+    res.full.sort(byScore);
+    res.partial.sort(function(a,b){return b.matched.length-a.matched.length||byScore(a,b);});
+    return res;
+  }
+  var HL_GAP='[\\s　（）()《》〈〉「」『』【】·・,，.。:：;；/\\\\_-]*';
+  function hlRegex(terms){
+    var parts=terms.slice().sort(function(a,b){return b.length-a.length;}).map(function(t){
+      return Array.from(t).map(function(c){return c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}).join(HL_GAP);
+    }).filter(Boolean);
+    return parts.length?new RegExp('('+parts.join('|')+')','gi'):null;
+  }
+  // Escape, then wrap matched words; optional window around the first match.
+  function hl(text,terms,width){
+    var s=String(text||'').replace(/\s+/g,' ').trim(),re=hlRegex(terms||[]);
+    if(width&&s.length>width){
+      var at=-1;if(re){re.lastIndex=0;var m=re.exec(s);if(m)at=m.index;}
+      var from=at<0?0:Math.max(0,at-Math.floor(width/3));
+      s=(from>0?'…':'')+s.slice(from,from+width)+(from+width<s.length?'…':'');
+    }
+    if(!re)return H(s);
+    var out='',last=0,mm;re.lastIndex=0;
+    while((mm=re.exec(s))){if(!mm[0]){re.lastIndex++;continue;}out+=H(s.slice(last,mm.index))+'<mark class="swsi-k-hl">'+H(mm[0])+'</mark>';last=mm.index+mm[0].length;}
+    return out+H(s.slice(last));
+  }
+  if(typeof mcqBlob==='function'){
+    // Keep the legacy searchAll consistent: it also sees option text.
+    mcqBlob=function(x){
+      if(x._sbo==null)x._sbo=((x.q||'')+' '+(x.topic||'')+' '+(x.major||'')+' '+(x.keywords||'')+' '+(x.mistake||'')+' '+(x.law||'')+' '+(x.subject||'')+' '+(x.year||'')+' '+[0,1,2,3].map(function(i){return rawField(x,'ABCD'.charAt(i));}).join(' ')).toLowerCase();
+      return x._sbo;
+    };
+  }
+
   function smartSearch(query){
     var q=String(query||'').trim();
     var out={mcq:[],theories:[],laws:[],essays:[]};
@@ -130,21 +210,40 @@
       al.forEach(function(x){if(!variants.includes(x))variants.push(x);});
     }
     variants.forEach(function(v){
-      var r=typeof searchAll==='function'?searchAll(v):{mcq:[],theories:[],laws:[],essays:[]};
-      (r.mcq||[]).forEach(function(x){uniqPush(out.mcq,x,function(z){return z.id;});});
+      var r=typeof searchAll==='function'?searchAll(toTrad(v)):{mcq:[],theories:[],laws:[],essays:[]};
       (r.theories||[]).forEach(function(x){uniqPush(out.theories,x,function(z){return z.n;});});
       (r.laws||[]).forEach(function(x){uniqPush(out.laws,x,function(z){return z.n;});});
       (r.essays||[]).forEach(function(x){uniqPush(out.essays,x,function(z){return z.id;});});
     });
-    var nq=N(q);
+    // MCQ: ranked engine; aliases add their own full matches.
+    var info={},partial=[];
+    variants.forEach(function(v,vi){
+      var m=searchMcq(v);
+      m.full.forEach(function(rec){var o=info[rec.x.id];if(!o||o.partial||rec.score>o.score){rec.partial=false;rec.terms=m.terms;info[rec.x.id]=rec;}});
+      if(vi===0)partial=m.partial;
+    });
+    out.mcq=Object.keys(info).map(function(k){return info[k];}).sort(function(a,b){return b.score-a.score||yearNum(b.x.year)-yearNum(a.x.year);}).map(function(rec){return rec.x;});
+    out.mcqPartial=false;
+    if(!out.mcq.length&&partial.length){
+      partial.forEach(function(rec){rec.partial=true;rec.terms=queryTerms(q);info[rec.x.id]=rec;});
+      out.mcq=partial.map(function(rec){return rec.x;});out.mcqPartial=true;
+    }
+    out.mcqInfo=info;out.terms=queryTerms(q);
+    var nq=N(toTrad(q));
     function scoreName(x){var n=N(x||'');if(!nq)return 0;if(n===nq)return 50;if(n.indexOf(nq)>=0)return 30;if(nq.indexOf(n)>=0)return 20;return 0;}
     out.theories.sort(function(a,b){return scoreName(b.n)-scoreName(a.n);});
     out.laws.sort(function(a,b){return scoreName(b.n)-scoreName(a.n);});
-    out.mcq.sort(function(a,b){var sa=(N(a.topic).indexOf(nq)>=0?10:0)+(N(a.law).indexOf(nq)>=0?8:0);var sb=(N(b.topic).indexOf(nq)>=0?10:0)+(N(b.law).indexOf(nq)>=0?8:0);return sb-sa||yearNum(b.year)-yearNum(a.year);});
     out.essays.sort(function(a,b){var sa=(N(a.topic).indexOf(nq)>=0?10:0);var sb=(N(b.topic).indexOf(nq)>=0?10:0);return sb-sa||yearNum(b.year)-yearNum(a.year);});
     return out;
   }
 
+  if(typeof searchQuizMcq==='function'){
+    searchQuizMcq=function(){
+      var r=smartSearch(searchQ);if(!r.mcq.length)return;
+      var ids=new Set(r.mcq.map(function(x){return x.id;}));
+      startQuiz(function(x){return ids.has(x.id);});
+    };
+  }
   window.swsiKnowledgeSearch=function(q){
     try{searchQ=String(q||'');}catch(_e){window.searchQ=String(q||'');}
     try{go('search');}catch(_e){try{view='search';render();}catch(_x){}}
@@ -190,33 +289,40 @@
         '<div class="swsi-k-examples">'+['Erikson','增強權能','社會救助法','保護令','依附'].map(function(x){return '<button type="button" onclick="swsiFillKnowledgeSearch(\''+E(x)+'\')">'+H(x)+'</button>';}).join('')+'</div></div>';
       return;
     }
-    var r=smartSearch(q);
+    var r=smartSearch(q),terms=r.terms||queryTerms(q);
     var total=r.mcq.length+r.essays.length+r.theories.length+r.laws.length;
     if(!total){
       box.innerHTML='<div class="swsi-k-empty">找不到符合「<b style="color:var(--ink)">'+H(q)+'</b>」的內容。可以把詞拆短一點，例如「兒少 保護」改成「兒少」。</div>';
       return;
     }
     var h='<section class="swsi-k-path"><b>查「'+H(q)+'」的完整考法</b><span>先理解概念與法規，再看題目怎麼問，最後直接練。</span><div class="swsi-k-counts">'+
-      (r.theories.length?'<i>理論 '+r.theories.length+'</i>':'')+(r.laws.length?'<i>法規 '+r.laws.length+'</i>':'')+(r.mcq.length?'<i>選擇 '+r.mcq.length+'</i>':'')+(r.essays.length?'<i>申論／練習 '+r.essays.length+'</i>':'')+'</div></section>';
+      (r.theories.length?'<i>理論 '+r.theories.length+'</i>':'')+(r.laws.length?'<i>法規 '+r.laws.length+'</i>':'')+(r.mcq.length?'<i>選擇 '+r.mcq.length+(r.mcqPartial?'（部分符合）':'')+'</i>':'')+(r.essays.length?'<i>申論／練習 '+r.essays.length+'</i>':'')+'</div></section>';
 
     h+='<section class="swsi-k-sec"><div class="swsi-k-sec-h"><b>1　先理解</b><span>平台整理，不冒充官方題目</span></div>';
     if(r.theories.length||r.laws.length){
-      r.theories.slice(0,5).forEach(function(t){h+='<button class="swsi-k-card" onclick="swsiOpenTheoryEncoded(\''+E(t.n)+'\')"><div class="type">核心理論</div><div class="name">'+H(t.n)+'</div><div class="desc">'+H(sn(t.c,72))+'</div></button>';});
-      r.laws.slice(0,5).forEach(function(l){h+='<button class="swsi-k-card law" onclick="swsiOpenLawEncoded(\''+E(l.n)+'\')"><div class="type">重點法規</div><div class="name">'+H(l.n)+'</div><div class="desc">'+H(sn(l.c||l.p,72))+'</div></button>';});
+      r.theories.slice(0,5).forEach(function(t){h+='<button class="swsi-k-card" onclick="swsiOpenTheoryEncoded(\''+E(t.n)+'\')"><div class="type">核心理論</div><div class="name">'+hl(t.n,terms)+'</div><div class="desc">'+hl(t.c,terms,72)+'</div></button>';});
+      r.laws.slice(0,5).forEach(function(l){h+='<button class="swsi-k-card law" onclick="swsiOpenLawEncoded(\''+E(l.n)+'\')"><div class="type">重點法規</div><div class="name">'+hl(l.n,terms)+'</div><div class="desc">'+hl(l.c||l.p,terms,72)+'</div></button>';});
     }else h+='<div class="swsi-k-muted">這個詞目前沒有獨立的理論／法規卡，可以直接從歷屆題目的問法反推考點。</div>';
     h+='</section>';
 
     h+='<section class="swsi-k-sec"><div class="swsi-k-sec-h"><b>2　看選擇題怎麼考</b><span>'+r.mcq.length+' 題</span></div>';
     if(r.mcq.length){
+      if(r.mcqPartial)h+='<div class="swsi-k-partial">沒有題目同時包含所有搜尋詞，下面是<b>部分符合</b>的題目，符合越多的排越前面。</div>';
       h+='<button class="swsi-k-action" onclick="searchQuizMcq()">直接練這 '+r.mcq.length+' 題</button>';
-      r.mcq.slice(0,8).forEach(function(x){h+='<div class="swsi-k-question" onclick="swsiStudyOneEncoded(\''+E(x.id)+'\')"><div class="q">'+H(sn(x.q,76))+'</div><div class="meta">'+H(x.subject||'')+' · '+H(x.year||'')+' 年 · '+H(x.topic||x.major||'')+'</div></div>';});
+      r.mcq.slice(0,8).forEach(function(x){
+        var rec=(r.mcqInfo||{})[x.id]||{},hit=rec.hit;
+        h+='<div class="swsi-k-question" onclick="swsiStudyOneEncoded(\''+E(x.id)+'\')"><div class="q">'+hl(x.q,terms,76)+'</div>'+
+          (hit&&hit[0]!=='q'?'<div class="hit"><span>'+H(hit[2])+'</span>'+hl(rawField(x,hit[0]),terms,48)+'</div>':'')+
+          (rec.partial&&rec.missing&&rec.missing.length?'<div class="meta">部分符合 · 沒有「'+H(rec.missing.join('、'))+'」</div>':'')+
+          '<div class="meta">'+H(x.subject||'')+' · '+H(x.year||'')+' 年 · '+H(x.topic||x.major||'')+'</div></div>';
+      });
       if(r.mcq.length>8)h+='<div class="swsi-k-more">還有 '+(r.mcq.length-8)+' 題；上面的按鈕會把全部符合題目排成一組。</div>';
     }else h+='<div class="swsi-k-muted">目前沒有搜尋到直接命中的選擇題。</div>';
     h+='</section>';
 
     h+='<section class="swsi-k-sec"><div class="swsi-k-sec-h"><b>3　看申論怎麼出</b><span>'+r.essays.length+' 題</span></div>';
     if(r.essays.length){
-      r.essays.slice(0,8).forEach(function(e){var kind=e.qtype||'申論題';h+='<div class="swsi-k-question" onclick="swsiOpenEssayEncoded(\''+E(e.id)+'\',\''+E(e.subject||'全部科目')+'\')"><div class="q">'+H(sn(e.q,82))+'</div><div class="meta">'+H(kind)+' · '+H(e.subject||'')+(e.year?' · '+H(e.year)+' 年':'')+(e.topic?' · '+H(e.topic):'')+'</div></div>';});
+      r.essays.slice(0,8).forEach(function(e){var kind=e.qtype||'申論題';h+='<div class="swsi-k-question" onclick="swsiOpenEssayEncoded(\''+E(e.id)+'\',\''+E(e.subject||'全部科目')+'\')"><div class="q">'+hl(e.q,terms,82)+'</div><div class="meta">'+H(kind)+' · '+H(e.subject||'')+(e.year?' · '+H(e.year)+' 年':'')+(e.topic?' · '+H(e.topic):'')+'</div></div>';});
       if(r.essays.length>8)h+='<div class="swsi-k-more">先列前 8 題；縮短或增加搜尋詞可以再聚焦。</div>';
     }else h+='<div class="swsi-k-muted">目前沒有搜尋到直接相關的申論題。</div>';
     h+='</section>';

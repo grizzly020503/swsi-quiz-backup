@@ -17,6 +17,20 @@ const LOCAL_SHARD_DIR = path.resolve(process.cwd(), 'cdn/question-shards');
   const consoleLines = [];
   const failedRequests = [];
   const servedQuestionFiles = [];
+  // Diagnostic only: an intermittent CI failure ("Execution context was
+  // destroyed" in the async essay step) means something navigates the page.
+  // Log every main-frame navigation with recent console/errors so the next
+  // occurrence names its cause. Does not change any assertion.
+  let mainFrameNavigations = 0;
+  page.on('framenavigated', frame => {
+    if (frame !== page.mainFrame()) return;
+    mainFrameNavigations++;
+    if (mainFrameNavigations > 1) {
+      console.log('MAIN FRAME NAVIGATED #' + mainFrameNavigations + ' -> ' + frame.url() + ' at ' + new Date().toISOString() +
+        ' | recent console: ' + JSON.stringify(consoleLines.slice(-5)) + ' | errors: ' + JSON.stringify(browserErrors.slice(-3)) +
+        ' | failed requests: ' + JSON.stringify(failedRequests.slice(-3)));
+    }
+  });
   // WebKit performs cross-origin preflight before Playwright route handling.
   // Stub the read-only feedback health probe before transport; never contact
   // production or accept a feedback write from this local UI fixture.
