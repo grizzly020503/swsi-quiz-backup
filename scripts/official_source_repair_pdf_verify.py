@@ -98,9 +98,25 @@ def main() -> int:
                     "current_in_pdf": bool(norm(pair["current"])) and norm(pair["current"]) in paper["norm"],
                 }
             entry["fields"] = fields
+            # Option order: from the stem, the proposed A-D must appear in order.
+            stem = norm(row["fields"].get("question", {}).get("proposed") or row.get("stem") or "")
+            hay = paper["norm"]
+            start = hay.find(stem) + len(stem) if stem and stem in hay else -1
+            order_ok = None
+            if start >= 0:
+                pos, order_ok = start, True
+                for key in ("opt_a", "opt_b", "opt_c", "opt_d"):
+                    val = norm(row["proposed_options"][key])
+                    nxt = hay.find(val, pos) if val else pos
+                    if nxt < 0 or nxt - start > 1200:
+                        order_ok = False
+                        break
+                    pos = nxt + len(val)
+            entry["option_order_ok"] = order_ok
+            entry["pdf_excerpt"] = hay[max(0, start - len(stem)):start + 400] if start >= 0 else None
             if paper["chars"] < 500:
                 entry["verdict"] = "NEEDS_VISUAL"
-            elif all(f["proposed_in_pdf"] for f in fields.values()):
+            elif all(f["proposed_in_pdf"] for f in fields.values()) and order_ok is not False:
                 entry["verdict"] = "VERIFIED"
             else:
                 entry["verdict"] = "MISMATCH"
@@ -108,7 +124,9 @@ def main() -> int:
         report.append(entry)
         f = entry.get("fields", {})
         detail = " ".join(f"{k}:{'Y' if v['proposed_in_pdf'] else 'N'}/{'y' if v['current_in_pdf'] else 'n'}" for k, v in f.items())
-        print(f"{entry['verdict']:<16} {row['id']:<14} sha={'ok' if entry.get('sha_match') else 'DIFF'} {detail}")
+        print(f"{entry['verdict']:<16} {row['id']:<14} sha={'ok' if entry.get('sha_match') else 'DIFF'} order={entry.get('option_order_ok')} {detail}")
+        if entry["verdict"] != "VERIFIED" or entry.get("option_order_ok") is None:
+            print("   PDF excerpt:", (entry.get("pdf_excerpt") or "(stem not found in text layer)")[:500])
     Path(args.out).write_text(json.dumps({"rows": report}, ensure_ascii=False, indent=1), encoding="utf-8")
     counts: dict[str, int] = {}
     for e in report:
