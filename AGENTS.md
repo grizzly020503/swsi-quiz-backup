@@ -41,6 +41,20 @@
 - 低信心結果應進 review / quarantine，而不是包裝成 verified。
 - source mismatch、outage 或 provenance 不足不得算成功。
 
+## Browser Support
+
+學生端前端支援範圍：
+
+- **iOS / iPadOS Safari 16 以上**（含 iPhone 11、12 等仍常見的舊機型）。
+- **Android 新版 Chrome**（Chrome 經 Play 商店自動更新，不以 Android 系統版本為限）。
+- 桌機 Chrome、Edge、Firefox、Safari 新版。
+
+規則：
+
+- Baseline 支援時間晚於 Safari 16 的 Web API（例如 `Object.groupBy`、需要 Safari 17.4），不得直接用在學生端主要流程；確實需要時，必須 feature-detect 並保留現有寫法作為 fallback。
+- 不為了「寫法比較新」改動已穩定的學生端程式；現代化改寫需有實際的使用者、效能、安全或維護效益。
+- 此範圍是依常見機型與更新習慣推估，尚未有實際瀏覽器使用統計；取得實際數據後應重新檢討。
+
 ## Security
 
 - 不得提交 secret、service-role key、token、密碼、private backup、MFA / recovery material 或 private user/admin payload。
