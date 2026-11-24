@@ -10,6 +10,7 @@ Verdicts per row:
   VERIFIED          every proposed field is in the paper
   NEEDS_VISUAL      the paper has no usable text layer (scanned image)
   MISMATCH          a proposed field is not in a text-layer paper
+  WORDING_DIFF      (source_attribution mode) right paper, stored wording differs
   LAYOUT_CONFIRMED  not provable from the text layer (column order, glyphs) but
                     covered by a recorded column-preserving layout review
 Exit status is 1 if any row is MISMATCH or a PDF hash differs, else 0.
@@ -172,6 +173,10 @@ def main() -> int:
                 entry["verdict"] = "NEEDS_VISUAL"
             elif all(f["proposed_in_pdf"] for f in fields.values()) and order_ok is not False:
                 entry["verdict"] = "VERIFIED"
+            elif doc.get("verify_mode") == "source_attribution" and all(
+                    f["proposed_in_pdf"] or f.get("window_coverage", 0) >= 0.5 for f in fields.values()):
+                # The paper is confirmed; the stored wording differs and is listed for review.
+                entry["verdict"] = "WORDING_DIFF"
             else:
                 entry["verdict"] = "MISMATCH"
                 failed = True

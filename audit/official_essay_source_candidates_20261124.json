@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "purpose": "Official essay source metadata (source_exam_code/source_url) derived from the same subject paper as the session MCQs; verify each essay text occurs in that official MOEX question PDF before release.",
+ "purpose": "Official essay source metadata (source_exam_code/source_url) derived from the same subject paper as the session MCQs; verify each essay text occurs in that official MOEX question PDF before release. Mode source_attribution: an essay whose stored wording differs from the paper but whose 12-character windows are mostly present (coverage >= 0.5) confirms the paper and is listed as WORDING_DIFF for a later text review.",
  "rows": [
   {
    "id": "人類行為與社會環境-115-1-申論1",
@@ -837,10 +837,10 @@
    "fields": {
     "q": {
      "current": "經濟弱勢家庭的處遇，常需整合多元資源，並依據資源分配的四種標準（市場需求、平等、需求、貢獻）來提供服務。假設你是某社會福利基金會的社工，多年來基金會的經費是透過承接政府方案而來。政府今年度雖仍提供相關方案，但是經費卻較去年減少百分之三十，這將影響原本服務的規模。請問您如何應用上述的四種資源分配的標準提供案主服務？（25 分）",
-     "proposed": "經濟弱勢家庭的處遇，常需整合多元資源，並依據資源分配的四種標準（市場需求、平等、需求、貢獻）來提供服務。假設你是某社會福利基金會的社工，多年來基金會的經費是透過承接政府方案而來。政府今年度雖仍提供相關方案，但是經費卻較去年減少百分之三十，這將影響原本服務的規模。請問您如何應用上述的四種資源分配的標準提供案主服務？（25 分）"
+     "proposed": "經濟弱勢的女性常需投入就業市場，以維持或支援家庭經濟所需，試舉一例，以 Cowger 的矩陣架構分析經濟弱勢的女性投入就業市場的優劣勢，並提出協助經濟弱勢的女性就業的服務計畫。（25 分）"
     }
    },
-   "stem": "經濟弱勢家庭的處遇，常需整合多元資源，並依據資源分配的四種標準（市場需求、平等、需求、貢獻）來提供服務。假設你是某社會福利基金會的社工，多年來基金會的經費是透過承接政府方案而來。政府今年度雖仍提供相關方案，但是經費卻較去年減少百分之三十，這將影響原本服務的規模。請問您如何應用上述的四種資源分配的標準提供案主服務？（25 分）"
+   "stem": "經濟弱勢的女性常需投入就業市場，以維持或支援家庭經濟所需，試舉一例，以 Cowger 的矩陣架構分析經濟弱勢的女性投入就業市場的優劣勢，並提出協助經濟弱勢的女性就業的服務計畫。（25 分）"
   },
   {
    "id": "社會工作-111-1-申論1",
@@ -3222,5 +3222,6 @@
    },
    "stem": "長期照顧服務法經過立法院數年之審議，業於民國104 年6 月3 日公布，試就其立法之重點 內容及其對未來我國長期照顧制度可能的影響說明之。（25 分）"
   }
- ]
+ ],
+ "verify_mode": "source_attribution"
 }

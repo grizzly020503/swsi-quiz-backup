@@ -1,0 +1,1233 @@
+{
+ "schema_version": 1,
+ "release": "official-essay-source-20261124c",
+ "owner_approved": true,
+ "owner_approval_note": "Owner asked on 2026-11-24 to work through the 798 review flags; 230 official essays lacked source metadata and one essay text did not match its official paper.",
+ "predecessor_commit": "9d4736a8c3ef00613067a075bdcd6a85d53a7968",
+ "essay_text_repair": {
+  "id": "社會工作-112-2-申論2",
+  "before": {
+   "id": "社會工作-112-2-申論2",
+   "subject": "社會工作",
+   "year": "112",
+   "round": "第2次",
+   "qno": "2",
+   "q": "經濟弱勢家庭的處遇，常需整合多元資源，並依據資源分配的四種標準（市場需求、平等、需求、貢獻）來提供服務。假設你是某社會福利基金會的社工，多年來基金會的經費是透過承接政府方案而來。政府今年度雖仍提供相關方案，但是經費卻較去年減少百分之三十，這將影響原本服務的規模。請問您如何應用上述的四種資源分配的標準提供案主服務？（25 分）",
+   "points": "25",
+   "topic": "資源分配與社會正義",
+   "major": "社會工作理論",
+   "keywords": [
+    "資源分配",
+    "分配正義",
+    "市場平等需求貢獻",
+    "經濟弱勢",
+    "社會正義"
+   ],
+   "theories": [
+    "分配正義"
+   ],
+   "laws": [],
+   "difficulty": "中等",
+   "frequency": "高頻",
+   "qtype": "案例分析題",
+   "related": [
+    "倫理兩難",
+    "社會救助"
+   ],
+   "cluster": "ETH2",
+   "cluster_name": "倫理兩難與倫理決策"
+  },
+  "after": {
+   "id": "社會工作-112-2-申論2",
+   "subject": "社會工作",
+   "year": "112",
+   "round": "第2次",
+   "qno": "2",
+   "q": "經濟弱勢的女性常需投入就業市場，以維持或支援家庭經濟所需，試舉一例，以 Cowger 的矩陣架構分析經濟弱勢的女性投入就業市場的優劣勢，並提出協助經濟弱勢的女性就業的服務計畫。（25 分）",
+   "points": "25",
+   "topic": "優勢觀點（Cowger 評估矩陣）",
+   "major": "社會工作理論",
+   "keywords": [
+    "優勢觀點",
+    "Cowger 評估矩陣",
+    "經濟弱勢女性",
+    "就業",
+    "服務計畫"
+   ],
+   "theories": [
+    "優勢觀點"
+   ],
+   "laws": [],
+   "difficulty": "中等",
+   "frequency": "高頻",
+   "qtype": "案例分析題",
+   "related": [
+    "增強權能",
+    "復原力"
+   ],
+   "cluster": "EMP1",
+   "cluster_name": "增強權能.優勢觀點.復原力",
+   "source_exam_code": "112110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112110&q=1&s=0301&t=Q"
+  },
+  "before_lock": "686156628fb5b0d2e8af06b1f50d2220d0a9d82db3336505b2ca7e1894462fa0",
+  "after_lock": "99935b671ca231a9de01182cf3933419982d0b3faa87d7a185c776c8279ebcc8",
+  "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112110&q=1&s=0301&t=Q",
+  "evidence": "Official MOEX question PDF (pdftotext -layout) shows 二、經濟弱勢的女性常需投入就業市場…Cowger 的矩陣架構…; the stored text (四種資源分配標準) does not occur in this paper."
+ },
+ "source_metadata_ids": [
+  "人類行為與社會環境-104-1-申論1",
+  "人類行為與社會環境-104-1-申論2",
+  "人類行為與社會環境-104-2-申論1",
+  "人類行為與社會環境-104-2-申論2",
+  "人類行為與社會環境-105-1-申論1",
+  "人類行為與社會環境-105-1-申論2",
+  "人類行為與社會環境-105-2-申論1",
+  "人類行為與社會環境-105-2-申論2",
+  "人類行為與社會環境-106-1-申論1",
+  "人類行為與社會環境-106-1-申論2",
+  "人類行為與社會環境-106-2-申論1",
+  "人類行為與社會環境-106-2-申論2",
+  "人類行為與社會環境-107-1-申論1",
+  "人類行為與社會環境-107-1-申論2",
+  "人類行為與社會環境-107-2-申論1",
+  "人類行為與社會環境-107-2-申論2",
+  "人類行為與社會環境-108-1-申論1",
+  "人類行為與社會環境-108-1-申論2",
+  "人類行為與社會環境-108-2-申論1",
+  "人類行為與社會環境-108-2-申論2",
+  "人類行為與社會環境-109-1-申論1",
+  "人類行為與社會環境-109-1-申論2",
+  "人類行為與社會環境-109-2-申論1",
+  "人類行為與社會環境-109-2-申論2",
+  "人類行為與社會環境-110-1-申論1",
+  "人類行為與社會環境-110-1-申論2",
+  "人類行為與社會環境-110-2-申論1",
+  "人類行為與社會環境-110-2-申論2",
+  "人類行為與社會環境-111-1-申論1",
+  "人類行為與社會環境-111-1-申論2",
+  "人類行為與社會環境-111-2-申論1",
+  "人類行為與社會環境-111-2-申論2",
+  "人類行為與社會環境-112-1-申論1",
+  "人類行為與社會環境-112-1-申論2",
+  "人類行為與社會環境-112-2-申論1",
+  "人類行為與社會環境-112-2-申論2",
+  "人類行為與社會環境-113-1-申論1",
+  "人類行為與社會環境-113-1-申論2",
+  "人類行為與社會環境-113-2-申論1",
+  "人類行為與社會環境-113-2-申論2",
+  "人類行為與社會環境-114-1-申論1",
+  "人類行為與社會環境-114-1-申論2",
+  "人類行為與社會環境-114-2-申論1",
+  "人類行為與社會環境-114-2-申論2",
+  "人類行為與社會環境-115-1-申論1",
+  "人類行為與社會環境-115-1-申論2",
+  "社會工作-104-1-申論1",
+  "社會工作-104-1-申論2",
+  "社會工作-104-2-申論1",
+  "社會工作-104-2-申論2",
+  "社會工作-105-1-申論1",
+  "社會工作-105-1-申論2",
+  "社會工作-105-2-申論1",
+  "社會工作-105-2-申論2",
+  "社會工作-106-1-申論1",
+  "社會工作-106-1-申論2",
+  "社會工作-106-2-申論1",
+  "社會工作-106-2-申論2",
+  "社會工作-107-1-申論1",
+  "社會工作-107-1-申論2",
+  "社會工作-107-2-申論1",
+  "社會工作-107-2-申論2",
+  "社會工作-108-1-申論1",
+  "社會工作-108-1-申論2",
+  "社會工作-108-2-申論1",
+  "社會工作-108-2-申論2",
+  "社會工作-109-1-申論1",
+  "社會工作-109-1-申論2",
+  "社會工作-109-2-申論1",
+  "社會工作-109-2-申論2",
+  "社會工作-110-1-申論1",
+  "社會工作-110-1-申論2",
+  "社會工作-110-2-申論1",
+  "社會工作-110-2-申論2",
+  "社會工作-111-1-申論1",
+  "社會工作-111-1-申論2",
+  "社會工作-111-2-申論1",
+  "社會工作-111-2-申論2",
+  "社會工作-112-1-申論1",
+  "社會工作-112-1-申論2",
+  "社會工作-112-2-申論1",
+  "社會工作-112-2-申論2",
+  "社會工作-113-1-申論1",
+  "社會工作-113-1-申論2",
+  "社會工作-113-2-申論1",
+  "社會工作-113-2-申論2",
+  "社會工作-114-1-申論1",
+  "社會工作-114-1-申論2",
+  "社會工作-114-2-申論1",
+  "社會工作-114-2-申論2",
+  "社會工作-115-1-申論1",
+  "社會工作-115-1-申論2",
+  "社會工作直接服務-104-1-申論1",
+  "社會工作直接服務-104-1-申論2",
+  "社會工作直接服務-104-2-申論1",
+  "社會工作直接服務-104-2-申論2",
+  "社會工作直接服務-105-1-申論1",
+  "社會工作直接服務-105-1-申論2",
+  "社會工作直接服務-105-2-申論1",
+  "社會工作直接服務-105-2-申論2",
+  "社會工作直接服務-106-1-申論1",
+  "社會工作直接服務-106-1-申論2",
+  "社會工作直接服務-106-2-申論1",
+  "社會工作直接服務-106-2-申論2",
+  "社會工作直接服務-107-1-申論1",
+  "社會工作直接服務-107-1-申論2",
+  "社會工作直接服務-107-2-申論1",
+  "社會工作直接服務-107-2-申論2",
+  "社會工作直接服務-108-1-申論1",
+  "社會工作直接服務-108-1-申論2",
+  "社會工作直接服務-108-2-申論1",
+  "社會工作直接服務-108-2-申論2",
+  "社會工作直接服務-109-1-申論1",
+  "社會工作直接服務-109-1-申論2",
+  "社會工作直接服務-109-2-申論1",
+  "社會工作直接服務-109-2-申論2",
+  "社會工作直接服務-110-1-申論1",
+  "社會工作直接服務-110-1-申論2",
+  "社會工作直接服務-110-2-申論1",
+  "社會工作直接服務-110-2-申論2",
+  "社會工作直接服務-111-1-申論1",
+  "社會工作直接服務-111-1-申論2",
+  "社會工作直接服務-111-2-申論1",
+  "社會工作直接服務-111-2-申論2",
+  "社會工作直接服務-112-1-申論1",
+  "社會工作直接服務-112-1-申論2",
+  "社會工作直接服務-112-2-申論1",
+  "社會工作直接服務-112-2-申論2",
+  "社會工作直接服務-113-1-申論1",
+  "社會工作直接服務-113-1-申論2",
+  "社會工作直接服務-113-2-申論1",
+  "社會工作直接服務-113-2-申論2",
+  "社會工作直接服務-114-1-申論1",
+  "社會工作直接服務-114-1-申論2",
+  "社會工作直接服務-114-2-申論1",
+  "社會工作直接服務-114-2-申論2",
+  "社會工作直接服務-115-1-申論1",
+  "社會工作直接服務-115-1-申論2",
+  "社會工作研究方法-104-1-申論1",
+  "社會工作研究方法-104-1-申論2",
+  "社會工作研究方法-104-2-申論1",
+  "社會工作研究方法-104-2-申論2",
+  "社會工作研究方法-105-1-申論1",
+  "社會工作研究方法-105-1-申論2",
+  "社會工作研究方法-105-2-申論1",
+  "社會工作研究方法-105-2-申論2",
+  "社會工作研究方法-106-1-申論1",
+  "社會工作研究方法-106-1-申論2",
+  "社會工作研究方法-106-2-申論1",
+  "社會工作研究方法-106-2-申論2",
+  "社會工作研究方法-107-1-申論1",
+  "社會工作研究方法-107-1-申論2",
+  "社會工作研究方法-107-2-申論1",
+  "社會工作研究方法-107-2-申論2",
+  "社會工作研究方法-108-1-申論1",
+  "社會工作研究方法-108-1-申論2",
+  "社會工作研究方法-108-2-申論1",
+  "社會工作研究方法-108-2-申論2",
+  "社會工作研究方法-109-1-申論1",
+  "社會工作研究方法-109-1-申論2",
+  "社會工作研究方法-109-2-申論1",
+  "社會工作研究方法-109-2-申論2",
+  "社會工作研究方法-110-1-申論1",
+  "社會工作研究方法-110-1-申論2",
+  "社會工作研究方法-110-2-申論1",
+  "社會工作研究方法-110-2-申論2",
+  "社會工作研究方法-111-1-申論1",
+  "社會工作研究方法-111-1-申論2",
+  "社會工作研究方法-111-2-申論1",
+  "社會工作研究方法-111-2-申論2",
+  "社會工作研究方法-112-1-申論1",
+  "社會工作研究方法-112-1-申論2",
+  "社會工作研究方法-112-2-申論1",
+  "社會工作研究方法-112-2-申論2",
+  "社會工作研究方法-113-1-申論1",
+  "社會工作研究方法-113-1-申論2",
+  "社會工作研究方法-113-2-申論1",
+  "社會工作研究方法-113-2-申論2",
+  "社會工作研究方法-114-1-申論1",
+  "社會工作研究方法-114-1-申論2",
+  "社會工作研究方法-114-2-申論1",
+  "社會工作研究方法-114-2-申論2",
+  "社會工作研究方法-115-1-申論1",
+  "社會工作研究方法-115-1-申論2",
+  "社會政策與社會立法-104-1-申論1",
+  "社會政策與社會立法-104-1-申論2",
+  "社會政策與社會立法-104-2-申論1",
+  "社會政策與社會立法-104-2-申論2",
+  "社會政策與社會立法-105-1-申論1",
+  "社會政策與社會立法-105-1-申論2",
+  "社會政策與社會立法-105-2-申論1",
+  "社會政策與社會立法-105-2-申論2",
+  "社會政策與社會立法-106-1-申論1",
+  "社會政策與社會立法-106-1-申論2",
+  "社會政策與社會立法-106-2-申論1",
+  "社會政策與社會立法-106-2-申論2",
+  "社會政策與社會立法-107-1-申論1",
+  "社會政策與社會立法-107-1-申論2",
+  "社會政策與社會立法-107-2-申論1",
+  "社會政策與社會立法-107-2-申論2",
+  "社會政策與社會立法-108-1-申論1",
+  "社會政策與社會立法-108-1-申論2",
+  "社會政策與社會立法-108-2-申論1",
+  "社會政策與社會立法-108-2-申論2",
+  "社會政策與社會立法-109-1-申論1",
+  "社會政策與社會立法-109-1-申論2",
+  "社會政策與社會立法-109-2-申論1",
+  "社會政策與社會立法-109-2-申論2",
+  "社會政策與社會立法-110-1-申論1",
+  "社會政策與社會立法-110-1-申論2",
+  "社會政策與社會立法-110-2-申論1",
+  "社會政策與社會立法-110-2-申論2",
+  "社會政策與社會立法-111-1-申論1",
+  "社會政策與社會立法-111-1-申論2",
+  "社會政策與社會立法-111-2-申論1",
+  "社會政策與社會立法-111-2-申論2",
+  "社會政策與社會立法-112-1-申論1",
+  "社會政策與社會立法-112-1-申論2",
+  "社會政策與社會立法-112-2-申論1",
+  "社會政策與社會立法-112-2-申論2",
+  "社會政策與社會立法-113-1-申論1",
+  "社會政策與社會立法-113-1-申論2",
+  "社會政策與社會立法-113-2-申論1",
+  "社會政策與社會立法-113-2-申論2",
+  "社會政策與社會立法-114-1-申論1",
+  "社會政策與社會立法-114-1-申論2",
+  "社會政策與社會立法-114-2-申論1",
+  "社會政策與社會立法-114-2-申論2",
+  "社會政策與社會立法-115-1-申論1",
+  "社會政策與社會立法-115-1-申論2"
+ ],
+ "source_metadata": {
+  "人類行為與社會環境-104-1-申論1": {
+   "source_exam_code": "104030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-104-1-申論2": {
+   "source_exam_code": "104030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-104-2-申論1": {
+   "source_exam_code": "104100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-104-2-申論2": {
+   "source_exam_code": "104100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-105-1-申論1": {
+   "source_exam_code": "105030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105030&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-105-1-申論2": {
+   "source_exam_code": "105030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105030&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-105-2-申論1": {
+   "source_exam_code": "105090",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-105-2-申論2": {
+   "source_exam_code": "105090",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-106-1-申論1": {
+   "source_exam_code": "106030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-106-1-申論2": {
+   "source_exam_code": "106030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-106-2-申論1": {
+   "source_exam_code": "106110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-106-2-申論2": {
+   "source_exam_code": "106110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-107-1-申論1": {
+   "source_exam_code": "107030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-107-1-申論2": {
+   "source_exam_code": "107030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-107-2-申論1": {
+   "source_exam_code": "107110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107110&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-107-2-申論2": {
+   "source_exam_code": "107110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107110&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-108-1-申論1": {
+   "source_exam_code": "108020",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108020&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-108-1-申論2": {
+   "source_exam_code": "108020",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108020&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-108-2-申論1": {
+   "source_exam_code": "108110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-108-2-申論2": {
+   "source_exam_code": "108110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-109-1-申論1": {
+   "source_exam_code": "109030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109030&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-109-1-申論2": {
+   "source_exam_code": "109030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109030&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-109-2-申論1": {
+   "source_exam_code": "109110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109110&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-109-2-申論2": {
+   "source_exam_code": "109110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109110&q=1&s=0605&t=Q"
+  },
+  "人類行為與社會環境-110-1-申論1": {
+   "source_exam_code": "110030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110030&q=1&s=0405&t=Q"
+  },
+  "人類行為與社會環境-110-1-申論2": {
+   "source_exam_code": "110030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110030&q=1&s=0405&t=Q"
+  },
+  "人類行為與社會環境-110-2-申論1": {
+   "source_exam_code": "110111",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110111&q=1&s=0405&t=Q"
+  },
+  "人類行為與社會環境-110-2-申論2": {
+   "source_exam_code": "110111",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110111&q=1&s=0405&t=Q"
+  },
+  "人類行為與社會環境-111-1-申論1": {
+   "source_exam_code": "111030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111030&q=1&s=0405&t=Q"
+  },
+  "人類行為與社會環境-111-1-申論2": {
+   "source_exam_code": "111030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111030&q=1&s=0405&t=Q"
+  },
+  "人類行為與社會環境-111-2-申論1": {
+   "source_exam_code": "111110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111110&q=1&s=0405&t=Q"
+  },
+  "人類行為與社會環境-111-2-申論2": {
+   "source_exam_code": "111110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111110&q=1&s=0405&t=Q"
+  },
+  "人類行為與社會環境-112-1-申論1": {
+   "source_exam_code": "112030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112030&q=1&s=0305&t=Q"
+  },
+  "人類行為與社會環境-112-1-申論2": {
+   "source_exam_code": "112030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112030&q=1&s=0305&t=Q"
+  },
+  "人類行為與社會環境-112-2-申論1": {
+   "source_exam_code": "112110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112110&q=1&s=0305&t=Q"
+  },
+  "人類行為與社會環境-112-2-申論2": {
+   "source_exam_code": "112110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112110&q=1&s=0305&t=Q"
+  },
+  "人類行為與社會環境-113-1-申論1": {
+   "source_exam_code": "113030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113030&q=1&s=0305&t=Q"
+  },
+  "人類行為與社會環境-113-1-申論2": {
+   "source_exam_code": "113030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113030&q=1&s=0305&t=Q"
+  },
+  "人類行為與社會環境-113-2-申論1": {
+   "source_exam_code": "113100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0305&t=Q"
+  },
+  "人類行為與社會環境-113-2-申論2": {
+   "source_exam_code": "113100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0305&t=Q"
+  },
+  "人類行為與社會環境-114-1-申論1": {
+   "source_exam_code": "114030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114030&q=1&s=0305&t=Q"
+  },
+  "人類行為與社會環境-114-1-申論2": {
+   "source_exam_code": "114030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114030&q=1&s=0305&t=Q"
+  },
+  "人類行為與社會環境-114-2-申論1": {
+   "source_exam_code": "114100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114100&q=1&s=0305&t=Q"
+  },
+  "人類行為與社會環境-114-2-申論2": {
+   "source_exam_code": "114100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114100&q=1&s=0305&t=Q"
+  },
+  "人類行為與社會環境-115-1-申論1": {
+   "source_exam_code": "115030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q"
+  },
+  "人類行為與社會環境-115-1-申論2": {
+   "source_exam_code": "115030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0304&t=Q"
+  },
+  "社會工作-104-1-申論1": {
+   "source_exam_code": "104030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0601&t=Q"
+  },
+  "社會工作-104-1-申論2": {
+   "source_exam_code": "104030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0601&t=Q"
+  },
+  "社會工作-104-2-申論1": {
+   "source_exam_code": "104100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0601&t=Q"
+  },
+  "社會工作-104-2-申論2": {
+   "source_exam_code": "104100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0601&t=Q"
+  },
+  "社會工作-105-1-申論1": {
+   "source_exam_code": "105030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105030&q=1&s=0601&t=Q"
+  },
+  "社會工作-105-1-申論2": {
+   "source_exam_code": "105030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105030&q=1&s=0601&t=Q"
+  },
+  "社會工作-105-2-申論1": {
+   "source_exam_code": "105090",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0601&t=Q"
+  },
+  "社會工作-105-2-申論2": {
+   "source_exam_code": "105090",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0601&t=Q"
+  },
+  "社會工作-106-1-申論1": {
+   "source_exam_code": "106030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0601&t=Q"
+  },
+  "社會工作-106-1-申論2": {
+   "source_exam_code": "106030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0601&t=Q"
+  },
+  "社會工作-106-2-申論1": {
+   "source_exam_code": "106110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0601&t=Q"
+  },
+  "社會工作-106-2-申論2": {
+   "source_exam_code": "106110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0601&t=Q"
+  },
+  "社會工作-107-1-申論1": {
+   "source_exam_code": "107030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0601&t=Q"
+  },
+  "社會工作-107-1-申論2": {
+   "source_exam_code": "107030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0601&t=Q"
+  },
+  "社會工作-107-2-申論1": {
+   "source_exam_code": "107110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107110&q=1&s=0601&t=Q"
+  },
+  "社會工作-107-2-申論2": {
+   "source_exam_code": "107110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107110&q=1&s=0601&t=Q"
+  },
+  "社會工作-108-1-申論1": {
+   "source_exam_code": "108020",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108020&q=1&s=0601&t=Q"
+  },
+  "社會工作-108-1-申論2": {
+   "source_exam_code": "108020",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108020&q=1&s=0601&t=Q"
+  },
+  "社會工作-108-2-申論1": {
+   "source_exam_code": "108110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0601&t=Q"
+  },
+  "社會工作-108-2-申論2": {
+   "source_exam_code": "108110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0601&t=Q"
+  },
+  "社會工作-109-1-申論1": {
+   "source_exam_code": "109030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109030&q=1&s=0601&t=Q"
+  },
+  "社會工作-109-1-申論2": {
+   "source_exam_code": "109030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109030&q=1&s=0601&t=Q"
+  },
+  "社會工作-109-2-申論1": {
+   "source_exam_code": "109110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109110&q=1&s=0601&t=Q"
+  },
+  "社會工作-109-2-申論2": {
+   "source_exam_code": "109110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109110&q=1&s=0601&t=Q"
+  },
+  "社會工作-110-1-申論1": {
+   "source_exam_code": "110030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110030&q=1&s=0401&t=Q"
+  },
+  "社會工作-110-1-申論2": {
+   "source_exam_code": "110030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110030&q=1&s=0401&t=Q"
+  },
+  "社會工作-110-2-申論1": {
+   "source_exam_code": "110111",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110111&q=1&s=0401&t=Q"
+  },
+  "社會工作-110-2-申論2": {
+   "source_exam_code": "110111",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110111&q=1&s=0401&t=Q"
+  },
+  "社會工作-111-1-申論1": {
+   "source_exam_code": "111030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111030&q=1&s=0401&t=Q"
+  },
+  "社會工作-111-1-申論2": {
+   "source_exam_code": "111030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111030&q=1&s=0401&t=Q"
+  },
+  "社會工作-111-2-申論1": {
+   "source_exam_code": "111110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111110&q=1&s=0401&t=Q"
+  },
+  "社會工作-111-2-申論2": {
+   "source_exam_code": "111110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111110&q=1&s=0401&t=Q"
+  },
+  "社會工作-112-1-申論1": {
+   "source_exam_code": "112030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112030&q=1&s=0301&t=Q"
+  },
+  "社會工作-112-1-申論2": {
+   "source_exam_code": "112030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112030&q=1&s=0301&t=Q"
+  },
+  "社會工作-112-2-申論1": {
+   "source_exam_code": "112110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112110&q=1&s=0301&t=Q"
+  },
+  "社會工作-112-2-申論2": {
+   "source_exam_code": "112110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112110&q=1&s=0301&t=Q"
+  },
+  "社會工作-113-1-申論1": {
+   "source_exam_code": "113030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113030&q=1&s=0301&t=Q"
+  },
+  "社會工作-113-1-申論2": {
+   "source_exam_code": "113030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113030&q=1&s=0301&t=Q"
+  },
+  "社會工作-113-2-申論1": {
+   "source_exam_code": "113100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0301&t=Q"
+  },
+  "社會工作-113-2-申論2": {
+   "source_exam_code": "113100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0301&t=Q"
+  },
+  "社會工作-114-1-申論1": {
+   "source_exam_code": "114030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114030&q=1&s=0301&t=Q"
+  },
+  "社會工作-114-1-申論2": {
+   "source_exam_code": "114030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114030&q=1&s=0301&t=Q"
+  },
+  "社會工作-114-2-申論1": {
+   "source_exam_code": "114100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114100&q=1&s=0301&t=Q"
+  },
+  "社會工作-114-2-申論2": {
+   "source_exam_code": "114100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114100&q=1&s=0301&t=Q"
+  },
+  "社會工作-115-1-申論1": {
+   "source_exam_code": "115030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q"
+  },
+  "社會工作-115-1-申論2": {
+   "source_exam_code": "115030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0301&t=Q"
+  },
+  "社會工作直接服務-104-1-申論1": {
+   "source_exam_code": "104030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-104-1-申論2": {
+   "source_exam_code": "104030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-104-2-申論1": {
+   "source_exam_code": "104100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-104-2-申論2": {
+   "source_exam_code": "104100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-105-1-申論1": {
+   "source_exam_code": "105030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105030&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-105-1-申論2": {
+   "source_exam_code": "105030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105030&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-105-2-申論1": {
+   "source_exam_code": "105090",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-105-2-申論2": {
+   "source_exam_code": "105090",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-106-1-申論1": {
+   "source_exam_code": "106030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-106-1-申論2": {
+   "source_exam_code": "106030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-106-2-申論1": {
+   "source_exam_code": "106110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-106-2-申論2": {
+   "source_exam_code": "106110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-107-1-申論1": {
+   "source_exam_code": "107030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-107-1-申論2": {
+   "source_exam_code": "107030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-107-2-申論1": {
+   "source_exam_code": "107110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107110&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-107-2-申論2": {
+   "source_exam_code": "107110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107110&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-108-1-申論1": {
+   "source_exam_code": "108020",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108020&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-108-1-申論2": {
+   "source_exam_code": "108020",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108020&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-108-2-申論1": {
+   "source_exam_code": "108110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-108-2-申論2": {
+   "source_exam_code": "108110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-109-1-申論1": {
+   "source_exam_code": "109030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109030&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-109-1-申論2": {
+   "source_exam_code": "109030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109030&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-109-2-申論1": {
+   "source_exam_code": "109110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109110&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-109-2-申論2": {
+   "source_exam_code": "109110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109110&q=1&s=0602&t=Q"
+  },
+  "社會工作直接服務-110-1-申論1": {
+   "source_exam_code": "110030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110030&q=1&s=0402&t=Q"
+  },
+  "社會工作直接服務-110-1-申論2": {
+   "source_exam_code": "110030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110030&q=1&s=0402&t=Q"
+  },
+  "社會工作直接服務-110-2-申論1": {
+   "source_exam_code": "110111",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110111&q=1&s=0402&t=Q"
+  },
+  "社會工作直接服務-110-2-申論2": {
+   "source_exam_code": "110111",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110111&q=1&s=0402&t=Q"
+  },
+  "社會工作直接服務-111-1-申論1": {
+   "source_exam_code": "111030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111030&q=1&s=0402&t=Q"
+  },
+  "社會工作直接服務-111-1-申論2": {
+   "source_exam_code": "111030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111030&q=1&s=0402&t=Q"
+  },
+  "社會工作直接服務-111-2-申論1": {
+   "source_exam_code": "111110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111110&q=1&s=0402&t=Q"
+  },
+  "社會工作直接服務-111-2-申論2": {
+   "source_exam_code": "111110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111110&q=1&s=0402&t=Q"
+  },
+  "社會工作直接服務-112-1-申論1": {
+   "source_exam_code": "112030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112030&q=1&s=0302&t=Q"
+  },
+  "社會工作直接服務-112-1-申論2": {
+   "source_exam_code": "112030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112030&q=1&s=0302&t=Q"
+  },
+  "社會工作直接服務-112-2-申論1": {
+   "source_exam_code": "112110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112110&q=1&s=0302&t=Q"
+  },
+  "社會工作直接服務-112-2-申論2": {
+   "source_exam_code": "112110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112110&q=1&s=0302&t=Q"
+  },
+  "社會工作直接服務-113-1-申論1": {
+   "source_exam_code": "113030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113030&q=1&s=0302&t=Q"
+  },
+  "社會工作直接服務-113-1-申論2": {
+   "source_exam_code": "113030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113030&q=1&s=0302&t=Q"
+  },
+  "社會工作直接服務-113-2-申論1": {
+   "source_exam_code": "113100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0302&t=Q"
+  },
+  "社會工作直接服務-113-2-申論2": {
+   "source_exam_code": "113100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0302&t=Q"
+  },
+  "社會工作直接服務-114-1-申論1": {
+   "source_exam_code": "114030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114030&q=1&s=0302&t=Q"
+  },
+  "社會工作直接服務-114-1-申論2": {
+   "source_exam_code": "114030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114030&q=1&s=0302&t=Q"
+  },
+  "社會工作直接服務-114-2-申論1": {
+   "source_exam_code": "114100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114100&q=1&s=0302&t=Q"
+  },
+  "社會工作直接服務-114-2-申論2": {
+   "source_exam_code": "114100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114100&q=1&s=0302&t=Q"
+  },
+  "社會工作直接服務-115-1-申論1": {
+   "source_exam_code": "115030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q"
+  },
+  "社會工作直接服務-115-1-申論2": {
+   "source_exam_code": "115030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0302&t=Q"
+  },
+  "社會工作研究方法-104-1-申論1": {
+   "source_exam_code": "104030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-104-1-申論2": {
+   "source_exam_code": "104030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-104-2-申論1": {
+   "source_exam_code": "104100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-104-2-申論2": {
+   "source_exam_code": "104100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-105-1-申論1": {
+   "source_exam_code": "105030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105030&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-105-1-申論2": {
+   "source_exam_code": "105030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105030&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-105-2-申論1": {
+   "source_exam_code": "105090",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-105-2-申論2": {
+   "source_exam_code": "105090",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-106-1-申論1": {
+   "source_exam_code": "106030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-106-1-申論2": {
+   "source_exam_code": "106030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-106-2-申論1": {
+   "source_exam_code": "106110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-106-2-申論2": {
+   "source_exam_code": "106110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-107-1-申論1": {
+   "source_exam_code": "107030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-107-1-申論2": {
+   "source_exam_code": "107030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-107-2-申論1": {
+   "source_exam_code": "107110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107110&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-107-2-申論2": {
+   "source_exam_code": "107110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107110&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-108-1-申論1": {
+   "source_exam_code": "108020",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108020&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-108-1-申論2": {
+   "source_exam_code": "108020",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108020&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-108-2-申論1": {
+   "source_exam_code": "108110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-108-2-申論2": {
+   "source_exam_code": "108110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-109-1-申論1": {
+   "source_exam_code": "109030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109030&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-109-1-申論2": {
+   "source_exam_code": "109030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109030&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-109-2-申論1": {
+   "source_exam_code": "109110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109110&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-109-2-申論2": {
+   "source_exam_code": "109110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109110&q=1&s=0606&t=Q"
+  },
+  "社會工作研究方法-110-1-申論1": {
+   "source_exam_code": "110030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110030&q=1&s=0406&t=Q"
+  },
+  "社會工作研究方法-110-1-申論2": {
+   "source_exam_code": "110030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110030&q=1&s=0406&t=Q"
+  },
+  "社會工作研究方法-110-2-申論1": {
+   "source_exam_code": "110111",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110111&q=1&s=0406&t=Q"
+  },
+  "社會工作研究方法-110-2-申論2": {
+   "source_exam_code": "110111",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110111&q=1&s=0406&t=Q"
+  },
+  "社會工作研究方法-111-1-申論1": {
+   "source_exam_code": "111030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111030&q=1&s=0406&t=Q"
+  },
+  "社會工作研究方法-111-1-申論2": {
+   "source_exam_code": "111030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111030&q=1&s=0406&t=Q"
+  },
+  "社會工作研究方法-111-2-申論1": {
+   "source_exam_code": "111110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111110&q=1&s=0406&t=Q"
+  },
+  "社會工作研究方法-111-2-申論2": {
+   "source_exam_code": "111110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111110&q=1&s=0406&t=Q"
+  },
+  "社會工作研究方法-112-1-申論1": {
+   "source_exam_code": "112030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112030&q=1&s=0306&t=Q"
+  },
+  "社會工作研究方法-112-1-申論2": {
+   "source_exam_code": "112030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112030&q=1&s=0306&t=Q"
+  },
+  "社會工作研究方法-112-2-申論1": {
+   "source_exam_code": "112110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112110&q=1&s=0306&t=Q"
+  },
+  "社會工作研究方法-112-2-申論2": {
+   "source_exam_code": "112110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112110&q=1&s=0306&t=Q"
+  },
+  "社會工作研究方法-113-1-申論1": {
+   "source_exam_code": "113030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113030&q=1&s=0306&t=Q"
+  },
+  "社會工作研究方法-113-1-申論2": {
+   "source_exam_code": "113030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113030&q=1&s=0306&t=Q"
+  },
+  "社會工作研究方法-113-2-申論1": {
+   "source_exam_code": "113100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0306&t=Q"
+  },
+  "社會工作研究方法-113-2-申論2": {
+   "source_exam_code": "113100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0306&t=Q"
+  },
+  "社會工作研究方法-114-1-申論1": {
+   "source_exam_code": "114030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114030&q=1&s=0306&t=Q"
+  },
+  "社會工作研究方法-114-1-申論2": {
+   "source_exam_code": "114030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114030&q=1&s=0306&t=Q"
+  },
+  "社會工作研究方法-114-2-申論1": {
+   "source_exam_code": "114100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114100&q=1&s=0306&t=Q"
+  },
+  "社會工作研究方法-114-2-申論2": {
+   "source_exam_code": "114100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114100&q=1&s=0306&t=Q"
+  },
+  "社會工作研究方法-115-1-申論1": {
+   "source_exam_code": "115030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q"
+  },
+  "社會工作研究方法-115-1-申論2": {
+   "source_exam_code": "115030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0305&t=Q"
+  },
+  "社會政策與社會立法-104-1-申論1": {
+   "source_exam_code": "104030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-104-1-申論2": {
+   "source_exam_code": "104030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=110&code=104030&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-104-2-申論1": {
+   "source_exam_code": "104100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-104-2-申論2": {
+   "source_exam_code": "104100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-105-1-申論1": {
+   "source_exam_code": "105030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105030&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-105-1-申論2": {
+   "source_exam_code": "105030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105030&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-105-2-申論1": {
+   "source_exam_code": "105090",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-105-2-申論2": {
+   "source_exam_code": "105090",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=105090&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-106-1-申論1": {
+   "source_exam_code": "106030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-106-1-申論2": {
+   "source_exam_code": "106030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106030&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-106-2-申論1": {
+   "source_exam_code": "106110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-106-2-申論2": {
+   "source_exam_code": "106110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=106110&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-107-1-申論1": {
+   "source_exam_code": "107030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-107-1-申論2": {
+   "source_exam_code": "107030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107030&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-107-2-申論1": {
+   "source_exam_code": "107110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107110&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-107-2-申論2": {
+   "source_exam_code": "107110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=107110&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-108-1-申論1": {
+   "source_exam_code": "108020",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108020&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-108-1-申論2": {
+   "source_exam_code": "108020",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108020&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-108-2-申論1": {
+   "source_exam_code": "108110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-108-2-申論2": {
+   "source_exam_code": "108110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-109-1-申論1": {
+   "source_exam_code": "109030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109030&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-109-1-申論2": {
+   "source_exam_code": "109030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109030&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-109-2-申論1": {
+   "source_exam_code": "109110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109110&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-109-2-申論2": {
+   "source_exam_code": "109110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=109110&q=1&s=0604&t=Q"
+  },
+  "社會政策與社會立法-110-1-申論1": {
+   "source_exam_code": "110030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110030&q=1&s=0404&t=Q"
+  },
+  "社會政策與社會立法-110-1-申論2": {
+   "source_exam_code": "110030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110030&q=1&s=0404&t=Q"
+  },
+  "社會政策與社會立法-110-2-申論1": {
+   "source_exam_code": "110111",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110111&q=1&s=0404&t=Q"
+  },
+  "社會政策與社會立法-110-2-申論2": {
+   "source_exam_code": "110111",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=110111&q=1&s=0404&t=Q"
+  },
+  "社會政策與社會立法-111-1-申論1": {
+   "source_exam_code": "111030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111030&q=1&s=0404&t=Q"
+  },
+  "社會政策與社會立法-111-1-申論2": {
+   "source_exam_code": "111030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111030&q=1&s=0404&t=Q"
+  },
+  "社會政策與社會立法-111-2-申論1": {
+   "source_exam_code": "111110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111110&q=1&s=0404&t=Q"
+  },
+  "社會政策與社會立法-111-2-申論2": {
+   "source_exam_code": "111110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=105&code=111110&q=1&s=0404&t=Q"
+  },
+  "社會政策與社會立法-112-1-申論1": {
+   "source_exam_code": "112030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112030&q=1&s=0304&t=Q"
+  },
+  "社會政策與社會立法-112-1-申論2": {
+   "source_exam_code": "112030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112030&q=1&s=0304&t=Q"
+  },
+  "社會政策與社會立法-112-2-申論1": {
+   "source_exam_code": "112110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112110&q=1&s=0304&t=Q"
+  },
+  "社會政策與社會立法-112-2-申論2": {
+   "source_exam_code": "112110",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112110&q=1&s=0304&t=Q"
+  },
+  "社會政策與社會立法-113-1-申論1": {
+   "source_exam_code": "113030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113030&q=1&s=0304&t=Q"
+  },
+  "社會政策與社會立法-113-1-申論2": {
+   "source_exam_code": "113030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113030&q=1&s=0304&t=Q"
+  },
+  "社會政策與社會立法-113-2-申論1": {
+   "source_exam_code": "113100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0304&t=Q"
+  },
+  "社會政策與社會立法-113-2-申論2": {
+   "source_exam_code": "113100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0304&t=Q"
+  },
+  "社會政策與社會立法-114-1-申論1": {
+   "source_exam_code": "114030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114030&q=1&s=0304&t=Q"
+  },
+  "社會政策與社會立法-114-1-申論2": {
+   "source_exam_code": "114030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114030&q=1&s=0304&t=Q"
+  },
+  "社會政策與社會立法-114-2-申論1": {
+   "source_exam_code": "114100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114100&q=1&s=0304&t=Q"
+  },
+  "社會政策與社會立法-114-2-申論2": {
+   "source_exam_code": "114100",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=114100&q=1&s=0304&t=Q"
+  },
+  "社會政策與社會立法-115-1-申論1": {
+   "source_exam_code": "115030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q"
+  },
+  "社會政策與社會立法-115-1-申論2": {
+   "source_exam_code": "115030",
+   "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115030&q=1&s=0303&t=Q"
+  }
+ },
+ "mcq_locks_unchanged": true
+}
