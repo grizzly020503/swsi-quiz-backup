@@ -24,6 +24,7 @@ import json
 import re
 import sys
 import time
+import unicodedata
 from pathlib import Path
 
 PUNCT = {
@@ -35,7 +36,9 @@ CIRCLED = {chr(0x2460 + i): f"({i + 1})" for i in range(20)}
 
 
 def norm(text: str) -> str:
-    s = str(text or "")
+    # NFKC folds Kangxi radicals (e.g. U+2F93 ⾓), CJK compatibility ideographs
+    # and full-width forms that MOEX PDFs and older rows use for ordinary characters.
+    s = unicodedata.normalize("NFKC", str(text or ""))
     s = "".join(chr(ord(c) - 0xFEE0) if "！" <= c <= "～" else c for c in s)
     s = "".join(PUNCT.get(c, CIRCLED.get(c, c)) for c in s)
     s = s.replace("χ²", "χ2").replace("χ 2", "χ2")
@@ -94,6 +97,10 @@ def layout_excerpt(data: bytes, stem: str, lines: int = 16) -> str | None:
     for i, line in enumerate(rows):
         if key and key in norm(" ".join(rows[i:i + 2])):
             return "\n".join(rows[max(0, i - 1):i + lines])
+    # Not found: show the paper's essay section (lines starting with 一、/二、).
+    heads = [i for i, line in enumerate(rows) if line.strip().startswith(("一、", "二、"))]
+    if heads:
+        return "(stem not found; essay section of this paper)\n" + "\n".join(rows[heads[0]:heads[0] + lines])
     return None
 
 
