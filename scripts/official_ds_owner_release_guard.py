@@ -94,5 +94,7 @@ def verify_transition(rows, live=False):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--selftest',action='store_true');args=p.parse_args()
-    from official_two_source_owner_release_guard import verify_predecessor
-    verify(verify_predecessor,args.selftest)
+    # Later owner-approved releases intentionally move the current corpus; the
+    # newest guard rebuilds this release's exact successor state and replays it.
+    from official_source_repair_release_guard import replay
+    replay(ROOT,args.selftest)
