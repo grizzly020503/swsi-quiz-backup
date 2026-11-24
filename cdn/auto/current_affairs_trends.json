@@ -542,7 +542,7 @@
         "1 個官方來源",
         "有政策／制度訊號",
         "涉及 2 項法規／公約",
-        "歷屆同概念／事件詞關聯 159 題，跨 12 個年度；強 0／中 7／概念 152",
+        "歷屆同概念／事件詞關聯 160 題，跨 12 個年度；強 0／中 7／概念 153",
         "最近相關題為 115 年（距題庫最新年度 0 年）",
         "歷屆分布 2 個考科"
       ],
@@ -585,12 +585,12 @@
         }
       ],
       "law_link_rules_schema": 1,
-      "historical_question_count": 159,
+      "historical_question_count": 160,
       "historical_weighted_match_count": 4.0,
       "historical_match_breakdown": {
         "strong": 0,
         "medium": 7,
-        "concept": 152
+        "concept": 153
       },
       "historical_exam_years": [
         104,
@@ -611,7 +611,7 @@
       "years_since_last_related_exam": 0,
       "historical_subject_counts": {
         "社會工作": 11,
-        "社會政策與社會立法": 148
+        "社會政策與社會立法": 149
       },
       "historical_subject_count": 2,
       "historical_law_match_count": 0,
@@ -762,7 +762,7 @@
         "1 個官方來源",
         "有政策／制度訊號",
         "涉及 2 項法規／公約",
-        "同法規另有 64 題歷屆紀錄，跨 12 個年度"
+        "同法規另有 63 題歷屆紀錄，跨 12 個年度"
       ],
       "factors": {
         "cross_source": 0.0,
@@ -805,7 +805,7 @@
       "years_since_last_related_exam": null,
       "historical_subject_counts": {},
       "historical_subject_count": 0,
-      "historical_law_match_count": 64,
+      "historical_law_match_count": 63,
       "historical_law_match_years": [
         104,
         105,
@@ -1256,7 +1256,7 @@
         "社會工作管理 > 規劃與政策執行 > 社會工作 > 復元取向、去污名與權利保障"
       ],
       "trend_state": "one-off",
-      "trend_score": 3.2,
+      "trend_score": 2.9,
       "why": [
         "1 個官方來源",
         "有政策／制度訊號",
@@ -1276,7 +1276,7 @@
         "persistence": 0.0,
         "essay_value": 0.0,
         "mcq_density": 0.0,
-        "recency": 0.6
+        "recency": 0.2
       },
       "source_count": 1,
       "official_source_count": 1,

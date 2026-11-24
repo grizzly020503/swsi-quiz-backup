@@ -65,6 +65,19 @@ def pdf_text(data: bytes) -> str:
     return extract_text(io.BytesIO(data)) or ""
 
 
+def layout_text(data: bytes) -> str:
+    """Deterministic, column-preserving text (poppler pdftotext -layout)."""
+    import shutil
+    import subprocess
+    import tempfile
+    if not data or not shutil.which("pdftotext"):
+        return ""
+    with tempfile.NamedTemporaryFile(suffix=".pdf") as tmp:
+        tmp.write(data)
+        tmp.flush()
+        return subprocess.run(["pdftotext", "-layout", tmp.name, "-"], capture_output=True, text=True).stdout
+
+
 def layout_excerpt(data: bytes, stem: str, lines: int = 16) -> str | None:
     """Column-preserving view of the question (poppler pdftotext -layout)."""
     import shutil
@@ -99,7 +112,8 @@ def main() -> int:
                 data = fetch(url)
                 sha = hashlib.sha256(data).hexdigest()
                 text = pdf_text(data)
-                cache[url] = {"sha256": sha, "norm": norm(text), "chars": len(norm(text)), "data": data}
+                cache[url] = {"sha256": sha, "norm": norm(text), "chars": len(norm(text)), "data": data,
+                              "layout_norm": norm(layout_text(data))}
             except Exception as exc:
                 cache[url] = {"error": str(exc)}
         paper = cache[url]
@@ -121,7 +135,9 @@ def main() -> int:
             entry["fields"] = fields
             # Option order: from the stem, the proposed A-D must appear in order.
             stem = norm(row["fields"].get("question", {}).get("proposed") or row.get("stem") or "")
-            hay = paper["norm"]
+            # Order is read from the column-preserving layout (row by row, stable
+            # across runs); the plain text layer may interleave columns.
+            hay = paper.get("layout_norm") or paper["norm"]
             start = hay.find(stem) + len(stem) if stem and stem in hay else -1
             order_ok = None
             if start >= 0:
@@ -129,7 +145,7 @@ def main() -> int:
                 for key in ("opt_a", "opt_b", "opt_c", "opt_d"):
                     val = norm(row["proposed_options"][key])
                     nxt = hay.find(val, pos) if val else pos
-                    if nxt < 0 or nxt - start > 1200:
+                    if nxt < 0 or nxt - start > 600:
                         order_ok = False
                         break
                     pos = nxt + len(val)
