@@ -183,8 +183,9 @@ if __name__ == '__main__':
     if args.live:
         print('LEGAL STATUS BATCH1 LIVE STATE:', live_state(live_rows()))
         raise SystemExit(0)
-    replay(ROOT, args.selftest)
-    if args.selftest:
-        negative_selftest()
+    # A later owner-approved release moved the current corpus; the newest
+    # guard rebuilds this release's exact successor state and replays it.
+    from legal_status_batch2_release_guard import replay as replay_newest
+    replay_newest(ROOT, args.selftest)
     print('LEGAL STATUS BATCH1 RELEASE PASS: 129 rows verified_current (cited laws unamended >=365 days before the exam); '
           'only legal metadata changed; exact predecessor and full earlier release chain replayed')

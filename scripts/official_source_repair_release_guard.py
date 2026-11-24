@@ -182,7 +182,7 @@ if __name__ == '__main__':
         raise SystemExit(0)
     # A later owner-approved release moved the current corpus; the newest
     # guard rebuilds this release's exact successor state and replays it.
-    from legal_status_batch1_release_guard import replay as replay_newest
+    from legal_status_batch2_release_guard import replay as replay_newest
     replay_newest(ROOT, args.selftest)
     print('SOURCE REPAIR RELEASE PASS: 13 approved source repairs + HBSE-115-2-026 explanation restore; '
           '0 answer/grading changes; exact pre-sync predecessor and DS owner chain replayed')
