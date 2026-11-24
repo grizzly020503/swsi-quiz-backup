@@ -24,6 +24,15 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install --disable-pip-version-check 'requests==2.32.5'
       - run: python scripts/legal_history_fetch.py --out /tmp/legal-history.json
+      - name: Print amendment histories (log is the evidence channel)
+        run: |
+          python - <<'PY'
+          import json
+          d = json.load(open('/tmp/legal-history.json'))
+          for name, law in sorted(d['laws'].items()):
+              print('@@LAW', json.dumps({'law': name, 'pcode': law['pcode'], 'modified': law['modified'],
+                                        'histories': law['histories']}, ensure_ascii=False))
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: legal-history
