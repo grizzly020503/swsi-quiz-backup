@@ -78,13 +78,24 @@ def verify(old_verify, selftest=False):
             scope['HTML']=saved_html
     print('DS OWNER RELEASE PASS: 3 exact approved repairs; 4797 full rows/4800 grades/240 essays unchanged; exact P0 predecessor replayed')
 
+AI_ENRICHMENT = frozenset({
+ 'major','topic','keywords','exp_why','exp_others','exp_trap','exp_raw','mnemonic','extension','law','mistake',
+ 'analysis_status','analysis_attempts','analysis_error','analysis_started_at','analysis_completed_at','analysis_last_attempt_at',
+})
+
 def verify_transition(rows, live=False):
     proof=json.loads((ROOT/'audit/official_ds_owner_release_20261113.json').read_text())
     assert proof['owner_approved'] is True
     assert len(rows)==3 and {r['id'] for r in rows}==set(CORES)
     if live:
+        # The approved official text, grading, source and legal columns stay
+        # exact. Only the SWSI AI enrichment, cleared to pending by the release,
+        # may later be generated (pending -> ready/review) by the analysis job.
         after=proof['expected_full_postimages']
-        is_after=all(r==after[r['id']] for r in rows)
+        def frozen(r):
+            return {k:v for k,v in r.items() if k not in AI_ENRICHMENT}
+        is_after=all(frozen(r)==frozen(after[r['id']]) and set(r)==set(after[r['id']])
+                     and r.get('analysis_status') in ('pending','ready','review') for r in rows)
         assert is_after, 'production must contain all three approved full postimages'
         return 'EXACT_RELEASED_POSTIMAGES'
     for row in rows:
@@ -94,5 +105,7 @@ def verify_transition(rows, live=False):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--selftest',action='store_true');args=p.parse_args()
-    from official_two_source_owner_release_guard import verify_predecessor
-    verify(verify_predecessor,args.selftest)
+    # Later owner-approved releases intentionally move the current corpus; the
+    # newest guard rebuilds this release's exact successor state and replays it.
+    from official_source_repair_release_guard import replay
+    replay(ROOT,args.selftest)
