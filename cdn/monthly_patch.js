@@ -3710,19 +3710,22 @@ html[data-fs="2"]{
   /* Typing in the law search updates only the result list. Re-rendering the
      whole page replaced the input, which dropped focus (the phone keyboard
      closed after one character) and broke Chinese IME composition. */
-  window.swsiLawSearch=function(el,ev){
+  function lawSearchUpdate(el,ev){
     lawQ=el.value;lawOpen=null;
     if(ev&&ev.isComposing)return;
     var box=document.getElementById('swsi-law-results');
     if(!box){render();return;}
     box.innerHTML=lawListHTML();
     decorateLawStudyPriority();
-  };
+  }
 
   renderLaws=function(){
-    app.innerHTML='<div class="swsi-k-pagelead"><button onclick="go(\'topics\')">‹ 回學習工具</button><button onclick="swsiKnowledgeSearch(\'\')">⌕ 全域搜尋</button></div><div class="section-h">重點法規速查</div><div class="section-s">先抓法規重點，再直接看它曾經怎麼出現在選擇題與申論。<br><span style="color:var(--ink-soft);font-size:12px">※ 法規會修正，應試前仍以全國法規資料庫最新版為準。</span></div><input placeholder="搜尋法規或關鍵詞…" value="'+H(lawQ||'')+'" id="swsi-law-search" type="search" enterkeyhint="search" autocomplete="off" oninput="swsiLawSearch(this,event)" style="width:100%;box-sizing:border-box;padding:11px 14px;border:1px solid var(--line);border-radius:12px;font-family:inherit;font-size:14px;margin-bottom:4px;background:#fff;color:var(--ink)"><div id="swsi-law-results">'+lawListHTML()+'</div>';
+    app.innerHTML='<div class="swsi-k-pagelead"><button onclick="go(\'topics\')">‹ 回學習工具</button><button onclick="swsiKnowledgeSearch(\'\')">⌕ 全域搜尋</button></div><div class="section-h">重點法規速查</div><div class="section-s">先抓法規重點，再直接看它曾經怎麼出現在選擇題與申論。<br><span style="color:var(--ink-soft);font-size:12px">※ 法規會修正，應試前仍以全國法規資料庫最新版為準。</span></div><input placeholder="搜尋法規或關鍵詞…" value="'+H(lawQ||'')+'" id="swsi-law-search" type="search" enterkeyhint="search" autocomplete="off" style="width:100%;box-sizing:border-box;padding:11px 14px;border:1px solid var(--line);border-radius:12px;font-family:inherit;font-size:14px;margin-bottom:4px;background:#fff;color:var(--ink)"><div id="swsi-law-results">'+lawListHTML()+'</div>';
     var lawInput=document.getElementById('swsi-law-search');
-    if(lawInput)lawInput.addEventListener('compositionend',function(ev){swsiLawSearch(lawInput,ev);});
+    if(lawInput){
+      lawInput.addEventListener('input',function(ev){lawSearchUpdate(lawInput,ev);});
+      lawInput.addEventListener('compositionend',function(ev){lawSearchUpdate(lawInput,ev);});
+    }
     decorateLawStudyPriority();
   };
 
