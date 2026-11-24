@@ -31,7 +31,7 @@ def text(fragment):
 
 def fetch(url):
     last = None
-    for attempt in range(4):
+    for attempt in range(6):
         try:
             r = requests.get(url, timeout=60, headers={'User-Agent': UA})
             r.raise_for_status()
@@ -40,7 +40,7 @@ def fetch(url):
             return r.text
         except Exception as exc:  # noqa: BLE001
             last = exc
-            time.sleep(2 ** attempt)
+            time.sleep(10 * (attempt + 1))
     raise last
 
 
@@ -48,6 +48,9 @@ def main():
     req = json.loads((ROOT / 'audit/legal_history_oldver_requests.json').read_text(encoding='utf-8'))
     bad = 0
     for v in req['versions']:
+        if v.get('fetched'):
+            continue
+        time.sleep(3)
         url = URL.format(**v)
         page = fetch(url)
         heads = list(HEAD.finditer(page))

@@ -1,50 +1,59 @@
 {
- "note": "Old MOJ full-text versions needed for per-article legal review (read-only fetch).",
+ "note": "Old MOJ full-text versions needed for per-article review (read-only fetch). Versions marked fetched were already printed by earlier Legal History Fetch runs (PR #629/#630) and are skipped to avoid MOJ rate limits.",
  "versions": [
   {
    "law": "老人福利法",
    "pcode": "D0050037",
-   "lnndate": "20140604"
+   "lnndate": "20140604",
+   "fetched": true
   },
   {
    "law": "老人福利法",
    "pcode": "D0050037",
-   "lnndate": "20151209"
+   "lnndate": "20151209",
+   "fetched": true
   },
   {
    "law": "老人福利法",
    "pcode": "D0050037",
-   "lnndate": "20200527"
+   "lnndate": "20200527",
+   "fetched": true
   },
   {
    "law": "兒童及少年福利與權益保障法",
    "pcode": "D0050001",
-   "lnndate": "20151216"
+   "lnndate": "20151216",
+   "fetched": true
   },
   {
    "law": "兒童及少年福利與權益保障法",
    "pcode": "D0050001",
-   "lnndate": "20140122"
+   "lnndate": "20140122",
+   "fetched": true
   },
   {
    "law": "兒童及少年福利與權益保障法",
    "pcode": "D0050001",
-   "lnndate": "20150204"
+   "lnndate": "20150204",
+   "fetched": true
   },
   {
    "law": "兒童及少年福利與權益保障法",
    "pcode": "D0050001",
-   "lnndate": "20190102"
+   "lnndate": "20190102",
+   "fetched": true
   },
   {
    "law": "兒童及少年福利與權益保障法",
    "pcode": "D0050001",
-   "lnndate": "20190424"
+   "lnndate": "20190424",
+   "fetched": true
   },
   {
    "law": "兒童及少年福利與權益保障法",
    "pcode": "D0050001",
-   "lnndate": "20200115"
+   "lnndate": "20200115",
+   "fetched": true
   },
   {
    "law": "家庭暴力防治法",
