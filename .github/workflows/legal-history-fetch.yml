@@ -1,0 +1,31 @@
+name: Legal History Fetch
+
+# Read-only: downloads the official MOJ Open API law corpus and keeps the
+# watched laws' amendment history and current articles as an artifact.
+# No repository, database or website writes.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/legal_history_fetch.py'
+      - '.github/workflows/legal-history-fetch.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check 'requests==2.32.5'
+      - run: python scripts/legal_history_fetch.py --out /tmp/legal-history.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: legal-history
+          path: /tmp/legal-history.json
+          retention-days: 30
