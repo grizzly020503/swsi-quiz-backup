@@ -120,6 +120,25 @@
     '生態系統':['生態系統理論','生態觀點']
   };
 
+  // Students often remember an option's wording, not the stem. The core
+  // mcqBlob covers stem/topic/keywords/law only, so also index option text.
+  // Stem/topic hits still rank first (see mcqCoreHit in smartSearch).
+  function optionsText(x){var o=(x&&x.options)||{};return [o.A,o.B,o.C,o.D].map(function(v){return String(v==null?'':v);}).join(' ');}
+  if(typeof mcqBlob==='function'){
+    mcqBlob=function(x){
+      if(x._sbo==null)x._sbo=((x.q||'')+' '+(x.topic||'')+' '+(x.major||'')+' '+(x.keywords||'')+' '+(x.mistake||'')+' '+(x.law||'')+' '+(x.subject||'')+' '+(x.year||'')+' '+optionsText(x)).toLowerCase();
+      return x._sbo;
+    };
+  }
+  function queryTerms(q){return String(q||'').trim().toLowerCase().split(/\s+/).map(N).filter(Boolean);}
+  function mcqCoreHit(x,terms){var b=N(x.q)+'|'+N(x.topic)+'|'+N(x.major)+'|'+N(x.keywords)+'|'+N(x.law);return terms.every(function(t){return b.indexOf(t)>=0;});}
+  function mcqOptionHit(x,terms){
+    if(!terms.length||mcqCoreHit(x,terms))return null;
+    var o=(x&&x.options)||{},keys=['A','B','C','D'];
+    for(var i=0;i<keys.length;i++){var v=N(o[keys[i]]);if(terms.some(function(t){return v.indexOf(t)>=0;}))return {key:keys[i],text:o[keys[i]]};}
+    return null;
+  }
+
   function smartSearch(query){
     var q=String(query||'').trim();
     var out={mcq:[],theories:[],laws:[],essays:[]};
@@ -140,7 +159,8 @@
     function scoreName(x){var n=N(x||'');if(!nq)return 0;if(n===nq)return 50;if(n.indexOf(nq)>=0)return 30;if(nq.indexOf(n)>=0)return 20;return 0;}
     out.theories.sort(function(a,b){return scoreName(b.n)-scoreName(a.n);});
     out.laws.sort(function(a,b){return scoreName(b.n)-scoreName(a.n);});
-    out.mcq.sort(function(a,b){var sa=(N(a.topic).indexOf(nq)>=0?10:0)+(N(a.law).indexOf(nq)>=0?8:0);var sb=(N(b.topic).indexOf(nq)>=0?10:0)+(N(b.law).indexOf(nq)>=0?8:0);return sb-sa||yearNum(b.year)-yearNum(a.year);});
+    var terms=queryTerms(q);
+    out.mcq.sort(function(a,b){var sa=(mcqCoreHit(a,terms)?40:0)+(N(a.topic).indexOf(nq)>=0?10:0)+(N(a.law).indexOf(nq)>=0?8:0);var sb=(mcqCoreHit(b,terms)?40:0)+(N(b.topic).indexOf(nq)>=0?10:0)+(N(b.law).indexOf(nq)>=0?8:0);return sb-sa||yearNum(b.year)-yearNum(a.year);});
     out.essays.sort(function(a,b){var sa=(N(a.topic).indexOf(nq)>=0?10:0);var sb=(N(b.topic).indexOf(nq)>=0?10:0);return sb-sa||yearNum(b.year)-yearNum(a.year);});
     return out;
   }
@@ -209,7 +229,8 @@
     h+='<section class="swsi-k-sec"><div class="swsi-k-sec-h"><b>2　看選擇題怎麼考</b><span>'+r.mcq.length+' 題</span></div>';
     if(r.mcq.length){
       h+='<button class="swsi-k-action" onclick="searchQuizMcq()">直接練這 '+r.mcq.length+' 題</button>';
-      r.mcq.slice(0,8).forEach(function(x){h+='<div class="swsi-k-question" onclick="swsiStudyOneEncoded(\''+E(x.id)+'\')"><div class="q">'+H(sn(x.q,76))+'</div><div class="meta">'+H(x.subject||'')+' · '+H(x.year||'')+' 年 · '+H(x.topic||x.major||'')+'</div></div>';});
+      var qTerms=queryTerms(q);
+      r.mcq.slice(0,8).forEach(function(x){var oh=mcqOptionHit(x,qTerms);h+='<div class="swsi-k-question" onclick="swsiStudyOneEncoded(\''+E(x.id)+'\')"><div class="q">'+H(sn(x.q,76))+'</div>'+(oh?'<div class="meta">符合選項 '+oh.key+'：'+H(sn(oh.text,40))+'</div>':'')+'<div class="meta">'+H(x.subject||'')+' · '+H(x.year||'')+' 年 · '+H(x.topic||x.major||'')+'</div></div>';});
       if(r.mcq.length>8)h+='<div class="swsi-k-more">還有 '+(r.mcq.length-8)+' 題；上面的按鈕會把全部符合題目排成一組。</div>';
     }else h+='<div class="swsi-k-muted">目前沒有搜尋到直接命中的選擇題。</div>';
     h+='</section>';
