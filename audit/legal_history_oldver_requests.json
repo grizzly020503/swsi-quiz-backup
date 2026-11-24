@@ -1,0 +1,6 @@
+{"note": "Old MOJ full-text versions needed for per-article legal review (read-only fetch).",
+ "versions": [
+  {"law": "老人福利法", "pcode": "D0050037", "lnndate": "20140604"},
+  {"law": "老人福利法", "pcode": "D0050037", "lnndate": "20151209"},
+  {"law": "老人福利法", "pcode": "D0050037", "lnndate": "20200527"}
+ ]}

@@ -8,6 +8,8 @@ on:
   pull_request:
     paths:
       - 'scripts/legal_history_fetch.py'
+      - 'scripts/legal_oldver_fetch.py'
+      - 'audit/legal_history_oldver_requests.json'
       - '.github/workflows/legal-history-fetch.yml'
 
 permissions:
@@ -34,6 +36,8 @@ jobs:
                                         'histories': law['histories']}, ensure_ascii=False))
               print('@@ART', json.dumps({'law': name, 'articles': law['articles']}, ensure_ascii=False))
           PY
+      - name: Print requested old versions (LawOldVer)
+        run: python scripts/legal_oldver_fetch.py
       - uses: actions/upload-artifact@v4
         with:
           name: legal-history
