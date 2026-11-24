@@ -61,7 +61,7 @@ def main():
             i = page.find('第 1 條')
             body = re.sub(r'\s+', ' ', page)
             print('@@DEBUG', json.dumps({'lnndate': v['lnndate'], 'len': len(page), 'has_art1': i,
-                                         'sample': body[body.find('<body'):][:3000]}, ensure_ascii=False))
+                                         'sample': page[max(0, i - 1500):i + 2500]}, ensure_ascii=False))
         bad += not ok
         print('@@OLD', json.dumps({**v, 'url': url, 'title': title.group(1).strip() if title else '',
                                    'ok': ok, 'articles': arts}, ensure_ascii=False))
