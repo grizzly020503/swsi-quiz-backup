@@ -131,10 +131,17 @@ def main() -> int:
                 failed = True
             fields = {}
             for name, pair in row["fields"].items():
+                prop = norm(pair["proposed"])
                 fields[name] = {
-                    "proposed_in_pdf": norm(pair["proposed"]) in paper["norm"],
+                    "proposed_in_pdf": prop in paper["norm"],
                     "current_in_pdf": bool(norm(pair["current"])) and norm(pair["current"]) in paper["norm"],
                 }
+                if not fields[name]["proposed_in_pdf"] and len(prop) >= 24:
+                    # Share of 12-character windows found in the paper: high means the
+                    # right paper with a wording difference, low means a wrong paper.
+                    grams = [prop[i:i + 12] for i in range(0, len(prop) - 11, 6)]
+                    fields[name]["window_coverage"] = round(sum(g in paper["norm"] for g in grams) / len(grams), 2)
+                    fields[name]["missing_windows"] = [g for g in grams if g not in paper["norm"]][:6]
             entry["fields"] = fields
             # Option order: from the stem, the proposed A-D must appear in order.
             stem = norm(row["fields"].get("question", {}).get("proposed") or row.get("stem") or "")
@@ -170,7 +177,9 @@ def main() -> int:
             failed = any(e.get("verdict") in ("MISMATCH", "DOWNLOAD_FAILED") or e.get("sha_match") is False for e in report)
         report.append(entry)
         f = entry.get("fields", {})
-        detail = " ".join(f"{k}:{'Y' if v['proposed_in_pdf'] else 'N'}/{'y' if v['current_in_pdf'] else 'n'}" for k, v in f.items())
+        detail = " ".join(f"{k}:{'Y' if v['proposed_in_pdf'] else 'N'}/{'y' if v['current_in_pdf'] else 'n'}"
+                          + (f" cov={v['window_coverage']} miss={v.get('missing_windows')}" if "window_coverage" in v else "")
+                          for k, v in f.items())
         print(f"{entry['verdict']:<16} {row['id']:<14} sha={'ok' if entry.get('sha_match') else 'DIFF'} order={entry.get('option_order_ok')} {detail}")
         if entry["verdict"] != "VERIFIED" or entry.get("option_order_ok") is None:
             view = layout_excerpt(paper.get("data", b""), row.get("stem") or "")
