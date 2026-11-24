@@ -24,7 +24,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install PDF text extraction
-        run: python -m pip install --disable-pip-version-check 'requests==2.32.5' 'pdfminer.six==20240706'
+        run: |
+          python -m pip install --disable-pip-version-check 'requests==2.32.5' 'pdfminer.six==20240706'
+          sudo apt-get install -y -qq poppler-utils >/dev/null
       - name: Verify candidates against official PDFs
         run: |
           set -euo pipefail

@@ -63,6 +63,25 @@ def pdf_text(data: bytes) -> str:
     return extract_text(io.BytesIO(data)) or ""
 
 
+def layout_excerpt(data: bytes, stem: str, lines: int = 16) -> str | None:
+    """Column-preserving view of the question (poppler pdftotext -layout)."""
+    import shutil
+    import subprocess
+    import tempfile
+    if not shutil.which("pdftotext"):
+        return None
+    with tempfile.NamedTemporaryFile(suffix=".pdf") as tmp:
+        tmp.write(data)
+        tmp.flush()
+        out = subprocess.run(["pdftotext", "-layout", tmp.name, "-"], capture_output=True, text=True).stdout
+    rows = out.splitlines()
+    key = norm(stem)[:10]
+    for i, line in enumerate(rows):
+        if key and key in norm(" ".join(rows[i:i + 2])):
+            return "\n".join(rows[max(0, i - 1):i + lines])
+    return None
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("candidates")
@@ -78,7 +97,7 @@ def main() -> int:
                 data = fetch(url)
                 sha = hashlib.sha256(data).hexdigest()
                 text = pdf_text(data)
-                cache[url] = {"sha256": sha, "norm": norm(text), "chars": len(norm(text))}
+                cache[url] = {"sha256": sha, "norm": norm(text), "chars": len(norm(text)), "data": data}
             except Exception as exc:
                 cache[url] = {"error": str(exc)}
         paper = cache[url]
@@ -126,7 +145,9 @@ def main() -> int:
         detail = " ".join(f"{k}:{'Y' if v['proposed_in_pdf'] else 'N'}/{'y' if v['current_in_pdf'] else 'n'}" for k, v in f.items())
         print(f"{entry['verdict']:<16} {row['id']:<14} sha={'ok' if entry.get('sha_match') else 'DIFF'} order={entry.get('option_order_ok')} {detail}")
         if entry["verdict"] != "VERIFIED" or entry.get("option_order_ok") is None:
-            print("   PDF excerpt:", (entry.get("pdf_excerpt") or "(stem not found in text layer)")[:500])
+            view = layout_excerpt(paper.get("data", b""), row.get("stem") or "")
+            entry["layout_excerpt"] = view
+            print("   PDF layout:\n" + "\n".join("   | " + l for l in (view or "(stem not found in layout text)").splitlines()))
     Path(args.out).write_text(json.dumps({"rows": report}, ensure_ascii=False, indent=1), encoding="utf-8")
     counts: dict[str, int] = {}
     for e in report:
