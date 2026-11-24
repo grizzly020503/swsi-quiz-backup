@@ -32,6 +32,7 @@ jobs:
           for name, law in sorted(d['laws'].items()):
               print('@@LAW', json.dumps({'law': name, 'pcode': law['pcode'], 'modified': law['modified'],
                                         'histories': law['histories']}, ensure_ascii=False))
+              print('@@ART', json.dumps({'law': name, 'articles': law['articles']}, ensure_ascii=False))
           PY
       - uses: actions/upload-artifact@v4
         with:
