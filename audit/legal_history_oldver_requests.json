@@ -260,12 +260,14 @@
   {
    "law": "就業保險法",
    "pcode": "N0050021",
-   "lnndate": "20150204"
+   "lnndate": "20150204",
+   "fetched": true
   },
   {
    "law": "老年農民福利津貼暫行條例",
    "pcode": "M0090015",
-   "lnndate": "20140716"
+   "lnndate": "20140716",
+   "fetched": true
   }
  ],
  "extra_laws": [
