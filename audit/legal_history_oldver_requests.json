@@ -236,22 +236,26 @@
   {
    "law": "兒童及少年福利與權益保障法施行細則",
    "pcode": "D0050010",
-   "lnndate": "20151111"
+   "lnndate": "20151111",
+   "fetched": true
   },
   {
    "law": "身心障礙者個人照顧服務辦法",
    "pcode": "D0050187",
-   "lnndate": "20120709"
+   "lnndate": "20120709",
+   "fetched": true
   },
   {
    "law": "國民教育法",
    "pcode": "H0070001",
-   "lnndate": "20160601"
+   "lnndate": "20160601",
+   "fetched": true
   },
   {
    "law": "學生輔導法",
    "pcode": "H0070058",
-   "lnndate": "20141112"
+   "lnndate": "20141112",
+   "fetched": true
   }
  ],
  "extra_laws": [
