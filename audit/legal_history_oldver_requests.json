@@ -188,12 +188,14 @@
   {
    "law": "精神衛生法",
    "pcode": "L0020030",
-   "lnndate": "20070704"
+   "lnndate": "20070704",
+   "fetched": true
   },
   {
    "law": "精神衛生法",
    "pcode": "L0020030",
-   "lnndate": "20200115"
+   "lnndate": "20200115",
+   "fetched": true
   }
  ]
 }
