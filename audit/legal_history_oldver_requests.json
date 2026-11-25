@@ -112,12 +112,14 @@
   {
    "law": "長期照顧服務法",
    "pcode": "L0070040",
-   "lnndate": "20150603"
+   "lnndate": "20150603",
+   "fetched": true
   },
   {
    "law": "長期照顧服務法",
    "pcode": "L0070040",
-   "lnndate": "20170126"
+   "lnndate": "20170126",
+   "fetched": true
   }
  ]
 }
