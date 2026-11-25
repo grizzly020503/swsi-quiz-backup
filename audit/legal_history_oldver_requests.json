@@ -1,5 +1,5 @@
 {
- "note": "Old MOJ full-text versions needed for per-article review (read-only fetch). Versions marked fetched were already printed by earlier Legal History Fetch runs (PR #629/#630) and are skipped to avoid MOJ rate limits.",
+ "note": "Old MOJ full-text versions needed for per-article review (read-only fetch). Versions marked fetched were already printed by earlier Legal History Fetch runs (PR #629/#630/#633) and are skipped to avoid MOJ rate limits.",
  "versions": [
   {
    "law": "老人福利法",
@@ -94,17 +94,20 @@
   {
    "law": "身心障礙者權益保障法",
    "pcode": "D0050046",
-   "lnndate": "20150204"
+   "lnndate": "20150204",
+   "fetched": true
   },
   {
    "law": "身心障礙者權益保障法",
    "pcode": "D0050046",
-   "lnndate": "20151216"
+   "lnndate": "20151216",
+   "fetched": true
   },
   {
    "law": "身心障礙者權益保障法",
    "pcode": "D0050046",
-   "lnndate": "20210120"
+   "lnndate": "20210120",
+   "fetched": true
   }
  ]
 }

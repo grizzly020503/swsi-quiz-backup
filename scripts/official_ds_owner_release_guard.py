@@ -107,5 +107,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--selftest',action='store_true');args=p.parse_args()
     # Later owner-approved releases intentionally move the current corpus; the
     # newest guard rebuilds this release's exact successor state and replays it.
-    from legal_status_batch7_release_guard import replay
+    from legal_status_batch8_release_guard import replay
     replay(ROOT,args.selftest)
