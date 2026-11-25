@@ -156,19 +156,22 @@
    "law": "性別平等工作法",
    "pcode": "N0030014",
    "lnndate": "20141211",
-   "name": "性別工作平等法"
+   "name": "性別工作平等法",
+   "fetched": true
   },
   {
    "law": "性別平等工作法",
    "pcode": "N0030014",
    "lnndate": "20160518",
-   "name": "性別工作平等法"
+   "name": "性別工作平等法",
+   "fetched": true
   },
   {
    "law": "性別平等工作法",
    "pcode": "N0030014",
    "lnndate": "20220112",
-   "name": "性別工作平等法"
+   "name": "性別工作平等法",
+   "fetched": true
   }
  ]
 }
