@@ -149,7 +149,8 @@
   {
    "law": "國民年金法",
    "pcode": "D0050152",
-   "lnndate": "20140108"
+   "lnndate": "20140108",
+   "fetched": true
   }
  ]
 }
