@@ -19,3 +19,7 @@ swsi-supabase-private-*.tar.age.sha256
 *.agekey
 /restore-reports/
 swsi-private-restore-*.json
+
+# Python bytecode caches (created when guard scripts run locally)
+__pycache__/
+*.pyc
