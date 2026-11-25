@@ -124,22 +124,27 @@
   {
    "law": "兒童及少年性剝削防制條例",
    "pcode": "D0050023",
-   "lnndate": "20070704"
+   "lnndate": "20070704",
+   "name": "兒童及少年性交易防制條例",
+   "fetched": true
   },
   {
    "law": "兒童及少年性剝削防制條例",
    "pcode": "D0050023",
-   "lnndate": "20150204"
+   "lnndate": "20150204",
+   "fetched": true
   },
   {
    "law": "兒童及少年性剝削防制條例",
    "pcode": "D0050023",
-   "lnndate": "20180103"
+   "lnndate": "20180103",
+   "fetched": true
   },
   {
    "law": "兒童及少年性剝削防制條例",
    "pcode": "D0050023",
-   "lnndate": "20230215"
+   "lnndate": "20230215",
+   "fetched": true
   }
  ]
 }

@@ -61,7 +61,9 @@ def main():
             if b:
                 arts.append({'no': m.group(1).strip().replace(' ', ''), 'text': text(b.group(1))})
         title = re.search(r'<title[^>]*>(.*?)</title>', page, re.S)
-        ok = len(arts) > 0 and v['law'] in page
+        # A version older than a renaming carries the law's name at that time in
+        # 'name' (e.g. 兒童及少年性交易防制條例 before 2015-02-04).
+        ok = len(arts) > 0 and (v.get('name') or v['law']) in page
         if not ok:
             i = page.find('第 1 條')
             body = re.sub(r'\s+', ' ', page)
