@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-25T21:38:03Z",
-  "source_item_count": 11,
+  "generated_at": "2026-11-26T08:08:14Z",
+  "source_item_count": 12,
   "event_count": 11,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
   "events": [
@@ -1606,9 +1606,9 @@
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
     },
     {
-      "canonical_event_id": "a2bd770f8991bed9e4381018",
-      "title": "雲林托嬰中心傳虐童！1歲娃「額頭撞櫃」教保員自述沒耐心已離職",
-      "summary": "雲林縣一間經營10多年的托嬰中心，遭家長指控教保員不當對待幼兒，監視器畫面顯示，1歲10個月大的孩子遭到粗魯對待，額頭撞櫃、後腦撞門，甚至被夾在教保員雙腿間無法動彈。涉案的26歲王姓教保員自述因沒耐心才動作粗魯，而該托嬰中心2年前也曾發生類似不當對待情形。",
+      "canonical_event_id": "ed66bd15fea06b0a898bb161",
+      "title": "雲林托嬰中心爆虐童！家長批行政裁罰過輕 縣府：違法嚴辦",
+      "summary": "立委王正旭、范雲和家長召開記者會，控訴雲林縣府針對某托嬰中心對幼童施暴案，行政處置過輕，更質疑通報至今還沒有調查結果，甚至明日開會家長看報導才知情等。雲林縣政府回應，事發當日即...…",
       "category": "兒少保護",
       "subjects": [
         "社會工作",
@@ -1621,16 +1621,18 @@
         "品質與風險管理",
         "服務輸送與跨網絡",
         "倫理與權利保障",
-        "人力與督導"
+        "成效評估與證據"
       ],
       "exam_subject_axes": [
         "社會工作直接服務",
         "人類行為與社會環境",
         "社會政策與社會立法",
-        "社會工作"
+        "社會工作",
+        "社會工作研究方法"
       ],
       "primary_exam_subject_axes": [
-        "社會工作直接服務"
+        "社會工作直接服務",
+        "社會工作研究方法"
       ],
       "supporting_exam_subject_axes": [
         "人類行為與社會環境",
@@ -1653,18 +1655,21 @@
         "社會工作": [
           "專業倫理與兒童最佳利益",
           "權利倡導與社會正義"
+        ],
+        "社會工作研究方法": [
+          "統計與資料解讀"
         ]
       },
       "knowledge_topics": [
         "兒少保護",
         "虐童",
-        "托嬰"
+        "托嬰",
+        "通報"
       ],
       "knowledge_paths": [
         "社會工作管理 > 品質與風險管理",
         "社會工作管理 > 服務輸送與跨網絡",
         "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 人力與督導",
         "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估",
         "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭評估與危機介入",
         "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理與兒童最佳利益",
@@ -1680,48 +1685,61 @@
         "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 兒少保護風險評估",
         "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
         "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 責任通報與保護體系"
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 責任通報與保護體系",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 兒童發展、依附與創傷",
+        "社會工作管理 > 成效評估與證據",
+        "社會工作管理 > 品質與風險管理 > 社會工作研究方法 > 統計與資料解讀"
       ],
       "exam_tags": [
         "托嬰",
-        "虐童"
+        "虐童",
+        "通報"
       ],
       "related_laws": [],
       "concept_keys": [
-        "child_protection"
+        "child_protection",
+        "family_policy"
       ],
       "agency_keys": [],
       "fact_keys": [],
       "source_count": 1,
       "official_source_count": 0,
       "sources": [
-        "TVBS新聞社會"
+        "自由時報社會"
       ],
       "evidence": [
         {
-          "source_name": "TVBS新聞社會",
-          "source_url": "https://news.tvbs.com.tw/local/4055807",
+          "source_name": "自由時報社會",
+          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5654200",
           "source_type": "news",
-          "published_at": "2026-11-25T11:37:26Z",
-          "item_id": "0c54a6dba8d88f25f091b068220454dc"
+          "published_at": "2026-11-26T06:40:49Z",
+          "item_id": "8a90396df7c7806f89deaf7ce78d9de9"
+        },
+        {
+          "source_name": "自由時報社會",
+          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5654018",
+          "source_type": "news",
+          "published_at": "2026-11-26T04:54:37Z",
+          "item_id": "3b20b6842a9b3e1278eb3716bd231ad0"
         }
       ],
-      "first_seen": "2026-11-25T11:37:26Z",
-      "last_seen": "2026-11-25T11:37:26Z",
+      "first_seen": "2026-11-26T04:54:37Z",
+      "last_seen": "2026-11-26T06:40:49Z",
       "observation_count": 1,
       "observation_dates": [
-        "2026-11-25"
+        "2026-11-26"
       ],
       "policy_signal": "low",
       "essay_value": "medium",
-      "mcq_fact_density": "low",
-      "signal_confidence": "low",
-      "signal_score": 5,
-      "exam_point_summary": "雲林托嬰中心傳虐童！1歲娃「額頭撞櫃」教保員自述沒耐心已離職。尚未見明確制度變動，先作事件與專業議題觀察；申論可從兒少最佳利益、責任通報、跨網絡合作與制度漏洞切入。此為命題訊號，非命題保證。",
+      "mcq_fact_density": "medium",
+      "signal_confidence": "medium",
+      "signal_score": 6,
+      "exam_point_summary": "雲林托嬰中心爆虐童！家長批行政裁罰過輕 縣府：違法嚴辦。尚未見明確制度變動，先作事件與專業議題觀察；申論可從兒少最佳利益、責任通報、跨網絡合作與制度漏洞切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
       "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
         "虐童",
-        "托嬰"
+        "托嬰",
+        "通報"
       ],
       "related_exam_questions": [
         {
@@ -1781,20 +1799,25 @@
         }
       ],
       "historical_exam_stats": {
-        "matched_question_count": 7,
-        "weighted_match_count": 3.0,
+        "matched_question_count": 37,
+        "weighted_match_count": 4.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 7,
-          "concept": 0
+          "concept": 30
         },
-        "matched_year_count": 6,
+        "matched_year_count": 11,
         "matched_years": [
           104,
+          105,
+          106,
           107,
           109,
           110,
+          111,
           112,
+          113,
+          114,
           115
         ],
         "earliest_exam_year": 104,
@@ -1802,9 +1825,11 @@
         "corpus_latest_year": 115,
         "years_since_last_exam": 0,
         "subject_counts": {
-          "社會政策與社會立法": 7
+          "社會工作": 11,
+          "社會工作直接服務": 3,
+          "社會政策與社會立法": 23
         },
-        "subject_count": 1,
+        "subject_count": 3,
         "law_match_count": 0,
         "law_match_year_count": 0,
         "law_match_years": [],
