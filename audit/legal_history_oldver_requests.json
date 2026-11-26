@@ -292,6 +292,11 @@
    "pcode": "C0010011",
    "lnndate": "20190619",
    "fetched": true
+  },
+  {
+   "law": "所得稅法",
+   "pcode": "G0340003",
+   "lnndate": "20240103"
   }
  ],
  "extra_laws": [
