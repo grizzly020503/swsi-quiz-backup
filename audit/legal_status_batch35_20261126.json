@@ -1,0 +1,953 @@
+{
+ "schema_version": 1,
+ "release": "legal-status-batch35-20261126",
+ "owner_approved": true,
+ "owner_approval_note": "Executed under the owner's standing authorization of 2026-11-26 to run the remaining legal-status batches without per-batch replies (merge and deploy still need the owner's explicit go-ahead).",
+ "rule": "Per-question review of the last eight unreviewed questions that do not wait for an explanation: six on the social work code of ethics (社會工作師法第17條; exam-time 2008-03-28 version and the version approved 2019-04-26, both from government-hosted copies), one on the MOHW organisation regulation (衛生福利部處務規程第8條) and one on the NHI fee rule for family therapy (全民健康保險法第41條; current rule from the 2026-08-01 compulsory-treatment fee rules). The 2019 code replaced the seven-word principle list and dropped 「嚴禁參與違法之活動」, so SW-104-1-34, SW-104-2-26 and SW-105-2-36 are changed; the other five answers still hold under the current text: verified_current.",
+ "evidence_source": "MOJ Open API law corpus and amendment history, and government-hosted documents printed with their SHA-256 by scripts/legal_document_fetch.py via workflow Legal History Fetch (PR #633)",
+ "checked_at": "2026-11-26T12:00:00+00:00",
+ "predecessor_commit": "c57799c31cde64da97a65e6cbb58487b8d6dec2f",
+ "predecessor_manifest": {
+  "schema_version": 1,
+  "dataset_revision": "936370ad4e08dd303c37",
+  "generated_at": "2026-11-26T08:35:25Z",
+  "source": "Supabase public.questions (read-only)",
+  "total_questions": 4800,
+  "shard_count": 24,
+  "baseline_shard_count": 24,
+  "total_uncompressed_bytes": 7999652,
+  "shards": [
+   {
+    "year": "104",
+    "round": "第一次",
+    "file": "104-1.json",
+    "question_count": 200,
+    "bytes": 343237,
+    "sha256": "35f3451b3b75b188b7097e20510d481d25f1d7b3efa49d383a5fd2cc2f95bfcd"
+   },
+   {
+    "year": "104",
+    "round": "第二次",
+    "file": "104-2.json",
+    "question_count": 200,
+    "bytes": 339727,
+    "sha256": "30f5e90698369504a82d805faee7f316a4d96e1331da729ba10296adb52f0667"
+   },
+   {
+    "year": "105",
+    "round": "第一次",
+    "file": "105-1.json",
+    "question_count": 200,
+    "bytes": 335174,
+    "sha256": "4818fcf7918cbc1517edfb46709672ce5819b0d98de5f1887b758c7305609e79"
+   },
+   {
+    "year": "105",
+    "round": "第二次",
+    "file": "105-2.json",
+    "question_count": 200,
+    "bytes": 339571,
+    "sha256": "ef046827dd72ccecceb40de79007933e81e232e62b5055969333f94ef8fc5597"
+   },
+   {
+    "year": "106",
+    "round": "第一次",
+    "file": "106-1.json",
+    "question_count": 200,
+    "bytes": 335056,
+    "sha256": "4815060be5278f36f9b35e64e127b69cbcc0c304e0a290c522582c78787480a4"
+   },
+   {
+    "year": "106",
+    "round": "第二次",
+    "file": "106-2.json",
+    "question_count": 200,
+    "bytes": 351044,
+    "sha256": "999245e81dc434a9147fd666397f64ef54b3c9d175622d4f0e41d6ddb87f37ed"
+   },
+   {
+    "year": "107",
+    "round": "第一次",
+    "file": "107-1.json",
+    "question_count": 200,
+    "bytes": 333739,
+    "sha256": "70f6030bda4647b68d9306bbe2df335e645f24ed3e61d4bd9cbaa5d918696ccd"
+   },
+   {
+    "year": "107",
+    "round": "第二次",
+    "file": "107-2.json",
+    "question_count": 200,
+    "bytes": 340571,
+    "sha256": "9d3dc2ccfce0f9c33cbadddb280f905e07096f8e44d07407cf62345eee84595f"
+   },
+   {
+    "year": "108",
+    "round": "第一次",
+    "file": "108-1.json",
+    "question_count": 200,
+    "bytes": 331193,
+    "sha256": "17d05328f6c03f8a2bddb26e6c32438fce6e69c16768ad085b85a7a8c971df68"
+   },
+   {
+    "year": "108",
+    "round": "第二次",
+    "file": "108-2.json",
+    "question_count": 200,
+    "bytes": 323969,
+    "sha256": "029601843ebadc9351bed0561b52c265e1206790f0a2ba19ae0e552c67fb72ce"
+   },
+   {
+    "year": "109",
+    "round": "第一次",
+    "file": "109-1.json",
+    "question_count": 200,
+    "bytes": 332400,
+    "sha256": "58a91ba126d2b549b4ccf76ed17e73e95d394633fabcc10e058255a113f50e31"
+   },
+   {
+    "year": "109",
+    "round": "第二次",
+    "file": "109-2.json",
+    "question_count": 200,
+    "bytes": 329335,
+    "sha256": "eba8bc941d6e859bcbf9e644125bc2cc6910969b5fa7236ecfaa8638ecc55e71"
+   },
+   {
+    "year": "110",
+    "round": "第一次",
+    "file": "110-1.json",
+    "question_count": 200,
+    "bytes": 330309,
+    "sha256": "94e6d19a71e8261b4a744ad76293b3acdd85dde962ef1f72eba14ec92f364526"
+   },
+   {
+    "year": "110",
+    "round": "第二次",
+    "file": "110-2.json",
+    "question_count": 200,
+    "bytes": 327517,
+    "sha256": "159e4f1f0b40c73ff6d0d58ee6d0e747e16fc0cea5e95cfaa1c3b99b59f6b0f7"
+   },
+   {
+    "year": "111",
+    "round": "第一次",
+    "file": "111-1.json",
+    "question_count": 200,
+    "bytes": 325118,
+    "sha256": "f7ff04182e7e547b6b2b0060d1c0cbe64e26fa80711adaf1391e8685bac0c8e7"
+   },
+   {
+    "year": "111",
+    "round": "第二次",
+    "file": "111-2.json",
+    "question_count": 200,
+    "bytes": 325104,
+    "sha256": "633d317233b204d02d2d6f2f5d3c8600ada258ceca38425d47c0ffc1460889ce"
+   },
+   {
+    "year": "112",
+    "round": "第一次",
+    "file": "112-1.json",
+    "question_count": 200,
+    "bytes": 328307,
+    "sha256": "e68fc932581f54523308f502090408d3bb153dcd242287bde9bb4342130441e6"
+   },
+   {
+    "year": "112",
+    "round": "第二次",
+    "file": "112-2.json",
+    "question_count": 200,
+    "bytes": 318548,
+    "sha256": "ed029d251222586976a39cdb30e3741cd603dde2e2cbec7dd38d8de8c5f63530"
+   },
+   {
+    "year": "113",
+    "round": "第一次",
+    "file": "113-1.json",
+    "question_count": 200,
+    "bytes": 312232,
+    "sha256": "7c78fd43c49d16249f3cb0d688cdb1c5ffca2f6dd0771579178a4dc1186cd1bc"
+   },
+   {
+    "year": "113",
+    "round": "第二次",
+    "file": "113-2.json",
+    "question_count": 200,
+    "bytes": 326592,
+    "sha256": "a2dbf88e735d07f7bb42f5d92dfbe6dc2a9f3910fe1cde7f7fdd524086e7863e"
+   },
+   {
+    "year": "114",
+    "round": "第一次",
+    "file": "114-1.json",
+    "question_count": 200,
+    "bytes": 329011,
+    "sha256": "001d71995432417795f8604fbee99b4a08b19a2f734a09f3b31c0db3dcbc3784"
+   },
+   {
+    "year": "114",
+    "round": "第二次",
+    "file": "114-2.json",
+    "question_count": 200,
+    "bytes": 327951,
+    "sha256": "4597f5e8b676a31302cc7ac960e9d858eb7965d4436ac4eb6a012f6d413b75f9"
+   },
+   {
+    "year": "115",
+    "round": "第一次",
+    "file": "115-1.json",
+    "question_count": 200,
+    "bytes": 331257,
+    "sha256": "a9c1f4c35a7999734a21e64f979511fcd793573d7da2be7c33fc3c008017bce5"
+   },
+   {
+    "year": "115",
+    "round": "第二次",
+    "file": "115-2.json",
+    "question_count": 200,
+    "bytes": 382690,
+    "sha256": "c3a3a51f0212df7323375f388ead4d83f9024f38a633819b1349c90c3b09811a"
+   }
+  ]
+ },
+ "ids": [
+  "SP106-1-23",
+  "SW-104-1-34",
+  "SW-104-2-26",
+  "SW-105-2-36",
+  "SW-107-1-19",
+  "SW-108-1-23",
+  "SW-108-2-25",
+  "SW-112-1-34"
+ ],
+ "rows": {
+  "SW-104-1-34": {
+   "shard": "104-1.json",
+   "before": {
+    "id": "SW-104-1-34",
+    "subject": "社會工作",
+    "year": "104",
+    "round": "第一次",
+    "qno": "34",
+    "major": "社會工作倫理",
+    "topic": "倫理守則 > 倫理原則辨識",
+    "keywords": "倫理守則, 社工師法第17條, 尊重, 關懷, 守法, 服務",
+    "question": "社會工作師公會全國聯合會根據社會工作師法第17條訂定的社會工作倫理守則中，下列何者 並非其倫理守則之原則？",
+    "opt_a": "尊重",
+    "opt_b": "關懷",
+    "opt_c": "守法",
+    "opt_d": "服務",
+    "answer": "D",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(D)『服務』並非守則所列的倫理原則名稱；守則原則含尊重、關懷、正義、守法、堅毅等。",
+    "exp_others": "(A)尊重、(B)關懷、(C)守法——皆為守則倫理原則。",
+    "exp_trap": "中華民國社會工作師倫理守則：依社會工作師法第17條訂定、97年(2008)3月28日內政部核備(108年修訂版將「案主」改為「服務對象」)；面對倫理衝突以『保護生命』為最優先；含對服務對象/同仁/實務工作/機構/專業/社會的六大倫理責任。",
+    "exp_raw": "",
+    "mnemonic": "中華民國社工師倫理守則:依社工師法§17訂定、2008/3/28核備(108年「案主」改「服務對象」);倫理衝突以「保護生命」最優先。",
+    "extension": "社會工作倫理(守則倫理原則)。",
+    "law": "社會工作師法 第17條（倫理守則由全聯會另訂）",
+    "mistake": "法規混淆",
+    "source_exam_code": "104030",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=104030&c=110&s=0601&q=1",
+    "analysis_status": "ready",
+    "legal_status": "unreviewed",
+    "legal_checked_at": null,
+    "legal_note": null,
+    "legal_source_url": null
+   },
+   "after": {
+    "id": "SW-104-1-34",
+    "subject": "社會工作",
+    "year": "104",
+    "round": "第一次",
+    "qno": "34",
+    "major": "社會工作倫理",
+    "topic": "倫理守則 > 倫理原則辨識",
+    "keywords": "倫理守則, 社工師法第17條, 尊重, 關懷, 守法, 服務",
+    "question": "社會工作師公會全國聯合會根據社會工作師法第17條訂定的社會工作倫理守則中，下列何者 並非其倫理守則之原則？",
+    "opt_a": "尊重",
+    "opt_b": "關懷",
+    "opt_c": "守法",
+    "opt_d": "服務",
+    "answer": "D",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(D)『服務』並非守則所列的倫理原則名稱；守則原則含尊重、關懷、正義、守法、堅毅等。",
+    "exp_others": "(A)尊重、(B)關懷、(C)守法——皆為守則倫理原則。",
+    "exp_trap": "中華民國社會工作師倫理守則：依社會工作師法第17條訂定、97年(2008)3月28日內政部核備(108年修訂版將「案主」改為「服務對象」)；面對倫理衝突以『保護生命』為最優先；含對服務對象/同仁/實務工作/機構/專業/社會的六大倫理責任。",
+    "exp_raw": "",
+    "mnemonic": "中華民國社工師倫理守則:依社工師法§17訂定、2008/3/28核備(108年「案主」改「服務對象」);倫理衝突以「保護生命」最優先。",
+    "extension": "社會工作倫理(守則倫理原則)。",
+    "law": "社會工作師法 第17條（倫理守則由全聯會另訂）",
+    "mistake": "法規混淆",
+    "source_exam_code": "104030",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=104030&c=110&s=0601&q=1",
+    "analysis_status": "ready",
+    "legal_status": "changed",
+    "legal_checked_at": "2026-11-26T12:00:00+00:00",
+    "legal_note": "考試時點法規核對（逐條人工核對）：本題考試日 2015-02-07。社會工作師法第17條規定社會工作師之行為必須遵守社會工作倫理守則，倫理守則由全國社會工作師公會聯合會訂定，報請中央主管機關備查。考試時適用之社會工作倫理守則（2008-03-28 內政部同意核備）第一章四規定社會工作倫理原則為尊重、關懷、正義、堅毅、廉潔、守法、專業，「服務」不在其中，官方答案D。現行條文（2018-12-15 修訂、2019-04-26 衛生福利部核備之社會工作師倫理守則）第一章四之倫理原則改為促進服務對象的最佳福祉、實踐弱勢優先及服務對象最佳利益、尊重服務對象的個別性及價值等6項敘述，已不再列關懷、守法等原則，依現行條文選項B、C亦非倫理原則，本題答案以考試時版本為準。依據：法務部全國法規資料庫（社會工作師法）、新北市政府社會局網站公布之社會工作倫理守則（2008-03-28 內政部同意核備版本）及衛生福利部網站公布之社會工作師倫理守則（2019-04-26 衛生福利部核備版本）（2026-11-26 查核）。",
+    "legal_source_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050125"
+   },
+   "laws": [
+    "社會工作師法"
+   ],
+   "articles": {
+    "社會工作師法": [
+     "17"
+    ]
+   },
+   "documents": [
+    {
+     "title": "社會工作倫理守則（95.12.22 會員代表大會通過，97.3.28 內政部同意核備）",
+     "host": "新北市政府社會局",
+     "url": "https://www.sw.ntpc.gov.tw/uploaddowndoc?file=law/201802131114170.pdf&filedisplay=%E7%A4%BE%E6%9C%83%E5%B7%A5%E4%BD%9C%E5%80%AB%E7%90%86%E5%AE%88%E5%89%87.pdf&flag=doc",
+     "sha256": "6eea536cc9fda4a0fc616d3b88962b221c87b0509aa0553cada8fd707c25d3a5",
+     "bytes": 108552
+    },
+    {
+     "title": "社會工作師倫理守則（107.12.15 修訂，108.4.26 衛生福利部核備）",
+     "host": "衛生福利部",
+     "url": "https://mohw.gov.tw/dl-85943-e9f2ffb0-f35e-4965-bf41-e8759f98ed2c.html",
+     "sha256": "d736421b89fcacc5ced5633e3a685f9d257b462ad4933ad28ec9b3c6b47f0a9a",
+     "bytes": 144458
+    }
+   ]
+  },
+  "SW-104-2-26": {
+   "shard": "104-2.json",
+   "before": {
+    "id": "SW-104-2-26",
+    "subject": "社會工作",
+    "year": "104",
+    "round": "第二次",
+    "qno": "26",
+    "major": "社會工作倫理",
+    "topic": "倫理守則 > 專業同僚倫理",
+    "keywords": "臺灣倫理守則, 專業同僚, 違法活動, 多元文化, 專業知能",
+    "question": "在「臺灣社會工作倫理守則」中，下列關於社會工作師作為專業人員的倫理責任，那一項 敘述無關？",
+    "opt_a": "提升專業知能",
+    "opt_b": "尊重同僚之專業知識",
+    "opt_c": "嚴禁參與違法之活動",
+    "opt_d": "包容多元文化、尊重多元社會現象",
+    "answer": "B",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(B)『尊重同僚之專業知識』屬於『對同仁』的責任，與身為『專業人員』自身的倫理責任較無關。",
+    "exp_others": "(A)提升專業知能、(C)嚴禁參與違法活動、(D)包容多元文化尊重多元社會——皆屬專業人員的倫理責任。",
+    "exp_trap": "六大倫理責任要分清『對同仁』vs『對專業/身為專業人員』。",
+    "exp_raw": "",
+    "mnemonic": "中華民國社會工作師倫理守則：依社會工作師法第17條訂定、97年(2008)3月28日內政部核備(108年修訂版將「案主」改為「服務對象」)；面對倫理衝突以『保護生命』為最優先；含對服務對象/同仁/實務工作/機構/專業/社會的六大倫理責任。",
+    "extension": "社會工作倫理(專業人員倫理責任)。",
+    "law": "社會工作倫理守則（社會工作師公會全國聯合會）",
+    "mistake": "法規混淆",
+    "source_exam_code": "104100",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0601&t=Q",
+    "analysis_status": "ready",
+    "legal_status": "unreviewed",
+    "legal_checked_at": null,
+    "legal_note": null,
+    "legal_source_url": null
+   },
+   "after": {
+    "id": "SW-104-2-26",
+    "subject": "社會工作",
+    "year": "104",
+    "round": "第二次",
+    "qno": "26",
+    "major": "社會工作倫理",
+    "topic": "倫理守則 > 專業同僚倫理",
+    "keywords": "臺灣倫理守則, 專業同僚, 違法活動, 多元文化, 專業知能",
+    "question": "在「臺灣社會工作倫理守則」中，下列關於社會工作師作為專業人員的倫理責任，那一項 敘述無關？",
+    "opt_a": "提升專業知能",
+    "opt_b": "尊重同僚之專業知識",
+    "opt_c": "嚴禁參與違法之活動",
+    "opt_d": "包容多元文化、尊重多元社會現象",
+    "answer": "B",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(B)『尊重同僚之專業知識』屬於『對同仁』的責任，與身為『專業人員』自身的倫理責任較無關。",
+    "exp_others": "(A)提升專業知能、(C)嚴禁參與違法活動、(D)包容多元文化尊重多元社會——皆屬專業人員的倫理責任。",
+    "exp_trap": "六大倫理責任要分清『對同仁』vs『對專業/身為專業人員』。",
+    "exp_raw": "",
+    "mnemonic": "中華民國社會工作師倫理守則：依社會工作師法第17條訂定、97年(2008)3月28日內政部核備(108年修訂版將「案主」改為「服務對象」)；面對倫理衝突以『保護生命』為最優先；含對服務對象/同仁/實務工作/機構/專業/社會的六大倫理責任。",
+    "extension": "社會工作倫理(專業人員倫理責任)。",
+    "law": "社會工作倫理守則（社會工作師公會全國聯合會）",
+    "mistake": "法規混淆",
+    "source_exam_code": "104100",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=104100&q=1&s=0601&t=Q",
+    "analysis_status": "ready",
+    "legal_status": "changed",
+    "legal_checked_at": "2026-11-26T12:00:00+00:00",
+    "legal_note": "考試時點法規核對（逐條人工核對）：本題考試日 2015-07-25。依社會工作師法第17條訂定之社會工作倫理守則，考試時版本（2008-03-28 內政部同意核備）第二章四「社會工作師作為專業人員的倫理責任」列有提升社會工作專業知能（4.1）、包容多元文化、尊重多元社會現象（4.2）、嚴禁參與違法之活動（4.3）；「尊重同僚之專業知識」屬第二章二「對同僚的倫理守則」（2.3），官方答案B。現行條文（2019-04-26 衛生福利部核備之社會工作師倫理守則）第二章四「對社會工作師專業的倫理責任」已刪除「嚴禁參與違法之活動」，依現行條文選項C亦不在該章，本題答案以考試時版本為準。依據：法務部全國法規資料庫（社會工作師法）、新北市政府社會局網站公布之社會工作倫理守則（2008-03-28 內政部同意核備版本）及衛生福利部網站公布之社會工作師倫理守則（2019-04-26 衛生福利部核備版本）（2026-11-26 查核）。",
+    "legal_source_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050125"
+   },
+   "laws": [
+    "社會工作師法"
+   ],
+   "articles": {
+    "社會工作師法": [
+     "17"
+    ]
+   },
+   "documents": [
+    {
+     "title": "社會工作倫理守則（95.12.22 會員代表大會通過，97.3.28 內政部同意核備）",
+     "host": "新北市政府社會局",
+     "url": "https://www.sw.ntpc.gov.tw/uploaddowndoc?file=law/201802131114170.pdf&filedisplay=%E7%A4%BE%E6%9C%83%E5%B7%A5%E4%BD%9C%E5%80%AB%E7%90%86%E5%AE%88%E5%89%87.pdf&flag=doc",
+     "sha256": "6eea536cc9fda4a0fc616d3b88962b221c87b0509aa0553cada8fd707c25d3a5",
+     "bytes": 108552
+    },
+    {
+     "title": "社會工作師倫理守則（107.12.15 修訂，108.4.26 衛生福利部核備）",
+     "host": "衛生福利部",
+     "url": "https://mohw.gov.tw/dl-85943-e9f2ffb0-f35e-4965-bf41-e8759f98ed2c.html",
+     "sha256": "d736421b89fcacc5ced5633e3a685f9d257b462ad4933ad28ec9b3c6b47f0a9a",
+     "bytes": 144458
+    }
+   ]
+  },
+  "SW-105-2-36": {
+   "shard": "105-2.json",
+   "before": {
+    "id": "SW-105-2-36",
+    "subject": "社會工作",
+    "year": "105",
+    "round": "第二次",
+    "qno": "36",
+    "major": "社會工作倫理",
+    "topic": "倫理守則 > 倫理守則原則",
+    "keywords": "倫理守則, 內政部核備, 尊重, 正義, 守法, 自決",
+    "question": "依我國現行社會工作倫理守則（2008 年3 月28 日內政部同意核備）規定：社會工作倫理原 則不包括下列何者？",
+    "opt_a": "自決",
+    "opt_b": "尊重",
+    "opt_c": "正義",
+    "opt_d": "守法",
+    "answer": "A",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(A)『自決』不在守則明列的倫理原則名稱中；守則原則含尊重、正義、守法等。",
+    "exp_others": "(B)尊重、(C)正義、(D)守法——皆為守則倫理原則。",
+    "exp_trap": "中華民國社會工作師倫理守則：依社會工作師法第17條訂定、97年(2008)3月28日內政部核備(108年修訂版將「案主」改為「服務對象」)；面對倫理衝突以『保護生命』為最優先；含對服務對象/同仁/實務工作/機構/專業/社會的六大倫理責任。",
+    "exp_raw": "",
+    "mnemonic": "中華民國社工師倫理守則:依社工師法§17訂定、2008/3/28核備(108年「案主」改「服務對象」);倫理衝突以「保護生命」最優先。",
+    "extension": "社會工作倫理(守則倫理原則)。",
+    "law": "社會工作倫理守則（社會工作師公會全國聯合會）（97年版倫理原則細項待對照當年版本）",
+    "mistake": "法規混淆",
+    "source_exam_code": "105090",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=105090&c=107&s=0601&q=1",
+    "analysis_status": "ready",
+    "legal_status": "unreviewed",
+    "legal_checked_at": null,
+    "legal_note": null,
+    "legal_source_url": null
+   },
+   "after": {
+    "id": "SW-105-2-36",
+    "subject": "社會工作",
+    "year": "105",
+    "round": "第二次",
+    "qno": "36",
+    "major": "社會工作倫理",
+    "topic": "倫理守則 > 倫理守則原則",
+    "keywords": "倫理守則, 內政部核備, 尊重, 正義, 守法, 自決",
+    "question": "依我國現行社會工作倫理守則（2008 年3 月28 日內政部同意核備）規定：社會工作倫理原 則不包括下列何者？",
+    "opt_a": "自決",
+    "opt_b": "尊重",
+    "opt_c": "正義",
+    "opt_d": "守法",
+    "answer": "A",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(A)『自決』不在守則明列的倫理原則名稱中；守則原則含尊重、正義、守法等。",
+    "exp_others": "(B)尊重、(C)正義、(D)守法——皆為守則倫理原則。",
+    "exp_trap": "中華民國社會工作師倫理守則：依社會工作師法第17條訂定、97年(2008)3月28日內政部核備(108年修訂版將「案主」改為「服務對象」)；面對倫理衝突以『保護生命』為最優先；含對服務對象/同仁/實務工作/機構/專業/社會的六大倫理責任。",
+    "exp_raw": "",
+    "mnemonic": "中華民國社工師倫理守則:依社工師法§17訂定、2008/3/28核備(108年「案主」改「服務對象」);倫理衝突以「保護生命」最優先。",
+    "extension": "社會工作倫理(守則倫理原則)。",
+    "law": "社會工作倫理守則（社會工作師公會全國聯合會）（97年版倫理原則細項待對照當年版本）",
+    "mistake": "法規混淆",
+    "source_exam_code": "105090",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=105090&c=107&s=0601&q=1",
+    "analysis_status": "ready",
+    "legal_status": "changed",
+    "legal_checked_at": "2026-11-26T12:00:00+00:00",
+    "legal_note": "考試時點法規核對（逐條人工核對）：本題考試日 2016-07-23。題目指定 2008-03-28 內政部同意核備之社會工作倫理守則（依社會工作師法第17條訂定），其第一章四列社會工作倫理原則為尊重、關懷、正義、堅毅、廉潔、守法、專業，尊重案主自我決定列於第一章五之倫理衝突處理原則，「自決」不在倫理原則之列，官方答案A。現行條文（2019-04-26 衛生福利部核備之社會工作師倫理守則）第一章四之倫理原則改為6項敘述，已不再列正義、守法等原則，依現行條文選項C、D亦不屬倫理原則，本題答案以考試時版本為準。依據：法務部全國法規資料庫（社會工作師法）、新北市政府社會局網站公布之社會工作倫理守則（2008-03-28 內政部同意核備版本）及衛生福利部網站公布之社會工作師倫理守則（2019-04-26 衛生福利部核備版本）（2026-11-26 查核）。",
+    "legal_source_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050125"
+   },
+   "laws": [
+    "社會工作師法"
+   ],
+   "articles": {
+    "社會工作師法": [
+     "17"
+    ]
+   },
+   "documents": [
+    {
+     "title": "社會工作倫理守則（95.12.22 會員代表大會通過，97.3.28 內政部同意核備）",
+     "host": "新北市政府社會局",
+     "url": "https://www.sw.ntpc.gov.tw/uploaddowndoc?file=law/201802131114170.pdf&filedisplay=%E7%A4%BE%E6%9C%83%E5%B7%A5%E4%BD%9C%E5%80%AB%E7%90%86%E5%AE%88%E5%89%87.pdf&flag=doc",
+     "sha256": "6eea536cc9fda4a0fc616d3b88962b221c87b0509aa0553cada8fd707c25d3a5",
+     "bytes": 108552
+    },
+    {
+     "title": "社會工作師倫理守則（107.12.15 修訂，108.4.26 衛生福利部核備）",
+     "host": "衛生福利部",
+     "url": "https://mohw.gov.tw/dl-85943-e9f2ffb0-f35e-4965-bf41-e8759f98ed2c.html",
+     "sha256": "d736421b89fcacc5ced5633e3a685f9d257b462ad4933ad28ec9b3c6b47f0a9a",
+     "bytes": 144458
+    }
+   ]
+  },
+  "SP106-1-23": {
+   "shard": "106-1.json",
+   "before": {
+    "id": "SP106-1-23",
+    "subject": "社會政策與社會立法",
+    "year": "106",
+    "round": "第一次",
+    "qno": "23",
+    "major": "社會津貼與福利服務",
+    "topic": "公益勸募條例 > 勸募主管單位",
+    "keywords": "勸募活動財物使用計畫書, 衛生福利部, 社會救助及社工司, 公開徵信, 查詢",
+    "question": "社工員 A 想知悉某協會發起全國性「散播希望計畫」之「勸募活動財物使用計畫書」，請問應造訪衛生 福利部何單位之網頁？",
+    "opt_a": "衛生福利部社會及家庭署",
+    "opt_b": "衛生福利部保護服務司",
+    "opt_c": "衛生福利部社會救助及社工司",
+    "opt_d": "衛生福利部護理及健康照護司",
+    "answer": "C",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "勸募活動(公益勸募條例)的主管在衛福部「社會救助及社工司」;(C)。",
+    "exp_others": "(A)社會及家庭署、(B)保護服務司、(D)護理及健康照護司——皆非公益勸募的主管單位。",
+    "exp_trap": "公益勸募條例業務由「社會救助及社工司」主管,可查其網頁。",
+    "exp_raw": "",
+    "mnemonic": "公益勸募主管=社會救助及社工司。",
+    "extension": "公益勸募條例;勸募主管單位。",
+    "law": "公益勸募條例（現行版，2026-06-02查證；條號於解析階段核對）",
+    "mistake": "概念混淆",
+    "source_exam_code": "106030",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106030&c=107&s=0604&q=1",
+    "analysis_status": "ready",
+    "legal_status": "unreviewed",
+    "legal_checked_at": null,
+    "legal_note": null,
+    "legal_source_url": null
+   },
+   "after": {
+    "id": "SP106-1-23",
+    "subject": "社會政策與社會立法",
+    "year": "106",
+    "round": "第一次",
+    "qno": "23",
+    "major": "社會津貼與福利服務",
+    "topic": "公益勸募條例 > 勸募主管單位",
+    "keywords": "勸募活動財物使用計畫書, 衛生福利部, 社會救助及社工司, 公開徵信, 查詢",
+    "question": "社工員 A 想知悉某協會發起全國性「散播希望計畫」之「勸募活動財物使用計畫書」，請問應造訪衛生 福利部何單位之網頁？",
+    "opt_a": "衛生福利部社會及家庭署",
+    "opt_b": "衛生福利部保護服務司",
+    "opt_c": "衛生福利部社會救助及社工司",
+    "opt_d": "衛生福利部護理及健康照護司",
+    "answer": "C",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "勸募活動(公益勸募條例)的主管在衛福部「社會救助及社工司」;(C)。",
+    "exp_others": "(A)社會及家庭署、(B)保護服務司、(D)護理及健康照護司——皆非公益勸募的主管單位。",
+    "exp_trap": "公益勸募條例業務由「社會救助及社工司」主管,可查其網頁。",
+    "exp_raw": "",
+    "mnemonic": "公益勸募主管=社會救助及社工司。",
+    "extension": "公益勸募條例;勸募主管單位。",
+    "law": "公益勸募條例（現行版，2026-06-02查證；條號於解析階段核對）",
+    "mistake": "概念混淆",
+    "source_exam_code": "106030",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=106030&c=107&s=0604&q=1",
+    "analysis_status": "ready",
+    "legal_status": "verified_current",
+    "legal_checked_at": "2026-11-26T12:00:00+00:00",
+    "legal_note": "考試時點法規核對（逐條人工核對）：本題考試日 2017-02-18。衛生福利部處務規程第8條第4款規定社會救助及社工司掌理急難救助與公益勸募政策之規劃、推動及相關法規之研擬，勸募活動財物使用計畫書屬公益勸募業務，官方答案C。公益勸募條例第4條（2020-01-15 修正）規定中央主管機關為衛生福利部。衛生福利部處務規程第8條自 2013-07-21 訂定發布後未曾修正。官方答案依現行條文仍正確。依據：法務部全國法規資料庫現行條文、法規沿革及歷史條文（2026-11-26 查核）。",
+    "legal_source_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0010053"
+   },
+   "laws": [
+    "公益勸募條例",
+    "衛生福利部處務規程"
+   ],
+   "articles": {
+    "衛生福利部處務規程": [
+     "8"
+    ],
+    "公益勸募條例": [
+     "4"
+    ]
+   },
+   "documents": []
+  },
+  "SW-107-1-19": {
+   "shard": "107-1.json",
+   "before": {
+    "id": "SW-107-1-19",
+    "subject": "社會工作",
+    "year": "107",
+    "round": "第一次",
+    "qno": "19",
+    "major": "社會工作倫理",
+    "topic": "倫理守則 > 台灣社工師倫理",
+    "keywords": "臺灣社工師, 倫理守則, 隱私權, 監護人, 個案死亡",
+    "question": "有關臺灣社會工作師倫理守則之敘述，下列何者正確？",
+    "opt_a": "根據社會工作師法，社會工作倫理守則由臺灣社會工作專業人員協會訂定",
+    "opt_b": "當個案透過監護人或法律代表放棄其隱私權，社會工作者得公開個案資訊",
+    "opt_c": "當面臨倫理衝突時，社會工作者應以個案自我決定為最優先考量原則",
+    "opt_d": "個案死亡之後，其隱私權之需求即消滅",
+    "answer": "B",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(B)正確：當個案透過監護人或法律代表放棄其隱私權時，社工得公開個案資訊。",
+    "exp_others": "(A)守則由『社工師公會全國聯合會』訂定(非專業人員協會)；(C)倫理衝突以『保護生命』最優先(非自決最優先);(D)個案死亡後隱私權『仍須維護』(非消滅)。",
+    "exp_trap": "中華民國社會工作師倫理守則：依社會工作師法第17條訂定、97年(2008)3月28日內政部核備(108年修訂版將「案主」改為「服務對象」)；面對倫理衝突以『保護生命』為最優先；含對服務對象/同仁/實務工作/機構/專業/社會的六大倫理責任。",
+    "exp_raw": "",
+    "mnemonic": "中華民國社工師倫理守則:依社工師法§17訂定、2008/3/28核備(108年「案主」改「服務對象」);倫理衝突以「保護生命」最優先。",
+    "extension": "社會工作倫理(臺灣守則內容)。",
+    "law": "社會工作師法 第17條（倫理守則由全聯會訂定）",
+    "mistake": "法規混淆",
+    "source_exam_code": "107030",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107030&c=107&s=0601&q=1",
+    "analysis_status": "ready",
+    "legal_status": "unreviewed",
+    "legal_checked_at": null,
+    "legal_note": null,
+    "legal_source_url": null
+   },
+   "after": {
+    "id": "SW-107-1-19",
+    "subject": "社會工作",
+    "year": "107",
+    "round": "第一次",
+    "qno": "19",
+    "major": "社會工作倫理",
+    "topic": "倫理守則 > 台灣社工師倫理",
+    "keywords": "臺灣社工師, 倫理守則, 隱私權, 監護人, 個案死亡",
+    "question": "有關臺灣社會工作師倫理守則之敘述，下列何者正確？",
+    "opt_a": "根據社會工作師法，社會工作倫理守則由臺灣社會工作專業人員協會訂定",
+    "opt_b": "當個案透過監護人或法律代表放棄其隱私權，社會工作者得公開個案資訊",
+    "opt_c": "當面臨倫理衝突時，社會工作者應以個案自我決定為最優先考量原則",
+    "opt_d": "個案死亡之後，其隱私權之需求即消滅",
+    "answer": "B",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(B)正確：當個案透過監護人或法律代表放棄其隱私權時，社工得公開個案資訊。",
+    "exp_others": "(A)守則由『社工師公會全國聯合會』訂定(非專業人員協會)；(C)倫理衝突以『保護生命』最優先(非自決最優先);(D)個案死亡後隱私權『仍須維護』(非消滅)。",
+    "exp_trap": "中華民國社會工作師倫理守則：依社會工作師法第17條訂定、97年(2008)3月28日內政部核備(108年修訂版將「案主」改為「服務對象」)；面對倫理衝突以『保護生命』為最優先；含對服務對象/同仁/實務工作/機構/專業/社會的六大倫理責任。",
+    "exp_raw": "",
+    "mnemonic": "中華民國社工師倫理守則:依社工師法§17訂定、2008/3/28核備(108年「案主」改「服務對象」);倫理衝突以「保護生命」最優先。",
+    "extension": "社會工作倫理(臺灣守則內容)。",
+    "law": "社會工作師法 第17條（倫理守則由全聯會訂定）",
+    "mistake": "法規混淆",
+    "source_exam_code": "107030",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107030&c=107&s=0601&q=1",
+    "analysis_status": "ready",
+    "legal_status": "verified_current",
+    "legal_checked_at": "2026-11-26T12:00:00+00:00",
+    "legal_note": "考試時點法規核對（逐條人工核對）：本題考試日 2018-02-03。社會工作師法第17條規定倫理守則由全國社會工作師公會聯合會訂定，並非臺灣社會工作專業人員協會（選項A錯誤）。考試時適用之社會工作倫理守則（2008-03-28 內政部同意核備）與現行社會工作師倫理守則（2019-04-26 衛生福利部核備）均規定：隱私權為案主（服務對象）所有，其有權親自或透過監護人或法律代表決定放棄時，保密受到限制（第二章1.6 a，選項B正確）；面對倫理衝突時應以保護生命為最優先考量原則（第一章五，選項C錯誤）；案主（服務對象）縱已死亡，仍須重視其隱私權利（第二章1.6，選項D錯誤）。社會工作師法第17條自 2008-01-16 修正後未再修正。官方答案依現行條文仍正確。依據：法務部全國法規資料庫（社會工作師法）、新北市政府社會局網站公布之社會工作倫理守則（2008-03-28 內政部同意核備版本）及衛生福利部網站公布之社會工作師倫理守則（2019-04-26 衛生福利部核備版本）（2026-11-26 查核）。",
+    "legal_source_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050125"
+   },
+   "laws": [
+    "社會工作師法"
+   ],
+   "articles": {
+    "社會工作師法": [
+     "17"
+    ]
+   },
+   "documents": [
+    {
+     "title": "社會工作倫理守則（95.12.22 會員代表大會通過，97.3.28 內政部同意核備）",
+     "host": "新北市政府社會局",
+     "url": "https://www.sw.ntpc.gov.tw/uploaddowndoc?file=law/201802131114170.pdf&filedisplay=%E7%A4%BE%E6%9C%83%E5%B7%A5%E4%BD%9C%E5%80%AB%E7%90%86%E5%AE%88%E5%89%87.pdf&flag=doc",
+     "sha256": "6eea536cc9fda4a0fc616d3b88962b221c87b0509aa0553cada8fd707c25d3a5",
+     "bytes": 108552
+    },
+    {
+     "title": "社會工作師倫理守則（107.12.15 修訂，108.4.26 衛生福利部核備）",
+     "host": "衛生福利部",
+     "url": "https://mohw.gov.tw/dl-85943-e9f2ffb0-f35e-4965-bf41-e8759f98ed2c.html",
+     "sha256": "d736421b89fcacc5ced5633e3a685f9d257b462ad4933ad28ec9b3c6b47f0a9a",
+     "bytes": 144458
+    }
+   ]
+  },
+  "SW-108-1-23": {
+   "shard": "108-1.json",
+   "before": {
+    "id": "SW-108-1-23",
+    "subject": "社會工作",
+    "year": "108",
+    "round": "第一次",
+    "qno": "23",
+    "major": "社會工作倫理",
+    "topic": "倫理守則 > 台灣倫理守則內容",
+    "keywords": "倫理守則, 社工師法第17條, 內政部核備, 案主定義, 審議",
+    "question": "下列有關臺灣的社會工作倫理守則之敘述，何者正確？①依據社會工作師法第17 條所制 定 ②97 年3 月28 日內政部同意核備 ③守則內所稱案主是指接受社會工作服務的個人、 家庭與團體 ④社會工作師違反法令、社會工作師公會章程或本守則者，除法令另有處罰 規定者外，並不需要受到審議與其他處置",
+    "opt_a": "①③",
+    "opt_b": "①②",
+    "opt_c": "②③",
+    "opt_d": "③④",
+    "answer": "B",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(B)①②正確：①依社工師法第17條制定②97年3月28日內政部核備。",
+    "exp_others": "③守則所稱案主的定義不完整(尚含社區)；④違反守則者『仍須』受審議與處置(非不需要)——③④有誤。",
+    "exp_trap": "違反守則者仍須受審議(非免責)。",
+    "exp_raw": "",
+    "mnemonic": "中華民國社會工作師倫理守則：依社會工作師法第17條訂定、97年(2008)3月28日內政部核備(108年修訂版將「案主」改為「服務對象」)；面對倫理衝突以『保護生命』為最優先；含對服務對象/同仁/實務工作/機構/專業/社會的六大倫理責任。",
+    "extension": "社會工作倫理(臺灣守則內容)。",
+    "law": "社會工作師法 第17條（97年3月內政部核備倫理守則）",
+    "mistake": "法規混淆",
+    "source_exam_code": "108020",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108020&q=1&s=0601&t=Q",
+    "analysis_status": "ready",
+    "legal_status": "unreviewed",
+    "legal_checked_at": null,
+    "legal_note": null,
+    "legal_source_url": null
+   },
+   "after": {
+    "id": "SW-108-1-23",
+    "subject": "社會工作",
+    "year": "108",
+    "round": "第一次",
+    "qno": "23",
+    "major": "社會工作倫理",
+    "topic": "倫理守則 > 台灣倫理守則內容",
+    "keywords": "倫理守則, 社工師法第17條, 內政部核備, 案主定義, 審議",
+    "question": "下列有關臺灣的社會工作倫理守則之敘述，何者正確？①依據社會工作師法第17 條所制 定 ②97 年3 月28 日內政部同意核備 ③守則內所稱案主是指接受社會工作服務的個人、 家庭與團體 ④社會工作師違反法令、社會工作師公會章程或本守則者，除法令另有處罰 規定者外，並不需要受到審議與其他處置",
+    "opt_a": "①③",
+    "opt_b": "①②",
+    "opt_c": "②③",
+    "opt_d": "③④",
+    "answer": "B",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(B)①②正確：①依社工師法第17條制定②97年3月28日內政部核備。",
+    "exp_others": "③守則所稱案主的定義不完整(尚含社區)；④違反守則者『仍須』受審議與處置(非不需要)——③④有誤。",
+    "exp_trap": "違反守則者仍須受審議(非免責)。",
+    "exp_raw": "",
+    "mnemonic": "中華民國社會工作師倫理守則：依社會工作師法第17條訂定、97年(2008)3月28日內政部核備(108年修訂版將「案主」改為「服務對象」)；面對倫理衝突以『保護生命』為最優先；含對服務對象/同仁/實務工作/機構/專業/社會的六大倫理責任。",
+    "extension": "社會工作倫理(臺灣守則內容)。",
+    "law": "社會工作師法 第17條（97年3月內政部核備倫理守則）",
+    "mistake": "法規混淆",
+    "source_exam_code": "108020",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108020&q=1&s=0601&t=Q",
+    "analysis_status": "ready",
+    "legal_status": "verified_current",
+    "legal_checked_at": "2026-11-26T12:00:00+00:00",
+    "legal_note": "考試時點法規核對（逐條人工核對）：本題考試日 2019-01-19。考試時適用之社會工作倫理守則依社會工作師法第17條訂定，2006-12-22 經全國聯合會會員代表大會通過、2008-03-28 內政部同意核備（敘述①②正確）；該版本第一章一定義案主為接受社會工作服務的個人、家庭、團體或社區（敘述③漏列社區，錯誤）；第三章附則規定違反守則者由所屬社會工作師公會審議、處置（敘述④錯誤）。現行社會工作師倫理守則於 2018-12-15 修訂、2019-04-26 衛生福利部核備，文件首列 97 年 3 月 28 日內政部核備之沿革，改以「服務對象」稱之而不再定義案主，附則仍規定由公會審議、處置。社會工作師法第17條自 2008-01-16 修正後未再修正。官方答案依現行條文仍正確。依據：法務部全國法規資料庫（社會工作師法）、新北市政府社會局網站公布之社會工作倫理守則（2008-03-28 內政部同意核備版本）及衛生福利部網站公布之社會工作師倫理守則（2019-04-26 衛生福利部核備版本）（2026-11-26 查核）。",
+    "legal_source_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050125"
+   },
+   "laws": [
+    "社會工作師法"
+   ],
+   "articles": {
+    "社會工作師法": [
+     "17"
+    ]
+   },
+   "documents": [
+    {
+     "title": "社會工作倫理守則（95.12.22 會員代表大會通過，97.3.28 內政部同意核備）",
+     "host": "新北市政府社會局",
+     "url": "https://www.sw.ntpc.gov.tw/uploaddowndoc?file=law/201802131114170.pdf&filedisplay=%E7%A4%BE%E6%9C%83%E5%B7%A5%E4%BD%9C%E5%80%AB%E7%90%86%E5%AE%88%E5%89%87.pdf&flag=doc",
+     "sha256": "6eea536cc9fda4a0fc616d3b88962b221c87b0509aa0553cada8fd707c25d3a5",
+     "bytes": 108552
+    },
+    {
+     "title": "社會工作師倫理守則（107.12.15 修訂，108.4.26 衛生福利部核備）",
+     "host": "衛生福利部",
+     "url": "https://mohw.gov.tw/dl-85943-e9f2ffb0-f35e-4965-bf41-e8759f98ed2c.html",
+     "sha256": "d736421b89fcacc5ced5633e3a685f9d257b462ad4933ad28ec9b3c6b47f0a9a",
+     "bytes": 144458
+    }
+   ]
+  },
+  "SW-108-2-25": {
+   "shard": "108-2.json",
+   "before": {
+    "id": "SW-108-2-25",
+    "subject": "社會工作",
+    "year": "108",
+    "round": "第二次",
+    "qno": "25",
+    "major": "社會工作倫理",
+    "topic": "倫理守則 > 對案主倫理守則",
+    "keywords": "倫理守則, 自我決定, 業務秘密, 服務費用, 專業關係",
+    "question": "根據中華民國社會工作倫理守則第二版，下列何者非社會工作師對於案主的倫理守則？",
+    "opt_a": "社會工作師應尊重案主的自我決定權",
+    "opt_b": "社會工作師應保守業務秘密，即使業主已過世",
+    "opt_c": "社會工作師提供服務後才告知需要收取服務費用",
+    "opt_d": "社會工作師應與案主維持專業關係",
+    "answer": "C",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "對案主的倫理守則含尊重自決、保守業務秘密、維持專業關係;(C)「提供服務後才告知收費」違反事先告知,不是正確的倫理守則。",
+    "exp_others": "(A)應尊重案主的自我決定權、(B)應保守業務秘密、即使案主已過世、(D)應與案主維持專業關係——皆為對案主的倫理守則。",
+    "exp_trap": "收費應「事先充分告知」;事後才講違反知情與誠信。",
+    "exp_raw": "",
+    "mnemonic": "對案主倫理:自決+保密+專業關係(收費須事先告知)。",
+    "extension": "倫理守則;對案主倫理守則。",
+    "law": "社會工作倫理守則（第二版）",
+    "mistake": "概念混淆",
+    "source_exam_code": "108110",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0601&t=Q",
+    "analysis_status": "ready",
+    "legal_status": "unreviewed",
+    "legal_checked_at": null,
+    "legal_note": null,
+    "legal_source_url": null
+   },
+   "after": {
+    "id": "SW-108-2-25",
+    "subject": "社會工作",
+    "year": "108",
+    "round": "第二次",
+    "qno": "25",
+    "major": "社會工作倫理",
+    "topic": "倫理守則 > 對案主倫理守則",
+    "keywords": "倫理守則, 自我決定, 業務秘密, 服務費用, 專業關係",
+    "question": "根據中華民國社會工作倫理守則第二版，下列何者非社會工作師對於案主的倫理守則？",
+    "opt_a": "社會工作師應尊重案主的自我決定權",
+    "opt_b": "社會工作師應保守業務秘密，即使業主已過世",
+    "opt_c": "社會工作師提供服務後才告知需要收取服務費用",
+    "opt_d": "社會工作師應與案主維持專業關係",
+    "answer": "C",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "對案主的倫理守則含尊重自決、保守業務秘密、維持專業關係;(C)「提供服務後才告知收費」違反事先告知,不是正確的倫理守則。",
+    "exp_others": "(A)應尊重案主的自我決定權、(B)應保守業務秘密、即使案主已過世、(D)應與案主維持專業關係——皆為對案主的倫理守則。",
+    "exp_trap": "收費應「事先充分告知」;事後才講違反知情與誠信。",
+    "exp_raw": "",
+    "mnemonic": "對案主倫理:自決+保密+專業關係(收費須事先告知)。",
+    "extension": "倫理守則;對案主倫理守則。",
+    "law": "社會工作倫理守則（第二版）",
+    "mistake": "概念混淆",
+    "source_exam_code": "108110",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=107&code=108110&q=1&s=0601&t=Q",
+    "analysis_status": "ready",
+    "legal_status": "verified_current",
+    "legal_checked_at": "2026-11-26T12:00:00+00:00",
+    "legal_note": "考試時點法規核對（逐條人工核對）：本題考試日 2019-07-27。依社會工作師法第17條訂定之倫理守則，題目所稱第二版（2008-03-28 內政部同意核備）與考試時已施行之現行社會工作師倫理守則（2019-04-26 衛生福利部核備），其第二章對案主（服務對象）之倫理守則均規定：尊重並促進自我決定權（1.2）、維持正常專業關係（1.4）、保守業務秘密且縱已死亡仍須重視其隱私權利（1.6）、收取服務費用時應事先告知收費標準（1.7）；「提供服務後才告知需要收取服務費用」違反1.7，官方答案C。社會工作師法第17條自 2008-01-16 修正後未再修正。官方答案依現行條文仍正確。依據：法務部全國法規資料庫（社會工作師法）、新北市政府社會局網站公布之社會工作倫理守則（2008-03-28 內政部同意核備版本）及衛生福利部網站公布之社會工作師倫理守則（2019-04-26 衛生福利部核備版本）（2026-11-26 查核）。",
+    "legal_source_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050125"
+   },
+   "laws": [
+    "社會工作師法"
+   ],
+   "articles": {
+    "社會工作師法": [
+     "17"
+    ]
+   },
+   "documents": [
+    {
+     "title": "社會工作倫理守則（95.12.22 會員代表大會通過，97.3.28 內政部同意核備）",
+     "host": "新北市政府社會局",
+     "url": "https://www.sw.ntpc.gov.tw/uploaddowndoc?file=law/201802131114170.pdf&filedisplay=%E7%A4%BE%E6%9C%83%E5%B7%A5%E4%BD%9C%E5%80%AB%E7%90%86%E5%AE%88%E5%89%87.pdf&flag=doc",
+     "sha256": "6eea536cc9fda4a0fc616d3b88962b221c87b0509aa0553cada8fd707c25d3a5",
+     "bytes": 108552
+    },
+    {
+     "title": "社會工作師倫理守則（107.12.15 修訂，108.4.26 衛生福利部核備）",
+     "host": "衛生福利部",
+     "url": "https://mohw.gov.tw/dl-85943-e9f2ffb0-f35e-4965-bf41-e8759f98ed2c.html",
+     "sha256": "d736421b89fcacc5ced5633e3a685f9d257b462ad4933ad28ec9b3c6b47f0a9a",
+     "bytes": 144458
+    }
+   ]
+  },
+  "SW-112-1-34": {
+   "shard": "112-1.json",
+   "before": {
+    "id": "SW-112-1-34",
+    "subject": "社會工作",
+    "year": "112",
+    "round": "第一次",
+    "qno": "34",
+    "major": "心理健康",
+    "topic": "精神社工 > 健保精神科社工申報",
+    "keywords": "全民健保, 精神科社工, 家族治療, 醫囑, 診療項目",
+    "question": "根據全民健保醫療服務給付規定，下列何項診療項目可由精神科社工師（員）申報，並需 附精神科專科醫師醫囑及簽名？",
+    "opt_a": "行為評估與治療",
+    "opt_b": "家族治療",
+    "opt_c": "特殊團體心理治療",
+    "opt_d": "精神科診斷性會談",
+    "answer": "B",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(B)家族治療：依健保給付規定，家族治療可由精神科社工師(員)申報，需附精神科專科醫師醫囑及簽名。",
+    "exp_others": "(A)行為評估與治療、(C)特殊團體心理治療、(D)精神科診斷性會談——多屬醫師/心理師申報項目。",
+    "exp_trap": "精神科社工健保可申報＝家族治療(需醫師醫囑)。",
+    "exp_raw": "",
+    "mnemonic": "健保給付：家族治療可由精神科社工師申報(需醫師醫囑簽名)。",
+    "extension": "精神醫療社會工作(健保給付)。",
+    "law": "全民健康保險醫療服務給付項目及支付標準",
+    "mistake": "法規混淆",
+    "source_exam_code": "112030",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112030&q=1&s=0301&t=Q",
+    "analysis_status": "ready",
+    "legal_status": "unreviewed",
+    "legal_checked_at": null,
+    "legal_note": null,
+    "legal_source_url": null
+   },
+   "after": {
+    "id": "SW-112-1-34",
+    "subject": "社會工作",
+    "year": "112",
+    "round": "第一次",
+    "qno": "34",
+    "major": "心理健康",
+    "topic": "精神社工 > 健保精神科社工申報",
+    "keywords": "全民健保, 精神科社工, 家族治療, 醫囑, 診療項目",
+    "question": "根據全民健保醫療服務給付規定，下列何項診療項目可由精神科社工師（員）申報，並需 附精神科專科醫師醫囑及簽名？",
+    "opt_a": "行為評估與治療",
+    "opt_b": "家族治療",
+    "opt_c": "特殊團體心理治療",
+    "opt_d": "精神科診斷性會談",
+    "answer": "B",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(B)家族治療：依健保給付規定，家族治療可由精神科社工師(員)申報，需附精神科專科醫師醫囑及簽名。",
+    "exp_others": "(A)行為評估與治療、(C)特殊團體心理治療、(D)精神科診斷性會談——多屬醫師/心理師申報項目。",
+    "exp_trap": "精神科社工健保可申報＝家族治療(需醫師醫囑)。",
+    "exp_raw": "",
+    "mnemonic": "健保給付：家族治療可由精神科社工師申報(需醫師醫囑簽名)。",
+    "extension": "精神醫療社會工作(健保給付)。",
+    "law": "全民健康保險醫療服務給付項目及支付標準",
+    "mistake": "法規混淆",
+    "source_exam_code": "112030",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=112030&q=1&s=0301&t=Q",
+    "analysis_status": "ready",
+    "legal_status": "verified_current",
+    "legal_checked_at": "2026-11-26T12:00:00+00:00",
+    "legal_note": "考試時點法規核對（逐條人工核對）：本題考試日 2023-02-18。依全民健康保險法第41條，醫療服務給付項目及支付標準由保險人與相關機關等代表共同擬訂，報主管機關核定發布；本題考該標準精神醫療治療費之申報規範。衛生福利部 2026-07-28 修正發布、2026-08-01 生效之精神疾病嚴重病人強制處置費用支付作業要點附表，其家族治療（60分鐘）項目（E45082）仍載明「限精神科醫師或精神科社工師(員)申報，並需附精神科專科醫師之醫囑及簽名」，行為治療計畫限精神專科、復健專科醫師或臨床心理師執行，選項B家族治療之申報規定未變。全民健康保險法第41條自 2011-01-26 修正後未再修正。官方答案依現行條文仍正確。依據：法務部全國法規資料庫（全民健康保險法）及衛生福利部中央健康保險署網站公布之精神疾病嚴重病人強制處置費用支付作業要點（2026-11-26 查核）。",
+    "legal_source_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0060001"
+   },
+   "laws": [
+    "全民健康保險法"
+   ],
+   "articles": {
+    "全民健康保險法": [
+     "41"
+    ]
+   },
+   "documents": [
+    {
+     "title": "精神疾病嚴重病人強制處置費用支付作業要點（衛生福利部 115.7.28 修正發布，115.8.1 生效）",
+     "host": "衛生福利部中央健康保險署",
+     "url": "https://www.nhi.gov.tw/ch/dl-100897-8081ada9dcbb4538a316c432540ae569-1.pdf",
+     "sha256": "6ced48b805ba7acac83c59ea9e6c2ca8b9789feabcbe181af75fa46f27e12361",
+     "bytes": 585242
+    }
+   ]
+  }
+ },
+ "official_text_changes": 0
+}

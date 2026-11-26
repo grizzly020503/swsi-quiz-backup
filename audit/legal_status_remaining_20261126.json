@@ -1,12 +1,12 @@
 {
  "as_of": "2026-11-26",
- "source": "cdn/question-shards after batch 34 (equals the production questions table once the batch 34 SQL is applied)",
+ "source": "cdn/question-shards after batch 35 (equals the production questions table once the batch 35 SQL is applied)",
  "totals": {
   "questions": 4800,
-  "verified_current": 596,
-  "changed": 40,
+  "verified_current": 601,
+  "changed": 43,
   "not_applicable": 4140,
-  "unreviewed": 24
+  "unreviewed": 16
  },
  "remaining": {
   "policy_documents": [],
@@ -29,40 +29,7 @@
    "SP113-1-40",
    "SW-106-1-40"
   ],
-  "deferred": {
-   "SP106-1-23": {
-    "batch": "legal_status_batch19_20261125.json",
-    "reason": "考衛生福利部內部業務分工（社會救助及社工司），非公益勸募條例條文，併入行政組織題處理"
-   },
-   "SW-104-1-34": {
-    "batch": "legal_status_batch21_20261125.json",
-    "reason": "考社會工作倫理守則（社會工作師法第17條）；守則已於 2018-12-15 修訂、2019-04-26 衛生福利部核備，需取得現行守則全文後再核對"
-   },
-   "SW-104-2-26": {
-    "batch": "legal_status_batch27_20261126.json",
-    "reason": "臺灣社會工作倫理守則之內容，需現行守則全文核對（理論題第一組逐題確認時移出，與倫理守則 3 題一併處理）"
-   },
-   "SW-105-2-36": {
-    "batch": "legal_status_batch28_20261126.json",
-    "reason": "社會工作倫理守則之倫理原則（2008 年版），需守則全文核對（理論題第二組逐題確認時移出，與倫理守則題一併處理）"
-   },
-   "SW-107-1-19": {
-    "batch": "legal_status_batch21_20261125.json",
-    "reason": "同上，需取得現行社會工作倫理守則全文後再核對"
-   },
-   "SW-108-1-23": {
-    "batch": "legal_status_batch21_20261125.json",
-    "reason": "同上，需取得現行社會工作倫理守則全文後再核對"
-   },
-   "SW-108-2-25": {
-    "batch": "legal_status_batch29_20261126.json",
-    "reason": "中華民國社會工作倫理守則第二版之內容，需守則全文核對（理論題第三組逐題確認時移出，與倫理守則題一併處理）"
-   },
-   "SW-112-1-34": {
-    "batch": "legal_status_batch23_20261125.json",
-    "reason": "考全民健康保險醫療服務給付項目及支付標準之附表（精神醫療治療費項目之申報人員），法務部法規資料庫僅收錄本文12條、未含附表，待取得健保署現行附表再核對"
-   }
-  },
+  "deferred": {},
   "no_law_reference": []
  }
 }

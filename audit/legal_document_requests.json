@@ -142,13 +142,15 @@
    "key": "ntpc_sw_ethics_code_2008",
    "url": "https://www.sw.ntpc.gov.tw/uploaddowndoc?file=law/201802131114170.pdf&filedisplay=%E7%A4%BE%E6%9C%83%E5%B7%A5%E4%BD%9C%E5%80%AB%E7%90%86%E5%AE%88%E5%89%87.pdf&flag=doc",
    "purpose": "social work code of ethics as approved 2008-03-28 (exam-time version for 2015-2019 questions), New Taipei City social welfare department copy",
-   "full": true
+   "full": true,
+   "fetched": true
   },
   {
    "key": "taipei_ethics_code_upload",
    "url": "https://www-ws.gov.taipei/001/Upload/358/relfile/17896/3170723/92301164-431b-408b-a1ed-ab28c8faa2b7.pdf",
    "purpose": "social work code of ethics, Taipei City Government copy (version to identify)",
-   "full": true
+   "full": true,
+   "fetched": true
   },
   {
    "key": "moj_L0010056",
@@ -160,7 +162,8 @@
     "勸募"
    ],
    "window": 900,
-   "max_hits": 6
+   "max_hits": 6,
+   "fetched": true
   },
   {
    "key": "mohw_cp_4343_75513",
@@ -170,7 +173,8 @@
     "倫理守則"
    ],
    "window": 400,
-   "max_hits": 4
+   "max_hits": 4,
+   "fetched": true
   }
  ]
 }

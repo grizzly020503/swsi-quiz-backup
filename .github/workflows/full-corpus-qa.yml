@@ -111,6 +111,8 @@ on:
       - 'audit/legal_status_batch33_20261126.json'
       - 'scripts/legal_status_batch34_release_guard.py'
       - 'audit/legal_status_batch34_20261126.json'
+      - 'scripts/legal_status_batch35_release_guard.py'
+      - 'audit/legal_status_batch35_20261126.json'
       - 'audit/official_1041_current_preflight_readonly_20261113.sql'
       - 'scripts/official_1041_ds_successor_overlay_smoke.py'
       - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
@@ -251,6 +253,8 @@ on:
       - 'audit/legal_status_batch33_20261126.json'
       - 'scripts/legal_status_batch34_release_guard.py'
       - 'audit/legal_status_batch34_20261126.json'
+      - 'scripts/legal_status_batch35_release_guard.py'
+      - 'audit/legal_status_batch35_20261126.json'
       - 'audit/official_1041_current_preflight_readonly_20261113.sql'
       - 'scripts/official_1041_ds_successor_overlay_smoke.py'
       - 'audit/official_104_1_direct_service_three_ocr_candidate_20261031.json'
@@ -362,8 +366,8 @@ jobs:
         run: |
           python -m py_compile scripts/official_two_source_owner_release_guard.py
           python scripts/official_two_source_owner_release_guard.py
-          python -m py_compile scripts/official_source_repair_release_guard.py scripts/official_source_repair_release_b_guard.py scripts/official_essay_source_release_guard.py scripts/legal_status_batch1_release_guard.py scripts/legal_status_batch2_release_guard.py scripts/legal_status_batch3_release_guard.py scripts/legal_status_batch4_release_guard.py scripts/legal_status_batch5_release_guard.py scripts/legal_status_batch6_release_guard.py scripts/legal_status_batch7_release_guard.py scripts/legal_status_batch8_release_guard.py scripts/legal_status_batch9_release_guard.py scripts/legal_status_batch10_release_guard.py scripts/legal_status_batch11_release_guard.py scripts/legal_status_batch12_release_guard.py scripts/legal_status_batch13_release_guard.py scripts/legal_status_batch14_release_guard.py scripts/legal_status_batch15_release_guard.py scripts/legal_status_batch16_release_guard.py scripts/legal_status_batch17_release_guard.py scripts/legal_status_batch18_release_guard.py scripts/legal_status_batch19_release_guard.py scripts/legal_status_batch20_release_guard.py scripts/legal_status_batch21_release_guard.py scripts/legal_status_batch22_release_guard.py scripts/legal_status_batch23_release_guard.py scripts/legal_status_batch24_release_guard.py scripts/legal_status_batch25_release_guard.py scripts/legal_status_batch26_release_guard.py scripts/legal_status_batch27_release_guard.py scripts/legal_status_batch28_release_guard.py scripts/legal_status_batch29_release_guard.py scripts/legal_status_batch30_release_guard.py scripts/legal_status_batch31_release_guard.py scripts/legal_status_batch32_release_guard.py scripts/legal_status_batch33_release_guard.py scripts/legal_status_batch34_release_guard.py
-          python scripts/legal_status_batch34_release_guard.py --selftest
+          python -m py_compile scripts/official_source_repair_release_guard.py scripts/official_source_repair_release_b_guard.py scripts/official_essay_source_release_guard.py scripts/legal_status_batch1_release_guard.py scripts/legal_status_batch2_release_guard.py scripts/legal_status_batch3_release_guard.py scripts/legal_status_batch4_release_guard.py scripts/legal_status_batch5_release_guard.py scripts/legal_status_batch6_release_guard.py scripts/legal_status_batch7_release_guard.py scripts/legal_status_batch8_release_guard.py scripts/legal_status_batch9_release_guard.py scripts/legal_status_batch10_release_guard.py scripts/legal_status_batch11_release_guard.py scripts/legal_status_batch12_release_guard.py scripts/legal_status_batch13_release_guard.py scripts/legal_status_batch14_release_guard.py scripts/legal_status_batch15_release_guard.py scripts/legal_status_batch16_release_guard.py scripts/legal_status_batch17_release_guard.py scripts/legal_status_batch18_release_guard.py scripts/legal_status_batch19_release_guard.py scripts/legal_status_batch20_release_guard.py scripts/legal_status_batch21_release_guard.py scripts/legal_status_batch22_release_guard.py scripts/legal_status_batch23_release_guard.py scripts/legal_status_batch24_release_guard.py scripts/legal_status_batch25_release_guard.py scripts/legal_status_batch26_release_guard.py scripts/legal_status_batch27_release_guard.py scripts/legal_status_batch28_release_guard.py scripts/legal_status_batch29_release_guard.py scripts/legal_status_batch30_release_guard.py scripts/legal_status_batch31_release_guard.py scripts/legal_status_batch32_release_guard.py scripts/legal_status_batch33_release_guard.py scripts/legal_status_batch34_release_guard.py scripts/legal_status_batch35_release_guard.py
+          python scripts/legal_status_batch35_release_guard.py --selftest
 
       - name: Preserve the original read-only 37-column transaction preflight evidence
         run: |
@@ -411,6 +415,7 @@ jobs:
           python scripts/legal_status_batch32_release_guard.py --live
           python scripts/legal_status_batch33_release_guard.py --live
           python scripts/legal_status_batch34_release_guard.py --live
+          python scripts/legal_status_batch35_release_guard.py --live
 
       - name: Prevent wrong-subject historic MOEX sources in rebuilt shards
         run: python scripts/historical_source_url_guard_selftest.py
