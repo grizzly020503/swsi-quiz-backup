@@ -1,12 +1,12 @@
 {
  "as_of": "2026-11-26",
- "source": "cdn/question-shards after batch 28 (equals the production questions table once the batch 28 SQL is applied)",
+ "source": "cdn/question-shards after batch 29 (equals the production questions table once the batch 29 SQL is applied)",
  "totals": {
   "questions": 4800,
   "verified_current": 586,
   "changed": 39,
-  "not_applicable": 3820,
-  "unreviewed": 355
+  "not_applicable": 3868,
+  "unreviewed": 307
  },
  "remaining": {
   "policy_documents": [
@@ -21,7 +21,9 @@
    "SP106-2-40",
    "SP107-1-24",
    "SP107-1-33",
+   "SP108-1-05",
    "SP108-1-06",
+   "SP108-1-36",
    "SP108-2-06",
    "SP108-2-07",
    "SP115-1-07",
@@ -54,10 +56,6 @@
    "SW-106-1-40"
   ],
   "deferred": {
-   "HBSE-108-2-028": {
-    "batch": "legal_status_batch22_20261125.json",
-    "reason": "性騷擾概念題（最常發生地點等敘述），非法規條文，併入概念題處理"
-   },
    "HBSE-110-2-025": {
     "batch": "legal_status_batch24_20261125.json",
     "reason": "考 FM2 等藥物之藥理特性；毒品危害防制條例第2條未列 FM2，其分級係依行政院公告之毒品分級及品項，答案不涉及條文變動，併入概念題處理"
@@ -73,10 +71,6 @@
    "SP106-1-23": {
     "batch": "legal_status_batch19_20261125.json",
     "reason": "考衛生福利部內部業務分工（社會救助及社工司），非公益勸募條例條文，併入行政組織題處理"
-   },
-   "SP108-1-10": {
-    "batch": "legal_status_batch17_20261125.json",
-    "reason": "Titmuss 福利分工概念題（選項含「志願服務」），非志願服務法條文，併入概念題處理"
    },
    "SP114-1-08": {
     "batch": "legal_status_batch23_20261125.json",
@@ -101,6 +95,10 @@
    "SW-108-1-23": {
     "batch": "legal_status_batch21_20261125.json",
     "reason": "同上，需取得現行社會工作倫理守則全文後再核對"
+   },
+   "SW-108-2-25": {
+    "batch": "legal_status_batch29_20261126.json",
+    "reason": "中華民國社會工作倫理守則第二版之內容，需守則全文核對（理論題第三組逐題確認時移出，與倫理守則題一併處理）"
    },
    "SW-111-2-37": {
     "batch": "legal_status_batch25_20261125.json",
@@ -133,54 +131,6 @@
    "SP-115-2-020",
    "SP-115-2-021",
    "SP-115-2-024",
-   "SP107-2-01",
-   "SP107-2-02",
-   "SP107-2-03",
-   "SP107-2-04",
-   "SP107-2-11",
-   "SP107-2-12",
-   "SP107-2-13",
-   "SP107-2-14",
-   "SP107-2-21",
-   "SP107-2-24",
-   "SP107-2-25",
-   "SP107-2-35",
-   "SP107-2-36",
-   "SP107-2-37",
-   "SP107-2-38",
-   "SP108-1-01",
-   "SP108-1-02",
-   "SP108-1-03",
-   "SP108-1-04",
-   "SP108-1-05",
-   "SP108-1-07",
-   "SP108-1-08",
-   "SP108-1-09",
-   "SP108-1-11",
-   "SP108-1-12",
-   "SP108-1-13",
-   "SP108-1-14",
-   "SP108-1-15",
-   "SP108-1-16",
-   "SP108-1-17",
-   "SP108-1-36",
-   "SP108-1-37",
-   "SP108-2-01",
-   "SP108-2-02",
-   "SP108-2-03",
-   "SP108-2-04",
-   "SP108-2-05",
-   "SP108-2-10",
-   "SP108-2-11",
-   "SP108-2-12",
-   "SP108-2-13",
-   "SP108-2-14",
-   "SP108-2-15",
-   "SP108-2-16",
-   "SP108-2-17",
-   "SP108-2-18",
-   "SP108-2-19",
-   "SP108-2-37",
    "SP109-1-01",
    "SP109-1-02",
    "SP109-1-03",
@@ -413,7 +363,6 @@
    "SP115-1-14",
    "SP115-1-15",
    "SP115-1-16",
-   "SW-108-2-25",
    "SW-114-2-36"
   ]
  }
