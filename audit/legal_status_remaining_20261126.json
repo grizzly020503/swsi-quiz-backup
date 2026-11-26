@@ -1,0 +1,35 @@
+{
+ "as_of": "2026-11-26",
+ "source": "cdn/question-shards after batch 35 (equals the production questions table once the batch 35 SQL is applied)",
+ "totals": {
+  "questions": 4800,
+  "verified_current": 601,
+  "changed": 43,
+  "not_applicable": 4140,
+  "unreviewed": 16
+ },
+ "remaining": {
+  "policy_documents": [],
+  "other_international_rules": [],
+  "analysis_pending": [
+   "SP104-2-37",
+   "SP106-2-25",
+   "SP106-2-35",
+   "SP107-1-40",
+   "SP111-2-37",
+   "SP113-1-30",
+   "SP113-1-31",
+   "SP113-1-32",
+   "SP113-1-33",
+   "SP113-1-34",
+   "SP113-1-35",
+   "SP113-1-37",
+   "SP113-1-38",
+   "SP113-1-39",
+   "SP113-1-40",
+   "SW-106-1-40"
+  ],
+  "deferred": {},
+  "no_law_reference": []
+ }
+}

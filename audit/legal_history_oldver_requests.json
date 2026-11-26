@@ -1,5 +1,5 @@
 {
- "note": "Old MOJ full-text versions needed for per-article review (read-only fetch). Versions marked fetched were already printed by earlier Legal History Fetch runs (PR #629/#630) and are skipped to avoid MOJ rate limits.",
+ "note": "Old MOJ full-text versions needed for per-article review (read-only fetch). Versions marked fetched were already printed by earlier Legal History Fetch runs (PR #629/#630/#633) and are skipped to avoid MOJ rate limits.",
  "versions": [
   {
    "law": "老人福利法",
@@ -76,17 +76,261 @@
   {
    "law": "社會工作師法",
    "pcode": "D0050125",
-   "lnndate": "20090527"
+   "lnndate": "20090527",
+   "fetched": true
   },
   {
    "law": "社會工作師法",
    "pcode": "D0050125",
-   "lnndate": "20181219"
+   "lnndate": "20181219",
+   "fetched": true
   },
   {
    "law": "社會工作師法",
    "pcode": "D0050125",
-   "lnndate": "20200115"
+   "lnndate": "20200115",
+   "fetched": true
+  },
+  {
+   "law": "身心障礙者權益保障法",
+   "pcode": "D0050046",
+   "lnndate": "20150204",
+   "fetched": true
+  },
+  {
+   "law": "身心障礙者權益保障法",
+   "pcode": "D0050046",
+   "lnndate": "20151216",
+   "fetched": true
+  },
+  {
+   "law": "身心障礙者權益保障法",
+   "pcode": "D0050046",
+   "lnndate": "20210120",
+   "fetched": true
+  },
+  {
+   "law": "長期照顧服務法",
+   "pcode": "L0070040",
+   "lnndate": "20150603",
+   "fetched": true
+  },
+  {
+   "law": "長期照顧服務法",
+   "pcode": "L0070040",
+   "lnndate": "20170126",
+   "fetched": true
+  },
+  {
+   "law": "兒童及少年性剝削防制條例",
+   "pcode": "D0050023",
+   "lnndate": "20070704",
+   "name": "兒童及少年性交易防制條例",
+   "fetched": true
+  },
+  {
+   "law": "兒童及少年性剝削防制條例",
+   "pcode": "D0050023",
+   "lnndate": "20150204",
+   "fetched": true
+  },
+  {
+   "law": "兒童及少年性剝削防制條例",
+   "pcode": "D0050023",
+   "lnndate": "20180103",
+   "fetched": true
+  },
+  {
+   "law": "兒童及少年性剝削防制條例",
+   "pcode": "D0050023",
+   "lnndate": "20230215",
+   "fetched": true
+  },
+  {
+   "law": "國民年金法",
+   "pcode": "D0050152",
+   "lnndate": "20140108",
+   "fetched": true
+  },
+  {
+   "law": "性別平等工作法",
+   "pcode": "N0030014",
+   "lnndate": "20141211",
+   "name": "性別工作平等法",
+   "fetched": true
+  },
+  {
+   "law": "性別平等工作法",
+   "pcode": "N0030014",
+   "lnndate": "20160518",
+   "name": "性別工作平等法",
+   "fetched": true
+  },
+  {
+   "law": "性別平等工作法",
+   "pcode": "N0030014",
+   "lnndate": "20220112",
+   "name": "性別工作平等法",
+   "fetched": true
+  },
+  {
+   "law": "性侵害犯罪防治法",
+   "pcode": "D0080079",
+   "lnndate": "20111109",
+   "fetched": true
+  },
+  {
+   "law": "性侵害犯罪防治法",
+   "pcode": "D0080079",
+   "lnndate": "20151223",
+   "fetched": true
+  },
+  {
+   "law": "精神衛生法",
+   "pcode": "L0020030",
+   "lnndate": "20070704",
+   "fetched": true
+  },
+  {
+   "law": "精神衛生法",
+   "pcode": "L0020030",
+   "lnndate": "20200115",
+   "fetched": true
+  },
+  {
+   "law": "專科社會工作師分科甄審及接受繼續教育辦法",
+   "pcode": "D0050170",
+   "lnndate": "20090713",
+   "fetched": true
+  },
+  {
+   "law": "專科社會工作師分科甄審及接受繼續教育辦法",
+   "pcode": "D0050170",
+   "lnndate": "20150716",
+   "fetched": true
+  },
+  {
+   "law": "住宅法",
+   "pcode": "D0070195",
+   "lnndate": "20170111",
+   "fetched": true
+  },
+  {
+   "law": "少年事件處理法",
+   "pcode": "C0010011",
+   "lnndate": "20050518",
+   "fetched": true
+  },
+  {
+   "law": "性騷擾防治法",
+   "pcode": "D0050074",
+   "lnndate": "20090123",
+   "fetched": true
+  },
+  {
+   "law": "病人自主權利法",
+   "pcode": "L0020189",
+   "lnndate": "20160106",
+   "fetched": true
+  },
+  {
+   "law": "兒童及少年福利與權益保障法施行細則",
+   "pcode": "D0050010",
+   "lnndate": "20151111",
+   "fetched": true
+  },
+  {
+   "law": "身心障礙者個人照顧服務辦法",
+   "pcode": "D0050187",
+   "lnndate": "20120709",
+   "fetched": true
+  },
+  {
+   "law": "國民教育法",
+   "pcode": "H0070001",
+   "lnndate": "20160601",
+   "fetched": true
+  },
+  {
+   "law": "學生輔導法",
+   "pcode": "H0070058",
+   "lnndate": "20141112",
+   "fetched": true
+  },
+  {
+   "law": "就業保險法",
+   "pcode": "N0050021",
+   "lnndate": "20150204",
+   "fetched": true
+  },
+  {
+   "law": "老年農民福利津貼暫行條例",
+   "pcode": "M0090015",
+   "lnndate": "20140716",
+   "fetched": true
+  },
+  {
+   "law": "人口販運防制法",
+   "pcode": "D0080177",
+   "lnndate": "20090123",
+   "fetched": true
+  },
+  {
+   "law": "校園霸凌防制準則",
+   "pcode": "H0020081",
+   "lnndate": "20120726",
+   "fetched": true
+  },
+  {
+   "law": "家事事件法",
+   "pcode": "B0010048",
+   "lnndate": "20190619",
+   "fetched": true
+  },
+  {
+   "law": "少年事件處理法",
+   "pcode": "C0010011",
+   "lnndate": "20190619",
+   "fetched": true
+  },
+  {
+   "law": "所得稅法",
+   "pcode": "G0340003",
+   "lnndate": "20240103",
+   "fetched": true
+  },
+  {
+   "law": "所得稅法",
+   "pcode": "G0340003",
+   "lnndate": "20210120",
+   "fetched": true
+  },
+  {
+   "law": "就業安定基金收支保管及運用辦法",
+   "pcode": "N0090007",
+   "lnndate": "20210503",
+   "fetched": true
   }
+ ],
+ "extra_laws": [
+  "兒童及少年福利與權益保障法施行細則",
+  "老人福利法施行細則",
+  "身心障礙者個人照顧服務辦法",
+  "偏遠地區學校教育發展條例",
+  "校園性別事件防治準則",
+  "人民團體法",
+  "社會福利公益信託許可及監督辦法",
+  "所得稅法",
+  "勞工退休金條例",
+  "立法院職權行使法",
+  "勞工職業災害保險及保護法",
+  "公教人員保險法",
+  "高級中等以下學校學生及教保服務機構幼兒團體保險條例",
+  "促進民間參與公共建設法",
+  "政府採購法",
+  "就業服務法",
+  "就業安定基金收支保管及運用辦法",
+  "衛生福利部處務規程",
+  "全民健康保險醫療服務給付項目及支付標準"
  ]
 }

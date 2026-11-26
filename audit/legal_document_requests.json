@@ -1,0 +1,180 @@
+{
+ "purpose": "Official documents that the MOJ law database does not carry, printed read-only by scripts/legal_document_fetch.py for the per-question review of the last unreviewed questions (social work code of ethics; NHI fee schedule tables).",
+ "documents": [
+  {
+   "key": "mohw_dl_85943",
+   "url": "https://mohw.gov.tw/dl-85943-e9f2ffb0-f35e-4965-bf41-e8759f98ed2c.html",
+   "purpose": "social work code of ethics (version revised 2018-12-15, approved 2019-04-26?)",
+   "full": true,
+   "fetched": true
+  },
+  {
+   "key": "mohw_dl_94041",
+   "url": "https://www.mohw.gov.tw/dl-94041-10886ed8-b1c1-4cda-81c8-25b211e8bf33.html",
+   "purpose": "social work code of ethics (version to identify)",
+   "full": true,
+   "fetched": true
+  },
+  {
+   "key": "mohw_dosaasw_dl_22660",
+   "url": "https://dep.mohw.gov.tw/DOSAasw/dl-22660-8379651b-6342-4fa9-ae44-0266cd0af31b.html",
+   "purpose": "social work code of ethics (version to identify)",
+   "full": true,
+   "fetched": true
+  },
+  {
+   "key": "mohw_dl_84819",
+   "url": "https://mohw.gov.tw/dl-84819-f7af5b33-722b-4149-8030-918264def4cd.html",
+   "purpose": "social work code of ethics (version to identify)",
+   "full": true,
+   "fetched": true
+  },
+  {
+   "key": "taipei_law_file_0000264382",
+   "url": "https://www.laws.taipei.gov.tw/Law/File/0000264382",
+   "purpose": "social work code of ethics (version to identify)",
+   "terms": [
+    "倫理守則",
+    "核備",
+    "案主",
+    "倫理原則",
+    "核心價值"
+   ],
+   "window": 1200,
+   "fetched": true
+  },
+  {
+   "key": "taipei_law_FL002693",
+   "url": "https://www.laws.taipei.gov.tw/law/LawSearch/LawExport/FL002693?type=2",
+   "purpose": "regulation FL002693 in the Taipei law database (identify; ethics code amendment history?)",
+   "terms": [
+    "倫理守則",
+    "核備",
+    "案主",
+    "倫理原則"
+   ],
+   "window": 1200,
+   "fetched": true
+  },
+  {
+   "key": "cdj_193053",
+   "url": "https://cdj.sfaa.gov.tw/Journal/FileLoad?no=193053",
+   "purpose": "Community Development Journal 180 article on revising the code of ethics",
+   "terms": [
+    "97年",
+    "108年",
+    "修訂",
+    "案主",
+    "倫理原則",
+    "核心價值",
+    "優先"
+   ],
+   "window": 700,
+   "max_hits": 5,
+   "fetched": true
+  },
+  {
+   "key": "nhi_dl_23172",
+   "url": "https://www.nhi.gov.tw/ch/dl-23172-d4b68f7d0962451289ebc2ac3b980093-1.pdf",
+   "purpose": "NHI fee schedule: family therapy item (who may perform and report it)",
+   "terms": [
+    "45082B",
+    "家族治療",
+    "社會工作"
+   ],
+   "window": 900,
+   "max_hits": 6,
+   "fetched": true
+  },
+  {
+   "key": "nhi_dl_37988",
+   "url": "https://www.nhi.gov.tw/ch/dl-37988-2f26ae006ee04f37831e3b4cc60e05f2-1.pdf",
+   "purpose": "NHI fee schedule: family therapy item",
+   "terms": [
+    "45082B",
+    "家族治療",
+    "社會工作"
+   ],
+   "window": 900,
+   "max_hits": 6,
+   "fetched": true
+  },
+  {
+   "key": "nhi_dl_37925",
+   "url": "https://www.nhi.gov.tw/ch/dl-37925-87208db81bbf4522b0751de0ce67ab9d-1.pdf",
+   "purpose": "NHI fee schedule: family therapy item",
+   "terms": [
+    "45082B",
+    "家族治療",
+    "社會工作"
+   ],
+   "window": 900,
+   "max_hits": 6,
+   "fetched": true
+  },
+  {
+   "key": "nhi_dl_96328",
+   "url": "https://www.nhi.gov.tw/ch/dl-96328-fb455a612b6048bca1b4d941cdf30369-1.pdf",
+   "purpose": "NHI fee schedule: family therapy item",
+   "terms": [
+    "45082B",
+    "家族治療",
+    "社會工作"
+   ],
+   "window": 900,
+   "max_hits": 6,
+   "fetched": true
+  },
+  {
+   "key": "nhi_dl_100897",
+   "url": "https://www.nhi.gov.tw/ch/dl-100897-8081ada9dcbb4538a316c432540ae569-1.pdf",
+   "purpose": "NHI fee schedule: family therapy item",
+   "terms": [
+    "45082B",
+    "家族治療",
+    "社會工作"
+   ],
+   "window": 900,
+   "max_hits": 6,
+   "fetched": true
+  },
+  {
+   "key": "ntpc_sw_ethics_code_2008",
+   "url": "https://www.sw.ntpc.gov.tw/uploaddowndoc?file=law/201802131114170.pdf&filedisplay=%E7%A4%BE%E6%9C%83%E5%B7%A5%E4%BD%9C%E5%80%AB%E7%90%86%E5%AE%88%E5%89%87.pdf&flag=doc",
+   "purpose": "social work code of ethics as approved 2008-03-28 (exam-time version for 2015-2019 questions), New Taipei City social welfare department copy",
+   "full": true,
+   "fetched": true
+  },
+  {
+   "key": "taipei_ethics_code_upload",
+   "url": "https://www-ws.gov.taipei/001/Upload/358/relfile/17896/3170723/92301164-431b-408b-a1ed-ab28c8faa2b7.pdf",
+   "purpose": "social work code of ethics, Taipei City Government copy (version to identify)",
+   "full": true,
+   "fetched": true
+  },
+  {
+   "key": "moj_L0010056",
+   "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0010056",
+   "purpose": "MOJ regulation L0010056 (identify; ministry organisation regulation for the fundraising question?)",
+   "terms": [
+    "社會救助及社工司",
+    "公益勸募",
+    "勸募"
+   ],
+   "window": 900,
+   "max_hits": 6,
+   "fetched": true
+  },
+  {
+   "key": "mohw_cp_4343_75513",
+   "url": "https://mohw.gov.tw/cp-4343-75513-1.html",
+   "purpose": "MOHW page found for the code of ethics (links)",
+   "terms": [
+    "倫理守則"
+   ],
+   "window": 400,
+   "max_hits": 4,
+   "fetched": true
+  }
+ ]
+}

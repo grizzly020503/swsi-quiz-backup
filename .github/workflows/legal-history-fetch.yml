@@ -1,14 +1,17 @@
 name: Legal History Fetch
 
 # Read-only: downloads the official MOJ Open API law corpus and keeps the
-# watched laws' amendment history and current articles as an artifact.
-# No repository, database or website writes.
+# watched laws' amendment history and current articles as an artifact; also
+# prints requested official documents that the MOJ database does not carry
+# (government hosts only). No repository, database or website writes.
 on:
   workflow_dispatch:
   pull_request:
     paths:
       - 'scripts/legal_history_fetch.py'
       - 'scripts/legal_oldver_fetch.py'
+      - 'scripts/legal_document_fetch.py'
+      - 'audit/legal_document_requests.json'
       - 'audit/legal_history_oldver_requests.json'
       - '.github/workflows/legal-history-fetch.yml'
 
@@ -25,6 +28,15 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install --disable-pip-version-check 'requests==2.32.5'
+      - name: Install document text tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils antiword
+      - name: Print requested official documents (government hosts only)
+        # Evidence only: a slow or blocked government host must not stop the MOJ steps.
+        timeout-minutes: 12
+        continue-on-error: true
+        run: python scripts/legal_document_fetch.py
+      - name: Print requested old versions (LawOldVer)
+        run: python scripts/legal_oldver_fetch.py
       - run: python scripts/legal_history_fetch.py --out /tmp/legal-history.json
       - name: Print amendment histories (log is the evidence channel)
         run: |
@@ -36,8 +48,6 @@ jobs:
                                         'histories': law['histories']}, ensure_ascii=False))
               print('@@ART', json.dumps({'law': name, 'articles': law['articles']}, ensure_ascii=False))
           PY
-      - name: Print requested old versions (LawOldVer)
-        run: python scripts/legal_oldver_fetch.py
       - uses: actions/upload-artifact@v4
         with:
           name: legal-history

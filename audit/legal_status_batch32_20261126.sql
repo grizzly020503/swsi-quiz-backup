@@ -1,0 +1,20 @@
+BEGIN;
+SET LOCAL lock_timeout='5s'; SET LOCAL statement_timeout='60s';
+LOCK TABLE public.questions IN SHARE ROW EXCLUSIVE MODE;
+CREATE TEMP TABLE swsi_before ON COMMIT DROP AS SELECT id, to_jsonb(q) AS row FROM public.questions q;
+CREATE TEMP TABLE swsi_batch(id text primary key) ON COMMIT DROP;
+INSERT INTO swsi_batch VALUES ('SP-115-2-001'),('SP-115-2-002'),('SP-115-2-003'),('SP-115-2-004'),('SP-115-2-005'),('SP-115-2-006'),('SP-115-2-007'),('SP-115-2-008'),('SP-115-2-010'),('SP-115-2-011'),('SP-115-2-012'),('SP-115-2-013'),('SP-115-2-014'),('SP-115-2-015'),('SP-115-2-016'),('SP-115-2-017'),('SP-115-2-018'),('SP-115-2-020'),('SP-115-2-021'),('SP-115-2-024'),('SP112-1-01'),('SP112-1-02'),('SP112-1-04'),('SP112-1-05'),('SP112-1-06'),('SP112-1-07'),('SP112-1-08'),('SP112-1-10'),('SP112-1-11'),('SP112-1-12'),('SP112-1-13'),('SP112-1-14'),('SP112-1-15'),('SP112-1-16'),('SP112-1-17'),('SP112-1-18'),('SP112-1-20'),('SP112-2-01'),('SP112-2-02'),('SP112-2-03'),('SP112-2-04'),('SP112-2-05'),('SP112-2-06'),('SP112-2-07'),('SP112-2-08'),('SP112-2-09'),('SP112-2-10'),('SP112-2-11'),('SP112-2-12'),('SP112-2-13'),('SP112-2-14'),('SP112-2-15'),('SP112-2-16'),('SP112-2-17'),('SP112-2-18'),('SP112-2-19'),('SP112-2-20'),('SP113-1-01'),('SP113-1-02'),('SP113-1-03'),('SP113-1-04'),('SP113-1-05'),('SP113-1-06'),('SP113-1-07'),('SP113-1-08'),('SP113-1-09'),('SP113-1-10'),('SP113-1-11'),('SP113-1-13'),('SP113-1-14'),('SP113-1-15'),('SP113-1-16'),('SP113-1-17'),('SP113-1-18'),('SP113-1-20'),('SP113-2-01'),('SP113-2-02'),('SP113-2-03'),('SP113-2-04'),('SP113-2-05'),('SP113-2-06'),('SP113-2-07'),('SP113-2-08'),('SP113-2-11'),('SP113-2-12'),('SP113-2-14'),('SP113-2-15'),('SP113-2-16'),('SP113-2-17'),('SP113-2-18'),('SP113-2-19'),('SP113-2-20'),('SP113-2-21'),('SP114-1-01'),('SP114-1-02'),('SP114-1-03'),('SP114-1-04'),('SP114-1-05'),('SP114-1-06'),('SP114-1-08'),('SP114-1-09'),('SP114-1-12'),('SP114-1-14'),('SP114-1-15'),('SP114-1-16'),('SP114-1-18'),('SP114-1-19'),('SP114-1-21'),('SP114-2-01'),('SP114-2-02'),('SP114-2-03'),('SP114-2-05'),('SP114-2-06'),('SP114-2-08'),('SP114-2-10'),('SP114-2-11'),('SP114-2-12'),('SP114-2-13'),('SP114-2-14'),('SP114-2-15'),('SP114-2-16'),('SP114-2-17'),('SP114-2-19'),('SP114-2-38'),('SP115-1-01'),('SP115-1-02'),('SP115-1-03'),('SP115-1-04'),('SP115-1-05'),('SP115-1-06'),('SP115-1-09'),('SP115-1-10'),('SP115-1-12'),('SP115-1-14'),('SP115-1-15'),('SP115-1-16');
+DO $g$ BEGIN
+IF (SELECT count(*) FROM swsi_before)<>4800 THEN RAISE EXCEPTION 'count'; END IF;
+IF (SELECT count(*) FROM swsi_batch)<>136 THEN RAISE EXCEPTION 'batch size'; END IF;
+IF (SELECT count(*) FROM public.questions q JOIN swsi_batch b USING(id) WHERE q.legal_status='unreviewed' AND q.legal_checked_at IS NULL AND q.legal_note IS NULL AND q.legal_source_url IS NULL)<>136 THEN RAISE EXCEPTION 'preimage mismatch'; END IF;
+END $g$;
+UPDATE public.questions q SET legal_status='not_applicable' FROM swsi_batch b WHERE q.id=b.id;
+DO $a$ BEGIN
+IF (SELECT md5(string_agg(concat_ws(chr(31),q.id,q.legal_status),chr(30) ORDER BY q.id)) FROM public.questions q JOIN swsi_batch b USING(id)) IS DISTINCT FROM 'b515ab7284b61bb583300d66aea2e964' THEN RAISE EXCEPTION 'postimage mismatch'; END IF;
+IF (SELECT count(*) FROM public.questions q JOIN swsi_batch b USING(id) WHERE q.legal_status='not_applicable' AND q.legal_checked_at IS NULL AND q.legal_note IS NULL AND q.legal_source_url IS NULL)<>136 THEN RAISE EXCEPTION 'postimage count'; END IF;
+IF EXISTS (SELECT 1 FROM swsi_before b FULL JOIN public.questions q USING(id) WHERE coalesce(b.id,q.id) NOT IN (SELECT id FROM swsi_batch) AND b.row IS DISTINCT FROM to_jsonb(q)) THEN RAISE EXCEPTION 'unrelated change'; END IF;
+IF EXISTS (SELECT 1 FROM swsi_before b JOIN public.questions q USING(id) WHERE b.id IN (SELECT id FROM swsi_batch) AND (b.row - 'legal_status') IS DISTINCT FROM (to_jsonb(q) - 'legal_status')) THEN RAISE EXCEPTION 'non-legal field changed'; END IF;
+END $a$;
+SELECT count(*) FILTER (WHERE q.legal_status='not_applicable') not_applicable_136, count(*) total_136 FROM public.questions q JOIN swsi_batch b USING(id);
+COMMIT;

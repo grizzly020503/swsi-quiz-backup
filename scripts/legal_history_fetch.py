@@ -2,7 +2,8 @@
 """Read-only: fetch MOJ law history evidence for the watched laws.
 
 Downloads the official MOJ Open API law/order corpora (ZIP with one JSON) and
-keeps, for every watched law (data/legal_watch_state.json), its name, PCode,
+keeps, for every watched law (data/legal_watch_state.json) and every name in
+'extra_laws' of audit/legal_history_oldver_requests.json, its name, PCode,
 modified date, LawHistories text and all current articles. Writes one JSON
 report; never touches the repository, database or website.
 """
@@ -23,7 +24,7 @@ UA = 'swsi-legal-history-fetch/1.0 (+educational question bank)'
 
 def download(url):
     last = None
-    for attempt in range(4):
+    for attempt in range(6):
         try:
             r = requests.get(url, timeout=300, headers={'User-Agent': UA})
             r.raise_for_status()
@@ -32,8 +33,9 @@ def download(url):
                 assert len(names) == 1, names
                 return json.loads(z.read(names[0]).decode('utf-8-sig'))
         except Exception as exc:  # noqa: BLE001
+            # MOJ intermittently returns an HTML page instead of the ZIP; wait and retry.
             last = exc
-            time.sleep(2 ** attempt)
+            time.sleep(15 * (attempt + 1))
     raise last
 
 
@@ -47,15 +49,25 @@ def main():
         m = re.search(r'pcode=([A-Za-z0-9]+)', rec.get('official_url') or '')
         if m:
             want[m.group(1).upper()] = name
+    # Laws/orders that are not watched but whose current text and history are
+    # needed for a per-question review; matched by exact MOJ name, print-only.
+    req = json.loads((ROOT / 'audit/legal_history_oldver_requests.json').read_text(encoding='utf-8'))
+    extra = set(req.get('extra_laws') or [])
     out = {'source': list(APIS), 'update_dates': [], 'laws': {}}
     for url in APIS:
         payload = download(url)
         out['update_dates'].append(payload.get('UpdateDate'))
         for law in payload['Laws']:
             m = re.search(r'pcode=([A-Za-z0-9]+)', law.get('LawURL') or '')
-            if not m or m.group(1).upper() not in want:
+            if not m:
                 continue
-            out['laws'][want[m.group(1).upper()]] = {
+            if m.group(1).upper() in want:
+                key = want[m.group(1).upper()]
+            elif law.get('LawName') in extra:
+                key = law.get('LawName')
+            else:
+                continue
+            out['laws'][key] = {
                 'pcode': m.group(1).upper(), 'name': law.get('LawName'), 'url': law.get('LawURL'),
                 'modified': law.get('LawModifiedDate'), 'effective': law.get('LawEffectiveDate'),
                 'effective_note': law.get('LawEffectiveNote'), 'abandon': law.get('LawAbandonNote'),
@@ -63,7 +75,7 @@ def main():
                 'articles': [{'type': a.get('ArticleType'), 'no': a.get('ArticleNo'), 'text': a.get('ArticleContent')}
                              for a in law.get('LawArticles') or []],
             }
-    out['missing'] = sorted(set(want.values()) - set(out['laws']))
+    out['missing'] = sorted((set(want.values()) | extra) - set(out['laws']))
     Path(args.out).write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding='utf-8')
     print('laws:', len(out['laws']), 'missing:', out['missing'])
 
