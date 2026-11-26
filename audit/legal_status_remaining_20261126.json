@@ -1,12 +1,12 @@
 {
  "as_of": "2026-11-26",
- "source": "cdn/question-shards after batch 32 (equals the production questions table once the batch 32 SQL is applied)",
+ "source": "cdn/question-shards after batch 33 (equals the production questions table once the batch 33 SQL is applied)",
  "totals": {
   "questions": 4800,
-  "verified_current": 586,
-  "changed": 39,
+  "verified_current": 596,
+  "changed": 40,
   "not_applicable": 4106,
-  "unreviewed": 69
+  "unreviewed": 58
  },
  "remaining": {
   "policy_documents": [
@@ -64,53 +64,13 @@
    "SW-106-1-40"
   ],
   "deferred": {
-   "HBSE-115-2-038": {
-    "batch": "legal_status_batch32_20261126.json",
-    "reason": "未成年未婚懷孕之法律層面敘述（非婚生子女認領與親權，民法），需走一般法規核對"
-   },
    "SP105-1-10": {
     "batch": "legal_status_batch22_20261125.json",
     "reason": "考健保署「弱勢民眾安心就醫方案」（2010 年起之行政方案）之協助對象，非法規條文，法務部法規資料庫無方案內容可供比對；併入政策文件題處理"
    },
-   "SP106-1-11": {
-    "batch": "legal_status_batch28_20261126.json",
-    "reason": "各社會保險之承辦方式（學生團體保險委由民間辦理），需核對相關法規後走一般法規核對"
-   },
    "SP106-1-23": {
     "batch": "legal_status_batch19_20261125.json",
     "reason": "考衛生福利部內部業務分工（社會救助及社工司），非公益勸募條例條文，併入行政組織題處理"
-   },
-   "SP109-1-11": {
-    "batch": "legal_status_batch30_20261126.json",
-    "reason": "社會福利民營化之相關法令（推動社會福利民營化實施要點、促進民間參與公共建設法、政府採購法），需核對法令現況"
-   },
-   "SP109-1-19": {
-    "batch": "legal_status_batch30_20261126.json",
-    "reason": "停止社會救助給付之條件，涉及社會救助法規定，需走一般法規核對"
-   },
-   "SP109-2-14": {
-    "batch": "legal_status_batch30_20261126.json",
-    "reason": "育嬰留職停薪津貼由就業保險支出，涉及就業保險法規定，需走一般法規核對"
-   },
-   "SP109-2-17": {
-    "batch": "legal_status_batch30_20261126.json",
-    "reason": "職業災害保險之保費負擔與實績費率，涉及勞工保險條例及勞工職業災害保險及保護法，需走一般法規核對"
-   },
-   "SP109-2-20": {
-    "batch": "legal_status_batch30_20261126.json",
-    "reason": "勞工退休金制度為個人儲金制，涉及勞工退休金條例，需走一般法規核對"
-   },
-   "SP110-1-20": {
-    "batch": "legal_status_batch30_20261126.json",
-    "reason": "財稅福利之特別扣除額（所得稅法第17條），需走一般法規核對"
-   },
-   "SP110-2-19": {
-    "batch": "legal_status_batch31_20261126.json",
-    "reason": "就業安定基金之用途（就業服務法及就業安定基金收支保管及運用辦法），需走一般法規核對"
-   },
-   "SP115-1-13": {
-    "batch": "legal_status_batch32_20261126.json",
-    "reason": "年金財務理論題，選項 D 涉及勞工退休金條例確定提撥制，比照第 26 批 SP-115-2-019 走一般法規核對"
    },
    "SW-104-1-34": {
     "batch": "legal_status_batch21_20261125.json",
@@ -143,10 +103,6 @@
    "SW-112-1-34": {
     "batch": "legal_status_batch23_20261125.json",
     "reason": "考全民健康保險醫療服務給付項目及支付標準之附表（精神醫療治療費項目之申報人員），法務部法規資料庫僅收錄本文12條、未含附表，待取得健保署現行附表再核對"
-   },
-   "SW-114-2-36": {
-    "batch": "legal_status_batch32_20261126.json",
-    "reason": "數位／網路性別暴力之敘述（官方一律給分），選項涉及保護令等救濟法規，需走一般法規核對"
    }
   },
   "no_law_reference": []

@@ -134,7 +134,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # A later owner-approved release moved the current corpus; the newest
     # guard rebuilds this release's exact successor state and replays it.
-    from legal_status_batch32_release_guard import replay as replay_newest
+    from legal_status_batch33_release_guard import replay as replay_newest
     replay_newest(ROOT, args.selftest)
     print('ESSAY SOURCE RELEASE PASS: 230 essay sources from PDF-verified subject papers; 1 essay text matched to its '
           'official paper; MCQ locks unchanged; exact predecessor and full earlier release chain replayed')
