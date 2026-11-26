@@ -13,6 +13,7 @@ import hashlib
 import io
 import json
 import re
+import sys
 import time
 import zipfile
 from pathlib import Path
@@ -39,7 +40,16 @@ def _payload_sha256(value: object) -> str:
     return _sha256_text(raw)
 
 
-def _download_payload(session: Any, url: str, attempts: int = 3) -> dict:
+# The MOJ Open API intermittently answers 500, resets the connection or serves
+# an HTML page for a few seconds to a couple of minutes. A 1 s / 2 s backoff gave
+# up inside that window (2026-11-25/26 CI failures) while another downloader of
+# the same corpus with a 15 s step backoff succeeded in the same minute.
+DOWNLOAD_ATTEMPTS = 6
+DOWNLOAD_BACKOFF_SECONDS = 15
+
+
+def _download_payload(session: Any, url: str, attempts: int = DOWNLOAD_ATTEMPTS,
+                      sleep: Any = time.sleep) -> dict:
     last_error: Exception | None = None
     for attempt in range(attempts):
         try:
@@ -61,8 +71,10 @@ def _download_payload(session: Any, url: str, attempts: int = 3) -> dict:
             return payload
         except Exception as exc:
             last_error = exc
+            print(f"MOJ Open API attempt {attempt + 1}/{attempts} failed for {url}: {type(exc).__name__}: {str(exc)[:300]}",
+                  file=sys.stderr, flush=True)
             if attempt + 1 < attempts:
-                time.sleep(2 ** attempt)
+                sleep(DOWNLOAD_BACKOFF_SECONDS * (attempt + 1))
     assert last_error is not None
     raise last_error
 
