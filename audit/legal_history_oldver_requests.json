@@ -296,7 +296,8 @@
   {
    "law": "所得稅法",
    "pcode": "G0340003",
-   "lnndate": "20240103"
+   "lnndate": "20240103",
+   "fetched": true
   }
  ],
  "extra_laws": [
