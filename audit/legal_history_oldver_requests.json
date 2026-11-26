@@ -272,22 +272,26 @@
   {
    "law": "人口販運防制法",
    "pcode": "D0080177",
-   "lnndate": "20090123"
+   "lnndate": "20090123",
+   "fetched": true
   },
   {
    "law": "校園霸凌防制準則",
    "pcode": "H0020081",
-   "lnndate": "20120726"
+   "lnndate": "20120726",
+   "fetched": true
   },
   {
    "law": "家事事件法",
    "pcode": "B0010048",
-   "lnndate": "20190619"
+   "lnndate": "20190619",
+   "fetched": true
   },
   {
    "law": "少年事件處理法",
    "pcode": "C0010011",
-   "lnndate": "20190619"
+   "lnndate": "20190619",
+   "fetched": true
   }
  ],
  "extra_laws": [
