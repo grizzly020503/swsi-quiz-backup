@@ -16,6 +16,7 @@ on:
       - 'scripts/ops_health_snapshot.py'
       - 'scripts/ops_health_snapshot_selftest.py'
       - 'data/ops_task_registry.v1.json'
+      - 'scripts/ai_pipeline_watch.py'
 
 permissions:
   contents: read
@@ -48,6 +49,8 @@ jobs:
           python scripts/ops_task_watchdog.py --validate-only
           python scripts/ops_task_watchdog_selftest.py
           python scripts/ops_health_snapshot_selftest.py
+          python -m py_compile scripts/ai_pipeline_watch.py
+          python scripts/ai_pipeline_watch.py --selftest
 
   freshness:
     name: Check scheduled task freshness
@@ -108,5 +111,44 @@ jobs:
         with:
           name: ops-task-health
           path: /tmp/ops-task-health.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  ai-pipeline:
+    # The Supabase AI queue and the website shards are not GitHub workflows, so
+    # the freshness check above cannot see a stalled queue (2026-11-23..26, three
+    # days unnoticed). Read-only: public REST with the website's publishable key.
+    # PRs run it report-only to prove the live queries; schedules fail on a problem
+    # so GitHub notifies the owner. A suspect queue is re-checked after the next
+    # */30 cron tick, hence the longer timeout.
+    name: Check AI explanation pipeline
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Check queue progress, parked failures and website freshness
+        env:
+          WATCH_EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$WATCH_EVENT" = 'pull_request' ]; then
+            python scripts/ai_pipeline_watch.py --out /tmp/ai-pipeline.json --max-wait 0
+          else
+            python scripts/ai_pipeline_watch.py --out /tmp/ai-pipeline.json --fail-on-problem
+          fi
+
+      - name: Upload diagnostic report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-pipeline-health
+          path: /tmp/ai-pipeline.json
           if-no-files-found: ignore
           retention-days: 14

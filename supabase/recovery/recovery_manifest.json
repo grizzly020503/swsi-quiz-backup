@@ -32,6 +32,8 @@
     "supabase/migrations/20261002112000_create_ops_task_ledger.sql",
     "supabase/migrations/20261002112100_add_ops_review_rpcs.sql",
     "supabase/migrations/20261124120000_reset_ai_ignore_whitespace_only_changes.sql",
+    "supabase/migrations/20261126133000_auto_enable_ai_after_reset_trigger.sql",
+    "supabase/migrations/20261127100000_legal_auto_label.sql",
     "supabase/recovery/production_acl_alignment.sql"
   ],
   "expected": {
@@ -40,8 +42,10 @@
       "current_affairs",
       "current_affairs_sync_runs",
       "essays",
+      "legal_auto_label_log",
       "legal_reference_registry",
       "legal_watch_hits",
+      "moex_exam_dates",
       "moex_sync_runs",
       "questions",
       "swsi_admin_users",
