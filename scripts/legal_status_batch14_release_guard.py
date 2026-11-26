@@ -190,7 +190,7 @@ if __name__ == '__main__':
         raise SystemExit(0)
     # A later owner-approved release moved the current corpus; the newest
     # guard rebuilds this release's exact successor state and replays it.
-    from legal_status_batch33_release_guard import replay as replay_newest
+    from legal_status_batch34_release_guard import replay as replay_newest
     replay_newest(ROOT, args.selftest)
     print('LEGAL STATUS BATCH14 RELEASE PASS: 12 rows verified_current and 3 changed after per-article review; '
           'only legal metadata changed; exact predecessor and full earlier release chain replayed')

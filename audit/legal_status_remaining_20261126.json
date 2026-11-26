@@ -1,50 +1,16 @@
 {
  "as_of": "2026-11-26",
- "source": "cdn/question-shards after batch 33 (equals the production questions table once the batch 33 SQL is applied)",
+ "source": "cdn/question-shards after batch 34 (equals the production questions table once the batch 34 SQL is applied)",
  "totals": {
   "questions": 4800,
   "verified_current": 596,
   "changed": 40,
-  "not_applicable": 4106,
-  "unreviewed": 58
+  "not_applicable": 4140,
+  "unreviewed": 24
  },
  "remaining": {
-  "policy_documents": [
-   "SP104-1-14",
-   "SP104-1-16",
-   "SP104-1-19",
-   "SP104-2-07",
-   "SP104-2-08",
-   "SP105-1-30",
-   "SP106-2-38",
-   "SP106-2-39",
-   "SP106-2-40",
-   "SP107-1-24",
-   "SP107-1-33",
-   "SP108-1-05",
-   "SP108-1-06",
-   "SP108-1-36",
-   "SP108-2-06",
-   "SP108-2-07",
-   "SP109-1-08",
-   "SP110-1-05",
-   "SP111-1-07",
-   "SP112-1-03",
-   "SP112-1-09",
-   "SP113-2-09",
-   "SP114-1-07",
-   "SP115-1-07",
-   "SP115-1-08",
-   "SW-106-2-14",
-   "SW-106-2-17",
-   "SW-107-1-13",
-   "SW-107-2-28",
-   "SW-110-2-33",
-   "SW-113-1-02"
-  ],
-  "other_international_rules": [
-   "SP111-1-06"
-  ],
+  "policy_documents": [],
+  "other_international_rules": [],
   "analysis_pending": [
    "SP104-2-37",
    "SP106-2-25",
@@ -64,10 +30,6 @@
    "SW-106-1-40"
   ],
   "deferred": {
-   "SP105-1-10": {
-    "batch": "legal_status_batch22_20261125.json",
-    "reason": "考健保署「弱勢民眾安心就醫方案」（2010 年起之行政方案）之協助對象，非法規條文，法務部法規資料庫無方案內容可供比對；併入政策文件題處理"
-   },
    "SP106-1-23": {
     "batch": "legal_status_batch19_20261125.json",
     "reason": "考衛生福利部內部業務分工（社會救助及社工司），非公益勸募條例條文，併入行政組織題處理"
@@ -95,10 +57,6 @@
    "SW-108-2-25": {
     "batch": "legal_status_batch29_20261126.json",
     "reason": "中華民國社會工作倫理守則第二版之內容，需守則全文核對（理論題第三組逐題確認時移出，與倫理守則題一併處理）"
-   },
-   "SW-111-2-37": {
-    "batch": "legal_status_batch25_20261125.json",
-    "reason": "③④為行政機關活動無障礙檢核之行政措施及數位機會調查統計，非公約或法規條文，併入政策文件題處理"
    },
    "SW-112-1-34": {
     "batch": "legal_status_batch23_20261125.json",
