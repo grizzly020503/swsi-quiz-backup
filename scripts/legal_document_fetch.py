@@ -44,9 +44,9 @@ def allowed(url):
 
 def download(url):
     last = None
-    for attempt in range(4):
+    for attempt in range(3):
         try:
-            r = requests.get(url, timeout=120, headers={'User-Agent': UA}, allow_redirects=True)
+            r = requests.get(url, timeout=(15, 90), headers={'User-Agent': UA}, allow_redirects=True)
             for hop in list(r.history) + [r]:
                 if not allowed(hop.url):
                     raise RuntimeError('redirected outside the allowed hosts: ' + hop.url)
@@ -56,7 +56,7 @@ def download(url):
             return r
         except Exception as exc:  # noqa: BLE001
             last = exc
-            time.sleep(10 * (attempt + 1))
+            time.sleep(5 * (attempt + 1))
     raise last
 
 
@@ -146,6 +146,8 @@ def main():
             continue
         key, url = doc['key'], doc['url']
         meta = {'key': key, 'url': url, 'purpose': doc.get('purpose')}
+        print('fetching', key, url, flush=True)
+        started = time.time()
         try:
             if not allowed(url):
                 raise RuntimeError('host not allowed (https .gov.tw / .gov.taipei only)')
@@ -156,9 +158,10 @@ def main():
                          'content_type': resp.headers.get('Content-Type'),
                          'content_disposition': resp.headers.get('Content-Disposition'),
                          'bytes': len(resp.content), 'sha256': hashlib.sha256(resp.content).hexdigest(),
-                         'kind': kind, 'chars': len(text)})
+                         'kind': kind, 'chars': len(text), 'seconds': round(time.time() - started, 1)})
         except Exception as exc:  # noqa: BLE001
             meta['error'] = '%s: %s' % (type(exc).__name__, str(exc)[:300])
+            meta['seconds'] = round(time.time() - started, 1)
             emit('@@DOC', meta)
             failed += 1
             continue
