@@ -10,9 +10,16 @@ The scheduled job fails, which makes GitHub notify the owner, when:
   24 hours) is reached a pause is normal; only a pause longer than 26 hours is
   reported then.
 * parked: questions failed three times and were moved to `review` since the
-  previous run (window 6.5 hours, the job runs every 6 hours).
-* unpublished: explanations finished 9 to 60 days ago are still not `ready` in
-  the website shards (cdn/question-shards), i.e. the weekly publish missed them.
+  previous run.
+* unpublished: an explanation finished 9 days ago is still not `ready` in the
+  website shards (cdn/question-shards), i.e. the weekly publish missed it.
+* unlabelled: a question whose explanation finished 14 days ago still has
+  legal_status `unreviewed`, i.e. the daily automatic legal label
+  (public.legal_auto_label_apply) could not decide it and a person must.
+
+Except for a stalled queue, each question is reported once, when it crosses its
+threshold (window 6.5 hours, the job runs every 6 hours), so an unresolved case
+does not send a notice four times a day; the job summary always shows totals.
 
 2026-11-23..26 the queue stopped for three days without anyone noticing; this
 watch exists so that does not happen silently again.
@@ -45,9 +52,10 @@ SHARDS = ROOT / 'cdn/question-shards'
 STALL_AFTER = timedelta(hours=2)
 CAP_PER_24H = 25
 CAP_STALL_AFTER = timedelta(hours=26)
-PARKED_WINDOW = timedelta(hours=6, minutes=30)
+WINDOW = timedelta(hours=6, minutes=30)
 PUBLISH_GRACE = timedelta(days=9)
 PUBLISH_LOOKBACK = timedelta(days=60)
+LABEL_GRACE = timedelta(days=14)
 UA = 'swsi-ai-pipeline-watch/1.0 (+read-only)'
 
 
@@ -107,11 +115,20 @@ def judge_parked(rows: list[dict]) -> dict:
             'errors': sorted({str(r.get('analysis_error') or '')[:80] for r in rows} - {''})}
 
 
-def judge_unpublished(prod_rows: list[dict], shard_status: dict[str, str]) -> dict:
-    missing = sorted(str(r['id']) for r in prod_rows
-                     if str(r['id']) in shard_status and shard_status[str(r['id'])] != 'ready')
-    return {'verdict': 'unpublished' if missing else 'ok', 'ids': missing,
-            'checked': len(prod_rows)}
+def judge_unpublished(prod_rows: list[dict], shard_status: dict[str, str], since: datetime) -> dict:
+    """prod_rows: finished 9-60 days ago. Only rows that crossed the 9-day mark
+    within the last window are new; the rest are totals for the summary."""
+    missing = [r for r in prod_rows
+               if str(r['id']) in shard_status and shard_status[str(r['id'])] != 'ready']
+    new = sorted(str(r['id']) for r in missing
+                 if (parse_time(r.get('analysis_completed_at')) or since) + PUBLISH_GRACE >= since)
+    return {'verdict': 'unpublished' if new else 'ok', 'ids': new,
+            'total': len(missing), 'checked': len(prod_rows)}
+
+
+def judge_unlabelled(rows: list[dict], total: int) -> dict:
+    ids = sorted(str(r['id']) for r in rows)
+    return {'verdict': 'unlabelled' if ids else 'ok', 'ids': ids, 'total': total}
 
 
 def load_shard_status(root: Path = SHARDS) -> dict[str, str]:
@@ -183,10 +200,15 @@ class Questions:
         return self._get(self.q(select='id,analysis_error', analysis_status='eq.review',
                                 analysis_last_attempt_at='gte.' + iso(since)))
 
-    def finished_between(self, start: datetime, end: datetime) -> list[dict]:
-        return self._get(self.q(select='id,analysis_completed_at', analysis_status='eq.ready',
+    def finished_between(self, start: datetime, end: datetime, unreviewed: bool = False) -> list[dict]:
+        extra = {'legal_status': 'eq.unreviewed'} if unreviewed else {}
+        return self._get(self.q(select='id,analysis_completed_at', analysis_status='eq.ready', **extra,
                                 **{'and': '(analysis_completed_at.gte.%s,analysis_completed_at.lt.%s)'
                                    % (iso(start), iso(end))}, limit='1000'))
+
+    def unlabelled_total(self) -> int:
+        return self._get(self.q(select='id', analysis_status='eq.ready', legal_status='eq.unreviewed'),
+                         count=True)
 
 
 def seconds_to_next_tick(now: datetime) -> int:
@@ -205,10 +227,14 @@ def run_live(args) -> dict:
         now=lambda: datetime.now(timezone.utc),
         wait=lambda: time.sleep(min(args.max_wait, seconds_to_next_tick(datetime.now(timezone.utc)))),
     )
-    parked = judge_parked(src.parked_since(now - PARKED_WINDOW))
+    parked = judge_parked(src.parked_since(now - WINDOW))
     unpublished = judge_unpublished(src.finished_between(now - PUBLISH_LOOKBACK, now - PUBLISH_GRACE),
-                                    load_shard_status())
-    return {'checked_at': iso(now), 'queue': queue, 'parked': parked, 'unpublished': unpublished}
+                                    load_shard_status(), now - WINDOW)
+    unlabelled = judge_unlabelled(
+        src.finished_between(now - LABEL_GRACE - WINDOW, now - LABEL_GRACE, unreviewed=True),
+        src.unlabelled_total())
+    return {'checked_at': iso(now), 'queue': queue, 'parked': parked,
+            'unpublished': unpublished, 'unlabelled': unlabelled}
 
 
 def problems(report: dict) -> list[str]:
@@ -223,8 +249,11 @@ def problems(report: dict) -> list[str]:
                    % (len(report['parked']['ids']), '、'.join(report['parked']['ids']),
                       '；'.join(report['parked']['errors']) or '（無訊息）'))
     if report['unpublished']['verdict'] == 'unpublished':
-        out.append('%d 題的新解析完成超過 9 天，網站題庫檔還沒更新：%s。'
+        out.append('%d 題的新解析完成已滿 9 天，網站題庫檔還沒更新：%s。'
                    % (len(report['unpublished']['ids']), '、'.join(report['unpublished']['ids'][:30])))
+    if report['unlabelled']['verdict'] == 'unlabelled':
+        out.append('%d 題解析完成已滿 14 天，法規狀態自動判斷不了，需要人工確認：%s。'
+                   % (len(report['unlabelled']['ids']), '、'.join(report['unlabelled']['ids'][:30])))
     return out
 
 
@@ -234,8 +263,9 @@ def summary_markdown(report: dict, found: list[str]) -> str:
              '- 排隊中：%d 題；24 小時內完成：%d 題；最後處理：%s'
              % (q['active'], q['completed_24h'], q['last_attempt_at'] or '—'),
              '- 判斷：%s（%s）' % (q['verdict'], q['reason']),
-             '- 新擱置：%d 題；超過 9 天未上網站：%d 題'
-             % (len(report['parked']['ids']), len(report['unpublished']['ids'])), '']
+             '- 新擱置：%d 題；解析完成 9 天以上仍未上網站：%d 題'
+             % (len(report['parked']['ids']), report['unpublished']['total']),
+             '- 法規狀態尚未標記（解析已完成）：%d 題' % report['unlabelled']['total'], '']
     if found:
         lines += ['### 需要處理', ''] + ['- ' + f for f in found] + [
             '', '通常不用自己動手：把這個執行結果的連結交給 Claude，請它查原因。']
@@ -283,22 +313,35 @@ def selftest() -> None:
     parked = judge_parked([{'id': 'DS-110-2-14', 'analysis_error': 'exp_others 空白'}])
     check(parked['verdict'] == 'parked' and parked['ids'] == ['DS-110-2-14'], 'parked question reported')
 
-    shards = {'A': 'ready', 'B': 'pending', 'C': 'pending'}
-    out = judge_unpublished([{'id': 'A'}, {'id': 'B'}, {'id': 'Z'}], shards)
-    check(out['ids'] == ['B'], 'finished but still pending on the website is reported; unknown ids ignored')
-    check(judge_unpublished([], shards)['verdict'] == 'ok', 'no finished rows in the window')
+    shards = {'A': 'ready', 'B': 'pending', 'C': 'pending', 'D': 'pending'}
+    since = now - WINDOW
+    out = judge_unpublished([{'id': 'A', 'analysis_completed_at': ago(days=9, hours=1)},
+                             {'id': 'B', 'analysis_completed_at': ago(days=9, hours=1)},
+                             {'id': 'C', 'analysis_completed_at': ago(days=20)},
+                             {'id': 'Z', 'analysis_completed_at': ago(days=9, hours=1)}], shards, since)
+    check(out['ids'] == ['B'], 'only the question that just crossed 9 days is new; unknown ids ignored')
+    check(out['total'] == 2, 'older unpublished questions still count in the total')
+    quiet = judge_unpublished([{'id': 'C', 'analysis_completed_at': ago(days=20)}], shards, since)
+    check(quiet['verdict'] == 'ok' and quiet['total'] == 1, 'an old unpublished case is not re-notified')
+    check(judge_unpublished([], shards, since)['verdict'] == 'ok', 'no finished rows in the window')
+
+    check(judge_unlabelled([], 16)['verdict'] == 'ok', 'backlog below 14 days is only a total')
+    unl = judge_unlabelled([{'id': 'SP113-1-31'}], 9)
+    check(unl['verdict'] == 'unlabelled' and unl['ids'] == ['SP113-1-31'], 'a question crossing 14 days is reported')
 
     check(seconds_to_next_tick(datetime(2026, 1, 1, 6, 45, 0, tzinfo=timezone.utc)) == 19 * 60,
           'wait reaches 4 minutes past the :00 tick')
     check(seconds_to_next_tick(datetime(2026, 1, 1, 6, 5, 30, tzinfo=timezone.utc)) == 25 * 60 - 30 + 240,
           'wait reaches 4 minutes past the :30 tick')
 
-    report = {'queue': stalled, 'parked': parked, 'unpublished': out}
+    report = {'queue': stalled, 'parked': parked, 'unpublished': out, 'unlabelled': unl}
     found = problems(report)
-    check(len(found) == 3 and '停住' in found[0], 'all three problems are explained in Chinese')
+    check(len(found) == 4 and '停住' in found[0] and '人工確認' in found[3],
+          'all four problems are explained in Chinese')
     check('需要處理' in summary_markdown(report, found), 'summary lists the problems')
     check('一切正常' in summary_markdown({'queue': fine, 'parked': judge_parked([]),
-                                          'unpublished': judge_unpublished([], shards)}, []),
+                                          'unpublished': judge_unpublished([], shards, since),
+                                          'unlabelled': judge_unlabelled([], 0)}, []),
           'healthy summary')
 
     status = load_shard_status()
