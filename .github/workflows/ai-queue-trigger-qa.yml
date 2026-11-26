@@ -1,0 +1,63 @@
+name: AI Queue Trigger QA
+
+# Behavioural check that the AI analysis queue re-opens whenever a question
+# ends up pending, including resets made by BEFORE triggers (2026-11-24 stall).
+# Runs on a throwaway Postgres 17 service in one rolled-back transaction; it
+# never connects to Supabase.
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/**'
+      - 'scripts/ai_queue_auto_enable_pg_selftest.py'
+      - '.github/workflows/ai-queue-trigger-qa.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/migrations/**'
+      - 'scripts/ai_queue_auto_enable_pg_selftest.py'
+      - '.github/workflows/ai-queue-trigger-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  queue-auto-enable-pg17:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      pg17:
+        image: postgres:17
+        env:
+          POSTGRES_USER: swsi_fixture
+          POSTGRES_PASSWORD: ci-only-synthetic-password
+          POSTGRES_DB: swsi_fixture
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U swsi_fixture -d swsi_fixture"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install ephemeral PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+      - name: Check the auto-enable trigger against the reset trigger
+        env:
+          SWSI_DISPOSABLE_PG: I_CONFIRM_DISPOSABLE_FIXTURE
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: swsi_fixture
+          PGPASSWORD: ci-only-synthetic-password
+          PGDATABASE: swsi_fixture
+        run: |
+          python -m py_compile scripts/ai_queue_auto_enable_pg_selftest.py
+          python scripts/ai_queue_auto_enable_pg_selftest.py
