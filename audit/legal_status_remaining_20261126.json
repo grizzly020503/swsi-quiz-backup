@@ -1,22 +1,14 @@
 {
  "as_of": "2026-11-26",
- "source": "cdn/question-shards at commit 85659bdf (equals the production questions table after batch 24)",
+ "source": "cdn/question-shards after batch 25 (equals the production questions table once the batch 25 SQL is applied)",
  "totals": {
   "questions": 4800,
-  "verified_current": 572,
+  "verified_current": 577,
   "changed": 39,
   "not_applicable": 3732,
-  "unreviewed": 457
+  "unreviewed": 452
  },
  "remaining": {
-  "crpd_convention": [
-   "SP-115-2-009",
-   "SW-107-2-33",
-   "SW-110-2-35",
-   "SW-111-1-38",
-   "SW-111-2-37",
-   "SW-113-2-37"
-  ],
   "policy_documents": [
    "SP104-2-07",
    "SP105-1-30",
@@ -101,6 +93,10 @@
    "SW-108-1-23": {
     "batch": "legal_status_batch21_20261125.json",
     "reason": "同上，需取得現行社會工作倫理守則全文後再核對"
+   },
+   "SW-111-2-37": {
+    "batch": "legal_status_batch25_20261125.json",
+    "reason": "③④為行政機關活動無障礙檢核之行政措施及數位機會調查統計，非公約或法規條文，併入政策文件題處理"
    },
    "SW-112-1-34": {
     "batch": "legal_status_batch23_20261125.json",

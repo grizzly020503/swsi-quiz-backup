@@ -1,0 +1,639 @@
+{
+ "schema_version": 1,
+ "release": "legal-status-batch25-20261125",
+ "owner_approved": true,
+ "owner_approval_note": "Owner reviewed the per-question verdict for the CRPD convention group (5 verified_current, 1 moved out) and replied 「執行」 on 2026-11-26.",
+ "rule": "Per-question manual review of questions on the text of 身心障礙者權利公約 (CRPD). The convention text is unamended and its implementation act (2014-08-20, in force 2014-12-03; 第2條 gives the convention domestic legal effect) was never amended, so the exam-time rule equals the current rule and every official answer stays correct: verified_current. SW-111-2-37 is moved out: its statements are an administrative accessibility checklist and digital-opportunity statistics, not convention or statute text.",
+ "evidence_source": "MOJ Open API law corpus and amendment history (身心障礙者權利公約施行法) via workflow Legal History Fetch (PR #633)",
+ "deferred": {
+  "SW-111-2-37": "③④為行政機關活動無障礙檢核之行政措施及數位機會調查統計，非公約或法規條文，併入政策文件題處理"
+ },
+ "checked_at": "2026-11-25T12:00:00+00:00",
+ "predecessor_commit": "8f65fba2918e5624154067c2f0510f05ea321d85",
+ "predecessor_manifest": {
+  "schema_version": 1,
+  "dataset_revision": "54c53a9e1c3f0cb99541",
+  "generated_at": "2026-11-26T01:39:47Z",
+  "source": "Supabase public.questions (read-only)",
+  "total_questions": 4800,
+  "shard_count": 24,
+  "baseline_shard_count": 24,
+  "total_uncompressed_bytes": 7974312,
+  "shards": [
+   {
+    "year": "104",
+    "round": "第一次",
+    "file": "104-1.json",
+    "question_count": 200,
+    "bytes": 343177,
+    "sha256": "25bb871717a9610ca5869b29343e0db3027a47de3ca5276bf509780b94c285fb"
+   },
+   {
+    "year": "104",
+    "round": "第二次",
+    "file": "104-2.json",
+    "question_count": 200,
+    "bytes": 339655,
+    "sha256": "17adbbd6a1e98ea79232db1e4fcd322173df31c98860ef0241cd977572cbe966"
+   },
+   {
+    "year": "105",
+    "round": "第一次",
+    "file": "105-1.json",
+    "question_count": 200,
+    "bytes": 335098,
+    "sha256": "eb5dad4de75f4dff31d103553c605d54c22c7557ee059cdc7b438082e557fd7e"
+   },
+   {
+    "year": "105",
+    "round": "第二次",
+    "file": "105-2.json",
+    "question_count": 200,
+    "bytes": 338564,
+    "sha256": "34caf1b3f14b3c46f4a82432901355710f79102a0ab001079b95db58ff5a6d93"
+   },
+   {
+    "year": "106",
+    "round": "第一次",
+    "file": "106-1.json",
+    "question_count": 200,
+    "bytes": 333694,
+    "sha256": "35ad869f9a6077385c0a8579f2e67b00936cee9234afd47e5def612ada8b314e"
+   },
+   {
+    "year": "106",
+    "round": "第二次",
+    "file": "106-2.json",
+    "question_count": 200,
+    "bytes": 350223,
+    "sha256": "68f73b6dd6ffdb2f45a826a20032a76d1a53ba8de784a765a41e22d92250ddb5"
+   },
+   {
+    "year": "107",
+    "round": "第一次",
+    "file": "107-1.json",
+    "question_count": 200,
+    "bytes": 331541,
+    "sha256": "d84f154999af68e44066cb0d9f89a67f48832c306c2f4bded0d49900ee6309a7"
+   },
+   {
+    "year": "107",
+    "round": "第二次",
+    "file": "107-2.json",
+    "question_count": 200,
+    "bytes": 339586,
+    "sha256": "030668af8d2b7415b41cc1f31941545a914f0f963e0fe365d0de39b3403ffae2"
+   },
+   {
+    "year": "108",
+    "round": "第一次",
+    "file": "108-1.json",
+    "question_count": 200,
+    "bytes": 331117,
+    "sha256": "c8d70e9aedfd16574443e2e33e96f433148bf8563085d82d3f76401d389ab900"
+   },
+   {
+    "year": "108",
+    "round": "第二次",
+    "file": "108-2.json",
+    "question_count": 200,
+    "bytes": 323893,
+    "sha256": "69e04c27aa45bfd7ed14ec43ced7a6432f3b8e03e21163aa9745af6c51f308a8"
+   },
+   {
+    "year": "109",
+    "round": "第一次",
+    "file": "109-1.json",
+    "question_count": 200,
+    "bytes": 330544,
+    "sha256": "2d5c5007aae890b0bb3309209d0eebbf4f7f4110329ed48c3b42655881ba0422"
+   },
+   {
+    "year": "109",
+    "round": "第二次",
+    "file": "109-2.json",
+    "question_count": 200,
+    "bytes": 326676,
+    "sha256": "860ac4cccae2a6d55ef58912a3cbe833c2523a6043cee25c4eed1166085a7bf4"
+   },
+   {
+    "year": "110",
+    "round": "第一次",
+    "file": "110-1.json",
+    "question_count": 200,
+    "bytes": 329430,
+    "sha256": "fed73ceda3a1b46a82816025e407698d774a0288490c651e53085b1b33c8a5f4"
+   },
+   {
+    "year": "110",
+    "round": "第二次",
+    "file": "110-2.json",
+    "question_count": 200,
+    "bytes": 324854,
+    "sha256": "d4a3e075d0e24f5c84dd4a97d9297d4e94fcb7b88ca95ab9971560bd24c40a19"
+   },
+   {
+    "year": "111",
+    "round": "第一次",
+    "file": "111-1.json",
+    "question_count": 200,
+    "bytes": 323169,
+    "sha256": "4081522c070b5e274439c5d9fd07ac7dcac9749c8d3f9629c9386feab797fabb"
+   },
+   {
+    "year": "111",
+    "round": "第二次",
+    "file": "111-2.json",
+    "question_count": 200,
+    "bytes": 325024,
+    "sha256": "6ba8e68ab8917155226d4d205e9f42d599924587f8b4d8b26b0a0b2fed3dbb69"
+   },
+   {
+    "year": "112",
+    "round": "第一次",
+    "file": "112-1.json",
+    "question_count": 200,
+    "bytes": 328231,
+    "sha256": "7a9bf5572bf94aec7781ccdb379c80d34d7e6c42f01ea5f56c269ee5617f6cca"
+   },
+   {
+    "year": "112",
+    "round": "第二次",
+    "file": "112-2.json",
+    "question_count": 200,
+    "bytes": 318468,
+    "sha256": "292a224aa6da148e99f03876d8559f305d66114f3ef7f5ced06a8aa52cd57f8c"
+   },
+   {
+    "year": "113",
+    "round": "第一次",
+    "file": "113-1.json",
+    "question_count": 200,
+    "bytes": 312156,
+    "sha256": "7b8d0a76de0d9450ad721fb1acdc8c3e88741145c4e884920d7e9de31f33131a"
+   },
+   {
+    "year": "113",
+    "round": "第二次",
+    "file": "113-2.json",
+    "question_count": 200,
+    "bytes": 325316,
+    "sha256": "89ebfc12d3a3d6ddefae3e7747a7647ee935f2a564517ff1c3e22a25a00861a2"
+   },
+   {
+    "year": "114",
+    "round": "第一次",
+    "file": "114-1.json",
+    "question_count": 200,
+    "bytes": 327053,
+    "sha256": "a31cf19fe4e4d1127faedd1f1f1c2d0906e2ac75736c186c3db243ad2a270381"
+   },
+   {
+    "year": "114",
+    "round": "第二次",
+    "file": "114-2.json",
+    "question_count": 200,
+    "bytes": 326930,
+    "sha256": "c279e1b330e54f98e49df83c645e6f1a8c8641e65855984bc69e1ca548051baf"
+   },
+   {
+    "year": "115",
+    "round": "第一次",
+    "file": "115-1.json",
+    "question_count": 200,
+    "bytes": 330268,
+    "sha256": "d75e0dc59eb48620626bb63c87dbfa6a4667cbcd09993fa4285ac43db73b4043"
+   },
+   {
+    "year": "115",
+    "round": "第二次",
+    "file": "115-2.json",
+    "question_count": 200,
+    "bytes": 379645,
+    "sha256": "eecf4a2976d0a5bc5d75b0e39667fa68d4d0d93c9ebe5717eef13588918f80a0"
+   }
+  ]
+ },
+ "ids": [
+  "SP-115-2-009",
+  "SW-107-2-33",
+  "SW-110-2-35",
+  "SW-111-1-38",
+  "SW-113-2-37"
+ ],
+ "rows": {
+  "SW-107-2-33": {
+   "shard": "107-2.json",
+   "before": {
+    "id": "SW-107-2-33",
+    "subject": "社會工作",
+    "year": "107",
+    "round": "第二次",
+    "qno": "33",
+    "major": "障礙者服務",
+    "topic": "身心障礙者權利公約 > 人身自由與安全",
+    "keywords": "CRPD, 人身自由, 強制安置, 結案, 精神病人",
+    "question": "小名是一位精神病人，拒絕被安置到精神護理之家。但臨床工作者受家屬要求，拒絕小名自行辦理結 案手續。該名臨床工作者違反了下列那項身心障礙者權利公約的規定？",
+    "opt_a": "尊重隱私",
+    "opt_b": "人身自由與安全",
+    "opt_c": "個人行動能力",
+    "opt_d": "教育",
+    "answer": "B",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(B)人身自由與安全：受家屬要求而拒絕讓精神病人自行辦理結案(等同不當留置)，違反其『人身自由與安全』。",
+    "exp_others": "(A)尊重隱私、(C)個人行動能力、(D)教育——非此情境所違反的權利。",
+    "exp_trap": "違反案主意願不當留置＝侵害人身自由與安全。",
+    "exp_raw": "",
+    "mnemonic": "身心障礙者權利公約(我國2014施行法)：以身障『本人』最佳利益為首要;§19自立生活＝身障有權自己選擇居住地與同住者;正常化＝以公民身分被平等對待;消除污名促社會融合。",
+    "extension": "身心障礙者權利公約(人身自由與安全)。",
+    "law": "身心障礙者權利公約 第14條（人身自由與安全）",
+    "mistake": "法規混淆",
+    "source_exam_code": "107110",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0601&q=1",
+    "analysis_status": "ready",
+    "legal_status": "unreviewed",
+    "legal_checked_at": null,
+    "legal_note": null,
+    "legal_source_url": null
+   },
+   "after": {
+    "id": "SW-107-2-33",
+    "subject": "社會工作",
+    "year": "107",
+    "round": "第二次",
+    "qno": "33",
+    "major": "障礙者服務",
+    "topic": "身心障礙者權利公約 > 人身自由與安全",
+    "keywords": "CRPD, 人身自由, 強制安置, 結案, 精神病人",
+    "question": "小名是一位精神病人，拒絕被安置到精神護理之家。但臨床工作者受家屬要求，拒絕小名自行辦理結 案手續。該名臨床工作者違反了下列那項身心障礙者權利公約的規定？",
+    "opt_a": "尊重隱私",
+    "opt_b": "人身自由與安全",
+    "opt_c": "個人行動能力",
+    "opt_d": "教育",
+    "answer": "B",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(B)人身自由與安全：受家屬要求而拒絕讓精神病人自行辦理結案(等同不當留置)，違反其『人身自由與安全』。",
+    "exp_others": "(A)尊重隱私、(C)個人行動能力、(D)教育——非此情境所違反的權利。",
+    "exp_trap": "違反案主意願不當留置＝侵害人身自由與安全。",
+    "exp_raw": "",
+    "mnemonic": "身心障礙者權利公約(我國2014施行法)：以身障『本人』最佳利益為首要;§19自立生活＝身障有權自己選擇居住地與同住者;正常化＝以公民身分被平等對待;消除污名促社會融合。",
+    "extension": "身心障礙者權利公約(人身自由與安全)。",
+    "law": "身心障礙者權利公約 第14條（人身自由與安全）",
+    "mistake": "法規混淆",
+    "source_exam_code": "107110",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=107110&c=107&s=0601&q=1",
+    "analysis_status": "ready",
+    "legal_status": "verified_current",
+    "legal_checked_at": "2026-11-25T12:00:00+00:00",
+    "legal_note": "考試時點法規核對（逐條人工核對）：本題考試日 2018-07-28。本題考身心障礙者權利公約第14條（人身自由及安全）：締約國應確保身心障礙者在與其他人平等基礎上享有人身自由及安全之權利，不被非法或任意剝奪自由。臨床工作者受家屬要求拒絕精神病人自行辦理結案，違反人身自由及安全之規定（選項B）；尊重隱私（第22條）、個人行動能力（第20條）及教育（第24條）與題旨不符。屬公約本文，未經修正；身心障礙者權利公約施行法第2條（公約具國內法律之效力）自 2014-08-20 制定公布、2014-12-03 施行後亦未修正。官方答案依現行條文仍正確。依據：法務部全國法規資料庫現行條文、法規沿革及歷史條文（2026-11-25 查核）。",
+    "legal_source_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194"
+   },
+   "laws": [
+    "身心障礙者權利公約",
+    "身心障礙者權利公約施行法"
+   ],
+   "articles": {
+    "身心障礙者權利公約": [
+     "14",
+     "20",
+     "22",
+     "24"
+    ],
+    "身心障礙者權利公約施行法": [
+     "2"
+    ]
+   }
+  },
+  "SW-110-2-35": {
+   "shard": "110-2.json",
+   "before": {
+    "id": "SW-110-2-35",
+    "subject": "社會工作",
+    "year": "110",
+    "round": "第二次",
+    "qno": "35",
+    "major": "障礙者服務",
+    "topic": "身心障礙者權利公約 > CRPD人權保障",
+    "keywords": "CRPD, 人權, 參政權, 投票權, 身障權利",
+    "question": "聯合國身心障礙者權利公約（CRPD）主要強調對於身心障礙者何種權利的保障？",
+    "opt_a": "參政權",
+    "opt_b": "立法權",
+    "opt_c": "人權",
+    "opt_d": "投票權",
+    "answer": "C",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "聯合國身心障礙者權利公約(CRPD)主要強調對身障者「人權」的保障;(C)。",
+    "exp_others": "(A)參政權、(B)立法權、(D)投票權——皆只是部分權利,CRPD整體強調的是「人權」。",
+    "exp_trap": "CRPD以「人權模式」看身障:身障者享有與所有人同等的人權與基本自由。",
+    "exp_raw": "",
+    "mnemonic": "CRPD=保障身心障礙者的人權。",
+    "extension": "身心障礙者權利公約;CRPD。",
+    "law": "身心障礙者權利公約（強調身障者人權保障）",
+    "mistake": "概念混淆",
+    "source_exam_code": "110111",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110111&c=105&s=0401&q=1",
+    "analysis_status": "ready",
+    "legal_status": "unreviewed",
+    "legal_checked_at": null,
+    "legal_note": null,
+    "legal_source_url": null
+   },
+   "after": {
+    "id": "SW-110-2-35",
+    "subject": "社會工作",
+    "year": "110",
+    "round": "第二次",
+    "qno": "35",
+    "major": "障礙者服務",
+    "topic": "身心障礙者權利公約 > CRPD人權保障",
+    "keywords": "CRPD, 人權, 參政權, 投票權, 身障權利",
+    "question": "聯合國身心障礙者權利公約（CRPD）主要強調對於身心障礙者何種權利的保障？",
+    "opt_a": "參政權",
+    "opt_b": "立法權",
+    "opt_c": "人權",
+    "opt_d": "投票權",
+    "answer": "C",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "聯合國身心障礙者權利公約(CRPD)主要強調對身障者「人權」的保障;(C)。",
+    "exp_others": "(A)參政權、(B)立法權、(D)投票權——皆只是部分權利,CRPD整體強調的是「人權」。",
+    "exp_trap": "CRPD以「人權模式」看身障:身障者享有與所有人同等的人權與基本自由。",
+    "exp_raw": "",
+    "mnemonic": "CRPD=保障身心障礙者的人權。",
+    "extension": "身心障礙者權利公約;CRPD。",
+    "law": "身心障礙者權利公約（強調身障者人權保障）",
+    "mistake": "概念混淆",
+    "source_exam_code": "110111",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=110111&c=105&s=0401&q=1",
+    "analysis_status": "ready",
+    "legal_status": "verified_current",
+    "legal_checked_at": "2026-11-25T12:00:00+00:00",
+    "legal_note": "考試時點法規核對（逐條人工核對）：本題考試日 2021-08-21。本題考身心障礙者權利公約第1條宗旨：促進、保障與確保所有身心障礙者充分及平等享有所有人權及基本自由，並促進對身心障礙者固有尊嚴之尊重，公約主要強調人權之保障（選項C）。屬公約本文，未經修正；身心障礙者權利公約施行法第2條（公約具國內法律之效力）自 2014-08-20 制定公布、2014-12-03 施行後亦未修正。官方答案依現行條文仍正確。依據：法務部全國法規資料庫現行條文、法規沿革及歷史條文（2026-11-25 查核）。",
+    "legal_source_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194"
+   },
+   "laws": [
+    "身心障礙者權利公約",
+    "身心障礙者權利公約施行法"
+   ],
+   "articles": {
+    "身心障礙者權利公約": [
+     "1"
+    ],
+    "身心障礙者權利公約施行法": [
+     "2"
+    ]
+   }
+  },
+  "SW-111-1-38": {
+   "shard": "111-1.json",
+   "before": {
+    "id": "SW-111-1-38",
+    "subject": "社會工作",
+    "year": "111",
+    "round": "第一次",
+    "qno": "38",
+    "major": "障礙者服務",
+    "topic": "身心障礙者權利公約 > CRPD合理調整",
+    "keywords": "CRPD, 手語翻譯, 導盲犬, 輪椅, 合理調整",
+    "question": "提供身心障礙者協助時，下列那個選項無法彰顯「身心障礙者權利公約」（CRPD）之精神？",
+    "opt_a": "課後配置手語翻譯給聽障學生",
+    "opt_b": "導盲犬可進入教室陪視障學生",
+    "opt_c": "肢障學生轉換教室時，提供輪椅推送",
+    "opt_d": "考試空間與時間與修課同學一致，以維持公平",
+    "answer": "D",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "CRPD強調「合理調整」以實質平等;(D)「考試空間與時間與修課同學一致以維持公平」是齊頭式對待,反而無法彰顯CRPD精神。",
+    "exp_others": "(A)為聽障生配手語翻譯、(B)導盲犬可進教室陪視障生、(C)為肢障生提供輪椅推送——皆為合理調整、彰顯CRPD。",
+    "exp_trap": "CRPD要「依需求做合理調整」(如延長考試時間);一視同仁反而忽略障礙者需求。",
+    "exp_raw": "",
+    "mnemonic": "CRPD:合理調整(齊頭式一致非其精神)。",
+    "extension": "身心障礙者權利公約;CRPD合理調整。",
+    "law": "身心障礙者權利公約（合理調整原則）",
+    "mistake": "概念混淆",
+    "source_exam_code": "111030",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111030&c=105&s=0401&q=1",
+    "analysis_status": "ready",
+    "legal_status": "unreviewed",
+    "legal_checked_at": null,
+    "legal_note": null,
+    "legal_source_url": null
+   },
+   "after": {
+    "id": "SW-111-1-38",
+    "subject": "社會工作",
+    "year": "111",
+    "round": "第一次",
+    "qno": "38",
+    "major": "障礙者服務",
+    "topic": "身心障礙者權利公約 > CRPD合理調整",
+    "keywords": "CRPD, 手語翻譯, 導盲犬, 輪椅, 合理調整",
+    "question": "提供身心障礙者協助時，下列那個選項無法彰顯「身心障礙者權利公約」（CRPD）之精神？",
+    "opt_a": "課後配置手語翻譯給聽障學生",
+    "opt_b": "導盲犬可進入教室陪視障學生",
+    "opt_c": "肢障學生轉換教室時，提供輪椅推送",
+    "opt_d": "考試空間與時間與修課同學一致，以維持公平",
+    "answer": "D",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "CRPD強調「合理調整」以實質平等;(D)「考試空間與時間與修課同學一致以維持公平」是齊頭式對待,反而無法彰顯CRPD精神。",
+    "exp_others": "(A)為聽障生配手語翻譯、(B)導盲犬可進教室陪視障生、(C)為肢障生提供輪椅推送——皆為合理調整、彰顯CRPD。",
+    "exp_trap": "CRPD要「依需求做合理調整」(如延長考試時間);一視同仁反而忽略障礙者需求。",
+    "exp_raw": "",
+    "mnemonic": "CRPD:合理調整(齊頭式一致非其精神)。",
+    "extension": "身心障礙者權利公約;CRPD合理調整。",
+    "law": "身心障礙者權利公約（合理調整原則）",
+    "mistake": "概念混淆",
+    "source_exam_code": "111030",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?t=Q&code=111030&c=105&s=0401&q=1",
+    "analysis_status": "ready",
+    "legal_status": "verified_current",
+    "legal_checked_at": "2026-11-25T12:00:00+00:00",
+    "legal_note": "考試時點法規核對（逐條人工核對）：本題考試日 2022-02-19。本題考身心障礙者權利公約之合理調整精神。第2條定義合理之對待（合理調整），指根據具體需要進行必要及適當之修改與調整，以確保身心障礙者在與其他人平等基礎上享有或行使所有人權及基本自由；第5條要求締約國採取一切適當步驟確保提供合理之對待，第24條並要求於教育中提供合理之對待。考試空間與時間與修課同學一致係齊頭式對待，未提供合理之對待，無法彰顯公約精神（選項D）；手語翻譯、導盲犬陪同及輪椅推送均屬合理之對待。屬公約本文，未經修正；身心障礙者權利公約施行法第2條（公約具國內法律之效力）自 2014-08-20 制定公布、2014-12-03 施行後亦未修正。官方答案依現行條文仍正確。依據：法務部全國法規資料庫現行條文、法規沿革及歷史條文（2026-11-25 查核）。",
+    "legal_source_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194"
+   },
+   "laws": [
+    "身心障礙者權利公約",
+    "身心障礙者權利公約施行法"
+   ],
+   "articles": {
+    "身心障礙者權利公約": [
+     "2",
+     "5",
+     "24"
+    ],
+    "身心障礙者權利公約施行法": [
+     "2"
+    ]
+   }
+  },
+  "SW-113-2-37": {
+   "shard": "113-2.json",
+   "before": {
+    "id": "SW-113-2-37",
+    "subject": "社會工作",
+    "year": "113",
+    "round": "第二次",
+    "qno": "37",
+    "major": "障礙者服務",
+    "topic": "身心障礙者權利公約 > CRPD防疫措施",
+    "keywords": "CRPD, 無障礙設施, 口罩讀唇, 特殊需求配送, 特殊口罩",
+    "question": "疫病蔓延影響日常生活，有關實踐身心障礙者權利公約（CRPD）對身心障礙者權益保障原 則的措施，包括下列何者？①補助藥局增改建無障礙設施 ②醫護人員戴口罩阻礙聽障者 讀唇語，如病人是聽障者，可例外不戴 ③口罩均須憑證購買，提供特殊需求者個別配送， 破壞公平機制④為身心障礙者研製特殊口罩，如小耳症",
+    "opt_a": "①②",
+    "opt_b": "③④",
+    "opt_c": "①④",
+    "opt_d": "②③",
+    "answer": "C",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(C)①④符合CRPD：①補助藥局增改建無障礙設施④為身障(如小耳症)研製特殊口罩。",
+    "exp_others": "②醫護『例外不戴口罩』＝錯(應以替代方式溝通、不應犧牲防疫);③以『破壞公平機制』形容個別配送＝錯(個別配送是合理調整、非破壞公平)。",
+    "exp_trap": "合理調整＝無障礙設施/特製輔具(非犧牲防疫或視調整為破壞公平)。",
+    "exp_raw": "",
+    "mnemonic": "身心障礙者權利公約(我國2014施行法)：以身障『本人』最佳利益為首要;§19自立生活＝身障有權自己選擇居住地與同住者;正常化＝以公民身分被平等對待;消除污名促社會融合。",
+    "extension": "身心障礙者權利公約(合理調整)。",
+    "law": "身心障礙者權利公約",
+    "mistake": "法規混淆",
+    "source_exam_code": "113100",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0301&t=Q",
+    "analysis_status": "ready",
+    "legal_status": "unreviewed",
+    "legal_checked_at": null,
+    "legal_note": null,
+    "legal_source_url": null
+   },
+   "after": {
+    "id": "SW-113-2-37",
+    "subject": "社會工作",
+    "year": "113",
+    "round": "第二次",
+    "qno": "37",
+    "major": "障礙者服務",
+    "topic": "身心障礙者權利公約 > CRPD防疫措施",
+    "keywords": "CRPD, 無障礙設施, 口罩讀唇, 特殊需求配送, 特殊口罩",
+    "question": "疫病蔓延影響日常生活，有關實踐身心障礙者權利公約（CRPD）對身心障礙者權益保障原 則的措施，包括下列何者？①補助藥局增改建無障礙設施 ②醫護人員戴口罩阻礙聽障者 讀唇語，如病人是聽障者，可例外不戴 ③口罩均須憑證購買，提供特殊需求者個別配送， 破壞公平機制④為身心障礙者研製特殊口罩，如小耳症",
+    "opt_a": "①②",
+    "opt_b": "③④",
+    "opt_c": "①④",
+    "opt_d": "②③",
+    "answer": "C",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "(C)①④符合CRPD：①補助藥局增改建無障礙設施④為身障(如小耳症)研製特殊口罩。",
+    "exp_others": "②醫護『例外不戴口罩』＝錯(應以替代方式溝通、不應犧牲防疫);③以『破壞公平機制』形容個別配送＝錯(個別配送是合理調整、非破壞公平)。",
+    "exp_trap": "合理調整＝無障礙設施/特製輔具(非犧牲防疫或視調整為破壞公平)。",
+    "exp_raw": "",
+    "mnemonic": "身心障礙者權利公約(我國2014施行法)：以身障『本人』最佳利益為首要;§19自立生活＝身障有權自己選擇居住地與同住者;正常化＝以公民身分被平等對待;消除污名促社會融合。",
+    "extension": "身心障礙者權利公約(合理調整)。",
+    "law": "身心障礙者權利公約",
+    "mistake": "法規混淆",
+    "source_exam_code": "113100",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=113100&q=1&s=0301&t=Q",
+    "analysis_status": "ready",
+    "legal_status": "verified_current",
+    "legal_checked_at": "2026-11-25T12:00:00+00:00",
+    "legal_note": "考試時點法規核對（逐條人工核對）：本題考試日 2024-07-27。本題考身心障礙者權利公約原則之實踐。第9條要求締約國採取適當措施，確保身心障礙者在與其他人平等基礎上無障礙使用物理環境、設施及服務，補助藥局增改建無障礙設施（①）符合公約；第4條第1項第6款要求締約國進行或促進研究發展通用設計之貨物、服務、設備及設施，為身心障礙者研製特殊口罩（④）符合公約；第11條要求於危險情況及人道緊急情況中採取一切必要措施確保身心障礙者獲得保護及安全，②以醫護人員不戴口罩因應，未兼顧防疫安全；③認為提供特殊需求者個別配送會破壞公平機制，與合理之對待精神不符。屬公約本文，未經修正；身心障礙者權利公約施行法第2條（公約具國內法律之效力）自 2014-08-20 制定公布、2014-12-03 施行後亦未修正。官方答案依現行條文仍正確。依據：法務部全國法規資料庫現行條文、法規沿革及歷史條文（2026-11-25 查核）。",
+    "legal_source_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194"
+   },
+   "laws": [
+    "身心障礙者權利公約",
+    "身心障礙者權利公約施行法"
+   ],
+   "articles": {
+    "身心障礙者權利公約": [
+     "4",
+     "9",
+     "11"
+    ],
+    "身心障礙者權利公約施行法": [
+     "2"
+    ]
+   }
+  },
+  "SP-115-2-009": {
+   "shard": "115-2.json",
+   "before": {
+    "id": "SP-115-2-009",
+    "subject": "社會政策與社會立法",
+    "year": "115",
+    "round": "第二次",
+    "qno": "9",
+    "major": "身心障礙福利法規",
+    "topic": "身心障礙福利法規 > 聯合國身心障礙者權利公約",
+    "keywords": "個人行動能力,行動培力,行動輔具,輔助技術,社區服務",
+    "question": "下列規範身心障礙者在「個人行動能力」之敘述，何者非屬聯合國身心障礙者權利公約之規定？",
+    "opt_a": "身心障礙者需依社區服務方式、所訂時間和付費模式參加行動培力服務方案",
+    "opt_b": "促進身心障礙者享有近用優質之行動輔具、用品、輔助技術以及各種形式之現場協助及中介",
+    "opt_c": "提供身心障礙者及與其共事之專業人員行動技能培訓",
+    "opt_d": "鼓勵生產行動輔具、用品與輔助技術之生產者斟酌身心障礙者行動能力之所有面向",
+    "answer": "A",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "選項A將「個人行動能力」的規範內容錯誤地連結至「社區服務方式、所訂時間和付費模式」，這些屬於「社區生活與社會融合」或一般服務提供機制，並非公約中針對「個人行動能力」章節（促進獨立生活與行動能力）的核心規定。公約強調的是促進行動能力、提供輔具與培訓，而非規定服務的時間與付費模式。",
+    "exp_others": "選項B、C、D皆符合公約規定，未見錯誤。",
+    "exp_trap": "考生易混淆「個人行動能力」與「社區生活/社會融合」的規範內容，誤以為服務的時間與付費模式屬於行動能力的直接規範。",
+    "exp_raw": null,
+    "mnemonic": "行動能力重輔具培訓，非服務時間付費",
+    "extension": "比較公約中「個人行動能力」與「社區生活與社會融合」的條文差異",
+    "law": "聯合國身心障礙者權利公約",
+    "mistake": "概念混淆",
+    "source_exam_code": "115100",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115100&q=1&s=0303&t=Q",
+    "analysis_status": "ready",
+    "legal_status": "unreviewed",
+    "legal_checked_at": null,
+    "legal_note": null,
+    "legal_source_url": null
+   },
+   "after": {
+    "id": "SP-115-2-009",
+    "subject": "社會政策與社會立法",
+    "year": "115",
+    "round": "第二次",
+    "qno": "9",
+    "major": "身心障礙福利法規",
+    "topic": "身心障礙福利法規 > 聯合國身心障礙者權利公約",
+    "keywords": "個人行動能力,行動培力,行動輔具,輔助技術,社區服務",
+    "question": "下列規範身心障礙者在「個人行動能力」之敘述，何者非屬聯合國身心障礙者權利公約之規定？",
+    "opt_a": "身心障礙者需依社區服務方式、所訂時間和付費模式參加行動培力服務方案",
+    "opt_b": "促進身心障礙者享有近用優質之行動輔具、用品、輔助技術以及各種形式之現場協助及中介",
+    "opt_c": "提供身心障礙者及與其共事之專業人員行動技能培訓",
+    "opt_d": "鼓勵生產行動輔具、用品與輔助技術之生產者斟酌身心障礙者行動能力之所有面向",
+    "answer": "A",
+    "accepted_answers": null,
+    "grading_mode": "standard",
+    "exp_why": "選項A將「個人行動能力」的規範內容錯誤地連結至「社區服務方式、所訂時間和付費模式」，這些屬於「社區生活與社會融合」或一般服務提供機制，並非公約中針對「個人行動能力」章節（促進獨立生活與行動能力）的核心規定。公約強調的是促進行動能力、提供輔具與培訓，而非規定服務的時間與付費模式。",
+    "exp_others": "選項B、C、D皆符合公約規定，未見錯誤。",
+    "exp_trap": "考生易混淆「個人行動能力」與「社區生活/社會融合」的規範內容，誤以為服務的時間與付費模式屬於行動能力的直接規範。",
+    "exp_raw": null,
+    "mnemonic": "行動能力重輔具培訓，非服務時間付費",
+    "extension": "比較公約中「個人行動能力」與「社區生活與社會融合」的條文差異",
+    "law": "聯合國身心障礙者權利公約",
+    "mistake": "概念混淆",
+    "source_exam_code": "115100",
+    "source_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=103&code=115100&q=1&s=0303&t=Q",
+    "analysis_status": "ready",
+    "legal_status": "verified_current",
+    "legal_checked_at": "2026-11-25T12:00:00+00:00",
+    "legal_note": "考試時點法規核對（逐條人工核對）：本題考試日 2026-07-25。本題考身心障礙者權利公約第20條（個人行動能力）：締約國應促進身心障礙者依其選擇之方式、時間，以可負擔之費用享有個人行動能力；促進其獲得優質之行動輔具、用品、輔助技術及各種形式之現場協助及中介；提供身心障礙者及與其共事之專業人員行動技能培訓；鼓勵行動輔具、用品與輔助技術之生產者斟酌身心障礙者行動能力之所有面向。選項(A)要求依社區服務方式、所訂時間和付費模式參加，與第20條依其選擇之方式、時間之規定不符，非屬公約規定。屬公約本文，未經修正；身心障礙者權利公約施行法第2條（公約具國內法律之效力）自 2014-08-20 制定公布、2014-12-03 施行後亦未修正。官方答案依現行條文仍正確。依據：法務部全國法規資料庫現行條文、法規沿革及歷史條文（2026-11-25 查核）。",
+    "legal_source_url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050194"
+   },
+   "laws": [
+    "身心障礙者權利公約",
+    "身心障礙者權利公約施行法"
+   ],
+   "articles": {
+    "身心障礙者權利公約": [
+     "20"
+    ],
+    "身心障礙者權利公約施行法": [
+     "2"
+    ]
+   }
+  }
+ },
+ "official_text_changes": 0
+}
