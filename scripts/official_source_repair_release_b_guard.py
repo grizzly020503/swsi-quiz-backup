@@ -192,7 +192,7 @@ if __name__ == '__main__':
         raise SystemExit(0)
     # A later owner-approved release moved the current corpus; the newest
     # guard rebuilds this release's exact successor state and replays it.
-    from legal_status_batch25_release_guard import replay as replay_newest
+    from legal_status_batch26_release_guard import replay as replay_newest
     replay_newest(ROOT, args.selftest)
     print('SOURCE REPAIR B RELEASE PASS: 29 PDF-verified source repairs (7 explanations kept, 22 regenerated); '
           '0 answer/grading changes; exact predecessor and full earlier release chain replayed')

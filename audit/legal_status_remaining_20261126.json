@@ -1,12 +1,12 @@
 {
  "as_of": "2026-11-26",
- "source": "cdn/question-shards after batch 25 (equals the production questions table once the batch 25 SQL is applied)",
+ "source": "cdn/question-shards after batch 26 (equals the production questions table once the batch 26 SQL is applied)",
  "totals": {
   "questions": 4800,
-  "verified_current": 577,
+  "verified_current": 586,
   "changed": 39,
   "not_applicable": 3732,
-  "unreviewed": 452
+  "unreviewed": 443
  },
  "remaining": {
   "policy_documents": [
@@ -122,7 +122,6 @@
    "SP-115-2-016",
    "SP-115-2-017",
    "SP-115-2-018",
-   "SP-115-2-019",
    "SP-115-2-020",
    "SP-115-2-021",
    "SP-115-2-024",
@@ -184,7 +183,6 @@
    "SP105-2-09",
    "SP105-2-10",
    "SP105-2-11",
-   "SP105-2-12",
    "SP105-2-15",
    "SP105-2-16",
    "SP105-2-26",
@@ -206,7 +204,6 @@
    "SP106-2-03",
    "SP106-2-04",
    "SP106-2-10",
-   "SP106-2-14",
    "SP106-2-38",
    "SP106-2-39",
    "SP106-2-40",
@@ -219,8 +216,6 @@
    "SP107-1-11",
    "SP107-1-12",
    "SP107-1-17",
-   "SP107-1-20",
-   "SP107-1-32",
    "SP107-1-33",
    "SP107-1-35",
    "SP107-1-36",
@@ -335,7 +330,6 @@
    "SP110-2-04",
    "SP110-2-05",
    "SP110-2-08",
-   "SP110-2-09",
    "SP110-2-10",
    "SP110-2-12",
    "SP110-2-13",
@@ -468,12 +462,10 @@
    "SP114-1-06",
    "SP114-1-07",
    "SP114-1-09",
-   "SP114-1-10",
    "SP114-1-12",
    "SP114-1-14",
    "SP114-1-15",
    "SP114-1-16",
-   "SP114-1-17",
    "SP114-1-18",
    "SP114-1-19",
    "SP114-1-21",
@@ -510,7 +502,6 @@
    "SW-104-2-26",
    "SW-105-2-36",
    "SW-108-2-25",
-   "SW-111-1-01",
    "SW-114-2-36"
   ]
  }
