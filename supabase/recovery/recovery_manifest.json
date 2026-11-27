@@ -34,6 +34,7 @@
     "supabase/migrations/20261124120000_reset_ai_ignore_whitespace_only_changes.sql",
     "supabase/migrations/20261126133000_auto_enable_ai_after_reset_trigger.sql",
     "supabase/migrations/20261127100000_legal_auto_label.sql",
+    "supabase/migrations/20261128090000_legal_names_from_registry.sql",
     "supabase/recovery/production_acl_alignment.sql"
   ],
   "expected": {

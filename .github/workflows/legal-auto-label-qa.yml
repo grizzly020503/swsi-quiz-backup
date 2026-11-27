@@ -1,7 +1,8 @@
 name: Legal Auto Label QA
 
 # Behavioural check of the daily automatic legal-status labels
-# (supabase/migrations/20261127100000_legal_auto_label.sql). Runs on a
+# (supabase/migrations/20261127100000_legal_auto_label.sql) and of the
+# registry-driven law-name extractor (20261128090000). Runs on a
 # throwaway Postgres 17 service in one rolled-back transaction; it never
 # connects to Supabase.
 
@@ -10,6 +11,7 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'scripts/legal_auto_label_pg_selftest.py'
+      - 'scripts/legal_names_registry_pg_selftest.py'
       - '.github/workflows/legal-auto-label-qa.yml'
   push:
     branches:
@@ -17,6 +19,7 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'scripts/legal_auto_label_pg_selftest.py'
+      - 'scripts/legal_names_registry_pg_selftest.py'
       - '.github/workflows/legal-auto-label-qa.yml'
   workflow_dispatch:
 
@@ -59,5 +62,6 @@ jobs:
           PGPASSWORD: ci-only-synthetic-password
           PGDATABASE: swsi_fixture
         run: |
-          python -m py_compile scripts/legal_auto_label_pg_selftest.py
+          python -m py_compile scripts/legal_auto_label_pg_selftest.py scripts/legal_names_registry_pg_selftest.py
           python scripts/legal_auto_label_pg_selftest.py
+          python scripts/legal_names_registry_pg_selftest.py

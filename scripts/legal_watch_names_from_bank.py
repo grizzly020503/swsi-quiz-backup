@@ -12,6 +12,11 @@ Open API corpus (laws and orders), so research-method words such as
 --write   also update data/legal_watch_names.json (never drops a name)
 --selftest offline checks with a synthetic corpus
 
+Added automatically: cited laws and orders that are in force and whose name
+has at least four characters. Repealed laws never change, and a name of two
+or three characters (信託法) is matched by the database as a plain substring,
+so both are only reported for a person to decide.
+
 The list only grows. A watched name no longer cited keeps its place, so the
 registry and earlier review evidence stay valid; its count shows 0.
 """
@@ -50,19 +55,22 @@ def law_name(raw: str) -> str:
     return DATE_SUFFIX.sub('', norm(raw))
 
 
-def load_corpus(path=None) -> dict:
-    """{normalized name: pcode} for every current MOJ law and order."""
+def load_corpus(path=None) -> tuple:
+    """({normalized name: pcode}, {repealed names}) for every MOJ law and order."""
     if path:
-        return json.loads(Path(path).read_text(encoding='utf-8'))
+        cached = json.loads(Path(path).read_text(encoding='utf-8'))
+        return cached['names'], set(cached['repealed'])
     from legal_history_fetch import APIS, download
-    out = {}
+    names, repealed = {}, set()
     for url in APIS:
         for law in download(url)['Laws']:
             m = PCODE.search(law.get('LawURL') or '')
             name = law_name(law.get('LawName') or '')
             if m and len(name) >= 2:
-                out.setdefault(name, m.group(1).upper())
-    return out
+                names.setdefault(name, m.group(1).upper())
+                if norm(law.get('LawAbandonNote')):
+                    repealed.add(name)
+    return names, repealed
 
 
 class Matcher:
@@ -138,10 +146,33 @@ def dump(rows: list) -> str:
     return '[\n' + ',\n'.join('  ' + json.dumps(r, ensure_ascii=False, separators=(',', ':')) for r in rows) + '\n]\n'
 
 
-def merged_list(current: list, derived: dict) -> list:
-    names = {(c if isinstance(c, str) else c['name']) for c in current}
-    names |= set(derived)
-    rows = [{'name': n, 'question_count': len(derived[n]['ids']) if n in derived else 0} for n in names]
+AUTO_MIN_LENGTH = 4
+
+
+def additions(current: list, derived: dict, repealed: set) -> tuple:
+    """(names added automatically, names left for a person: {name: reason})."""
+    watched = {(c if isinstance(c, str) else c['name']) for c in current}
+    add, hold = [], {}
+    for name in sorted(set(derived) - watched):
+        if name in repealed:
+            hold[name] = 'repealed'
+        elif len(name) < AUTO_MIN_LENGTH:
+            hold[name] = 'short name'
+        else:
+            add.append(name)
+    return add, hold
+
+
+def merged_list(current: list, derived: dict, corpus: dict, add: list) -> list:
+    """Every watched name plus the additions. Counts come from the bank; a
+    watched name that is not an MOJ title (兒童權利公約) keeps its count."""
+    rows = []
+    for c in current:
+        name = c if isinstance(c, str) else c['name']
+        old = 0 if isinstance(c, str) else int(c.get('question_count') or 0)
+        rows.append({'name': name, 'question_count': len(derived[name]['ids']) if name in derived
+                     else (0 if name in corpus else old)})
+    rows += [{'name': n, 'question_count': len(derived[n]['ids'])} for n in add]
     return sorted(rows, key=lambda r: (-r['question_count'], r['name']))
 
 
@@ -154,14 +185,19 @@ ALIASES = {
 }
 
 
-def report(current: list, derived: dict) -> None:
+def report(current: list, derived: dict, add: list, hold: dict) -> None:
     watched = {(c if isinstance(c, str) else c['name']) for c in current}
-    added = sorted((n for n in derived if n not in watched), key=lambda n: (-len(derived[n]['ids']), n))
-    print(f'questions cite {len(derived)} MOJ laws/orders; watched now {len(watched)}; would add {len(added)}')
-    for n in added:
+
+    def line(mark, n):
         d = derived[n]
         via = ', '.join(f'{k} {v}' for k, v in sorted(d['via'].items()))
-        print(f'  + {len(d["ids"]):3d}  {n}  ({via})  e.g. {", ".join(sorted(d["ids"])[:4])}')
+        return f'  {mark} {len(d["ids"]):3d}  {n}  ({via})  e.g. {", ".join(sorted(d["ids"])[:4])}'
+    print(f'questions cite {len(derived)} MOJ laws/orders; watched now {len(watched)}; '
+          f'adds {len(add)}; left for a person {len(hold)}')
+    for n in sorted(add, key=lambda n: (-len(derived[n]['ids']), n)):
+        print(line('+', n))
+    for n in sorted(hold, key=lambda n: (-len(derived[n]['ids']), n)):
+        print(line('?', n) + f'  [{hold[n]}]')
     idle = sorted(n for n in watched if n not in derived)
     print(f'watched but not cited by any question: {len(idle)}', ' '.join(idle))
 
@@ -203,12 +239,20 @@ def selftest() -> None:
     assert {n: sorted(v['ids']) for n, v in d.items()} == {
         '社會救助法': ['Q1'], '最低工資法': ['Q1'], '性別平等工作法': ['Q3']}, d
     assert dict(d['最低工資法']['via']) == {'note': 1, 'url': 1}
-    merged = merged_list([{'name': '老人福利法', 'question_count': 61}, {'name': '社會救助法', 'question_count': 48}], d)
-    assert merged == [{'name': '性別平等工作法', 'question_count': 1}, {'name': '最低工資法', 'question_count': 1},
-                      {'name': '社會救助法', 'question_count': 1}, {'name': '老人福利法', 'question_count': 0}], merged
+    current = [{'name': '老人福利法', 'question_count': 61}, {'name': '社會救助法', 'question_count': 48},
+               {'name': '兒童權利公約', 'question_count': 7}]
+    d['兒童福利法'] = {'ids': {'Q9'}, 'via': {'text': 1}}
+    d['工會法'] = {'ids': {'Q8'}, 'via': {'text': 1}}
+    add, hold = additions(current, d, {'兒童福利法'})
+    assert add == ['性別平等工作法', '最低工資法'] and hold == {'兒童福利法': 'repealed', '工會法': 'short name'}, (add, hold)
+    merged = merged_list(current, d, dict(corpus, 老人福利法='D0050037'), add)
+    assert merged == [{'name': '兒童權利公約', 'question_count': 7}, {'name': '性別平等工作法', 'question_count': 1},
+                      {'name': '最低工資法', 'question_count': 1}, {'name': '社會救助法', 'question_count': 1},
+                      {'name': '老人福利法', 'question_count': 0}], merged
     current = json.loads(NAMES.read_text(encoding='utf-8'))
     assert dump(current) == NAMES.read_text(encoding='utf-8'), 'watch list layout changed'
-    print(f'LEGAL WATCH FROM BANK SELFTEST PASS: {len(cases)} matching cases; reviewed-only notes and URLs; list only grows')
+    print(f'LEGAL WATCH FROM BANK SELFTEST PASS: {len(cases)} matching cases; reviewed-only notes and URLs; '
+          'repealed and short names held for a person; list only grows')
 
 
 def main() -> int:
@@ -223,16 +267,18 @@ def main() -> int:
     if args.selftest:
         selftest()
         return 0
-    corpus = load_corpus(args.corpus)
+    corpus, repealed = load_corpus(args.corpus)
     if len(corpus) < 1000:
         raise SystemExit(f'MOJ corpus too small ({len(corpus)} names); refusing to derive the watch list')
     if args.save_corpus:
-        Path(args.save_corpus).write_text(json.dumps(corpus, ensure_ascii=False, sort_keys=True), encoding='utf-8')
+        Path(args.save_corpus).write_text(json.dumps({'names': corpus, 'repealed': sorted(repealed)},
+                                                     ensure_ascii=False, sort_keys=True), encoding='utf-8')
     current = json.loads(NAMES.read_text(encoding='utf-8'))
     derived = derive(load_questions(), corpus, ALIASES)
-    report(current, derived)
+    add, hold = additions(current, derived, repealed)
+    report(current, derived, add, hold)
     if args.write:
-        NAMES.write_text(dump(merged_list(current, derived)), encoding='utf-8')
+        NAMES.write_text(dump(merged_list(current, derived, corpus, add)), encoding='utf-8')
         print('wrote', NAMES.relative_to(ROOT))
     return 0
 

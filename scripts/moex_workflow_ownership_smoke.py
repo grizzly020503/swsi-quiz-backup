@@ -50,6 +50,7 @@ def main() -> int:
         assert rel not in block, f"MOEX must not stage public monitoring path: {rel}"
 
     for rel in (
+        "data/legal_watch_names.json",
         "data/legal_watch_state.json",
         "data/legal_watch_report.json",
         "data/legal_watch_attempt.json",
