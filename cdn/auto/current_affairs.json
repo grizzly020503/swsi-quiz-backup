@@ -5,18 +5,8 @@
   "optional_feed_error_count": 0,
   "items": [
     {
-      "summary": "立法院今(13)日三讀通過《性別平等工作法》及《就業保險法》修正草案，讓政府推動的【臺灣人口對策新戰略家庭支持篇】友善職場往前邁向一大步，兩部法修正案自行政院5月28日送請立法院審議至今，經歷近6個月審查，其中性別平等工作法修正案計有130案，就業保險法修正案計有100案，為社會關注重大修法案，經過立法院多次會議審查、協商會議及勞動部與立法委員無數次溝通與交換意見，終獲立法院各黨團支持，給予受僱者從懷孕、生產到育兒階段，全面升級保障。勞動部感謝立法院及各界支持，在經過與各民間團體、黨團及委員積極溝通與評估後，於今(13)日三讀通過兩部法修正案，性別平等工",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "id": "topic:8a78c45fb12f0b68f8bab75f0c793f6a",
-      "category": "性別與家庭政策",
-      "source_name": "綜合 2 個來源",
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "人類行為與社會環境",
-        "社會工作",
-        "社會工作直接服務"
-      ],
-      "published_at": "2026-11-26T09:11:20Z",
+      "relevance_score": 8,
+      "knowledge_root": "社會工作管理",
       "knowledge_paths": [
         "社會工作管理 > 規劃與政策執行",
         "社會工作管理 > 倫理與權利保障",
@@ -30,12 +20,14 @@
         "社會工作管理 > 方案與資源管理 > 社會工作 > 性別平等、照顧正義與家庭支持",
         "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 家庭政策、托育與性別制度"
       ],
-      "region": "taiwan",
-      "agency_keys": [],
-      "concept_keys": [
-        "family_policy"
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障",
+        "方案與資源管理"
       ],
-      "title": "立法院三讀通過《性別平等工作法》與《就業保險法》修正案 友善職場修法工程『五大突破』--產假陪產假全延長、育兒照顧到8歲、升級育兒假60日、育兒津貼6+3、企業托育租稅優惠",
+      "id": "topic:8a78c45fb12f0b68f8bab75f0c793f6a",
+      "fact_keys": [],
+      "region": "taiwan",
       "knowledge_topics": [
         "性別與家庭政策",
         "性別平等",
@@ -45,21 +37,22 @@
         "修正",
         "制度"
       ],
-      "relevance_score": 8,
-      "knowledge_root": "社會工作管理",
-      "supporting_exam_subject_axes": [
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "summary": "立法院今(13)日三讀通過《性別平等工作法》及《就業保險法》修正草案，讓政府推動的【臺灣人口對策新戰略家庭支持篇】友善職場往前邁向一大步，兩部法修正案自行政院5月28日送請立法院審議至今，經歷近6個月審查，其中性別平等工作法修正案計有130案，就業保險法修正案計有100案，為社會關注重大修法案，經過立法院多次會議審查、協商會議及勞動部與立法委員無數次溝通與交換意見，終獲立法院各黨團支持，給予受僱者從懷孕、生產到育兒階段，全面升級保障。勞動部感謝立法院及各界支持，在經過與各民間團體、黨團及委員積極溝通與評估後，於今(13)日三讀通過兩部法修正案，性別平等工",
+      "exam_subject_axes": [
+        "社會政策與社會立法",
         "人類行為與社會環境",
         "社會工作",
         "社會工作直接服務"
       ],
-      "exam_tags": [
-        "性別平等",
-        "育兒",
-        "修法",
-        "修正",
-        "政策",
-        "托育",
-        "制度"
+      "concept_keys": [
+        "family_policy"
+      ],
+      "title": "立法院三讀通過《性別平等工作法》與《就業保險法》修正案 友善職場修法工程『五大突破』--產假陪產假全延長、育兒照顧到8歲、升級育兒假60日、育兒津貼6+3、企業托育租稅優惠",
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會工作",
+        "社會工作直接服務"
       ],
       "subject_topics": {
         "社會政策與社會立法": [
@@ -75,21 +68,28 @@
           "家庭工作與照顧支持"
         ]
       },
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障",
-        "方案與資源管理"
-      ],
       "subjects": [
         "社會政策與社會立法",
         "社會工作"
       ],
-      "fact_keys": [],
+      "published_at": "2026-11-26T09:11:20Z",
+      "source_name": "綜合 2 個來源",
+      "exam_tags": [
+        "性別平等",
+        "育兒",
+        "修法",
+        "修正",
+        "政策",
+        "托育",
+        "制度"
+      ],
+      "agency_keys": [],
+      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//a9416b6d-8e62-4367-8ad3-af34edf07613",
       "source_type": "official",
       "primary_exam_subject_axes": [
         "社會政策與社會立法"
       ],
-      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//a9416b6d-8e62-4367-8ad3-af34edf07613",
+      "category": "性別與家庭政策",
       "source_count": 2,
       "article_count": 3,
       "sources": [
@@ -118,130 +118,185 @@
       "clustered": true
     },
     {
-      "summary": "立委王正旭、范雲和家長召開記者會，控訴雲林縣府針對某托嬰中心對幼童施暴案，行政處置過輕，更質疑通報至今還沒有調查結果，甚至明日開會家長看報導才知情等。雲林縣政府回應，事發當日即...…",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "id": "8a90396df7c7806f89deaf7ce78d9de9",
-      "category": "兒少保護",
-      "source_name": "自由時報社會",
-      "exam_subject_axes": [
-        "社會工作直接服務",
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作",
-        "社會工作研究方法"
-      ],
-      "published_at": "2026-11-26T06:40:49Z",
-      "knowledge_paths": [
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 成效評估與證據",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 品質與風險管理 > 社會工作研究方法 > 統計與資料解讀",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 兒少福利與保護法制",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 責任通報與保護體系",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制"
-      ],
-      "region": "taiwan",
-      "agency_keys": [],
-      "concept_keys": [
-        "child_protection"
-      ],
-      "title": "雲林托嬰中心爆虐童！家長批行政裁罰過輕 縣府：違法嚴辦",
-      "knowledge_topics": [
-        "兒少保護",
-        "虐童",
-        "托嬰",
-        "通報"
-      ],
-      "relevance_score": 7,
+      "relevance_score": 6,
       "knowledge_root": "社會工作管理",
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 人力與督導",
+        "社會工作管理 > 方案與資源管理",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 人力與督導 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 方案與資源管理 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
+      ],
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障",
+        "人力與督導",
+        "方案與資源管理"
+      ],
+      "id": "b253527af54c65346c98f64684a2a692",
+      "fact_keys": [],
+      "region": "taiwan",
+      "knowledge_topics": [
+        "勞動與社會保障",
+        "就業保險",
+        "性別平等工作法",
+        "修法",
+        "修正",
+        "政策"
+      ],
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "summary": "行政院長卓榮泰今（19）日在行政院會聽取勞動部與行政院人事行政總處「《性別平等工作法》及《就業保險法》三讀後新制內容」報告後表示，《性別平等工作法》及《就業保險法》修正草案於11月13日三讀通過，本次修法讓「台灣人口對策新戰略-家庭支持篇」往前邁進一大步。首先，在《性別平等工作法》修正部分，卓院長指出，產假由8週增加為14週，這是歷經超過40年，首度對產假天數進行大幅度修正；陪產檢及陪產假也由原本的7日增加為14日；育兒留職停薪及育兒假的子女年齡由「滿3歲前」提高至「8歲以下，滿9歲前」，現行30日以日育嬰留停升級加倍為60日育兒假。卓院長進一步表示，《",
+      "exam_subject_axes": [
         "社會政策與社會立法",
         "社會工作"
       ],
-      "exam_tags": [
-        "虐童",
-        "托嬰",
-        "通報"
+      "concept_keys": [
+        "family_policy"
+      ],
+      "title": "卓揆：儘速完成《性別平等工作法》及《就業保險法》子法及配套措施 確保116年元旦勞工與軍公教同步上路",
+      "supporting_exam_subject_axes": [
+        "社會工作"
       ],
       "subject_topics": {
-        "社會工作直接服務": [
-          "兒少保護風險評估",
-          "家庭評估與危機介入"
-        ],
-        "人類行為與社會環境": [
-          "兒童發展、依附與創傷",
-          "家庭系統與風險保護因子"
-        ],
         "社會政策與社會立法": [
-          "兒少福利與保護法制",
-          "責任通報與保護體系"
+          "社會保險、就業安全與勞動政策"
         ],
         "社會工作": [
-          "專業倫理與兒童最佳利益",
-          "權利倡導與社會正義"
-        ],
-        "社會工作研究方法": [
-          "統計與資料解讀"
+          "勞動權益、社會正義與弱勢支持"
         ]
       },
-      "management_domains": [
-        "品質與風險管理",
-        "服務輸送與跨網絡",
-        "倫理與權利保障",
-        "成效評估與證據"
-      ],
       "subjects": [
-        "社會工作直接服務",
         "社會政策與社會立法",
         "社會工作"
       ],
-      "fact_keys": [],
-      "source_type": "news",
-      "primary_exam_subject_axes": [
-        "社會工作直接服務",
-        "社會工作研究方法"
+      "published_at": "2026-11-19T04:11:59Z",
+      "source_name": "行政院本院新聞",
+      "exam_tags": [
+        "就業保險",
+        "性別平等工作法",
+        "修法",
+        "修正",
+        "政策"
       ],
-      "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5654200",
+      "agency_keys": [],
+      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//719d0cf2-564f-4894-a0fd-31e12081cbe7",
+      "source_type": "official",
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "category": "勞動與社會保障",
       "source_count": 1,
       "article_count": 1,
       "sources": [
         {
-          "source_name": "自由時報社會",
-          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5654200",
-          "source_type": "news",
-          "published_at": "2026-11-26T06:40:49Z",
-          "title": "雲林托嬰中心爆虐童！家長批行政裁罰過輕 縣府：違法嚴辦"
+          "source_name": "行政院本院新聞",
+          "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//719d0cf2-564f-4894-a0fd-31e12081cbe7",
+          "source_type": "official",
+          "published_at": "2026-11-19T04:11:59Z",
+          "title": "卓揆：儘速完成《性別平等工作法》及《就業保險法》子法及配套措施 確保116年元旦勞工與軍公教同步上路"
         }
       ],
       "clustered": false
     },
     {
-      "summary": "雲林縣虎尾鎮某托嬰中心9月爆發虐童案，未滿2歲的幼童遭王姓托育人員粗暴對待。事後查出該托育人員早在6月及8月有相關虐待紀錄，院方均未通報。受害家長今（26）日特別北上控訴，該托...…",
+      "relevance_score": 5,
+      "knowledge_root": "社會工作管理",
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
+      ],
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障"
+      ],
+      "id": "fe730cc7d03d754271b00129787bdd60",
+      "fact_keys": [
+        "num:20000",
+        "num:30000"
+      ],
+      "region": "taiwan",
+      "knowledge_topics": [
+        "勞動與社會保障",
+        "勞保",
+        "職業災害",
+        "勞工權益",
+        "最低工資",
+        "勞退",
+        "修正",
+        "權益",
+        "保險"
+      ],
       "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "id": "3b20b6842a9b3e1278eb3716bd231ad0",
-      "category": "兒少保護",
-      "source_name": "自由時報社會",
+      "summary": "配合最低工資自116年1月1日起調整至3萬900元，勞動部同步修正「勞工保險投保薪資分級表」、「勞工職業災害保險投保薪資分級表」及「勞工退休金月提繳分級表」，並自是日起適用。為落實簡政便民，勞工保險局（下稱勞保局）將主動辦理投保薪資及提繳工資逕調作業，投保(提繳)單位毋須另外提出申報。 新修正之「勞工保險投保薪資分級表」及「勞工職業災害保險投保薪資分級表」第1級月投保薪資由2萬9,500元修正為3萬900元，原第2級之月投保薪資3萬300元則予以刪除，其餘金額未修正，投保薪資等級依序遞移。此外，「勞工保險投保薪資分級表」備註欄第2項，有關職業訓練機構受訓",
       "exam_subject_axes": [
-        "社會工作直接服務",
-        "人類行為與社會環境",
         "社會政策與社會立法",
         "社會工作"
       ],
-      "published_at": "2026-11-26T04:54:37Z",
+      "concept_keys": [
+        "disability_rights",
+        "labor_rights"
+      ],
+      "title": "因應投保薪資(月提繳)分級表修正，勞保局主動辦理投保薪資及提繳工資逕調作業",
+      "supporting_exam_subject_axes": [
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社會保險、就業安全與勞動政策"
+        ],
+        "社會工作": [
+          "勞動權益、社會正義與弱勢支持"
+        ]
+      },
+      "subjects": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "published_at": "2026-11-27T13:50:16Z",
+      "source_name": "勞動部新聞稿",
+      "exam_tags": [
+        "勞保",
+        "職業災害",
+        "勞工權益",
+        "最低工資",
+        "勞退",
+        "修正",
+        "權益",
+        "保險"
+      ],
+      "agency_keys": [],
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/101409/",
+      "source_type": "official",
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "category": "勞動與社會保障",
+      "source_count": 1,
+      "article_count": 1,
+      "sources": [
+        {
+          "source_name": "勞動部新聞稿",
+          "source_url": "https://www.mol.gov.tw/1607/1632/1633/101409/",
+          "source_type": "official",
+          "published_at": "2026-11-27T13:50:16Z",
+          "title": "因應投保薪資(月提繳)分級表修正，勞保局主動辦理投保薪資及提繳工資逕調作業"
+        }
+      ],
+      "clustered": false
+    },
+    {
+      "relevance_score": 5,
+      "knowledge_root": "社會工作管理",
       "knowledge_paths": [
         "社會工作管理 > 品質與風險管理",
         "社會工作管理 > 服務輸送與跨網絡",
@@ -264,30 +319,35 @@
         "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 責任通報與保護體系",
         "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 兒童發展、依附與創傷"
       ],
-      "region": "taiwan",
-      "agency_keys": [],
-      "concept_keys": [
-        "child_protection",
-        "family_policy"
+      "management_domains": [
+        "品質與風險管理",
+        "服務輸送與跨網絡",
+        "倫理與權利保障"
       ],
-      "title": "雲林托嬰中心爆多次隱匿虐童案 受害家長質疑：行政裁罰過輕",
+      "id": "0cdb9e5389c677b2e269501b25596969",
+      "fact_keys": [],
+      "region": "taiwan",
       "knowledge_topics": [
         "兒少保護",
-        "虐童",
         "托嬰",
-        "通報"
+        "保母"
       ],
-      "relevance_score": 7,
-      "knowledge_root": "社會工作管理",
-      "supporting_exam_subject_axes": [
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "summary": "新北市板橋區私立米綺托嬰中心3年前，因保母胡佩瑩將9月大的女嬰趴睡後以棉被覆蓋，又用手腳壓制，致使其窒息死亡；最高法院依過失致死罪判胡女4年8月徒刑，事發當下也在場的托育員劉宣...…",
+      "exam_subject_axes": [
+        "社會工作直接服務",
         "人類行為與社會環境",
         "社會政策與社會立法",
         "社會工作"
       ],
-      "exam_tags": [
-        "虐童",
-        "托嬰",
-        "通報"
+      "concept_keys": [
+        "family_policy"
+      ],
+      "title": "保母棉被蓋頭悶死9月大女嬰 判刑4年8月確定",
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
       ],
       "subject_topics": {
         "社會工作直接服務": [
@@ -307,133 +367,40 @@
           "權利倡導與社會正義"
         ]
       },
-      "management_domains": [
-        "品質與風險管理",
-        "服務輸送與跨網絡",
-        "倫理與權利保障"
-      ],
       "subjects": [
         "社會工作直接服務",
         "社會政策與社會立法",
         "社會工作"
       ],
-      "fact_keys": [],
+      "published_at": "2026-11-27T03:22:51Z",
+      "source_name": "自由時報社會",
+      "exam_tags": [
+        "托嬰",
+        "保母"
+      ],
+      "agency_keys": [],
+      "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5655082",
       "source_type": "news",
       "primary_exam_subject_axes": [
         "社會工作直接服務"
       ],
-      "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5654018",
+      "category": "兒少保護",
       "source_count": 1,
       "article_count": 1,
       "sources": [
         {
           "source_name": "自由時報社會",
-          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5654018",
+          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5655082",
           "source_type": "news",
-          "published_at": "2026-11-26T04:54:37Z",
-          "title": "雲林托嬰中心爆多次隱匿虐童案 受害家長質疑：行政裁罰過輕"
+          "published_at": "2026-11-27T03:22:51Z",
+          "title": "保母棉被蓋頭悶死9月大女嬰 判刑4年8月確定"
         }
       ],
       "clustered": false
     },
     {
-      "summary": "行政院長卓榮泰今（19）日在行政院會聽取勞動部與行政院人事行政總處「《性別平等工作法》及《就業保險法》三讀後新制內容」報告後表示，《性別平等工作法》及《就業保險法》修正草案於11月13日三讀通過，本次修法讓「台灣人口對策新戰略-家庭支持篇」往前邁進一大步。首先，在《性別平等工作法》修正部分，卓院長指出，產假由8週增加為14週，這是歷經超過40年，首度對產假天數進行大幅度修正；陪產檢及陪產假也由原本的7日增加為14日；育兒留職停薪及育兒假的子女年齡由「滿3歲前」提高至「8歲以下，滿9歲前」，現行30日以日育嬰留停升級加倍為60日育兒假。卓院長進一步表示，《",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "id": "b253527af54c65346c98f64684a2a692",
-      "category": "勞動與社會保障",
-      "source_name": "行政院本院新聞",
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "published_at": "2026-11-19T04:11:59Z",
-      "knowledge_paths": [
-        "社會工作管理 > 規劃與政策執行",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 人力與督導",
-        "社會工作管理 > 方案與資源管理",
-        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
-        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
-        "社會工作管理 > 人力與督導 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 方案與資源管理 > 社會工作 > 勞動權益、社會正義與弱勢支持",
-        "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
-      ],
-      "region": "taiwan",
-      "agency_keys": [],
-      "concept_keys": [
-        "family_policy"
-      ],
-      "title": "卓揆：儘速完成《性別平等工作法》及《就業保險法》子法及配套措施 確保116年元旦勞工與軍公教同步上路",
-      "knowledge_topics": [
-        "勞動與社會保障",
-        "就業保險",
-        "性別平等工作法",
-        "修法",
-        "修正",
-        "政策"
-      ],
-      "relevance_score": 6,
+      "relevance_score": 5,
       "knowledge_root": "社會工作管理",
-      "supporting_exam_subject_axes": [
-        "社會工作"
-      ],
-      "exam_tags": [
-        "就業保險",
-        "性別平等工作法",
-        "修法",
-        "修正",
-        "政策"
-      ],
-      "subject_topics": {
-        "社會政策與社會立法": [
-          "社會保險、就業安全與勞動政策"
-        ],
-        "社會工作": [
-          "勞動權益、社會正義與弱勢支持"
-        ]
-      },
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障",
-        "人力與督導",
-        "方案與資源管理"
-      ],
-      "subjects": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "fact_keys": [],
-      "source_type": "official",
-      "primary_exam_subject_axes": [
-        "社會政策與社會立法"
-      ],
-      "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//719d0cf2-564f-4894-a0fd-31e12081cbe7",
-      "source_count": 1,
-      "article_count": 1,
-      "sources": [
-        {
-          "source_name": "行政院本院新聞",
-          "source_url": "https://www.ey.gov.tw/Page/9277F759E41CCD91//719d0cf2-564f-4894-a0fd-31e12081cbe7",
-          "source_type": "official",
-          "published_at": "2026-11-19T04:11:59Z",
-          "title": "卓揆：儘速完成《性別平等工作法》及《就業保險法》子法及配套措施 確保116年元旦勞工與軍公教同步上路"
-        }
-      ],
-      "clustered": false
-    },
-    {
-      "summary": "AI and social security service Research highlights how artificial intelligence is improving access to social security services and administrative efficiency, while underscoring the need for human oversight, data protection and inclusive service delivery.",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "id": "02a20f58fd9306e760e39d78bb17311d",
-      "category": "勞動與社會保障",
-      "source_name": "ILO Newsroom",
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "published_at": "2026-11-23T00:00:00Z",
       "knowledge_paths": [
         "社會工作管理 > 規劃與政策執行",
         "社會工作管理 > 倫理與權利保障",
@@ -448,25 +415,31 @@
         "社會工作管理 > 成效評估與證據 > 社會工作 > 勞動權益、社會正義與弱勢支持",
         "社會工作管理 > 成效評估與證據 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障",
+        "服務輸送與跨網絡",
+        "成效評估與證據"
+      ],
+      "id": "02a20f58fd9306e760e39d78bb17311d",
+      "fact_keys": [],
       "region": "international",
-      "agency_keys": [
-        "ilo"
+      "knowledge_topics": [
+        "勞動與社會保障",
+        "勞動權益"
+      ],
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "summary": "AI and social security service Research highlights how artificial intelligence is improving access to social security services and administrative efficiency, while underscoring the need for human oversight, data protection and inclusive service delivery.",
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作"
       ],
       "concept_keys": [
         "labor_rights"
       ],
       "title": "AI transforming social security services in China, new ILO report finds",
-      "knowledge_topics": [
-        "勞動與社會保障",
-        "勞動權益"
-      ],
-      "relevance_score": 5,
-      "knowledge_root": "社會工作管理",
       "supporting_exam_subject_axes": [
         "社會工作"
-      ],
-      "exam_tags": [
-        "勞動權益"
       ],
       "subject_topics": {
         "社會政策與社會立法": [
@@ -476,22 +449,24 @@
           "勞動權益、社會正義與弱勢支持"
         ]
       },
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障",
-        "服務輸送與跨網絡",
-        "成效評估與證據"
-      ],
       "subjects": [
         "社會政策與社會立法",
         "社會工作"
       ],
-      "fact_keys": [],
+      "published_at": "2026-11-23T00:00:00Z",
+      "source_name": "ILO Newsroom",
+      "exam_tags": [
+        "勞動權益"
+      ],
+      "agency_keys": [
+        "ilo"
+      ],
+      "source_url": "https://www.ilo.org/resource/news/ai-transforming-social-security-services-china-new-ilo-report-finds",
       "source_type": "official",
       "primary_exam_subject_axes": [
         "社會政策與社會立法"
       ],
-      "source_url": "https://www.ilo.org/resource/news/ai-transforming-social-security-services-china-new-ilo-report-finds",
+      "category": "勞動與社會保障",
       "source_count": 1,
       "article_count": 1,
       "sources": [
@@ -506,18 +481,8 @@
       "clustered": false
     },
     {
-      "summary": "針對今（18）日青年團體及國立臺灣大學、國立政治大學、國立臺灣師範大學學生會公布學生租屋調查結果，反映校內宿舍供給不足及宿舍抽籤等問題，教育部向來重視學生就學期間之住宿需求及居住權益，會持續透過新宿舍運動及校外租屋協助等多元措施，減輕學生住宿負擔，並將參考學生所提建議持續檢討精進。 教育部自108年起推動「新世代學生住宿環境提升計畫」（新宿舍運動），並自113年起精進推動第二期計畫，目前已核定約5.5萬床宿舍改善計畫。雖依現行法規，學生宿舍因具有收取住宿費之自償性質，原則上應由學校自行籌措興建經費，惟本部考量學生宿舍不僅是居住空間，更具有促進學習、同儕交",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "id": "2dcd14cccd12dc2aaf8f0110129a551e",
-      "category": "社會救助與居住",
-      "source_name": "教育部即時新聞",
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作",
-        "社會工作直接服務",
-        "社會工作研究方法"
-      ],
-      "published_at": "2026-11-18T11:02:00Z",
+      "relevance_score": 5,
+      "knowledge_root": "社會工作管理",
       "knowledge_paths": [
         "社會工作管理 > 規劃與政策執行",
         "社會工作管理 > 方案與資源管理",
@@ -539,10 +504,22 @@
         "社會工作管理 > 成效評估與證據 > 社會工作 > 貧窮、社會排除與社會正義",
         "社會工作管理 > 成效評估與證據 > 社會政策與社會立法 > 社會救助、所得保障與居住權"
       ],
+      "management_domains": [
+        "規劃與政策執行",
+        "方案與資源管理",
+        "倫理與權利保障",
+        "品質與風險管理",
+        "成效評估與證據"
+      ],
+      "id": "2dcd14cccd12dc2aaf8f0110129a551e",
+      "fact_keys": [
+        "num:104000",
+        "num:42000",
+        "num:52000",
+        "num:55000",
+        "num:84000"
+      ],
       "region": "taiwan",
-      "agency_keys": [],
-      "concept_keys": [],
-      "title": "教育部持續強化學生住宿支持措施，減輕住宿負擔並保障學生居住權益",
       "knowledge_topics": [
         "社會救助與居住",
         "租屋",
@@ -551,18 +528,19 @@
         "權益",
         "法規"
       ],
-      "relevance_score": 5,
-      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "summary": "針對今（18）日青年團體及國立臺灣大學、國立政治大學、國立臺灣師範大學學生會公布學生租屋調查結果，反映校內宿舍供給不足及宿舍抽籤等問題，教育部向來重視學生就學期間之住宿需求及居住權益，會持續透過新宿舍運動及校外租屋協助等多元措施，減輕學生住宿負擔，並將參考學生所提建議持續檢討精進。 教育部自108年起推動「新世代學生住宿環境提升計畫」（新宿舍運動），並自113年起精進推動第二期計畫，目前已核定約5.5萬床宿舍改善計畫。雖依現行法規，學生宿舍因具有收取住宿費之自償性質，原則上應由學校自行籌措興建經費，惟本部考量學生宿舍不僅是居住空間，更具有促進學習、同儕交",
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作",
+        "社會工作直接服務",
+        "社會工作研究方法"
+      ],
+      "concept_keys": [],
+      "title": "教育部持續強化學生住宿支持措施，減輕住宿負擔並保障學生居住權益",
       "supporting_exam_subject_axes": [
         "社會工作",
         "社會工作直接服務"
-      ],
-      "exam_tags": [
-        "租屋",
-        "居住權",
-        "補助",
-        "權益",
-        "法規"
       ],
       "subject_topics": {
         "社會政策與社會立法": [
@@ -578,30 +556,27 @@
           "統計與資料解讀"
         ]
       },
-      "management_domains": [
-        "規劃與政策執行",
-        "方案與資源管理",
-        "倫理與權利保障",
-        "品質與風險管理",
-        "成效評估與證據"
-      ],
       "subjects": [
         "社會政策與社會立法",
         "社會工作"
       ],
-      "fact_keys": [
-        "num:104000",
-        "num:42000",
-        "num:52000",
-        "num:55000",
-        "num:84000"
+      "published_at": "2026-11-18T11:02:00Z",
+      "source_name": "教育部即時新聞",
+      "exam_tags": [
+        "租屋",
+        "居住權",
+        "補助",
+        "權益",
+        "法規"
       ],
+      "agency_keys": [],
+      "source_url": "https://www.edu.tw/News_Content.aspx?n=9E7AC85F1954DDA8&s=F0B3571EB94A86F5",
       "source_type": "official",
       "primary_exam_subject_axes": [
         "社會政策與社會立法",
         "社會工作研究方法"
       ],
-      "source_url": "https://www.edu.tw/News_Content.aspx?n=9E7AC85F1954DDA8&s=F0B3571EB94A86F5",
+      "category": "社會救助與居住",
       "source_count": 1,
       "article_count": 1,
       "sources": [
@@ -616,18 +591,8 @@
       "clustered": false
     },
     {
-      "summary": "修正「精神疾病嚴重病人強制處置費用支付作業要點」第十點及第四點附表，並至中華民國一百十五年九月一日生效。",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "id": "9bbd5a5cb09be11df3f0ae1fc08d5aab",
-      "category": "心理健康與成癮",
-      "source_name": "衛生福利部公告訊息",
-      "exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會工作直接服務",
-        "社會工作",
-        "社會政策與社會立法"
-      ],
-      "published_at": "2026-11-17T06:41:00Z",
+      "relevance_score": 5,
+      "knowledge_root": "社會工作管理",
       "knowledge_paths": [
         "社會工作管理 > 服務輸送與跨網絡",
         "社會工作管理 > 倫理與權利保障",
@@ -645,27 +610,35 @@
         "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 精神衛生與社區支持制度",
         "社會工作管理 > 規劃與政策執行 > 社會工作 > 復元取向、去污名與權利保障"
       ],
+      "management_domains": [
+        "服務輸送與跨網絡",
+        "倫理與權利保障",
+        "品質與風險管理",
+        "規劃與政策執行"
+      ],
+      "id": "9bbd5a5cb09be11df3f0ae1fc08d5aab",
+      "fact_keys": [],
       "region": "taiwan",
-      "agency_keys": [],
-      "concept_keys": [],
-      "title": "發布修正之「精神疾病嚴重病人強制處置費用支付作業要點第十點及第四點附表」",
       "knowledge_topics": [
         "心理健康與成癮",
         "精神疾病",
         "修正",
         "要點"
       ],
-      "relevance_score": 5,
-      "knowledge_root": "社會工作管理",
-      "supporting_exam_subject_axes": [
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "summary": "修正「精神疾病嚴重病人強制處置費用支付作業要點」第十點及第四點附表，並至中華民國一百十五年九月一日生效。",
+      "exam_subject_axes": [
+        "人類行為與社會環境",
         "社會工作直接服務",
         "社會工作",
         "社會政策與社會立法"
       ],
-      "exam_tags": [
-        "精神疾病",
-        "修正",
-        "要點"
+      "concept_keys": [],
+      "title": "發布修正之「精神疾病嚴重病人強制處置費用支付作業要點第十點及第四點附表」",
+      "supporting_exam_subject_axes": [
+        "社會工作直接服務",
+        "社會工作",
+        "社會政策與社會立法"
       ],
       "subject_topics": {
         "人類行為與社會環境": [
@@ -681,22 +654,24 @@
           "精神衛生與社區支持制度"
         ]
       },
-      "management_domains": [
-        "服務輸送與跨網絡",
-        "倫理與權利保障",
-        "品質與風險管理",
-        "規劃與政策執行"
-      ],
       "subjects": [
         "人類行為與社會環境",
         "社會工作直接服務"
       ],
-      "fact_keys": [],
+      "published_at": "2026-11-17T06:41:00Z",
+      "source_name": "衛生福利部公告訊息",
+      "exam_tags": [
+        "精神疾病",
+        "修正",
+        "要點"
+      ],
+      "agency_keys": [],
+      "source_url": "https://www.mohw.gov.tw/cp-18-88500-1.html",
       "source_type": "official",
       "primary_exam_subject_axes": [
         "人類行為與社會環境"
       ],
-      "source_url": "https://www.mohw.gov.tw/cp-18-88500-1.html",
+      "category": "心理健康與成癮",
       "source_count": 1,
       "article_count": 1,
       "sources": [
@@ -711,18 +686,8 @@
       "clustered": false
     },
     {
-      "summary": "Developed by the WHO Health and Migration Programme in collaboration with WHO’s Service Delivery and Primary Health Care Unit, the report examines how primary health care-oriented responses can improve access, continuity and quality of care for people on the move, while strengthe",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "id": "4e8909f9a7762c2c17335d15edbdeb23",
-      "category": "移工與新住民",
-      "source_name": "WHO Newsroom",
-      "exam_subject_axes": [
-        "社會工作",
-        "社會政策與社會立法",
-        "社會工作直接服務",
-        "人類行為與社會環境"
-      ],
-      "published_at": "2026-11-12T14:32:50Z",
+      "relevance_score": 5,
+      "knowledge_root": "社會工作管理",
       "knowledge_paths": [
         "社會工作管理 > 倫理與權利保障",
         "社會工作管理 > 服務輸送與跨網絡",
@@ -743,27 +708,36 @@
         "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 跨文化評估與資源連結",
         "社會工作管理 > 品質與風險管理 > 社會工作 > 文化能力、反歧視與權利倡導"
       ],
+      "management_domains": [
+        "倫理與權利保障",
+        "服務輸送與跨網絡",
+        "規劃與政策執行",
+        "方案與資源管理",
+        "品質與風險管理"
+      ],
+      "id": "4e8909f9a7762c2c17335d15edbdeb23",
+      "fact_keys": [],
       "region": "international",
-      "agency_keys": [
-        "who"
+      "knowledge_topics": [
+        "移工與新住民",
+        "移民與難民"
+      ],
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "summary": "Developed by the WHO Health and Migration Programme in collaboration with WHO’s Service Delivery and Primary Health Care Unit, the report examines how primary health care-oriented responses can improve access, continuity and quality of care for people on the move, while strengthe",
+      "exam_subject_axes": [
+        "社會工作",
+        "社會政策與社會立法",
+        "社會工作直接服務",
+        "人類行為與社會環境"
       ],
       "concept_keys": [
         "refugees_migration"
       ],
       "title": "WHO calls for migrant-inclusive primary health care to strengthen health systems for all",
-      "knowledge_topics": [
-        "移工與新住民",
-        "移民與難民"
-      ],
-      "relevance_score": 5,
-      "knowledge_root": "社會工作管理",
       "supporting_exam_subject_axes": [
         "社會政策與社會立法",
         "社會工作直接服務",
         "人類行為與社會環境"
-      ],
-      "exam_tags": [
-        "移民與難民"
       ],
       "subject_topics": {
         "社會工作": [
@@ -779,23 +753,24 @@
           "遷移、適應與家庭社會環境"
         ]
       },
-      "management_domains": [
-        "倫理與權利保障",
-        "服務輸送與跨網絡",
-        "規劃與政策執行",
-        "方案與資源管理",
-        "品質與風險管理"
-      ],
       "subjects": [
         "社會工作",
         "社會政策與社會立法"
       ],
-      "fact_keys": [],
+      "published_at": "2026-11-12T14:32:50Z",
+      "source_name": "WHO Newsroom",
+      "exam_tags": [
+        "移民與難民"
+      ],
+      "agency_keys": [
+        "who"
+      ],
+      "source_url": "https://www.who.int/news/item/12-11-2026-who-calls-for-migrant-inclusive-primary-health-care-to-strengthen-health-systems-for-all",
       "source_type": "official",
       "primary_exam_subject_axes": [
         "社會工作"
       ],
-      "source_url": "https://www.who.int/news/item/12-11-2026-who-calls-for-migrant-inclusive-primary-health-care-to-strengthen-health-systems-for-all",
+      "category": "移工與新住民",
       "source_count": 1,
       "article_count": 1,
       "sources": [
@@ -810,16 +785,8 @@
       "clustered": false
     },
     {
-      "summary": "為鼓勵民間團體及醫療機構積極投入協助政府推動職業災害預防及職業災害勞工重建宣導工作，以落實減少職業災害及深化職災勞工保護之政策目標，勞動部今(10)日修正發布《職業災害預防及職業災害勞工重建補助辦法》，放寬申請宣導類計畫案相關規定，以強化公私部門合作，達成落實職場安全與職災勞工保護的政策目標。 勞動部表示，過往民間團體或醫療機構申請「職業災害預防及職業災害勞工重建之宣導」補助計畫時，依規定應於每年8月底提出申請，如果逾期則無法再行受理申請。考量新興職業災害類型預防技術日新月異，且職業災害勞工各項保護措施或法規應廣泛讓勞工朋友瞭解，確保其權益，政府應當更積",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "id": "f26820b785ddd68721c05525560c1f5e",
-      "category": "勞動與社會保障",
-      "source_name": "勞動部新聞稿",
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "published_at": "2026-11-10T13:50:13Z",
+      "relevance_score": 5,
+      "knowledge_root": "社會工作管理",
       "knowledge_paths": [
         "社會工作管理 > 規劃與政策執行",
         "社會工作管理 > 倫理與權利保障",
@@ -836,12 +803,16 @@
         "社會工作管理 > 方案與資源管理 > 社會工作 > 勞動權益、社會正義與弱勢支持",
         "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
-      "region": "taiwan",
-      "agency_keys": [],
-      "concept_keys": [
-        "labor_rights"
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障",
+        "人力與督導",
+        "服務輸送與跨網絡",
+        "方案與資源管理"
       ],
-      "title": "鼓勵民間團體踴躍辦理職災預防及重建宣導，勞動部放寬補助規定",
+      "id": "f26820b785ddd68721c05525560c1f5e",
+      "fact_keys": [],
+      "region": "taiwan",
       "knowledge_topics": [
         "勞動與社會保障",
         "職業災害",
@@ -851,18 +822,18 @@
         "政策",
         "補助"
       ],
-      "relevance_score": 5,
-      "knowledge_root": "社會工作管理",
-      "supporting_exam_subject_axes": [
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "summary": "為鼓勵民間團體及醫療機構積極投入協助政府推動職業災害預防及職業災害勞工重建宣導工作，以落實減少職業災害及深化職災勞工保護之政策目標，勞動部今(10)日修正發布《職業災害預防及職業災害勞工重建補助辦法》，放寬申請宣導類計畫案相關規定，以強化公私部門合作，達成落實職場安全與職災勞工保護的政策目標。 勞動部表示，過往民間團體或醫療機構申請「職業災害預防及職業災害勞工重建之宣導」補助計畫時，依規定應於每年8月底提出申請，如果逾期則無法再行受理申請。考量新興職業災害類型預防技術日新月異，且職業災害勞工各項保護措施或法規應廣泛讓勞工朋友瞭解，確保其權益，政府應當更積",
+      "exam_subject_axes": [
+        "社會政策與社會立法",
         "社會工作"
       ],
-      "exam_tags": [
-        "職業災害",
-        "職災",
-        "勞工權益",
-        "修正",
-        "政策",
-        "補助"
+      "concept_keys": [
+        "labor_rights"
+      ],
+      "title": "鼓勵民間團體踴躍辦理職災預防及重建宣導，勞動部放寬補助規定",
+      "supporting_exam_subject_axes": [
+        "社會工作"
       ],
       "subject_topics": {
         "社會政策與社會立法": [
@@ -872,23 +843,27 @@
           "勞動權益、社會正義與弱勢支持"
         ]
       },
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障",
-        "人力與督導",
-        "服務輸送與跨網絡",
-        "方案與資源管理"
-      ],
       "subjects": [
         "社會政策與社會立法",
         "社會工作"
       ],
-      "fact_keys": [],
+      "published_at": "2026-11-10T13:50:13Z",
+      "source_name": "勞動部新聞稿",
+      "exam_tags": [
+        "職業災害",
+        "職災",
+        "勞工權益",
+        "修正",
+        "政策",
+        "補助"
+      ],
+      "agency_keys": [],
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/100082/",
       "source_type": "official",
       "primary_exam_subject_axes": [
         "社會政策與社會立法"
       ],
-      "source_url": "https://www.mol.gov.tw/1607/1632/1633/100082/",
+      "category": "勞動與社會保障",
       "source_count": 1,
       "article_count": 1,
       "sources": [
@@ -903,17 +878,8 @@
       "clustered": false
     },
     {
-      "summary": "勞動部於今（ 9）日修正發布 《違反勞動基準法及最低工資法裁處罰鍰共通性原則》(以下簡稱共通性原則 )，納入最低工資法，增列按次累加裁罰金額及網站資訊公開機制，將於明（116）年1月1日正式生效上路。 勞動部說明，最低工資為勞工維持生活所必需，雇主給付勞工之工資，無論係按月、按日或按時計酬，均不得低於法定最低工資。考量最低工資法自 113年上路以來，政府持續輔導事業單位遵守最低工資法，為使全國地方政府有一致性裁罰基準，本次修正共通性原則，納入違反最低工資法，同時針對上市櫃公司、實收資本額逾1億元或醫學中心等特定對象，若違反最低工資或工時等重要規定，以新臺",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "id": "3fb75022eba9c0a77b9f8c41e98ba324",
-      "category": "勞動與社會保障",
-      "source_name": "勞動部新聞稿",
-      "exam_subject_axes": [
-        "社會政策與社會立法",
-        "社會工作",
-        "社會工作直接服務"
-      ],
-      "published_at": "2026-11-09T10:58:48Z",
+      "relevance_score": 5,
+      "knowledge_root": "社會工作管理",
       "knowledge_paths": [
         "社會工作管理 > 規劃與政策執行",
         "社會工作管理 > 倫理與權利保障",
@@ -929,26 +895,36 @@
         "社會工作管理 > 方案與資源管理 > 社會工作 > 勞動權益、社會正義與弱勢支持",
         "社會工作管理 > 方案與資源管理 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
       ],
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障",
+        "組織治理與責信",
+        "方案與資源管理"
+      ],
+      "id": "3fb75022eba9c0a77b9f8c41e98ba324",
+      "fact_keys": [
+        "num:100000000",
+        "num:50000"
+      ],
       "region": "taiwan",
-      "agency_keys": [],
-      "concept_keys": [],
-      "title": "勞動部修正發布《違反勞動基準法及最低工資法裁處罰鍰共通性原則》，納入最低工資規範，違法按次累加罰鍰",
       "knowledge_topics": [
         "勞動與社會保障",
         "最低工資",
         "修正",
         "給付"
       ],
-      "relevance_score": 5,
-      "knowledge_root": "社會工作管理",
-      "supporting_exam_subject_axes": [
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "summary": "勞動部於今（ 9）日修正發布 《違反勞動基準法及最低工資法裁處罰鍰共通性原則》(以下簡稱共通性原則 )，納入最低工資法，增列按次累加裁罰金額及網站資訊公開機制，將於明（116）年1月1日正式生效上路。 勞動部說明，最低工資為勞工維持生活所必需，雇主給付勞工之工資，無論係按月、按日或按時計酬，均不得低於法定最低工資。考量最低工資法自 113年上路以來，政府持續輔導事業單位遵守最低工資法，為使全國地方政府有一致性裁罰基準，本次修正共通性原則，納入違反最低工資法，同時針對上市櫃公司、實收資本額逾1億元或醫學中心等特定對象，若違反最低工資或工時等重要規定，以新臺",
+      "exam_subject_axes": [
+        "社會政策與社會立法",
         "社會工作",
         "社會工作直接服務"
       ],
-      "exam_tags": [
-        "最低工資",
-        "修正",
-        "給付"
+      "concept_keys": [],
+      "title": "勞動部修正發布《違反勞動基準法及最低工資法裁處罰鍰共通性原則》，納入最低工資規範，違法按次累加罰鍰",
+      "supporting_exam_subject_axes": [
+        "社會工作",
+        "社會工作直接服務"
       ],
       "subject_topics": {
         "社會政策與社會立法": [
@@ -958,25 +934,24 @@
           "勞動權益、社會正義與弱勢支持"
         ]
       },
-      "management_domains": [
-        "規劃與政策執行",
-        "倫理與權利保障",
-        "組織治理與責信",
-        "方案與資源管理"
-      ],
       "subjects": [
         "社會政策與社會立法",
         "社會工作"
       ],
-      "fact_keys": [
-        "num:100000000",
-        "num:50000"
+      "published_at": "2026-11-09T10:58:48Z",
+      "source_name": "勞動部新聞稿",
+      "exam_tags": [
+        "最低工資",
+        "修正",
+        "給付"
       ],
+      "agency_keys": [],
+      "source_url": "https://www.mol.gov.tw/1607/1632/1633/100074/",
       "source_type": "official",
       "primary_exam_subject_axes": [
         "社會政策與社會立法"
       ],
-      "source_url": "https://www.mol.gov.tw/1607/1632/1633/100074/",
+      "category": "勞動與社會保障",
       "source_count": 1,
       "article_count": 1,
       "sources": [

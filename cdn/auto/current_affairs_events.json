@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-26T21:27:11Z",
+  "generated_at": "2026-11-27T08:17:35Z",
   "source_item_count": 10,
-  "event_count": 9,
+  "event_count": 10,
   "note": "SWSI 時事事件聚類；同事件多來源只算一個事件。命題訊號不代表命題保證。",
   "events": [
     {
@@ -1093,6 +1093,217 @@
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
     },
     {
+      "canonical_event_id": "b7fbfd1745237d9d27e3ebbd",
+      "title": "因應投保薪資(月提繳)分級表修正，勞保局主動辦理投保薪資及提繳工資逕調作業",
+      "summary": "配合最低工資自116年1月1日起調整至3萬900元，勞動部同步修正「勞工保險投保薪資分級表」、「勞工職業災害保險投保薪資分級表」及「勞工退休金月提繳分級表」，並自是日起適用。為落實簡政便民，勞工保險局（下稱勞保局）將主動辦理投保薪資及提繳工資逕調作業，投保(提繳)單位毋須另外提出申報。 新修正之「勞工保險投保薪資分級表」及「勞工職業災害保險投保薪資分級表」第1級月投保薪資由2萬9,500元修正為3萬900元，原第2級之月投保薪資3萬300元則予以刪除，其餘金額未修正，投保薪資等級依序遞移。此外，「勞工保險投保薪資分級表」備註欄第2項，有關職業訓練機構受訓",
+      "category": "勞動與社會保障",
+      "subjects": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社會保險、就業安全與勞動政策"
+        ],
+        "社會工作": [
+          "勞動權益、社會正義與弱勢支持"
+        ]
+      },
+      "knowledge_topics": [
+        "勞動與社會保障",
+        "勞保",
+        "職業災害",
+        "勞工權益",
+        "最低工資",
+        "勞退",
+        "修正",
+        "權益",
+        "保險"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
+      ],
+      "exam_tags": [
+        "保險",
+        "修正",
+        "勞保",
+        "勞工權益",
+        "勞退",
+        "最低工資",
+        "權益",
+        "職業災害"
+      ],
+      "related_laws": [],
+      "concept_keys": [
+        "disability_rights",
+        "labor_rights"
+      ],
+      "agency_keys": [],
+      "fact_keys": [
+        "num:20000",
+        "num:30000"
+      ],
+      "source_count": 1,
+      "official_source_count": 1,
+      "sources": [
+        "勞動部新聞稿"
+      ],
+      "evidence": [
+        {
+          "source_name": "勞動部新聞稿",
+          "source_url": "https://www.mol.gov.tw/1607/1632/1633/101409/",
+          "source_type": "official",
+          "published_at": "2026-11-27T13:50:16Z",
+          "item_id": "fe730cc7d03d754271b00129787bdd60"
+        }
+      ],
+      "first_seen": "2026-11-27T13:50:16Z",
+      "last_seen": "2026-11-27T13:50:16Z",
+      "observation_count": 1,
+      "observation_dates": [
+        "2026-11-27"
+      ],
+      "policy_signal": "high",
+      "essay_value": "low",
+      "mcq_fact_density": "high",
+      "signal_confidence": "high",
+      "signal_score": 8,
+      "exam_point_summary": "因應投保薪資(月提繳)分級表修正，勞保局主動辦理投保薪資及提繳工資逕調作業。制度或給付已有明確變動；含較具體數字、日期或法規事實，利於選擇題。此為命題訊號，非命題保證。",
+      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "勞動部",
+        "勞保",
+        "職業災害",
+        "勞工權益",
+        "最低工資",
+        "勞退",
+        "修正",
+        "保險"
+      ],
+      "related_exam_questions": [
+        {
+          "id": "SP114-1-13",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第一次",
+          "qno": "13",
+          "major": "社會保險",
+          "topic": "國民年金法 > 保險人",
+          "match_reason": "事件詞：保險、勞保；同義考點：勞工保險",
+          "match_score": 5.2
+        },
+        {
+          "id": "SP105-2-28",
+          "subject": "社會政策與社會立法",
+          "year": "105",
+          "round": "第二次",
+          "qno": "28",
+          "major": "社會保險",
+          "topic": "年金制度 > 勞保與國保老年年金",
+          "match_reason": "事件詞：保險、勞保；同義考點：勞工保險",
+          "match_score": 5.2
+        },
+        {
+          "id": "SP104-1-06",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第一次",
+          "qno": "6",
+          "major": "社會政策過程與決策",
+          "topic": "決策模式 > 菁英論與多元論",
+          "match_reason": "事件詞：保險；同義考點：勞工保險",
+          "match_score": 5.2
+        },
+        {
+          "id": "SP109-2-17",
+          "subject": "社會政策與社會立法",
+          "year": "109",
+          "round": "第二次",
+          "qno": "17",
+          "major": "社會保險",
+          "topic": "社會保險 > 職業災害保險特性",
+          "match_reason": "事件詞：保險、職業災害",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP108-2-03",
+          "subject": "社會政策與社會立法",
+          "year": "108",
+          "round": "第二次",
+          "qno": "3",
+          "major": "社會政策過程與決策",
+          "topic": "社會政策起源 > 德國社會政策發源",
+          "match_reason": "事件詞：保險；題幹情境：勞工保險",
+          "match_score": 3.0
+        }
+      ],
+      "historical_exam_stats": {
+        "matched_question_count": 176,
+        "weighted_match_count": 5.5,
+        "match_breakdown": {
+          "strong": 3,
+          "medium": 3,
+          "concept": 170
+        },
+        "matched_year_count": 12,
+        "matched_years": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "earliest_exam_year": 104,
+        "latest_exam_year": 115,
+        "corpus_latest_year": 115,
+        "years_since_last_exam": 0,
+        "subject_counts": {
+          "社會工作": 10,
+          "社會政策與社會立法": 166
+        },
+        "subject_count": 2,
+        "law_match_count": 0,
+        "law_match_year_count": 0,
+        "law_match_years": [],
+        "high_confidence_match_count": 3,
+        "matching_method": "event-evidence-v2.2",
+        "aggregation_method": "max-quality-member-plus-year-union-v2.2"
+      },
+      "related_policy_instruments": [],
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
+    },
+    {
       "canonical_event_id": "fe882be86a6b13a25cb09931",
       "title": "發布修正之「精神疾病嚴重病人強制處置費用支付作業要點第十點及第四點附表」",
       "summary": "修正「精神疾病嚴重病人強制處置費用支付作業要點」第十點及第四點附表，並至中華民國一百十五年九月一日生效。",
@@ -1299,9 +1510,9 @@
       "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。"
     },
     {
-      "canonical_event_id": "ed66bd15fea06b0a898bb161",
-      "title": "雲林托嬰中心爆虐童！家長批行政裁罰過輕 縣府：違法嚴辦",
-      "summary": "立委王正旭、范雲和家長召開記者會，控訴雲林縣府針對某托嬰中心對幼童施暴案，行政處置過輕，更質疑通報至今還沒有調查結果，甚至明日開會家長看報導才知情等。雲林縣政府回應，事發當日即...…",
+      "canonical_event_id": "fec3218bddaa170bade20482",
+      "title": "保母棉被蓋頭悶死9月大女嬰 判刑4年8月確定",
+      "summary": "新北市板橋區私立米綺托嬰中心3年前，因保母胡佩瑩將9月大的女嬰趴睡後以棉被覆蓋，又用手腳壓制，致使其窒息死亡；最高法院依過失致死罪判胡女4年8月徒刑，事發當下也在場的托育員劉宣...…",
       "category": "兒少保護",
       "subjects": [
         "社會工作",
@@ -1313,19 +1524,16 @@
       "management_domains": [
         "品質與風險管理",
         "服務輸送與跨網絡",
-        "倫理與權利保障",
-        "成效評估與證據"
+        "倫理與權利保障"
       ],
       "exam_subject_axes": [
         "社會工作直接服務",
         "人類行為與社會環境",
         "社會政策與社會立法",
-        "社會工作",
-        "社會工作研究方法"
+        "社會工作"
       ],
       "primary_exam_subject_axes": [
-        "社會工作直接服務",
-        "社會工作研究方法"
+        "社會工作直接服務"
       ],
       "supporting_exam_subject_axes": [
         "人類行為與社會環境",
@@ -1348,16 +1556,12 @@
         "社會工作": [
           "專業倫理與兒童最佳利益",
           "權利倡導與社會正義"
-        ],
-        "社會工作研究方法": [
-          "統計與資料解讀"
         ]
       },
       "knowledge_topics": [
         "兒少保護",
-        "虐童",
         "托嬰",
-        "通報"
+        "保母"
       ],
       "knowledge_paths": [
         "社會工作管理 > 品質與風險管理",
@@ -1379,18 +1583,14 @@
         "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
         "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制",
         "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 責任通報與保護體系",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 兒童發展、依附與創傷",
-        "社會工作管理 > 成效評估與證據",
-        "社會工作管理 > 品質與風險管理 > 社會工作研究方法 > 統計與資料解讀"
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 兒童發展、依附與創傷"
       ],
       "exam_tags": [
-        "托嬰",
-        "虐童",
-        "通報"
+        "保母",
+        "托嬰"
       ],
       "related_laws": [],
       "concept_keys": [
-        "child_protection",
         "family_policy"
       ],
       "agency_keys": [],
@@ -1403,36 +1603,28 @@
       "evidence": [
         {
           "source_name": "自由時報社會",
-          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5654200",
+          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5655082",
           "source_type": "news",
-          "published_at": "2026-11-26T06:40:49Z",
-          "item_id": "8a90396df7c7806f89deaf7ce78d9de9"
-        },
-        {
-          "source_name": "自由時報社會",
-          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5654018",
-          "source_type": "news",
-          "published_at": "2026-11-26T04:54:37Z",
-          "item_id": "3b20b6842a9b3e1278eb3716bd231ad0"
+          "published_at": "2026-11-27T03:22:51Z",
+          "item_id": "0cdb9e5389c677b2e269501b25596969"
         }
       ],
-      "first_seen": "2026-11-26T04:54:37Z",
-      "last_seen": "2026-11-26T06:40:49Z",
+      "first_seen": "2026-11-27T03:22:51Z",
+      "last_seen": "2026-11-27T03:22:51Z",
       "observation_count": 1,
       "observation_dates": [
-        "2026-11-26"
+        "2026-11-27"
       ],
       "policy_signal": "low",
       "essay_value": "medium",
-      "mcq_fact_density": "medium",
-      "signal_confidence": "medium",
-      "signal_score": 6,
-      "exam_point_summary": "雲林托嬰中心爆虐童！家長批行政裁罰過輕 縣府：違法嚴辦。尚未見明確制度變動，先作事件與專業議題觀察；申論可從兒少最佳利益、責任通報、跨網絡合作與制度漏洞切入；有一定制度名詞與事實點。此為命題訊號，非命題保證。",
+      "mcq_fact_density": "low",
+      "signal_confidence": "low",
+      "signal_score": 5,
+      "exam_point_summary": "保母棉被蓋頭悶死9月大女嬰 判刑4年8月確定。尚未見明確制度變動，先作事件與專業議題觀察；申論可從兒少最佳利益、責任通報、跨網絡合作與制度漏洞切入。此為命題訊號，非命題保證。",
       "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
       "mcq_focus": [
-        "虐童",
         "托嬰",
-        "通報"
+        "保母"
       ],
       "related_exam_questions": [
         {
@@ -1492,25 +1684,20 @@
         }
       ],
       "historical_exam_stats": {
-        "matched_question_count": 37,
-        "weighted_match_count": 4.0,
+        "matched_question_count": 7,
+        "weighted_match_count": 3.0,
         "match_breakdown": {
           "strong": 0,
           "medium": 7,
-          "concept": 30
+          "concept": 0
         },
-        "matched_year_count": 11,
+        "matched_year_count": 6,
         "matched_years": [
           104,
-          105,
-          106,
           107,
           109,
           110,
-          111,
           112,
-          113,
-          114,
           115
         ],
         "earliest_exam_year": 104,
@@ -1518,11 +1705,9 @@
         "corpus_latest_year": 115,
         "years_since_last_exam": 0,
         "subject_counts": {
-          "社會工作": 11,
-          "社會工作直接服務": 3,
-          "社會政策與社會立法": 23
+          "社會政策與社會立法": 7
         },
-        "subject_count": 3,
+        "subject_count": 1,
         "law_match_count": 0,
         "law_match_year_count": 0,
         "law_match_years": [],

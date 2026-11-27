@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-26T21:27:11Z",
-  "event_count": 9,
+  "generated_at": "2026-11-27T08:17:36Z",
+  "event_count": 10,
   "method": "deterministic-v2.2",
   "note": "SWSI 命題趨勢訊號；用於安排複習優先順序，不代表命題保證。",
   "trends": [
@@ -488,6 +488,202 @@
       ]
     },
     {
+      "canonical_event_id": "b7fbfd1745237d9d27e3ebbd",
+      "title": "因應投保薪資(月提繳)分級表修正，勞保局主動辦理投保薪資及提繳工資逕調作業",
+      "category": "勞動與社會保障",
+      "subjects": [
+        "社會工作",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "規劃與政策執行",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會政策與社會立法"
+      ],
+      "supporting_exam_subject_axes": [
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會政策與社會立法": [
+          "社會保險、就業安全與勞動政策"
+        ],
+        "社會工作": [
+          "勞動權益、社會正義與弱勢支持"
+        ]
+      },
+      "knowledge_topics": [
+        "勞動與社會保障",
+        "勞保",
+        "職業災害",
+        "勞工權益",
+        "最低工資",
+        "勞退",
+        "修正",
+        "權益",
+        "保險"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 規劃與政策執行",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策",
+        "社會工作管理 > 規劃與政策執行 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 勞動權益、社會正義與弱勢支持",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 社會保險、就業安全與勞動政策"
+      ],
+      "trend_state": "one-off",
+      "trend_score": 5.7,
+      "why": [
+        "1 個官方來源",
+        "有政策／制度訊號",
+        "歷屆同主題精準匹配 176 題，跨 12 個年度；強 3／中 3／概念 170",
+        "最近相關題為 115 年（距題庫最新年度 0 年）",
+        "歷屆分布 2 個考科"
+      ],
+      "factors": {
+        "cross_source": 0.0,
+        "official_evidence": 0.7,
+        "policy_change": 1.8,
+        "historical_frequency": 1.3,
+        "historical_year_breadth": 0.8,
+        "recent_exam_support": 0.8,
+        "historical_subject_breadth": 0.25,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
+        "essay_value": 0.0,
+        "mcq_density": 0.9,
+        "recency": 1.0
+      },
+      "source_count": 1,
+      "official_source_count": 1,
+      "observation_count": 1,
+      "first_seen": "2026-11-27T13:50:16Z",
+      "last_seen": "2026-11-27T13:50:16Z",
+      "related_laws": [],
+      "related_policy_instruments": [],
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "historical_question_count": 176,
+      "historical_weighted_match_count": 5.5,
+      "historical_match_breakdown": {
+        "strong": 3,
+        "medium": 3,
+        "concept": 170
+      },
+      "historical_exam_years": [
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會工作": 10,
+        "社會政策與社會立法": 166
+      },
+      "historical_subject_count": 2,
+      "historical_law_match_count": 0,
+      "historical_law_match_years": [],
+      "historical_high_confidence_match_count": 3,
+      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
+      "related_exam_questions": [
+        {
+          "id": "SP114-1-13",
+          "subject": "社會政策與社會立法",
+          "year": "114",
+          "round": "第一次",
+          "qno": "13",
+          "major": "社會保險",
+          "topic": "國民年金法 > 保險人",
+          "match_reason": "事件詞：保險、勞保；同義考點：勞工保險",
+          "match_score": 5.2
+        },
+        {
+          "id": "SP105-2-28",
+          "subject": "社會政策與社會立法",
+          "year": "105",
+          "round": "第二次",
+          "qno": "28",
+          "major": "社會保險",
+          "topic": "年金制度 > 勞保與國保老年年金",
+          "match_reason": "事件詞：保險、勞保；同義考點：勞工保險",
+          "match_score": 5.2
+        },
+        {
+          "id": "SP104-1-06",
+          "subject": "社會政策與社會立法",
+          "year": "104",
+          "round": "第一次",
+          "qno": "6",
+          "major": "社會政策過程與決策",
+          "topic": "決策模式 > 菁英論與多元論",
+          "match_reason": "事件詞：保險；同義考點：勞工保險",
+          "match_score": 5.2
+        },
+        {
+          "id": "SP109-2-17",
+          "subject": "社會政策與社會立法",
+          "year": "109",
+          "round": "第二次",
+          "qno": "17",
+          "major": "社會保險",
+          "topic": "社會保險 > 職業災害保險特性",
+          "match_reason": "事件詞：保險、職業災害",
+          "match_score": 4.2
+        },
+        {
+          "id": "SP108-2-03",
+          "subject": "社會政策與社會立法",
+          "year": "108",
+          "round": "第二次",
+          "qno": "3",
+          "major": "社會政策過程與決策",
+          "topic": "社會政策起源 > 德國社會政策發源",
+          "match_reason": "事件詞：保險；題幹情境：勞工保險",
+          "match_score": 3.0
+        }
+      ],
+      "essay_direction": "可從「社會保險、就業安全、勞動權益與弱勢就業支持」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "勞動部",
+        "勞保",
+        "職業災害",
+        "勞工權益",
+        "最低工資",
+        "勞退",
+        "修正",
+        "保險"
+      ],
+      "evidence": [
+        {
+          "source_name": "勞動部新聞稿",
+          "source_url": "https://www.mol.gov.tw/1607/1632/1633/101409/",
+          "source_type": "official",
+          "published_at": "2026-11-27T13:50:16Z",
+          "item_id": "fe730cc7d03d754271b00129787bdd60"
+        }
+      ]
+    },
+    {
       "canonical_event_id": "38f4ad586894f7a50fff6227",
       "title": "勞動部修正發布《違反勞動基準法及最低工資法裁處罰鍰共通性原則》，納入最低工資規範，違法按次累加罰鍰",
       "category": "勞動與社會保障",
@@ -909,235 +1105,6 @@
       ]
     },
     {
-      "canonical_event_id": "ed66bd15fea06b0a898bb161",
-      "title": "雲林托嬰中心爆虐童！家長批行政裁罰過輕 縣府：違法嚴辦",
-      "category": "兒少保護",
-      "subjects": [
-        "社會工作",
-        "社會工作直接服務",
-        "社會政策與社會立法"
-      ],
-      "knowledge_root": "社會工作管理",
-      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
-      "management_domains": [
-        "品質與風險管理",
-        "服務輸送與跨網絡",
-        "倫理與權利保障",
-        "成效評估與證據"
-      ],
-      "exam_subject_axes": [
-        "社會工作直接服務",
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作",
-        "社會工作研究方法"
-      ],
-      "primary_exam_subject_axes": [
-        "社會工作直接服務",
-        "社會工作研究方法"
-      ],
-      "supporting_exam_subject_axes": [
-        "人類行為與社會環境",
-        "社會政策與社會立法",
-        "社會工作"
-      ],
-      "subject_topics": {
-        "社會工作直接服務": [
-          "兒少保護風險評估",
-          "家庭評估與危機介入"
-        ],
-        "人類行為與社會環境": [
-          "兒童發展、依附與創傷",
-          "家庭系統與風險保護因子"
-        ],
-        "社會政策與社會立法": [
-          "兒少福利與保護法制",
-          "責任通報與保護體系"
-        ],
-        "社會工作": [
-          "專業倫理與兒童最佳利益",
-          "權利倡導與社會正義"
-        ],
-        "社會工作研究方法": [
-          "統計與資料解讀"
-        ]
-      },
-      "knowledge_topics": [
-        "兒少保護",
-        "虐童",
-        "托嬰",
-        "通報"
-      ],
-      "knowledge_paths": [
-        "社會工作管理 > 品質與風險管理",
-        "社會工作管理 > 服務輸送與跨網絡",
-        "社會工作管理 > 倫理與權利保障",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 品質與風險管理 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 兒少福利與保護法制",
-        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 責任通報與保護體系",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理與兒童最佳利益",
-        "社會工作管理 > 倫理與權利保障 > 社會工作 > 權利倡導與社會正義",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 兒少保護風險評估",
-        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制",
-        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 責任通報與保護體系",
-        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 兒童發展、依附與創傷",
-        "社會工作管理 > 成效評估與證據",
-        "社會工作管理 > 品質與風險管理 > 社會工作研究方法 > 統計與資料解讀"
-      ],
-      "trend_state": "one-off",
-      "trend_score": 3.5,
-      "why": [
-        "歷屆同概念／事件詞關聯 37 題，跨 11 個年度；強 0／中 7／概念 30",
-        "最近相關題為 115 年（距題庫最新年度 0 年）",
-        "歷屆分布 3 個考科"
-      ],
-      "factors": {
-        "cross_source": 0.0,
-        "official_evidence": 0.0,
-        "policy_change": 0.0,
-        "historical_frequency": 1.12,
-        "historical_year_breadth": 0.52,
-        "recent_exam_support": 0.52,
-        "historical_subject_breadth": 0.45,
-        "law_relevance": 0.0,
-        "persistence": 0.0,
-        "essay_value": 0.55,
-        "mcq_density": 0.45,
-        "recency": 1.0
-      },
-      "source_count": 1,
-      "official_source_count": 0,
-      "observation_count": 1,
-      "first_seen": "2026-11-26T04:54:37Z",
-      "last_seen": "2026-11-26T06:40:49Z",
-      "related_laws": [],
-      "related_policy_instruments": [],
-      "law_link_status": "unresolved",
-      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
-      "law_link_basis": [],
-      "law_link_rules_schema": 1,
-      "historical_question_count": 37,
-      "historical_weighted_match_count": 4.0,
-      "historical_match_breakdown": {
-        "strong": 0,
-        "medium": 7,
-        "concept": 30
-      },
-      "historical_exam_years": [
-        104,
-        105,
-        106,
-        107,
-        109,
-        110,
-        111,
-        112,
-        113,
-        114,
-        115
-      ],
-      "latest_related_exam_year": 115,
-      "corpus_latest_exam_year": 115,
-      "years_since_last_related_exam": 0,
-      "historical_subject_counts": {
-        "社會工作": 11,
-        "社會工作直接服務": 3,
-        "社會政策與社會立法": 23
-      },
-      "historical_subject_count": 3,
-      "historical_law_match_count": 0,
-      "historical_law_match_years": [],
-      "historical_high_confidence_match_count": 0,
-      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
-      "related_exam_questions": [
-        {
-          "id": "SP115-1-21",
-          "subject": "社會政策與社會立法",
-          "year": "115",
-          "round": "第一次",
-          "qno": "21",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP112-1-23",
-          "subject": "社會政策與社會立法",
-          "year": "112",
-          "round": "第一次",
-          "qno": "23",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 托嬰中心監視設備",
-          "match_reason": "事件詞：托嬰；同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP110-2-28",
-          "subject": "社會政策與社會立法",
-          "year": "110",
-          "round": "第二次",
-          "qno": "28",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家式托育服務",
-          "match_reason": "同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP109-1-22",
-          "subject": "社會政策與社會立法",
-          "year": "109",
-          "round": "第一次",
-          "qno": "22",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家托育服務資格",
-          "match_reason": "同義考點：托育",
-          "match_score": 3.2
-        },
-        {
-          "id": "SP107-2-40",
-          "subject": "社會政策與社會立法",
-          "year": "107",
-          "round": "第二次",
-          "qno": "40",
-          "major": "兒少福利法規",
-          "topic": "兒少權法 > 居家托育消極資格",
-          "match_reason": "同義考點：托育",
-          "match_score": 3.2
-        }
-      ],
-      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
-      "mcq_focus": [
-        "虐童",
-        "托嬰",
-        "通報"
-      ],
-      "evidence": [
-        {
-          "source_name": "自由時報社會",
-          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5654200",
-          "source_type": "news",
-          "published_at": "2026-11-26T06:40:49Z",
-          "item_id": "8a90396df7c7806f89deaf7ce78d9de9"
-        },
-        {
-          "source_name": "自由時報社會",
-          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5654018",
-          "source_type": "news",
-          "published_at": "2026-11-26T04:54:37Z",
-          "item_id": "3b20b6842a9b3e1278eb3716bd231ad0"
-        }
-      ]
-    },
-    {
       "canonical_event_id": "013914bda3724e0a53937aa8",
       "title": "教育部持續強化學生住宿支持措施，減輕住宿負擔並保障學生居住權益",
       "category": "社會救助與居住",
@@ -1343,7 +1310,7 @@
         "社會工作管理 > 規劃與政策執行 > 社會政策與社會立法 > 精神衛生與社區支持制度",
         "社會工作管理 > 規劃與政策執行 > 社會工作 > 復元取向、去污名與權利保障"
       ],
-      "trend_state": "one-off",
+      "trend_state": "cooling",
       "trend_score": 2.9,
       "why": [
         "1 個官方來源",
@@ -1475,6 +1442,210 @@
           "source_type": "official",
           "published_at": "2026-11-17T06:41:00Z",
           "item_id": "9bbd5a5cb09be11df3f0ae1fc08d5aab"
+        }
+      ]
+    },
+    {
+      "canonical_event_id": "fec3218bddaa170bade20482",
+      "title": "保母棉被蓋頭悶死9月大女嬰 判刑4年8月確定",
+      "category": "兒少保護",
+      "subjects": [
+        "社會工作",
+        "社會工作直接服務",
+        "社會政策與社會立法"
+      ],
+      "knowledge_root": "社會工作管理",
+      "knowledge_model": "management-hierarchy-over-five-exam-subjects-v3",
+      "management_domains": [
+        "品質與風險管理",
+        "服務輸送與跨網絡",
+        "倫理與權利保障"
+      ],
+      "exam_subject_axes": [
+        "社會工作直接服務",
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "primary_exam_subject_axes": [
+        "社會工作直接服務"
+      ],
+      "supporting_exam_subject_axes": [
+        "人類行為與社會環境",
+        "社會政策與社會立法",
+        "社會工作"
+      ],
+      "subject_topics": {
+        "社會工作直接服務": [
+          "兒少保護風險評估",
+          "家庭評估與危機介入"
+        ],
+        "人類行為與社會環境": [
+          "兒童發展、依附與創傷",
+          "家庭系統與風險保護因子"
+        ],
+        "社會政策與社會立法": [
+          "兒少福利與保護法制",
+          "責任通報與保護體系"
+        ],
+        "社會工作": [
+          "專業倫理與兒童最佳利益",
+          "權利倡導與社會正義"
+        ]
+      },
+      "knowledge_topics": [
+        "兒少保護",
+        "托嬰",
+        "保母"
+      ],
+      "knowledge_paths": [
+        "社會工作管理 > 品質與風險管理",
+        "社會工作管理 > 服務輸送與跨網絡",
+        "社會工作管理 > 倫理與權利保障",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 品質與風險管理 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 品質與風險管理 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 兒少福利與保護法制",
+        "社會工作管理 > 服務輸送與跨網絡 > 社會政策與社會立法 > 責任通報與保護體系",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 專業倫理與兒童最佳利益",
+        "社會工作管理 > 倫理與權利保障 > 社會工作 > 權利倡導與社會正義",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 兒少保護風險評估",
+        "社會工作管理 > 倫理與權利保障 > 社會工作直接服務 > 家庭評估與危機介入",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 兒少福利與保護法制",
+        "社會工作管理 > 倫理與權利保障 > 社會政策與社會立法 > 責任通報與保護體系",
+        "社會工作管理 > 倫理與權利保障 > 人類行為與社會環境 > 兒童發展、依附與創傷"
+      ],
+      "trend_state": "one-off",
+      "trend_score": 2.5,
+      "why": [
+        "歷屆同概念／事件詞關聯 7 題，跨 6 個年度；強 0／中 7／概念 0",
+        "最近相關題為 115 年（距題庫最新年度 0 年）"
+      ],
+      "factors": {
+        "cross_source": 0.0,
+        "official_evidence": 0.0,
+        "policy_change": 0.0,
+        "historical_frequency": 0.84,
+        "historical_year_breadth": 0.47,
+        "recent_exam_support": 0.52,
+        "historical_subject_breadth": 0.0,
+        "law_relevance": 0.0,
+        "persistence": 0.0,
+        "essay_value": 0.55,
+        "mcq_density": 0.0,
+        "recency": 1.0
+      },
+      "source_count": 1,
+      "official_source_count": 0,
+      "observation_count": 1,
+      "first_seen": "2026-11-27T03:22:51Z",
+      "last_seen": "2026-11-27T03:22:51Z",
+      "related_laws": [],
+      "related_policy_instruments": [],
+      "law_link_status": "unresolved",
+      "law_link_note": "目前沒有足夠高信心的法規／制度連結；保留待來源核對，不為提高覆蓋率而硬配法規。",
+      "law_link_basis": [],
+      "law_link_rules_schema": 1,
+      "historical_question_count": 7,
+      "historical_weighted_match_count": 3.0,
+      "historical_match_breakdown": {
+        "strong": 0,
+        "medium": 7,
+        "concept": 0
+      },
+      "historical_exam_years": [
+        104,
+        107,
+        109,
+        110,
+        112,
+        115
+      ],
+      "latest_related_exam_year": 115,
+      "corpus_latest_exam_year": 115,
+      "years_since_last_related_exam": 0,
+      "historical_subject_counts": {
+        "社會政策與社會立法": 7
+      },
+      "historical_subject_count": 1,
+      "historical_law_match_count": 0,
+      "historical_law_match_years": [],
+      "historical_high_confidence_match_count": 0,
+      "historical_stats_method": "max-quality-member-plus-year-union-v2.2",
+      "related_exam_questions": [
+        {
+          "id": "SP115-1-21",
+          "subject": "社會政策與社會立法",
+          "year": "115",
+          "round": "第一次",
+          "qno": "21",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家式托育服務",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP112-1-23",
+          "subject": "社會政策與社會立法",
+          "year": "112",
+          "round": "第一次",
+          "qno": "23",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 托嬰中心監視設備",
+          "match_reason": "事件詞：托嬰；同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP110-2-28",
+          "subject": "社會政策與社會立法",
+          "year": "110",
+          "round": "第二次",
+          "qno": "28",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家式托育服務",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP109-1-22",
+          "subject": "社會政策與社會立法",
+          "year": "109",
+          "round": "第一次",
+          "qno": "22",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家托育服務資格",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        },
+        {
+          "id": "SP107-2-40",
+          "subject": "社會政策與社會立法",
+          "year": "107",
+          "round": "第二次",
+          "qno": "40",
+          "major": "兒少福利法規",
+          "topic": "兒少權法 > 居家托育消極資格",
+          "match_reason": "同義考點：托育",
+          "match_score": 3.2
+        }
+      ],
+      "essay_direction": "可從「兒少最佳利益、責任通報、跨網絡合作與制度漏洞」切入，分析問題成因、社工角色、政策／服務回應與制度改善；此為練習方向，不代表命題保證。",
+      "mcq_focus": [
+        "托嬰",
+        "保母"
+      ],
+      "evidence": [
+        {
+          "source_name": "自由時報社會",
+          "source_url": "https://news.ltn.com.tw/news/society/breakingnews/5655082",
+          "source_type": "news",
+          "published_at": "2026-11-27T03:22:51Z",
+          "item_id": "0cdb9e5389c677b2e269501b25596969"
         }
       ]
     },
