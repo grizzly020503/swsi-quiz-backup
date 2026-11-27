@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - 'scripts/legal_history_fetch.py'
+      - 'scripts/legal_watch_names_from_bank.py'
       - 'scripts/legal_oldver_fetch.py'
       - 'scripts/legal_document_fetch.py'
       - 'audit/legal_document_requests.json'
@@ -38,6 +39,10 @@ jobs:
       - name: Print requested old versions (LawOldVer)
         run: python scripts/legal_oldver_fetch.py
       - run: python scripts/legal_history_fetch.py --out /tmp/legal-history.json
+      - name: Laws the question bank cites that the watch list lacks (print only)
+        run: |
+          python scripts/legal_watch_names_from_bank.py --selftest
+          python scripts/legal_watch_names_from_bank.py --report
       - name: Print amendment histories (log is the evidence channel)
         run: |
           python - <<'PY'
