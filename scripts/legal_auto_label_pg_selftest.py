@@ -27,7 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MIGRATIONS = ROOT / 'supabase/migrations'
 MIGRATION = MIGRATIONS / '20261127100000_legal_auto_label.sql'
-EXTRACTOR = MIGRATIONS / '20261003184700_normalize_legal_canonical_input_nfkc.sql'
+EXTRACTOR = MIGRATIONS / '20261128090000_legal_names_from_registry.sql'
 PASS = 'LEGAL_AUTO_LABEL_PG_SELFTEST_PASS'
 COMPAT_NIAN = '年'  # CJK COMPATIBILITY IDEOGRAPH-F98E, NFKC -> 年
 
@@ -39,18 +39,18 @@ def psql(sql):
 
 
 def extractor_sql():
-    """The repository extractor, minus its NFKC step: production never applied
-    20261003184700 (checked 2026-11-27), so the auto-label rule must normalise
-    its own input. Using the production-equivalent extractor proves that."""
+    """The production extractor (20261128090000: the 52 baseline names plus the
+    registry). It has no NFKC step: production never applied 20261003184700
+    (checked 2026-11-27), so the auto-label rule must normalise its own input.
+    Using the production-equivalent extractor proves that."""
     text = EXTRACTOR.read_text(encoding='utf-8')
     m = re.search(r'create or replace function public\.extract_legal_canonical_names\(raw_law text\).*?\n\$function\$;',
                   text, re.S)
     if not m:
         raise SystemExit('extractor not found in ' + EXTRACTOR.name)
-    nfkc = "normalize(coalesce(raw_law, ''), NFKC)"
-    if m.group(0).count(nfkc) != 1:
-        raise SystemExit('extractor NFKC step not found; update the production-equivalent copy')
-    return m.group(0).replace(nfkc, "coalesce(raw_law, '')")
+    if 'normalize(' in m.group(0):
+        raise SystemExit('extractor normalises its input; update the production-equivalent copy and this test')
+    return m.group(0)
 
 
 def build_sql():
