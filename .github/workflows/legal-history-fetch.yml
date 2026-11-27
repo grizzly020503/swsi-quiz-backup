@@ -39,10 +39,6 @@ jobs:
       - name: Print requested old versions (LawOldVer)
         run: python scripts/legal_oldver_fetch.py
       - run: python scripts/legal_history_fetch.py --out /tmp/legal-history.json
-      - name: Laws the question bank cites that the watch list lacks (print only)
-        run: |
-          python scripts/legal_watch_names_from_bank.py --selftest
-          python scripts/legal_watch_names_from_bank.py --report
       - name: Print amendment histories (log is the evidence channel)
         run: |
           python - <<'PY'
@@ -58,3 +54,8 @@ jobs:
           name: legal-history
           path: /tmp/legal-history.json
           retention-days: 30
+      # Last, so the short report is the tail of the log after the long dumps.
+      - name: Laws the question bank cites that the watch list lacks (print only)
+        run: |
+          python scripts/legal_watch_names_from_bank.py --selftest
+          python scripts/legal_watch_names_from_bank.py --report
