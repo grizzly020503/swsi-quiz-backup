@@ -154,6 +154,12 @@ def live_state(rows_live: list) -> str:
         return dt.datetime.fromisoformat(a.replace('Z', '+00:00')) == dt.datetime.fromisoformat(b.replace('Z', '+00:00'))
     if all(same(r, rows[r['id']]['after']) for r in rows_live):
         return 'LIVE_RELEASED_POSTIMAGES'
+    # The weekly MOJ law watch may flag released rows and a later batch may
+    # re-review them; no other change is accepted.
+    from legal_live_transitions import released_with_transitions
+    transitions = released_with_transitions(PROOF, rows_live, rows, same)
+    if transitions:
+        return transitions
     require(all(same(r, rows[r['id']]['before']) for r in rows_live),
             'production differs from both the recorded preimage and the approved postimage')
     return 'LIVE_NOT_YET_APPLIED'

@@ -17,8 +17,9 @@ guarded release, so the guard chain can no longer be replayed against the
 working tree. It is replayed against the shards at CHAIN_ANCHOR instead: the
 main commit where every earlier guarded release (official repairs and legal
 batches 1-35) is the last change to the shards. The working tree is still
-checked: batch rows must carry the recorded legal fields (or a later
-recorded change) once the publish has caught up.
+checked: each batch row carries its recorded preimage (publish not caught up
+yet), its recorded postimage, or the flag the weekly MOJ law watch writes when
+a cited law is amended (scripts/legal_live_transitions.py). Anything else fails.
 """
 import argparse
 import json
@@ -26,6 +27,8 @@ import re
 import subprocess
 import tempfile
 from pathlib import Path
+
+from legal_live_transitions import is_monitor_flip, same_legal, watched_law_names
 
 ROOT = Path(__file__).resolve().parents[1]
 PROOF = 'audit/legal_status_batch36_20261127.json'
@@ -127,20 +130,25 @@ def anchor_rows(root: Path) -> dict:
 
 
 def check_shards(root: Path, proof: dict, allow_pending_publish: bool) -> str:
-    """Batch rows in a shard tree: recorded preimage (publish not caught up yet)
-    or recorded postimage. Anything else fails."""
+    """Batch rows in a shard tree: recorded preimage (publish not caught up yet),
+    recorded postimage, or the weekly MOJ law watch's flag published from
+    production. Anything else fails."""
     rows = anchor_rows(root)
-    published = pending = 0
+    watched = watched_law_names(ROOT)
+    published = pending = flagged = 0
     for ident, record in proof['rows'].items():
         require(ident in rows, 'batch row missing from shards ' + ident)
         legal = {k: rows[ident].get(k) for k in LEGAL_FIELDS}
-        if legal == record['after']:
+        if same_legal(legal, record['after']):
             published += 1
-        elif legal == record['before'] and allow_pending_publish:
+        elif same_legal(legal, record['before']) and allow_pending_publish:
             pending += 1
+        elif is_monitor_flip(legal, watched):
+            flagged += 1
         else:
             require(False, 'shard legal fields differ from both recorded images ' + ident)
-    return f'{published} published, {pending} awaiting the weekly publish'
+    state = f'{published} published, {pending} awaiting the weekly publish'
+    return state + (f', {flagged} flagged by the MOJ law watch' if flagged else '')
 
 
 def replay(root: Path, selftest: bool) -> None:
@@ -193,21 +201,46 @@ def negative_selftest() -> None:
                 rejected += 1
                 continue
             raise AssertionError('tamper accepted: case ' + str(n))
-    with tempfile.TemporaryDirectory(prefix='swsi-legal-batch36-shard-negative-') as tmp:
-        anchor = materialize_anchor(Path(tmp))
-        path = anchor / 'cdn/question-shards' / next(
-            e['file'] for e in json.loads((anchor / 'cdn/question-shards/manifest.json').read_text(encoding='utf-8'))['shards']
-            if any(r['id'] == ident for r in json.loads((anchor / 'cdn/question-shards' / e['file']).read_text(encoding='utf-8'))['questions']))
-        payload = json.loads(path.read_text(encoding='utf-8'))
-        next(r for r in payload['questions'] if r['id'] == ident)['legal_note'] = 'unrecorded edit'
-        path.write_text(json.dumps(payload, ensure_ascii=False), encoding='utf-8')
+    law = next(n for n in proof['rows'][ident]['laws'])
+    url = proof['rows'][ident]['after']['legal_source_url']
+    flag = {'legal_status': 'changed', 'legal_checked_at': None, 'legal_source_url': url,
+            'legal_note': f'監測到《{law}》官方修正日期變動，但條文差異無法可靠解析；本題依保守策略重新核對。'}
+    shard_cases = [
+        ({'legal_note': 'unrecorded edit'}, False),
+        (dict(flag, legal_note=flag['legal_note'].replace(law, '未追蹤的法')), False),
+        (dict(flag, legal_checked_at='2026-11-30T02:35:00+00:00'), False),
+        (dict(flag, legal_status='verified_current'), False),
+        (flag, True),
+    ]
+    for edit, allowed in shard_cases:
+        with tempfile.TemporaryDirectory(prefix='swsi-legal-batch36-shard-negative-') as tmp:
+            anchor = materialize_anchor(Path(tmp))
+            path = anchor / 'cdn/question-shards' / next(
+                e['file'] for e in json.loads((anchor / 'cdn/question-shards/manifest.json').read_text(encoding='utf-8'))['shards']
+                if any(r['id'] == ident for r in json.loads((anchor / 'cdn/question-shards' / e['file']).read_text(encoding='utf-8'))['questions']))
+            payload = json.loads(path.read_text(encoding='utf-8'))
+            next(r for r in payload['questions'] if r['id'] == ident).update(edit)
+            path.write_text(json.dumps(payload, ensure_ascii=False), encoding='utf-8')
+            try:
+                state = check_shards(anchor, proof, allow_pending_publish=True)
+            except SystemExit:
+                require(not allowed, 'law-watch flag rejected in shards')
+                rejected += 1
+            else:
+                require(allowed and state.endswith('1 flagged by the MOJ law watch'), 'unrecorded shard edit accepted')
+    released = [dict(r['after'], id=i) for i, r in proof['rows'].items()]
+    require(live_state(released) == 'LIVE_RELEASED_POSTIMAGES', 'released live rows not recognised')
+    flagged = [dict(r, **flag) if r['id'] == ident else r for r in released]
+    require(live_state(flagged).startswith('LIVE_RELEASED_WITH_TRANSITIONS (1 flagged'), 'law-watch flag rejected live')
+    for edit in ({'legal_note': 'unrecorded edit'}, {'legal_checked_at': '2026-11-30T02:35:00+00:00'}):
         try:
-            check_shards(anchor, proof, allow_pending_publish=True)
+            live_state([{**r, **flag, **edit} if r['id'] == ident else r for r in released])
         except SystemExit:
             rejected += 1
         else:
-            raise AssertionError('unrecorded shard edit accepted')
-    print(f'LEGAL STATUS BATCH36 NEGATIVES PASS: {rejected} unauthorized changes rejected')
+            raise AssertionError('unrecorded live edit accepted')
+    print(f'LEGAL STATUS BATCH36 NEGATIVES PASS: {rejected} unauthorized changes rejected; '
+          'the weekly law-watch flag is accepted in shards and live')
 
 
 def live_state(rows_live: list) -> str:
@@ -225,6 +258,12 @@ def live_state(rows_live: list) -> str:
         return dt.datetime.fromisoformat(a.replace('Z', '+00:00')) == dt.datetime.fromisoformat(b.replace('Z', '+00:00'))
     if all(same(r, rows[r['id']]['after']) for r in rows_live):
         return 'LIVE_RELEASED_POSTIMAGES'
+    # The weekly MOJ law watch may flag released rows and a later batch may
+    # re-review them; no other change is accepted.
+    from legal_live_transitions import released_with_transitions
+    transitions = released_with_transitions(PROOF, rows_live, rows, same)
+    if transitions:
+        return transitions
     require(all(same(r, rows[r['id']]['before']) for r in rows_live),
             'production differs from both the recorded preimage and the approved postimage')
     return 'LIVE_NOT_YET_APPLIED'
