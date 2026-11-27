@@ -53,7 +53,10 @@ def main():
     # needed for a per-question review; matched by exact MOJ name, print-only.
     req = json.loads((ROOT / 'audit/legal_history_oldver_requests.json').read_text(encoding='utf-8'))
     extra = set(req.get('extra_laws') or [])
-    out = {'source': list(APIS), 'update_dates': [], 'laws': {}}
+    # Name fragments for laws whose exact MOJ name is not known yet: every
+    # corpus law or order whose name contains one is kept and its name printed.
+    patterns = [p for p in req.get('extra_law_name_contains') or [] if p]
+    out = {'source': list(APIS), 'update_dates': [], 'laws': {}, 'pattern_matches': {}}
     for url in APIS:
         payload = download(url)
         out['update_dates'].append(payload.get('UpdateDate'))
@@ -61,10 +64,14 @@ def main():
             m = re.search(r'pcode=([A-Za-z0-9]+)', law.get('LawURL') or '')
             if not m:
                 continue
+            name = law.get('LawName') or ''
+            hits = [p for p in patterns if p in name]
+            for p in hits:
+                out['pattern_matches'].setdefault(p, []).append({'name': name, 'pcode': m.group(1).upper()})
             if m.group(1).upper() in want:
                 key = want[m.group(1).upper()]
-            elif law.get('LawName') in extra:
-                key = law.get('LawName')
+            elif name in extra or hits:
+                key = name
             else:
                 continue
             out['laws'][key] = {
@@ -78,6 +85,8 @@ def main():
     out['missing'] = sorted((set(want.values()) | extra) - set(out['laws']))
     Path(args.out).write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding='utf-8')
     print('laws:', len(out['laws']), 'missing:', out['missing'])
+    for p, rows in sorted(out['pattern_matches'].items()):
+        print('name contains', p, '->', json.dumps(rows, ensure_ascii=False))
 
 
 if __name__ == '__main__':

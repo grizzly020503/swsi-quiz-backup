@@ -154,6 +154,12 @@ def live_state(rows_live: list) -> str:
         return dt.datetime.fromisoformat(a.replace('Z', '+00:00')) == dt.datetime.fromisoformat(b.replace('Z', '+00:00'))
     if all(same(r, rows[r['id']]['after']) for r in rows_live):
         return 'LIVE_RELEASED_POSTIMAGES'
+    # The weekly MOJ law watch may flag released rows and a later batch may
+    # re-review them; no other change is accepted.
+    from legal_live_transitions import released_with_transitions
+    transitions = released_with_transitions(PROOF, rows_live, rows, same)
+    if transitions:
+        return transitions
     require(all(same(r, rows[r['id']]['before']) for r in rows_live),
             'production differs from both the recorded preimage and the approved postimage')
     return 'LIVE_NOT_YET_APPLIED'
@@ -188,7 +194,7 @@ if __name__ == '__main__':
         raise SystemExit(0)
     # A later owner-approved release moved the current corpus; the newest
     # guard rebuilds this release's exact successor state and replays it.
-    from legal_status_batch35_release_guard import replay as replay_newest
+    from legal_status_batch36_release_guard import replay as replay_newest
     replay_newest(ROOT, args.selftest)
     print('LEGAL STATUS BATCH7 RELEASE PASS: 34 rows verified_current and 0 changed after per-article review; '
           'only legal metadata changed; exact predecessor and full earlier release chain replayed')
