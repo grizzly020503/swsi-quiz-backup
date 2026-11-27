@@ -100,7 +100,9 @@ def verify_transition(rows, live=False):
         return 'EXACT_RELEASED_POSTIMAGES'
     for row in rows:
         assert row_hash(canonical_row(row,MCQ_FIELDS))==CORES[row['id']]
-        assert row['analysis_status']=='pending'
+        # As in production: the explanation the release cleared to pending may
+        # since have been generated and published (pending -> ready/review).
+        assert row['analysis_status'] in ('pending','ready','review')
     return 'APPROVED_SOURCE_RELEASE_LOCAL'
 
 if __name__=='__main__':
