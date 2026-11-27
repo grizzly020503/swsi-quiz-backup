@@ -1,9 +1,15 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { isTransient, MODEL_UNAVAILABLE, PROVIDER_UNAVAILABLE, providerFailure } from "./provider_errors.ts";
 
 const AI_PROXY_URL = "https://wandering-wave-4418.c022050333.workers.dev/api/ai";
 const DRAFT_MODEL = "qwen/qwen3.8-27b";
 const AUDIT_MODEL = "openai/gpt-oss-120b";
+// If a model is retired or not allowlisted, the other internal model does its step.
+const FALLBACK: Record<string, { model: string; reasoning: string }> = {
+  [DRAFT_MODEL]: { model: AUDIT_MODEL, reasoning: "low" },
+  [AUDIT_MODEL]: { model: DRAFT_MODEL, reasoning: "none" },
+};
 const FORMAT_ARTIFACT_TOKENS = new Set(["na", "nb", "nc", "nd"]);
 const MISTAKES = new Set(["概念混淆", "法規混淆", "理論人物混淆", "流程順序錯誤", "計算邏輯錯誤", "關鍵字漏看", "題幹誤讀"]);
 const MAJORS: Record<string, string[]> = {
@@ -59,7 +65,16 @@ async function callModel(model: string, prompt: string, reasoning: string, maxTo
       if (attempt < 3) { await delay((w + 1) * 1000); continue; }
       throw new Error(last);
     }
-    if (!r.ok) throw new Error(`AI ${model} HTTP ${r.status}: ${text.slice(0, 300)}`);
+    if (!r.ok) {
+      const kind = providerFailure(r.status, text);
+      if (kind === "model_unavailable") throw new Error(`AI ${model} ${MODEL_UNAVAILABLE} HTTP ${r.status}: ${text.slice(0, 300)}`);
+      if (kind === "provider_down") {
+        last = `AI ${model} ${PROVIDER_UNAVAILABLE} HTTP ${r.status}: ${text.slice(0, 300)}`;
+        if (attempt < 2) { await delay((attempt + 1) * 5000); continue; }
+        throw new Error(last);
+      }
+      throw new Error(`AI ${model} HTTP ${r.status}: ${text.slice(0, 300)}`);
+    }
     const data: any = JSON.parse(text), content = data?.choices?.[0]?.message?.content;
     if (typeof content !== "string") throw new Error(`AI ${model} response shape invalid`);
     try {
@@ -76,6 +91,15 @@ async function callModel(model: string, prompt: string, reasoning: string, maxTo
     }
   }
   throw new Error(last || `AI ${model} failed`);
+}
+async function callWithFallback(model: string, prompt: string, reasoning: string, maxTokens: number, internalKey: string) {
+  try {
+    return await callModel(model, prompt, reasoning, maxTokens, internalKey);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e), alt = FALLBACK[model];
+    if (!msg.includes(MODEL_UNAVAILABLE) || !alt) throw e;
+    return await callModel(alt.model, prompt, alt.reasoning, maxTokens, internalKey);
+  }
 }
 function asciiTokens(s: string) { return new Set((s.match(/[A-Za-z][A-Za-z0-9'’-]*/g) || []).map((x) => x.toLowerCase())); }
 function numberTokens(s: string) { return new Set(s.match(/\d+(?:[.,]\d+)?/g) || []); }
@@ -125,11 +149,11 @@ function auditRepairPrompt(q: any, draft: any, failure: string) {
   return `${auditPrompt(q, draft)}\n上一版未通過結構驗證：${failure}\n請只修正這個問題與必要連帶欄位，仍須遵守全部原規則，重新輸出完整 JSON array。`;
 }
 async function analyzeOne(q: any, internalKey: string) {
-  const draftRows = await callModel(DRAFT_MODEL, initialPrompt(q), "none", 1400, internalKey);
+  const draftRows = await callWithFallback(DRAFT_MODEL, initialPrompt(q), "none", 1400, internalKey);
   if (!Array.isArray(draftRows) || draftRows.length !== 1) throw new Error("草稿格式異常");
   let prompt = auditPrompt(q, draftRows[0]), lastValidation = "";
   for (let auditAttempt = 0; auditAttempt < 2; auditAttempt++) {
-    const finalRows = await callModel(AUDIT_MODEL, prompt, "medium", 1500, internalKey);
+    const finalRows = await callWithFallback(AUDIT_MODEL, prompt, "medium", 1500, internalKey);
     try {
       return validateFinal(q, finalRows);
     } catch (e) {
@@ -143,7 +167,6 @@ async function analyzeOne(q: any, internalKey: string) {
   }
   throw new Error(lastValidation || "AI 最終驗證失敗");
 }
-function isTransient(msg: string) { return /HTTP 429|rate limit|fetch failed|network|timed?\s*out|temporar/i.test(msg); }
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);

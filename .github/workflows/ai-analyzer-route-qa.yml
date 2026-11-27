@@ -6,6 +6,8 @@ on:
       - 'supabase/functions/analyze-pending-questions/index.ts'
       - 'supabase/functions/analyze-pending-questions/current_legal_trust.ts'
       - 'supabase/functions/analyze-pending-questions/current_legal_trust_test.ts'
+      - 'supabase/functions/analyze-pending-questions/provider_errors.ts'
+      - 'supabase/functions/analyze-pending-questions/provider_errors_test.ts'
       - 'cloudflare/wandering-wave-4418/worker.js'
       - 'scripts/cloudflare_worker_smoke.js'
       - 'ai_eval/golden_set.json'
@@ -29,6 +31,8 @@ on:
       - 'supabase/functions/analyze-pending-questions/index.ts'
       - 'supabase/functions/analyze-pending-questions/current_legal_trust.ts'
       - 'supabase/functions/analyze-pending-questions/current_legal_trust_test.ts'
+      - 'supabase/functions/analyze-pending-questions/provider_errors.ts'
+      - 'supabase/functions/analyze-pending-questions/provider_errors_test.ts'
       - 'cloudflare/wandering-wave-4418/worker.js'
       - 'scripts/cloudflare_worker_smoke.js'
       - 'ai_eval/golden_set.json'
@@ -74,4 +78,6 @@ jobs:
           python scripts/analyzer_retry_contract_smoke.py
           python scripts/analyzer_enrichment_route_plan_selftest.py
           deno test supabase/functions/analyze-pending-questions/current_legal_trust_test.ts
+          deno test supabase/functions/analyze-pending-questions/provider_errors_test.ts
+          deno check supabase/functions/analyze-pending-questions/provider_errors.ts
           deno check supabase/functions/analyze-pending-questions/current_legal_trust.ts
